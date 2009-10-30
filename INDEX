@@ -25,4 +25,5 @@ print.meta              Print and summary method for objects of class
                         meta
 read.mtv                Import RevMan 4 data files (.mtv)
 read.rm5                Import RevMan 5 data files (.csv)
-trimfill                Trim and fill method for meta-analysis
+trimfill                Generic function for trim-and-fill method
+trimfill.meta           Trim and fill method for meta-analysis

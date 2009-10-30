@@ -3,7 +3,7 @@ export(ci, forest, funnel, funnel.default, funnel.meta,
        metabias, metabin, metacont, metacr, metaprop,
        metacum, metagen, metainf, radial, read.mtv, read.rm5,
        plot.meta, print.meta, print.metabias, print.summary.meta,
-       summary.meta, trimfill,
+       summary.meta, trimfill, trimfill.default, trimfill.meta,
        labbe, labbe.default, labbe.metabin)
 
 # not visible
@@ -18,5 +18,7 @@ S3method(funnel, default)
 S3method(funnel, meta)
 S3method(labbe, default)
 S3method(labbe, metabin)
+S3method(trimfill, default)
+S3method(trimfill, meta)
 
 #useDynLib(meta)

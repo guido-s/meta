@@ -24,10 +24,6 @@ funnel.default <- function(x, y,
   if (is.logical(studlab) && studlab)
     studlab <- seq(along=TE)
   
-  if (length(level)==0){
-    level <- NULL
-  }
-  
   
   if(length(TE) != length(seTE))
     stop("length of argument TE and seTE must be equal")
