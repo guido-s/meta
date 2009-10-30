@@ -1,0 +1,22 @@
+export(ci, forest, funnel, funnel.default, funnel.meta,
+       addvar, as.data.frame.meta,
+       metabias, metabin, metacont, metacr, metaprop,
+       metacum, metagen, metainf, radial, read.mtv, read.rm5,
+       plot.meta, print.meta, print.metabias, print.summary.meta,
+       summary.meta, trimfill,
+       labbe, labbe.default, labbe.metabin)
+
+# not visible
+# format.p, meta-internal, p.ci, rmSpace
+
+S3method(as.data.frame, meta)
+S3method(plot, meta)
+S3method(print, meta)
+S3method(print, summary.meta)
+S3method(summary, meta)
+S3method(funnel, default)
+S3method(funnel, meta)
+S3method(labbe, default)
+S3method(labbe, metabin)
+
+#useDynLib(meta)

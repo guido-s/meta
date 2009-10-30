@@ -1,0 +1,135 @@
+\name{print.meta}
+
+\alias{print.meta}
+\alias{print.metabias}
+\alias{summary.meta}
+\alias{print.summary.meta}
+
+\title{Print and summary method for objects of class meta}
+
+\description{
+  Print and summary method for objects of class \code{meta}.
+}
+
+\usage{
+\method{print}{meta}(x, sortvar, level=x$level, level.comb=x$level.comb,
+        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+        details=FALSE, ma=TRUE, digits=max(4, .Options$digits - 3), ...)
+
+\method{print}{metabias}(x, ...)
+
+\method{summary}{meta}(object, byvar=object$byvar,
+        bylab=object$bylab, print.byvar=object$print.byvar,
+        bystud=FALSE,
+        level=object$level, level.comb=object$level.comb,
+        comb.fixed=object$comb.fixed, comb.random=object$comb.random,
+        warn=TRUE, ...)
+
+\method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
+        print.byvar,
+        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+        header=TRUE, ...)
+}
+
+\arguments{
+  \item{x}{An object of class \code{meta}, \code{metabias}, or
+    \code{summary.meta}.}
+  \item{object}{An object of class \code{meta}.}
+  \item{sortvar}{An optional vector used to sort the individual studies
+    (must be of same length as \code{x$TE}).}
+  \item{level}{The level used to calculate confidence intervals for
+    individual studies.}
+  \item{level.comb}{The level used to calculate confidence intervals for
+    pooled estimates.}
+  \item{comb.fixed}{A logical indicating whether a fixed effect
+    meta-analysis should be conducted.}
+  \item{comb.random}{A logical indicating whether a random effects
+    meta-analysis should be conducted.}
+  \item{header}{A logical indicating whether information on title of
+    meta-analysis, comparison and outcome should be printed at the
+    beginning of the printout.}
+  \item{details}{A logical indicating whether further details of
+    individual studies should be printed.}
+  \item{ma}{A logical indicating whether the summary results of the
+    meta-analysis should be printed.}
+  \item{byvar}{An optional vector containing grouping information (must
+    be of same length as \code{x$TE}).}
+  \item{bylab}{A character string with a label for the grouping variable.}
+  \item{bystud}{A logical indicating whether results of individual
+    studies should be printed by grouping variable.}
+  \item{digits}{Minimal number of significant digits, see \code{print.default}.}
+  \item{print.byvar}{A logical indicating whether the name of the grouping
+    variable should be printed in front of the group labels. By default,
+    the value of \code{print.byvar} is set to \code{TRUE}.}
+  \item{warn}{A logical indicating whether the use of
+  \code{summary.meta} in connection with \code{metacum} or
+  \code{metainf} should result in a warning.}
+  \item{...}{other arguments}
+}
+
+\details{
+  Review Manager 5 (RevMan 5) is the current software used for
+  preparing and maintaining Cochrane Reviews
+  (\url{http://www.cc-ims.net/revman/}). In RevMan 5, subgroup analyses
+  can be defined and data from a Cochrane review can be imported to R using the
+  function \code{read.rm5}. If a meta-analysis is then conducted using
+  function \code{metacr}, information on subgroups is available in R
+  (components \code{byvar}, \code{bylab}, and \code{print.byvar},
+  \code{byvar} in an object of class \code{"meta"}). Accordingly, by using function
+  \code{metacr} there is no need to define subgroups in order to redo
+  the statistical analysis conducted in the Cochrane review.
+}
+
+\value{
+  A list is returned by the function \code{summary.meta} with the
+  following elements:
+  \item{study}{Results for individual studies (a list with elements TE,
+    seTE, lower, upper, z, p, level).}
+  \item{fixed}{Results for fixed effect model (a list with elements TE,
+    seTE, lower, upper, z, p, level).}
+  \item{random}{Results for random effects model (a list with elements
+    TE, seTE, lower, upper, z, p, level).}
+  \item{k}{Number of studies combined in meta-analysis.}
+  \item{Q}{Heterogeneity statistic Q.}
+  \item{tau}{Square-root of between-study variance (moment estimator of
+    DerSimonian-Laird).}
+  \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
+  \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
+    upper), see Higgins & Thompson (2002).}
+  \item{k.all}{Total number of trials.}
+  \item{Q.CMH}{Cochrane-Mantel-Haenszel heterogeneity statistic.}
+  \item{sm}{A character string indicating underlying summary measure.}
+  \item{method}{A character string with the pooling method.}
+  \item{call}{Function call.}
+  \item{ci.lab}{Label for confidence interval.}
+  \item{within}{Results within groups (a list with elements TE, seTE,
+    lower, upper, z, p, level) - if \code{byvar} is not missing.}
+  \item{k.w}{Number of studies combined within groups - if \code{byvar} is not missing.}
+  \item{Q.w}{Heterogeneity statistic Q within groups - if \code{byvar} is not missing.}
+  \item{bylab}{Label for grouping variable - if \code{byvar} is not missing.}
+  \item{by.levs}{Levels of grouping variable - if \code{byvar} is not missing.}
+  \item{comb.fixed, comb.random}{As defined above.}
+}
+
+\references{
+  Cooper H & Hedges LV (1994),
+  \emph{The Handbook of Research Synthesis}.
+  Newbury Park, CA: Russell Sage Foundation.
+
+  Higgins JPT & Thompson SG (2002),
+  Quantifying heterogeneity in a meta-analysis.
+  \emph{Statistics in Medicine}, \bold{21}, 1539--1558.
+}
+
+\author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
+
+\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
+
+\examples{
+data(Fleiss93cont)
+meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="SMD")
+summary(meta1)
+summary(meta1, byvar=c(1,2,1,1,2), bylab="group")
+}
+
+\keyword{print}

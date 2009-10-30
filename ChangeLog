@@ -1,0 +1,45 @@
+
+2009-10-09, version 1.1-2
+
+New functions labbe, labbe.default, labbe.metabin:
+ - produce L'Abbe plots
+
+New functions funnel, funnel.default and funnel.meta:
+ - generic method for funnel plots
+
+Functions funnel.default and funnel.meta:
+ - modified so that contour-enhanced funnel plots can be produced
+   (new arguments: contour.levels, col.contour, ref)
+ - modified so that study labels can be printed on funnel plot
+   (new arguments: studlab, cex.studlab)
+ - modified so that line type, width and colour can be changed for
+   fixed effect treatment effect
+   (new arguments: lty.fixed, lwd.fixed, col.fixed)
+ - modified so that random effects treatment effect can be plotted
+   (new arguments: comb.random, lty.random, lwd.random, col.random)
+ - new default values for arguments:
+   * pch=21 (previously: pch=1)
+   * comb.fixed=x$comb.fixed
+ - modified so that background colour of points in funnel plot can
+   be changed
+   (new argument: bg)
+
+Function forest:
+- new default values for arguments lab.e and lab.c: x$label.e and
+  x$label.c, respectively. If these values are NULL the old default
+  values "Experimental" and "Control" are used.
+
+Functions metabin, metacont, metagen:
+- arguments label.e and label.c added
+
+Function metacr:
+- use arguments label.e and label.c in calls to functions
+  metabin, metacont, metagen
+
+
+2009-08-31, version 1.0-6
+
+First major version released on CRAN
+
+
+No changelog available for versions < 1.0

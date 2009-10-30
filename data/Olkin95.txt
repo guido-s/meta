@@ -1,0 +1,71 @@
+"author" "year" "event.e" "n.e" "event.c" "n.c"
+"Fletcher" 1959   1   12    4   11
+"Dewar" 1963   4   21    7   21
+"Lippschutz" 1965   6   43    7   41
+"European 1" 1969  20   83   15   84
+"European 2" 1971  69  373   94  357
+"Heikinheimo" 1971  22  219   17  207
+"Italian" 1971  19  164   18  157
+"Australian 1" 1973  26  264   32  253
+"Frankfurt 2" 1973  13  102   29  104
+"Gormsen" 1973   2   14    3   14
+"NHLBI SMIT" 1974   7   53    3   54
+"Brochier" 1975   2   60    8   60
+"Euro Collab" 1975  29  172   24  169
+"Frank" 1975   6   55    6   53
+"Valere" 1975  11   49    9   42
+"Klein" 1976   4   14    1    9
+"UK-Collab" 1976  38  302   40  293
+"Austrian" 1977  37  352   65  376
+"Australian 2" 1977  25  123   31  107
+"Lasierra" 1977   1   13    3   11
+"N Ger Collab" 1977  63  249   51  243
+"Witchitz" 1977   5   32    5   26
+"European 3" 1979  18  156   30  159
+"Anderson" 1983   2   24    5   26
+"Kennedy" 1983   5  134   13  116
+"Khaja" 1983   1   20    4   20
+"Theroux" 1983   4   10    3    8
+"Kolibash" 1984   4   28    7   29
+"Leiboff" 1984   4   22    2   18
+"Rentrop" 1984  13   63    6   61
+"Been" 1985   0   16    2   16
+"Raizner" 1985   4   29    2   35
+"Verstraete" 1985   1   64    4   65
+"Kersschot" 1986   1   32    8   30
+"ISAM" 1986  54  859   63  882
+"Netherlands" 1986  19  269   34  264
+"GISSI-1" 1986 628 5860  758 5852
+"Olson" 1986   1   28    2   24
+"Ikarm" 1986   5   76    7   73
+"Baroffio" 1986   0   29    6   30
+"Schreiber" 1986   1   19    3   19
+"Cribeir" 1986   1   21    1   23
+"Sainsous" 1986   3   49    6   49
+"Leizorovicz" 1987   1   39    0   11
+"Buchalter" 1987   0   21    5   22
+"Julian" 1987   1   45    7   45
+"Bossaert" 1987   4   48    2   39
+"Croydon" 1987   3   35    4   30
+"Guerci" 1987   4   72    5   66
+"Durand" 1987   3   35    5   29
+"White" 1987   2  107   12  112
+"Topol" 1987   3   75    2   25
+"Timmis" 1987   2   16    1   13
+"Bassand" 1987   4   52    7   55
+"Vlay" 1988   1   13    2   12
+"Van de Werf" 1988  18  355   29  366
+"O'Rourke" 1988   4   74    4   71
+"Kennedy" 1988  12  191   17  177
+"Meinertz" 1988   9  162   19  151
+"ISIS-2" 1988 791 8592 1029 8595
+"AIMS" 1988  32  502   61  502
+"Wisenberg" 1988   2   41    5   25
+"NHF-ACTG" 1988   7   73    3   71
+"Brunelli" 1988   3   74    8   76
+"ASSET" 1988 182 2516  245 2495
+"APSIM" 1989   7  112    6  119
+"Armstrong" 1989   3   56    7   59
+"TEAHAT" 1990  11  117   18  175
+"Cassagnes" 1990   7  112    7  119
+"Bonaduce" 1990   2   20    2   20
