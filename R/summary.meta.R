@@ -123,12 +123,12 @@ summary.meta <- function(object,
     
     by.levs <- unique(byvar)
     
-    if (length(bylab)==0) bylab <- deparse(substitute(byvar))
+    if (length(bylab)==0) bylab <- byvar.name
     
-    res.w <- matrix(NA, ncol=4, nrow=length(by.levs))
+    res.w <- matrix(NA, ncol=6, nrow=length(by.levs))
     j <- 0
     ##
-    for ( i in by.levs){
+    for (i in by.levs){
       j <- j+1
       sel <- byvar == i
       ##
@@ -149,24 +149,29 @@ summary.meta <- function(object,
                          MH.exact=object$MH.exact,
                          RR.cochrane=object$RR.cochrane,
                          level=level, level.comb=level.comb,
-                         comb.fixed=comb.fixed, comb.random=comb.random,
+                         comb.fixed=comb.fixed,
+                         comb.random=comb.random,
                          warn=object$warn)
       }
       ##
       if (inherits(object, "metacont")){
-        meta1 <- metacont(object$n.e[sel], object$mean.e[sel], object$sd.e[sel],
-                          object$n.c[sel], object$mean.c[sel], object$sd.c[sel],
+        meta1 <- metacont(object$n.e[sel], object$mean.e[sel],
+                          object$sd.e[sel],
+                          object$n.c[sel], object$mean.c[sel],
+                          object$sd.c[sel],
                           sm=sm,
                           studlab=object$studlab[sel],
                           level=level, level.comb=level.comb,
-                          comb.fixed=comb.fixed, comb.random=comb.random)
+                          comb.fixed=comb.fixed,
+                          comb.random=comb.random)
       }
       ##
       if (inherits(object, "metagen")){
         meta1 <- metagen(object$TE[sel], object$seTE[sel], sm=sm,
                          studlab=object$studlab[sel],
                          level=level, level.comb=level.comb,
-                         comb.fixed=comb.fixed, comb.random=comb.random)
+                         comb.fixed=comb.fixed,
+                         comb.random=comb.random)
       }
       ##
       if (inherits(object, "metaprop")){
@@ -174,7 +179,8 @@ summary.meta <- function(object,
                           studlab=object$studlab[sel],
                           freeman.tukey=object$freeman.tukey,
                           level=level, level.comb=level.comb,
-                          comb.fixed=comb.fixed, comb.random=comb.random)
+                          comb.fixed=comb.fixed,
+                          comb.random=comb.random)
       }
       ##
       if (bystud){
@@ -192,35 +198,32 @@ summary.meta <- function(object,
         print(meta1, details=FALSE, ma=FALSE)
       }
       ##
-      if (comb.fixed)
-        res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
-                       meta1$Q, meta1$k)
-      else if (comb.random&!comb.fixed)
-        res.w[j,] <- c(meta1$TE.random, meta1$seTE.random,
-                       meta1$Q, meta1$k)
-      else
-        res.w[j,] <- c(NA, NA, NA, NA)
+      res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
+                     meta1$Q, meta1$k,
+                     meta1$TE.random, meta1$seTE.random)
+      if (sm=="MH")
+        res.w[j,3] <- NA
     }
     ##
-    TE.fixed.w <- res.w[,1]
-    seTE.fixed.w <- res.w[,2]
-    Q.w <- res.w[,3]
-    k.w <- res.w[,4]
+    TE.fixed.w    <- res.w[,1]
+    seTE.fixed.w  <- res.w[,2]
+    Q.w           <- res.w[,3]
+    k.w           <- res.w[,4]
+    TE.random.w   <- res.w[,5]
+    seTE.random.w <- res.w[,6]
     ##
-    ci.w <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
+    ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
+    ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb)
     ##
     Q.b <- sum(1/seTE.fixed.w^2*(TE.fixed.w - object$TE.fixed)^2,
                na.rm=TRUE)
     ##
-    if (object$method != "MH" & (comb.fixed|comb.random)){
+    if (object$method != "MH" & comb.fixed){
       if ((round(Q-sum(Q.w, na.rm=TRUE),2) - round(Q.b,2)) != 0)
         warning(paste("Q-sum(Q.w) != Q.b\nQ.b =", round(Q.b,2)))
     }
     ##
     if (bystud) cat("\n")
-    ##
-    if (object$method=="MH" | !comb.fixed)
-      Q.w <- rep(NA, length(Q.w))
   }
 
 
@@ -237,11 +240,13 @@ summary.meta <- function(object,
 
   
   if (length(byvar)>0){
-    res$within  <- ci.w
-    res$k.w     <- k.w
-    res$Q.w     <- Q.w
-    res$bylab   <- bylab
-    res$by.levs <- by.levs
+    res$within.fixed  <- ci.fixed.w
+    res$within.random <- ci.random.w
+    res$k.w           <- k.w
+    res$Q.w           <- Q.w
+    res$bylab         <- bylab
+    res$by.levs       <- by.levs
+    res$within        <- "Returned list 'within' replaced by lists 'within.fixed' and 'within.random'."
   }
   
   

@@ -20,8 +20,9 @@ metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
   \item{outcome.no}{Outcome number.}
   \item{smother}{A character specifying the summary measure to use
     instead of the value "OTHER"}
-  \item{logscale}{A logical indicating whether treatment effects from
-    RevMan 5 are on the log scale.}
+  \item{logscale}{A logical indicating whether treatment effects have
+    been entered on the log scale in RevMan5. Only relevant for an
+    outcome with summary measure equal to "OTHER".}
 }
 
 \details{

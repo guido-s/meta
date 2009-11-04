@@ -5,23 +5,24 @@ print.summary.meta <- function(x,
                                comb.random=x$comb.random,
                                header=TRUE,
                                ...){
-
+  
+  
+  if (!inherits(x, "summary.meta"))
+    stop("Argument 'x' must be an object of class \"summary.meta\"")
+  
   
   k <- x$k
   sm <- x$sm
   
   
-  if (length(comb.fixed)==0){
+  if (length(comb.fixed)==0)
     comb.fixed <- TRUE
-  }
   ##
-  if (length(comb.random)==0){
+  if (length(comb.random)==0)
     comb.random <- TRUE
-  }
   ##
-  if (length(print.byvar)==0){
+  if (length(print.byvar)==0)
     print.byvar <- TRUE
-  }
   
   
   if (sm == "RR" | sm == "OR" | sm == "HR"){
@@ -34,9 +35,12 @@ print.summary.meta <- function(x,
     x$random$upper <- exp(x$random$upper)
     ##
     if (!is.null(x$bylab)){
-      x$within$TE <- exp(x$within$TE)
-      x$within$lower <- exp(x$within$lower)
-      x$within$upper <- exp(x$within$upper)
+      x$within.fixed$TE     <- exp(x$within.fixed$TE)
+      x$within.fixed$lower  <- exp(x$within.fixed$lower)
+      x$within.fixed$upper  <- exp(x$within.fixed$upper)
+      x$within.random$TE    <- exp(x$within.random$TE)
+      x$within.random$lower <- exp(x$within.random$lower)
+      x$within.random$upper <- exp(x$within.random$upper)
     }
   }
   ##
@@ -52,9 +56,12 @@ print.summary.meta <- function(x,
     x$random$upper <- sin(x$random$upper/denum)^2
     ##
     if (!is.null(x$bylab)){
-      x$within$TE    <- sin(x$within$TE/denum)^2
-      x$within$lower <- sin(x$within$lower/denum)^2
-      x$within$upper <- sin(x$within$upper/denum)^2
+      x$within.fixed$TE     <- sin(x$within.fixed$TE/denum)^2
+      x$within.fixed$lower  <- sin(x$within.fixed$lower/denum)^2
+      x$within.fixed$upper  <- sin(x$within.fixed$upper/denum)^2
+      x$within.random$TE    <- sin(x$within.random$TE/denum)^2
+      x$within.random$lower <- sin(x$within.random$lower/denum)^2
+      x$within.random$upper <- sin(x$within.random$upper/denum)^2
     }
   }
 
@@ -74,9 +81,12 @@ print.summary.meta <- function(x,
   k.w <- x$k.w
   ##
   if (!is.null(x$bylab)){
-    TE.w    <- round(x$within$TE, digits)
-    lowTE.w <- round(x$within$lower, digits)
-    uppTE.w <- round(x$within$upper, digits)
+    TE.fixed.w     <- round(x$within.fixed$TE, digits)
+    lowTE.fixed.w  <- round(x$within.fixed$lower, digits)
+    uppTE.fixed.w  <- round(x$within.fixed$upper, digits)
+    TE.random.w    <- round(x$within.random$TE, digits)
+    lowTE.random.w <- round(x$within.random$lower, digits)
+    uppTE.random.w <- round(x$within.random$upper, digits)
   }
   ##
   H <- x$H$TE
@@ -208,7 +218,10 @@ print.summary.meta <- function(x,
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p.value"))
       }  
       else{
-        if (x$method!="MH"){
+        if (comb.fixed==TRUE){
+        ##if (x$method!="MH" & comb.fixed==TRUE){
+          if (comb.random)
+            warning("Estimate from fixed effect model used in groups defined by 'byvar'")
           Q <- x$Q
           Q.w <- sum(x$Q.w, na.rm=TRUE)
           Q.b <- Q - Q.w
@@ -227,10 +240,10 @@ print.summary.meta <- function(x,
           
           Qdata <- cbind(format(round(Qs, 2)),
                          ifelse(is.na(dfs), 0, dfs),
-                         c("--", "--", "--", format(TE.w)),
+                         c("--", "--", "--", format(TE.fixed.w)),
                          c("--", "--", "--",
-                           p.ci(format(lowTE.w),
-                                format(uppTE.w))),
+                           p.ci(format(lowTE.fixed.w),
+                                format(uppTE.fixed.w))),
                          c(format.p(pval),
                            rep("--", length(x$Q.w))))
           
@@ -249,7 +262,7 @@ print.summary.meta <- function(x,
                                   c("Q", "d.f.", sm, x$ci.lab,
                                     "p.value"))
         }
-        else{
+        else if (comb.random==TRUE){
           Q <- x$Q
           Qs  <- c(Q, rep(NA, length(x$k.w)))
           Qs <- ifelse(Qs > -0.1 & Qs < 0, 0, Qs)
@@ -264,8 +277,9 @@ print.summary.meta <- function(x,
           
           Qdata <- cbind(ifelse(fQs=="NA", "--", fQs),
                          ifelse(is.na(dfs), 0, dfs),
-                         c("--", format(TE.w)),
-                         c("--", p.ci(format(lowTE.w), format(uppTE.w))),
+                         c("--", format(TE.random.w)),
+                         c("--", p.ci(format(lowTE.random.w),
+                                      format(uppTE.random.w))),
                          c(format.p(pval), rep("--", length(x$k.w))))
           
           if (print.byvar)

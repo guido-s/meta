@@ -1,9 +1,9 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 1.1-3
+Version: 1.1-4
 Depends: R (>= 2.9.1), grid
 Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>
-Date: 2009-10-30
+Date: 2009-11-04
 Description: Fixed and random effects meta-analysis. Functions for tests of bias, forest and funnel plot.
 License: GPL (>= 2)

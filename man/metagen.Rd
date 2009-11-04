@@ -5,8 +5,9 @@
 \title{Generic inverse variance meta-analysis}
 
 \description{
-  Fixed and random effects meta-analysis based on estimates and their
-  standard errors; inverse variance weighting is used for pooling.
+  Fixed and random effects meta-analysis based on estimates (e.g. log
+  hazard ratios) and their standard errors; inverse variance weighting
+  is used for pooling.
 }
 
 \usage{
@@ -50,19 +51,20 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
 \details{
   Generic method for meta-analysis, only treatment estimates and their
   standard error are needed. The method is useful, e.g., for pooling of
-  log hazard ratios. The inverse variance method is used for
-  pooling. Random effects estimate is based on the DerSimonian-Laird
-  method.
+  survival data (using log hazard ratio and standard errors as
+  input). The inverse variance method is used for pooling. Random
+  effects estimate is based on the DerSimonian-Laird method.
 
-  Internally, both fixed effect and random effects models are calculated
-  regardless of values choosen for arguments \code{comb.fixed} and
-  \code{comb.random}. Accordingly, the estimate for the random effects
-  model can be extracted from component \code{TE.random} of an object
-  of class \code{"meta"} even if \code{comb.random=FALSE}. However, all
-  functions in R package \code{meta} will adequately consider the values
-  for \code{comb.fixed} and \code{comb.random}. E.g. function
-  \code{\link{print.meta}} will not print results for the random effects
-  model if \code{comb.random=FALSE}.
+  Internally, both fixed effect and random effects models are
+  calculated regardless of values choosen for arguments
+  \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+  for the random effects model can be extracted from component
+  \code{TE.random} of an object of class \code{"meta"} even if
+  \code{comb.random=FALSE}. However, all functions in R package
+  \code{meta} will adequately consider the values for \code{comb.fixed}
+  and \code{comb.random}. E.g. function \code{\link{print.meta}} will
+  not print results for the random effects model if
+  \code{comb.random=FALSE}.
 }
 
 \value{
@@ -107,6 +109,15 @@ meta1
 ##
 meta1
 metagen(meta1$TE, meta1$seTE, sm="RR")
+
+
+##
+## Meta-analysis of survival data:
+##
+logHR <- log(c(0.95, 1.5))
+selogHR <- c(0.25, 0.35)
+
+metagen(logHR, selogHR, sm="HR")
 }
 
 \keyword{htest}

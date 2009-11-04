@@ -1,5 +1,30 @@
 
-2009-10-09, version 1.1-3
+2009-11-04, version 1.1-4
+
+Function summary.meta:
+ - modified so that results for subgroups (if byvar != NULL)
+   are calculated for both fixed effect and random effects model:
+   * list 'within' no longer returned by function summary.meta
+   * lists 'within.fixed' and 'within.random' returned by
+     function summary.meta
+ - modified so that variable name of subgroups is printed
+   correctly
+ - check whether input is an object of class summary.meta
+
+Function print.summary.meta:
+ - modified so that a warning is printed if both comb.fixed and
+   comb.random are TRUE and results for subgroups are supposed to
+   be printed
+
+Help pages of functions print.summary.meta and forest updated:
+ - detailed information on printing and plotting of subgroup
+   results if both comb.fixed and comb.random are TRUE
+
+Help page of function metagen updated:
+ - new example with meta-analysis of survival data
+
+
+2009-10-30, version 1.1-3
 
 New functions trimfill, trimfill.default and trimfill.meta:
  - generic method for trim-and-fill method
@@ -31,16 +56,16 @@ Functions funnel.default and funnel.meta:
    (new argument: bg)
 
 Function forest:
-- new default values for arguments lab.e and lab.c: x$label.e and
-  x$label.c, respectively. If these values are NULL the old default
-  values "Experimental" and "Control" are used.
+ - new default values for arguments lab.e and lab.c: x$label.e and
+   x$label.c, respectively. If these values are NULL the old default
+   values "Experimental" and "Control" are used.
 
 Functions metabin, metacont, metagen:
-- arguments label.e and label.c added
+ - arguments label.e and label.c added
 
 Function metacr:
-- use arguments label.e and label.c in calls to functions
-  metabin, metacont, metagen
+ - use arguments label.e and label.c in calls to functions
+   metabin, metacont, metagen
 
 
 2009-08-31, version 1.0-6
@@ -48,4 +73,4 @@ Function metacr:
 First major version released on CRAN
 
 
-No changelog available for versions < 1.0
+No ChangeLog available for versions < 1.0

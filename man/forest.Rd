@@ -172,7 +172,13 @@ forest(x, byvar=x$byvar, bylab=x$bylab,
   If parameters \code{lab.e} and \code{lab.c} are \code{NULL},
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
-  
+
+  For subgroups (argument \code{byvar} not \code{NULL}), results for the
+  fixed effect model will be plotted if both arguments \code{comb.fixed}
+  and \code{comb.random} are \code{TRUE}. In order to plot results for
+  the random effects model within subgroups, use
+  \code{comb.fixed==FALSE} and \code{comb.random==TRUE}.
+
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
   (\url{http://www.cc-ims.net/revman/}). In RevMan 5, subgroup analyses
