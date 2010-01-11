@@ -42,7 +42,9 @@ forest <- function(x,
                    colgap=unit(2, "mm"),
                    ##
                    col.i="black",
-                   col.by="darkgray"){
+                   col.by="darkgray",
+                   ##
+                   digits=2){
   
   
   if (!inherits(x, "meta"))
@@ -924,16 +926,16 @@ forest <- function(x,
   ## Treatment effect and confidence interval
   ##
   if (x$sm %in% c("HR", "OR", "RR")){
-    effect.format <- format(round(exp(TEs), 2))
-    ci.format <- p.ci(format(round(exp(lowTEs), 2)),
-                      format(round(exp(uppTEs), 2)))
+    effect.format <- format(round(exp(TEs), digits))
+    ci.format <- p.ci(format(round(exp(lowTEs), digits)),
+                      format(round(exp(uppTEs), digits)))
     ref <- log(ref)
     log <- TRUE
   }
   else{
-    effect.format <- format(round(TEs, 2))
-    ci.format <- p.ci(format(round(lowTEs, 2)),
-                      format(round(uppTEs, 2)))
+    effect.format <- format(round(TEs, digits))
+    ci.format <- p.ci(format(round(lowTEs, digits)),
+                      format(round(uppTEs, digits)))
     log <- FALSE
   }
   ##
@@ -950,7 +952,7 @@ forest <- function(x,
   ## Treatment estimate and its standard error
   ##
   TE.format <- ifelse(is.na(TEs.study), "",
-                      format(round(TEs.study, 2)))
+                      format(round(TEs.study, digits)))
   seTE.format <- ifelse(is.na(seTEs.study), "",
                         format(round(seTEs.study, 4)))
   ##

@@ -28,7 +28,7 @@ forest(x, byvar=x$byvar, bylab=x$bylab,
        at=NULL, label=TRUE,
        fontsize=12, boxsize=0.8,
        plotwidth=unit(6, "cm"), colgap=unit(2, "mm"),
-       col.i="black", col.by="darkgray")
+       col.i="black", col.by="darkgray", digits=2)
 }
 
 \arguments{
@@ -109,6 +109,8 @@ forest(x, byvar=x$byvar, bylab=x$bylab,
   \item{col.i}{The colour for individual study results and confidence limits.}
   \item{col.by}{A character specifying colour to print information on
     subgroups.}
+  \item{digits}{Minimal number of significant digits, see
+    \code{print.default}.}
 }
 
 \details{
