@@ -1332,7 +1332,8 @@ forest <- function(x,
         cols[[tname]] <- formatcol(rightlabs.new[i],
                                    c("", "",
                                      rep("", length(TE.w)),
-                                     x[[rightcols.new[i]]]), yS)
+                                     x[[rightcols.new[i]]][o]),
+                                   yS)
       }
       for (i in seq(along=leftcols.new)){
         tname <- paste("col.", leftcols.new[i], sep="")
@@ -1342,19 +1343,28 @@ forest <- function(x,
         cols[[tname]] <- formatcol(leftlabs.new[i],
                                    c("", "",
                                      rep("", length(TE.w)),
-                                     x[[leftcols.new[i]]]), yS)
+                                     x[[leftcols.new[i]]][o]),
+                                   yS)
       }
     }
     else{
       for (i in seq(along=rightcols.new)){
         tname <- paste("col.", rightcols.new[i], sep="")
         cols[[tname]] <- formatcol(rightlabs.new[i],
-                                   c("", "", x[[rightcols.new[i]]]), yS)
+                                   c("", "",
+                                     if (sort) x[[rightcols.new[i]]][o]
+                                     else x[[rightcols.new[i]]]
+                                     ),
+                                   yS)
       }
       for (i in seq(along=leftcols.new)){
         tname <- paste("col.", leftcols.new[i], sep="")
         cols[[tname]] <- formatcol(leftlabs.new[i],
-                                   c("", "", x[[leftcols.new[i]]]), yS)
+                                   c("", "",
+                                     if (sort) x[[leftcols.new[i]]][o]
+                                     else x[[leftcols.new[i]]]
+                                     ),
+                                   yS)
       }
     }
   }

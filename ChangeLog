@@ -1,9 +1,17 @@
 
+2010-01-11, version 1.1-6
+
+Function forest:
+ - modified so that additional columns are printed in the correct order
+   if argument sort or order is used
+
+
 2009-12-21, version 1.1-5
 
 Function forest (incl. help page):
  - new argument digits specifying minimal number of significant digits
    for treatment estimate and its confidence interval
+
 
 2009-11-04, version 1.1-4
 

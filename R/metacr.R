@@ -1,7 +1,5 @@
 metacr <- function(x, comp.no=1, outcome.no=1,
-                   smother="", logscale=TRUE,
-                   overall=TRUE, subgroups=TRUE,
-                   swap.events=FALSE){
+                   smother="", logscale=TRUE){
   ##
   if (!inherits(x, "rm5"))
     stop("Argument 'x' must be an object of class \"rm5\"")
@@ -30,10 +28,6 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   ##
   comb.fixed  <- unique(x$comb.fixed[sel])
   comb.random <- unique(x$comb.random[sel])
-  if (!subgroups){
-    comb.fixed <- FALSE
-    comb.random <- FALSE
-  }
   ##
   if (sm=="OTHER" & smother!=""){
     sm <- smother
@@ -41,118 +35,56 @@ metacr <- function(x, comp.no=1, outcome.no=1,
       x$TE[sel] <- log(x$TE[sel])
   }
   ##
-  if (type=="D" & swap.events){
-    x$event.e <- x$n.e - x$event.e
-    x$event.c <- x$n.c - x$event.c
-    ## label.right ???
-    ## label.left ???
-  }
-  if (length(unique(x$group.no[sel]))>1){
-    if (type=="D")
-      m1 <- metabin(x$event.e[sel], x$n.e[sel],
-                    x$event.c[sel], x$n.c[sel],
-                    sm=sm, meth=meth, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c,
-                    RR.cochrane=RR.cochrane)
-    ##
-    if (type=="C")
-      m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
-                     x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
-                     sm=sm, studlab=x$studlab[sel],
-                     overall=overall,
-                     comb.fixed=comb.fixed, comb.random=comb.random,
-                     title=title,
-                     complab=complab, outclab=outclab,
-                     label.e=label.e, label.c=label.c)
-    ##
-    if (type=="P")
-      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
-    ##
-    if (type=="I" & meth!="Peto")
-      m1 <- metagen(x$TE[sel], x$seTE[sel],
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
-    ##
-    if (type=="I" & meth=="Peto")
-      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
-  }
+  if (type=="D")
+    m1 <- metabin(x$event.e[sel], x$n.e[sel],
+                  x$event.c[sel], x$n.c[sel],
+                  sm=sm, meth=meth, studlab=x$studlab[sel],
+                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  title=title,
+                  complab=complab, outclab=outclab,
+                  label.e=label.e, label.c=label.c,
+                  RR.cochrane=RR.cochrane)
   ##
-  else{
-    if (type=="D")
-      m1 <- metabin(x$event.e[sel], x$n.e[sel],
-                    x$event.c[sel], x$n.c[sel],
-                    sm=sm, meth=meth, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c,
-                    RR.cochrane=RR.cochrane)
-    ##
-    if (type=="C")
-      m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
-                     x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
-                     sm=sm, studlab=x$studlab[sel],
-                     overall=overall,
-                     comb.fixed=comb.fixed, comb.random=comb.random,
-                     title=title,
-                     complab=complab, outclab=outclab,
-                     label.e=label.e, label.c=label.c)
-    ##
-    if (type=="P")
-      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
-    ##
-    if (type=="I" & meth!="Peto")
-      m1 <- metagen(x$TE[sel], x$seTE[sel],
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
-    ##
-    if (type=="I" & meth=="Peto")
-      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                    sm=sm, studlab=x$studlab[sel],
-                    overall=overall,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    title=title,
-                    complab=complab, outclab=outclab,
-                    label.e=label.e, label.c=label.c)
+  if (type=="C")
+    m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
+                   x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
+                   sm=sm, studlab=x$studlab[sel],
+                   comb.fixed=comb.fixed, comb.random=comb.random,
+                   title=title,
+                   complab=complab, outclab=outclab,
+                   label.e=label.e, label.c=label.c)
+  ##
+  if (type=="P")
+    m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                  sm=sm, studlab=x$studlab[sel],
+                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  title=title,
+                  complab=complab, outclab=outclab,
+                  label.e=label.e, label.c=label.c)
+  ##
+  if (type=="I" & meth!="Peto")
+    m1 <- metagen(x$TE[sel], x$seTE[sel],
+                  sm=sm, studlab=x$studlab[sel],
+                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  title=title,
+                  complab=complab, outclab=outclab,
+                  label.e=label.e, label.c=label.c)
+  ##
+  if (type=="I" & meth=="Peto")
+    m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                  sm=sm, studlab=x$studlab[sel],
+                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  title=title,
+                  complab=complab, outclab=outclab,
+                  label.e=label.e, label.c=label.c)
+  ##
+  if (length(unique(x$group.no[sel]))>1){
+    m1$byvar <- x$grplab[sel]
+    m1$print.byvar <- FALSE
   }
-  ##if (length(unique(x$group.no[sel]))>1){
-  ##  m1$byvar <- x$grplab[sel]
-  ##  m1$print.byvar <- FALSE
-  ##}
   ##
   if (sm=="OTHER"){
-    warning('Meta-analysis not possible for sm="OTHER". Please specify summary measure by argument "smother"')
+    warning('Meta-analysis not possible for sm="OTHER".')
     res <- NULL
   }
   else
