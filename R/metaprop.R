@@ -39,6 +39,11 @@ metaprop <- function(event, n, studlab,
   event <- mf$event
   n     <- mf$n
   ##
+  if (!missing(byvar)){
+    byvar.name <- deparse(substitute(byvar))
+    byvar <- mf$byvar
+  }
+  ##
   if (!missing(studlab))
     studlab <- as.character(mf$studlab)
   else
@@ -116,8 +121,10 @@ metaprop <- function(event, n, studlab,
               title="", complab="", outclab="",
               call=match.call())
   ##
-  if (!missing(byvar)) res$byvar <- byvar
-  if (!missing(bylab)) res$bylab <- bylab
+  if (!missing(byvar)){
+    res$byvar <- byvar
+    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+  }
   res$print.byvar <- print.byvar
   
   class(res) <- c("metaprop", "meta")

@@ -1,6 +1,6 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 1.1-6
+Version: 1.1-7
 Depends: R (>= 2.9.1), grid
 Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>

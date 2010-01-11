@@ -1,4 +1,11 @@
 
+2010-01-11, version 1.1-7
+
+Functions metabin, metacont, metagen, metaprop:
+ - modified so that a sensible default value is used for argument bylab
+   if argument byvar is not missing
+
+
 2010-01-11, version 1.1-6
 
 Function forest:

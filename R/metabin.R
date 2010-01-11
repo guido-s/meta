@@ -53,6 +53,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   event.c <- mf$event.c
   n.c     <- mf$n.c
   ##
+  if (!missing(byvar)){
+    byvar.name <- deparse(substitute(byvar))
+    byvar <- mf$byvar
+  }
+  ##
   if (!missing(studlab))
     studlab <- as.character(mf$studlab)
   else
@@ -495,8 +500,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call=match.call(),
               warn=warn)
   ##
-  if (!missing(byvar)) res$byvar <- byvar
-  if (!missing(bylab)) res$bylab <- bylab
+  if (!missing(byvar)){
+    res$byvar <- byvar
+    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+  }
   res$print.byvar <- print.byvar
   
   class(res) <- c("metabin", "meta")

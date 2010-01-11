@@ -50,6 +50,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   mean.c  <- mf$mean.c
   sd.c    <- mf$sd.c
   ##
+  if (!missing(byvar)){
+    byvar.name <- deparse(substitute(byvar))
+    byvar <- mf$byvar
+  }
+  ##
   if (!missing(studlab))
     studlab <- as.character(mf$studlab)
   else
@@ -164,8 +169,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               label.c=label.c,
               call=match.call())
   ##
-  if (!missing(byvar)) res$byvar <- byvar
-  if (!missing(bylab)) res$bylab <- bylab
+  if (!missing(byvar)){
+    res$byvar <- byvar
+    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+  }
   res$print.byvar <- print.byvar
   
   class(res) <- c("metacont", "meta")
