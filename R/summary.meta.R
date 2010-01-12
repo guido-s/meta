@@ -23,9 +23,8 @@ summary.meta <- function(object,
   }
   
   
-  sm <- object$sm
-  k  <- object$k
-  Q  <- object$Q
+  k <- object$k
+  Q <- object$Q
   
   
   if (length(comb.fixed)==0){
@@ -159,7 +158,7 @@ summary.meta <- function(object,
                           object$sd.e[sel],
                           object$n.c[sel], object$mean.c[sel],
                           object$sd.c[sel],
-                          sm=sm,
+                          sm=object$sm,
                           studlab=object$studlab[sel],
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
@@ -167,7 +166,8 @@ summary.meta <- function(object,
       }
       ##
       if (inherits(object, "metagen")){
-        meta1 <- metagen(object$TE[sel], object$seTE[sel], sm=sm,
+        meta1 <- metagen(object$TE[sel], object$seTE[sel],
+                         sm=object$sm,
                          studlab=object$studlab[sel],
                          level=level, level.comb=level.comb,
                          comb.fixed=comb.fixed,
@@ -201,7 +201,8 @@ summary.meta <- function(object,
       res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
                      meta1$Q, meta1$k,
                      meta1$TE.random, meta1$seTE.random)
-      if (sm=="MH")
+      ##
+      if (object$method=="MH")
         res.w[j,3] <- NA
     }
     ##
@@ -215,24 +216,27 @@ summary.meta <- function(object,
     ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
     ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb)
     ##
-    Q.b <- sum(1/seTE.fixed.w^2*(TE.fixed.w - object$TE.fixed)^2,
-               na.rm=TRUE)
-    ##
-    if (object$method != "MH" & comb.fixed){
-      if ((round(Q-sum(Q.w, na.rm=TRUE),2) - round(Q.b,2)) != 0)
-        warning(paste("Q-sum(Q.w) != Q.b\nQ.b =", round(Q.b,2)))
+    if (object$method!="MH"){
+      Q.b <- sum(1/seTE.fixed.w^2*(TE.fixed.w - object$TE.fixed)^2,
+                 na.rm=TRUE)
+      ##
+      if (comb.fixed)
+        if ((round(Q-sum(Q.w, na.rm=TRUE),2) - round(Q.b,2)) != 0)
+          warning(paste("Q-sum(Q.w) != Q.b\nQ.b =", round(Q.b,2)))
     }
+    else
+      Q.b <- NA
     ##
     if (bystud) cat("\n")
   }
-
-
+  
+  
   res <- list(study=ci.study,
               fixed=ci.f, random=ci.r,
               k=k, Q=Q, tau=object$tau, H=ci.H, I2=ci.I2,
               k.all=length(object$TE),
               Q.CMH=object$Q.CMH,
-              sm=sm, method=object$method,
+              sm=object$sm, method=object$method,
               call=match.call(),
               ci.lab=ci.lab,
               comb.fixed=comb.fixed,

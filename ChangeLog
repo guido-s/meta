@@ -1,4 +1,12 @@
 
+2010-01-12, version 1.1-8
+
+Functions summary.meta, print.summary.meta:
+ - modified so that a test for subgroup differences
+   is not calculated and printed for meta-analyses
+   using the Mantel-Haenszel method for binary data
+
+
 2010-01-11, version 1.1-7
 
 Functions metabin, metacont, metagen, metaprop:

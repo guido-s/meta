@@ -226,6 +226,11 @@ print.summary.meta <- function(x,
           Q.w <- sum(x$Q.w, na.rm=TRUE)
           Q.b <- Q - Q.w
           ##
+          if (x$method=="MH"){
+            Q.w <- NA
+            Q.b <- NA
+          }
+          ##
           Qs  <- c(Q, Q.b,  Q.w, x$Q.w)
           Qs <- ifelse(Qs > -0.1 & Qs < 0, 0, Qs)
 
@@ -233,12 +238,19 @@ print.summary.meta <- function(x,
           df.w <- sum((x$k.w-1)[!is.na(x$Q.w)])
           df.b <- df - df.w
           ##
+          if (x$method=="MH"){
+            df.w <- NA
+            df.b <- NA
+          }
+          ##
           dfs <- c(df, df.b, df.w, k.w-1)
           dfs[dfs<=0] <- NA
 
           pval <- 1-pchisq(Qs[1:3], df=dfs[1:3])
           
-          Qdata <- cbind(format(round(Qs, 2)),
+          Qdata <- cbind(ifelse(is.na(Qs),
+                                "--",
+                                format(round(Qs, 2))),
                          ifelse(is.na(dfs), 0, dfs),
                          c("--", "--", "--", format(TE.fixed.w)),
                          c("--", "--", "--",
@@ -261,6 +273,12 @@ print.summary.meta <- function(x,
                                     bylab),
                                   c("Q", "d.f.", sm, x$ci.lab,
                                     "p.value"))
+          
+          
+          if (x$method=="MH"){
+            warning("Test for subgroup differences not calculated for Mantel-Haenszel method")
+            Qdata <- Qdata[-(2:3),]
+          }
         }
         else if (comb.random==TRUE){
           Q <- x$Q
