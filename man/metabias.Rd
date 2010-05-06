@@ -91,6 +91,7 @@ metabias(x, seTE, TE.fixed, seTE.fixed,
     hypothesis.}
   \item{method}{A character string indicating what type of test was used.}
   \item{data.name}{A character string giving the names of the data.}
+  \item{version}{Version of R package meta used to create object.}
 }
 \references{
   Begg CB & Mazumdar M (1994), Operating characteristics of a

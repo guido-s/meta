@@ -98,11 +98,9 @@ summary.meta <- function(object,
       ci.study$z[i]     <- NA
       ci.study$p[i]     <- NA
       ##
-      ci.f$seTE <- NA
       ci.f$z    <- NA
       ci.f$p    <- NA
       ##
-      ci.r$seTE <- NA
       ci.r$z    <- NA
       ci.r$p    <- NA
     }
@@ -124,7 +122,7 @@ summary.meta <- function(object,
     
     if (length(bylab)==0) bylab <- byvar.name
     
-    res.w <- matrix(NA, ncol=6, nrow=length(by.levs))
+    res.w <- matrix(NA, ncol=12, nrow=length(by.levs))
     j <- 0
     ##
     for (i in by.levs){
@@ -176,11 +174,21 @@ summary.meta <- function(object,
       ##
       if (inherits(object, "metaprop")){
         meta1 <- metaprop(object$event[sel], object$n[sel],
+                          sm=object$sm,
                           studlab=object$studlab[sel],
-                          freeman.tukey=object$freeman.tukey,
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
-                          comb.random=comb.random)
+                          comb.random=comb.random,
+                          warn=object$warn)
+      }
+      ##
+      if (inherits(object, "metacor")){
+        meta1 <- metacor(object$cor[sel], object$n[sel],
+                         sm=object$sm,
+                         studlab=object$studlab[sel],
+                         level=level, level.comb=level.comb,
+                         comb.fixed=comb.fixed,
+                         comb.random=comb.random)
       }
       ##
       if (bystud){
@@ -200,7 +208,9 @@ summary.meta <- function(object,
       ##
       res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
                      meta1$Q, meta1$k,
-                     meta1$TE.random, meta1$seTE.random)
+                     meta1$TE.random, meta1$seTE.random,
+                     unlist(summary(meta1)$H),
+                     unlist(summary(meta1)$I2))
       ##
       if (object$method=="MH")
         res.w[j,3] <- NA
@@ -213,12 +223,20 @@ summary.meta <- function(object,
     TE.random.w   <- res.w[,5]
     seTE.random.w <- res.w[,6]
     ##
+    H.w     <- res.w[,7]
+    H.w.low <- res.w[,8]
+    H.w.upp <- res.w[,9]
+    ##
+    I2.w     <- res.w[,10]
+    I2.w.low <- res.w[,11]
+    I2.w.upp <- res.w[,12]
+    ##
+    ##
     ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
     ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb)
     ##
     if (object$method!="MH"){
-      Q.b <- sum(1/seTE.fixed.w^2*(TE.fixed.w - object$TE.fixed)^2,
-                 na.rm=TRUE)
+      Q.b <- summary(metagen(TE.fixed.w, seTE.fixed.w))$Q
       ##
       if (comb.fixed)
         if ((round(Q-sum(Q.w, na.rm=TRUE),2) - round(Q.b,2)) != 0)
@@ -248,6 +266,10 @@ summary.meta <- function(object,
     res$within.random <- ci.random.w
     res$k.w           <- k.w
     res$Q.w           <- Q.w
+    res$Q.b.fixed     <- Q.b
+    res$Q.b.random    <- summary(metagen(TE.random.w, seTE.random.w))$Q
+    res$H.w           <- list(TE=H.w, lower=H.w.low, upper=H.w.upp)
+    res$I2.w          <- list(TE=I2.w, lower=I2.w.low, upper=I2.w.upp)
     res$bylab         <- bylab
     res$by.levs       <- by.levs
     res$within        <- "Returned list 'within' replaced by lists 'within.fixed' and 'within.random'."
@@ -259,9 +281,20 @@ summary.meta <- function(object,
   if (inherits(object, "metaprop")){
     res$event  <- object$event
     res$n      <- object$n
-    res$freeman.tukey <- object$freeman.tukey
+    ##res$freeman.tukey <- object$freeman.tukey
     ##
     class(res) <- c(class(res), "metaprop")
+  }
+  ##
+  if (inherits(object, "metacor")){
+    res$cor       <- object$cor
+    res$n         <- object$n
+    ##
+    class(res) <- c(class(res), "metacor")
+  }
+  ##
+  if (inherits(object, "metabin")){
+    class(res) <- c(class(res), "metabin")
   }
   ##
   if (inherits(object, "trimfill")){
@@ -275,6 +308,8 @@ summary.meta <- function(object,
   res$title   <- object$title
   ##
   res$print.byvar <- print.byvar
+  
+  res$version <- packageDescription("meta")$Version
   
   res
 }

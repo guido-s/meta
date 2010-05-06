@@ -5,15 +5,18 @@ Olkin95                 Thrombolytic Therapy after Acute Myocardial
 addvar                  Additional functions for objects of class meta
 ci                      Calculation of confidence intervals (normal
                         approximation)
-forest                  Forest plot (new plot function for objects of
+forest                  Generic function to produce a forest plot
+forest.meta             Forest plot (new plot function for objects of
                         class meta)
-funnel                  Generic function to produce a funnel plot.
+funnel                  Generic function to produce a funnel or radial
+                        plot.
 funnel.meta             Plot to assess funnel plot asymmetry
-labbe                   L\'Abbe plot
-labbe.metabin           L\'Abbe plot
+labbe                   L'Abbe plot
+labbe.metabin           L'Abbe plot
 metabias                Test for funnel plot asymmetry
 metabin                 Meta-analysis of binary outcome data
 metacont                Meta-analysis of continuous outcome data
+metacor                 Meta-analysis of correlations
 metacr                  Meta-analysis of outcome data from Cochrane
                         review
 metacum                 Cumulative meta-analysis
@@ -21,6 +24,7 @@ metagen                 Generic inverse variance meta-analysis
 metainf                 Influence analysis in meta-analysis
 metaprop                Meta-analysis of single proportions
 plot.meta               Plot function for objects of class meta
+                        (deprecated)
 print.meta              Print and summary method for objects of class
                         meta
 read.mtv                Import RevMan 4 data files (.mtv)

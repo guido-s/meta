@@ -10,15 +10,13 @@
 }
 
 \usage{
-trimfill(x, seTE, ...)
+trimfill(x, ...)
 }
 
 \arguments{
   \item{x}{An object of class \code{meta}, or estimated treatment
     effect in individual studies.}
-  \item{seTE}{Standard error of estimated treatment effect (mandatory if
-    \code{x} not of class \code{meta}).}
-  \item{...}{Additional arguments.}
+  \item{...}{Additional arguments as in \code{par}.}
 }
 
 \details{

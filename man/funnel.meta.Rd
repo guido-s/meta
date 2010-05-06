@@ -1,7 +1,8 @@
 \name{funnel.meta}
 \alias{funnel.meta}
 \alias{funnel.default}
-\alias{radial}
+\alias{radial.default}
+\alias{radial.meta}
 \title{Plot to assess funnel plot asymmetry}
 \description{
   Draw a funnel or radial plot to assess funnel plot asymmetry in the
@@ -12,38 +13,43 @@
 }
 \usage{
 \method{funnel}{default}(x, y,
-                         xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
-                         comb.fixed=FALSE, comb.random=FALSE,
-                         axes=TRUE,
-                         pch=21, text=NULL, cex=1,
-                         lty.fixed=2, lty.random=9,
-                         lwd=1, lwd.fixed=lwd, lwd.random=lwd,
-                         col="black", bg="darkgray",
-                         col.fixed="black", col.random="black",
-                         log="", yaxis="se", sm=NULL,
-                         contour.levels=NULL, col.contour,
-                         ref=ifelse(sm \%in\% c("RR", "OR", "HR"), 1, 0),
-                         level=NULL,
-                         studlab=FALSE, cex.studlab=0.8,
-                         ...)
+       xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
+       comb.fixed=FALSE, comb.random=FALSE,
+       axes=TRUE,
+       pch=21, text=NULL, cex=1,
+       lty.fixed=2, lty.random=9,
+       lwd=1, lwd.fixed=lwd, lwd.random=lwd,
+       col="black", bg="darkgray",
+       col.fixed="black", col.random="black",
+       log="", yaxis="se", sm=NULL,
+       contour.levels=NULL, col.contour,
+       ref=ifelse(sm \%in\% c("RR", "OR", "HR"), 1, 0),
+       level=NULL,
+       studlab=FALSE, cex.studlab=0.8, ...)
 
-\method{funnel}{meta}(x, y,
-                      xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
-                      comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-                      axes=TRUE,
-                      pch=21, text=NULL, cex=1,
-                      lty.fixed=2, lty.random=9,
-                      lwd=1, lwd.fixed=lwd, lwd.random=lwd,
-                      col="black", bg="darkgray",
-                      col.fixed="black", col.random="black",
-                      log="", yaxis="se", sm=NULL,
-                      contour.levels=NULL, col.contour,
-                      ref=ifelse(x$sm \%in\% c("RR", "OR", "HR"), 1, 0),
-                      level=x$level,
-                      studlab=FALSE, cex.studlab=0.8,
-                      ...)
+\method{funnel}{meta}(x,
+       xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
+       comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+       axes=TRUE,
+       pch=21, text=NULL, cex=1,
+       lty.fixed=2, lty.random=9,
+       lwd=1, lwd.fixed=lwd, lwd.random=lwd,
+       col="black", bg="darkgray",
+       col.fixed="black", col.random="black",
+       log="", yaxis="se",
+       contour.levels=NULL, col.contour,
+       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR"), 1, 0),
+       level=x$level,
+       studlab=FALSE, cex.studlab=0.8, ...)
 
-radial(x, y, xlim=NULL, ylim=NULL,
+\method{radial}{default}(x, y, xlim=NULL, ylim=NULL,
+       xlab="Inverse of standard error",
+       ylab="Standardised treatment effect (z-score)",
+       comb.fixed=TRUE, axes=TRUE,
+       pch=1, text=NULL, cex=1, col=NULL,
+       level=NULL, ...)
+
+\method{radial}{meta}(x, xlim=NULL, ylim=NULL,
        xlab="Inverse of standard error",
        ylab="Standardised treatment effect (z-score)",
        comb.fixed=TRUE, axes=TRUE,
@@ -53,8 +59,7 @@ radial(x, y, xlim=NULL, ylim=NULL,
 \arguments{
   \item{x}{An object of class \code{meta}, or estimated treatment
     effect in individual studies.}
-  \item{y}{Standard error of estimated treatment effect (mandatory if
-    \code{x} not of class \code{meta}).}
+  \item{y}{Standard error of estimated treatment effect.}
   \item{xlim}{The x limits (min,max) of the plot.}
   \item{ylim}{The y limits (min,max) of the plot.}
   \item{xlab}{A label for the x axis.}

@@ -1,4 +1,4 @@
-labbe.metabin <- function(x, y,
+labbe.metabin <- function(x,
                           xlim, ylim,
                           xlab=NULL, ylab=NULL,
                           TE.fixed=x$TE.fixed,

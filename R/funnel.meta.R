@@ -1,4 +1,4 @@
-funnel.meta <- function(x, y,
+funnel.meta <- function(x,
                         xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
                         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
                         axes=TRUE,
@@ -7,7 +7,7 @@ funnel.meta <- function(x, y,
                         lwd=1, lwd.fixed=lwd, lwd.random=lwd,
                         col="black", bg="darkgray",
                         col.fixed="black", col.random="black",
-                        log="", yaxis="se", sm=NULL,
+                        log="", yaxis="se",
                         contour.levels=NULL, col.contour,
                         ref=ifelse(x$sm %in% c("RR", "OR", "HR"), 1, 0),
                         level=x$level,
@@ -98,15 +98,15 @@ funnel.meta <- function(x, y,
   if (yaxis=="size")
     if (inherits(x, "metabin") || inherits(x, "metacont"))
       weight <- floor(x$n.e)+floor(x$n.c)
-    else if (inherits(x, "meta") && (length(x$n.e)>0 & length(x$n.c)>0))
+    else if (length(x$n.e)>0 & length(x$n.c)>0)
       weight <- floor(x$n.e)+floor(x$n.c)
-    else if (inherits(x, "meta") && length(x$n)>0)
+    else if (inherits(x, "metaprop"))
       weight <- floor(x$n)
-    else if (inherits(x, "meta"))
+    else if (length(x$n)>0)
+      weight <- floor(x$n)
+    else
       stop("no information on sample size available in object '",
            deparse(substitute(x)), "'")
-    else
-      weight <- y
   
   
   ##

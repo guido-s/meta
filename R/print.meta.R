@@ -80,7 +80,15 @@ print.meta <- function(x,
   
   
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
-
+  
+  
+  if (x$sm=="ZCOR")
+    sm.lab <- "COR"
+  else if (x$sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+    sm.lab <- "proportion"
+  else
+    sm.lab <- x$sm
+  
   
   if (details){
 
@@ -101,6 +109,9 @@ print.meta <- function(x,
     else if (inherits(x, "metaprop")){
       res <- cbind(event=x$event, n=x$n,
                    p=round(x$event/x$n, digits))
+    }
+    else if (inherits(x, "metacor")){
+      res <- cbind(cor=x$cor, n=x$n)
     }
     else{
       res <- cbind(TE=x$TE, seTE=x$seTE)
@@ -168,6 +179,12 @@ print.meta <- function(x,
       uppTE <- exp(uppTE)
     }
     ##
+    if (x$sm=="ZCOR"){
+      TE    <- z2cor(TE)
+      lowTE <- z2cor(lowTE)
+      uppTE <- z2cor(uppTE)
+    }
+    ##
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
@@ -199,7 +216,7 @@ print.meta <- function(x,
                    p.value, paste("  ", format(tau2), sep=""),
                    paste("  ", I2, ifelse(sel1, "", "%"), sep=""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep=""),
-                            c(x$sm, ci.lab, "p.value", "tau^2", "I^2"))
+                            c(sm.lab, ci.lab, "p.value", "tau^2", "I^2"))
       ##res <- cbind(format.TE(TE), p.ci(format(lowTE), format(uppTE)))
       ##dimnames(res) <- list(x$studlab, c(x$sm, ci.lab))
       ##
@@ -243,7 +260,7 @@ print.meta <- function(x,
       if (k.all==1){
         cat("Exact CI:\n\n")
         dimnames(res) <-
-          list("", c(x$sm, ci.lab,
+          list("", c(sm.lab, ci.lab,
                      if (comb.fixed) "%W(fixed)",
                      if (comb.random) "%W(random)"))
         prmatrix(res, quote=FALSE, right=TRUE)
@@ -251,7 +268,7 @@ print.meta <- function(x,
       }
       else{
         dimnames(res) <-
-          list(x$studlab, c(x$sm, ci.lab,
+          list(x$studlab, c(sm.lab, ci.lab,
                             if (comb.fixed) "%W(fixed)",
                             if (comb.random) "%W(random)"))
         prmatrix(res[order(sortvar),], quote=FALSE, right=TRUE)

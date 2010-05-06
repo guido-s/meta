@@ -100,6 +100,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     DerSimonian-Laird).}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{call}{Function call.}
+  \item{version}{Version of R package meta used to create object.}
 }
 
 \references{

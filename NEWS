@@ -1,4 +1,72 @@
 
+2010-05-07, version 1.5-0
+
+Version jump to 1.5-0 as several changes have been implemented.
+
+New functions:
+ - metacor        (meta-analysis of correlations)
+ - forest         (generic method for forest plots)
+ - forest.meta    (generic method for forest plots)
+ - radial         (generic method for radial plots)
+ - radial.default (generic method for radial plots)
+ - radial.meta    (generic method for radial plots)
+ - asin2p         (function used internally)
+ - logit2p        (function used internally)
+ - xlab           (function used internally)
+ - z2cor          (function used internally)
+
+Functions forest.meta:
+ - new arguments (pooled.totals, pooled.events) to specify whether
+   total number of observations and events should be displayed in the plot
+ - new argument (pscale) to rescale proportions for objects of class metaprop
+ - modified so that argument label is recognised for other
+   effect measures than RR, OR, and HR
+ - modified so that argument xlim is recognised for other
+   effect measures than RR, OR, and HR
+ - arguments rightlabs and leftlabs accept NAs for columns
+   using default labels
+ - modified so that significant digits are printed uniformly
+ - correct sum of percentage weight is printed for random effects model
+   in forest plots with subgroups
+ - x limits (min,max) of the plot are defined by the width of
+   confidence intervals instead of (0,1) for objects of class metaprop  
+
+Function metaprop:
+ - implementation of additional transformations:
+   log transformation, logit transformation, raw, i.e. untransformed, proportions
+ - new argument sm to choose summary measure (i.e. transformation)
+ - use of argument freeman.tukey is deprecated (use argument sm instead)
+
+Functions funnel and funnel.meta:
+ - argument y removed
+
+Functions labbe and labbe.meta:
+ - argument y removed
+
+Functions trimfill and trimfill.meta:
+ - argument seTE removed
+
+Function summary.meta:
+ - new list objects H.w, I2.w, Q.b.fixed and Q.b.random
+   for heterogeneity statistics within subgroups
+
+Extension for meta-analysis of correlations:
+- forest.meta, metacum, metainf, print.meta,
+  print.summary.meta, summary.meta
+
+Function plot.meta:
+ - a warning is printed that the function is no longer maintained
+   (function forest.meta should be used instead)
+
+New list element version with information on version number of
+meta package used to create an object (applies only to object
+creating functions, e.g. metabin, metabias).
+
+Update of several help pages.
+
+Use file NEWS instead of ChangeLog to document changes.
+
+
 2010-01-12, version 1.1-8
 
 Functions summary.meta, print.summary.meta:
@@ -102,4 +170,4 @@ Function metacr:
 First major version released on CRAN
 
 
-No ChangeLog available for versions < 1.0
+No NEWS available for versions < 1.0

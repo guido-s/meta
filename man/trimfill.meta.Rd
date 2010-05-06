@@ -12,19 +12,18 @@
 
 \usage{
 \method{trimfill}{default}(x, seTE, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
-                        sm=NULL, studlab=NULL, level=0.95, level.comb=0.95,
-                        comb.fixed=TRUE, comb.random=TRUE, silent=TRUE, ...)
+         sm=NULL, studlab=NULL, level=0.95, level.comb=0.95,
+         comb.fixed=TRUE, comb.random=TRUE, silent=TRUE, ...)
 
-\method{trimfill}{meta}(x, seTE, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
-                        sm=NULL, studlab=NULL, level=x$level, level.comb=x$level.comb,
-                        comb.fixed=x$comb.fixed, comb.random=x$comb.random, silent=TRUE, ...)
+\method{trimfill}{meta}(x, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
+         sm=NULL, studlab=NULL, level=x$level, level.comb=x$level.comb,
+         comb.fixed=x$comb.fixed, comb.random=x$comb.random, silent=TRUE, ...)
 }
 
 \arguments{
   \item{x}{An object of class \code{meta}, or estimated treatment
     effect in individual studies.}
-  \item{seTE}{Standard error of estimated treatment effect (mandatory if
-    \code{x} not of class \code{meta}).}
+  \item{seTE}{Standard error of estimated treatment effect.}
   \item{left}{A logical indicating whether studies are supposed to be
     missing on the left or right side of the funnel plot. If NULL, the
     linear regression test for funnel plot symmetry (i.e., function
@@ -100,6 +99,7 @@
   \item{trimfill}{A logical vector indicating studies that have been
     added by trim and fill method.}
   \item{k0}{Number of studies added by trim and fill.}
+  \item{version}{Version of R package meta used to create object.}
 }
 
 \references{

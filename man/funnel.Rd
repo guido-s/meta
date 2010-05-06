@@ -1,6 +1,7 @@
 \name{funnel}
 \alias{funnel}
-\title{Generic function to produce a funnel plot.}
+\alias{radial}
+\title{Generic function to produce a funnel or radial plot.}
 \description{
   Draw a funnel or radial plot to assess funnel plot asymmetry in the
   active graphics window.
@@ -9,15 +10,13 @@
   funnel plot asymmetry.
 }
 \usage{
-funnel(x, y, ...)
+funnel(x, ...)
+radial(x, ...)
 }
 \arguments{
   \item{x}{An object of class \code{meta}, or estimated treatment
     effect in individual studies.}
-  \item{y}{Standard error of estimated treatment effect (mandatory if
-    \code{x} not of class \code{meta}).}
-  \item{\dots}{Graphical parameters as in \code{par} may also be
-    passed as arguments.}
+  \item{\dots}{Additional arguments as in \code{par}.}
 }
 \details{
   For simple funnel plots, \code{funnel.default} will be used. For an

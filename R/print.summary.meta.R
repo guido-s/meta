@@ -13,6 +13,37 @@ print.summary.meta <- function(x,
   
   k <- x$k
   sm <- x$sm
+  sm.lab <- sm
+  
+  
+  if (sm=="PFT"){
+    sm.details <- "Freeman-Tukey double arcsine transformation"
+    sm.lab <- "proportion"
+  }
+  else if (sm=="PAS"){
+    sm.details <- "Arcsine transformation"
+    sm.lab <- "proportion"
+  }
+  else if (sm=="PLN"){
+    sm.details <- "Log transformation"
+    sm.lab <- "proportion"
+  }
+  else if (sm=="PLOGIT"){
+    sm.details <- "Logit transformation"
+    sm.lab <- "proportion"
+  }
+  else if (sm=="PRAW"){
+    sm.details <- "Untransformed proportions"
+    sm.lab <- "proportion"
+  }
+  else if (sm=="ZCOR"){
+    sm.details <- "Fisher's z transformation of correlations"
+    sm.lab <- "COR"
+  }
+  else if (sm=="COR")
+    sm.details <- "Untransformed correlations"
+  else
+    sm.details <- ""
   
   
   if (length(comb.fixed)==0)
@@ -25,68 +56,121 @@ print.summary.meta <- function(x,
     print.byvar <- TRUE
   
   
-  if (sm == "RR" | sm == "OR" | sm == "HR"){
-    x$fixed$TE <- exp(x$fixed$TE)
-    x$fixed$lower <- exp(x$fixed$lower)
-    x$fixed$upper <- exp(x$fixed$upper)
-    ##
-    x$random$TE <- exp(x$random$TE)
-    x$random$lower <- exp(x$random$lower)
-    x$random$upper <- exp(x$random$upper)
-    ##
-    if (!is.null(x$bylab)){
-      x$within.fixed$TE     <- exp(x$within.fixed$TE)
-      x$within.fixed$lower  <- exp(x$within.fixed$lower)
-      x$within.fixed$upper  <- exp(x$within.fixed$upper)
-      x$within.random$TE    <- exp(x$within.random$TE)
-      x$within.random$lower <- exp(x$within.random$lower)
-      x$within.random$upper <- exp(x$within.random$upper)
-    }
-  }
+  TE.fixed    <- x$fixed$TE
+  lowTE.fixed <- x$fixed$lower
+  uppTE.fixed <- x$fixed$upper
   ##
-  if (inherits(x, "metaprop")){
-    denum <- 1 + x$freeman.tukey
+  TE.random    <- x$random$TE
+  lowTE.random <- x$random$lower
+  uppTE.random <- x$random$upper
+  ##
+  if (!is.null(x$bylab)){
+    TE.fixed.w     <- x$within.fixed$TE
+    lowTE.fixed.w  <- x$within.fixed$lower
+    uppTE.fixed.w  <- x$within.fixed$upper
+    TE.random.w    <- x$within.random$TE
+    lowTE.random.w <- x$within.random$lower
+    uppTE.random.w <- x$within.random$upper
+  }
+  
+  
+  if (sm == "RR" | sm == "OR" | sm == "HR" | sm=="PLN"){
+    TE.fixed    <- exp(TE.fixed)
+    lowTE.fixed <- exp(lowTE.fixed)
+    uppTE.fixed <- exp(uppTE.fixed)
     ##
-    x$fixed$TE    <- sin(x$fixed$TE/denum)^2
-    x$fixed$lower <- sin(x$fixed$lower/denum)^2
-    x$fixed$upper <- sin(x$fixed$upper/denum)^2
-    ##
-    x$random$TE    <- sin(x$random$TE/denum)^2
-    x$random$lower <- sin(x$random$lower/denum)^2
-    x$random$upper <- sin(x$random$upper/denum)^2
+    TE.random <- exp(TE.random)
+    lowTE.random <- exp(lowTE.random)
+    uppTE.random <- exp(uppTE.random)
     ##
     if (!is.null(x$bylab)){
-      x$within.fixed$TE     <- sin(x$within.fixed$TE/denum)^2
-      x$within.fixed$lower  <- sin(x$within.fixed$lower/denum)^2
-      x$within.fixed$upper  <- sin(x$within.fixed$upper/denum)^2
-      x$within.random$TE    <- sin(x$within.random$TE/denum)^2
-      x$within.random$lower <- sin(x$within.random$lower/denum)^2
-      x$within.random$upper <- sin(x$within.random$upper/denum)^2
+      TE.fixed.w     <- exp(TE.fixed.w)
+      lowTE.fixed.w  <- exp(lowTE.fixed.w)
+      uppTE.fixed.w  <- exp(uppTE.fixed.w)
+      TE.random.w    <- exp(TE.random.w)
+      lowTE.random.w <- exp(lowTE.random.w)
+      uppTE.random.w <- exp(uppTE.random.w)
     }
   }
-
-
-  TE.fixed    <- round(x$fixed$TE, digits)
-  lowTE.fixed <- round(x$fixed$lower, digits)
-  uppTE.fixed <- round(x$fixed$upper, digits)
+  else if (sm %in% c("PFT", "PAS")){
+    denum <- 1 + (sm=="PFT")
+    ##
+    TE.fixed    <- asin2p(TE.fixed, denum)
+    lowTE.fixed <- asin2p(lowTE.fixed, denum)
+    uppTE.fixed <- asin2p(uppTE.fixed, denum)
+    ##
+    TE.random    <- asin2p(TE.random, denum)
+    lowTE.random <- asin2p(lowTE.random, denum)
+    uppTE.random <- asin2p(uppTE.random, denum)
+    ##
+    if (!is.null(x$bylab)){
+      TE.fixed.w     <- asin2p(TE.fixed.w, denum)
+      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, denum)
+      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, denum)
+      TE.random.w    <- asin2p(TE.random.w, denum)
+      lowTE.random.w <- asin2p(lowTE.random.w, denum)
+      uppTE.random.w <- asin2p(uppTE.random.w, denum)
+    }
+  }
+  else if (sm=="PLOGIT"){
+    TE.fixed    <- logit2p(TE.fixed)
+    lowTE.fixed <- logit2p(lowTE.fixed)
+    uppTE.fixed <- logit2p(uppTE.fixed)
+    ##
+    TE.random <- logit2p(TE.random)
+    lowTE.random <- logit2p(lowTE.random)
+    uppTE.random <- logit2p(uppTE.random)
+    ##
+    if (!is.null(x$bylab)){
+      TE.fixed.w     <- logit2p(TE.fixed.w)
+      lowTE.fixed.w  <- logit2p(lowTE.fixed.w)
+      uppTE.fixed.w  <- logit2p(uppTE.fixed.w)
+      TE.random.w    <- logit2p(TE.random.w)
+      lowTE.random.w <- logit2p(lowTE.random.w)
+      uppTE.random.w <- logit2p(uppTE.random.w)
+    }
+  }
+  else if (sm=="ZCOR"){
+    TE.fixed    <- z2cor(TE.fixed)
+    lowTE.fixed <- z2cor(lowTE.fixed)
+    uppTE.fixed <- z2cor(uppTE.fixed)
+    ##
+    TE.random    <- z2cor(TE.random)
+    lowTE.random <- z2cor(lowTE.random)
+    uppTE.random <- z2cor(uppTE.random)
+    ##
+    if (!is.null(x$bylab)){
+      TE.fixed.w     <- z2cor(TE.fixed.w)
+      lowTE.fixed.w  <- z2cor(lowTE.fixed.w)
+      uppTE.fixed.w  <- z2cor(uppTE.fixed.w)
+      TE.random.w    <- z2cor(TE.random.w)
+      lowTE.random.w <- z2cor(lowTE.random.w)
+      uppTE.random.w <- z2cor(uppTE.random.w)
+    }
+  }
+  
+  
+  TE.fixed    <- round(TE.fixed, digits)
+  lowTE.fixed <- round(lowTE.fixed, digits)
+  uppTE.fixed <- round(uppTE.fixed, digits)
   pTE.fixed <- x$fixed$p
   zTE.fixed <- round(x$fixed$z, digits)
   ##
-  TE.random    <- round(x$random$TE, digits)
-  lowTE.random <- round(x$random$lower, digits)
-  uppTE.random <- round(x$random$upper, digits)
+  TE.random    <- round(TE.random, digits)
+  lowTE.random <- round(lowTE.random, digits)
+  uppTE.random <- round(uppTE.random, digits)
   pTE.random <- x$random$p
   zTE.random <- round(x$random$z, digits)
   ##
   k.w <- x$k.w
   ##
   if (!is.null(x$bylab)){
-    TE.fixed.w     <- round(x$within.fixed$TE, digits)
-    lowTE.fixed.w  <- round(x$within.fixed$lower, digits)
-    uppTE.fixed.w  <- round(x$within.fixed$upper, digits)
-    TE.random.w    <- round(x$within.random$TE, digits)
-    lowTE.random.w <- round(x$within.random$lower, digits)
-    uppTE.random.w <- round(x$within.random$upper, digits)
+    TE.fixed.w     <- round(TE.fixed.w, digits)
+    lowTE.fixed.w  <- round(lowTE.fixed.w, digits)
+    uppTE.fixed.w  <- round(uppTE.fixed.w, digits)
+    TE.random.w    <- round(TE.random.w, digits)
+    lowTE.random.w <- round(lowTE.random.w, digits)
+    uppTE.random.w <- round(uppTE.random.w, digits)
   }
   ##
   H <- x$H$TE
@@ -131,14 +215,16 @@ print.summary.meta <- function(x,
                  format(round(zTE.fixed,4)),
                  format.p(pTE.fixed))
     
-    dimnames(res) <- list("", c(sm, x$ci.lab, "z", "p.value"))
+    dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p.value"))
     
     prmatrix(res, quote=FALSE, right=TRUE, ...)
-
-    method <- ifelse(x$method=="Peto",
-                     "Peto method", "Inverse variance method")
-    ##
-    cat(paste("\nMethod:", method, "\n"))
+    
+    if (inherits(x, "metabin")){
+      method <- ifelse(x$method=="Peto",
+                       "Peto method", "Inverse variance method")
+      ##
+      cat(paste("\nMethod:", method))
+    }
   }
   else{
 
@@ -158,7 +244,7 @@ print.summary.meta <- function(x,
       
       dimnames(res) <- list(c(if (comb.fixed) "Fixed effect model",
                               if (comb.random) "Random effects model"),  
-                            c(sm, x$ci.lab, "z", "p.value"))
+                            c(sm.lab, x$ci.lab, "z", "p.value"))
       
       prmatrix(res, quote=FALSE, right=TRUE, ...)
       
@@ -169,7 +255,7 @@ print.summary.meta <- function(x,
         
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p.value"))
         ##
-        cat("\nCMH-test: \n")
+        cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
         prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
       }
     }
@@ -178,8 +264,12 @@ print.summary.meta <- function(x,
     
     
     cat(paste("\nQuantifying heterogeneity:\n",
-              "tau^2 = ",
-              format(round(x$tau^2, 4), 4, nsmall=4),
+              if (x$tau^2 < 0.0001)
+              "tau^2 < 0.0001"
+              else
+                paste("tau^2 = ",
+                      format(round(x$tau^2, 4), 4, nsmall=4, scientific=FALSE), sep="")
+              ,
               paste("; H = ", round(H, 2),
                     ifelse(k>2,
                            p.ci(round(lowH, 2), round(uppH, 2)),
@@ -224,7 +314,10 @@ print.summary.meta <- function(x,
             warning("Estimate from fixed effect model used in groups defined by 'byvar'")
           Q <- x$Q
           Q.w <- sum(x$Q.w, na.rm=TRUE)
-          Q.b <- Q - Q.w
+          if (!is.null(x$Q.b.fixed))
+            Q.b <- x$Q.b.fixed
+          else
+            Q.b <- Q - Q.w
           ##
           if (x$method=="MH"){
             Q.w <- NA
@@ -271,7 +364,7 @@ print.summary.meta <- function(x,
                                     "Between groups  ",
                                     "Within groups   ", 
                                     bylab),
-                                  c("Q", "d.f.", sm, x$ci.lab,
+                                  c("Q", "d.f.", sm.lab, x$ci.lab,
                                     "p.value"))
           
           
@@ -282,21 +375,27 @@ print.summary.meta <- function(x,
         }
         else if (comb.random==TRUE){
           Q <- x$Q
-          Qs  <- c(Q, rep(NA, length(x$k.w)))
+          if (!is.null(x$Q.b.random))
+            Q.b <- x$Q.b.random
+          else
+            Q.b <- NA
+          Qs <- c(Q, Q.b, rep(NA, length(x$k.w)))
           Qs <- ifelse(Qs > -0.1 & Qs < 0, 0, Qs)
           
           df <- k-1
-          dfs <- c(df, k.w-1)
+          df.w <- sum((x$k.w-1)[!is.na(x$Q.w)])
+          df.b <- df - df.w
+          dfs <- c(df, df.b, k.w-1)
           dfs[dfs<=0] <- NA
           
-          pval <- 1-pchisq(Qs[1], df=dfs[1])
-
+          pval <- 1-pchisq(Qs[1:2], df=dfs[1:2])
+          
           fQs <- rmSpace(as.character(format(round(Qs, 2))))
           
           Qdata <- cbind(ifelse(fQs=="NA", "--", fQs),
                          ifelse(is.na(dfs), 0, dfs),
-                         c("--", format(TE.random.w)),
-                         c("--", p.ci(format(lowTE.random.w),
+                         c("--", "--", format(TE.random.w)),
+                         c("--", "--", p.ci(format(lowTE.random.w),
                                       format(uppTE.random.w))),
                          c(format.p(pval), rep("--", length(x$k.w))))
           
@@ -309,8 +408,9 @@ print.summary.meta <- function(x,
           
           
           dimnames(Qdata) <- list(c("Total           ",
+                                    "Between groups  ",
                                     bylab),
-                                  c("Q", "d.f.", sm, x$ci.lab,
+                                  c("Q", "d.f.", sm.lab, x$ci.lab,
                                     "p.value"))
         }
       }
@@ -327,14 +427,38 @@ print.summary.meta <- function(x,
                                    "Inverse variance method",
                                    x$method)))
     ##
-    cat(paste("\nMethod:", method, "\n"))
+    cat(paste("\nMethod:", method))
   }
   ##
-  if (inherits(x, "metaprop"))
-    if (!x$freeman.tukey)
-      cat("Arcsine transformation used for proportions\n")
-    else
-      cat("Freeman-Tukey double arcsine transformation used for proportions\n")
+  if (sm.details!="")
+    cat(if (x$k.all > 1) " (",
+        sm.details,
+        if (x$k.all > 1) ")",
+        "\n",
+        sep="")
+  else
+    cat("\n")
+  ##
+  ##  if (inherits(x, "metaprop"))
+  ##    if (!x$freeman.tukey)
+  ##      cat("\n", if (x$k.all > 1) "        ",
+  ##          "Arcsine transformation used for proportions\n",
+  ##          sep="")
+  ##    else
+  ##      cat("\n", if (x$k.all > 1) "        ",
+  ##          "Freeman-Tukey double arcsine transformation used for proportions\n",
+  ##          sep="")
+  ##  ##
+  ##  else if (sm=="ZCOR")
+  ##    cat("\n", if (x$k.all > 1) "        ",
+  ##        "Fisher's z transformation of correlations\n",
+  ##        sep="")
+  ##  else if (sm=="COR")
+  ##    cat("\n", if (x$k.all > 1) "        ",
+  ##        "Untransformed correlations\n",
+  ##        sep="")
+  ##  else
+  ##    cat("\n")
   
   invisible(NULL)
 }

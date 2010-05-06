@@ -104,7 +104,7 @@
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
   \item{k.all}{Total number of trials.}
-  \item{Q.CMH}{Cochrane-Mantel-Haenszel heterogeneity statistic.}
+  \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{sm}{A character string indicating underlying summary measure.}
   \item{method}{A character string with the pooling method.}
   \item{call}{Function call.}
@@ -124,6 +124,7 @@
   \item{by.levs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
   \item{comb.fixed, comb.random}{As defined above.}
+  \item{version}{Version of R package meta used to create object.}
 }
 
 \references{

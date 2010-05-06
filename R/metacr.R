@@ -80,6 +80,7 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   ##
   if (length(unique(x$group.no[sel]))>1){
     m1$byvar <- x$grplab[sel]
+    m1$bylab <- "grp"
     m1$print.byvar <- FALSE
   }
   ##

@@ -1,23 +1,26 @@
-export(ci, forest, funnel, funnel.default, funnel.meta,
+export(ci, forest, forest.meta, funnel, funnel.default, funnel.meta,
        addvar, as.data.frame.meta,
-       metabias, metabin, metacont, metacr, metaprop,
-       metacum, metagen, metainf, radial, read.mtv, read.rm5,
-       plot.meta, print.meta, print.metabias, print.summary.meta,
-       summary.meta, trimfill, trimfill.default, trimfill.meta,
-       labbe, labbe.default, labbe.metabin)
+       metabias, metabin, metacont, metacor, metacr, metaprop,
+       metacum, metagen, metainf, radial, radial.default, radial.meta,
+       read.mtv, read.rm5, plot.meta, print.meta, print.metabias,
+       print.summary.meta, summary.meta, trimfill, trimfill.default,
+       trimfill.meta, labbe, labbe.default, labbe.metabin)
 
 # not visible
-# format.p, meta-internal, p.ci, rmSpace
+# asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor
 
 S3method(as.data.frame, meta)
-S3method(plot, meta)
-S3method(print, meta)
-S3method(print, summary.meta)
-S3method(summary, meta)
+S3method(forest, meta)
 S3method(funnel, default)
 S3method(funnel, meta)
 S3method(labbe, default)
 S3method(labbe, metabin)
+S3method(plot, meta)
+S3method(print, meta)
+S3method(print, summary.meta)
+S3method(radial, default)
+S3method(radial, meta)
+S3method(summary, meta)
 S3method(trimfill, default)
 S3method(trimfill, meta)
 

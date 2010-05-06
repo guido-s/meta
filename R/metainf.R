@@ -76,6 +76,8 @@ metainf <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
   sd.e <- x$sd.e
   sd.c <- x$sd.c
   ##
+  cor <- x$cor
+  ##
   TE <- x$TE
   seTE <- x$seTE
   ##
@@ -100,6 +102,8 @@ metainf <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
     ##
     sd.e <- sd.e[o]
     sd.c <- sd.c[o]
+    ##
+    cor <- cor[o]
     ##
     TE <- TE[o]
     seTE <- seTE[o]
@@ -145,9 +149,16 @@ metainf <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
     if (inherits(x, "metaprop")){
       m <- metaprop(event[sel], n[sel],
                     studlab=studlab[sel],
-                    freeman.tukey=x$freeman.tukey,
-                    level=level, level.comb=level.comb)
-      sm <- "AS prop"
+                    sm=sm,
+                    level=level, level.comb=level.comb,
+                    warn=x$warn)
+    }
+    ##
+    if (inherits(x, "metacor")){
+      m <- metacor(cor[sel], n[sel],
+                   studlab=studlab[sel],
+                   sm=sm,
+                   level=level, level.comb=level.comb)
     }
     ##
     tsum.i <- summary(m)
@@ -198,6 +209,8 @@ metainf <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
               TE.random=NA, seTE.random=NA,
               Q=NA, tau=NA,
               level=level, level.comb=level.comb)
+  
+  res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metainf", "meta")
   

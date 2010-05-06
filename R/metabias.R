@@ -514,6 +514,8 @@ metabias <- function(x, seTE, TE.fixed, seTE.fixed,
         res$outclab <- x$outclab
     }
     
+    res$version <- packageDescription("meta")$Version
+    
     class(res) <- c("metabias", "htest")
   }
   

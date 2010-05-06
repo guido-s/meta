@@ -108,6 +108,8 @@ read.mtv <- function(file){
   res2$sd.c[res2$type == "P" & res2$sd.c==0] <- NA
   ##
   attr(res2, "title") <- res$title
-  ##
+  
+  attr(res2, "version") <- packageDescription("meta")$Version
+  
   res2
 }

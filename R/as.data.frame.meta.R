@@ -7,6 +7,8 @@ as.data.frame.meta <- function(x, row.names=NULL,
   sel <- as.vector(lapply(x, length) == length(x$TE))
   
   res <- as.data.frame(x[names(x)[sel]])
-  ##
+  
+  attr(res, "version") <- packageDescription("meta")$Version
+  
   res
 }

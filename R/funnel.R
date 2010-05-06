@@ -1,2 +1,2 @@
-funnel <- function (x, y, ...) 
+funnel <- function (x, ...) 
   UseMethod("funnel")

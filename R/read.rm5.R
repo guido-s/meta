@@ -263,8 +263,12 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   res2$complab <- as.character(res2$complab)
   res2$outclab <- nachar(as.character(res2$outclab))
   res2$studlab <- nachar(as.character(res2$studlab))
-  if (is.data.frame(res$group))
+  if (is.data.frame(res$group)){
     res2$grplab <- nachar(as.character(res2$grplab))
+    ## Recode special signs:
+    res2$grplab <- gsub("\\&lt;", "<", res2$grplab)
+    res2$grplab <- gsub("\\&gt;", ">", res2$grplab)
+  }
   ##
   res2$sm     <- as.character(res2$sm)
   res2$method <- as.character(res2$method)
@@ -304,7 +308,9 @@ read.rm5 <- function(file, sep=",", quote = "\"",
       }
     }
   }
-  ##
+  
+  attr(res2, "version") <- packageDescription("meta")$Version
+  
   class(res2) <- c("data.frame", "rm5")
   res2
 }

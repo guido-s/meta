@@ -54,7 +54,7 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
     pooled estimates.}
-
+  \item{version}{Version of R package meta used to create object.}
 }
 \references{
   Cooper H & Hedges LV (1994),

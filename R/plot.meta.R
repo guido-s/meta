@@ -30,6 +30,9 @@ plot.meta <- function(x,
 		      ref=ifelse(x$sm %in% c("RR", "OR", "HR"), 1, 0),
                       ...){
   
+  warning("Function 'plot.meta' is no longer maintained, please use instead the function 'forest.meta'.")
+  
+  ##return(invisible(NULL))
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
@@ -82,17 +85,19 @@ plot.meta <- function(x,
   sm <- x$sm
 
   
-  if (is.null(xlab)){
-    if      (sm=="OR" ) xlab <- "Odds Ratio"
-    else if (sm=="RD" ) xlab <- "Risk Difference"
-    else if (sm=="RR" ) xlab <- "Relative Risk"
-    else if (sm=="SMD") xlab <- "Standardised mean difference"
-    else if (sm=="WMD"|sm=="MD") xlab <- "Mean difference"
-    else if (sm=="HR" ) xlab <- "Hazard Ratio"
-    else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
-    else if (sm=="proportion" ) xlab <- "Proportion"
-    else xlab <- sm
-  }
+  if (is.null(xlab))
+    xlab <- xlab(x$sm)
+  ##  if (is.null(xlab)){
+  ##    if      (sm=="OR" ) xlab <- "Odds Ratio"
+  ##    else if (sm=="RD" ) xlab <- "Risk Difference"
+  ##    else if (sm=="RR" ) xlab <- "Relative Risk"
+  ##    else if (sm=="SMD") xlab <- "Standardised mean difference"
+  ##    else if (sm=="WMD"|sm=="MD") xlab <- "Mean difference"
+  ##    else if (sm=="HR" ) xlab <- "Hazard Ratio"
+  ##    else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
+  ##    else if (sm=="proportion" ) xlab <- "Proportion"
+  ##    else xlab <- sm
+  ##  }
   
   
   iweight <- charmatch(tolower(weight),
@@ -102,6 +107,16 @@ plot.meta <- function(x,
     stop("weight should be \"same\", \"fixed\", or \"random\"")
   ##
   weight <- c("same", "fixed", "random")[iweight]
+  
+  
+  if (inherits(x, "metaprop")){
+    x$event.e <- x$event
+    x$n.e <- x$n
+  }
+  ##
+  if (inherits(x, "metacor")){
+    x$n.e <- x$n
+  }
   
   
   ##
@@ -145,7 +160,6 @@ plot.meta <- function(x,
   ##
   ##
   ##
-  x$n <- x$n[sel]
   x$n.e <- x$n.e[sel]
   x$n.c <- x$n.c[sel]
   ##
@@ -158,6 +172,8 @@ plot.meta <- function(x,
   ##
   x$sd.e <- x$sd.e[sel]
   x$sd.c <- x$sd.c[sel]
+  ##
+  x$cor <- x$cor[sel]
   ##
   x$TE <- x$TE[sel]
   x$seTE <- x$seTE[sel]
@@ -174,7 +190,6 @@ plot.meta <- function(x,
     ##
     o <- order(byvar, sortvar)
     ##
-    x$n <- x$n[o]
     x$n.e <- x$n.e[o]
     x$n.c <- x$n.c[o]
     ##
@@ -187,6 +202,8 @@ plot.meta <- function(x,
     ##
     x$sd.e <- x$sd.e[o]
     x$sd.c <- x$sd.c[o]
+    ##
+    x$cor <- x$cor[o]
     ##
     x$TE <- x$TE[o]
     x$seTE <- x$seTE[o]
@@ -259,8 +276,12 @@ plot.meta <- function(x,
       }
       ##
       if (inherits(x, "metaprop")){
-        meta1 <- metaprop(event=x$event[sel], n=x$n[sel],
-                          freeman.tukey=x$freeman.tukey)
+        meta1 <- metaprop(event=x$event.e[sel], n=x$n.e[sel], sm=x$sm,
+                          warn=x$warn)
+      }
+      ##
+      if (inherits(x, "metacor")){
+        meta1 <- metacor(x$cor[sel], x$n.e[sel], sm=x$sm)
       }
       ##
       res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
@@ -399,25 +420,112 @@ plot.meta <- function(x,
   }
   
   
-  if (inherits(x, "metaprop")){
+  if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
-    denum <- 1 + x$freeman.tukey
+    denum <- 1 + (x$sm=="PFT")
     ##
-    TE.fixed <- sin(TE.fixed/denum)^2
-    lowTE.fixed <- sin(lowTE.fixed/denum)^2
-    uppTE.fixed <- sin(uppTE.fixed/denum)^2
+    if (inherits(x, "metaprop")){
+      TE    <- TE
+      lowTE <- lowTE
+      uppTE <- uppTE
+    }
+    else{
+      TE    <- asin2p(TE, denum)
+      lowTE <- asin2p(lowTE, denum)
+      uppTE <- asin2p(uppTE, denum)
+    }
     ##
-    TE.random <- sin(TE.random/denum)^2
-    lowTE.random <- sin(lowTE.random/denum)^2
-    uppTE.random <- sin(uppTE.random/denum)^2
+    TE.fixed    <- asin2p(TE.fixed, denum)
+    lowTE.fixed <- asin2p(lowTE.fixed, denum)
+    uppTE.fixed <- asin2p(uppTE.fixed, denum)
+    ##
+    TE.random    <- asin2p(TE.random, denum)
+    lowTE.random <- asin2p(lowTE.random, denum)
+    uppTE.random <- asin2p(uppTE.random, denum)
     ##
     if (by){
-      TE.w <- sin(TE.w/denum)^2
-      lowTE.w <- sin(lowTE.w/denum)^2
-      uppTE.w <- sin(uppTE.w/denum)^2
+      TE.w    <- asin2p(TE.w, denum)
+      lowTE.w <- asin2p(lowTE.w, denum)
+      uppTE.w <- asin2p(uppTE.w, denum)
     }
   }
+  else if (x$sm=="PLN"){
+    ref <- NA
+    ##
+    if (inherits(x, "metaprop")){
+      TE    <- TE
+      lowTE <- lowTE
+      uppTE <- uppTE
+    }
+    else{
+      TE <- exp(TE)
+      lowTE <- exp(lowTE)
+      uppTE <- exp(uppTE)
+    }
+    ##
+    TE.fixed <- exp(TE.fixed)
+    lowTE.fixed <- exp(lowTE.fixed)
+    uppTE.fixed <- exp(uppTE.fixed)
+    ##
+    TE.random <- exp(TE.random)
+    lowTE.random <- exp(lowTE.random)
+    uppTE.random <- exp(uppTE.random)
+    ##
+    if (by){
+      TE.w    <- exp(TE.w)
+      lowTE.w <- exp(lowTE.w)
+      uppTE.w <- exp(uppTE.w)
+    }
+  }
+  else if (x$sm=="PLOGIT"){
+    ref <- NA
+    ##
+    if (inherits(x, "metaprop")){
+      TE <- TE
+      lowTE <- lowTE
+      uppTE <- uppTE
+    }
+    else{
+      TE <- logit2p(TE)
+      lowTE <- logit2p(lowTE)
+      uppTE <- logit2p(uppTE)
+    }
+    ##
+    TE.fixed <- logit2p(TE.fixed)
+    lowTE.fixed <- logit2p(lowTE.fixed)
+    uppTE.fixed <- logit2p(uppTE.fixed)
+    ##
+    TE.random <- logit2p(TE.random)
+    lowTE.random <- logit2p(lowTE.random)
+    uppTE.random <- logit2p(uppTE.random)
+    ##
+    if (by){
+      TE.w    <- logit2p(TE.w)
+      lowTE.w <- logit2p(lowTE.w)
+      uppTE.w <- logit2p(uppTE.w)
+    }
+  }
+  else if (x$sm=="ZCOR"){
+    TE    <- z2cor(TE)
+    lowTE <- z2cor(lowTE)
+    uppTE <- z2cor(uppTE)
+    ##
+    TE.fixed    <- z2cor(TE.fixed)
+    lowTE.fixed <- z2cor(lowTE.fixed)
+    uppTE.fixed <- z2cor(uppTE.fixed)
+    ##
+    TE.random    <- z2cor(TE.random)
+    lowTE.random <- z2cor(lowTE.random)
+    uppTE.random <- z2cor(uppTE.random)
+    ##
+    if (by){
+      TE.w    <- z2cor(TE.w)
+      lowTE.w <- z2cor(lowTE.w)
+      uppTE.w <- z2cor(uppTE.w)
+    }
+  }
+  
   
   ##
   ## x-axis:

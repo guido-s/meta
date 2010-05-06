@@ -1,4 +1,4 @@
-trimfill.meta <- function(x, seTE, left=NULL, ma.fixed=TRUE,
+trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                           type="L", n.iter.max=50,
                           sm=NULL, studlab=NULL,
                           level=x$level, level.comb=x$level.comb,
@@ -35,7 +35,7 @@ trimfill.meta <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   }
   
   
-  estimate.missing <- function(TE, seTE, TE.sum, type){
+  estimate.missing <- function(TE, TE.sum, type){
     ##
     ## 1. Centre around mean
     ##
@@ -138,7 +138,7 @@ trimfill.meta <- function(x, seTE, left=NULL, ma.fixed=TRUE,
       else
         TE.sum <- metagen(TE[sel], seTE[sel])$TE.random
       ##
-      trim1 <- estimate.missing(TE, seTE, TE.sum, type)
+      trim1 <- estimate.missing(TE, TE.sum, type)
       ##
       if (!silent){
         cat("n.iter = ", n.iter, "\n", sep="")
@@ -205,7 +205,9 @@ trimfill.meta <- function(x, seTE, left=NULL, ma.fixed=TRUE,
               k0=sum(trimfill),
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed, comb.random=comb.random)
-  ##
+  
+  res$version <- packageDescription("meta")$Version
+  
   class(res) <- c("metagen", "meta", "trimfill")
   ##
   res

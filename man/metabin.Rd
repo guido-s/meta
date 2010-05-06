@@ -154,12 +154,13 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance (moment estimator of
     DerSimonian-Laird).}
-  \item{Q.CMH}{Cochrane-Mantel-Haenszel heterogeneity statistic.}
+  \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{incr.e, incr.c}{Increment added to cells in the experimental and
     control group, respectively}
   \item{sparse}{Logical flag indicating if any study included in
     meta-analysis has any zero cell frequencies.}
   \item{call}{Function call.}
+  \item{version}{Version of R package meta used to create object.}
 }
 
 \references{

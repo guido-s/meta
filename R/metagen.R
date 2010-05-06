@@ -183,6 +183,8 @@ metagen <- function(TE, seTE,
   }
   res$print.byvar <- print.byvar
   
+  res$version <- packageDescription("meta")$Version
+  
   class(res) <- c("metagen", "meta")
 
   res

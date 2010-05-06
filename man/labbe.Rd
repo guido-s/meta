@@ -1,21 +1,19 @@
 \name{labbe}
 \alias{labbe}
-\title{L\'Abbe plot}
+\title{L'Abbe plot}
 \description{
-  Generic function for drawing a L\'Abbe plot.
+  Generic function for drawing a L'Abbe plot.
 }
 \usage{
-labbe(x, y, ...)
+labbe(x, ...)
 }
 \arguments{
-  \item{x}{The x coordinates of points of the L\'Abbe
+  \item{x}{The x coordinates of points of the L'Abbe
     plot. Alternatively, an object of class \code{metabin}.}
-  \item{y}{The y coordinates of the L\'Abbe plot, optional if \code{x}
-    is an appropriate structure.}
-  \item{\dots}{Parameters used in other L\'Abbe plot functions.}
+  \item{\dots}{Parameters used in other L'Abbe plot functions.}
 }
 \details{
-  Generic function for drawing a L\'Abbe plot.
+  Generic function for drawing a L'Abbe plot.
 }
 \references{
   L'Abbe  KA, Detsky AS, O'Rourke K (1987),

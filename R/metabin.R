@@ -76,7 +76,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         is.numeric(event.c) & is.numeric(n.c)))
     stop("Non-numeric value for event.e, n.e, event.c or n.c")
   ##
-  if (any(n.e <= 0 | n.c <= 0)) stop("n.e and n.c must be positive")
+  npn <- n.e <= 0 | n.c <= 0
+  if (any(npn))
+    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis")
   ##
   if (any(event.e < 0 | event.c < 0))
     stop("event.e and event.c must be larger equal zero")
@@ -267,10 +269,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  n11 <- event.e*incl
-  n21 <- event.c*incl
-  n1. <- n.e*incl
-  n2. <- n.c*incl
+  n11 <- ifelse(npn, NA, event.e*incl)
+  n21 <- ifelse(npn, NA, event.c*incl)
+  n1. <- ifelse(npn, NA, n.e*incl)
+  n2. <- ifelse(npn, NA, n.c*incl)
   ##
   n.. <- n1. + n2.
   n12 <- n1. - n11
@@ -505,6 +507,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$bylab <- if (!missing(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metabin", "meta")
   

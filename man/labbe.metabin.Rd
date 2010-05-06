@@ -1,45 +1,44 @@
 \name{labbe.metabin}
 \alias{labbe.metabin}
 \alias{labbe.default}
-\title{L\'Abbe plot}
+\title{L'Abbe plot}
 \description{
-  Draw a L\'Abbe plot.
+  Draw a L'Abbe plot.
 }
 \usage{
-\method{labbe}{metabin}(x, y,
-                        xlim, ylim,
-                        xlab=NULL, ylab=NULL,
-                        TE.fixed=x$TE.fixed,
-                        TE.random=x$TE.random,
-                        comb.fixed=x$comb.fixed,
-                        comb.random=x$comb.random,
-                        axes=TRUE,
-                        pch=21, text=NULL, cex=1,
-                        col="black", bg="lightgray",
-                        lwd=1, lwd.fixed=lwd, lwd.random=lwd,
-                        lty.fixed=2, lty.random=9,
-                        sm=x$sm, weight,
-                        studlab=FALSE, cex.studlab=0.8,
-                        ...)
-
 \method{labbe}{default}(x, y,
-                        xlim, ylim,
-                        xlab=NULL, ylab=NULL,
-                        TE.fixed, TE.random,
-                        comb.fixed=FALSE, comb.random=FALSE,
-                        axes=TRUE,
-                        pch=21, text=NULL, cex=1,
-                        col="black", bg="lightgray",
-                        lwd=1, lwd.fixed=lwd, lwd.random=lwd,
-                        lty.fixed=2, lty.random=9,
-                        sm=NULL, weight,
-                        studlab=FALSE, cex.studlab=0.8,
-                        ...)
+      xlim, ylim,
+      xlab=NULL, ylab=NULL,
+      TE.fixed, TE.random,
+      comb.fixed=FALSE, comb.random=FALSE,
+      axes=TRUE,
+      pch=21, text=NULL, cex=1,
+      col="black", bg="lightgray",
+      lwd=1, lwd.fixed=lwd, lwd.random=lwd,
+      lty.fixed=2, lty.random=9,
+      sm=NULL, weight,
+      studlab=FALSE, cex.studlab=0.8,
+      ...)
+
+\method{labbe}{metabin}(x,
+      xlim, ylim,
+      xlab=NULL, ylab=NULL,
+      TE.fixed=x$TE.fixed,
+      TE.random=x$TE.random,
+      comb.fixed=x$comb.fixed,
+      comb.random=x$comb.random,
+      axes=TRUE,
+      pch=21, text=NULL, cex=1,
+      col="black", bg="lightgray",
+      lwd=1, lwd.fixed=lwd, lwd.random=lwd,
+      lty.fixed=2, lty.random=9,
+      sm=x$sm, weight,
+      studlab=FALSE, cex.studlab=0.8, ...)
 }
 \arguments{
-  \item{x}{The x coordinates of points of the L\'Abbe
+  \item{x}{The x coordinates of points of the L'Abbe
     plot. Alternatively, an object of class \code{metabin}.}
-  \item{y}{The y coordinates of the L\'Abbe plot, optional if \code{x}
+  \item{y}{The y coordinates of the L'Abbe plot, optional if \code{x}
     is an appropriate structure.}
 \item{xlim}{The x limits (min,max) of the plot.}
   \item{ylim}{The y limits (min,max) of the plot.}
@@ -86,7 +85,7 @@
     passed as arguments.}
 }
 \details{
-  A L\'Abbe plot is drawn in the active graphics window.
+  A L'Abbe plot is drawn in the active graphics window.
   
   If \code{comb.fixed} is TRUE, the pooled estimate of the fixed effect
   model is plotted as a line. If \code{comb.random} is TRUE, the pooled

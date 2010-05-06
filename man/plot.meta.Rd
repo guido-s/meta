@@ -2,7 +2,7 @@
 
 \alias{plot.meta}
 
-\title{Plot function for objects of class meta}
+\title{Plot function for objects of class meta (deprecated)}
 
 \description{
   Draws a forest plot in the active graphics window.
@@ -99,12 +99,14 @@
 }
 
 \details{
+  Please note, the R code of the function \code{plot.meta} is no longer
+  maintained. Use of the function might result in (unexpected) error
+  messages or even in wrong results. Please use the function
+  \code{\link{forest.meta}} instead.
+
   A forest plot, also called confidence interval plot, is drawn in the
   active graphics window. Sub-group analyses are conducted and displayed
   in the plot if \code{byvar} is not missing.
-
-  The \code{plot.meta} function produces basic forest plots. For nicer
-  looking forest plots the \code{\link{forest}} function can be used.
   
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
@@ -120,7 +122,7 @@
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{forest}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
+\seealso{\code{\link{forest.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
 
 \examples{
 data(Olkin95)

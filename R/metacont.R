@@ -82,8 +82,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         is.numeric(n.c) & is.numeric(mean.c) & is.numeric(sd.c)))
     stop("Non-numeric value for n.e, mean.e, sd.e, n.c, mean.c or sd.c")
   ##
-  if (any(n.e <= 0 | n.c <= 0))
-    stop("n.e and n.c must be positive")
+  npn <- n.e <= 0 | n.c <= 0
+  if (any(npn))
+    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis")
   ##
   ## Studies with zero sd.e and/or sd.c will be included in
   ## meta-analysis, however with zero weight
@@ -111,14 +112,18 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   
   if (sm == "MD"){
-    TE    <- mean.e - mean.c
-    varTE <- sd.e^2/n.e + sd.c^2/n.c
+    TE    <- ifelse(npn, NA,
+                    mean.e - mean.c)
+    varTE <- ifelse(npn, NA,
+                    sd.e^2/n.e + sd.c^2/n.c)
   }
   else if (sm == "SMD"){
     N <- n.e+n.c
-    TE    <- (1-3/(4*N-9)) * (mean.e - mean.c) /
-      sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2))
-    varTE <- N / (n.e*n.c) + TE^2/(2*(N-3.94))
+    TE    <- ifelse(npn, NA,
+                    (1-3/(4*N-9)) * (mean.e - mean.c) /
+                    sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2)))
+    varTE <- ifelse(npn, NA,
+                    N / (n.e*n.c) + TE^2/(2*(N-3.94)))
   }
   ##  
   ## Studies with zero variance get zero weight in meta-analysis
@@ -174,6 +179,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$bylab <- if (!missing(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metacont", "meta")
   

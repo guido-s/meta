@@ -87,6 +87,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
     DerSimonian-Laird).}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{call}{Function call.}
+  \item{version}{Version of R package meta used to create object.}
 }
 
 \references{

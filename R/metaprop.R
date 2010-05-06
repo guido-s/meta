@@ -1,10 +1,13 @@
 metaprop <- function(event, n, studlab,
                      data=NULL, subset=NULL,
-                     freeman.tukey=TRUE,
+                     sm="PFT",
+                     freeman.tukey,
+                     incr=0.5, allincr=FALSE, addincr=FALSE,
                      level=0.95, level.comb=level,
                      comb.fixed=TRUE, comb.random=TRUE,
                      title="", complab="", outclab="",
-                     byvar, bylab, print.byvar=TRUE
+                     byvar, bylab, print.byvar=TRUE,
+                     warn=TRUE
                      ){
   
   
@@ -13,8 +16,9 @@ metaprop <- function(event, n, studlab,
   ## Catch event, n, studlab (possibly) from data:
   ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$freeman.tukey <- NULL
-  mf$level <- mf$level.comb <- NULL
+  mf$data <- mf$subset <- mf$sm <- NULL
+  mf$freeman.tukey <- mf$level <- mf$level.comb <- NULL
+  mf$incr <- mf$allincr <- mf$addincr <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
   ##
@@ -23,8 +27,9 @@ metaprop <- function(event, n, studlab,
   mf2 <- match.call()
   mf2$event <- mf2$n <- NULL
   mf2$studlab <- NULL
-  mf2$data <- mf2$freeman.tukey <- NULL
+  mf2$data <- mf2$sm <- mf2$freeman.tukey <- NULL
   mf2$level <- mf2$level.comb <- NULL
+  mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
@@ -67,8 +72,19 @@ metaprop <- function(event, n, studlab,
   if (length(studlab) != k.all)
     stop("Number of studies and labels are different")
   ##
-  if (!is.logical(freeman.tukey))
-    stop("Parameter freeman.tukey must be of type 'logical'")
+  imeth <- charmatch(tolower(sm),
+                     c("pft", "pas", "praw", "pln", "plogit"), nomatch = NA)
+  ##
+  if(is.na(imeth) || imeth==0)
+    stop("sm should be \"PFT\", \"PAS\", \"PRAW\", \"PLN\", or \"PLOGIT\"")
+  ##
+  sm <- c("PFT", "PAS", "PRAW", "PLN", "PLOGIT")[imeth]
+  ##
+  if (!missing(freeman.tukey))
+    warning(paste("Use of parameter freeman.tukey is deprecated.",
+                  "Effect measure used:", sm))
+  ##if (!is.logical(freeman.tukey))
+  ##  stop("Parameter freeman.tukey must be of type 'logical'")
   
   
   ##
@@ -85,9 +101,6 @@ metaprop <- function(event, n, studlab,
     stop("parameter 'level.comb': no valid level for confidence interval")
   
   
-  method <- "Inverse"
-  
-  
   ##
   ## Recode integer as numeric:
   ##
@@ -95,31 +108,95 @@ metaprop <- function(event, n, studlab,
   if (is.integer(n))     n     <- as.numeric(n)
   
   
-  if (freeman.tukey)
-    TE <- asin(sqrt(event/(n+1))) + asin(sqrt((event+1)/(n+1)))
-  else
-    TE <- asin(sqrt(event/n))
   ##
-  seTE <- 1/sqrt(n+freeman.tukey)
+  ## Sparse computation
+  ##
+  sel <- switch(sm,
+                PFT=rep(FALSE, length(event)),
+                PAS=rep(FALSE, length(event)),
+                PRAW=event == 0 | (n-event) == 0,
+                PLN=event == 0,
+                PLOGIT=event == 0 | (n-event) == 0)
+  ##
+  sparse <- any(sel)
+  ##
+  ## No need to add anything to cell counts for arcsine transformation
+  ## Accordingly, no warning will be printed.
+  ##
+  warn2 <- !(sm %in% c("PFT", "PAS"))
+  ##
+  if (addincr){
+    ##
+    incr.event <- rep(incr, k.all)
+    ##
+    if (warn & warn2 & incr > 0)
+      warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+  }
+  else{
+    if (sparse){
+      if (allincr){
+        ##
+        incr.event <- rep(incr, k.all)
+        ##
+        if (warn & warn2 & incr > 0)
+          warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+      }
+      else{
+        ##
+        incr.event <- incr*sel
+        ##
+        if (warn & warn2 & incr > 0)
+          warning(paste("Increment", incr, "added to each cell in 2x2 tables with zero cell frequencies"))
+      }
+    }
+    else
+      incr.event <- rep(0, k.all)
+  }
   
   
-  m <- metagen(TE, seTE)
+  if (sm=="PFT"){
+    TE <- asin(sqrt(event/(n+1))) + asin(sqrt((event+1)/(n+1)))
+    ##varTE <- 1/(n+0.5)
+    varTE <- 1/(n+1)
+  }
+  else if (sm=="PAS"){
+    TE <- asin(sqrt(event/n))
+    varTE <- 0.25*(1/n)
+  }
+  else if (sm=="PRAW"){
+    TE <- (event+incr.event)/(n+incr.event)
+    varTE <- (((event+incr.event)/(n+incr.event)) *
+             (1-(event+incr.event)/(n+incr.event)) / (n+incr.event))
+  }
+  else if (sm=="PLN"){
+    TE <- log((event+incr.event)/(n+incr.event))
+    varTE <- 1/(event+incr.event) - 1/(n+incr.event)
+  }
+  else if (sm=="PLOGIT"){
+    TE <- log(((event+incr.event)/(n+incr.event)) /
+              (1-(event+incr.event)/(n+incr.event)))
+    varTE <- 1/(event+incr.event) + 1/((n+incr.event)-(event+incr.event))
+  }
+  
+  
+  m <- metagen(TE, sqrt(varTE))
   
   
   res <- list(event=event, n=n,
               studlab=studlab,
-              TE=TE, seTE=seTE,
+              TE=TE, seTE=sqrt(varTE),
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
               k=m$k, Q=m$Q, tau=m$tau,
-              sm="proportion", method=m$method,
-              freeman.tukey=freeman.tukey,
+              sm=sm,
+              method=m$method,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
               title="", complab="", outclab="",
-              call=match.call())
+              call=match.call(),
+              warn=warn)
   ##
   if (!missing(byvar)){
     res$byvar <- byvar
@@ -127,7 +204,9 @@ metaprop <- function(event, n, studlab,
   }
   res$print.byvar <- print.byvar
   
+  res$version <- packageDescription("meta")$Version
+  
   class(res) <- c("metaprop", "meta")
-
+  
   res
 }
