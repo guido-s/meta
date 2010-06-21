@@ -13,16 +13,17 @@
 
 \usage{
 metabin(event.e, n.e, event.c, n.c, studlab,
-        data = NULL, subset = NULL, method = "MH",
-        sm = ifelse(!is.na(charmatch(method, c("Peto", "peto"), nomatch = NA)), "OR", "RR"),
-        incr = 0.5, allincr = FALSE, addincr = FALSE, allstudies = FALSE,
-        MH.exact = FALSE, RR.cochrane = FALSE,
-        level = 0.95, level.comb = level,
+        data=NULL, subset=NULL, method="MH",
+        sm=ifelse(!is.na(charmatch(method, c("Peto", "peto"),
+                                   nomatch=NA)), "OR", "RR"),
+        incr=0.5, allincr=FALSE, addincr=FALSE, allstudies=FALSE,
+        MH.exact=FALSE, RR.cochrane=FALSE,
+        level=0.95, level.comb=level,
         comb.fixed=TRUE, comb.random=TRUE,
         title="", complab="", outclab="",
         label.e="Experimental", label.c="Control",
         byvar, bylab, print.byvar=TRUE,
-        warn = TRUE)
+        print.CMH=FALSE, warn=TRUE)
 }
 
 \arguments{
@@ -52,7 +53,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     frequency of all studies irrespective of zero cell counts.}
   \item{allstudies}{A logical indicating if studies with zero or all
     events in both groups are to be included in the meta-analysis
-    (applies only if sm = \code{"RR"} or \code{"OR"}).}
+    (applies only if \code{sm} is equal to \code{"RR"} or \code{"OR"}).}
   \item{MH.exact}{A logical indicating if \code{incr} is not to be added
     to all cell frequencies for studies with a zero cell count to
     calculate the pooled estimate based on the Mantel-Haenszel method.}
@@ -80,6 +81,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{print.CMH}{A logical indicating whether result of the
+    Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
     to studies with zero cell frequencies should result in a warning.}
 }

@@ -11,6 +11,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     title="", complab="", outclab="",
                     label.e="Experimental", label.c="Control",
                     byvar, bylab, print.byvar=TRUE,
+                    print.CMH=FALSE,
                     warn=TRUE
                     ){
   
@@ -507,6 +508,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$bylab <- if (!missing(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$print.CMH <- print.CMH
   
   res$version <- packageDescription("meta")$Version
   

@@ -108,7 +108,7 @@
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$TE} then).}
   \item{cex.studlab}{Size of study labels.}
-  \item{\dots}{Graphical parameters as in \code{par} may also be
+  \item{\dots}{Graphical arguments as in \code{par} may also be
     passed as arguments.}
 }
 \details{

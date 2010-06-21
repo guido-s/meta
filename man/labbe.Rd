@@ -10,7 +10,7 @@ labbe(x, ...)
 \arguments{
   \item{x}{The x coordinates of points of the L'Abbe
     plot. Alternatively, an object of class \code{metabin}.}
-  \item{\dots}{Parameters used in other L'Abbe plot functions.}
+  \item{\dots}{Arguments used in other L'Abbe plot functions.}
 }
 \details{
   Generic function for drawing a L'Abbe plot.

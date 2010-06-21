@@ -17,6 +17,7 @@
        overall=TRUE,
        text.fixed="Fixed effect model", text.random="Random effects model",
        lty.fixed=2, lty.random=3,
+       text.fixed.w=text.fixed, text.random.w=text.random,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        xlab=NULL, xlab.pos=ref, xlim,
        allstudies=TRUE,
@@ -29,15 +30,50 @@
        lab.e.attach.to.col=NULL, lab.c.attach.to.col=NULL,
        lwd=1,
        at=NULL, label=TRUE,
-       fontsize=12, boxsize=0.8,
-       plotwidth=unit(6, "cm"), colgap=unit(2, "mm"),
-       col.i="black", col.by="darkgray", digits=2, ...)
+       col.i="black", col.i.inside.square="white",
+       col.square="gray", col.square.lines=col.square,
+       col.diamond="gray",
+       col.diamond.fixed=col.diamond, col.diamond.random=col.diamond,
+       col.diamond.lines="black",
+       col.diamond.fixed.lines=col.diamond.lines, col.diamond.random.lines=col.diamond.lines,
+       col.by="darkgray",
+       print.I2=TRUE, print.tau2=TRUE, print.Q=FALSE, print.pval.Q=TRUE,
+       hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
+       hetlab="Heterogeneity: ",
+       fontsize=12,
+       fs.heading=fontsize,
+       fs.fixed=fontsize, fs.random=fs.fixed, fs.study=fontsize,
+       fs.fixed.labels=fs.fixed, fs.random.labels=fs.random,
+       fs.study.labels=fs.study, fs.hetstat=fontsize-2,
+       fs.axis=fontsize, fs.xlab=fontsize,
+       ff.heading="bold",
+       ff.fixed="bold", ff.random=ff.fixed, ff.study="plain",
+       ff.fixed.labels=ff.fixed, ff.random.labels=ff.random,
+       ff.study.labels=ff.study, ff.hetstat="bold.italic",
+       ff.axis="plain", ff.xlab="plain",
+       ##
+       squaresize=0.8,
+       boxsize=squaresize,
+       ##
+       plotwidth=unit(6, "cm"),
+       colgap=unit(2, "mm"),
+       colgap.left=colgap, colgap.right=colgap,
+       colgap.forest=colgap,
+       colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
+       ##
+       just="center",
+       ##
+       addspace=TRUE,
+       ##
+       new=TRUE,
+       ##
+       digits=2, ...)
 }
 
 \arguments{
   \item{x}{An object of class \code{meta}.}
   \item{byvar}{An optional vector containing grouping information (must
-    be of same length as \code{x$TE}). Parameter \code{byvar} can not be
+    be of same length as \code{x$TE}). Argument \code{byvar} can not be
     used if \code{x} is an object of class \code{metacum} or
     \code{metainf}.}
   \item{bylab}{A character string with a label for the grouping variable.}
@@ -57,8 +93,8 @@
   \item{comb.random}{A logical indicating whether random effects estimate
   should be plotted.}
   \item{overall}{A logical indicating whether overall summaries should
-    be plotted. This parameter is useful in combination with the
-    parameter \code{byvar} if summaries should only be plotted on group
+    be plotted. This argument is useful in combination with the
+    argument \code{byvar} if summaries should only be plotted on group
     level.}
   \item{text.fixed}{A character string used in the plot to label the
     pooled fixed effect estimate.}
@@ -66,6 +102,12 @@
   pooled random effects estimate.}
   \item{lty.fixed}{Line type (pooled fixed effect estimate).}
   \item{lty.random}{Line type (pooled random effects estimate).}
+  \item{text.fixed.w}{A character string to label the pooled fixed
+    effect estimate within subgroups, or a character vector of same
+    length as number of subgroups with corresponging labels.}
+  \item{text.random.w}{A character string to label the pooled random
+    effect estimate within subgroups, or a character vector of same
+    length as number of subgroups with corresponging labels.}
   \item{pooled.totals}{A logical indicating whether total number of
     observations should be given in the figure.}
   \item{pooled.events}{A logical indicating whether total number of
@@ -73,7 +115,8 @@
   \item{xlab}{A label for the x axis.}
   \item{xlab.pos}{A numeric specifying the center of the label
     on the x axis.}
-  \item{xlim}{The x limits (min,max) of the plot.}
+  \item{xlim}{The x limits (min,max) of the plot, or the character "s"
+    to produce symmetric forest plots.}
   \item{allstudies}{A logical indicating whether studies with inestimable
     treatment effects should be plotted.}
   \item{weight}{A character string indicating which type of plotting
@@ -85,7 +128,7 @@
   \item{pscale}{A numeric giving scaling factor for probabilities for
     objects of class \code{metaprop}.}
   \item{ref}{A numerical giving the reference value to be plotted as a
-    line in the forest plot. No reference line is plotted if parameter
+    line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}
   \item{leftcols}{A character vector specifying (additional) columns to
   be plotted on the left side of the forest plot (see Details).}
@@ -109,18 +152,81 @@
   \item{label}{A logical value indicating whether to draw the
     labels on the tick marks, or an expression or character vector which
     specify the labels to use. See \code{\link{grid.xaxis}}.}
+  \item{col.i}{The colour for individual study results and confidence limits.}
+  \item{col.i.inside.square}{The colour for individual study results and
+    confidence limits if confidence limits are completely within squares.}
+  \item{col.square}{The colour for squares reflecting study's weight in
+    the meta-analysis.}
+  \item{col.square.lines}{The colour for the outer lines of squares
+    reflecting study's weight in the meta-analysis.}
+  \item{col.diamond}{The colour of diamonds representing the results for
+    fixed effect and random effects models.}
+  \item{col.diamond.fixed}{The colour of diamonds for fixed effect estimates.}
+  \item{col.diamond.random}{The colour of diamonds for random effects estimates.}
+  \item{col.diamond.lines}{The colour of the outer lines of diamonds
+    representing the results for fixed effect and random effects models.}
+  \item{col.diamond.fixed.lines}{The colour of the outer lines of diamond
+    for fixed effect estimate.}
+  \item{col.diamond.random.lines}{The colour of the outer lines of diamond
+    for random effects estimate.}
+  \item{col.by}{The colour to print information on subgroups.}
+  \item{print.I2}{A logical value indicating whether to print the value
+    of the I-squared statistic.}
+  \item{print.tau2}{A logical value indicating whether to print the value
+    of the between-study variance tau-squared.}
+  \item{print.Q}{A logical value indicating whether to print the value
+    of the heterogeneity statistic Q.}
+  \item{print.pval.Q}{A logical value indicating whether to print the
+    p-value of the heterogeneity statistic Q.}
+  \item{hetstat}{A logical value indicating whether to print results for
+    heterogeneity measures at all.}
+  \item{hetlab}{Label printed in front of results for heterogeneity measures.}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
-  \item{boxsize}{A numeric used to increase or decrease the size of
-    boxes in the forest plot.}
+  \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
+  \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
+  \item{fs.random}{The size of text for results of random effects model, see \code{\link{gpar}}.}
+  \item{fs.study}{The size of text for results of individual studies, see \code{\link{gpar}}.}
+  \item{fs.fixed.labels}{The size of text for label of fixed effect model, see \code{\link{gpar}}.}
+  \item{fs.random.labels}{The size of text for label of random effects model, see \code{\link{gpar}}.}
+  \item{fs.study.labels}{The size of text for labels of individual studies, see \code{\link{gpar}}.}
+  \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
+  \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
+  \item{fs.xlab}{The size of text of label on x-axis, see \code{\link{gpar}}.}
+  \item{ff.heading}{The fontface for column headings, see \code{\link{gpar}}.}
+  \item{ff.fixed}{The fontface of text for results of fixed effect model, see \code{\link{gpar}}.}
+  \item{ff.random}{The fontface of text for results of random effects model, see \code{\link{gpar}}.}
+  \item{ff.study}{The fontface of text for results of individual studies, see \code{\link{gpar}}.}
+  \item{ff.fixed.labels}{The fontface of text for label of fixed effect model, see \code{\link{gpar}}.}
+  \item{ff.random.labels}{The fontface of text for label of random effects model, see \code{\link{gpar}}.}
+  \item{ff.study.labels}{The fontface of text for labels of individual studies, see \code{\link{gpar}}.}
+  \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
+  \item{ff.axis}{The fontface of text on x-axis, see \code{\link{gpar}}.}
+  \item{ff.xlab}{The fontface of text of label on x-axis, see \code{\link{gpar}}.}
+  \item{squaresize}{A numeric used to increase or decrease the size of
+    squares in the forest plot.}
+  \item{boxsize}{Use of this argument is deprecated.}
   \item{plotwidth}{A unit object specifying width of the forest plot.}
   \item{colgap}{A unit object specifying gap between columns printed on
     left and right side of forest plot.}
-  \item{col.i}{The colour for individual study results and confidence limits.}
-  \item{col.by}{A character specifying colour to print information on
-    subgroups.}
+  \item{colgap.left}{A unit object specifying gap between columns printed on
+    left side of forest plot.}
+  \item{colgap.right}{A unit object specifying gap between columns printed on
+    right side of forest plot.}
+  \item{colgap.forest}{A unit object specifying gap between column
+    adjacent to forest plot and the forest plot.}
+  \item{colgap.forest.left}{A unit object specifying gap between column
+    on the left side of forest plot and the forest plot.}
+  \item{colgap.forest.right}{A unit object specifying gap between column
+    on the right side of forest plot and the forest plot.}
+  \item{just}{Justification of text for additional columns (possible
+    values: "left", "right", "center").}
+  \item{addspace}{A logical value indicating whether additional space
+    (i.e. a blank row) is printed above and below study results.}
+  \item{new}{A logical value indicating whether a new figure should
+    be printed in an existing graphics window.}
   \item{digits}{Minimal number of significant digits, see
     \code{print.default}.}
- \item{\dots}{Additional graphical parameters (ignored at the moment).}
+ \item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 
 \details{
@@ -129,33 +235,32 @@
   displayed in the plot if \code{byvar} is not missing.
 
   The \code{forest} function is based on the grid graphics
-  system. Therefore, to plot a new figure in an existing graphics
-  window, one has to use the \code{\link{grid.newpage}} function. In
-  order to print the forest plot, (i) resize the graphics window,
-  (ii) either use \code{\link{dev.copy2eps}} or
+  system. In order to print the forest plot, (i) resize the graphics
+  window, (ii) either use \code{\link{dev.copy2eps}} or
   \code{\link{dev.copy2pdf}}. For basic forest plots, the
   \code{\link{plot.meta}} function can be used.
   
   Information from object \code{x} is utilised if argument \code{weight}
   is missing. Weights from the fixed effect model are used
-  (\code{weight="fixed"}) if parameter \code{x$comb.fixed} is
+  (\code{weight="fixed"}) if argument \code{x$comb.fixed} is
   \code{TRUE}; weights from the random effects model are used
-  (\code{weight="random"}) if parameter \code{x$comb.random}
+  (\code{weight="random"}) if argument \code{x$comb.random}
   is \code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
 
-  The parameters \code{leftcols} and \code{rightcols} can be used to
+  The arguments \code{leftcols} and \code{rightcols} can be used to
   specify columns which are plotted on the left and right side of the
-  forest plot, respectively. If these parameters are \code{NULL}, the
+  forest plot, respectively. If these arguments are \code{NULL}, the
   following default columns will be plotted.
 
-  Parameter \code{rightcols}: (i) estimated treatment effect with
-  \code{level}-confidence interval, (ii) in addition, weights of the
-  fixed and/or random effects model will be given, if
-  \code{comb.fixed=TRUE} and/or \code{comb.random=TRUE}. For an object
+  Argument \code{rightcols}: \code{rightcols=c("effect", "ci")}, i.e.,
+  estimated treatment effect and its \code{level}-confidence
+  interval. In addition, weights of the fixed (\code{"w.fixed"}) and/or random effects
+  model (\code{"w.random"})will be given, if \code{comb.fixed=TRUE}
+  and/or \code{comb.random=TRUE}. For an object
   of class \code{metacum} or \code{metainf} only the estimated treatment
   effect with \code{level}-confidence interval are plotted.
   
-  Parameter \code{leftcols}:
+  Argument \code{leftcols}:
   (i) \code{leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c")}
   for an object of class \code{metabin},
   (ii) \code{leftcols=c("studlab", "n.e", "mean.e", "sd.e", "n.c",
@@ -164,13 +269,15 @@
   for an object of class \code{metagen},
   (iv) \code{leftcols=c("studlab", "event", "n")}
   for an object of class \code{metaprop},
-  (v) \code{leftcols=c("studlab")}
+  (v) \code{leftcols=c("studlab", "n")}
+  for an object of class \code{metacor},
+  (vi) \code{leftcols=c("studlab")}
   for an object of class \code{metacum} or \code{metainf}.
 
-  The parameters \code{leftlabs} and \code{rightlabs} can be used to
+  The arguments \code{leftlabs} and \code{rightlabs} can be used to
   specify column headings which are plotted on left and right side of
   the forest plot, respectively. For certain columns predefined labels
-  exist. If the parameters \code{leftlabs} and \code{rightlabs} are
+  exist. If the arguments \code{leftlabs} and \code{rightlabs} are
   \code{NULL}, the following default labels will be used: for columns
   \code{c("studlab", "TE", "seTE", "n.e", "n.c", "event.e", "event.c",
   "mean.e", "mean.c", "sd.e", "sd.c", "effect", "ci", "w.fixed",
@@ -184,23 +291,17 @@
   columns. The value \code{NA} can be used to specify columns using the
   default labels (see Example).
 
-  If parameters \code{lab.e} and \code{lab.c} are \code{NULL},
+  If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
   
-  The parameters \code{pscale} can be used to rescale proportions
+  The arguments \code{pscale} can be used to rescale proportions
   for objects of class \code{metaprop}, e.g. \code{pscale=100} means
   that proportions are expressed per 100 observations. This is useful in
   situations with (very) low proportions. For \code{pscale=100}, column
   heading and x-axis label are changed to "Prop (in %)" and "Proportion
   (in %"), respectively.
   
-  For subgroups (argument \code{byvar} not \code{NULL}), results for the
-  fixed effect model will be plotted if both arguments \code{comb.fixed}
-  and \code{comb.random} are \code{TRUE}. In order to plot results for
-  the random effects model within subgroups, use
-  \code{comb.fixed==FALSE} and \code{comb.random==TRUE}.
-
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
   (\url{http://www.cc-ims.net/revman/}). In RevMan 5, subgroup analyses
@@ -215,7 +316,7 @@
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{plot.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link[grid]{grid.newpage}}}
+\seealso{\code{\link{plot.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
 
 \examples{
 data(Olkin95)
@@ -225,31 +326,40 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  studlab=paste(author, year))
 
 
-grid.newpage()
 ##
 ## Do forest plot
 ##
-forest(meta1, comb.fixed=TRUE, comb.random=TRUE)
+forest(meta1)
 
 
-grid.newpage()
+##
+## Symmetric forest plot
+##
+forest(meta1, xlim="s")
+
+
 ##
 ## Change set of columns printed on left side
 ## of forest plot
 ##
-forest(meta1, comb.fixed=TRUE, comb.random=FALSE,
+forest(meta1, comb.random=FALSE,
        leftcols="studlab")
 
 
-grid.newpage()
 ##
 ## Change study label to "Author"
 ##
-forest(meta1, comb.fixed=TRUE, comb.random=FALSE,
+forest(meta1, comb.random=FALSE,
        leftlabs=c("Author", NA, NA, NA, NA))
 
 
-grid.newpage()
+##
+## Just give effect estimate and 95% confidence interval
+## on right side of forest plot
+##
+forest(meta1, rightcols=c("effect", "ci"))
+
+
 ##
 ## 1. Change order of columns on left side
 ## 2. Attach labels to columns 'event.e' and 'event.c'
@@ -258,8 +368,7 @@ grid.newpage()
 forest(meta1,
        leftcols=c("studlab", "n.e", "event.e", "n.c", "event.c"),
        lab.e.attach.to.col="event.e",
-       lab.c.attach.to.col="event.c",
-       comb.fixed=TRUE)
+       lab.c.attach.to.col="event.c")
 
 
 Olkin95$studlab <- paste(Olkin95$author, Olkin95$year)
@@ -269,7 +378,6 @@ Olkin95$studlab <- paste(Olkin95$author, Olkin95$year)
 meta1$year <- addvar(meta1, Olkin95, "year")
 meta1$author <- addvar(meta1, Olkin95, "author")
 
-grid.newpage()
 ##
 ## Specify column labels only for newly created variables
 ## 'year' and 'author'
@@ -277,8 +385,27 @@ grid.newpage()
 forest(meta1,
        leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c",
                   "author", "year"),
-       leftlabs=c("Author", "Year of Publ"),
-       comb.fixed=TRUE)
+       leftlabs=c("Author", "Year of Publ"))
+
+
+##
+## Change some fontsizes and fontfaces
+##
+forest(meta1,
+       fs.study=10, ff.study="italic",
+       fs.study.label=11, ff.study.label="bold",
+       fs.axis=5, ff.axis="italic",
+       ff.xlab="bold.italic",
+       ff.fixed="plain", ff.hetstat="plain")
+
+
+##
+## Change some colours
+##
+forest(meta1,
+       col.diamond="green", col.diamond.lines="red",
+       col.i=c("green", "blue", "red", "orange"),
+       col.square="pink", col.square.lines="black")
 }
 
 \keyword{hplot}

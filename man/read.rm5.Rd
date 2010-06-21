@@ -24,7 +24,7 @@ read.rm5(file, sep=",", quote = "\"", title,
   \item{title}{Title of the Cochrane review.}
   \item{numbers.in.labels}{A logical indicating whether comparision
     number and outcome number should be printed at the beginning of the
-    comparison (parameter \code{complab}) and outcome label (parameter
+    comparison (argument \code{complab}) and outcome label (argument
     \code{outclab}); this is the default in RevMan 5.}
 }
 
@@ -54,10 +54,10 @@ read.rm5(file, sep=",", quote = "\"", title,
 
   By default in RevMan 5, the name of the exported data file is the
   title of the Cochrane Review. Accordingly, information on the title is
-  extracted from the name of the exported data file (parameter:
-  \code{file}) if parameter \code{title} is missing (default).
+  extracted from the name of the exported data file (argument:
+  \code{file}) if argument \code{title} is missing (default).
   
-  Each respective meta-analysis for parameters \code{event.e.pooled} --
+  Each respective meta-analysis for arguments \code{event.e.pooled} --
   \code{df.pooled} is defined by values for \code{"comp.no"} and
   \code{"outcome.no"}, and \code{"grp.no"}.  }
 

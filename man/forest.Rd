@@ -18,7 +18,7 @@ forest(x, ...)
 }
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 \seealso{\code{\link{forest.meta}}, \code{\link{metabin}},
-  \code{\link{metacont}}, \code{\link{metagen}}, \code{\link[grid]{grid.newpage}} }
+  \code{\link{metacont}}, \code{\link{metagen}}}
 
 \examples{
 data(Olkin95)
@@ -27,7 +27,6 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  sm="RR", meth="I",
                  studlab=paste(author, year))
 
-grid.newpage()
 forest(meta1)
 }
 \keyword{hplot}

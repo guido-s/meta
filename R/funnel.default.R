@@ -82,18 +82,7 @@ funnel.default <- function(x, y,
   if (yaxis=="invvar") weight <- 1/seTE^2
   if (yaxis=="invse")  weight <- 1/seTE
   if (yaxis=="se") weight <- seTE
-  if (yaxis=="size")
-    if (inherits(x, "metabin") || inherits(x, "metacont"))
-      weight <- floor(x$n.e)+floor(x$n.c)
-    else if (inherits(x, "meta") && (length(x$n.e)>0 & length(x$n.c)>0))
-      weight <- floor(x$n.e)+floor(x$n.c)
-    else if (inherits(x, "meta") && length(x$n)>0)
-      weight <- floor(x$n)
-    else if (inherits(x, "meta"))
-      stop("no information on sample size available in object '",
-           deparse(substitute(x)), "'")
-    else
-      weight <- y
+  if (yaxis=="size") weight <- y
   
   
   ##

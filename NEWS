@@ -1,4 +1,59 @@
 
+2010-06-21, version 1.6-0
+
+Function forest.meta:
+- for subgroup analyses (i.e. groups defined by argument 'byvar'),
+  result for both fixed effect and random effects model are printed
+  (in older versions of the meta package only results for either
+   fixed effect or random effects model could be printed)
+- new arguments text.fixed.w and text.random.w to specify label for
+  estimates within subgroups
+- new arguments to change colour of several parts of the plot:
+  col.i.inside.square, col.square, col.square.lines,
+  col.diamond, col.diamond.fixed, col.diamond.random,
+  col.diamond.lines, col.diamond.fixed.lines, col.diamond.random.lines
+- new arguments to print information on heterogeneity measures:
+  print.I2, print.tau2, print.Q, print.pval.Q,
+  hetstat, hetlab
+- new arguments to change fontsize and fontface of several parts
+  of the plot:
+  fs.heading, fs.fixed, fs.random, fs.study,
+  fs.fixed.labels, fs.random.labels, fs.study.labels,
+  fs.hetstat, fs.axis, fs.xlab,
+  ff.heading, ff.fixed, ff.random, ff.study,
+  ff.fixed.labels, ff.random.labels, ff.study.labels,
+  ff.hetstat, ff.axis, ff.xlab
+- new arguments to change gap between columns
+  colgap.left, colgap.right=colgap,
+  colgap.forest, colgap.forest.left, colgap.forest.right
+- new argument 'just' to change justification of text for
+  additional columns
+- new argument 'addspace' to print a blank line at top and
+  bottom of study results
+- argument 'squaresize' superseeds argument 'boxsize'
+- new argument 'new' indicating whether a new figure should
+  be printed in an existing graphics window
+  (internally, the grid.newpage command is used if new=TRUE)
+- no line is printed for the fixed effect and random effects
+  model if lty.fixed=NULL or lty.random=NULL, respectively
+- symmetric forest plots can be produced by setting 
+  argument xlim="s"
+
+Function print.summary.meta:
+- new argument print.CMH indicating whether Cochran-Mantel-Haenszel
+  test for overall effect should be printed (default print.CMH=FALSE)
+- For subgroup analyses (i.e. groups defined by argument 'byvar'),
+  result for test of heterogeneity printed separately for fixed effect
+  and random effects model
+
+Functions metabin and summary.meta:
+- new argument print.CMH indicating whether Cochran-Mantel-Haenszel
+  test for overall effect should be printed (default print.CMH=FALSE)
+
+The following help pages have been updated:
+- forest.meta, metabin, print.summary.meta, summary.meta
+
+
 2010-05-07, version 1.5-0
 
 Version jump to 1.5-0 as several changes have been implemented.

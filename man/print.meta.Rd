@@ -23,12 +23,12 @@
         bystud=FALSE,
         level=object$level, level.comb=object$level.comb,
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
-        warn=TRUE, ...)
+        print.CMH=object$print.CMH, warn=TRUE, ...)
 
 \method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
         print.byvar,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-        header=TRUE, ...)
+        header=TRUE, print.CMH=x$print.CMH, ...)
 }
 
 \arguments{
@@ -64,6 +64,8 @@
   \item{warn}{A logical indicating whether the use of
   \code{summary.meta} in connection with \code{metacum} or
   \code{metainf} should result in a warning.}
+  \item{print.CMH}{A logical indicating whether result of the
+    Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{...}{other arguments}
 }
 
@@ -117,13 +119,17 @@
     \code{byvar} is not missing.}
   \item{k.w}{Number of studies combined within groups - if \code{byvar}
     is not missing.}
+  \item{Q.b.fixed}{Heterogeneity statistic Q between groups (based on
+    fixed effect model) - if \code{byvar} is not missing.}
+  \item{Q.b.random}{Heterogeneity statistic Q between groups (based on
+    random effects model) - if \code{byvar} is not missing.}
   \item{Q.w}{Heterogeneity statistic Q within groups - if \code{byvar}
     is not missing.}
   \item{bylab}{Label for grouping variable - if \code{byvar} is not
     missing.}
   \item{by.levs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
-  \item{comb.fixed, comb.random}{As defined above.}
+  \item{comb.fixed, comb.random, print.CMH}{As defined above.}
   \item{version}{Version of R package meta used to create object.}
 }
 

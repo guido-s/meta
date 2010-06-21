@@ -25,9 +25,9 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
 
   Information from object \code{x} is utilised if argument \code{pooled}
   is missing. A fixed effect model is assumed (\code{pooled="fixed"}) if
-  parameter \code{x$comb.fixed} is \code{TRUE}; a random effects model
+  argument \code{x$comb.fixed} is \code{TRUE}; a random effects model
   is assumed (\code{pooled="random"}) if
-  parameter \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed}
+  argument \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed}
   is \code{FALSE}.
 }
 
@@ -75,7 +75,6 @@ meta1
 metacum(meta1)
 metacum(meta1, pooled="random")
 
-grid.newpage()
 forest(metacum(meta1, pooled="random"))
 }
 \keyword{htest}

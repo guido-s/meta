@@ -46,8 +46,8 @@
   \item{comb.random}{A logical indicating whether random effects
     estimate should be plotted.}
   \item{overall}{A logical indicating whether overall summaries should
-    be plotted. This parameter is useful in combination with the
-    parameter \code{byvar} if summaries should only be plotted on group
+    be plotted. This argument is useful in combination with the
+    argument \code{byvar} if summaries should only be plotted on group
     level.}
   \item{text.fixed}{A character string used in the plot to label the pooled fixed
     effects estimate.}
@@ -86,7 +86,7 @@
   \item{scale.square}{A numerical value giving the amount by which the
     square representing treatment effects in individual studies should
     be scaled relative to the default.}
-  \item{\dots}{Graphical parameters as in \code{par} may also be
+  \item{\dots}{Graphical arguments as in \code{par} may also be
     passed as arguments.}
   \item{col.i}{The colour for individual study results and confidence limits.}
   \item{clim}{Limits (min,max) where to cut confidence limits; arrows

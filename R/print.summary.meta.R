@@ -4,6 +4,7 @@ print.summary.meta <- function(x,
                                comb.fixed=x$comb.fixed,
                                comb.random=x$comb.random,
                                header=TRUE,
+                               print.CMH=x$print.CMH,
                                ...){
   
   
@@ -54,6 +55,9 @@ print.summary.meta <- function(x,
   ##
   if (length(print.byvar)==0)
     print.byvar <- TRUE
+  ##
+  if (length(print.CMH)==0)
+    print.CMH <- FALSE
   
   
   TE.fixed    <- x$fixed$TE
@@ -249,7 +253,7 @@ print.summary.meta <- function(x,
       prmatrix(res, quote=FALSE, right=TRUE, ...)
       
       
-      if (inherits(x, "metabin")){
+      if (inherits(x, "metabin") & print.CMH){
         Qdata <- cbind(round(x$Q.CMH, 2), 1,
                        format.p(1-pchisq(x$Q.CMH, df=1)))
         
@@ -299,19 +303,17 @@ print.summary.meta <- function(x,
     
     if (k > 1 & (comb.fixed|comb.random)){
       
-      cat("\nTest of heterogeneity:")
-      
       if (is.null(x$bylab)){
         Qdata <- cbind(round(x$Q, 2), k-1,
                        format.p(1-pchisq(x$Q, df=k-1)))
         
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p.value"))
+        ##
+        cat("\nTest of heterogeneity:\n")
+        prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
       }  
       else{
         if (comb.fixed==TRUE){
-        ##if (x$method!="MH" & comb.fixed==TRUE){
-          if (comb.random)
-            warning("Estimate from fixed effect model used in groups defined by 'byvar'")
           Q <- x$Q
           Q.w <- sum(x$Q.w, na.rm=TRUE)
           if (!is.null(x$Q.b.fixed))
@@ -372,8 +374,11 @@ print.summary.meta <- function(x,
             warning("Test for subgroup differences not calculated for Mantel-Haenszel method")
             Qdata <- Qdata[-(2:3),]
           }
+          ##
+          cat("\nTest of heterogeneity (fixed effect model):\n")
+          prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
         }
-        else if (comb.random==TRUE){
+        if (comb.random==TRUE){
           Q <- x$Q
           if (!is.null(x$Q.b.random))
             Q.b <- x$Q.b.random
@@ -412,12 +417,11 @@ print.summary.meta <- function(x,
                                     bylab),
                                   c("Q", "d.f.", sm.lab, x$ci.lab,
                                     "p.value"))
+          ##
+          cat("\nTest of heterogeneity (random effects model):\n")
+          prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
         }
       }
-      
-      cat("\n")
-      prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
-
     }
     
     method <- ifelse(x$method=="MH",
@@ -438,27 +442,6 @@ print.summary.meta <- function(x,
         sep="")
   else
     cat("\n")
-  ##
-  ##  if (inherits(x, "metaprop"))
-  ##    if (!x$freeman.tukey)
-  ##      cat("\n", if (x$k.all > 1) "        ",
-  ##          "Arcsine transformation used for proportions\n",
-  ##          sep="")
-  ##    else
-  ##      cat("\n", if (x$k.all > 1) "        ",
-  ##          "Freeman-Tukey double arcsine transformation used for proportions\n",
-  ##          sep="")
-  ##  ##
-  ##  else if (sm=="ZCOR")
-  ##    cat("\n", if (x$k.all > 1) "        ",
-  ##        "Fisher's z transformation of correlations\n",
-  ##        sep="")
-  ##  else if (sm=="COR")
-  ##    cat("\n", if (x$k.all > 1) "        ",
-  ##        "Untransformed correlations\n",
-  ##        sep="")
-  ##  else
-  ##    cat("\n")
   
   invisible(NULL)
 }

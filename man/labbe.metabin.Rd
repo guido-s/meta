@@ -81,7 +81,7 @@
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$event.e} then).}
   \item{cex.studlab}{Size of study labels.}
-  \item{\dots}{Graphical parameters as in \code{par} may also be
+  \item{\dots}{Graphical arguments as in \code{par} may also be
     passed as arguments.}
 }
 \details{
@@ -93,9 +93,9 @@
 
   Information from object \code{x} is utilised if argument \code{weight}
   is missing. Weights from the fixed effect model are used
-  (\code{weight="fixed"}) if parameter \code{x$comb.fixed} is
+  (\code{weight="fixed"}) if argument \code{x$comb.fixed} is
   \code{TRUE}; weights from the random effects model are used
-  (\code{weight="random"}) if parameter \code{x$comb.random}
+  (\code{weight="random"}) if argument \code{x$comb.random}
   is \code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
 
 }

@@ -7,6 +7,7 @@ summary.meta <- function(object,
                          level.comb=object$level.comb,
                          comb.fixed=object$comb.fixed,
                          comb.random=object$comb.random,
+                         print.CMH=object$print.CMH,
                          warn=TRUE,
                          ...){
   
@@ -37,6 +38,10 @@ summary.meta <- function(object,
   ##
   if (length(print.byvar)==0){
     print.byvar <- TRUE
+  }
+  ##
+  if (length(print.CMH)==0){
+    print.CMH <- FALSE
   }
   
   
@@ -308,6 +313,8 @@ summary.meta <- function(object,
   res$title   <- object$title
   ##
   res$print.byvar <- print.byvar
+  
+  res$print.CMH <- print.CMH
   
   res$version <- packageDescription("meta")$Version
   
