@@ -1,4 +1,39 @@
 
+2010-10-28, version 1.6-1
+
+Function forest.meta:
+ - modified so that the number of events is printed in the
+   correct order for objects of class metaprop if argument
+   sort or order is used
+ - modified so that transformed proportions are printed
+   for individual studies in column 'TE' if function metagen
+   is used with argument sm equal to either 'PLN', 'PLOGIT',
+   'PAS', or 'PFT'
+
+Function as.data.frame.meta:
+ - modified so that the function works for meta-analyses
+   with six studies which previously resulted in an error message
+   'Error: evaluation nested too deeply: infinite recursion ...'
+ - modified so that additional arguments '...' can be passed to
+   function
+
+Function addvar:
+ - option stringsAsFactors=FALSE added to internal call of
+   R function as.data.frame.meta
+ - additional checks for existence of columns by.x and by.y
+ - additional checks for situations with duplicate entries
+   for columns by.x and by.y added
+
+Function print.meta:
+ - modified so that backtransformed proportions are printed
+   for individual studies if function metagen is used with
+   argument sm equal to either 'PLN', 'PLOGIT', 'PAS', or 'PFT'
+
+Examples given in the following help pages have been (slightly)
+updated:
+ - read.mtv, read.rm5, metacr
+
+
 2010-06-21, version 1.6-0
 
 Function forest.meta:

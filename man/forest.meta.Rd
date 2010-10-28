@@ -339,6 +339,13 @@ forest(meta1, xlim="s")
 
 
 ##
+## Forest plot with 'classic' layout used in
+## R package meta, version < 1.6-0
+##
+forest(meta1, col.square="black", hetstat=FALSE)
+
+
+##
 ## Change set of columns printed on left side
 ## of forest plot
 ##

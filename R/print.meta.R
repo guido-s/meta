@@ -185,6 +185,26 @@ print.meta <- function(x,
       uppTE <- z2cor(uppTE)
     }
     ##
+    if (!inherits(x, "metaprop") & x$sm=="PLN"){
+      TE <- exp(TE)
+      lowTE <- exp(lowTE)
+      uppTE <- exp(uppTE)
+    }
+    ##
+    if (!inherits(x, "metaprop") & x$sm=="PLOGIT"){
+      TE <- meta:::logit2p(TE)
+      lowTE <- meta:::logit2p(lowTE)
+      uppTE <- meta:::logit2p(uppTE)
+    }
+    ##
+    if (!inherits(x, "metaprop") & x$sm %in% c("PFT", "PAS")){
+      denum <- 1 + (x$sm=="PFT")
+      ##
+      TE    <- asin2p(TE, denum)
+      lowTE <- asin2p(lowTE, denum)
+      uppTE <- asin2p(uppTE, denum)
+    }
+    ##
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)

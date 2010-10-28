@@ -54,12 +54,11 @@ read.mtv(file)
 \examples{
 ## Locate MTV-data file "FLEISS93.MTV" in sub-directory of package "meta"
 ##
-filename <- paste(searchpaths()[seq(along=search())[search()==
-                  "package:meta"]], "/data/FLEISS93.MTV", sep="")
+filename <- system.file("data/Fleiss93.MTV", package = "meta")
 ##
 fleiss93.cc <- read.mtv(filename)
 
-## Same result: example(Fleiss93)
+## Same result as R Command example(Fleiss93):
 ##
 metabin(event.e, n.e, event.c, n.c,
         data=fleiss93.cc, subset=type=="D",

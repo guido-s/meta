@@ -59,17 +59,19 @@ metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
 ## Locate export data file "Fleiss93_CR.csv" or "Fleiss93_CR_Windows.csv"
 ## in sub-directory of package "meta"
 ##
-filename <- paste(searchpaths()[seq(along=search())[search()==
-                  "package:meta"]], "/data/Fleiss93_CR",
-                  if (Sys.info()[["sysname"]]=="Windows") "_Windows" else "",
-                  ".csv", sep="")
+filename <-
+  system.file(ifelse(Sys.info()[["sysname"]]=="Windows",
+                     "data/Fleiss93_CR_Windows.csv",
+                     "data/Fleiss93_CR.csv"),
+              package = "meta")
+##
 Fleiss93_CR <- read.rm5(filename)
 
-## Same result: example(Fleiss93)
+## Same result as R command example(Fleiss93):
 ##
 metacr(Fleiss93_CR)
 
-## Same result: example(Fleiss93cont)
+## Same result as R command example(Fleiss93cont):
 ##
 metacr(Fleiss93_CR, 1, 2)
 }

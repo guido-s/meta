@@ -614,10 +614,16 @@ forest.meta <- function(x,
   ##
   tmp.pscale <- pscale
   ##
-  if (inherits(x, "metaprop") & pscale==100)
-    sm.lab <- "Prop (in %)"
-  else if (inherits(x, "metaprop") & pscale==1)
-    sm.lab <- "Proportion"
+  isprop <- (tolower(x$sm) %in% c("pft", "pas", "praw", "pln", "plogit"))
+  ##
+  if(isprop){
+    if (pscale==100)
+      sm.lab <- "Prop (in %)"
+    else if (pscale==1)
+      sm.lab <- "Proportion"
+    else
+      sm.lab <- x$sm
+  }
   else if (x$sm=="proportion")
     sm.lab <- "Proportion"
   else if (x$sm=="ZCOR")
@@ -893,7 +899,6 @@ forest.meta <- function(x,
     x$n.e <- x$n.e[o]
     x$n.c <- x$n.c[o]
     ##
-    x$event   <- x$event[o]
     x$event.e <- x$event.e[o]
     x$event.c <- x$event.c[o]
     ##
@@ -1152,7 +1157,9 @@ forest.meta <- function(x,
     weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, n.by))
   }
   
-  
+
+  TE.orig <- TE
+  ##
   if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
@@ -1328,7 +1335,7 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.w, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.w, uppTE)
     ##
-    TEs.study <- c(NA, NA, rep(NA, 3*n.by), TE)
+    TEs.study <- c(NA, NA, rep(NA, 3*n.by), TE.orig)
     seTEs.study <- c(NA, NA, rep(NA, 3*n.by), seTE)
     ##
     w.fixeds  <- c(100, "--", format(c(weight.w.p, w.fixed.p), scientific=FALSE))
@@ -1354,7 +1361,7 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE)
     ##
-    TEs.study <- c(NA, NA, TE)
+    TEs.study <- c(NA, NA, TE.orig)
     seTEs.study <- c(NA, NA, seTE)
     ##
     w.fixeds  <- c(100, "--", format(w.fixed.p, scientific=FALSE))
@@ -1633,7 +1640,8 @@ forest.meta <- function(x,
     max.yTE <- max(yTE, na.rm=TRUE)
   
   
-  if (inherits(x, c("metaprop", "metacor")) & missing(xlab.pos))
+  ##if ((inherits(x, c("metaprop", "metacor")) | isprop) & missing(xlab.pos))
+  if (missing(xlab.pos))
     xlab.pos <- mean(xlim)
   
   
