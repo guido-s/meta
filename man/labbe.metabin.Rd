@@ -112,7 +112,7 @@ data(Olkin95)
 meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data=Olkin95,
                  studlab=paste(author, year),
-                 sm="RR", meth="I")
+                 sm="RR", method="I")
 
 
 ##

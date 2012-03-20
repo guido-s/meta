@@ -3,21 +3,26 @@
 \alias{Fleiss93cont}
 \title{Mental Health Treatment}
 
-\description{Meta-analysis on the Effect of Mental Health Treatment on
-  Medical Utilisation}
+\description{
+Meta-analysis on the Effect of Mental Health Treatment on Medical
+  Utilisation.
+
+Data example in Fleiss (1993) for meta-analysis with continuous
+outcomes.
+}
 
 \usage{data(Fleiss93cont)}
 
 \format{A data frame with the following columns:
   \describe{
-  \item{study}{study label}
-  \item{year}{year of publication}
-  \item{n.e}{number of observations in experimental group}
-  \item{mean.e}{estimated mean in experimental group}
-  \item{sd.e}{standard deviation in experimental group}
-  \item{n.c}{number of observations in control group}
-  \item{mean.c}{estimated mean in control group}
-  \item{sd.c}{standard deviation in control group}
+  \item{study}{Study label}
+  \item{year}{Year of publication}
+  \item{n.e}{Number of observations in experimental group}
+  \item{mean.e}{Estimated mean in experimental group}
+  \item{sd.e}{Standard deviation in experimental group}
+  \item{n.c}{Number of observations in control group}
+  \item{mean.c}{Estimated mean in control group}
+  \item{sd.c}{Standard deviation in control group}
   }
 }
 

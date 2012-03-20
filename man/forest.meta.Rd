@@ -19,7 +19,8 @@
        lty.fixed=2, lty.random=3,
        text.fixed.w=text.fixed, text.random.w=text.random,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
-       xlab=NULL, xlab.pos=ref, xlim,
+       xlab="", xlab.pos=ref,
+       smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
        weight,
        pscale=1,
@@ -28,6 +29,7 @@
        leftlabs=NULL, rightlabs=NULL,
        lab.e=x$label.e, lab.c=x$label.c,
        lab.e.attach.to.col=NULL, lab.c.attach.to.col=NULL,
+       label.right=x$label.right, label.left=x$label.left,
        lwd=1,
        at=NULL, label=TRUE,
        col.i="black", col.i.inside.square="white",
@@ -39,18 +41,21 @@
        col.by="darkgray",
        print.I2=TRUE, print.tau2=TRUE, print.Q=FALSE, print.pval.Q=TRUE,
        hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
+       overall.hetstat=overall&hetstat,
        hetlab="Heterogeneity: ",
        fontsize=12,
        fs.heading=fontsize,
        fs.fixed=fontsize, fs.random=fs.fixed, fs.study=fontsize,
        fs.fixed.labels=fs.fixed, fs.random.labels=fs.random,
        fs.study.labels=fs.study, fs.hetstat=fontsize-2,
-       fs.axis=fontsize, fs.xlab=fontsize,
+       fs.axis=fontsize,
+       fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
        ff.heading="bold",
        ff.fixed="bold", ff.random=ff.fixed, ff.study="plain",
        ff.fixed.labels=ff.fixed, ff.random.labels=ff.random,
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
-       ff.axis="plain", ff.xlab="plain",
+       ff.axis="plain",
+       ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
        ##
        squaresize=0.8,
        boxsize=squaresize,
@@ -115,6 +120,9 @@
   \item{xlab}{A label for the x axis.}
   \item{xlab.pos}{A numeric specifying the center of the label
     on the x axis.}
+  \item{smlab}{A label for the summary measurex (printed at top of figure).}
+  \item{smlab.pos}{A numeric specifying the center of the label
+    for the summary measure.}
   \item{xlim}{The x limits (min,max) of the plot, or the character "s"
     to produce symmetric forest plots.}
   \item{allstudies}{A logical indicating whether studies with inestimable
@@ -130,10 +138,12 @@
   \item{ref}{A numerical giving the reference value to be plotted as a
     line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}
-  \item{leftcols}{A character vector specifying (additional) columns to
-  be plotted on the left side of the forest plot (see Details).}
-  \item{rightcols}{A character vector specifying (additional) columns to
-  be plotted on the right side of the forest plot (see Details).}
+  \item{leftcols}{A character vector specifying (additional) columns
+  to be plotted on the left side of the forest plot or a logical value
+  (see Details).}
+  \item{rightcols}{A character vector specifying (additional) columns
+  to be plotted on the right side of the forest plot or a logical
+  value (see Details).}
   \item{leftlabs}{A character vector specifying labels for (additional)
   columns on left side of the forest plot (see Details).}
   \item{rightlabs}{A character vector specifying labels for (additional)
@@ -146,6 +156,8 @@
     label \code{lab.e} should be attached to in table heading.}
   \item{lab.c.attach.to.col}{A character specifying the column name where
     label \code{lab.c} should be attached to in table heading.}
+  \item{label.left}{Graph label on left side of forest plot.}
+  \item{label.right}{Graph label on right side of forest plot.}
   \item{lwd}{The line width, see \code{\link{par}}.}
   \item{at}{The points at which tick-marks are to be drawn, see
   \code{grid.xaxis}.}
@@ -180,6 +192,11 @@
     p-value of the heterogeneity statistic Q.}
   \item{hetstat}{A logical value indicating whether to print results for
     heterogeneity measures at all.}
+  \item{overall.hetstat}{A logical value indicating whether to print
+    results for heterogeneity measures for overall treatment
+    comparisons. This argument is useful in combination with the
+    argument \code{byvar} if heterogeneity statistics should only be
+    printed on group level.}
   \item{hetlab}{Label printed in front of results for heterogeneity measures.}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
@@ -191,7 +208,9 @@
   \item{fs.study.labels}{The size of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
+  \item{fs.smlab}{The size of text of label for summary measure, see \code{\link{gpar}}.}
   \item{fs.xlab}{The size of text of label on x-axis, see \code{\link{gpar}}.}
+  \item{fs.lr}{The size of text of label on left and right side of forest plot, see \code{\link{gpar}}.}
   \item{ff.heading}{The fontface for column headings, see \code{\link{gpar}}.}
   \item{ff.fixed}{The fontface of text for results of fixed effect model, see \code{\link{gpar}}.}
   \item{ff.random}{The fontface of text for results of random effects model, see \code{\link{gpar}}.}
@@ -201,7 +220,9 @@
   \item{ff.study.labels}{The fontface of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{ff.axis}{The fontface of text on x-axis, see \code{\link{gpar}}.}
+  \item{ff.smlab}{The fontface of text of label for summary measure, see \code{\link{gpar}}.}
   \item{ff.xlab}{The fontface of text of label on x-axis, see \code{\link{gpar}}.}
+  \item{ff.lr}{The fontface of text of label on left and right side of forest plot, see \code{\link{gpar}}.}
   \item{squaresize}{A numeric used to increase or decrease the size of
     squares in the forest plot.}
   \item{boxsize}{Use of this argument is deprecated.}
@@ -231,14 +252,13 @@
 
 \details{
   A forest plot, also called confidence interval plot, is drawn in the
-  active graphics window. Sub-group analyses are conducted and
+  active graphics window. Subgroup analyses are conducted and
   displayed in the plot if \code{byvar} is not missing.
 
   The \code{forest} function is based on the grid graphics
   system. In order to print the forest plot, (i) resize the graphics
   window, (ii) either use \code{\link{dev.copy2eps}} or
-  \code{\link{dev.copy2pdf}}. For basic forest plots, the
-  \code{\link{plot.meta}} function can be used.
+  \code{\link{dev.copy2pdf}}.
   
   Information from object \code{x} is utilised if argument \code{weight}
   is missing. Weights from the fixed effect model are used
@@ -249,13 +269,15 @@
 
   The arguments \code{leftcols} and \code{rightcols} can be used to
   specify columns which are plotted on the left and right side of the
-  forest plot, respectively. If these arguments are \code{NULL}, the
-  following default columns will be plotted.
+  forest plot, respectively. If argument \code{rightcols} is
+  \code{FALSE}, no columns will be plotted on the right side. By
+  default, i.e. if arguments \code{leftcols} and \code{rightcols} are
+  \code{NULL}, the following default columns will be plotted.
 
   Argument \code{rightcols}: \code{rightcols=c("effect", "ci")}, i.e.,
   estimated treatment effect and its \code{level}-confidence
   interval. In addition, weights of the fixed (\code{"w.fixed"}) and/or random effects
-  model (\code{"w.random"})will be given, if \code{comb.fixed=TRUE}
+  model (\code{"w.random"}) will be given, if \code{comb.fixed=TRUE}
   and/or \code{comb.random=TRUE}. For an object
   of class \code{metacum} or \code{metainf} only the estimated treatment
   effect with \code{level}-confidence interval are plotted.
@@ -299,19 +321,8 @@
   for objects of class \code{metaprop}, e.g. \code{pscale=100} means
   that proportions are expressed per 100 observations. This is useful in
   situations with (very) low proportions. For \code{pscale=100}, column
-  heading and x-axis label are changed to "Prop (in %)" and "Proportion
-  (in %"), respectively.
-  
-  Review Manager 5 (RevMan 5) is the current software used for
-  preparing and maintaining Cochrane Reviews
-  (\url{http://www.cc-ims.net/revman/}). In RevMan 5, subgroup analyses
-  can be defined and data from a Cochrane review can be imported to R using the
-  function \code{read.rm5}. If a meta-analysis is then conducted using
-  function \code{metacr}, information on subgroups is available in R
-  (components \code{byvar}, \code{bylab}, and \code{print.byvar},
-  \code{byvar} in an object of class \code{"meta"}). Accordingly, by using function
-  \code{metacr} there is no need to define subgroups in order to redo
-  the statistical analysis conducted in the Cochrane review.
+  heading and x-axis label are changed to "Prop (in \%)" and "Proportion
+  (in \%"), respectively.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -322,20 +333,20 @@
 data(Olkin95)
 meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data=Olkin95, subset=c(41,47,51,59),
-                 sm="RR", meth="I",
+                 sm="RR", method="I",
                  studlab=paste(author, year))
 
 
 ##
-## Do forest plot
+## Do (symmetric) forest plot
 ##
 forest(meta1)
 
 
 ##
-## Symmetric forest plot
+## Forest plot specifying argument xlim
 ##
-forest(meta1, xlim="s")
+forest(meta1, xlim=c(0.01, 10))
 
 
 ##
@@ -351,6 +362,12 @@ forest(meta1, col.square="black", hetstat=FALSE)
 ##
 forest(meta1, comb.random=FALSE,
        leftcols="studlab")
+
+
+##
+## Do not print columns on right side of forest plot
+##
+forest(meta1, rightcols=FALSE)
 
 
 ##
@@ -402,7 +419,7 @@ forest(meta1,
        fs.study=10, ff.study="italic",
        fs.study.label=11, ff.study.label="bold",
        fs.axis=5, ff.axis="italic",
-       ff.xlab="bold.italic",
+       ff.smlab="bold.italic",
        ff.fixed="plain", ff.hetstat="plain")
 
 

@@ -242,30 +242,12 @@ funnel.default <- function(x, y,
     points(TE, weight, pch=pch, cex=cex, col=col, bg=bg)
   else
     text(TE, weight, labels=text, cex=cex, col=col)
-  ##  if (is.null(text)){
-  ##    if (is.null(col))
-  ##      points(TE, weight, pch=pch, cex=cex)
-  ##    else
-  ##      if (all(pch==21))
-  ##        points(TE, weight, pch=pch, cex=cex, bg=col)
-  ##      else
-  ##        points(TE, weight, pch=pch, cex=cex, col=col)
-  ##  }
-  ##  else{
-  ##    if (is.null(col))
-  ##      text(TE, weight, labels=text, cex=cex)
-  ##    else
-  ##      text(TE, weight, labels=text, cex=cex, col=col)
-  ##  }
   
   if (comb.fixed)
-    lines(c(TE.fixed, TE.fixed), range(ylim), lty=lty.fixed, lwd=lwd.fixed)
-  ##abline(v=TE.fixed, lty=lty.fixed, lwd=lwd.fixed)
-  ##abline(v=TE.fixed, lty=2)
+    lines(c(TE.fixed, TE.fixed), range(ylim), lty=lty.fixed, lwd=lwd.fixed, col=col.fixed)
   
   if (comb.random)
-    lines(c(TE.random, TE.random), range(ylim), lty=lty.random, lwd=lwd.random)
-    ##abline(v=TE.random, lty=lty.random, lwd=lwd.random)
+    lines(c(TE.random, TE.random), range(ylim), lty=lty.random, lwd=lwd.random, col=col.random)
   
   if (!is.null(level) & yaxis=="se"){
     points(ciTE$lower, seTE.seq, type="l", lty=lty.fixed, lwd=lwd.fixed)

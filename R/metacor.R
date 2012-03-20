@@ -3,6 +3,9 @@ metacor <- function(cor, n, studlab,
                     sm="ZCOR",
                     level=0.95, level.comb=level,
                     comb.fixed=TRUE, comb.random=TRUE,
+                    hakn=FALSE,
+                    method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                    method.bias="linreg",
                     title="", complab="", outclab="",
                     byvar, bylab, print.byvar=TRUE
                     ){
@@ -15,6 +18,7 @@ metacor <- function(cor, n, studlab,
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
   mf$level <- mf$level.comb <- NULL
+  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
   ##
@@ -25,6 +29,7 @@ metacor <- function(cor, n, studlab,
   mf2$studlab <- NULL
   mf2$data <- mf2$sm <- NULL
   mf2$level <- mf2$level.comb <- NULL
+  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
@@ -32,7 +37,7 @@ metacor <- function(cor, n, studlab,
   if (!is.null(mf2$subset))
     if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$cor))) ||
         (length(mf2$subset) > length(mf$cor)))
-      stop("Length of subset is larger than number of trials.")
+      stop("Length of subset is larger than number of studies.")
     else
       mf <- mf[mf2$subset,]
   ##
@@ -52,7 +57,7 @@ metacor <- function(cor, n, studlab,
   
   k.all <- length(cor)
   ##
-  if (k.all == 0) stop("No trials to combine in meta-analysis.")
+  if (k.all == 0) stop("No studies to combine in meta-analysis.")
 
   if (!(is.numeric(cor) & is.numeric(n)))
     stop("Non-numeric value for cor or n")
@@ -83,20 +88,38 @@ metacor <- function(cor, n, studlab,
   }
   
   
-  m <- metagen(TE, seTE)
+  if (!is.null(tau.preset))
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 tau.preset=tau.preset, TE.tau=TE.tau)
+  else
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 TE.tau=TE.tau)
+  
   
   res <- list(cor=cor, n=n,
               studlab=studlab,
               TE=TE, seTE=seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
+              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
+              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
-              k=m$k, Q=m$Q, tau=m$tau,
+              lower.random=m$lower.random, upper.random=m$upper.random,
+              zval.random=m$zval.random, pval.random=m$pval.random,
+              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
               sm=sm,
               method=m$method,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
+              hakn=hakn,
+              df.hakn=if (hakn) m$df.hakn else NULL,
+              method.tau=method.tau,
+              tau.preset=tau.preset,
+              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              method.bias=method.bias,
               title="", complab="", outclab="",
               call=match.call())
   ##

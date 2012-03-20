@@ -3,9 +3,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      sm="MD",
                      level=0.95, level.comb=level,
                      comb.fixed=TRUE, comb.random=TRUE,
+                     hakn=FALSE,
+                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                     method.bias="linreg",
                      title="", complab="", outclab="",
                      label.e="Experimental", label.c="Control",
-                     byvar, bylab, print.byvar=TRUE
+                     label.left="", label.right="",
+                     byvar, bylab, print.byvar=TRUE,
+                     warn=TRUE
                      ){
   
   
@@ -16,6 +21,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
   mf$level <- mf$level.comb <- NULL
+  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
   ##
@@ -27,6 +33,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   mf2$studlab <- NULL 
   mf2$data <- mf2$sm <- NULL
   mf2$level <- mf2$level.comb <- NULL
+  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
@@ -34,12 +41,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (!is.null(mf2$subset))
     if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$n.e))) ||
         (length(mf2$subset) > length(mf$n.e)))
-      stop("Length of subset is larger than number of trials.")
+      stop("Length of subset is larger than number of studies.")
     else
       mf <- mf[mf2$subset,]
   ##if (!is.null(mf2$subset))
   ##  if (length(mf2$subset) > length(mf$n.e))
-  ##    stop("Length of subset is larger than number of trials.")
+  ##    stop("Length of subset is larger than number of studies.")
   ##  else
   ##    mf <- mf[mf2$subset,]
   ##
@@ -63,10 +70,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 
   k.all <- length(n.e)
   ##
-  if (k.all == 0) stop("No trials to combine in meta-analysis.")
+  if (k.all == 0)
+    stop("No studies to combine in meta-analysis.")
 
   if (sm == "WMD"|sm=="wmd"){
-    warning("Effect measure '", sm, "' renamed as 'MD'")
+    if (warn)
+      warning("Effect measure '", sm, "' renamed as 'MD'")
     sm <- "MD"
   }
   
@@ -83,7 +92,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     stop("Non-numeric value for n.e, mean.e, sd.e, n.c, mean.c or sd.c")
   ##
   npn <- n.e <= 0 | n.c <= 0
-  if (any(npn))
+  if (any(npn) & warn)
     warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis")
   ##
   ## Studies with zero sd.e and/or sd.c will be included in
@@ -114,16 +123,16 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (sm == "MD"){
     TE    <- ifelse(npn, NA,
                     mean.e - mean.c)
-    varTE <- ifelse(npn, NA,
-                    sd.e^2/n.e + sd.c^2/n.c)
+    seTE <- ifelse(npn, NA,
+                   sqrt(sd.e^2/n.e + sd.c^2/n.c))
   }
   else if (sm == "SMD"){
     N <- n.e+n.c
     TE    <- ifelse(npn, NA,
                     (1-3/(4*N-9)) * (mean.e - mean.c) /
                     sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2)))
-    varTE <- ifelse(npn, NA,
-                    N / (n.e*n.c) + TE^2/(2*(N-3.94)))
+    seTE <- ifelse(npn, NA,
+                   sqrt(N / (n.e*n.c) + TE^2/(2*(N-3.94))))
   }
   ##  
   ## Studies with zero variance get zero weight in meta-analysis
@@ -131,10 +140,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   sel <- sd.e==0 | sd.c == 0
   ##
-  if (any(sel[!is.na(sel)]))
+  if (any(sel[!is.na(sel)]) & warn)
     warning("Studies with zero values for sd.e or sd.c get no weight in meta-analysis")
   ##
-  varTE[sel] <- NA
+  seTE[sel] <- NA
   ##
   if (sm == "SMD")
     TE[sel] <- NA
@@ -151,27 +160,47 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (is.integer(sd.c))   sd.c   <- as.numeric(sd.c)
   
   
-  m <- metagen(TE, sqrt(varTE))
+  if (!is.null(tau.preset))
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 tau.preset=tau.preset, TE.tau=TE.tau)
+  else
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 TE.tau=TE.tau)
   
-
+  
   res <- list(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
               n.c=n.c, mean.c=mean.c, sd.c=sd.c,
               studlab=studlab,
-              TE=TE, seTE=sqrt(varTE),
+              TE=TE, seTE=seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
+              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
+              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
-              k=m$k, Q=m$Q, tau=m$tau,
+              lower.random=m$lower.random, upper.random=m$upper.random,
+              zval.random=m$zval.random, pval.random=m$pval.random,
+              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
               sm=sm, method=m$method,
               level=level,
               level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
+              hakn=hakn,
+              df.hakn=if (hakn) m$df.hakn else NULL,
+              method.tau=method.tau,
+              tau.preset=tau.preset,
+              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              method.bias=method.bias,
               title=title,
               complab=complab,
               outclab=outclab,
               label.e=label.e,
               label.c=label.c,
+              label.left=label.left,
+              label.right=label.right,
+              warn=warn,
               call=match.call())
   ##
   if (!missing(byvar)){

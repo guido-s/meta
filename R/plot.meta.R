@@ -120,13 +120,13 @@ plot.meta <- function(x,
   
   
   ##
-  ## total number of trials to plot (*not* number of trials combined)
+  ## total number of studies to plot (*not* number of studies combined)
   ##
   k.all <- length(x$TE)
 
 
   if (allstudies) n.stud <- k.all
-  else n.stud <- x$k # number of trials combined in meta-analysis
+  else n.stud <- x$k # number of studies combined in meta-analysis
 
   
   by <- length(byvar)>0
@@ -248,7 +248,7 @@ plot.meta <- function(x,
   
   if (by){
 
-    res.w <- matrix(NA, ncol=7, nrow=length(by.levs))
+    res.w <- matrix(NA, ncol=8, nrow=length(by.levs))
     j <- 0
     ##
     for ( i in by.levs){
@@ -286,7 +286,8 @@ plot.meta <- function(x,
       ##
       res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
                      meta1$TE.random, meta1$seTE.random,
-                     meta1$Q, meta1$k, length(meta1$TE))
+                     meta1$Q, meta1$k, length(meta1$TE),
+                     mean(1/x$n[sel]))
       ##
     }
     ##
@@ -305,6 +306,8 @@ plot.meta <- function(x,
     by.levs <- by.levs[sel]
     k.all.w <- k.all.w[sel]
     ##
+    harmonic.mean.w <- res.w[,8]
+    ##
     if (comb.fixed | !(comb.fixed|comb.random)){
       if (comb.random)
         warning("Estimate from fixed effect model used in groups defined by 'byvar'")
@@ -313,7 +316,11 @@ plot.meta <- function(x,
       text.by <- text.fixed
     }
     if (!comb.fixed & comb.random){
-      meta.w <- ci(TE.random.w, seTE.random.w, level)
+      if (!is.null(x$hakn) && x$hakn)
+        meta.w <- ci(TE.random.w, seTE.random.w, level, df=k.w-1)
+      else
+        meta.w <- ci(TE.random.w, seTE.random.w, level)
+      ##
       text.by <- text.random
     }
     ##
@@ -423,31 +430,54 @@ plot.meta <- function(x,
   if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
-    denum <- 1 + (x$sm=="PFT")
-    ##
     if (inherits(x, "metaprop")){
       TE    <- TE
       lowTE <- lowTE
       uppTE <- uppTE
     }
     else{
-      TE    <- asin2p(TE, denum)
-      lowTE <- asin2p(lowTE, denum)
-      uppTE <- asin2p(uppTE, denum)
+      if (x$sm=="PAS"){
+        TE    <- asin2p(TE)
+        lowTE <- asin2p(lowTE)
+        uppTE <- asin2p(uppTE)
+      }
+      if (x$sm=="PFT"){
+        TE    <- asin2p(TE, x$n)
+        lowTE <- asin2p(lowTE, x$n)
+        uppTE <- asin2p(uppTE, x$n)
+      }
     }
     ##
-    TE.fixed    <- asin2p(TE.fixed, denum)
-    lowTE.fixed <- asin2p(lowTE.fixed, denum)
-    uppTE.fixed <- asin2p(uppTE.fixed, denum)
+    if (x$sm=="PAS"){
+      TE.fixed    <- asin2p(TE.fixed)
+      lowTE.fixed <- asin2p(lowTE.fixed)
+      uppTE.fixed <- asin2p(uppTE.fixed)
+      ##
+      TE.random    <- asin2p(TE.random)
+      lowTE.random <- asin2p(lowTE.random)
+      uppTE.random <- asin2p(uppTE.random)
+      ##
+      if (by){
+        TE.w    <- asin2p(TE.w)
+        lowTE.w <- asin2p(lowTE.w)
+        uppTE.w <- asin2p(uppTE.w)
+      }
+    }
     ##
-    TE.random    <- asin2p(TE.random, denum)
-    lowTE.random <- asin2p(lowTE.random, denum)
-    uppTE.random <- asin2p(uppTE.random, denum)
-    ##
-    if (by){
-      TE.w    <- asin2p(TE.w, denum)
-      lowTE.w <- asin2p(lowTE.w, denum)
-      uppTE.w <- asin2p(uppTE.w, denum)
+    if (x$sm=="PFT"){
+      TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n))
+      lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n))
+      uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n))
+      ##
+      TE.random    <- asin2p(TE.random, 1/mean(1/x$n))
+      lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n))
+      uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n))
+      ##
+      if (by){
+        TE.w    <- asin2p(TE.w, 1/harmonic.mean.w)
+        lowTE.w <- asin2p(lowTE.w, 1/harmonic.mean.w)
+        uppTE.w <- asin2p(uppTE.w, 1/harmonic.mean.w)
+      }
     }
   }
   else if (x$sm=="PLN"){
@@ -592,7 +622,7 @@ plot.meta <- function(x,
   ##    abline(v=TE.fixed, lty=3, lwd=2, col="dimgray")
   
   ##
-  ## Add single trial results
+  ## Add single study results
   ##
   if (length(col.i) == 1)
     col.i <- rep(col.i, length(TE))
@@ -632,7 +662,7 @@ plot.meta <- function(x,
   }
   
   ##
-  ## Add trial labels
+  ## Add study labels
   ##
   mtext(x$studlab, side=2, line=-0.2, outer=FALSE,
         at=yTE+0.25, adj=0, cex=0.7*cex)

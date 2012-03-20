@@ -1,5 +1,4 @@
-metacum <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
-  
+metacum <- function(x, pooled, sortvar, level.comb=x$level.comb){
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
@@ -40,11 +39,6 @@ metacum <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
   pooled <- c("fixed", "random")[imeth]
   
   
-  if (length(level)==0){
-    warning("level set to 0.95")
-    level <- 0.95
-  }
-  ##
   if (length(level.comb)==0){
     warning("level.comb set to 0.95")
     level.comb <- 0.95
@@ -52,12 +46,15 @@ metacum <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
   
   
   k.all <- length(x$TE)
+  ##
+  if (k.all==1){
+    warning("Nothing calculated (minimum number of studies: 2)")
+    return(invisible(NULL))
+  }
+  
   sort <- !missing(sortvar)
   
-  sm <- x$sm
-  
   if (!sort) sortvar <- rep(1, k.all)
-
   if (sort & length(sortvar) != k.all)
     stop("'x' and 'sortvar' have different length")
 
@@ -113,98 +110,119 @@ metacum <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
   }
 
   
-  res.i <- matrix(NA, ncol=6, nrow=k.all)
+  if (pooled == "fixed" | (pooled == "random" & !x$hakn))
+    res.i <- matrix(NA, ncol=8, nrow=k.all)
+  ##
+  else if (pooled == "random" & x$hakn)
+    res.i <- matrix(NA, ncol=9, nrow=k.all)
   ##
   for (i in 1:k.all){
     sel <- 1:i
     ##
-    if (inherits(x, "metabin")){
-      ##
-      ## To get rid of warning message
-      ## "For a single trial, inverse variance method used
-      ##  instead of Mantel Haenszel method."
-      ##
-      oldopt <- options(warn=-1)
+    if (inherits(x, "metabin"))
       m <- metabin(event.e[sel], n.e[sel], event.c[sel], n.c[sel],
-                   method=x$method, sm=sm,
+                   method=x$method, sm=x$sm,
                    incr=x$incr, allincr=x$allincr, addincr=x$addincr,
                    allstudies=x$allstudies, MH.exact=x$MH.exact,
                    RR.cochrane=x$RR.cochrane,
-                   level=level, level.comb=level.comb,
-                   warn=x$warn)
-      options(oldopt)
-    }
+                   level=level.comb, level.comb=level.comb,
+                   hakn=x$hakn,
+                   method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                   warn=FALSE)
     ##
-    if (inherits(x, "metacont")){
+    if (inherits(x, "metacont"))
       m <- metacont(n.e[sel], mean.e[sel], sd.e[sel],
-                    n.c[sel], mean.c[sel], sd.c[sel], sm=sm,
-                    level=level, level.comb=level.comb)
-    }
+                    n.c[sel], mean.c[sel], sd.c[sel], sm=x$sm,
+                    level=level.comb, level.comb=level.comb,
+                    hakn=x$hakn,
+                    method.tau=x$method.tau,
+                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
-    if (inherits(x, "metagen")){
-      m <- metagen(TE[sel], seTE[sel], sm=sm,
-                   level=level, level.comb=level.comb)
-    }
+    if (inherits(x, "metagen"))
+      m <- metagen(TE[sel], seTE[sel], sm=x$sm,
+                   level=level.comb, level.comb=level.comb,
+                   hakn=x$hakn,
+                   method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
-    if (inherits(x, "metaprop")){
+    if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],
                     studlab=studlab[sel],
-                    sm=sm,
-                    level=level, level.comb=level.comb,
-                    warn=x$warn)
-    }
+                    sm=x$sm,
+                    level=level.comb, level.comb=level.comb,
+                    hakn=x$hakn,
+                    method.tau=x$method.tau,
+                    tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                    warn=FALSE)
     ##
-    if (inherits(x, "metacor")){
+    if (inherits(x, "metacor"))
       m <- metacor(cor[sel], n[sel],
                    studlab=studlab[sel],
-                   sm=sm,
-                   level=level, level.comb=level.comb)
-    }
+                   sm=x$sm,
+                   level=level.comb, level.comb=level.comb,
+                   hakn=x$hakn,
+                   method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
-    tsum.i <- summary(m)
+    s.i <- summary(m, level=level.comb, level.comb=level.comb)
     ##
     if (pooled == "fixed"){
       res.i[i,] <- c(m$TE.fixed, m$seTE.fixed,
-                     tsum.i$fixed$p, tsum.i$I2$TE,
-                     tsum.i$tau, sum(m$w.fixed, na.rm=TRUE))
+                     s.i$fixed$lower, s.i$fixed$upper,
+                     m$pval.fixed, s.i$I2$TE,
+                     m$tau, sum(m$w.fixed, na.rm=TRUE))
     }
     ##
-    else if (pooled == "random"){
+    else if (pooled == "random" & !x$hakn){
       res.i[i,] <- c(m$TE.random, m$seTE.random,
-                     tsum.i$random$p, tsum.i$I2$TE,
-                     tsum.i$tau, sum(m$w.random, na.rm=TRUE))
+                     s.i$random$lower, s.i$random$upper,
+                     m$pval.random, s.i$I2$TE,
+                     m$tau, sum(m$w.random, na.rm=TRUE))
+    }
+    ##
+    else if (pooled == "random" & x$hakn){
+      res.i[i,] <- c(m$TE.random, m$seTE.random,
+                     s.i$random$lower, s.i$random$upper,
+                     m$pval.random, s.i$I2$TE,
+                     m$tau, sum(m$w.random, na.rm=TRUE),
+                     m$df.hakn)
     }
   }
+  ##
+  TE.i <- res.i[,1]
+  seTE.i <- res.i[,2]
+  lower.i <- res.i[,3]
+  upper.i <- res.i[,4]
+  pval.i <- res.i[,5]
+  I2.i <- res.i[,6]
+  tau.i <- res.i[,7]
+  weight.i <- res.i[,8]
+  if (pooled == "random" & x$hakn)
+    df.hakn.i <- res.i[,9]
   
   
-  tsum <- summary(x, level=level, level.comb=level.comb)
+  sm1 <- summary(x, level=level.comb, level.comb=level.comb)
   ##
   if (pooled == "fixed"){
-    TE.sum <- x$TE.fixed
-    seTE.sum <- x$seTE.fixed
-    pval.sum <- tsum$fixed$p
-    w.sum <- sum(x$w.fixed, na.rm=TRUE)
+    TE.s <- sm1$fixed$TE
+    seTE.s <- sm1$fixed$seTE
+    TE.s.lower <- sm1$fixed$lower
+    TE.s.upper <- sm1$fixed$upper
+    pval.s <- sm1$fixed$p
+    w.s <- sum(x$w.fixed, na.rm=TRUE)
   }
   ##
   else if (pooled == "random"){
-    TE.sum <- x$TE.random
-    seTE.sum <- x$seTE.random
-    pval.sum <- tsum$random$p
-    w.sum <- sum(x$w.random, na.rm=TRUE)
+    TE.s <- sm1$random$TE
+    seTE.s <- sm1$random$seTE
+    TE.s.lower <- sm1$random$lower
+    TE.s.upper <- sm1$random$upper
+    pval.s <- sm1$random$p
+    w.s <- sum(x$w.random, na.rm=TRUE)
   }
   
   
-  ##  nlab <- nchar(studlab)
-  ##  nlabnr <- nchar(seq(along=studlab))
-  ##  ##
-  ##  slab <- character(k.all)
-  ##  for (i in 1:k.all)
-  ##    slab[i] <- paste("Adding ", studlab[i],
-  ##                     paste(rep(" ", max(nlab)-nlab[i]), collapse=""),
-  ##                     " (k=",
-  ##                     paste(rep(" ", max(nlabnr)-nlabnr[i]), collapse=""),
-  ##                     i, ")", sep="")
-  ##
   slab <- character(k.all)
   for (i in 1:k.all)
     slab[i] <- paste("Adding ", studlab[i],
@@ -212,19 +230,26 @@ metacum <- function(x, pooled, sortvar, level=x$level, level.comb=x$level.comb){
   ##
   slab <- c(slab, "Pooled estimate")
   
-  res <- list(TE=c(res.i[,1], NA, TE.sum),
-              seTE=c(res.i[,2], NA, seTE.sum),
+  res <- list(TE=c(TE.i, NA, TE.s),
+              seTE=c(seTE.i, NA, seTE.s),
+              lower=c(lower.i, NA, TE.s.lower),
+              upper=c(upper.i, NA, TE.s.upper),
               studlab=c(rev(rev(slab)[-1]), " ", rev(slab)[1]),
-              p.value=c(res.i[,3], NA, pval.sum),
-              w=c(res.i[,6], NA, w.sum),
-              I2=c(res.i[,4], NA, tsum$I2$TE),
-              tau=c(res.i[,5], NA, tsum$tau),
-              sm=sm, method=x$method, k=x$k,
+              p.value=c(pval.i, NA, pval.s),
+              w=c(weight.i, NA, w.s),
+              I2=c(I2.i, NA, sm1$I2$TE),
+              tau=c(tau.i, NA, sm1$tau),
+              df.hakn=if (pooled=="random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
+              sm=x$sm, method=x$method, k=x$k,
               pooled=pooled,
               TE.fixed=NA, seTE.fixed=NA,
               TE.random=NA, seTE.random=NA,
-              Q=NA, tau=NA,
-              level=level, level.comb=level.comb)
+              Q=NA,
+              level.comb=level.comb,
+              hakn=x$hakn,
+              method.tau=x$method.tau,
+              tau.preset=x$tau.preset,
+              TE.tau=x$TE.tau)
   
   res$version <- packageDescription("meta")$Version
   

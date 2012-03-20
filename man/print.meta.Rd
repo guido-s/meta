@@ -23,12 +23,12 @@
         bystud=FALSE,
         level=object$level, level.comb=object$level.comb,
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
-        print.CMH=object$print.CMH, warn=TRUE, ...)
+        print.CMH=object$print.CMH, warn=object$warn, ...)
 
 \method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
-        print.byvar,
+        print.byvar=x$print.byvar,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-        header=TRUE, print.CMH=x$print.CMH, ...)
+        header=TRUE, print.CMH=x$print.CMH, bylab.nchar=35, ...)
 }
 
 \arguments{
@@ -55,6 +55,8 @@
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{x$TE}).}
   \item{bylab}{A character string with a label for the grouping variable.}
+  \item{bylab.nchar}{A numeric specifying the number of characters to
+    print from label for the grouping variable.}
   \item{bystud}{A logical indicating whether results of individual
     studies should be printed by grouping variable.}
   \item{digits}{Minimal number of significant digits, see \code{print.default}.}
@@ -62,11 +64,11 @@
     variable should be printed in front of the group labels. By default,
     the value of \code{print.byvar} is set to \code{TRUE}.}
   \item{warn}{A logical indicating whether the use of
-  \code{summary.meta} in connection with \code{metacum} or
-  \code{metainf} should result in a warning.}
+    \code{summary.meta} in connection with \code{metacum} or
+    \code{metainf} should result in a warning.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
-  \item{...}{other arguments}
+  \item{...}{Additional arguments}
 }
 
 \details{
@@ -87,6 +89,18 @@
   and \code{comb.random} are \code{TRUE}. In order to get results for
   the random effects model within subgroups, use
   \code{comb.fixed==FALSE} and \code{comb.random==TRUE}.
+
+  Note, for an object of type \code{metaprop}, exact binomial
+  confidence intervals are calculated for individual study results
+  using the R function \code{\link{binom.test}}
+  internally. Accordingly, list elements \code{TE}, \code{lower} and
+  \code{upper} in element \code{study} correspond to proportions and
+  exact confidence limits on the natural scale (irrespective of the
+  transformation used in meta-analysis). Contrary, meta-analysis
+  results are transformed as defined by argument \code{sm}, i.e. list
+  elements \code{TE}, \code{lower} and \code{upper} in elements
+  \code{fixed}, \code{random}, \code{within.fixed} and
+  \code{within.random}.
 }
 
 \value{
@@ -100,12 +114,11 @@
     TE, seTE, lower, upper, z, p, level).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
-  \item{tau}{Square-root of between-study variance (moment estimator of
-    DerSimonian-Laird).}
+  \item{tau}{Square-root of between-study variance.}
   \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
-  \item{k.all}{Total number of trials.}
+  \item{k.all}{Total number of studies.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{sm}{A character string indicating underlying summary measure.}
   \item{method}{A character string with the pooling method.}

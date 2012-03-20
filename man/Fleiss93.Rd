@@ -3,18 +3,23 @@
 \alias{Fleiss93}
 \title{Aspirin after Myocardial Infarction}
 
-\description{Meta-analysis on Aspirin in Preventing Death after Myocardial Infarction}
+\description{
+Meta-analysis on aspirin in preventing death after myocardial
+infarction.
+
+Data example in Fleiss (1993) for meta-analysis with binary outcomes.
+}
 
 \usage{data(Fleiss93)}
 
 \format{A data frame with the following columns:
   \describe{
-  \item{study}{study label}
-  \item{year}{year of publication}
-  \item{event.e}{number of events in experimental group}
-  \item{n.e}{number of observations in experimental group}
-  \item{event.c}{number of events in control group}
-  \item{n.c}{number of observations in control group}
+  \item{study}{Study label}
+  \item{year}{Year of publication}
+  \item{event.e}{Number of events in experimental group}
+  \item{n.e}{Number of observations in experimental group}
+  \item{event.c}{Number of events in control group}
+  \item{n.c}{Number of observations in control group}
   }
 }
 

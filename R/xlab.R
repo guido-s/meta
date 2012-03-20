@@ -1,6 +1,6 @@
 xlab <- function(sm, pscale=1){
   if      (sm=="OR" ) res <- "Odds Ratio"
-  else if (sm=="RR" ) res <- "Relative Risk"
+  else if (sm=="RR" ) res <- "Risk Ratio"
   else if (sm=="RD" ) res <- "Risk Difference"
   else if (sm=="AS" ) res <- "Arcus Sinus Transformation"
   ##

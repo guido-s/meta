@@ -5,7 +5,7 @@
   Performs a cumulative meta-analysis.
 }
 \usage{
-metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
+metacum(x, pooled, sortvar, level.comb=x$level.comb)
 }
 \arguments{
   \item{x}{An object of class \code{meta}.}
@@ -14,8 +14,6 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
   Details), \code{"fixed"}, or \code{"random"}, can be abbreviated.}
   \item{sortvar}{An optional vector used to sort the individual studies
     (must be of same length as \code{x$TE}).}
-  \item{level}{The level used to calculate confidence intervals for
-    individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
     pooled estimates.}
 }
@@ -38,10 +36,14 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
   list containing the following components:
   \item{TE, seTE}{Estimated treatment effect and standard error of
     pooled estimate in cumulative meta-analyses.}
+  \item{lower, upper}{Lower and upper confidence interval limits.}
   \item{studlab}{Study label describing addition of studies.}
   \item{p.value}{P-value for test of overall effect.}
+  \item{w}{Sum of weights from fixed effect or random effects model.}
   \item{I2}{Heterogeneity statistic I2.}
   \item{tau}{Square-root of between-study variance.}
+  \item{df.hakn}{Degrees of freedom for test of treatment effect for
+  Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{sm}{Summary measure.}
   \item{method}{Method used for pooling.}
   \item{k}{Number of studies combined in meta-analysis.}
@@ -49,11 +51,16 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
   \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
   \item{TE.random, seTE.random}{Value is \code{NA}.}
   \item{Q}{Value is \code{NA}.}
-  \item{tau}{Value is \code{NA}.}
-  \item{level}{The level used to calculate confidence intervals for
-    individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
     pooled estimates.}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+          Knapp is used to adjust test statistics and
+          confidence intervals.}
+  \item{method.tau}{A character string indicating which method is used
+    to estimate the between-study variance \eqn{\tau^2}.}
+  \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
+  \item{TE.tau}{Overall treatment effect used to estimate the
+  between-study variance \eqn{\tau^2}.}
   \item{version}{Version of R package meta used to create object.}
 }
 \references{
@@ -69,7 +76,7 @@ metacum(x, pooled, sortvar, level=x$level, level.comb=x$level.comb)
 data(Fleiss93)
 meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data=Fleiss93, studlab=study,
-                 sm="RR", meth="I")
+                 sm="RR", method="I")
 meta1
 
 metacum(meta1)

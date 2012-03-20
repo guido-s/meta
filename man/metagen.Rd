@@ -14,9 +14,14 @@
 metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         level = 0.95, level.comb = level,
         comb.fixed=TRUE, comb.random=TRUE,
+        hakn=FALSE,
+        method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+        method.bias="linreg",
+        n.e=NULL, n.c=NULL,
         title="", complab="", outclab="",
         label.e="Experimental", label.c="Control",
-        byvar, bylab, print.byvar=TRUE)
+        label.left="", label.right="",
+        byvar, bylab, print.byvar=TRUE, warn=TRUE)
 }
 
 \arguments{
@@ -36,16 +41,36 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{n.e}{Number of observations in experimental group.}
+  \item{n.c}{Number of observations in control group.}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+          Knapp should be used to adjust test statistics and
+          confidence intervals.}
+  \item{method.tau}{A character string indicating which method is used
+    to estimate the between-study variance tau-squared. Either
+    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+  \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
+  \item{TE.tau}{Overall treatment effect used to estimate the
+  between-study variance tau-squared.}
+  \item{method.bias}{A character string indicating which test is to be
+    used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
+    be abbreviated.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
   \item{label.e}{Label for experimental group.}
   \item{label.c}{Label for control group.}
+  \item{label.left}{Graph label on left side of forest plot.}
+  \item{label.right}{Graph label on right side of forest plot.}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{TE}).}
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{warn}{A logical indicating whether warnings should be printed
+    (e.g., if studies are excluded from meta-analysis due to zero
+    standard errors).}
 }
 
 \details{
@@ -65,27 +90,64 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   and \code{comb.random}. E.g. function \code{\link{print.meta}} will
   not print results for the random effects model if
   \code{comb.random=FALSE}.
+
+  If R package metafor (Viechtbauer 2010) is installed, the following
+  statistical methods are also available.
+
+  For the random effects model (argument \code{comb.random=TRUE}), the
+  method by Hartung and Knapp (Knapp, Hartung 2003) is used to adjust
+  test statistics and confidence intervals if argument
+  \code{hakn=TRUE} (internally R function \code{rma.uni} of R package
+  metafor is called).
+
+  Several methods are available to estimate the between-study variance
+  \eqn{\tau^2} (argument \code{method.tau}):
+  \itemize{
+   \item DerSimonian-Laird estimator (\code{method.tau="DL"}) (default)
+   \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
+   \item Maximum-likelihood estimator (\code{method.tau="ML"})
+   \item Hunter-Schmidt estimator (\code{method.tau="HS"})
+   \item Sidik-Jonkman estimator (\code{method.tau="SJ"})
+   \item Hedges estimator (\code{method.tau="HE"})
+   \item Empirical Bayes estimator (\code{method.tau="EB"}).
+  }
+  For all but the DerSimonian-Laird method the R function
+  \code{rma.uni} of R package metafor is called internally. See help
+  page of R function \code{rma.uni} for more details on the various
+  methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
 }
 
 \value{
   An object of class \code{c("metagen", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{TE, seTE, studlab,}{}
+  \item{TE, seTE, studlab, n.e, n.c}{}
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
-  \item{byvar, bylab, print.byvar}{As defined above.}
+  \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
+  \item{label.e, label.c, label.left, label.right,}{}
+  \item{byvar, bylab, print.byvar, warn}{As defined above.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
   \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
     standard error (fixed effect model).}
+  \item{lower.fixed, upper.fixed}{Lower and upper confidence interval limits
+  (fixed effect model).}
+  \item{zval.fixed, pval.fixed}{z-value and p-value for test of
+  overall treatment effect (fixed effect model).}
   \item{TE.random, seTE.random}{Estimated overall treatment effect and
     standard error (random effects model).}
+  \item{lower.random, upper.random}{Lower and upper confidence interval limits
+  (random effects model).}
+  \item{zval.random, pval.random}{z-value or t-value and corresponding
+    p-value for test of overall treatment effect (random effects
+    model).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic.}
-  \item{tau}{Square-root of between-study variance (moment estimator of
-    DerSimonian-Laird).}
+  \item{tau}{Square-root of between-study variance.}
   \item{method}{Pooling method: \code{"Inverse"}.}
+  \item{df.hakn}{Degrees of freedom for test of treatment effect for
+  Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -94,6 +156,16 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   Cooper H & Hedges LV (1994),
   \emph{The Handbook of Research Synthesis}.
   Newbury Park, CA: Russell Sage Foundation.
+
+  Knapp G & Hartung J (2003),
+  Improved Tests for a Random Effects Meta-regression with a Single
+  Covariate.
+  \emph{Statistics in Medicine}, \bold{22}, 2693-710,
+  doi: 10.1002/sim.1482 .
+
+  Viechtbauer W (2010),
+  Conducting Meta-Analyses in R with the Metafor Package.
+  \emph{Journal of Statistical Software}, \bold{36}, 1--48.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -102,7 +174,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
 
 \examples{
 data(Fleiss93)
-meta1 <- metabin(event.e, n.e, event.c, n.c, data=Fleiss93, sm="RR", meth="I")
+meta1 <- metabin(event.e, n.e, event.c, n.c, data=Fleiss93, sm="RR", method="I")
 meta1
 
 ##

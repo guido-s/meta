@@ -10,7 +10,10 @@
 }
 
 \usage{
-metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
+metacr(x, comp.no=1, outcome.no=1,
+       sm, method, comb.fixed, comb.random, swap.events, logscale,
+       method.tau="DL", hakn=FALSE,
+       title, complab, outclab, warn=FALSE)
 }
 
 \arguments{
@@ -18,11 +21,34 @@ metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
   \code{read.rm5}.}
   \item{comp.no}{Comparison number.}
   \item{outcome.no}{Outcome number.}
-  \item{smother}{A character specifying the summary measure to use
-    instead of the value "OTHER"}
-  \item{logscale}{A logical indicating whether treatment effects have
-    been entered on the log scale in RevMan5. Only relevant for an
-    outcome with summary measure equal to "OTHER".}
+  \item{sm}{A character string indicating which summary measure
+    (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"AS"}, \code{"HR"},
+    \code{"MD"}, or \code{"SMD"}) is to be used for pooling of
+    studies.}
+  \item{method}{A character string indicating which method is to be used
+    for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
+    \code{"Peto"}, can be abbreviated.}
+  \item{comb.fixed}{A logical indicating whether a fixed effect
+    meta-analysis should be conducted.}
+  \item{comb.random}{A logical indicating whether a random effects
+    meta-analysis should be conducted.}
+  \item{swap.events}{A logical indicating whether events and
+    non-events should be interchanged.}
+  \item{logscale}{A logical indicating whether effect estimates are
+    entered on log-scale.}
+  \item{method.tau}{A character string indicating which method is used
+    to estimate the between-study variance \eqn{\tau^2}. Either
+    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+          Knapp should be used to adjust test statistics and
+          confidence intervals.}
+  \item{title}{Title of meta-analysis / systematic review.}
+  \item{complab}{Comparison label.}
+  \item{outclab}{Outcome label.}
+  \item{warn}{A logical indicating whether warnings should be printed
+    (e.g., if \code{incr} is added to studies with zero cell
+    frequencies).}
 }
 
 \details{
@@ -47,8 +73,9 @@ metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
 }
 
 \references{
-  \emph{Review Manager (RevMan)} [Computer program]. Version 5.0, The Nordic
-  Cochrane Centre, The Cochrane Collaboration, 2008.
+  \emph{Review Manager (RevMan)} [Computer program]. Version
+  5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
+  Collaboration, 2011.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -56,14 +83,10 @@ metacr(x, comp.no=1, outcome.no=1, smother="", logscale=TRUE)
 \seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{read.rm5}}}
 
 \examples{
-## Locate export data file "Fleiss93_CR.csv" or "Fleiss93_CR_Windows.csv"
+## Locate export data file "Fleiss93_CR.csv"
 ## in sub-directory of package "meta"
 ##
-filename <-
-  system.file(ifelse(Sys.info()[["sysname"]]=="Windows",
-                     "data/Fleiss93_CR_Windows.csv",
-                     "data/Fleiss93_CR.csv"),
-              package = "meta")
+filename <- system.file("data/Fleiss93_CR.csv.gz", package = "meta")
 ##
 Fleiss93_CR <- read.rm5(filename)
 

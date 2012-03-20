@@ -4,7 +4,7 @@
 
 .onLoad <- function(libname,pkgname)
 {
-   cat("load meta: ", libname, "...\n")
+   packageStartupMessage("load meta: ", libname, "...\n")
    library.dynam("meta", pkgname, libname)
 }
 

@@ -5,6 +5,9 @@ metaprop <- function(event, n, studlab,
                      incr=0.5, allincr=FALSE, addincr=FALSE,
                      level=0.95, level.comb=level,
                      comb.fixed=TRUE, comb.random=TRUE,
+                     hakn=FALSE,
+                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                     method.bias="linreg",
                      title="", complab="", outclab="",
                      byvar, bylab, print.byvar=TRUE,
                      warn=TRUE
@@ -19,6 +22,7 @@ metaprop <- function(event, n, studlab,
   mf$data <- mf$subset <- mf$sm <- NULL
   mf$freeman.tukey <- mf$level <- mf$level.comb <- NULL
   mf$incr <- mf$allincr <- mf$addincr <- NULL
+  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
   ##
@@ -30,6 +34,7 @@ metaprop <- function(event, n, studlab,
   mf2$data <- mf2$sm <- mf2$freeman.tukey <- NULL
   mf2$level <- mf2$level.comb <- NULL
   mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
+  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
@@ -37,7 +42,7 @@ metaprop <- function(event, n, studlab,
   if (!is.null(mf2$subset))
     if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$event))) ||
         (length(mf2$subset) > length(mf$event)))
-      stop("Length of subset is larger than number of trials.")
+      stop("Length of subset is larger than number of studies.")
     else
       mf <- mf[mf2$subset,]
   ##
@@ -57,7 +62,7 @@ metaprop <- function(event, n, studlab,
   
   k.all <- length(event)
   ##
-  if (k.all == 0) stop("No trials to combine in meta-analysis.")
+  if (k.all == 0) stop("No studies to combine in meta-analysis.")
 
   if (!(is.numeric(event) & is.numeric(n)))
     stop("Non-numeric value for event or n")
@@ -156,44 +161,62 @@ metaprop <- function(event, n, studlab,
   
   if (sm=="PFT"){
     TE <- asin(sqrt(event/(n+1))) + asin(sqrt((event+1)/(n+1)))
-    ##varTE <- 1/(n+0.5)
-    varTE <- 1/(n+1)
+    seTE <- sqrt(1/(n+0.5))
   }
   else if (sm=="PAS"){
     TE <- asin(sqrt(event/n))
-    varTE <- 0.25*(1/n)
+    seTE <- sqrt(0.25*(1/n))
   }
   else if (sm=="PRAW"){
     TE <- (event+incr.event)/(n+incr.event)
-    varTE <- (((event+incr.event)/(n+incr.event)) *
-             (1-(event+incr.event)/(n+incr.event)) / (n+incr.event))
+    seTE <- sqrt((  (event+incr.event)/(n+incr.event)) *
+                 (1-(event+incr.event)/(n+incr.event)) /
+                 (n+incr.event))
   }
   else if (sm=="PLN"){
     TE <- log((event+incr.event)/(n+incr.event))
-    varTE <- 1/(event+incr.event) - 1/(n+incr.event)
+    seTE <- sqrt(1/(event+incr.event) - 1/(n+incr.event))
   }
   else if (sm=="PLOGIT"){
     TE <- log(((event+incr.event)/(n+incr.event)) /
               (1-(event+incr.event)/(n+incr.event)))
-    varTE <- 1/(event+incr.event) + 1/((n+incr.event)-(event+incr.event))
+    seTE <- sqrt(1/(event+incr.event) +
+                 1/((n+incr.event)-(event+incr.event)))
   }
   
   
-  m <- metagen(TE, sqrt(varTE))
+  if (!is.null(tau.preset))
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 tau.preset=tau.preset, TE.tau=TE.tau)
+  else
+    m <- metagen(TE, seTE,
+                 hakn=hakn, method.tau=method.tau,
+                 TE.tau=TE.tau)
   
   
   res <- list(event=event, n=n,
               studlab=studlab,
-              TE=TE, seTE=sqrt(varTE),
+              TE=TE, seTE=seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
+              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
+              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
-              k=m$k, Q=m$Q, tau=m$tau,
+              lower.random=m$lower.random, upper.random=m$upper.random,
+              zval.random=m$zval.random, pval.random=m$pval.random,
+              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
               sm=sm,
               method=m$method,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
+              hakn=hakn,
+              df.hakn=if (hakn) m$df.hakn else NULL,
+              method.tau=method.tau,
+              tau.preset=tau.preset,
+              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              method.bias=method.bias,
               title="", complab="", outclab="",
               call=match.call(),
               warn=warn)

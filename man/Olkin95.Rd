@@ -9,12 +9,12 @@
 
 \format{A data frame with the following columns:
   \describe{
-  \item{author}{first author}
-  \item{year}{year of publication}
-  \item{event.e}{number of events in experimental group}
-  \item{n.e}{number of observations in experimental group}
-  \item{event.c}{number of events in control group}
-  \item{n.c}{number of observations in control group}
+  \item{author}{First author}
+  \item{year}{Year of publication}
+  \item{event.e}{Number of events in experimental group}
+  \item{n.e}{Number of observations in experimental group}
+  \item{event.c}{Number of events in control group}
+  \item{n.c}{Number of observations in control group}
   }
 }
 

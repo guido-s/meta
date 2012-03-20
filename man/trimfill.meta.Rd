@@ -27,8 +27,8 @@
   \item{left}{A logical indicating whether studies are supposed to be
     missing on the left or right side of the funnel plot. If NULL, the
     linear regression test for funnel plot symmetry (i.e., function
-    \code{metabias(..., meth="linreg")}) is used to determine whether
-    trials are missing on the left or right side.}
+    \code{metabias(..., method="linreg")}) is used to determine whether
+    studies are missing on the left or right side.}
   \item{ma.fixed}{A logical indicating whether a fixed effect or random
   effects model is used to estimate the number of missing studies.}
   \item{type}{A character indicating which method is used to estimate
@@ -90,8 +90,7 @@
     standard error (random effects model).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
-  \item{tau}{Square-root of between-study variance (moment estimator of
-    DerSimonian-Laird).}
+  \item{tau}{Square-root of between-study variance.}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{call}{Function call.}
   \item{n.iter}{Actual number of iterations to estimate number of

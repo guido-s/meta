@@ -41,8 +41,7 @@ trimfill(x, ...)
     standard error (random effects model).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
-  \item{tau}{Square-root of between-study variance (moment estimator of
-    DerSimonian-Laird).}
+  \item{tau}{Square-root of between-study variance.}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{call}{Function call.}
   \item{n.iter}{Actual number of iterations to estimate number of

@@ -19,7 +19,8 @@ forest.meta <- function(x,
                         ##
                         pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
                         ##
-                        xlab=NULL, xlab.pos=ref, xlim,
+                        xlab="", xlab.pos=ref,
+                        smlab=NULL, smlab.pos=ref, xlim="symmetric",
                         ##
                         allstudies=TRUE,
                         weight,
@@ -35,6 +36,9 @@ forest.meta <- function(x,
                         ##
                         lab.e.attach.to.col=NULL,
                         lab.c.attach.to.col=NULL,
+                        ##
+                        label.right=x$label.right,
+                        label.left=x$label.left,
                         ##
                         lwd=1,
                         ##
@@ -60,6 +64,7 @@ forest.meta <- function(x,
                         print.Q=FALSE,
                         print.pval.Q=TRUE,
                         hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
+                        overall.hetstat=overall&hetstat,
                         hetlab="Heterogeneity: ",
                         ##
                         fontsize=12,
@@ -72,7 +77,9 @@ forest.meta <- function(x,
                         fs.study.labels=fs.study,
                         fs.hetstat=fontsize-2,
                         fs.axis=fontsize,
+                        fs.smlab=fontsize,
                         fs.xlab=fontsize,
+                        fs.lr=fontsize,
                         ##
                         ##fontface="bold",
                         ff.heading="bold",
@@ -84,7 +91,9 @@ forest.meta <- function(x,
                         ff.study.labels=ff.study,
                         ff.hetstat="bold.italic",
                         ff.axis="plain",
+                        ff.smlab="bold",
                         ff.xlab="plain",
+                        ff.lr="plain",
                         ##
                         squaresize=0.8,
                         boxsize=squaresize,
@@ -156,6 +165,11 @@ forest.meta <- function(x,
   
   if (!missing(boxsize))
       warning("Use of parameter 'boxsize' is deprecated, please use parameter 'squaresize' instead")
+  
+  if (is.logical(leftcols)){
+    warning("Logical value not possible for parameter 'leftcols', set to 'NULL'.")
+    leftcols <- NULL
+  }
   
   if (missing(weight))
     weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
@@ -297,7 +311,7 @@ forest.meta <- function(x,
                   width=unit(size, "snpc"),
                   height=unit(size, "snpc"),
                   gp=gpar(fill=col.square, col=col.square.lines))
-        ##grid.circle(x=unit(eff, "native"), # TODO -> DONE
+        ##grid.circle(x=unit(eff, "native"),
         ##            r=unit(0.15, "snpc"),
         ##            gp=gpar(fill=col, col=col))
         grid.lines(x=unit(c(eff, eff), "native"),
@@ -387,10 +401,13 @@ forest.meta <- function(x,
     ##
     pushViewport(viewport(layout.pos.col=j, xscale=col$range))
     ##
+    ymax.line <- max(yS, na.rm=TRUE)-1
+    ##
     ## Reference line:
     ##
     if (!is.na(ref) && (col$range[1] <= ref & ref <= col$range[2]))
-      grid.lines(x=unit(ref, "native"), y=0:1,
+      grid.lines(x=unit(ref, "native"),
+                 y=unit(c(0, ymax.line), "lines"),
                  gp=gpar(lwd=lwd))
     ##
     ## 
@@ -398,12 +415,14 @@ forest.meta <- function(x,
     if (comb.fixed & overall)
       if (col$range[1] <= TE.fixed & TE.fixed <= col$range[2])
         if (!is.null(lty.fixed))
-          grid.lines(x=unit(TE.fixed, "native"), y=0:1,
+          grid.lines(x=unit(TE.fixed, "native"),
+                     y=unit(c(0, ymax.line), "lines"),
                      gp=gpar(lty=lty.fixed, lwd=lwd)) # lty="dashed"
     if (comb.random & overall)
       if (col$range[1] <= TE.random & TE.random <= col$range[2])
         if (!is.null(lty.random))
-          grid.lines(x=unit(TE.random, "native"), y=0:1,
+          grid.lines(x=unit(TE.random, "native"),
+                     y=unit(c(0, ymax.line), "lines"),
                      gp=gpar(lty=lty.random, lwd=lwd))
     ##
     if (log){
@@ -412,7 +431,6 @@ forest.meta <- function(x,
         x100  <- c(0.01 , 0.1, 1,  10, 100)
         x10   <- c(0.1  , 0.5, 1,   2, 10)
         x5    <- c(0.2  , 0.5, 1,   2, 5)
-        x2    <- c(0.5  , 1, 2)
         x2    <- c(0.5  , 1, 2)
         x1.5  <- c(0.75 , 1, 1.5)
         x1.25 <- c(0.8  , 1, 1.25)
@@ -433,6 +451,9 @@ forest.meta <- function(x,
         else if (all(x5 >= tval.min) &
             all(x5 <= tval.max))
           label <- x5
+        else if (all(x2 >= tval.min) &
+            all(x2 <= tval.max))
+          label <- x2
         else if (all(x1.5 >= tval.min) &
             all(x1.5 <= tval.max))
           label <- x1.5
@@ -469,14 +490,37 @@ forest.meta <- function(x,
                      gp=gpar(fontsize=fs.axis, fontface=ff.axis, lwd=lwd))
     }
     ##
+    ## sm-Label on top:
+    ##
+    grid.text(smlab,
+              x=unit(smlab.pos, "native"),
+              y=unit(1, "npc"),
+              just=c("center", "top"),
+              gp=gpar(fontsize=fs.smlab, fontface=ff.smlab))
+    ##
     ## Label on x-axis:
     ##
-    grid.text(xlab, ## TODO -> done
+    grid.text(xlab,
               x=unit(xlab.pos, "native"),
               ##y=-0.2,
-              y=unit(-2.35, "lines"),
+              y=unit(-2.5-1*(symmetric && (label.left!="" | label.right!="")), "lines"),
               just=c("center", "top"),
               gp=gpar(fontsize=fs.xlab, fontface=ff.xlab))
+    ##
+    ## Left and right label on x-axis:
+    ##
+    if (symmetric && (label.left!="" | label.right!="")){
+      grid.text(label.left,
+                x=unit(xlab.pos-(xlim[2]-xlim[1])/30, "native"),
+                y=unit(-2.5, "lines"),
+                just=c("right", "center"),
+                gp=gpar(fontsize=fs.lr, fontface=ff.lr))
+      grid.text(label.right,
+                x=unit(xlab.pos+(xlim[2]-xlim[1])/30, "native"),
+                y=unit(-2.5, "lines"),
+                just=c("left", "center"),
+                gp=gpar(fontsize=fs.lr, fontface=ff.lr))
+    }
     ##
     ##    grid.text("Favours xyz   ",
     ##              x=unit(ref, "native"),
@@ -519,6 +563,13 @@ forest.meta <- function(x,
   if (is.null(xlab))
     xlab <- xlab(x$sm, pscale)
   
+  if (is.null(smlab))
+    smlab <- xlab(x$sm, pscale)
+  
+  if (is.null(label.right))
+    label.right <- ""
+  if (is.null(label.left))
+    label.left <- ""
   
   testchar <- function(x)
     if (length(x)!=1 || !is.character(x))
@@ -565,13 +616,22 @@ forest.meta <- function(x,
     ##
     x$TE.fixed    <- rev(x$TE)[1]
     x$seTE.fixed  <- rev(x$seTE)[1]
+    x$lower.fixed <- rev(x$lower)[1]
+    x$upper.fixed <- rev(x$upper)[1]
+    ##
     x$TE.random   <- rev(x$TE)[1]
     x$seTE.random <- rev(x$seTE)[1]
+    x$lower.random <- rev(x$lower)[1]
+    x$upper.random <- rev(x$upper)[1]
+    ##
     x$w.all <- rev(x$w)[1]
     ##
     x$TE <- rev(rev(x$TE)[-(1:2)])
     x$seTE <- rev(rev(x$seTE)[-(1:2)])
     x$studlab <- rev(rev(x$studlab)[-(1:2)])
+    ##
+    x$lower <- rev(rev(x$lower)[-(1:2)])
+    x$upper <- rev(rev(x$upper)[-(1:2)])
     ##
     x$w.fixed <- rev(rev(x$w)[-(1:2)])
     x$w.random <- rev(rev(x$w)[-(1:2)])
@@ -599,6 +659,11 @@ forest.meta <- function(x,
   ##
   if (!rsel)
     rightcols <- NULL
+  ##
+  ## lsel <- !(is.logical(leftcols) && length(leftcols)==1 && !leftcols)
+  ## ##
+  ## if (!lsel)
+  ##   leftcols <- NULL
   
   
   ##
@@ -790,15 +855,15 @@ forest.meta <- function(x,
   
   
   ##
-  ## total number of trials to plot (*not* number of trials combined)
+  ## total number of studies to plot (*not* number of studies combined)
   ##
   k.all <- length(x$TE)
 
 
   if (allstudies)
-    n.stud <- k.all # all trials
+    n.stud <- k.all # all studies
   else
-    n.stud <- x$k   # number of trials combined in meta-analysis
+    n.stud <- x$k   # number of studies combined in meta-analysis
   
   
   by <- length(byvar)>0
@@ -878,6 +943,11 @@ forest.meta <- function(x,
   x$TE   <- x$TE[sel]
   x$seTE <- x$seTE[sel]
   ##
+  if (inherits(x, "metainf")|inherits(x, "metacum")){
+    x$lower <- x$lower[sel]
+    x$upper <- x$upper[sel]
+  }
+  ##
   x$w.fixed  <- x$w.fixed[sel]
   x$w.random <- x$w.random[sel]
   studlab  <- studlab[sel]
@@ -913,6 +983,11 @@ forest.meta <- function(x,
     x$TE   <- x$TE[o]
     x$seTE <- x$seTE[o]
     ##
+    if (inherits(x, "metainf")|inherits(x, "metacum")){
+      x$lower <- x$lower[o]
+      x$upper <- x$upper[o]
+    }
+    ##
     x$w.fixed  <- x$w.fixed[o]
     x$w.random <- x$w.random[o]
     studlab  <- studlab[o]
@@ -936,28 +1011,91 @@ forest.meta <- function(x,
     n.by <- 0
   
   
-  sum.meta <- summary(x, level=level, level.comb=level.comb, warn=FALSE)
   ##
-  TE    <- sum.meta$study$TE
-  seTE  <- sum.meta$study$seTE
-  lowTE <- sum.meta$study$lower
-  uppTE <- sum.meta$study$upper
+  ## (Re)calculate effect estimates:
   ##
-  TE.fixed    <- sum.meta$fixed$TE
-  lowTE.fixed <- sum.meta$fixed$lower
-  uppTE.fixed <- sum.meta$fixed$upper
+  if (inherits(x, "metabin"))
+    m1 <- metabin(x$event.e, x$n.e,
+                  x$event.c, x$n.c,
+                  method=x$method, sm=x$sm,
+                  incr=x$incr, allincr=x$allincr,
+                  addincr=x$addincr, allstudies=x$allstudies,
+                  MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
+                  hakn=x$hakn, method.tau=x$method.tau,
+                  tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                  warn=x$warn)
   ##
-  TE.random    <- sum.meta$random$TE
-  lowTE.random <- sum.meta$random$lower
-  uppTE.random <- sum.meta$random$upper
+  if (inherits(x, "metacont"))
+    m1 <- metacont(x$n.e, x$mean.e, x$sd.e,
+                   x$n.c, x$mean.c, x$sd.c,
+                   sm=x$sm,
+                   hakn=x$hakn, method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
   ##
-  Q    <- sum.meta$Q
-  df   <- sum.meta$k-1
-  I2   <- sum.meta$I2$TE
-  tau2 <- sum.meta$tau^2
+  if (inherits(x, "metagen"))
+    m1 <- metagen(x$TE, x$seTE, sm=x$sm,
+                  hakn=x$hakn, method.tau=x$method.tau,
+                  tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+  ##
+  if (inherits(x, "metaprop")){
+    m1 <- metaprop(x$event.e, x$n.e, sm=x$sm,
+                   hakn=x$hakn, method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                   warn=x$warn)
+    m1$event.e <- m1$event
+    m1$n.e <- m1$n
+  }
+  ##
+  if (inherits(x, "metacor")){
+    m1 <- metacor(x$cor, x$n, sm=x$sm,
+                  hakn=x$hakn, method.tau=x$method.tau,
+                  tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+    m1$n.e <- m1$n
+  }
+  ##
+  if (inherits(x, "metacum") | inherits(x, "metainf")){
+    TE    <- x$TE
+    seTE  <- x$seTE
+    lowTE <- x$lower
+    uppTE <- x$upper
+    ##
+    TE.fixed    <- x$TE.fixed
+    lowTE.fixed <- x$lower.fixed
+    uppTE.fixed <- x$upper.fixed
+    ##
+    TE.random    <- x$TE.random
+    lowTE.random <- x$lower.random
+    uppTE.random <- x$upper.random
+    ##
+    Q    <- NA
+    df   <- NA
+    I2   <- NA
+    tau2 <- NA
+  }
+  else{
+    sm1 <- summary(m1, level=level, level.comb=level.comb, warn=FALSE)
+    
+    TE    <- sm1$study$TE
+    seTE  <- sm1$study$seTE
+    lowTE <- sm1$study$lower
+    uppTE <- sm1$study$upper
+    ##
+    TE.fixed    <- sm1$fixed$TE
+    lowTE.fixed <- sm1$fixed$lower
+    uppTE.fixed <- sm1$fixed$upper
+    ##
+    TE.random    <- sm1$random$TE
+    lowTE.random <- sm1$random$lower
+    uppTE.random <- sm1$random$upper
+    ##
+    Q    <- sm1$Q
+    df   <- sm1$k-1
+    I2   <- sm1$I2$TE
+    tau2 <- sm1$tau^2
+  }
   
 
-  if (hetstat){
+  if (overall.hetstat){
     dummy <- FALSE
     ##
     hetstat.overall <- hetlab
@@ -1004,52 +1142,60 @@ forest.meta <- function(x,
   
   if (by){
 
-    res.w <- matrix(NA, ncol=15, nrow=n.by)
+    res.w <- matrix(NA, ncol=16, nrow=n.by)
     j <- 0
     ##
     for ( i in by.levs){
       j <- j+1
       sel <- byvar == i
       ##
-      if (inherits(x, "metabin")){
-        meta1 <- metabin(x$event.e[sel], x$n.e[sel],
-                         x$event.c[sel], x$n.c[sel],
-                         method=x$method, sm=x$sm,
-                         incr=x$incr, allincr=x$allincr,
-                         addincr=x$addincr, allstudies=x$allstudies,
-                         MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
-                         warn=x$warn)
-      }
+      if (inherits(x, "metabin"))
+        m.w <- metabin(x$event.e[sel], x$n.e[sel],
+                       x$event.c[sel], x$n.c[sel],
+                       method=x$method, sm=x$sm,
+                       incr=x$incr, allincr=x$allincr,
+                       addincr=x$addincr, allstudies=x$allstudies,
+                       MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
+                       hakn=x$hakn, method.tau=x$method.tau,
+                       tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                       warn=x$warn)
       ##
-      if (inherits(x, "metacont")){
-        meta1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
-                          x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
-                          sm=x$sm)
-      }
+      if (inherits(x, "metacont"))
+        m.w <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
+                        x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
+                        sm=x$sm,
+                        hakn=x$hakn, method.tau=x$method.tau,
+                        tau.preset=x$tau.preset, TE.tau=x$TE.tau)
       ##
-      if (inherits(x, "metagen")){
-        meta1 <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm)
-      }
+      if (inherits(x, "metagen"))
+        m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
+                       hakn=x$hakn, method.tau=x$method.tau,
+                       tau.preset=x$tau.preset, TE.tau=x$TE.tau)
       ##
       if (inherits(x, "metaprop")){
-        meta1 <- metaprop(x$event.e[sel], x$n.e[sel], sm=x$sm,
-                          warn=x$warn)
-        meta1$event.e <- meta1$event
-        meta1$n.e <- meta1$n
+        m.w <- metaprop(x$event.e[sel], x$n.e[sel], sm=x$sm,
+                        hakn=x$hakn, method.tau=x$method.tau,
+                        tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                        warn=x$warn)
+        m.w$event.e <- m.w$event
+        m.w$n.e <- m.w$n
       }
       ##
       if (inherits(x, "metacor")){
-        meta1 <- metacor(x$cor[sel], x$n[sel], sm=x$sm)
-        meta1$n.e <- meta1$n
+        m.w <- metacor(x$cor[sel], x$n[sel], sm=x$sm,
+                       hakn=x$hakn, method.tau=x$method.tau,
+                       tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+        m.w$n.e <- m.w$n
       }
       ##
-      res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
-                     meta1$TE.random, meta1$seTE.random,
-                     meta1$Q, meta1$k, length(meta1$TE),
-                     summary(meta1)$I2$TE, meta1$tau^2,
+      res.w[j,] <- c(m.w$TE.fixed, m.w$seTE.fixed,
+                     m.w$TE.random, m.w$seTE.random,
+                     m.w$Q, m.w$k, length(m.w$TE),
+                     summary(m.w)$I2$TE, m.w$tau^2,
                      sum(x$w.fixed[sel]), sum(x$w.random[sel]),
-                     sum(meta1$event.e), sum(meta1$n.e),
-                     sum(meta1$event.c), sum(meta1$n.c))
+                     sum(m.w$event.e), sum(m.w$n.e),
+                     sum(m.w$event.c), sum(m.w$n.c),
+                     mean(1/x$n[sel]))
     }
     ##
     k.w     <- res.w[,6]
@@ -1062,15 +1208,19 @@ forest.meta <- function(x,
     seTE.fixed.w  <- res.w[sel,2]
     TE.random.w   <- res.w[sel,3]
     seTE.random.w <- res.w[sel,4]
+    ##
     Q.w           <- res.w[sel,5]
     I2.w          <- res.w[sel,8]
     tau2.w        <- res.w[sel,9]
     w.fixed.w     <- res.w[sel,10]
     w.random.w    <- res.w[sel,11]
+    ##
     e.e.w         <- res.w[sel,12]
     n.e.w         <- res.w[sel,13]
     e.c.w         <- res.w[sel,14]
     n.c.w         <- res.w[sel,15]
+    ##
+    harmonic.mean.w <- res.w[sel,16]
     ##
     by.levs <- by.levs[sel]
     k.all.w <- k.all.w[sel]
@@ -1092,7 +1242,10 @@ forest.meta <- function(x,
     }
     ##
     if (comb.random){
-      meta.random.w <- ci(TE.random.w, seTE.random.w, level)
+      if (!is.null(x$hakn) && x$hakn)
+        meta.random.w <- ci(TE.random.w, seTE.random.w, level, df=k.w-1)
+      else
+        meta.random.w <- ci(TE.random.w, seTE.random.w, level)
       ##
       if (sum(w.random.w)>0)
         w.random.w.p <- 100*round(w.random.w/sum(w.random.w, na.rm=TRUE), 3)
@@ -1163,31 +1316,54 @@ forest.meta <- function(x,
   if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
-    denum <- 1 + (x$sm=="PFT")
-    ##
     if (inherits(x, "metaprop")){
       TE    <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
-      TE    <- pscale*asin2p(TE, denum)
-      lowTE <- pscale*asin2p(lowTE, denum)
-      uppTE <- pscale*asin2p(uppTE, denum)
+      if (x$sm=="PAS"){
+        TE    <- pscale*asin2p(TE)
+        lowTE <- pscale*asin2p(lowTE)
+        uppTE <- pscale*asin2p(uppTE)
+      }
+      if (x$sm=="PFT"){
+        TE    <- pscale*asin2p(TE, x$n)
+        lowTE <- pscale*asin2p(lowTE, x$n)
+        uppTE <- pscale*asin2p(uppTE, x$n)
+      }
     }
     ##
-    TE.fixed    <- pscale*asin2p(TE.fixed, denum)
-    lowTE.fixed <- pscale*asin2p(lowTE.fixed, denum)
-    uppTE.fixed <- pscale*asin2p(uppTE.fixed, denum)
+    if (x$sm=="PAS"){
+      TE.fixed    <- pscale*asin2p(TE.fixed)
+      lowTE.fixed <- pscale*asin2p(lowTE.fixed)
+      uppTE.fixed <- pscale*asin2p(uppTE.fixed)
+      ##
+      TE.random    <- pscale*asin2p(TE.random)
+      lowTE.random <- pscale*asin2p(lowTE.random)
+      uppTE.random <- pscale*asin2p(uppTE.random)
+      ##
+      if (by){
+        TE.w    <- pscale*asin2p(TE.w)
+        lowTE.w <- pscale*asin2p(lowTE.w)
+        uppTE.w <- pscale*asin2p(uppTE.w)
+      }
+    }
     ##
-    TE.random    <- pscale*asin2p(TE.random, denum)
-    lowTE.random <- pscale*asin2p(lowTE.random, denum)
-    uppTE.random <- pscale*asin2p(uppTE.random, denum)
-    ##
-    if (by){
-      TE.w    <- pscale*asin2p(TE.w, denum)
-      lowTE.w <- pscale*asin2p(lowTE.w, denum)
-      uppTE.w <- pscale*asin2p(uppTE.w, denum)
+    if (x$sm=="PFT"){
+      TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n))
+      lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n))
+      uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n))
+      ##
+      TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n))
+      lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n))
+      uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n))
+      ##
+      if (by){
+        TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w)
+        lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w)
+        uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w)
+      }
     }
   }
   else if (x$sm=="PLN"){
@@ -1589,30 +1765,44 @@ forest.meta <- function(x,
   ##if (!missing(xlim) & inherits(x, "metaprop") & pscale!=1)
   ##  xlim <- pscale*xlim
   
+  
   if (!missing(xlim) && is.numeric(xlim[1]))
     if (x$sm %in% c("HR", "OR", "RR"))
       xlim <- log(xlim)
   ##
-  if (missing(xlim)){
+  if (is.null(xlim)){
     if (inherits(x, "metaprop")){
       ## xlim <- c(0,1)
       xlim <- c(min(lowTE, na.rm=TRUE), max(uppTE, na.rm=TRUE))
+      ##
+      if (!is.na(ref) && ref < xlim[1])
+        xlim[1] <- ref
+      if (!is.na(ref) && ref > xlim[2])
+        xlim[2] <- ref
     }
     else{
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
       xlim <- c(min(lowTE[sel.low], na.rm=TRUE),
-              max(uppTE[sel.upp], na.rm=TRUE))
+                max(uppTE[sel.upp], na.rm=TRUE))
+      ##
+      if (!is.na(ref) && ref < xlim[1])
+        xlim[1] <- ref
+      if (!is.na(ref) && ref > xlim[2])
+        xlim[2] <- ref
     }
   }
   ##
-  if (!missing(xlim) && is.character(xlim[1])){
+  symmetric <- FALSE
+  ##
+  if (!is.null(xlim) && is.character(xlim[1])){
     ##
     ixlim <- charmatch(tolower(xlim), c("symmetric"), nomatch = NA)
     ##
-    if(is.na(ixlim))
+    if (is.na(ixlim))
       stop("xlim should be a numeric vector (min, max) or the character string \"symmetric\"")
     ##
+    symmetric <- TRUE
     xlim <- c("symmetric")[ixlim]
     ##
     if (inherits(x, "metaprop")){
@@ -1633,7 +1823,12 @@ forest.meta <- function(x,
         xlim <- c(-max(abs(c(minTE, maxTE))), max(abs(c(minTE, maxTE))))
     }
   }
-
+  ##
+  if (!is.na(ref) &&
+      round(xlim[2]-ref, 6) == round(ref-xlim[1], 6))
+    symmetric <- TRUE
+  
+  
   if (by)
     max.yTE <- max(c(yTE, yTE.w), na.rm=TRUE)
   else
@@ -1641,8 +1836,11 @@ forest.meta <- function(x,
   
   
   ##if ((inherits(x, c("metaprop", "metacor")) | isprop) & missing(xlab.pos))
-  if (missing(xlab.pos))
+  if (is.null(xlab.pos))
     xlab.pos <- mean(xlim)
+  
+  if (is.null(smlab.pos))
+    smlab.pos <- mean(xlim)
   
   
   ##
@@ -1670,12 +1868,12 @@ forest.meta <- function(x,
         text.fixed <- "Overall"
   }
   ##
-  if (hetstat)
+  if (overall.hetstat)
     if (is.na(yTE.fixed) & is.na(yTE.random))
       yTE.hetstat <- max.yTE+2
     else
       yTE.hetstat <- max(max.yTE, yTE.fixed, yTE.random, na.rm=TRUE)+1
-  else if (!hetstat & addspace)
+  else if (!overall.hetstat & addspace)
       yTE.hetstat <- max(max.yTE, yTE.fixed, yTE.random, na.rm=TRUE)+1
   else
     yTE.hetstat <- NA
@@ -2053,12 +2251,13 @@ forest.meta <- function(x,
   ##
   x1 <- unit.c(x1, colgap.forest, col.forestwidth)
   ##
-  if (rsel)
+  if (rsel){
     for (i in seq(along=rightcols)){
       x1 <- unit.c(x1,
                    if (i==1) colgap.forest else colgap.right,
                    wcalc(cols[[rightcols[i]]]$labels))
     }
+  }
   
   
   pushViewport(viewport(layout=grid.layout(
@@ -2070,6 +2269,7 @@ forest.meta <- function(x,
   ##
   j <- 1
   ##
+  ##if (lsel){
   for (i in seq(along=leftcols)){
     drawLabelCol(cols[[leftcols[i]]], j)
     ##
@@ -2118,6 +2318,7 @@ forest.meta <- function(x,
     ##
     j <- j+2
   }
+  ##}
   ##
   drawDataCol(col.forest, j)
   j <- j+2

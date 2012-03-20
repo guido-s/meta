@@ -3,34 +3,35 @@ print.metabias <- function(x, ...){
   if (!inherits(x, "metabias"))
     stop("Argument 'x' must be an object of class \"metabias\"")
   
-  
-  tl <- options()$width-12
+  ## Print information for meta-analysis from Cochrane Review
   ##
-  if (!is.null(x$title))
-    if (x$title!="")
-      if (nchar(x$title) <= tl)
-        cat("Review:     ", x$title, "\n", sep="")
-      else
-        cat("Review:     ", substring(x$title, 1, tl-4),
-            " ...\n", sep="")
-  if (!is.null(x$complab))
-    if (x$complab!="")
-      if (nchar(x$complab) <= tl)
-        cat("Comparison: ", x$complab, "\n", sep="")
-      else
-        cat("Comparison: ", substring(x$complab, 1, tl-4),
-            " ...\n", sep="")
-  if (!is.null(x$outclab))
-    if (x$outclab!="")
-      if (nchar(x$outclab) <= tl)
-        cat("Outcome:    ", x$outclab, "\n", sep="")
-      else
-        cat("Outcome:    ", substring(x$outclab, 1, tl-4),
-            " ...\n", sep="")
-
+  crtitle(x)
+  
   class(x) <- "htest"
-
-  print(x)
-
+  ##
+  if (length(x$p.value)!=0)
+    print(x)
+  else{
+    ##
+    ## Check whether number of studies is too small:
+    ##
+    if (length(x$k)!=0 & length(x$k.min!=0)){
+      if (x$k <= x$k.min){
+        if (x$k <= 2)
+          warning(paste("Number of studies (k=",  x$k,
+                        ") too small to test for small study effects.\n", sep=""))
+        else
+          warning(paste("Number of studies (k=",  x$k,
+                        ") too small to test for small study effects (k.min=", x$k.min, ").\n",
+                        "Change parameter 'k.min' if appropriate.\n", sep=""))
+      }
+    }
+    ##
+    ## Check whether meta-analysis has subgroups:
+    ##
+    if (length(x$subgroup)!=0)
+      warning("No test for small study effects conducted for meta-analysis with subgroups.\n")  
+  }
+  
   invisible(NULL)
 }

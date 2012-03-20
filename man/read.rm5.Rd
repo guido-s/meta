@@ -1,7 +1,6 @@
 \name{read.rm5}
 \alias{read.rm5}
 \alias{Fleiss93_CR}
-\alias{Fleiss93_CR_Windows}
 \title{Import RevMan 5 data files (.csv)}
 
 \description{
@@ -21,7 +20,7 @@ read.rm5(file, sep=",", quote = "\"", title,
     separator character in RevMan 5.}
   \item{quote}{The set of quoting characters. In RevMan 5 a "\""
     is the default quoting character.}
-  \item{title}{Title of the Cochrane review.}
+  \item{title}{Title of Cochrane review.}
   \item{numbers.in.labels}{A logical indicating whether comparision
     number and outcome number should be printed at the beginning of the
     comparison (argument \code{complab}) and outcome label (argument
@@ -42,15 +41,18 @@ read.rm5(file, sep=",", quote = "\"", title,
 
   In order to generate a data analysis file in RevMan 5 use the
   following Menu points: \code{"File"} - \code{"Export"} - \code{"Data
-  and analyses"}. It is mandatory to include the following fields in the
-  exported data file by selecting them with the mouse cursor in the
-  Export Analysis Data Wizard: (i) Comparison Number, (ii) Outcome
+  and analyses"}. It is mandatory to include the following fields in
+  the exported data file by selecting them with the mouse cursor in
+  the Export Analysis Data Wizard: (i) Comparison Number, (ii) Outcome
   Number, (iii) Subgroup Number. When these fields are not selected a
-  corresponding error message will be printed in R. It is recommended to
-  include all fields in the exported data file. For example, in order to
-  redo the meta-analysis in R for the RevMan 5 data type \code{"O-E and
+  corresponding error message will be printed in R. It is recommended
+  to include all fields in the exported data file except for the last
+  field "Risk of bias tables". For example, in order to redo the
+  meta-analysis in R for the RevMan 5 data type \code{"O-E and
   Variance"} the fields \code{"O-E"} and \code{"Variance"} have to be
-  selected in the Export Analysis Data Wizard.
+  selected in the Export Analysis Data Wizard. If the last field "Risk
+  of bias tables" is selected the import in R fails with an error
+  message "line X did not have Y elements".
 
   By default in RevMan 5, the name of the exported data file is the
   title of the Cochrane Review. Accordingly, information on the title is
@@ -153,8 +155,9 @@ read.rm5(file, sep=",", quote = "\"", title,
 }
 
 \references{
-  \emph{Review Manager (RevMan)} [Computer program]. Version 5.0, The Nordic
-  Cochrane Centre, The Cochrane Collaboration, 2008.
+  \emph{Review Manager (RevMan)} [Computer program]. Version
+  5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
+  Collaboration, 2011.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -162,14 +165,10 @@ read.rm5(file, sep=",", quote = "\"", title,
 \seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{metacr}}}
 
 \examples{
-## Locate export data file "Fleiss93_CR.csv" or "Fleiss93_CR_Windows.csv"
+## Locate export data file "Fleiss93_CR.csv"
 ## in sub-directory of package "meta"
 ##
-filename <-
-  system.file(ifelse(Sys.info()[["sysname"]]=="Windows",
-                     "data/Fleiss93_CR_Windows.csv",
-                     "data/Fleiss93_CR.csv"),
-              package = "meta")
+filename <- system.file("data/Fleiss93_CR.csv.gz", package = "meta")
 ##
 Fleiss93_CR <- read.rm5(filename)
 

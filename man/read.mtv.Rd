@@ -54,7 +54,7 @@ read.mtv(file)
 \examples{
 ## Locate MTV-data file "FLEISS93.MTV" in sub-directory of package "meta"
 ##
-filename <- system.file("data/Fleiss93.MTV", package = "meta")
+filename <- system.file("extdata/Fleiss93.MTV", package = "meta")
 ##
 fleiss93.cc <- read.mtv(filename)
 

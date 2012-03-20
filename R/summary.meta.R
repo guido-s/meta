@@ -8,19 +8,23 @@ summary.meta <- function(object,
                          comb.fixed=object$comb.fixed,
                          comb.random=object$comb.random,
                          print.CMH=object$print.CMH,
-                         warn=TRUE,
+                         warn=object$warn,
                          ...){
   
   
   if (!inherits(object, "meta"))
     stop("Argument 'object' must be an object of class \"meta\"")
-
+  
+  if (length(warn)==0){
+    warn <- TRUE
+  }
+  
   if (warn){
-    if (inherits(object, "metainf"))
-      warning("Summary method not defined for objects of class  \"metainf\"")
-    ##
     if (inherits(object, "metacum"))
       warning("Summary method not defined for objects of class \"metacum\"")
+    ##
+    if (inherits(object, "metainf"))
+      warning("Summary method not defined for objects of class \"metainf\"")
   }
   
   
@@ -46,12 +50,13 @@ summary.meta <- function(object,
   
   
   if (length(level)==0){
-    warning("level set to 0.95")
+    if (warn)
+      warning("level set to 0.95")
     level <- 0.95
   }
   ##
   if (length(level.comb)==0){
-    if (comb.fixed | comb.random)
+    if ((comb.fixed | comb.random) & warn)
       warning("level.comb set to 0.95")
     level.comb <- 0.95
   }
@@ -86,7 +91,7 @@ summary.meta <- function(object,
   ##
   ci.study <- ci(object$TE, object$seTE, level)
   ci.f <- ci(object$TE.fixed , object$seTE.fixed , level.comb)
-  ci.r <- ci(object$TE.random, object$seTE.random, level.comb)
+  ci.r <- ci(object$TE.random, object$seTE.random, level.comb, df=object$df.hakn)
   ##
   ## Calculate exact confidence intervals for individual studies
   ##
@@ -102,13 +107,14 @@ summary.meta <- function(object,
       ci.study$seTE[i]  <- NA
       ci.study$z[i]     <- NA
       ci.study$p[i]     <- NA
-      ##
-      ci.f$z    <- NA
-      ci.f$p    <- NA
-      ##
-      ci.r$z    <- NA
-      ci.r$p    <- NA
     }
+    ci.f$z    <- NA
+    ci.f$p    <- NA
+    ci.f$harmonic.mean <- mean(1/object$n)
+    ##
+    ci.r$z    <- NA
+    ci.r$p    <- NA
+    ci.r$harmonic.mean <- mean(1/object$n)
   }
   
   
@@ -123,11 +129,14 @@ summary.meta <- function(object,
     
     if (any(is.na(byvar))) stop("Missing values in 'byvar'")
     
-    by.levs <- unique(byvar)
+    if (is.factor(byvar))
+      by.levs <- levels(byvar)
+    else
+      by.levs <- unique(byvar)
     
     if (length(bylab)==0) bylab <- byvar.name
     
-    res.w <- matrix(NA, ncol=12, nrow=length(by.levs))
+    res.w <- matrix(NA, ncol=14, nrow=length(by.levs))
     j <- 0
     ##
     for (i in by.levs){
@@ -153,7 +162,11 @@ summary.meta <- function(object,
                          level=level, level.comb=level.comb,
                          comb.fixed=comb.fixed,
                          comb.random=comb.random,
-                         warn=object$warn)
+                         hakn=object$hakn,
+                         method.tau=object$method.tau,
+                         tau.preset=object$tau.preset,
+                         TE.tau=object$TE.tau,
+                         warn=warn)
       }
       ##
       if (inherits(object, "metacont")){
@@ -165,7 +178,11 @@ summary.meta <- function(object,
                           studlab=object$studlab[sel],
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
-                          comb.random=comb.random)
+                          comb.random=comb.random,
+                          hakn=object$hakn,
+                          method.tau=object$method.tau,
+                          tau.preset=object$tau.preset, TE.tau=object$TE.tau,
+                          warn=warn)
       }
       ##
       if (inherits(object, "metagen")){
@@ -174,7 +191,11 @@ summary.meta <- function(object,
                          studlab=object$studlab[sel],
                          level=level, level.comb=level.comb,
                          comb.fixed=comb.fixed,
-                         comb.random=comb.random)
+                         comb.random=comb.random,
+                         hakn=object$hakn,
+                         method.tau=object$method.tau,
+                         tau.preset=object$tau.preset, TE.tau=object$TE.tau,
+                         warn=warn)
       }
       ##
       if (inherits(object, "metaprop")){
@@ -184,7 +205,10 @@ summary.meta <- function(object,
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
                           comb.random=comb.random,
-                          warn=object$warn)
+                          hakn=object$hakn,
+                          method.tau=object$method.tau,
+                          tau.preset=object$tau.preset, TE.tau=object$TE.tau,
+                          warn=warn)
       }
       ##
       if (inherits(object, "metacor")){
@@ -193,7 +217,10 @@ summary.meta <- function(object,
                          studlab=object$studlab[sel],
                          level=level, level.comb=level.comb,
                          comb.fixed=comb.fixed,
-                         comb.random=comb.random)
+                         comb.random=comb.random,
+                         hakn=object$hakn,
+                         method.tau=object$method.tau,
+                         tau.preset=object$tau.preset, TE.tau=object$TE.tau)
       }
       ##
       if (bystud){
@@ -211,14 +238,14 @@ summary.meta <- function(object,
         print(meta1, details=FALSE, ma=FALSE)
       }
       ##
+      sm1 <- summary(meta1)
       res.w[j,] <- c(meta1$TE.fixed, meta1$seTE.fixed,
                      meta1$Q, meta1$k,
                      meta1$TE.random, meta1$seTE.random,
-                     unlist(summary(meta1)$H),
-                     unlist(summary(meta1)$I2))
-      ##
-      if (object$method=="MH")
-        res.w[j,3] <- NA
+                     unlist(sm1$H),
+                     unlist(sm1$I2),
+                     sm1$tau,
+                     mean(1/object$n[sel]))
     }
     ##
     TE.fixed.w    <- res.w[,1]
@@ -236,19 +263,21 @@ summary.meta <- function(object,
     I2.w.low <- res.w[,11]
     I2.w.upp <- res.w[,12]
     ##
+    tau.w <- res.w[,13]
+    ##
+    harmonic.mean.w <- res.w[,14]
     ##
     ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
-    ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb)
     ##
-    if (object$method!="MH"){
-      Q.b <- summary(metagen(TE.fixed.w, seTE.fixed.w))$Q
-      ##
-      if (comb.fixed)
-        if ((round(Q-sum(Q.w, na.rm=TRUE),2) - round(Q.b,2)) != 0)
-          warning(paste("Q-sum(Q.w) != Q.b\nQ.b =", round(Q.b,2)))
-    }
+    if (!is.null(object$hakn) && object$hakn)
+      ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb, df=k.w-1)
     else
-      Q.b <- NA
+      ci.random.w <- ci(TE.random.w, seTE.random.w, level.comb)
+    ##
+    ci.fixed.w$harmonic.mean <- harmonic.mean.w
+    ci.random.w$harmonic.mean <- harmonic.mean.w
+    ##
+    Q.b <- summary(metagen(TE.fixed.w, seTE.fixed.w))$Q
     ##
     if (bystud) cat("\n")
   }
@@ -264,7 +293,14 @@ summary.meta <- function(object,
               ci.lab=ci.lab,
               comb.fixed=comb.fixed,
               comb.random=comb.random)
-
+  
+  
+  res$se.tau2    <- object$se.tau2
+  res$hakn       <- object$hakn
+  res$df.hakn    <- object$df.hakn
+  res$method.tau <- object$method.tau
+  res$TE.tau     <- object$TE.tau
+  
   
   if (length(byvar)>0){
     res$within.fixed  <- ci.fixed.w
@@ -273,6 +309,7 @@ summary.meta <- function(object,
     res$Q.w           <- Q.w
     res$Q.b.fixed     <- Q.b
     res$Q.b.random    <- summary(metagen(TE.random.w, seTE.random.w))$Q
+    res$tau.w         <- tau.w
     res$H.w           <- list(TE=H.w, lower=H.w.low, upper=H.w.upp)
     res$I2.w          <- list(TE=I2.w, lower=I2.w.low, upper=I2.w.upp)
     res$bylab         <- bylab
@@ -307,6 +344,11 @@ summary.meta <- function(object,
     ##
     class(res) <- c(class(res), "trimfill")
   }
+  ##
+  if (inherits(object, "metacum"))
+    class(res) <- c(class(res), "metacum")
+  if (inherits(object, "metainf"))
+    class(res) <- c(class(res), "metainf")
   
   res$complab <- object$complab
   res$outclab <- object$outclab

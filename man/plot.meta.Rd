@@ -105,7 +105,7 @@
   \code{\link{forest.meta}} instead.
 
   A forest plot, also called confidence interval plot, is drawn in the
-  active graphics window. Sub-group analyses are conducted and displayed
+  active graphics window. Subgroup analyses are conducted and displayed
   in the plot if \code{byvar} is not missing.
   
   Review Manager 5 (RevMan 5) is the current software used for
@@ -128,7 +128,7 @@
 data(Olkin95)
 meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data=Olkin95, subset=c(41,47,51,59),
-                 sm="RR", meth="I")
+                 sm="RR", method="I")
 
 oldpar <- par(mfrow=c(2, 2))
 

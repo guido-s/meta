@@ -80,14 +80,17 @@ print.meta <- function(x,
   
   
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
+
+  sm <- x$sm
   
-  
-  if (x$sm=="ZCOR")
+  if (sm=="ZCOR")
     sm.lab <- "COR"
-  else if (x$sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+  else if (sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
     sm.lab <- "proportion"
   else
-    sm.lab <- x$sm
+    sm.lab <- sm
+  
+  crtitle(x)
   
   
   if (details){
@@ -124,36 +127,11 @@ print.meta <- function(x,
   }
   
   
-  tl <- options()$width-12
-  ##
-  if (!is.null(x$title))
-    if (x$title!="")
-      if (nchar(x$title) <= tl)
-        cat("Review:     ", x$title, "\n", sep="")
-      else
-        cat("Review:     ", substring(x$title, 1, tl-4),
-            " ...\n", sep="")
-  if (!is.null(x$complab))
-    if (x$complab!="")
-      if (nchar(x$complab) <= tl)
-        cat("Comparison: ", x$complab, "\n", sep="")
-      else
-        cat("Comparison: ", substring(x$complab, 1, tl-4),
-            " ...\n", sep="")
-  if (!is.null(x$outclab))
-    if (x$outclab!="")
-      if (nchar(x$outclab) <= tl)
-        cat("Outcome:    ", x$outclab, "\n\n", sep="")
-      else
-        cat("Outcome:    ", substring(x$outclab, 1, tl-4),
-            " ...\n\n", sep="")
-  
-  
   if (k.all == 1 & !inherits(x, "metaprop")){
     if (inherits(x, "metabin") & x$method=="MH")
       print(summary(metabin(x$event.e, x$n.e,
                             x$event.c, x$n.c,
-                            sm=x$sm,
+                            sm=sm,
                             method="Inverse",
                             studlab=x$studlab,
                             incr=x$incr,
@@ -167,42 +145,55 @@ print.meta <- function(x,
             digits=digits, header=FALSE)
   }
   else{
-    tsum <- summary(x, level=level, level.comb=level.comb, warn=FALSE)
+    if (inherits(x, "metainf")|inherits(x, "metacum")){
+      TE    <- x$TE
+      lowTE <- x$lower
+      uppTE <- x$upper
+    }
+    else{
+      tsum <- summary(x, level=level, level.comb=level.comb, warn=FALSE)
+      ##
+      TE    <- tsum$study$TE
+      lowTE <- tsum$study$lower
+      uppTE <- tsum$study$upper
+    }
     ##
-    TE    <- tsum$study$TE
-    lowTE <- tsum$study$lower
-    uppTE <- tsum$study$upper
-    ##
-    if (x$sm == "RR" | x$sm == "OR" | x$sm == "HR"){
+    if (sm == "RR" | sm == "OR" | sm == "HR"){
       TE    <- exp(TE)
       lowTE <- exp(lowTE)
       uppTE <- exp(uppTE)
     }
     ##
-    if (x$sm=="ZCOR"){
+    if (sm=="ZCOR"){
       TE    <- z2cor(TE)
       lowTE <- z2cor(lowTE)
       uppTE <- z2cor(uppTE)
     }
     ##
-    if (!inherits(x, "metaprop") & x$sm=="PLN"){
+    if (!inherits(x, "metaprop") & sm=="PLN"){
       TE <- exp(TE)
       lowTE <- exp(lowTE)
       uppTE <- exp(uppTE)
     }
     ##
-    if (!inherits(x, "metaprop") & x$sm=="PLOGIT"){
-      TE <- meta:::logit2p(TE)
-      lowTE <- meta:::logit2p(lowTE)
-      uppTE <- meta:::logit2p(uppTE)
+    if (!inherits(x, "metaprop") & sm=="PLOGIT"){
+      TE <- logit2p(TE)
+      lowTE <- logit2p(lowTE)
+      uppTE <- logit2p(uppTE)
     }
     ##
-    if (!inherits(x, "metaprop") & x$sm %in% c("PFT", "PAS")){
-      denum <- 1 + (x$sm=="PFT")
+    if (!inherits(x, "metaprop") & sm %in% c("PFT", "PAS")){
+      if (sm=="PAS"){
+        TE    <- asin2p(TE)
+        lowTE <- asin2p(lowTE)
+        uppTE <- asin2p(uppTE)
+      }
       ##
-      TE    <- asin2p(TE, denum)
-      lowTE <- asin2p(lowTE, denum)
-      uppTE <- asin2p(uppTE, denum)
+      if (sm=="PFT"){
+        TE    <- asin2p(TE, x$n)
+        lowTE <- asin2p(lowTE, x$n)
+        uppTE <- asin2p(uppTE, x$n)
+      }
     }
     ##
     TE <- round(TE, digits)
@@ -220,6 +211,8 @@ print.meta <- function(x,
       else w.random.p <- x$w.random
     
     if (inherits(x, "metainf")|inherits(x, "metacum")){
+      is.random <- x$pooled=="random"
+      ##
       sel1 <- is.na(x$I2)
       I2 <- 100*x$I2
       I2 <- ifelse(sel1, "", format(round(I2, 1)))
@@ -237,37 +230,31 @@ print.meta <- function(x,
                    paste("  ", I2, ifelse(sel1, "", "%"), sep=""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep=""),
                             c(sm.lab, ci.lab, "p.value", "tau^2", "I^2"))
-      ##res <- cbind(format.TE(TE), p.ci(format(lowTE), format(uppTE)))
-      ##dimnames(res) <- list(x$studlab, c(x$sm, ci.lab))
       ##
       if (inherits(x, "metainf")){
-        if (x$pooled=="fixed")
+        if (!is.random)
           cat("\nInfluential analysis (Fixed effect model)\n")
-        ## writeLines(strwrap("Influential analysis (Fixed effect model)",
-        ##                    prefix = "\t"))
         else
           cat("\nInfluential analysis (Random effects model)\n")
       }
       ##
       if (inherits(x, "metacum")){
-        if (x$pooled=="fixed")
+        if (!is.random)
           cat("\nCumulative meta-analysis (Fixed effect model)\n")
-        ## writeLines(strwrap("Influential analysis (Fixed effect model)",
-        ##                    prefix = "\t"))
         else
           cat("\nCumulative meta-analysis (Random effects model)\n")
       }
       cat("\n")
       prmatrix(res, quote=FALSE, right=TRUE, na.print="--")
+      
+      ## Print information on summary method:
       ##
-      method <- ifelse(x$method=="MH",
-                       "Mantel-Haenszel method",
-                       ifelse(x$method=="Peto", "Peto method",
-                              ifelse(x$method=="Inverse",
-                                     "Inverse variance method",
-                                     x$method)))
-      ##
-      cat(paste("\nMethod:", method, "\n"))
+      catmeth(x$method,
+              if (is.random) x$method.tau else "",
+              sm,
+              k.all=k.all,
+              hakn=is.random & x$hakn,
+              metaprop=inherits(x, "metaprop"))
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

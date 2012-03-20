@@ -1,3 +1,144 @@
+2012-03-19, version 2.0-0
+
+Major revision
+
+R meta package linked to R package metafor to provide additional
+statistical methods, e.g. meta-regression and other estimates for
+tau-squared (REML, ...)
+
+New functions:
+ - metareg              (meta-regression)
+ - metabias             (generic method for function metabias)
+ - metabias.default     (generic method for function metabias)
+ - metabias.meta        (generic method for function metabias)
+ - metabias.rm5         (generic method for function metabias)
+ - print.rm5            (generic method for rm5-object)
+ - print.summary.rm5    (generic method for rm5-object)
+ - summary.rm5          (generic method for rm5-object)
+ - catmeth              (function used internally)
+ - crtitle              (function used internally)
+ - hypergeometric       (function used internally)
+ - is.installed.metafor (function used internally)
+ - kentau               (function used internally)
+ - linregcore           (function used internally)
+ - p2logit              (function used internally)
+
+Functions metabin, metacont, metacor, metagen, metaprop:
+ - new arguments:
+   - hakn (Hartung-Knapp method)
+   - method.tau (estimation method for tau-squared)
+   - tau.preset (fixed value for tau)
+   - TE.tau (prespecified treatment effect to estimate tau)
+   - method.bias (test for funnel plot asymmetry used in metabias)
+   - label.left (Label on left side of forst plot, new argument in
+                 functions metabin, metacont, and metagen)
+   - label.right (Label on right side of forst plot, new argument in
+                  functions metabin, metacont, and metagen)
+   - warn (print warning messages, new argument in functions metacont
+           and metagen)
+ - new list components of returned object:
+   - se.tau2 (standard error of tau-squared)
+   - hakn (Hartung-Knapp method)
+   - method.tau (estimation method for tau-squared)
+   - tau.preset (fixed value for tau)
+   - TE.tau (prespecified treatment effect to estimate tau)
+   - method.bias (test for funnel plot asymmetry used in metabias)
+   - label.left (Label on left side of forst plot, new list component
+                 in functions metabin, metacont, and metagen)
+   - label.right (Label on right side of forst plot, new list component
+     in functions metabin, metacont, and metagen)
+ - argument 'warn' suppresses more warning messages if FALSE
+ - function metabin: studies are excluded from meta-analysis if
+   (event.e > n.e | event.c > n.c) or (n.e <= 0 | n.c <= 0) or
+   (event.e < 0 | event.c < 0)
+
+Function metacum and metainf:
+ - modified so that NULL is returned if function is used with a single
+   study
+ - modified so that new arguments hakn, method.tau, tau.preset,
+   method.bias, label.left, label.right are considered in execution of
+   the function
+ - argument level removed
+
+Function metaprop:
+ - modified so that the correct variance function 1/(n+0.5) instead of
+   1/(n+1) is used for the Freeman-Tukey-Transformation (i.e. sm="PFT")
+ - see also news on function asin2p
+
+Function asin2p:
+
+ - completely rewritten as back transformation of Freeman-Tukey
+   transformed proportions was inaccurate
+ - back transformation of Freeman-Tukey proportions according to
+   Miller (1978) - see help page of R command metaprop
+
+Function print.metabias:
+ - print a warning if number of studies is too small to conduct a
+   test for funnel plot asymmetry (see new argument k.min)
+
+Function print.summary.meta:
+ - new argument bylab.nchar
+ - print test for subgroup differences for both fixed effect and
+   random effects model
+ - value 'invisible(NULL)' returned for metacum and metainf objects
+
+Function metacr:
+ - new arguments:
+   - sm (summary measure)
+   - method (pooling method)
+   - comb.fixed (fixed effect model)
+   - comb.random (random effects model)
+   - swap.events (only for binary data)
+   - method.tau (estimation method for between-study variance)
+   - hakn (Hartung-Knapp adjustment)
+   - title (Title of Cochrane review)
+   - complab (Comparison label)
+   - outclab (Outcome label)
+   - warn (print warning messages)
+ - removed argument:
+   - smother (summary measure)
+ - value 'NULL' returned if no data is available for selection of
+   comp.no and outcome.no
+
+Function read.rm5:
+  - changed substantially for reading of RevMan 5.1 files
+
+Function summary.meta:
+ - modified so that new arguments hakn, method.tau, tau.preset,
+   method.bias are considered in execution of the function
+ - argument 'warn' suppresses more warning messages
+
+Function forest.meta:
+ - modified so that the treatment effect and 95% confidence interval
+   is printed in the correct order for objects of class metaprop if
+   argument sort or order is used
+ - symmetric forest plot by default (argument xlim="s")
+ - new arguments:
+   - smlab, smlab.pos, fs.smlab, fflab
+     (Label for summary measure - at top of figure)
+   - label.right, label.left, fs.lr, ff.lr
+     (Label on right and left side)
+   - overall.hetstat (heterogeneity information for overall effect)
+
+Function funnel.default and funnel.meta:
+ - modified so that arguments col.fixed and col.random are recognised
+
+Function metabias.default and metabias.meta:
+ - new argument k.min:
+   test for funnel plot asymmetry only conducted if number of studies
+   in meta-analysis is larger or equal to k.min
+ - new argument '...' (ignored at the moment)
+
+Function trimfill.default and trimfill.meta:
+ - value 'invisible(NULL)' returned if number of studies is smaller
+   than 3
+
+New datasets: amlodipine, cisapride
+
+File FLEISS93.MTV moved from directory data to directory extdata
+
+Update of several help pages. Some new help pages added.
+
 
 2010-10-28, version 1.6-1
 

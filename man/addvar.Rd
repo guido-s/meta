@@ -7,7 +7,7 @@
   information on individual studies, e.g., estimated treatment effect
   and its standard error. The function \code{addvar} can be used to add
   a single variable to an object of class \code{meta} which for example
-  is useful to conduct sub-group analysis or meta-regression.
+  is useful to conduct subgroup analysis or meta-regression.
 }
 \usage{
 \method{as.data.frame}{meta}(x, row.names=NULL, optional=FALSE, ...)

@@ -274,13 +274,10 @@ funnel.meta <- function(x,
     text(TE, weight, labels=text, cex=cex, col=col)
   
   if (comb.fixed)
-    lines(c(TE.fixed, TE.fixed), range(ylim), lty=lty.fixed, lwd=lwd.fixed)
-  ##abline(v=TE.fixed, lty=lty.fixed, lwd=lwd.fixed)
-  ##abline(v=TE.fixed, lty=2)
+    lines(c(TE.fixed, TE.fixed), range(ylim), lty=lty.fixed, lwd=lwd.fixed, col=col.fixed)
   
   if (comb.random)
-    lines(c(TE.random, TE.random), range(ylim), lty=lty.random, lwd=lwd.random)
-    ##abline(v=TE.random, lty=lty.random, lwd=lwd.random)
+    lines(c(TE.random, TE.random), range(ylim), lty=lty.random, lwd=lwd.random, col=col.random)
   
   if (!is.null(level) & yaxis=="se"){
     points(ciTE$lower, seTE.seq, type="l", lty=lty.fixed, lwd=lwd.fixed)

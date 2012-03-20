@@ -3,11 +3,17 @@ metagen <- function(TE, seTE,
                     sm="",
                     level=0.95, level.comb=level,
                     comb.fixed=TRUE, comb.random=TRUE,
+                    hakn=FALSE,
+                    method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                    method.bias="linreg",
+                    n.e=NULL, n.c=NULL,
                     title="", complab="", outclab="",
                     label.e="Experimental", label.c="Control",
-                    byvar, bylab, print.byvar=TRUE
+                    label.left="", label.right="",
+                    byvar, bylab, print.byvar=TRUE,
+                    warn=TRUE
                     ){
-
+  
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
   ## Catch TE, seTE, studlab (possibly) from data:
@@ -15,6 +21,8 @@ metagen <- function(TE, seTE,
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
   mf$level <- mf$level.comb <- NULL
+  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- NULL
+  mf$method.bias <- mf$n.e <- mf$n.c <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
   ##
@@ -25,6 +33,8 @@ metagen <- function(TE, seTE,
   mf2$studlab <- NULL
   mf2$data <- mf2$sm <- NULL
   mf2$level <- mf2$level.comb <- NULL
+  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- NULL
+  mf2$method.bias <- mf2$n.e <- mf2$n.c <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
@@ -32,12 +42,12 @@ metagen <- function(TE, seTE,
   if (!is.null(mf2$subset))
     if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$TE))) ||
         (length(mf2$subset) > length(mf$TE)))
-      stop("Length of subset is larger than number of trials.")
+      stop("Length of subset is larger than number of studies.")
     else
       mf <- mf[mf2$subset,]
   ##if (!is.null(mf2$subset))
   ##  if (length(mf2$subset) > length(mf$TE))
-  ##    stop("Length of subset is larger than number of trials.")
+  ##    stop("Length of subset is larger than number of studies.")
   ##  else
   ##    mf <- mf[mf2$subset,]
   ##
@@ -53,11 +63,11 @@ metagen <- function(TE, seTE,
     studlab <- as.character(mf$studlab)
   else
     studlab <- row.names(mf)
-
+  
   
   k.all <- length(TE)
   ##
-  if ( k.all == 0 ) stop("No trials to combine in meta-analysis.")
+  if ( k.all == 0 ) stop("No studies to combine in meta-analysis.")
 
   
   if ( length(seTE) != k.all )
@@ -91,12 +101,22 @@ metagen <- function(TE, seTE,
     stop("parameter 'level.comb': no valid level for confidence interval")
   
   
+  imethod.tau <- charmatch(tolower(method.tau),
+                     c("dl", "reml", "ml", "hs", "sj", "he", "eb"), nomatch = NA)
+  ##
+  if (is.na(imethod.tau) || imethod.tau==0)
+    stop('method.tau should be "DL", "REML", "ML", "HS", "SJ", "HE", or "EB"')
+  ##
+  method.tau <- c("DL", "REML", "ML", "HS", "SJ", "HE", "EB")[imethod.tau]
+  
+  
   ##
   ## Replace zero standard errors with NAs
   ## (added by sc, 3.6.2008):
   ##
   if (any(seTE[!is.na(seTE)] <= 0)){
-    warning("Zero values in seTE replaced by NAs")
+    if (warn)
+      warning("Zero values in seTE replaced by NAs")
     seTE[!is.na(seTE) & seTE==0] <- NA
   }
   
@@ -114,67 +134,157 @@ metagen <- function(TE, seTE,
   if (k==0){
     TE.fixed <- NA
     seTE.fixed <- NA
-    w.fixed <- NA
+    zval.fixed <- NA
+    pval.fixed <- NA
+    lower.fixed <- NA
+    upper.fixed <- NA
+    w.fixed <- rep(0, k.all)
     ##
     TE.random <- NA
     seTE.random <- NA
+    zval.random <- NA
+    pval.random <- NA
+    lower.random <- NA
+    upper.random <- NA
     w.random <- rep(0, k.all)
     ##
     Q <- NA
     tau2 <- NA
+    se.tau2 <- NA
   }
   else{
-
-    varTE <- seTE^2
-
-    ##
-    ## Fixed effects estimate
-    ## (Cooper & Hedges, 1994, p. 265-6)
-    ##
-    w.fixed <- 1/varTE
-    w.fixed[is.na(w.fixed)] <- 0
-    ##
-    TE.fixed   <- weighted.mean(TE, w.fixed, na.rm=TRUE)
-    seTE.fixed <- sqrt(1/sum(w.fixed, na.rm=TRUE))
-
-    ##
-    ## Heterogeneity statistic
-    ## (Cooper & Hedges (1994), p. 274-5)
-    ##
-    Q <- sum(w.fixed * (TE - TE.fixed)^2, na.rm=TRUE)
-    if (Q<=(k-1)) tau2 <- 0
-    else tau2 <- (Q-(k-1))/(sum(w.fixed  , na.rm=TRUE) -
-                            sum(w.fixed^2, na.rm=TRUE)/
-                            sum(w.fixed  , na.rm=TRUE))
-    
-    ##
-    ## Random effects estimate
-    ## (Cooper & Hedges (1994), p. 265, 274-5)
-    ##
-    w.random <- 1/(varTE + tau2)
-    w.random[is.na(w.random)] <- 0
-    ##
-    TE.random   <- weighted.mean(TE, w.random, na.rm=TRUE)
-    seTE.random <- sqrt(1/sum(w.random, na.rm=TRUE))
+    if (method.tau=="DL" & hakn==FALSE){
+      ##
+      ## Fixed effects estimate
+      ## (Cooper & Hedges, 1994, p. 265-6)
+      ##
+      w.fixed <- 1/seTE^2
+      w.fixed[is.na(w.fixed)] <- 0
+      ##
+      TE.fixed   <- weighted.mean(TE, w.fixed, na.rm=TRUE)
+      seTE.fixed <- sqrt(1/sum(w.fixed, na.rm=TRUE))
+      ##
+      ci.f <- ci(TE.fixed, seTE.fixed, level=level.comb)
+      zval.fixed <- ci.f$z
+      pval.fixed <- ci.f$p
+      lower.fixed <- ci.f$lower
+      upper.fixed <- ci.f$upper
+      
+      ##
+      ## Heterogeneity statistic
+      ## (Cooper & Hedges (1994), p. 274-5)
+      ##
+      if (is.null(TE.tau))
+        Q <- sum(w.fixed * (TE - TE.fixed)^2, na.rm=TRUE)
+      else
+        Q <- sum(w.fixed * (TE - TE.tau  )^2, na.rm=TRUE)
+      ##
+      ## Calculate between-study heterogeneity tau^2 
+      ##
+      if (is.null(tau.preset)){
+        if (round(Q, digits=18)<=(k-1)) tau2 <- 0
+        else tau2 <- (Q-(k-1))/(sum(w.fixed  , na.rm=TRUE) -
+                                sum(w.fixed^2, na.rm=TRUE)/
+                                sum(w.fixed  , na.rm=TRUE))
+      }
+      else
+        tau2 <- tau.preset^2
+      ##
+      se.tau2 <- NULL
+      ##
+      ## Random effects estimate
+      ## (Cooper & Hedges (1994), p. 265, 274-5)
+      ##
+      w.random <- 1/(seTE^2 + tau2)
+      w.random[is.na(w.random)] <- 0
+      ##
+      TE.random   <- weighted.mean(TE, w.random, na.rm=TRUE)
+      seTE.random <- sqrt(1/sum(w.random, na.rm=TRUE))
+      ##
+      ci.r <- ci(TE.random, seTE.random, level=level.comb)
+      zval.random <- ci.r$z
+      pval.random <- ci.r$p
+      lower.random <- ci.r$lower
+      upper.random <- ci.r$upper
+    }
+    else{
+      ##
+      ## Check whether R package metafor is installed
+      ##
+      is.installed.metafor("'metagen' with argument 'method.tau' unequal to 'DL' or 'hakn=TRUE'")
+      
+      ##
+      ## Calculate fixed effect and random effects estimates
+      ##
+      tres.f <- metafor::rma.uni(yi=TE, vi=seTE^2, method="FE")
+      TE.fixed <- as.numeric(tres.f$b[,1])
+      seTE.fixed <- tres.f$se
+      w.fixed <- 1 / tres.f$vi
+      ##
+      zval.fixed <- tres.f$zval
+      pval.fixed <- tres.f$pval
+      lower.fixed <- tres.f$ci.lb
+      upper.fixed <- tres.f$ci.ub
+      ##
+      Q <- tres.f$QE
+      ##
+      ##
+      if (missing(tau.preset))
+        tres.r <- metafor::rma.uni(yi=TE, vi=seTE^2, method=method.tau, knha=hakn)
+      else
+        tres.r <- metafor::rma.uni(yi=TE, vi=seTE^2, method=method.tau, knha=hakn, tau2=tau.preset^2)
+      ##
+      TE.random <- as.numeric(tres.r$b[,1])
+      seTE.random <- tres.r$se
+      w.random <- 1 / (tres.r$vi + tres.r$tau2)
+      w.random[is.na(w.random)] <- 0
+      ##
+      zval.random <- tres.r$zval
+      pval.random <- tres.r$pval
+      lower.random <- tres.r$ci.lb
+      upper.random <- tres.r$ci.ub
+      ##
+      df.hakn <- tres.r$k-tres.r$p
+      ##
+      tau2 <- tres.r$tau2
+      if (method.tau %in% c("REML", "ML"))
+        se.tau2 <- tres.r$se.tau2
+      else
+        se.tau2 <- NULL
+    }
   }
-
-
+  
   res <- list(TE=TE, seTE=seTE,
               studlab=studlab,
               w.fixed=w.fixed, w.random=w.random,
-              TE.fixed=TE.fixed, seTE.fixed=seTE.fixed, 
+              TE.fixed=TE.fixed, seTE.fixed=seTE.fixed,
+              lower.fixed=lower.fixed, upper.fixed=upper.fixed,
+              zval.fixed=zval.fixed, pval.fixed=pval.fixed,
               TE.random=TE.random, seTE.random=seTE.random,
-              k=k, Q=Q, tau=sqrt(tau2),
+              lower.random=lower.random, upper.random=upper.random,
+              zval.random=zval.random, pval.random=pval.random,
+              k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
               sm=sm, method="Inverse",
               level=level,
               level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
+              hakn=hakn,
+              df.hakn=if (hakn) df.hakn else NULL,
+              method.tau=method.tau,
+              tau.preset=tau.preset,
+              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              method.bias=method.bias,
+              n.e=n.e,
+              n.c=n.c,
               title=title,
               complab=complab,
               outclab=outclab,
               label.e=label.e,
               label.c=label.c,
+              label.left=label.left,
+              label.right=label.right,
+              warn=warn,
               call=match.call())
   ##
   if (!missing(byvar)){

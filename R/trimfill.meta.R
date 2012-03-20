@@ -93,6 +93,11 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   studlab <- studlab[sel]
   ##
   k <- length(TE)
+  ##
+  if (k<=2){
+    warning("Minimal number of three studies for trim-and-fill method: 3")
+    return(invisible(NULL))
+  }
   
   
   if (match(type, c("L", "R"), nomatch=0) == 0)
@@ -100,7 +105,7 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   
   
   if (is.null(left))
-    left <- as.logical(sign(metabias(TE, seTE, meth="linreg")$estimate[1])==1)
+    left <- as.logical(sign(metabias(TE, seTE, method="linreg", k.min=3)$estimate[1])==1)
   ##
   if (!left) TE <- -TE
   ##
