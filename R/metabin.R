@@ -22,7 +22,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch event.e, n.e, event.c, n.e, studlab (possibly) from data:
+  ## Catch event.e, n.e, event.c, n.e, studlab (possibly), byvar (possibly) from data:
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$method <- mf$sm <- NULL
@@ -44,6 +44,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   mf2$MH.exact <- mf2$RR.cochrane <- NULL
   mf2$level <- mf2$level.comb <- mf2$warn <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
+  mf2$byvar <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)

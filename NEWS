@@ -1,8 +1,15 @@
-2012-03-19, version 2.0-0
+2012-04-04, version 2.0-1
+
+Functions metabin, metacont, metacor, metagen, metaprop:
+- modified so that these functions can be used with arguments subset
+  and byvar of different length
+
+
+2012-03-20, version 2.0-0
 
 Major revision
 
-R meta package linked to R package metafor to provide additional
+R package meta linked to R package metafor to provide additional
 statistical methods, e.g. meta-regression and other estimates for
 tau-squared (REML, ...)
 
@@ -30,9 +37,9 @@ Functions metabin, metacont, metacor, metagen, metaprop:
    - tau.preset (fixed value for tau)
    - TE.tau (prespecified treatment effect to estimate tau)
    - method.bias (test for funnel plot asymmetry used in metabias)
-   - label.left (Label on left side of forst plot, new argument in
+   - label.left (Label on left side of forest plot, new argument in
                  functions metabin, metacont, and metagen)
-   - label.right (Label on right side of forst plot, new argument in
+   - label.right (Label on right side of forest plot, new argument in
                   functions metabin, metacont, and metagen)
    - warn (print warning messages, new argument in functions metacont
            and metagen)
@@ -66,7 +73,6 @@ Function metaprop:
  - see also news on function asin2p
 
 Function asin2p:
-
  - completely rewritten as back transformation of Freeman-Tukey
    transformed proportions was inaccurate
  - back transformation of Freeman-Tukey proportions according to

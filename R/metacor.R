@@ -13,7 +13,7 @@ metacor <- function(cor, n, studlab,
 
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch cor, n, studlab (possibly) from data:
+  ## Catch cor, n, studlab (possibly), byvar (possibly) from data:
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
@@ -30,6 +30,7 @@ metacor <- function(cor, n, studlab,
   mf2$data <- mf2$sm <- NULL
   mf2$level <- mf2$level.comb <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
+  mf2$byvar <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)

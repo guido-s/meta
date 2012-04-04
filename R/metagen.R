@@ -16,7 +16,7 @@ metagen <- function(TE, seTE,
   
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch TE, seTE, studlab (possibly) from data:
+  ## Catch TE, seTE, studlab (possibly), byvar (possibly) from data:
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
@@ -35,6 +35,7 @@ metagen <- function(TE, seTE,
   mf2$level <- mf2$level.comb <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- NULL
   mf2$method.bias <- mf2$n.e <- mf2$n.c <- NULL
+  mf2$byvar <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)

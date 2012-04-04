@@ -16,7 +16,7 @@ metaprop <- function(event, n, studlab,
   
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch event, n, studlab (possibly) from data:
+  ## Catch event, n, studlab (possibly), byvar (possibly) from data:
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
@@ -35,6 +35,7 @@ metaprop <- function(event, n, studlab,
   mf2$level <- mf2$level.comb <- NULL
   mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
+  mf2$byvar <- NULL
   mf2[[1]] <- as.name("data.frame")
   ##
   mf2 <- eval(mf2, data)
