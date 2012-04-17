@@ -1,3 +1,11 @@
+2012-04-17, version 2.0-2
+
+Function metaprop:
+- modified so that a warning is printed if any sample size
+  (argument n) is smaller than 10 for Freeman-Tukey-Transformation,
+  i.e. sm="PFT"
+
+
 2012-04-04, version 2.0-1
 
 Functions metabin, metacont, metacor, metagen, metaprop:
