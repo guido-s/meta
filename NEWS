@@ -1,3 +1,11 @@
+2012-05-02, version 2.0-3
+
+Function metaprop:
+- modified so that same variance estimate is returned if number of
+  events is either equal to zero or sample size for
+  Logit-Transformation (sm="PLOGIT")
+
+
 2012-04-17, version 2.0-2
 
 Function metaprop:

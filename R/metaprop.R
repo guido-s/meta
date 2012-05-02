@@ -185,7 +185,7 @@ metaprop <- function(event, n, studlab,
     TE <- log(((event+incr.event)/(n+incr.event)) /
               (1-(event+incr.event)/(n+incr.event)))
     seTE <- sqrt(1/(event+incr.event) +
-                 1/((n+incr.event)-(event+incr.event)))
+                 1/((n-event+incr.event)))
   }
   
   
