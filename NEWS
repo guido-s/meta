@@ -1,9 +1,12 @@
-2012-05-02, version 2.0-3
+2012-05-03, version 2.0-4
 
 Function metaprop:
-- modified so that same variance estimate is returned if number of
-  events is either equal to zero or sample size for
-  Logit-Transformation (sm="PLOGIT")
+- modified so that variance estimate for log- and logit-transformation
+  (sm="PLN" and sm="PLOGIT") is based on Pettigrew et al. (1986).
+
+Reference Pettigrew et al. (1986) has been added to the following help
+pages:
+- metabin, metaprop
 
 
 2012-04-17, version 2.0-2

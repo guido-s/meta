@@ -366,8 +366,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ## 
     ## Cooper & Hedges (1994), p. 246-7
     ## 
-    ##TE <- (n11+i)/(n1.+2*i) - (n21+i)/(n2.+2*i)
-    ##
     TE <- n11/n1. - n21/n2.
     seTE <- sqrt((n11+incr.e)*(n12+incr.e)/(n1.+2*incr.e)^3 +
                  (n21+incr.c)*(n22+incr.c)/(n2.+2*incr.c)^3)

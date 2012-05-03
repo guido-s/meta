@@ -268,9 +268,13 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
   Collaboration, 2011.
 
+  Pettigrew HM, Gart JJ, Thomas DG (1986),
+  The bias and higher cumulants of the logarithm of a binomial
+  variate. \emph{Biometrika}, \bold{73}, 425--435.
+
   Ruecker G, Schwarzer G, Carpenter JR (2008)
   Arcsine test for publication bias in meta-analyses with binary
-  outcomes. \emph{Statistics in Medicine}, \bold{27},746--763.
+  outcomes. \emph{Statistics in Medicine}, \bold{27}, 746--763.
     
   StataCorp. 2011.
   \emph{Stata Statistical Software: Release 12}. College Station, TX:

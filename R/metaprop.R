@@ -124,7 +124,7 @@ metaprop <- function(event, n, studlab,
                 PFT=rep(FALSE, length(event)),
                 PAS=rep(FALSE, length(event)),
                 PRAW=event == 0 | (n-event) == 0,
-                PLN=event == 0,
+                PLN=event == 0 | (n-event) == 0,
                 PLOGIT=event == 0 | (n-event) == 0)
   ##
   sparse <- any(sel)
@@ -155,7 +155,7 @@ metaprop <- function(event, n, studlab,
         incr.event <- incr*sel
         ##
         if (warn & warn2 & incr > 0)
-          warning(paste("Increment", incr, "added to each cell in 2x2 tables with zero cell frequencies"))
+          warning(paste("Increment", incr, "added to each cell frequency in studies with zero or all events"))
       }
     }
     else
@@ -172,18 +172,20 @@ metaprop <- function(event, n, studlab,
     seTE <- sqrt(0.25*(1/n))
   }
   else if (sm=="PRAW"){
-    TE <- (event+incr.event)/(n+incr.event)
-    seTE <- sqrt((  (event+incr.event)/(n+incr.event)) *
-                 (1-(event+incr.event)/(n+incr.event)) /
-                 (n+incr.event))
+    TE <- event/n
+    seTE <- sqrt((event+incr.event)*(n-event+incr.event)/
+                 (n+2*incr.event)^3)
   }
   else if (sm=="PLN"){
     TE <- log((event+incr.event)/(n+incr.event))
-    seTE <- sqrt(1/(event+incr.event) - 1/(n+incr.event))
+    ## Hartung, Knapp (2001), p. 3880, formula (18):
+    seTE <- ifelse(event == n,
+                   sqrt(1/event - 1/(n+incr.event)),
+                   sqrt(1/(event+incr.event) - 1/(n+incr.event))
+                   )
   }
   else if (sm=="PLOGIT"){
-    TE <- log(((event+incr.event)/(n+incr.event)) /
-              (1-(event+incr.event)/(n+incr.event)))
+    TE <- log((event+incr.event)/(n-event+incr.event))
     seTE <- sqrt(1/(event+incr.event) +
                  1/((n-event+incr.event)))
   }

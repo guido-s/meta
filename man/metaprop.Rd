@@ -208,6 +208,10 @@ metaprop(event, n, studlab,
   The inverse of the Freeman-Tukey double arcsine transformation.
   \emph{The American Statistician}, \bold{32}, 138.
 
+  Pettigrew HM, Gart JJ, Thomas DG (1986),
+  The bias and higher cumulants of the logarithm of a binomial
+  variate. \emph{Biometrika}, \bold{73}, 425--435.
+
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
   \emph{Journal of Statistical Software}, \bold{36}, 1--48.
