@@ -1,6 +1,7 @@
 catmeth <- function(method, method.tau=NULL,
                     sm="", k.all,
-                    hakn=FALSE, metaprop=FALSE){
+                    hakn=FALSE, metaprop=FALSE,
+                    trimfill=FALSE){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -59,8 +60,11 @@ catmeth <- function(method, method.tau=NULL,
                                        sep=""),
                                  method)))
   ##
-  if (k.all > 1)
+  if (k.all > 1){
     cat(paste("\nDetails on meta-analytical method:", method, sep=""))
+    if (trimfill)
+      cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
+  }
   else
     cat(paste("\nDetails:", method, sep=""))
   ##

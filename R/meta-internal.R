@@ -2,9 +2,9 @@
 #   library.dynam("meta", pkg, lib)
 #}
 
-.onLoad <- function(libname,pkgname)
+.onLoad <- function(libname, pkgname)
 {
-   packageStartupMessage("load meta: ", libname, "...\n")
+   packageStartupMessage("Loading 'meta' package (version ", utils::packageDescription("meta")$Version, ").")
    library.dynam("meta", pkgname, libname)
 }
 

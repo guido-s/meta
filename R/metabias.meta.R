@@ -5,6 +5,12 @@ metabias.meta <- function(x, method.bias=x$method.bias,
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
   
+  if (inherits(x, "metacum"))
+    stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\"")
+  ##
+  if (inherits(x, "metainf"))
+    stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\"")
+  
   TE <- x$TE
   seTE <- x$seTE
   n.e <- x$n.e

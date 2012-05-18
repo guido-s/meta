@@ -3,6 +3,8 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                           sm=NULL, studlab=NULL,
                           level=x$level, level.comb=x$level.comb,
                           comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+                          hakn=x$hakn,
+                          method.tau=x$method.tau,
                           silent=TRUE, ...){
   
   
@@ -32,6 +34,14 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
     if (comb.fixed | comb.random)
       warning("level.comb set to 0.95")
     level.comb <- 0.95
+  }
+  
+  if (length(hakn)==0){
+    hakn <- FALSE
+  }
+  ##
+  if (length(method.tau)==0){
+    method.tau <- "DL"
   }
   
   
@@ -118,7 +128,7 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   if (ma.fixed)
     TE.sum <- metagen(TE, seTE)$TE.fixed
   else
-    TE.sum <- metagen(TE, seTE)$TE.random
+    TE.sum <- metagen(TE, seTE, method.tau=method.tau)$TE.random
   
   
   if (k==1){
@@ -141,7 +151,8 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
       if (ma.fixed)
         TE.sum <- metagen(TE[sel], seTE[sel])$TE.fixed
       else
-        TE.sum <- metagen(TE[sel], seTE[sel])$TE.random
+        TE.sum <- metagen(TE[sel], seTE[sel],
+                          method.tau=method.tau)$TE.random
       ##
       trim1 <- estimate.missing(TE, TE.sum, type)
       ##
@@ -184,10 +195,12 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   
   if (!left)
     m <- metagen(-TE, seTE, studlab=studlab,
-                 level=level, level.comb=level.comb)
+                 level=level, level.comb=level.comb,
+                 hakn=hakn, method.tau=method.tau)
   else
     m <- metagen(TE, seTE, studlab=studlab,
-                 level=level, level.comb=level.comb)
+                 level=level, level.comb=level.comb,
+                 hakn=hakn, method.tau=method.tau)
   
   ##
   res <- list(studlab=m$studlab,
@@ -207,6 +220,9 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
               n.iter.max=n.iter.max,
               n.iter=n.iter,
               trimfill=trimfill,
+              hakn=m$hakn,
+              df.hakn=m$df.hakn,
+              method.tau=m$method.tau,
               k0=sum(trimfill),
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed, comb.random=comb.random)

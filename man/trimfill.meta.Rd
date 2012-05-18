@@ -13,11 +13,13 @@
 \usage{
 \method{trimfill}{default}(x, seTE, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
          sm=NULL, studlab=NULL, level=0.95, level.comb=0.95,
-         comb.fixed=TRUE, comb.random=TRUE, silent=TRUE, ...)
+         comb.fixed=TRUE, comb.random=TRUE,
+         hakn=FALSE, method.tau="DL", silent=TRUE, ...)
 
 \method{trimfill}{meta}(x, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
          sm=NULL, studlab=NULL, level=x$level, level.comb=x$level.comb,
-         comb.fixed=x$comb.fixed, comb.random=x$comb.random, silent=TRUE, ...)
+         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+         hakn=x$hakn, method.tau=x$method.tau, silent=TRUE, ...)
 }
 
 \arguments{
@@ -51,6 +53,13 @@
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+          Knapp should be used to adjust test statistics and
+          confidence intervals.}
+  \item{method.tau}{A character string indicating which method is used
+    to estimate the between-study variance tau-squared. Either
+    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{silent}{A logical indicating whether basic information on
     iterations shown.}
   \item{...}{other arguments}
@@ -78,9 +87,9 @@
 \value{
   An object of class \code{c("metagen", "meta", "trimfill")}. The object is a
   list containing the following components:
-  \item{studlab, sm, left, ma.fixed, type}{}
+  \item{studlab, sm, left, ma.fixed, type,}{}
   \item{n.iter.max, level, level.comb,}{As defined above.}
-  \item{comb.fixed, comb.random}{}
+  \item{comb.fixed, comb.random, hakn, method.tau}{}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
@@ -97,6 +106,8 @@
     missing studies.}
   \item{trimfill}{A logical vector indicating studies that have been
     added by trim and fill method.}
+  \item{df.hakn}{Degrees of freedom for test of treatment effect for
+    Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{k0}{Number of studies added by trim and fill.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -121,8 +132,9 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data=Fleiss93, sm="OR")
 tf1 <- trimfill(meta1)
 summary(tf1)
+funnel(tf1)
 funnel(tf1, pch=ifelse(tf1$trimfill, 1, 16),
-       level=0.95, comb.fixed=TRUE)
+       level=0.9, comb.random=FALSE)
 
 trimfill(meta1$TE, meta1$seTE, sm=meta1$sm)
 }

@@ -254,7 +254,8 @@ print.meta <- function(x,
               sm,
               k.all=k.all,
               hakn=is.random & x$hakn,
-              metaprop=inherits(x, "metaprop"))
+              metaprop=inherits(x, "metaprop"),
+              inherits(x, "trimfill"))
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

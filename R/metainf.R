@@ -249,6 +249,8 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
   res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metainf", "meta")
+  if (inherits(x, "trimfill"))
+    class(res) <- c(class(res), "trimfill")
   
   res
 }

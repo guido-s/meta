@@ -254,6 +254,8 @@ metacum <- function(x, pooled, sortvar, level.comb=x$level.comb){
   res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metacum", "meta")
+  if (inherits(x, "trimfill"))
+    class(res) <- c(class(res), "trimfill")
   
   res
 }

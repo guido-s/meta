@@ -1,3 +1,37 @@
+2012-05-18, version 2.1-0
+
+Functions trimfill.meta and trimfill.default:
+- arguments hakn and method.tau added
+
+Functions metacum and metainf:
+- modified so that class 'trimfill' is added to object if function
+  metacum or metainf is used on object of class 'trimfill'
+
+Function catmeth, print.meta, print.summary.meta:
+- modified so that information on use of trim-and-fill method is
+  printed
+
+Functions metabias.meta:
+- modified so that error message is printed if used with object of
+  class 'metacum' or 'metainf'
+
+Functions funnel.meta:
+- modified so that error message is printed if used with object of
+  class 'metacum' or 'metainf'
+- modified so that by default different plot symbols (argument pch)
+  are used with object of class 'trimfill'
+
+Function .onLoad:
+- modified so that version nummer of meta package is printed when
+  library is loaded
+
+Help pages trimfill.meta and trimfill.default:
+- arguments hakn and method.tau documented
+
+Help page funnel.meta:
+- changed default for argument pch documented
+
+
 2012-05-03, version 2.0-4
 
 Function metaprop:

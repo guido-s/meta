@@ -2,7 +2,8 @@ funnel.meta <- function(x,
                         xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
                         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
                         axes=TRUE,
-                        pch=21, text=NULL, cex=1,
+                        pch=if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
+                        text=NULL, cex=1,
                         lty.fixed=2, lty.random=9,
                         lwd=1, lwd.fixed=lwd, lwd.random=lwd,
                         col="black", bg="darkgray",
@@ -16,6 +17,12 @@ funnel.meta <- function(x,
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
+  
+  if (inherits(x, "metacum"))
+    stop("Funnel plot not meaningful for object of class \"metacum\"")
+  ##
+  if (inherits(x, "metainf"))
+    stop("Funnel plot not meaningful for object of class \"metainf\"")
   
   TE <- x$TE
   seTE <- x$seTE

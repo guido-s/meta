@@ -525,7 +525,8 @@ print.summary.meta <- function(x,
             sm,
             x$k.all,
             !is.null(x$hakn) && (x$hakn & comb.random),
-            metaprop=inherits(x, "metaprop"))
+            metaprop=inherits(x, "metaprop"),
+            inherits(x, "trimfill"))
   }
   
   invisible(NULL)
