@@ -217,7 +217,11 @@ print.summary.meta <- function(x,
   else{
 
     if (comb.fixed|comb.random){
-      cat(paste("Number of studies combined: k=", k, "\n\n", sep=""))
+      if (!inherits(x, "trimfill"))
+        cat(paste("Number of studies combined: k=", k, "\n\n", sep=""))
+      else
+        cat(paste("Number of studies combined: k=", k,
+                  " (with ", x$k0, " added studies)\n\n", sep=""))
       
       res <- cbind(format(c(if (comb.fixed) TE.fixed,
                             if (comb.random) TE.random)),

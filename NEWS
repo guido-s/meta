@@ -1,3 +1,12 @@
+2012-08-12, version 2.1-1
+
+Function summary.meta:
+- list element 'k0' added to returned object for trim-and-fill method
+
+Function print.summary.meta:
+- print number of added studies for trim-and-fill method
+
+
 2012-05-18, version 2.1-0
 
 Functions trimfill.meta and trimfill.default:

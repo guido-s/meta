@@ -341,6 +341,7 @@ summary.meta <- function(object,
   ##
   if (inherits(object, "trimfill")){
     res$object <- object
+    res$k0 <- object$k0
     ##
     class(res) <- c(class(res), "trimfill")
   }
