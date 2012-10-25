@@ -186,16 +186,28 @@ summary.meta <- function(object,
       }
       ##
       if (inherits(object, "metagen")){
-        meta1 <- metagen(object$TE[sel], object$seTE[sel],
-                         sm=object$sm,
-                         studlab=object$studlab[sel],
-                         level=level, level.comb=level.comb,
-                         comb.fixed=comb.fixed,
-                         comb.random=comb.random,
-                         hakn=object$hakn,
-                         method.tau=object$method.tau,
-                         tau.preset=object$tau.preset, TE.tau=object$TE.tau,
-                         warn=warn)
+        if (!is.null(object$tau.preset))
+          meta1 <- metagen(object$TE[sel], object$seTE[sel],
+                           sm=object$sm,
+                           studlab=object$studlab[sel],
+                           level=level, level.comb=level.comb,
+                           comb.fixed=comb.fixed,
+                           comb.random=comb.random,
+                           hakn=object$hakn,
+                           method.tau=object$method.tau,
+                           tau.preset=object$tau.preset, TE.tau=object$TE.tau,
+                           warn=warn)
+        else
+          meta1 <- metagen(object$TE[sel], object$seTE[sel],
+                           sm=object$sm,
+                           studlab=object$studlab[sel],
+                           level=level, level.comb=level.comb,
+                           comb.fixed=comb.fixed,
+                           comb.random=comb.random,
+                           hakn=object$hakn,
+                           method.tau=object$method.tau,
+                           TE.tau=object$TE.tau,
+                           warn=warn)
       }
       ##
       if (inherits(object, "metaprop")){

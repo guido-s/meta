@@ -1,3 +1,16 @@
+2012-10-25, version 2.1-2
+
+Functions forest.meta, metacum, metainf, summary.meta:
+ - modified so that the function works if argument 'method.tau' is
+   different from the default which previously resulted in an error
+   message
+   'Error in sqrt(W) %*% X : non-conformable arguments'
+
+Function forest.meta:
+- argument 'byvar' uses corresponding list element from
+  meta-analysis object as default
+
+
 2012-08-12, version 2.1-1
 
 Function summary.meta:

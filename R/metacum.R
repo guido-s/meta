@@ -140,11 +140,18 @@ metacum <- function(x, pooled, sortvar, level.comb=x$level.comb){
                     tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
     if (inherits(x, "metagen"))
-      m <- metagen(TE[sel], seTE[sel], sm=x$sm,
-                   level=level.comb, level.comb=level.comb,
-                   hakn=x$hakn,
-                   method.tau=x$method.tau,
-                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+      if (!is.null(x$tau.preset))
+        m <- metagen(TE[sel], seTE[sel], sm=x$sm,
+                     level=level.comb, level.comb=level.comb,
+                     hakn=x$hakn,
+                     method.tau=x$method.tau,
+                     tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+      else
+        m <- metagen(TE[sel], seTE[sel], sm=x$sm,
+                     level=level.comb, level.comb=level.comb,
+                     hakn=x$hakn,
+                     method.tau=x$method.tau,
+                     TE.tau=x$TE.tau)
     ##
     if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],

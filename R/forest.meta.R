@@ -1033,9 +1033,14 @@ forest.meta <- function(x,
                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
   ##
   if (inherits(x, "metagen"))
-    m1 <- metagen(x$TE, x$seTE, sm=x$sm,
-                  hakn=x$hakn, method.tau=x$method.tau,
-                  tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+    if (!is.null(x$tau.preset))
+      m1 <- metagen(x$TE, x$seTE, sm=x$sm,
+                    hakn=x$hakn, method.tau=x$method.tau,
+                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+    else
+      m1 <- metagen(x$TE, x$seTE, sm=x$sm,
+                    hakn=x$hakn, method.tau=x$method.tau,
+                    TE.tau=x$TE.tau)
   ##
   if (inherits(x, "metaprop")){
     m1 <- metaprop(x$event.e, x$n.e, sm=x$sm,
@@ -1168,9 +1173,14 @@ forest.meta <- function(x,
                         tau.preset=x$tau.preset, TE.tau=x$TE.tau)
       ##
       if (inherits(x, "metagen"))
-        m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
-                       hakn=x$hakn, method.tau=x$method.tau,
-                       tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+        if (!is.null(x$tau.preset))
+          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
+                         hakn=x$hakn, method.tau=x$method.tau,
+                         tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+        else
+          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
+                         hakn=x$hakn, method.tau=x$method.tau,
+                         TE.tau=x$TE.tau)
       ##
       if (inherits(x, "metaprop")){
         m.w <- metaprop(x$event.e[sel], x$n.e[sel], sm=x$sm,
@@ -1479,7 +1489,7 @@ forest.meta <- function(x,
   
   
   if (print.byvar){
-    if (missing(bylab))
+    if (length(bylab)==0)
       bylab <- paste(byvar.name,
                      " = ",
                      format(by.levs), sep="")
