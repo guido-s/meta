@@ -120,8 +120,10 @@ forest.meta <- function(x,
   if (new)
     grid.newpage()
   
-  if (inherits(x, "metainf")|inherits(x, "metacum"))
+  if (inherits(x, "metainf")|inherits(x, "metacum")){
     hetstat <- FALSE
+    overall <- FALSE
+  }
   
   x.name <- deparse(substitute(x))
   
