@@ -184,15 +184,22 @@ print.meta <- function(x,
     ##
     if (!inherits(x, "metaprop") & sm %in% c("PFT", "PAS")){
       if (sm=="PAS"){
-        TE    <- asin2p(TE)
-        lowTE <- asin2p(lowTE)
-        uppTE <- asin2p(uppTE)
+        TE    <- asin2p(TE, value="mean")
+        lowTE <- asin2p(lowTE, value="lower")
+        uppTE <- asin2p(uppTE, value="upper")
       }
       ##
       if (sm=="PFT"){
-        TE    <- asin2p(TE, x$n)
-        lowTE <- asin2p(lowTE, x$n)
-        uppTE <- asin2p(uppTE, x$n)
+        if (inherits(x, "metainf")|inherits(x, "metacum")){
+          TE    <- asin2p(TE, x$n.harmonic.mean, value="mean")
+          lowTE <- asin2p(lowTE, x$n.harmonic.mean, value="lower")
+          uppTE <- asin2p(uppTE, x$n.harmonic.mean, value="upper")
+        }
+        else {
+          TE    <- asin2p(TE, x$n, value="mean")
+          lowTE <- asin2p(lowTE, x$n, value="lower")
+          uppTE <- asin2p(uppTE, x$n, value="upper")
+        }
       }
     }
     ##
@@ -290,7 +297,7 @@ print.meta <- function(x,
             comb.fixed=comb.fixed, comb.random=comb.random,
             header=FALSE)
     
-  }
+    }
   
   invisible(NULL)
 }

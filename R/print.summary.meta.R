@@ -84,39 +84,39 @@ print.summary.meta <- function(x,
     }
   }
   else if (sm=="PFT"){
-    TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n))
-    lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n))
-    uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n))
+    TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n), value="mean")
+    lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n), value="lower")
+    uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n), value="upper")
     ##
-    TE.random    <- asin2p(TE.random, 1/mean(1/x$n))
-    lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n))
-    uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n))
+    TE.random    <- asin2p(TE.random, 1/mean(1/x$n), value="mean")
+    lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n), value="lower")
+    uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n), value="upper")
     ##
     if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w)
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w)
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, 1/harmonic.mean.fixed.w)
-      TE.random.w    <- asin2p(TE.random.w, 1/harmonic.mean.random.w)
-      lowTE.random.w <- asin2p(lowTE.random.w, 1/harmonic.mean.random.w)
-      uppTE.random.w <- asin2p(uppTE.random.w, 1/harmonic.mean.random.w)
+      TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w, value="mean")
+      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w, value="lower")
+      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, 1/harmonic.mean.fixed.w, value="upper")
+      TE.random.w    <- asin2p(TE.random.w, 1/harmonic.mean.random.w, value="mean")
+      lowTE.random.w <- asin2p(lowTE.random.w, 1/harmonic.mean.random.w, value="lower")
+      uppTE.random.w <- asin2p(uppTE.random.w, 1/harmonic.mean.random.w, value="upper")
     }
   }
   else if (sm=="PAS"){
-    TE.fixed    <- asin2p(TE.fixed)
-    lowTE.fixed <- asin2p(lowTE.fixed)
-    uppTE.fixed <- asin2p(uppTE.fixed)
+    TE.fixed    <- asin2p(TE.fixed, value="mean")
+    lowTE.fixed <- asin2p(lowTE.fixed, value="lower")
+    uppTE.fixed <- asin2p(uppTE.fixed, value="upper")
     ##
-    TE.random    <- asin2p(TE.random)
-    lowTE.random <- asin2p(lowTE.random)
-    uppTE.random <- asin2p(uppTE.random)
+    TE.random    <- asin2p(TE.random, value="mean")
+    lowTE.random <- asin2p(lowTE.random, value="lower")
+    uppTE.random <- asin2p(uppTE.random, value="upper")
     ##
     if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w)
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w)
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w)
-      TE.random.w    <- asin2p(TE.random.w)
-      lowTE.random.w <- asin2p(lowTE.random.w)
-      uppTE.random.w <- asin2p(uppTE.random.w)
+      TE.fixed.w     <- asin2p(TE.fixed.w, value="mean")
+      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, value="lower")
+      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, value="upper")
+      TE.random.w    <- asin2p(TE.random.w, value="mean")
+      lowTE.random.w <- asin2p(lowTE.random.w, value="lower")
+      uppTE.random.w <- asin2p(uppTE.random.w, value="upper")
     }
   }
   else if (sm=="PLOGIT"){

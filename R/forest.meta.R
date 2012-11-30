@@ -120,10 +120,8 @@ forest.meta <- function(x,
   if (new)
     grid.newpage()
   
-  if (inherits(x, "metainf")|inherits(x, "metacum")){
+  if (inherits(x, "metainf")|inherits(x, "metacum"))
     hetstat <- FALSE
-    overall <- FALSE
-  }
   
   x.name <- deparse(substitute(x))
   
@@ -620,11 +618,13 @@ forest.meta <- function(x,
     x$seTE.fixed  <- rev(x$seTE)[1]
     x$lower.fixed <- rev(x$lower)[1]
     x$upper.fixed <- rev(x$upper)[1]
+    x$n.harmonic.mean.fixed <- rev(x$n.harmonic.mean)[1]
     ##
     x$TE.random   <- rev(x$TE)[1]
     x$seTE.random <- rev(x$seTE)[1]
     x$lower.random <- rev(x$lower)[1]
     x$upper.random <- rev(x$upper)[1]
+    x$n.harmonic.mean.random <- rev(x$n.harmonic.mean)[1]
     ##
     x$w.all <- rev(x$w)[1]
     ##
@@ -637,6 +637,8 @@ forest.meta <- function(x,
     ##
     x$w.fixed <- rev(rev(x$w)[-(1:2)])
     x$w.random <- rev(rev(x$w)[-(1:2)])
+    ##
+    x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
     ##
     if (overall & x$pooled=="fixed"){
       comb.fixed <- TRUE
@@ -954,6 +956,8 @@ forest.meta <- function(x,
   x$w.random <- x$w.random[sel]
   studlab  <- studlab[sel]
   ##
+  x$n.harmonic.mean <- x$n.harmonic.mean[sel]
+  ##
   byvar   <- byvar[sel]
   sortvar <- sortvar[sel]
   ##
@@ -993,6 +997,8 @@ forest.meta <- function(x,
     x$w.fixed  <- x$w.fixed[o]
     x$w.random <- x$w.random[o]
     studlab  <- studlab[o]
+    ##
+    x$n.harmonic.mean <- x$n.harmonic.mean[o]
     ##
     byvar   <- byvar[o]
     sortvar <- sortvar[o]
@@ -1335,46 +1341,64 @@ forest.meta <- function(x,
     }
     else{
       if (x$sm=="PAS"){
-        TE    <- pscale*asin2p(TE)
-        lowTE <- pscale*asin2p(lowTE)
-        uppTE <- pscale*asin2p(uppTE)
+        TE    <- pscale*asin2p(TE, value="mean")
+        lowTE <- pscale*asin2p(lowTE, value="lower")
+        uppTE <- pscale*asin2p(uppTE, value="upper")
       }
       if (x$sm=="PFT"){
-        TE    <- pscale*asin2p(TE, x$n)
-        lowTE <- pscale*asin2p(lowTE, x$n)
-        uppTE <- pscale*asin2p(uppTE, x$n)
+        if (inherits(x, "metainf")|inherits(x, "metacum")){
+          TE    <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
+          lowTE <- pscale*asin2p(lowTE, x$n.harmonic.mean, value="lower")
+          uppTE <- pscale*asin2p(uppTE, x$n.harmonic.mean, value="upper")
+        }
+        else {
+          TE    <- pscale*asin2p(TE, x$n, value="mean")
+          lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
+          uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
+        }
       }
     }
     ##
     if (x$sm=="PAS"){
-      TE.fixed    <- pscale*asin2p(TE.fixed)
-      lowTE.fixed <- pscale*asin2p(lowTE.fixed)
-      uppTE.fixed <- pscale*asin2p(uppTE.fixed)
+      TE.fixed    <- pscale*asin2p(TE.fixed, value="mean")
+      lowTE.fixed <- pscale*asin2p(lowTE.fixed, value="lower")
+      uppTE.fixed <- pscale*asin2p(uppTE.fixed, value="upper")
       ##
-      TE.random    <- pscale*asin2p(TE.random)
-      lowTE.random <- pscale*asin2p(lowTE.random)
-      uppTE.random <- pscale*asin2p(uppTE.random)
+      TE.random    <- pscale*asin2p(TE.random, value="mean")
+      lowTE.random <- pscale*asin2p(lowTE.random, value="lower")
+      uppTE.random <- pscale*asin2p(uppTE.random, value="upper")
       ##
       if (by){
-        TE.w    <- pscale*asin2p(TE.w)
-        lowTE.w <- pscale*asin2p(lowTE.w)
-        uppTE.w <- pscale*asin2p(uppTE.w)
+        TE.w    <- pscale*asin2p(TE.w, value="mean")
+        lowTE.w <- pscale*asin2p(lowTE.w, value="lower")
+        uppTE.w <- pscale*asin2p(uppTE.w, value="upper")
       }
     }
     ##
     if (x$sm=="PFT"){
-      TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n))
-      lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n))
-      uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n))
-      ##
-      TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n))
-      lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n))
-      uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n))
-      ##
-      if (by){
-        TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w)
-        lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w)
-        uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w)
+      if (inherits(x, "metainf")|inherits(x, "metacum")){
+        TE.fixed    <- pscale*asin2p(TE.fixed, x$n.harmonic.mean.fixed, value="mean")
+        lowTE.fixed <- pscale*asin2p(lowTE.fixed, x$n.harmonic.mean.fixed, value="lower")
+        uppTE.fixed <- pscale*asin2p(uppTE.fixed, x$n.harmonic.mean.fixed, value="upper")
+        ##
+        TE.random    <- pscale*asin2p(TE.random, x$n.harmonic.mean.random, value="mean")
+        lowTE.random <- pscale*asin2p(lowTE.random, x$n.harmonic.mean.random, value="lower")
+        uppTE.random <- pscale*asin2p(uppTE.random, x$n.harmonic.mean.random, value="upper")
+      }
+      else{
+        TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n), value="mean")
+        lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n), value="lower")
+        uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n), value="upper")
+        ##
+        TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n), value="mean")
+        lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n), value="lower")
+        uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n), value="upper")
+        ##
+        if (by){
+          TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w, value="mean")
+          lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w, value="lower")
+          uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w, value="upper")
+        }
       }
     }
   }

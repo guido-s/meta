@@ -111,10 +111,10 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
 
   
   if (pooled == "fixed" | (pooled == "random" & !x$hakn))
-    res.i <- matrix(NA, ncol=8, nrow=k.all)
+    res.i <- matrix(NA, ncol=9, nrow=k.all)
   ##
   else if (pooled == "random" & x$hakn)
-    res.i <- matrix(NA, ncol=9, nrow=k.all)
+    res.i <- matrix(NA, ncol=10, nrow=k.all)
   ##
   for (i in 1:k.all){
     sel <- -i
@@ -172,20 +172,25 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
                    method.tau=x$method.tau,
                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
+    sel.pas <- inherits(x, "metaprop") & m$sm=="PAS"
+    sel.pft <- inherits(x, "metaprop") & m$sm=="PFT"
+    ##
     s.i <- summary(m, level=level.comb, level.comb=level.comb)
     ##
     if (pooled == "fixed"){
       res.i[i,] <- c(m$TE.fixed, m$seTE.fixed,
                      s.i$fixed$lower, s.i$fixed$upper,
                      m$pval.fixed, s.i$I2$TE,
-                     m$tau, sum(m$w.fixed, na.rm=TRUE))
+                     m$tau, sum(m$w.fixed, na.rm=TRUE),
+                     if (sel.pft) 1/mean(1/n[sel]) else NA)
     }
     ##
     else if (pooled == "random" & !x$hakn){
       res.i[i,] <- c(m$TE.random, m$seTE.random,
                      s.i$random$lower, s.i$random$upper,
                      m$pval.random, s.i$I2$TE,
-                     m$tau, sum(m$w.random, na.rm=TRUE))
+                     m$tau, sum(m$w.random, na.rm=TRUE),
+                     if (sel.pft) 1/mean(1/n[sel]) else NA)
     }
     ##
     else if (pooled == "random" & x$hakn){
@@ -193,6 +198,7 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
                      s.i$random$lower, s.i$random$upper,
                      m$pval.random, s.i$I2$TE,
                      m$tau, sum(m$w.random, na.rm=TRUE),
+                     if (sel.pft) 1/mean(1/n[sel]) else NA,
                      m$df.hakn)
     }
   }
@@ -205,8 +211,9 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
   I2.i <- res.i[,6]
   tau.i <- res.i[,7]
   weight.i <- res.i[,8]
+  n.harmonic.mean.i <- res.i[,9]
   if (pooled == "random" & x$hakn)
-    df.hakn.i <- res.i[,9]
+    df.hakn.i <- res.i[,10]
   
   
   sm1 <- summary(x, level=level.comb, level.comb=level.comb)
@@ -251,7 +258,8 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
               hakn=x$hakn,
               method.tau=x$method.tau,
               tau.preset=x$tau.preset,
-              TE.tau=x$TE.tau)
+              TE.tau=x$TE.tau,
+              n.harmonic.mean=c(n.harmonic.mean.i, NA, 1/mean(1/n)))
   
   res$version <- packageDescription("meta")$Version
   

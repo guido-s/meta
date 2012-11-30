@@ -1,10 +1,26 @@
+2012-11-29, version 2.1-4
+
+Functions forest.meta, metacum, metainf and print.meta:
+- modified so that backtransformation of Freeman-Tukey Double arcsine
+  transformation (argument sm='PFT' in function metaprop) is
+  calculated correctly for objects of class 'metacum' and 'metainf'
+
+Function asin2p:
+- modified so that values outside the admissible range are set to the
+  boundary values (i.e. result in estimated probabilities of 0 or 1).
+  A warning is printed in this case.
+
+Help pages metacum and metainf:
+- new argument n.harmonic.mean documented
+
+
 2012-11-20, version 2.1-3
 
 Function forest.meta:
- - modified so that the function works for an object of class
-   'metacum' or 'metainf' and argument sm equal to 'PFT' which
-   previously resulted in an error message
-   'Error in if (col$range[1] <= TE.fixed & TE.fixed <= col$range[2]) ...'
+- modified so that the function works for an object of class
+  'metacum' or 'metainf' and argument sm equal to 'PFT' which
+  previously resulted in an error message
+  'Error in if (col$range[1] <= TE.fixed & TE.fixed <= col$range[2]) ...'
 
 
 2012-10-25, version 2.1-2

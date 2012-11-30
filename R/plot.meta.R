@@ -437,46 +437,46 @@ plot.meta <- function(x,
     }
     else{
       if (x$sm=="PAS"){
-        TE    <- asin2p(TE)
-        lowTE <- asin2p(lowTE)
-        uppTE <- asin2p(uppTE)
+        TE    <- asin2p(TE, value="mean")
+        lowTE <- asin2p(lowTE, value="lower")
+        uppTE <- asin2p(uppTE, value="upper")
       }
       if (x$sm=="PFT"){
-        TE    <- asin2p(TE, x$n)
-        lowTE <- asin2p(lowTE, x$n)
-        uppTE <- asin2p(uppTE, x$n)
+        TE    <- asin2p(TE, x$n, value="mean")
+        lowTE <- asin2p(lowTE, x$n, value="lower")
+        uppTE <- asin2p(uppTE, x$n, value="upper")
       }
     }
     ##
     if (x$sm=="PAS"){
-      TE.fixed    <- asin2p(TE.fixed)
-      lowTE.fixed <- asin2p(lowTE.fixed)
-      uppTE.fixed <- asin2p(uppTE.fixed)
+      TE.fixed    <- asin2p(TE.fixed, value="mean")
+      lowTE.fixed <- asin2p(lowTE.fixed, value="lower")
+      uppTE.fixed <- asin2p(uppTE.fixed, value="upper")
       ##
-      TE.random    <- asin2p(TE.random)
-      lowTE.random <- asin2p(lowTE.random)
-      uppTE.random <- asin2p(uppTE.random)
+      TE.random    <- asin2p(TE.random, value="mean")
+      lowTE.random <- asin2p(lowTE.random, value="lower")
+      uppTE.random <- asin2p(uppTE.random, value="upper")
       ##
       if (by){
-        TE.w    <- asin2p(TE.w)
-        lowTE.w <- asin2p(lowTE.w)
-        uppTE.w <- asin2p(uppTE.w)
+        TE.w    <- asin2p(TE.w, value="mean")
+        lowTE.w <- asin2p(lowTE.w, value="lower")
+        uppTE.w <- asin2p(uppTE.w, value="upper")
       }
     }
     ##
     if (x$sm=="PFT"){
-      TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n))
-      lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n))
-      uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n))
+      TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n), value="mean")
+      lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n), value="lower")
+      uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n), value="upper")
       ##
-      TE.random    <- asin2p(TE.random, 1/mean(1/x$n))
-      lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n))
-      uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n))
+      TE.random    <- asin2p(TE.random, 1/mean(1/x$n), value="mean")
+      lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n), value="lower")
+      uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n), value="upper")
       ##
       if (by){
-        TE.w    <- asin2p(TE.w, 1/harmonic.mean.w)
-        lowTE.w <- asin2p(lowTE.w, 1/harmonic.mean.w)
-        uppTE.w <- asin2p(uppTE.w, 1/harmonic.mean.w)
+        TE.w    <- asin2p(TE.w, 1/harmonic.mean.w, value="mean")
+        lowTE.w <- asin2p(lowTE.w, 1/harmonic.mean.w, value="lower")
+        uppTE.w <- asin2p(uppTE.w, 1/harmonic.mean.w, value="upper")
       }
     }
   }
