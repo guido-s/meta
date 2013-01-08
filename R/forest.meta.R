@@ -174,6 +174,8 @@ forest.meta <- function(x,
   if (missing(weight))
     weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
   
+  notmiss.xlim <- !missing(xlim)
+  
   wcalc <- function(x)
     max(unit(rep(1, length(x)), "grobwidth", x))
   
@@ -466,6 +468,12 @@ forest.meta <- function(x,
         else
           label <- 1
         ##
+        if (notmiss.xlim && is.numeric(xlim[1])){
+          if (exp(min(xlim)) < min(label))
+            label <- c(exp(min(xlim)), label)
+          if (exp(max(xlim)) > max(label))
+            label <- c(label, exp(max(xlim)))
+        }
         at <- log(label)
         label <- round(label, 2)
       }
@@ -1802,7 +1810,7 @@ forest.meta <- function(x,
   ##  xlim <- pscale*xlim
   
   
-  if (!missing(xlim) && is.numeric(xlim[1]))
+  if (notmiss.xlim && is.numeric(xlim[1]))
     if (x$sm %in% c("HR", "OR", "RR"))
       xlim <- log(xlim)
   ##

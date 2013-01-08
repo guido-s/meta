@@ -39,7 +39,7 @@ metaprop(event, n, studlab,
     studies with a zero cell count.}
   \item{allincr}{A logical indicating if \code{incr} is added to each
     cell frequency of all studies if at least one study has a zero cell
-    count. If false, \code{incr} is added only to each cell frequency of
+    count. If FALSE (default), \code{incr} is added only to each cell frequency of
     studies with a zero cell count.}
   \item{addincr}{A logical indicating if \code{incr} is added to each cell
     frequency of all studies irrespective of zero cell counts.}
