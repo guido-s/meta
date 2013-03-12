@@ -1880,6 +1880,14 @@ forest.meta <- function(x,
   
   
   ##if ((inherits(x, c("metaprop", "metacor")) | isprop) & missing(xlab.pos))
+  if (!is.na(ref) & missing(xlab.pos))
+    if (ref <= min(xlim) | ref >= max(xlim))
+      xlab.pos <- mean(xlim)
+  
+  if (!is.na(ref) & missing(smlab.pos))
+    if (ref <= min(xlim) | ref >= max(xlim))
+      smlab.pos <- mean(xlim)
+  
   if (is.null(xlab.pos))
     xlab.pos <- mean(xlim)
   

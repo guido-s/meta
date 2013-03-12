@@ -1,9 +1,20 @@
-2012-12-21, version 2.1-5
+2013-03-12, version 2.2-0
 
-Function forest.meta
+Function metabin:
+- modified so that studies with all events in both groups will be
+  included in meta-analysis by default (in older versions of meta
+  these studies were only included if argument allstudies=TRUE)
+- modified so that the standard error is positive for studies with all
+  events in both groups
+  (see Hartung & Knapp (2001), Stat Med, equation (18))
+
+Function forest.meta:
 - modified so that values provided by argument xlim will be printed on
-  x-axis label for relative effect measures (i.e. sm is equal to "RR",
-  "OR", or "HR")
+  x-axis label for relative effect measures (i.e. argument sm is equal
+  to "RR", "OR", or "HR")
+- internally calculated default values for arguments smlab.pos and
+  xlab.pos changed such that they will always lie withing plotting
+  range
 
 
 2012-11-29, version 2.1-4

@@ -179,9 +179,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     incl <- rep(1, k.all)
   else{
     if (allstudies) incl <- rep(1, k.all)
-    else
-      incl <- ifelse((event.c==0 & event.e==0) |
-                     (event.c==n.c & event.e==n.e), NA, 1)
+    else{
+      if (sm == "OR")
+        incl <- ifelse((event.c==0 & event.e==0) |
+                       (event.c==n.c & event.e==n.e), NA, 1)
+      if (sm == "RR"){
+        incl <- ifelse((event.c==0 & event.e==0), NA, 1)
+        allevents <- event.c==n.c & event.e==n.e
+      }
+    }
   }
   ##
   ## Exclude studies from meta-analysis:
@@ -206,7 +212,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     (n.c - event.c) == 0 | event.c == 0),
                 RD=((n.e - event.e) == 0 | event.e == 0 |
                     (n.c - event.c) == 0 | event.c == 0),
-                RR=(event.e == 0 | event.c == 0),
+                RR=((n.e - event.e) == 0 | event.e == 0 |
+                    (n.c - event.c) == 0 | event.c == 0),
                 AS=rep(FALSE, length(event.e)))
   ##
   sel[is.na(incl)] <- FALSE
@@ -348,12 +355,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   else if (sm == "RR"){
     ## 
     ## Cooper & Hedges (1994), p. 247-8
-    ## 
+    ##
     if (!RR.cochrane){
       TE <- log(((n11+incr.e)/(n1.+incr.e))/
                 ((n21+incr.c)/(n2.+incr.c)))
-      seTE <- sqrt((1/(n11+incr.e) - 1/(n1.+incr.e) +
-                    1/(n21+incr.c) - 1/(n2.+incr.c)))
+      ##
+      ## Hartung & Knapp (2001), Stat Med, equation (18)
+      ##
+      seTE <- sqrt((1/(n11+incr.e*(!allevents)) - 1/(n1.+incr.e) +
+                    1/(n21+incr.c*(!allevents)) - 1/(n2.+incr.c)))
       }
     else{
       TE <- log(((n11+incr.e)/(n1.+2*incr.e))/
