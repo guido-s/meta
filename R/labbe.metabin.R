@@ -58,11 +58,11 @@ labbe.metabin <- function(x,
   
   
   if (missing(xlim) & missing(ylim)){
-    xlim <- c(0, max(c(pc, pe)))
+    xlim <- c(0, max(c(pc, pe), na.rm=TRUE))
     ylim <- xlim
   }
   if (missing(xlim))
-    xlim <- c(0, max(c(pc, pe)))
+    xlim <- c(0, max(c(pc, pe), na.rm=TRUE))
   if (missing(ylim))
     ylim <- xlim
   

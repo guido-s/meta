@@ -1,9 +1,26 @@
+2013-03-20, version 2.2-1
+
+Function forest.meta:
+- new argument lab.NA (default: lab.NA=".") to label NAs (in older
+  version of R package meta the fixed label 'NA' was used)
+- modified such that arguments colgap.forest.left and
+  colgap.forest.right are considered (instead of only colgap.forest)
+
+Functions labbe.metabin and labbe.default:
+- bug fix so that function call does not result in an error message if
+  any event probability is equal to NA
+
+Function format.p (only used internally):
+- bug fix so that function call does not result in an error message if
+  any NAs were provided in the first function argument
+
+
 2013-03-12, version 2.2-0
 
 Function metabin:
 - modified so that studies with all events in both groups will be
-  included in meta-analysis by default (in older versions of meta
-  these studies were only included if argument allstudies=TRUE)
+  included in meta-analysis by default (in older versions of R package
+  meta these studies were only included if argument allstudies=TRUE)
 - modified so that the standard error is positive for studies with all
   events in both groups
   (see Hartung & Knapp (2001), Stat Med, equation (18))

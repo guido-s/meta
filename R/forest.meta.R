@@ -40,6 +40,8 @@ forest.meta <- function(x,
                         label.right=x$label.right,
                         label.left=x$label.left,
                         ##
+                        lab.NA=".",
+                        ##
                         lwd=1,
                         ##
                         at=NULL,
@@ -804,7 +806,6 @@ forest.meta <- function(x,
                     "event.e", "n.e")
     if (inherits(x, "metacor"))
       leftcols <- c("studlab",
-                    ##"cor",
                     "n.e")
   }
   ##
@@ -1555,8 +1556,16 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.w, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.w, uppTE)
     ##
-    TEs.study <- c(NA, NA, rep(NA, 3*n.by), TE.orig)
-    seTEs.study <- c(NA, NA, rep(NA, 3*n.by), seTE)
+    TEs.study <- c("", "", rep("", 3*n.by),
+                   ifelse(is.na(TE.orig), lab.NA,
+                          format(round(TE.orig, digits),
+                                 scientific=FALSE))
+                   )
+    seTEs.study <- c("", "", rep("", 3*n.by),
+                     ifelse(is.na(seTE), lab.NA,
+                            format(round(seTE, 4),
+                                   scientific=FALSE))
+                     )
     ##
     w.fixeds  <- c(100, "--", format(c(weight.w.p, w.fixed.p), scientific=FALSE))
     w.randoms <- c("--", 100, format(c(weight.w.p, w.random.p), scientific=FALSE))
@@ -1581,8 +1590,16 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE)
     ##
-    TEs.study <- c(NA, NA, TE.orig)
-    seTEs.study <- c(NA, NA, seTE)
+    TEs.study <- c("", "",
+                   ifelse(is.na(TE.orig), lab.NA,
+                          format(round(TE.orig, digits),
+                                 scientific=FALSE))
+                   )
+    seTEs.study <- c("", "",
+                     ifelse(is.na(seTE), lab.NA,
+                            format(round(seTE, 4),
+                                   scientific=FALSE))
+                     )
     ##
     w.fixeds  <- c(100, "--", format(w.fixed.p, scientific=FALSE))
     w.randoms <- c("--", 100, format(w.random.p, scientific=FALSE))
@@ -1626,10 +1643,8 @@ forest.meta <- function(x,
   ##
   ## Treatment estimate and its standard error
   ##
-  TE.format <- ifelse(is.na(TEs.study), "",
-                      format(round(TEs.study, digits), scientific=FALSE))
-  seTE.format <- ifelse(is.na(seTEs.study), "",
-                        format(round(seTEs.study, 4), scientific=FALSE))
+  TE.format <- TEs.study
+  seTE.format <- seTEs.study
   ##
   ## Number of Events and patients
   ##
@@ -1712,6 +1727,11 @@ forest.meta <- function(x,
   Mc.format <- Mc
   Se.format <- Se
   Sc.format <- Sc
+  ##
+  Me.format[Me.format=="NA"] <- lab.NA
+  Mc.format[Mc.format=="NA"] <- lab.NA
+  Se.format[Se.format=="NA"] <- lab.NA
+  Sc.format[Sc.format=="NA"] <- lab.NA
   ##
   ## Correlation
   ##
@@ -2301,12 +2321,12 @@ forest.meta <- function(x,
                      wcalc(cols[[leftcols[i]]]$labels))
   }
   ##
-  x1 <- unit.c(x1, colgap.forest, col.forestwidth)
+  x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
   ##
   if (rsel){
     for (i in seq(along=rightcols)){
       x1 <- unit.c(x1,
-                   if (i==1) colgap.forest else colgap.right,
+                   if (i==1) colgap.forest.right else colgap.right,
                    wcalc(cols[[rightcols[i]]]$labels))
     }
   }

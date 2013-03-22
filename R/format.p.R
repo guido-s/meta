@@ -1,6 +1,7 @@
 format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE){
+  labval <- labval
   if (lab)
-    res <- format(ifelse(is.na(p), paste(labval, "= --",),
+    res <- format(ifelse(is.na(p), paste(labval, "= --"),
                          ifelse(p < 0.0001, paste(labval, "< 0.0001"),
                                 paste(paste(labval, "="),
                                       formatC(round(p, 4))))))

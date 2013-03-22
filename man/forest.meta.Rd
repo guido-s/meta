@@ -30,6 +30,7 @@
        lab.e=x$label.e, lab.c=x$label.c,
        lab.e.attach.to.col=NULL, lab.c.attach.to.col=NULL,
        label.right=x$label.right, label.left=x$label.left,
+       lab.NA=".",
        lwd=1,
        at=NULL, label=TRUE,
        col.i="black", col.i.inside.square="white",
@@ -158,6 +159,7 @@
     label \code{lab.c} should be attached to in table heading.}
   \item{label.left}{Graph label on left side of forest plot.}
   \item{label.right}{Graph label on right side of forest plot.}
+  \item{lab.NA}{A character string to label missing values.}
   \item{lwd}{The line width, see \code{\link{par}}.}
   \item{at}{The points at which tick-marks are to be drawn, see
   \code{grid.xaxis}.}
