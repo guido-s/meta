@@ -65,7 +65,7 @@ metacor(cor, n, studlab,
 
 \details{
   Fixed effect and random effects meta-analysis of correlations
-  based either on Fisher's z transformation of proportions (\code{sm="ZCOR"})
+  based either on Fisher's z transformation of correlations (\code{sm="ZCOR"})
   or direct combination of correlations (\code{sm="COR"}) (see Cooper et
   al., p264-5 and p273-4).
 

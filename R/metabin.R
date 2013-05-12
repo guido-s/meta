@@ -178,15 +178,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (sm == "RD" | sm == "AS")
     incl <- rep(1, k.all)
   else{
-    if (allstudies) incl <- rep(1, k.all)
+    allevents <- event.c==n.c & event.e==n.e
+    if (allstudies)
+      incl <- rep(1, k.all)
     else{
       if (sm == "OR")
         incl <- ifelse((event.c==0 & event.e==0) |
                        (event.c==n.c & event.e==n.e), NA, 1)
-      if (sm == "RR"){
+      if (sm == "RR")
         incl <- ifelse((event.c==0 & event.e==0), NA, 1)
-        allevents <- event.c==n.c & event.e==n.e
-      }
     }
   }
   ##

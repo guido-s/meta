@@ -1,3 +1,16 @@
+2013-05-12, version 2.3-0
+
+Function forest.meta:
+- modified such that fixed effect and random effects estimates and
+  confidence intervals are only (re)calculated for very old versions of
+  R package meta (version number < 2.x-x)
+
+Functions metabin:
+- bug fix so that function call with arguments sm="RR" and
+  allstudies=TRUE does not result in an error message in meta-analyses
+  with zero events in both groups
+
+
 2013-03-20, version 2.2-1
 
 Function forest.meta:

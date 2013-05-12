@@ -1095,6 +1095,12 @@ forest.meta <- function(x,
     tau2 <- NA
   }
   else{
+    ##
+    ## Check for very old versions of R package meta
+    ##
+    ancientmeta <- !(!is.null(x$version) &&
+                     as.numeric(unlist(strsplit(x$version, "\\."))[1]) >= 2)
+    
     sm1 <- summary(m1, level=level, level.comb=level.comb, warn=FALSE)
     
     TE    <- sm1$study$TE
@@ -1102,13 +1108,47 @@ forest.meta <- function(x,
     lowTE <- sm1$study$lower
     uppTE <- sm1$study$upper
     ##
-    TE.fixed    <- sm1$fixed$TE
-    lowTE.fixed <- sm1$fixed$lower
-    uppTE.fixed <- sm1$fixed$upper
+    if (ancientmeta){
+      ## Only use (re)calculated pooled estimate for
+      ## very old versions of R package meta
+      TE.fixed    <- sm1$fixed$TE
+      lowTE.fixed <- sm1$fixed$lower
+      uppTE.fixed <- sm1$fixed$upper
+    }
+    else{
+      ## Use available values for pooled estimate
+      TE.fixed <- x$TE.fixed
+      if (x$level.comb == level.comb){
+        lowTE.fixed <- x$lower.fixed
+        uppTE.fixed <- x$upper.fixed
+      }
+      else{
+        ci.f <- ci(x$TE.fixed, x$seTE.fixed, level=level.comb)
+        lowTE.fixed <- ci.f$lower
+        uppTE.fixed <- ci.f$upper
+      }
+    }
     ##
-    TE.random    <- sm1$random$TE
-    lowTE.random <- sm1$random$lower
-    uppTE.random <- sm1$random$upper
+    if (ancientmeta){
+      ## Only use (re)calculated pooled estimate for
+      ## very old versions of R package meta
+      TE.random    <- sm1$random$TE
+      lowTE.random <- sm1$random$lower
+      uppTE.random <- sm1$random$upper
+    }
+    else{
+      ## Use available values for pooled estimate
+      TE.random <- x$TE.random
+      if (x$level.comb == level.comb){
+        lowTE.random <- x$lower.random
+        uppTE.random <- x$upper.random
+      }
+      else{
+        ci.r <- ci(x$TE.random, x$seTE.random, level=level.comb)
+        lowTE.random <- ci.r$lower
+        uppTE.random <- ci.r$upper
+      }
+    }
     ##
     Q    <- sm1$Q
     df   <- sm1$k-1
