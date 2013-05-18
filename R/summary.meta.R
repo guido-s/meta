@@ -47,6 +47,10 @@ summary.meta <- function(object,
   if (length(print.CMH)==0){
     print.CMH <- FALSE
   }
+  ##
+  if (length(object$tau.common)==0){
+    object$tau.common <- FALSE
+  }
   
   
   if (length(level)==0){
@@ -135,8 +139,15 @@ summary.meta <- function(object,
       by.levs <- unique(byvar)
     
     if (length(bylab)==0) bylab <- byvar.name
+
+    if (object$tau.common){
+      if (!is.null(object$tau.preset) & warn)
+        warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+      ##object$tau.preset <- NULL
+      object$tau.preset <- object$tau
+    }
     
-    res.w <- matrix(NA, ncol=14, nrow=length(by.levs))
+    res.w <- matrix(NA, ncol=15, nrow=length(by.levs))
     j <- 0
     ##
     for (i in by.levs){
@@ -257,6 +268,7 @@ summary.meta <- function(object,
                      unlist(sm1$H),
                      unlist(sm1$I2),
                      sm1$tau,
+                     meta1$C,
                      mean(1/object$n[sel]))
     }
     ##
@@ -277,7 +289,9 @@ summary.meta <- function(object,
     ##
     tau.w <- res.w[,13]
     ##
-    harmonic.mean.w <- res.w[,14]
+    C.w   <- res.w[,14]
+    ##
+    harmonic.mean.w <- res.w[,15]
     ##
     ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, level.comb)
     ##
@@ -322,9 +336,11 @@ summary.meta <- function(object,
     res$Q.b.fixed     <- Q.b
     res$Q.b.random    <- summary(metagen(TE.random.w, seTE.random.w))$Q
     res$tau.w         <- tau.w
+    res$C.w           <- C.w 
     res$H.w           <- list(TE=H.w, lower=H.w.low, upper=H.w.upp)
     res$I2.w          <- list(TE=I2.w, lower=I2.w.low, upper=I2.w.upp)
     res$bylab         <- bylab
+    res$tau.common    <- object$tau.common
     res$by.levs       <- by.levs
     res$within        <- "Returned list 'within' replaced by lists 'within.fixed' and 'within.random'."
   }

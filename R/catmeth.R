@@ -1,7 +1,8 @@
 catmeth <- function(method, method.tau=NULL,
                     sm="", k.all,
                     hakn=FALSE, metaprop=FALSE,
-                    trimfill=FALSE){
+                    trimfill=FALSE,
+                    tau.common=FALSE){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -41,6 +42,9 @@ catmeth <- function(method, method.tau=NULL,
                         "\n- Sidik-Jonkman estimator for tau^2",
                         "\n- Hedges estimator for tau^2",
                         "\n- empirical Bayes estimator for tau^2")[i.lab.method.tau]
+    ##
+    if (tau.common)
+      lab.method.tau <- paste(lab.method.tau, " (assuming common tau^2 in subgroups)", sep="")
     ##
     if (hakn)
       lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"

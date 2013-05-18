@@ -10,6 +10,7 @@ metaprop <- function(event, n, studlab,
                      method.bias="linreg",
                      title="", complab="", outclab="",
                      byvar, bylab, print.byvar=TRUE,
+                     tau.common=FALSE,
                      warn=TRUE
                      ){
   
@@ -50,7 +51,8 @@ metaprop <- function(event, n, studlab,
   event <- mf$event
   n     <- mf$n
   ##
-  if (!missing(byvar)){
+  missing.byvar <- missing(byvar)
+  if (!missing.byvar){
     byvar.name <- deparse(substitute(byvar))
     byvar <- mf$byvar
   }
@@ -191,6 +193,25 @@ metaprop <- function(event, n, studlab,
   }
   
   
+  ##
+  ## Subgroup analysis with equal tau^2:
+  ##
+  if (!missing.byvar & tau.common){
+    if (!is.null(tau.preset))
+      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+    ##
+    sm1 <- summary(metagen(TE, seTE, byvar=byvar,
+                           method.tau=method.tau))
+    sQ.w <- sum(sm1$Q.w)
+    sk.w <- sum(sm1$k.w-1)
+    sC.w <- sum(sm1$C.w)
+    ##
+    if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
+    else tau2 <- (sQ.w-sk.w)/sC.w
+    tau.preset <- sqrt(tau2)
+  }
+  
+  
   if (!is.null(tau.preset))
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
@@ -199,6 +220,9 @@ metaprop <- function(event, n, studlab,
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
                  TE.tau=TE.tau)
+  
+  if (!missing.byvar & tau.common)
+    tau.preset <- NULL
   
   
   res <- list(event=event, n=n,
@@ -212,6 +236,7 @@ metaprop <- function(event, n, studlab,
               lower.random=m$lower.random, upper.random=m$upper.random,
               zval.random=m$zval.random, pval.random=m$pval.random,
               k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
+              C=m$C,
               sm=sm,
               method=m$method,
               level=level, level.comb=level.comb,
@@ -222,6 +247,7 @@ metaprop <- function(event, n, studlab,
               method.tau=method.tau,
               tau.preset=tau.preset,
               TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              tau.common=tau.common,
               method.bias=method.bias,
               title="", complab="", outclab="",
               call=match.call(),

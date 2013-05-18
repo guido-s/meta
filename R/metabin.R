@@ -15,6 +15,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     label.e="Experimental", label.c="Control",
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
+                    tau.common=FALSE,
                     print.CMH=FALSE,
                     warn=TRUE
                     ){
@@ -61,7 +62,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   event.c <- mf$event.c
   n.c     <- mf$n.c
   ##
-  if (!missing(byvar)){
+  missing.byvar <- missing(byvar)
+  if (!missing.byvar){
     byvar.name <- deparse(substitute(byvar))
     byvar <- mf$byvar
   }
@@ -395,8 +397,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## for inverse variance and Peto method
   ##
   ##
-  if (method == "Inverse" || method=="Peto"){
-    if (method == "Inverse")
+  if (method == "Inverse" || method== "Peto"){
+    if (method == "Inverse"){
+      ## Subgroup analysis with equal tau^2:
+      if (!missing.byvar & tau.common){
+        if (!is.null(tau.preset))
+          warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+        ##
+        sm1 <- summary(metagen(TE, seTE, byvar=byvar,
+                               method.tau=method.tau,
+                               tau.common=tau.common))
+        sQ.w <- sum(sm1$Q.w)
+        sk.w <- sum(sm1$k.w-1)
+        sC.w <- sum(sm1$C.w)
+        ##
+        if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
+        else tau2 <- (sQ.w-sk.w)/sC.w
+        tau.preset <- sqrt(tau2)
+      }
+      ##
       if (!is.null(tau.preset))
         m <- metagen(TE, seTE,
                      hakn=hakn, method.tau=method.tau,
@@ -405,6 +424,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         m <- metagen(TE, seTE,
                      hakn=hakn, method.tau=method.tau,
                      TE.tau=TE.tau)
+    }
     ##
     if (method == "Peto"){
       if (method.tau!="DL"){
@@ -423,6 +443,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         if (warn)
           warning("Argument 'TE.tau' not considered for Peto method")
         TE.tau <- NULL
+      }
+      ##
+      if (tau.common){
+        if (warn)
+          warning("Argument 'tau.common' not considered for Peto method")
+        tau.common <- FALSE
       }
       ##
       if (!is.null(tau.preset)){
@@ -455,6 +481,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     Q <- m$Q
     tau2 <- m$tau^2
     se.tau2 <- m$se.tau2
+    Cval <- m$C
   }
   
   
@@ -477,6 +504,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         warning("Hartung-Knapp method not available for Mantel Haenszel method")
       hakn <- FALSE
     }
+    ##
+    if (!missing.byvar & tau.common)
+      if (warn)
+        warning("Argument 'tau.common' not considered for Mantel Haenszel method")
     ##
     if (!is.null(TE.tau)){
       if (warn)
@@ -572,6 +603,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     Q <- m.MH$Q
     se.tau2 <- m.MH$se.tau2
     tau2 <- m.MH$tau^2
+    Cval <- m.MH$C
   }
   
   
@@ -588,6 +620,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   w.fixed[is.na(w.fixed)] <- 0
   
   
+  if (!missing.byvar & tau.common)
+    tau.preset <- NULL
+  
+  
   res <- list(event.e=event.e, n.e=n.e,
               event.c=event.c, n.c=n.c,
               studlab=studlab,
@@ -601,6 +637,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               lower.random=lower.random, upper.random=upper.random,
               zval.random=zval.random, pval.random=pval.random,
               k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
+              C=Cval,
               Q.CMH=Q.CMH,
               sm=sm, method=method,
               sparse=sparse,
@@ -621,6 +658,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               method.tau=method.tau,
               tau.preset=tau.preset,
               TE.tau=if (!is.null(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              tau.common=tau.common,
               method.bias=method.bias,
               title=title,
               complab=complab,

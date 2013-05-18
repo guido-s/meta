@@ -41,6 +41,9 @@ print.summary.meta <- function(x,
   ##
   if (length(print.CMH)==0)
     print.CMH <- FALSE
+  ##
+  if (length(x$tau.common)==0)
+    x$tau.common <- FALSE
   
   
   TE.fixed    <- x$fixed$TE
@@ -211,7 +214,9 @@ print.summary.meta <- function(x,
     
     ## Print information on summary method:
     ##
-    catmeth(x$method, sm=sm, k.all=x$k.all,
+    catmeth(method=x$method,
+            sm=sm,
+            k.all=x$k.all,
             metaprop=inherits(x, "metaprop"))
   }
   else{
@@ -524,13 +529,14 @@ print.summary.meta <- function(x,
     
     ## Print information on summary method:
     ##
-    catmeth(x$method,
-            if (comb.random) x$method.tau else "",
-            sm,
-            x$k.all,
-            !is.null(x$hakn) && (x$hakn & comb.random),
+    catmeth(method=x$method,
+            method.tau=if (comb.random) x$method.tau else "",
+            sm=sm,
+            k.all=x$k.all,
+            hakn=!is.null(x$hakn) && (x$hakn & comb.random),
             metaprop=inherits(x, "metaprop"),
-            inherits(x, "trimfill"))
+            trimfill=inherits(x, "trimfill"),
+            tau.common=!is.null(x$bylab)&x$tau.common)
   }
   
   invisible(NULL)

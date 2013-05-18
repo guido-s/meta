@@ -11,8 +11,19 @@ metagen <- function(TE, seTE,
                     label.e="Experimental", label.c="Control",
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
+                    tau.common=FALSE,
                     warn=TRUE
                     ){
+  
+  
+  Ccalc <- function(x){
+    res <- (sum(x  , na.rm=TRUE) -
+            sum(x^2, na.rm=TRUE)/
+            sum(x  , na.rm=TRUE))
+    ##
+    res
+  }
+  
   
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
@@ -55,7 +66,8 @@ metagen <- function(TE, seTE,
   TE   <- mf$TE
   seTE <- mf$seTE
   ##
-  if (!missing(byvar)){
+  missing.byvar <- missing(byvar)
+  if (!missing.byvar){
     byvar.name <- deparse(substitute(byvar))
     byvar <- mf$byvar
   }
@@ -154,7 +166,43 @@ metagen <- function(TE, seTE,
     se.tau2 <- NA
   }
   else{
+    ##
+    ## Subgroup analysis with equal tau^2:
+    ##
+    if (!missing.byvar & tau.common){
+      ## print("DuDuDu")
+      ## print(TE)
+      ## print(seTE)
+      ## print(byvar)
+      ## print(method.tau)
+      sm1 <- summary(metagen(TE, seTE,
+                             byvar=byvar,
+                             method.tau=method.tau))
+      sQ.w <- sum(sm1$Q.w)
+      sk.w <- sum(sm1$k.w-1)
+      sC.w <- sum(sm1$C.w)
+      ## print("Q / k / C")
+      ## print(sQ.w)
+      ## print(sk.w)
+      ## print(sC.w)
+      ## print("ACDC")
+      ##
+      if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
+      else tau2 <- (sQ.w-sk.w)/sC.w
+      ##
+      if (!is.null(tau.preset)){
+        warning("Value for argument 'tau.preset' overwritten as argument 'tau.common=TRUE'")
+        tau.preset <- sqrt(tau2)
+      }
+    }
+    ## print("tau.preset")
+    ## print(tau.preset)
+    ## print("DiDiDi")
+    ##
     if (method.tau=="DL" & hakn==FALSE){
+      ## print("DL & hakn")
+      ## print(TE)
+      ## print(seTE)
       ##
       ## Fixed effects estimate
       ## (Cooper & Hedges, 1994, p. 265-6)
@@ -180,13 +228,15 @@ metagen <- function(TE, seTE,
       else
         Q <- sum(w.fixed * (TE - TE.tau  )^2, na.rm=TRUE)
       ##
+      ## Calculate scaling factor C
+      ##
+      Cval <- Ccalc(w.fixed)
+      ##
       ## Calculate between-study heterogeneity tau^2 
       ##
       if (is.null(tau.preset)){
         if (round(Q, digits=18)<=(k-1)) tau2 <- 0
-        else tau2 <- (Q-(k-1))/(sum(w.fixed  , na.rm=TRUE) -
-                                sum(w.fixed^2, na.rm=TRUE)/
-                                sum(w.fixed  , na.rm=TRUE))
+        else tau2 <- (Q-(k-1))/Cval
       }
       else
         tau2 <- tau.preset^2
@@ -209,6 +259,7 @@ metagen <- function(TE, seTE,
       upper.random <- ci.r$upper
     }
     else{
+      ## print("DoDoDo")
       ##
       ## Check whether R package metafor is installed
       ##
@@ -221,6 +272,7 @@ metagen <- function(TE, seTE,
       TE.fixed <- as.numeric(tres.f$b[,1])
       seTE.fixed <- tres.f$se
       w.fixed <- 1 / tres.f$vi
+      Cval <- Ccalc(w.fixed)
       ##
       zval.fixed <- tres.f$zval
       pval.fixed <- tres.f$pval
@@ -255,6 +307,11 @@ metagen <- function(TE, seTE,
     }
   }
   
+  
+  if (!missing.byvar & tau.common)
+    tau.preset <- NULL
+  
+  
   res <- list(TE=TE, seTE=seTE,
               studlab=studlab,
               w.fixed=w.fixed, w.random=w.random,
@@ -265,6 +322,7 @@ metagen <- function(TE, seTE,
               lower.random=lower.random, upper.random=upper.random,
               zval.random=zval.random, pval.random=pval.random,
               k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
+              C=Cval,
               sm=sm, method="Inverse",
               level=level,
               level.comb=level.comb,
@@ -275,6 +333,7 @@ metagen <- function(TE, seTE,
               method.tau=method.tau,
               tau.preset=tau.preset,
               TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
+              tau.common=tau.common,
               method.bias=method.bias,
               n.e=n.e,
               n.c=n.c,

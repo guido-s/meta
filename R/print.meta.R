@@ -256,13 +256,13 @@ print.meta <- function(x,
       
       ## Print information on summary method:
       ##
-      catmeth(x$method,
-              if (is.random) x$method.tau else "",
-              sm,
+      catmeth(method=x$method,
+              method.tau=if (is.random) x$method.tau else "",
+              sm=sm,
               k.all=k.all,
               hakn=is.random & x$hakn,
               metaprop=inherits(x, "metaprop"),
-              inherits(x, "trimfill"))
+              trimfill=inherits(x, "trimfill"))
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

@@ -1,4 +1,5 @@
 *~
+*.bak
 kenscore.o
 meta.so
 src-x86_64
