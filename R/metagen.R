@@ -5,13 +5,14 @@ metagen <- function(TE, seTE,
                     comb.fixed=TRUE, comb.random=TRUE,
                     hakn=FALSE,
                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                    tau.common=FALSE,
+                    prediction=comb.random, level.predict=level,
                     method.bias="linreg",
                     n.e=NULL, n.c=NULL,
                     title="", complab="", outclab="",
                     label.e="Experimental", label.c="Control",
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
-                    tau.common=FALSE,
                     warn=TRUE
                     ){
   
@@ -31,7 +32,7 @@ metagen <- function(TE, seTE,
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- NULL
+  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
   mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- NULL
   mf$method.bias <- mf$n.e <- mf$n.c <- NULL
   mf[[1]] <- as.name("data.frame")
@@ -43,7 +44,7 @@ metagen <- function(TE, seTE,
   mf2$TE <- mf2$seTE <- NULL
   mf2$studlab <- NULL
   mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- NULL
+  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- NULL
   mf2$method.bias <- mf2$n.e <- mf2$n.c <- NULL
   mf2$byvar <- NULL
@@ -112,6 +113,11 @@ metagen <- function(TE, seTE,
     stop("parameter 'level.comb' must be a numeric of length 1")
   if (level.comb <= 0 | level.comb >= 1)
     stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
   
   
   imethod.tau <- charmatch(tolower(method.tau),
@@ -164,28 +170,20 @@ metagen <- function(TE, seTE,
     Q <- NA
     tau2 <- NA
     se.tau2 <- NA
+    ##
+    Cval <- NA
   }
   else{
     ##
     ## Subgroup analysis with equal tau^2:
     ##
     if (!missing.byvar & tau.common){
-      ## print("DuDuDu")
-      ## print(TE)
-      ## print(seTE)
-      ## print(byvar)
-      ## print(method.tau)
       sm1 <- summary(metagen(TE, seTE,
                              byvar=byvar,
                              method.tau=method.tau))
       sQ.w <- sum(sm1$Q.w)
       sk.w <- sum(sm1$k.w-1)
       sC.w <- sum(sm1$C.w)
-      ## print("Q / k / C")
-      ## print(sQ.w)
-      ## print(sk.w)
-      ## print(sC.w)
-      ## print("ACDC")
       ##
       if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
       else tau2 <- (sQ.w-sk.w)/sC.w
@@ -195,14 +193,8 @@ metagen <- function(TE, seTE,
         tau.preset <- sqrt(tau2)
       }
     }
-    ## print("tau.preset")
-    ## print(tau.preset)
-    ## print("DiDiDi")
     ##
     if (method.tau=="DL" & hakn==FALSE){
-      ## print("DL & hakn")
-      ## print(TE)
-      ## print(seTE)
       ##
       ## Fixed effects estimate
       ## (Cooper & Hedges, 1994, p. 265-6)
@@ -259,7 +251,6 @@ metagen <- function(TE, seTE,
       upper.random <- ci.r$upper
     }
     else{
-      ## print("DoDoDo")
       ##
       ## Check whether R package metafor is installed
       ##
@@ -306,6 +297,18 @@ metagen <- function(TE, seTE,
         se.tau2 <- NULL
     }
   }
+
+  if (k>=3){
+    seTE.predict <- sqrt(seTE.fixed^2 + tau2)
+    pi <- ci(TE.random, seTE.predict, level.predict, k-2)
+    p.lower <- pi$lower
+    p.upper <- pi$upper
+  }
+  else{
+    seTE.predict <- NA
+    p.lower <- NA
+    p.upper <- NA
+  }
   
   
   if (!missing.byvar & tau.common)
@@ -315,12 +318,19 @@ metagen <- function(TE, seTE,
   res <- list(TE=TE, seTE=seTE,
               studlab=studlab,
               w.fixed=w.fixed, w.random=w.random,
+              ##
               TE.fixed=TE.fixed, seTE.fixed=seTE.fixed,
               lower.fixed=lower.fixed, upper.fixed=upper.fixed,
               zval.fixed=zval.fixed, pval.fixed=pval.fixed,
+              ##
               TE.random=TE.random, seTE.random=seTE.random,
               lower.random=lower.random, upper.random=upper.random,
               zval.random=zval.random, pval.random=pval.random,
+              ##
+              seTE.predict=seTE.predict,
+              lower.predict=p.lower, upper.predict=p.upper,
+              level.predict=level.predict,
+              ##
               k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
               C=Cval,
               sm=sm, method="Inverse",
@@ -334,6 +344,7 @@ metagen <- function(TE, seTE,
               tau.preset=tau.preset,
               TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
               tau.common=tau.common,
+              prediction=prediction,
               method.bias=method.bias,
               n.e=n.e,
               n.c=n.c,

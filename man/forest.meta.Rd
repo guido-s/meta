@@ -15,8 +15,15 @@
        level=x$level, level.comb=x$level.comb,
        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
        overall=TRUE,
-       text.fixed="Fixed effect model", text.random="Random effects model",
+       text.fixed=if (level!=level.comb) paste("Fixed effect model (",
+        round(level.comb*100), "\%-CI)", sep="") else "Fixed effect model",
+       text.random=if (level!=level.comb) paste("Random effects model (",
+        round(level.comb*100), "\%-CI)", sep="") else "Random effects model",
        lty.fixed=2, lty.random=3,
+       prediction=x$prediction,
+       level.predict=if (length(x$level.predict)==0) level else x$level.predict,
+       text.predict=if (level!=level.predict) paste("Prediction interval (",
+        round(level.predict*100), "\%)", sep="") else "Prediction interval",
        text.fixed.w=text.fixed, text.random.w=text.random,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        xlab="", xlab.pos=ref,
@@ -40,6 +47,7 @@
        col.diamond.lines="black",
        col.diamond.fixed.lines=col.diamond.lines,
        col.diamond.random.lines=col.diamond.lines,
+       col.predict="red", col.predict.lines="black",
        col.by="darkgray",
        print.I2=TRUE, print.tau2=TRUE, print.Q=FALSE, print.pval.Q=TRUE,
        hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
@@ -47,14 +55,14 @@
        hetlab="Heterogeneity: ",
        fontsize=12,
        fs.heading=fontsize,
-       fs.fixed=fontsize, fs.random=fs.fixed, fs.study=fontsize,
-       fs.fixed.labels=fs.fixed, fs.random.labels=fs.random,
+       fs.fixed=fontsize, fs.random=fs.fixed, fs.predict=fs.fixed, fs.study=fontsize,
+       fs.fixed.labels=fs.fixed, fs.random.labels=fs.random, fs.predict.labels=fs.predict,
        fs.study.labels=fs.study, fs.hetstat=fontsize-2,
        fs.axis=fontsize,
        fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
        ff.heading="bold",
-       ff.fixed="bold", ff.random=ff.fixed, ff.study="plain",
-       ff.fixed.labels=ff.fixed, ff.random.labels=ff.random,
+       ff.fixed="bold", ff.random=ff.fixed, ff.predict=ff.fixed, ff.study="plain",
+       ff.fixed.labels=ff.fixed, ff.random.labels=ff.random, ff.predict.labels=ff.predict,
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
        ff.axis="plain",
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
@@ -106,9 +114,15 @@
   \item{text.fixed}{A character string used in the plot to label the
     pooled fixed effect estimate.}
   \item{text.random}{A character string used in the plot to label the
-  pooled random effects estimate.}
+    pooled random effects estimate.}
   \item{lty.fixed}{Line type (pooled fixed effect estimate).}
   \item{lty.random}{Line type (pooled random effects estimate).}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
+  \item{text.predict}{A character string used in the plot to label the
+    prediction interval.}
   \item{text.fixed.w}{A character string to label the pooled fixed
     effect estimate within subgroups, or a character vector of same
     length as number of subgroups with corresponging labels.}
@@ -184,6 +198,8 @@
     for fixed effect estimate.}
   \item{col.diamond.random.lines}{The colour of the outer lines of diamond
     for random effects estimate.}
+  \item{col.predict}{Background colour of prediction interval.}
+  \item{col.predict.lines}{Colour of outer lines of prediction interval.}
   \item{col.by}{The colour to print information on subgroups.}
   \item{print.I2}{A logical value indicating whether to print the value
     of the I-squared statistic.}
@@ -205,9 +221,11 @@
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
   \item{fs.random}{The size of text for results of random effects model, see \code{\link{gpar}}.}
+  \item{fs.predict}{The size of text for results of prediction interval, see \code{\link{gpar}}.}
   \item{fs.study}{The size of text for results of individual studies, see \code{\link{gpar}}.}
   \item{fs.fixed.labels}{The size of text for label of fixed effect model, see \code{\link{gpar}}.}
   \item{fs.random.labels}{The size of text for label of random effects model, see \code{\link{gpar}}.}
+  \item{fs.predict.labels}{The size of text for label of prediction interval, see \code{\link{gpar}}.}
   \item{fs.study.labels}{The size of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
@@ -217,9 +235,11 @@
   \item{ff.heading}{The fontface for column headings, see \code{\link{gpar}}.}
   \item{ff.fixed}{The fontface of text for results of fixed effect model, see \code{\link{gpar}}.}
   \item{ff.random}{The fontface of text for results of random effects model, see \code{\link{gpar}}.}
+  \item{ff.predict}{The fontface of text for results of prediction interval, see \code{\link{gpar}}.}
   \item{ff.study}{The fontface of text for results of individual studies, see \code{\link{gpar}}.}
   \item{ff.fixed.labels}{The fontface of text for label of fixed effect model, see \code{\link{gpar}}.}
   \item{ff.random.labels}{The fontface of text for label of random effects model, see \code{\link{gpar}}.}
+  \item{ff.predict.labels}{The fontface of text for label of prediction interval, see \code{\link{gpar}}.}
   \item{ff.study.labels}{The fontface of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{ff.axis}{The fontface of text on x-axis, see \code{\link{gpar}}.}

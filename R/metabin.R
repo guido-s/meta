@@ -10,12 +10,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     comb.fixed=TRUE, comb.random=TRUE,
                     hakn=FALSE,
                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                    tau.common=FALSE,
                     method.bias=NULL,
                     title="", complab="", outclab="",
                     label.e="Experimental", label.c="Control",
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
-                    tau.common=FALSE,
                     print.CMH=FALSE,
                     warn=TRUE
                     ){
@@ -170,6 +170,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (is.integer(n.e))     n.e     <- as.numeric(n.e)
   if (is.integer(event.c)) event.c <- as.numeric(event.c)
   if (is.integer(n.c))     n.c     <- as.numeric(n.c)
+  
   
   ##
   ##

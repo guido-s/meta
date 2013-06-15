@@ -5,10 +5,11 @@ metacor <- function(cor, n, studlab,
                     comb.fixed=TRUE, comb.random=TRUE,
                     hakn=FALSE,
                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                    tau.common=FALSE,
+                    prediction=comb.random, level.predict=level,
                     method.bias="linreg",
                     title="", complab="", outclab="",
-                    byvar, bylab, print.byvar=TRUE,
-                    tau.common=FALSE
+                    byvar, bylab, print.byvar=TRUE
                     ){
 
 
@@ -18,7 +19,7 @@ metacor <- function(cor, n, studlab,
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- NULL
+  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
   mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
   mf <- eval(mf, data)
@@ -29,7 +30,7 @@ metacor <- function(cor, n, studlab,
   mf2$cor <- mf2$n <- NULL
   mf2$studlab <- NULL
   mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- NULL
+  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
   mf2$byvar <- NULL
   mf2[[1]] <- as.name("data.frame")
@@ -113,11 +114,33 @@ metacor <- function(cor, n, studlab,
   if (!is.null(tau.preset))
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau)
+                 tau.preset=tau.preset, TE.tau=TE.tau,
+                 level=level,
+                 level.comb=level.comb,
+                 prediction=prediction,
+                 level.predict=level.predict)
   else
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
-                 TE.tau=TE.tau)
+                 TE.tau=TE.tau,
+                 level=level,
+                 level.comb=level.comb,
+                 prediction=prediction,
+                 level.predict=level.predict)
+  
+  
+  if (m$k>=3){
+    seTE.predict <- sqrt(m$seTE.fixed^2 + m$tau^2)
+    pi <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
+    p.lower <- pi$lower
+    p.upper <- pi$upper
+  }
+  else{
+    seTE.predict <- NA
+    p.lower <- NA
+    p.upper <- NA
+  }
+  
   
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
@@ -133,6 +156,11 @@ metacor <- function(cor, n, studlab,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
               lower.random=m$lower.random, upper.random=m$upper.random,
               zval.random=m$zval.random, pval.random=m$pval.random,
+              ##
+              seTE.predict=seTE.predict,
+              lower.predict=p.lower, upper.predict=p.upper,
+              level.predict=level.predict,
+              ##
               k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
               C=m$C,
               sm=sm,
@@ -146,6 +174,7 @@ metacor <- function(cor, n, studlab,
               tau.preset=tau.preset,
               TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
               tau.common=tau.common,
+              prediction=prediction,
               method.bias=method.bias,
               title="", complab="", outclab="",
               call=match.call())

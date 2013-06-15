@@ -7,6 +7,8 @@ summary.meta <- function(object,
                          level.comb=object$level.comb,
                          comb.fixed=object$comb.fixed,
                          comb.random=object$comb.random,
+                         prediction=object$prediction,
+                         level.predict=object$level.predict,
                          print.CMH=object$print.CMH,
                          warn=object$warn,
                          ...){
@@ -40,6 +42,10 @@ summary.meta <- function(object,
     comb.random <- TRUE
   }
   ##
+  if (length(prediction)==0){
+    comb.random <- FALSE
+  }
+  ##
   if (length(print.byvar)==0){
     print.byvar <- TRUE
   }
@@ -63,6 +69,12 @@ summary.meta <- function(object,
     if ((comb.fixed | comb.random) & warn)
       warning("level.comb set to 0.95")
     level.comb <- 0.95
+  }
+  ##
+  if (length(level.predict)==0){
+    if (comb.random & warn)
+      warning("level.predict set to 0.95")
+    level.predict <- 0.95
   }
   
   
@@ -99,8 +111,6 @@ summary.meta <- function(object,
   ##
   ## Calculate exact confidence intervals for individual studies
   ##
-  ##print(!(inherits(object, "metainf")|inherits(object, "metacum")) &
-  ##      inherits(object, "metaprop"))
   if (!(inherits(object, "metainf")|inherits(object, "metacum")) &
       inherits(object, "metaprop")){
     for ( i in 1:length(ci.study$TE)){
@@ -143,7 +153,6 @@ summary.meta <- function(object,
     if (object$tau.common){
       if (!is.null(object$tau.preset) & warn)
         warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
-      ##object$tau.preset <- NULL
       object$tau.preset <- object$tau
     }
     
@@ -307,10 +316,24 @@ summary.meta <- function(object,
     ##
     if (bystud) cat("\n")
   }
+
+
+  ## Calculate prediction interval
+  ##
+  if (k>=3){
+    ci.p <- ci(object$TE.random,
+               sqrt(object$seTE.random^2+object$tau^2),
+               level.predict, object$k-2)
+    ci.p$TE <- NA
+  }
+  else
+    ci.p <- list(TE=NA, seTE=NA,
+                 lower=NA, upper=NA, z=NA, p=NA)
   
   
   res <- list(study=ci.study,
               fixed=ci.f, random=ci.r,
+              predict=ci.p,
               k=k, Q=Q, tau=object$tau, H=ci.H, I2=ci.I2,
               k.all=length(object$TE),
               Q.CMH=object$Q.CMH,
@@ -318,7 +341,8 @@ summary.meta <- function(object,
               call=match.call(),
               ci.lab=ci.lab,
               comb.fixed=comb.fixed,
-              comb.random=comb.random)
+              comb.random=comb.random,
+              prediction=prediction)
   
   
   res$se.tau2    <- object$se.tau2
@@ -326,6 +350,7 @@ summary.meta <- function(object,
   res$df.hakn    <- object$df.hakn
   res$method.tau <- object$method.tau
   res$TE.tau     <- object$TE.tau
+  res$C          <- object$C
   
   
   if (length(byvar)>0){

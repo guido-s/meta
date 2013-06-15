@@ -11,12 +11,13 @@
 \usage{
 metaprop(event, n, studlab,
          data = NULL, subset = NULL,
-         sm="PFT", freeman.tukey,
+         sm="PLOGIT",
          incr=0.5, allincr=FALSE, addincr=FALSE,
          level = 0.95, level.comb = level,
          comb.fixed=TRUE, comb.random=TRUE,
          hakn=FALSE,
          method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+         tau.common=FALSE,
          method.bias="linreg",
          title="", complab="", outclab="",
          byvar, bylab, print.byvar=TRUE,
@@ -33,8 +34,6 @@ metaprop(event, n, studlab,
   \item{sm}{A character string indicating which summary measure
     (\code{"PFT"}, \code{"PAS"}, \code{"PRAW"}, \code{"PLN"}, or
     \code{"PLOGIT"}) is to be used for pooling of studies, see Details.}
-  \item{freeman.tukey}{Use of this argument is deprecated, please
-    instead use argument \code{sm}, see Details.}
   \item{incr}{A numeric which is added to each cell frequency for
     studies with a zero cell count.}
   \item{allincr}{A logical indicating if \code{incr} is added to each
@@ -60,7 +59,9 @@ metaprop(event, n, studlab,
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
   \item{TE.tau}{Overall treatment effect used to estimate the
-  between-study variance tau-squared.}
+    between-study variance tau-squared.}
+  \item{tau.common}{A logical indicating whether tau-squared should be
+    the same across subgroups.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated.}
@@ -97,11 +98,9 @@ metaprop(event, n, studlab,
   In older versions of the R package meta (< 1.5.0), only the
   Freeman-Tukey Double arcsine transformation and the arcsine
   transformation were implemented and an argument \code{freeman.tukey}
-  could be used to distinguish between these two methods. The use of the
-  argument \code{freeman.tukey} is deprecated and the argument will
-  probably removed from the function \code{metaprop} in the future. At
-  the moment, a correponding warning message is printed if the argument
-  \code{freeman.tukey} is used.
+  could be used to distinguish between these two methods. Argument
+  \code{freeman.tukey} has been removed from R package meta with
+  version 2.4-0.
   
   If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
   continuity correction is applied if any studies has a zero cell
@@ -157,6 +156,7 @@ metaprop(event, n, studlab,
   \item{level, level.comb,}{As defined above.}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
+  \item{tau.common, title, complab, outclab,}{}
   \item{byvar, bylab, print.byvar, warn}{}
   \item{TE, seTE}{Estimated (un)transformed proportion and its standard
     error for individual studies.}
@@ -178,6 +178,8 @@ metaprop(event, n, studlab,
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
+  \item{se.tau}{Standard error of square-root of between-study variance.}
+  \item{C}{TODO - see Higgins book.}
   \item{sm}{A character string: \code{"proportion"}}
   \item{method}{A character string indicating method used
     for pooling: \code{"Inverse"}}

@@ -22,6 +22,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         comb.fixed=TRUE, comb.random=TRUE,
         hakn=FALSE,
         method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+        tau.common=FALSE,
         method.bias=NULL,
         title="", complab="", outclab="",
         label.e="Experimental", label.c="Control",
@@ -85,6 +86,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
+  \item{tau.common}{A logical indicating whether tau-squared should be
+    the same across subgroups.}
   \item{method.bias}{A character string indicating which test for
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
@@ -199,6 +202,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{allstudies, MH.exact, RR.cochrane, warn,}{}
   \item{level, level.comb, comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
+  \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
   \item{byvar, bylab, print.byvar}{As defined above.}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
@@ -209,24 +213,26 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{lower.fixed, upper.fixed}{Lower and upper confidence interval limits
   (fixed effect model).}
   \item{zval.fixed, pval.fixed}{z-value and p-value for test of
-  overall treatment effect (fixed effect model).}
+    overall treatment effect (fixed effect model).}
   \item{TE.random, seTE.random}{Estimated overall treatment effect and
     standard error (random effects model).}
   \item{lower.random, upper.random}{Lower and upper confidence interval limits
-  (random effects model).}
+    (random effects model).}
   \item{zval.random, pval.random}{z-value or t-value and corresponding
     p-value for test of overall treatment effect (random effects
     model).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
+  \item{se.tau}{Standard error of square-root of between-study variance.}
+  \item{C}{TODO - see Higgins book.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{incr.e, incr.c}{Increment added to cells in the experimental and
     control group, respectively}
   \item{sparse}{Logical flag indicating if any study included in
     meta-analysis has any zero cell frequencies.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn=TRUE}).}
+    Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -236,7 +242,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \emph{The Handbook of Research Synthesis}.
   Newbury Park, CA: Russell Sage Foundation.
 
-  Diamond GA, Bax L, Kaul S (2007,
+  Diamond GA, Bax L, Kaul S (2007),
   Uncertain Effects of Rosiglitazone on the Risk for Myocardial
   Infarction and Cardiovascular Death.
   \emph{Annals of Internal Medicine}, \bold{147}, 578--581.

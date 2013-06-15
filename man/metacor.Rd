@@ -16,6 +16,8 @@ metacor(cor, n, studlab,
         comb.fixed=TRUE, comb.random=TRUE,
         hakn=FALSE,
         method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+        tau.common=FALSE,
+        prediction=comb.random, level.predict=level,
         method.bias="linreg",
         title="", complab="", outclab="",
         byvar, bylab, print.byvar=TRUE
@@ -40,6 +42,10 @@ metacor(cor, n, studlab,
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
   \item{hakn}{A logical indicating whether the method by Hartung and
           Knapp should be used to adjust test statistics and
           confidence intervals.}
@@ -49,7 +55,9 @@ metacor(cor, n, studlab,
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
   \item{TE.tau}{Overall treatment effect used to estimate the
-  between-study variance tau-squared.}
+    between-study variance tau-squared.}
+  \item{tau.common}{A logical indicating whether tau-squared should be
+    the same across subgroups.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated.}
@@ -109,6 +117,10 @@ metacor(cor, n, studlab,
   \code{rma.uni} of R package metafor is called internally. See help
   page of R function \code{rma.uni} for more details on the various
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+
+  A prediction interval for treatment effect of a new study is
+  calculated (Higgins et al., 2009) if argument \code{prediction} is
+  \code{TRUE} (default).
 }
 
 \value{
@@ -119,6 +131,7 @@ metacor(cor, n, studlab,
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
+  \item{tau.common, title, complab, outclab,}{}
   \item{byvar, bylab, print.byvar}{As defined above.}
   \item{TE, seTE}{Either Fisher's z transformation of correlations
     (\code{sm="ZCOR"}) or correlations (\code{sm="COR"}) for individual
@@ -139,9 +152,14 @@ metacor(cor, n, studlab,
   (random effects model).}
   \item{zval.random, pval.random}{z-value or t-value and corresponding
     p-value for test of overall effect (random effects model).}
+  \item{prediction, level.predict}{As defined above.}
+  \item{seTE.predict}{Standard error utilised for prediction interval.}
+  \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
+  \item{se.tau}{Standard error of square-root of between-study variance.}
+  \item{C}{TODO - see Higgins book.}
   \item{method}{A character string indicating method used
     for pooling: \code{"Inverse"}}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
@@ -154,7 +172,12 @@ metacor(cor, n, studlab,
   Cooper H, Hedges LV, Valentine JC (2009),
   \emph{The Handbook of Research Synthesis and Meta-Analysis}, 2nd Edition.
   New York: Russell Sage Foundation.
-
+  
+  Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
+  A re-evaluation of random-effects meta-analysis.
+  \emph{Journal of the Royal Statistical Society: Series A},
+  \bold{172}, 137-159.
+  
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.

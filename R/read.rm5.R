@@ -189,23 +189,6 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   sel.grp   <- tdata$type != "" & diffgrp  != 0 & !sel.comp & !sel.outc
   sel.study <- !sel.comp & !sel.outc & !sel.grp
   ##
-  ##print(data.frame(comp.no=tdata$comp.no,
-  ##                 outcome.no=tdata$outcome.no,
-  ##                 group.no=tdata$group.no,
-  ##                 sel.comp=sel.comp,
-  ##                 sel.outc=sel.outc,
-  ##                 sel.grp=sel.grp,
-  ##                 sel.study=sel.study))
-  ##
-  ##print(names(tdata))
-  ##
-  ##print(cbind(tdata$comp.no, sel.comp,
-  ##            tdata$outcome.no, sel.outc,
-  ##            tdata$group.no, sel.grp,
-  ##            sel.study,
-  ##            substring(tdata$author, 1, 20))
-  ##      )
-  ##
   res <- list(title=title,
               comparison=
               data.frame(comp.no= selvar(tdata$comp.no, sel.comp),

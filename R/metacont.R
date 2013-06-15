@@ -5,12 +5,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      comb.fixed=TRUE, comb.random=TRUE,
                      hakn=FALSE,
                      method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                     tau.common=FALSE,
                      method.bias="linreg",
                      title="", complab="", outclab="",
                      label.e="Experimental", label.c="Control",
                      label.left="", label.right="",
                      byvar, bylab, print.byvar=TRUE,
-                     tau.common=FALSE,
                      warn=TRUE
                      ){
   
@@ -171,7 +171,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
     ##
     sm1 <- summary(metagen(TE, seTE, byvar=byvar,
-                           method.tau=method.tau))
+                           method.tau=method.tau,
+                           tau.common=tau.common))
     sQ.w <- sum(sm1$Q.w)
     sk.w <- sum(sm1$k.w-1)
     sC.w <- sum(sm1$C.w)

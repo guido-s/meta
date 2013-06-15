@@ -12,7 +12,7 @@ export(ci, forest, forest.meta,
        trimfill, trimfill.default, trimfill.meta,
        labbe, labbe.default, labbe.metabin)
 
-# not visible
+# not visible:
 # asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
 # is.installed.metafor, crtitle, catmeth,
 # kentau, hypergeometric, linregcore

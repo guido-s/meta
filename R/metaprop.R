@@ -1,16 +1,15 @@
 metaprop <- function(event, n, studlab,
                      data=NULL, subset=NULL,
-                     sm="PFT",
-                     freeman.tukey,
+                     sm="PLOGIT",
                      incr=0.5, allincr=FALSE, addincr=FALSE,
                      level=0.95, level.comb=level,
                      comb.fixed=TRUE, comb.random=TRUE,
                      hakn=FALSE,
                      method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+                     tau.common=FALSE,
                      method.bias="linreg",
                      title="", complab="", outclab="",
                      byvar, bylab, print.byvar=TRUE,
-                     tau.common=FALSE,
                      warn=TRUE
                      ){
   
@@ -21,7 +20,7 @@ metaprop <- function(event, n, studlab,
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
-  mf$freeman.tukey <- mf$level <- mf$level.comb <- NULL
+  mf$level <- mf$level.comb <- NULL
   mf$incr <- mf$allincr <- mf$addincr <- NULL
   mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
@@ -32,7 +31,7 @@ metaprop <- function(event, n, studlab,
   mf2 <- match.call()
   mf2$event <- mf2$n <- NULL
   mf2$studlab <- NULL
-  mf2$data <- mf2$sm <- mf2$freeman.tukey <- NULL
+  mf2$data <- mf2$sm <- NULL
   mf2$level <- mf2$level.comb <- NULL
   mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
@@ -87,12 +86,6 @@ metaprop <- function(event, n, studlab,
     stop("sm should be \"PFT\", \"PAS\", \"PRAW\", \"PLN\", or \"PLOGIT\"")
   ##
   sm <- c("PFT", "PAS", "PRAW", "PLN", "PLOGIT")[imeth]
-  ##
-  if (!missing(freeman.tukey))
-    warning(paste("Use of parameter freeman.tukey is deprecated.",
-                  "Effect measure used:", sm))
-  ##if (!is.logical(freeman.tukey))
-  ##  stop("Parameter freeman.tukey must be of type 'logical'")
   ##
   if (any(n < 10) & sm=="PFT")
     warning("Sample size very small (below 10) in at least one study. Accordingly, backtransformation for pooled effect may be misleading for Freeman-Tukey transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")

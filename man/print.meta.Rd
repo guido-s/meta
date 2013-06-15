@@ -23,11 +23,13 @@
         bystud=FALSE,
         level=object$level, level.comb=object$level.comb,
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
+        prediction=object$prediction, level.predict=object$level.predict,
         print.CMH=object$print.CMH, warn=object$warn, ...)
 
 \method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
         print.byvar=x$print.byvar,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+        prediction=x$prediction,
         header=TRUE, print.CMH=x$print.CMH, bylab.nchar=35, ...)
 }
 
@@ -45,6 +47,10 @@
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
   \item{header}{A logical indicating whether information on title of
     meta-analysis, comparison and outcome should be printed at the
     beginning of the printout.}
@@ -107,14 +113,16 @@
   A list is returned by the function \code{summary.meta} with the
   following elements:
   \item{study}{Results for individual studies (a list with elements TE,
-    seTE, lower, upper, z, p, level).}
+    seTE, lower, upper, z, p, level, df).}
   \item{fixed}{Results for fixed effect model (a list with elements TE,
-    seTE, lower, upper, z, p, level).}
+    seTE, lower, upper, z, p, level, df).}
   \item{random}{Results for random effects model (a list with elements
-    TE, seTE, lower, upper, z, p, level).}
+    TE, seTE, lower, upper, z, p, level, df).}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
+  \item{se.tau}{Standard error of square-root of between-study variance.}
+  \item{C}{TODO - see Higgins book.}
   \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
@@ -124,24 +132,41 @@
   \item{method}{A character string with the pooling method.}
   \item{call}{Function call.}
   \item{ci.lab}{Label for confidence interval.}
+  \item{hakn}{A logical indicating whether method by Hartung and
+    Knapp was used.}
+  \item{method.tau}{A character string indicating which method is used
+    to estimate the between-study variance tau-squared.}
+  \item{tau.common}{A logical indicating whether tau-squared is
+    assumed to be the same across subgroups.}
   \item{within.fixed}{Result for fixed effect model within groups (a
-    list with elements TE, seTE, lower, upper, z, p, level) - if
-    \code{byvar} is not missing.}
-  \item{within.random}{Result for random effects model within groups (a
-    list with elements TE, seTE, lower, upper, z, p, level) - if
-    \code{byvar} is not missing.}
+    list with elements TE, seTE, lower, upper, z, p, level, df,
+    harmonic.mean) - if \code{byvar} is not missing.}
+  \item{within.random}{Result for random effects model within groups
+    (a list with elements TE, seTE, lower, upper, z, p, level, df,
+    harmonic.mean) - if \code{byvar} is not missing.}
   \item{k.w}{Number of studies combined within groups - if \code{byvar}
+    is not missing.}
+  \item{Q.w}{Heterogeneity statistic Q within groups - if \code{byvar}
     is not missing.}
   \item{Q.b.fixed}{Heterogeneity statistic Q between groups (based on
     fixed effect model) - if \code{byvar} is not missing.}
   \item{Q.b.random}{Heterogeneity statistic Q between groups (based on
     random effects model) - if \code{byvar} is not missing.}
-  \item{Q.w}{Heterogeneity statistic Q within groups - if \code{byvar}
-    is not missing.}
+  \item{tau.w}{Square-root of between-study variance within subgroups
+    - if \code{byvar} is not missing.}
+  \item{C.w}{TODO - see Higgins book}
+  \item{H.w}{Heterogeneity statistic H within subgroups (a list with
+    elements TE, lower, upper) - if \code{byvar} is not missing.}
+  \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with
+    elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{bylab}{Label for grouping variable - if \code{byvar} is not
     missing.}
   \item{by.levs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
+  \item{title}{Title of meta-analysis / systematic review.}
+  \item{complab}{Comparison label.}
+  \item{outclab}{Outcome label.}
+  \item{prediction, level.predict}{}
   \item{comb.fixed, comb.random, print.CMH}{As defined above.}
   \item{version}{Version of R package meta used to create object.}
 }

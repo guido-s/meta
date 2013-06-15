@@ -17,6 +17,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          comb.fixed=TRUE, comb.random=TRUE,
          hakn=FALSE,
          method.tau="DL", tau.preset=NULL, TE.tau=NULL,
+         tau.common=FALSE,
          method.bias="linreg",
          title="", complab="", outclab="",
          label.e="Experimental", label.c="Control",
@@ -52,7 +53,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
   \item{TE.tau}{Overall treatment effect used to estimate the
-  between-study variance tau-squared.}
+    between-study variance tau-squared.}
+  \item{tau.common}{A logical indicating whether tau-squared should be
+    the same across subgroups.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated.}
@@ -135,6 +138,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{studlab, sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
+  \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
   \item{byvar, bylab, print.byvar, warn}{As defined above.}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
@@ -156,6 +160,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic.}
   \item{tau}{Square-root of between-study variance.}
+  \item{se.tau}{Standard error of square-root of between-study variance.}
+  \item{C}{TODO - see Higgins book.}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn=TRUE}).}

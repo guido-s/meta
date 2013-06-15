@@ -5,6 +5,6 @@ Depends: R (>= 2.9.1), grid
 Suggests: metafor
 Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>
-Date: 2013-05-17
+Date: 2013-06-17
 Description: Fixed and random effects meta-analysis. Functions for tests of bias, forest and funnel plot.
 License: GPL (>= 2)

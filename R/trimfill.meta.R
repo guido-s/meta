@@ -120,7 +120,6 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   if (!left) TE <- -TE
   ##
   ord <- order(TE)
-  ##print(data.frame(TE, studlab)[ord,])
   TE <- TE[ord]
   seTE <- seTE[ord]
   studlab <- studlab[ord]
