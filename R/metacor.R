@@ -6,7 +6,7 @@ metacor <- function(cor, n, studlab,
                     hakn=FALSE,
                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
                     tau.common=FALSE,
-                    prediction=comb.random, level.predict=level,
+                    prediction=FALSE, level.predict=level,
                     method.bias="linreg",
                     title="", complab="", outclab="",
                     byvar, bylab, print.byvar=TRUE
@@ -81,7 +81,26 @@ metacor <- function(cor, n, studlab,
   ##
   sm <- c("ZCOR", "COR")[imeth]
   
-
+  
+  ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("parameter 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("parameter 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("parameter 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
+  
+  
   if (sm=="ZCOR"){
     TE   <- 0.5 * log((1 + cor)/(1 - cor))
     seTE <- sqrt(1/(n - 3))
@@ -130,10 +149,10 @@ metacor <- function(cor, n, studlab,
   
   
   if (m$k>=3){
-    seTE.predict <- sqrt(m$seTE.fixed^2 + m$tau^2)
-    pi <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
-    p.lower <- pi$lower
-    p.upper <- pi$upper
+    seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
+    ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
+    p.lower <- ci.p$lower
+    p.upper <- ci.p$upper
   }
   else{
     seTE.predict <- NA
@@ -150,6 +169,7 @@ metacor <- function(cor, n, studlab,
               studlab=studlab,
               TE=TE, seTE=seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
+              ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
               lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
               zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,

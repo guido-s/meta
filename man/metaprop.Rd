@@ -18,6 +18,7 @@ metaprop(event, n, studlab,
          hakn=FALSE,
          method.tau="DL", tau.preset=NULL, TE.tau=NULL,
          tau.common=FALSE,
+         prediction=FALSE, level.predict=level,
          method.bias="linreg",
          title="", complab="", outclab="",
          byvar, bylab, print.byvar=TRUE,
@@ -50,6 +51,10 @@ metaprop(event, n, studlab,
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
   \item{hakn}{A logical indicating whether the method by Hartung and
           Knapp should be used to adjust test statistics and
           confidence intervals.}
@@ -145,6 +150,10 @@ metaprop(event, n, studlab,
   \code{rma.uni} of R package metafor is called internally. See help
   page of R function \code{rma.uni} for more details on the various
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+
+  A prediction interval for treatment effect of a new study is
+  calculated (Higgins et al., 2009) if arguments \code{prediction} and
+  \code{comb.random} are \code{TRUE}.
 }
 
 \value{
@@ -175,11 +184,15 @@ metaprop(event, n, studlab,
   \item{zval.random, pval.random}{z-value or t-value and corresponding
     p-value for test of overall effect (random effects
     model).}
+  \item{prediction, level.predict}{As defined above.}
+  \item{seTE.predict}{Standard error utilised for prediction interval.}
+  \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
-  \item{C}{TODO - see Higgins book.}
+  \item{C}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups.}
   \item{sm}{A character string: \code{"proportion"}}
   \item{method}{A character string indicating method used
     for pooling: \code{"Inverse"}}
@@ -199,6 +212,11 @@ metaprop(event, n, studlab,
   Transformations related to the angular and the square
   root. \emph{Annals of Mathematical Statistics},
   \bold{21}, 607--611.
+  
+  Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
+  A re-evaluation of random-effects meta-analysis.
+  \emph{Journal of the Royal Statistical Society: Series A},
+  \bold{172}, 137-159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single

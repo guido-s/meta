@@ -122,7 +122,8 @@
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
-  \item{C}{TODO - see Higgins book.}
+  \item{C}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups.}
   \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
@@ -154,7 +155,8 @@
     random effects model) - if \code{byvar} is not missing.}
   \item{tau.w}{Square-root of between-study variance within subgroups
     - if \code{byvar} is not missing.}
-  \item{C.w}{TODO - see Higgins book}
+  \item{C.w}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups.}
   \item{H.w}{Heterogeneity statistic H within subgroups (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with

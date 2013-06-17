@@ -6,7 +6,7 @@ metagen <- function(TE, seTE,
                     hakn=FALSE,
                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
                     tau.common=FALSE,
-                    prediction=comb.random, level.predict=level,
+                    prediction=FALSE, level.predict=level,
                     method.bias="linreg",
                     n.e=NULL, n.c=NULL,
                     title="", complab="", outclab="",
@@ -150,6 +150,8 @@ metagen <- function(TE, seTE,
   k <- sum(!is.na(seTE))
 
   
+  tau2 <- NA
+  
   if (k==0){
     TE.fixed <- NA
     seTE.fixed <- NA
@@ -227,8 +229,13 @@ metagen <- function(TE, seTE,
       ## Calculate between-study heterogeneity tau^2 
       ##
       if (is.null(tau.preset)){
-        if (round(Q, digits=18)<=(k-1)) tau2 <- 0
-        else tau2 <- (Q-(k-1))/Cval
+        ##
+        ## Following check is necessary because of argument tau.common
+        ##
+        if (is.na(tau2)){
+          if (round(Q, digits=18)<=(k-1)) tau2 <- 0
+          else tau2 <- (Q-(k-1))/Cval
+        }
       }
       else
         tau2 <- tau.preset^2
@@ -299,10 +306,10 @@ metagen <- function(TE, seTE,
   }
 
   if (k>=3){
-    seTE.predict <- sqrt(seTE.fixed^2 + tau2)
-    pi <- ci(TE.random, seTE.predict, level.predict, k-2)
-    p.lower <- pi$lower
-    p.upper <- pi$upper
+    seTE.predict <- sqrt(seTE.random^2 + tau2)
+    ci.p <- ci(TE.random, seTE.predict, level.predict, k-2)
+    p.lower <- ci.p$lower
+    p.upper <- ci.p$upper
   }
   else{
     seTE.predict <- NA

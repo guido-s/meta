@@ -79,6 +79,25 @@ summary.meta <- function(object,
   
   
   ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("parameter 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("parameter 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("parameter 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
+  
+  
+  ##
   ## Higgins & Thompson (2002), Statistics in Medicine, 21, 1539-58
   ##
   H <- sqrt(Q/(k-1))
@@ -237,6 +256,9 @@ summary.meta <- function(object,
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
                           comb.random=comb.random,
+                          incr=object$incr,
+                          allincr=object$allincr,
+                          addincr=object$addincr,
                           hakn=object$hakn,
                           method.tau=object$method.tau,
                           tau.preset=object$tau.preset, TE.tau=object$TE.tau,

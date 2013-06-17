@@ -1,43 +1,39 @@
 2013-06-17, version 2.4-0
 
-New feature:
-- prediction intervals
-- common tau-squared across subgroups
-- new default summary measure for metaprop
-
-TODO (prediction):
-metabin
-metacont
-metaprop
-metacor
-
-TODO (check tau.common):
-metabin
-metacont
-metaprop
-metacor
-
 Functions metagen, metabin, metacont, metaprop, metacor:
+- new arguments prediction and level.predict
+  (prediction interval for a new study)
 - new argument tau.common (common tau-squared across subgroups)
-- new arguments prediction and level.predict (for a prediction
-  interval)
 - help pages updated accordingly
 
+Function metaprop:
+- new default summary measure (sm="PLOGIT")
+- argument freeman.tukey removed
+
+Function summary.meta:
+- new arguments prediction and level.predict
+  (prediction interval for a new study)
+- new list component tau.common considered internally (for objects of
+  type metagen, metabin, metacont, metaprop, metacor)
+- modified such that correct values for list components incr, allincr,
+  and addincr of metaprop object are considered in calculations
+
 Function forest.meta:
-- modified such that prediction interval is plotted
-- modified such that arguments incr, allincr, and addincr are
-  considered for metaprop objects
+- modified such that prediction interval can be plotted
+  (new arguments: prediction, level.predict, text.predict,
+   col.predict, col.predict.lines, fs.predict, fs.predict.labels,
+   ff.predict, ff.predict.labels)
+- modified such that correct values for list components incr, allincr,
+  and addincr of metaprop object are considered in calculations
 - modified such that information on confidence limits is printed for
   pooled estimates if CI level is different from CI level for
   individual studies
 
-Function metaprop:
-- new default method: sm=PLOGIT
-- argument freeman.tukey removed from function
-
 Function print.summary.meta:
-- modified such that a prediction interval is printed if prediction is
-  TRUE
+- modified such that a prediction interval is printed if argument
+  prediction is TRUE
+- new list component tau.common considered internally (for objects of
+  type metagen, metabin, metacont, metaprop, metacor)
 
 Function catmeth (only used internally):
 - print information if common tau-squared assumed across

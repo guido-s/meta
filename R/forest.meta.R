@@ -185,6 +185,32 @@ forest.meta <- function(x,
       warning("level.comb set to 0.95")
     level.comb <- 0.95
   }
+  ##
+  if (length(level.predict)==0){
+    if (prediction & comb.random)
+      warning("level.predict set to 0.95")
+    level.predict <- 0.95
+  }
+  
+  
+  ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("parameter 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("parameter 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("parameter 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
+  
   
   if (!missing(boxsize))
       warning("Use of parameter 'boxsize' is deprecated, please use parameter 'squaresize' instead")
@@ -264,7 +290,7 @@ forest.meta <- function(x,
         ##
         ## Fixed effect estimates:
         ##
-        res$labels[[4+i]] <- textGrob(y[2+i],
+        res$labels[[4+i]] <- textGrob(y[3+i],
                                       x=xpos, just=just,
                                       gp=
                                       gpar(
@@ -275,7 +301,7 @@ forest.meta <- function(x,
         ##
         ## Random effects estimates:
         ##
-        res$labels[[4+n.by+i]] <- textGrob(y[2+n.by+i],
+        res$labels[[4+n.by+i]] <- textGrob(y[3+n.by+i],
                                            x=xpos, just=just,
                                            gp=
                                            gpar(
@@ -437,7 +463,7 @@ forest.meta <- function(x,
     ##if (!(is.na(low) | is.na(upp)) &&
     ##    ((min <= low & low <= max) |
     ##     (min <= upp & upp <= max)))
-    if (!(is.na(low) & !is.na(upp))){
+    if (!(is.na(low) | is.na(upp))){
       ## Plot prediction interval only within plotting range
       ##if (low < min) low <- min
       ##if (upp > max) upp <- max
@@ -615,12 +641,13 @@ forest.meta <- function(x,
                         min=col$range[1], max=col$range[2],
                         col.diamond=col.diamond[i],
                         col.diamond.lines=col.diamond.lines[i])
-        else if (col$type[i] == "p")
+        else if (col$type[i] == "p"){
           drawPredictionCI(low=col$low[i], upp=col$upp[i],
                            size=col$sizes[i],
                            min=col$range[1], max=col$range[2],
                            col.predict=col.diamond[i],
                            col.predict.lines=col.diamond.lines[i])
+        }
         popViewport()
       }
     }
@@ -1233,8 +1260,7 @@ forest.meta <- function(x,
           uppTE.predict <- x$upper.predict
         }
         else{
-          ci.p <- ci(x$TE.random, x$seTE.predict,
-                     level=level.predict)
+          ci.p <- ci(x$TE.random, x$seTE.predict, level=level.predict, x$k-2)
           lowTE.predict <- ci.p$lower
           uppTE.predict <- ci.p$upper
         }
@@ -1332,6 +1358,8 @@ forest.meta <- function(x,
       ##
       if (inherits(x, "metaprop")){
         m.w <- metaprop(x$event.e[sel], x$n.e[sel], sm=x$sm,
+                        incr=x$incr, allincr=x$allincr,
+                        addincr=x$addincr,
                         hakn=x$hakn, method.tau=x$method.tau,
                         tau.preset=x$tau.preset, TE.tau=x$TE.tau,
                         warn=x$warn)
@@ -1795,10 +1823,10 @@ forest.meta <- function(x,
   ##
   w.fixed.format[sel.fixed] <- "--"
   if (by)
-    w.fixed.format[2+2*n.by+1:n.by] <- ""
+    w.fixed.format[3+2*n.by+1:n.by] <- ""
   w.random.format[sel.random] <- "--"
   if (by)
-    w.random.format[2+2*n.by+1:n.by] <- ""
+    w.random.format[3+2*n.by+1:n.by] <- ""
   ##
   ## Treatment estimate and its standard error
   ##
@@ -2238,7 +2266,7 @@ forest.meta <- function(x,
       ##
       ## Subgroup labels:
       ##
-      col.studlab$labels[[4+i]] <- textGrob(bylab[i],
+      col.studlab$labels[[5+i]] <- textGrob(bylab[i],
                                             x=0, just="left",
                                             gp=
                                             gpar(
@@ -2249,7 +2277,7 @@ forest.meta <- function(x,
       ##
       ## Fixed effect estimates:
       ##
-      col.studlab$labels[[4+n.by+i]] <- textGrob(text.fixed.w[i],
+      col.studlab$labels[[5+n.by+i]] <- textGrob(text.fixed.w[i],
                                                  x=0, just="left",
                                                  gp=
                                                  gpar(
@@ -2260,7 +2288,7 @@ forest.meta <- function(x,
       ##
       ## Random effects estimates:
       ##
-      col.studlab$labels[[4+2*n.by+i]] <- textGrob(text.random.w[i],
+      col.studlab$labels[[5+2*n.by+i]] <- textGrob(text.random.w[i],
                                                    x=0, just="left",
                                                    gp=
                                                    gpar(
@@ -2271,7 +2299,7 @@ forest.meta <- function(x,
       ##
       ## Heterogeneity statistics:
       ##
-      col.studlab$labels[[4+3*n.by+i]] <- textGrob(hetstat.w[i],
+      col.studlab$labels[[5+3*n.by+i]] <- textGrob(hetstat.w[i],
                                                    x=0, just="left",
                                                    gp=
                                                    gpar(
@@ -2328,7 +2356,7 @@ forest.meta <- function(x,
                      ##
                      ## "p" means prediction, "s" means summary, "n" means normal
                      ##
-                     type=c(rep("s", length(TEs)-length(TE)-1), "p", rep("n", length(TE))),
+                     type=c("s", "s", "p", rep("s", length(TEs)-length(TE)-3), rep("n", length(TE))),
                      col=c(rep("", length(TEs)-length(TE)), col.i),
                      col.square=c(rep("", length(TEs)-length(TE)), col.square),
                      col.square.lines=c(rep("", length(TEs)-length(TE)), col.square.lines),

@@ -23,6 +23,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         hakn=FALSE,
         method.tau="DL", tau.preset=NULL, TE.tau=NULL,
         tau.common=FALSE,
+        prediction=FALSE, level.predict=level,
         method.bias=NULL,
         title="", complab="", outclab="",
         label.e="Experimental", label.c="Control",
@@ -76,6 +77,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
   \item{hakn}{A logical indicating whether the method by Hartung and
           Knapp should be used to adjust test statistics and
           confidence intervals.}
@@ -191,6 +196,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \code{rma.uni} of R package metafor is called internally. See help
   page of R function \code{rma.uni} for more details on the various
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+
+  A prediction interval for treatment effect of a new study is
+  calculated (Higgins et al., 2009) if arguments \code{prediction} and
+  \code{comb.random} are \code{TRUE}.
 }
 
 \value{
@@ -221,11 +230,15 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{zval.random, pval.random}{z-value or t-value and corresponding
     p-value for test of overall treatment effect (random effects
     model).}
+  \item{prediction, level.predict}{As defined above.}
+  \item{seTE.predict}{Standard error utilised for prediction interval.}
+  \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
-  \item{C}{TODO - see Higgins book.}
+  \item{C}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{incr.e, incr.c}{Increment added to cells in the experimental and
     control group, respectively}
@@ -263,6 +276,11 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   A Refined Method for the Meta-analysis of Controlled Clinical Trials
   with Binary Outcome.
   \emph{Statistics in Medicine}, \bold{20}, 3875--89.
+  
+  Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
+  A re-evaluation of random-effects meta-analysis.
+  \emph{Journal of the Royal Statistical Society: Series A},
+  \bold{172}, 137-159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single

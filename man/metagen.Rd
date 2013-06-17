@@ -17,7 +17,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         hakn=FALSE,
         method.tau="DL", tau.preset=NULL, TE.tau=NULL,
         tau.common=FALSE,
-        prediction=comb.random, level.predict=level,
+        prediction=FALSE, level.predict=level,
         method.bias="linreg",
         n.e=NULL, n.c=NULL,
         title="", complab="", outclab="",
@@ -125,8 +125,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
 
   A prediction interval for treatment effect of a new study is
-  calculated (Higgins et al., 2009) if argument \code{prediction} is
-  \code{TRUE} (default).
+  calculated (Higgins et al., 2009) if arguments \code{prediction} and
+  \code{comb.random} are \code{TRUE}.
 }
 
 \value{
@@ -162,7 +162,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{Q}{Heterogeneity statistic.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
-  \item{C}{TODO - see Higgins book.}
+  \item{C}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups.}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}

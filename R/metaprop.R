@@ -7,6 +7,7 @@ metaprop <- function(event, n, studlab,
                      hakn=FALSE,
                      method.tau="DL", tau.preset=NULL, TE.tau=NULL,
                      tau.common=FALSE,
+                     prediction=FALSE, level.predict=level,
                      method.bias="linreg",
                      title="", complab="", outclab="",
                      byvar, bylab, print.byvar=TRUE,
@@ -20,7 +21,7 @@ metaprop <- function(event, n, studlab,
   ##
   mf <- match.call()
   mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- NULL
+  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
   mf$incr <- mf$allincr <- mf$addincr <- NULL
   mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
   mf[[1]] <- as.name("data.frame")
@@ -32,7 +33,7 @@ metaprop <- function(event, n, studlab,
   mf2$event <- mf2$n <- NULL
   mf2$studlab <- NULL
   mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- NULL
+  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
   mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
   mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
   mf2$byvar <- NULL
@@ -103,6 +104,11 @@ metaprop <- function(event, n, studlab,
     stop("parameter 'level.comb' must be a numeric of length 1")
   if (level.comb <= 0 | level.comb >= 1)
     stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
   
   
   ##
@@ -208,11 +214,33 @@ metaprop <- function(event, n, studlab,
   if (!is.null(tau.preset))
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau)
+                 tau.preset=tau.preset, TE.tau=TE.tau,
+                 level=level,
+                 level.comb=level.comb,
+                 prediction=prediction,
+                 level.predict=level.predict)
   else
     m <- metagen(TE, seTE,
                  hakn=hakn, method.tau=method.tau,
-                 TE.tau=TE.tau)
+                 TE.tau=TE.tau,
+                 level=level,
+                 level.comb=level.comb,
+                 prediction=prediction,
+                 level.predict=level.predict)
+  
+  
+  if (m$k>=3){
+    seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
+    ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
+    p.lower <- ci.p$lower
+    p.upper <- ci.p$upper
+  }
+  else{
+    seTE.predict <- NA
+    p.lower <- NA
+    p.upper <- NA
+  }
+  
   
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
@@ -222,12 +250,18 @@ metaprop <- function(event, n, studlab,
               studlab=studlab,
               TE=TE, seTE=seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
+              ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
               lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
               zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
               lower.random=m$lower.random, upper.random=m$upper.random,
               zval.random=m$zval.random, pval.random=m$pval.random,
+              ##
+              seTE.predict=seTE.predict,
+              lower.predict=p.lower, upper.predict=p.upper,
+              level.predict=level.predict,
+              ##
               k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
               C=m$C,
               sm=sm,
@@ -241,6 +275,7 @@ metaprop <- function(event, n, studlab,
               tau.preset=tau.preset,
               TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
               tau.common=tau.common,
+              prediction=prediction,
               method.bias=method.bias,
               title="", complab="", outclab="",
               call=match.call(),
