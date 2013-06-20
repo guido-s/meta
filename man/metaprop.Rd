@@ -246,7 +246,9 @@ metaprop(4:1, c(10, 20, 30, 40))
 metaprop(4:1, c(10, 20, 30, 40), sm="PAS")
 metaprop(4:1, c(10, 20, 30, 40), sm="PRAW")
 metaprop(4:1, c(10, 20, 30, 40), sm="PLN")
-metaprop(4:1, c(10, 20, 30, 40), sm="PLOGIT")
+metaprop(4:1, c(10, 20, 30, 40), sm="PFT")
+
+forest(metaprop(4:1, c(10, 20, 30, 40)))
 }
 
 \keyword{htest}

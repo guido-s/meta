@@ -50,7 +50,7 @@ print.summary.meta <- function(x,
     x$tau.common <- FALSE
   
   
-  prediction <- prediction & k>=3
+  prediction <- prediction & comb.random & k>=3
   
   
   TE.fixed    <- x$fixed$TE
@@ -100,45 +100,71 @@ print.summary.meta <- function(x,
     }
   }
   else if (sm=="PFT"){
-    TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n), value="mean")
-    lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n), value="lower")
-    uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n), value="upper")
+    TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n),
+                          value="mean", warn=comb.fixed)
+    lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n),
+                          value="lower", warn=comb.fixed)
+    uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n),
+                          value="upper", warn=comb.fixed)
     ##
-    TE.random    <- asin2p(TE.random, 1/mean(1/x$n), value="mean")
-    lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n), value="lower")
-    uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n), value="upper")
+    TE.random    <- asin2p(TE.random, 1/mean(1/x$n),
+                           value="mean", warn=comb.random)
+    lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n)
+                           , value="lower", warn=comb.random)
+    uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n),
+                           value="upper", warn=comb.random)
     ##
-    lowTE.predict <- NA # asin2p(lowTE.predict, 1/mean(1/x$n), value="lower")
-    uppTE.predict <- NA # asin2p(uppTE.predict, 1/mean(1/x$n), value="upper")
+    lowTE.predict <- NA # asin2p(lowTE.predict, 1/mean(1/x$n), value="lower", warn=prediction)
+    uppTE.predict <- NA # asin2p(uppTE.predict, 1/mean(1/x$n), value="upper", warn=prediction)
     ##
     if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w, value="mean")
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w, value="lower")
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, 1/harmonic.mean.fixed.w, value="upper")
-      TE.random.w    <- asin2p(TE.random.w, 1/harmonic.mean.random.w, value="mean")
-      lowTE.random.w <- asin2p(lowTE.random.w, 1/harmonic.mean.random.w, value="lower")
-      uppTE.random.w <- asin2p(uppTE.random.w, 1/harmonic.mean.random.w, value="upper")
+      TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w,
+                               value="mean", warn=comb.fixed)
+      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w,
+                               value="lower", warn=comb.fixed)
+      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, 1/harmonic.mean.fixed.w,
+                               value="upper", warn=comb.fixed)
+      TE.random.w    <- asin2p(TE.random.w, 1/harmonic.mean.random.w,
+                               value="mean", warn=comb.random)
+      lowTE.random.w <- asin2p(lowTE.random.w, 1/harmonic.mean.random.w,
+                               value="lower", warn=comb.random)
+      uppTE.random.w <- asin2p(uppTE.random.w, 1/harmonic.mean.random.w,
+                               value="upper", warn=comb.random)
     }
   }
   else if (sm=="PAS"){
-    TE.fixed    <- asin2p(TE.fixed, value="mean")
-    lowTE.fixed <- asin2p(lowTE.fixed, value="lower")
-    uppTE.fixed <- asin2p(uppTE.fixed, value="upper")
+    TE.fixed    <- asin2p(TE.fixed, value="mean",
+                          warn=comb.fixed)
+    lowTE.fixed <- asin2p(lowTE.fixed, value="lower",
+                          warn=comb.fixed)
+    uppTE.fixed <- asin2p(uppTE.fixed, value="upper",
+                          warn=comb.fixed)
     ##
-    TE.random    <- asin2p(TE.random, value="mean")
-    lowTE.random <- asin2p(lowTE.random, value="lower")
-    uppTE.random <- asin2p(uppTE.random, value="upper")
+    TE.random    <- asin2p(TE.random, value="mean",
+                           warn=comb.random)
+    lowTE.random <- asin2p(lowTE.random, value="lower",
+                           warn=comb.random)
+    uppTE.random <- asin2p(uppTE.random, value="upper",
+                           warn=comb.random)
     ##
-    lowTE.predict <- asin2p(lowTE.predict, value="lower")
-    uppTE.predict <- asin2p(uppTE.predict, value="upper")
+    lowTE.predict <- asin2p(lowTE.predict, value="lower",
+                            warn=prediction)
+    uppTE.predict <- asin2p(uppTE.predict, value="upper",
+                            warn=prediction)
     ##
     if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w, value="mean")
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, value="lower")
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, value="upper")
-      TE.random.w    <- asin2p(TE.random.w, value="mean")
-      lowTE.random.w <- asin2p(lowTE.random.w, value="lower")
-      uppTE.random.w <- asin2p(uppTE.random.w, value="upper")
+      TE.fixed.w     <- asin2p(TE.fixed.w, value="mean",
+                               warn=comb.fixed)
+      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, value="lower",
+                               warn=comb.fixed)
+      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, value="upper",
+                               warn=comb.fixed)
+      TE.random.w    <- asin2p(TE.random.w, value="mean",
+                               warn=comb.random)
+      lowTE.random.w <- asin2p(lowTE.random.w, value="lower",
+                               warn=comb.random)
+      uppTE.random.w <- asin2p(uppTE.random.w, value="upper",
+                               warn=comb.random)
     }
   }
   else if (sm=="PLOGIT"){
@@ -258,19 +284,19 @@ print.summary.meta <- function(x,
       
       res <- cbind(format(c(if (comb.fixed) TE.fixed,
                             if (comb.random) TE.random,
-                            if (comb.random & prediction) NA)),
+                            if (prediction) NA)),
                    p.ci(format(c(if (comb.fixed) lowTE.fixed,
                                  if (comb.random) lowTE.random,
-                                 if (comb.random & prediction) lowTE.predict)),
+                                 if (prediction) lowTE.predict)),
                         format(c(if (comb.fixed) uppTE.fixed,
                                  if (comb.random) uppTE.random,
-                                 if (comb.random & prediction) uppTE.predict))),
+                                 if (prediction) uppTE.predict))),
                    format(round(c(if (comb.fixed) zTE.fixed,
                                   if (comb.random) zTE.random,
-                                  if (comb.random & prediction) NA),4)),
+                                  if (prediction) NA),4)),
                    format.p(c(if (comb.fixed) pTE.fixed,
                               if (comb.random) pTE.random,
-                              if (comb.random & prediction) NA)))
+                              if (prediction) NA)))
       
       if (prediction)
         res[dim(res)[1], c(1,3:4)] <- ""
@@ -289,7 +315,7 @@ print.summary.meta <- function(x,
       
       dimnames(res) <- list(c(if (comb.fixed) "Fixed effect model",
                               if (comb.random) "Random effects model",
-                              if (comb.random & prediction) "Prediction interval"),  
+                              if (prediction) "Prediction interval"),  
                             c(sm.lab, x$ci.lab, zlab, "p.value"))
       
       prmatrix(res, quote=FALSE, right=TRUE, ...)

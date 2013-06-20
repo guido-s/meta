@@ -2,6 +2,7 @@ print.meta <- function(x,
                        sortvar,
                        level=x$level, level.comb=x$level.comb,
                        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+                       prediction=x$prediction, level.predict=x$level.predict,
                        details=FALSE, ma=TRUE,
                        digits=max(4, .Options$digits - 3),
                        ...
@@ -65,6 +66,11 @@ print.meta <- function(x,
   if (length(comb.random)==0){
     comb.random <- TRUE
   }
+  ##
+  if (length(prediction)==0)
+    prediction <- FALSE
+  ##  
+  prediction <- prediction & comb.random & x$k>=3
   
   
   if (length(level)==0){
@@ -76,6 +82,12 @@ print.meta <- function(x,
     if (comb.fixed | comb.random)
       warning("level.comb set to 0.95")
     level.comb <- 0.95
+  }
+  ##
+  if (length(level.predict)==0){
+    if (prediction)
+      warning("level.predict set to 0.95")
+    level.predict <- 0.95
   }
   
   
@@ -151,7 +163,8 @@ print.meta <- function(x,
       uppTE <- x$upper
     }
     else{
-      tsum <- summary(x, level=level, level.comb=level.comb, warn=FALSE)
+      tsum <- summary(x, level=level, level.comb=level.comb,
+                      level.predict=level.predict, warn=FALSE)
       ##
       TE    <- tsum$study$TE
       lowTE <- tsum$study$lower
@@ -295,6 +308,7 @@ print.meta <- function(x,
     if (ma&!(inherits(x, "metainf")|inherits(x, "metacum")))
       print(tsum, digits=digits,
             comb.fixed=comb.fixed, comb.random=comb.random,
+            prediction=prediction,
             header=FALSE)
     
     }

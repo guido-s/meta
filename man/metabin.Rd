@@ -340,5 +340,6 @@ meta2 <- metabin(event.e, n.e, event.c, n.c,
                  data=Olkin95, subset=Olkin95$year<1970,
                  sm="RR", method="I")
 summary(meta2)
+forest(meta2)
 }
 \keyword{htest}

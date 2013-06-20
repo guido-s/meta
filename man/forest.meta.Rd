@@ -346,6 +346,23 @@
   situations with (very) low proportions. For \code{pscale=100}, column
   heading and x-axis label are changed to "Prop (in \%)" and "Proportion
   (in \%"), respectively.
+
+  A prediction interval for treatment effect of a new study (Higgins
+  et al., 2009) is given in the forest plot if arguments
+  \code{prediction} and \code{comb.random} are \code{TRUE}. For
+  graphical presentation of prediction intervals the approach by
+  Guddat et al. (2012) is used.
+}
+
+\references{
+  Guddat C, Grouven U, Bender R, Skipka G 2012), A note on the
+  graphical presentation of prediction intervals in random-effects
+  meta-analyses.  \emph{Systematic Reviews}, \bold{1}, 34.
+
+  Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
+  A re-evaluation of random-effects meta-analysis.
+  \emph{Journal of the Royal Statistical Society: Series A},
+  \bold{172}, 137-159.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -370,6 +387,12 @@ forest(meta1)
 ## Forest plot specifying argument xlim
 ##
 forest(meta1, xlim=c(0.01, 10))
+
+
+##
+## Add prediction interval to forest plot
+##
+forest(meta1, prediction=TRUE)
 
 
 ##

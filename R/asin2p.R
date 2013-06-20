@@ -1,4 +1,4 @@
-asin2p <- function(x, n=NULL, value="mean"){
+asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
   
   ##
   ## Do nothing if all values are NA
@@ -29,42 +29,46 @@ asin2p <- function(x, n=NULL, value="mean"){
   ##
   if (any(sel0[!is.na(sel0)])){
     if (is.null(n)){
-      warning("Negative value for ",
-              if (length(x)>1) "at least one ",
-              if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 0.",
-              if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 0.",
-              if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 0.",
-              sep="")
+      if (warn)
+        warning("Negative value for ",
+                if (length(x)>1) "at least one ",
+                if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 0.",
+                if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 0.",
+                if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 0.",
+                sep="")
     }
     else{
-      warning("Too small value for ",
-              if (length(x)>1) "at least one ",
-              if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 0.",
-              if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 0.",
-              if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 0.",
-              sep="")
+      if (warn)
+        warning("Too small value for ",
+                if (length(x)>1) "at least one ",
+                if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 0.",
+                if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 0.",
+                if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 0.",
+                sep="")
     }
   }
-
+  
   ##
   ## Check for (impossible) large values
   ##
   if (any(sel1[!is.na(sel1)])){
     if (is.null(n)){
-      warning("Too large value for ",
-              if (length(x)>1) "at least one ",
-              if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 1.",
-              if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 1.",
-              if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 1.",
-              sep="")
+      if (warn)
+        warning("Too large value for ",
+                if (length(x)>1) "at least one ",
+                if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 1.",
+                if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 1.",
+                if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 1.",
+                sep="")
     }
     else{
-      warning("Too large value for ",
-              if (length(x)>1) "at least one ",
-              if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 1.",
-              if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 1.",
-              if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 1.",
-              sep="")
+      if (warn)
+        warning("Too large value for ",
+                if (length(x)>1) "at least one ",
+                if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 1.",
+                if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 1.",
+                if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 1.",
+                sep="")
     }
   }
   

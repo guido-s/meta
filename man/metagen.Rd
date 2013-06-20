@@ -207,6 +207,8 @@ meta1
 meta1
 metagen(meta1$TE, meta1$seTE, sm="RR")
 
+forest(metagen(meta1$TE, meta1$seTE, sm="RR"))
+
 
 ##
 ## Meta-analysis of survival data:

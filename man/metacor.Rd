@@ -196,6 +196,8 @@ metacor(cor, n, studlab,
 
 \examples{
 metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
+forest(metacor(c(0.85, 0.7, 0.95), c(20, 40, 10)))
+
 metacor(c(0.85, 0.7, 0.95), c(20, 40, 10), sm="cor")
 }
 

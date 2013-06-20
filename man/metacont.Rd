@@ -217,6 +217,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 data(Fleiss93cont)
 meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="SMD")
 meta1
+forest(meta1)
 
 meta2 <- metacont(Fleiss93cont$n.e, Fleiss93cont$mean.e,
                   Fleiss93cont$sd.e,

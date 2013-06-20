@@ -160,8 +160,6 @@ forest.meta <- function(x,
   if (length(prediction)==0){
     prediction <- FALSE
   }
-  if (x$k < 3)
-    prediction <- FALSE
   ##
   if (length(print.byvar)==0){
     print.byvar <- TRUE
@@ -175,6 +173,8 @@ forest.meta <- function(x,
     lab.c <- "Control"
   }
   
+  prediction <- prediction & comb.random & x$k>=3
+  
   if (length(level)==0){
     warning("level set to 0.95")
     level <- 0.95
@@ -187,7 +187,7 @@ forest.meta <- function(x,
   }
   ##
   if (length(level.predict)==0){
-    if (prediction & comb.random)
+    if (prediction)
       warning("level.predict set to 0.95")
     level.predict <- 0.95
   }
@@ -1528,53 +1528,79 @@ forest.meta <- function(x,
     }
     ##
     if (x$sm=="PAS"){
-      TE.fixed    <- pscale*asin2p(TE.fixed, value="mean")
-      lowTE.fixed <- pscale*asin2p(lowTE.fixed, value="lower")
-      uppTE.fixed <- pscale*asin2p(uppTE.fixed, value="upper")
+      TE.fixed    <- pscale*asin2p(TE.fixed, value="mean",
+                                   warn=comb.fixed)
+      lowTE.fixed <- pscale*asin2p(lowTE.fixed, value="lower",
+                                   warn=comb.fixed)
+      uppTE.fixed <- pscale*asin2p(uppTE.fixed, value="upper",
+                                   warn=comb.fixed)
       ##
-      TE.random    <- pscale*asin2p(TE.random, value="mean")
-      lowTE.random <- pscale*asin2p(lowTE.random, value="lower")
-      uppTE.random <- pscale*asin2p(uppTE.random, value="upper")
+      TE.random    <- pscale*asin2p(TE.random, value="mean",
+                                    warn=comb.random)
+      lowTE.random <- pscale*asin2p(lowTE.random, value="lower",
+                                    warn=comb.random)
+      uppTE.random <- pscale*asin2p(uppTE.random, value="upper",
+                                    warn=comb.random)
       ##
-      lowTE.predict <- pscale*asin2p(lowTE.predict, value="lower")
-      uppTE.predict <- pscale*asin2p(uppTE.predict, value="upper")
+      lowTE.predict <- pscale*asin2p(lowTE.predict, value="lower",
+                                     warn=prediction)
+      uppTE.predict <- pscale*asin2p(uppTE.predict, value="upper",
+                                     warn=prediction)
       ##
       if (by){
-        TE.w    <- pscale*asin2p(TE.w, value="mean")
-        lowTE.w <- pscale*asin2p(lowTE.w, value="lower")
-        uppTE.w <- pscale*asin2p(uppTE.w, value="upper")
+        TE.w    <- pscale*asin2p(TE.w, value="mean",
+                                 warn=comb.fixed|comb.random)
+        lowTE.w <- pscale*asin2p(lowTE.w, value="lower",
+                                 warn=comb.fixed|comb.random)
+        uppTE.w <- pscale*asin2p(uppTE.w, value="upper",
+                                 warn=comb.fixed|comb.random)
       }
     }
     ##
     if (x$sm=="PFT"){
       if (inherits(x, "metainf")|inherits(x, "metacum")){
-        TE.fixed    <- pscale*asin2p(TE.fixed, x$n.harmonic.mean.fixed, value="mean")
-        lowTE.fixed <- pscale*asin2p(lowTE.fixed, x$n.harmonic.mean.fixed, value="lower")
-        uppTE.fixed <- pscale*asin2p(uppTE.fixed, x$n.harmonic.mean.fixed, value="upper")
+        TE.fixed    <- pscale*asin2p(TE.fixed, x$n.harmonic.mean.fixed,
+                                     value="mean", warn=comb.fixed)
+        lowTE.fixed <- pscale*asin2p(lowTE.fixed, x$n.harmonic.mean.fixed,
+                                     value="lower", warn=comb.fixed)
+        uppTE.fixed <- pscale*asin2p(uppTE.fixed, x$n.harmonic.mean.fixed,
+                                     value="upper", warn=comb.fixed)
         ##
-        TE.random    <- pscale*asin2p(TE.random, x$n.harmonic.mean.random, value="mean")
-        lowTE.random <- pscale*asin2p(lowTE.random, x$n.harmonic.mean.random, value="lower")
-        uppTE.random <- pscale*asin2p(uppTE.random, x$n.harmonic.mean.random, value="upper")
+        TE.random    <- pscale*asin2p(TE.random, x$n.harmonic.mean.random,
+                                      value="mean", warn=comb.random)
+        lowTE.random <- pscale*asin2p(lowTE.random, x$n.harmonic.mean.random,
+                                      value="lower", warn=comb.random)
+        uppTE.random <- pscale*asin2p(uppTE.random, x$n.harmonic.mean.random,
+                                      value="upper", warn=comb.random)
         ##
         lowTE.predict <- NA
         uppTE.predict <- NA
       }
       else{
-        TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n), value="mean")
-        lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n), value="lower")
-        uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n), value="upper")
+        TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n),
+                                     value="mean", warn=comb.fixed)
+        lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n),
+                                     value="lower", warn=comb.fixed)
+        uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n),
+                                     value="upper", warn=comb.fixed)
         ##
-        TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n), value="mean")
-        lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n), value="lower")
-        uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n), value="upper")
+        TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n),
+                                      value="mean", warn=comb.random)
+        lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n),
+                                      value="lower", warn=comb.random)
+        uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n),
+                                      value="upper", warn=comb.random)
         ##
         lowTE.predict <- NA
         uppTE.predict <- NA
         ##
         if (by){
-          TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w, value="mean")
-          lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w, value="lower")
-          uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w, value="upper")
+          TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w,
+                                   value="mean", warn=comb.fixed|comb.random)
+          lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w,
+                                   value="lower", warn=comb.fixed|comb.random)
+          uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w,
+                                   value="upper", warn=comb.fixed|comb.random)
         }
       }
     }

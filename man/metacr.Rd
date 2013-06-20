@@ -97,6 +97,8 @@ metacr(Fleiss93_CR)
 ## Same result as R command example(Fleiss93cont):
 ##
 metacr(Fleiss93_CR, 1, 2)
+
+forest(metacr(Fleiss93_CR, 1, 2))
 }
 
 \keyword{htest}

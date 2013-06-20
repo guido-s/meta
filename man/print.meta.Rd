@@ -14,6 +14,7 @@
 \usage{
 \method{print}{meta}(x, sortvar, level=x$level, level.comb=x$level.comb,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+        prediction=x$prediction, level.predict=x$level.predict,
         details=FALSE, ma=TRUE, digits=max(4, .Options$digits - 3), ...)
 
 \method{print}{metabias}(x, ...)

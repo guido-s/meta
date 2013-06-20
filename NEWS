@@ -1,3 +1,35 @@
+2013-06-20, version 2.4-1
+
+Functions metaprop:
+- bug fix so that call of forest.meta function with metaprop object
+  does not result in an error message (bug was introduced with meta,
+  version 2.4-0)
+- new list components incr, allincr, addincr added to metaprop R
+  object (should have been part of exported list since meta version
+  1.5-0)
+
+Functions print.meta:
+- new arguments prediction and level.predict to print prediction
+  interval for a new study
+
+Functions print.summary.meta:
+- call of internal function asin2p using argument warn to only print
+  warnings if result for fixed effect, random effects model or
+  prediction interval are printed
+
+Functions forest.meta:
+- call of internal function asin2p using argument warn to only print
+  warnings if result for fixed effect, random effects model or
+  prediction interval are plotted
+
+Function asin2p (used internally for metaprop objects):
+- new argument warn to only print a warning in certain situations
+  (see comments on functions print.meta and forest.meta)
+
+Help pages metabin, metacont, metacor, metacr, metagen, metaprop:
+- Example to generate forest plot added
+
+
 2013-06-17, version 2.4-0
 
 Functions metagen, metabin, metacont, metaprop, metacor:
