@@ -5,6 +5,7 @@ print.summary.meta <- function(x,
                                comb.random=x$comb.random,
                                prediction=x$prediction,
                                header=TRUE,
+                               logscale=FALSE,
                                print.CMH=x$print.CMH,
                                bylab.nchar=35,
                                ...){
@@ -25,8 +26,12 @@ print.summary.meta <- function(x,
   
   if (sm=="ZCOR")
     sm.lab <- "COR"
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+  else if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT"))
     sm.lab <- "proportion"
+  else if (!logscale & sm == "PLN")
+    sm.lab <- "proportion"
+  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR"))
+    sm.lab <- paste("log", sm, sep="")
   else
     sm.lab <- sm
   
@@ -51,7 +56,6 @@ print.summary.meta <- function(x,
   
   
   prediction <- prediction & comb.random & k>=3
-  
   
   TE.fixed    <- x$fixed$TE
   lowTE.fixed <- x$fixed$lower
@@ -78,7 +82,7 @@ print.summary.meta <- function(x,
   }
   
   
-  if (sm == "RR" | sm == "OR" | sm == "HR" | sm=="PLN"){
+  if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm=="PLN")){
     TE.fixed    <- exp(TE.fixed)
     lowTE.fixed <- exp(lowTE.fixed)
     uppTE.fixed <- exp(uppTE.fixed)

@@ -1,8 +1,12 @@
 metacr <- function(x, comp.no=1, outcome.no=1,
-                   sm, method, comb.fixed, comb.random,
-                   swap.events, logscale,
-                   method.tau="DL",
+                   method, sm,
+                   level=0.95, level.comb=level,
+                   comb.fixed, comb.random,
                    hakn=FALSE,
+                   method.tau="DL",
+                   tau.common=FALSE,
+                   prediction=FALSE, level.predict=level,
+                   swap.events, logscale,
                    title, complab, outclab,
                    warn=FALSE){
   ##
@@ -39,14 +43,50 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   if (missing(sm))
     sm <- unique(x$sm[sel])
   ##
-  if (missing(method))
+  if (missing(method)){
     method <- unique(x$method[sel])
+  }
+  else{
+    imeth <- charmatch(tolower(method),
+                       c("inverse", "mh", "peto"), nomatch = NA)
+    ##
+    if(is.na(imeth))
+      stop("method should be \"Inverse\", \"MH\", or \"Peto\"")
+    ##
+    method <- c("Inverse", "MH", "Peto")[imeth]
+  }
   ##
   if (missing(comb.fixed))
     comb.fixed  <- unique(x$comb.fixed[sel])
   ##
   if (missing(comb.random))
     comb.random <- unique(x$comb.random[sel])
+  
+  
+  ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("parameter 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("parameter 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("parameter 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
+  
+  
+  if (tau.common & method=="Peto"){
+    if (warn)
+      warning("Argument 'tau.common' not considered for Peto method")
+    tau.common <- FALSE
+  }
   
   
   if (!all(is.na(x$logscale[sel]))){
@@ -63,84 +103,195 @@ metacr <- function(x, comp.no=1, outcome.no=1,
         warning("Assuming that values for 'TE' are on log scale. Please use argument 'logscale=FALSE' if values are on natural scale.")
   }
   
-  ##
-  if (type=="D"){
-    ##
-    if (missing(swap.events))
-      swap.events <- unique(x$swap.events[sel])
-    if (!is.na(swap.events) && swap.events){
-      event.e  <- x$n.e[sel] - x$event.e[sel]
-      event.c  <- x$n.c[sel] - x$event.c[sel]
-    }
-    else{
-      event.e <- x$event.e[sel]
-      event.c <- x$event.c[sel]
-    }
-    m1 <- metabin(event.e, x$n.e[sel], event.c, x$n.c[sel],
-                  sm=sm, method=method, studlab=x$studlab[sel],
-                  comb.fixed=comb.fixed, comb.random=comb.random,
-                  method.tau=method.tau, hakn=hakn,
-                  title=title,
-                  complab=complab, outclab=outclab,
-                  label.e=label.e, label.c=label.c,
-                  label.left=label.left, label.right=label.right,
-                  RR.cochrane=TRUE, warn=warn)
-  }
-  ##
-  if (type=="C")
-    m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
-                   x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
-                   sm=sm, studlab=x$studlab[sel],
-                   comb.fixed=comb.fixed, comb.random=comb.random,
-                   method.tau=method.tau, hakn=hakn,
-                   title=title,
-                   complab=complab, outclab=outclab,
-                   label.e=label.e, label.c=label.c,
-                   label.left=label.left, label.right=label.right)
-  ##
-  if (type=="P")
-    m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                  sm=sm, studlab=x$studlab[sel],
-                  comb.fixed=comb.fixed, comb.random=comb.random,
-                  method.tau=method.tau, hakn=hakn,
-                  title=title,
-                  complab=complab, outclab=outclab,
-                  label.e=label.e, label.c=label.c,
-                  label.left=label.left, label.right=label.right)
-  ##
-  if (type=="I" & method!="Peto")
-    m1 <- metagen(x$TE[sel], x$seTE[sel],
-                  sm=sm, studlab=x$studlab[sel],
-                  comb.fixed=comb.fixed, comb.random=comb.random,
-                  method.tau=method.tau, hakn=hakn,
-                  n.e=x$n.e[sel],
-                  n.c=x$n.c[sel],
-                  title=title,
-                  complab=complab, outclab=outclab,
-                  label.e=label.e, label.c=label.c,
-                  label.left=label.left, label.right=label.right)
-  ##
-  if (type=="I" & method=="Peto")
-    m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
-                  sm=sm, studlab=x$studlab[sel],
-                  comb.fixed=comb.fixed, comb.random=comb.random,
-                  method.tau=method.tau, hakn=hakn,
-                  title=title,
-                  complab=complab, outclab=outclab,
-                  label.e=label.e, label.c=label.c,
-                  label.left=label.left, label.right=label.right)
-  ##
+  
   if (length(unique(x$group.no[sel]))>1){
-    m1$byvar <- x$grplab[sel]
-    m1$bylab <- "grp"
-    m1$print.byvar <- FALSE
+    if (type=="D"){
+      ##
+      if (missing(swap.events))
+        swap.events <- unique(x$swap.events[sel])
+      if (!is.na(swap.events) && swap.events){
+        event.e  <- x$n.e[sel] - x$event.e[sel]
+        event.c  <- x$n.c[sel] - x$event.c[sel]
+      }
+      else{
+        event.e <- x$event.e[sel]
+        event.c <- x$event.c[sel]
+      }
+      m1 <- metabin(event.e, x$n.e[sel], event.c, x$n.c[sel],
+                    sm=sm, method=method, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    byvar=x$grplab[sel],
+                    bylab="grp",
+                    print.byvar=FALSE,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right,
+                    RR.cochrane=TRUE, warn=warn)
+    }
+    ##
+    if (type=="C")
+      m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
+                     x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
+                     sm=sm, studlab=x$studlab[sel],
+                     comb.fixed=comb.fixed, comb.random=comb.random,
+                     method.tau=method.tau, hakn=hakn,
+                     tau.common=tau.common,
+                     level=level, level.comb=level.comb,
+                     prediction=prediction, level.predict=level.predict,
+                     byvar=x$grplab[sel],
+                     bylab="grp",
+                     print.byvar=FALSE,
+                     title=title,
+                     complab=complab, outclab=outclab,
+                     label.e=label.e, label.c=label.c,
+                     label.left=label.left, label.right=label.right)
+    ##
+    if (type=="P")
+      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    byvar=x$grplab[sel],
+                    bylab="grp",
+                    print.byvar=FALSE,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
+    ##
+    if (type=="I" & method!="Peto")
+      m1 <- metagen(x$TE[sel], x$seTE[sel],
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    byvar=x$grplab[sel],
+                    bylab="grp",
+                    print.byvar=FALSE,
+                    n.e=x$n.e[sel],
+                    n.c=x$n.c[sel],
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
+    ##
+    if (type=="I" & method=="Peto")
+      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    byvar=x$grplab[sel],
+                    bylab="grp",
+                    print.byvar=FALSE,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
   }
-  ##
+  else{
+    if (type=="D"){
+      ##
+      if (missing(swap.events))
+        swap.events <- unique(x$swap.events[sel])
+      if (!is.na(swap.events) && swap.events){
+        event.e  <- x$n.e[sel] - x$event.e[sel]
+        event.c  <- x$n.c[sel] - x$event.c[sel]
+      }
+      else{
+        event.e <- x$event.e[sel]
+        event.c <- x$event.c[sel]
+      }
+      m1 <- metabin(event.e, x$n.e[sel], event.c, x$n.c[sel],
+                    sm=sm, method=method, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right,
+                    RR.cochrane=TRUE, warn=warn)
+    }
+    ##
+    if (type=="C")
+      m1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
+                     x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
+                     sm=sm, studlab=x$studlab[sel],
+                     comb.fixed=comb.fixed, comb.random=comb.random,
+                     method.tau=method.tau, hakn=hakn,
+                     tau.common=tau.common,
+                     level=level, level.comb=level.comb,
+                     prediction=prediction, level.predict=level.predict,
+                     title=title,
+                     complab=complab, outclab=outclab,
+                     label.e=label.e, label.c=label.c,
+                     label.left=label.left, label.right=label.right)
+    ##
+    if (type=="P")
+      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
+    ##
+    if (type=="I" & method!="Peto")
+      m1 <- metagen(x$TE[sel], x$seTE[sel],
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    n.e=x$n.e[sel],
+                    n.c=x$n.c[sel],
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
+    ##
+    if (type=="I" & method=="Peto")
+      m1 <- metagen(x$O.E[sel]/x$V[sel], sqrt(1/x$V[sel]),
+                    sm=sm, studlab=x$studlab[sel],
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    method.tau=method.tau, hakn=hakn,
+                    tau.common=tau.common,
+                    level=level, level.comb=level.comb,
+                    prediction=prediction, level.predict=level.predict,
+                    title=title,
+                    complab=complab, outclab=outclab,
+                    label.e=label.e, label.c=label.c,
+                    label.left=label.left, label.right=label.right)
+    }
+  
+  
   if (sm=="OTHER"){
     warning('Meta-analysis not possible for sm="OTHER".')
     res <- NULL
   }
   else
     res <- m1
+  
+  
   res
 }

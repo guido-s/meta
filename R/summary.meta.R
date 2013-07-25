@@ -13,7 +13,6 @@ summary.meta <- function(object,
                          warn=object$warn,
                          ...){
   
-  
   if (!inherits(object, "meta"))
     stop("Argument 'object' must be an object of class \"meta\"")
   
@@ -34,29 +33,23 @@ summary.meta <- function(object,
   Q <- object$Q
   
   
-  if (length(comb.fixed)==0){
+  if (length(comb.fixed)==0)
     comb.fixed <- TRUE
-  }
   ##
-  if (length(comb.random)==0){
+  if (length(comb.random)==0)
     comb.random <- TRUE
-  }
   ##
-  if (length(prediction)==0){
-    comb.random <- FALSE
-  }
+  if (length(prediction)==0)
+    prediction <- FALSE
   ##
-  if (length(print.byvar)==0){
+  if (length(print.byvar)==0)
     print.byvar <- TRUE
-  }
   ##
-  if (length(print.CMH)==0){
+  if (length(print.CMH)==0)
     print.CMH <- FALSE
-  }
   ##
-  if (length(object$tau.common)==0){
+  if (length(object$tau.common)==0)
     object$tau.common <- FALSE
-  }
   
   
   if (length(level)==0){
@@ -72,7 +65,7 @@ summary.meta <- function(object,
   }
   ##
   if (length(level.predict)==0){
-    if (comb.random & warn)
+    if (prediction & comb.random & warn)
       warning("level.predict set to 0.95")
     level.predict <- 0.95
   }
@@ -423,6 +416,7 @@ summary.meta <- function(object,
   ##
   if (inherits(object, "metacum"))
     class(res) <- c(class(res), "metacum")
+  ##
   if (inherits(object, "metainf"))
     class(res) <- c(class(res), "metainf")
   

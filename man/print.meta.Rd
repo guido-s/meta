@@ -15,7 +15,7 @@
 \method{print}{meta}(x, sortvar, level=x$level, level.comb=x$level.comb,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction, level.predict=x$level.predict,
-        details=FALSE, ma=TRUE, digits=max(4, .Options$digits - 3), ...)
+        details=FALSE, ma=TRUE, logscale=FALSE, digits=max(4, .Options$digits - 3), ...)
 
 \method{print}{metabias}(x, ...)
 
@@ -31,7 +31,8 @@
         print.byvar=x$print.byvar,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
-        header=TRUE, print.CMH=x$print.CMH, bylab.nchar=35, ...)
+        header=TRUE, logscale=FALSE,
+        print.CMH=x$print.CMH, bylab.nchar=35, ...)
 }
 
 \arguments{
@@ -59,6 +60,9 @@
     individual studies should be printed.}
   \item{ma}{A logical indicating whether the summary results of the
     meta-analysis should be printed.}
+  \item{logscale}{A logical indicating whether results for summary
+    measures 'RR', 'OR', 'HR', or 'PLN' will be printed on logarithmic
+    scale.}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{x$TE}).}
   \item{bylab}{A character string with a label for the grouping variable.}
@@ -75,7 +79,7 @@
     \code{metainf} should result in a warning.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
-  \item{...}{Additional arguments}
+  \item{\dots}{Additional arguments}
 }
 
 \details{

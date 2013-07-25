@@ -66,7 +66,16 @@ metaprop <- function(event, n, studlab,
   k.all <- length(event)
   ##
   if (k.all == 0) stop("No studies to combine in meta-analysis.")
-
+  ##
+  ## No meta-analysis for a single study
+  ##
+  if (k.all == 1){
+    comb.fixed <- FALSE
+    comb.random <- FALSE
+    prediction <- FALSE
+  }
+  
+  
   if (!(is.numeric(event) & is.numeric(n)))
     stop("Non-numeric value for event or n")
   ##

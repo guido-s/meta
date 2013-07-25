@@ -147,10 +147,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (method == "Peto" & sm != "OR")
     stop("Peto's method only possible with \"sm=OR\"")
   ##
-  if (k.all == 1 & method == "MH"){
-    if (warn)
-      warning("For a single study, inverse variance method used instead of Mantel Haenszel method.")
-    method <- "Inverse"
+  if (k.all == 1){
+    if (method == "MH"){
+      if (warn)
+        warning("For a single study, inverse variance method used instead of Mantel Haenszel method.")
+      method <- "Inverse"
+    }
+    comb.fixed <- FALSE
+    comb.random <- FALSE
+    prediction <- FALSE
   }
   
   

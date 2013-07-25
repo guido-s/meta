@@ -1,12 +1,12 @@
 trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
                              type="L", n.iter.max=50,
                              sm=NULL, studlab=NULL,
-                             level=0.95, level.comb=0.95,
+                             level=0.95, level.comb=level,
                              comb.fixed=TRUE, comb.random=TRUE,
                              hakn=FALSE,
                              method.tau="DL",
+                             prediction=FALSE, level.predict=level,
                              silent=TRUE, ...){
-  
   
   estimate.missing <- function(TE, TE.sum, type){
     ##
@@ -51,6 +51,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
                      deparse(substitute(seTE)),
                      sep=", ")
   
+  
   if(length(TE) != length(seTE))
     stop("length of argument TE and seTE must be equal")
   ##
@@ -69,13 +70,32 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   k <- length(TE)
   ##
   if (k<=2){
-    warning("Minimal number of three studies for trim-and-fill method: 3")
+    warning("Minimal number of three studies for trim-and-fill method")
     return(invisible(NULL))
   }
   
   
   if (match(type, c("L", "R"), nomatch=0) == 0)
     stop("type must be either 'L' or 'R'")
+  
+  
+  ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("parameter 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("parameter 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("parameter 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("parameter 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("parameter 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("parameter 'level.predict': no valid level for confidence interval")
   
   
   if (is.null(left))
@@ -87,6 +107,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   TE <- TE[ord]
   seTE <- seTE[ord]
   studlab <- studlab[ord]
+  
   
   if (ma.fixed)
     TE.sum <- metagen(TE, seTE)$TE.fixed
@@ -159,11 +180,13 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   if (!left)
     m <- metagen(-TE, seTE, studlab=studlab,
                  level=level, level.comb=level.comb,
-                 hakn=hakn, method.tau=method.tau)
+                 hakn=hakn, method.tau=method.tau,
+                 prediction=prediction, level.predict=level.predict)
   else
     m <- metagen(TE, seTE, studlab=studlab,
                  level=level, level.comb=level.comb,
-                 hakn=hakn, method.tau=method.tau)
+                 hakn=hakn, method.tau=method.tau,
+                 prediction=prediction, level.predict=level.predict)
   
   ##
   res <- list(studlab=m$studlab,
@@ -171,11 +194,16 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
+              ##
+              seTE.predict=m$seTE.predict,
+              lower.predict=m$lower.predict,
+              upper.predict=m$upper.predict,
+              level.predict=level.predict,
+              ##
               k=m$k, Q=m$Q, tau=m$tau,
               sm=sm,
               method=m$method,
-              ##paste("Inverse variance method (Trim and fill -",
-              ##      ifelse(ma.fixed, "FE model)", "RE model)")),
+              ##
               call=match.call(),
               left=left,
               ma.fixed=ma.fixed,
@@ -186,6 +214,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
               hakn=m$hakn,
               df.hakn=m$df.hakn,
               method.tau=m$method.tau,
+              prediction=prediction,
               k0=sum(trimfill),
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed, comb.random=comb.random)

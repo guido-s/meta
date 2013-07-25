@@ -1,23 +1,54 @@
+2013-07-25, version 2.5-0
+
+Function metacr:
+- new arguments prediction and level.predict
+  (prediction interval for a new study)
+- new argument tau.common (common tau-squared across subgroups)
+- new arguments level and level.comb
+  (confidence interval for single study / meta-analysis)
+
+Functions trimfill.meta and trimfill.default:
+- new arguments prediction and level.predict
+  (prediction interval for a new study)
+
+Function forest.meta:
+- modified such that heterogeneity statistics are only printed in
+  forest plot if results for fixed effect and/or random effects model
+  are plotted (new defaults for arguments print.I2, print.tau2, and
+  print.pval.Q)
+
+Functions metagen, metabin, metacont, metaprop, metacor:
+- modified such that list components comb.fixed, comb.random, and
+  prediction are set to FALSE for a single study
+  (no meta-analysis for a single study)
+
+Functions print.meta, print.summary.meta:
+- new argument logscale which can be used to print results for summary
+  measures 'RR', 'OR', 'HR', or 'PLN' on logarithmic scale
+
+Update of several help pages.
+
+
 2013-06-20, version 2.4-1
 
-Functions metaprop:
+Function metaprop:
 - bug fix so that call of forest.meta function with metaprop object
   does not result in an error message (bug was introduced with meta,
   version 2.4-0)
 - new list components incr, allincr, addincr added to metaprop R
-  object (should have been part of exported list since meta version
-  1.5-0)
+  object (should have been part of exported list since meta,
+  version 1.5-0)
 
-Functions print.meta:
+Function print.meta:
 - new arguments prediction and level.predict to print prediction
   interval for a new study
 
-Functions print.summary.meta:
+Function print.summary.meta:
 - call of internal function asin2p using argument warn to only print
   warnings if result for fixed effect, random effects model or
   prediction interval are printed
 
-Functions forest.meta:
+Function forest.meta:
 - call of internal function asin2p using argument warn to only print
   warnings if result for fixed effect, random effects model or
   prediction interval are plotted
@@ -27,7 +58,7 @@ Function asin2p (used internally for metaprop objects):
   (see comments on functions print.meta and forest.meta)
 
 Help pages metabin, metacont, metacor, metacr, metagen, metaprop:
-- Example to generate forest plot added
+- example to generate forest plot added
 
 
 2013-06-17, version 2.4-0

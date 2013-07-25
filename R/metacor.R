@@ -62,7 +62,16 @@ metacor <- function(cor, n, studlab,
   k.all <- length(cor)
   ##
   if (k.all == 0) stop("No studies to combine in meta-analysis.")
-
+  ##
+  ## No meta-analysis for a single study
+  ##
+  if (k.all == 1){
+    comb.fixed <- FALSE
+    comb.random <- FALSE
+    prediction <- FALSE
+  }
+  
+  
   if (!(is.numeric(cor) & is.numeric(n)))
     stop("Non-numeric value for cor or n")
   ##

@@ -12,14 +12,18 @@
 
 \usage{
 \method{trimfill}{default}(x, seTE, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
-         sm=NULL, studlab=NULL, level=0.95, level.comb=0.95,
+         sm=NULL, studlab=NULL, level=0.95, level.comb=level,
          comb.fixed=TRUE, comb.random=TRUE,
-         hakn=FALSE, method.tau="DL", silent=TRUE, ...)
+         hakn=FALSE, method.tau="DL",
+         prediction=FALSE, level.predict=level,
+         silent=TRUE, ...)
 
 \method{trimfill}{meta}(x, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
          sm=NULL, studlab=NULL, level=x$level, level.comb=x$level.comb,
          comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-         hakn=x$hakn, method.tau=x$method.tau, silent=TRUE, ...)
+         hakn=x$hakn, method.tau=x$method.tau,
+         prediction=x$prediction, level.predict=x$level.predict,
+         silent=TRUE, ...)
 }
 
 \arguments{
@@ -60,9 +64,13 @@
     to estimate the between-study variance tau-squared. Either
     \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
   \item{silent}{A logical indicating whether basic information on
     iterations shown.}
-  \item{...}{other arguments}
+  \item{\dots}{other arguments}
 }
 
 \details{
@@ -88,8 +96,8 @@
   An object of class \code{c("metagen", "meta", "trimfill")}. The object is a
   list containing the following components:
   \item{studlab, sm, left, ma.fixed, type,}{}
-  \item{n.iter.max, level, level.comb,}{As defined above.}
-  \item{comb.fixed, comb.random, hakn, method.tau}{}
+  \item{n.iter.max, level, level.comb, level.predict,}{As defined above.}
+  \item{comb.fixed, comb.random, prediction, hakn, method.tau}{}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
@@ -97,6 +105,8 @@
     standard error (fixed effect model).}
   \item{TE.random, seTE.random}{Estimated overall treatment effect and
     standard error (random effects model).}
+  \item{seTE.predict}{Standard error utilised for prediction interval.}
+  \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{tau}{Square-root of between-study variance.}

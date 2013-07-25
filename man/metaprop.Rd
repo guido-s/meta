@@ -249,6 +249,16 @@ metaprop(4:1, c(10, 20, 30, 40), sm="PLN")
 metaprop(4:1, c(10, 20, 30, 40), sm="PFT")
 
 forest(metaprop(4:1, c(10, 20, 30, 40)))
+
+
+m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4))
+m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr=0.1)
+
+summary(m1)
+summary(m2)
+
+forest(m1)
+forest(m2)
 }
 
 \keyword{htest}

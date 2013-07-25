@@ -3,7 +3,7 @@ print.meta <- function(x,
                        level=x$level, level.comb=x$level.comb,
                        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
                        prediction=x$prediction, level.predict=x$level.predict,
-                       details=FALSE, ma=TRUE,
+                       details=FALSE, ma=TRUE, logscale=FALSE,
                        digits=max(4, .Options$digits - 3),
                        ...
                        ){
@@ -59,13 +59,11 @@ print.meta <- function(x,
     stop("'x' and 'sortvar' have different length")
   
   
-  if (length(comb.fixed)==0){
+  if (length(comb.fixed)==0)
     comb.fixed <- TRUE
-  }
   ##
-  if (length(comb.random)==0){
+  if (length(comb.random)==0)
     comb.random <- TRUE
-  }
   ##
   if (length(prediction)==0)
     prediction <- FALSE
@@ -97,10 +95,15 @@ print.meta <- function(x,
   
   if (sm=="ZCOR")
     sm.lab <- "COR"
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+  else if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT"))
     sm.lab <- "proportion"
+  else if (!logscale & sm == "PLN")
+    sm.lab <- "proportion"
+  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR"))
+    sm.lab <- paste("log", sm, sep="")
   else
     sm.lab <- sm
+  
   
   crtitle(x)
   
@@ -154,7 +157,7 @@ print.meta <- function(x,
             digits=digits, header=FALSE)
     else
       print(summary(x, level.comb=level.comb),
-            digits=digits, header=FALSE)
+            digits=digits, header=FALSE, logscale=logscale)
   }
   else{
     if (inherits(x, "metainf")|inherits(x, "metacum")){
@@ -171,7 +174,7 @@ print.meta <- function(x,
       uppTE <- tsum$study$upper
     }
     ##
-    if (sm == "RR" | sm == "OR" | sm == "HR"){
+    if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR")){
       TE    <- exp(TE)
       lowTE <- exp(lowTE)
       uppTE <- exp(uppTE)
@@ -183,7 +186,7 @@ print.meta <- function(x,
       uppTE <- z2cor(uppTE)
     }
     ##
-    if (!inherits(x, "metaprop") & sm=="PLN"){
+    if (!inherits(x, "metaprop") & !logscale & sm=="PLN"){
       TE <- exp(TE)
       lowTE <- exp(lowTE)
       uppTE <- exp(uppTE)
@@ -309,7 +312,7 @@ print.meta <- function(x,
       print(tsum, digits=digits,
             comb.fixed=comb.fixed, comb.random=comb.random,
             prediction=prediction,
-            header=FALSE)
+            header=FALSE, logscale=logscale)
     
     }
   

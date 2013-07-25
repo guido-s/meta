@@ -82,7 +82,15 @@ metagen <- function(TE, seTE,
   k.all <- length(TE)
   ##
   if ( k.all == 0 ) stop("No studies to combine in meta-analysis.")
-
+  ##
+  ## No meta-analysis for a single study
+  ##
+  if (k.all == 1){
+    comb.fixed <- FALSE
+    comb.random <- FALSE
+    prediction <- FALSE
+  }
+  
   
   if ( length(seTE) != k.all )
     stop("TE and seTE must have the same length")

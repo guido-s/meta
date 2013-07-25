@@ -70,13 +70,22 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     studlab <- as.character(mf$studlab)
   else
     studlab <- row.names(mf)
-
-
+  
+  
   k.all <- length(n.e)
   ##
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-
+  ##
+  ## No meta-analysis for a single study
+  ##
+  if (k.all == 1){
+    comb.fixed <- FALSE
+    comb.random <- FALSE
+    prediction <- FALSE
+  }
+  
+  
   if (sm == "WMD"|sm=="wmd"){
     if (warn)
       warning("Effect measure '", sm, "' renamed as 'MD'")

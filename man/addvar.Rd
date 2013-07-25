@@ -23,7 +23,7 @@ addvar(x, y, varname, by.x="studlab", by.y=by.x)
   \item{y}{A data frame with an additional covariate}
   \item{varname}{A character specifying name of additional variable}
   \item{by.x, by.y}{Specifications of the common columns (see \code{merge})}
-  \item{...}{other arguments}
+  \item{\dots}{other arguments}
 }
 \value{
   A data frame is returned by the function \code{as.data.frame}.

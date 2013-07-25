@@ -11,8 +11,14 @@
 
 \usage{
 metacr(x, comp.no=1, outcome.no=1,
-       sm, method, comb.fixed, comb.random, swap.events, logscale,
-       method.tau="DL", hakn=FALSE,
+       method, sm,
+       level=0.95, level.comb=level,
+       comb.fixed, comb.random,
+       hakn=FALSE,
+       method.tau="DL",
+       tau.common=FALSE,
+       prediction=FALSE, level.predict=level,
+       swap.events, logscale,
        title, complab, outclab, warn=FALSE)
 }
 
@@ -21,28 +27,38 @@ metacr(x, comp.no=1, outcome.no=1,
   \code{read.rm5}.}
   \item{comp.no}{Comparison number.}
   \item{outcome.no}{Outcome number.}
+  \item{method}{A character string indicating which method is to be used
+    for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
+    \code{"Peto"}, can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
     (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"AS"}, \code{"HR"},
     \code{"MD"}, or \code{"SMD"}) is to be used for pooling of
     studies.}
-  \item{method}{A character string indicating which method is to be used
-    for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
-    \code{"Peto"}, can be abbreviated.}
+  \item{level}{The level used to calculate confidence intervals for
+    individual studies.}
+  \item{level.comb}{The level used to calculate confidence intervals for
+    pooled estimates.}
   \item{comb.fixed}{A logical indicating whether a fixed effect
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
-  \item{swap.events}{A logical indicating whether events and
-    non-events should be interchanged.}
-  \item{logscale}{A logical indicating whether effect estimates are
-    entered on log-scale.}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+          Knapp should be used to adjust test statistics and
+          confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{hakn}{A logical indicating whether the method by Hartung and
-          Knapp should be used to adjust test statistics and
-          confidence intervals.}
+  \item{tau.common}{A logical indicating whether tau-squared should be
+    the same across subgroups.}
+  \item{prediction}{A logical indicating whether a prediction interval
+    should be printed.}
+  \item{level.predict}{The level used to calculate prediction interval
+    for a new study.}
+  \item{swap.events}{A logical indicating whether events and
+    non-events should be interchanged.}
+  \item{logscale}{A logical indicating whether effect estimates are
+    entered on log-scale.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

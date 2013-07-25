@@ -16,7 +16,7 @@ trimfill(x, ...)
 \arguments{
   \item{x}{An object of class \code{meta}, or estimated treatment
     effect in individual studies.}
-  \item{...}{Additional arguments as in \code{par}.}
+  \item{\dots}{Additional arguments as in \code{par}.}
 }
 
 \details{

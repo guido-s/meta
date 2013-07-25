@@ -71,10 +71,10 @@ forest.meta <- function(x,
                         ##
                         col.by="darkgray",
                         ##
-                        print.I2=TRUE,
-                        print.tau2=TRUE,
+                        print.I2=comb.fixed|comb.random,
+                        print.tau2=comb.fixed|comb.random,
                         print.Q=FALSE,
-                        print.pval.Q=TRUE,
+                        print.pval.Q=comb.fixed|comb.random,
                         hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
                         overall.hetstat=overall&hetstat,
                         hetlab="Heterogeneity: ",
@@ -149,29 +149,23 @@ forest.meta <- function(x,
       byvar <- x[[byvar.name]]
   }
   
-  if (length(comb.fixed)==0){
+  if (length(comb.fixed)==0)
     comb.fixed <- FALSE
-  }
   ##
-  if (length(comb.random)==0){
+  if (length(comb.random)==0)
     comb.random <- FALSE
-  }
   ##
-  if (length(prediction)==0){
+  if (length(prediction)==0)
     prediction <- FALSE
-  }
   ##
-  if (length(print.byvar)==0){
+  if (length(print.byvar)==0)
     print.byvar <- TRUE
-  }
   ##
-  if (length(lab.e)==0){
+  if (length(lab.e)==0)
     lab.e <- "Experimental"
-  }
   ##
-  if (length(lab.c)==0){
+  if (length(lab.c)==0)
     lab.c <- "Control"
-  }
   
   prediction <- prediction & comb.random & x$k>=3
   
