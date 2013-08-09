@@ -295,7 +295,16 @@ print.meta <- function(x,
                      if (comb.fixed) "%W(fixed)",
                      if (comb.random) "%W(random)"))
         prmatrix(res, quote=FALSE, right=TRUE)
-        cat("\n\nCI based on arcsine transformation:\n")
+        if (sm == "PFT")
+          cat("\n\nCI based on Freeman-Tukey double arcsine transformation:\n")
+        else if (sm == "PAS")
+          cat("\n\nCI based on arcsine transformation:\n")
+        else if (sm == "PLN")
+          cat("\n\nCI based on log transformation:\n")
+        else if (sm == "PLOGIT")
+          cat("\n\nCI based on logit transformation:\n")
+        else if (sm == "PRAW")
+          cat("\n\nCI based on normal approximation:\n")
       }
       else{
         dimnames(res) <-

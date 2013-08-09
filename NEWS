@@ -1,3 +1,19 @@
+2013-08-09, version 2.5-1
+
+Function forest.meta:
+- new argument just.studlab to change justification of study labels
+
+Function print.meta:
+- print correct information on method to calculate approximate
+  confidence interval for 'metaprop' objects with a single study
+
+Function trimfill.meta:
+- new list components title, complab, outclab, label.e, label.c,
+  label.left, label.right which are utilised in other R functions to
+  enhance printout (see information on version 2.0-0 of R package
+  meta)
+
+
 2013-07-25, version 2.5-0
 
 Function metacr:
@@ -148,7 +164,7 @@ Function forest.meta:
   x-axis label for relative effect measures (i.e. argument sm is equal
   to "RR", "OR", or "HR")
 - internally calculated default values for arguments smlab.pos and
-  xlab.pos changed such that they will always lie withing plotting
+  xlab.pos changed such that they will always lie within plotting
   range
 
 
@@ -247,9 +263,9 @@ pages:
 2012-04-17, version 2.0-2
 
 Function metaprop:
-- modified so that a warning is printed if any sample size
-  (argument n) is smaller than 10 for Freeman-Tukey-Transformation,
-  i.e. sm="PFT"
+- modified so that a warning is printed if any sample size (argument
+  n) is smaller than 10 for Freeman-Tukey double arcsine
+  transformation, i.e. sm="PFT"
 
 
 2012-04-04, version 2.0-1
@@ -289,7 +305,7 @@ Functions metabin, metacont, metacor, metagen, metaprop:
    - hakn (Hartung-Knapp method)
    - method.tau (estimation method for tau-squared)
    - tau.preset (fixed value for tau)
-   - TE.tau (prespecified treatment effect to estimate tau)
+   - TE.tau (pre-specified treatment effect to estimate tau)
    - method.bias (test for funnel plot asymmetry used in metabias)
    - label.left (Label on left side of forest plot, new argument in
                  functions metabin, metacont, and metagen)
@@ -302,7 +318,7 @@ Functions metabin, metacont, metacor, metagen, metaprop:
    - hakn (Hartung-Knapp method)
    - method.tau (estimation method for tau-squared)
    - tau.preset (fixed value for tau)
-   - TE.tau (prespecified treatment effect to estimate tau)
+   - TE.tau (pre-specified treatment effect to estimate tau)
    - method.bias (test for funnel plot asymmetry used in metabias)
    - label.left (Label on left side of forst plot, new list component
                  in functions metabin, metacont, and metagen)
@@ -323,8 +339,8 @@ Function metacum and metainf:
 
 Function metaprop:
  - modified so that the correct variance function 1/(n+0.5) instead of
-   1/(n+1) is used for the Freeman-Tukey-Transformation (i.e. sm="PFT")
- - see also news on function asin2p
+   1/(n+1) is used for the Freeman-Tukey double arcsine transformation
+   (i.e. sm="PFT") - see also news on function asin2p
 
 Function asin2p:
  - completely rewritten as back transformation of Freeman-Tukey
@@ -426,7 +442,7 @@ Function addvar:
    for columns by.x and by.y added
 
 Function print.meta:
- - modified so that backtransformed proportions are printed
+ - modified so that back-transformed proportions are printed
    for individual studies if function metagen is used with
    argument sm equal to either 'PLN', 'PLOGIT', 'PAS', or 'PFT'
 
@@ -466,7 +482,7 @@ Function forest.meta:
   additional columns
 - new argument 'addspace' to print a blank line at top and
   bottom of study results
-- argument 'squaresize' superseeds argument 'boxsize'
+- argument 'squaresize' supersedes argument 'boxsize'
 - new argument 'new' indicating whether a new figure should
   be printed in an existing graphics window
   (internally, the grid.newpage command is used if new=TRUE)

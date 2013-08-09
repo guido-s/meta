@@ -98,7 +98,7 @@ metaprop <- function(event, n, studlab,
   sm <- c("PFT", "PAS", "PRAW", "PLN", "PLOGIT")[imeth]
   ##
   if (any(n < 10) & sm=="PFT")
-    warning("Sample size very small (below 10) in at least one study. Accordingly, backtransformation for pooled effect may be misleading for Freeman-Tukey transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
+    warning("Sample size very small (below 10) in at least one study. Accordingly, backtransformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
   
   
   ##

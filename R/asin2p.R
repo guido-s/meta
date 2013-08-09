@@ -32,18 +32,18 @@ asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
       if (warn)
         warning("Negative value for ",
                 if (length(x)>1) "at least one ",
-                if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 0.",
-                if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 0.",
-                if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 0.",
+                if (value=="mean") "transformed proportion using arcsine transformation.\n  Proportion set to 0.",
+                if (value=="lower") "lower confidence limit using arcsine transformation.\n  Lower confidence limit set to 0.",
+                if (value=="upper") "upper confidence limit using arcsine transformation.\n  Upper confidence limit set to 0.",
                 sep="")
     }
     else{
       if (warn)
         warning("Too small value for ",
                 if (length(x)>1) "at least one ",
-                if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 0.",
-                if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 0.",
-                if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 0.",
+                if (value=="mean") "transformed proportion using Freeman-Tukey double arcsine transformation.\n  Proportion set to 0.",
+                if (value=="lower") "lower confidence limit using Freeman-Tukey double arcsine transformation.\n  Lower confidence limit set to 0.",
+                if (value=="upper") "upper confidence limit using Freeman-Tukey double arcsine transformation.\n  Upper confidence limit set to 0.",
                 sep="")
     }
   }
@@ -56,18 +56,18 @@ asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
       if (warn)
         warning("Too large value for ",
                 if (length(x)>1) "at least one ",
-                if (value=="mean") "transformed proportion using Arcsine transformation.\n  Proportion set to 1.",
-                if (value=="lower") "lower confidence limit using Arcsine transformation.\n  Lower confidence limit set to 1.",
-                if (value=="upper") "upper confidence limit using Arcsine transformation.\n  Upper confidence limit set to 1.",
+                if (value=="mean") "transformed proportion using arcsine transformation.\n  Proportion set to 1.",
+                if (value=="lower") "lower confidence limit using arcsine transformation.\n  Lower confidence limit set to 1.",
+                if (value=="upper") "upper confidence limit using arcsine transformation.\n  Upper confidence limit set to 1.",
                 sep="")
     }
     else{
       if (warn)
         warning("Too large value for ",
                 if (length(x)>1) "at least one ",
-                if (value=="mean") "transformed proportion using Freeman-Tukey arcsine transformation.\n  Proportion set to 1.",
-                if (value=="lower") "lower confidence limit using Freeman-Tukey arcsine transformation.\n  Lower confidence limit set to 1.",
-                if (value=="upper") "upper confidence limit using Freeman-Tukey arcsine transformation.\n  Upper confidence limit set to 1.",
+                if (value=="mean") "transformed proportion using Freeman-Tukey double arcsine transformation.\n  Proportion set to 1.",
+                if (value=="lower") "lower confidence limit using Freeman-Tukey double arcsine transformation.\n  Lower confidence limit set to 1.",
+                if (value=="upper") "upper confidence limit using Freeman-Tukey double arcsine transformation.\n  Upper confidence limit set to 1.",
                 sep="")
     }
   }
@@ -89,7 +89,7 @@ asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
   }
   else{
     ##
-    ## Back transformation of Freeman-Tukey arcsine transformation:
+    ## Back transformation of Freeman-Tukey double arcsine transformation:
     ##
     res[sel] <- 0.5*(1-sign(cos(x[sel]))*
                      sqrt(1-(sin(x[sel])+

@@ -122,6 +122,7 @@ forest.meta <- function(x,
                         colgap.forest.right=colgap.forest,
                         ##
                         just="center",
+                        just.studlab="left",
                         ##
                         addspace=TRUE,
                         ##
@@ -218,6 +219,23 @@ forest.meta <- function(x,
     weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
   
   notmiss.xlim <- !missing(xlim)
+  
+  
+  ijs <- charmatch(tolower(just.studlab),
+                   c("right", "center", "left"), nomatch = NA)
+  ##
+  if(is.na(ijs))
+    stop("Argument 'just.studlab' should be \"right\", \"center\", or \"left\"")
+  ##
+  just.studlab <- c("right", "center", "left")[ijs]
+  ##
+  if (just.studlab=="left")
+    xpos.studlab <- 0
+  else if (just.studlab=="center")
+      xpos.studlab <- 0.5
+  else if (just.studlab=="right")
+    xpos.studlab <- 1
+  
   
   wcalc <- function(x)
     max(unit(rep(1, length(x)), "grobwidth", x))
@@ -2228,7 +2246,7 @@ forest.meta <- function(x,
   col.studlab <- list(labels=
                       lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
                       ##lapply(as.list(c(lab.studlab, modlabs)),
-                             textGrob, x=0, just="left",
+                             textGrob, x=xpos.studlab, just=just.studlab,
                              gp=gpar(
                                fontsize=fs.study.labels,
                                fontface=ff.study.labels)),
@@ -2239,7 +2257,7 @@ forest.meta <- function(x,
   ##
   col.studlab$labels[[1]] <- textGrob(labs[["lab.studlab"]],
   ##col.studlab$labels[[1]] <- textGrob(lab.studlab,
-                                      x=0, just="left",
+                                      x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.heading,
                                         fontface=ff.heading)
@@ -2248,7 +2266,7 @@ forest.meta <- function(x,
   ## Fixed effect estimate:
   ##
   col.studlab$labels[[2]] <- textGrob(text.fixed,
-                                      x=0, just="left",
+                                      x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.fixed.labels,
                                         fontface=ff.fixed.labels)
@@ -2257,7 +2275,7 @@ forest.meta <- function(x,
   ## Random effects estimate:
   ##
   col.studlab$labels[[3]] <- textGrob(text.random,
-                                      x=0, just="left",
+                                      x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.random.labels,
                                         fontface=ff.random.labels)
@@ -2266,7 +2284,7 @@ forest.meta <- function(x,
   ## Heterogeneity statistics:
   ##
   col.studlab$labels[[4]] <- textGrob(hetstat.overall,
-                                      x=0, just="left",
+                                      x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.hetstat,
                                         fontface=ff.hetstat)
@@ -2275,7 +2293,7 @@ forest.meta <- function(x,
   ## Prediction interval:
   ##
   col.studlab$labels[[5]] <- textGrob(text.predict,
-                                      x=0, just="left",
+                                      x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.predict.labels,
                                         fontface=ff.predict.labels)
@@ -2287,7 +2305,7 @@ forest.meta <- function(x,
       ## Subgroup labels:
       ##
       col.studlab$labels[[5+i]] <- textGrob(bylab[i],
-                                            x=0, just="left",
+                                            x=xpos.studlab, just=just.studlab,
                                             gp=
                                             gpar(
                                                  fontsize=fs.heading,
@@ -2298,7 +2316,7 @@ forest.meta <- function(x,
       ## Fixed effect estimates:
       ##
       col.studlab$labels[[5+n.by+i]] <- textGrob(text.fixed.w[i],
-                                                 x=0, just="left",
+                                                 x=xpos.studlab, just=just.studlab,
                                                  gp=
                                                  gpar(
                                                       fontsize=fs.fixed.labels,
@@ -2309,7 +2327,7 @@ forest.meta <- function(x,
       ## Random effects estimates:
       ##
       col.studlab$labels[[5+2*n.by+i]] <- textGrob(text.random.w[i],
-                                                   x=0, just="left",
+                                                   x=xpos.studlab, just=just.studlab,
                                                    gp=
                                                    gpar(
                                                         fontsize=fs.random.labels,
@@ -2320,7 +2338,7 @@ forest.meta <- function(x,
       ## Heterogeneity statistics:
       ##
       col.studlab$labels[[5+3*n.by+i]] <- textGrob(hetstat.w[i],
-                                                   x=0, just="left",
+                                                   x=xpos.studlab, just=just.studlab,
                                                    gp=
                                                    gpar(
                                                         fontsize=fs.hetstat,

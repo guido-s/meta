@@ -78,6 +78,7 @@
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        ##
        just="center",
+       just.studlab="left",
        ##
        addspace=TRUE,
        ##
@@ -265,6 +266,8 @@
     on the right side of forest plot and the forest plot.}
   \item{just}{Justification of text for additional columns (possible
     values: "left", "right", "center").}
+  \item{just.studlab}{Justification of text for study labels (possible
+    values: "left", "right", "center").}
   \item{addspace}{A logical value indicating whether additional space
     (i.e. a blank row) is printed above and below study results.}
   \item{new}{A logical value indicating whether a new figure should
@@ -358,7 +361,7 @@
 \references{
   Guddat C, Grouven U, Bender R, Skipka G 2012), A note on the
   graphical presentation of prediction intervals in random-effects
-  meta-analyses.  \emph{Systematic Reviews}, \bold{1}, 34.
+  meta-analyses. \emph{Systematic Reviews}, \bold{1}, 34.
 
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.

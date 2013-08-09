@@ -118,6 +118,13 @@
     added by trim and fill method.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{title}{Title of meta-analysis / systematic review.}
+  \item{complab}{Comparison label.}
+  \item{outclab}{Outcome label.}
+  \item{label.e}{Label for experimental group.}
+  \item{label.c}{Label for control group.}
+  \item{label.left}{Graph label on left side of forest plot.}
+  \item{label.right}{Graph label on right side of forest plot.}
   \item{k0}{Number of studies added by trim and fill.}
   \item{version}{Version of R package meta used to create object.}
 }
