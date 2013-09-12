@@ -1,14 +1,10 @@
 summary.meta <- function(object,
-                         byvar=object$byvar,
-                         bylab=object$bylab,
-                         print.byvar=object$print.byvar,
-                         bystud=FALSE,
-                         level=object$level,
-                         level.comb=object$level.comb,
                          comb.fixed=object$comb.fixed,
                          comb.random=object$comb.random,
                          prediction=object$prediction,
-                         level.predict=object$level.predict,
+                         bylab=object$bylab,
+                         print.byvar=object$print.byvar,
+                         bystud=FALSE,
                          print.CMH=object$print.CMH,
                          warn=object$warn,
                          ...){
@@ -22,15 +18,36 @@ summary.meta <- function(object,
   
   if (warn){
     if (inherits(object, "metacum"))
-      warning("Summary method not defined for objects of class \"metacum\"")
+      warning("Summary method not defined for objects of class \"metacum\".")
     ##
     if (inherits(object, "metainf"))
-      warning("Summary method not defined for objects of class \"metainf\"")
+      warning("Summary method not defined for objects of class \"metainf\".")
   }
   
   
   k <- object$k
   Q <- object$Q
+  ##
+  if (is.null(object$df.Q))
+    df.Q <- k-1
+  else
+    df.Q <- object$df.Q
+  
+  
+  cl <- class(object)[1]
+  addargs <- names(list(...))
+  ##
+  fun <- "summary.meta"
+  ##
+  warnarg("byvar", addargs, fun, cl)
+  warnarg("level", addargs, fun, cl)
+  warnarg("level.comb", addargs, fun, cl)
+  warnarg("level.predict", addargs, fun, cl)
+  ##
+  byvar <- object$byvar
+  level <- object$level
+  level.comb <- object$level.comb
+  level.predict <- object$level.predict
   
   
   if (length(comb.fixed)==0)
@@ -50,7 +67,6 @@ summary.meta <- function(object,
   ##
   if (length(object$tau.common)==0)
     object$tau.common <- FALSE
-  
   
   if (length(level)==0){
     if (warn)
@@ -93,12 +109,13 @@ summary.meta <- function(object,
   ##
   ## Higgins & Thompson (2002), Statistics in Medicine, 21, 1539-58
   ##
-  H <- sqrt(Q/(k-1))
+  k.Q <- df.Q+1
+  H <- sqrt(Q/(k.Q-1))
   ##
-  selogH <- ifelse(k>2,
-                   ifelse(Q<=k,
-                          sqrt(1/(2*(k-2))*(1-1/(3*(k-2)^2))),
-                          0.5*(log(Q)-log(k-1))/(sqrt(2*Q)-sqrt(2*k-3))),
+  selogH <- ifelse(k.Q>2,
+                   ifelse(Q<=k.Q,
+                          sqrt(1/(2*(k.Q-2))*(1-1/(3*(k.Q-2)^2))),
+                          0.5*(log(Q)-log(k.Q-1))/(sqrt(2*Q)-sqrt(2*k.Q-3))),
                    NA)
   ##
   tres <- ci(log(H), selogH, level.comb)
@@ -144,13 +161,6 @@ summary.meta <- function(object,
   }
   
   
-  if (!missing(byvar) & length(object$byvar)==0){
-    byvar.name <- deparse(substitute(byvar))  
-    if (!is.null(object[[byvar.name]]))
-      byvar <- object[[byvar.name]]
-  }
-  
-  
   if (length(byvar)>0){
     
     if (any(is.na(byvar))) stop("Missing values in 'byvar'")
@@ -160,11 +170,11 @@ summary.meta <- function(object,
     else
       by.levs <- unique(byvar)
     
-    if (length(bylab)==0) bylab <- byvar.name
-
+    if (length(bylab)==0) bylab <- ""
+    
     if (object$tau.common){
       if (!is.null(object$tau.preset) & warn)
-        warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+        warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'.")
       object$tau.preset <- object$tau
     }
     
@@ -271,7 +281,7 @@ summary.meta <- function(object,
       }
       ##
       if (bystud){
-        if (print.byvar)
+        if (print.byvar & bylab!="")
           bylab2 <- paste(bylab, " = ", i, sep="")
         else
           bylab2 <- i
@@ -349,7 +359,8 @@ summary.meta <- function(object,
   res <- list(study=ci.study,
               fixed=ci.f, random=ci.r,
               predict=ci.p,
-              k=k, Q=Q, tau=object$tau, H=ci.H, I2=ci.I2,
+              k=k, Q=Q, df.Q=df.Q,
+              tau=object$tau, H=ci.H, I2=ci.I2,
               k.all=length(object$TE),
               Q.CMH=object$Q.CMH,
               sm=object$sm, method=object$method,
@@ -427,6 +438,9 @@ summary.meta <- function(object,
   res$print.byvar <- print.byvar
   
   res$print.CMH <- print.CMH
+
+  res$data <- object$data
+  res$subset <- object$subset
   
   res$version <- packageDescription("meta")$Version
   

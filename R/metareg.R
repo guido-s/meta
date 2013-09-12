@@ -1,8 +1,27 @@
-metareg <- function(formula, data, method.tau=data$method.tau){
+metareg <- function(x, formula,
+                    method.tau=x$method.tau, ...){
   
-  if (!inherits(data, "meta"))
-    stop("Argument 'data' must be an object of class \"meta\"")
-
+  if ("data" %in% names(list(...))){
+    warning("Please note, argument 'data' has been renamed to 'x' in version 3.0-0 of R package meta (see help page of R function metareg). No meta-regression conducted.")
+    return(invisible(NULL))
+  }
+  
+  if (is.call(x) && inherits(formula, "meta")){
+    warning("Please note, first two arguments of R function metareg have been interchanged in version 3.0-0 of R package meta. No meta-regression conducted.")
+    return(invisible(NULL))
+  }
+  
+  if (!inherits(x, "meta"))
+    stop("Argument 'x' must be an object of class \"meta\"")
+  
+  if (missing(formula))
+    if (!is.null(x$byvar))
+      formula <- as.call(~byvar)
+  else{
+    warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
+    return(invisible(NULL))
+  }
+  
   if (is.null(method.tau))
     method.tau <- "DL"
   
@@ -11,8 +30,18 @@ metareg <- function(formula, data, method.tau=data$method.tau){
   ##
   is.installed.metafor()
   
-  res <- metafor::rma.uni(yi=data$TE, sei=data$seTE,
-                          data=data,
+  if (is.null(x$data)){
+    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
+    return(invisible(NULL))
+  }
+  
+  if (!is.null(x$subset))
+    dataset <- x$data[x$subset,]
+  else
+    dataset <- x$data
+  
+  res <- metafor::rma.uni(yi=x$TE, sei=x$seTE,
+                          data=dataset,
                           mods=formula, method=method.tau)
   
   res

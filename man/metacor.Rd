@@ -20,7 +20,8 @@ metacor(cor, n, studlab,
         prediction=FALSE, level.predict=level,
         method.bias="linreg",
         title="", complab="", outclab="",
-        byvar, bylab, print.byvar=TRUE
+        byvar, bylab, print.byvar=TRUE,
+        keepdata=TRUE
         )
 }
 
@@ -69,6 +70,8 @@ metacor(cor, n, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
 }
 
 \details{
@@ -121,6 +124,10 @@ metacor(cor, n, studlab,
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metacor object by only specifying
+  arguments which should be changed.
 }
 
 \value{
@@ -165,6 +172,11 @@ metacor(cor, n, studlab,
     for pooling: \code{"Inverse"}}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+    \code{keepdata=TRUE}).}
+  \item{subset}{Information on subset of original data used in
+    meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -192,7 +204,7 @@ metacor(cor, n, studlab,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
+\seealso{\code{\link{update.meta}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
 metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))

@@ -5,7 +5,7 @@
   Performs a cumulative meta-analysis.
 }
 \usage{
-metacum(x, pooled, sortvar, level.comb=x$level.comb)
+metacum(x, pooled, sortvar)
 }
 \arguments{
   \item{x}{An object of class \code{meta}.}
@@ -14,8 +14,6 @@ metacum(x, pooled, sortvar, level.comb=x$level.comb)
   Details), \code{"fixed"}, or \code{"random"}, can be abbreviated.}
   \item{sortvar}{An optional vector used to sort the individual studies
     (must be of same length as \code{x$TE}).}
-  \item{level.comb}{The level used to calculate confidence intervals for
-    pooled estimates.}
 }
 \details{
   A cumulative meta-analysis is performed. Studies are included
@@ -48,6 +46,10 @@ metacum(x, pooled, sortvar, level.comb=x$level.comb)
   \item{method}{Method used for pooling.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{pooled}{As defined above.}
+  \item{comb.fixed}{A logical indicating whether analysis is based on
+    fixed effect model.}
+  \item{comb.random}{A logical indicating whether analysis is based on
+    random effects model.}
   \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
   \item{TE.random, seTE.random}{Value is \code{NA}.}
   \item{Q}{Value is \code{NA}.}
@@ -86,4 +88,3 @@ metacum(meta1, pooled="random")
 forest(metacum(meta1, pooled="random"))
 }
 \keyword{htest}
-

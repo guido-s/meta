@@ -1,8 +1,7 @@
 trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                           type="L", n.iter.max=50,
-                          sm=NULL, studlab=NULL,
                           level=x$level, level.comb=x$level.comb,
-                          comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+                          comb.fixed=FALSE, comb.random=TRUE,
                           hakn=x$hakn,
                           method.tau=x$method.tau,
                           prediction=x$prediction, level.predict=x$level.predict,
@@ -89,6 +88,18 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   seTE <- x$seTE
   sm <- x$sm
   studlab <- x$studlab
+  n.e <- x$n.e
+  event.e <- x$event.e
+  n.c <- x$n.c
+  event.c <- x$event.c
+  n <- x$n
+  event <- x$event
+  cor <- x$cor
+  mean.e <- x$mean.e
+  sd.e <- x$sd.e
+  mean.c <- x$mean.c
+  sd.c <- x$sd.c
+  ##
   data.name <- deparse(substitute(x))
   
   
@@ -106,6 +117,28 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   TE <- TE[sel]
   seTE <- seTE[sel]
   studlab <- studlab[sel]
+  if (!is.null(n.e))
+    n.e <- n.e[sel]
+  if (!is.null(n.c))
+    n.c <- n.c[sel]
+  if (!is.null(n))
+    n <- n[sel]
+  if (!is.null(event.e))
+    event.e <- event.e[sel]
+  if (!is.null(event.c))
+    event.c <- event.c[sel]
+  if (!is.null(event))
+    event <- event[sel]
+  if (!is.null(cor))
+    cor <- cor[sel]
+  if (!is.null(mean.e))
+    mean.e <- mean.e[sel]
+  if (!is.null(mean.c))
+    mean.c <- mean.c[sel]
+  if (!is.null(sd.e))
+    sd.e <- sd.e[sel]
+  if (!is.null(sd.c))
+    sd.c <- sd.c[sel]
   ##
   k <- length(TE)
   ##
@@ -147,7 +180,29 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   TE <- TE[ord]
   seTE <- seTE[ord]
   studlab <- studlab[ord]
-  
+  if (!is.null(n.e))
+    n.e <- n.e[ord]
+  if (!is.null(n.c))
+    n.c <- n.c[ord]
+  if (!is.null(n))
+    n <- n[ord]
+  if (!is.null(event.e))
+    event.e <- event.e[ord]
+  if (!is.null(event.c))
+    event.c <- event.c[ord]
+  if (!is.null(event))
+    event <- event[ord]
+  if (!is.null(cor))
+    cor <- cor[ord]
+  if (!is.null(mean.e))
+    mean.e <- mean.e[ord]
+  if (!is.null(mean.c))
+    mean.c <- mean.c[ord]
+  if (!is.null(sd.e))
+    sd.e <- sd.e[ord]
+  if (!is.null(sd.c))
+    sd.c <- sd.c[ord]
+
   if (ma.fixed)
     TE.sum <- metagen(TE, seTE)$TE.fixed
   else
@@ -201,10 +256,32 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
     trimfill  <- c(rep(FALSE, length(TE)),
                    rep(TRUE, length(TE.star)))
     ##
-    TE        <- c(TE[order(ord)], TE.star)
-    seTE      <- c(seTE[order(ord)], seTE.star)
-    studlab   <- c(studlab[order(ord)],
-                   paste("Filled:", studlab[(k-k0+1):k]))
+    TE      <- c(TE[order(ord)], TE.star)
+    seTE    <- c(seTE[order(ord)], seTE.star)
+    studlab <- c(studlab[order(ord)],
+                 paste("Filled:", studlab[(k-k0+1):k]))
+    if (!is.null(n.e))
+      n.e <- c(n.e[order(ord)], n.e[(k-k0+1):k])
+    if (!is.null(n.c))
+      n.c <- c(n.c[order(ord)], n.c[(k-k0+1):k])
+    if (!is.null(n))
+      n <- c(n[order(ord)], n[(k-k0+1):k])
+    if (!is.null(event.e))
+      event.e <- c(event.e[order(ord)], event.e[(k-k0+1):k])
+    if (!is.null(event.c))
+      event.c <- c(event.c[order(ord)], event.c[(k-k0+1):k])
+    if (!is.null(event))
+      event <- c(event[order(ord)], event[(k-k0+1):k])
+    if (!is.null(cor))
+      cor <- c(cor[order(ord)], cor[(k-k0+1):k])
+    if (!is.null(mean.e))
+      mean.e <- c(mean.e[order(ord)], mean.e[(k-k0+1):k])
+    if (!is.null(mean.c))
+      mean.c <- c(mean.c[order(ord)], mean.c[(k-k0+1):k])
+    if (!is.null(sd.e))
+      sd.e <- c(sd.e[order(ord)], sd.e[(k-k0+1):k])
+    if (!is.null(sd.c))
+      sd.c <- c(sd.c[order(ord)], sd.c[(k-k0+1):k])
   }
   else{
     TE.star   <- NA
@@ -213,6 +290,28 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
     TE        <- TE[order(ord)]
     seTE      <- seTE[order(ord)]
     studlab   <- studlab[order(ord)]
+    if (!is.null(n.e))
+      n.e <- n.e[order(ord)]
+    if (!is.null(n.c))
+      n.c <- n.c[order(ord)]
+    if (!is.null(n))
+      n <- n[order(ord)]
+    if (!is.null(event.e))
+      event.e <- event.e[order(ord)]
+    if (!is.null(event.c))
+      event.c <- event.c[order(ord)]
+    if (!is.null(event))
+      event <- event[order(ord)]
+    if (!is.null(cor))
+      cor <- cor[order(ord)]
+    if (!is.null(mean.e))
+      mean.e <- mean.e[order(ord)]
+    if (!is.null(mean.c))
+      mean.c <- mean.c[order(ord)]
+    if (!is.null(sd.e))
+      sd.e <- sd.e[order(ord)]
+    if (!is.null(sd.c))
+      sd.c <- sd.c[order(ord)]
   }
   
   
@@ -263,7 +362,21 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
               label.right=x$label.right,
               k0=sum(trimfill),
               level=level, level.comb=level.comb,
-              comb.fixed=comb.fixed, comb.random=comb.random)
+              comb.fixed=comb.fixed,
+              comb.random=comb.random,
+              n.e=n.e,
+              n.c=n.c,
+              event.e=event.e,
+              event.c=event.c,
+              mean.e=mean.e,
+              mean.c=mean.c,
+              sd.e=sd.e,
+              sd.c=sd.c,
+              n=n,
+              event=event,
+              cor=cor,
+              class.x=class(x)[1]
+              )
   
   res$version <- packageDescription("meta")$Version
   

@@ -18,61 +18,96 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
                     print.CMH=FALSE,
+                    keepdata=TRUE,
                     warn=TRUE
                     ){
   
   
+  ##if (missing(data)) data <- NULL
+  nulldata <- is.null(data)
+  ##
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch event.e, n.e, event.c, n.e, studlab (possibly), byvar (possibly) from data:
-  ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$method <- mf$sm <- NULL
-  mf$incr <- mf$allincr <- mf$addincr <- mf$allstudies <- NULL
-  mf$MH.exact <- mf$RR.cochrane <- NULL
-  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- mf$warn <- NULL
-  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
-  mf[[1]] <- as.name("data.frame")
-  mf <- eval(mf, data)
   ##
-  ## Catch subset (possibly) from data:
+  ## Catch event.e, n.e, event.c, n.c, studlab, byvar, subset
+  ## from data:
   ##
-  mf2 <- match.call()
-  mf2$event.e <- mf2$n.e <- NULL
-  mf2$event.c <- mf2$n.c <- NULL
-  mf2$studlab <- NULL 
-  mf2$data <- mf2$method <- mf2$sm <- NULL
-  mf2$incr <- mf2$allincr <- mf2$addincr <- mf2$allstudies <- NULL
-  mf2$MH.exact <- mf2$RR.cochrane <- NULL
-  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- mf2$warn <- NULL
-  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
-  mf2$byvar <- NULL
-  mf2[[1]] <- as.name("data.frame")
+  event.e <- eval(mf[[match("event.e", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
   ##
-  mf2 <- eval(mf2, data)
+  n.e <- eval(mf[[match("n.e", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
   ##
-  if (!is.null(mf2$subset))
-    if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$event.e))) ||
-        (length(mf2$subset) > length(mf$event.e)))
+  event.c <- eval(mf[[match("event.c", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  n.c <- eval(mf[[match("n.c", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  
+  
+  if (!is.null(subset))
+    if ((is.logical(subset) & (sum(subset) > length(event.e))) ||
+        (length(subset) > length(event.e)))
       stop("Length of subset is larger than number of studies.")
-    else
-      mf <- mf[mf2$subset,]
-  ##
-  event.e <- mf$event.e
-  n.e     <- mf$n.e
-  event.c <- mf$event.c
-  n.c     <- mf$n.c
-  ##
-  missing.byvar <- missing(byvar)
+  
+  
+  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
-    byvar.name <- deparse(substitute(byvar))
-    byvar <- mf$byvar
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
   }
-  ##
-  if (!missing(studlab))
-    studlab <- as.character(mf$studlab)
+  
+  
+  if (!is.null(studlab))
+    studlab <- as.character(studlab)
   else
-    studlab <- row.names(mf)
+    studlab <- seq(along=event.e)
+  
+  
+  if (keepdata){
+    if (nulldata){
+      data <- data.frame(event.e=event.e, n.e=n.e,
+                         event.c=event.c, n.c=n.c,
+                         studlab=studlab)
+      if (!missing.byvar)
+        data$byvar <- byvar
+      if (!is.null(subset))
+        data$subset <- subset
+    }
+    else{
+      data$event.e <- event.e
+      data$n.e <- n.e
+      data$event.c <- event.c
+      data$n.c <- n.c
+      ##
+      data$studlab <- studlab
+      ##
+      if (!missing.byvar)
+        data$byvar <- byvar
+    }
+  }
+  
+  
+  if (!is.null(subset)){
+    event.e <- event.e[subset]
+    n.e <- n.e[subset]
+    event.c <- event.c[subset]
+    n.c <- n.c[subset]
+    studlab <- studlab[subset]
+    if (!missing.byvar)
+      byvar <- byvar[subset]
+  }
   
   
   k.all <- length(event.e)
@@ -88,19 +123,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     stop("Non-numeric value for event.e, n.e, event.c or n.c")
   ##
   if ((any(n.e <= 0 | n.c <= 0)) & warn)
-    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis")
+    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
   ##
   if ((any(event.e < 0 | event.c < 0)) & warn)
-    warning("Studies with negative values for event.e and/or event.c get no weight in meta-analysis")
+    warning("Studies with negative values for event.e and/or event.c get no weight in meta-analysis.")
   ##
   if ((any(event.e > n.e)) & warn)
-    warning("Studies with event.e > n.e get no weight in meta-analysis")
+    warning("Studies with event.e > n.e get no weight in meta-analysis.")
   ##
   if ((any(event.c > n.c)) & warn)
-    warning("Studies with event.c > n.c get no weight in meta-analysis")
+    warning("Studies with event.c > n.c get no weight in meta-analysis.")
   ##
   if (length(studlab) != k.all)
-    stop("Number of studies and labels are different")
+    stop("Number of studies and labels are different.")
   ##
   if (!is.numeric(incr)){
     ##
@@ -249,7 +284,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       incr.c <- rep(incr, k.all)
       ##
       if (warn & warn2 & incr > 0)
-        warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+        warning(paste("Increment", incr, "added to each cell frequency of all studies."))
     }
     else{
       if (incr=="TACC"){
@@ -260,7 +295,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         incr.c <- n.c/(n.e+n.c)
         ##
         if (warn & warn2)
-          warning("Treatment arm continuity correction applied to all studies")
+          warning("Treatment arm continuity correction applied to all studies.")
       }
     }
     ##
@@ -274,7 +309,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           incr.c <- rep(incr, k.all)
           ##
           if (warn & warn2 & incr > 0)
-            warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+            warning(paste("Increment", incr, "added to each cell frequency of all studies."))
         }
         else{
           if (incr=="TACC"){
@@ -285,7 +320,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
             incr.c <- n.c/(n.e+n.c)
             ##
             if (warn & warn2)
-              warning("Treatment arm continuity correction applied to all studies")
+              warning("Treatment arm continuity correction applied to all studies.")
           }
         }
       }
@@ -300,7 +335,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           incr.c <- incr*sel
           ##
            if (warn & warn2 & incr > 0)
-            warning(paste("Increment", incr, "added to each cell in 2x2 tables with zero cell frequencies"))
+            warning(paste("Increment", incr, "added to each cell in 2x2 tables with zero cell frequencies."))
         }
         else{
           if (incr=="TACC"){
@@ -311,7 +346,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
             incr.c <- n.c/(n.e+n.c)*sel
             ##
             if (warn & warn2)
-              warning("Treatment arm continuity correction applied to studies with zero cell frequencies")
+              warning("Treatment arm continuity correction applied to studies with zero cell frequencies.")
           }
         }
       }
@@ -414,7 +449,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ## Subgroup analysis with equal tau^2:
       if (!missing.byvar & tau.common){
         if (!is.null(tau.preset))
-          warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+          warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'.")
         ##
         sm1 <- summary(metagen(TE, seTE, byvar=byvar,
                                method.tau=method.tau,
@@ -449,31 +484,31 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (method == "Peto"){
       if (method.tau!="DL"){
         if (warn)
-          warning("DerSimonian-Laird method used to estimate between-study variance for Peto method")
+          warning("DerSimonian-Laird method used to estimate between-study variance for Peto method.")
         method.tau <- "DL"
       }
       ##
       if (hakn){
         if (warn)
-          warning("Hartung-Knapp method not available for Peto method")
+          warning("Hartung-Knapp method not available for Peto method.")
         hakn <- FALSE
       }
       ##
       if (!is.null(TE.tau)){
         if (warn)
-          warning("Argument 'TE.tau' not considered for Peto method")
+          warning("Argument 'TE.tau' not considered for Peto method.")
         TE.tau <- NULL
       }
       ##
       if (tau.common){
         if (warn)
-          warning("Argument 'tau.common' not considered for Peto method")
+          warning("Argument 'tau.common' not considered for Peto method.")
         tau.common <- FALSE
       }
       ##
       if (!is.null(tau.preset)){
         if (warn)
-          warning("Argument 'tau.preset' not considered for Peto method")
+          warning("Argument 'tau.preset' not considered for Peto method.")
         tau.preset <- NULL
       }
       ##
@@ -503,6 +538,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     df.hakn <- m$df.hakn
     ##
     Q <- m$Q
+    df.Q <- m$df.Q
     tau2 <- m$tau^2
     se.tau2 <- m$se.tau2
     Cval <- m$C
@@ -519,29 +555,29 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (method.tau!="DL"){
       if (warn)
-        warning("DerSimonian-Laird method used to estimate between-study variance for Mantel Haenszel method")
+        warning("DerSimonian-Laird method used to estimate between-study variance for Mantel Haenszel method.")
       method.tau <- "DL"
     }
     ##
     if (hakn){
       if (warn)
-        warning("Hartung-Knapp method not available for Mantel Haenszel method")
+        warning("Hartung-Knapp method not available for Mantel Haenszel method.")
       hakn <- FALSE
     }
     ##
     if (!missing.byvar & tau.common)
       if (warn)
-        warning("Argument 'tau.common' not considered for Mantel Haenszel method")
+        warning("Argument 'tau.common' not considered for Mantel Haenszel method.")
     ##
     if (!is.null(TE.tau)){
       if (warn)
-        warning("Argument 'TE.tau' not considered for Mantel Haenszel method")
+        warning("Argument 'TE.tau' not considered for Mantel Haenszel method.")
       TE.tau <- NULL
     }
     ##
     if (!is.null(tau.preset)){
       if (warn)
-        warning("Argument 'tau.preset' not considered for Mantel Haenszel method")
+        warning("Argument 'tau.preset' not considered for Mantel Haenszel method.")
       tau.preset <- NULL
     }
     ##
@@ -628,9 +664,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     upper.random <- m$upper.random
     ##
     Q <- m$Q
-    se.tau2 <- m$se.tau2
-    tau2 <- m$tau^2
+    df.Q <- m$df.Q
     Cval <- m$C
+    tau2 <- m$tau^2
+    se.tau2 <- m$se.tau2
+  }
+  
+  
+  ##
+  ## Heterogeneity statistic (for common tau-squared)
+  ##
+  if (!missing.byvar & tau.common){
+    Q <- sQ.w
+    df.Q <- sk.w
+    Cval <- sC.w
   }
   
   
@@ -682,7 +729,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               lower.predict=p.lower, upper.predict=p.upper,
               level.predict=level.predict,
               ##
-              k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
+              k=k, Q=Q, df.Q=df.Q,
+              tau=sqrt(tau2), se.tau2=se.tau2,
               C=Cval,
               Q.CMH=Q.CMH,
               sm=sm, method=method,
@@ -714,12 +762,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               label.c=label.c,
               label.left=label.left,
               label.right=label.right,
+              data=if (keepdata) data else NULL,
+              subset=if (keepdata) subset else NULL,
               call=match.call(),
               warn=warn)
   ##
-  if (!missing(byvar)){
+  if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
   

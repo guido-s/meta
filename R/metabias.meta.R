@@ -3,13 +3,13 @@ metabias.meta <- function(x, method.bias=x$method.bias,
                           k.min=10, ...){
   
   if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
+    stop("Argument 'x' must be an object of class \"meta\".")
   
   if (inherits(x, "metacum"))
-    stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\"")
+    stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\".")
   ##
   if (inherits(x, "metainf"))
-    stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\"")
+    stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\".")
   
   TE <- x$TE
   seTE <- x$seTE
@@ -23,7 +23,7 @@ metabias.meta <- function(x, method.bias=x$method.bias,
     ##
     if (x$method=="Peto"){
       warning(paste("Inverse variance method used for pooling",
-                    "to perform test of funnel plot asymmetry"))
+                    "to perform test of funnel plot asymmetry."))
       m <- metabin(event.e, n.e, event.c, n.c, sm=x$sm, method="Inv",
                    incr=x$incr, allincr=x$allincr,
                    allstudies=x$allstudies, MH.exact=x$MH.exact,

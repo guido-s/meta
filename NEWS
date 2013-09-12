@@ -1,3 +1,91 @@
+2013-09-12, version 3.0-0
+
+Major revision
+
+This update has been declared as major revision as the user interface
+has been changed by dropping arguments for the following functions:
+- print.meta (arguments level, level.comb, level.prediction removed)
+- summary.meta (byvar, level, level.comb, level.prediction)
+- metainf (level.comb)
+- metacum (level.comb)
+- forest.meta (byvar, level, level.comb, level.predict)
+This functionality is now provided by R function update.meta - see
+help page of R function update.meta for further details.
+
+New function update.meta
+- update an existing meta object which was created with R function
+  metabin, metacont, metagen, metaprop, or metacor
+
+New function cilayout
+- change layout to print confidence intervals (in printout from
+  R functions print.meta, print.summary.meta, and forest.meta)
+
+Deprecated function plot.meta removed from R package meta
+
+Functions metabin, metacont, metagen, metaprop, metacor:
+- code cleaning (in preparation for R function update.meta)
+- new list components:
+  - data (original data (set) used in function call)
+  - subset (information on subset of original data used in meta-analysis)
+
+Function summary.meta:
+- new list components:
+  - data (original data (set) used in function call)
+  - subset (information on subset of original data used in meta-analysis)
+
+Functions metareg:
+- argument 'data' renamed to 'x'
+- first two arguments interchanged (which is now in line with other R
+  functions from R package meta)
+- modified such that information on grouping variable (list element
+  'byvar') is utilised if argument 'formula' is missing
+- any column from original data set (list component 'data' in metabin
+  object (etc) can be used in meta-regression
+
+Function trimfill.meta:
+- new defaults for arguments 'comb.fixed' and 'comb.random'
+  (by default only random effects estimate calculated)
+- arguments 'sm' and 'studlab' removed (values have been overwritten
+  internally anyway)
+- new list components (depending on class of meta object used in
+  function call):
+  - event.e, event.c, event (number of events)
+  - n.e, n.c, n (number of observations)
+  - mean.e, mean.c, sd.e, sd.c (Mean and standard deviation)
+  - cor (correlation)
+  - class.x (class of meta object used in function call)
+
+Function trimfill.default:
+- new default for argument comb.fixed (by default only random effects
+  estimate calculated)
+
+Function metacr:
+- new list components for Peto O-E method:
+  - event.e, n.e, event.c, n.c
+
+Function metaprop:
+- new list component incr.event
+
+Function forest.meta:
+- bug fix such that call of forest.meta function will not result in an
+  error message in the following setting: (i) effect measure is equal
+  to RR, OR, or HR and (ii) argument label is not a logical value.
+
+Function print.summary.meta:
+- modified such that "0" instead of "< 0.0001" is printed if
+  between-study heterogeneity tau-squared is equal to 0
+
+New function format.tau (used internally):
+- print "0" instead of "< 0.0001" tau-squared is zero
+
+Function p.ci (used internally):
+- new arguments bracket.left, separator, bracket.right for more
+  flexible layouts to print confidence intervals (see also R function
+  cilayout)
+
+Several help pages updated.
+
+
 2013-08-09, version 2.5-1
 
 Function forest.meta:
@@ -48,7 +136,7 @@ Update of several help pages.
 2013-06-20, version 2.4-1
 
 Function metaprop:
-- bug fix so that call of forest.meta function with metaprop object
+- bug fix such that call of forest.meta function with metaprop object
   does not result in an error message (bug was introduced with meta,
   version 2.4-0)
 - new list components incr, allincr, addincr added to metaprop R
@@ -127,7 +215,7 @@ Function forest.meta:
   R package meta (version number < 2.x-x)
 
 Functions metabin:
-- bug fix so that function call with arguments sm="RR" and
+- bug fix such that function call with arguments sm="RR" and
   allstudies=TRUE does not result in an error message in meta-analyses
   with zero events in both groups
 
@@ -141,12 +229,12 @@ Function forest.meta:
   colgap.forest.right are considered (instead of only colgap.forest)
 
 Functions labbe.metabin and labbe.default:
-- bug fix so that function call does not result in an error message if
-  any event probability is equal to NA
+- bug fix such that function call does not result in an error message
+  if any event probability is equal to NA
 
 Function format.p (only used internally):
-- bug fix so that function call does not result in an error message if
-  any NAs were provided in the first function argument
+- bug fix such that function call does not result in an error message
+  if any NAs were provided in the first function argument
 
 
 2013-03-12, version 2.2-0

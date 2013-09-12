@@ -4,6 +4,7 @@
 \alias{print.metabias}
 \alias{summary.meta}
 \alias{print.summary.meta}
+\alias{cilayout}
 
 \title{Print and summary method for objects of class meta}
 
@@ -12,27 +13,29 @@
 }
 
 \usage{
-\method{print}{meta}(x, sortvar, level=x$level, level.comb=x$level.comb,
-        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-        prediction=x$prediction, level.predict=x$level.predict,
+\method{print}{meta}(x, sortvar,
+        comb.fixed=x$comb.fixed,
+        comb.random=x$comb.random,
+        prediction=x$prediction,
         details=FALSE, ma=TRUE, logscale=FALSE, digits=max(4, .Options$digits - 3), ...)
 
 \method{print}{metabias}(x, ...)
 
-\method{summary}{meta}(object, byvar=object$byvar,
-        bylab=object$bylab, print.byvar=object$print.byvar,
-        bystud=FALSE,
-        level=object$level, level.comb=object$level.comb,
+\method{summary}{meta}(object,
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
-        prediction=object$prediction, level.predict=object$level.predict,
-        print.CMH=object$print.CMH, warn=object$warn, ...)
+        prediction=object$prediction,
+        bylab=object$bylab, print.byvar=object$print.byvar,
+        bystud=FALSE, print.CMH=object$print.CMH,
+        warn=object$warn, ...)
 
 \method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
-        print.byvar=x$print.byvar,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
+        print.byvar=x$print.byvar, print.CMH=x$print.CMH,
         header=TRUE, logscale=FALSE,
-        print.CMH=x$print.CMH, bylab.nchar=35, ...)
+        bylab.nchar=35, ...)
+
+cilayout(bracket="[", separator="; ")
 }
 
 \arguments{
@@ -41,18 +44,15 @@
   \item{object}{An object of class \code{meta}.}
   \item{sortvar}{An optional vector used to sort the individual studies
     (must be of same length as \code{x$TE}).}
-  \item{level}{The level used to calculate confidence intervals for
-    individual studies.}
-  \item{level.comb}{The level used to calculate confidence intervals for
-    pooled estimates.}
   \item{comb.fixed}{A logical indicating whether a fixed effect
     meta-analysis should be conducted.}
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
   \item{prediction}{A logical indicating whether a prediction interval
     should be printed.}
-  \item{level.predict}{The level used to calculate prediction interval
-    for a new study.}
+  \item{bylab}{A character string with a label for the grouping variable.}
+  \item{print.byvar}{A logical indicating whether the name of the grouping
+    variable should be printed in front of the group labels.}
   \item{header}{A logical indicating whether information on title of
     meta-analysis, comparison and outcome should be printed at the
     beginning of the printout.}
@@ -63,26 +63,33 @@
   \item{logscale}{A logical indicating whether results for summary
     measures 'RR', 'OR', 'HR', or 'PLN' will be printed on logarithmic
     scale.}
-  \item{byvar}{An optional vector containing grouping information (must
-    be of same length as \code{x$TE}).}
-  \item{bylab}{A character string with a label for the grouping variable.}
   \item{bylab.nchar}{A numeric specifying the number of characters to
     print from label for the grouping variable.}
   \item{bystud}{A logical indicating whether results of individual
     studies should be printed by grouping variable.}
+  \item{print.CMH}{A logical indicating whether result of the
+    Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{digits}{Minimal number of significant digits, see \code{print.default}.}
-  \item{print.byvar}{A logical indicating whether the name of the grouping
-    variable should be printed in front of the group labels. By default,
-    the value of \code{print.byvar} is set to \code{TRUE}.}
   \item{warn}{A logical indicating whether the use of
     \code{summary.meta} in connection with \code{metacum} or
     \code{metainf} should result in a warning.}
-  \item{print.CMH}{A logical indicating whether result of the
-    Cochran-Mantel-Haenszel test for overall effect should be printed.}
-  \item{\dots}{Additional arguments}
+  \item{bracket}{A character with bracket symbol to print lower
+    confidence interval: "[", "(", "\{", "".}
+  \item{separator}{A character string with information on separator
+    between lower and upper confidence interval.}
+  \item{\dots}{Additional arguments.}
 }
 
 \details{
+  Note, in R package meta, version 3.0-0 some arguments have been
+  removed from R functions summary.meta (arguments: byvar, level,
+  level.comb, level.prediction) and print.summary.meta (arguments:
+  level, level.comb, level.prediction). This functionality is now
+  provided by R function \code{\link{update.meta}} (or directly in R
+  functions \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metagen}}, \code{\link{metacor}}, and
+  \code{\link{metaprop}}).
+
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
   (\url{http://www.cc-ims.net/revman/}). In RevMan 5, subgroup analyses
@@ -94,13 +101,7 @@
   \code{"meta"}). Accordingly, by using function \code{metacr} there is
   no need to define subgroups in order to redo the statistical analysis
   conducted in the Cochrane review.
-
-  For subgroups (argument \code{byvar} not \code{NULL}), results for the
-  fixed effect model will be printed if both arguments \code{comb.fixed}
-  and \code{comb.random} are \code{TRUE}. In order to get results for
-  the random effects model within subgroups, use
-  \code{comb.fixed==FALSE} and \code{comb.random==TRUE}.
-
+  
   Note, for an object of type \code{metaprop}, exact binomial
   confidence intervals are calculated for individual study results
   using the R function \code{\link{binom.test}}
@@ -112,6 +113,13 @@
   elements \code{TE}, \code{lower} and \code{upper} in elements
   \code{fixed}, \code{random}, \code{within.fixed} and
   \code{within.random}.
+
+  R function cilayout can be utilised to change the layout to print
+  confidence intervals (both in printout from print.meta and
+  print.summary.meta function as well as in forest plots). The default
+  layout is "[lower; upper]". Another popular layout is "(lower -
+  upper)" which is used throughout an R session by using R command
+  \code{cilayout("(", " - ")}.
 }
 
 \value{
@@ -166,13 +174,13 @@
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
-  \item{bylab}{Label for grouping variable - if \code{byvar} is not
-    missing.}
   \item{by.levs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
+  \item{data}{Original data (set) used to create meta object.}
+  \item{subset}{Information on subset of original data used in meta-analysis.}
   \item{prediction, level.predict}{}
   \item{comb.fixed, comb.random, print.CMH}{As defined above.}
   \item{version}{Version of R package meta used to create object.}
@@ -190,13 +198,14 @@
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
+\seealso{\code{\link{update.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
 
 \examples{
 data(Fleiss93cont)
 meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="SMD")
 summary(meta1)
-summary(meta1, byvar=c(1,2,1,1,2), bylab="group")
+
+summary(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
 }
 
 \keyword{print}

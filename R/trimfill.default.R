@@ -2,7 +2,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
                              type="L", n.iter.max=50,
                              sm=NULL, studlab=NULL,
                              level=0.95, level.comb=level,
-                             comb.fixed=TRUE, comb.random=TRUE,
+                             comb.fixed=FALSE, comb.random=TRUE,
                              hakn=FALSE,
                              method.tau="DL",
                              prediction=FALSE, level.predict=level,
@@ -70,7 +70,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   k <- length(TE)
   ##
   if (k<=2){
-    warning("Minimal number of three studies for trim-and-fill method")
+    warning("Minimal number of three studies for trim-and-fill method.")
     return(invisible(NULL))
   }
   

@@ -12,64 +12,106 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      label.e="Experimental", label.c="Control",
                      label.left="", label.right="",
                      byvar, bylab, print.byvar=TRUE,
+                     keepdata=TRUE,
                      warn=TRUE
                      ){
   
   
+  ##if (missing(data)) data <- NULL
+  nulldata <- is.null(data)
+  ##
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab (possibly), byvar (possibly) from data:
-  ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
-  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
-  mf[[1]] <- as.name("data.frame")
-  mf <- eval(mf, data)
   ##
-  ## Catch subset (possibly) from data:
+  ## Catch n.e, mean.e, sd.e, n.c, mean.c, sd.c,
+  ## studlab, byvar, subset from data:
   ##
-  mf2 <- match.call()
-  mf2$n.e <- mf2$mean.e <- mf2$sd.e <- NULL
-  mf2$n.c <- mf2$mean.c <- mf2$sd.c <- NULL
-  mf2$studlab <- NULL 
-  mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
-  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
-  mf2$byvar <- NULL
-  mf2[[1]] <- as.name("data.frame")
+  n.e <- eval(mf[[match("n.e", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
   ##
-  mf2 <- eval(mf2, data)
+  mean.e <- eval(mf[[match("mean.e", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
   ##
-  if (!is.null(mf2$subset))
-    if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$n.e))) ||
-        (length(mf2$subset) > length(mf$n.e)))
+  sd.e <- eval(mf[[match("sd.e", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
+  ##
+  n.c <- eval(mf[[match("n.c", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  mean.c <- eval(mf[[match("mean.c", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  ##
+  sd.c <- eval(mf[[match("sd.c", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
+  ##
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  
+  
+  if (!is.null(subset))
+    if ((is.logical(subset) & (sum(subset) > length(n.e))) ||
+        (length(subset) > length(n.e)))
       stop("Length of subset is larger than number of studies.")
-    else
-      mf <- mf[mf2$subset,]
-  ##if (!is.null(mf2$subset))
-  ##  if (length(mf2$subset) > length(mf$n.e))
-  ##    stop("Length of subset is larger than number of studies.")
-  ##  else
-  ##    mf <- mf[mf2$subset,]
-  ##
-  n.e     <- mf$n.e
-  mean.e  <- mf$mean.e
-  sd.e    <- mf$sd.e
-  n.c     <- mf$n.c
-  mean.c  <- mf$mean.c
-  sd.c    <- mf$sd.c
-  ##
-  missing.byvar <- missing(byvar)
+  
+  
+  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
-    byvar.name <- deparse(substitute(byvar))
-    byvar <- mf$byvar
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
   }
-  ##
-  if (!missing(studlab))
-    studlab <- as.character(mf$studlab)
+  
+  
+  if (!is.null(studlab))
+    studlab <- as.character(studlab)
   else
-    studlab <- row.names(mf)
+    studlab <- seq(along=n.e)
+  
+  
+  if (keepdata){
+    if (nulldata){
+      data <- data.frame(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
+                         n.c=n.c, mean.c=mean.c, sd.c=sd.c,
+                         studlab=studlab)
+      if (!missing.byvar)
+        data$byvar <- byvar
+      if (!is.null(subset))
+        data$subset <- subset
+    }
+    else{
+      data$n.e <- n.e
+      data$mean.e <- mean.e
+      data$sd.e <- sd.e
+      data$n.c <- n.c
+      data$mean.c <- mean.c
+      data$sd.c <- sd.c
+      ##
+      data$studlab <- studlab
+      ##
+      if (!missing.byvar)
+        data$byvar <- byvar
+    }
+  }
+  
+  
+  if (!is.null(subset)){
+    n.e <- n.e[subset]
+    mean.e <- mean.e[subset]
+    sd.e <- sd.e[subset]
+    n.c <- n.c[subset]
+    mean.c <- mean.c[subset]
+    sd.c <- sd.c[subset]
+    studlab <- studlab[subset]
+    if (!missing.byvar)
+      byvar <- byvar[subset]
+  }
   
   
   k.all <- length(n.e)
@@ -88,7 +130,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   if (sm == "WMD"|sm=="wmd"){
     if (warn)
-      warning("Effect measure '", sm, "' renamed as 'MD'")
+      warning("Effect measure '", sm, "' renamed as 'MD'.")
     sm <- "MD"
   }
   
@@ -106,7 +148,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   npn <- n.e <= 0 | n.c <= 0
   if (any(npn) & warn)
-    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis")
+    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
   ##
   ## Studies with zero sd.e and/or sd.c will be included in
   ## meta-analysis, however with zero weight
@@ -159,7 +201,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   sel <- sd.e==0 | sd.c == 0
   ##
   if (any(sel[!is.na(sel)]) & warn)
-    warning("Studies with zero values for sd.e or sd.c get no weight in meta-analysis")
+    warning("Studies with zero values for sd.e or sd.c get no weight in meta-analysis.")
   ##
   seTE[sel] <- NA
   ##
@@ -183,7 +225,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   if (!missing.byvar & tau.common){
     if (!is.null(tau.preset))
-      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'.")
     ##
     sm1 <- summary(metagen(TE, seTE, byvar=byvar,
                            method.tau=method.tau,
@@ -229,6 +271,21 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   
   
+  ##
+  ## Heterogeneity statistic
+  ##
+  if (!missing.byvar & tau.common){
+    Q <- sQ.w
+    df.Q <- sk.w
+    Cval <- sC.w
+  }
+  else{
+    Q <- m$Q
+    df.Q <- m$df.Q
+    Cval <- m$C
+  }
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -250,8 +307,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               lower.predict=p.lower, upper.predict=p.upper,
               level.predict=level.predict,
               ##
-              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
-              C=m$C,
+              k=m$k, Q=Q, df.Q=df.Q,
+              tau=m$tau, se.tau2=m$se.tau2,
+              C=Cval,
               sm=sm, method=m$method,
               level=level,
               level.comb=level.comb,
@@ -272,12 +330,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               label.c=label.c,
               label.left=label.left,
               label.right=label.right,
+              data=if (keepdata) data else NULL,
+              subset=if (keepdata) subset else NULL,
               warn=warn,
               call=match.call())
   ##
-  if (!missing(byvar)){
+  if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
   

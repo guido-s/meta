@@ -23,7 +23,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          title="", complab="", outclab="",
          label.e="Experimental", label.c="Control",
          label.left="", label.right="",
-         byvar, bylab, print.byvar=TRUE, warn=TRUE)
+         byvar, bylab, print.byvar=TRUE,
+         keepdata=TRUE, warn=TRUE)
 }
 
 \arguments{
@@ -79,6 +80,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if studies are excluded from meta-analysis due to zero
     standard deviations).}
@@ -136,6 +139,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metacont object by only specifying
+  arguments which should be changed.
 }
 
 \value{
@@ -178,6 +185,11 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+    \code{keepdata=TRUE}).}
+  \item{subset}{Information on subset of original data used in
+    meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -211,7 +223,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metagen}}}
+\seealso{\code{\link{update.meta}}, \code{\link{metabin}}, \code{\link{metagen}}}
 
 \examples{
 data(Fleiss93cont)

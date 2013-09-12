@@ -27,11 +27,11 @@ addvar <- function(x, y, varname,
         if (by.x!=by.y)
           warning(paste("Duplicate entries in variable '", by.x,
                         "' or '", by.y,
-                        "' and different length of these variables",
+                        "' and different length of these variables.",
                         sep=""))
         else
           warning(paste("Duplicate entries in variables '", by.x,
-                        "' and different length of these variables",
+                        "' and different length of these variables.",
                         sep=""))
         res <- NULL
       }
@@ -40,11 +40,11 @@ addvar <- function(x, y, varname,
           if (by.x!=by.y)
             warning(paste("Duplicate entries in variable '", by.x,
                           "' or '", by.y,
-                          "' and values of these variables do not match",
+                          "' and values of these variables do not match.",
                           sep=""))
           else
             warning(paste("Duplicate entries in variables '", by.x,
-                          "' and values of these variables do not match",
+                          "' and values of these variables do not match.",
                           sep=""))
         res <- NULL
         }

@@ -115,6 +115,12 @@ metacr(Fleiss93_CR)
 metacr(Fleiss93_CR, 1, 2)
 
 forest(metacr(Fleiss93_CR, 1, 2))
+
+## Change summary measure to RR
+##
+m1 <- metacr(Fleiss93_CR)
+update(m1, sm="RR")
+
 }
 
 \keyword{htest}

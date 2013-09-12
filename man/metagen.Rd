@@ -23,7 +23,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         title="", complab="", outclab="",
         label.e="Experimental", label.c="Control",
         label.left="", label.right="",
-        byvar, bylab, print.byvar=TRUE, warn=TRUE)
+        byvar, bylab, print.byvar=TRUE,
+        keepdata=TRUE, warn=TRUE)
 }
 
 \arguments{
@@ -76,6 +77,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if studies are excluded from meta-analysis due to zero
     standard errors).}
@@ -127,6 +130,10 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metagen object by only specifying
+  arguments which should be changed.
 }
 
 \value{
@@ -160,6 +167,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic.}
+  \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
@@ -167,6 +175,11 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+    \code{keepdata=TRUE}).}
+  \item{subset}{Information on subset of original data used in
+    meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -194,7 +207,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{print.meta}}}
+\seealso{\code{\link{update.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{print.meta}}}
 
 \examples{
 data(Fleiss93)

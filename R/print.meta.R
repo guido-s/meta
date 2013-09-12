@@ -1,8 +1,8 @@
 print.meta <- function(x,
                        sortvar,
-                       level=x$level, level.comb=x$level.comb,
-                       comb.fixed=x$comb.fixed, comb.random=x$comb.random,
-                       prediction=x$prediction, level.predict=x$level.predict,
+                       comb.fixed=x$comb.fixed,
+                       comb.random=x$comb.random,
+                       prediction=x$prediction,
                        details=FALSE, ma=TRUE, logscale=FALSE,
                        digits=max(4, .Options$digits - 3),
                        ...
@@ -12,37 +12,20 @@ print.meta <- function(x,
     stop("Argument 'x' must be an object of class \"meta\"")
   
   
-  rmSpace <- function(x, end=FALSE, pat=" "){
-    ##
-    if ( !end ){
-      while (any(substring(x, 1, 1) == pat, na.rm=TRUE)){
-        sel <- substring(x, 1, 1) == pat
-        x[sel] <- substring(x[sel], 2)
-      }
-    }
-    else{
-      last <- nchar(x)
-      ##
-      while ( any(substring(x, last, last) == pat, na.rm=TRUE) ){
-        sel <- substring(x, last, last) == pat
-          x[sel] <- substring(x[sel], 1, last[sel]-1)
-        last <- nchar(x)
-      }
-    }
-    ##
-    x
-  }
-
-  p.ci <- function(lower, upper){
-    lower <- rmSpace(lower)
-    upper <- rmSpace(upper)
-    ##
-    ifelse (lower=="NA" & upper=="NA",
-            "",
-            paste(" [", format(lower, justify="right"),
-                  "; ", format(upper, justify="right"), "]", sep=""))
-  }
-
+  cl <- class(x)[1]
+  addargs <- names(list(...))
+  ##
+  fun <- "print.meta"
+  ##
+  warnarg("level", addargs, fun, cl)
+  warnarg("level.comb", addargs, fun, cl)
+  warnarg("level.predict", addargs, fun, cl)
+  ##
+  level <- x$level
+  level.comb <- x$level.comb
+  level.predict <- x$level.predict
+  
+  
   format.TE <- function(TE, na=FALSE){
     TE <- rmSpace(TE)
     if (na) res <- format(TE)
@@ -153,10 +136,10 @@ print.meta <- function(x,
                             allincr=x$allincr,
                             allstudies=x$allstudies,
                             MH.exact=x$MH.exact,
-                            warn=FALSE), level.comb=level.comb),
+                            warn=FALSE, level.comb=level.comb)),
             digits=digits, header=FALSE)
     else
-      print(summary(x, level.comb=level.comb),
+      print(summary(x),
             digits=digits, header=FALSE, logscale=logscale)
   }
   else{
@@ -166,8 +149,7 @@ print.meta <- function(x,
       uppTE <- x$upper
     }
     else{
-      tsum <- summary(x, level=level, level.comb=level.comb,
-                      level.predict=level.predict, warn=FALSE)
+      tsum <- summary(x, warn=FALSE)
       ##
       TE    <- tsum$study$TE
       lowTE <- tsum$study$lower

@@ -11,57 +11,84 @@ metaprop <- function(event, n, studlab,
                      method.bias="linreg",
                      title="", complab="", outclab="",
                      byvar, bylab, print.byvar=TRUE,
+                     keepdata=TRUE,
                      warn=TRUE
                      ){
   
   
+  ##if (missing(data)) data <- NULL
+  nulldata <- is.null(data)
+  ##
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch event, n, studlab (possibly), byvar (possibly) from data:
-  ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
-  mf$incr <- mf$allincr <- mf$addincr <- NULL
-  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
-  mf[[1]] <- as.name("data.frame")
-  mf <- eval(mf, data)
   ##
-  ## Catch subset (possibly) from data:
+  ## Catch event, n, studlab, byvar, subset from data:
   ##
-  mf2 <- match.call()
-  mf2$event <- mf2$n <- NULL
-  mf2$studlab <- NULL
-  mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
-  mf2$incr <- mf2$allincr <- mf2$addincr <- NULL
-  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
-  mf2$byvar <- NULL
-  mf2[[1]] <- as.name("data.frame")
+  event <- eval(mf[[match("event", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
   ##
-  mf2 <- eval(mf2, data)
+  n <- eval(mf[[match("n", names(mf))]],
+            data, enclos = sys.frame(sys.parent()))
   ##
-  if (!is.null(mf2$subset))
-    if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$event))) ||
-        (length(mf2$subset) > length(mf$event)))
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  
+  
+  if (!is.null(subset))
+    if ((is.logical(subset) & (sum(subset) > length(event))) ||
+        (length(subset) > length(event)))
       stop("Length of subset is larger than number of studies.")
-    else
-      mf <- mf[mf2$subset,]
-  ##
-  event <- mf$event
-  n     <- mf$n
-  ##
-  missing.byvar <- missing(byvar)
+  
+  
+  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
-    byvar.name <- deparse(substitute(byvar))
-    byvar <- mf$byvar
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
   }
-  ##
-  if (!missing(studlab))
-    studlab <- as.character(mf$studlab)
+  
+  
+  if (!is.null(studlab))
+    studlab <- as.character(studlab)
   else
-    studlab <- row.names(mf)
-
+    studlab <- seq(along=event)
+  
+  
+  if (keepdata){
+    if (nulldata){
+      data <- data.frame(event=event, n=n, studlab=studlab)
+      if (!missing.byvar)
+        data$byvar <- byvar
+      if (!is.null(subset))
+        data$subset <- subset
+    }
+    else{
+      data$TE <- event
+      data$seTE <- n
+      ##
+      data$studlab <- studlab
+      ##
+      if (!missing.byvar)
+        data$byvar <- byvar
+    }
+  }
+  
+  
+  if (!is.null(subset)){
+    event <- event[subset]
+    n   <- n[subset]
+    studlab <- studlab[subset]
+    if (!missing.byvar)
+      byvar <- byvar[subset]
+  }
+  
   
   k.all <- length(event)
   ##
@@ -149,7 +176,7 @@ metaprop <- function(event, n, studlab,
     incr.event <- rep(incr, k.all)
     ##
     if (warn & warn2 & incr > 0)
-      warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+      warning("Increment ", incr, " added to each cell frequency of all studies.")
   }
   else{
     if (sparse){
@@ -158,14 +185,14 @@ metaprop <- function(event, n, studlab,
         incr.event <- rep(incr, k.all)
         ##
         if (warn & warn2 & incr > 0)
-          warning(paste("Increment", incr, "added to each cell frequency of all studies"))
+          warning("Increment ", incr, " added to each cell frequency of all studies.")
       }
       else{
         ##
         incr.event <- incr*sel
         ##
         if (warn & warn2 & incr > 0)
-          warning(paste("Increment", incr, "added to each cell frequency in studies with zero or all events"))
+          warning("Increment ", incr, " added to each cell frequency in studies with zero or all events.")
       }
     }
     else
@@ -206,7 +233,7 @@ metaprop <- function(event, n, studlab,
   ##
   if (!missing.byvar & tau.common){
     if (!is.null(tau.preset))
-      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'.")
     ##
     sm1 <- summary(metagen(TE, seTE, byvar=byvar,
                            method.tau=method.tau))
@@ -251,6 +278,21 @@ metaprop <- function(event, n, studlab,
   }
   
   
+  ##
+  ## Heterogeneity statistic
+  ##
+  if (!missing.byvar & tau.common){
+    Q <- sQ.w
+    df.Q <- sk.w
+    Cval <- sC.w
+  }
+  else{
+    Q <- m$Q
+    df.Q <- m$df.Q
+    Cval <- m$C
+  }
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -271,13 +313,15 @@ metaprop <- function(event, n, studlab,
               lower.predict=p.lower, upper.predict=p.upper,
               level.predict=level.predict,
               ##
-              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
-              C=m$C,
+              k=m$k, Q=Q, df.Q=df.Q,
+              tau=m$tau, se.tau2=m$se.tau2,
+              C=Cval,
               sm=sm,
               method=m$method,
-              incr=incr.event,
+              incr=incr,
               allincr=allincr,
               addincr=addincr,
+              incr.event=incr.event,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
@@ -290,12 +334,15 @@ metaprop <- function(event, n, studlab,
               prediction=prediction,
               method.bias=method.bias,
               title="", complab="", outclab="",
+              keepdata=keepdata,
+              data=if (keepdata) data else NULL,
+              subset=if (keepdata) subset else NULL,
               call=match.call(),
               warn=warn)
   ##
-  if (!missing(byvar)){
+  if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
   

@@ -11,16 +11,17 @@
 }
 
 \usage{
-metareg(formula, data, method.tau=data$method.tau)
+metareg(x, formula, method.tau=x$method.tau, ...)
 }
 
 \arguments{
+  \item{x}{An object of class \code{meta}.}
   \item{formula}{A formula object.}
-  \item{data}{An object of class \code{meta}.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance tau-squared. Either
     \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
     \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+  \item{\dots}{Additional arguments (ignored at the moment).}
 }
 
 \details{
@@ -45,9 +46,58 @@ An object of class \code{c("rma.uni","rma")}. Please look at the help page of R 
 
 \examples{
 data(Fleiss93cont)
-meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="MD")
-meta1$grp <- c(1,2,1,1,2)
-metareg(~grp, data=meta1)
+
+## Add some (fictious) grouping variables:
+Fleiss93cont$age <- c(55, 65, 55, 65, 55)
+Fleiss93cont$region <- c("Europe", "Europe", "Asia",
+                         "Asia", "Europe")
+
+meta1 <- metacont(n.e, mean.e, sd.e,
+                  n.c, mean.c, sd.c,
+                  data=Fleiss93cont, sm="MD")
+
+
+mu1 <- update(meta1, byvar=region)
+
+mu2 <- update(meta1, byvar=region,
+              tau.common=TRUE, comb.fixed=FALSE)
+
+## Warnings due to wrong ordering of arguments (order has changed with
+## version 3.0-0 of R package meta)
+##
+##metareg(~region, meta1)
+##metareg(~region, data=meta1)
+
+## Warning as no information on covariate is available
+##
+##metareg(meta1)
+
+## Do meta-regression for covariate region
+## (see R code to create object mu2)
+##
+metareg(mu2)
+
+## Same result for
+## - tau-squared
+## - test of heterogeneity
+## - test for subgroup differences
+## (as argument 'tau.common' was used to create mu2)
+##
+mu2
+metareg(mu2)
+metareg(meta1, ~region)
+##
+## Different result for
+## - tau-squared
+## - test of heterogeneity
+## - test for subgroup differences
+## (as argument 'tau.common' is - by default - FALSE)
+##
+mu1
+
+## Do meta-regression with two covariates
+##
+metareg(mu1, ~region + age)
 }
 
 \keyword{print}

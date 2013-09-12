@@ -13,6 +13,7 @@ metagen <- function(TE, seTE,
                     label.e="Experimental", label.c="Control",
                     label.left="", label.right="",
                     byvar, bylab, print.byvar=TRUE,
+                    keepdata=TRUE,
                     warn=TRUE
                     ){
   
@@ -26,57 +27,78 @@ metagen <- function(TE, seTE,
   }
   
   
+  ##if (missing(data)) data <- NULL
+  nulldata <- is.null(data)
+  ##
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch TE, seTE, studlab (possibly), byvar (possibly) from data:
-  ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
-  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- NULL
-  mf$method.bias <- mf$n.e <- mf$n.c <- NULL
-  mf[[1]] <- as.name("data.frame")
-  mf <- eval(mf, data)
   ##
-  ## Catch subset (possibly) from data:
+  ## Catch TE, seTE, studlab, byvar, subset from data:
   ##
-  mf2 <- match.call()
-  mf2$TE <- mf2$seTE <- NULL
-  mf2$studlab <- NULL
-  mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
-  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- NULL
-  mf2$method.bias <- mf2$n.e <- mf2$n.c <- NULL
-  mf2$byvar <- NULL
-  mf2[[1]] <- as.name("data.frame")
+  TE <- eval(mf[[match("TE", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
   ##
-  mf2 <- eval(mf2, data)
+  seTE <- eval(mf[[match("seTE", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
   ##
-  if (!is.null(mf2$subset))
-    if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$TE))) ||
-        (length(mf2$subset) > length(mf$TE)))
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  
+  
+  if (!is.null(subset))
+    if ((is.logical(subset) & (sum(subset) > length(TE))) ||
+        (length(subset) > length(TE)))
       stop("Length of subset is larger than number of studies.")
-    else
-      mf <- mf[mf2$subset,]
-  ##if (!is.null(mf2$subset))
-  ##  if (length(mf2$subset) > length(mf$TE))
-  ##    stop("Length of subset is larger than number of studies.")
-  ##  else
-  ##    mf <- mf[mf2$subset,]
-  ##
-  TE   <- mf$TE
-  seTE <- mf$seTE
-  ##
-  missing.byvar <- missing(byvar)
+  
+  
+  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
-    byvar.name <- deparse(substitute(byvar))
-    byvar <- mf$byvar
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
   }
-  ##
-  if (!missing(studlab))
-    studlab <- as.character(mf$studlab)
+  
+  
+  if (!is.null(studlab))
+    studlab <- as.character(studlab)
   else
-    studlab <- row.names(mf)
+    studlab <- seq(along=TE)
+  
+  
+  if (keepdata){
+    if (nulldata){
+      data <- data.frame(TE=TE, seTE=seTE, studlab=studlab)
+      if (!missing.byvar)
+        data$byvar <- byvar
+      if (!is.null(subset))
+        data$subset <- subset
+    }
+    else{
+      data$TE <- TE
+      data$seTE <- seTE
+      ##
+      data$studlab <- studlab
+      ##
+      if (!missing.byvar)
+        data$byvar <- byvar
+    }
+  }
+  
+  
+  if (!is.null(subset)){
+    TE <- TE[subset]
+    seTE <- seTE[subset]
+    studlab <- studlab[subset]
+    if (!missing.byvar)
+      byvar <- byvar[subset]
+  }
   
   
   k.all <- length(TE)
@@ -178,6 +200,7 @@ metagen <- function(TE, seTE,
     w.random <- rep(0, k.all)
     ##
     Q <- NA
+    df.Q <- NA
     tau2 <- NA
     se.tau2 <- NA
     ##
@@ -221,14 +244,14 @@ metagen <- function(TE, seTE,
       lower.fixed <- ci.f$lower
       upper.fixed <- ci.f$upper
       
-      ##
-      ## Heterogeneity statistic
       ## (Cooper & Hedges (1994), p. 274-5)
       ##
       if (is.null(TE.tau))
         Q <- sum(w.fixed * (TE - TE.fixed)^2, na.rm=TRUE)
       else
         Q <- sum(w.fixed * (TE - TE.tau  )^2, na.rm=TRUE)
+      ##
+      df.Q <- k-1
       ##
       ## Calculate scaling factor C
       ##
@@ -241,8 +264,8 @@ metagen <- function(TE, seTE,
         ## Following check is necessary because of argument tau.common
         ##
         if (is.na(tau2)){
-          if (round(Q, digits=18)<=(k-1)) tau2 <- 0
-          else tau2 <- (Q-(k-1))/Cval
+          if (round(Q, digits=18)<=df.Q) tau2 <- 0
+          else tau2 <- (Q-df.Q)/Cval
         }
       }
       else
@@ -286,6 +309,7 @@ metagen <- function(TE, seTE,
       upper.fixed <- tres.f$ci.ub
       ##
       Q <- tres.f$QE
+      df.Q <- tres.f$k-tres.f$p
       ##
       ##
       if (missing(tau.preset))
@@ -326,6 +350,16 @@ metagen <- function(TE, seTE,
   }
   
   
+  ##
+  ## Heterogeneity statistic
+  ##
+  if (!missing.byvar & tau.common){
+    Q <- sQ.w
+    df.Q <- sk.w
+    Cval <- sC.w
+  }
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -346,7 +380,8 @@ metagen <- function(TE, seTE,
               lower.predict=p.lower, upper.predict=p.upper,
               level.predict=level.predict,
               ##
-              k=k, Q=Q, tau=sqrt(tau2), se.tau2=se.tau2,
+              k=k, Q=Q, df.Q=df.Q,
+              tau=sqrt(tau2), se.tau2=se.tau2,
               C=Cval,
               sm=sm, method="Inverse",
               level=level,
@@ -370,12 +405,14 @@ metagen <- function(TE, seTE,
               label.c=label.c,
               label.left=label.left,
               label.right=label.right,
+              data=if (keepdata) data else NULL,
+              subset=if (keepdata) subset else NULL,
               warn=warn,
               call=match.call())
   ##
-  if (!missing(byvar)){
+  if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
   

@@ -9,54 +9,83 @@ metacor <- function(cor, n, studlab,
                     prediction=FALSE, level.predict=level,
                     method.bias="linreg",
                     title="", complab="", outclab="",
-                    byvar, bylab, print.byvar=TRUE
+                    byvar, bylab, print.byvar=TRUE,
+                    keepdata=TRUE
                     ){
+  
 
-
+  ##if (missing(data)) data <- NULL
+  nulldata <- is.null(data)
+  ##
   if (is.null(data)) data <- sys.frame(sys.parent())
   ##
-  ## Catch cor, n, studlab (possibly), byvar (possibly) from data:
-  ##
   mf <- match.call()
-  mf$data <- mf$subset <- mf$sm <- NULL
-  mf$level <- mf$level.comb <- mf$level.predict <- mf$prediction <- NULL
-  mf$hakn <- mf$method.tau <- mf$tau.preset <- mf$TE.tau <- mf$method.bias <- NULL
-  mf[[1]] <- as.name("data.frame")
-  mf <- eval(mf, data)
   ##
-  ## Catch subset (possibly) from data:
+  ## Catch cor, n, studlab, byvar, subset from data:
   ##
-  mf2 <- match.call()
-  mf2$cor <- mf2$n <- NULL
-  mf2$studlab <- NULL
-  mf2$data <- mf2$sm <- NULL
-  mf2$level <- mf2$level.comb <- mf2$level.predict <- mf2$prediction <- NULL
-  mf2$hakn <- mf2$method.tau <- mf2$tau.preset <- mf2$TE.tau <- mf2$method.bias <- NULL
-  mf2$byvar <- NULL
-  mf2[[1]] <- as.name("data.frame")
+  cor <- eval(mf[[match("cor", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
   ##
-  mf2 <- eval(mf2, data)
+  n <- eval(mf[[match("n", names(mf))]],
+            data, enclos = sys.frame(sys.parent()))
   ##
-  if (!is.null(mf2$subset))
-    if ((is.logical(mf2$subset) & (sum(mf2$subset) > length(mf$cor))) ||
-        (length(mf2$subset) > length(mf$cor)))
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  
+  
+  if (!is.null(subset))
+    if ((is.logical(subset) & (sum(subset) > length(cor))) ||
+        (length(subset) > length(cor)))
       stop("Length of subset is larger than number of studies.")
-    else
-      mf <- mf[mf2$subset,]
-  ##
-  cor <- mf$cor
-  n     <- mf$n
-  ##
-  missing.byvar <- missing(byvar)
+  
+  
+  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
-    byvar.name <- deparse(substitute(byvar))
-    byvar <- mf$byvar
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
   }
-  ##
-  if (!missing(studlab))
-    studlab <- as.character(mf$studlab)
+  
+  
+  if (!is.null(studlab))
+    studlab <- as.character(studlab)
   else
-    studlab <- row.names(mf)
+    studlab <- seq(along=cor)
+  
+  
+  if (keepdata){
+    if (nulldata){
+      data <- data.frame(cor=cor, n=n, studlab=studlab)
+      if (!missing.byvar)
+        data$byvar <- byvar
+      if (!is.null(subset))
+        data$subset <- subset
+    }
+    else{
+      data$cor <- cor
+      data$n <- n
+      ##
+      data$studlab <- studlab
+      ##
+      if (!missing.byvar)
+        data$byvar <- byvar
+    }
+  }
+  
+  
+  if (!is.null(subset)){
+    cor <- cor[subset]
+    n   <- n[subset]
+    studlab <- studlab[subset]
+    if (!missing.byvar)
+      byvar <- byvar[subset]
+  }
   
   
   k.all <- length(cor)
@@ -170,6 +199,21 @@ metacor <- function(cor, n, studlab,
   }
   
   
+  ##
+  ## Heterogeneity statistic
+  ##
+  if (!missing.byvar & tau.common){
+    Q <- sQ.w
+    df.Q <- sk.w
+    Cval <- sC.w
+  }
+  else{
+    Q <- m$Q
+    df.Q <- m$df.Q
+    Cval <- m$C
+  }
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -190,8 +234,9 @@ metacor <- function(cor, n, studlab,
               lower.predict=p.lower, upper.predict=p.upper,
               level.predict=level.predict,
               ##
-              k=m$k, Q=m$Q, tau=m$tau, se.tau2=m$se.tau2,
-              C=m$C,
+              k=m$k, Q=Q, df.Q=df.Q,
+              tau=m$tau, se.tau2=m$se.tau2,
+              C=Cval,
               sm=sm,
               method=m$method,
               level=level, level.comb=level.comb,
@@ -206,11 +251,13 @@ metacor <- function(cor, n, studlab,
               prediction=prediction,
               method.bias=method.bias,
               title="", complab="", outclab="",
+              data=if (keepdata) data else NULL,
+              subset=if (keepdata) subset else NULL,
               call=match.call())
   ##
-  if (!missing(byvar)){
+  if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab)) bylab else byvar.name
+    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
   

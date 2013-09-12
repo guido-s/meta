@@ -5,17 +5,18 @@ export(ci, forest, forest.meta,
        metabin, metacont, metacor, metacr, metaprop,
        metareg,
        metacum, metagen, metainf, radial, radial.default, radial.meta,
-       plot.meta, print.meta, print.metabias,
+       print.meta, print.metabias,
        read.rm5, print.rm5, print.summary.rm5, summary.rm5, metabias.rm5,
        read.mtv,
        print.summary.meta, summary.meta,
        trimfill, trimfill.default, trimfill.meta,
-       labbe, labbe.default, labbe.metabin)
+       labbe, labbe.default, labbe.metabin,
+       update.meta, cilayout)
 
 # not visible:
 # asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
 # is.installed.metafor, crtitle, catmeth,
-# kentau, hypergeometric, linregcore
+# kentau, hypergeometric, linregcore, setOption, warnarg, format.tau
 
 S3method(as.data.frame, meta)
 S3method(forest, meta)
@@ -25,7 +26,6 @@ S3method(labbe, default)
 S3method(labbe, metabin)
 S3method(metabias, default)
 S3method(metabias, meta)
-S3method(plot, meta)
 S3method(print, meta)
 S3method(print, metabias)
 S3method(print, rm5)
@@ -36,5 +36,4 @@ S3method(radial, meta)
 S3method(summary, meta)
 S3method(trimfill, default)
 S3method(trimfill, meta)
-
-#useDynLib(meta)
+S3method(update, meta)

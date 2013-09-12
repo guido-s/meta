@@ -1,12 +1,12 @@
 print.summary.meta <- function(x,
                                digits=max(3, .Options$digits - 3),
-                               print.byvar=x$print.byvar,
                                comb.fixed=x$comb.fixed,
                                comb.random=x$comb.random,
                                prediction=x$prediction,
+                               print.byvar=x$print.byvar,
+                               print.CMH=x$print.CMH,
                                header=TRUE,
                                logscale=FALSE,
-                               print.CMH=x$print.CMH,
                                bylab.nchar=35,
                                ...){
   
@@ -23,6 +23,12 @@ print.summary.meta <- function(x,
   
   k <- x$k
   sm <- x$sm
+  ##
+  if (is.null(x$df.Q))
+    df.Q <- k-1
+  else
+    df.Q <- x$df.Q
+
   
   if (sm=="ZCOR")
     sm.lab <- "COR"
@@ -341,21 +347,26 @@ print.summary.meta <- function(x,
 
     if (!is.na(x$tau))
       cat(paste("\nQuantifying heterogeneity:\n",
-                if (x$tau^2 < 0.0001)
+                if (x$tau^2 > 0 & x$tau^2 < 0.0001)
                 "tau^2 < 0.0001"
                 else
                 paste("tau^2 = ",
-                      format(round(x$tau^2, 4), 4, nsmall=4, scientific=FALSE), sep="")
+                      ifelse(x$tau==0,
+                             "0",
+                             format(round(x$tau^2, 4), 4, nsmall=4, scientific=FALSE)),
+                      sep="")
                 ,
                 paste("; H = ", round(H, 2),
                       ifelse(k>2,
-                             p.ci(round(lowH, 2), round(uppH, 2)),
+                             paste(" ", p.ci(round(lowH, 2), round(uppH, 2)), sep=""),
                              ""),
                       "; ",
                       "I^2 = ", round(100*I2, 1), "%",
                       ifelse(k>2,
-                             p.ci(paste(round(100*lowI2, 1), "%", sep=""),
-                                  paste(round(100*uppI2, 1), "%", sep="")),
+                             paste(" ",
+                                   p.ci(paste(round(100*lowI2, 1), "%", sep=""),
+                                        paste(round(100*uppI2, 1), "%", sep="")),
+                                   sep=""),
                              ""),
                       sep=""),
                 "\n", sep=""))
@@ -363,8 +374,8 @@ print.summary.meta <- function(x,
     
     if (k > 1 & (comb.fixed|comb.random)){
       
-      Qdata <- cbind(round(x$Q, 2), k-1,
-                     format.p(1-pchisq(x$Q, df=k-1)))
+      Qdata <- cbind(round(x$Q, 2), df.Q,
+                     format.p(1-pchisq(x$Q, df=df.Q)))
       
       dimnames(Qdata) <- list("", c("Q", "d.f.", "p.value"))
       ##
@@ -450,7 +461,7 @@ print.summary.meta <- function(x,
             I2.w <- ifelse(is.na(x$I2.w$TE),
                            "--",
                            paste(round(100*x$I2.w$TE, 1), "%", sep=""))
-            tau2.w <- ifelse(x$k.w==1, "--", format.p(x$tau.w^2))
+            tau2.w <- ifelse(x$k.w==1, "--", format.tau(x$tau.w^2))
             ##
             Tdata <- cbind(format(x$k.w),
                            format(TE.fixed.w),
@@ -549,7 +560,7 @@ print.summary.meta <- function(x,
             I2.w <- ifelse(is.na(x$I2.w$TE),
                            "--",
                            paste(round(100*x$I2.w$TE, 1), "%", sep=""))
-            tau2.w <- ifelse(x$k.w==1, "--", format.p(x$tau.w^2))
+            tau2.w <- ifelse(x$k.w==1, "--", format.tau(x$tau.w^2))
             ##
             Tdata <- cbind(format(x$k.w),
                            format(TE.random.w),

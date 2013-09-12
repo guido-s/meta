@@ -1,7 +1,10 @@
-metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
+metainf <- function(x, pooled, sortvar){
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
+  
+  
+  level.comb <- x$level.comb
   
   
   if (missing(pooled)){
@@ -48,7 +51,7 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
   k.all <- length(x$TE)
   ##
   if (k.all==1){
-    warning("Nothing calculated (minimum number of studies: 2)")
+    warning("Nothing calculated (minimum number of studies: 2).")
     return(invisible(NULL))
   }
   
@@ -175,7 +178,7 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
     sel.pas <- inherits(x, "metaprop") & m$sm=="PAS"
     sel.pft <- inherits(x, "metaprop") & m$sm=="PFT"
     ##
-    s.i <- summary(m, level=level.comb, level.comb=level.comb)
+    s.i <- summary(m)
     ##
     if (pooled == "fixed"){
       res.i[i,] <- c(m$TE.fixed, m$seTE.fixed,
@@ -216,7 +219,7 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
     df.hakn.i <- res.i[,10]
   
   
-  sm1 <- summary(x, level=level.comb, level.comb=level.comb)
+  sm1 <- summary(x)
   ##
   if (pooled == "fixed"){
     TE.s <- sm1$fixed$TE
@@ -251,6 +254,8 @@ metainf <- function(x, pooled, sortvar, level.comb=x$level.comb){
               df.hakn=if (pooled=="random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
               sm=x$sm, method=x$method, k=x$k,
               pooled=pooled,
+              comb.fixed=ifelse(pooled=="fixed", TRUE, FALSE),
+              comb.random=ifelse(pooled=="random", TRUE, FALSE),
               TE.fixed=NA, seTE.fixed=NA,
               TE.random=NA, seTE.random=NA,
               Q=NA,

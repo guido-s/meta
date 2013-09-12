@@ -1,26 +1,22 @@
 forest.meta <- function(x,
-                        byvar=x$byvar,
-                        bylab=x$bylab,
-                        print.byvar=x$print.byvar,
                         sortvar,
                         studlab=TRUE,
                         ##
-                        level=x$level,
-                        level.comb=x$level.comb,
-                        ##
-                        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
+                        comb.fixed=x$comb.fixed,
+                        comb.random=x$comb.random,
                         overall=TRUE,
-                        text.fixed=if (level!=level.comb) paste("Fixed effect model (",
-                                         round(level.comb*100), "%-CI)", sep="") else "Fixed effect model",
-                        text.random=if (level!=level.comb) paste("Random effects model (",
-                                          round(level.comb*100), "%-CI)", sep="") else "Random effects model",
+                        text.fixed=if (x$level!=x$level.comb) paste("Fixed effect model (",
+                                         round(x$level.comb*100), "%-CI)", sep="") else "Fixed effect model",
+                        text.random=if (x$level!=x$level.comb) paste("Random effects model (",
+                                          round(x$level.comb*100), "%-CI)", sep="") else "Random effects model",
                         lty.fixed=2, lty.random=3,
                         ##
                         prediction=x$prediction,
-                        level.predict=if (length(x$level.predict)==0) level else x$level.predict,
-                        text.predict=if (level!=level.predict) paste("Prediction interval (",
-                                           round(level.predict*100), "%)", sep="") else "Prediction interval",
+                        text.predict=if (!(length(x$level.predict)==0) && x$level!=x$level.predict) paste("Prediction interval (",
+                                           round(x$level.predict*100), "%)", sep="") else "Prediction interval",
                         ##
+                        bylab=x$bylab,
+                        print.byvar=x$print.byvar,
                         text.fixed.w=text.fixed,
                         text.random.w=text.random,
                         ##
@@ -143,12 +139,22 @@ forest.meta <- function(x,
   
   x.name <- deparse(substitute(x))
   
-  byvar.name <- deparse(substitute(byvar))
+  
+  cl <- class(x)[1]
+  addargs <- names(list(...))
   ##
-  if (!missing(byvar) & length(x$byvar)==0){
-    if (!is.null(x[[byvar.name]]))
-      byvar <- x[[byvar.name]]
-  }
+  fun <- "forest.meta"
+  ##
+  warnarg("byvar", addargs, fun, cl)
+  warnarg("level", addargs, fun, cl)
+  warnarg("level.comb", addargs, fun, cl)
+  warnarg("level.predict", addargs, fun, cl)
+  ##
+  byvar <- x$byvar
+  level <- x$level
+  level.comb <- x$level.comb
+  level.predict <- ifelse(length(x$level.predict)==0, x$level, x$level.predict)
+  
   
   if (length(comb.fixed)==0)
     comb.fixed <- FALSE
@@ -208,7 +214,7 @@ forest.meta <- function(x,
   
   
   if (!missing(boxsize))
-      warning("Use of parameter 'boxsize' is deprecated, please use parameter 'squaresize' instead")
+      warning("Use of parameter 'boxsize' is deprecated, please use parameter 'squaresize' instead.")
   
   if (is.logical(leftcols)){
     warning("Logical value not possible for parameter 'leftcols', set to 'NULL'.")
@@ -569,7 +575,7 @@ forest.meta <- function(x,
         label <- round(label, 2)
       }
       else{
-        if (label)
+        if (length(label)==1 && is.logical(label) && label)
           label <- round(at, 2)
         at <- log(at)
       }
@@ -980,10 +986,6 @@ forest.meta <- function(x,
   by <- length(byvar)>0
   sort <- !missing(sortvar)
   
-  ##  if (by)
-  ##    if (!is.null(x[[byvar.name]]))
-  ##      byvar <- x[[byvar.name]]
-  
   if (by & (inherits(x, "metainf")| inherits(x, "metacum")))
     stop("Use of 'byvar' not possible for 'metainf' or 'metacum' object.") 
   
@@ -1204,7 +1206,7 @@ forest.meta <- function(x,
     ancientmeta <- !(!is.null(x$version) &&
                      as.numeric(unlist(strsplit(x$version, "\\."))[1]) >= 2)
     
-    sm1 <- summary(m1, level=level, level.comb=level.comb, warn=FALSE)
+    sm1 <- summary(m1, warn=FALSE)
     
     TE    <- sm1$study$TE
     seTE  <- sm1$study$seTE
@@ -1303,8 +1305,8 @@ forest.meta <- function(x,
       hetstat.overall <- paste(hetstat.overall,
                                if (dummy) ", ",
                                if (tau2==0) "tau-squared=0"
-                               else format.p(tau2, noblanks=TRUE,
-                                             lab=TRUE, labval="tau-squared"),
+                               else format.tau(tau2, noblanks=TRUE,
+                                               lab=TRUE, labval="tau-squared"),
                                sep="")
       dummy <- TRUE
     }
@@ -1475,8 +1477,8 @@ forest.meta <- function(x,
         hetstat.w <- paste(hetstat.w,
                            if (dummy) ", ",
                            ifelse(tau2.w==0, "tau-squared=0",
-                                  format.p(tau2.w, noblanks=TRUE,
-                                           lab=TRUE, labval="tau-squared")),
+                                  format.tau(tau2.w, noblanks=TRUE,
+                                             lab=TRUE, labval="tau-squared")),
                            sep="")
         dummy <- TRUE
       }
@@ -1744,10 +1746,8 @@ forest.meta <- function(x,
   
   
   if (print.byvar){
-    if (length(bylab)==0)
-      bylab <- paste(byvar.name,
-                     " = ",
-                     format(by.levs), sep="")
+    if (length(bylab)==0 || bylab=="")
+      bylab <- format(by.levs)
     else
       bylab <- paste(bylab,
                      " = ",
@@ -2541,14 +2541,14 @@ forest.meta <- function(x,
   for (i in seq(along=leftcols)){
     if (i==1)
       if (leftcols[[i]]=="col.studlab")
-        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-(c(4, 4+3*n.by+1:n.by))]))
+        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-(c(4, 5+3*n.by+1:n.by))]))
       else
         x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels))
     else
       if (leftcols[[i]]=="col.studlab")
         x1 <- unit.c(x1,
                      colgap.left,
-                     wcalc(cols[[leftcols[i]]]$labels[-(c(4, 4+3*n.by+1:n.by))]))
+                     wcalc(cols[[leftcols[i]]]$labels[-(c(4, 5+3*n.by+1:n.by))]))
       else
         x1 <- unit.c(x1,
                      colgap.left,

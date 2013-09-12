@@ -29,7 +29,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         label.e="Experimental", label.c="Control",
         label.left="", label.right="",
         byvar, bylab, print.byvar=TRUE,
-        print.CMH=FALSE, warn=TRUE)
+        print.CMH=FALSE, keepdata=TRUE, warn=TRUE)
 }
 
 \arguments{
@@ -111,6 +111,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     variable should be printed in front of the group labels.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}
@@ -200,6 +202,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metabin object by only specifying
+  arguments which should be changed.
 }
 
 \value{
@@ -235,17 +241,23 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
+  \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
     tau-squared across subgroups.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{incr.e, incr.c}{Increment added to cells in the experimental and
-    control group, respectively}
+    control group, respectively.}
   \item{sparse}{Logical flag indicating if any study included in
     meta-analysis has any zero cell frequencies.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+    \code{keepdata=TRUE}).}
+  \item{subset}{Information on subset of original data used in
+    meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -316,7 +328,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{funnel}}, \code{\link{metabias}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
+\seealso{\code{\link{update.meta}}, \code{\link{funnel}}, \code{\link{metabias}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
 metabin(10, 20, 15, 20, sm="OR", warn=FALSE)

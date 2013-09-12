@@ -2,7 +2,7 @@
 
 \alias{forest.meta}
 
-\title{Forest plot (new plot function for objects of class meta)}
+\title{Forest plot plot function for objects of class meta}
 
 \description{
   Draws a forest plot in the active graphics window (using grid
@@ -10,20 +10,19 @@
 }
 
 \usage{
-\method{forest}{meta}(x, byvar=x$byvar, bylab=x$bylab,
-       print.byvar=x$print.byvar, sortvar, studlab=TRUE,
-       level=x$level, level.comb=x$level.comb,
+\method{forest}{meta}(x, sortvar, studlab=TRUE,
        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
        overall=TRUE,
-       text.fixed=if (level!=level.comb) paste("Fixed effect model (",
-        round(level.comb*100), "\%-CI)", sep="") else "Fixed effect model",
-       text.random=if (level!=level.comb) paste("Random effects model (",
-        round(level.comb*100), "\%-CI)", sep="") else "Random effects model",
+       text.fixed=if (x$level!=x$level.comb) paste("Fixed effect model (",
+                    round(x$level.comb*100), "\%-CI)", sep="") else "Fixed effect model",
+       text.random=if (x$level!=x$level.comb) paste("Random effects model (",
+                    round(x$level.comb*100), "\%-CI)", sep="") else "Random effects model",
        lty.fixed=2, lty.random=3,
        prediction=x$prediction,
-       level.predict=if (length(x$level.predict)==0) level else x$level.predict,
-       text.predict=if (level!=level.predict) paste("Prediction interval (",
-        round(level.predict*100), "\%)", sep="") else "Prediction interval",
+       text.predict=if (!(length(x$level.predict)==0) && x$level!=x$level.predict)
+                     paste("Prediction interval (", round(x$level.predict*100), "\%)",
+                     sep="") else "Prediction interval",
+       bylab=x$bylab, print.byvar=x$print.byvar,
        text.fixed.w=text.fixed, text.random.w=text.random,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        xlab="", xlab.pos=ref,
@@ -89,13 +88,6 @@
 
 \arguments{
   \item{x}{An object of class \code{meta}.}
-  \item{byvar}{An optional vector containing grouping information (must
-    be of same length as \code{x$TE}). Argument \code{byvar} can not be
-    used if \code{x} is an object of class \code{metacum} or
-    \code{metainf}.}
-  \item{bylab}{A character string with a label for the grouping variable.}
-  \item{print.byvar}{A logical indicating whether the name of the grouping
-    variable should be printed in front of the group labels.}
   \item{sortvar}{An optional vector used to sort the individual studies
     (must be of same length as \code{x$TE}).}
   \item{studlab}{A logical indicating whether study labels should be
@@ -125,6 +117,9 @@
     for a new study.}
   \item{text.predict}{A character string used in the plot to label the
     prediction interval.}
+  \item{bylab}{A character string with a label for the grouping variable.}
+  \item{print.byvar}{A logical indicating whether the name of the grouping
+    variable should be printed in front of the group labels.}
   \item{text.fixed.w}{A character string to label the pooled fixed
     effect estimate within subgroups, or a character vector of same
     length as number of subgroups with corresponging labels.}
@@ -215,9 +210,9 @@
     heterogeneity measures at all.}
   \item{overall.hetstat}{A logical value indicating whether to print
     results for heterogeneity measures for overall treatment
-    comparisons. This argument is useful in combination with the
-    argument \code{byvar} if heterogeneity statistics should only be
-    printed on group level.}
+    comparisons. This argument is useful in combination with subgroup
+    analyses (list object \code{byvar}) if heterogeneity statistics
+    should only be printed on group level.}
   \item{hetlab}{Label printed in front of results for heterogeneity measures.}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
@@ -281,7 +276,15 @@
   A forest plot, also called confidence interval plot, is drawn in the
   active graphics window. Subgroup analyses are conducted and
   displayed in the plot if \code{byvar} is not missing.
-
+  
+  Note, in R package meta, version 3.0-0 the following arguments have
+  been removed from R function forest.meta: byvar, level, level.comb,
+  level.predict. This functionality is now provided by R function
+  \code{\link{update.meta}} (or directly in R functions
+  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metagen}}, \code{\link{metacor}}, and
+  \code{\link{metaprop}}).
+  
   The \code{forest} function is based on the grid graphics
   system. In order to print the forest plot, (i) resize the graphics
   window, (ii) either use \code{\link{dev.copy2eps}} or
@@ -348,8 +351,8 @@
   for objects of class \code{metaprop}, e.g. \code{pscale=100} means
   that proportions are expressed per 100 observations. This is useful in
   situations with (very) low proportions. For \code{pscale=100}, column
-  heading and x-axis label are changed to "Prop (in \%)" and "Proportion
-  (in \%"), respectively.
+  heading and x-axis label are changed to "Prop (in \%)" and
+  "Proportion (in \%)", respectively.
 
   A prediction interval for treatment effect of a new study (Higgins
   et al., 2009) is given in the forest plot if arguments
@@ -371,7 +374,7 @@
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{plot.meta}}, \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
+\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
 
 \examples{
 data(Olkin95)

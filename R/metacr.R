@@ -17,7 +17,7 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   ##
   if (sum(sel)==0){
     warning("No data available for comp.no=", comp.no,
-            " and outcome.no=", outcome.no)
+            " and outcome.no=", outcome.no, ".")
     return(NULL)
   }
   ##
@@ -84,7 +84,7 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   
   if (tau.common & method=="Peto"){
     if (warn)
-      warning("Argument 'tau.common' not considered for Peto method")
+      warning("Argument 'tau.common' not considered for Peto method.")
     tau.common <- FALSE
   }
   
@@ -282,6 +282,10 @@ metacr <- function(x, comp.no=1, outcome.no=1,
                     complab=complab, outclab=outclab,
                     label.e=label.e, label.c=label.c,
                     label.left=label.left, label.right=label.right)
+    m1$event.e <- x$event.e[sel]
+    m1$event.c <- x$event.c[sel]
+    m1$n.e     <- x$n.e[sel]
+    m1$n.c     <- x$n.c[sel]
     }
   
   

@@ -22,7 +22,7 @@ metaprop(event, n, studlab,
          method.bias="linreg",
          title="", complab="", outclab="",
          byvar, bylab, print.byvar=TRUE,
-         warn=TRUE)
+         keepdata=TRUE, warn=TRUE)
 }
 
 \arguments{
@@ -78,6 +78,8 @@ metaprop(event, n, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
     to studies with zero cell frequencies should result in a warning.}
 }
@@ -154,6 +156,10 @@ metaprop(event, n, studlab,
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metaprop object by only specifying
+  arguments which should be changed.
 }
 
 \value{
@@ -198,6 +204,12 @@ metaprop(event, n, studlab,
     for pooling: \code{"Inverse"}}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{incr.event}{Increment added to number of events.}
+  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+    \code{keepdata=TRUE}).}
+  \item{subset}{Information on subset of original data used in
+    meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
 }
@@ -239,7 +251,7 @@ metaprop(event, n, studlab,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
+\seealso{\code{\link{update.meta}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
 metaprop(4:1, c(10, 20, 30, 40))
