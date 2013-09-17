@@ -840,50 +840,58 @@ forest.meta <- function(x,
   newcols <- length(colnames.new)>0
   ##
   if (newcols){
-    ##
-    ## Check whether additional variables are
-    ## part of meta-object
-    ##
-    for (i in colnames.new){
-      if (length(x[[i]]) == 0)
-        stop(paste("variable '", i,
-                   "' not available in '",
-                   x.name, "'", sep=""))
-    }
-    ##
-    rightcols.new <- rightcols[! rightcols %in% colnames]
-    leftcols.new  <- leftcols[! leftcols %in% colnames]
-    ##
-    ## Determine label for new columns
-    ## 1. Use column name as label if no label is given
-    ##    parameter right|left|labs
-    ## 2. Otherwise use corresponding entry from
-    ##    parameter right|left|labs
-    ##
-    if (length(rightcols.new)>0){
-      pos.rightcols.new <- match(rightcols.new, rightcols)
+      if (is.null(x$data))
+          dataset <- as.data.frame(x)
+      else{
+          if (!is.null(x$subset))
+              dataset <- x$data[x$subset,]
+          else
+              dataset <- x$data
+      }
       ##
-      if (missing(rightlabs))
-        rightlabs.new <- rightcols.new
-      else if (length(rightcols.new) == length(rightlabs))
-        rightlabs.new <- rightlabs
-      else if (max(pos.rightcols.new) <= length(rightlabs))
-        rightlabs.new <- rightlabs[pos.rightcols.new]
-      else if (max(pos.rightcols.new) > length(rightlabs))
-        stop("Too few labels defined for parameter 'rightcols'")
-    }
-    if (length(leftcols.new)>0){
-      pos.leftcols.new <- match(leftcols.new, leftcols)
+      ## Check whether additional variables are
+      ## part of meta-object
       ##
-      if (missing(leftlabs))
-        leftlabs.new <- leftcols.new
-      else if (length(leftcols.new) == length(leftlabs))
-        leftlabs.new <- leftlabs
-      else if (max(pos.leftcols.new) <= length(leftlabs))
-        leftlabs.new <- leftlabs[pos.leftcols.new]
-      else if (max(pos.leftcols.new) > length(leftlabs))
-        stop("Too few labels defined for parameter 'leftcols'")
-    }
+      for (i in colnames.new){
+          if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
+              stop(paste("variable '", i,
+                         "' not available in '",
+                         x.name, "'", sep=""))
+      }
+      ##
+      rightcols.new <- rightcols[! rightcols %in% colnames]
+      leftcols.new  <- leftcols[! leftcols %in% colnames]
+      ##
+      ## Determine label for new columns
+      ## 1. Use column name as label if no label is given
+      ##    parameter right|left|labs
+      ## 2. Otherwise use corresponding entry from
+      ##    parameter right|left|labs
+      ##
+      if (length(rightcols.new)>0){
+          pos.rightcols.new <- match(rightcols.new, rightcols)
+          ##
+          if (missing(rightlabs))
+              rightlabs.new <- rightcols.new
+          else if (length(rightcols.new) == length(rightlabs))
+              rightlabs.new <- rightlabs
+          else if (max(pos.rightcols.new) <= length(rightlabs))
+              rightlabs.new <- rightlabs[pos.rightcols.new]
+          else if (max(pos.rightcols.new) > length(rightlabs))
+              stop("Too few labels defined for parameter 'rightcols'")
+      }
+      if (length(leftcols.new)>0){
+          pos.leftcols.new <- match(leftcols.new, leftcols)
+          ##
+          if (missing(leftlabs))
+              leftlabs.new <- leftcols.new
+          else if (length(leftcols.new) == length(leftlabs))
+              leftlabs.new <- leftlabs
+          else if (max(pos.leftcols.new) <= length(leftlabs))
+              leftlabs.new <- leftlabs[pos.leftcols.new]
+          else if (max(pos.leftcols.new) > length(leftlabs))
+              stop("Too few labels defined for parameter 'leftcols'")
+      }
   }
   
   
@@ -2466,54 +2474,74 @@ forest.meta <- function(x,
   cols[["col.cor"]] <- col.cor
   ##                                 )
   if (newcols){
-    if (by){
-      for (i in seq(along=rightcols.new)){
-        tname <- paste("col.", rightcols.new[i], sep="")
-        tmp.r <- x[[rightcols.new[i]]]
-        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-        cols[[tname]] <- formatcol(rightlabs.new[i],
-                                   c("", "", "",
-                                     rep("", length(TE.w)),
-                                     tmp.r[o]),
-                                   yS,
-                                   just=just)
+      if (by){
+          for (i in seq(along=rightcols.new)){
+              tname <- paste("col.", rightcols.new[i], sep="")
+              if (length(dataset[[rightcols.new[i]]])!=0)
+                  tmp.r <- dataset[[rightcols.new[i]]]
+              else if (length(x[[rightcols.new[i]]])!=0)
+                  tmp.r <- x[[rightcols.new[i]]]
+              if (is.factor(tmp.r))
+                  tmp.r <- as.character(tmp.r)
+              tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
+              cols[[tname]] <- formatcol(rightlabs.new[i],
+                                         c("", "", "",
+                                           rep("", length(TE.w)),
+                                           tmp.r[o]),
+                                         yS,
+                                         just=just)
+          }
+          for (i in seq(along=leftcols.new)){
+              tname <- paste("col.", leftcols.new[i], sep="")
+              if (length(dataset[[leftcols.new[i]]])!=0)
+                  tmp.l <- dataset[[leftcols.new[i]]]        
+              else if (length(x[[leftcols.new[i]]])!=0)
+                  tmp.l <- x[[leftcols.new[i]]]
+              if (is.factor(tmp.l))
+                  tmp.l <- as.character(tmp.l)
+              tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
+              cols[[tname]] <- formatcol(leftlabs.new[i],
+                                         c("", "", "",
+                                           rep("", length(TE.w)),
+                                           tmp.l[o]),
+                                         yS,
+                                         just=just)
+          }
       }
-      for (i in seq(along=leftcols.new)){
-        tname <- paste("col.", leftcols.new[i], sep="")
-        tmp.l <- x[[leftcols.new[i]]]
-        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-        cols[[tname]] <- formatcol(leftlabs.new[i],
-                                   c("", "", "",
-                                     rep("", length(TE.w)),
-                                     tmp.l[o]),
-                                   yS,
-                                   just=just)
+      else{
+          for (i in seq(along=rightcols.new)){
+              tname <- paste("col.", rightcols.new[i], sep="")
+              if (length(dataset[[rightcols.new[i]]])!=0)
+                  tmp.r <- dataset[[rightcols.new[i]]]
+              else if (length(x[[rightcols.new[i]]])!=0)
+                  tmp.r <- x[[rightcols.new[i]]]
+              if (is.factor(tmp.r))
+                  tmp.r <- as.character(tmp.r)
+              tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
+              cols[[tname]] <- formatcol(rightlabs.new[i],
+                                         c("", "", "",
+                                           if (sort) tmp.r[o] else tmp.r
+                                           ),
+                                         yS,
+                                         just=just)
+          }
+          for (i in seq(along=leftcols.new)){
+              tname <- paste("col.", leftcols.new[i], sep="")
+              if (length(dataset[[leftcols.new[i]]])!=0)
+                  tmp.l <- dataset[[leftcols.new[i]]]        
+              else if (length(x[[leftcols.new[i]]])!=0)
+                  tmp.l <- x[[leftcols.new[i]]]
+              if (is.factor(tmp.l))
+                  tmp.l <- as.character(tmp.l)
+              tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
+              cols[[tname]] <- formatcol(leftlabs.new[i],
+                                         c("", "", "",
+                                           if (sort) tmp.l[o] else tmp.l
+                                           ),
+                                         yS,
+                                         just=just)
+          }
       }
-    }
-    else{
-      for (i in seq(along=rightcols.new)){
-        tname <- paste("col.", rightcols.new[i], sep="")
-        tmp.r <- x[[rightcols.new[i]]]
-        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-        cols[[tname]] <- formatcol(rightlabs.new[i],
-                                   c("", "", "",
-                                     if (sort) tmp.r[o] else tmp.r
-                                     ),
-                                   yS,
-                                   just=just)
-      }
-      for (i in seq(along=leftcols.new)){
-        tname <- paste("col.", leftcols.new[i], sep="")
-        tmp.l <- x[[leftcols.new[i]]]
-        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-        cols[[tname]] <- formatcol(leftlabs.new[i],
-                                   c("", "", "",
-                                     if (sort) tmp.l[o] else tmp.l
-                                     ),
-                                   yS,
-                                   just=just)
-      }
-    }
   }
   
   

@@ -312,7 +312,7 @@ metagen <- function(TE, seTE,
       df.Q <- tres.f$k-tres.f$p
       ##
       ##
-      if (missing(tau.preset))
+      if (missing(tau.preset) | is.null(tau.preset))
         tres.r <- metafor::rma.uni(yi=TE, vi=seTE^2, method=method.tau, knha=hakn)
       else
         tres.r <- metafor::rma.uni(yi=TE, vi=seTE^2, method=method.tau, knha=hakn, tau2=tau.preset^2)
