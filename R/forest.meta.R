@@ -1441,7 +1441,7 @@ forest.meta <- function(x,
                      sum(x$w.fixed[sel]), sum(x$w.random[sel]),
                      sum(m.w$event.e), sum(m.w$n.e),
                      sum(m.w$event.c), sum(m.w$n.c),
-                     mean(1/x$n[sel]))
+                     summary(m.w)$fixed$harmonic.mean)
     }
     ##
     k.w     <- res.w[,6]
@@ -1552,11 +1552,11 @@ forest.meta <- function(x,
     TE.w <- c(meta.fixed.w$TE, meta.random.w$TE, rep(NA, n.by))
     lowTE.w <- c(meta.fixed.w$lower, meta.random.w$lower, rep(NA, n.by))
     uppTE.w <- c(meta.fixed.w$upper, meta.random.w$upper, rep(NA, n.by))
+    harmonic.mean.w <- c(harmonic.mean.w, harmonic.mean.w, rep(NA, n.by))
     ##
     weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, n.by))
   }
   
-
   TE.orig <- TE
   ##
   if (x$sm %in% c("PFT", "PAS")){

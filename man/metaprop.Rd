@@ -271,6 +271,13 @@ summary(m2)
 
 forest(m1)
 forest(m2)
+
+## Example from Miller (1978):
+death <- c(3, 6, 10, 1)
+animals <- c(11, 17, 21, 6)
+##
+m3 <- metaprop(death, animals, sm="PFT")
+forest(m3)
 }
 
 \keyword{htest}

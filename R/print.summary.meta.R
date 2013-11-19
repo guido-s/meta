@@ -131,8 +131,6 @@ print.summary.meta <- function(x,
     uppTE.predict <- NA # asin2p(uppTE.predict, 1/mean(1/x$n), value="upper", warn=prediction)
     ##
     if (!is.null(x$bylab)){
-      print(harmonic.mean.fixed.w)
-      print(harmonic.mean.random.w)
       TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w,
                                value="mean", warn=comb.fixed)
       lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w,
