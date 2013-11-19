@@ -98,6 +98,16 @@ metagen <- function(TE, seTE,
     studlab <- studlab[subset]
     if (!missing.byvar)
       byvar <- byvar[subset]
+    if (!is.null(n.e))
+      if (length(n.e) == length(subset))
+        n.e <- n.e[subset]
+      else
+        warning("No subsetting for argument 'n.e' due to different length of argument 'subset'")
+    if (!is.null(n.c))
+      if (length(n.c) == length(subset))
+        n.c <- n.c[subset]
+      else
+        warning("No subsetting for argument 'n.c' due to different length of argument 'subset'")
   }
   
   

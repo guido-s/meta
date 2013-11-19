@@ -30,7 +30,7 @@
        allstudies=TRUE,
        weight,
        pscale=1,
-       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR"), 1, 0),
+       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
        leftcols=NULL, rightcols=NULL,
        leftlabs=NULL, rightlabs=NULL,
        lab.e=x$label.e, lab.c=x$label.c,

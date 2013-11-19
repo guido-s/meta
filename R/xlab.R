@@ -9,6 +9,9 @@ xlab <- function(sm, pscale=1){
   ##
   else if (sm=="HR" ) res <- "Hazard Ratio"
   ##
+  else if (sm=="IRR" ) res <- "Incidence Rate Ratio"
+  else if (sm=="IRD" ) res <- "Incidence Rate Difference"
+  ##
   else if (sm=="ZCOR") res <- "Correlation (based on Fisher's z transformation)"
   else if (sm=="COR") res <- "Correlation"
   ##else if (sm=="COR") res <- "Correlation (untransformed)"

@@ -135,8 +135,35 @@ summary.meta <- function(object,
   ci.lab <- paste(round(100*level.comb, 1), "%-CI", sep="")
   ##
   ci.study <- ci(object$TE, object$seTE, level)
-  ci.f <- ci(object$TE.fixed , object$seTE.fixed , level.comb)
-  ci.r <- ci(object$TE.random, object$seTE.random, level.comb, df=object$df.hakn)
+  ##
+  ## Check for very old versions of R package meta
+  ##
+  ancientmeta <- !(!is.null(object$version) &&
+                   as.numeric(unlist(strsplit(object$version, "\\."))[1]) >= 2)
+  ##
+  if (ancientmeta){
+    ci.f <- ci(object$TE.fixed , object$seTE.fixed , level.comb)
+    ci.r <- ci(object$TE.random, object$seTE.random, level.comb, df=object$df.hakn)
+  }
+  else{
+    ## Use available values
+    ci.f <- list(TE=object$TE.fixed,
+                 seTE=object$seTE.fixed,
+                 lower=object$lower.fixed,
+                 upper=object$upper.fixed,
+                 z=object$zval.fixed,
+                 p=object$pval.fixed,
+                 level=object$level.comb)
+    ##
+    ci.r <- list(TE=object$TE.random,
+                 seTE=object$seTE.random,
+                 lower=object$lower.random,
+                 upper=object$upper.random,
+                 z=object$zval.random,
+                 p=object$pval.random,
+                 level=object$level.comb,
+                 df=if (!is.null(object$df.hakn)) object$df.hakn else NA)
+  }
   ##
   ## Calculate exact confidence intervals for individual studies
   ##
@@ -402,6 +429,10 @@ summary.meta <- function(object,
   if (inherits(object, "metaprop")){
     res$event  <- object$event
     res$n      <- object$n
+    res$sparse <- object$sparse
+    res$incr <- object$incr
+    res$allincr <- object$allincr
+    res$addincr <- object$addincr
     ##res$freeman.tukey <- object$freeman.tukey
     ##
     class(res) <- c(class(res), "metaprop")
@@ -416,6 +447,19 @@ summary.meta <- function(object,
   ##
   if (inherits(object, "metabin")){
     class(res) <- c(class(res), "metabin")
+    res$sparse <- object$sparse
+    res$incr <- object$incr
+    res$allincr <- object$allincr
+    res$addincr <- object$addincr
+    res$MH.exact <- object$MH.exact
+  }
+  ##
+  if (inherits(object, "metainc")){
+    class(res) <- c(class(res), "metainc")
+    res$sparse <- object$sparse
+    res$incr <- object$incr
+    res$allincr <- object$allincr
+    res$addincr <- object$addincr
   }
   ##
   if (inherits(object, "trimfill")){

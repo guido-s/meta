@@ -42,30 +42,34 @@ update.meta <- function(object,
   
   if (!inherits(object,"meta"))
     stop("Argument 'object' must be an object of class \"meta\"")
-  
+  ##
   if (is.null(object$version) ||
       as.numeric(strsplit(object$version, "-")[[1]][1]) < 3.0){
     warning("Function not applicable to objects from older versions of meta (< 3.0).")
     return(invisible(NULL))
   }
-  
+  ##
   if (is.null(object$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
     return(invisible(NULL))
   }
   
-  ## Extract byvar from dataset in meta object
+  
+  mf <- match.call()
   ##
-  if (!missing(byvar)){
-    byname <- deparse(substitute(byvar))
-    byname <- gsub("\"", "", byname)
-    if (length(grep("\\$", byname))==0)
-      if (match(byname, names(data), nomatch=-1)!=-1)
-        byvar <- data[,byname]
-    if (is.null(byvar))
-      stop("Arguments 'byvar' contains no sensible information (value: NULL)")
-    if (missing(bylab))
-      bylab <- byname
+  subset <- eval(mf[[match("subset", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  ##
+  byvar <- eval(mf[[match("byvar", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.byvar <- is.null(byvar)
+  if (!missing.byvar){
+    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
+    if (length(byvar.name)>1 & byvar.name[1]=="$")
+      byvar.name <- byvar.name[length(byvar.name)]
+    ##
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   
   
@@ -170,8 +174,29 @@ update.meta <- function(object,
                  title=title, complab=complab, outclab=outclab,
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
                  keepdata=keepdata)
-  
+  ##
+  if (inherits(object,"metainc"))
+    m <- metainc(event.e=object$data$event.e,
+                 time.e=object$data$time.e,
+                 event.c=object$data$event.c,
+                 time.c=object$data$time.c,
+                 studlab=studlab,
+                 data=data, subset=subset, method=method,
+                 sm=sm,
+                 incr=incr, allincr=allincr, addincr=addincr,
+                 level=level, level.comb=level.comb,
+                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 hakn=hakn, method.tau=method.tau,
+                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 prediction=prediction, level.predict=level.predict,
+                 method.bias=method.bias,
+                 n.e=n.e, n.c=n.c,
+                 title=title, complab=complab, outclab=outclab,
+                 label.e=label.e, label.c=label.c,
+                 label.right=label.right, label.left=label.left,
+                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 keepdata=keepdata,
+                 warn=warn)
   
   m
 }
-

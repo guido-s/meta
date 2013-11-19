@@ -2,7 +2,14 @@ catmeth <- function(method, method.tau=NULL,
                     sm="", k.all,
                     hakn=FALSE, metaprop=FALSE,
                     trimfill=FALSE,
-                    tau.common=FALSE){
+                    tau.common=FALSE,
+                    metabin=FALSE,
+                    metainc=FALSE,
+                    sparse=FALSE,
+                    incr=NULL,
+                    allincr=FALSE,
+                    addincr=FALSE,
+                    MH.exact=FALSE){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -25,6 +32,48 @@ catmeth <- function(method, method.tau=NULL,
     sm.details <- paste(sm.details,
                         "\n- Exact binomial confidence intervals for individual studies",
                         sep="")
+  ##
+  if (metabin | metainc | metaprop){
+    if (!(sm=="AS" | method=="Peto")){
+      if (addincr){
+        if (incr=="TACC")
+          sm.details <- paste(sm.details,
+                              "\n- Treatment arm continuity correction in all studies",
+                              sep="")
+        else if (incr!=0)
+          sm.details <- paste(sm.details,
+                              "\n- Continuity correction of ", round(incr, 4),
+                              " in all studies", sep="")
+        else
+          sm.details <- ""
+      }
+      else if (sparse){
+        if (allincr==FALSE)
+          if (incr=="TACC")
+            sm.details <- paste(sm.details,
+                                "\n- Treatment arm continuity correction in studies with zero cell frequencies",
+                                sep="")
+          else if (incr!=0)
+            sm.details <- paste(sm.details,
+                                "\n- Continuity correction of ", round(incr, 4),
+                                " in studies with zero cell frequencies", sep="")
+          else
+            sm.details <- ""
+        else
+          if (incr=="TACC")
+            sm.details <- paste(sm.details,
+                                "\n- Treatment arm continuity correction in all studies",
+                                sep="")
+          else if (incr!=0)
+            sm.details <- paste(sm.details,
+                                "\n- Continuity correction of ", round(incr, 4),
+                                " in all studies", sep="")
+          else
+            sm.details <- ""
+      }
+    }
+  }
+  
   
   lab.method.details <- ""
   ##
@@ -54,15 +103,20 @@ catmeth <- function(method, method.tau=NULL,
     lab.method.details <- paste(lab.method.tau, lab.hakn, sep="")
   }
   ##
-  method <- ifelse(method=="MH",
-                   "\n- Mantel-Haenszel method",
-                   ifelse(method=="Peto",
-                          paste("\n- Peto method", lab.method.details, sep=""),
-                          ifelse(method=="Inverse",
-                                 paste("\n- Inverse variance method",
-                                       lab.method.details,
-                                       sep=""),
-                                 method)))
+  imeth <- charmatch(method,
+                     c("MH", "Peto", "Inverse", "Cochran"),
+                     nomatch = NA)
+  ##
+  if ((metabin|metainc) & imeth==1 & (sparse | addincr))
+    if (MH.exact | metainc)
+      lab.method.details <- paste(" (without continuity correction)",
+                                  lab.method.details, sep="")
+  ##
+  method <- c("\n- Mantel-Haenszel method",
+              "\n- Peto method",
+              "\n- Inverse variance method",
+              "\n- Cochran method")[imeth]
+  method <- paste(method, lab.method.details, sep="")
   ##
   if (k.all > 1){
     cat(paste("\nDetails on meta-analytical method:", method, sep=""))

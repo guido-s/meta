@@ -24,7 +24,7 @@ metabias.meta <- function(x, method.bias=x$method.bias,
     if (x$method=="Peto"){
       warning(paste("Inverse variance method used for pooling",
                     "to perform test of funnel plot asymmetry."))
-      m <- metabin(event.e, n.e, event.c, n.c, sm=x$sm, method="Inv",
+      m <- metabin(event.e, n.e, event.c, n.c, sm=x$sm, method="Inverse",
                    incr=x$incr, allincr=x$allincr,
                    allstudies=x$allstudies, MH.exact=x$MH.exact,
                    RR.cochrane=x$RR.cochrane)

@@ -70,8 +70,8 @@ metaprop <- function(event, n, studlab,
         data$subset <- subset
     }
     else{
-      data$TE <- event
-      data$seTE <- n
+      data$event <- event
+      data$n <- n
       ##
       data$studlab <- studlab
       ##
@@ -167,37 +167,17 @@ metaprop <- function(event, n, studlab,
   sparse <- any(sel)
   ##
   ## No need to add anything to cell counts for arcsine transformation
-  ## Accordingly, no warning will be printed.
   ##
-  warn2 <- !(sm %in% c("PFT", "PAS"))
-  ##
-  if (addincr){
-    ##
+  if (addincr)
     incr.event <- rep(incr, k.all)
-    ##
-    if (warn & warn2 & incr > 0)
-      warning("Increment ", incr, " added to each cell frequency of all studies.")
-  }
-  else{
-    if (sparse){
-      if (allincr){
-        ##
+  else
+    if (sparse)
+      if (allincr)
         incr.event <- rep(incr, k.all)
-        ##
-        if (warn & warn2 & incr > 0)
-          warning("Increment ", incr, " added to each cell frequency of all studies.")
-      }
-      else{
-        ##
+      else
         incr.event <- incr*sel
-        ##
-        if (warn & warn2 & incr > 0)
-          warning("Increment ", incr, " added to each cell frequency in studies with zero or all events.")
-      }
-    }
     else
       incr.event <- rep(0, k.all)
-  }
   
   
   if (sm=="PFT"){
@@ -318,6 +298,7 @@ metaprop <- function(event, n, studlab,
               C=Cval,
               sm=sm,
               method=m$method,
+              sparse=sparse,
               incr=incr,
               allincr=allincr,
               addincr=addincr,

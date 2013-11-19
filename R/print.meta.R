@@ -82,7 +82,7 @@ print.meta <- function(x,
     sm.lab <- "proportion"
   else if (!logscale & sm == "PLN")
     sm.lab <- "proportion"
-  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR"))
+  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR"))
     sm.lab <- paste("log", sm, sep="")
   else
     sm.lab <- sm
@@ -156,7 +156,7 @@ print.meta <- function(x,
       uppTE <- tsum$study$upper
     }
     ##
-    if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR")){
+    if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR")){
       TE    <- exp(TE)
       lowTE <- exp(lowTE)
       uppTE <- exp(uppTE)

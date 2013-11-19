@@ -29,7 +29,7 @@ forest.meta <- function(x,
                         weight,
                         pscale=1,
                         ##
-                        ref=ifelse(x$sm %in% c("RR", "OR", "HR"), 1, 0),
+                        ref=ifelse(x$sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
                         ##
                         leftcols=NULL, rightcols=NULL,
                         leftlabs=NULL, rightlabs=NULL,
@@ -198,19 +198,19 @@ forest.meta <- function(x,
   ## Check for levels of confidence interval
   ##
   if (!is.numeric(level) | length(level)!=1)
-    stop("parameter 'level' must be a numeric of length 1")
+    stop("list object 'level' must be a numeric of length 1")
   if (level <= 0 | level >= 1)
-    stop("parameter 'level': no valid level for confidence interval")
+    stop("list object 'level': no valid level for confidence interval")
   ##
   if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("parameter 'level.comb' must be a numeric of length 1")
+    stop("list object 'level.comb' must be a numeric of length 1")
   if (level.comb <= 0 | level.comb >= 1)
-    stop("parameter 'level.comb': no valid level for confidence interval")
+    stop("list object 'level.comb': no valid level for confidence interval")
   ##
   if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("parameter 'level.predict' must be a numeric of length 1")
+    stop("list object 'level.predict' must be a numeric of length 1")
   if (level.predict <= 0 | level.predict >= 1)
-    stop("parameter 'level.predict': no valid level for confidence interval")
+    stop("list object 'level.predict': no valid level for confidence interval")
   
   
   if (!missing(boxsize))
@@ -799,7 +799,7 @@ forest.meta <- function(x,
   ##
   isprop <- (tolower(x$sm) %in% c("pft", "pas", "praw", "pln", "plogit"))
   ##
-  if(isprop){
+  if (isprop){
     if (pscale==100)
       sm.lab <- "Prop (in %)"
     else if (pscale==1)
@@ -820,6 +820,7 @@ forest.meta <- function(x,
                 "mean.e", "mean.c",
                 "sd.e", "sd.c",
                 "cor",
+                "time.e", "time.c",
                 "effect", "ci",
                 "w.fixed", "w.random")
   ##
@@ -827,6 +828,7 @@ forest.meta <- function(x,
                 "Total", "Total", "Events", "Events",
                 "Mean", "Mean", "SD", "SD",
                 "Cor",
+                "Time", "Time",
                 sm.lab, paste(100*level, "%-CI", sep=""),
                 "W(fixed)", "W(random)")
   
@@ -840,58 +842,58 @@ forest.meta <- function(x,
   newcols <- length(colnames.new)>0
   ##
   if (newcols){
-      if (is.null(x$data))
-          dataset <- as.data.frame(x)
-      else{
-          if (!is.null(x$subset))
-              dataset <- x$data[x$subset,]
-          else
-              dataset <- x$data
-      }
+    if (is.null(x$data))
+      dataset <- as.data.frame(x)
+    else{
+      if (!is.null(x$subset))
+        dataset <- x$data[x$subset,]
+      else
+        dataset <- x$data
+    }
+    ##
+    ## Check whether additional variables are
+    ## part of meta-object
+    ##
+    for (i in colnames.new){
+      if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
+        stop(paste("variable '", i,
+                   "' not available in '",
+                   x.name, "'", sep=""))
+    }
+    ##
+    rightcols.new <- rightcols[! rightcols %in% colnames]
+    leftcols.new  <- leftcols[! leftcols %in% colnames]
+    ##
+    ## Determine label for new columns
+    ## 1. Use column name as label if no label is given
+    ##    parameter right|left|labs
+    ## 2. Otherwise use corresponding entry from
+    ##    parameter right|left|labs
+    ##
+    if (length(rightcols.new)>0){
+      pos.rightcols.new <- match(rightcols.new, rightcols)
       ##
-      ## Check whether additional variables are
-      ## part of meta-object
+      if (missing(rightlabs))
+        rightlabs.new <- rightcols.new
+      else if (length(rightcols.new) == length(rightlabs))
+        rightlabs.new <- rightlabs
+      else if (max(pos.rightcols.new) <= length(rightlabs))
+        rightlabs.new <- rightlabs[pos.rightcols.new]
+      else if (max(pos.rightcols.new) > length(rightlabs))
+        stop("Too few labels defined for parameter 'rightcols'")
+    }
+    if (length(leftcols.new)>0){
+      pos.leftcols.new <- match(leftcols.new, leftcols)
       ##
-      for (i in colnames.new){
-          if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
-              stop(paste("variable '", i,
-                         "' not available in '",
-                         x.name, "'", sep=""))
-      }
-      ##
-      rightcols.new <- rightcols[! rightcols %in% colnames]
-      leftcols.new  <- leftcols[! leftcols %in% colnames]
-      ##
-      ## Determine label for new columns
-      ## 1. Use column name as label if no label is given
-      ##    parameter right|left|labs
-      ## 2. Otherwise use corresponding entry from
-      ##    parameter right|left|labs
-      ##
-      if (length(rightcols.new)>0){
-          pos.rightcols.new <- match(rightcols.new, rightcols)
-          ##
-          if (missing(rightlabs))
-              rightlabs.new <- rightcols.new
-          else if (length(rightcols.new) == length(rightlabs))
-              rightlabs.new <- rightlabs
-          else if (max(pos.rightcols.new) <= length(rightlabs))
-              rightlabs.new <- rightlabs[pos.rightcols.new]
-          else if (max(pos.rightcols.new) > length(rightlabs))
-              stop("Too few labels defined for parameter 'rightcols'")
-      }
-      if (length(leftcols.new)>0){
-          pos.leftcols.new <- match(leftcols.new, leftcols)
-          ##
-          if (missing(leftlabs))
-              leftlabs.new <- leftcols.new
-          else if (length(leftcols.new) == length(leftlabs))
-              leftlabs.new <- leftlabs
-          else if (max(pos.leftcols.new) <= length(leftlabs))
-              leftlabs.new <- leftlabs[pos.leftcols.new]
-          else if (max(pos.leftcols.new) > length(leftlabs))
-              stop("Too few labels defined for parameter 'leftcols'")
-      }
+      if (missing(leftlabs))
+        leftlabs.new <- leftcols.new
+      else if (length(leftcols.new) == length(leftlabs))
+        leftlabs.new <- leftlabs
+      else if (max(pos.leftcols.new) <= length(leftlabs))
+        leftlabs.new <- leftlabs[pos.leftcols.new]
+      else if (max(pos.leftcols.new) > length(leftlabs))
+        stop("Too few labels defined for parameter 'leftcols'")
+    }
   }
   
   
@@ -904,21 +906,31 @@ forest.meta <- function(x,
       leftcols <- c("studlab",
                     "event.e", "n.e",
                     "event.c", "n.c")
+    ##
     if (inherits(x, "metacont"))
       leftcols <- c("studlab",
                     "n.e", "mean.e", "sd.e",
                     "n.c", "mean.c", "sd.c")
+    ##
     if (inherits(x, "metagen"))
       leftcols <- c("studlab",
                     "TE", "seTE")
+    ##
     if (inherits(x, "metainf") | inherits(x, "metacum"))
       leftcols <- "studlab"
+    ##
     if (inherits(x, "metaprop"))
       leftcols <- c("studlab",
                     "event.e", "n.e")
+    ##
     if (inherits(x, "metacor"))
       leftcols <- c("studlab",
                     "n.e")
+    ##
+    if (inherits(x, "metainc"))
+      leftcols <- c("studlab",
+                    "event.e", "time.e",
+                    "event.c", "time.c")
   }
   ##
   if (is.null(rightcols) & rsel){
@@ -1061,6 +1073,9 @@ forest.meta <- function(x,
   ##
   x$cor <- x$cor[sel]
   ##
+  x$time.e <- x$time.e[sel]
+  x$time.c <- x$time.c[sel]
+  ##
   x$TE   <- x$TE[sel]
   x$seTE <- x$seTE[sel]
   ##
@@ -1102,6 +1117,9 @@ forest.meta <- function(x,
     x$sd.c <- x$sd.c[o]
     ##
     x$cor <- x$cor[o]
+    ##
+    x$time.e <- x$time.e[o]
+    x$time.c <- x$time.c[o]
     ##
     x$TE   <- x$TE[o]
     x$seTE <- x$seTE[o]
@@ -1184,6 +1202,16 @@ forest.meta <- function(x,
                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     m1$n.e <- m1$n
   }
+  ##
+  if (inherits(x, "metainc"))
+    m1 <- metainc(x$event.e, x$time.e,
+                  x$event.c, x$time.c,
+                  method=x$method, sm=x$sm,
+                  incr=x$incr, allincr=x$allincr,
+                  addincr=x$addincr,
+                  hakn=x$hakn, method.tau=x$method.tau,
+                  tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                  warn=x$warn)
   ##
   if (inherits(x, "metacum") | inherits(x, "metainf")){
     TE    <- x$TE
@@ -1395,6 +1423,16 @@ forest.meta <- function(x,
                        tau.preset=x$tau.preset, TE.tau=x$TE.tau)
         m.w$n.e <- m.w$n
       }
+      ##
+      if (inherits(x, "metainc"))
+        m.w <- metainc(x$event.e[sel], x$time.e[sel],
+                       x$event.c[sel], x$time.c[sel],
+                       method=x$method, sm=x$sm,
+                       incr=x$incr, allincr=x$allincr,
+                       addincr=x$addincr,
+                       hakn=x$hakn, method.tau=x$method.tau,
+                       tau.preset=x$tau.preset, TE.tau=x$TE.tau,
+                       warn=x$warn)
       ##
       res.w[j,] <- c(m.w$TE.fixed, m.w$seTE.fixed,
                      m.w$TE.random, m.w$seTE.random,
@@ -1843,7 +1881,7 @@ forest.meta <- function(x,
   ##
   ## Treatment effect and confidence interval
   ##
-  if (x$sm %in% c("HR", "OR", "RR")){
+  if (x$sm %in% c("HR", "OR", "RR", "IRR")){
     effect.format <- format(round(exp(TEs), digits), scientific=FALSE)
     ci.format <- p.ci(format(round(exp(lowTEs), digits), scientific=FALSE),
                       format(round(exp(uppTEs), digits), scientific=FALSE))
@@ -1879,7 +1917,7 @@ forest.meta <- function(x,
   TE.format <- TEs.study
   seTE.format <- seTEs.study
   ##
-  ## Number of Events and patients
+  ## Number of Events and patients and person time
   ##
   sum.n.e <- sum(x$n.e, na.rm=TRUE)
   sum.n.c <- sum(x$n.c, na.rm=TRUE)
@@ -1903,6 +1941,8 @@ forest.meta <- function(x,
       Ee <- c(NA, NA, NA, rep(NA, 3*n.by), x$event.e)
       Ec <- c(NA, NA, NA, rep(NA, 3*n.by), x$event.c)
     }
+    Te <- c(NA, NA, NA, rep(NA, 3*n.by), x$time.e)
+    Tc <- c(NA, NA, NA, rep(NA, 3*n.by), x$time.c)
   }
   else{
     if (pooled.totals){
@@ -1921,23 +1961,31 @@ forest.meta <- function(x,
       Ee <- c(NA, NA, NA, x$event.e)
       Ec <- c(NA, NA, NA, x$event.c)
     }
+    Te <- c(NA, NA, NA, x$time.e)
+    Tc <- c(NA, NA, NA, x$time.c)
   }
   ##
   Ne.format <- ifelse(is.na(Ne), "", format(Ne, scientific=FALSE))
   Nc.format <- ifelse(is.na(Nc), "", format(Nc, scientific=FALSE))
   Ee.format <- ifelse(is.na(Ee), "", format(Ee, scientific=FALSE))
   Ec.format <- ifelse(is.na(Ec), "", format(Ec, scientific=FALSE))
+  Te.format <- ifelse(is.na(Te), "", format(Te, scientific=FALSE))
+  Tc.format <- ifelse(is.na(Tc), "", format(Tc, scientific=FALSE))
   ##
   if (comb.fixed & comb.random){
     Ne.format[2] <- ""
     Nc.format[2] <- ""
     Ee.format[2] <- ""
     Ec.format[2] <- ""
+    Te.format[2] <- ""
+    Tc.format[2] <- ""
     if (by){
       Ne.format[3+n.by+1:n.by] <- ""
       Nc.format[3+n.by+1:n.by] <- ""
       Ee.format[3+n.by+1:n.by] <- ""
       Ec.format[3+n.by+1:n.by] <- ""
+      Te.format[3+n.by+1:n.by] <- ""
+      Tc.format[3+n.by+1:n.by] <- ""
     }
   }
   ##
@@ -1980,7 +2028,12 @@ forest.meta <- function(x,
   ## y-axis:
   ##
   if (any(rightcols %in% c("n.e", "n.c")) |
-      any(leftcols  %in% c("n.e", "n.c"))){
+      any(leftcols  %in% c("n.e", "n.c")) |
+      (inherits(x, "metainc") &
+       (any(rightcols %in% c("time.e", "time.c")) |
+        any(leftcols  %in% c("time.e", "time.c")))
+       )
+      ){
     yHead <- 2
     yHeadadd <- 1
   }
@@ -2064,7 +2117,7 @@ forest.meta <- function(x,
   
   
   if (notmiss.xlim && is.numeric(xlim[1]))
-    if (x$sm %in% c("HR", "OR", "RR"))
+    if (x$sm %in% c("HR", "OR", "RR", "IRR"))
       xlim <- log(xlim)
   ##
   if (is.null(xlim)){
@@ -2250,7 +2303,6 @@ forest.meta <- function(x,
   ##  cat("TEs:\n")
   ##  print(round(TEs, 2))
   
-  
   col.studlab <- list(labels=
                       lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
                       ##lapply(as.list(c(lab.studlab, modlabs)),
@@ -2382,6 +2434,9 @@ forest.meta <- function(x,
   col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS)
   ##
   col.cor  <- formatcol(labs[["lab.cor"]], cor.format, yS)
+  ##
+  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS)
+  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS)
   
   
   ##  print(length(TEs))
@@ -2470,78 +2525,81 @@ forest.meta <- function(x,
   cols[["col.mean.c"]] <- col.mean.c
   cols[["col.sd.e"]] <- col.sd.e
   cols[["col.sd.c"]] <- col.sd.c
-  ##                                 )
+  ##
   cols[["col.cor"]] <- col.cor
-  ##                                 )
+  ##
+  cols[["col.time.e"]] <- col.time.e
+  cols[["col.time.c"]] <- col.time.c
+  ##
   if (newcols){
-      if (by){
-          for (i in seq(along=rightcols.new)){
-              tname <- paste("col.", rightcols.new[i], sep="")
-              if (length(dataset[[rightcols.new[i]]])!=0)
-                  tmp.r <- dataset[[rightcols.new[i]]]
-              else if (length(x[[rightcols.new[i]]])!=0)
-                  tmp.r <- x[[rightcols.new[i]]]
-              if (is.factor(tmp.r))
-                  tmp.r <- as.character(tmp.r)
-              tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-              cols[[tname]] <- formatcol(rightlabs.new[i],
-                                         c("", "", "",
-                                           rep("", length(TE.w)),
-                                           tmp.r[o]),
-                                         yS,
-                                         just=just)
-          }
-          for (i in seq(along=leftcols.new)){
-              tname <- paste("col.", leftcols.new[i], sep="")
-              if (length(dataset[[leftcols.new[i]]])!=0)
-                  tmp.l <- dataset[[leftcols.new[i]]]        
-              else if (length(x[[leftcols.new[i]]])!=0)
-                  tmp.l <- x[[leftcols.new[i]]]
-              if (is.factor(tmp.l))
-                  tmp.l <- as.character(tmp.l)
-              tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-              cols[[tname]] <- formatcol(leftlabs.new[i],
-                                         c("", "", "",
-                                           rep("", length(TE.w)),
-                                           tmp.l[o]),
-                                         yS,
-                                         just=just)
-          }
+    if (by){
+      for (i in seq(along=rightcols.new)){
+        tname <- paste("col.", rightcols.new[i], sep="")
+        if (length(dataset[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset[[rightcols.new[i]]]
+        else if (length(x[[rightcols.new[i]]])!=0)
+          tmp.r <- x[[rightcols.new[i]]]
+        if (is.factor(tmp.r))
+          tmp.r <- as.character(tmp.r)
+        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
+        cols[[tname]] <- formatcol(rightlabs.new[i],
+                                   c("", "", "",
+                                     rep("", length(TE.w)),
+                                     tmp.r[o]),
+                                   yS,
+                                   just=just)
       }
-      else{
-          for (i in seq(along=rightcols.new)){
-              tname <- paste("col.", rightcols.new[i], sep="")
-              if (length(dataset[[rightcols.new[i]]])!=0)
-                  tmp.r <- dataset[[rightcols.new[i]]]
-              else if (length(x[[rightcols.new[i]]])!=0)
-                  tmp.r <- x[[rightcols.new[i]]]
-              if (is.factor(tmp.r))
-                  tmp.r <- as.character(tmp.r)
-              tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-              cols[[tname]] <- formatcol(rightlabs.new[i],
-                                         c("", "", "",
-                                           if (sort) tmp.r[o] else tmp.r
-                                           ),
-                                         yS,
-                                         just=just)
-          }
-          for (i in seq(along=leftcols.new)){
-              tname <- paste("col.", leftcols.new[i], sep="")
-              if (length(dataset[[leftcols.new[i]]])!=0)
-                  tmp.l <- dataset[[leftcols.new[i]]]        
-              else if (length(x[[leftcols.new[i]]])!=0)
-                  tmp.l <- x[[leftcols.new[i]]]
-              if (is.factor(tmp.l))
-                  tmp.l <- as.character(tmp.l)
-              tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-              cols[[tname]] <- formatcol(leftlabs.new[i],
-                                         c("", "", "",
-                                           if (sort) tmp.l[o] else tmp.l
-                                           ),
-                                         yS,
-                                         just=just)
-          }
+      for (i in seq(along=leftcols.new)){
+        tname <- paste("col.", leftcols.new[i], sep="")
+        if (length(dataset[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset[[leftcols.new[i]]]        
+        else if (length(x[[leftcols.new[i]]])!=0)
+          tmp.l <- x[[leftcols.new[i]]]
+        if (is.factor(tmp.l))
+          tmp.l <- as.character(tmp.l)
+        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
+        cols[[tname]] <- formatcol(leftlabs.new[i],
+                                   c("", "", "",
+                                     rep("", length(TE.w)),
+                                     tmp.l[o]),
+                                   yS,
+                                   just=just)
       }
+    }
+    else{
+      for (i in seq(along=rightcols.new)){
+        tname <- paste("col.", rightcols.new[i], sep="")
+        if (length(dataset[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset[[rightcols.new[i]]]
+        else if (length(x[[rightcols.new[i]]])!=0)
+          tmp.r <- x[[rightcols.new[i]]]
+        if (is.factor(tmp.r))
+          tmp.r <- as.character(tmp.r)
+        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
+        cols[[tname]] <- formatcol(rightlabs.new[i],
+                                   c("", "", "",
+                                     if (sort) tmp.r[o] else tmp.r
+                                     ),
+                                   yS,
+                                   just=just)
+      }
+      for (i in seq(along=leftcols.new)){
+        tname <- paste("col.", leftcols.new[i], sep="")
+        if (length(dataset[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset[[leftcols.new[i]]]        
+        else if (length(x[[leftcols.new[i]]])!=0)
+          tmp.l <- x[[leftcols.new[i]]]
+        if (is.factor(tmp.l))
+          tmp.l <- as.character(tmp.l)
+        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
+        cols[[tname]] <- formatcol(leftlabs.new[i],
+                                   c("", "", "",
+                                     if (sort) tmp.l[o] else tmp.l
+                                     ),
+                                   yS,
+                                   just=just)
+      }
+    }
   }
   
   
@@ -2620,6 +2678,10 @@ forest.meta <- function(x,
         if (leftcols[i]=="col.sd.e")
           drawLabelCol(col.lab.e, j)
       }
+      else if (inherits(x, "metainc")){
+        if (leftcols[i]=="col.time.e")
+          drawLabelCol(col.lab.e, j)
+      }
       ##
       if (!is.null(lab.c.attach.to.col)){
         if (leftcols[i]==paste("col.", lab.c.attach.to.col, sep=""))
@@ -2631,6 +2693,10 @@ forest.meta <- function(x,
       }
       else if (inherits(x, "metacont")){
         if (leftcols[i]=="col.sd.c")
+          drawLabelCol(col.lab.c, j)
+      }
+      else if (inherits(x, "metainc")){
+        if (leftcols[i]=="col.time.c")
           drawLabelCol(col.lab.c, j)
       }
     }
@@ -2674,6 +2740,10 @@ forest.meta <- function(x,
           if (rightcols[i]=="col.sd.e")
             drawLabelCol(col.lab.e, j)
         }
+        else if (inherits(x, "metainc")){
+          if (rightcols[i]=="col.time.e")
+            drawLabelCol(col.lab.e, j)
+        }
         ##
         if (!is.null(lab.c.attach.to.col)){
           if (rightcols[i]==paste("col.", lab.c.attach.to.col, sep=""))
@@ -2685,6 +2755,10 @@ forest.meta <- function(x,
         }
         else if (inherits(x, "metacont")){
           if (rightcols[i]=="col.sd.c")
+            drawLabelCol(col.lab.c, j)
+        }
+        else if (inherits(x, "metainc")){
+          if (rightcols[i]=="col.time.c")
             drawLabelCol(col.lab.c, j)
         }
       }

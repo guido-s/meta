@@ -1,3 +1,47 @@
+2013-11-11, version 3.1-0
+
+New R function metainc (meta-analysis of incidence rates)
+
+Continuity correction:
+- R functions metabin and metaprop do no longer print a warning in
+  case of studies with a zero cell frequency
+- instead information on continuity correction is given under "Details
+  on meta-analytical method" if a corresponding meta object is printed
+
+Functions forest.meta, funnel.default, funnel.meta, print.meta,
+print.summary.meta, update.meta, catmeth, xlab:
+- modified to properly handle R objects of class "metainc"
+
+Function metaprop:
+- use correct variable names for 'event' and 'n' in list object data
+  if R function metaprop is called without argument data
+
+Function metabin:
+- inverse variance method (argument sm="Inverse") is used
+  automatically if argument tau.common is TRUE
+- bug fix such that call of R function metabin will not result in an
+  error message if argument tau.common is TRUE and method is equal to
+  "MH" (Mantel-Haenszel method)
+
+Function catmeth (used internally in R function print.summmary.meta):
+- print information on continuity correction for objects of class
+  metabin, metaprop, and metainc
+
+Function summary.meta:
+- modified such that fixed effect and random effects estimates and
+  confidence intervals are only (re)calculated for very old versions
+  of R package meta (version number < 2.x-x) if argument level.comb
+  has not been used
+
+Functions trimfill.meta and trimfill.default:
+- new list components lower.fixed, upper.fixed, zval.fixed,
+  pval.fixed, lower.random, upper.random, zval.random, pval.random
+  added to trimfill R object (should/could have been part of exported
+  list since meta, version 2.0-0)
+
+New datasets smoking and lungcancer (example datasets for R function metainc)
+
+
 2013-09-17, version 3.0-1
 
 Major revision
@@ -25,12 +69,12 @@ Deprecated function plot.meta removed from R package meta
 Functions metabin, metacont, metagen, metaprop, metacor:
 - code cleaning (in preparation for R function update.meta)
 - new list components:
-  - data (original data (set) used in function call)
+  - data (original data(set) used in function call)
   - subset (information on subset of original data used in meta-analysis)
 
 Function summary.meta:
 - new list components:
-  - data (original data (set) used in function call)
+  - data (original data(set) used in function call)
   - subset (information on subset of original data used in meta-analysis)
 
 Functions metareg:
@@ -39,7 +83,7 @@ Functions metareg:
   functions from R package meta)
 - modified such that information on grouping variable (list element
   'byvar') is utilised if argument 'formula' is missing
-- any column from original data set (list component 'data' in metabin
+- any column from original dataset (list component 'data' in metabin
   object (etc) can be used in meta-regression
 
 Function trimfill.meta:

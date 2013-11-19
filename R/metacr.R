@@ -87,6 +87,12 @@ metacr <- function(x, comp.no=1, outcome.no=1,
       warning("Argument 'tau.common' not considered for Peto method.")
     tau.common <- FALSE
   }
+  ##
+  if (tau.common & method=="MH"){
+    if (warn)
+      warning("Argument 'tau.common' not considered for Mantel-Haenszel method.")
+    tau.common <- FALSE
+  }
   
   
   if (!all(is.na(x$logscale[sel]))){

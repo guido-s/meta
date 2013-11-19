@@ -331,7 +331,12 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
               TE=m$TE, seTE=m$seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
+              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
+              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
+              ##
               TE.random=m$TE.random, seTE.random=m$seTE.random,
+              lower.random=m$lower.random, upper.random=m$upper.random,
+              zval.random=m$zval.random, pval.random=m$pval.random,
               ##
               seTE.predict=m$seTE.predict,
               lower.predict=m$lower.predict,

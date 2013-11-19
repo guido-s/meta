@@ -96,6 +96,14 @@ metacor(cor, n, studlab,
   \code{\link{print.meta}} will not print results for the random effects
   model if \code{comb.random=FALSE}.
 
+  A prediction interval for treatment effect of a new study is
+  calculated (Higgins et al., 2009) if arguments \code{prediction} and
+  \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metacor object by only specifying
+  arguments which should be changed.
+
   If R package metafor (Viechtbauer 2010) is installed, the following
   statistical methods are also available.
 
@@ -120,14 +128,6 @@ metacor(cor, n, studlab,
   \code{rma.uni} of R package metafor is called internally. See help
   page of R function \code{rma.uni} for more details on the various
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
-
-  A prediction interval for treatment effect of a new study is
-  calculated (Higgins et al., 2009) if arguments \code{prediction} and
-  \code{comb.random} are \code{TRUE}.
-
-  R function \code{\link{update.meta}} can be used to redo the
-  meta-analysis of an existing metacor object by only specifying
-  arguments which should be changed.
 }
 
 \value{

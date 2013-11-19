@@ -1,5 +1,5 @@
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
-                    data=NULL, subset=NULL, method="MH",
+                    data=NULL, subset=NULL, method=ifelse(tau.common, "Inverse", "MH"),
                     sm=
                     ifelse(!is.na(charmatch(method, c("Peto", "peto"),
                                             nomatch = NA)),
@@ -185,7 +185,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (k.all == 1){
     if (method == "MH"){
       if (warn)
-        warning("For a single study, inverse variance method used instead of Mantel Haenszel method.")
+        warning("For a single study, inverse variance method used instead of Mantel-Haenszel method.")
       method <- "Inverse"
     }
     comb.fixed <- FALSE
@@ -273,18 +273,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (i)  arcsine difference
   ##  (ii) Peto method
   ## as summary measure.
-  ## Accordingly, no warning will be printed.
-  ##
-  warn2 <- !(sm == "AS" | method == "Peto")
   ##
   if (addincr){
     ##
     if (is.numeric(incr)){
       incr.e <- rep(incr, k.all)
       incr.c <- rep(incr, k.all)
-      ##
-      if (warn & warn2 & incr > 0)
-        warning(paste("Increment", incr, "added to each cell frequency of all studies."))
     }
     else{
       if (incr=="TACC"){
@@ -293,9 +287,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         ##
         incr.e <- n.e/(n.e+n.c)
         incr.c <- n.c/(n.e+n.c)
-        ##
-        if (warn & warn2)
-          warning("Treatment arm continuity correction applied to all studies.")
       }
     }
     ##
@@ -307,9 +298,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         if (is.numeric(incr)){
           incr.e <- rep(incr, k.all)
           incr.c <- rep(incr, k.all)
-          ##
-          if (warn & warn2 & incr > 0)
-            warning(paste("Increment", incr, "added to each cell frequency of all studies."))
         }
         else{
           if (incr=="TACC"){
@@ -318,9 +306,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
             ##
             incr.e <- n.e/(n.e+n.c)
             incr.c <- n.c/(n.e+n.c)
-            ##
-            if (warn & warn2)
-              warning("Treatment arm continuity correction applied to all studies.")
           }
         }
       }
@@ -333,9 +318,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         if (is.numeric(incr)){
           incr.e <- incr*sel
           incr.c <- incr*sel
-          ##
-           if (warn & warn2 & incr > 0)
-            warning(paste("Increment", incr, "added to each cell in 2x2 tables with zero cell frequencies."))
         }
         else{
           if (incr=="TACC"){
@@ -344,9 +326,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
             ##
             incr.e <- n.e/(n.e+n.c)*sel
             incr.c <- n.c/(n.e+n.c)*sel
-            ##
-            if (warn & warn2)
-              warning("Treatment arm continuity correction applied to studies with zero cell frequencies.")
           }
         }
       }
@@ -537,47 +516,46 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     df.hakn <- m$df.hakn
     ##
-    Q <- m$Q
-    df.Q <- m$df.Q
     tau2 <- m$tau^2
     se.tau2 <- m$se.tau2
-    Cval <- m$C
   }
   
   
   ##
   ##
   ## Calculate fixed effect and random effects estimate
-  ## for Mantel Haenszel method
+  ## for Mantel-Haenszel method
   ##
   ##
   if (method == "MH"){
     ##
     if (method.tau!="DL"){
       if (warn)
-        warning("DerSimonian-Laird method used to estimate between-study variance for Mantel Haenszel method.")
+        warning("DerSimonian-Laird method used to estimate between-study variance for Mantel-Haenszel method.")
       method.tau <- "DL"
     }
     ##
     if (hakn){
       if (warn)
-        warning("Hartung-Knapp method not available for Mantel Haenszel method.")
+        warning("Hartung-Knapp method not available for Mantel-Haenszel method.")
       hakn <- FALSE
     }
     ##
     if (!missing.byvar & tau.common)
-      if (warn)
-        warning("Argument 'tau.common' not considered for Mantel Haenszel method.")
+      if (warn){
+        warning("Argument 'tau.common' not considered for Mantel-Haenszel method.")
+        tau.common <- FALSE
+      }
     ##
     if (!is.null(TE.tau)){
       if (warn)
-        warning("Argument 'TE.tau' not considered for Mantel Haenszel method.")
+        warning("Argument 'TE.tau' not considered for Mantel-Haenszel method.")
       TE.tau <- NULL
     }
     ##
     if (!is.null(tau.preset)){
       if (warn)
-        warning("Argument 'tau.preset' not considered for Mantel Haenszel method.")
+        warning("Argument 'tau.preset' not considered for Mantel-Haenszel method.")
       tau.preset <- NULL
     }
     ##
@@ -663,9 +641,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     lower.random <- m$lower.random
     upper.random <- m$upper.random
     ##
-    Q <- m$Q
-    df.Q <- m$df.Q
-    Cval <- m$C
     tau2 <- m$tau^2
     se.tau2 <- m$se.tau2
   }
@@ -678,6 +653,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     Q <- sQ.w
     df.Q <- sk.w
     Cval <- sC.w
+  }
+    else{
+    Q <- m$Q
+    df.Q <- m$df.Q
+    Cval <- m$C
   }
   
   

@@ -111,6 +111,14 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   The function \code{metagen} is called internally to calculate
   individual and overall treatment estimates and standard errors.
 
+  A prediction interval for treatment effect of a new study is
+  calculated (Higgins et al., 2009) if arguments \code{prediction} and
+  \code{comb.random} are \code{TRUE}.
+
+  R function \code{\link{update.meta}} can be used to redo the
+  meta-analysis of an existing metacont object by only specifying
+  arguments which should be changed.
+
   If R package metafor (Viechtbauer 2010) is installed, the following
   statistical methods are also available.
 
@@ -135,14 +143,6 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \code{rma.uni} of R package metafor is called internally. See help
   page of R function \code{rma.uni} for more details on the various
   methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
-
-  A prediction interval for treatment effect of a new study is
-  calculated (Higgins et al., 2009) if arguments \code{prediction} and
-  \code{comb.random} are \code{TRUE}.
-
-  R function \code{\link{update.meta}} can be used to redo the
-  meta-analysis of an existing metacont object by only specifying
-  arguments which should be changed.
 }
 
 \value{

@@ -23,7 +23,7 @@
        col.fixed="black", col.random="black",
        log="", yaxis="se", sm=NULL,
        contour.levels=NULL, col.contour,
-       ref=ifelse(sm \%in\% c("RR", "OR", "HR"), 1, 0),
+       ref=ifelse(sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
        level=NULL,
        studlab=FALSE, cex.studlab=0.8, ...)
 
@@ -39,7 +39,7 @@
        col.fixed="black", col.random="black",
        log="", yaxis="se",
        contour.levels=NULL, col.contour,
-       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR"), 1, 0),
+       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
        level=x$level,
        studlab=FALSE, cex.studlab=0.8, ...)
 

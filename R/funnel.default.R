@@ -9,7 +9,7 @@ funnel.default <- function(x, y,
                            col.fixed="black", col.random="black",
                            log="", yaxis="se", sm=NULL,
                            contour.levels=NULL, col.contour,
-                           ref=ifelse(sm %in% c("RR", "OR", "HR"), 1, 0),
+                           ref=ifelse(sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
                            level=NULL,
                            studlab=FALSE, cex.studlab=0.8,
                            ...){
@@ -20,7 +20,7 @@ funnel.default <- function(x, y,
   TE.random <- metagen(TE, seTE)$TE.random
   if (is.null(sm)) sm <- "other"
   if (missing(ref))
-    ref <- ifelse(sm %in% c("RR", "OR", "HR"), 1, 0)
+    ref <- ifelse(sm %in% c("RR", "OR", "HR", "IRR"), 1, 0)
   if (is.logical(studlab) && studlab)
     studlab <- seq(along=TE)
   
@@ -62,7 +62,7 @@ funnel.default <- function(x, y,
                        max(c(TE, ciTE$upper), na.rm=TRUE))
   }
   ##
-  if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0){
+  if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
     TE <- exp(TE)
     TE.fixed <- exp(TE.fixed)
     TE.random <- exp(TE.random)
@@ -93,8 +93,10 @@ funnel.default <- function(x, y,
     else if (sm=="RD" ) xlab <- "Risk Difference"
     else if (sm=="RR" ) xlab <- "Relative Risk"
     else if (sm=="SMD") xlab <- "Standardised mean difference"
-    else if (sm=="WMD"|sm=="MD") xlab <- "Mean difference"
+    else if (sm=="MD" ) xlab <- "Mean difference"
     else if (sm=="HR" ) xlab <- "Hazard Ratio"
+    else if (sm=="IRR") xlab <- "Incidence Rate Ratio"
+    else if (sm=="IRD") xlab <- "Incidence Rate Difference"
     else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
     else if (sm=="proportion" ) xlab <- "Proportion"
     else xlab <- sm
@@ -140,7 +142,7 @@ funnel.default <- function(x, y,
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out=500)
     ##
-    if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0)
+    if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0)
       ref <- log(ref)
     ##
     j <- 0
@@ -151,7 +153,7 @@ funnel.default <- function(x, y,
       ##
       ciContour <- ci(ref, seTE.cont, i)
       ##
-      if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0){
+      if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)

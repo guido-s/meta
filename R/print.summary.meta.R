@@ -21,6 +21,9 @@ print.summary.meta <- function(x,
     return(invisible(NULL))
   
   
+  bip <- inherits(x, c("metabin", "metainc", "metaprop"))
+  
+  
   k <- x$k
   sm <- x$sm
   ##
@@ -36,7 +39,7 @@ print.summary.meta <- function(x,
     sm.lab <- "proportion"
   else if (!logscale & sm == "PLN")
     sm.lab <- "proportion"
-  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR"))
+  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR"))
     sm.lab <- paste("log", sm, sep="")
   else
     sm.lab <- sm
@@ -88,7 +91,7 @@ print.summary.meta <- function(x,
   }
   
   
-  if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm=="PLN")){
+  if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR" | sm=="PLN")){
     TE.fixed    <- exp(TE.fixed)
     lowTE.fixed <- exp(lowTE.fixed)
     uppTE.fixed <- exp(uppTE.fixed)
@@ -128,6 +131,8 @@ print.summary.meta <- function(x,
     uppTE.predict <- NA # asin2p(uppTE.predict, 1/mean(1/x$n), value="upper", warn=prediction)
     ##
     if (!is.null(x$bylab)){
+      print(harmonic.mean.fixed.w)
+      print(harmonic.mean.random.w)
       TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w,
                                value="mean", warn=comb.fixed)
       lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w,
@@ -281,7 +286,13 @@ print.summary.meta <- function(x,
     catmeth(method=x$method,
             sm=sm,
             k.all=x$k.all,
-            metaprop=inherits(x, "metaprop"))
+            metaprop=inherits(x, "metaprop"),
+            metabin=inherits(x, "metabin"),
+            metainc=inherits(x, "metainc"),
+            sparse=ifelse(bip, x$sparse, FALSE),
+            incr=ifelse(bip, x$incr, FALSE),
+            allincr=ifelse(bip, x$allincr, FALSE),
+            addincr=ifelse(bip, x$addincr, FALSE))
   }
   else{
 
@@ -592,7 +603,7 @@ print.summary.meta <- function(x,
         }
       }
     }
-    
+
     ## Print information on summary method:
     ##
     catmeth(method=x$method,
@@ -600,9 +611,16 @@ print.summary.meta <- function(x,
             sm=sm,
             k.all=x$k.all,
             hakn=!is.null(x$hakn) && (x$hakn & comb.random),
-            metaprop=inherits(x, "metaprop"),
+            tau.common=!is.null(x$bylab)&x$tau.common,
             trimfill=inherits(x, "trimfill"),
-            tau.common=!is.null(x$bylab)&x$tau.common)
+            metaprop=inherits(x, "metaprop"),
+            metabin=inherits(x, "metabin"),
+            metainc=inherits(x, "metainc"),
+            sparse=ifelse(bip, x$sparse, FALSE),
+            incr=ifelse(bip, x$incr, FALSE),
+            allincr=ifelse(bip, x$allincr, FALSE),
+            addincr=ifelse(bip, x$addincr, FALSE),
+            MH.exact=ifelse(inherits(x, "metabin"), x$MH.exact, FALSE))
   }
   
   invisible(NULL)

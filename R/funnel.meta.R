@@ -10,7 +10,7 @@ funnel.meta <- function(x,
                         col.fixed="black", col.random="black",
                         log="", yaxis="se",
                         contour.levels=NULL, col.contour,
-                        ref=ifelse(x$sm %in% c("RR", "OR", "HR"), 1, 0),
+                        ref=ifelse(x$sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
                         level=x$level,
                         studlab=FALSE, cex.studlab=0.8,
                         ...){
@@ -82,7 +82,7 @@ funnel.meta <- function(x,
                        max(c(TE, ciTE$upper), na.rm=TRUE))
   }
   ##
-  if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0){
+  if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
     TE <- exp(TE)
     TE.fixed <- exp(TE.fixed)
     TE.random <- exp(TE.random)
@@ -124,8 +124,10 @@ funnel.meta <- function(x,
     else if (sm=="RD" ) xlab <- "Risk Difference"
     else if (sm=="RR" ) xlab <- "Relative Risk"
     else if (sm=="SMD") xlab <- "Standardised mean difference"
-    else if (sm=="WMD"|sm=="MD") xlab <- "Mean difference"
+    else if (sm=="MD" ) xlab <- "Mean difference"
     else if (sm=="HR" ) xlab <- "Hazard Ratio"
+    else if (sm=="IRR") xlab <- "Incidence Rate Ratio"
+    else if (sm=="IRD") xlab <- "Incidence Rate Difference"
     else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
     else if (sm=="proportion" ){
       if (inherits(x, "metaprop"))
@@ -177,7 +179,7 @@ funnel.meta <- function(x,
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out=500)
     ##
-    if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0)
+    if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0)
       ref <- log(ref)
     ##
     j <- 0
@@ -188,7 +190,7 @@ funnel.meta <- function(x,
       ##
       ciContour <- ci(ref, seTE.cont, i)
       ##
-      if (match(sm, c("OR", "RR", "HR"), nomatch=0)>0){
+      if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)
