@@ -1,0 +1,8 @@
+"study"                   "participants" "d.smokers" "py.smokers" "d.nonsmokers" "py.nonsmokers"
+"British Doctors"                  34000        1672        77669           2862          191331
+"Men in 9 States"                 188000        3781       144242           8089          523758
+"U.S. Veterans"                   248000        7236       248735          17283         1063265
+"California Occupational"          67000        1456       168794            258           53206
+"California Legion"                60000        1264        76754            440           42246
+"Canadian Veterans"                78000        4001       123766           5069          259234
+"Men in 25 States"                488000        6813       381896           4799          438104
