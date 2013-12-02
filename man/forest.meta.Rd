@@ -68,7 +68,6 @@
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
        ##
        squaresize=0.8,
-       boxsize=squaresize,
        ##
        plotwidth=unit(6, "cm"),
        colgap=unit(2, "mm"),
@@ -245,7 +244,6 @@
   \item{ff.lr}{The fontface of text of label on left and right side of forest plot, see \code{\link{gpar}}.}
   \item{squaresize}{A numeric used to increase or decrease the size of
     squares in the forest plot.}
-  \item{boxsize}{Use of this argument is deprecated.}
   \item{plotwidth}{A unit object specifying width of the forest plot.}
   \item{colgap}{A unit object specifying gap between columns printed on
     left and right side of forest plot.}

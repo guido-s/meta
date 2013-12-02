@@ -206,6 +206,8 @@ meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="S
 summary(meta1)
 
 summary(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
+
+forest(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
 }
 
 \keyword{print}

@@ -1,3 +1,11 @@
+2013-12-01, version 3.1-2
+
+Function forest.meta:
+- bug fix such that forest plot with subgroups will not result in an
+  error message for any meta object besides metaprop objects (this bug
+  has been introduced in version 3.1-1 of meta)
+
+
 2013-11-19, version 3.1-1
 
 Function forest.meta:

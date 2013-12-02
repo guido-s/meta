@@ -107,7 +107,6 @@ forest.meta <- function(x,
                         ff.lr="plain",
                         ##
                         squaresize=0.8,
-                        boxsize=squaresize,
                         ##
                         plotwidth=unit(6, "cm"),
                         colgap=unit(2, "mm"),
@@ -212,9 +211,6 @@ forest.meta <- function(x,
   if (level.predict <= 0 | level.predict >= 1)
     stop("list object 'level.predict': no valid level for confidence interval")
   
-  
-  if (!missing(boxsize))
-      warning("Use of parameter 'boxsize' is deprecated, please use parameter 'squaresize' instead.")
   
   if (is.logical(leftcols)){
     warning("Logical value not possible for parameter 'leftcols', set to 'NULL'.")
@@ -1434,6 +1430,11 @@ forest.meta <- function(x,
                        tau.preset=x$tau.preset, TE.tau=x$TE.tau,
                        warn=x$warn)
       ##
+      if (is.null(summary(m.w)$fixed$harmonic.mean))
+        harmmean <- NA
+      else
+        harmmean <- summary(m.w)$fixed$harmonic.mean
+      ##
       res.w[j,] <- c(m.w$TE.fixed, m.w$seTE.fixed,
                      m.w$TE.random, m.w$seTE.random,
                      m.w$Q, m.w$k, length(m.w$TE),
@@ -1441,7 +1442,7 @@ forest.meta <- function(x,
                      sum(x$w.fixed[sel]), sum(x$w.random[sel]),
                      sum(m.w$event.e), sum(m.w$n.e),
                      sum(m.w$event.c), sum(m.w$n.c),
-                     summary(m.w)$fixed$harmonic.mean)
+                     harmmean)
     }
     ##
     k.w     <- res.w[,6]
