@@ -24,6 +24,7 @@
                      sep="") else "Prediction interval",
        bylab=x$bylab, print.byvar=x$print.byvar,
        text.fixed.w=text.fixed, text.random.w=text.random,
+       bysort=FALSE,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        xlab="", xlab.pos=ref,
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
@@ -125,6 +126,8 @@
   \item{text.random.w}{A character string to label the pooled random
     effect estimate within subgroups, or a character vector of same
     length as number of subgroups with corresponging labels.}
+  \item{bysort}{A logical indicating whether groups should be ordered
+    alphabetically.}
   \item{pooled.totals}{A logical indicating whether total number of
     observations should be given in the figure.}
   \item{pooled.events}{A logical indicating whether total number of

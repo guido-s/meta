@@ -326,7 +326,14 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                  hakn=hakn, method.tau=method.tau,
                  prediction=prediction, level.predict=level.predict)
   
+  
   ##
+  ## Calculate H and I-Squared
+  ##
+  Hres  <- calcH(m$Q, m$df.Q, level.comb)
+  I2res <- isquared(m$Q, m$df.Q, level.comb)
+  
+  
   res <- list(studlab=m$studlab,
               TE=m$TE, seTE=m$seTE,
               w.fixed=m$w.fixed, w.random=m$w.random,
@@ -343,7 +350,16 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
               upper.predict=m$upper.predict,
               level.predict=level.predict,
               ##
-              k=m$k, Q=m$Q, tau=m$tau,
+              k=m$k, Q=m$Q, df.Q=m$df.Q, tau=m$tau,
+              ##
+              H=Hres$TE,
+              lower.H=Hres$lower,
+              upper.H=Hres$upper,
+              ##
+              I2=I2res$TE,
+              lower.I2=I2res$lower,
+              upper.I2=I2res$upper,
+              ##
               sm=sm,
               method=m$method,
               ##

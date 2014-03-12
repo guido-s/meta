@@ -260,7 +260,8 @@ print.meta <- function(x,
               k.all=k.all,
               hakn=is.random & x$hakn,
               metaprop=inherits(x, "metaprop"),
-              trimfill=inherits(x, "trimfill"))
+              trimfill=inherits(x, "trimfill"),
+              tau.preset=x$tau.preset)
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

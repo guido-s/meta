@@ -54,7 +54,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                  data, enclos = sys.frame(sys.parent()))
   
   
-  if (!is.null(subset))
+  missing.subset <- is.null(subset)
+  if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > length(event.e))) ||
         (length(subset) > length(event.e)))
       stop("Length of subset is larger than number of studies.")
@@ -65,6 +66,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name)>1 & byvar.name[1]=="$")
       byvar.name <- byvar.name[length(byvar.name)]
+    if (length(byvar.name)>1)
+      byvar.name <- "byvar"
   }
   
   
@@ -76,35 +79,52 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(event.e=event.e, time.e=time.e,
-                         event.c=event.c, time.c=time.c,
-                         studlab=studlab)
+      data <- data.frame(.event.e=event.e, .time.e=time.e,
+                         .event.c=event.c, .time.c=time.c,
+                         .studlab=studlab)
       if (!missing.byvar)
-        data$byvar <- byvar
-      if (!is.null(subset))
-        data$subset <- subset
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
+      ##
       if (!is.null(n.e))
-        data$n.e <- n.e
+        data$.n.e <- n.e
       if (!is.null(n.e))
-        data$n.c <- n.c
+        data$.n.c <- n.c
     }
     else{
-      data$event.e <- event.e
-      data$time.e <- time.e
-      data$n.e <- n.e
-      data$event.c <- event.c
-      data$time.c <- time.c
-      data$n.c <- n.c
+      data$.event.e <- event.e
+      data$.time.e <- time.e
+      data$.n.e <- n.e
+      data$.event.c <- event.c
+      data$.time.c <- time.c
+      data$.n.c <- n.c
       ##
-      data$studlab <- studlab
+      data$.studlab <- studlab
       ##
       if (!missing.byvar)
-        data$byvar <- byvar
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
   }
   
   
-  if (!is.null(subset)){
+  if (!missing.subset){
     event.e <- event.e[subset]
     time.e <- time.e[subset]
     event.c <- event.c[subset]
@@ -475,6 +495,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   
   
+  ##
+  ## Calculate H and I-Squared
+  ##
+  Hres  <- calcH(Q, df.Q, level.comb)
+  I2res <- isquared(Q, df.Q, level.comb)
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -499,6 +526,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               k=m$k, Q=Q, df.Q=df.Q,
               tau=sqrt(tau2), se.tau2=se.tau2,
               C=Cval,
+              ##
+              H=Hres$TE,
+              lower.H=Hres$lower,
+              upper.H=Hres$upper,
+              ##
+              I2=I2res$TE,
+              lower.I2=I2res$lower,
+              upper.I2=I2res$upper,
+              ##
               sm=sm,
               method=method,
               incr=incr,

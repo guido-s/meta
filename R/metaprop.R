@@ -41,7 +41,8 @@ metaprop <- function(event, n, studlab,
                  data, enclos = sys.frame(sys.parent()))
   
   
-  if (!is.null(subset))
+  missing.subset <- is.null(subset)
+  if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > length(event))) ||
         (length(subset) > length(event)))
       stop("Length of subset is larger than number of studies.")
@@ -52,6 +53,8 @@ metaprop <- function(event, n, studlab,
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name)>1 & byvar.name[1]=="$")
       byvar.name <- byvar.name[length(byvar.name)]
+    if (length(byvar.name)>1)
+      byvar.name <- "byvar"
   }
   
   
@@ -63,25 +66,41 @@ metaprop <- function(event, n, studlab,
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(event=event, n=n, studlab=studlab)
+      data <- data.frame(.event=event, .n=n, .studlab=studlab)
       if (!missing.byvar)
-        data$byvar <- byvar
-      if (!is.null(subset))
-        data$subset <- subset
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
     else{
-      data$event <- event
-      data$n <- n
+      data$.event <- event
+      data$.n <- n
       ##
-      data$studlab <- studlab
+      data$.studlab <- studlab
       ##
       if (!missing.byvar)
-        data$byvar <- byvar
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
   }
   
   
-  if (!is.null(subset)){
+  if (!missing.subset){
     event <- event[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
@@ -273,6 +292,13 @@ metaprop <- function(event, n, studlab,
   }
   
   
+  ##
+  ## Calculate H and I-Squared
+  ##
+  Hres  <- calcH(Q, df.Q, level.comb)
+  I2res <- isquared(Q, df.Q, level.comb)
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -296,6 +322,15 @@ metaprop <- function(event, n, studlab,
               k=m$k, Q=Q, df.Q=df.Q,
               tau=m$tau, se.tau2=m$se.tau2,
               C=Cval,
+              ##
+              H=Hres$TE,
+              lower.H=Hres$lower,
+              upper.H=Hres$upper,
+              ##
+              I2=I2res$TE,
+              lower.I2=I2res$lower,
+              upper.I2=I2res$upper,
+              ##
               sm=sm,
               method=m$method,
               sparse=sparse,

@@ -3,6 +3,7 @@ catmeth <- function(method, method.tau=NULL,
                     hakn=FALSE, metaprop=FALSE,
                     trimfill=FALSE,
                     tau.common=FALSE,
+                    tau.preset=NULL,
                     metabin=FALSE,
                     metainc=FALSE,
                     sparse=FALSE,
@@ -80,27 +81,45 @@ catmeth <- function(method, method.tau=NULL,
   if (is.null(method.tau))
     lab.method.tau <- ""
   else {
-    i.lab.method.tau <- charmatch(method.tau,
-                                  c("DL", "REML", "ML", "HS", "SJ", "HE", "EB"),
-                                  nomatch = NA)
-    ##
-    lab.method.tau <- c("\n- DerSimonian-Laird estimator for tau^2",
-                        "\n- restricted maximum-likelihood estimator for tau^2",
-                        "\n- maximum-likelihood estimator for tau^2",
-                        "\n- Hunter-Schmidt estimator for tau^2",
-                        "\n- Sidik-Jonkman estimator for tau^2",
-                        "\n- Hedges estimator for tau^2",
-                        "\n- empirical Bayes estimator for tau^2")[i.lab.method.tau]
-    ##
-    if (tau.common)
-      lab.method.tau <- paste(lab.method.tau, " (assuming common tau^2 in subgroups)", sep="")
-    ##
-    if (hakn)
-      lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"
-    else
-      lab.hakn <- ""
-    ##      
-    lab.method.details <- paste(lab.method.tau, lab.hakn, sep="")
+    if (!is.null(tau.preset) & !tau.common){
+      tau2 <- tau.preset^2
+      if (tau2 > 0 & tau2 < 0.0001)
+        tau2 <- "tau^2 < 0.0001"
+      else
+        tau2 <- paste("tau^2 = ",
+                      ifelse(tau2==0,
+                             "0",
+                             format(round(tau2, 4), 4, nsmall=4, scientific=FALSE)),
+                      sep="")
+      ##
+      lab.method.tau <- paste("\n- Preset between-study variance: ",
+                              tau2, sep="")
+      ##
+      lab.method.details <- lab.method.tau
+    }
+    else{
+      i.lab.method.tau <- charmatch(method.tau,
+                                    c("DL", "REML", "ML", "HS", "SJ", "HE", "EB"),
+                                    nomatch = NA)
+      ##
+      lab.method.tau <- c("\n- DerSimonian-Laird estimator for tau^2",
+                          "\n- restricted maximum-likelihood estimator for tau^2",
+                          "\n- maximum-likelihood estimator for tau^2",
+                          "\n- Hunter-Schmidt estimator for tau^2",
+                          "\n- Sidik-Jonkman estimator for tau^2",
+                          "\n- Hedges estimator for tau^2",
+                          "\n- empirical Bayes estimator for tau^2")[i.lab.method.tau]
+      ##
+      if (tau.common)
+        lab.method.tau <- paste(lab.method.tau, " (assuming common tau^2 in subgroups)", sep="")
+      ##
+      if (hakn)
+        lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"
+      else
+        lab.hakn <- ""
+      ##      
+      lab.method.details <- paste(lab.method.tau, lab.hakn, sep="")
+    }
   }
   ##
   imeth <- charmatch(method,

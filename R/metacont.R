@@ -55,7 +55,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                  data, enclos = sys.frame(sys.parent()))
   
   
-  if (!is.null(subset))
+  missing.subset <- is.null(subset)
+  if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > length(n.e))) ||
         (length(subset) > length(n.e)))
       stop("Length of subset is larger than number of studies.")
@@ -66,6 +67,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name)>1 & byvar.name[1]=="$")
       byvar.name <- byvar.name[length(byvar.name)]
+    if (length(byvar.name)>1)
+      byvar.name <- "byvar"
   }
   
   
@@ -77,31 +80,47 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
-                         n.c=n.c, mean.c=mean.c, sd.c=sd.c,
-                         studlab=studlab)
+      data <- data.frame(.n.e=n.e, .mean.e=mean.e, .sd.e=sd.e,
+                         .n.c=n.c, .mean.c=mean.c, .sd.c=sd.c,
+                         .studlab=studlab)
       if (!missing.byvar)
-        data$byvar <- byvar
-      if (!is.null(subset))
-        data$subset <- subset
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
     else{
-      data$n.e <- n.e
-      data$mean.e <- mean.e
-      data$sd.e <- sd.e
-      data$n.c <- n.c
-      data$mean.c <- mean.c
-      data$sd.c <- sd.c
+      data$.n.e <- n.e
+      data$.mean.e <- mean.e
+      data$.sd.e <- sd.e
+      data$.n.c <- n.c
+      data$.mean.c <- mean.c
+      data$.sd.c <- sd.c
       ##
-      data$studlab <- studlab
+      data$.studlab <- studlab
       ##
       if (!missing.byvar)
-        data$byvar <- byvar
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
   }
   
   
-  if (!is.null(subset)){
+  if (!missing.subset){
     n.e <- n.e[subset]
     mean.e <- mean.e[subset]
     sd.e <- sd.e[subset]
@@ -286,6 +305,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   
   
+  ##
+  ## Calculate H and I-Squared
+  ##
+  Hres  <- calcH(Q, df.Q, level.comb)
+  I2res <- isquared(Q, df.Q, level.comb)
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -310,6 +336,15 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               k=m$k, Q=Q, df.Q=df.Q,
               tau=m$tau, se.tau2=m$se.tau2,
               C=Cval,
+              ##
+              H=Hres$TE,
+              lower.H=Hres$lower,
+              upper.H=Hres$upper,
+              ##
+              I2=I2res$TE,
+              lower.I2=I2res$lower,
+              upper.I2=I2res$upper,
+              ##
               sm=sm, method=m$method,
               level=level,
               level.comb=level.comb,

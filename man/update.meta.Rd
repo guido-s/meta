@@ -11,7 +11,7 @@
 \usage{
 \method{update}{meta}(object, 
        data=object$data, subset=object$subset,
-       studlab=object$data$studlab,
+       studlab=object$data$.studlab,
        method=object$method, sm=object$sm,
        incr=object$incr, allincr=object$allincr,
        addincr=object$addincr, allstudies=object$allstudies,

@@ -224,6 +224,12 @@ forest(metagen(meta1$TE, meta1$seTE, sm="RR"))
 
 
 ##
+## Meta-analysis with prespecified between-study variance
+##
+summary(metagen(meta1$TE, meta1$seTE, sm="RR", tau.preset=sqrt(0.1)))
+
+
+##
 ## Meta-analysis of survival data:
 ##
 logHR <- log(c(0.95, 1.5))

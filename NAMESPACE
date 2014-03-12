@@ -16,7 +16,8 @@ export(ci, forest, forest.meta,
 # not visible:
 # asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
 # is.installed.metafor, crtitle, catmeth,
-# kentau, hypergeometric, linregcore, setOption, warnarg, format.tau
+# kentau, hypergeometric, linregcore, setOption, warnarg, format.tau,
+# isquared, calcH
 
 S3method(as.data.frame, meta)
 S3method(forest, meta)

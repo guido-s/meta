@@ -15,8 +15,8 @@ metareg <- function(x, formula,
     stop("Argument 'x' must be an object of class \"meta\"")
   
   if (missing(formula))
-    if (!is.null(x$byvar))
-      formula <- as.call(~byvar)
+    if (!is.null(x$data$.byvar))
+      formula <- as.call(~.byvar)
   else{
     warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
     return(invisible(NULL))

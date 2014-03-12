@@ -1,7 +1,7 @@
 update.meta <- function(object, 
                         data=object$data,
                         subset=object$subset,
-                        studlab=object$data$studlab,
+                        studlab=object$data$.studlab,
                         method=object$method,
                         sm=object$sm,
                         incr=object$incr,
@@ -55,6 +55,10 @@ update.meta <- function(object,
   }
   
   
+  missing.subset <- missing(subset)
+  missing.byvar  <- missing(byvar)
+  
+  
   mf <- match.call()
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
@@ -63,21 +67,29 @@ update.meta <- function(object,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   ##
-  missing.byvar <- is.null(byvar)
   if (!missing.byvar){
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name)>1 & byvar.name[1]=="$")
       byvar.name <- byvar.name[length(byvar.name)]
+    if (length(byvar.name)>1)
+      byvar.name <- "byvar"
     ##
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   
   
+  if (missing.subset & !is.null(object$data$.subset))
+    subset <- object$data$.subset
+  ##
+  if (missing.byvar & !is.null(object$data$.byvar))
+    byvar <- object$data$.byvar
+
+  
   if (inherits(object,"metabin"))
-    m <- metabin(event.e=object$data$event.e,
-                 n.e=object$data$n.e,
-                 event.c=object$data$event.c,
-                 n.c=object$data$n.c,
+    m <- metabin(event.e=object$data$.event.e,
+                 n.e=object$data$.n.e,
+                 event.c=object$data$.event.c,
+                 n.c=object$data$.n.c,
                  studlab=studlab,
                  data=data, subset=subset,
                  method=method,
@@ -99,12 +111,12 @@ update.meta <- function(object,
                  warn=warn)
   ##
   if (inherits(object,"metacont"))
-    m <- metacont(n.e=object$data$n.e,
-                  mean.e=object$data$mean.e,
-                  sd.e=object$data$sd.e,
-                  n.c=object$data$n.c,
-                  mean.c=object$data$mean.c,
-                  sd.c=object$data$sd.c,
+    m <- metacont(n.e=object$data$.n.e,
+                  mean.e=object$data$.mean.e,
+                  sd.e=object$data$.sd.e,
+                  n.c=object$data$.n.c,
+                  mean.c=object$data$.mean.c,
+                  sd.c=object$data$.sd.c,
                   studlab=studlab,
                   data=data, subset=subset,
                   sm=sm,
@@ -122,8 +134,8 @@ update.meta <- function(object,
                   warn=warn)
   ##
   if (inherits(object,"metagen"))
-    m <- metagen(TE=object$data$TE,
-                 seTE=object$data$seTE,
+    m <- metagen(TE=object$data$.TE,
+                 seTE=object$data$.seTE,
                  studlab=studlab,
                  data=data, subset=subset,
                  sm=sm,
@@ -142,8 +154,8 @@ update.meta <- function(object,
                  warn=warn)
   ##
   if (inherits(object,"metaprop"))
-    m <- metaprop(event=object$data$event,
-                  n=object$data$n,
+    m <- metaprop(event=object$data$.event,
+                  n=object$data$.n,
                   studlab=studlab,
                   data=data, subset=subset,
                   sm=sm,
@@ -160,8 +172,8 @@ update.meta <- function(object,
                   warn=warn)
   ##
   if (inherits(object,"metacor"))
-    m <- metacor(cor=object$data$cor,
-                 n=object$data$n,
+    m <- metacor(cor=object$data$.cor,
+                 n=object$data$.n,
                  studlab=studlab,
                  data=data, subset=subset,
                  sm=sm,
@@ -176,10 +188,10 @@ update.meta <- function(object,
                  keepdata=keepdata)
   ##
   if (inherits(object,"metainc"))
-    m <- metainc(event.e=object$data$event.e,
-                 time.e=object$data$time.e,
-                 event.c=object$data$event.c,
-                 time.c=object$data$time.c,
+    m <- metainc(event.e=object$data$.event.e,
+                 time.e=object$data$.time.e,
+                 event.c=object$data$.event.c,
+                 time.c=object$data$.time.c,
                  studlab=studlab,
                  data=data, subset=subset, method=method,
                  sm=sm,

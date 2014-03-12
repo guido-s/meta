@@ -1,3 +1,56 @@
+2014-03-12, version 3.2-0
+
+Functions metabin, metacont, metacor, metagen, metainc, metaprop:
+- heterogeneity statistics I-squared and H added to R object
+- column names changed in list object data (columns starting with a
+  "." are used internally in update.meta function)
+- internally, string "byvar" is used as default label for grouping
+  variable if argument bylab is not provided.
+
+Function metareg:
+- internally variable .byvar used instead of byvar to reflect change
+  in list object data (see above)
+
+Function update.meta:
+- arguments 'byvar' and 'subset' fully functional
+- internally variables .TE (etc) used instead of TE (etc) to reflect
+  change in list object data (see above)
+
+Functions trimfill.default and trimfill.meta:
+- heterogeneity statistics I-squared and H added to R object
+
+Function metagen:
+- bug fix such that weights (w.fixed, w.random) are calculated
+  correctly if any standard error is missing or zero for Hartung-Knapp
+  method (argument hakn=TRUE) or not using the DerSimonian Laird
+  method (argument method.tau not equal to "DL")
+
+Function summary.meta:
+- implement subgroup analysis for metainc objects
+- only (re)calculate heterogeneity statistics (Q, tau-squared,
+  I-squared) for R objects generated with older versions of R package
+  meta
+
+Function forest.meta:
+- groups will not be sorted automatically in alphabetical order (new
+  argument 'bysort'). Use argument bysort=FALSE, in order to get the
+  old behaviour of forest.meta function.
+- only (re)calculate heterogeneity statistics (Q, tau-squared,
+  I-squared) for R objects generated with older versions of R package
+  meta
+
+Function catmeth (used internally)
+- new argument 'tau.preset' to print information if between-study
+  variance was prespecified
+
+Function print.meta and print.summary.meta
+- argument 'tau.preset' used in call to function catmeth
+
+New internally used functions isquared and calcH
+
+Some help pages updated
+
+
 2013-12-01, version 3.1-2
 
 Function forest.meta:

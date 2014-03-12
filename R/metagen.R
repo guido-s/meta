@@ -52,7 +52,8 @@ metagen <- function(TE, seTE,
                  data, enclos = sys.frame(sys.parent()))
   
   
-  if (!is.null(subset))
+  missing.subset <- is.null(subset)
+  if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > length(TE))) ||
         (length(subset) > length(TE)))
       stop("Length of subset is larger than number of studies.")
@@ -63,6 +64,8 @@ metagen <- function(TE, seTE,
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name)>1 & byvar.name[1]=="$")
       byvar.name <- byvar.name[length(byvar.name)]
+    if (length(byvar.name)>1)
+      byvar.name <- "byvar"
   }
   
   
@@ -74,25 +77,41 @@ metagen <- function(TE, seTE,
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(TE=TE, seTE=seTE, studlab=studlab)
+      data <- data.frame(.TE=TE, .seTE=seTE, .studlab=studlab)
       if (!missing.byvar)
-        data$byvar <- byvar
-      if (!is.null(subset))
-        data$subset <- subset
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
     else{
-      data$TE <- TE
-      data$seTE <- seTE
+      data$.TE <- TE
+      data$.seTE <- seTE
       ##
-      data$studlab <- studlab
+      data$.studlab <- studlab
       ##
       if (!missing.byvar)
-        data$byvar <- byvar
+        data$.byvar <- byvar
+      ##
+      if (!missing.subset){
+        if (length(subset) == dim(data)[1])
+          data$.subset <- subset
+        else{
+          data$.subset <- FALSE
+          data$.subset[subset] <- TRUE
+        }
+      }
     }
   }
   
   
-  if (!is.null(subset)){
+  if (!missing.subset){
     TE <- TE[subset]
     seTE <- seTE[subset]
     studlab <- studlab[subset]
@@ -310,7 +329,14 @@ metagen <- function(TE, seTE,
       tres.f <- metafor::rma.uni(yi=TE, vi=seTE^2, method="FE")
       TE.fixed <- as.numeric(tres.f$b[,1])
       seTE.fixed <- tres.f$se
-      w.fixed <- 1 / tres.f$vi
+      ## Studies with missing treatment effect or standard error are
+      ## dropped by rma.uni function (metafor package)
+      ##
+      ## These studies are included in meta package (however with
+      ## weight zero)
+      w.fixed <- rep(0, length(seTE))
+      w.fixed[!(is.na(TE)|is.na(seTE))] <- 1 / tres.f$vi
+      ##
       Cval <- Ccalc(w.fixed)
       ##
       zval.fixed <- tres.f$zval
@@ -329,8 +355,13 @@ metagen <- function(TE, seTE,
       ##
       TE.random <- as.numeric(tres.r$b[,1])
       seTE.random <- tres.r$se
-      w.random <- 1 / (tres.r$vi + tres.r$tau2)
-      w.random[is.na(w.random)] <- 0
+      ## Studies with missing standard error are dropped by rma.uni
+      ## function (metafor package)
+      ##
+      ## These studies are included in meta package (however with
+      ## weight zero)
+      w.random <- rep(0, length(seTE))
+      w.random[!(is.na(TE)|is.na(seTE))] <- 1 / (tres.r$vi + tres.r$tau2)
       ##
       zval.random <- tres.r$zval
       pval.random <- tres.r$pval
@@ -370,6 +401,13 @@ metagen <- function(TE, seTE,
   }
   
   
+  ##
+  ## Calculate H and I-Squared
+  ##
+  Hres  <- calcH(Q, df.Q, level.comb)
+  I2res <- isquared(Q, df.Q, level.comb)
+  
+  
   if (!missing.byvar & tau.common)
     tau.preset <- NULL
   
@@ -393,6 +431,15 @@ metagen <- function(TE, seTE,
               k=k, Q=Q, df.Q=df.Q,
               tau=sqrt(tau2), se.tau2=se.tau2,
               C=Cval,
+              ##
+              H=Hres$TE,
+              lower.H=Hres$lower,
+              upper.H=Hres$upper,
+              ##
+              I2=I2res$TE,
+              lower.I2=I2res$lower,
+              upper.I2=I2res$upper,
+              ##
               sm=sm, method="Inverse",
               level=level,
               level.comb=level.comb,

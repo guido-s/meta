@@ -107,31 +107,21 @@ summary.meta <- function(object,
   
   
   ##
-  ## Higgins & Thompson (2002), Statistics in Medicine, 21, 1539-58
+  ## Check for older version of R package meta
   ##
-  k.Q <- df.Q+1
-  H <- sqrt(Q/(k.Q-1))
+  oldmeta <- !(!is.null(object$version) &&
+               as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)
   ##
-  selogH <- ifelse(k.Q>2,
-                   ifelse(Q<=k.Q,
-                          sqrt(1/(2*(k.Q-2))*(1-1/(3*(k.Q-2)^2))),
-                          0.5*(log(Q)-log(k.Q-1))/(sqrt(2*Q)-sqrt(2*k.Q-3))),
-                   NA)
-  ##
-  tres <- ci(log(H), selogH, level.comb)
-  ##
-  ci.H <- list(TE=max(exp(tres$TE),1),
-               lower=max(exp(tres$lower),1),
-               upper=max(exp(tres$upper),1))
-
+  if (oldmeta){
+    ci.H <- calcH(Q, df.Q, level.comb)
+    ci.I2 <- isquared(Q, df.Q, level.comb)
+    }
+  else{
+    ci.H <- list(TE=object$H, lower=object$lower.H, upper=object$upper.H)
+    ci.I2 <- list(TE=object$I2, lower=object$lower.I2, upper=object$upper.I2)
+  }
   
-  func.t <- function(x) (x^2-1)/x^2
-  ##
-  ci.I2 <- list(TE=func.t(ci.H$TE),
-                lower=func.t(ci.H$lower),
-                upper=func.t(ci.H$upper))
-
-
+  
   ci.lab <- paste(round(100*level.comb, 1), "%-CI", sep="")
   ##
   ci.study <- ci(object$TE, object$seTE, level)
@@ -307,6 +297,25 @@ summary.meta <- function(object,
                          tau.preset=object$tau.preset, TE.tau=object$TE.tau)
       }
       ##
+      if (inherits(object, "metainc")){
+        meta1 <- metainc(object$event.e[sel], object$time.e[sel],
+                         object$event.c[sel], object$time.c[sel],
+                         studlab=object$studlab[sel],
+                         method=object$method,
+                         sm=object$sm,
+                         incr=object$incr,
+                         allincr=object$allincr,
+                         addincr=object$addincr,
+                         level=level, level.comb=level.comb,
+                         comb.fixed=comb.fixed,
+                         comb.random=comb.random,
+                         hakn=object$hakn,
+                         method.tau=object$method.tau,
+                         tau.preset=object$tau.preset,
+                         TE.tau=object$TE.tau,
+                         warn=warn)
+      }
+      ##
       if (bystud){
         if (print.byvar & bylab!="")
           bylab2 <- paste(bylab, " = ", i, sep="")
@@ -388,6 +397,7 @@ summary.meta <- function(object,
               predict=ci.p,
               k=k, Q=Q, df.Q=df.Q,
               tau=object$tau, H=ci.H, I2=ci.I2,
+              tau.preset=object$tau.preset,
               k.all=length(object$TE),
               Q.CMH=object$Q.CMH,
               sm=object$sm, method=object$method,

@@ -285,5 +285,28 @@ m3 <- metainc(d.smokers, py.smokers,
               d.nonsmokers, py.nonsmokers,
               data=lungcancer, studlab=study)
 print(m3, digits=2)
+
+
+## Redo Cochran meta-analysis with inflated standard errors
+##
+## All cause mortality
+##
+TEa <- log( (smoking$d.smokers/smoking$py.smokers) /
+            (smoking$d.nonsmokers/smoking$py.nonsmokers)
+          )
+seTEa <- sqrt(1/smoking$d.smokers +
+              1/smoking$d.nonsmokers + 2.5/smoking$d.nonsmokers)
+##
+metagen(TEa, seTEa, sm="IRR", studlab=smoking$study)
+
+## Lung cancer mortality
+##
+TEl <- log( (lungcancer$d.smokers/lungcancer$py.smokers) /
+            (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers)
+          )
+seTEl <- sqrt(1/lungcancer$d.smokers +
+              1/lungcancer$d.nonsmokers + 2.25/lungcancer$d.nonsmokers)
+##
+metagen(TEl, seTEl, sm="IRR", studlab=lungcancer$study)
 }
 \keyword{htest}

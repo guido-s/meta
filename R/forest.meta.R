@@ -19,6 +19,7 @@ forest.meta <- function(x,
                         print.byvar=x$print.byvar,
                         text.fixed.w=text.fixed,
                         text.random.w=text.random,
+                        bysort=FALSE,
                         ##
                         pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
                         ##
@@ -1097,48 +1098,95 @@ forest.meta <- function(x,
 
   
   if (sort | by){
-    ##
-    o <- order(byvar, sortvar)
-    ##
-    x$n.e <- x$n.e[o]
-    x$n.c <- x$n.c[o]
-    ##
-    x$event.e <- x$event.e[o]
-    x$event.c <- x$event.c[o]
-    ##
-    x$mean.e <- x$mean.e[o]
-    x$mean.c <- x$mean.c[o]
-    ##
-    x$sd.e <- x$sd.e[o]
-    x$sd.c <- x$sd.c[o]
-    ##
-    x$cor <- x$cor[o]
-    ##
-    x$time.e <- x$time.e[o]
-    x$time.c <- x$time.c[o]
-    ##
-    x$TE   <- x$TE[o]
-    x$seTE <- x$seTE[o]
-    ##
-    if (inherits(x, "metainf")|inherits(x, "metacum")){
-      x$lower <- x$lower[o]
-      x$upper <- x$upper[o]
+    if (bysort){
+      ##
+      o <- order(byvar, sortvar)
+      ##
+      x$n.e <- x$n.e[o]
+      x$n.c <- x$n.c[o]
+      ##
+      x$event.e <- x$event.e[o]
+      x$event.c <- x$event.c[o]
+      ##
+      x$mean.e <- x$mean.e[o]
+      x$mean.c <- x$mean.c[o]
+      ##
+      x$sd.e <- x$sd.e[o]
+      x$sd.c <- x$sd.c[o]
+      ##
+      x$cor <- x$cor[o]
+      ##
+      x$time.e <- x$time.e[o]
+      x$time.c <- x$time.c[o]
+      ##
+      x$TE   <- x$TE[o]
+      x$seTE <- x$seTE[o]
+      ##
+      if (inherits(x, "metainf")|inherits(x, "metacum")){
+        x$lower <- x$lower[o]
+        x$upper <- x$upper[o]
+      }
+      ##
+      x$w.fixed  <- x$w.fixed[o]
+      x$w.random <- x$w.random[o]
+      studlab  <- studlab[o]
+      ##
+      x$n.harmonic.mean <- x$n.harmonic.mean[o]
+      ##
+      byvar   <- byvar[o]
+      sortvar <- sortvar[o]
+      ##
+      col.i <- col.i[o]
+      col.square <- col.square[o]
+      col.square.lines <- col.square.lines[o]
+      ##
+      col.i.inside.square <- col.i.inside.square[o]
     }
-    ##
-    x$w.fixed  <- x$w.fixed[o]
-    x$w.random <- x$w.random[o]
-    studlab  <- studlab[o]
-    ##
-    x$n.harmonic.mean <- x$n.harmonic.mean[o]
-    ##
-    byvar   <- byvar[o]
-    sortvar <- sortvar[o]
-    ##
-    col.i <- col.i[o]
-    col.square <- col.square[o]
-    col.square.lines <- col.square.lines[o]
-    ##
-    col.i.inside.square <- col.i.inside.square[o]
+    else{
+      ##
+      byvar.factor <- factor(byvar, levels=unique(byvar))
+      o <- order(byvar.factor, sortvar)
+      ##
+      x$n.e <- x$n.e[o]
+      x$n.c <- x$n.c[o]
+      ##
+      x$event.e <- x$event.e[o]
+      x$event.c <- x$event.c[o]
+      ##
+      x$mean.e <- x$mean.e[o]
+      x$mean.c <- x$mean.c[o]
+      ##
+      x$sd.e <- x$sd.e[o]
+      x$sd.c <- x$sd.c[o]
+      ##
+      x$cor <- x$cor[o]
+      ##
+      x$time.e <- x$time.e[o]
+      x$time.c <- x$time.c[o]
+      ##
+      x$TE   <- x$TE[o]
+      x$seTE <- x$seTE[o]
+      ##
+      if (inherits(x, "metainf")|inherits(x, "metacum")){
+        x$lower <- x$lower[o]
+        x$upper <- x$upper[o]
+      }
+      ##
+      x$w.fixed  <- x$w.fixed[o]
+      x$w.random <- x$w.random[o]
+      studlab  <- studlab[o]
+      ##
+      x$n.harmonic.mean <- x$n.harmonic.mean[o]
+      ##
+      byvar   <- byvar[o]
+      sortvar <- sortvar[o]
+      ##
+      col.i <- col.i[o]
+      col.square <- col.square[o]
+      col.square.lines <- col.square.lines[o]
+      ##
+      col.i.inside.square <- col.i.inside.square[o]      
+    }
   }
   
   
@@ -1313,10 +1361,27 @@ forest.meta <- function(x,
       }
     } 
     ##
-    Q    <- sm1$Q
-    df   <- sm1$k-1
-    I2   <- sm1$I2$TE
-    tau2 <- sm1$tau^2
+    if (ancientmeta){
+      ## Only use (re)calculated heterogeneity statistics for very old
+      ## versions of R package meta
+      ##
+      Q    <- sm1$Q
+      df   <- sm1$k-1
+      tau2 <- sm1$tau^2
+      }
+    else{
+      Q    <- x$Q
+      df   <- x$df.Q
+      tau2 <- x$tau^2
+    }
+    ##
+    oldmeta <- !(!is.null(x$version) &&
+                 as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.2)
+    ##
+    if (oldmeta)
+      I2 <- sm1$I2$TE
+    else
+      I2 <- x$I2
   }
   
   
