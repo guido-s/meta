@@ -19,7 +19,8 @@
        level=object$level, level.comb=object$level.comb,
        comb.fixed=object$comb.fixed, comb.random=object$comb.random,
        hakn=object$hakn, method.tau=object$method.tau,
-       tau.preset=object$tau.preset, TE.tau=object$TE.tau, tau.common=object$tau.common,
+       tau.preset=object$tau.preset,
+       TE.tau=object$TE.tau, tau.common=object$tau.common,
        prediction=object$prediction, level.predict=object$level.predict,
        method.bias=object$method.bias,
        title=object$title, complab=object$complab, outclab=object$outclab,
@@ -146,6 +147,12 @@ update(meta1, sm="MD")
 # Restrict analysis to subset of studies
 #
 update(meta1, subset=1:2)
+
+# Use different levels for confidence intervals
+#
+meta2 <- update(meta1, level=0.66, level.comb=0.99)
+print(meta2, digits=2)
+forest(meta2)
 }
 
 \keyword{htest}

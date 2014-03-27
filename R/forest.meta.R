@@ -1208,6 +1208,7 @@ forest.meta <- function(x,
                   incr=x$incr, allincr=x$allincr,
                   addincr=x$addincr, allstudies=x$allstudies,
                   MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
+                  level=x$level, level.comb=x$level.comb,
                   hakn=x$hakn, method.tau=x$method.tau,
                   tau.preset=x$tau.preset, TE.tau=x$TE.tau,
                   warn=x$warn)
@@ -1216,16 +1217,19 @@ forest.meta <- function(x,
     m1 <- metacont(x$n.e, x$mean.e, x$sd.e,
                    x$n.c, x$mean.c, x$sd.c,
                    sm=x$sm,
+                   level=x$level, level.comb=x$level.comb,
                    hakn=x$hakn, method.tau=x$method.tau,
                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
   ##
   if (inherits(x, "metagen"))
     if (!is.null(x$tau.preset))
       m1 <- metagen(x$TE, x$seTE, sm=x$sm,
+                    level=x$level, level.comb=x$level.comb,
                     hakn=x$hakn, method.tau=x$method.tau,
                     tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     else
       m1 <- metagen(x$TE, x$seTE, sm=x$sm,
+                    level=x$level, level.comb=x$level.comb,
                     hakn=x$hakn, method.tau=x$method.tau,
                     TE.tau=x$TE.tau)
   ##
@@ -1233,6 +1237,7 @@ forest.meta <- function(x,
     m1 <- metaprop(x$event.e, x$n.e, sm=x$sm,
                    incr=x$incr, allincr=x$allincr,
                    addincr=x$addincr,
+                   level=x$level, level.comb=x$level.comb,
                    hakn=x$hakn, method.tau=x$method.tau,
                    tau.preset=x$tau.preset, TE.tau=x$TE.tau,
                    warn=x$warn)
@@ -1242,6 +1247,7 @@ forest.meta <- function(x,
   ##
   if (inherits(x, "metacor")){
     m1 <- metacor(x$cor, x$n, sm=x$sm,
+                  level=x$level, level.comb=x$level.comb,
                   hakn=x$hakn, method.tau=x$method.tau,
                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     m1$n.e <- m1$n
@@ -1253,6 +1259,7 @@ forest.meta <- function(x,
                   method=x$method, sm=x$sm,
                   incr=x$incr, allincr=x$allincr,
                   addincr=x$addincr,
+                  level=x$level, level.comb=x$level.comb,
                   hakn=x$hakn, method.tau=x$method.tau,
                   tau.preset=x$tau.preset, TE.tau=x$TE.tau,
                   warn=x$warn)

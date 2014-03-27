@@ -17,7 +17,8 @@
         comb.fixed=x$comb.fixed,
         comb.random=x$comb.random,
         prediction=x$prediction,
-        details=FALSE, ma=TRUE, logscale=FALSE, digits=max(4, .Options$digits - 3), ...)
+        details=FALSE, ma=TRUE, logscale=FALSE,
+        digits=max(4, .Options$digits - 3), ...)
 
 \method{print}{metabias}(x, ...)
 

@@ -1,3 +1,12 @@
+2014-03-26, version 3.2-1
+
+Function forest.meta:
+- bug fix such that correct confidence limits for individual studies
+  will be printed if argument 'level' in function metabin etc. is not
+  equal to the default 0.95. (this bug has been introduced in version
+  3.0-0 of meta)
+
+
 2014-03-12, version 3.2-0
 
 Functions metabin, metacont, metacor, metagen, metainc, metaprop:

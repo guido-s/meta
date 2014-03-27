@@ -14,13 +14,17 @@
        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
        overall=TRUE,
        text.fixed=if (x$level!=x$level.comb) paste("Fixed effect model (",
-                    round(x$level.comb*100), "\%-CI)", sep="") else "Fixed effect model",
+                    round(x$level.comb*100), "\%-CI)", sep="")
+                  else "Fixed effect model",
        text.random=if (x$level!=x$level.comb) paste("Random effects model (",
-                    round(x$level.comb*100), "\%-CI)", sep="") else "Random effects model",
+                    round(x$level.comb*100), "\%-CI)", sep="")
+                  else "Random effects model",
        lty.fixed=2, lty.random=3,
        prediction=x$prediction,
-       text.predict=if (!(length(x$level.predict)==0) && x$level!=x$level.predict)
-                     paste("Prediction interval (", round(x$level.predict*100), "\%)",
+       text.predict=if (!(length(x$level.predict)==0) &&
+                        x$level!=x$level.predict)
+                     paste("Prediction interval (",
+                           round(x$level.predict*100), "\%)",
                      sep="") else "Prediction interval",
        bylab=x$bylab, print.byvar=x$print.byvar,
        text.fixed.w=text.fixed, text.random.w=text.random,
