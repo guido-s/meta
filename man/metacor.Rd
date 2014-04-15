@@ -11,17 +11,17 @@
 \usage{
 metacor(cor, n, studlab,
         data=NULL, subset=NULL,
-        sm="ZCOR",
-        level=0.95, level.comb=level,
-        comb.fixed=TRUE, comb.random=TRUE,
-        hakn=FALSE,
-        method.tau="DL", tau.preset=NULL, TE.tau=NULL,
-        tau.common=FALSE,
-        prediction=FALSE, level.predict=level,
-        method.bias="linreg",
-        title="", complab="", outclab="",
-        byvar, bylab, print.byvar=TRUE,
-        keepdata=TRUE
+        sm=.settings$smcor,
+        level=.settings$level, level.comb=.settings$level.comb,
+        comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+        hakn=.settings$hakn,
+        method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+        tau.common=.settings$tau.common,
+        prediction=.settings$prediction, level.predict=.settings$level.predict,
+        method.bias=.settings$method.bias,
+        title=.settings$title, complab=.settings$complab, outclab="",
+        byvar, bylab, print.byvar=.settings$print.byvar,
+        keepdata=.settings$keepdata
         )
 }
 
@@ -85,7 +85,11 @@ metacor(cor, n, studlab,
   p265). The artificial example given below shows that the smallest
   study gets the largest weight if correlations are combined directly
   because the correlation is closest to 1.
-
+  
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{confmeta}} function.
+  
   Internally, both fixed effect and random effects models are calculated
   regardless of values choosen for arguments \code{comb.fixed} and
   \code{comb.random}. Accordingly, the estimate for the random effects

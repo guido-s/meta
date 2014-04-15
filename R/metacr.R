@@ -1,11 +1,11 @@
 metacr <- function(x, comp.no=1, outcome.no=1,
                    method, sm,
-                   level=0.95, level.comb=level,
+                   level=.settings$level, level.comb=.settings$level.comb,
                    comb.fixed, comb.random,
                    hakn=FALSE,
                    method.tau="DL",
                    tau.common=FALSE,
-                   prediction=FALSE, level.predict=level,
+                   prediction=.settings$prediction, level.predict=.settings$level.predict,
                    swap.events, logscale,
                    title, complab, outclab,
                    warn=FALSE){

@@ -1,25 +1,28 @@
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
-                    data=NULL, subset=NULL, method=ifelse(tau.common, "Inverse", "MH"),
+                    data=NULL, subset=NULL,
+                    method=ifelse(tau.common, "Inverse", .settings$method),
                     sm=
                     ifelse(!is.na(charmatch(method, c("Peto", "peto"),
                                             nomatch = NA)),
-                           "OR", "RR"),
-                    incr=0.5, allincr=FALSE, addincr=FALSE, allstudies=FALSE,
-                    MH.exact=FALSE, RR.cochrane=FALSE,
-                    level=0.95, level.comb=level,
-                    comb.fixed=TRUE, comb.random=TRUE,
-                    hakn=FALSE,
-                    method.tau="DL", tau.preset=NULL, TE.tau=NULL,
-                    tau.common=FALSE,
-                    prediction=FALSE, level.predict=level,
-                    method.bias=NULL,
-                    title="", complab="", outclab="",
-                    label.e="Experimental", label.c="Control",
-                    label.left="", label.right="",
-                    byvar, bylab, print.byvar=TRUE,
-                    print.CMH=FALSE,
-                    keepdata=TRUE,
-                    warn=TRUE
+                           "OR", .settings$smbin),
+                    incr=.settings$incr, allincr=.settings$allincr,
+                    addincr=.settings$addincr, allstudies=.settings$allstudies,
+                    MH.exact=.settings$MH.exact, RR.cochrane=.settings$RR.cochrane,
+                    level=.settings$level, level.comb=.settings$level.comb,
+                    comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+                    hakn=.settings$hakn,
+                    method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+                    tau.common=.settings$tau.common,
+                    prediction=.settings$prediction, level.predict=.settings$level.predict,
+                    method.bias=ifelse(sm=="OR", "score", .settings$method.bias),
+                    ##
+                    title=.settings$title, complab=.settings$complab, outclab="",
+                    label.e=.settings$label.e, label.c=.settings$label.c,
+                    label.left=.settings$label.left, label.right=.settings$label.right,
+                    byvar, bylab, print.byvar=.settings$print.byvar,
+                    print.CMH=.settings$print.CMH,
+                    keepdata=.settings$keepdata,
+                    warn=.settings$warn
                     ){
   
   
@@ -215,17 +218,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   if (method == "MH" & !is.logical(MH.exact))
     stop("MH.exact must be of type 'logical'")
-  
-  
-  ##
-  ## Set default for method.bias (see Sterne et al., BMJ 2011;343:d4002):
-  ## - "score" for OR as effect measure
-  ## - "linreg" otherwise
-  ##
-  if (missing(method.bias) & sm=="OR")
-    method.bias <- "score"
-  else
-    method.bias <- "linreg"
   
   
   ##

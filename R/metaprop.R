@@ -1,18 +1,20 @@
 metaprop <- function(event, n, studlab,
                      data=NULL, subset=NULL,
-                     sm="PLOGIT",
-                     incr=0.5, allincr=FALSE, addincr=FALSE,
-                     level=0.95, level.comb=level,
-                     comb.fixed=TRUE, comb.random=TRUE,
-                     hakn=FALSE,
-                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
-                     tau.common=FALSE,
-                     prediction=FALSE, level.predict=level,
-                     method.bias="linreg",
-                     title="", complab="", outclab="",
-                     byvar, bylab, print.byvar=TRUE,
-                     keepdata=TRUE,
-                     warn=TRUE
+                     sm=.settings$smprop,
+                     incr=.settings$incr, allincr=.settings$allincr,
+                     addincr=.settings$addincr,
+                     level=.settings$level, level.comb=.settings$level.comb,
+                     comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+                     hakn=.settings$hakn,
+                     method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+                     tau.common=.settings$tau.common,
+                     prediction=.settings$prediction, level.predict=.settings$level.predict,
+                     method.bias=.settings$method.bias,
+                     ##
+                     title=.settings$title, complab=.settings$complab, outclab="",
+                     byvar, bylab, print.byvar=.settings$print.byvar,
+                     keepdata=.settings$keepdata,
+                     warn=.settings$warn
                      ){
   
   

@@ -12,19 +12,20 @@
 
 \usage{
 metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
-        level = 0.95, level.comb = level,
-        comb.fixed=TRUE, comb.random=TRUE,
-        hakn=FALSE,
-        method.tau="DL", tau.preset=NULL, TE.tau=NULL,
-        tau.common=FALSE,
-        prediction=FALSE, level.predict=level,
-        method.bias="linreg",
+        level=.settings$level, level.comb=.settings$level.comb,
+        comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+        hakn=.settings$hakn,
+        method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+        tau.common=.settings$tau.common,
+        prediction=.settings$prediction, level.predict=.settings$level.predict,
+        method.bias=.settings$method.bias,
         n.e=NULL, n.c=NULL,
-        title="", complab="", outclab="",
-        label.e="Experimental", label.c="Control",
-        label.left="", label.right="",
-        byvar, bylab, print.byvar=TRUE,
-        keepdata=TRUE, warn=TRUE)
+        title=.settings$title, complab=.settings$complab, outclab="",
+        label.e=.settings$label.e, label.c=.settings$label.c,
+        label.left=.settings$label.left, label.right=.settings$label.right,
+        byvar, bylab, print.byvar=.settings$print.byvar,
+        keepdata=.settings$keepdata,
+        warn=.settings$warn)
 }
 
 \arguments{
@@ -86,10 +87,14 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
 
 \details{
   Generic method for meta-analysis, only treatment estimates and their
-  standard error are needed. The method is useful, e.g., for pooling of
-  survival data (using log hazard ratio and standard errors as
-  input). The inverse variance method is used for pooling. Random
-  effects estimate is based on the DerSimonian-Laird method.
+  standard error are needed. The method is useful, e.g., for pooling
+  of survival data (using log hazard ratio and standard errors as
+  input). The inverse variance method is used for pooling. By default,
+  random effects estimate is based on the DerSimonian-Laird method.
+
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{confmeta}} function.
 
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments

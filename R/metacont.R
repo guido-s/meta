@@ -1,19 +1,20 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      data=NULL, subset=NULL,
-                     sm="MD",
-                     level=0.95, level.comb=level,
-                     comb.fixed=TRUE, comb.random=TRUE,
-                     hakn=FALSE,
-                     method.tau="DL", tau.preset=NULL, TE.tau=NULL,
-                     tau.common=FALSE,
-                     prediction=FALSE, level.predict=level,
-                     method.bias="linreg",
-                     title="", complab="", outclab="",
-                     label.e="Experimental", label.c="Control",
-                     label.left="", label.right="",
-                     byvar, bylab, print.byvar=TRUE,
-                     keepdata=TRUE,
-                     warn=TRUE
+                     sm=.settings$smcont,
+                     level=.settings$level, level.comb=.settings$level.comb,
+                     comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+                     hakn=.settings$hakn,
+                     method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+                     tau.common=.settings$tau.common,
+                     prediction=.settings$prediction, level.predict=.settings$level.predict,
+                     method.bias=.settings$method.bias,
+                     ##
+                     title=.settings$title, complab=.settings$complab, outclab="",
+                     label.e=.settings$label.e, label.c=.settings$label.c,
+                     label.left=.settings$label.left, label.right=.settings$label.right,
+                     byvar, bylab, print.byvar=.settings$print.byvar,
+                     keepdata=.settings$keepdata,
+                     warn=.settings$warn
                      ){
   
   

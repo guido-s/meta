@@ -9,11 +9,11 @@ p.ci <- function(lower, upper, rmspace=TRUE,
 
   ## Change layout of CIs
   ##
-  ibracktype <- charmatch(.metaOptions$CIbracket,
+  ibracktype <- charmatch(.settings$CIbracket,
                           c("[", "(", "{", ""), nomatch = NA)
   if (is.na(ibracktype) | ibracktype==0){
     warning("No valid bracket type specified globally for R package meta: ",
-            .metaOptions$CIbracket,
+            .settings$CIbracket,
             "\n  Using default bracket type: '['. See help page on R command 'cilayout' for further information.")
     bracktype <- "["
   }
@@ -44,7 +44,7 @@ p.ci <- function(lower, upper, rmspace=TRUE,
     bracket.right <- bracketRight
   ##
   if (missing(separator))
-    separator <- .metaOptions$CIseparator
+    separator <- .settings$CIseparator
   
   if (rmspace){
     lower <- rmSpace(lower)

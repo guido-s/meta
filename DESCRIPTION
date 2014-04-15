@@ -1,11 +1,10 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 3.2-1
+Version: 3.5-0
 Depends: R (>= 2.9.1), grid
 Suggests: metafor
-Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
-Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>
-Date: 2014-03-26
+Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
+Date: 2014-04-11
 Description: Fixed and random effects meta-analysis. Functions for tests of bias, forest and funnel plot.
 License: GPL (>= 2)
 Encoding: UTF-8

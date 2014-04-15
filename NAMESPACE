@@ -1,4 +1,4 @@
-export(ci, forest, forest.meta,
+export(ci, settings.meta, forest, forest.meta,
        funnel, funnel.default, funnel.meta,
        addvar, as.data.frame.meta,
        metabias, metabias.default, metabias.meta,
