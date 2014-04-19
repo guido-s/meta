@@ -61,9 +61,9 @@ metaprop(event, n, studlab,
           Knapp should be used to adjust test statistics and
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
-    to estimate the between-study variance tau-squared. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    to estimate the between-study variance \eqn{\tau^2}. Either
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
   \item{TE.tau}{Overall treatment effect used to estimate the
     between-study variance tau-squared.}
@@ -87,8 +87,10 @@ metaprop(event, n, studlab,
 }
 
 \details{
-  Fixed effect and random effects meta-analysis of single proportions to
-  calculate an overall proportion.
+  Fixed effect and random effects meta-analysis of single proportions
+  to calculate an overall proportion. By default, the
+  DerSimonian-Laird estimate (1986) is used in the random effects
+  model (\code{method.tau="DL"}).
   
   The following transformations of proportions are implemented to
   calculate an overall proportion:
@@ -120,15 +122,16 @@ metaprop(event, n, studlab,
   individual study results, e.g. in R function
   \code{\link{summary.meta}}.
   
-  Internally, both fixed effect and random effects models are calculated
-  regardless of values choosen for arguments \code{comb.fixed} and
-  \code{comb.random}. Accordingly, the estimate for the random effects
-  model can be extracted from component \code{TE.random} of an object
-  of class \code{"meta"} even if \code{comb.random=FALSE}. However, all
-  functions in R package \code{meta} will adequately consider the values
-  for \code{comb.fixed} and \code{comb.random}. E.g. function
-  \code{\link{print.meta}} will not print results for the random effects
-  model if \code{comb.random=FALSE}.
+  Internally, both fixed effect and random effects models are
+  calculated regardless of values choosen for arguments
+  \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+  for the random effects model can be extracted from component
+  \code{TE.random} of an object of class \code{"meta"} even if
+  argument \code{comb.random=FALSE}. However, all functions in R
+  package \code{meta} will adequately consider the values for
+  \code{comb.fixed} and \code{comb.random}. E.g. function
+  \code{\link{print.meta}} will not print results for the random
+  effects model if \code{comb.random=FALSE}.
 
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
@@ -138,19 +141,20 @@ metaprop(event, n, studlab,
   meta-analysis of an existing metaprop object by only specifying
   arguments which should be changed.
 
+  For the random effects, the method by Hartung and Knapp (2003) is
+  used to adjust test statistics and confidence intervals if argument
+  \code{hakn=TRUE}.
+  
+  The iterative Paule-Mandel method (1982) to estimate the
+  between-study variance is used if argument
+  \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
+  called which is based on R function mpaule.default from R package
+  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+
   If R package metafor (Viechtbauer 2010) is installed, the following
-  statistical methods are also available.
-
-  For the random effects model (argument \code{comb.random=TRUE}), the
-  method by Hartung and Knapp (Knapp, Hartung 2003) is used to adjust
-  test statistics and confidence intervals if argument
-  \code{hakn=TRUE} (internally R function \code{rma.uni} of R package
-  metafor is called).
-
-  Several methods are available to estimate the between-study variance
-  \eqn{\tau^2} (argument \code{method.tau}):
+  methods to estimate the between-study variance \eqn{\tau^2}
+  (argument \code{method.tau}) are also available:
   \itemize{
-   \item DerSimonian-Laird estimator (\code{method.tau="DL"}) (default)
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
    \item Hunter-Schmidt estimator (\code{method.tau="HS"})
@@ -158,10 +162,9 @@ metaprop(event, n, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For all but the DerSimonian-Laird method the R function
-  \code{rma.uni} of R package metafor is called internally. See help
-  page of R function \code{rma.uni} for more details on the various
-  methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+  For these methods the R function \code{rma.uni} of R package metafor
+  is called internally. See help page of R function \code{rma.uni} for
+  more details on these methods to estimate between-study variance.
 }
 
 \value{
@@ -217,6 +220,10 @@ metaprop(event, n, studlab,
 }
 
 \references{
+  DerSimonian R & Laird N (1986),
+  Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
+  \bold{7}, 177--188.
+
   Edward JM et al. (2006),
   Adherence to antiretroviral therapy in sub-saharan Africa and North
   America - a meta-analysis. \emph{Journal of the American Medical
@@ -241,6 +248,11 @@ metaprop(event, n, studlab,
   Miller JJ (1978),
   The inverse of the Freeman-Tukey double arcsine transformation.
   \emph{The American Statistician}, \bold{32}, 138.
+
+  Paule RC & Mandel J (1982),
+  Consensus values and weighting factors.
+  \emph{Journal of Research of the National Bureau of Standards},
+  \bold{87}, 377--385.
 
   Pettigrew HM, Gart JJ, Thomas DG (1986),
   The bias and higher cumulants of the logarithm of a binomial

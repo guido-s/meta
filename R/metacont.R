@@ -205,6 +205,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                     mean.e - mean.c)
     seTE <- ifelse(npn, NA,
                    sqrt(sd.e^2/n.e + sd.c^2/n.c))
+    seTE[is.na(TE)] <- NA
   }
   else if (sm == "SMD"){
     N <- n.e+n.c
@@ -213,8 +214,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                     sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2)))
     seTE <- ifelse(npn, NA,
                    sqrt(N / (n.e*n.c) + TE^2/(2*(N-3.94))))
+    seTE[is.na(TE)] <- NA
   }
-  ##  
+  ##
   ## Studies with zero variance get zero weight in meta-analysis
   ## (added by sc, 3.6.2008):
   ##

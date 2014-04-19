@@ -99,10 +99,11 @@ catmeth <- function(method, method.tau=NULL,
     }
     else{
       i.lab.method.tau <- charmatch(method.tau,
-                                    c("DL", "REML", "ML", "HS", "SJ", "HE", "EB"),
+                                    c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"),
                                     nomatch = NA)
       ##
       lab.method.tau <- c("\n- DerSimonian-Laird estimator for tau^2",
+                          "\n- Paule-Mandel estimator for tau^2",
                           "\n- restricted maximum-likelihood estimator for tau^2",
                           "\n- maximum-likelihood estimator for tau^2",
                           "\n- Hunter-Schmidt estimator for tau^2",

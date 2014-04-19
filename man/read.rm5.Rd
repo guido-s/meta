@@ -131,8 +131,7 @@ read.rm5(file, sep=",", quote = "\"", title,
   \item{I2}{Heterogeneity statistic I2 in respective
     meta-analysis (see below for details).}
   \item{tau2}{Between-study variance (moment estimator of
-    DerSimonian-Laird) in respective meta-analysis (see below for
-    details).}
+    DerSimonian-Laird) in respective meta-analysis.}
   \item{Q.w}{Heterogeneity statistic Q within groups in
     respective meta-analysis (see below for details).}
   \item{pval.Q.w}{P-value of heterogeneity statistic Q within groups in

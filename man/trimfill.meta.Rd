@@ -61,9 +61,9 @@
           Knapp should be used to adjust test statistics and
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
-    to estimate the between-study variance tau-squared. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    to estimate the between-study variance \eqn{\tau^2}. Either
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{prediction}{A logical indicating whether a prediction interval
     should be printed.}
   \item{level.predict}{The level used to calculate prediction interval

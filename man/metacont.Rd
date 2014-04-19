@@ -56,9 +56,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
           Knapp should be used to adjust test statistics and
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
-    to estimate the between-study variance tau-squared. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    to estimate the between-study variance \eqn{\tau^2}. Either
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
   \item{TE.tau}{Overall treatment effect used to estimate the
     between-study variance tau-squared.}
@@ -92,23 +92,24 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 \details{
   Calculation of fixed and random effects estimates for meta-analyses
   with continuous outcome data; inverse variance weighting is used for
-  pooling. The DerSimonian-Laird estimate for the between-study
-  variance is used in the random effects model by default (see
-  paragraph on argument \code{method.tau}). The mean difference is
-  used as measure of treatment effect if \code{sm="MD"} -- which
-  correspond to \code{sm="WMD"} in older versions (<0.9) of the meta
-  package. For the summary measure \code{"SMD"}, Hedges' adjusted g is
-  utilised for pooling.
+  pooling. By default, the DerSimonian-Laird estimate (1986) is used
+  in the random effects model (\code{method.tau="DL"}).
 
-  Internally, both fixed effect and random effects models are calculated
-  regardless of values choosen for arguments \code{comb.fixed} and
-  \code{comb.random}. Accordingly, the estimate for the random effects
-  model can be extracted from component \code{TE.random} of an object
-  of class \code{"meta"} even if \code{comb.random=FALSE}. However, all
-  functions in R package \code{meta} will adequately consider the values
-  for \code{comb.fixed} and \code{comb.random}. E.g. function
-  \code{\link{print.meta}} will not print results for the random effects
-  model if \code{comb.random=FALSE}.
+  The mean difference is used as measure of treatment effect if
+  \code{sm="MD"} -- which correspond to \code{sm="WMD"} in older
+  versions (<0.9) of the meta package. For the summary measure
+  \code{"SMD"}, Hedges' adjusted g is utilised for pooling.
+
+  Internally, both fixed effect and random effects models are
+  calculated regardless of values choosen for arguments
+  \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+  for the random effects model can be extracted from component
+  \code{TE.random} of an object of class \code{"meta"} even if
+  argument \code{comb.random=FALSE}. However, all functions in R
+  package \code{meta} will adequately consider the values for
+  \code{comb.fixed} and \code{comb.random}. E.g. function
+  \code{\link{print.meta}} will not print results for the random
+  effects model if \code{comb.random=FALSE}.
 
   The function \code{metagen} is called internally to calculate
   individual and overall treatment estimates and standard errors.
@@ -121,19 +122,20 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   meta-analysis of an existing metacont object by only specifying
   arguments which should be changed.
 
+  For the random effects, the method by Hartung and Knapp (2003) is
+  used to adjust test statistics and confidence intervals if argument
+  \code{hakn=TRUE}.
+
+  The iterative Paule-Mandel method (1982) to estimate the
+  between-study variance is used if argument
+  \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
+  called which is based on R function mpaule.default from R package
+  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+  
   If R package metafor (Viechtbauer 2010) is installed, the following
-  statistical methods are also available.
-
-  For the random effects model (argument \code{comb.random=TRUE}), the
-  method by Hartung and Knapp (Hartung, Knapp 2001; Knapp, Hartung
-  2003) is used to adjust test statistics and confidence intervals if
-  argument \code{hakn=TRUE} (internally R function \code{rma.uni} of R
-  package metafor is called).
-
-  Several methods are available to estimate the between-study variance
-  \eqn{\tau^2} (argument \code{method.tau}):
+  methods to estimate the between-study variance \eqn{\tau^2}
+  (argument \code{method.tau}) are also available:
   \itemize{
-   \item DerSimonian-Laird estimator (\code{method.tau="DL"}) (default)
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
    \item Hunter-Schmidt estimator (\code{method.tau="HS"})
@@ -141,10 +143,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For all but the DerSimonian-Laird method the R function
-  \code{rma.uni} of R package metafor is called internally. See help
-  page of R function \code{rma.uni} for more details on the various
-  methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+  For these methods the R function \code{rma.uni} of R package metafor
+  is called internally. See help page of R function \code{rma.uni} for
+  more details on these methods to estimate between-study variance.
 }
 
 \value{
@@ -201,6 +202,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \emph{The Handbook of Research Synthesis}.
   Newbury Park, CA: Russell Sage Foundation.
 
+  DerSimonian R & Laird N (1986),
+  Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
+  \bold{7}, 177--188.
+
   Hartung J & Knapp G (2001),
   On tests of the overall treatment effect in meta-analysis with
   normally distributed responses.
@@ -210,14 +215,19 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
-  \bold{172}, 137-159.
+  \bold{172}, 137--159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.
-  \emph{Statistics in Medicine}, \bold{22}, 2693-710,
+  \emph{Statistics in Medicine}, \bold{22}, 2693--710,
   doi: 10.1002/sim.1482 .
-
+  
+  Paule RC & Mandel J (1982),
+  Consensus values and weighting factors.
+  \emph{Journal of Research of the National Bureau of Standards},
+  \bold{87}, 377--385.
+  
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
   \emph{Journal of Statistical Software}, \bold{36}, 1--48.

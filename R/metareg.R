@@ -24,6 +24,11 @@ metareg <- function(x, formula,
   
   if (is.null(method.tau))
     method.tau <- "DL"
+  ##
+  if (method.tau=="PM"){
+    warning("Meta-regresion method not available for method.tau=\"PM\". Using REML method instead (method.tau=\"REML\").")
+    method.tau <- "REML"
+  }
   
   ##
   ## Check whether R package metafor is installed

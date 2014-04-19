@@ -75,8 +75,8 @@
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}

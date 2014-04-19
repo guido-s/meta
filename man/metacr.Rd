@@ -47,8 +47,8 @@ metacr(x, comp.no=1, outcome.no=1,
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.common}{A logical indicating whether tau-squared should be
     the same across subgroups.}
   \item{prediction}{A logical indicating whether a prediction interval

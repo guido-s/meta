@@ -92,8 +92,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
@@ -141,31 +141,32 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   and standard errors are only calculated for studies with zero or all
   events in both groups if \code{allstudies} is \code{TRUE}.
   
-  Internally, both fixed effect and random effects models are calculated
-  regardless of values choosen for arguments \code{comb.fixed} and
-  \code{comb.random}. Accordingly, the estimate for the random effects
-  model can be extracted from component \code{TE.random} of an object
-  of class \code{"meta"} even if \code{comb.random=FALSE}. However, all
-  functions in R package \code{meta} will adequately consider the values
-  for \code{comb.fixed} and \code{comb.random}. E.g. function
-  \code{\link{print.meta}} will not print results for the random effects
-  model if \code{comb.random=FALSE}.
+  Internally, both fixed effect and random effects models are
+  calculated regardless of values choosen for arguments
+  \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+  for the random effects model can be extracted from component
+  \code{TE.random} of an object of class \code{"meta"} even if
+  argument \code{comb.random=FALSE}. However, all functions in R
+  package \code{meta} will adequately consider the values for
+  \code{comb.fixed} and \code{comb.random}. E.g. function
+  \code{\link{print.meta}} will not print results for the random
+  effects model if \code{comb.random=FALSE}.
 
   By default, both fixed effect and random effects models are
-  considered (arguments \code{comb.fixed=TRUE} and
-  \code{comb.random=TRUE}). If \code{method} is \code{"MH"} (default),
-  the Mantel-Haenszel method is used to calculate the fixed effect
+  considered (see arguments \code{comb.fixed} and
+  \code{comb.random}). If \code{method} is \code{"MH"} (default), the
+  Mantel-Haenszel method is used to calculate the fixed effect
   estimate; if \code{method} is \code{"Inverse"}, inverse variance
   weighting is used for pooling; finally, if \code{method} is
   \code{"Peto"}, the Peto method is used for pooling. By default, the
-  DerSimonian-Laird estimate is used in the random effects model (see
-  paragraph on argument \code{method.tau}). For the Peto method,
-  Peto's log odds ratio, i.e. \code{(O-E)/V} and its standard error
-  \code{sqrt(1/V)} with \code{O-E} and \code{V} denoting "Observed
-  minus Expected" and "V", are utilised in the random effects
-  model. Accordingly, results of a random effects model using
-  \code{sm="Peto"} can be (slightly) different to results from a
-  random effects model using \code{sm="MH"} or \code{sm="Inverse"}.
+  DerSimonian-Laird estimate (1986) is used in the random effects
+  model (\code{method.tau="DL"}). For the Peto method, Peto's log odds
+  ratio, i.e. \code{(O-E)/V} and its standard error \code{sqrt(1/V)}
+  with \code{O-E} and \code{V} denoting "Observed minus Expected" and
+  "V", are utilised in the random effects model. Accordingly, results
+  of a random effects model using \code{sm="Peto"} can be (slightly)
+  different to results from a random effects model using
+  \code{sm="MH"} or \code{sm="Inverse"}.
   
   For the Mantel-Haenszel method, by default (if \code{MH.exact} is
   FALSE), 0.5 is added to all cell frequencies of a study with a zero cell
@@ -188,19 +189,20 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   meta-analysis of an existing metabin object by only specifying
   arguments which should be changed.
 
+  For the random effects, the method by Hartung and Knapp (2003) is
+  used to adjust test statistics and confidence intervals if argument
+  \code{hakn=TRUE}.
+
+  The iterative Paule-Mandel method (1982) to estimate the
+  between-study variance is used if argument
+  \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
+  called which is based on R function mpaule.default from R package
+  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+  
   If R package metafor (Viechtbauer 2010) is installed, the following
-  statistical methods are also available.
-
-  For the random effects model (argument \code{comb.random=TRUE}), the
-  method by Hartung and Knapp (Hartung, Knapp 2001; Knapp, Hartung
-  2003) is used to adjust test statistics and confidence intervals if
-  argument \code{hakn=TRUE} (internally R function \code{rma.uni} of R
-  package metafor is called).
-
-  Several methods are available to estimate the between-study variance
-  \eqn{\tau^2} (argument \code{method.tau}):
+  methods to estimate the between-study variance \eqn{\tau^2}
+  (argument \code{method.tau}) are also available:
   \itemize{
-   \item DerSimonian-Laird estimator (\code{method.tau="DL"}) (default)
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
    \item Hunter-Schmidt estimator (\code{method.tau="HS"})
@@ -208,10 +210,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For all but the DerSimonian-Laird method the R function
-  \code{rma.uni} of R package metafor is called internally. See help
-  page of R function \code{rma.uni} for more details on the various
-  methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+  For these methods the R function \code{rma.uni} of R package metafor
+  is called internally. See help page of R function \code{rma.uni} for
+  more details on these methods to estimate between-study variance.
 }
 
 \value{
@@ -298,18 +299,23 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
-  \bold{172}, 137-159.
+  \bold{172}, 137--159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.
-  \emph{Statistics in Medicine}, \bold{22}, 2693-710,
+  \emph{Statistics in Medicine}, \bold{22}, 2693--710,
   doi: 10.1002/sim.1482 .
   
   \emph{Review Manager (RevMan)} [Computer program]. Version
   5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
   Collaboration, 2011.
-
+  
+  Paule RC & Mandel J (1982),
+  Consensus values and weighting factors.
+  \emph{Journal of Research of the National Bureau of Standards},
+  \bold{87}, 377--385.
+  
   Pettigrew HM, Gart JJ, Thomas DG (1986),
   The bias and higher cumulants of the logarithm of a binomial
   variate. \emph{Biometrika}, \bold{73}, 425--435.

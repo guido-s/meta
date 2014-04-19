@@ -222,12 +222,12 @@ settings.meta <- function(...){
       method.tau <- args[[idmethod.tau]]
       ##
       imethod.tau <- charmatch(tolower(method.tau),
-                               c("dl", "reml", "ml", "hs", "sj", "he", "eb"), nomatch = NA)
+                               c("dl", "pm", "reml", "ml", "hs", "sj", "he", "eb"), nomatch = NA)
       ##
       if (is.na(imethod.tau) || imethod.tau==0)
-        stop('Argument \'method.tau\' should be "DL", "REML", "ML", "HS", "SJ", "HE", or "EB".')
+        stop('Argument \'method.tau\' should be "DL", "PM", "REML", "ML", "HS", "SJ", "HE", or "EB".')
       ##
-      method.tau <- c("DL", "REML", "ML", "HS", "SJ", "HE", "EB")[imethod.tau]
+      method.tau <- c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB")[imethod.tau]
       ##
       setOption("method.tau", method.tau)
     }

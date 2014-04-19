@@ -1,5 +1,30 @@
-2014-04-15, version 3.5-0
+2014-04-19, version 3.5-0
 
+New R function settings.meta to define and print default settings for
+meta-analyses in R package meta
+
+Function metagen:
+- Hartung and Knapp method added (previously the rma.uni function from
+  R package metafor has been called for this method)
+- Paule-Mandel method to estimate between-study variance implemented
+  using new internal function paulemandel which is based on R function
+  mpaule.default from R package metRology from S.L.R. Ellison
+  <s.ellison at lgc.co.uk> (Author of R function mpaule.default is
+  S. Cowen <simon.cowen at lgc.co.uk> with amendments by
+  S.L.R. Ellison)
+
+Function metacont:
+- studies with missing treatment estimate get zero weight in
+  meta-analysis
+
+Functions metabin, metacont, metacor, metacr, metagen, metainc, metaprop:
+- default values changed according to R function settings.meta
+
+Function metareg:
+- use argument method.tau="REML" if this argument is equal to "PM" for
+  meta-analysis object
+
+Several help pages updated.
 
 
 2014-03-26, version 3.2-1

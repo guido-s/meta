@@ -73,8 +73,8 @@ metainc(event.e, time.e, event.c, time.c, studlab,
           confidence intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
@@ -115,26 +115,27 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   For studies with a zero cell count, by default, 0.5 is added to
   all cell frequencies of these studies (argument \code{incr}).
   
-  Internally, both fixed effect and random effects models are calculated
-  regardless of values choosen for arguments \code{comb.fixed} and
-  \code{comb.random}. Accordingly, the estimate for the random effects
-  model can be extracted from component \code{TE.random} of an object
-  of class \code{"meta"} even if \code{comb.random=FALSE}. However, all
-  functions in R package \code{meta} will adequately consider the values
-  for \code{comb.fixed} and \code{comb.random}. E.g. function
-  \code{\link{print.meta}} will not print results for the random effects
-  model if \code{comb.random=FALSE}.
+  Internally, both fixed effect and random effects models are
+  calculated regardless of values choosen for arguments
+  \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+  for the random effects model can be extracted from component
+  \code{TE.random} of an object of class \code{"meta"} even if
+  argument \code{comb.random=FALSE}. However, all functions in R
+  package \code{meta} will adequately consider the values for
+  \code{comb.fixed} and \code{comb.random}. E.g. function
+  \code{\link{print.meta}} will not print results for the random
+  effects model if \code{comb.random=FALSE}.
 
   By default, both fixed effect and random effects models are
-  considered (arguments \code{comb.fixed=TRUE} and
-  \code{comb.random=TRUE}). If \code{method} is \code{"MH"} (default),
-  the Mantel-Haenszel method is used to calculate the fixed effect
+  considered (see arguments \code{comb.fixed} and
+  \code{comb.random}). If \code{method} is \code{"MH"} (default), the
+  Mantel-Haenszel method is used to calculate the fixed effect
   estimate (Greenland & Robbins, 1985); if \code{method} is
   \code{"Inverse"}, inverse variance weighting is used for pooling;
   finally, if \code{method} is \code{"Cochran"}, the Cochran method is
   used for pooling (Bayne-Jones, 1964, Chapter 8). By default, the
-  DerSimonian-Laird estimate is used in the random effects model (see
-  paragraph on argument \code{method.tau}).
+  DerSimonian-Laird estimate (1986) is used in the random effects
+  model (\code{method.tau="DL"}).
   
   For Mantel-Haenszel and Cochran method, nothing is added to zero
   cell counts. Accordingly, Mantel-Haenszel and Cochran estimate are
@@ -149,19 +150,20 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   meta-analysis of an existing metainc object by only specifying
   arguments which should be changed.
 
+  For the random effects, the method by Hartung and Knapp (2003) is
+  used to adjust test statistics and confidence intervals if argument
+  \code{hakn=TRUE}.
+  
+  The iterative Paule-Mandel method (1982) to estimate the
+  between-study variance is used if argument
+  \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
+  called which is based on R function mpaule.default from R package
+  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+
   If R package metafor (Viechtbauer 2010) is installed, the following
-  statistical methods are also available.
-
-  For the random effects model (argument \code{comb.random=TRUE}), the
-  method by Hartung and Knapp (Hartung, Knapp 2001; Knapp, Hartung
-  2003) is used to adjust test statistics and confidence intervals if
-  argument \code{hakn=TRUE} (internally R function \code{rma.uni} of R
-  package metafor is called).
-
-  Several methods are available to estimate the between-study variance
-  \eqn{\tau^2} (argument \code{method.tau}):
+  methods to estimate the between-study variance \eqn{\tau^2}
+  (argument \code{method.tau}) are also available:
   \itemize{
-   \item DerSimonian-Laird estimator (\code{method.tau="DL"}) (default)
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
    \item Hunter-Schmidt estimator (\code{method.tau="HS"})
@@ -169,10 +171,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For all but the DerSimonian-Laird method the R function
-  \code{rma.uni} of R package metafor is called internally. See help
-  page of R function \code{rma.uni} for more details on the various
-  methods to estimate between-study variance \eqn{\tau^2}{tau^2}.
+  For these methods the R function \code{rma.uni} of R package metafor
+  is called internally. See help page of R function \code{rma.uni} for
+  more details on these methods to estimate between-study variance.
 }
 
 \value{
@@ -227,6 +228,12 @@ metainc(event.e, time.e, event.c, time.c, studlab,
 }
 
 \references{
+  Bayne-Jones S et al. (1964),
+  Smoking and Health: Report of the Advisory Committee to the Surgeon
+  General of the United States. U-23 Department of Health, Education,
+  and Welfare. Public Health Service Publication No. 1103.
+  \url{http://profiles.nlm.nih.gov/ps/retrieve/ResourceMetadata/NNBBMQ}
+
   DerSimonian R & Laird N (1986),
   Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
   \bold{7}, 177--188.
@@ -243,19 +250,18 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
-  \bold{172}, 137-159.
+  \bold{172}, 137--159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.
-  \emph{Statistics in Medicine}, \bold{22}, 2693-710,
+  \emph{Statistics in Medicine}, \bold{22}, 2693--710,
   doi: 10.1002/sim.1482 .
 
-  Bayne-Jones S et al. (1964),
-  Smoking and Health: Report of the Advisory Committee to the Surgeon
-  General of the United States. U-23 Department of Health, Education,
-  and Welfare. Public Health Service Publication No. 1103.
-  \url{http://profiles.nlm.nih.gov/ps/retrieve/ResourceMetadata/NNBBMQ}
+  Paule RC & Mandel J (1982),
+  Consensus values and weighting factors.
+  \emph{Journal of Research of the National Bureau of Standards},
+  \bold{87}, 377--385.
 
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
