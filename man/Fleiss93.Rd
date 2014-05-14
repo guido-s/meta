@@ -16,10 +16,10 @@ Data example in Fleiss (1993) for meta-analysis with binary outcomes.
   \describe{
   \item{study}{Study label}
   \item{year}{Year of publication}
-  \item{event.e}{Number of events in experimental group}
-  \item{n.e}{Number of observations in experimental group}
-  \item{event.c}{Number of events in control group}
-  \item{n.c}{Number of observations in control group}
+  \item{event.e}{Number of deaths in aspirin group}
+  \item{n.e}{Number of observations in aspirin group}
+  \item{event.c}{Number of deaths in placebo group}
+  \item{n.c}{Number of observations in placebo group}
   }
 }
 

@@ -36,7 +36,7 @@ metagen <- function(TE, seTE,
   ##
   mf <- match.call()
   ##
-  ## Catch TE, seTE, studlab, byvar, subset from data:
+  ## Catch TE, seTE, studlab, byvar, subset, n.e, n.c from data:
   ##
   TE <- eval(mf[[match("TE", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
@@ -52,6 +52,12 @@ metagen <- function(TE, seTE,
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
+  ##
+  n.e <- eval(mf[[match("n.e", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  n.c <- eval(mf[[match("n.c", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
   
   
   missing.subset <- is.null(subset)
@@ -190,8 +196,8 @@ metagen <- function(TE, seTE,
   method.tau <- c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB")[imethod.tau]
   ##
   if (tau.common & method.tau=="PM"){
-    warning("Argument 'tau.common' set to FALSE as argument method.tau=\"PM\".")
-    tau.common <- FALSE
+    warning("Argument 'method.tau' set to \"DL\" as argument tau.common=TRUE.")
+    method.tau=="DL"
   }
   ##
   if (!is.null(tau.preset) & method.tau=="PM"){
@@ -486,9 +492,7 @@ metagen <- function(TE, seTE,
               method.bias=method.bias,
               n.e=n.e,
               n.c=n.c,
-              title=title,
-              complab=complab,
-              outclab=outclab,
+              title=title, complab=complab, outclab=outclab,
               label.e=label.e,
               label.c=label.c,
               label.left=label.left,

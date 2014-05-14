@@ -16,7 +16,7 @@ metareg(x, formula, method.tau=x$method.tau, ...)
 
 \arguments{
   \item{x}{An object of class \code{meta}.}
-  \item{formula}{A formula object.}
+  \item{formula}{Either a character string or a formula object.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance tau-squared. Either
     \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
@@ -85,7 +85,7 @@ metareg(mu2)
 ##
 mu2
 metareg(mu2)
-metareg(meta1, ~region)
+metareg(meta1, region)
 ##
 ## Different result for
 ## - tau-squared
@@ -97,6 +97,11 @@ mu1
 
 ## Do meta-regression with two covariates
 ##
+metareg(mu1, region + age)
+
+## Do same meta-regressions using 'official' formula notation
+##
+metareg(meta1, ~region)
 metareg(mu1, ~region + age)
 }
 

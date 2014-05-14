@@ -286,7 +286,7 @@ metacor <- function(cor, n, studlab,
               tau.common=tau.common,
               prediction=prediction,
               method.bias=method.bias,
-              title="", complab="", outclab="",
+              title=title, complab=complab, outclab=outclab,
               data=if (keepdata) data else NULL,
               subset=if (keepdata) subset else NULL,
               call=match.call())

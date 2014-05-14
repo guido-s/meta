@@ -204,6 +204,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (method == "Peto" & sm != "OR")
     stop("Peto's method only possible with \"sm=OR\"")
   ##
+  if (method=="MH" & tau.common==TRUE){
+    warning(paste("In R function metabin:\n ",
+                  "Inverse variance method used (method=\"Inverse\") as argument 'tau.common' is TRUE."),
+            call.=FALSE)
+    method <- "Inverse"
+  }
+  ##
   if (k.all == 1){
     if (method == "MH"){
       if (warn)
@@ -552,12 +559,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       hakn <- FALSE
     }
     ##
-    if (!missing.byvar & tau.common)
-      if (warn){
-        warning("Argument 'tau.common' not considered for Mantel-Haenszel method.")
-        tau.common <- FALSE
-      }
-    ##
     if (!is.null(TE.tau)){
       if (warn)
         warning("Argument 'TE.tau' not considered for Mantel-Haenszel method.")
@@ -762,9 +763,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               tau.common=tau.common,
               prediction=prediction,
               method.bias=method.bias,
-              title=title,
-              complab=complab,
-              outclab=outclab,
+              title=title, complab=complab, outclab=outclab,
               label.e=label.e,
               label.c=label.c,
               label.left=label.left,

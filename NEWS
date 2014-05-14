@@ -1,3 +1,29 @@
+2014-05-14, version 3.5-1
+
+Function metabin:
+- Inverse variance method used instead of Mantel-Haenszel method if
+  argument 'tau.common' is TRUE
+
+Function metareg:
+- tilde sign not necessary in argument 'formula' to make this function
+  more user friendly
+
+Function forest.meta:
+- print common tau-squared for subgroups if argument tau.common is
+  TRUE in meta-analysis object
+
+Function metagen:
+- arguments 'n.e' and 'n.c' can be part of the dataset provided in
+  argument 'data'
+- DerSimonian-Laird method used instead of Paule-Mandel method if
+  argument 'tau.common' is TRUE
+
+Functions metacor, metainc, and metaprop:
+- arguments title, comblab, and outclab part of R object
+
+Some help pages (slightly) updated.
+
+
 2014-04-19, version 3.5-0
 
 New R function settings.meta to define and print default settings for

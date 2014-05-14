@@ -17,9 +17,9 @@ outcomes.
   \describe{
   \item{study}{Study label}
   \item{year}{Year of publication}
-  \item{n.e}{Number of observations in experimental group}
-  \item{mean.e}{Estimated mean in experimental group}
-  \item{sd.e}{Standard deviation in experimental group}
+  \item{n.e}{Number of observations in psychotherapy group}
+  \item{mean.e}{Estimated mean in psychotherapy group}
+  \item{sd.e}{Standard deviation in psychotherapy group}
   \item{n.c}{Number of observations in control group}
   \item{mean.c}{Estimated mean in control group}
   \item{sd.c}{Standard deviation in control group}

@@ -6,7 +6,7 @@ metareg <- function(x, formula,
     return(invisible(NULL))
   }
   
-  if (is.call(x) && inherits(formula, "meta")){
+  if (is.call(x)){
     warning("Please note, first two arguments of R function metareg have been interchanged in version 3.0-0 of R package meta. No meta-regression conducted.")
     return(invisible(NULL))
   }
@@ -17,9 +17,16 @@ metareg <- function(x, formula,
   if (missing(formula))
     if (!is.null(x$data$.byvar))
       formula <- as.call(~.byvar)
+    else{
+      warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
+      return(invisible(NULL))
+    }
   else{
-    warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
-    return(invisible(NULL))
+    formula.text <- deparse(substitute(formula))
+    formula.text <- gsub("~", "", formula.text)
+    formula.text <- gsub("\\\"", "", formula.text)
+    formula.text <- gsub("\\\'", "", formula.text)
+    formula <- as.formula(paste("~", formula.text))
   }
   
   if (is.null(method.tau))

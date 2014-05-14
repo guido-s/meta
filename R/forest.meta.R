@@ -1438,7 +1438,10 @@ forest.meta <- function(x,
   
   
   if (by){
-
+    
+    if (x$tau.common)
+      x$tau.preset <- x$tau
+    
     res.w <- matrix(NA, ncol=16, nrow=n.by)
     j <- 0
     ##
