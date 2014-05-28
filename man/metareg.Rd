@@ -19,8 +19,8 @@ metareg(x, formula, method.tau=x$method.tau, ...)
   \item{formula}{Either a character string or a formula object.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance tau-squared. Either
-    \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-    \code{"HE"}, or \code{"EB"}, can be abbreviated.}
+    \code{"FE"}, \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
   \item{\dots}{Additional arguments (ignored at the moment).}
 }
 
@@ -32,7 +32,17 @@ metareg(x, formula, method.tau=x$method.tau, ...)
 }
 
 \value{
-An object of class \code{c("rma.uni","rma")}. Please look at the help page of R function \code{rma.uni} for more details.}
+An object of class \code{c("metareg", "rma.uni","rma")}. Please look
+at the help page of R function \code{rma.uni} for more details on the
+output from this function.
+
+In addition, a list \code{.meta} is added to the output containing the
+following components:
+  \item{x, formula, method.tau}{As definied above.}
+  \item{call}{Function call.}
+  \item{version}{Version of R package meta used to create object.}
+  \item{version.metafor}{Version of R package metafor used to create object.}
+}
 
 \references{
   Viechtbauer W (2010),
@@ -42,15 +52,14 @@ An object of class \code{c("rma.uni","rma")}. Please look at the help page of R 
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{summary.meta}}, \code{\link{metagen}}}
+\seealso{\code{\link{bubble}}, \code{\link{summary.meta}}, \code{\link{metagen}}}
 
 \examples{
 data(Fleiss93cont)
 
 ## Add some (fictious) grouping variables:
 Fleiss93cont$age <- c(55, 65, 55, 65, 55)
-Fleiss93cont$region <- c("Europe", "Europe", "Asia",
-                         "Asia", "Europe")
+Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 meta1 <- metacont(n.e, mean.e, sd.e,
                   n.c, mean.c, sd.c,
@@ -62,15 +71,17 @@ mu1 <- update(meta1, byvar=region)
 mu2 <- update(meta1, byvar=region,
               tau.common=TRUE, comb.fixed=FALSE)
 
+\dontrun{
 ## Warnings due to wrong ordering of arguments (order has changed with
 ## version 3.0-0 of R package meta)
 ##
-##metareg(~region, meta1)
-##metareg(~region, data=meta1)
+metareg(~region, meta1)
+metareg(~region, data=meta1)
 
 ## Warning as no information on covariate is available
 ##
-##metareg(meta1)
+metareg(meta1)
+}
 
 ## Do meta-regression for covariate region
 ## (see R code to create object mu2)
@@ -94,6 +105,10 @@ metareg(meta1, region)
 ## (as argument 'tau.common' is - by default - FALSE)
 ##
 mu1
+
+## Generate bubble plot
+##
+bubble(metareg(mu2))
 
 ## Do meta-regression with two covariates
 ##

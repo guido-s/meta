@@ -358,7 +358,8 @@ metagen <- function(TE, seTE,
       ##
       ## Check whether R package metafor is installed
       ##
-      is.installed.metafor("'metagen' with argument 'method.tau' unequal to 'DL' and 'PM'")
+      is.installed.package("metafor",
+                           "'metagen' with\n       argument 'method.tau' unequal to 'DL' and 'PM'")
       
       ##
       ## Calculate fixed effect and random effects estimates

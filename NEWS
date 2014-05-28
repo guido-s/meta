@@ -1,3 +1,39 @@
+2013-05-27, version 3.6.0
+
+New functions:
+- baujat and baujat.meta
+  (Baujat plot to explore heterogeneity in meta-analysis)
+- bubble and bubble.metareg
+  (bubble plot to display the result of a meta-regression)
+
+Function metareg:
+- class 'metareg' added
+- new list element .meta which is a list with information on
+  meta-analysis object used in function call
+
+Function update.meta:
+- argument 'studlab' fully functional
+  (I missed this argument in version 3.2-0)
+
+Function print.meta:
+- print study label for a single study in meta-analysis if argument
+  'details=TRUE'
+  (internally function data.frame instead of cbind used)
+
+New function is.installed.package (used internally)
+- replacement for function is.installed.metafor
+
+Help pages datasets amlodipine and cisapridea:
+- execute examples for Hartung-Knapp method
+
+Help pages merged for the following commands:
+- forest and forest.meta
+- funnel and funnel.meta
+- labbe and labbe.metabin
+- metabias and metabias.meta
+- trimfill and trimfill.meta
+
+
 2014-05-14, version 3.5-1
 
 Function metabin:

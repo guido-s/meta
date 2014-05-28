@@ -41,7 +41,6 @@ m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
               n.plac, mean.plac, sqrt(var.plac),
               data=amlodipine, studlab=study)
 
-\dontrun{
 m.hakn <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
                    n.plac, mean.plac, sqrt(var.plac),
                    data=amlodipine, studlab=study,
@@ -59,7 +58,6 @@ row.names(res.md) <- c("FE", "RE", "RE (HaKn)")
 names(res.md) <- c("Absolute difference", "CI lower", "CI upper")
 ##
 res.md
-}
 }
 
 \keyword{datasets}

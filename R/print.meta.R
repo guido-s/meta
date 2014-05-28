@@ -94,28 +94,28 @@ print.meta <- function(x,
   if (details){
 
     if (inherits(x, "metabin")){
-      res <- cbind(event.e=x$event.e, n.e=x$n.e,
-                   event.c=x$event.c, n.c=x$n.c,
-                   p.e=round(x$event.e/x$n.e, digits),
-                   p.c=round(x$event.c/x$n.c, digits))
+      res <- data.frame(event.e=x$event.e, n.e=x$n.e,
+                        event.c=x$event.c, n.c=x$n.c,
+                        p.e=round(x$event.e/x$n.e, digits),
+                        p.c=round(x$event.c/x$n.c, digits))
     }
     else if (inherits(x, "metacont")){
-      res <- cbind(n.e=x$n.e, mean.e=x$mean.e, sd.e=x$sd.e,
-                   n.c=x$n.c, mean.c=x$mean.c, sd.c=x$sd.c)
+      res <- data.frame(n.e=x$n.e, mean.e=x$mean.e, sd.e=x$sd.e,
+                        n.c=x$n.c, mean.c=x$mean.c, sd.c=x$sd.c)
     }
     else if (inherits(x, "metagen")){
-      res <- cbind(TE=round(x$TE, digits),
-                   seTE=round(x$seTE, digits))
+      res <- data.frame(TE=round(x$TE, digits),
+                        seTE=round(x$seTE, digits))
     }
     else if (inherits(x, "metaprop")){
-      res <- cbind(event=x$event, n=x$n,
-                   p=round(x$event/x$n, digits))
+      res <- data.frame(event=x$event, n=x$n,
+                        p=round(x$event/x$n, digits))
     }
     else if (inherits(x, "metacor")){
-      res <- cbind(cor=x$cor, n=x$n)
+      res <- data.frame(cor=x$cor, n=x$n)
     }
     else{
-      res <- cbind(TE=x$TE, seTE=x$seTE)
+      res <- data.frame(TE=x$TE, seTE=x$seTE)
     }
     
     dimnames(res)[[1]] <- x$studlab

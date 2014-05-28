@@ -1,10 +1,17 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 3.5-1
+Version: 3.6-0
 Depends: R (>= 2.9.1), grid
 Suggests: metafor
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
-Date: 2014-05-14
-Description: Fixed and random effects meta-analysis. Functions for tests of bias, forest and funnel plot.
+Date: 2014-05-27
+Description: User-friendly general package providing standard methods for meta-analysis:
+ - fixed effect and random effects meta-analysis;
+ - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
+ - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
+ - import data from RevMan 5;
+ - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
+ - cumulative meta-analysis and leave-one-out meta-analysis;
+ - meta-regression (if R package metafor is installed).
 License: GPL (>= 2)
 Encoding: UTF-8

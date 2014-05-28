@@ -41,7 +41,6 @@ m.rr <- metabin(event.cisa, n.cisa, event.plac, n.plac,
                 data=cisapride, sm="RR", method="Inverse",
                 studlab=study, addincr=TRUE)
 
-\dontrun{
 m.or.hakn <- metabin(event.cisa, n.cisa, event.plac, n.plac,
                      data=cisapride, sm="OR", method="Inverse",
                      studlab=study, addincr=TRUE,
@@ -74,8 +73,6 @@ row.names(res.or) <- c("FE", "RE", "RE (HaKn)")
 names(res.or) <- c("Log odds ratio", "CI lower", "CI upper")
 ##
 res.or
-}
-
 }
 
 \keyword{datasets}

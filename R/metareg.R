@@ -12,7 +12,7 @@ metareg <- function(x, formula,
   }
   
   if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
+    stop("Argument 'x' must be an object of class \"meta\".")
   
   if (missing(formula))
     if (!is.null(x$data$.byvar))
@@ -40,7 +40,7 @@ metareg <- function(x, formula,
   ##
   ## Check whether R package metafor is installed
   ##
-  is.installed.metafor()
+  is.installed.package("metafor", "'metareg'")
   
   if (is.null(x$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
@@ -55,6 +55,15 @@ metareg <- function(x, formula,
   res <- metafor::rma.uni(yi=x$TE, sei=x$seTE,
                           data=dataset,
                           mods=formula, method=method.tau)
+
+  res$.meta <- list(x=x,
+                    formula=formula,
+                    method.tau=method.tau,
+                    call=match.call(),
+                    version=packageDescription("meta")$Version,
+                    version.metafor=packageDescription("metafor")$Version)
+
+  class(res) <- c("metareg", class(res))
   
   res
 }

@@ -55,8 +55,9 @@ update.meta <- function(object,
   }
   
   
-  missing.subset <- missing(subset)
-  missing.byvar  <- missing(byvar)
+  missing.subset  <- missing(subset)
+  missing.byvar   <- missing(byvar)
+  missing.studlab <- missing(studlab)
   
   
   mf <- match.call()
@@ -76,6 +77,9 @@ update.meta <- function(object,
     ##
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
+  ##
+  studlab <- eval(mf[[match("studlab", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
   
   
   if (missing.subset & !is.null(object$data$.subset))
@@ -83,7 +87,10 @@ update.meta <- function(object,
   ##
   if (missing.byvar & !is.null(object$data$.byvar))
     byvar <- object$data$.byvar
-
+  ##
+  if (missing.studlab & !is.null(object$data$.studlab))
+    studlab <- object$data$.studlab
+  
   
   if (inherits(object,"metabin"))
     m <- metabin(event.e=object$data$.event.e,
