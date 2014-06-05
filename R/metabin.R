@@ -693,6 +693,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   w.fixed[is.na(w.fixed)] <- 0
   
   
+  ci.study <- ci(TE, seTE, level=level)
+  
+  
   if (m$k>=3){
     seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
     ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
@@ -714,6 +717,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               event.c=event.c, n.c=n.c,
               studlab=studlab,
               TE=TE, seTE=seTE,
+              lower.TE=ci.study$lower, upper.TE=ci.study$upper,
+              zval.TE=ci.study$z, pval.TE=ci.study$p,
               w.fixed=w.fixed,
               w.random=w.random,
               ##

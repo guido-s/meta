@@ -10,7 +10,8 @@ catmeth <- function(method, method.tau=NULL,
                     incr=NULL,
                     allincr=FALSE,
                     addincr=FALSE,
-                    MH.exact=FALSE){
+                    MH.exact=FALSE,
+                    ciexact=TRUE){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -29,10 +30,10 @@ catmeth <- function(method, method.tau=NULL,
   else
     sm.details <- ""
   ##
-  if (metaprop)
-    sm.details <- paste(sm.details,
-                        "\n- Exact binomial confidence intervals for individual studies",
-                        sep="")
+  if (metaprop && !is.null(ciexact) && ciexact)
+      sm.details <- paste(sm.details,
+                          "\n- Exact binomial confidence intervals for individual studies",
+                          sep="")
   ##
   if (metabin | metainc | metaprop){
     if (!(sm=="AS" | method=="Peto")){

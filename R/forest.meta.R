@@ -238,6 +238,24 @@ forest.meta <- function(x,
       xpos.studlab <- 0.5
   else if (just.studlab=="right")
     xpos.studlab <- 1
+
+  
+  ciexact <- !is.null(x$ciexact) && x$ciexact
+  
+  
+  ##
+  ## Check version of R package meta
+  ##
+  before2.0 <- !(!is.null(x$version) &&
+                 as.numeric(unlist(strsplit(x$version, "\\."))[1]) >= 2)
+  ##
+  before3.2 <- !(!is.null(x$version) &&
+                   as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.2)
+  ##
+  before3.7 <- !(!is.null(x$version) &&
+                 as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
+  ##
+  metaprop3.6 <- inherits(x, "metaprop") & before3.7
   
   
   wcalc <- function(x)
@@ -1287,20 +1305,22 @@ forest.meta <- function(x,
     tau2 <- NA
   }
   else{
-    ##
-    ## Check for very old versions of R package meta
-    ##
-    ancientmeta <- !(!is.null(x$version) &&
-                     as.numeric(unlist(strsplit(x$version, "\\."))[1]) >= 2)
-    
     sm1 <- summary(m1, warn=FALSE)
     
-    TE    <- sm1$study$TE
-    seTE  <- sm1$study$seTE
-    lowTE <- sm1$study$lower
-    uppTE <- sm1$study$upper
+    if (before3.7){
+      TE    <- sm1$study$TE
+      seTE  <- sm1$study$seTE
+      lowTE <- sm1$study$lower
+      uppTE <- sm1$study$upper
+    }
+    else{
+      TE <- x$TE
+      seTE <- x$seTE
+      lowTE <- x$lower.TE
+      uppTE <- x$upper.TE
+    }
     ##
-    if (ancientmeta){
+    if (before2.0){
       ## Only use (re)calculated pooled estimate for
       ## very old versions of R package meta
       TE.fixed    <- sm1$fixed$TE
@@ -1321,7 +1341,7 @@ forest.meta <- function(x,
       }
     }
     ##
-    if (ancientmeta){
+    if (before2.0){
       ## Only use (re)calculated pooled estimate for
       ## very old versions of R package meta
       TE.random    <- sm1$random$TE
@@ -1342,7 +1362,7 @@ forest.meta <- function(x,
       }
     }
     ##
-    if (ancientmeta){
+    if (before2.0){
       ## Only use (re)calculated pooled estimate for
       ## very old versions of R package meta
       prediction <- FALSE
@@ -1368,7 +1388,7 @@ forest.meta <- function(x,
       }
     } 
     ##
-    if (ancientmeta){
+    if (before2.0){
       ## Only use (re)calculated heterogeneity statistics for very old
       ## versions of R package meta
       ##
@@ -1382,10 +1402,7 @@ forest.meta <- function(x,
       tau2 <- x$tau^2
     }
     ##
-    oldmeta <- !(!is.null(x$version) &&
-                 as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.2)
-    ##
-    if (oldmeta)
+    if (before3.2)
       I2 <- sm1$I2$TE
     else
       I2 <- x$I2
@@ -1638,27 +1655,41 @@ forest.meta <- function(x,
   if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
-    if (inherits(x, "metaprop")){
+    if (metaprop3.6){
       TE    <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
       if (x$sm=="PAS"){
-        TE    <- pscale*asin2p(TE, value="mean")
-        lowTE <- pscale*asin2p(lowTE, value="lower")
-        uppTE <- pscale*asin2p(uppTE, value="upper")
+        TE <- pscale*asin2p(TE, value="mean")
+        ##
+        if (ciexact){
+          lowTE <- pscale*lowTE
+          uppTE <- pscale*uppTE
+        }
+        else{
+          lowTE <- pscale*asin2p(lowTE, value="lower")
+          uppTE <- pscale*asin2p(uppTE, value="upper")
+        }
       }
       if (x$sm=="PFT"){
         if (inherits(x, "metainf")|inherits(x, "metacum")){
-          TE    <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
+          TE <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
           lowTE <- pscale*asin2p(lowTE, x$n.harmonic.mean, value="lower")
           uppTE <- pscale*asin2p(uppTE, x$n.harmonic.mean, value="upper")
         }
         else {
-          TE    <- pscale*asin2p(TE, x$n, value="mean")
-          lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
-          uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
+          TE <- pscale*asin2p(TE, x$n, value="mean")
+          ##
+          if (ciexact){
+            lowTE <- pscale*lowTE
+            uppTE <- pscale*uppTE
+          }
+          else{
+            lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
+            uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
+          }
         }
       }
     }
@@ -1744,15 +1775,22 @@ forest.meta <- function(x,
   else if (x$sm=="PLN"){
     ref <- NA
     ##
-    if (inherits(x, "metaprop")){
+    if (metaprop3.6){
       TE    <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
       TE <- pscale*exp(TE)
-      lowTE <- pscale*exp(lowTE)
-      uppTE <- pscale*exp(uppTE)
+      ##
+      if (ciexact){
+        lowTE <- pscale*lowTE
+        uppTE <- pscale*uppTE
+      }
+      else{
+        lowTE <- pscale*exp(lowTE)
+        uppTE <- pscale*exp(uppTE)
+      }
     }
     ##
     TE.fixed <- pscale*exp(TE.fixed)
@@ -1775,15 +1813,22 @@ forest.meta <- function(x,
   else if (x$sm=="PLOGIT"){
     ref <- NA
     ##
-    if (inherits(x, "metaprop")){
+    if (metaprop3.6){
       TE <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
       TE <- pscale*logit2p(TE)
-      lowTE <- pscale*logit2p(lowTE)
-      uppTE <- pscale*logit2p(uppTE)
+      ##
+      if (ciexact){
+        lowTE <- pscale*lowTE
+        uppTE <- pscale*uppTE
+      }
+      else{
+        lowTE <- pscale*logit2p(lowTE)
+        uppTE <- pscale*logit2p(uppTE)
+      }
     }
     ##
     TE.fixed <- pscale*logit2p(TE.fixed)

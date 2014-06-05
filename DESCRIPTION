@@ -1,6 +1,6 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 3.6-0
+Version: 3.7-0
 Depends: R (>= 2.9.1), grid
 Suggests: metafor
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))

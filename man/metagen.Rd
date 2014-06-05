@@ -153,6 +153,10 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
   \item{byvar, bylab, print.byvar, warn}{As defined above.}
+  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+    for individual studies.}
+  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+    effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
   \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and

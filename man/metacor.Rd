@@ -150,6 +150,10 @@ metacor(cor, n, studlab,
   \item{TE, seTE}{Either Fisher's z transformation of correlations
     (\code{sm="ZCOR"}) or correlations (\code{sm="COR"}) for individual
     studies.}
+  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+    for individual studies.}
+  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+    effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
   \item{TE.fixed, seTE.fixed}{Estimated overall effect (Fisher's z

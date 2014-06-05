@@ -280,6 +280,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                  level.predict=level.predict)
   
   
+  ci.study <- ci(TE, seTE, level=level)
+  
+  
   if (m$k>=3){
     seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
     ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
@@ -323,6 +326,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               n.c=n.c, mean.c=mean.c, sd.c=sd.c,
               studlab=studlab,
               TE=TE, seTE=seTE,
+              lower.TE=ci.study$lower, upper.TE=ci.study$upper,
+              zval.TE=ci.study$z, pval.TE=ci.study$p,
               w.fixed=m$w.fixed, w.random=m$w.random,
               ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,

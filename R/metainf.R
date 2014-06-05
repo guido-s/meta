@@ -76,6 +76,9 @@ metainf <- function(x, pooled, sortvar){
   sd.e <- x$sd.e
   sd.c <- x$sd.c
   ##
+  time.e <- x$time.e
+  time.c <- x$time.c
+  ##
   cor <- x$cor
   ##
   TE <- x$TE
@@ -103,6 +106,9 @@ metainf <- function(x, pooled, sortvar){
     sd.e <- sd.e[o]
     sd.c <- sd.c[o]
     ##
+    time.e <- time.e[o]
+    time.c <- time.c[o]
+    ##
     cor <- cor[o]
     ##
     TE <- TE[o]
@@ -111,13 +117,9 @@ metainf <- function(x, pooled, sortvar){
     studlab <- studlab[o]
     sortvar <- sortvar[o]
   }
-
   
-  if (pooled == "fixed" | (pooled == "random" & !x$hakn))
-    res.i <- matrix(NA, ncol=9, nrow=k.all)
-  ##
-  else if (pooled == "random" & x$hakn)
-    res.i <- matrix(NA, ncol=10, nrow=k.all)
+  
+  res.i <- matrix(NA, ncol=10, nrow=k.all)
   ##
   for (i in 1:k.all){
     sel <- -i
@@ -175,34 +177,36 @@ metainf <- function(x, pooled, sortvar){
                    method.tau=x$method.tau,
                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
     ##
+    if (inherits(x,"metainc"))
+      m <- metainc(event.e[sel], time.e[sel],
+                   event.c[sel], time.c[sel],
+                   studlab=studlab[sel],
+                   method=x$method,
+                   sm=x$sm,
+                   incr=x$incr, allincr=x$allincr, addincr=x$addincr,
+                   level=x$level, level.comb=x$level.comb,
+                   hakn=x$hakn, method.tau=x$method.tau,
+                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
+    ##
     sel.pas <- inherits(x, "metaprop") & m$sm=="PAS"
     sel.pft <- inherits(x, "metaprop") & m$sm=="PFT"
     ##
-    s.i <- summary(m)
-    ##
     if (pooled == "fixed"){
       res.i[i,] <- c(m$TE.fixed, m$seTE.fixed,
-                     s.i$fixed$lower, s.i$fixed$upper,
-                     m$pval.fixed, s.i$I2$TE,
+                     m$lower.fixed, m$upper.fixed,
+                     m$pval.fixed, m$I2,
                      m$tau, sum(m$w.fixed, na.rm=TRUE),
-                     if (sel.pft) 1/mean(1/n[sel]) else NA)
+                     if (sel.pft) 1/mean(1/n[sel]) else NA,
+                     NA)
     }
     ##
-    else if (pooled == "random" & !x$hakn){
+    else if (pooled == "random"){
       res.i[i,] <- c(m$TE.random, m$seTE.random,
-                     s.i$random$lower, s.i$random$upper,
-                     m$pval.random, s.i$I2$TE,
-                     m$tau, sum(m$w.random, na.rm=TRUE),
-                     if (sel.pft) 1/mean(1/n[sel]) else NA)
-    }
-    ##
-    else if (pooled == "random" & x$hakn){
-      res.i[i,] <- c(m$TE.random, m$seTE.random,
-                     s.i$random$lower, s.i$random$upper,
-                     m$pval.random, s.i$I2$TE,
+                     m$lower.random, m$upper.random,
+                     m$pval.random, m$I2,
                      m$tau, sum(m$w.random, na.rm=TRUE),
                      if (sel.pft) 1/mean(1/n[sel]) else NA,
-                     m$df.hakn)
+                     if (x$hakn) m$df.hakn else NA)
     }
   }
   ##
@@ -219,28 +223,27 @@ metainf <- function(x, pooled, sortvar){
     df.hakn.i <- res.i[,10]
   
   
-  sm1 <- summary(x)
-  ##
   if (pooled == "fixed"){
-    TE.s <- sm1$fixed$TE
-    seTE.s <- sm1$fixed$seTE
-    TE.s.lower <- sm1$fixed$lower
-    TE.s.upper <- sm1$fixed$upper
-    pval.s <- sm1$fixed$p
+    TE.s <- x$TE.fixed
+    seTE.s <- x$seTE.fixed
+    TE.s.lower <- x$lower.fixed
+    TE.s.upper <- x$upper.fixed
+    pval.s <- x$pval.fixed
     w.s <- sum(x$w.fixed, na.rm=TRUE)
   }
   ##
   else if (pooled == "random"){
-    TE.s <- sm1$random$TE
-    seTE.s <- sm1$random$seTE
-    TE.s.lower <- sm1$random$lower
-    TE.s.upper <- sm1$random$upper
-    pval.s <- sm1$random$p
+    TE.s <- x$TE.random
+    seTE.s <- x$seTE.random
+    TE.s.lower <- x$lower.random
+    TE.s.upper <- x$upper.random
+    pval.s <- x$pval.random
     w.s <- sum(x$w.random, na.rm=TRUE)
   }
   
   
   slab <- c(paste("Omitting", studlab), "Pooled estimate")
+  
   
   res <- list(TE=c(TE.i, NA, TE.s),
               seTE=c(seTE.i, NA, seTE.s),
@@ -249,8 +252,8 @@ metainf <- function(x, pooled, sortvar){
               studlab=c(rev(rev(slab)[-1]), " ", rev(slab)[1]),
               p.value=c(pval.i, NA, pval.s),
               w=c(weight.i, NA, w.s),
-              I2=c(I2.i, NA, sm1$I2$TE),
-              tau=c(tau.i, NA, sm1$tau),
+              I2=c(I2.i, NA, x$I2),
+              tau=c(tau.i, NA, x$tau),
               df.hakn=if (pooled=="random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
               sm=x$sm, method=x$method, k=x$k,
               pooled=pooled,

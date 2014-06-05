@@ -206,6 +206,9 @@ metacor <- function(cor, n, studlab,
                  level.predict=level.predict)
   
   
+  ci.study <- ci(TE, seTE, level=level)
+  
+  
   if (m$k>=3){
     seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
     ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
@@ -248,6 +251,8 @@ metacor <- function(cor, n, studlab,
   res <- list(cor=cor, n=n,
               studlab=studlab,
               TE=TE, seTE=seTE,
+              lower.TE=ci.study$lower, upper.TE=ci.study$upper,
+              zval.TE=ci.study$z, pval.TE=ci.study$p,
               w.fixed=m$w.fixed, w.random=m$w.random,
               ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,

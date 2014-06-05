@@ -70,11 +70,22 @@ print.meta <- function(x,
       warning("level.predict set to 0.95")
     level.predict <- 0.95
   }
+
+
+  before3.7 <- !(!is.null(x$version) &&
+                 as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
+  ##
+  metaprop3.7 <- !(inherits(x, "metaprop") & before3.7)
+  
+  
+  ciexact <- !is.null(x$ciexact) && x$ciexact
   
   
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
-
+  
+  
   sm <- x$sm
+  
   
   if (sm=="ZCOR")
     sm.lab <- "COR"
@@ -168,23 +179,32 @@ print.meta <- function(x,
       uppTE <- z2cor(uppTE)
     }
     ##
-    if (!inherits(x, "metaprop") & !logscale & sm=="PLN"){
+    if (metaprop3.7 & !logscale & sm=="PLN"){
       TE <- exp(TE)
-      lowTE <- exp(lowTE)
-      uppTE <- exp(uppTE)
+      ##
+      if (!ciexact){
+        lowTE <- exp(lowTE)
+        uppTE <- exp(uppTE)
+      }
     }
     ##
-    if (!inherits(x, "metaprop") & sm=="PLOGIT"){
+    if (metaprop3.7 & sm=="PLOGIT"){
       TE <- logit2p(TE)
-      lowTE <- logit2p(lowTE)
-      uppTE <- logit2p(uppTE)
+      ##
+      if (!ciexact){
+        lowTE <- logit2p(lowTE)
+        uppTE <- logit2p(uppTE)
+      }
     }
     ##
-    if (!inherits(x, "metaprop") & sm %in% c("PFT", "PAS")){
+    if (metaprop3.7 & sm %in% c("PFT", "PAS")){
       if (sm=="PAS"){
         TE    <- asin2p(TE, value="mean")
-        lowTE <- asin2p(lowTE, value="lower")
-        uppTE <- asin2p(uppTE, value="upper")
+        ##
+        if (!ciexact){
+          lowTE <- asin2p(lowTE, value="lower")
+          uppTE <- asin2p(uppTE, value="upper")
+        }
       }
       ##
       if (sm=="PFT"){
@@ -195,8 +215,11 @@ print.meta <- function(x,
         }
         else {
           TE    <- asin2p(TE, x$n, value="mean")
-          lowTE <- asin2p(lowTE, x$n, value="lower")
-          uppTE <- asin2p(uppTE, x$n, value="upper")
+          ##
+          if (!ciexact){
+            lowTE <- asin2p(lowTE, x$n, value="lower")
+            uppTE <- asin2p(uppTE, x$n, value="upper")
+          }
         }
       }
     }
@@ -272,22 +295,26 @@ print.meta <- function(x,
       ## Printout for a single proportion:
       ##
       if (k.all==1){
-        cat("Exact CI:\n\n")
-        dimnames(res) <-
-          list("", c(sm.lab, ci.lab,
-                     if (comb.fixed) "%W(fixed)",
-                     if (comb.random) "%W(random)"))
-        prmatrix(res, quote=FALSE, right=TRUE)
+        ##
+        if (ciexact){
+          cat("Exact CI:\n\n")
+          dimnames(res) <- list("", c(sm.lab, ci.lab,
+                                      if (comb.fixed) "%W(fixed)",
+                                      if (comb.random) "%W(random)"))
+          prmatrix(res, quote=FALSE, right=TRUE)
+          cat("\n\n")
+        }
+        ##
         if (sm == "PFT")
-          cat("\n\nCI based on Freeman-Tukey double arcsine transformation:\n")
+          cat("CI based on Freeman-Tukey double arcsine transformation:\n")
         else if (sm == "PAS")
-          cat("\n\nCI based on arcsine transformation:\n")
+          cat("CI based on arcsine transformation:\n")
         else if (sm == "PLN")
-          cat("\n\nCI based on log transformation:\n")
+          cat("CI based on log transformation:\n")
         else if (sm == "PLOGIT")
-          cat("\n\nCI based on logit transformation:\n")
+          cat("CI based on logit transformation:\n")
         else if (sm == "PRAW")
-          cat("\n\nCI based on normal approximation:\n")
+          cat("CI based on normal approximation:\n")
       }
       else{
         dimnames(res) <-

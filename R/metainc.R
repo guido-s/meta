@@ -470,6 +470,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   
   
+  ci.study <- ci(TE, seTE, level=level)
+  
+  
   if (m$k>=3){
     seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
     ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
@@ -513,6 +516,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               event.c=event.c, time.c=time.c,
               studlab=studlab,
               TE=TE, seTE=seTE,
+              lower.TE=ci.study$lower, upper.TE=ci.study$upper,
+              zval.TE=ci.study$z, pval.TE=ci.study$p,
               w.fixed=w.fixed, w.random=w.random,
               ##
               TE.fixed=TE.fixed, seTE.fixed=seTE.fixed,

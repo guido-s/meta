@@ -14,6 +14,7 @@ metaprop(event, n, studlab,
          sm=.settings$smprop,
          incr=.settings$incr, allincr=.settings$allincr,
          addincr=.settings$addincr,
+         ciexact=TRUE,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
@@ -45,6 +46,8 @@ metaprop(event, n, studlab,
     studies with a zero cell count.}
   \item{addincr}{A logical indicating if \code{incr} is added to each cell
     frequency of all studies irrespective of zero cell counts.}
+  \item{ciexact}{A logical indicating if exact binomial confidence
+    intervals should be calculated for individual studies.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
@@ -119,8 +122,7 @@ metaprop(event, n, studlab,
   with a zero cell count (argument \code{incr}).
 
   Note, exact binomial confidence intervals will be calculated for
-  individual study results, e.g. in R function
-  \code{\link{summary.meta}}.
+  individual study results if argument \code{ciexact=TRUE}.
   
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -180,6 +182,10 @@ metaprop(event, n, studlab,
   \item{byvar, bylab, print.byvar, warn}{}
   \item{TE, seTE}{Estimated (un)transformed proportion and its standard
     error for individual studies.}
+  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+    for individual studies.}
+  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+    effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
   \item{TE.fixed, seTE.fixed}{Estimated overall (un)transformed

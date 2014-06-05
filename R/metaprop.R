@@ -3,6 +3,7 @@ metaprop <- function(event, n, studlab,
                      sm=.settings$smprop,
                      incr=.settings$incr, allincr=.settings$allincr,
                      addincr=.settings$addincr,
+                     ciexact=TRUE,
                      level=.settings$level, level.comb=.settings$level.comb,
                      comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
                      hakn=.settings$hakn,
@@ -266,6 +267,24 @@ metaprop <- function(event, n, studlab,
                  level.predict=level.predict)
   
   
+  NAs <- rep(NA, k.all)
+  ##
+  if (ciexact){
+    lower.TE <- upper.TE <- NAs
+    for (i in 1:k.all){
+      cint <- binom.test(event[i], n[i], conf.level=level)
+      ##
+      lower.TE[i] <- cint$conf.int[[1]]
+      upper.TE[i] <- cint$conf.int[[2]]
+    }
+  }
+  else{
+    ci.study <- ci(TE, seTE, level=level)
+    lower.TE <- ci.study$lower
+    upper.TE <- ci.study$upper
+  }
+  
+  
   if (m$k>=3){
     seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
     ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
@@ -308,14 +327,16 @@ metaprop <- function(event, n, studlab,
   res <- list(event=event, n=n,
               studlab=studlab,
               TE=TE, seTE=seTE,
+              lower.TE=lower.TE, upper.TE=upper.TE,
+              zval.TE=NAs, pval.TE=NAs,
               w.fixed=m$w.fixed, w.random=m$w.random,
               ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
               lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
-              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
+              zval.fixed=NA, pval.fixed=NA,
               TE.random=m$TE.random, seTE.random=m$seTE.random,
               lower.random=m$lower.random, upper.random=m$upper.random,
-              zval.random=m$zval.random, pval.random=m$pval.random,
+              zval.random=NA, pval.random=NA,
               ##
               seTE.predict=seTE.predict,
               lower.predict=p.lower, upper.predict=p.upper,
@@ -340,6 +361,7 @@ metaprop <- function(event, n, studlab,
               allincr=allincr,
               addincr=addincr,
               incr.event=incr.event,
+              ciexact=ciexact,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,
