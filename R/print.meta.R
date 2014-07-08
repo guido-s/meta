@@ -72,13 +72,10 @@ print.meta <- function(x,
   }
 
 
-  before3.7 <- !(!is.null(x$version) &&
-                 as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
-  ##
-  metaprop3.7 <- !(inherits(x, "metaprop") & before3.7)
-  
-  
-  ciexact <- !is.null(x$ciexact) && x$ciexact
+  ## before3.7 <- !(!is.null(x$version) &&
+  ##                as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
+  ## ##
+  ## nooldmetaprop <- !(inherits(x, "metaprop") & before3.7)
   
   
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
@@ -179,32 +176,23 @@ print.meta <- function(x,
       uppTE <- z2cor(uppTE)
     }
     ##
-    if (metaprop3.7 & !logscale & sm=="PLN"){
-      TE <- exp(TE)
-      ##
-      if (!ciexact){
-        lowTE <- exp(lowTE)
-        uppTE <- exp(uppTE)
-      }
+    if (!inherits(x, "metaprop") & !logscale & sm=="PLN"){
+      TE    <- exp(TE)
+      lowTE <- exp(lowTE)
+      uppTE <- exp(uppTE)
     }
     ##
-    if (metaprop3.7 & sm=="PLOGIT"){
+    if (!inherits(x, "metaprop") & sm=="PLOGIT"){
       TE <- logit2p(TE)
-      ##
-      if (!ciexact){
-        lowTE <- logit2p(lowTE)
-        uppTE <- logit2p(uppTE)
-      }
+      lowTE <- logit2p(lowTE)
+      uppTE <- logit2p(uppTE)
     }
     ##
-    if (metaprop3.7 & sm %in% c("PFT", "PAS")){
+    if (!inherits(x, "metaprop") & sm %in% c("PFT", "PAS")){
       if (sm=="PAS"){
         TE    <- asin2p(TE, value="mean")
-        ##
-        if (!ciexact){
-          lowTE <- asin2p(lowTE, value="lower")
-          uppTE <- asin2p(uppTE, value="upper")
-        }
+        lowTE <- asin2p(lowTE, value="lower")
+        uppTE <- asin2p(uppTE, value="upper")
       }
       ##
       if (sm=="PFT"){
@@ -215,14 +203,14 @@ print.meta <- function(x,
         }
         else {
           TE    <- asin2p(TE, x$n, value="mean")
-          ##
-          if (!ciexact){
-            lowTE <- asin2p(lowTE, x$n, value="lower")
-            uppTE <- asin2p(uppTE, x$n, value="upper")
-          }
+          lowTE <- asin2p(lowTE, x$n, value="lower")
+          uppTE <- asin2p(uppTE, x$n, value="upper")
         }
       }
     }
+    ##
+    if (inherits(x, "metaprop"))
+      TE <- x$event / x$n
     ##
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
@@ -296,8 +284,23 @@ print.meta <- function(x,
       ##
       if (k.all==1){
         ##
-        if (ciexact){
-          cat("Exact CI:\n\n")
+        if (!is.null(x$method.ci)){
+          if  (x$method.ci=="CP")
+            method.ci.details <- "Clopper-Pearson confidence intervals:\n\n"
+          else if (x$method.ci=="WS")
+            method.ci.details <- "Wilson Score confidence intervals:\n\n"
+          else if (x$method.ci=="WSCC")
+            method.ci.details <- "Wilson Score confidence intervals with continuity correction:\n\n"
+          else if (x$method.ci=="AC")
+            method.ci.details <- "Agresti-Coull confidence intervals:\n\n"
+          else if (x$method.ci=="SA")
+            method.ci.details <- "Simple approximation confidence intervals:\n\n"
+          else if (x$method.ci=="SACC")
+            method.ci.details <- "Simple approximation confidence intervals with continuity correction:\n\n"
+          else if (x$method.ci=="NAsm")
+            method.ci.details <- "Normal approximation confidence intervals:\n\n"
+          
+          cat(method.ci.details)
           dimnames(res) <- list("", c(sm.lab, ci.lab,
                                       if (comb.fixed) "%W(fixed)",
                                       if (comb.random) "%W(random)"))
@@ -323,17 +326,18 @@ print.meta <- function(x,
                             if (comb.random) "%W(random)"))
         prmatrix(res[order(sortvar),], quote=FALSE, right=TRUE)
       }
-      cat("\n")
     }
     
     
-    if (ma&!(inherits(x, "metainf")|inherits(x, "metacum")))
+    if (ma&!(inherits(x, "metainf")|inherits(x, "metacum"))){
+      cat("\n")
       print(tsum, digits=digits,
             comb.fixed=comb.fixed, comb.random=comb.random,
             prediction=prediction,
             header=FALSE, logscale=logscale)
-    
     }
+    
+  }
   
   invisible(NULL)
 }

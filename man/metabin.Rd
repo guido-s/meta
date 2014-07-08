@@ -94,7 +94,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
     \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
+  \item{tau.preset}{Prespecified value for the square-root of the
+    between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
   \item{tau.common}{A logical indicating whether tau-squared should be
@@ -102,7 +103,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{method.bias}{A character string indicating which test for
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-    \code{"peters"}, can be abbreviated.}
+    \code{"peters"}, can be abbreviated. See function \code{\link{metabias}}}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -228,9 +229,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{label.e, label.c, label.left, label.right,}{}
   \item{byvar, bylab, print.byvar}{As defined above.}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
-  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+  \item{lower, upper}{Lower and upper confidence interval limits
     for individual studies.}
-  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+  \item{zval, pval}{z-value and p-value for test of treatment
     effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}

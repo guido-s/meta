@@ -103,15 +103,14 @@ cilayout(bracket="[", separator="; ")
   no need to define subgroups in order to redo the statistical analysis
   conducted in the Cochrane review.
   
-  Note, for an object of type \code{metaprop}, exact binomial
-  confidence intervals are calculated for individual study results
-  using the R function \code{\link{binom.test}}
-  internally. Accordingly, list elements \code{TE}, \code{lower} and
-  \code{upper} in element \code{study} correspond to proportions and
-  exact confidence limits on the natural scale (irrespective of the
-  transformation used in meta-analysis). Contrary, meta-analysis
-  results are transformed as defined by argument \code{sm}, i.e. list
-  elements \code{TE}, \code{lower} and \code{upper} in elements
+  Note, for an object of type \code{metaprop}, starting with version
+  3.7-0 of meta, list elements \code{TE}, \code{lower} and
+  \code{upper} in element \code{study} correspond to transformed
+  proportions and confidence limits (regardless whether exact
+  confidence limits are calculated; argument \code{ciexact=TRUE} in
+  metaprop function). Accordingly, the following results are based on
+  the same transformation defined by argument \code{sm}: list elements
+  \code{TE}, \code{lower} and \code{upper} in elements \code{study},
   \code{fixed}, \code{random}, \code{within.fixed} and
   \code{within.random}.
 

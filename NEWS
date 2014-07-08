@@ -1,3 +1,44 @@
+2013-07-11, version 3.7.0
+
+Functions metabin, metacont, metacor, metagen, metainc, metaprop,
+trimfill.default, trimfill.meta:
+- new list elements: lower, upper, zval, pval
+  (i.e. calculate confidence limits as well as z- and p-values for
+   individual studies)
+
+Function metaprop:
+- various methods implemented to calculate confidence intervals for individual studies:
+  - new argument 'method.ci' (default: Clopper-Pearson method which is also
+    called 'exact' binomal method)
+ - list elements zval.fixed, pval.fixed, zval.random, pval.random set
+    to NA
+
+Function summary.meta:
+- only calculate confidence intervals, z- and p-values for individual
+  studies for R objects created with older versions of R package meta
+  (otherwise list elements lower, upper, zval, and pval are used)
+
+Function forest.meta:
+- only calculate confidence intervals for individual studies for R
+  objects created with older versions of R package meta (otherwise
+  list elements lower and upper are used)
+
+Function print.meta and forest.meta: ???
+- use correct transformation for metaprop objects (depending on
+  version of meta package)
+
+Function update.meta:
+- new argument 'method.ci' (for metaprop objects)
+
+Functions metacum and metainf:
+- add calculations for metainc objects
+
+Help pages
+- updated to reflect changes in version 3.7-0
+- argument tau.preset correctly described as the _square-root_ of
+  the between-study variance
+
+
 2013-05-27, version 3.6.0
 
 New functions:

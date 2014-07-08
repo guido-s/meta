@@ -81,7 +81,7 @@ read.rm5(file, sep=",", quote = "\"", title,
   \item{O.E}{Observed minus expected (IPD analysis).}
   \item{V}{Variance of \code{O.E} (IPD analysis).}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
-  \item{lower.TE, upper.TE}{Lower and upper limit of 95\% confidence
+  \item{lower, upper}{Lower and upper limit of 95\% confidence
     interval for treatment effect in individual studies.}
   \item{weight}{Weight of individual studies (according to
     meta-analytical method used in respective meta-analysis - see below
@@ -115,14 +115,14 @@ read.rm5(file, sep=",", quote = "\"", title,
     respective meta-analysis (see below for details).}
   \item{TE.pooled}{Estimated treatment effect in respective
     meta-analysis (see below for details).}
-  \item{lower.TE, upper.TE}{Lower and upper limit of 95\% confidence
+  \item{lower, upper}{Lower and upper limit of 95\% confidence
     interval for treatment effect in respective meta-analysis (see below
     for details).}
   \item{weight.pooled}{Total weight in respective meta-analysis (see below
     for details).}
   \item{Z.pooled}{Z-score for test of overall treatment effect in
     respective meta-analysis (see below for details).}
-  \item{pval.TE.pooled}{P-value for test of overall treatment effect in
+  \item{pval.pooled}{P-value for test of overall treatment effect in
     respective meta-analysis (see below for details).}
   \item{Q}{Heterogeneity statistic Q in respective meta-analysis
     (see below for details).}

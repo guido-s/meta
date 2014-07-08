@@ -11,7 +11,7 @@ catmeth <- function(method, method.tau=NULL,
                     allincr=FALSE,
                     addincr=FALSE,
                     MH.exact=FALSE,
-                    ciexact=TRUE){
+                    method.ci=NULL){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -30,10 +30,24 @@ catmeth <- function(method, method.tau=NULL,
   else
     sm.details <- ""
   ##
-  if (metaprop && !is.null(ciexact) && ciexact)
-      sm.details <- paste(sm.details,
-                          "\n- Exact binomial confidence intervals for individual studies",
-                          sep="")
+  if (metaprop && !is.null(method.ci)){
+    if  (method.ci=="CP")
+      method.ci.details <- "\n- Clopper-Pearson confidence intervals for individual studies"
+    else if (method.ci=="WS")
+      method.ci.details <- "\n- Wilson Score confidence intervals for individual studies"
+    else if (method.ci=="WSCC")
+      method.ci.details <- "\n- Wilson Score confidence intervals with continuity correction for individual studies"
+    else if (method.ci=="AC")
+      method.ci.details <- "\n- Agresti-Coull confidence intervals for individual studies"
+    else if (method.ci=="SA")
+      method.ci.details <- "\n- Simple approximation confidence intervals for individual studies"
+    else if (method.ci=="SACC")
+      method.ci.details <- "\n- Simple approximation confidence intervals with continuity correction for individual studies"
+    else if (method.ci=="NAsm")
+      method.ci.details <- "\n- Normal approximation confidence intervals for individual studies"
+    ##
+    sm.details <- paste(sm.details, method.ci.details, sep="")
+  }
   ##
   if (metabin | metainc | metaprop){
     if (!(sm=="AS" | method=="Peto")){

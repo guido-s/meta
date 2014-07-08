@@ -96,7 +96,8 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
               "RR.cochrane", "print.CMH",
-              "label.e", "label.c", "label.left", "label.right")
+              "label.e", "label.c", "label.left", "label.right",
+              "method.ci")
 setOption("argslist", argslist)
 ##
 ## General settings
@@ -145,3 +146,7 @@ setOption("label.e", "Experimental")
 setOption("label.c", "Control")
 setOption("label.left", "")
 setOption("label.right", "")
+##
+## Additional setting for R function metaprop
+##
+setOption("method.ci", "CP")

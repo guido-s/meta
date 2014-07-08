@@ -3,7 +3,7 @@ metaprop <- function(event, n, studlab,
                      sm=.settings$smprop,
                      incr=.settings$incr, allincr=.settings$allincr,
                      addincr=.settings$addincr,
-                     ciexact=TRUE,
+                     method.ci=.settings$method.ci,
                      level=.settings$level, level.comb=.settings$level.comb,
                      comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
                      hakn=.settings$hakn,
@@ -142,9 +142,17 @@ metaprop <- function(event, n, studlab,
                      c("pft", "pas", "praw", "pln", "plogit"), nomatch = NA)
   ##
   if(is.na(imeth) || imeth==0)
-    stop("sm should be \"PFT\", \"PAS\", \"PRAW\", \"PLN\", or \"PLOGIT\"")
+    stop("sm should be \"PLOGIT\", \"PLN\", \"PFT\", \"PAS\", or \"PRAW\"")
   ##
   sm <- c("PFT", "PAS", "PRAW", "PLN", "PLOGIT")[imeth]
+  ##
+  imci <- charmatch(tolower(method.ci),
+                     c("cp", "ws", "wscc", "ac", "sa", "sacc", "nasm"), nomatch = NA)
+  ##
+  if(is.na(imci) || imci==0)
+    stop("method.ci should be \"CP\", \"WS\", \"WSCC\", \"AC\", \"SA\", \"SACC\", or \"NAsm\"")
+  ##
+  method.ci <- c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm")[imci]
   ##
   if (any(n < 10) & sm=="PFT")
     warning("Sample size very small (below 10) in at least one study. Accordingly, backtransformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
@@ -269,19 +277,65 @@ metaprop <- function(event, n, studlab,
   
   NAs <- rep(NA, k.all)
   ##
-  if (ciexact){
-    lower.TE <- upper.TE <- NAs
+  if (method.ci=="CP"){
+    lower.study <- upper.study <- NAs
     for (i in 1:k.all){
       cint <- binom.test(event[i], n[i], conf.level=level)
       ##
-      lower.TE[i] <- cint$conf.int[[1]]
-      upper.TE[i] <- cint$conf.int[[2]]
+      lower.study[i] <- cint$conf.int[[1]]
+      upper.study[i] <- cint$conf.int[[2]]
     }
   }
-  else{
+  ##
+  else if (method.ci=="WS")
+    ci.study <- ciWilsonScore(event, n, level=level)
+  ##
+  else if (method.ci=="WSCC")
+    ci.study <- ciWilsonScore(event, n, level=level, correct=TRUE)
+  ##
+  else if (method.ci=="AC")
+    ci.study <- ciAgrestiCoull(event, n, level=level)
+  ##
+  else if (method.ci=="SA")
+    ci.study <- ciSimpleAsymptotic(event, n, level=level)
+  ##
+  else if (method.ci=="SACC")
+    ci.study <- ciSimpleAsymptotic(event, n, level=level, correct=TRUE)
+  ##
+  else if (method.ci=="NAsm"){
     ci.study <- ci(TE, seTE, level=level)
-    lower.TE <- ci.study$lower
-    upper.TE <- ci.study$upper
+  }
+  
+  
+  if (method.ci!="CP"){
+    lower.study <- ci.study$lower
+    upper.study <- ci.study$upper
+  }
+  
+  
+  if (method.ci=="NAsm"){
+    if (sm=="PLN"){
+      lower.study <- exp(lower.study)
+      upper.study <- exp(upper.study)
+    }
+    ##
+    else if (sm=="PLOGIT"){
+      lower.study <- logit2p(lower.study)
+      upper.study <- logit2p(upper.study)
+    }
+    ##
+    else if (sm=="PAS"){
+      lower.study <- asin2p(lower.study, value="lower")
+      upper.study <- asin2p(upper.study, value="upper")
+    }
+    ##
+    else if (sm=="PFT"){
+      lower.study <- asin2p(lower.study, n, value="lower")
+      upper.study <- asin2p(upper.study, n, value="upper")
+    }
+    ##
+    lower.study[lower.study<0] <- 0
+    upper.study[upper.study>1] <- 1
   }
   
   
@@ -327,8 +381,8 @@ metaprop <- function(event, n, studlab,
   res <- list(event=event, n=n,
               studlab=studlab,
               TE=TE, seTE=seTE,
-              lower.TE=lower.TE, upper.TE=upper.TE,
-              zval.TE=NAs, pval.TE=NAs,
+              lower=lower.study, upper=upper.study,
+              zval=NAs, pval=NAs,
               w.fixed=m$w.fixed, w.random=m$w.random,
               ##
               TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
@@ -361,7 +415,7 @@ metaprop <- function(event, n, studlab,
               allincr=allincr,
               addincr=addincr,
               incr.event=incr.event,
-              ciexact=ciexact,
+              method.ci=method.ci,
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed,
               comb.random=comb.random,

@@ -14,7 +14,7 @@ metaprop(event, n, studlab,
          sm=.settings$smprop,
          incr=.settings$incr, allincr=.settings$allincr,
          addincr=.settings$addincr,
-         ciexact=TRUE,
+         method.ci=.settings$method.ci,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
@@ -46,8 +46,9 @@ metaprop(event, n, studlab,
     studies with a zero cell count.}
   \item{addincr}{A logical indicating if \code{incr} is added to each cell
     frequency of all studies irrespective of zero cell counts.}
-  \item{ciexact}{A logical indicating if exact binomial confidence
-    intervals should be calculated for individual studies.}
+  \item{method.ci}{A character string indicating which method is used
+    to calculate confidence intervals for individual studies, see
+    Details.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
@@ -61,20 +62,19 @@ metaprop(event, n, studlab,
   \item{level.predict}{The level used to calculate prediction interval
     for a new study.}
   \item{hakn}{A logical indicating whether the method by Hartung and
-          Knapp should be used to adjust test statistics and
-          confidence intervals.}
+    Knapp should be used to adjust test statistics and confidence
+    intervals.}
   \item{method.tau}{A character string indicating which method is used
-    to estimate the between-study variance \eqn{\tau^2}. Either
-    \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
-    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
+    to estimate the between-study variance \eqn{\tau^2}, see Details.}
+  \item{tau.preset}{Prespecified value for the square-root of the
+    between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
     between-study variance tau-squared.}
   \item{tau.common}{A logical indicating whether tau-squared should be
     the same across subgroups.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
-    be abbreviated.}
+    be abbreviated. See function \code{\link{metabias}}.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -99,30 +99,50 @@ metaprop(event, n, studlab,
   calculate an overall proportion:
 
   \itemize{
-  \item \code{sm="PFT"}:  Freeman-Tukey Double arcsine transformation
-  
-  \item \code{sm="PAS"}:  Arcsine transformation
-  
-  \item \code{sm="PRAW"}:  Raw, i.e. untransformed, proportions
-  
-  \item \code{sm="PLN"}:  Log transformation
-  
-  \item \code{sm="PLOGIT"}:  Logit transformation}
 
-  In older versions of the R package meta (< 1.5.0), only the
-  Freeman-Tukey Double arcsine transformation and the arcsine
-  transformation were implemented and an argument \code{freeman.tukey}
-  could be used to distinguish between these two methods. Argument
-  \code{freeman.tukey} has been removed from R package meta with
-  version 2.4-0.
+  \item Logit transformation (\code{sm="PLOGIT"}, default)
   
+  \item Log transformation (\code{sm="PLN"})
+
+  \item Freeman-Tukey Double arcsine transformation (\code{sm="PFT"})  
+  
+  \item Arcsine transformation (\code{sm="PAS"})
+  
+  \item Raw, i.e. untransformed, proportions (\code{sm="PRAW"})}
+
   If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
   continuity correction is applied if any studies has a zero cell
   count. By default, 0.5 is added to all cell frequencies of studies
   with a zero cell count (argument \code{incr}).
 
-  Note, exact binomial confidence intervals will be calculated for
-  individual study results if argument \code{ciexact=TRUE}.
+  Various methods are available to calculate confidence intervals for
+  individual study results (see Agresti & Coull 1998; Newcombe 1988):
+
+  \itemize{
+
+  \item Clopper-Pearson interval also called 'exact' binomial interval
+    (\code{method.ci="CP"}, default)
+  
+  \item Wilson Score interval (\code{method.ci="WS"})
+  
+  \item Wilson Score interval with continuity correction
+    (\code{method.ci="WSCC"})
+  
+  \item Agresti-Coull interval (\code{method.ci="AC"})
+  
+  \item Simple approximation interval (\code{method.ci="SA"})
+  
+  \item Simple approximation interval with continuity correction
+    (\code{method.ci="SACC"})
+  
+  \item Normal approximation interval based on summary measure,
+    i.e. defined by argument \code{sm} (\code{method.ci="NAsm"})}
+
+  Note, with exception of the normal approximation based on the
+  summary measure, i.e. \code{method.ci="NAsm"}, the same confidence
+  interval is calculated for any summary measure (argument \code{sm})
+  as only number of events and observations are used in the
+  calculation disregarding the chosen summary measure.
   
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -174,7 +194,7 @@ metaprop(event, n, studlab,
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
   \item{event, n, studlab,}{}
-  \item{sm, incr, allincr, addincr, }{}
+  \item{sm, incr, allincr, addincr, method.ci,}{}
   \item{level, level.comb,}{As defined above.}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
@@ -182,9 +202,9 @@ metaprop(event, n, studlab,
   \item{byvar, bylab, print.byvar, warn}{}
   \item{TE, seTE}{Estimated (un)transformed proportion and its standard
     error for individual studies.}
-  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+  \item{lower, upper}{Lower and upper confidence interval limits
     for individual studies.}
-  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+  \item{zval, pval}{z-value and p-value for test of treatment
     effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
@@ -226,14 +246,23 @@ metaprop(event, n, studlab,
 }
 
 \references{
+
+  Agresti A & Coull BA (1998),
+  Approximate is better than “exact” for interval estimation of
+  binomial proportions.
+  \emph{The American Statistician},
+  \bold{52}, 119--126.
+
   DerSimonian R & Laird N (1986),
-  Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
+  Meta-analysis in clinical trials.
+  \emph{Controlled Clinical Trials},
   \bold{7}, 177--188.
 
   Edward JM et al. (2006),
   Adherence to antiretroviral therapy in sub-saharan Africa and North
-  America - a meta-analysis. \emph{Journal of the American Medical
-  Association}, \bold{296}, 679--690.
+  America - a meta-analysis.
+  \emph{Journal of the American Medical Association},
+  \bold{296}, 679--690.
 
   Freeman MF & Tukey JW (1950),
   Transformations related to the angular and the square
@@ -298,6 +327,42 @@ animals <- c(11, 17, 21, 6)
 ##
 m3 <- metaprop(death, animals, sm="PFT")
 forest(m3)
+
+## Newcombe (1998), Table I, methods 1-5:
+##
+event <- c(81, 15, 0, 1)
+n <- c(263, 148, 20, 29)
+##
+m1 <- metaprop(event, n, sm="PLOGIT", method.ci="SA")
+m2 <- update(m1, method.ci="SACC")
+m3 <- update(m1, method.ci="WS")
+m4 <- update(m1, method.ci="WSCC")
+m5 <- update(m1, method.ci="CP")
+##
+lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower, m4$lower, NA, m5$lower), 4)
+upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper, m4$upper, NA, m5$upper), 4)
+##
+tab1 <- data.frame(
+  scen1=meta:::p.ci(lower[,1], upper[,1]),
+  scen2=meta:::p.ci(lower[,2], upper[,2]),
+  scen3=meta:::p.ci(lower[,3], upper[,3]),
+  scen4=meta:::p.ci(lower[,4], upper[,4]),
+  stringsAsFactors=FALSE
+  )
+names(tab1) <- c("r=81, n=263", "r=15, n=148", "r=0, n=20", "r=1, n=29")
+row.names(tab1) <- c("Simple", "- SA", "- SACC",
+                     "Score", "- WS", "- WSCC",
+                     "Binomial", "- CP")
+tab1[is.na(tab1)] <- ""
+tab1
+
+## Same confidence interval, i.e. unaffected by choice of summary measure
+##
+print(metaprop(event, n, sm="PLOGIT", method.ci="WS"), ma=FALSE)
+print(metaprop(event, n, sm="PLN", method.ci="WS"), ma=FALSE)
+print(metaprop(event, n, sm="PFT", method.ci="WS"), ma=FALSE)
+print(metaprop(event, n, sm="PAS", method.ci="WS"), ma=FALSE)
+print(metaprop(event, n, sm="PRAW", method.ci="WS"), ma=FALSE)
 }
 
 \keyword{htest}

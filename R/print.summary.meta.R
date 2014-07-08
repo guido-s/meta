@@ -291,7 +291,7 @@ print.summary.meta <- function(x,
             incr=ifelse(bip, x$incr, FALSE),
             allincr=ifelse(bip, x$allincr, FALSE),
             addincr=ifelse(bip, x$addincr, FALSE),
-            ciexact=x$ciexact)
+            method.ci=x$method.ci)
   }
   else{
 
@@ -621,7 +621,7 @@ print.summary.meta <- function(x,
             allincr=ifelse(bip, x$allincr, FALSE),
             addincr=ifelse(bip, x$addincr, FALSE),
             MH.exact=ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
-            ciexact=x$ciexact)
+            method.ci=x$method.ci)
   }
   
   invisible(NULL)

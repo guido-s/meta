@@ -54,14 +54,15 @@ metacor(cor, n, studlab,
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
     \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{tau.preset}{Prespecified value for between-study variance tau-squared.}
+  \item{tau.preset}{Prespecified value for the square-root of the
+    between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
     between-study variance tau-squared.}
   \item{tau.common}{A logical indicating whether tau-squared should be
     the same across subgroups.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
-    be abbreviated.}
+    be abbreviated. See function \code{\link{metabias}}}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -150,9 +151,9 @@ metacor(cor, n, studlab,
   \item{TE, seTE}{Either Fisher's z transformation of correlations
     (\code{sm="ZCOR"}) or correlations (\code{sm="COR"}) for individual
     studies.}
-  \item{lower.TE, upper.TE}{Lower and upper confidence interval limits
+  \item{lower, upper}{Lower and upper confidence interval limits
     for individual studies.}
-  \item{zval.TE, pval.TE}{z-value and p-value for test of treatment
+  \item{zval, pval}{z-value and p-value for test of treatment
     effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}

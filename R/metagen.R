@@ -455,8 +455,8 @@ metagen <- function(TE, seTE,
   
   
   res <- list(TE=TE, seTE=seTE,
-              lower.TE=ci.study$lower, upper.TE=ci.study$upper,
-              zval.TE=ci.study$z, pval.TE=ci.study$p,
+              lower=ci.study$lower, upper=ci.study$upper,
+              zval=ci.study$z, pval=ci.study$p,
               studlab=studlab,
               w.fixed=w.fixed, w.random=w.random,
               ##

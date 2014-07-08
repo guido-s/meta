@@ -114,6 +114,10 @@ trimfill(x, ...)
   \item{n.iter.max, level, level.comb, level.predict,}{As defined above.}
   \item{comb.fixed, comb.random, prediction, hakn, method.tau}{}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
+  \item{lower, upper}{Lower and upper confidence interval limits
+    for individual studies.}
+  \item{zval, pval}{z-value and p-value for test of treatment
+    effect for individual studies.}
   \item{w.fixed, w.random}{Weight of individual studies (in fixed and
     random effects model).}
   \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and

@@ -187,15 +187,18 @@ summary.meta <- function(object,
     ## Use available values
     ci.study <- list(TE=object$TE,
                      seTE=object$seTE,
-                     lower=object$lower.TE,
-                     upper=object$upper.TE,
-                     z=object$zval.TE,
-                     p=object$pval.TE,
-                     level=object$level)
+                     lower=object$lower,
+                     upper=object$upper,
+                     z=object$zval,
+                     p=object$pval,
+                     level=object$level,
+                     df=NA)
     ##
     if (!(inherits(object, "metainf")|inherits(object, "metacum")) &
         inherits(object, "metaprop")){
       ##
+      ci.study$event <- object$event
+      ci.study$n <- object$n
       ci.f$harmonic.mean <- mean(1/object$n)
       ci.r$harmonic.mean <- mean(1/object$n)
     }
@@ -470,7 +473,7 @@ summary.meta <- function(object,
     res$incr <- object$incr
     res$allincr <- object$allincr
     res$addincr <- object$addincr
-    res$ciexact <- object$ciexact
+    res$method.ci <- object$method.ci
     ##
     class(res) <- c(class(res), "metaprop")
   }

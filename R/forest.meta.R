@@ -238,9 +238,6 @@ forest.meta <- function(x,
       xpos.studlab <- 0.5
   else if (just.studlab=="right")
     xpos.studlab <- 1
-
-  
-  ciexact <- !is.null(x$ciexact) && x$ciexact
   
   
   ##
@@ -254,8 +251,6 @@ forest.meta <- function(x,
   ##
   before3.7 <- !(!is.null(x$version) &&
                  as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
-  ##
-  metaprop3.6 <- inherits(x, "metaprop") & before3.7
   
   
   wcalc <- function(x)
@@ -734,6 +729,7 @@ forest.meta <- function(x,
   if (inherits(x, "metaprop")){
     x$event.e <- x$event
     x$n.e <- x$n
+    x$TE <- x$event / x$n
   }
   ##
   if (inherits(x, "metacor")){
@@ -1316,8 +1312,8 @@ forest.meta <- function(x,
     else{
       TE <- x$TE
       seTE <- x$seTE
-      lowTE <- x$lower.TE
-      uppTE <- x$upper.TE
+      lowTE <- x$lower
+      uppTE <- x$upper
     }
     ##
     if (before2.0){
@@ -1655,41 +1651,27 @@ forest.meta <- function(x,
   if (x$sm %in% c("PFT", "PAS")){
     ref <- NA
     ##
-    if (metaprop3.6){
+    if (inherits(x, "metaprop")){
       TE    <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
       if (x$sm=="PAS"){
-        TE <- pscale*asin2p(TE, value="mean")
-        ##
-        if (ciexact){
-          lowTE <- pscale*lowTE
-          uppTE <- pscale*uppTE
-        }
-        else{
-          lowTE <- pscale*asin2p(lowTE, value="lower")
-          uppTE <- pscale*asin2p(uppTE, value="upper")
-        }
+        TE    <- pscale*asin2p(TE, value="mean")
+        lowTE <- pscale*asin2p(lowTE, value="lower")
+        uppTE <- pscale*asin2p(uppTE, value="upper")
       }
       if (x$sm=="PFT"){
         if (inherits(x, "metainf")|inherits(x, "metacum")){
-          TE <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
+          TE    <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
           lowTE <- pscale*asin2p(lowTE, x$n.harmonic.mean, value="lower")
           uppTE <- pscale*asin2p(uppTE, x$n.harmonic.mean, value="upper")
         }
         else {
-          TE <- pscale*asin2p(TE, x$n, value="mean")
-          ##
-          if (ciexact){
-            lowTE <- pscale*lowTE
-            uppTE <- pscale*uppTE
-          }
-          else{
-            lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
-            uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
-          }
+          TE    <- pscale*asin2p(TE, x$n, value="mean")
+          lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
+          uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
         }
       }
     }
@@ -1775,29 +1757,22 @@ forest.meta <- function(x,
   else if (x$sm=="PLN"){
     ref <- NA
     ##
-    if (metaprop3.6){
+    if (inherits(x, "metaprop")){
       TE    <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
-      TE <- pscale*exp(TE)
-      ##
-      if (ciexact){
-        lowTE <- pscale*lowTE
-        uppTE <- pscale*uppTE
-      }
-      else{
-        lowTE <- pscale*exp(lowTE)
-        uppTE <- pscale*exp(uppTE)
-      }
+      TE    <- pscale*exp(TE)
+      lowTE <- pscale*exp(lowTE)
+      uppTE <- pscale*exp(uppTE)
     }
     ##
-    TE.fixed <- pscale*exp(TE.fixed)
+    TE.fixed    <- pscale*exp(TE.fixed)
     lowTE.fixed <- pscale*exp(lowTE.fixed)
     uppTE.fixed <- pscale*exp(uppTE.fixed)
     ##
-    TE.random <- pscale*exp(TE.random)
+    TE.random    <- pscale*exp(TE.random)
     lowTE.random <- pscale*exp(lowTE.random)
     uppTE.random <- pscale*exp(uppTE.random)
     ##
@@ -1813,29 +1788,22 @@ forest.meta <- function(x,
   else if (x$sm=="PLOGIT"){
     ref <- NA
     ##
-    if (metaprop3.6){
+    if (inherits(x, "metaprop")){
       TE <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
     }
     else{
-      TE <- pscale*logit2p(TE)
-      ##
-      if (ciexact){
-        lowTE <- pscale*lowTE
-        uppTE <- pscale*uppTE
-      }
-      else{
-        lowTE <- pscale*logit2p(lowTE)
-        uppTE <- pscale*logit2p(uppTE)
-      }
+      TE    <- pscale*logit2p(TE)
+      lowTE <- pscale*logit2p(lowTE)
+      uppTE <- pscale*logit2p(uppTE)
     }
     ##
-    TE.fixed <- pscale*logit2p(TE.fixed)
+    TE.fixed    <- pscale*logit2p(TE.fixed)
     lowTE.fixed <- pscale*logit2p(lowTE.fixed)
     uppTE.fixed <- pscale*logit2p(uppTE.fixed)
     ##
-    TE.random <- pscale*logit2p(TE.random)
+    TE.random    <- pscale*logit2p(TE.random)
     lowTE.random <- pscale*logit2p(lowTE.random)
     uppTE.random <- pscale*logit2p(uppTE.random)
     ##
@@ -1872,13 +1840,13 @@ forest.meta <- function(x,
   }
   
   if (!comb.fixed){
-    TE.fixed <- NA
+    TE.fixed    <- NA
     lowTE.fixed <- NA
     uppTE.fixed <- NA
   }
   ##
   if (!comb.random){
-    TE.random <- NA
+    TE.random    <- NA
     lowTE.random <- NA
     uppTE.random <- NA
   }

@@ -31,17 +31,19 @@
   \item{comp.no}{Comparison number.}
   \item{outcome.no}{Outcome number.}
   \item{method.bias}{A character string indicating which test for
-    small-study effects is to be used for all outcomes. Either \code{"rank"},
-    \code{"linreg"}, or \code{"mm"}, can be abbreviated.}
+    small-study effects is to be used for all outcomes. Either
+    \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can be
+    abbreviated. See function \code{\link{metabias}}}
   \item{method.bias.binary}{A character string indicating which test
     is to be used for binary outcomes. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-    \code{"peters"}, can be abbreviated.}
+    \code{"peters"}, can be abbreviated. See function
+    \code{\link{metabias}}}
   \item{method.bias.or}{A character string indicating which test is to
     be used for binary outcomes with odds ratio as summary
     measure. Either \code{"rank"}, \code{"linreg"}, \code{"mm"},
     \code{"count"}, \code{"score"}, or \code{"peters"}, can be
-    abbreviated.}
+    abbreviated. See function \code{\link{metabias}}}
   \item{k.min}{Minimum number of studies to perform test for small-study effects.}
   \item{...}{Additional arguments (ignored at the moment)}
 }

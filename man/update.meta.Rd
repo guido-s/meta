@@ -26,7 +26,7 @@
        title=object$title, complab=object$complab, outclab=object$outclab,
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
-       n.e=object$n.e, n.c=object$n.c,
+       n.e=object$n.e, n.c=object$n.c, method.ci=object$method.ci,
        byvar=object$byvar, bylab=object$bylab, print.byvar=object$print.byvar,
        print.CMH=object$print.CMH, keepdata=TRUE,
        warn=object$warn, ...)
@@ -76,8 +76,10 @@
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
-    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{tau.preset}{Prespecified value for between-study variance \eqn{\tau^2}.}
+    \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated. See
+    function \code{\link{metagen}}.}
+  \item{tau.preset}{Prespecified value for the square-root of the
+    between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
   \item{tau.common}{A logical indicating whether tau-squared should be
@@ -89,7 +91,7 @@
   \item{method.bias}{A character string indicating which test for
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-    \code{"peters"}, can be abbreviated.}
+    \code{"peters"}, can be abbreviated. See function \code{\link{metabias}}}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -99,7 +101,12 @@
   \item{label.right}{Graph label on right side of forest plot.}
   \item{n.e}{Number of observations in experimental group. (only for metagen object)}
   \item{n.c}{Number of observations in control group. (only for metagen object)}
-   \item{byvar}{An optional vector containing grouping information (must
+  \item{method.ci}{A character string indicating which method is used
+    to calculate confidence intervals for individual studies. Either
+    \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
+    \code{"SA"},, \code{"SACC"}, or \code{"NAsm"}, can be
+    abbreviated. See function \code{\link{metaprop}}.}
+  \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{event.e}).}
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
