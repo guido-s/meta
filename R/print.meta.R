@@ -286,38 +286,31 @@ print.meta <- function(x,
         ##
         if (!is.null(x$method.ci)){
           if  (x$method.ci=="CP")
-            method.ci.details <- "Clopper-Pearson confidence intervals:\n\n"
+            method.ci.details <- "Clopper-Pearson confidence interval:\n\n"
           else if (x$method.ci=="WS")
-            method.ci.details <- "Wilson Score confidence intervals:\n\n"
+            method.ci.details <- "Wilson Score confidence interval:\n\n"
           else if (x$method.ci=="WSCC")
-            method.ci.details <- "Wilson Score confidence intervals with continuity correction:\n\n"
+            method.ci.details <- "Wilson Score confidence interval with continuity correction:\n\n"
           else if (x$method.ci=="AC")
-            method.ci.details <- "Agresti-Coull confidence intervals:\n\n"
+            method.ci.details <- "Agresti-Coull confidence interval:\n\n"
           else if (x$method.ci=="SA")
-            method.ci.details <- "Simple approximation confidence intervals:\n\n"
+            method.ci.details <- "Simple approximation confidence interval:\n\n"
           else if (x$method.ci=="SACC")
-            method.ci.details <- "Simple approximation confidence intervals with continuity correction:\n\n"
-          else if (x$method.ci=="NAsm")
-            method.ci.details <- "Normal approximation confidence intervals:\n\n"
-          
-          cat(method.ci.details)
-          dimnames(res) <- list("", c(sm.lab, ci.lab,
-                                      if (comb.fixed) "%W(fixed)",
-                                      if (comb.random) "%W(random)"))
-          prmatrix(res, quote=FALSE, right=TRUE)
-          cat("\n\n")
+            method.ci.details <- "Simple approximation confidence interval with continuity correction:\n\n"
+          ##
+          tsum$method.ci <- NULL
+
+          if (x$method.ci!="NAsm"){
+            cat(method.ci.details)
+            dimnames(res) <- list("", c(sm.lab, ci.lab,
+                                        if (comb.fixed) "%W(fixed)",
+                                        if (comb.random) "%W(random)"))
+            prmatrix(res, quote=FALSE, right=TRUE)
+            cat("\n\n")
+          }
         }
         ##
-        if (sm == "PFT")
-          cat("CI based on Freeman-Tukey double arcsine transformation:\n")
-        else if (sm == "PAS")
-          cat("CI based on arcsine transformation:\n")
-        else if (sm == "PLN")
-          cat("CI based on log transformation:\n")
-        else if (sm == "PLOGIT")
-          cat("CI based on logit transformation:\n")
-        else if (sm == "PRAW")
-          cat("CI based on normal approximation:\n")
+        cat("Normal approximation confidence interval:\n")
       }
       else{
         dimnames(res) <-

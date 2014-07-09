@@ -11,7 +11,9 @@ catmeth <- function(method, method.tau=NULL,
                     allincr=FALSE,
                     addincr=FALSE,
                     MH.exact=FALSE,
-                    method.ci=NULL){
+                    method.ci=NULL,
+                    metacont=FALSE,
+                    pooledvar=FALSE){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -32,19 +34,19 @@ catmeth <- function(method, method.tau=NULL,
   ##
   if (metaprop && !is.null(method.ci)){
     if  (method.ci=="CP")
-      method.ci.details <- "\n- Clopper-Pearson confidence intervals for individual studies"
+      method.ci.details <- "\n- Clopper-Pearson confidence interval for individual studies"
     else if (method.ci=="WS")
-      method.ci.details <- "\n- Wilson Score confidence intervals for individual studies"
+      method.ci.details <- "\n- Wilson Score confidence interval for individual studies"
     else if (method.ci=="WSCC")
-      method.ci.details <- "\n- Wilson Score confidence intervals with continuity correction for individual studies"
+      method.ci.details <- "\n- Wilson Score confidence interval with continuity correction for individual studies"
     else if (method.ci=="AC")
-      method.ci.details <- "\n- Agresti-Coull confidence intervals for individual studies"
+      method.ci.details <- "\n- Agresti-Coull confidence interval for individual studies"
     else if (method.ci=="SA")
-      method.ci.details <- "\n- Simple approximation confidence intervals for individual studies"
+      method.ci.details <- "\n- Simple approximation confidence interval for individual studies"
     else if (method.ci=="SACC")
-      method.ci.details <- "\n- Simple approximation confidence intervals with continuity correction for individual studies"
+      method.ci.details <- "\n- Simple approximation confidence interval with continuity correction for individual studies"
     else if (method.ci=="NAsm")
-      method.ci.details <- "\n- Normal approximation confidence intervals for individual studies"
+      method.ci.details <- "\n- Normal approximation confidence interval for individual studies"
     ##
     sm.details <- paste(sm.details, method.ci.details, sep="")
   }
@@ -146,6 +148,10 @@ catmeth <- function(method, method.tau=NULL,
     if (MH.exact | metainc)
       lab.method.details <- paste(" (without continuity correction)",
                                   lab.method.details, sep="")
+  ##
+  if (metacont && !is.null(pooledvar) && pooledvar)
+    lab.method.details <- paste(" (with pooled variance for individual studies)",
+                                lab.method.details, sep="")
   ##
   method <- c("\n- Mantel-Haenszel method",
               "\n- Peto method",

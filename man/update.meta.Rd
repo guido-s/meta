@@ -26,7 +26,8 @@
        title=object$title, complab=object$complab, outclab=object$outclab,
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
-       n.e=object$n.e, n.c=object$n.c, method.ci=object$method.ci,
+       n.e=object$n.e, n.c=object$n.c,
+       pooledvar=object$pooledvar, method.ci=object$method.ci,
        byvar=object$byvar, bylab=object$bylab, print.byvar=object$print.byvar,
        print.CMH=object$print.CMH, keepdata=TRUE,
        warn=object$warn, ...)
@@ -101,6 +102,8 @@
   \item{label.right}{Graph label on right side of forest plot.}
   \item{n.e}{Number of observations in experimental group. (only for metagen object)}
   \item{n.c}{Number of observations in control group. (only for metagen object)}
+  \item{pooledvar}{A logical indicating if a pooled variance should be
+    used (only for metacont object).}
   \item{method.ci}{A character string indicating which method is used
     to calculate confidence intervals for individual studies. Either
     \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},

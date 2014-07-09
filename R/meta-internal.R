@@ -96,8 +96,8 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
               "RR.cochrane", "print.CMH",
-              "label.e", "label.c", "label.left", "label.right",
-              "method.ci")
+              "pooledvar", "method.ci",
+              "label.e", "label.c", "label.left", "label.right")
 setOption("argslist", argslist)
 ##
 ## General settings
@@ -140,13 +140,17 @@ setOption("MH.exact", FALSE)
 setOption("RR.cochrane", FALSE)
 setOption("print.CMH", FALSE)
 ##
+## Additional setting for R function metacont
+##
+setOption("polledvar", FALSE)
+##
+## Additional setting for R function metaprop
+##
+setOption("method.ci", "CP")
+##
 ## Settings for R functions comparing two treatments
 ##
 setOption("label.e", "Experimental")
 setOption("label.c", "Control")
 setOption("label.left", "")
 setOption("label.right", "")
-##
-## Additional setting for R function metaprop
-##
-setOption("method.ci", "CP")

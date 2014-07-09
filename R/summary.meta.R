@@ -260,7 +260,7 @@ summary.meta <- function(object,
                           object$sd.e[sel],
                           object$n.c[sel], object$mean.c[sel],
                           object$sd.c[sel],
-                          sm=object$sm,
+                          sm=object$sm, pooledvar=object$pooledvar,
                           studlab=object$studlab[sel],
                           level=level, level.comb=level.comb,
                           comb.fixed=comb.fixed,
@@ -478,20 +478,27 @@ summary.meta <- function(object,
     class(res) <- c(class(res), "metaprop")
   }
   ##
+  if (inherits(object, "metacont")){
+    res$pooledvar <- object$pooledvar
+    ##
+    class(res) <- c(class(res), "metacont")
+  }
+  ##
   if (inherits(object, "metacor")){
-    res$cor       <- object$cor
-    res$n         <- object$n
+    res$cor <- object$cor
+    res$n   <- object$n
     ##
     class(res) <- c(class(res), "metacor")
   }
   ##
   if (inherits(object, "metabin")){
-    class(res) <- c(class(res), "metabin")
-    res$sparse <- object$sparse
-    res$incr <- object$incr
-    res$allincr <- object$allincr
-    res$addincr <- object$addincr
+    res$sparse   <- object$sparse
+    res$incr     <- object$incr
+    res$allincr  <- object$allincr
+    res$addincr  <- object$addincr
     res$MH.exact <- object$MH.exact
+    ##
+    class(res) <- c(class(res), "metabin")
   }
   ##
   if (inherits(object, "metainc")){

@@ -112,6 +112,10 @@ metaprop <- function(event, n, studlab,
   }
   
   
+  if (is.null(method.ci))
+    method.ci <- "CP"
+  
+  
   k.all <- length(event)
   ##
   if (k.all == 0) stop("No studies to combine in meta-analysis.")

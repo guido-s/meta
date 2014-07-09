@@ -138,7 +138,8 @@ metacum <- function(x, pooled, sortvar){
     ##
     if (inherits(x, "metacont"))
       m <- metacont(n.e[sel], mean.e[sel], sd.e[sel],
-                    n.c[sel], mean.c[sel], sd.c[sel], sm=x$sm,
+                    n.c[sel], mean.c[sel], sd.c[sel],
+                    sm=x$sm, pooledvar=x$pooledvar,
                     level=level.comb, level.comb=level.comb,
                     hakn=x$hakn,
                     method.tau=x$method.tau,

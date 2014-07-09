@@ -13,7 +13,7 @@
 \usage{
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          data=NULL, subset=NULL,
-         sm=.settings$smcont,
+         sm=.settings$smcont, pooledvar=.settings$pooledvar,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
@@ -78,6 +78,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{sm}{A character string indicating which summary measure
     (\code{"MD"} or \code{"SMD"}) is to be used for pooling of
     studies.}
+  \item{pooledvar}{A logical indicating if a pooled variance should be
+    used.}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{n.e}).}
   \item{bylab}{A character string with a label for the grouping variable.}
@@ -192,7 +194,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     tau-squared across subgroups.}
   \item{method}{Pooling method: \code{"Inverse"}.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn=TRUE}).}
+    Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{keepdata}{As defined above.}
   \item{data}{Original data (set) used in function call (if
     \code{keepdata=TRUE}).}
@@ -254,6 +256,20 @@ meta2 <- metacont(Fleiss93cont$n.e, Fleiss93cont$mean.e,
                   Fleiss93cont$sd.c,
                   sm="SMD")
 meta2
+
+data(amlodipine)
+meta3 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+                  n.plac, mean.plac, sqrt(var.plac),
+                  data=amlodipine, studlab=study)
+summary(meta3)
+
+## Use pooled variance
+##
+meta4 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+                  n.plac, mean.plac, sqrt(var.plac),
+                  data=amlodipine, studlab=study,
+                  pooledvar=TRUE)
+summary(meta4)
 }
 
 \keyword{htest}

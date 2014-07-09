@@ -246,7 +246,6 @@ metaprop(event, n, studlab,
 }
 
 \references{
-
   Agresti A & Coull BA (1998),
   Approximate is better than “exact” for interval estimation of
   binomial proportions.
@@ -272,18 +271,23 @@ metaprop(event, n, studlab,
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
-  \bold{172}, 137-159.
+  \bold{172}, 137--159.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.
-  \emph{Statistics in Medicine}, \bold{22}, 2693-710,
+  \emph{Statistics in Medicine}, \bold{22}, 2693--2710,
   doi: 10.1002/sim.1482 .
 
   Miller JJ (1978),
   The inverse of the Freeman-Tukey double arcsine transformation.
   \emph{The American Statistician}, \bold{32}, 138.
-
+  
+  Newcombe RG (1998),
+  Two-sided confidence intervals for the single proportion: Comparison
+  of seven methods.
+  \emph{Statistics in Medicine}, \bold{17}, 857--872.
+  
   Paule RC & Mandel J (1982),
   Consensus values and weighting factors.
   \emph{Journal of Research of the National Bureau of Standards},
@@ -328,7 +332,7 @@ animals <- c(11, 17, 21, 6)
 m3 <- metaprop(death, animals, sm="PFT")
 forest(m3)
 
-## Newcombe (1998), Table I, methods 1-5:
+## Data examples from Newcombe (1998)
 ##
 event <- c(81, 15, 0, 1)
 n <- c(263, 148, 20, 29)
@@ -354,6 +358,9 @@ row.names(tab1) <- c("Simple", "- SA", "- SACC",
                      "Score", "- WS", "- WSCC",
                      "Binomial", "- CP")
 tab1[is.na(tab1)] <- ""
+##
+## Newcombe (1998), Table I, methods 1-5:
+##
 tab1
 
 ## Same confidence interval, i.e. unaffected by choice of summary measure
