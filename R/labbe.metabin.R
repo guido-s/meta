@@ -17,6 +17,14 @@ labbe.metabin <- function(x,
   if (!inherits(x, "metabin"))
     stop("Argument 'x' must be an object of class \"metabin\"")
   
+  
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   pc <- x$event.c/x$n.c
   pe <- x$event.e/x$n.e
   

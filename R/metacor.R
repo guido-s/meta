@@ -57,15 +57,17 @@ metacor <- function(cor, n, studlab,
   }
   
   
-  if (!is.null(studlab))
-    studlab <- as.character(studlab)
-  else
+  if (is.null(studlab))
     studlab <- seq(along=cor)
+  ##
+  if (is.factor(studlab))
+    studlab <- as.character(studlab)
   
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(.cor=cor, .n=n, .studlab=studlab)
+      data <- data.frame(.cor=cor, .n=n, .studlab=studlab,
+                         stringsAsFactors=FALSE)
       if (!missing.byvar)
         data$.byvar <- byvar
       ##

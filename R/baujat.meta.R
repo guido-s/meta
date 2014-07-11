@@ -23,6 +23,13 @@ baujat.meta <- function(x,
     stop("Baujat plot not meaningful for object of class \"trimfill\"")
   
   
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   oldpar <- par(pty=pty)
   on.exit(par(oldpar))
   

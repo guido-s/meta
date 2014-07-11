@@ -74,17 +74,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   
   
-  if (!is.null(studlab))
-    studlab <- as.character(studlab)
-  else
+  if (is.null(studlab))
     studlab <- seq(along=n.e)
+  ##
+  if (is.factor(studlab))
+    studlab <- as.character(studlab)
   
   
   if (keepdata){
     if (nulldata){
       data <- data.frame(.n.e=n.e, .mean.e=mean.e, .sd.e=sd.e,
                          .n.c=n.c, .mean.c=mean.c, .sd.c=sd.c,
-                         .studlab=studlab)
+                         .studlab=studlab,
+                         stringsAsFactors=FALSE)
       if (!missing.byvar)
         data$.byvar <- byvar
       ##

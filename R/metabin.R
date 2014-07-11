@@ -75,17 +75,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  if (!is.null(studlab))
-    studlab <- as.character(studlab)
-  else
+  if (is.null(studlab))
     studlab <- seq(along=event.e)
+  ##
+  if (is.factor(studlab))
+    studlab <- as.character(studlab)
   
   
   if (keepdata){
     if (nulldata){
       data <- data.frame(.event.e=event.e, .n.e=n.e,
                          .event.c=event.c, .n.c=n.c,
-                         .studlab=studlab)
+                         .studlab=studlab,
+                         stringsAsFactors=FALSE)
       if (!missing.byvar)
         data$.byvar <- byvar
       ##

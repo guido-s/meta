@@ -74,17 +74,19 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   
   
-  if (!is.null(studlab))
-    studlab <- as.character(studlab)
-  else
+  if (is.null(studlab))
     studlab <- seq(along=event.e)
+  ##
+  if (is.factor(studlab))
+    studlab <- as.character(studlab)
   
   
   if (keepdata){
     if (nulldata){
       data <- data.frame(.event.e=event.e, .time.e=time.e,
                          .event.c=event.c, .time.c=time.c,
-                         .studlab=studlab)
+                         .studlab=studlab,
+                         stringsAsFactors=FALSE)
       if (!missing.byvar)
         data$.byvar <- byvar
       ##

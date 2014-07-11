@@ -38,19 +38,164 @@ update.meta <- function(object,
                         print.byvar=object$print.byvar,
                         print.CMH=object$print.CMH,
                         keepdata=TRUE,
+                        ##
+                        left=object$left,
+                        ma.fixed=object$ma.fixed,
+                        type=object$type,
+                        n.iter.max=object$n.iter.max,
+                        ##
                         warn=object$warn,
                         ...){
   
   
-  if (!inherits(object,"meta"))
+  if (!inherits(object, "meta"))
     stop("Argument 'object' must be an object of class \"meta\"")
+  
+  
+  ## Replace missing arguments with defaults
   ##
-  if (is.null(object$version) ||
-      as.numeric(strsplit(object$version, "-")[[1]][1]) < 3.0){
-    warning("Function not applicable to objects from older versions of meta (< 3.0).")
-    return(invisible(NULL))
+  replacemiss <- function(x, replacement){
+    ##
+    xnam <- deparse(substitute(x))
+    ##
+    if (is.null(x))
+      if (missing(replacement))
+        res <- .settings[[xnam]]
+      else
+        res <- replacement
+    else
+      res <- x
+    ##
+    res
   }
   ##
+  comb.fixed <- replacemiss(comb.fixed)
+  comb.random <- replacemiss(comb.random)
+  ##
+  level <- replacemiss(level)
+  level.comb <- replacemiss(level.comb)
+  ##
+  hakn <- replacemiss(hakn)
+  method.tau <- replacemiss(method.tau)
+  tau.preset <- replacemiss(tau.preset)
+  TE.tau <- replacemiss(TE.tau)
+  method.bias <- replacemiss(method.bias)
+  ##
+  label.left <- replacemiss(label.left)
+  label.right <- replacemiss(label.right)
+  ##
+  tau.common <- replacemiss(tau.common)
+  level.predict <- replacemiss(level.predict)
+  prediction <- replacemiss(prediction)
+  ##
+  title <- replacemiss(title)
+  complab <- replacemiss(complab)
+  outclab <- replacemiss(outclab, "")
+  label.e <- replacemiss(label.e)
+  label.c <- replacemiss(label.c)
+  ##
+  warn <- replacemiss(warn)
+  
+  
+  if (inherits(object, "trimfill")){
+    ##
+    rmfilled <- function(x){
+      ##
+      if (!is.null(object[[x]]))
+        res <- object[[x]][!object$trimfill]
+      else
+        res <- NULL
+      ##
+      res
+    }
+    ##
+    tfnames <- c("TE", "seTE",
+                 "studlab",
+                 "n.e", "n.c",
+                 "event.e", "event.c",
+                 "mean.e", "mean.c", "sd.e", "sd.c",
+                 "n", "event", "cor")
+    ##
+    for (i in tfnames)
+      object[[i]] <- rmfilled(i)
+    ##
+    oldclass <- object$class.x
+    ##
+    res <- trimfill(object,
+                    left=left, ma.fixed=ma.fixed,
+                    type=type, n.iter.max=n.iter.max,
+                    level=level, level.comb=level.comb,
+                    comb.fixed=comb.fixed, comb.random=comb.random,
+                    hakn=hakn,
+                    method.tau=method.tau,
+                    prediction=prediction, level.predict=level.predict,
+                    silent=TRUE,
+                    ...)
+    ##
+    res$call.object <- object$call
+    res$call <- match.call()
+    res$class.x <- oldclass
+    ##
+    return(res)
+  }
+  
+  
+  if (inherits(object, "metacum") | inherits(object, "metainf")){
+    ##
+    res <- object
+    ##
+    res$comb.fixed <- ifelse(res$pooled=="fixed", TRUE, FALSE)
+    res$comb.random <- ifelse(res$pooled=="random", TRUE, FALSE)
+    ##
+    res$call.object <- object$call
+    res$call <- match.call()
+    res$version <- packageDescription("meta")$Version
+    ##
+    return(res)
+  }
+  
+  
+  ## Some additional changes for meta objects with version < 3.2
+  ##
+  if (!(!is.null(object$version) &&
+        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)){
+    ##
+    object$subset <- NULL
+    ##
+    object$data <- data.frame(.studlab=object$studlab)
+    ##
+    if (!is.null(object$byvar))
+      object$data$.byvar <- object$byvar
+    ##
+    if (inherits(object,"metabin")){
+      object$data$.event.e <- object$event.e
+      object$data$.n.e <- object$n.e
+      object$data$.event.c <- object$event.c
+      object$data$.n.c <- object$n.c
+    }
+    if (inherits(object,"metacont")){
+      object$data$.n.e <- object$n.e
+      object$data$.mean.e <- object$mean.e
+      object$data$.sd.e <- object$sd.e
+      object$data$.n.c <- object$n.c
+      object$data$.mean.c <- object$mean.c
+      object$data$.sd.c <- object$sd.c
+    }
+    if (inherits(object,"metagen")){
+      object$data$.TE <- object$TE
+      object$data$.seTE <- object$seTE
+    }
+    if (inherits(object,"metaprop")){
+      object$data$.event <- object$event
+      object$data$.n <- object$n
+    }
+    if (inherits(object,"metacor")){
+      object$data$.cor <- object$cor
+      object$data$.n <- object$n
+    }
+  }  
+  
+  
   if (is.null(object$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
     return(invisible(NULL))
@@ -83,9 +228,13 @@ update.meta <- function(object,
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   
-  
-  if (missing.subset & !is.null(object$data$.subset))
-    subset <- object$data$.subset
+
+  if (missing.subset){
+    if (!is.null(object$subset))
+      subset <- object$subset
+    else if (!is.null(object$data$.subset))
+      subset <- object$data$.subset
+  }
   ##
   if (missing.byvar & !is.null(object$data$.byvar))
     byvar <- object$data$.byvar
@@ -219,6 +368,11 @@ update.meta <- function(object,
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
                  keepdata=keepdata,
                  warn=warn)
+  
+  
+  m$call.object <- object$call
+  m$call <- match.call()
+  
   
   m
 }

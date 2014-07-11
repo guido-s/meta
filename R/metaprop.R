@@ -61,15 +61,17 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  if (!is.null(studlab))
-    studlab <- as.character(studlab)
-  else
+  if (is.null(studlab))
     studlab <- seq(along=event)
+  ##
+  if (is.factor(studlab))
+    studlab <- as.character(studlab)
   
   
   if (keepdata){
     if (nulldata){
-      data <- data.frame(.event=event, .n=n, .studlab=studlab)
+      data <- data.frame(.event=event, .n=n, .studlab=studlab,
+                         stringsAsFactors=FALSE)
       if (!missing.byvar)
         data$.byvar <- byvar
       ##

@@ -25,6 +25,13 @@ summary.meta <- function(object,
   }
   
   
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(object$version) &&
+        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.7))
+    object <- update(object, warn=FALSE)
+  
+  
   k <- object$k
   Q <- object$Q
   ##
@@ -106,102 +113,44 @@ summary.meta <- function(object,
     stop("parameter 'level.predict': no valid level for confidence interval")
   
   
+  ci.f <- list(TE=object$TE.fixed,
+               seTE=object$seTE.fixed,
+               lower=object$lower.fixed,
+               upper=object$upper.fixed,
+               z=object$zval.fixed,
+               p=object$pval.fixed,
+               level=object$level.comb)
   ##
-  ## Check version of R package meta
+  ci.r <- list(TE=object$TE.random,
+               seTE=object$seTE.random,
+               lower=object$lower.random,
+               upper=object$upper.random,
+               z=object$zval.random,
+               p=object$pval.random,
+               level=object$level.comb,
+               df=if (!is.null(object$df.hakn)) object$df.hakn else NA)
+  
+  
+  ci.H <- list(TE=object$H, lower=object$lower.H, upper=object$upper.H)
+  ci.I2 <- list(TE=object$I2, lower=object$lower.I2, upper=object$upper.I2)
+  
+  
+  ci.study <- list(TE=object$TE,
+                   seTE=object$seTE,
+                   lower=object$lower,
+                   upper=object$upper,
+                   z=object$zval,
+                   p=object$pval,
+                   level=object$level,
+                   df=NA)
   ##
-  before2.0 <- !(!is.null(object$version) &&
-                 as.numeric(unlist(strsplit(object$version, "\\."))[1]) >= 2)
-  ##
-  before3.2 <- !(!is.null(object$version) &&
-                 as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)
-  ##
-  before3.7 <- !(!is.null(object$version) &&
-                 as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.7)
-  
-  
-  if (before2.0){
-    ci.f <- ci(object$TE.fixed , object$seTE.fixed , level.comb)
-    ci.r <- ci(object$TE.random, object$seTE.random, level.comb, df=object$df.hakn)
-  }
-  else{
-    ## Use available values
-    ci.f <- list(TE=object$TE.fixed,
-                 seTE=object$seTE.fixed,
-                 lower=object$lower.fixed,
-                 upper=object$upper.fixed,
-                 z=object$zval.fixed,
-                 p=object$pval.fixed,
-                 level=object$level.comb)
+  if (!(inherits(object, "metainf")|inherits(object, "metacum")) &
+      inherits(object, "metaprop")){
     ##
-    ci.r <- list(TE=object$TE.random,
-                 seTE=object$seTE.random,
-                 lower=object$lower.random,
-                 upper=object$upper.random,
-                 z=object$zval.random,
-                 p=object$pval.random,
-                 level=object$level.comb,
-                 df=if (!is.null(object$df.hakn)) object$df.hakn else NA)
-  }
-  
-  
-  if (before3.2){
-    ci.H <- calcH(Q, df.Q, level.comb)
-    ci.I2 <- isquared(Q, df.Q, level.comb)
-    }
-  else{
-    ## Use available values
-    ci.H <- list(TE=object$H, lower=object$lower.H, upper=object$upper.H)
-    ci.I2 <- list(TE=object$I2, lower=object$lower.I2, upper=object$upper.I2)
-  }
-  
-  
-  if (before3.7){
-    ##
-    ci.study <- ci(object$TE, object$seTE, level)
-    ##
-    if (!(inherits(object, "metainf")|inherits(object, "metacum")) &
-        inherits(object, "metaprop")){
-      ##
-      for (i in 1:length(ci.study$TE)){
-        cint <- binom.test(object$event[i], object$n[i], conf.level=level)
-        ##
-        ci.study$TE[i]    <- cint$estimate
-        ci.study$seTE[i]  <- NA
-        ci.study$lower[i] <- cint$conf.int[[1]]
-        ci.study$upper[i] <- cint$conf.int[[2]]
-      }
-      ##
-      ci.study$z <- rep(NA, length(ci.study$z))
-      ci.study$p <- rep(NA, length(ci.study$p))
-      ##
-      ci.f$z <- NA
-      ci.f$p <- NA
-      ci.f$harmonic.mean <- mean(1/object$n)
-      ##
-      ci.r$z <- NA
-      ci.r$p <- NA
-      ci.r$harmonic.mean <- mean(1/object$n)
-    }
-  }
-  else{
-    ## Use available values
-    ci.study <- list(TE=object$TE,
-                     seTE=object$seTE,
-                     lower=object$lower,
-                     upper=object$upper,
-                     z=object$zval,
-                     p=object$pval,
-                     level=object$level,
-                     df=NA)
-    ##
-    if (!(inherits(object, "metainf")|inherits(object, "metacum")) &
-        inherits(object, "metaprop")){
-      ##
-      ci.study$event <- object$event
-      ci.study$n <- object$n
-      ci.f$harmonic.mean <- mean(1/object$n)
-      ci.r$harmonic.mean <- mean(1/object$n)
-    }
+    ci.study$event <- object$event
+    ci.study$n <- object$n
+    ci.f$harmonic.mean <- mean(1/object$n)
+    ci.r$harmonic.mean <- mean(1/object$n)
   }
   
   

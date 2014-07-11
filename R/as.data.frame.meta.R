@@ -3,7 +3,15 @@ as.data.frame.meta <- function(x, row.names=NULL,
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
-
+  
+  
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   ## Remove element 'call' from object of class meta to get rid
   ## of an error message in meta-analyses with six studies:
   ## 'Error: evaluation nested too deeply: infinite recursion ...'

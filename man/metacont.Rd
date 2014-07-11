@@ -79,7 +79,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     (\code{"MD"} or \code{"SMD"}) is to be used for pooling of
     studies.}
   \item{pooledvar}{A logical indicating if a pooled variance should be
-    used.}
+    used for the mean difference (\code{sm="MD"}).}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{n.e}).}
   \item{bylab}{A character string with a label for the grouping variable.}

@@ -24,6 +24,14 @@ funnel.meta <- function(x,
   if (inherits(x, "metainf"))
     stop("Funnel plot not meaningful for object of class \"metainf\"")
   
+  
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   TE <- x$TE
   seTE <- x$seTE
   TE.fixed <- x$TE.fixed

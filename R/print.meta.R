@@ -34,6 +34,13 @@ print.meta <- function(x,
   }
   
   
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   k.all <- length(x$TE)
   ##
   if (missing(sortvar)) sortvar <- 1:k.all

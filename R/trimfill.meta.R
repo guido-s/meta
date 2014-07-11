@@ -15,6 +15,13 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
     stop("This function is not usable for an object of class \"metainf\"")
   
   
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   if (length(comb.fixed)==0)
     comb.fixed <- TRUE
   ##

@@ -4,6 +4,13 @@ metacum <- function(x, pooled, sortvar){
     stop("Argument 'x' must be an object of class \"meta\"")
   
   
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+    x <- update(x, warn=FALSE)
+  
+  
   level.comb <- x$level.comb
   
   
@@ -272,7 +279,8 @@ metacum <- function(x, pooled, sortvar){
               method.tau=x$method.tau,
               tau.preset=x$tau.preset,
               TE.tau=x$TE.tau,
-              n.harmonic.mean=c(n.harmonic.mean.i, NA, 1/mean(1/n)))
+              n.harmonic.mean=c(n.harmonic.mean.i, NA, 1/mean(1/n)),
+              call=match.call())
   
   res$version <- packageDescription("meta")$Version
   

@@ -1,4 +1,48 @@
-2013-07-11, version 3.7.0
+2013-07-11, version 3.7-0
+
+Function metaprop:
+- new argument 'method.ci' to implement various methods to calculate
+  confidence intervals for individual studies:
+  (default: Clopper-Pearson method which is also called 'exact'
+  binomal method)
+- list elements zval.fixed, pval.fixed, zval.random, pval.random set
+  to NA
+
+New functions:
+- ciWilsonScore      (used internally in metaprop function)
+- ciAgrestiCoull     (used internally in metaprop function)
+- ciSimpleAsymptotic (used internally in metaprop function)
+- estimate.missing (used internally in trimfill.default and
+  trimfill.meta; so far function was defined in both trimfill
+  functions)
+
+Function metacont:
+- new argument 'pooledvar' to conduct meta-analysis of mean
+  differences (sm="MD") based on pooled variance for individual
+  studies
+
+Function update.meta:
+- function can be used to upgrade R objects created with older
+  versions of meta, i.e. all versions between 0.5 and 3.6-0
+- extended to objects of the following classes:
+  - trimfill (fully functional)
+  - metacum (only upgrade to current version of meta)
+  - metainf (only upgrade to current version of meta)
+- new arguments:
+  - method.ci (for metaprop objects)
+  - pooledvar (for metacont objects)
+  - left (for trimfill objects)
+  - ma.fixed (for trimfill objects)
+  - type (for trimfill objects)
+  - n.iter.max (for trimfill objects)
+- new list element 'call.object', i.e call used to generate object
+  used as input to update.meta function
+
+Function as.data.frame.meta, baujat.meta, forest.meta, funnel.meta,
+labbe.metabin, metacum, metainf, print.meta, summary.meta,
+trimfill.meta:
+- call update.meta function for meta objects created with older meta
+  packages (version < 3.7)
 
 Functions metabin, metacont, metacor, metagen, metainc, metaprop,
 trimfill.default, trimfill.meta:
@@ -6,40 +50,18 @@ trimfill.default, trimfill.meta:
    confidence limits as well as z- and p-values for individual
    studies)
 
-Function metaprop:
-- various methods implemented to calculate confidence intervals for
-  individual studies:
-  - new argument 'method.ci' (default: Clopper-Pearson method which is also
-    called 'exact' binomal method)
-  - list elements zval.fixed, pval.fixed, zval.random, pval.random set
-    to NA
-
-New functions:
-- ciWilsonScore (used internally in metaprop function)
-- ciAgrestiCoull (used internally in metaprop function)
-- ciSimpleAsymptotic (used internally in metaprop function)
-- estimate.missing (used internally in trimfill.default and
-  trimfill.meta)
-
-Function summary.meta:
-- only calculate confidence intervals, z- and p-values for individual
-  studies for R objects created with older versions of R package meta
-  (otherwise list elements lower, upper, zval, and pval are used)
-
-Function forest.meta:
-- only calculate confidence intervals for individual studies for R
-  objects created with older versions of R package meta (otherwise
-  list elements lower and upper are used)
-
 Function print.meta and print.summary.meta:
 - print information on method used for confidence intervals of
   individual studies for metaprop objects
 
-Function update.meta:
-- new argument 'method.ci' (for metaprop objects)
-
 Functions metacum and metainf:
 - add calculations for metainc objects
+- new list element 'call' with function call
+- consider argument 'pooledvar' for metacont objects
+
+Functions metabin, metacont, metacor, metagen, metainc, metaprop:
+- study labels will only be converted to characters for factor
+  variables
 
 Help pages
 - updated to reflect changes in version 3.7-0
