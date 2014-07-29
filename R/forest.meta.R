@@ -1012,6 +1012,24 @@ forest.meta <- function(x,
   by <- length(byvar)>0
   sort <- !missing(sortvar)
   
+  
+  mf <- match.call()
+  ##
+  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
+                               as.data.frame(x, stringsAsFactors=FALSE),
+                               enclos = sys.frame(sys.parent())),
+               silent=TRUE)
+  ##
+  if (class(error)=="try-error"){
+    xd <- x$data
+    sortvar <- eval(mf[[match("sortvar", names(mf))]],
+                    xd, enclos = NULL)
+    ##
+    if (!is.null(x$data$.subset))
+      sortvar <- sortvar[x$data$.subset]
+  }
+  
+  
   if (by & (inherits(x, "metainf")| inherits(x, "metacum")))
     stop("Use of 'byvar' not possible for 'metainf' or 'metacum' object.") 
   
@@ -1085,10 +1103,8 @@ forest.meta <- function(x,
   x$TE   <- x$TE[sel]
   x$seTE <- x$seTE[sel]
   ##
-  if (inherits(x, "metainf")|inherits(x, "metacum")){
-    x$lower <- x$lower[sel]
-    x$upper <- x$upper[sel]
-  }
+  x$lower <- x$lower[sel]
+  x$upper <- x$upper[sel]
   ##
   x$w.fixed  <- x$w.fixed[sel]
   x$w.random <- x$w.random[sel]
@@ -1131,10 +1147,8 @@ forest.meta <- function(x,
       x$TE   <- x$TE[o]
       x$seTE <- x$seTE[o]
       ##
-      if (inherits(x, "metainf")|inherits(x, "metacum")){
-        x$lower <- x$lower[o]
-        x$upper <- x$upper[o]
-      }
+      x$lower <- x$lower[o]
+      x$upper <- x$upper[o]
       ##
       x$w.fixed  <- x$w.fixed[o]
       x$w.random <- x$w.random[o]
@@ -1176,10 +1190,8 @@ forest.meta <- function(x,
       x$TE   <- x$TE[o]
       x$seTE <- x$seTE[o]
       ##
-      if (inherits(x, "metainf")|inherits(x, "metacum")){
-        x$lower <- x$lower[o]
-        x$upper <- x$upper[o]
-      }
+      x$lower <- x$lower[o]
+      x$upper <- x$upper[o]
       ##
       x$w.fixed  <- x$w.fixed[o]
       x$w.random <- x$w.random[o]

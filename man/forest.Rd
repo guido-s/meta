@@ -491,6 +491,50 @@ forest(meta1,
        col.diamond="green", col.diamond.lines="red",
        col.i=c("green", "blue", "red", "orange"),
        col.square="pink", col.square.lines="black")
+
+
+##
+## Sort by weight in fixed effect model
+##
+forest(meta1, sortvar=1/w.fixed, comb.random=FALSE)
+
+
+##
+## Sort by decreasing weight in fixed effect model
+##
+forest(meta1, sortvar=rev(1/w.fixed), comb.random=FALSE)
+
+
+##
+## Sort by size of treatment effect
+##
+forest(meta1, sortvar=TE, comb.random=FALSE)
+
+
+##
+## Sort by size of treatment effect
+##
+forest(meta1, sortvar=-TE, comb.random=FALSE)
+
+
+##
+## Sort by size of treatment effect
+##
+forest(meta1, sortvar=rev(TE), comb.random=FALSE)
+
+
+##
+## Sort by decreasing year of publication
+##
+forest(meta1, sortvar=rev(year), comb.random=FALSE)
+
+
+##
+## Sort studies by decreasing treatment effect within year subgroups
+##
+forest(update(meta1, byvar=ifelse(year < 1987, "Before 1987", "1987 and later"),
+              print.byvar=FALSE),
+       sortvar=-TE, comb.random=FALSE)
 }
 
 \keyword{hplot}

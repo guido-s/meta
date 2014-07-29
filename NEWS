@@ -1,8 +1,22 @@
-2013-07-11, version 3.7-0
+2014-07-29, version 3.7-1
+
+Function forest.meta:
+- bug fix such that lower and upper confidence interval limits will be
+  sorted correctly if argument 'sortvar' is used (this bug has been
+  introduced in version 3.7-0 of meta)
+- argument 'sortvar' works without reference to meta object,
+  e.g. command forest(meta1, sortvar=TE) can be used instead of
+  forest(meta1, sortvar=m1$TE) - see help page for examples.
+
+Help page of forest.meta function:
+- examples using argument 'sortvar' added
+
+
+2014-07-11, version 3.7-0
 
 Function metaprop:
 - new argument 'method.ci' to implement various methods to calculate
-  confidence intervals for individual studies:
+  confidence intervals for individual studies
   (default: Clopper-Pearson method which is also called 'exact'
   binomal method)
 - list elements zval.fixed, pval.fixed, zval.random, pval.random set
