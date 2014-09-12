@@ -6,7 +6,7 @@ print.summary.meta <- function(x,
                                print.byvar=x$print.byvar,
                                print.CMH=x$print.CMH,
                                header=TRUE,
-                               logscale=FALSE,
+                               backtransf=x$backtransf,
                                bylab.nchar=35,
                                ...){
   
@@ -21,6 +21,20 @@ print.summary.meta <- function(x,
     return(invisible(NULL))
   
   
+  cl <- class(x)[1]
+  addargs <- names(list(...))
+  ##
+  fun <- "print.summary.meta"
+  ##
+  warnarg("logscale", addargs, fun, otherarg="backtransf")
+  ##
+  if (is.null(backtransf))
+    if (!is.null(list(...)[["logscale"]]))
+      backtransf <- !list(...)[["logscale"]]
+    else
+      backtransf <- TRUE
+  
+  
   bip <- inherits(x, c("metabin", "metainc", "metaprop"))
   
   
@@ -31,18 +45,22 @@ print.summary.meta <- function(x,
     df.Q <- k-1
   else
     df.Q <- x$df.Q
-
   
-  if (sm=="ZCOR")
-    sm.lab <- "COR"
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT"))
-    sm.lab <- "proportion"
-  else if (!logscale & sm == "PLN")
-    sm.lab <- "proportion"
-  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR"))
-    sm.lab <- paste("log", sm, sep="")
-  else
-    sm.lab <- sm
+  
+  sm.lab <- sm
+  ##
+  if (backtransf){
+    if (sm=="ZCOR")
+      sm.lab <- "COR"
+    if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
+      sm.lab <- "proportion"
+  }
+  else 
+    if (is.relative.effect(sm))
+      sm.lab <- paste("log", sm, sep="")
+  
+  
+  by <- !is.null(x$bylab)
   
   
   if (length(comb.fixed)==0)
@@ -77,7 +95,7 @@ print.summary.meta <- function(x,
   lowTE.predict <- x$predict$lower
   uppTE.predict <- x$predict$upper
   ##
-  if (!is.null(x$bylab)){
+  if (by){
     TE.fixed.w     <- x$within.fixed$TE
     lowTE.fixed.w  <- x$within.fixed$lower
     uppTE.fixed.w  <- x$within.fixed$upper
@@ -91,135 +109,45 @@ print.summary.meta <- function(x,
   }
   
   
-  if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR" | sm=="PLN")){
-    TE.fixed    <- exp(TE.fixed)
-    lowTE.fixed <- exp(lowTE.fixed)
-    uppTE.fixed <- exp(uppTE.fixed)
+  if (backtransf){
     ##
-    TE.random <- exp(TE.random)
-    lowTE.random <- exp(lowTE.random)
-    uppTE.random <- exp(uppTE.random)
+    npft.ma <- 1/mean(1/x$n)
     ##
-    lowTE.predict <- exp(lowTE.predict)
-    uppTE.predict <- exp(uppTE.predict)
+    TE.fixed    <- backtransf(TE.fixed, sm, "mean",
+                              npft.ma, warn=comb.fixed)
+    lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
+                              npft.ma, warn=comb.fixed)
+    uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
+                              npft.ma, warn=comb.fixed)
     ##
-     if (!is.null(x$bylab)){
-      TE.fixed.w     <- exp(TE.fixed.w)
-      lowTE.fixed.w  <- exp(lowTE.fixed.w)
-      uppTE.fixed.w  <- exp(uppTE.fixed.w)
-      TE.random.w    <- exp(TE.random.w)
-      lowTE.random.w <- exp(lowTE.random.w)
-      uppTE.random.w <- exp(uppTE.random.w)
-    }
-  }
-  else if (sm=="PFT"){
-    TE.fixed    <- asin2p(TE.fixed, 1/mean(1/x$n),
-                          value="mean", warn=comb.fixed)
-    lowTE.fixed <- asin2p(lowTE.fixed, 1/mean(1/x$n),
-                          value="lower", warn=comb.fixed)
-    uppTE.fixed <- asin2p(uppTE.fixed, 1/mean(1/x$n),
-                          value="upper", warn=comb.fixed)
+    TE.random <- backtransf(TE.random, sm, "mean",
+                            npft.ma, warn=comb.random)
+    lowTE.random <- backtransf(lowTE.random, sm, "lower",
+                               npft.ma, warn=comb.random)
+    uppTE.random <- backtransf(uppTE.random, sm, "upper",
+                               npft.ma, warn=comb.random)
     ##
-    TE.random    <- asin2p(TE.random, 1/mean(1/x$n),
-                           value="mean", warn=comb.random)
-    lowTE.random <- asin2p(lowTE.random, 1/mean(1/x$n)
-                           , value="lower", warn=comb.random)
-    uppTE.random <- asin2p(uppTE.random, 1/mean(1/x$n),
-                           value="upper", warn=comb.random)
+    lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
+                                npft.ma, warn=prediction)
+    uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
+                                npft.ma, warn=prediction)
     ##
-    lowTE.predict <- NA # asin2p(lowTE.predict, 1/mean(1/x$n), value="lower", warn=prediction)
-    uppTE.predict <- NA # asin2p(uppTE.predict, 1/mean(1/x$n), value="upper", warn=prediction)
-    ##
-    if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w, 1/harmonic.mean.fixed.w,
-                               value="mean", warn=comb.fixed)
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, 1/harmonic.mean.fixed.w,
-                               value="lower", warn=comb.fixed)
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, 1/harmonic.mean.fixed.w,
-                               value="upper", warn=comb.fixed)
-      TE.random.w    <- asin2p(TE.random.w, 1/harmonic.mean.random.w,
-                               value="mean", warn=comb.random)
-      lowTE.random.w <- asin2p(lowTE.random.w, 1/harmonic.mean.random.w,
-                               value="lower", warn=comb.random)
-      uppTE.random.w <- asin2p(uppTE.random.w, 1/harmonic.mean.random.w,
-                               value="upper", warn=comb.random)
-    }
-  }
-  else if (sm=="PAS"){
-    TE.fixed    <- asin2p(TE.fixed, value="mean",
-                          warn=comb.fixed)
-    lowTE.fixed <- asin2p(lowTE.fixed, value="lower",
-                          warn=comb.fixed)
-    uppTE.fixed <- asin2p(uppTE.fixed, value="upper",
-                          warn=comb.fixed)
-    ##
-    TE.random    <- asin2p(TE.random, value="mean",
-                           warn=comb.random)
-    lowTE.random <- asin2p(lowTE.random, value="lower",
-                           warn=comb.random)
-    uppTE.random <- asin2p(uppTE.random, value="upper",
-                           warn=comb.random)
-    ##
-    lowTE.predict <- asin2p(lowTE.predict, value="lower",
-                            warn=prediction)
-    uppTE.predict <- asin2p(uppTE.predict, value="upper",
-                            warn=prediction)
-    ##
-    if (!is.null(x$bylab)){
-      TE.fixed.w     <- asin2p(TE.fixed.w, value="mean",
-                               warn=comb.fixed)
-      lowTE.fixed.w  <- asin2p(lowTE.fixed.w, value="lower",
-                               warn=comb.fixed)
-      uppTE.fixed.w  <- asin2p(uppTE.fixed.w, value="upper",
-                               warn=comb.fixed)
-      TE.random.w    <- asin2p(TE.random.w, value="mean",
-                               warn=comb.random)
-      lowTE.random.w <- asin2p(lowTE.random.w, value="lower",
-                               warn=comb.random)
-      uppTE.random.w <- asin2p(uppTE.random.w, value="upper",
-                               warn=comb.random)
-    }
-  }
-  else if (sm=="PLOGIT"){
-    TE.fixed    <- logit2p(TE.fixed)
-    lowTE.fixed <- logit2p(lowTE.fixed)
-    uppTE.fixed <- logit2p(uppTE.fixed)
-    ##
-    TE.random <- logit2p(TE.random)
-    lowTE.random <- logit2p(lowTE.random)
-    uppTE.random <- logit2p(uppTE.random)
-    ##
-    lowTE.predict <- logit2p(lowTE.predict)
-    uppTE.predict <- logit2p(uppTE.predict)
-    ##
-    if (!is.null(x$bylab)){
-      TE.fixed.w     <- logit2p(TE.fixed.w)
-      lowTE.fixed.w  <- logit2p(lowTE.fixed.w)
-      uppTE.fixed.w  <- logit2p(uppTE.fixed.w)
-      TE.random.w    <- logit2p(TE.random.w)
-      lowTE.random.w <- logit2p(lowTE.random.w)
-      uppTE.random.w <- logit2p(uppTE.random.w)
-    }
-  }
-  else if (sm=="ZCOR"){
-    TE.fixed    <- z2cor(TE.fixed)
-    lowTE.fixed <- z2cor(lowTE.fixed)
-    uppTE.fixed <- z2cor(uppTE.fixed)
-    ##
-    TE.random    <- z2cor(TE.random)
-    lowTE.random <- z2cor(lowTE.random)
-    uppTE.random <- z2cor(uppTE.random)
-    ##
-    lowTE.predict <- z2cor(lowTE.predict)
-    uppTE.predict <- z2cor(uppTE.predict)
-    ##
-    if (!is.null(x$bylab)){
-      TE.fixed.w     <- z2cor(TE.fixed.w)
-      lowTE.fixed.w  <- z2cor(lowTE.fixed.w)
-      uppTE.fixed.w  <- z2cor(uppTE.fixed.w)
-      TE.random.w    <- z2cor(TE.random.w)
-      lowTE.random.w <- z2cor(lowTE.random.w)
-      uppTE.random.w <- z2cor(uppTE.random.w)
+    if (by){
+      npft.w <- harmonic.mean.fixed.w
+      ##
+      TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
+                                   npft.w, warn=comb.fixed)
+      lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
+                                   npft.w, warn=comb.fixed)
+      uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
+                                   npft.w, warn=comb.fixed)
+      ##
+      TE.random.w    <- backtransf(TE.random.w, sm, "mean",
+                                   npft.w, warn=comb.random)
+      lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
+                                   npft.w, warn=comb.random)
+      uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
+                                   npft.w, warn=comb.random)
     }
   }
   
@@ -241,7 +169,7 @@ print.summary.meta <- function(x,
   ##
   k.w <- x$k.w
   ##
-  if (!is.null(x$bylab)){
+  if (by){
     TE.fixed.w     <- round(TE.fixed.w, digits)
     lowTE.fixed.w  <- round(lowTE.fixed.w, digits)
     uppTE.fixed.w  <- round(uppTE.fixed.w, digits)
@@ -259,7 +187,7 @@ print.summary.meta <- function(x,
   uppI2 <- x$I2$upper
   
   
-  if (!is.null(x$bylab))
+  if (by)
     by.levs <- ifelse(nchar(x$by.levs) > bylab.nchar,
                       paste(substring(x$by.levs, 1, bylab.nchar-4), " ...", sep=""),#
                       x$by.levs)
@@ -394,7 +322,7 @@ print.summary.meta <- function(x,
       cat("\nTest of heterogeneity:\n")
       prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
       ##
-      if (!is.null(x$bylab)){
+      if (by){
         if (comb.fixed==TRUE){
           if (is.null(x$version) || as.numeric(strsplit(x$version, "-")[[1]][1]) < 1.7){
             ##
@@ -612,7 +540,7 @@ print.summary.meta <- function(x,
             sm=sm,
             k.all=x$k.all,
             hakn=!is.null(x$hakn) && (x$hakn & comb.random),
-            tau.common=!is.null(x$bylab)&x$tau.common,
+            tau.common=by & x$tau.common,
             tau.preset=x$tau.preset,
             trimfill=inherits(x, "trimfill"),
             metaprop=inherits(x, "metaprop"),

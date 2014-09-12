@@ -12,6 +12,7 @@ metaprop <- function(event, n, studlab,
                      prediction=.settings$prediction, level.predict=.settings$level.predict,
                      method.bias=.settings$method.bias,
                      ##
+                     backtransf=.settings$backtransf,
                      title=.settings$title, complab=.settings$complab, outclab="",
                      byvar, bylab, print.byvar=.settings$print.byvar,
                      keepdata=.settings$keepdata,
@@ -161,7 +162,7 @@ metaprop <- function(event, n, studlab,
   method.ci <- c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm")[imci]
   ##
   if (any(n < 10) & sm=="PFT")
-    warning("Sample size very small (below 10) in at least one study. Accordingly, backtransformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
+    warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
   
   
   ##
@@ -445,6 +446,8 @@ metaprop <- function(event, n, studlab,
     res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

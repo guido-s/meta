@@ -2,6 +2,7 @@ summary.meta <- function(object,
                          comb.fixed=object$comb.fixed,
                          comb.random=object$comb.random,
                          prediction=object$prediction,
+                         backtransf=object$backtransf,
                          bylab=object$bylab,
                          print.byvar=object$print.byvar,
                          bystud=FALSE,
@@ -28,7 +29,7 @@ summary.meta <- function(object,
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(object$version) &&
-        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.8))
     object <- update(object, warn=FALSE)
   
   
@@ -481,6 +482,8 @@ summary.meta <- function(object,
 
   res$data <- object$data
   res$subset <- object$subset
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

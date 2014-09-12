@@ -9,6 +9,7 @@ metacor <- function(cor, n, studlab,
                     prediction=.settings$prediction, level.predict=.settings$level.predict,
                     method.bias=.settings$method.bias,
                     ##
+                    backtransf=.settings$backtransf,
                     title=.settings$title, complab=.settings$complab, outclab="",
                     byvar, bylab, print.byvar=.settings$print.byvar,
                     keepdata=.settings$keepdata
@@ -303,6 +304,8 @@ metacor <- function(cor, n, studlab,
     res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

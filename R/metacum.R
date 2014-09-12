@@ -7,7 +7,7 @@ metacum <- function(x, pooled, sortvar){
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
     x <- update(x, warn=FALSE)
   
   
@@ -281,6 +281,8 @@ metacum <- function(x, pooled, sortvar){
               TE.tau=x$TE.tau,
               n.harmonic.mean=c(n.harmonic.mean.i, NA, 1/mean(1/n)),
               call=match.call())
+  
+  res$backtransf <- x$backtransf
   
   res$version <- packageDescription("meta")$Version
   

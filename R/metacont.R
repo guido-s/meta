@@ -137,10 +137,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   
   
-  if (is.null(pooledvar))
-    pooledvar <- FALSE
-  
-  
   k.all <- length(n.e)
   ##
   if (k.all == 0)
@@ -394,6 +390,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$backtransf <- FALSE
   
   res$version <- packageDescription("meta")$Version
   

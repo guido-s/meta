@@ -38,7 +38,7 @@ forest(x, ...)
        allstudies=TRUE,
        weight,
        pscale=1,
-       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
+       ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        leftcols=NULL, rightcols=NULL,
        leftlabs=NULL, rightlabs=NULL,
        lab.e=x$label.e, lab.c=x$label.c,
@@ -74,22 +74,23 @@ forest(x, ...)
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
        ff.axis="plain",
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
-       ##
+       #
        squaresize=0.8,
-       ##
+       #
        plotwidth=unit(6, "cm"),
        colgap=unit(2, "mm"),
        colgap.left=colgap, colgap.right=colgap,
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
-       ##
+       #
        just="center",
        just.studlab="left",
-       ##
+       #
        addspace=TRUE,
-       ##
+       #
        new=TRUE,
-       ##
+       #
+       backtransf=x$backtransf,
        digits=2, ...)
 }
 
@@ -275,6 +276,12 @@ forest(x, ...)
     (i.e. a blank row) is printed above and below study results.}
   \item{new}{A logical value indicating whether a new figure should
     be printed in an existing graphics window.}
+  \item{backtransf}{A logical indicating whether results should be
+    back transformed in forest plots. If \code{backtransf=TRUE},
+    results for \code{sm="OR"} are presented as odds ratios rather
+    than log odds ratios and results for \code{sm="ZCOR"} are
+    presented as correlations rather than Fisher's z transformed
+    correlations, for example.}
   \item{digits}{Minimal number of significant digits, see
     \code{print.default}.}
  \item{\dots}{Additional graphical arguments (ignored at the moment).}
@@ -392,64 +399,64 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  studlab=paste(author, year))
 
 
-##
-## Do (symmetric) forest plot
-##
+#
+# Do (symmetric) forest plot
+#
 forest(meta1)
 
 
-##
-## Forest plot specifying argument xlim
-##
+#
+# Forest plot specifying argument xlim
+#
 forest(meta1, xlim=c(0.01, 10))
 
 
-##
-## Add prediction interval to forest plot
-##
+#
+# Add prediction interval to forest plot
+#
 forest(meta1, prediction=TRUE)
 
 
-##
-## Forest plot with 'classic' layout used in
-## R package meta, version < 1.6-0
-##
+#
+# Forest plot with 'classic' layout used in
+# R package meta, version < 1.6-0
+#
 forest(meta1, col.square="black", hetstat=FALSE)
 
 
-##
-## Change set of columns printed on left side
-## of forest plot
-##
+#
+# Change set of columns printed on left side
+# of forest plot
+#
 forest(meta1, comb.random=FALSE,
        leftcols="studlab")
 
 
-##
-## Do not print columns on right side of forest plot
-##
+#
+# Do not print columns on right side of forest plot
+#
 forest(meta1, rightcols=FALSE)
 
 
-##
-## Change study label to "Author"
-##
+#
+# Change study label to "Author"
+#
 forest(meta1, comb.random=FALSE,
        leftlabs=c("Author", NA, NA, NA, NA))
 
 
-##
-## Just give effect estimate and 95% confidence interval
-## on right side of forest plot
-##
+#
+# Just give effect estimate and 95% confidence interval
+# on right side of forest plot
+#
 forest(meta1, rightcols=c("effect", "ci"))
 
 
-##
-## 1. Change order of columns on left side
-## 2. Attach labels to columns 'event.e' and 'event.c'
-##    instead of columns 'n.e' and 'n.c'
-##
+#
+# 1. Change order of columns on left side
+# 2. Attach labels to columns 'event.e' and 'event.c'
+#    instead of columns 'n.e' and 'n.c'
+#
 forest(meta1,
        leftcols=c("studlab", "n.e", "event.e", "n.c", "event.c"),
        lab.e.attach.to.col="event.e",
@@ -457,25 +464,25 @@ forest(meta1,
 
 
 Olkin95$studlab <- paste(Olkin95$author, Olkin95$year)
-##
-## Add variables 'year' and 'author' to meta-analysis object
-##
+#
+# Add variables 'year' and 'author' to meta-analysis object
+#
 meta1$year <- addvar(meta1, Olkin95, "year")
 meta1$author <- addvar(meta1, Olkin95, "author")
 
-##
-## Specify column labels only for newly created variables
-## 'year' and 'author'
-##
+#
+# Specify column labels only for newly created variables
+# 'year' and 'author'
+#
 forest(meta1,
        leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c",
                   "author", "year"),
        leftlabs=c("Author", "Year of Publ"))
 
 
-##
-## Change some fontsizes and fontfaces
-##
+#
+# Change some fontsizes and fontfaces
+#
 forest(meta1,
        fs.study=10, ff.study="italic",
        fs.study.label=11, ff.study.label="bold",
@@ -484,54 +491,54 @@ forest(meta1,
        ff.fixed="plain", ff.hetstat="plain")
 
 
-##
-## Change some colours
-##
+#
+# Change some colours
+#
 forest(meta1,
        col.diamond="green", col.diamond.lines="red",
        col.i=c("green", "blue", "red", "orange"),
        col.square="pink", col.square.lines="black")
 
 
-##
-## Sort by weight in fixed effect model
-##
+#
+# Sort by weight in fixed effect model
+#
 forest(meta1, sortvar=1/w.fixed, comb.random=FALSE)
 
 
-##
-## Sort by decreasing weight in fixed effect model
-##
+#
+# Sort by decreasing weight in fixed effect model
+#
 forest(meta1, sortvar=rev(1/w.fixed), comb.random=FALSE)
 
 
-##
-## Sort by size of treatment effect
-##
+#
+# Sort by size of treatment effect
+#
 forest(meta1, sortvar=TE, comb.random=FALSE)
 
 
-##
-## Sort by size of treatment effect
-##
+#
+# Sort by size of treatment effect
+#
 forest(meta1, sortvar=-TE, comb.random=FALSE)
 
 
-##
-## Sort by size of treatment effect
-##
+#
+# Sort by size of treatment effect
+#
 forest(meta1, sortvar=rev(TE), comb.random=FALSE)
 
 
-##
-## Sort by decreasing year of publication
-##
+#
+# Sort by decreasing year of publication
+#
 forest(meta1, sortvar=rev(year), comb.random=FALSE)
 
 
-##
-## Sort studies by decreasing treatment effect within year subgroups
-##
+#
+# Sort studies by decreasing treatment effect within year subgroups
+#
 forest(update(meta1, byvar=ifelse(year < 1987, "Before 1987", "1987 and later"),
               print.byvar=FALSE),
        sortvar=-TE, comb.random=FALSE)

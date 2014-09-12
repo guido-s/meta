@@ -63,7 +63,7 @@ metainf(x, pooled, sortvar)
     between-study variance \eqn{\tau^2}.}
   \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}
-  \item{n.harmonic.mean}{Harmonic mean of number of observations (for backtransformation of Freeman-Tukey Double arcsine transformation).}
+  \item{n.harmonic.mean}{Harmonic mean of number of observations (for back transformation of Freeman-Tukey Double arcsine transformation).}
   \item{version}{Version of R package meta used to create object.}
 }
 \references{

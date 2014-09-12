@@ -1,27 +1,79 @@
-xlab <- function(sm, pscale=1){
-  if      (sm=="OR" ) res <- "Odds Ratio"
-  else if (sm=="RR" ) res <- "Risk Ratio"
-  else if (sm=="RD" ) res <- "Risk Difference"
-  else if (sm=="AS" ) res <- "Arcus Sinus Transformation"
+xlab <- function(sm, backtransf){
+
+  res <- NULL
+  
+  if (sm=="SMD")
+    res <- "Standardised mean difference"
   ##
-  else if (sm=="SMD") res <- "Standardised mean difference"
-  else if (sm=="WMD"|sm=="MD") res <- "Mean difference"
+  else if (sm=="WMD"|sm=="MD")
+    res <- "Mean difference"
   ##
-  else if (sm=="HR" ) res <- "Hazard Ratio"
+  else if (sm=="COR")
+    res <- "Correlation"
   ##
-  else if (sm=="IRR" ) res <- "Incidence Rate Ratio"
-  else if (sm=="IRD" ) res <- "Incidence Rate Difference"
+  else if (sm=="RD" )
+    res <- "Risk Difference"
   ##
-  else if (sm=="ZCOR") res <- "Correlation (based on Fisher's z transformation)"
-  else if (sm=="COR") res <- "Correlation"
-  ##else if (sm=="COR") res <- "Correlation (untransformed)"
+  else if (sm=="AS" )
+    res <- "Arcus Sinus Transformation"
   ##
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT") & pscale==100)
-    res <- "Proportion (in %)"
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
-    res <- "Proportion"
+  else if (sm=="IRD" )
+    res <- "Incidence Rate Difference"
   ##
-  else res <- sm
-  ##
+  else if (backtransf){
+    if (sm=="OR" )
+      res <- "Odds Ratio"
+    else if (sm=="RR" )
+      res <- "Risk Ratio"
+    ##
+    else if (sm=="HR" )
+      res <- "Hazard Ratio"
+    ##
+    else if (sm=="IRR" )
+      res <- "Incidence Rate Ratio"
+    ##
+    else if (sm=="ZCOR")
+      res <- "Correlation"
+    ##
+    else if (sm %in% c("PFT", "PAS", "PLN", "PLOGIT", "PRAW"))
+      res <- ""
+  }
+  else{
+    if (sm=="OR" )
+      res <- "Log Odds Ratio"
+    ##
+    else if (sm=="RR" )
+      res <- "Log Risk Ratio"
+    ##
+    else if (sm=="HR" )
+      res <- "Log Hazard Ratio"
+    ##
+    else if (sm=="IRR" )
+      res <- "Log Incidence Rate Ratio"
+    ##
+    else if (sm=="ZCOR")
+      res <- "Fisher's z transformed correlation"
+    ##
+    else if (sm=="PFT")
+      res <- "Freeman-Tukey Double Arcsine Transformed Proportion"
+    ##
+    else if (sm=="PAS")
+      res <- "Arcsine Transformed Proportion"
+    ##
+    else if (sm=="PLN")
+      res <- "Log Transformed Proportion"
+    ##
+    else if (sm=="PLOGIT")
+      res <- "Logit Transformed Proportion"
+    ##
+    else if (sm=="PRAW")
+      res <- "Untransformed Proportion"
+  }
+  
+  
+  if (is.null(res))
+    res <- sm
+
+  
   res
 }

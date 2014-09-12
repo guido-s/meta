@@ -1,3 +1,42 @@
+2014-09-12, version 3.8-0
+
+Functions forest.meta, funnel.default, funnel.meta, metabin, metacor,
+metacr, metagen, metainc, metaprop, print.meta, print.summary.meta,
+summary.meta, trimfill.default, trimfill.meta:
+- new argument 'backtransf' indicating whether effect measures should
+  be back transformed
+
+Functions print.meta, print.summary.meta:
+- argument 'logscale' removed (replaced by argument 'backtransf')
+
+Functions print.summary.meta, forest.meta:
+- print prediction interval for Freeman-Tukey double arcsin
+  transformation (sm="PFT", see help page on metaprop command)
+
+Function forest.meta:
+- consider prediction interval to calculate limits on x-axis (if
+  argument 'prediction=TRUE')
+
+Function bubble.metareg:
+- new argument 'regline' indicating whether regression line should be
+  added to plot
+
+Function settings.meta:
+- new argument 'print=TRUE' to print listing of all settings (function
+  call without arguments does not print all settings any longer)
+- a list with previous settings can be provided (see help page)
+
+New functions (used internally):
+- backtransf (for back transformation of effect measures)
+- is.relative.effect (check for relative effect measures)
+
+File DESCRIPTION:
+- R package grid defined as Imports instead of Depends
+
+Help pages
+- updated to reflect changes in version 3.8-0
+
+
 2014-07-29, version 3.7-1
 
 Function forest.meta:
@@ -18,7 +57,7 @@ Function metaprop:
 - new argument 'method.ci' to implement various methods to calculate
   confidence intervals for individual studies
   (default: Clopper-Pearson method which is also called 'exact'
-  binomal method)
+  binomial method)
 - list elements zval.fixed, pval.fixed, zval.random, pval.random set
   to NA
 
@@ -108,7 +147,7 @@ Function print.meta:
 New function is.installed.package (used internally)
 - replacement for function is.installed.metafor
 
-Help pages datasets amlodipine and cisapridea:
+Help pages datasets amlodipine and cisapride:
 - execute examples for Hartung-Knapp method
 
 Help pages merged for the following commands:
@@ -140,7 +179,7 @@ Function metagen:
   argument 'tau.common' is TRUE
 
 Functions metacor, metainc, and metaprop:
-- arguments title, comblab, and outclab part of R object
+- arguments title, complab, and outclab part of R object
 
 Some help pages (slightly) updated.
 
@@ -226,7 +265,7 @@ Function forest.meta:
 
 Function catmeth (used internally)
 - new argument 'tau.preset' to print information if between-study
-  variance was prespecified
+  variance was pre-specified
 
 Function print.meta and print.summary.meta
 - argument 'tau.preset' used in call to function catmeth

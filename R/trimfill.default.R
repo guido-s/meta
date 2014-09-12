@@ -6,6 +6,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
                              hakn=FALSE,
                              method.tau="DL",
                              prediction=FALSE, level.predict=level,
+                             backtransf=TRUE,
                              silent=TRUE, ...){
   
   TE <- x
@@ -207,6 +208,8 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
               k0=sum(trimfill),
               level=level, level.comb=level.comb,
               comb.fixed=comb.fixed, comb.random=comb.random)
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

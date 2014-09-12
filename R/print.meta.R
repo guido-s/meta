@@ -3,7 +3,8 @@ print.meta <- function(x,
                        comb.fixed=x$comb.fixed,
                        comb.random=x$comb.random,
                        prediction=x$prediction,
-                       details=FALSE, ma=TRUE, logscale=FALSE,
+                       details=FALSE, ma=TRUE,
+                       backtransf=x$backtransf,
                        digits=max(4, .Options$digits - 3),
                        ...
                        ){
@@ -20,6 +21,7 @@ print.meta <- function(x,
   warnarg("level", addargs, fun, cl)
   warnarg("level.comb", addargs, fun, cl)
   warnarg("level.predict", addargs, fun, cl)
+  warnarg("logscale", addargs, fun, otherarg="backtransf")
   ##
   level <- x$level
   level.comb <- x$level.comb
@@ -37,8 +39,18 @@ print.meta <- function(x,
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
     x <- update(x, warn=FALSE)
+  
+  
+  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  
+  
+  if (is.null(backtransf))
+    if (!is.null(list(...)[["logscale"]]))
+      backtransf <- !list(...)[["logscale"]]
+    else
+      backtransf <- TRUE
   
   
   k.all <- length(x$TE)
@@ -77,12 +89,6 @@ print.meta <- function(x,
       warning("level.predict set to 0.95")
     level.predict <- 0.95
   }
-
-
-  ## before3.7 <- !(!is.null(x$version) &&
-  ##                as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7)
-  ## ##
-  ## nooldmetaprop <- !(inherits(x, "metaprop") & before3.7)
   
   
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
@@ -91,16 +97,17 @@ print.meta <- function(x,
   sm <- x$sm
   
   
-  if (sm=="ZCOR")
-    sm.lab <- "COR"
-  else if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT"))
-    sm.lab <- "proportion"
-  else if (!logscale & sm == "PLN")
-    sm.lab <- "proportion"
-  else if (logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR"))
-    sm.lab <- paste("log", sm, sep="")
-  else
-    sm.lab <- sm
+  sm.lab <- sm
+  ##
+  if (backtransf){
+    if (sm=="ZCOR")
+      sm.lab <- "COR"
+    if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
+      sm.lab <- "proportion"
+  }
+  else 
+    if (is.relative.effect(sm))
+      sm.lab <- paste("log", sm, sep="")
   
   
   crtitle(x)
@@ -152,88 +159,61 @@ print.meta <- function(x,
                             allstudies=x$allstudies,
                             MH.exact=x$MH.exact,
                             warn=FALSE, level.comb=level.comb)),
-            digits=digits, header=FALSE)
+            digits=digits, header=FALSE, backtransf=backtransf)
     else
       print(summary(x),
-            digits=digits, header=FALSE, logscale=logscale)
+            digits=digits, header=FALSE, backtransf=backtransf)
   }
   else{
-    if (inherits(x, "metainf")|inherits(x, "metacum")){
-      TE    <- x$TE
-      lowTE <- x$lower
-      uppTE <- x$upper
-    }
-    else{
-      tsum <- summary(x, warn=FALSE)
+    TE <- x$TE
+    seTE <- x$seTE
+    lowTE <- x$lower
+    uppTE <- x$upper
+    ##
+    if (inherits(x, "metaprop") & !backtransf){
+      ciTE <- ci(TE, seTE, level=level)
+      lowTE <- ciTE$lower
+      uppTE <- ciTE$upper
       ##
-      TE    <- tsum$study$TE
-      lowTE <- tsum$study$lower
-      uppTE <- tsum$study$upper
+      x$method.ci <- "NAsm"
     }
     ##
-    if (!logscale & (sm == "RR" | sm == "OR" | sm == "HR" | sm == "IRR")){
-      TE    <- exp(TE)
-      lowTE <- exp(lowTE)
-      uppTE <- exp(uppTE)
-    }
-    ##
-    if (sm=="ZCOR"){
-      TE    <- z2cor(TE)
-      lowTE <- z2cor(lowTE)
-      uppTE <- z2cor(uppTE)
-    }
-    ##
-    if (!inherits(x, "metaprop") & !logscale & sm=="PLN"){
-      TE    <- exp(TE)
-      lowTE <- exp(lowTE)
-      uppTE <- exp(uppTE)
-    }
-    ##
-    if (!inherits(x, "metaprop") & sm=="PLOGIT"){
-      TE <- logit2p(TE)
-      lowTE <- logit2p(lowTE)
-      uppTE <- logit2p(uppTE)
-    }
-    ##
-    if (!inherits(x, "metaprop") & sm %in% c("PFT", "PAS")){
-      if (sm=="PAS"){
-        TE    <- asin2p(TE, value="mean")
-        lowTE <- asin2p(lowTE, value="lower")
-        uppTE <- asin2p(uppTE, value="upper")
-      }
+    if (backtransf){
       ##
-      if (sm=="PFT"){
-        if (inherits(x, "metainf")|inherits(x, "metacum")){
-          TE    <- asin2p(TE, x$n.harmonic.mean, value="mean")
-          lowTE <- asin2p(lowTE, x$n.harmonic.mean, value="lower")
-          uppTE <- asin2p(uppTE, x$n.harmonic.mean, value="upper")
-        }
-        else {
-          TE    <- asin2p(TE, x$n, value="mean")
-          lowTE <- asin2p(lowTE, x$n, value="lower")
-          uppTE <- asin2p(uppTE, x$n, value="upper")
-        }
+      ## Freeman-Tukey Arcsin transformation (sm="PFT")
+      ##
+      if (metainf.metacum)
+        npft <- x$n.harmonic.mean
+      else
+        npft <- x$n
+      ##
+      if (inherits(x, "metaprop"))
+        TE <- x$event/x$n
+      else{
+        TE <- backtransf(TE, sm, "mean", npft)
+        lowTE <- backtransf(lowTE, sm, "lower", npft)
+        uppTE <- backtransf(uppTE, sm, "upper", npft)
       }
     }
-    ##
-    if (inherits(x, "metaprop"))
-      TE <- x$event / x$n
     ##
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
+    
     
     if (comb.fixed)
       if (sum(x$w.fixed)>0)
         w.fixed.p <- 100*round(x$w.fixed/sum(x$w.fixed, na.rm=TRUE), 4)
       else w.fixed.p <- x$w.fixed
     
+    
     if (comb.random)
       if (sum(x$w.random)>0)
         w.random.p <- 100*round(x$w.random/sum(x$w.random, na.rm=TRUE), 4)
       else w.random.p <- x$w.random
     
-    if (inherits(x, "metainf")|inherits(x, "metacum")){
+    
+    if (metainf.metacum){
       is.random <- x$pooled=="random"
       ##
       sel1 <- is.na(x$I2)
@@ -304,9 +284,7 @@ print.meta <- function(x,
             method.ci.details <- "Simple approximation confidence interval:\n\n"
           else if (x$method.ci=="SACC")
             method.ci.details <- "Simple approximation confidence interval with continuity correction:\n\n"
-          ##
-          tsum$method.ci <- NULL
-
+          
           if (x$method.ci!="NAsm"){
             cat(method.ci.details)
             dimnames(res) <- list("", c(sm.lab, ci.lab,
@@ -329,12 +307,12 @@ print.meta <- function(x,
     }
     
     
-    if (ma&!(inherits(x, "metainf")|inherits(x, "metacum"))){
+    if (ma & !metainf.metacum){
       cat("\n")
-      print(tsum, digits=digits,
+      print(summary(x, warn=FALSE), digits=digits,
             comb.fixed=comb.fixed, comb.random=comb.random,
             prediction=prediction,
-            header=FALSE, logscale=logscale)
+            header=FALSE, backtransf=backtransf)
     }
     
   }

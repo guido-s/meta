@@ -16,6 +16,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     prediction=.settings$prediction, level.predict=.settings$level.predict,
                     method.bias=ifelse(sm=="OR", "score", .settings$method.bias),
                     ##
+                    backtransf=.settings$backtransf,
                     title=.settings$title, complab=.settings$complab, outclab="",
                     label.e=.settings$label.e, label.c=.settings$label.c,
                     label.left=.settings$label.left, label.right=.settings$label.right,
@@ -787,6 +788,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$print.byvar <- print.byvar
   
   res$print.CMH <- print.CMH
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

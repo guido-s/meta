@@ -20,6 +20,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=.settings$method.bias,
         n.e=NULL, n.c=NULL,
+        backtransf=.settings$backtransf,
         title=.settings$title, complab=.settings$complab, outclab="",
         label.e=.settings$label.e, label.c=.settings$label.c,
         label.left=.settings$label.left, label.right=.settings$label.right,
@@ -67,6 +68,12 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}}
+  \item{backtransf}{A logical indicating whether results should be
+    back transformed in printouts and plots. If \code{backtransf=TRUE}
+    (default), results for \code{sm="OR"} are printed as odds ratios
+    rather than log odds ratios and results for \code{sm="ZCOR"} are
+    printed as correlations rather than Fisher's z transformed
+    correlations, for example.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -234,37 +241,37 @@ data(Fleiss93)
 meta1 <- metabin(event.e, n.e, event.c, n.c, data=Fleiss93, sm="RR", method="I")
 meta1
 
-##
-## Identical results by using the following commands:
-##
+#
+# Identical results by using the following commands:
+#
 meta1
 metagen(meta1$TE, meta1$seTE, sm="RR")
 
 forest(metagen(meta1$TE, meta1$seTE, sm="RR"))
 
 
-##
-## Meta-analysis with prespecified between-study variance
-##
+#
+# Meta-analysis with prespecified between-study variance
+#
 summary(metagen(meta1$TE, meta1$seTE, sm="RR", tau.preset=sqrt(0.1)))
 
 
-##
-## Meta-analysis of survival data:
-##
+#
+# Meta-analysis of survival data:
+#
 logHR <- log(c(0.95, 1.5))
 selogHR <- c(0.25, 0.35)
 
 metagen(logHR, selogHR, sm="HR")
 
 
-##
-## Paule-Mandel method to estimate between-study variance
-## Data from Paule & Mandel (1982)
-##
+#
+# Paule-Mandel method to estimate between-study variance
+# Data from Paule & Mandel (1982)
+#
 average <- c(27.044, 26.022, 26.340, 26.787, 26.796)
 variance <- c(0.003, 0.076, 0.464, 0.003, 0.014)
-##
+#
 summary(metagen(average, sqrt(variance), sm="MD", method.tau="PM"))
 }
 

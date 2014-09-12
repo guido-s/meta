@@ -22,6 +22,7 @@ metaprop(event, n, studlab,
          tau.common=.settings$tau.common,
          prediction=.settings$prediction, level.predict=.settings$level.predict,
          method.bias=.settings$method.bias,
+         backtransf=.settings$backtransf,
          title=.settings$title, complab=.settings$complab, outclab="",
          byvar, bylab, print.byvar=.settings$print.byvar,
          keepdata=.settings$keepdata,
@@ -75,6 +76,12 @@ metaprop(event, n, studlab,
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}.}
+  \item{backtransf}{A logical indicating whether results for
+    transformed proportions (argument \code{sm!="PRAW"}) should be
+    back transformed in printouts and plots. If TRUE (default),
+    results will be presented as proportions; otherwise transformed
+    proportions will be shown. See Details for presentation of
+    confidence intervals.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -119,7 +126,6 @@ metaprop(event, n, studlab,
   individual study results (see Agresti & Coull 1998; Newcombe 1988):
 
   \itemize{
-
   \item Clopper-Pearson interval also called 'exact' binomial interval
     (\code{method.ci="CP"}, default)
   
@@ -142,7 +148,17 @@ metaprop(event, n, studlab,
   summary measure, i.e. \code{method.ci="NAsm"}, the same confidence
   interval is calculated for any summary measure (argument \code{sm})
   as only number of events and observations are used in the
-  calculation disregarding the chosen summary measure.
+  calculation disregarding the chosen summary measure. Results will be
+  presented for transformed proportions if argument
+  \code{backtransf=FALSE} in the \code{\link{print.meta}},
+  \code{\link{print.summary.meta}}, or \code{\link{forest.meta}}
+  function. In this case, argument \code{method.ci="NAsm"} is used,
+  i.e. confidence intervals based on the normal approximation based on
+  the summary measure.
+  
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{settings.meta}} function.
   
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -307,45 +323,93 @@ metaprop(event, n, studlab,
 \seealso{\code{\link{update.meta}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
-metaprop(4:1, c(10, 20, 30, 40))
-metaprop(4:1, c(10, 20, 30, 40), sm="PAS")
-metaprop(4:1, c(10, 20, 30, 40), sm="PRAW")
-metaprop(4:1, c(10, 20, 30, 40), sm="PLN")
-metaprop(4:1, c(10, 20, 30, 40), sm="PFT")
+#
+# Apply various meta-analysis methods to estimate proportions
+#
+m1 <- metaprop(4:1, c(10, 20, 30, 40))
+m2 <- update(m1, sm="PAS")
+m3 <- update(m1, sm="PRAW")
+m4 <- update(m1, sm="PLN")
+m5 <- update(m1, sm="PFT")
+#
+m1
+m2
+m3
+m4
+m5
+#
+forest(m1)
+# forest(m2)
+# forest(m3)
+# forest(m3, pscale=100)
+# forest(m4)
+# forest(m5)
 
-forest(metaprop(4:1, c(10, 20, 30, 40)))
+
+#
+# Do not back transform results, e.g. print logit transformed
+# proportions if sm="PLOGIT"
+#
+oldset <- settings.meta(backtransf=FALSE)
+#
+m6  <- metaprop(4:1, c(10, 20, 30, 40))
+m7  <- update(m6, sm="PAS")
+m8  <- update(m6, sm="PRAW")
+m9  <- update(m6, sm="PLN")
+m10 <- update(m6, sm="PFT")
+#
+forest(m6)
+# forest(m7)
+# forest(m8)
+# forest(m8, pscale=100)
+# forest(m9)
+# forest(m10)
+#
+# Reset settings
+#
+settings.meta(oldset)
 
 
+#
+# Examples with zero events
+#
 m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4))
 m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr=0.1)
-
+#
 summary(m1)
 summary(m2)
+#
+# forest(m1)
+# forest(m2)
 
-forest(m1)
-forest(m2)
 
-## Example from Miller (1978):
+#
+# Example from Miller (1978):
+#
 death <- c(3, 6, 10, 1)
 animals <- c(11, 17, 21, 6)
-##
+#
 m3 <- metaprop(death, animals, sm="PFT")
 forest(m3)
 
-## Data examples from Newcombe (1998)
-##
+
+#
+# Data examples from Newcombe (1998)
+# - apply various methods to estimate confidence intervals for
+#   individual studies
+#
 event <- c(81, 15, 0, 1)
 n <- c(263, 148, 20, 29)
-##
+#
 m1 <- metaprop(event, n, sm="PLOGIT", method.ci="SA")
 m2 <- update(m1, method.ci="SACC")
 m3 <- update(m1, method.ci="WS")
 m4 <- update(m1, method.ci="WSCC")
 m5 <- update(m1, method.ci="CP")
-##
+#
 lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower, m4$lower, NA, m5$lower), 4)
 upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper, m4$upper, NA, m5$upper), 4)
-##
+#
 tab1 <- data.frame(
   scen1=meta:::p.ci(lower[,1], upper[,1]),
   scen2=meta:::p.ci(lower[,2], upper[,2]),
@@ -358,18 +422,42 @@ row.names(tab1) <- c("Simple", "- SA", "- SACC",
                      "Score", "- WS", "- WSCC",
                      "Binomial", "- CP")
 tab1[is.na(tab1)] <- ""
-##
-## Newcombe (1998), Table I, methods 1-5:
-##
+#
+# Newcombe (1998), Table I, methods 1-5:
+#
 tab1
-
-## Same confidence interval, i.e. unaffected by choice of summary measure
-##
+#
+# Same confidence interval, i.e. unaffected by choice of summary measure
+#
 print(metaprop(event, n, sm="PLOGIT", method.ci="WS"), ma=FALSE)
 print(metaprop(event, n, sm="PLN", method.ci="WS"), ma=FALSE)
 print(metaprop(event, n, sm="PFT", method.ci="WS"), ma=FALSE)
 print(metaprop(event, n, sm="PAS", method.ci="WS"), ma=FALSE)
 print(metaprop(event, n, sm="PRAW", method.ci="WS"), ma=FALSE)
+#
+# Different confidence intervals as argument sm="NAsm"
+#
+print(metaprop(event, n, sm="PLOGIT", method.ci="NAsm"), ma=FALSE)
+print(metaprop(event, n, sm="PLN", method.ci="NAsm"), ma=FALSE)
+print(metaprop(event, n, sm="PFT", method.ci="NAsm"), ma=FALSE)
+print(metaprop(event, n, sm="PAS", method.ci="NAsm"), ma=FALSE)
+print(metaprop(event, n, sm="PRAW", method.ci="NAsm"), ma=FALSE)
+#
+# Different confidence intervals as argument backtransf=FALSE.
+# Accordingly, method.ci="NAsm" used internally.
+#
+print(metaprop(event, n, sm="PLOGIT", method.ci="WS"), ma=FALSE, backtransf=FALSE)
+print(metaprop(event, n, sm="PLN", method.ci="WS"), ma=FALSE, backtransf=FALSE)
+print(metaprop(event, n, sm="PFT", method.ci="WS"), ma=FALSE, backtransf=FALSE)
+print(metaprop(event, n, sm="PAS", method.ci="WS"), ma=FALSE, backtransf=FALSE)
+print(metaprop(event, n, sm="PRAW", method.ci="WS"), ma=FALSE, backtransf=FALSE)
+#
+# Same results (printed on original and log scale, respectively)
+#
+print(metaprop(event, n, sm="PLN", method.ci="NAsm"), ma=FALSE)
+print(metaprop(event, n, sm="PLN"), ma=FALSE, backtransf=FALSE)
+# Results for first study (on log scale)
+round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 }
 
 \keyword{htest}

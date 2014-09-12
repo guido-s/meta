@@ -5,6 +5,7 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                           hakn=x$hakn,
                           method.tau=x$method.tau,
                           prediction=x$prediction, level.predict=x$level.predict,
+                          backtransf=x$backtransf,
                           silent=TRUE, ...){
   
   if (!inherits(x, "meta"))
@@ -18,7 +19,7 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
     x <- update(x, warn=FALSE)
   
   
@@ -372,6 +373,8 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
               cor=cor,
               class.x=class(x)[1]
               )
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

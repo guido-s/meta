@@ -17,7 +17,7 @@
         comb.fixed=x$comb.fixed,
         comb.random=x$comb.random,
         prediction=x$prediction,
-        details=FALSE, ma=TRUE, logscale=FALSE,
+        details=FALSE, ma=TRUE, backtransf=x$backtransf,
         digits=max(4, .Options$digits - 3), ...)
 
 \method{print}{metabias}(x, ...)
@@ -25,6 +25,7 @@
 \method{summary}{meta}(object,
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
         prediction=object$prediction,
+        backtransf=object$backtransf,
         bylab=object$bylab, print.byvar=object$print.byvar,
         bystud=FALSE, print.CMH=object$print.CMH,
         warn=object$warn, ...)
@@ -33,7 +34,7 @@
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
         print.byvar=x$print.byvar, print.CMH=x$print.CMH,
-        header=TRUE, logscale=FALSE,
+        header=TRUE, backtransf=x$backtransf,
         bylab.nchar=35, ...)
 
 cilayout(bracket="[", separator="; ")
@@ -61,9 +62,12 @@ cilayout(bracket="[", separator="; ")
     individual studies should be printed.}
   \item{ma}{A logical indicating whether the summary results of the
     meta-analysis should be printed.}
-  \item{logscale}{A logical indicating whether results for summary
-    measures 'RR', 'OR', 'HR', or 'PLN' will be printed on logarithmic
-    scale.}
+  \item{backtransf}{A logical indicating whether printed results
+    should be back transformed. If \code{backtransf=TRUE}, results for
+    \code{sm="OR"} are printed as odds ratios rather than log odds
+    ratios and results for \code{sm="ZCOR"} are printed as
+    correlations rather than Fisher's z transformed correlations, for
+    example.}
   \item{bylab.nchar}{A numeric specifying the number of characters to
     print from label for the grouping variable.}
   \item{bystud}{A logical indicating whether results of individual

@@ -6,6 +6,7 @@ bubble.metareg <- function(x,
                            lty=1, lwd=1, col.line="black",
                            studlab=FALSE, cex.studlab=0.8,
                            pos=2, offset=0.5,
+                           regline=TRUE,
                            axes=TRUE, box=TRUE, ...){
   
   
@@ -89,7 +90,7 @@ bubble.metareg <- function(x,
   ##
   if (missing(ylab)){
     ylab.detail <- tolower(xlab(sm))
-    if (sm=="RR"| sm=="OR" | sm=="HR" | sm=="IRR")
+    if (is.relative.effect(sm))
       ylab.detail <- paste("log", ylab.detail)
     ##
     ylab <- paste("Treatment effect (",
@@ -141,9 +142,10 @@ bubble.metareg <- function(x,
       ##
       ## Add regression line
       ##
-      lines(c(0, 1),
-            c(alpha, alpha + coef(x)[i]),
-            lty=lty, lwd=lwd, col=col.line)
+      if (regline)
+        lines(c(0, 1),
+              c(alpha, alpha + coef(x)[i]),
+              lty=lty, lwd=lwd, col=col.line)
       ##
       points(xs.i, ys.i, cex=cexs.i, pch=pch, col=col, bg=bg)
       ##
@@ -169,8 +171,9 @@ bubble.metareg <- function(x,
     ##
     ## Add regression line
     ##
-    abline(coef(x)[1], coef(x)[2],
-           lty=lty, lwd=lwd, col=col.line)
+    if (regline)
+      abline(coef(x)[1], coef(x)[2],
+             lty=lty, lwd=lwd, col=col.line)
     ##
     points(xs, ys, cex=cexs, pch=pch, col=col, bg=bg)
     ##

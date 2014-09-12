@@ -19,6 +19,7 @@ trimfill(x, ...)
          comb.fixed=FALSE, comb.random=TRUE,
          hakn=FALSE, method.tau="DL",
          prediction=FALSE, level.predict=level,
+         backtransf=TRUE,
          silent=TRUE, ...)
 
 \method{trimfill}{meta}(x, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
@@ -26,6 +27,7 @@ trimfill(x, ...)
          comb.fixed=FALSE, comb.random=TRUE,
          hakn=x$hakn, method.tau=x$method.tau,
          prediction=x$prediction, level.predict=x$level.predict,
+         backtransf=x$backtransf,
          silent=TRUE, ...)
 }
 
@@ -71,6 +73,12 @@ trimfill(x, ...)
     should be printed.}
   \item{level.predict}{The level used to calculate prediction interval
     for a new study.}
+  \item{backtransf}{A logical indicating whether results should be
+    back transformed in printouts and plots. If
+    \code{backtransf=TRUE}, results for \code{sm="OR"} are printed as
+    odds ratios rather than log odds ratios and results for
+    \code{sm="ZCOR"} are printed as correlations rather than Fisher's
+    z transformed correlations, for example.}
   \item{silent}{A logical indicating whether basic information on
     iterations shown.}
   \item{\dots}{other arguments}
@@ -206,6 +214,12 @@ summary(tf1)
 funnel(tf1)
 funnel(tf1, pch=ifelse(tf1$trimfill, 1, 16),
        level=0.9, comb.random=FALSE)
+#
+# Use log odds ratios on x-axis
+#
+funnel(tf1, backtransf=FALSE)
+funnel(tf1, pch=ifelse(tf1$trimfill, 1, 16),
+       level=0.9, comb.random=FALSE, backtransf=FALSE)
 
 trimfill(meta1$TE, meta1$seTE, sm=meta1$sm)
 }

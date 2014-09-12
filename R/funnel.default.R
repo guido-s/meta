@@ -9,9 +9,10 @@ funnel.default <- function(x, y,
                            col.fixed="black", col.random="black",
                            log="", yaxis="se", sm=NULL,
                            contour.levels=NULL, col.contour,
-                           ref=ifelse(sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
+                           ref=ifelse(backtransf & is.relative.effect(sm), 1, 0),
                            level=NULL,
                            studlab=FALSE, cex.studlab=0.8,
+                           backtransf=TRUE,
                            ...){
   
   TE <- x
@@ -20,7 +21,7 @@ funnel.default <- function(x, y,
   TE.random <- metagen(TE, seTE)$TE.random
   if (is.null(sm)) sm <- "other"
   if (missing(ref))
-    ref <- ifelse(sm %in% c("RR", "OR", "HR", "IRR"), 1, 0)
+    ref <- ifelse(backtransf & is.relative.effect(sm), 1, 0)
   if (is.logical(studlab) && studlab)
     studlab <- seq(along=TE)
   
@@ -58,11 +59,11 @@ funnel.default <- function(x, y,
     ##
     ciTE <- ci(TE.fixed, seTE.seq, level)
     ##
-    TE.xlim <- 1.025*c(min(c(TE, ciTE$lower), na.rm=TRUE),
-                       max(c(TE, ciTE$upper), na.rm=TRUE))
+    TE.xlim <- c(min(c(TE, ciTE$lower), na.rm=TRUE)/1.025,
+                 1.025*max(c(TE, ciTE$upper), na.rm=TRUE))
   }
   ##
-  if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
+  if (backtransf & is.relative.effect(sm)){
     TE <- exp(TE)
     TE.fixed <- exp(TE.fixed)
     TE.random <- exp(TE.random)
@@ -88,19 +89,13 @@ funnel.default <- function(x, y,
   ##
   ## x-axis: labels / xlim
   ##
-  if (is.null(xlab)){
-    if      (sm=="OR" ) xlab <- "Odds Ratio"
-    else if (sm=="RD" ) xlab <- "Risk Difference"
-    else if (sm=="RR" ) xlab <- "Relative Risk"
-    else if (sm=="SMD") xlab <- "Standardised mean difference"
-    else if (sm=="MD" ) xlab <- "Mean difference"
-    else if (sm=="HR" ) xlab <- "Hazard Ratio"
-    else if (sm=="IRR") xlab <- "Incidence Rate Ratio"
-    else if (sm=="IRD") xlab <- "Incidence Rate Difference"
-    else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
-    else if (sm=="proportion" ) xlab <- "Proportion"
-    else xlab <- sm
-  }
+  if (is.null(xlab))
+    if (is.relative.effect(sm))
+      xlab <- xlab(sm, backtransf)
+    else if (sm %in% c("PFT", "PAS", "PLN", "PLOGIT"))
+      xlab <- xlab(sm, FALSE)
+    else if (sm == "PRAW")
+      xlab <- "Proportion"     
   ##
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
@@ -142,7 +137,7 @@ funnel.default <- function(x, y,
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out=500)
     ##
-    if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0)
+    if (is.relative.effect(sm))
       ref <- log(ref)
     ##
     j <- 0
@@ -153,7 +148,7 @@ funnel.default <- function(x, y,
       ##
       ciContour <- ci(ref, seTE.cont, i)
       ##
-      if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
+      if (is.relative.effect(sm)){
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)

@@ -25,6 +25,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=.settings$method.bias,
         n.e=NULL, n.c=NULL,
+        backtransf=.settings$backtransf,
         title=.settings$title, complab=.settings$complab, outclab="",
         label.e=.settings$label.e, label.c=.settings$label.c,
         label.left=.settings$label.left, label.right=.settings$label.right,
@@ -86,6 +87,11 @@ metainc(event.e, time.e, event.c, time.c, studlab,
     \code{"rank"}, can be abbreviated. See function \code{\link{metabias}}}
   \item{n.e}{Number of observations in experimental group (optional).}
   \item{n.c}{Number of observations in control group (optional).}
+  \item{backtransf}{A logical indicating whether results for incidence
+    rate ratio (\code{sm="IRR"}) should be back transformed in
+    printouts and plots. If TRUE (default), results will be presented
+    as incidence rate ratios; otherwise log incidence rate ratios will
+    be shown.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -115,6 +121,10 @@ metainc(event.e, time.e, event.c, time.c, studlab,
 
   For studies with a zero cell count, by default, 0.5 is added to
   all cell frequencies of these studies (argument \code{incr}).
+  
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{settings.meta}} function.
   
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -299,26 +309,26 @@ m3 <- metainc(d.smokers, py.smokers,
 print(m3, digits=2)
 
 
-## Redo Cochran meta-analysis with inflated standard errors
-##
-## All cause mortality
-##
+# Redo Cochran meta-analysis with inflated standard errors
+#
+# All cause mortality
+#
 TEa <- log( (smoking$d.smokers/smoking$py.smokers) /
             (smoking$d.nonsmokers/smoking$py.nonsmokers)
           )
 seTEa <- sqrt(1/smoking$d.smokers +
               1/smoking$d.nonsmokers + 2.5/smoking$d.nonsmokers)
-##
+#
 metagen(TEa, seTEa, sm="IRR", studlab=smoking$study)
 
-## Lung cancer mortality
-##
+# Lung cancer mortality
+#
 TEl <- log( (lungcancer$d.smokers/lungcancer$py.smokers) /
             (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers)
           )
 seTEl <- sqrt(1/lungcancer$d.smokers +
               1/lungcancer$d.nonsmokers + 2.25/lungcancer$d.nonsmokers)
-##
+#
 metagen(TEl, seTEl, sm="IRR", studlab=lungcancer$study)
 }
 \keyword{htest}

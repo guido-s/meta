@@ -92,6 +92,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "prediction", "level.predict",
               "method.bias", "title", "complab",
               "print.byvar", "keepdata", "warn",
+              "backtransf",
               "smbin", "smcont", "smcor", "sminc", "smprop",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
@@ -117,6 +118,7 @@ setOption("complab", "")
 setOption("print.byvar", TRUE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
+setOption("backtransf", TRUE)
 ##
 ## Default summary measure
 ##
@@ -142,7 +144,7 @@ setOption("print.CMH", FALSE)
 ##
 ## Additional setting for R function metacont
 ##
-setOption("polledvar", FALSE)
+setOption("pooledvar", FALSE)
 ##
 ## Additional setting for R function metaprop
 ##

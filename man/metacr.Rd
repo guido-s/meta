@@ -19,6 +19,7 @@ metacr(x, comp.no=1, outcome.no=1,
        tau.common=FALSE,
        prediction=.settings$prediction, level.predict=.settings$level.predict,
        swap.events, logscale,
+       backtransf=.settings$backtransf,
        title, complab, outclab, warn=FALSE)
 }
 
@@ -59,6 +60,12 @@ metacr(x, comp.no=1, outcome.no=1,
     non-events should be interchanged.}
   \item{logscale}{A logical indicating whether effect estimates are
     entered on log-scale.}
+  \item{backtransf}{A logical indicating whether results should be
+    back transformed in printouts and plots. If \code{backtransf=TRUE}
+    (default), results for \code{sm="OR"} are printed as odds ratios
+    rather than log odds ratios and results for \code{sm="ZCOR"} are
+    printed as correlations rather than Fisher's z transformed
+    correlations, for example.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -99,25 +106,25 @@ metacr(x, comp.no=1, outcome.no=1,
 \seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{read.rm5}}}
 
 \examples{
-## Locate export data file "Fleiss93_CR.csv"
-## in sub-directory of package "meta"
-##
+# Locate export data file "Fleiss93_CR.csv"
+# in sub-directory of package "meta"
+#
 filename <- system.file("data/Fleiss93_CR.csv.gz", package = "meta")
-##
+#
 Fleiss93_CR <- read.rm5(filename)
 
-## Same result as R command example(Fleiss93):
-##
+# Same result as R command example(Fleiss93):
+#
 metacr(Fleiss93_CR)
 
-## Same result as R command example(Fleiss93cont):
-##
+# Same result as R command example(Fleiss93cont):
+#
 metacr(Fleiss93_CR, 1, 2)
 
 forest(metacr(Fleiss93_CR, 1, 2))
 
-## Change summary measure to RR
-##
+# Change summary measure to RR
+#
 m1 <- metacr(Fleiss93_CR)
 update(m1, sm="RR")
 

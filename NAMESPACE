@@ -20,7 +20,8 @@ export(ci, settings.meta, forest, forest.meta,
 # is.installed.package, crtitle, catmeth,
 # kentau, hypergeometric, linregcore, setOption, warnarg, format.tau,
 # isquared, calcH, paulemandel, estimate.missing,
-# ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic
+# ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
+# is.relative.effect, backtransf,
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)
@@ -43,3 +44,22 @@ S3method(summary, meta)
 S3method(trimfill, default)
 S3method(trimfill, meta)
 S3method(update, meta)
+
+importFrom(grid, arrow)
+importFrom(grid, gpar)
+importFrom(grid, grid.draw)
+importFrom(grid, grid.layout)
+importFrom(grid, grid.lines)
+importFrom(grid, grid.newpage)
+importFrom(grid, grid.polygon)
+importFrom(grid, grid.rect)
+importFrom(grid, grid.text)
+importFrom(grid, grid.xaxis)
+importFrom(grid, textGrob)
+importFrom(grid, popViewport)
+importFrom(grid, pushViewport)
+importFrom(grid, viewport)
+importFrom(grid, unit)
+importFrom(grid, unit.c)
+importFrom(grid, convertX)
+

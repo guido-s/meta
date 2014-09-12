@@ -10,9 +10,10 @@ funnel.meta <- function(x,
                         col.fixed="black", col.random="black",
                         log="", yaxis="se",
                         contour.levels=NULL, col.contour,
-                        ref=ifelse(x$sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
+                        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         level=x$level,
                         studlab=FALSE, cex.studlab=0.8,
+                        backtransf=x$backtransf,
                         ...){
   
   if (!inherits(x, "meta"))
@@ -28,7 +29,7 @@ funnel.meta <- function(x,
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
     x <- update(x, warn=FALSE)
   
   
@@ -86,11 +87,11 @@ funnel.meta <- function(x,
     ##
     ciTE <- ci(TE.fixed, seTE.seq, level)
     ##
-    TE.xlim <- 1.025*c(min(c(TE, ciTE$lower), na.rm=TRUE),
-                       max(c(TE, ciTE$upper), na.rm=TRUE))
+    TE.xlim <- c(min(c(TE, ciTE$lower), na.rm=TRUE)/1.025,
+                 1.025*max(c(TE, ciTE$upper), na.rm=TRUE))
   }
   ##
-  if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
+  if (backtransf & is.relative.effect(sm)){
     TE <- exp(TE)
     TE.fixed <- exp(TE.fixed)
     TE.random <- exp(TE.random)
@@ -127,25 +128,13 @@ funnel.meta <- function(x,
   ##
   ## x-axis: labels / xlim
   ##
-  if (is.null(xlab)){
-    if      (sm=="OR" ) xlab <- "Odds Ratio"
-    else if (sm=="RD" ) xlab <- "Risk Difference"
-    else if (sm=="RR" ) xlab <- "Relative Risk"
-    else if (sm=="SMD") xlab <- "Standardised mean difference"
-    else if (sm=="MD" ) xlab <- "Mean difference"
-    else if (sm=="HR" ) xlab <- "Hazard Ratio"
-    else if (sm=="IRR") xlab <- "Incidence Rate Ratio"
-    else if (sm=="IRD") xlab <- "Incidence Rate Difference"
-    else if (sm=="AS" ) xlab <- "Arcus Sinus Transformation"
-    else if (sm=="proportion" ){
-      if (inherits(x, "metaprop"))
-        if (!x$freeman.tukey)
-          xlab <- "Proportion (arcsine transformation)"
-        else
-          xlab <- "Proportion (Freeman-Tukey double arcsine transformation)"
-    }
-    else xlab <- sm
-  }
+  if (is.null(xlab))
+    if (is.relative.effect(sm))
+      xlab <- xlab(sm, backtransf)
+    else if (sm == "PRAW")
+      xlab <- "Proportion"
+    else
+      xlab <- xlab(sm, FALSE)
   ##
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
@@ -159,10 +148,10 @@ funnel.meta <- function(x,
   ##
   ## y-axis: labels / ylim
   ##
-  if (yaxis=="se"   & is.null(ylab)) ylab <- "Standard error"
-  if (yaxis=="size" & is.null(ylab)) ylab <- "Study size"
+  if (yaxis=="se"     & is.null(ylab)) ylab <- "Standard error"
+  if (yaxis=="size"   & is.null(ylab)) ylab <- "Study size"
   if (yaxis=="invvar" & is.null(ylab)) ylab <- "Inverse of variance"
-  if (yaxis=="invse" & is.null(ylab)) ylab <- "Inverse of standard error"
+  if (yaxis=="invse"  & is.null(ylab)) ylab <- "Inverse of standard error"
   ##
   if (is.null(ylim) & yaxis=="se") ylim <- c(max(weight, na.rm=TRUE), 0)
   if (is.null(ylim)              ) ylim <- range(weight, na.rm=TRUE)
@@ -187,7 +176,7 @@ funnel.meta <- function(x,
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out=500)
     ##
-    if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0)
+    if (is.relative.effect(sm))
       ref <- log(ref)
     ##
     j <- 0
@@ -198,7 +187,7 @@ funnel.meta <- function(x,
       ##
       ciContour <- ci(ref, seTE.cont, i)
       ##
-      if (match(sm, c("OR", "RR", "HR", "IRR"), nomatch=0)>0){
+      if (is.relative.effect(sm)){
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)

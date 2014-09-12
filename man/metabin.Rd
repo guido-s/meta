@@ -29,6 +29,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         tau.common=.settings$tau.common,
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=ifelse(sm=="OR", "score", .settings$method.bias),
+        backtransf=.settings$backtransf,
         title=.settings$title, complab=.settings$complab, outclab="",
         label.e=.settings$label.e, label.c=.settings$label.c,
         label.left=.settings$label.left, label.right=.settings$label.right,
@@ -104,6 +105,11 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
     \code{"peters"}, can be abbreviated. See function \code{\link{metabias}}}
+  \item{backtransf}{A logical indicating whether results for odds
+    ratio (\code{sm="OR"}) and risk ratio (\code{sm="RR"}) should be
+    back transformed in printouts and plots. If TRUE (default),
+    results will be presented as odds ratios and risk ratios;
+    otherwise log odds ratios and log risk ratios will be shown.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -141,6 +147,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   (Sweeting et al., 2004; Diamond et al., 2007). Treatment estimates
   and standard errors are only calculated for studies with zero or all
   events in both groups if \code{allstudies} is \code{TRUE}.
+  
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{settings.meta}} function.
   
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -350,9 +360,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
 \examples{
 metabin(10, 20, 15, 20, sm="OR", warn=FALSE)
 
-##
-## Different results:
-##
+#
+# Different results:
+#
 metabin(0, 10, 0, 10, sm="OR", warn=FALSE)
 metabin(0, 10, 0, 10, sm="OR", allstudies=TRUE, warn=FALSE)
 

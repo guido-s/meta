@@ -19,6 +19,7 @@ metacor(cor, n, studlab,
         tau.common=.settings$tau.common,
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=.settings$method.bias,
+        backtransf=.settings$backtransf,
         title=.settings$title, complab=.settings$complab, outclab="",
         byvar, bylab, print.byvar=.settings$print.byvar,
         keepdata=.settings$keepdata
@@ -63,6 +64,11 @@ metacor(cor, n, studlab,
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}}
+  \item{backtransf}{A logical indicating whether results for Fisher's
+    z transformed correlations (\code{sm="ZCOR"}) should be back
+    transformed in printouts and plots. If TRUE (default), results
+    will be presented as correlations; otherwise Fisher's z
+    transformed correlations will be shown.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -228,10 +234,34 @@ metacor(cor, n, studlab,
 \seealso{\code{\link{update.meta}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
-metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
-forest(metacor(c(0.85, 0.7, 0.95), c(20, 40, 10)))
+m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 
-metacor(c(0.85, 0.7, 0.95), c(20, 40, 10), sm="cor")
+#
+# Print correlations (back transformed from Fisher's z transformation)
+#
+m1
+
+#
+# Print Fisher's z transformed correlations 
+#
+print(m1, backtransf=FALSE)
+
+#
+# Forest plot with back transformed correlations
+#
+forest(m1)
+
+#
+# Forest plot with Fisher's z transformed correlations
+#
+forest(m1, backtransf=FALSE)
+
+
+m2 <- update(m1, sm="cor")
+m2
+# Identical forest plots (as back transformation is the identity transformation)
+# forest(m2)
+# forest(m2, backtransf=FALSE)
 }
 
 \keyword{htest}

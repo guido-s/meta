@@ -26,7 +26,7 @@ baujat.meta <- function(x,
   ## Upgrade meta objects created with older versions of meta
   ##
   if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
     x <- update(x, warn=FALSE)
   
   

@@ -129,9 +129,9 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  sm="RR", method="I")
 
 
-##
-## L'Abbe plot
-##
+#
+# L'Abbe plot
+#
 labbe(meta1)
 }
 

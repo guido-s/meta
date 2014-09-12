@@ -34,9 +34,9 @@ radial(x, ...)
        col.fixed="black", col.random="black",
        log="", yaxis="se", sm=NULL,
        contour.levels=NULL, col.contour,
-       ref=ifelse(sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
+       ref=ifelse(backtransf & is.relative.effect(sm), 1, 0),
        level=NULL,
-       studlab=FALSE, cex.studlab=0.8, ...)
+       studlab=FALSE, cex.studlab=0.8, backtransf=TRUE, ...)
 
 \method{funnel}{meta}(x,
        xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
@@ -50,9 +50,9 @@ radial(x, ...)
        col.fixed="black", col.random="black",
        log="", yaxis="se",
        contour.levels=NULL, col.contour,
-       ref=ifelse(x$sm \%in\% c("RR", "OR", "HR", "IRR"), 1, 0),
+       ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        level=x$level,
-       studlab=FALSE, cex.studlab=0.8, ...)
+       studlab=FALSE, cex.studlab=0.8, backtransf=x$backtransf, ...)
 
 \method{radial}{default}(x, y, xlim=NULL, ylim=NULL,
        xlab="Inverse of standard error",
@@ -120,6 +120,12 @@ radial(x, ...)
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$TE} then).}
   \item{cex.studlab}{Size of study labels.}
+  \item{backtransf}{A logical indicating whether results for relative
+    summary measures (argument \code{sm} equal to \code{"OR"},
+    \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
+    transformed in funnel plots. If \code{backtransf=TRUE}, results
+    for \code{sm="OR"} are printed as odds ratios rather than log odds
+    ratios, for example.}
   \item{\dots}{Graphical arguments as in \code{par} may also be
     passed as arguments.}
 }
@@ -178,34 +184,34 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  sm="RR", method="I")
 
 
-##
-## Radial plot
-##
+#
+# Radial plot
+#
 radial(meta1, level=0.95)
 
 
 oldpar <- par(mfrow=c(2, 2))
 
-##
-## Funnel plots
-##
+#
+# Funnel plots
+#
 funnel(meta1)
-##
-## Same result as code above:
-##
+#
+# Same result as code above:
+#
 funnel(meta1$TE, meta1$seTE, sm="RR")
 
-##
-## Funnel plot with confidence intervals,
-## fixed effect estimate and contours
-##
+#
+# Funnel plot with confidence intervals,
+# fixed effect estimate and contours
+#
 cc <- funnel(meta1, comb.fixed=TRUE,
              level=0.95, contour=c(0.9, 0.95, 0.99))$col.contour
 legend(0.05, 0.05,
        c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill=cc)
-##
-## Contour-enhanced funnel plot with user-chosen colours
-##
+#
+# Contour-enhanced funnel plot with user-chosen colours
+#
 funnel(meta1, comb.fixed=TRUE,
        level=0.95, contour=c(0.9, 0.95, 0.99),
        col.contour=c("darkgreen", "green", "lightgreen"),

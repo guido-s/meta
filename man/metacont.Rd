@@ -102,6 +102,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \code{sm="MD"} -- which correspond to \code{sm="WMD"} in older
   versions (<0.9) of the meta package. For the summary measure
   \code{"SMD"}, Hedges' adjusted g is utilised for pooling.
+  
+  For several arguments defaults settings are utilised (assignments
+  with \code{.settings$}). These defaults can be changed using the
+  \code{\link{settings.meta}} function.
 
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
@@ -263,8 +267,8 @@ meta3 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
                   data=amlodipine, studlab=study)
 summary(meta3)
 
-## Use pooled variance
-##
+# Use pooled variance
+#
 meta4 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
                   n.plac, mean.plac, sqrt(var.plac),
                   data=amlodipine, studlab=study,

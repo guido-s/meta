@@ -30,7 +30,7 @@ forest.meta <- function(x,
                         weight,
                         pscale=1,
                         ##
-                        ref=ifelse(x$sm %in% c("RR", "OR", "HR", "IRR"), 1, 0),
+                        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
                         leftcols=NULL, rightcols=NULL,
                         leftlabs=NULL, rightlabs=NULL,
@@ -124,134 +124,40 @@ forest.meta <- function(x,
                         ##
                         new=TRUE,
                         ##
+                        backtransf=x$backtransf,
                         digits=2, ...){
+  
   
   if (!inherits(x, "meta"))
     stop("Argument 'x' must be an object of class \"meta\"")
   
-  if (new)
-    grid.newpage()
-  
-  
-  ## Upgrade meta objects created with older versions of meta
-  ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.7))
-    x <- update(x, warn=FALSE)
-  
-  
-  if (inherits(x, "metainf")|inherits(x, "metacum")){
-    hetstat <- FALSE
-    prediction <- FALSE
-  }
-  
-  x.name <- deparse(substitute(x))
-  
-  
-  cl <- class(x)[1]
-  addargs <- names(list(...))
-  ##
-  fun <- "forest.meta"
-  ##
-  warnarg("byvar", addargs, fun, cl)
-  warnarg("level", addargs, fun, cl)
-  warnarg("level.comb", addargs, fun, cl)
-  warnarg("level.predict", addargs, fun, cl)
-  ##
-  byvar <- x$byvar
-  level <- x$level
-  level.comb <- x$level.comb
-  level.predict <- ifelse(length(x$level.predict)==0, x$level, x$level.predict)
-  
-  
-  if (length(comb.fixed)==0)
-    comb.fixed <- FALSE
-  ##
-  if (length(comb.random)==0)
-    comb.random <- FALSE
-  ##
-  if (length(prediction)==0)
-    prediction <- FALSE
-  ##
-  if (length(print.byvar)==0)
-    print.byvar <- TRUE
-  ##
-  if (length(lab.e)==0)
-    lab.e <- "Experimental"
-  ##
-  if (length(lab.c)==0)
-    lab.c <- "Control"
-  
-  prediction <- prediction & comb.random & x$k>=3
-  
-  if (length(level)==0){
-    warning("level set to 0.95")
-    level <- 0.95
-  }
-  ##
-  if (length(level.comb)==0){
-    if (comb.fixed | comb.random)
-      warning("level.comb set to 0.95")
-    level.comb <- 0.95
-  }
-  ##
-  if (length(level.predict)==0){
-    if (prediction)
-      warning("level.predict set to 0.95")
-    level.predict <- 0.95
-  }
-  
   
   ##
-  ## Check for levels of confidence interval
+  ## Definition of auxiliary functions
   ##
-  if (!is.numeric(level) | length(level)!=1)
-    stop("list object 'level' must be a numeric of length 1")
-  if (level <= 0 | level >= 1)
-    stop("list object 'level': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("list object 'level.comb' must be a numeric of length 1")
-  if (level.comb <= 0 | level.comb >= 1)
-    stop("list object 'level.comb': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("list object 'level.predict' must be a numeric of length 1")
-  if (level.predict <= 0 | level.predict >= 1)
-    stop("list object 'level.predict': no valid level for confidence interval")
-  
-  
-  if (is.logical(leftcols)){
-    warning("Logical value not possible for parameter 'leftcols', set to 'NULL'.")
-    leftcols <- NULL
-  }
-  
-  if (missing(weight))
-    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
-  
-  notmiss.xlim <- !missing(xlim)
-  
-  
-  ijs <- charmatch(tolower(just.studlab),
-                   c("right", "center", "left"), nomatch = NA)
-  ##
-  if(is.na(ijs))
-    stop("Argument 'just.studlab' should be \"right\", \"center\", or \"left\"")
-  ##
-  just.studlab <- c("right", "center", "left")[ijs]
-  ##
-  if (just.studlab=="left")
-    xpos.studlab <- 0
-  else if (just.studlab=="center")
-      xpos.studlab <- 0.5
-  else if (just.studlab=="right")
-    xpos.studlab <- 1
-  
-  
   wcalc <- function(x)
     max(unit(rep(1, length(x)), "grobwidth", x))
-  
-  
+  ##
+  ##
+  testchar <- function(x)
+    if (length(x)!=1 || !is.character(x))
+      stop(paste("Parameter '", deparse(substitute(x)),
+                 "' must be a character string", sep=""))
+  ##
+  ##
+  repchar <- function(x, len){
+    if (length(x)==1)
+      res <- rep(x, len)
+    else if (length(x)!=len)
+      stop(paste("Parameter '", deparse(substitute(x)),
+                 "' has different length than number of studies in meta-analysis",
+                 sep=""))
+    else
+      res <- x
+    res
+  }
+  ##
+  ##
   formatcol <- function(x, y, rows, just="right"){
     ##
     ##
@@ -336,8 +242,8 @@ forest.meta <- function(x,
     ##
     res
   }
-  
-  
+  ##
+  ##
   drawLabelCol <- function(col, j) {
     ##
     ## Function to draw a cell in a text column
@@ -354,8 +260,8 @@ forest.meta <- function(x,
       }
     }
   }
-  
-  
+  ##
+  ##
   drawNormalCI <- function(low, eff, upp, size, min, max,
                            col, col.square, col.square.lines,
                            col.i.inside.square){
@@ -457,7 +363,8 @@ forest.meta <- function(x,
       }
     }
   }
-  
+  ##
+  ##
   drawSummaryCI <- function(low, eff, upp, size, min, max,
                             col.diamond, col.diamond.lines) {
     ##
@@ -476,8 +383,8 @@ forest.meta <- function(x,
                    y=unit(0.5 + c(0, 0.3*size, 0, -0.3*size), "npc"),
                    gp=gpar(fill=col.diamond, col=col.diamond.lines))
   }
-  
-  
+  ##
+  ##
   drawPredictionCI <- function(low, upp, size, min, max,
                                col.predict, col.predict.lines) {
     ##
@@ -497,8 +404,8 @@ forest.meta <- function(x,
                      gp=gpar(fill=col.predict, col=col.predict.lines))
     }
   }
-  
-  
+  ##
+  ##
   drawDataCol <- function(col, j) {
     ##
     ## Function to draw a "data" column
@@ -529,7 +436,7 @@ forest.meta <- function(x,
                      y=unit(c(0, ymax.line), "lines"),
                      gp=gpar(lty=lty.random, lwd=lwd))
     ##
-    if (log){
+    if (log.xaxis){
       if (is.null(at)){
         x1000 <- c(0.001, 0.1, 1,  10, 1000)
         x100  <- c(0.01 , 0.1, 1,  10, 100)
@@ -677,22 +584,163 @@ forest.meta <- function(x,
   }
   
   
+  if (new)
+    grid.newpage()
+  
+  
+  ## Upgrade meta objects created with older versions of meta
+  ##
+  if (!(!is.null(x$version) &&
+        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
+    x <- update(x, warn=FALSE)
+  
+  
+  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  
+  
+  if (metainf.metacum){
+    hetstat <- FALSE
+    prediction <- FALSE
+  }
+  
+  x.name <- deparse(substitute(x))
+  
+  
+  cl <- class(x)[1]
+  addargs <- names(list(...))
+  ##
+  fun <- "forest.meta"
+  ##
+  warnarg("byvar", addargs, fun, cl)
+  warnarg("level", addargs, fun, cl)
+  warnarg("level.comb", addargs, fun, cl)
+  warnarg("level.predict", addargs, fun, cl)
+  ##
+  byvar <- x$byvar
+  level <- x$level
+  level.comb <- x$level.comb
+  level.predict <- x$level.predict
+  
+  
+  if (length(comb.fixed)==0)
+    comb.fixed <- FALSE
+  ##
+  if (length(comb.random)==0)
+    comb.random <- FALSE
+  ##
+  if (length(prediction)==0)
+    prediction <- FALSE
+  ##
+  if (length(print.byvar)==0)
+    print.byvar <- TRUE
+  ##
+  if (length(lab.e)==0)
+    lab.e <- "Experimental"
+  ##
+  if (length(lab.c)==0)
+    lab.c <- "Control"
+  
+  
+  prediction <- prediction & comb.random & x$k>=3
+  
+  
+  if (length(level)==0){
+    warning("level set to 0.95")
+    level <- 0.95
+  }
+  ##
+  if (length(level.comb)==0){
+    if (comb.fixed | comb.random)
+      warning("level.comb set to 0.95")
+    level.comb <- 0.95
+  }
+  ##
+  if (length(level.predict)==0){
+    if (prediction)
+      warning("level.predict set to 0.95")
+    level.predict <- 0.95
+  }
+  
+  
+  ##
+  ## Check for levels of confidence interval
+  ##
+  if (!is.numeric(level) | length(level)!=1)
+    stop("list object 'level' must be a numeric of length 1")
+  if (level <= 0 | level >= 1)
+    stop("list object 'level': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.comb) | length(level.comb)!=1)
+    stop("list object 'level.comb' must be a numeric of length 1")
+  if (level.comb <= 0 | level.comb >= 1)
+    stop("list object 'level.comb': no valid level for confidence interval")
+  ##
+  if (!is.numeric(level.predict) | length(level.predict)!=1)
+    stop("list object 'level.predict' must be a numeric of length 1")
+  if (level.predict <= 0 | level.predict >= 1)
+    stop("list object 'level.predict': no valid level for confidence interval")
+  
+  
+  if (is.logical(leftcols)){
+    warning("Logical value not possible for parameter 'leftcols', set to 'NULL'.")
+    leftcols <- NULL
+  }
+  
+  
+  if (missing(weight))
+    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
+  
+  
+  notmiss.xlim <- !missing(xlim)
+  
+  
+  ijs <- charmatch(tolower(just.studlab),
+                   c("right", "center", "left"), nomatch = NA)
+  ##
+  if(is.na(ijs))
+    stop("Argument 'just.studlab' should be \"right\", \"center\", or \"left\"")
+  ##
+  just.studlab <- c("right", "center", "left")[ijs]
+  ##
+  if (just.studlab=="left")
+    xpos.studlab <- 0
+  else if (just.studlab=="center")
+      xpos.studlab <- 0.5
+  else if (just.studlab=="right")
+    xpos.studlab <- 1
+  
+  
+  sm <- x$sm
+  ##
+  log.xaxis <- FALSE
+  ##
+  if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
+    ref <- NA
+  ##
+  if (backtransf & is.relative.effect(sm)){
+    ref <- log(ref)
+    log.xaxis <- TRUE
+  }
+  
+  
+  if (!backtransf & pscale!=1){
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  
+  
   if (is.null(xlab))
-    xlab <- xlab(x$sm, pscale)
+    xlab <- xlab(sm, backtransf)
   
   if (is.null(smlab))
-    smlab <- xlab(x$sm, pscale)
+    smlab <- xlab(sm, backtransf)
   
   if (is.null(label.right))
     label.right <- ""
   if (is.null(label.left))
     label.left <- ""
   
-  testchar <- function(x)
-    if (length(x)!=1 || !is.character(x))
-      stop(paste("Parameter '", deparse(substitute(x)),
-                 "' must be a character string", sep=""))
-  ##
+  
   testchar(col.diamond)
   testchar(col.diamond.fixed)
   testchar(col.diamond.random)
@@ -724,7 +772,6 @@ forest.meta <- function(x,
   if (inherits(x, "metaprop")){
     x$event.e <- x$event
     x$n.e <- x$n
-    x$TE <- x$event / x$n
   }
   ##
   if (inherits(x, "metacor")){
@@ -732,19 +779,19 @@ forest.meta <- function(x,
   }
   
   
-  if (inherits(x, "metainf")|inherits(x, "metacum")){
+  if (metainf.metacum){
     ##
     x$TE.fixed    <- rev(x$TE)[1]
     x$seTE.fixed  <- rev(x$seTE)[1]
     x$lower.fixed <- rev(x$lower)[1]
     x$upper.fixed <- rev(x$upper)[1]
-    x$n.harmonic.mean.fixed <- rev(x$n.harmonic.mean)[1]
     ##
     x$TE.random   <- rev(x$TE)[1]
     x$seTE.random <- rev(x$seTE)[1]
     x$lower.random <- rev(x$lower)[1]
     x$upper.random <- rev(x$upper)[1]
-    x$n.harmonic.mean.random <- rev(x$n.harmonic.mean)[1]
+    ##
+    x$n.harmonic.mean.ma <- rev(x$n.harmonic.mean)[1]
     ##
     x$w.all <- rev(x$w)[1]
     ##
@@ -801,24 +848,25 @@ forest.meta <- function(x,
   ##
   ## Predefined columns and labels
   ##
-  tmp.pscale <- pscale
+  sm.lab <- sm
   ##
-  isprop <- (tolower(x$sm) %in% c("pft", "pas", "praw", "pln", "plogit"))
-  ##
-  if (isprop){
-    if (pscale==100)
-      sm.lab <- "Prop (in %)"
-    else if (pscale==1)
+  if (backtransf){
+    if (sm=="ZCOR")
+      sm.lab <- "COR"
+    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")){
+      if (pscale==100)
+        sm.lab <- "Prop (in %)"
+      else if (pscale==1)
+        sm.lab <- "Proportion"
+      else
+        sm.lab <- sm
+    }
+    else if (sm=="proportion")
       sm.lab <- "Proportion"
-    else
-      sm.lab <- x$sm
   }
-  else if (x$sm=="proportion")
-    sm.lab <- "Proportion"
-  else if (x$sm=="ZCOR")
-    sm.lab <- "COR"
-  else
-    sm.lab <- x$sm
+  else 
+    if (is.relative.effect(sm))
+      sm.lab <- paste("log", sm, sep="")
   ##
   colnames <- c("studlab", "TE", "seTE",
                 "n.e", "n.c",
@@ -922,7 +970,7 @@ forest.meta <- function(x,
       leftcols <- c("studlab",
                     "TE", "seTE")
     ##
-    if (inherits(x, "metainf") | inherits(x, "metacum"))
+    if (metainf.metacum)
       leftcols <- "studlab"
     ##
     if (inherits(x, "metaprop"))
@@ -942,8 +990,7 @@ forest.meta <- function(x,
   if (is.null(rightcols) & rsel){
     rightcols <- c("effect", "ci")
     ##
-    if (!(inherits(x, "metainf") |
-          inherits(x, "metacum"))){
+    if (!metainf.metacum){
       if (comb.fixed & overall)
         rightcols <- c(rightcols, "w.fixed")
       if (comb.random & overall)
@@ -1030,20 +1077,22 @@ forest.meta <- function(x,
   }
   
   
-  if (by & (inherits(x, "metainf")| inherits(x, "metacum")))
+  if (by & metainf.metacum)
     stop("Use of 'byvar' not possible for 'metainf' or 'metacum' object.") 
-  
+  ##  
   if (!by) byvar <- rep(1, k.all)
   if (!sort) sortvar <- rep(1, k.all)
-
+  ##
   if (sort & length(sortvar) != k.all)
     stop("'x' and 'sortvar' have different length")
+  ##
   if (by & length(byvar) != k.all)
     stop("'x' and 'byvar' have different length")
+  ##
   if (by & any(is.na(byvar)))
     stop("Missing values in 'byvar'")
-
-
+  
+  
   if (length(studlab) == 1 & is.logical(studlab))
     if (studlab == FALSE){
       studlab <- rep("", k.all)
@@ -1055,18 +1104,6 @@ forest.meta <- function(x,
     stop("'x' and 'studlab' have different length")
   
   
-  repchar <- function(x, len){
-    if (length(x)==1)
-      res <- rep(x, len)
-    else if (length(x)!=len)
-      stop(paste("Parameter '", deparse(substitute(x)),
-                 "' has different length than number of studies in meta-analysis",
-                 sep=""))
-    else
-      res <- x
-    res
-  }
-  ##
   col.i               <- repchar(col.i, length(x$TE))
   col.i.inside.square <- repchar(col.i.inside.square, length(x$TE))
   col.square          <- repchar(col.square, length(x$TE))
@@ -1219,73 +1256,7 @@ forest.meta <- function(x,
     n.by <- 0
   
   
-  ##
-  ## (Re)calculate effect estimates:
-  ##
-  if (inherits(x, "metabin"))
-    m1 <- metabin(x$event.e, x$n.e,
-                  x$event.c, x$n.c,
-                  method=x$method, sm=x$sm,
-                  incr=x$incr, allincr=x$allincr,
-                  addincr=x$addincr, allstudies=x$allstudies,
-                  MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
-                  level=x$level, level.comb=x$level.comb,
-                  hakn=x$hakn, method.tau=x$method.tau,
-                  tau.preset=x$tau.preset, TE.tau=x$TE.tau,
-                  warn=x$warn)
-  ##
-  if (inherits(x, "metacont"))
-    m1 <- metacont(x$n.e, x$mean.e, x$sd.e,
-                   x$n.c, x$mean.c, x$sd.c,
-                   sm=x$sm,
-                   level=x$level, level.comb=x$level.comb,
-                   hakn=x$hakn, method.tau=x$method.tau,
-                   tau.preset=x$tau.preset, TE.tau=x$TE.tau)
-  ##
-  if (inherits(x, "metagen"))
-    if (!is.null(x$tau.preset))
-      m1 <- metagen(x$TE, x$seTE, sm=x$sm,
-                    level=x$level, level.comb=x$level.comb,
-                    hakn=x$hakn, method.tau=x$method.tau,
-                    tau.preset=x$tau.preset, TE.tau=x$TE.tau)
-    else
-      m1 <- metagen(x$TE, x$seTE, sm=x$sm,
-                    level=x$level, level.comb=x$level.comb,
-                    hakn=x$hakn, method.tau=x$method.tau,
-                    TE.tau=x$TE.tau)
-  ##
-  if (inherits(x, "metaprop")){
-    m1 <- metaprop(x$event.e, x$n.e, sm=x$sm,
-                   incr=x$incr, allincr=x$allincr,
-                   addincr=x$addincr,
-                   level=x$level, level.comb=x$level.comb,
-                   hakn=x$hakn, method.tau=x$method.tau,
-                   tau.preset=x$tau.preset, TE.tau=x$TE.tau,
-                   warn=x$warn)
-    m1$event.e <- m1$event
-    m1$n.e <- m1$n
-  }
-  ##
-  if (inherits(x, "metacor")){
-    m1 <- metacor(x$cor, x$n, sm=x$sm,
-                  level=x$level, level.comb=x$level.comb,
-                  hakn=x$hakn, method.tau=x$method.tau,
-                  tau.preset=x$tau.preset, TE.tau=x$TE.tau)
-    m1$n.e <- m1$n
-  }
-  ##
-  if (inherits(x, "metainc"))
-    m1 <- metainc(x$event.e, x$time.e,
-                  x$event.c, x$time.c,
-                  method=x$method, sm=x$sm,
-                  incr=x$incr, allincr=x$allincr,
-                  addincr=x$addincr,
-                  level=x$level, level.comb=x$level.comb,
-                  hakn=x$hakn, method.tau=x$method.tau,
-                  tau.preset=x$tau.preset, TE.tau=x$TE.tau,
-                  warn=x$warn)
-  ##
-  if (inherits(x, "metacum") | inherits(x, "metainf")){
+  if (metainf.metacum){
     TE    <- x$TE
     seTE  <- x$seTE
     lowTE <- x$lower
@@ -1308,51 +1279,27 @@ forest.meta <- function(x,
     tau2 <- NA
   }
   else{
-    sm1 <- summary(m1, warn=FALSE)
-    
     TE <- x$TE
     seTE <- x$seTE
     lowTE <- x$lower
     uppTE <- x$upper
     ##
+    if (inherits(x, "metaprop") & !backtransf){
+      ciTE <- ci(TE, seTE, level=level)
+      lowTE <- ciTE$lower
+      uppTE <- ciTE$upper
+    }
+    ##
     TE.fixed <- x$TE.fixed
-    if (x$level.comb == level.comb){
-      lowTE.fixed <- x$lower.fixed
-      uppTE.fixed <- x$upper.fixed
-    }
-    else{
-      ci.f <- ci(x$TE.fixed, x$seTE.fixed, level=level.comb)
-      lowTE.fixed <- ci.f$lower
-      uppTE.fixed <- ci.f$upper
-    }
+    lowTE.fixed <- x$lower.fixed
+    uppTE.fixed <- x$upper.fixed
     ##
     TE.random <- x$TE.random
-    if (x$level.comb == level.comb){
-      lowTE.random <- x$lower.random
-      uppTE.random <- x$upper.random
-    }
-    else{
-      ci.r <- ci(x$TE.random, x$seTE.random, level=level.comb)
-      lowTE.random <- ci.r$lower
-      uppTE.random <- ci.r$upper
-    }
+    lowTE.random <- x$lower.random
+    uppTE.random <- x$upper.random
     ##
-    if (!prediction){
-      lowTE.predict <- NA
-      uppTE.predict <- NA
-    }
-    else{
-      ## Use available values for pooled estimate
-      if (!is.null(x$level.predict) && x$level.predict == level.predict){
-        lowTE.predict <- x$lower.predict
-        uppTE.predict <- x$upper.predict
-      }
-      else{
-        ci.p <- ci(x$TE.random, x$seTE.predict, level=level.predict, x$k-2)
-        lowTE.predict <- ci.p$lower
-        uppTE.predict <- ci.p$upper
-      }
-    }
+    lowTE.predict <- x$lower.predict
+    uppTE.predict <- x$upper.predict
     ##
     Q    <- x$Q
     df   <- x$df.Q
@@ -1422,7 +1369,7 @@ forest.meta <- function(x,
       if (inherits(x, "metabin"))
         m.w <- metabin(x$event.e[sel], x$n.e[sel],
                        x$event.c[sel], x$n.c[sel],
-                       method=x$method, sm=x$sm,
+                       method=x$method, sm=sm,
                        incr=x$incr, allincr=x$allincr,
                        addincr=x$addincr, allstudies=x$allstudies,
                        MH.exact=x$MH.exact, RR.cochrane=x$RR.cochrane,
@@ -1433,22 +1380,22 @@ forest.meta <- function(x,
       if (inherits(x, "metacont"))
         m.w <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
                         x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
-                        sm=x$sm,
+                        sm=sm,
                         hakn=x$hakn, method.tau=x$method.tau,
                         tau.preset=x$tau.preset, TE.tau=x$TE.tau)
       ##
       if (inherits(x, "metagen"))
         if (!is.null(x$tau.preset))
-          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
+          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=sm,
                          hakn=x$hakn, method.tau=x$method.tau,
                          tau.preset=x$tau.preset, TE.tau=x$TE.tau)
         else
-          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=x$sm,
+          m.w <- metagen(x$TE[sel], x$seTE[sel], sm=sm,
                          hakn=x$hakn, method.tau=x$method.tau,
                          TE.tau=x$TE.tau)
       ##
       if (inherits(x, "metaprop")){
-        m.w <- metaprop(x$event.e[sel], x$n.e[sel], sm=x$sm,
+        m.w <- metaprop(x$event.e[sel], x$n.e[sel], sm=sm,
                         incr=x$incr, allincr=x$allincr,
                         addincr=x$addincr,
                         hakn=x$hakn, method.tau=x$method.tau,
@@ -1459,7 +1406,7 @@ forest.meta <- function(x,
       }
       ##
       if (inherits(x, "metacor")){
-        m.w <- metacor(x$cor[sel], x$n[sel], sm=x$sm,
+        m.w <- metacor(x$cor[sel], x$n[sel], sm=sm,
                        hakn=x$hakn, method.tau=x$method.tau,
                        tau.preset=x$tau.preset, TE.tau=x$TE.tau)
         m.w$n.e <- m.w$n
@@ -1468,7 +1415,7 @@ forest.meta <- function(x,
       if (inherits(x, "metainc"))
         m.w <- metainc(x$event.e[sel], x$time.e[sel],
                        x$event.c[sel], x$time.c[sel],
-                       method=x$method, sm=x$sm,
+                       method=x$method, sm=sm,
                        incr=x$incr, allincr=x$allincr,
                        addincr=x$addincr,
                        hakn=x$hakn, method.tau=x$method.tau,
@@ -1605,197 +1552,91 @@ forest.meta <- function(x,
   
   TE.orig <- TE
   ##
-  if (x$sm %in% c("PFT", "PAS")){
-    ref <- NA
+  if (backtransf){
     ##
-    if (inherits(x, "metaprop")){
-      TE    <- pscale*TE
-      lowTE <- pscale*lowTE
-      uppTE <- pscale*uppTE
+    ## Freeman-Tukey Arcsin transformation (sm="PFT")
+    ##
+    if (metainf.metacum){
+      npft <- x$n.harmonic.mean
+      npft.ma <- x$n.harmonic.mean.ma
     }
     else{
-      if (x$sm=="PAS"){
-        TE    <- pscale*asin2p(TE, value="mean")
-        lowTE <- pscale*asin2p(lowTE, value="lower")
-        uppTE <- pscale*asin2p(uppTE, value="upper")
-      }
-      if (x$sm=="PFT"){
-        if (inherits(x, "metainf")|inherits(x, "metacum")){
-          TE    <- pscale*asin2p(TE, x$n.harmonic.mean, value="mean")
-          lowTE <- pscale*asin2p(lowTE, x$n.harmonic.mean, value="lower")
-          uppTE <- pscale*asin2p(uppTE, x$n.harmonic.mean, value="upper")
-        }
-        else {
-          TE    <- pscale*asin2p(TE, x$n, value="mean")
-          lowTE <- pscale*asin2p(lowTE, x$n, value="lower")
-          uppTE <- pscale*asin2p(uppTE, x$n, value="upper")
-        }
-      }
+      npft <- x$n
+      npft.ma <- 1/mean(1/x$n)
     }
     ##
-    if (x$sm=="PAS"){
-      TE.fixed    <- pscale*asin2p(TE.fixed, value="mean",
-                                   warn=comb.fixed)
-      lowTE.fixed <- pscale*asin2p(lowTE.fixed, value="lower",
-                                   warn=comb.fixed)
-      uppTE.fixed <- pscale*asin2p(uppTE.fixed, value="upper",
-                                   warn=comb.fixed)
+    ## Individual study results
+    ##
+    if (inherits(x, "metaprop")){
+      TE <- x$event/x$n
+    }
+    ## Relative effect measures will be back transformed later
+    else if (!is.relative.effect(sm)){
+      TE <- backtransf(TE, sm, "mean", npft)
+      lowTE <- backtransf(lowTE, sm, "lower", npft)
+      uppTE <- backtransf(uppTE, sm, "upper", npft)
+    }
+    ##
+    ## Results of meta-analysis
+    ##
+    if (!is.relative.effect(sm)){
+      TE.fixed    <- backtransf(TE.fixed, sm, "mean",
+                                npft.ma, warn=comb.fixed)
+      lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
+                                npft.ma, warn=comb.fixed)
+      uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
+                                npft.ma, warn=comb.fixed)
       ##
-      TE.random    <- pscale*asin2p(TE.random, value="mean",
-                                    warn=comb.random)
-      lowTE.random <- pscale*asin2p(lowTE.random, value="lower",
-                                    warn=comb.random)
-      uppTE.random <- pscale*asin2p(uppTE.random, value="upper",
-                                    warn=comb.random)
+      TE.random <- backtransf(TE.random, sm, "mean",
+                              npft.ma, warn=comb.random)
+      lowTE.random <- backtransf(lowTE.random, sm, "lower",
+                                 npft.ma, warn=comb.random)
+      uppTE.random <- backtransf(uppTE.random, sm, "upper",
+                                 npft.ma, warn=comb.random)
       ##
-      lowTE.predict <- pscale*asin2p(lowTE.predict, value="lower",
-                                     warn=prediction)
-      uppTE.predict <- pscale*asin2p(uppTE.predict, value="upper",
-                                     warn=prediction)
+      if (!metainf.metacum){
+        lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
+                                    npft.ma, warn=prediction)
+        uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
+                                    npft.ma, warn=prediction)
+      }
       ##
       if (by){
-        TE.w    <- pscale*asin2p(TE.w, value="mean",
-                                 warn=comb.fixed|comb.random)
-        lowTE.w <- pscale*asin2p(lowTE.w, value="lower",
-                                 warn=comb.fixed|comb.random)
-        uppTE.w <- pscale*asin2p(uppTE.w, value="upper",
-                                 warn=comb.fixed|comb.random)
+        npft.w <- harmonic.mean.w
+        ##
+        TE.w     <- backtransf(TE.w, sm, "mean", npft.w)
+        lowTE.w  <- backtransf(lowTE.w, sm, "lower", npft.w)
+        uppTE.w  <- backtransf(uppTE.w, sm, "upper", npft.w)
       }
     }
     ##
-    if (x$sm=="PFT"){
-      if (inherits(x, "metainf")|inherits(x, "metacum")){
-        TE.fixed    <- pscale*asin2p(TE.fixed, x$n.harmonic.mean.fixed,
-                                     value="mean", warn=comb.fixed)
-        lowTE.fixed <- pscale*asin2p(lowTE.fixed, x$n.harmonic.mean.fixed,
-                                     value="lower", warn=comb.fixed)
-        uppTE.fixed <- pscale*asin2p(uppTE.fixed, x$n.harmonic.mean.fixed,
-                                     value="upper", warn=comb.fixed)
-        ##
-        TE.random    <- pscale*asin2p(TE.random, x$n.harmonic.mean.random,
-                                      value="mean", warn=comb.random)
-        lowTE.random <- pscale*asin2p(lowTE.random, x$n.harmonic.mean.random,
-                                      value="lower", warn=comb.random)
-        uppTE.random <- pscale*asin2p(uppTE.random, x$n.harmonic.mean.random,
-                                      value="upper", warn=comb.random)
-        ##
-        lowTE.predict <- NA
-        uppTE.predict <- NA
-      }
-      else{
-        TE.fixed    <- pscale*asin2p(TE.fixed, 1/mean(1/x$n),
-                                     value="mean", warn=comb.fixed)
-        lowTE.fixed <- pscale*asin2p(lowTE.fixed, 1/mean(1/x$n),
-                                     value="lower", warn=comb.fixed)
-        uppTE.fixed <- pscale*asin2p(uppTE.fixed, 1/mean(1/x$n),
-                                     value="upper", warn=comb.fixed)
-        ##
-        TE.random    <- pscale*asin2p(TE.random, 1/mean(1/x$n),
-                                      value="mean", warn=comb.random)
-        lowTE.random <- pscale*asin2p(lowTE.random, 1/mean(1/x$n),
-                                      value="lower", warn=comb.random)
-        uppTE.random <- pscale*asin2p(uppTE.random, 1/mean(1/x$n),
-                                      value="upper", warn=comb.random)
-        ##
-        lowTE.predict <- NA
-        uppTE.predict <- NA
-        ##
-        if (by){
-          TE.w    <- pscale*asin2p(TE.w, 1/harmonic.mean.w,
-                                   value="mean", warn=comb.fixed|comb.random)
-          lowTE.w <- pscale*asin2p(lowTE.w, 1/harmonic.mean.w,
-                                   value="lower", warn=comb.fixed|comb.random)
-          uppTE.w <- pscale*asin2p(uppTE.w, 1/harmonic.mean.w,
-                                   value="upper", warn=comb.fixed|comb.random)
-        }
-      }
-    }
-  }
-  else if (x$sm=="PLN"){
-    ref <- NA
+    ## Apply argument 'pscale' to proportions
     ##
-    if (inherits(x, "metaprop")){
-      TE    <- pscale*TE
-      lowTE <- pscale*lowTE
-      uppTE <- pscale*uppTE
-    }
-    else{
-      TE    <- pscale*exp(TE)
-      lowTE <- pscale*exp(lowTE)
-      uppTE <- pscale*exp(uppTE)
-    }
-    ##
-    TE.fixed    <- pscale*exp(TE.fixed)
-    lowTE.fixed <- pscale*exp(lowTE.fixed)
-    uppTE.fixed <- pscale*exp(uppTE.fixed)
-    ##
-    TE.random    <- pscale*exp(TE.random)
-    lowTE.random <- pscale*exp(lowTE.random)
-    uppTE.random <- pscale*exp(uppTE.random)
-    ##
-    lowTE.predict <- pscale*exp(lowTE.predict)
-    uppTE.predict <- pscale*exp(uppTE.predict)
-    ##
-    if (by){
-      TE.w    <- pscale*exp(TE.w)
-      lowTE.w <- pscale*exp(lowTE.w)
-      uppTE.w <- pscale*exp(uppTE.w)
-    }
-  }
-  else if (x$sm=="PLOGIT"){
-    ref <- NA
-    ##
-    if (inherits(x, "metaprop")){
+    if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")){
       TE <- pscale*TE
       lowTE <- pscale*lowTE
       uppTE <- pscale*uppTE
-    }
-    else{
-      TE    <- pscale*logit2p(TE)
-      lowTE <- pscale*logit2p(lowTE)
-      uppTE <- pscale*logit2p(uppTE)
-    }
-    ##
-    TE.fixed    <- pscale*logit2p(TE.fixed)
-    lowTE.fixed <- pscale*logit2p(lowTE.fixed)
-    uppTE.fixed <- pscale*logit2p(uppTE.fixed)
-    ##
-    TE.random    <- pscale*logit2p(TE.random)
-    lowTE.random <- pscale*logit2p(lowTE.random)
-    uppTE.random <- pscale*logit2p(uppTE.random)
-    ##
-    lowTE.predict <- pscale*logit2p(lowTE.predict)
-    uppTE.predict <- pscale*logit2p(uppTE.predict)
-    ##
-    if (by){
-      TE.w    <- pscale*logit2p(TE.w)
-      lowTE.w <- pscale*logit2p(lowTE.w)
-      uppTE.w <- pscale*logit2p(uppTE.w)
-    }
-  }
-  else if (x$sm=="ZCOR"){
-    TE    <- z2cor(TE)
-    lowTE <- z2cor(lowTE)
-    uppTE <- z2cor(uppTE)
-    ##
-    TE.fixed    <- z2cor(TE.fixed)
-    lowTE.fixed <- z2cor(lowTE.fixed)
-    uppTE.fixed <- z2cor(uppTE.fixed)
-    ##
-    TE.random    <- z2cor(TE.random)
-    lowTE.random <- z2cor(lowTE.random)
-    uppTE.random <- z2cor(uppTE.random)
-    ##
-    lowTE.predict <- z2cor(lowTE.predict)
-    uppTE.predict <- z2cor(uppTE.predict)
-    ##
-    if (by){
-      TE.w    <- z2cor(TE.w)
-      lowTE.w <- z2cor(lowTE.w)
-      uppTE.w <- z2cor(uppTE.w)
+      ##
+      TE.fixed    <- pscale*TE.fixed
+      lowTE.fixed <- pscale*lowTE.fixed
+      uppTE.fixed <- pscale*uppTE.fixed
+      ##
+      TE.random    <- pscale*TE.random
+      lowTE.random <- pscale*lowTE.random
+      uppTE.random <- pscale*uppTE.random
+      ##
+      lowTE.predict <- pscale*lowTE.predict
+      uppTE.predict <- pscale*uppTE.predict
+      ##
+      if (by){
+        TE.w    <- pscale*TE.w
+        lowTE.w <- pscale*lowTE.w
+        uppTE.w <- pscale*uppTE.w
+      }
     }
   }
   
+    
   if (!comb.fixed){
     TE.fixed    <- NA
     lowTE.fixed <- NA
@@ -1824,7 +1665,7 @@ forest.meta <- function(x,
   else
     w.random.p <- x$w.random
 
-  if (inherits(x, "metainf")|inherits(x, "metacum")){
+  if (metainf.metacum){
     if (sum(x$w.fixed)>0)
       w.fixed.p <- 100*round(x$w.fixed/x$w.all, 3)
     else
@@ -1927,18 +1768,15 @@ forest.meta <- function(x,
   ##
   ## Treatment effect and confidence interval
   ##
-  if (x$sm %in% c("HR", "OR", "RR", "IRR")){
+  if (backtransf & is.relative.effect(sm)){
     effect.format <- format(round(exp(TEs), digits), scientific=FALSE)
     ci.format <- p.ci(format(round(exp(lowTEs), digits), scientific=FALSE),
                       format(round(exp(uppTEs), digits), scientific=FALSE))
-    ref <- log(ref)
-    log <- TRUE
   }
   else{
     effect.format <- format(round(TEs, digits), scientific=FALSE)
     ci.format <- p.ci(format(round(lowTEs, digits), scientific=FALSE),
                       format(round(uppTEs, digits), scientific=FALSE))
-    log <- FALSE
   }
   ##
   effect.format <- gsub("NA", "  ", effect.format)
@@ -2158,18 +1996,14 @@ forest.meta <- function(x,
   ##
   ## x-axis:
   ##
-  ##if (!missing(xlim) & inherits(x, "metaprop") & pscale!=1)
-  ##  xlim <- pscale*xlim
-  
-  
   if (notmiss.xlim && is.numeric(xlim[1]))
-    if (x$sm %in% c("HR", "OR", "RR", "IRR"))
+    if (is.relative.effect(sm))
       xlim <- log(xlim)
   ##
   if (is.null(xlim)){
     if (inherits(x, "metaprop")){
-      ## xlim <- c(0,1)
-      xlim <- c(min(lowTE, na.rm=TRUE), max(uppTE, na.rm=TRUE))
+      xlim <- c(min(c(lowTE, lowTE.predict), na.rm=TRUE),
+                max(c(uppTE, uppTE.predict), na.rm=TRUE))
       ##
       if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
@@ -2179,8 +2013,8 @@ forest.meta <- function(x,
     else{
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
-      xlim <- c(min(lowTE[sel.low], na.rm=TRUE),
-                max(uppTE[sel.upp], na.rm=TRUE))
+      xlim <- c(min(c(lowTE[sel.low], lowTE.predict), na.rm=TRUE),
+                max(c(uppTE[sel.upp], uppTE.predict), na.rm=TRUE))
       ##
       if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
@@ -2202,14 +2036,14 @@ forest.meta <- function(x,
     xlim <- c("symmetric")[ixlim]
     ##
     if (inherits(x, "metaprop")){
-      ## xlim <- c(0,1)
-      xlim <- c(min(lowTE, na.rm=TRUE), max(uppTE, na.rm=TRUE))
+      xlim <- c(min(c(lowTE, lowTE.predict), na.rm=TRUE),
+                max(c(uppTE, uppTE.predict), na.rm=TRUE))
     }
     else{
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
-      minTE <- min(lowTE, na.rm=TRUE)
-      maxTE <- max(uppTE, na.rm=TRUE)
+      minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm=TRUE)
+      maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm=TRUE)
       ##
       if (minTE < 0 & maxTE < 0)
         xlim <- c(minTE, -minTE)
@@ -2231,7 +2065,6 @@ forest.meta <- function(x,
     max.yTE <- max(yTE, na.rm=TRUE)
   
   
-  ##if ((inherits(x, c("metaprop", "metacor")) | isprop) & missing(xlab.pos))
   if (!is.na(ref) & missing(xlab.pos))
     if (ref <= min(xlim) | ref >= max(xlim))
       xlab.pos <- mean(xlim)
@@ -2240,10 +2073,10 @@ forest.meta <- function(x,
     if (ref <= min(xlim) | ref >= max(xlim))
       smlab.pos <- mean(xlim)
   
-  if (is.null(xlab.pos))
+  if (is.null(xlab.pos) || is.na(xlab.pos))
     xlab.pos <- mean(xlim)
   
-  if (is.null(smlab.pos))
+  if (is.null(smlab.pos) || is.na(smlab.pos))
     smlab.pos <- mean(xlim)
   
   
@@ -2814,7 +2647,6 @@ forest.meta <- function(x,
   }
   ##
   popViewport()
-  
   
   invisible(NULL)
 }

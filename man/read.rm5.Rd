@@ -147,9 +147,9 @@ read.rm5(file, sep=",", quote = "\"", title,
   %  \item{label.exp}{Label for experimental group.}
   %  \item{label.cont}{Label for control group.}
   \item{RR.cochrane}{A logical indicating if 2*\code{incr} instead of
-  1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-  calculation of the relative risk (i.e., \code{sm="RR"}) for studies
-  with a zero cell. This is used in RevMan 5.}
+    1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
+    calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
+    with a zero cell. This is used in RevMan 5.}
   \item{complab}{Comparison label.}
 }
 
@@ -164,19 +164,19 @@ read.rm5(file, sep=",", quote = "\"", title,
 \seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{metacr}}}
 
 \examples{
-## Locate export data file "Fleiss93_CR.csv"
-## in sub-directory of package "meta"
-##
+# Locate export data file "Fleiss93_CR.csv"
+# in sub-directory of package "meta"
+#
 filename <- system.file("data/Fleiss93_CR.csv.gz", package = "meta")
-##
+#
 Fleiss93_CR <- read.rm5(filename)
 
-## Same result as R command example(Fleiss93):
-##
+# Same result as R command example(Fleiss93):
+#
 metacr(Fleiss93_CR)
 
-## Same result as R command example(Fleiss93cont):
-##
+# Same result as R command example(Fleiss93cont):
+#
 metacr(Fleiss93_CR, 1, 2)
 }
 \keyword{datagen}

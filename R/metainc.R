@@ -13,6 +13,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     n.e=NULL, n.c=NULL,
                     ##
+                    backtransf=.settings$backtransf,
                     title=.settings$title, complab=.settings$complab, outclab="",
                     label.e=.settings$label.e, label.c=.settings$label.c,
                     label.left=.settings$label.left, label.right=.settings$label.right,
@@ -580,6 +581,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   res$print.byvar <- print.byvar
+  
+  res$backtransf <- backtransf
   
   res$version <- packageDescription("meta")$Version
   

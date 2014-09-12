@@ -22,7 +22,7 @@
        tau.preset=object$tau.preset,
        TE.tau=object$TE.tau, tau.common=object$tau.common,
        prediction=object$prediction, level.predict=object$level.predict,
-       method.bias=object$method.bias,
+       method.bias=object$method.bias, backtransf = object$backtransf,
        title=object$title, complab=object$complab, outclab=object$outclab,
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
@@ -95,6 +95,12 @@
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
     \code{"peters"}, can be abbreviated. See function \code{\link{metabias}}}
+  \item{backtransf}{A logical indicating whether results should be
+    back transformed in printouts and plots. If
+    \code{backtransf=TRUE}, results for \code{sm="OR"} are printed as
+    odds ratios rather than log odds ratios and results for
+    \code{sm="ZCOR"} are printed as correlations rather than Fisher's
+    z transformed correlations, for example.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

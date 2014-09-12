@@ -57,7 +57,7 @@ following components:
 \examples{
 data(Fleiss93cont)
 
-## Add some (fictious) grouping variables:
+# Add some (fictious) grouping variables:
 Fleiss93cont$age <- c(55, 65, 55, 65, 55)
 Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
@@ -72,50 +72,50 @@ mu2 <- update(meta1, byvar=region,
               tau.common=TRUE, comb.fixed=FALSE)
 
 \dontrun{
-## Warnings due to wrong ordering of arguments (order has changed with
-## version 3.0-0 of R package meta)
-##
+# Warnings due to wrong ordering of arguments (order has changed with
+# version 3.0-0 of R package meta)
+#
 metareg(~region, meta1)
 metareg(~region, data=meta1)
 
-## Warning as no information on covariate is available
-##
+# Warning as no information on covariate is available
+#
 metareg(meta1)
 }
 
-## Do meta-regression for covariate region
-## (see R code to create object mu2)
-##
+# Do meta-regression for covariate region
+# (see R code to create object mu2)
+#
 metareg(mu2)
 
-## Same result for
-## - tau-squared
-## - test of heterogeneity
-## - test for subgroup differences
-## (as argument 'tau.common' was used to create mu2)
-##
+# Same result for
+# - tau-squared
+# - test of heterogeneity
+# - test for subgroup differences
+# (as argument 'tau.common' was used to create mu2)
+#
 mu2
 metareg(mu2)
 metareg(meta1, region)
-##
-## Different result for
-## - tau-squared
-## - test of heterogeneity
-## - test for subgroup differences
-## (as argument 'tau.common' is - by default - FALSE)
-##
+#
+# Different result for
+# - tau-squared
+# - test of heterogeneity
+# - test for subgroup differences
+# (as argument 'tau.common' is - by default - FALSE)
+#
 mu1
 
-## Generate bubble plot
-##
+# Generate bubble plot
+#
 bubble(metareg(mu2))
 
-## Do meta-regression with two covariates
-##
+# Do meta-regression with two covariates
+#
 metareg(mu1, region + age)
 
-## Do same meta-regressions using 'official' formula notation
-##
+# Do same meta-regressions using 'official' formula notation
+#
 metareg(meta1, ~region)
 metareg(mu1, ~region + age)
 }

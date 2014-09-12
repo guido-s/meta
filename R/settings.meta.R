@@ -1,5 +1,12 @@
 settings.meta <- function(...){
   
+  ## Return current settings
+  ##
+  res <- .settings
+  res$CIbracket <- NULL
+  res$CIseparator <- NULL
+  res$argslist <- NULL
+  
   catarg <- function(x, lab, newline=TRUE){
     if (!missing(lab))
       xname <- lab
@@ -18,6 +25,11 @@ settings.meta <- function(...){
   
   
   args  <- list(...)
+  ## Check whether first argument is a list. In this case only use
+  ## this list as input.
+  if (length(args)>0 && is.list(args[[1]]))
+    args <- args[[1]]
+  ##
   names <- names(args)
   
   
@@ -25,7 +37,7 @@ settings.meta <- function(...){
     stop("Arguments must be unique.")
   
   
-  unknown <- !(names %in% c(.settings$argslist, "reset"))
+  unknown <- !(names %in% c(.settings$argslist, "reset", "print"))
   ##
   if (sum(unknown)==1)
     warning(paste("Argument '", names[unknown], "' unknown.", sep=""))
@@ -35,7 +47,7 @@ settings.meta <- function(...){
                         collapse=" - "), sep=""))
   
 
-  if (length(args)==0){
+  if (length(args)==1 && names=="print"){
     cat(paste("\n*** Settings for meta-analysis method (R package meta, version ",
               utils::packageDescription("meta")$Version, ") ***\n\n", sep=""))
     ##cat("General settings (i.e. for R functions metabin, metacont,\n",
@@ -56,6 +68,7 @@ settings.meta <- function(...){
     catarg("print.byvar")
     catarg("keepdata")
     catarg("warn")
+    catarg("backtransf")
     ##
     cat("\nDefault summary measure (argument 'sm' in corresponding function):\n")
     cat("- metabin:  ")
@@ -112,6 +125,7 @@ settings.meta <- function(...){
       setOption("print.byvar", TRUE)
       setOption("keepdata", TRUE)
       setOption("warn", TRUE)
+      setOption("backtransf", TRUE)
       ##
       setOption("method", "MH")
       setOption("incr", 0.5)
@@ -166,6 +180,7 @@ settings.meta <- function(...){
     idprint.byvar <- argid(names, "print.byvar")
     idkeepdata <- argid(names, "keepdata")
     idwarn <- argid(names, "warn")
+    idbacktransf <- argid(names, "backtransf")
     ##
     idsmbin <- argid(names, "smbin")
     idmethod <- argid(names, "method")
@@ -315,6 +330,13 @@ settings.meta <- function(...){
         stop("Argument 'warn' must be a logical.")
       ##
       setOption("warn", warn)
+    }
+    if (!is.na(idbacktransf)){
+      backtransf <- args[[idbacktransf]]
+      if (length(backtransf)!= 1 || !is.logical(backtransf))
+        stop("Argument 'backtransf' must be a logical.")
+      ##
+      setOption("backtransf", backtransf)
     }
     ##
     ## R function metabin
@@ -519,5 +541,5 @@ settings.meta <- function(...){
     }
   }
   
-  invisible(NULL)
+  invisible(res)
 }

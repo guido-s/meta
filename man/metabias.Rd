@@ -191,22 +191,22 @@ metabias(meta1, method.bias="count")
 metabias(meta1, method.bias="linreg")$p.value
 
 
-##
-## Arcsine test (based on linear regression):
-##
+#
+# Arcsine test (based on linear regression):
+#
 meta1.as <- metabin(event.e, n.e, event.c, n.c,
                     data=Olkin95, subset=1:10,
                     sm="AS", method="I")
 metabias(meta1.as)
-##
-## Same result (using function metabias.default):
-##
+#
+# Same result (using function metabias.default):
+#
 metabias(meta1.as$TE, meta1.as$seTE)
 
 
-##
-## No test for funnel plot asymmetry calculated:
-##
+#
+# No test for funnel plot asymmetry calculated:
+#
 meta2 <- metabin(event.e, n.e, event.c, n.c,
                  data=Olkin95, subset=1:5,
                  sm="RR", method="I")
@@ -217,9 +217,9 @@ meta3 <- metabin(event.e, n.e, event.c, n.c,
                  sm="RR", method="I")
 metabias(meta3)
 
-## Test for funnel plot asymmetry calculated
-## (use of argument k.min):
-##
+# Test for funnel plot asymmetry calculated
+# (use of argument k.min):
+#
 metabias(meta2, k.min=5)
 }
 \keyword{htest}

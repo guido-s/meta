@@ -19,6 +19,7 @@ bubble(x, ...)
        lty=1, lwd=1, col.line="black",
        studlab=FALSE, cex.studlab=0.8,
        pos=2, offset=0.5,
+       regline=TRUE,
        axes=TRUE, box=TRUE,
        ...)
 }
@@ -45,6 +46,8 @@ bubble(x, ...)
   \item{cex.studlab}{The magnification for study labels.}
   \item{pos}{A position specifier for study labels (see \code{\link{text}}).}
   \item{offset}{Offset for study labels (see \code{\link{text}}).}
+  \item{regline}{A logical indicating whether a regression line should
+    be added to the bubble plot.}
   \item{axes}{A logical indicating whether axes should be printed.}
   \item{box}{A logical indicating whether a box should be printed.}
   \item{\dots}{Graphical arguments as in \code{par} may also be
@@ -96,7 +99,7 @@ bubble(x, ...)
 \examples{
 data(Fleiss93cont)
 
-## Add some (fictious) grouping variables:
+# Add some (fictious) grouping variables:
 Fleiss93cont$age <- c(55, 65, 52, 65, 58)
 Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
@@ -115,6 +118,10 @@ mr2
 
 bubble(mr2, lwd=2, col.line="blue", xlim=c(50, 70))
 bubble(mr2, lwd=2, col.line="blue", xlim=c(50, 70), cex="fixed")
+
+# Do not print regression line
+#
+bubble(mr2, lwd=2, col.line="blue", xlim=c(50, 70), regline=FALSE)
 }
 
 \keyword{hplot}
