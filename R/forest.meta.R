@@ -345,7 +345,172 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (5) Select data for forest plot
+  ## (5) Determine columns on left and right side of forest plot
+  ##
+  ##
+  ## Determine whether to print columns on right and/or left side
+  ## of forest plot
+  ##
+  rsel <- !(is.logical(rightcols) && length(rightcols)==1 && !rightcols)
+  ##
+  if (!rsel)
+    rightcols <- NULL
+  ##
+  ## Check for duplicate columns
+  ##
+  if (length(c(rightcols, leftcols))>0 &&
+      any(duplicated(c(rightcols, leftcols))))
+    stop("Duplicate entries in 'leftcols' and 'rightcols'.")
+  ##
+  ## Predefined columns and labels
+  ##
+  sm.lab <- sm
+  ##
+  if (backtransf){
+    if (sm=="ZCOR")
+      sm.lab <- "COR"
+    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")){
+      if (pscale==100)
+        sm.lab <- "Prop (in %)"
+      else if (pscale==1)
+        sm.lab <- "Proportion"
+      else
+        sm.lab <- sm
+    }
+    else if (sm=="proportion")
+      sm.lab <- "Proportion"
+  }
+  else 
+    if (is.relative.effect(sm))
+      sm.lab <- paste("log", sm, sep="")
+  ##
+  colnames <- c("studlab", "TE", "seTE",
+                "n.e", "n.c",
+                "event.e", "event.c",
+                "mean.e", "mean.c",
+                "sd.e", "sd.c",
+                "cor",
+                "time.e", "time.c",
+                "effect", "ci",
+                "w.fixed", "w.random")
+  ##
+  labnames <- c("Study", "TE", "seTE",
+                "Total", "Total", "Events", "Events",
+                "Mean", "Mean", "SD", "SD",
+                "Cor",
+                "Time", "Time",
+                sm.lab, paste(100*level, "%-CI", sep=""),
+                "W(fixed)", "W(random)")
+  ##
+  ## Identify and process columns in addition to columns
+  ## defined above in variables 'colnames' and 'labnames'
+  ##
+  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames]
+  ##
+  newcols <- length(colnames.new)>0
+  ##
+  if (newcols){
+    if (is.null(x$data))
+      dataset <- as.data.frame(x)
+    else{
+      if (!is.null(x$subset))
+        dataset <- x$data[x$subset,]
+      else
+        dataset <- x$data
+    }
+    ##
+    ## Check whether additional variables are
+    ## part of meta-object
+    ##
+    for (i in colnames.new)
+      if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
+        stop("Variable '", i, "' not available in '", x.name, "'.")
+    ##
+    rightcols.new <- rightcols[! rightcols %in% colnames]
+    leftcols.new  <- leftcols[! leftcols %in% colnames]
+    ##
+    ## Determine label for new columns
+    ## 1. Use column name as label if no label is given
+    ##    argument right|left|labs
+    ## 2. Otherwise use corresponding entry from
+    ##    argument right|left|labs
+    ##
+    if (length(rightcols.new)>0){
+      pos.rightcols.new <- match(rightcols.new, rightcols)
+      ##
+      if (missing(rightlabs))
+        rightlabs.new <- rightcols.new
+      else if (length(rightcols.new) == length(rightlabs))
+        rightlabs.new <- rightlabs
+      else if (max(pos.rightcols.new) <= length(rightlabs))
+        rightlabs.new <- rightlabs[pos.rightcols.new]
+      else if (max(pos.rightcols.new) > length(rightlabs))
+        stop("Too few labels defined for argument 'rightcols'.")
+    }
+    if (length(leftcols.new)>0){
+      pos.leftcols.new <- match(leftcols.new, leftcols)
+      ##
+      if (missing(leftlabs))
+        leftlabs.new <- leftcols.new
+      else if (length(leftcols.new) == length(leftlabs))
+        leftlabs.new <- leftlabs
+      else if (max(pos.leftcols.new) <= length(leftlabs))
+        leftlabs.new <- leftlabs[pos.leftcols.new]
+      else if (max(pos.leftcols.new) > length(leftlabs))
+        stop("Too few labels defined for argument 'leftcols'.")
+    }
+  }
+  ##
+  ## Default set of columns if argument leftcols and/or
+  ## rightcols not specified
+  ##
+  if (is.null(leftcols)){
+    if (inherits(x, "metabin"))
+      leftcols <- c("studlab",
+                    "event.e", "n.e",
+                    "event.c", "n.c")
+    ##
+    if (inherits(x, "metacont"))
+      leftcols <- c("studlab",
+                    "n.e", "mean.e", "sd.e",
+                    "n.c", "mean.c", "sd.c")
+    ##
+    if (inherits(x, "metagen"))
+      leftcols <- c("studlab",
+                    "TE", "seTE")
+    ##
+    if (metainf.metacum)
+      leftcols <- "studlab"
+    ##
+    if (metaprop)
+      leftcols <- c("studlab",
+                    "event.e", "n.e")
+    ##
+    if (metacor)
+      leftcols <- c("studlab",
+                    "n.e")
+    ##
+    if (inherits(x, "metainc"))
+      leftcols <- c("studlab",
+                    "event.e", "time.e",
+                    "event.c", "time.c")
+  }
+  ##
+  if (is.null(rightcols) & rsel){
+    rightcols <- c("effect", "ci")
+    ##
+    if (!metainf.metacum){
+      if (comb.fixed & overall)
+        rightcols <- c(rightcols, "w.fixed")
+      if (comb.random & overall)
+        rightcols <- c(rightcols, "w.random")
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (6) Select data for forest plot
   ##
   ##
   if (metaprop){
@@ -517,6 +682,9 @@ forest.meta <- function(x,
     col.square.lines <- col.square.lines[o]
     ##
     col.i.inside.square <- col.i.inside.square[o]
+    ##
+    if (newcols)
+      dataset <- dataset[o,]
   }
   ##
   if (by)
@@ -622,7 +790,7 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (6) Prepare data for subgroup analysis
+  ## (7) Prepare data for subgroup analysis
   ##
   ##
   if (by){
@@ -753,7 +921,7 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (7) Backtransform data
+  ## (8) Backtransform data
   ##
   ##
   TE.orig <- TE
@@ -879,171 +1047,6 @@ forest.meta <- function(x,
       w.random.p <- 100*round(x$w.random/x$w.all, 3)
     else
       w.random.p <- x$w.random
-  }
-  
-  
-  ##
-  ##
-  ## (8) Determine columns on left and right side of forest plot
-  ##
-  ##
-  ## Determine whether to print columns on right and/or left side
-  ## of forest plot
-  ##
-  rsel <- !(is.logical(rightcols) && length(rightcols)==1 && !rightcols)
-  ##
-  if (!rsel)
-    rightcols <- NULL
-  ##
-  ## Check for duplicate columns
-  ##
-  if (length(c(rightcols, leftcols))>0 &&
-      any(duplicated(c(rightcols, leftcols))))
-    stop("Duplicate entries in 'leftcols' and 'rightcols'.")
-  ##
-  ## Predefined columns and labels
-  ##
-  sm.lab <- sm
-  ##
-  if (backtransf){
-    if (sm=="ZCOR")
-      sm.lab <- "COR"
-    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")){
-      if (pscale==100)
-        sm.lab <- "Prop (in %)"
-      else if (pscale==1)
-        sm.lab <- "Proportion"
-      else
-        sm.lab <- sm
-    }
-    else if (sm=="proportion")
-      sm.lab <- "Proportion"
-  }
-  else 
-    if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep="")
-  ##
-  colnames <- c("studlab", "TE", "seTE",
-                "n.e", "n.c",
-                "event.e", "event.c",
-                "mean.e", "mean.c",
-                "sd.e", "sd.c",
-                "cor",
-                "time.e", "time.c",
-                "effect", "ci",
-                "w.fixed", "w.random")
-  ##
-  labnames <- c("Study", "TE", "seTE",
-                "Total", "Total", "Events", "Events",
-                "Mean", "Mean", "SD", "SD",
-                "Cor",
-                "Time", "Time",
-                sm.lab, paste(100*level, "%-CI", sep=""),
-                "W(fixed)", "W(random)")
-  ##
-  ## Identify and process columns in addition to columns
-  ## defined above in variables 'colnames' and 'labnames'
-  ##
-  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames]
-  ##
-  newcols <- length(colnames.new)>0
-  ##
-  if (newcols){
-    if (is.null(x$data))
-      dataset <- as.data.frame(x)
-    else{
-      if (!is.null(x$subset))
-        dataset <- x$data[x$subset,]
-      else
-        dataset <- x$data
-    }
-    ##
-    ## Check whether additional variables are
-    ## part of meta-object
-    ##
-    for (i in colnames.new)
-      if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
-        stop("Variable '", i, "' not available in '", x.name, "'.")
-    ##
-    rightcols.new <- rightcols[! rightcols %in% colnames]
-    leftcols.new  <- leftcols[! leftcols %in% colnames]
-    ##
-    ## Determine label for new columns
-    ## 1. Use column name as label if no label is given
-    ##    argument right|left|labs
-    ## 2. Otherwise use corresponding entry from
-    ##    argument right|left|labs
-    ##
-    if (length(rightcols.new)>0){
-      pos.rightcols.new <- match(rightcols.new, rightcols)
-      ##
-      if (missing(rightlabs))
-        rightlabs.new <- rightcols.new
-      else if (length(rightcols.new) == length(rightlabs))
-        rightlabs.new <- rightlabs
-      else if (max(pos.rightcols.new) <= length(rightlabs))
-        rightlabs.new <- rightlabs[pos.rightcols.new]
-      else if (max(pos.rightcols.new) > length(rightlabs))
-        stop("Too few labels defined for argument 'rightcols'.")
-    }
-    if (length(leftcols.new)>0){
-      pos.leftcols.new <- match(leftcols.new, leftcols)
-      ##
-      if (missing(leftlabs))
-        leftlabs.new <- leftcols.new
-      else if (length(leftcols.new) == length(leftlabs))
-        leftlabs.new <- leftlabs
-      else if (max(pos.leftcols.new) <= length(leftlabs))
-        leftlabs.new <- leftlabs[pos.leftcols.new]
-      else if (max(pos.leftcols.new) > length(leftlabs))
-        stop("Too few labels defined for argument 'leftcols'.")
-    }
-  }
-  ##
-  ## Default set of columns if argument leftcols and/or
-  ## rightcols not specified
-  ##
-  if (is.null(leftcols)){
-    if (inherits(x, "metabin"))
-      leftcols <- c("studlab",
-                    "event.e", "n.e",
-                    "event.c", "n.c")
-    ##
-    if (inherits(x, "metacont"))
-      leftcols <- c("studlab",
-                    "n.e", "mean.e", "sd.e",
-                    "n.c", "mean.c", "sd.c")
-    ##
-    if (inherits(x, "metagen"))
-      leftcols <- c("studlab",
-                    "TE", "seTE")
-    ##
-    if (metainf.metacum)
-      leftcols <- "studlab"
-    ##
-    if (metaprop)
-      leftcols <- c("studlab",
-                    "event.e", "n.e")
-    ##
-    if (metacor)
-      leftcols <- c("studlab",
-                    "n.e")
-    ##
-    if (inherits(x, "metainc"))
-      leftcols <- c("studlab",
-                    "event.e", "time.e",
-                    "event.c", "time.c")
-  }
-  ##
-  if (is.null(rightcols) & rsel){
-    rightcols <- c("effect", "ci")
-    ##
-    if (!metainf.metacum){
-      if (comb.fixed & overall)
-        rightcols <- c(rightcols, "w.fixed")
-      if (comb.random & overall)
-        rightcols <- c(rightcols, "w.random")
-    }
   }
   
   
@@ -1853,7 +1856,7 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(rightlabs.new[i],
                                    c("", "", "",
                                      rep("", length(TE.w)),
-                                     tmp.r[o]),
+                                     tmp.r),
                                    yS,
                                    just=just.addcols)
       }
@@ -1869,7 +1872,7 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(leftlabs.new[i],
                                    c("", "", "",
                                      rep("", length(TE.w)),
-                                     tmp.l[o]),
+                                     tmp.l),
                                    yS,
                                    just=just.addcols)
       }
@@ -1885,9 +1888,7 @@ forest.meta <- function(x,
           tmp.r <- as.character(tmp.r)
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
         cols[[tname]] <- formatcol(rightlabs.new[i],
-                                   c("", "", "",
-                                     if (sort) tmp.r[o] else tmp.r
-                                     ),
+                                   c("", "", "", tmp.r),
                                    yS,
                                    just=just.addcols)
       }
@@ -1901,9 +1902,7 @@ forest.meta <- function(x,
           tmp.l <- as.character(tmp.l)
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
         cols[[tname]] <- formatcol(leftlabs.new[i],
-                                   c("", "", "",
-                                     if (sort) tmp.l[o] else tmp.l
-                                     ),
+                                   c("", "", "", tmp.l),
                                    yS,
                                    just=just.addcols)
       }

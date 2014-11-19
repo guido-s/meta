@@ -1,3 +1,10 @@
+2014-11-19, version 4.0-1
+
+Function forest.meta:
+- bug fix such that function can be used with subgroups and additional
+  columns (arguments leftcols and rightcols)
+
+
 2014-11-19, version 4.0-0
 
 Major revision
