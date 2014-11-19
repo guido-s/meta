@@ -61,6 +61,8 @@ forest(x, ...)
        hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
        overall.hetstat=overall&hetstat,
        hetlab="Heterogeneity: ",
+       text.I2 = "I-squared",
+       text.tau2 = "tau-squared",
        fontsize=12,
        fs.heading=fontsize,
        fs.fixed=fontsize, fs.random=fs.fixed, fs.predict=fs.fixed, fs.study=fontsize,
@@ -77,14 +79,15 @@ forest(x, ...)
        #
        squaresize=0.8,
        #
-       plotwidth=unit(6, "cm"),
-       colgap=unit(2, "mm"),
+       plotwidth=grid::unit(6, "cm"),
+       colgap=grid::unit(2, "mm"),
        colgap.left=colgap, colgap.right=colgap,
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
-       just="center",
+       just="right",
        just.studlab="left",
+       just.addcols="center",
        #
        addspace=TRUE,
        #
@@ -224,6 +227,8 @@ forest(x, ...)
     analyses (list object \code{byvar}) if heterogeneity statistics
     should only be printed on group level.}
   \item{hetlab}{Label printed in front of results for heterogeneity measures.}
+  \item{text.I2}{Label for I-squared statistic.}
+  \item{text.tau2}{Label for between-study variance tau-squared.}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
@@ -268,9 +273,12 @@ forest(x, ...)
     on the left side of forest plot and the forest plot.}
   \item{colgap.forest.right}{A unit object specifying gap between column
     on the right side of forest plot and the forest plot.}
-  \item{just}{Justification of text for additional columns (possible
-    values: "left", "right", "center").}
+  \item{just}{Justification of text in all columns but columns
+    with study labels and additional variables (possible values:
+    "left", "right", "center").}
   \item{just.studlab}{Justification of text for study labels (possible
+    values: "left", "right", "center").}
+  \item{just.addcols}{Justification of text for additional columns (possible
     values: "left", "right", "center").}
   \item{addspace}{A logical value indicating whether additional space
     (i.e. a blank row) is printed above and below study results.}
@@ -319,44 +327,56 @@ forest(x, ...)
   default, i.e. if arguments \code{leftcols} and \code{rightcols} are
   \code{NULL}, the following default columns will be plotted.
 
-  Argument \code{rightcols}: \code{rightcols=c("effect", "ci")}, i.e.,
-  estimated treatment effect and its \code{level}-confidence
-  interval. In addition, weights of the fixed (\code{"w.fixed"}) and/or random effects
-  model (\code{"w.random"}) will be given, if \code{comb.fixed=TRUE}
-  and/or \code{comb.random=TRUE}. For an object
-  of class \code{metacum} or \code{metainf} only the estimated treatment
-  effect with \code{level}-confidence interval are plotted.
+  \tabular{cl}{
+   Additional settings \tab Default for argument \code{rightcols} \cr
+   --- \tab \code{c("effect", "ci")} \cr
+   \code{comb.fixed=TRUE} & \code{comb.random=FALSE} \tab \code{c("effect", "ci", "w.fixed")} \cr
+   \code{comb.fixed=FALSE} & \code{comb.random=TRUE} \tab \code{c("effect", "ci", "w.random")} \cr
+   \code{comb.fixed=TRUE} & \code{comb.random=TRUE} \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+  }
+  By default, estimated treatment effect and corresponding confidence
+  interval will be printed. Depending on arguments \code{comb.fixed}
+  and \code{comb.random}, weights of the fixed effect and/or random
+  effects model will be given too. For an object of class
+  \code{metacum} or \code{metainf} only the estimated treatment effect
+  with confidence interval are plotted.
   
-  Argument \code{leftcols}:
-  (i) \code{leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c")}
-  for an object of class \code{metabin},
-  (ii) \code{leftcols=c("studlab", "n.e", "mean.e", "sd.e", "n.c",
-    "mean.c", "sd.c")} for an object of class \code{metacont},
-  (iii) \code{leftcols=c("studlab", "TE", "seTE")}
-  for an object of class \code{metagen},
-  (iv) \code{leftcols=c("studlab", "event", "n")}
-  for an object of class \code{metaprop},
-  (v) \code{leftcols=c("studlab", "n")}
-  for an object of class \code{metacor},
-  (vi) \code{leftcols=c("studlab")}
-  for an object of class \code{metacum} or \code{metainf}.
-
+  Depending on the class of the meta-analysis object a different set
+  of columns is printed on the left side of a forest plot.
+  \tabular{cl}{
+   Object type \tab Default for argument \code{leftcols} \cr
+   metabin \tab \code{c("studlab", "event.e", "n.e", "event.c", "n.c")} \cr
+   metacont \tab \code{c("studlab", "n.e", "mean.e",
+    "sd.e", "n.c", "mean.c", "sd.c")} \cr
+   metacor \tab \code{c("studlab", "n")} \cr
+   metagen \tab \code{c("studlab", "TE", "seTE")} \cr
+   metainc \tab \code{c("studlab", "event.e",
+     "time.e", "event.c", "time.c")} \cr
+   metaprop \tab \code{c("studlab", "event", "n")} \cr
+   metacum \tab \code{c("studlab")} \cr
+   metainf \tab \code{c("studlab")}
+  }
   The arguments \code{leftlabs} and \code{rightlabs} can be used to
   specify column headings which are plotted on left and right side of
   the forest plot, respectively. For certain columns predefined labels
   exist. If the arguments \code{leftlabs} and \code{rightlabs} are
-  \code{NULL}, the following default labels will be used: for columns
-  \code{c("studlab", "TE", "seTE", "n.e", "n.c", "event.e", "event.c",
-  "mean.e", "mean.c", "sd.e", "sd.c", "effect", "ci", "w.fixed",
-  "w.random")} the labels \code{c("Study", "TE", "seTE", "Total",
-  "Total", "Events", "Events", "Mean", "Mean", "SD", "SD",
-  summary measure, level for confidence interval, "W(fixed)",
-  "W(random)")}. For additional columns the column name
-  will be used as label. It is possible to only provide labels for new
-  columns (see Examples). Otherwise the length of \code{leftlabs} and
+  \code{NULL}, the following default labels will be used:
+  \tabular{ccccccc}{
+  Column \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
+  Label \tab "Study" \tab "TE" \tab "seTE"  \tab "Total" \tab "Total" \tab "Total" \cr\cr
+  Column \tab \code{event.e} \tab \code{event.c} \tab \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
+  Label \tab "Events" \tab "Events"  \tab "Events" \tab "Mean" \tab "Mean" \tab \cr\cr
+  Column \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e} \tab \code{time.c} \tab \tab \cr
+  Label \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab \tab \cr\cr
+  Column \tab \code{effect} \tab \code{ci} \tab \code{w.fixed} \tab \code{w.random} \tab \tab \cr
+  Label \tab \code{x$sm} \tab \code{x$level}-CI \tab "W(fixed)" \tab "W(random)" \tab \tab
+  }
+  For additional columns the column name will be used
+  as label. It is possible to only provide labels for new columns (see
+  Examples). Otherwise the length of \code{leftlabs} and
   \code{rightlabs} must be the same as the number of printed
-  columns. The value \code{NA} can be used to specify columns using the
-  default labels (see Example).
+  columns. The value \code{NA} can be used to specify columns using
+  the default labels (see Example).
 
   If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
   "Experimental" and "Control" are used as labels for experimental and
@@ -463,22 +483,34 @@ forest(meta1,
        lab.c.attach.to.col="event.c")
 
 
-Olkin95$studlab <- paste(Olkin95$author, Olkin95$year)
-#
-# Add variables 'year' and 'author' to meta-analysis object
-#
-meta1$year <- addvar(meta1, Olkin95, "year")
-meta1$author <- addvar(meta1, Olkin95, "author")
-
 #
 # Specify column labels only for newly created variables
-# 'year' and 'author'
+# 'year' and 'author' (which are part of dataset Olkin95)
 #
 forest(meta1,
        leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c",
                   "author", "year"),
        leftlabs=c("Author", "Year of Publ"))
 
+
+#
+# Center text in all columns
+#
+forest(meta1,
+       leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c",
+                  "author", "year"),
+       leftlabs=c("Author", "Year of Publ"), hetstat=FALSE,
+       just="center", just.addcols="center", just.studlab="center")
+\dontrun{
+#
+# Same result
+#
+forest(meta1,
+       leftcols=c("studlab", "event.e", "n.e", "event.c", "n.c",
+                  "author", "year"),
+       leftlabs=c("Author", "Year of Publ"), hetstat=FALSE,
+       just="c", just.addcols="c", just.studlab="c")
+}
 
 #
 # Change some fontsizes and fontfaces
@@ -509,7 +541,7 @@ forest(meta1, sortvar=1/w.fixed, comb.random=FALSE)
 #
 # Sort by decreasing weight in fixed effect model
 #
-forest(meta1, sortvar=rev(1/w.fixed), comb.random=FALSE)
+forest(meta1, sortvar=-1/w.fixed, comb.random=FALSE)
 
 
 #
@@ -525,15 +557,9 @@ forest(meta1, sortvar=-TE, comb.random=FALSE)
 
 
 #
-# Sort by size of treatment effect
-#
-forest(meta1, sortvar=rev(TE), comb.random=FALSE)
-
-
-#
 # Sort by decreasing year of publication
 #
-forest(meta1, sortvar=rev(year), comb.random=FALSE)
+forest(meta1, sortvar=-year, comb.random=FALSE)
 
 
 #

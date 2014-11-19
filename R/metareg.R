@@ -11,8 +11,20 @@ metareg <- function(x, formula,
     return(invisible(NULL))
   }
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\".")
+  
+  ##
+  ##
+  ## (1) Check for meta object
+  ##
+  ##
+  chkclass(x, "meta")
+  
+  
+  ##
+  ## Check whether R package metafor is installed
+  ##
+  is.installed.package("metafor", "'metareg'")
+  
   
   if (missing(formula))
     if (!is.null(x$data$.byvar))
@@ -37,10 +49,6 @@ metareg <- function(x, formula,
     method.tau <- "REML"
   }
   
-  ##
-  ## Check whether R package metafor is installed
-  ##
-  is.installed.package("metafor", "'metareg'")
   
   if (is.null(x$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")

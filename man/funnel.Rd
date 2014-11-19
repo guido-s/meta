@@ -32,7 +32,7 @@ radial(x, ...)
        lwd=1, lwd.fixed=lwd, lwd.random=lwd,
        col="black", bg="darkgray",
        col.fixed="black", col.random="black",
-       log="", yaxis="se", sm=NULL,
+       log="", yaxis="se", sm="",
        contour.levels=NULL, col.contour,
        ref=ifelse(backtransf & is.relative.effect(sm), 1, 0),
        level=NULL,
@@ -199,8 +199,8 @@ funnel(meta1)
 #
 # Same result as code above:
 #
-funnel(meta1$TE, meta1$seTE, sm="RR")
-
+funnel(meta1$TE, meta1$seTE, sm="RR",
+       comb.fixed=TRUE, level=0.95)
 #
 # Funnel plot with confidence intervals,
 # fixed effect estimate and contours

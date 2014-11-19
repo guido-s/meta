@@ -86,6 +86,14 @@ meta1
 metacum(meta1)
 metacum(meta1, pooled="random")
 
+forest(metacum(meta1))
 forest(metacum(meta1, pooled="random"))
+
+metacum(meta1, sortvar=study)
+metacum(meta1, sortvar=7:1)
+
+meta2 <- update(meta1, title="Fleiss93 meta-analysis",
+                backtransf=FALSE)
+metacum(meta2)
 }
 \keyword{htest}

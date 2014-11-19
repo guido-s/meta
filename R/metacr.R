@@ -1,18 +1,52 @@
 metacr <- function(x, comp.no=1, outcome.no=1,
+                   ##
                    method, sm,
+                   ##
                    level=.settings$level, level.comb=.settings$level.comb,
                    comb.fixed, comb.random,
+                   ##
                    hakn=FALSE,
                    method.tau="DL",
                    tau.common=FALSE,
-                   prediction=.settings$prediction, level.predict=.settings$level.predict,
+                   ##
+                   prediction=.settings$prediction,
+                   level.predict=.settings$level.predict,
+                   ##
                    swap.events, logscale,
+                   ##
                    backtransf=.settings$backtransf,
                    title, complab, outclab,
+                   ##
+                   keepdata=.settings$keepdata,
                    warn=FALSE){
+  
+  
   ##
-  if (!inherits(x, "rm5"))
-    stop("Argument 'x' must be an object of class \"rm5\"")
+  ##
+  ## (1) Check arguments
+  ##
+  ##
+  chkclass(x, "rm5")
+  ##
+  chklevel(level)
+  chklevel(level.comb)
+  ##
+  chklogical(hakn)
+  method.tau <- setchar(method.tau,
+                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  chklogical(tau.common)
+  ##
+  chklogical(prediction)
+  chklevel(level.predict)
+  ##
+  chklogical(backtransf)
+  chklogical(keepdata)
+  
+  
+  ##
+  ##
+  ## (2) Select data for meta-analysis
+  ##
   ##
   sel <- x$comp.no==comp.no & x$outcome.no==outcome.no
   ##
@@ -23,6 +57,8 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   }
   ##
   x$sel <- sel
+  ##
+  ## Additional checks
   ##
   if (missing(title))
     title   <- attributes(x)$title
@@ -44,45 +80,17 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   if (missing(sm))
     sm <- unique(x$sm[sel])
   ##
-  if (missing(method)){
+  if (missing(method))
     method <- unique(x$method[sel])
-  }
-  else{
-    imeth <- charmatch(tolower(method),
-                       c("inverse", "mh", "peto"), nomatch = NA)
-    ##
-    if(is.na(imeth))
-      stop("method should be \"Inverse\", \"MH\", or \"Peto\"")
-    ##
-    method <- c("Inverse", "MH", "Peto")[imeth]
-  }
+  else
+    method <- setchar(method, c("Inverse", "MH", "Peto"))
   ##
   if (missing(comb.fixed))
     comb.fixed  <- unique(x$comb.fixed[sel])
   ##
   if (missing(comb.random))
     comb.random <- unique(x$comb.random[sel])
-  
-  
-  ##
-  ## Check for levels of confidence interval
-  ##
-  if (!is.numeric(level) | length(level)!=1)
-    stop("parameter 'level' must be a numeric of length 1")
-  if (level <= 0 | level >= 1)
-    stop("parameter 'level': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("parameter 'level.comb' must be a numeric of length 1")
-  if (level.comb <= 0 | level.comb >= 1)
-    stop("parameter 'level.comb': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("parameter 'level.predict' must be a numeric of length 1")
-  if (level.predict <= 0 | level.predict >= 1)
-    stop("parameter 'level.predict': no valid level for confidence interval")
-  
-  
+  ##  
   if (tau.common & method=="Peto"){
     if (warn)
       warning("Argument 'tau.common' not considered for Peto method.")
@@ -96,6 +104,11 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   }
   
   
+  ##
+  ##
+  ## (3) Calculate results for individual studies
+  ##
+  ##
   if (!all(is.na(x$logscale[sel]))){
     if (!unique(x$logscale[sel]))
       x$TE[sel] <- log(x$TE[sel])
@@ -111,6 +124,11 @@ metacr <- function(x, comp.no=1, outcome.no=1,
   }
   
   
+  ##
+  ##
+  ## (4) Do meta-analysis
+  ##
+  ##
   if (length(unique(x$group.no[sel]))>1){
     if (type=="D"){
       ##

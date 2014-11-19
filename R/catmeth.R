@@ -101,7 +101,7 @@ catmeth <- function(method, method.tau=NULL,
     if (!is.null(tau.preset) & !tau.common){
       tau2 <- tau.preset^2
       if (tau2 > 0 & tau2 < 0.0001)
-        tau2 <- "tau^2 < 0.0001"
+        tau2 <- paste("tau^2", format.tau(tau2))
       else
         tau2 <- paste("tau^2 = ",
                       ifelse(tau2==0,

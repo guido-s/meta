@@ -1,13 +1,19 @@
 summary.rm5 <- function(object, comp.no, outcome.no, ...){
   
-  if (!inherits(object, "rm5"))
-    stop("Argument 'object' must be an object of class \"rm5\"")
-    
+  
+  ##
+  ##
+  ## (1) Check for rm5 object
+  ##
+  ##
+  chkclass(object, "rm5")
+  
+  
   if (missing(comp.no))
     comp.no <- unique(object$comp.no)
-  
+  ##
   res <- list()
-  
+  ##
   n <- 1
   ##
   for (i in comp.no){
@@ -23,8 +29,9 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...){
       ##
     }
   }
-  
+  ##
   class(res) <- "summary.rm5"
+  
   
   res
 }

@@ -2,7 +2,7 @@ export(ci, settings.meta, forest, forest.meta,
        funnel, funnel.default, funnel.meta,
        baujat, baujat.meta,
        bubble, bubble.metareg,
-       addvar, as.data.frame.meta,
+       as.data.frame.meta,
        metabias, metabias.default, metabias.meta,
        metabin, metacont, metacor, metacr, metaprop,
        metareg, metainc,
@@ -22,6 +22,7 @@ export(ci, settings.meta, forest, forest.meta,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
+# hetcalc, chkarg, chklevel, chklogical
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)

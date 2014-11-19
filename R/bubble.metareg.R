@@ -10,8 +10,12 @@ bubble.metareg <- function(x,
                            axes=TRUE, box=TRUE, ...){
   
   
-  if (!inherits(x, "metareg"))
-    stop("Argument 'x' must be an object of class \"metareg\"")
+  ##
+  ##
+  ## (1) Check for meta object
+  ##
+  ##
+  chkclass(x, "metareg")
   
   
   m0 <- x$.meta$x
@@ -41,16 +45,28 @@ bubble.metareg <- function(x,
   
   charform <- as.character(x$.meta$formula)[2]
   splitform <- strsplit(charform, " ")[[1]]
-  ##
   covar.name <- splitform[1]
+  if (covar.name=="1" | covar.name=="-1")
+    covar.name <- splitform[3]
+  ##
+  covar.names <- names(coef(x))
+  covar.names.without.intrcpt <- covar.names[covar.names!="intrcpt"]
+  if (length(covar.names.without.intrcpt)==0){
+    warning("No covariate in meta-regression.")
+    return(invisible(NULL))
+  }
+  ##
+  nointrcpt <- ifelse("intrcpt" %in% covar.names, FALSE, TRUE)
+  ##
   if (covar.name==".byvar")
     covar.name <- x$.meta$x$bylab
   ##
-  if (length(splitform)!=1){
+  if (length(covar.names.without.intrcpt) > 1){
     warning(paste("Only first covariate in meta-regression ",
-                  "('", covar.name, "') considered in bubble plot.",
+                  "('", covar.name, "') considered in bubble plot. No regression line plotted.",
                   sep="")
             )
+    regline <- FALSE
     if (missing(xlab))
       xlab <- paste("Covariate ", covar.name,
                     " (meta-regression: ", charform, ")", sep="")
@@ -81,6 +97,9 @@ bubble.metareg <- function(x,
     if (missing(xlim))
       xlim <- range(xs)
   }
+  ##
+  alpha <- ifelse(nointrcpt, 0, coef(x)["intrcpt"])
+  beta <- coef(x)[covar.name]
   
   
   ys <- TE
@@ -88,15 +107,10 @@ bubble.metareg <- function(x,
   if (missing(ylim))
     ylim <- range(ys)
   ##
-  if (missing(ylab)){
-    ylab.detail <- tolower(xlab(sm))
-    if (is.relative.effect(sm))
-      ylab.detail <- paste("log", ylab.detail)
-    ##
+  if (missing(ylab))
     ylab <- paste("Treatment effect (",
-                  ylab.detail,
+                  tolower(xlab(sm, backtransf=FALSE)),
                   ")", sep="")
-  }
   
   
   missing.cex <- missing(cex)
@@ -126,8 +140,6 @@ bubble.metareg <- function(x,
   ##
   if (is.factor(covar)){
     for (i in 2:length(levs)){
-      alpha <- coef(x)[1]
-      ##
       sel <- xs %in% c(0, i-1)
       xs.i <- xs[sel]
       xs.i[xs.i>0] <- 1
@@ -151,16 +163,19 @@ bubble.metareg <- function(x,
       ##
       ## x-axis
       ##
-      if (axes) axis(1, at=0:1, labels=levs[c(1,i)], ...)
+      if (axes)
+        axis(1, at=0:1, labels=levs[c(1,i)], ...)
       ##
       ## y-axis
       ##
-      if (axes) axis(2, ...)
+      if (axes)
+        axis(2, ...)
       ##  
       text(xs.i, ys.i, labels=studlab.i, cex=cex.studlab,
            pos=pos, offset=offset)
       ##
-      if (box) box()
+      if (box)
+        box()
     }
   }
   else{
@@ -172,23 +187,26 @@ bubble.metareg <- function(x,
     ## Add regression line
     ##
     if (regline)
-      abline(coef(x)[1], coef(x)[2],
+      abline(alpha, beta,
              lty=lty, lwd=lwd, col=col.line)
     ##
     points(xs, ys, cex=cexs, pch=pch, col=col, bg=bg)
     ##
     ## x-axis
     ##
-    if (axes) axis(1, ...)
+    if (axes)
+      axis(1, ...)
     ##
     ## y-axis
     ##
-    if (axes) axis(2, ...)
+    if (axes)
+      axis(2, ...)
     ##  
     text(xs, ys, labels=studlab, cex=cex.studlab,
          pos=pos, offset=offset)
     ##
-    if (box) box()
+    if (box)
+      box()
   }
   
   

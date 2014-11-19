@@ -2,14 +2,19 @@ metabias.meta <- function(x, method.bias=x$method.bias,
                           plotit=FALSE, correct=FALSE,
                           k.min=10, ...){
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\".")
-  
+  ##
+  ##
+  ## (1) Check for meta object
+  ##
+  ##
+  chkclass(x, "meta")
+  ##  
   if (inherits(x, "metacum"))
     stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\".")
   ##
   if (inherits(x, "metainf"))
     stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\".")
+  
   
   TE <- x$TE
   seTE <- x$seTE

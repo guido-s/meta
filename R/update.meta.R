@@ -50,11 +50,18 @@ update.meta <- function(object,
                         ...){
   
   
-  if (!inherits(object, "meta"))
-    stop("Argument 'object' must be an object of class \"meta\"")
+  ##
+  ##
+  ## (1) Check for meta object
+  ##
+  ##
+  chkclass(object, "meta")
   
   
-  ## Replace missing arguments with defaults
+  ##
+  ##
+  ## (2) Replace missing arguments with defaults
+  ##
   ##
   replacemiss <- function(x, replacement){
     ##
@@ -97,9 +104,16 @@ update.meta <- function(object,
   label.e <- replacemiss(label.e)
   label.c <- replacemiss(label.c)
   ##
+  print.byvar <- replacemiss(print.byvar)
+  ##
   warn <- replacemiss(warn)
   
   
+  ##
+  ##
+  ## (3) Update trim-and-fill object
+  ##
+  ##
   if (inherits(object, "trimfill")){
     ##
     rmfilled <- function(x){
@@ -143,6 +157,11 @@ update.meta <- function(object,
   }
   
   
+  ##
+  ##
+  ## (4) Update metacum or metainf object
+  ##
+  ##
   if (inherits(object, "metacum") | inherits(object, "metainf")){
     ##
     res <- object
@@ -158,11 +177,14 @@ update.meta <- function(object,
   }
   
   
-  ## Some additional changes for meta objects with version < 3.2
+  ##
+  ##
+  ## (5) Prepare older meta object
+  ##
   ##
   if (!(!is.null(object$version) &&
         as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)){
-    ##
+    ## Some additional changes for meta objects with version < 3.2
     object$subset <- NULL
     ##
     object$data <- data.frame(.studlab=object$studlab)
@@ -196,20 +218,17 @@ update.meta <- function(object,
       object$data$.cor <- object$cor
       object$data$.n <- object$n
     }
-  }  
-  
-  
+  }
+  ##  
   if (is.null(object$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
     return(invisible(NULL))
   }
-  
-  
+  ##  
   missing.subset  <- missing(subset)
   missing.byvar   <- missing(byvar)
   missing.studlab <- missing(studlab)
-  
-  
+  ##  
   mf <- match.call()
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
@@ -230,8 +249,7 @@ update.meta <- function(object,
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
-  
-
+  ##
   if (missing.subset){
     if (!is.null(object$subset))
       subset <- object$subset
@@ -246,29 +264,43 @@ update.meta <- function(object,
     studlab <- object$data$.studlab
   
   
+  ##
+  ##
+  ## (6) Update meta object
+  ##
+  ##
   if (inherits(object,"metabin"))
     m <- metabin(event.e=object$data$.event.e,
                  n.e=object$data$.n.e,
                  event.c=object$data$.event.c,
                  n.c=object$data$.n.c,
                  studlab=studlab,
+                 ##
                  data=data, subset=subset,
+                 ##
                  method=method,
                  sm=sm,
                  incr=incr, allincr=allincr, addincr=addincr, allstudies=allstudies,
                  MH.exact=MH.exact, RR.cochrane=RR.cochrane,
+                 ##
                  level=level, level.comb=level.comb,
                  comb.fixed=comb.fixed, comb.random=comb.random,
+                 ##
                  hakn=hakn, method.tau=method.tau,
                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 ##
                  prediction=prediction, level.predict=level.predict,
+                 ##
                  method.bias=method.bias,
+                 ##
                  backtransf=backtransf,
                  title=title, complab=complab, outclab=outclab,
                  label.e=label.e, label.c=label.c,
                  label.right=label.right, label.left=label.left,
+                 ##
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
                  print.CMH=print.CMH,
+                 ##
                  keepdata=keepdata,
                  warn=warn)
   ##
@@ -280,59 +312,27 @@ update.meta <- function(object,
                   mean.c=object$data$.mean.c,
                   sd.c=object$data$.sd.c,
                   studlab=studlab,
+                  ##
                   data=data, subset=subset,
+                  ##
                   sm=sm, pooledvar=pooledvar,
+                  ##
                   level=level, level.comb=level.comb,
                   comb.fixed=comb.fixed, comb.random=comb.random,
+                  ##
                   hakn=hakn, method.tau=method.tau,
                   tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                  ##
                   prediction=prediction, level.predict=level.predict,
+                  ##
                   method.bias=method.bias,
+                  ##
                   title=title, complab=complab, outclab=outclab,
                   label.e=label.e, label.c=label.c,
                   label.right=label.right, label.left=label.left,
+                  ##
                   byvar=byvar, bylab=bylab, print.byvar=print.byvar,
-                  keepdata=keepdata,
-                  warn=warn)
-  ##
-  if (inherits(object,"metagen"))
-    m <- metagen(TE=object$data$.TE,
-                 seTE=object$data$.seTE,
-                 studlab=studlab,
-                 data=data, subset=subset,
-                 sm=sm,
-                 level=level, level.comb=level.comb,
-                 comb.fixed=comb.fixed, comb.random=comb.random,
-                 hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
-                 prediction=prediction, level.predict=level.predict,
-                 method.bias=method.bias,
-                 n.e=n.e, n.c=n.c,
-                 backtransf=backtransf,
-                 title=title, complab=complab, outclab=outclab,
-                 label.e=label.e, label.c=label.c,
-                 label.right=label.right, label.left=label.left,
-                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
-                 keepdata=keepdata,
-                 warn=warn)
-  ##
-  if (inherits(object,"metaprop"))
-    m <- metaprop(event=object$data$.event,
-                  n=object$data$.n,
-                  studlab=studlab,
-                  data=data, subset=subset,
-                  sm=sm,
-                  incr=incr, allincr=allincr, addincr=addincr,
-                  method.ci=ifelse(is.null(method.ci), "CP", method.ci),
-                  level=level, level.comb=level.comb,
-                  comb.fixed=comb.fixed, comb.random=comb.random,
-                  hakn=hakn, method.tau=method.tau,
-                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
-                  prediction=prediction, level.predict=level.predict,
-                  method.bias=method.bias,
-                  backtransf=backtransf,
-                  title=title, complab=complab, outclab=outclab,
-                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                  ##
                   keepdata=keepdata,
                   warn=warn)
   ##
@@ -340,18 +340,57 @@ update.meta <- function(object,
     m <- metacor(cor=object$data$.cor,
                  n=object$data$.n,
                  studlab=studlab,
+                 ##
                  data=data, subset=subset,
+                 ##
                  sm=sm,
+                 ##
                  level=level, level.comb=level.comb,
                  comb.fixed=comb.fixed, comb.random=comb.random,
+                 ##
                  hakn=hakn, method.tau=method.tau,
                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 ##
                  prediction=prediction, level.predict=level.predict,
+                 ##
                  method.bias=method.bias,
+                 ##
                  backtransf=backtransf,
                  title=title, complab=complab, outclab=outclab,
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 ##
                  keepdata=keepdata)
+  ##
+  if (inherits(object,"metagen"))
+    m <- metagen(TE=object$data$.TE,
+                 seTE=object$data$.seTE,
+                 studlab=studlab,
+                 ##
+                 data=data, subset=subset,
+                 ##
+                 sm=sm,
+                 ##
+                 level=level, level.comb=level.comb,
+                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 ##
+                 hakn=hakn, method.tau=method.tau,
+                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 ##
+                 prediction=prediction, level.predict=level.predict,
+                 ##
+                 method.bias=method.bias,
+                 ##
+                 n.e=n.e, n.c=n.c,
+                 ##
+                 backtransf=backtransf,
+                 title=title, complab=complab, outclab=outclab,
+                 label.e=label.e, label.c=label.c,
+                 label.right=label.right, label.left=label.left,
+                 ##
+                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 ##
+                 keepdata=keepdata,
+                 warn=warn)
   ##
   if (inherits(object,"metainc"))
     m <- metainc(event.e=object$data$.event.e,
@@ -359,25 +398,63 @@ update.meta <- function(object,
                  event.c=object$data$.event.c,
                  time.c=object$data$.time.c,
                  studlab=studlab,
-                 data=data, subset=subset, method=method,
+                 ##
+                 data=data, subset=subset,
+                 ##
+                 method=method,
                  sm=sm,
                  incr=incr, allincr=allincr, addincr=addincr,
+                 ##
                  level=level, level.comb=level.comb,
                  comb.fixed=comb.fixed, comb.random=comb.random,
+                 ##
                  hakn=hakn, method.tau=method.tau,
                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 ##
                  prediction=prediction, level.predict=level.predict,
+                 ##
                  method.bias=method.bias,
+                 ##
                  n.e=n.e, n.c=n.c,
+                 ##
                  backtransf=backtransf,
                  title=title, complab=complab, outclab=outclab,
                  label.e=label.e, label.c=label.c,
                  label.right=label.right, label.left=label.left,
+                 ##
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 ##
                  keepdata=keepdata,
                  warn=warn)
-  
-  
+  ##
+  if (inherits(object,"metaprop"))
+    m <- metaprop(event=object$data$.event,
+                  n=object$data$.n,
+                  studlab=studlab,
+                  ##
+                  data=data, subset=subset,
+                  ##
+                  sm=sm,
+                  incr=incr, allincr=allincr, addincr=addincr,
+                  method.ci=ifelse(is.null(method.ci), "CP", method.ci),
+                  ##
+                  level=level, level.comb=level.comb,
+                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  ##
+                  hakn=hakn, method.tau=method.tau,
+                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                  ##
+                  prediction=prediction, level.predict=level.predict,
+                  ##
+                  method.bias=method.bias,
+                  ##
+                  backtransf=backtransf,
+                  title=title, complab=complab, outclab=outclab,
+                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                  ##
+                  keepdata=keepdata,
+                  warn=warn)
+  ##  
   m$call.object <- object$call
   m$call <- match.call()
   

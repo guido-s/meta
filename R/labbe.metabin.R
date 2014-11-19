@@ -14,15 +14,14 @@ labbe.metabin <- function(x,
                           studlab=FALSE, cex.studlab=0.8,
                           ...){
   
-  if (!inherits(x, "metabin"))
-    stop("Argument 'x' must be an object of class \"metabin\"")
   
-  
-  ## Upgrade meta objects created with older versions of meta
   ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
-    x <- update(x, warn=FALSE)
+  ##
+  ## (1) Check for meta object and upgrade older meta objects
+  ##
+  ##
+  chkclass(x, "metabin")
+  x <- updateversion(x)
   
   
   pc <- x$event.c/x$n.c

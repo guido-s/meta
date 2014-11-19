@@ -8,53 +8,31 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
                           backtransf=x$backtransf,
                           silent=TRUE, ...){
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
+  
+  ##
+  ##
+  ## (1) Check for meta object and upgrade older meta objects
+  ##
+  ##
+  chkclass(x, "meta")
   if (inherits(x, "metacum"))
     stop("This function is not usable for an object of class \"metacum\"")
   if (inherits(x, "metainf"))
     stop("This function is not usable for an object of class \"metainf\"")
+  x <- updateversion(x)
   
   
-  ## Upgrade meta objects created with older versions of meta
   ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
-    x <- update(x, warn=FALSE)
-  
-  
-  if (length(comb.fixed)==0)
-    comb.fixed <- TRUE
+  ## Check arguments
   ##
-  if (length(comb.random)==0)
-    comb.random <- TRUE
+  type <- setchar(type, c("L", "R"))
   ##
-  if (length(prediction)==0)
-    prediction <- FALSE
-  
-  
-  if (length(level)==0){
-    warning("level set to 0.95")
-    level <- 0.95
-  }
+  chklevel(level)
+  chklevel(level.comb)
+  chklevel(level.predict)
   ##
-  if (length(level.comb)==0){
-    if (comb.fixed | comb.random)
-      warning("level.comb set to 0.95")
-    level.comb <- 0.95
-  }
-  ##
-  if (length(level.predict)==0){
-    if (prediction & comb.random)
-      warning("level.predict set to 0.95")
-    level.predict <- 0.95
-  }
-  
-  if (length(hakn)==0)
-    hakn <- FALSE
-  ##
-  if (length(method.tau)==0)
-    method.tau <- "DL"
+  chklogical(comb.fixed)
+  chklogical(comb.random)
   
   
   TE <- x$TE
@@ -121,29 +99,6 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
   }
   
   
-  if (match(type, c("L", "R"), nomatch=0) == 0)
-    stop("type must be either 'L' or 'R'")
-  
-  
-  ##
-  ## Check for levels of confidence interval
-  ##
-  if (!is.numeric(level) | length(level)!=1)
-    stop("parameter 'level' must be a numeric of length 1")
-  if (level <= 0 | level >= 1)
-    stop("parameter 'level': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("parameter 'level.comb' must be a numeric of length 1")
-  if (level.comb <= 0 | level.comb >= 1)
-    stop("parameter 'level.comb': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("parameter 'level.predict' must be a numeric of length 1")
-  if (level.predict <= 0 | level.predict >= 1)
-    stop("parameter 'level.predict': no valid level for confidence interval")
-  
-  
   if (is.null(left))
     left <- as.logical(sign(metabias(TE, seTE, method="linreg", k.min=3)$estimate[1])==1)
   ##
@@ -175,7 +130,8 @@ trimfill.meta <- function(x, left=NULL, ma.fixed=TRUE,
     sd.e <- sd.e[ord]
   if (!is.null(sd.c))
     sd.c <- sd.c[ord]
-
+  
+  
   if (ma.fixed)
     TE.sum <- metagen(TE, seTE)$TE.fixed
   else

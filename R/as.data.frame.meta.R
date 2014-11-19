@@ -1,15 +1,14 @@
 as.data.frame.meta <- function(x, row.names=NULL,
                                optional=FALSE, ...){
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
   
-  
-  ## Upgrade meta objects created with older versions of meta
   ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
-    x <- update(x, warn=FALSE)
+  ##
+  ## (1) Check for meta object and upgrade older meta objects
+  ##
+  ##
+  chkclass(x, "meta")
+  x <- updateversion(x)
   
   
   ## Remove element 'call' from object of class meta to get rid

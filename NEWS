@@ -1,3 +1,71 @@
+2014-11-19, version 4.0-0
+
+Major revision
+
+This update has been declared as major revision as R code to conduct
+subgroup analyses has been moved from R functions summary.meta and
+forest.meta to R functions metabin, metacont, metacor, metagen,
+metainc, and metaprop. Accordingly, an R object generated with these
+functions contains all results from subgroup analyses (see
+corresponding help pages).
+
+In the case of subgroups, the overall treatment effect in fixed effect
+and random effects meta-analysis ignores subgroup membership. See
+Borenstein et al. (2011), Introduction to Meta-Analysis, Wiley,
+Chapter 19, "Obtaining an overall effect in the presence of subgroups,
+Option 3.
+
+Furthermore, several checks of function arguments have been implented
+in version 4.0-0 of meta.
+
+Function addvar has been removed from R package meta (remaining
+functionality provided by forest.meta function)
+
+Function forest.meta:
+- new meaning for argument 'just' which determines the justification
+  of all columns but study labels (argument 'just.studlab') and
+  columns added to the forest plot (argument 'just.addcols')
+- new argument 'just.addcols' to change justification
+  of text in additional columns
+- new arguments 'text.I2' and 'text.tau2'
+- for metaprop objects, values "n" and "event" handled as standard
+  columns in argument 'rightcols' and 'leftcols', i.e. justification
+  is determined by argument 'just.cols'
+- subgroup results printed with the same polygon height as overall
+  results, i.e. percentage weight is not considered to determine
+  polygon height for subgroups
+
+Function bubble.metareg:
+- bug fix such that bubble plot is generated for meta-regression
+  objects without intercept
+- bug fix such that use of function does not result in an error for
+  some effect measures, e.g. sm="RR", "OR", or "HR"
+
+New R functions (used internally):
+- subgroup, hetcalc
+- updateversion
+- bylevs, byvarname
+- chkchar, chkclass, chklength, chklevel, chklogical, chkmetafor
+  chkmiss, chknull, chknumeric
+- int2num, npn
+- setchar, setstudlab
+
+Functions format.p, format.tau, catmeth, and print.summary.meta:
+- consider settings for option 'OutDec' (character used as decimal
+  point in output conversions), e.g. options(OutDec=",") will print
+  "1,0" instead of "1.0"
+
+Functions print.summary.meta:
+- remove code for R objects created with version 2.0-0 or lower of
+  meta
+- print 'p-value' instead of 'p.value'
+
+Functions print.meta:
+- print 'p-value' instead of 'p.value'
+
+Several help pages updated.
+
+
 2014-09-12, version 3.8-0
 
 Functions forest.meta, funnel.default, funnel.meta, metabin, metacor,

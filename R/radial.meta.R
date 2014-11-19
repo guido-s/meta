@@ -6,8 +6,14 @@ radial.meta <- function(x,
                         pch=1, text=NULL, cex=1, col=NULL,
                         level=NULL, ...){
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
+  
+  ##
+  ##
+  ## (1) Check for meta object
+  ##
+  ##
+  chkclass(x, "meta")
+  
   
   TE <- x$TE
   seTE <- x$seTE

@@ -20,7 +20,8 @@ metacr(x, comp.no=1, outcome.no=1,
        prediction=.settings$prediction, level.predict=.settings$level.predict,
        swap.events, logscale,
        backtransf=.settings$backtransf,
-       title, complab, outclab, warn=FALSE)
+       title, complab, outclab,
+       keepdata=.settings$keepdata, warn=FALSE)
 }
 
 \arguments{
@@ -69,6 +70,8 @@ metacr(x, comp.no=1, outcome.no=1,
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
+  \item{keepdata}{A logical indicating whether original data (set)
+    should be kept in meta object.}
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}

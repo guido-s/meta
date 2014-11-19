@@ -4,8 +4,14 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
                          method.bias.or="score",
                          k.min=10, ...){
   
-  if (!inherits(x, "rm5"))
-    stop("Argument 'x' must be an object of class \"rm5\"")
+  
+  ##
+  ##
+  ## (1) Check for rm5 object
+  ##
+  ##
+  chkclass(x, "rm5")
+  
   
   if (missing(comp.no))
     comp.no <- unique(x$comp.no)

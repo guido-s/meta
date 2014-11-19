@@ -1,7 +1,13 @@
 print.metabias <- function(x, ...){
   
-  if (!inherits(x, "metabias"))
-    stop("Argument 'x' must be an object of class \"metabias\"")
+  
+  ##
+  ##
+  ## (1) Check for metabias object
+  ##
+  ##
+  chkclass(x, "metabias")
+  
   
   ## Print information for meta-analysis from Cochrane Review
   ##
@@ -23,7 +29,7 @@ print.metabias <- function(x, ...){
         else
           warning("Number of studies (k=",  x$k,
                   ") too small to test for small study effects (k.min=",
-                  x$k.min, "). Change parameter 'k.min' if appropriate.\n")
+                  x$k.min, "). Change argument 'k.min' if appropriate.\n")
       }
     }
     ##

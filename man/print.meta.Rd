@@ -178,7 +178,7 @@ cilayout(bracket="[", separator="; ")
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
-  \item{by.levs}{Levels of grouping variable - if \code{byvar} is not
+  \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
@@ -206,7 +206,9 @@ cilayout(bracket="[", separator="; ")
 
 \examples{
 data(Fleiss93cont)
-meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont, sm="SMD")
+meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
+                  data=Fleiss93cont, sm="SMD",
+                  studlab=paste(study, year))
 summary(meta1)
 
 summary(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))

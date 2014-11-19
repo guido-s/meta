@@ -51,7 +51,7 @@ paulemandel <- function(TE, seTE,
   }
   
   res <- list(TE.random=TE.random, seTE.random=seTE.random,
-              w.random=w.random, tau2=tau2,
+              w.random=w.random, tau=sqrt(tau2),
               n.iter=n.iter, converged=converged, tol=tol*variance.TE)
   
   res

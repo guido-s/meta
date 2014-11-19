@@ -1,119 +1,191 @@
 metacor <- function(cor, n, studlab,
+                    ##
                     data=NULL, subset=NULL,
+                    ##
                     sm=.settings$smcor,
+                    ##
                     level=.settings$level, level.comb=.settings$level.comb,
-                    comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+                    comb.fixed=.settings$comb.fixed,
+                    comb.random=.settings$comb.random,
+                    ##
                     hakn=.settings$hakn,
-                    method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+                    method.tau=.settings$method.tau,
+                    tau.preset=NULL, TE.tau=NULL,
                     tau.common=.settings$tau.common,
-                    prediction=.settings$prediction, level.predict=.settings$level.predict,
+                    ##
+                    prediction=.settings$prediction,
+                    level.predict=.settings$level.predict,
+                    ##
                     method.bias=.settings$method.bias,
                     ##
                     backtransf=.settings$backtransf,
-                    title=.settings$title, complab=.settings$complab, outclab="",
+                    title=.settings$title, complab=.settings$complab,
+                    outclab="",
+                    ##
                     byvar, bylab, print.byvar=.settings$print.byvar,
+                    ##
                     keepdata=.settings$keepdata
                     ){
   
-
-  ##if (missing(data)) data <- NULL
+  
+  ##
+  ##
+  ## (1) Check arguments
+  ##
+  ##
+  chklevel(level)
+  chklevel(level.comb)
+  chklogical(comb.fixed)
+  chklogical(comb.random)
+  ##
+  chklogical(hakn)
+  method.tau <- setchar(method.tau,
+                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  chklogical(tau.common)
+  ##
+  chklogical(prediction)
+  chklevel(level.predict)
+  ##
+  method.bias <- setchar(method.bias,
+                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  ##
+  chklogical(backtransf)
+  chklogical(keepdata)
+  ##
+  ## Additional arguments / checks for metacor objects
+  ##
+  fun <- "metacor"
+  sm <- setchar(sm, c("ZCOR", "COR"))
+  chkmetafor(method.tau, fun)
+  
+  
+  ##
+  ##
+  ## (2) Read data
+  ##
+  ##
   nulldata <- is.null(data)
   ##
-  if (is.null(data)) data <- sys.frame(sys.parent())
+  if (nulldata)
+    data <- sys.frame(sys.parent())
   ##
   mf <- match.call()
   ##
-  ## Catch cor, n, studlab, byvar, subset from data:
+  ## Catch cor, n from data:
   ##
   cor <- eval(mf[[match("cor", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
+  chknull(cor)
+  k.All <- length(cor)
   ##
   n <- eval(mf[[match("n", names(mf))]],
             data, enclos = sys.frame(sys.parent()))
+  chknull(n)
+  ##
+  ## Catch studlab, byvar, subset from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
+  studlab <- setstudlab(studlab, k.All)
   ##
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
+  missing.byvar <- is.null(byvar)
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
-  
-  
   missing.subset <- is.null(subset)
-  if (!missing.subset)
-    if ((is.logical(subset) & (sum(subset) > length(cor))) ||
-        (length(subset) > length(cor)))
-      stop("Length of subset is larger than number of studies.")
   
   
-  missing.byvar <- is.null(byvar)
-  if (!missing.byvar){
-    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
-    if (length(byvar.name)>1 & byvar.name[1]=="$")
-      byvar.name <- byvar.name[length(byvar.name)]
-    if (length(byvar.name)>1)
-      byvar.name <- "byvar"
-  }
-  
-  
-  if (is.null(studlab))
-    studlab <- seq(along=cor)
   ##
-  if (is.factor(studlab))
-    studlab <- as.character(studlab)
+  ##
+  ## (3) Check length of essential variables
+  ##
+  ##
+  chklength(n, k.All, fun)
+  chklength(studlab, k.All, fun)
+  ##
+  if (!missing.byvar)
+    chklength(byvar, k.All, fun)
+  ##
+  ## Additional checks
+  ##
+  if (missing.byvar & tau.common){
+    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    tau.common <- FALSE
+  }
+  if (!missing.byvar & tau.common & !is.null(tau.preset)){
+    warning("Value for argument 'tau.preset' ignored as argument tau.common=TRUE.")
+    tau.preset <- NULL
+  }
   
   
+  ##
+  ##
+  ## (4) Subset and subgroups
+  ##
+  ##
+  if (!missing.subset)
+    if ((is.logical(subset) & (sum(subset) > k.All)) ||
+        (length(subset) > k.All))
+      stop("Length of subset is larger than number of studies.")
+  ##  
+  if (!missing.byvar){
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
+  
+  
+  ##
+  ##
+  ## (5) Store complete dataset in list object data
+  ##     (if argument keepdata is TRUE)
+  ##
+  ##
   if (keepdata){
-    if (nulldata){
-      data <- data.frame(.cor=cor, .n=n, .studlab=studlab,
-                         stringsAsFactors=FALSE)
-      if (!missing.byvar)
-        data$.byvar <- byvar
-      ##
-      if (!missing.subset){
-        if (length(subset) == dim(data)[1])
-          data$.subset <- subset
-        else{
-          data$.subset <- FALSE
-          data$.subset[subset] <- TRUE
-        }
-      }
-    }
-    else{
+    if (nulldata)
+      data <- data.frame(.cor=cor)
+    else
       data$.cor <- cor
-      data$.n <- n
-      ##
-      data$.studlab <- studlab
-      ##
-      if (!missing.byvar)
-        data$.byvar <- byvar
-      ##
-      if (!missing.subset){
-        if (length(subset) == dim(data)[1])
-          data$.subset <- subset
-        else{
-          data$.subset <- FALSE
-          data$.subset[subset] <- TRUE
-        }
+    ##
+    data$.n <- n
+    data$.studlab <- studlab
+    ##
+    if (!missing.byvar)
+      data$.byvar <- byvar
+    ##
+    if (!missing.subset){
+      if (length(subset) == dim(data)[1])
+        data$.subset <- subset
+      else{
+        data$.subset <- FALSE
+        data$.subset[subset] <- TRUE
       }
     }
   }
   
   
+  ##
+  ##
+  ## (6) Use subset for analysis
+  ##
+  ##
   if (!missing.subset){
     cor <- cor[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
+    ##
     if (!missing.byvar)
       byvar <- byvar[subset]
   }
-  
-  
+  ##
+  ## Determine total number of studies
+  ##
   k.all <- length(cor)
   ##
-  if (k.all == 0) stop("No studies to combine in meta-analysis.")
+  if (k.all == 0)
+    stop("No studies to combine in meta-analysis.")
   ##
   ## No meta-analysis for a single study
   ##
@@ -122,46 +194,18 @@ metacor <- function(cor, n, studlab,
     comb.random <- FALSE
     prediction <- FALSE
   }
-  
-  
-  if (!(is.numeric(cor) & is.numeric(n)))
-    stop("Non-numeric value for cor or n")
   ##
-  if (any(n <= 0)) stop("n must be positive")
+  ## Check variable values
   ##
-  if (any(cor < -1) | any(cor > 1))
-    stop("cor must be between -1 and 1")
-  ##
-  if (length(studlab) != k.all)
-    stop("Number of studies and labels are different")
-  ##
-  imeth <- charmatch(tolower(sm), c("zcor", "cor"), nomatch = NA)
-  ##
-  if(is.na(imeth) || imeth==0)
-    stop("sm should be \"ZCOR\" or \"COR\"")
-  ##
-  sm <- c("ZCOR", "COR")[imeth]
+  chknumeric(cor, -1, 1)
+  chknumeric(n, 0, zero=TRUE)
   
   
   ##
-  ## Check for levels of confidence interval
   ##
-  if (!is.numeric(level) | length(level)!=1)
-    stop("parameter 'level' must be a numeric of length 1")
-  if (level <= 0 | level >= 1)
-    stop("parameter 'level': no valid level for confidence interval")
+  ## (7) Calculate results for individual studies
   ##
-  if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("parameter 'level.comb' must be a numeric of length 1")
-  if (level.comb <= 0 | level.comb >= 1)
-    stop("parameter 'level.comb': no valid level for confidence interval")
   ##
-  if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("parameter 'level.predict' must be a numeric of length 1")
-  if (level.predict <= 0 | level.predict >= 1)
-    stop("parameter 'level.predict': no valid level for confidence interval")
-  
-  
   if (sm=="ZCOR"){
     TE   <- 0.5 * log((1 + cor)/(1 - cor))
     seTE <- sqrt(1/(n - 3))
@@ -173,143 +217,102 @@ metacor <- function(cor, n, studlab,
   
   
   ##
-  ## Subgroup analysis with equal tau^2:
+  ##
+  ## (8) Do meta-analysis
+  ##
+  ##
+  m <- metagen(TE, seTE, studlab,
+               ##
+               sm=sm,
+               level=level,
+               level.comb=level.comb,
+               comb.fixed=comb.fixed,
+               comb.random=comb.random,
+               ##
+               hakn=hakn,
+               method.tau=method.tau,
+               tau.preset=tau.preset,
+               TE.tau=TE.tau,
+               tau.common=FALSE,
+               ##
+               prediction=prediction,
+               level.predict=level.predict,
+               ##
+               method.bias=method.bias,
+               ##
+               backtransf=backtransf,
+               title=title, complab=complab, outclab=outclab,
+               ##
+               keepdata=FALSE,
+               warn=FALSE)
   ##
   if (!missing.byvar & tau.common){
-    if (!is.null(tau.preset))
-      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'")
+    ## Estimate common tau-squared across subgroups
+    hcc <- hetcalc(TE, seTE, method.tau,
+                   TE.tau,
+                   byvar)
+  }
+  
+  
+  ##
+  ##
+  ## (9) Generate R object
+  ##
+  ##
+  res <- list(cor=cor, n=n)
+  ##
+  ## Add meta-analysis results
+  ## (after removing unneeded list elements)
+  ##
+  m$n.e <- NULL
+  m$n.c <- NULL
+  m$label.e <- NULL
+  m$label.c <- NULL
+  m$label.left <- NULL
+  m$label.right <- NULL
+  m$warn <- NULL
+  ##
+  res <- c(res, m)
+  ##
+  ## Add data
+  ##
+  res$call <- match.call()
+  ##
+  if (keepdata){
+    res$data <- data
+    if (!missing.subset)
+      res$subset <- subset
+  }
+  ##
+  class(res) <- c(fun, "meta")
     ##
-    sm1 <- summary(metagen(TE, seTE, byvar=byvar,
-                           method.tau=method.tau))
-    sQ.w <- sum(sm1$Q.w)
-    sk.w <- sum(sm1$k.w-1)
-    sC.w <- sum(sm1$C.w)
-    ##
-    if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
-    else tau2 <- (sQ.w-sk.w)/sC.w
-    tau.preset <- sqrt(tau2)
-  }
-  
-  
-  if (!is.null(tau.preset))
-    m <- metagen(TE, seTE,
-                 hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau,
-                 level=level,
-                 level.comb=level.comb,
-                 prediction=prediction,
-                 level.predict=level.predict)
-  else
-    m <- metagen(TE, seTE,
-                 hakn=hakn, method.tau=method.tau,
-                 TE.tau=TE.tau,
-                 level=level,
-                 level.comb=level.comb,
-                 prediction=prediction,
-                 level.predict=level.predict)
-  
-  
-  ci.study <- ci(TE, seTE, level=level)
-  
-  
-  if (m$k>=3){
-    seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
-    ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
-    p.lower <- ci.p$lower
-    p.upper <- ci.p$upper
-  }
-  else{
-    seTE.predict <- NA
-    p.lower <- NA
-    p.upper <- NA
-  }
-  
-  
-  ##
-  ## Heterogeneity statistic
-  ##
-  if (!missing.byvar & tau.common){
-    Q <- sQ.w
-    df.Q <- sk.w
-    Cval <- sC.w
-  }
-  else{
-    Q <- m$Q
-    df.Q <- m$df.Q
-    Cval <- m$C
-  }
-  
-  
-  ##
-  ## Calculate H and I-Squared
-  ##
-  Hres  <- calcH(Q, df.Q, level.comb)
-  I2res <- isquared(Q, df.Q, level.comb)
-  
-  
-  if (!missing.byvar & tau.common)
-    tau.preset <- NULL
-  
-  
-  res <- list(cor=cor, n=n,
-              studlab=studlab,
-              TE=TE, seTE=seTE,
-              lower=ci.study$lower, upper=ci.study$upper,
-              zval=ci.study$z, pval=ci.study$p,
-              w.fixed=m$w.fixed, w.random=m$w.random,
-              ##
-              TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
-              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
-              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
-              TE.random=m$TE.random, seTE.random=m$seTE.random,
-              lower.random=m$lower.random, upper.random=m$upper.random,
-              zval.random=m$zval.random, pval.random=m$pval.random,
-              ##
-              seTE.predict=seTE.predict,
-              lower.predict=p.lower, upper.predict=p.upper,
-              level.predict=level.predict,
-              ##
-              k=m$k, Q=Q, df.Q=df.Q,
-              tau=m$tau, se.tau2=m$se.tau2,
-              C=Cval,
-              ##
-              H=Hres$TE,
-              lower.H=Hres$lower,
-              upper.H=Hres$upper,
-              ##
-              I2=I2res$TE,
-              lower.I2=I2res$lower,
-              upper.I2=I2res$upper,
-              ##
-              sm=sm,
-              method=m$method,
-              level=level, level.comb=level.comb,
-              comb.fixed=comb.fixed,
-              comb.random=comb.random,
-              hakn=hakn,
-              df.hakn=if (hakn) m$df.hakn else NULL,
-              method.tau=method.tau,
-              tau.preset=tau.preset,
-              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
-              tau.common=tau.common,
-              prediction=prediction,
-              method.bias=method.bias,
-              title=title, complab=complab, outclab=outclab,
-              data=if (keepdata) data else NULL,
-              subset=if (keepdata) subset else NULL,
-              call=match.call())
+  ## Add results from subgroup analysis
   ##
   if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+    res$bylab <- bylab
+    res$print.byvar <- print.byvar
+    res$tau.common <- tau.common
+    ##
+    if (!tau.common)
+      res <- c(res, subgroup(res))
+    else if (!is.null(tau.preset))
+      res <- c(res, subgroup(res, tau.preset))
+    else{
+      res <- c(res, subgroup(res, hcc$tau))
+      res$Q.w.random <- hcc$Q
+      res$df.Q.w.random <- hcc$df.Q
+    }
+    ##
+    res$event.e.w <- NULL
+    res$event.c.w <- NULL
+    res$event.w <- NULL
+    res$n.e.w <- NULL
+    res$n.c.w <- NULL
   }
-  res$print.byvar <- print.byvar
+  ##
+  class(res) <- c(fun, "meta")
   
-  res$backtransf <- backtransf
   
-  res$version <- packageDescription("meta")$Version
-  
-  class(res) <- c("metacor", "meta")
-
   res
 }

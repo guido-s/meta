@@ -86,7 +86,7 @@ metaprop(event, n, studlab,
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
   \item{byvar}{An optional vector containing grouping information (must
-    be of same length as \code{event.e}).}
+    be of same length as \code{event}).}
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
@@ -250,7 +250,73 @@ metaprop(event, n, studlab,
   \item{method}{A character string indicating method used
     for pooling: \code{"Inverse"}}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn=TRUE}).}
+    Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
+    missing.}
+  \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
+    standard error in subgroups (fixed effect model) - if \code{byvar}
+    is not missing.}
+  \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
+    interval limits in subgroups (fixed effect model) - if
+    \code{byvar} is not missing.}
+  \item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
+    treatment effect in subgroups (fixed effect model) - if
+    \code{byvar} is not missing.}
+  \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
+    standard error in subgroups (random effects model) - if
+    \code{byvar} is not missing.}
+  \item{lower.random.w, upper.random.w}{Lower and upper confidence
+    interval limits in subgroups (random effects model) - if
+    \code{byvar} is not missing.}
+  \item{zval.random.w, pval.random.w}{z-value or t-value and
+    corresponding p-value for test of treatment effect in subgroups
+    (random effects model) - if \code{byvar} is not missing.}
+  \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
+    random effects model) - if \code{byvar} is not missing.}
+  \item{df.hakn.w}{Degrees of freedom for test of treatment effect for
+    Hartung-Knapp method in subgroups - if \code{byvar} is not missing
+    and \code{hakn=TRUE}.}
+  \item{n.harmonic.mean.w}{Harmonic mean of number of observations in
+    subgroups (for back transformation of Freeman-Tukey Double arcsine
+    transformation) - if \code{byvar} is not missing.}
+  \item{event.w}{Number of events in subgroups - if \code{byvar} is
+    not missing.}
+  \item{n.w}{Number of observations in subgroups - if \code{byvar} is
+    not missing.}
+  \item{k.w}{Number of studies combined within subgroups - if
+    \code{byvar} is not missing.}
+  \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+    is not missing.}
+  \item{Q.w}{Heterogeneity statistics within subgroups - if
+    \code{byvar} is not missing.}
+  \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
+    (based on fixed effect model) - if \code{byvar} is not missing.}
+  \item{Q.w.random}{Overall within subgroups heterogeneity statistic Q
+    (based on random effects model) - if \code{byvar} is not missing
+    (only calculated if argument \code{tau.common} is TRUE).}
+  \item{df.Q.w}{Degrees of freedom for test of overall within
+    subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic Q
+    (based on fixed effect model) - if \code{byvar} is not missing.}
+  \item{Q.b.random}{Overall between subgroups heterogeneity statistic
+    Q (based on random effects model) - if \code{byvar} is not
+    missing.}
+  \item{df.Q.b}{Degrees of freedom for test of overall between
+    subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{tau.w}{Square-root of between-study variance within subgroups
+    - if \code{byvar} is not missing.}
+  \item{C.w}{Scaling factor utilised internally to calculate common
+    tau-squared across subgroups - if \code{byvar} is not missing.}
+  \item{H.w}{Heterogeneity statistic H within subgroups - if
+    \code{byvar} is not missing.}
+  \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
+    heterogeneity statistic H within subgroups - if \code{byvar} is
+    not missing.}
+   \item{I2.w}{Heterogeneity statistic I2 within subgroups - if
+    \code{byvar} is not missing.}
+  \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limti for
+    heterogeneity statistic I2 within subgroups - if \code{byvar} is
+    not missing.}
   \item{incr.event}{Increment added to number of events.}
   \item{keepdata}{As defined above.}
   \item{data}{Original data (set) used in function call (if

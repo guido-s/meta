@@ -9,31 +9,26 @@ baujat.meta <- function(x,
                         grid=TRUE, col.grid="lightgray", lty.grid="dotted", lwd.grid=par("lwd"),
                         pty="s",
                         ...){
-  
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
-  
+  ##
+  ##
+  ## (1) Check for meta object and upgrade older meta objects
+  ##
+  ##
+  chkclass(x, "meta")
+  ##
   if (inherits(x, "metacum"))
     stop("Baujat plot not meaningful for object of class \"metacum\"")
-  ##
   if (inherits(x, "metainf"))
     stop("Baujat plot not meaningful for object of class \"metainf\"")
-  ##
   if (inherits(x, "trimfill"))
     stop("Baujat plot not meaningful for object of class \"trimfill\"")
-  
-  
-  ## Upgrade meta objects created with older versions of meta
   ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
-    x <- update(x, warn=FALSE)
+  x <- updateversion(x)
   
   
   oldpar <- par(pty=pty)
   on.exit(par(oldpar))
   
-
   
   TE <- x$TE
   seTE <- x$seTE

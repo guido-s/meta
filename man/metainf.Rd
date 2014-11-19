@@ -85,7 +85,14 @@ meta1
 metainf(meta1)
 metainf(meta1, pooled="random")
 
-forest(metainf(meta1, pooled="random"), comb.random=TRUE)
+forest(metainf(meta1))
+forest(metainf(meta1, pooled="random"))
+
+metainf(meta1, sortvar=study)
+metainf(meta1, sortvar=7:1)
+
+meta2 <- update(meta1, title="Fleiss93 meta-analysis",
+                backtransf=FALSE)
+metainf(meta2)
 }
 \keyword{htest}
-

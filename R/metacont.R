@@ -1,129 +1,207 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
+                     ##
                      data=NULL, subset=NULL,
+                     ##
                      sm=.settings$smcont,
+                     ##
                      pooledvar=.settings$pooledvar,
+                     ##
                      level=.settings$level, level.comb=.settings$level.comb,
-                     comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
+                     comb.fixed=.settings$comb.fixed,
+                     comb.random=.settings$comb.random,
+                     ##
                      hakn=.settings$hakn,
-                     method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+                     method.tau=.settings$method.tau,
+                     tau.preset=NULL, TE.tau=NULL,
                      tau.common=.settings$tau.common,
-                     prediction=.settings$prediction, level.predict=.settings$level.predict,
+                     ##
+                     prediction=.settings$prediction,
+                     level.predict=.settings$level.predict,
+                     ##
                      method.bias=.settings$method.bias,
                      ##
-                     title=.settings$title, complab=.settings$complab, outclab="",
+                     title=.settings$title, complab=.settings$complab,
+                     outclab="",
                      label.e=.settings$label.e, label.c=.settings$label.c,
-                     label.left=.settings$label.left, label.right=.settings$label.right,
+                     label.left=.settings$label.left,
+                     label.right=.settings$label.right,
+                     ##
                      byvar, bylab, print.byvar=.settings$print.byvar,
+                     ##
                      keepdata=.settings$keepdata,
                      warn=.settings$warn
                      ){
   
   
-  ##if (missing(data)) data <- NULL
+  ##
+  ##
+  ## (1) Check arguments
+  ##
+  ##
+  chklevel(level)
+  chklevel(level.comb)
+  chklogical(comb.fixed)
+  chklogical(comb.random)
+  ##
+  chklogical(hakn)
+  method.tau <- setchar(method.tau,
+                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  chklogical(tau.common)
+  ##
+  chklogical(prediction)
+  chklevel(level.predict)
+  ##
+  method.bias <- setchar(method.bias,
+                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  ##
+  backtransf <- FALSE
+  chklogical(keepdata)
+  ##
+  ## Additional arguments / checks for metacont objects
+  ##
+  fun <- "metacont"
+  sm <- setchar(sm, c("MD", "SMD"))
+  chklogical(pooledvar)
+  chklogical(warn)
+  chkmetafor(method.tau, fun)
+  
+  
+  ##
+  ##
+  ## (2) Read data
+  ##
+  ##
   nulldata <- is.null(data)
   ##
-  if (is.null(data)) data <- sys.frame(sys.parent())
+  if (nulldata)
+    data <- sys.frame(sys.parent())
   ##
   mf <- match.call()
   ##
-  ## Catch n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-  ## studlab, byvar, subset from data:
+  ## Catch n.e, mean.e, sd.e, n.c, mean.c, sd.c from data:
   ##
   n.e <- eval(mf[[match("n.e", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
+  chknull(n.e)
+  k.All <- length(n.e)
   ##
   mean.e <- eval(mf[[match("mean.e", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
+  chknull(mean.e)
   ##
   sd.e <- eval(mf[[match("sd.e", names(mf))]],
                data, enclos = sys.frame(sys.parent()))
+  chknull(sd.e)
   ##
   n.c <- eval(mf[[match("n.c", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
+  chknull(n.c)
   ##
   mean.c <- eval(mf[[match("mean.c", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
+  chknull(mean.c)
   ##
   sd.c <- eval(mf[[match("sd.c", names(mf))]],
                data, enclos = sys.frame(sys.parent()))
+  chknull(sd.c)
+  ##
+  ## Catch studlab, byvar, subset from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
+  studlab <- setstudlab(studlab, k.All)
   ##
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
+  missing.byvar <- is.null(byvar)
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
-  
-  
   missing.subset <- is.null(subset)
-  if (!missing.subset)
-    if ((is.logical(subset) & (sum(subset) > length(n.e))) ||
-        (length(subset) > length(n.e)))
-      stop("Length of subset is larger than number of studies.")
   
   
-  missing.byvar <- is.null(byvar)
-  if (!missing.byvar){
-    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
-    if (length(byvar.name)>1 & byvar.name[1]=="$")
-      byvar.name <- byvar.name[length(byvar.name)]
-    if (length(byvar.name)>1)
-      byvar.name <- "byvar"
-  }
-  
-  
-  if (is.null(studlab))
-    studlab <- seq(along=n.e)
   ##
-  if (is.factor(studlab))
-    studlab <- as.character(studlab)
+  ##
+  ## (3) Check length of essential variables
+  ##
+  ##
+  chklength(mean.e, k.All, fun)
+  chklength(sd.e, k.All, fun)
+  chklength(n.c, k.All, fun)
+  chklength(mean.c, k.All, fun)
+  chklength(sd.c, k.All, fun)
+  chklength(studlab, k.All, fun)
+  ##
+  if (!missing.byvar)
+    chklength(byvar, k.All, fun)
+  ##
+  ## Additional checks
+  ##
+  if (missing.byvar & tau.common){
+    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    tau.common <- FALSE
+  }
+  if (!missing.byvar & tau.common & !is.null(tau.preset)){
+    warning("Value for argument 'tau.preset' ignored as argument tau.common=TRUE.")
+    tau.preset <- NULL
+  }
   
   
+  ##
+  ##
+  ## (4) Subset and subgroups
+  ##
+  ##
+  if (!missing.subset)
+    if ((is.logical(subset) & (sum(subset) > k.All)) ||
+        (length(subset) > k.All))
+      stop("Length of subset is larger than number of studies.")
+  ##  
+  if (!missing.byvar){
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
+  
+  
+  ##
+  ##
+  ## (5) Store complete dataset in list object data
+  ##     (if argument keepdata is TRUE)
+  ##
+  ##
   if (keepdata){
-    if (nulldata){
-      data <- data.frame(.n.e=n.e, .mean.e=mean.e, .sd.e=sd.e,
-                         .n.c=n.c, .mean.c=mean.c, .sd.c=sd.c,
-                         .studlab=studlab,
-                         stringsAsFactors=FALSE)
-      if (!missing.byvar)
-        data$.byvar <- byvar
-      ##
-      if (!missing.subset){
-        if (length(subset) == dim(data)[1])
-          data$.subset <- subset
-        else{
-          data$.subset <- FALSE
-          data$.subset[subset] <- TRUE
-        }
-      }
-    }
-    else{
+    if (nulldata)
+      data <- data.frame(.n.e=n.e)
+    else
       data$.n.e <- n.e
-      data$.mean.e <- mean.e
-      data$.sd.e <- sd.e
-      data$.n.c <- n.c
-      data$.mean.c <- mean.c
-      data$.sd.c <- sd.c
-      ##
-      data$.studlab <- studlab
-      ##
-      if (!missing.byvar)
-        data$.byvar <- byvar
-      ##
-      if (!missing.subset){
-        if (length(subset) == dim(data)[1])
-          data$.subset <- subset
-        else{
-          data$.subset <- FALSE
-          data$.subset[subset] <- TRUE
-        }
+    ##
+    data$.mean.e <- mean.e
+    data$.sd.e <- sd.e
+    data$.n.c <- n.c
+    data$.mean.c <- mean.c
+    data$.sd.c <- sd.c
+    data$.studlab <- studlab
+    ##
+    if (!missing.byvar)
+      data$.byvar <- byvar
+    ##
+    if (!missing.subset){
+      if (length(subset) == dim(data)[1])
+        data$.subset <- subset
+      else{
+        data$.subset <- FALSE
+        data$.subset[subset] <- TRUE
       }
     }
   }
   
   
+  ##
+  ##
+  ## (6) Use subset for analysis
+  ##
+  ##
   if (!missing.subset){
     n.e <- n.e[subset]
     mean.e <- mean.e[subset]
@@ -132,11 +210,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
+    ##
     if (!missing.byvar)
       byvar <- byvar[subset]
   }
-  
-  
+  ##
+  ## Determine total number of studies
+  ##
   k.all <- length(n.e)
   ##
   if (k.all == 0)
@@ -149,60 +229,38 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     comb.random <- FALSE
     prediction  <- FALSE
   }
+  ##
+  ## Check variable values
+  ##
+  chknumeric(n.e)
+  chknumeric(mean.e)
+  chknumeric(sd.e)
+  chknumeric(n.c)
+  chknumeric(mean.c)
+  chknumeric(sd.c)
+  ##
+  ## Recode integer as numeric:
+  ##
+  n.e    <- int2num(n.e)
+  mean.e <- int2num(mean.e)
+  sd.e   <- int2num(sd.e)
+  n.c    <- int2num(n.c)
+  mean.c <- int2num(mean.c)
+  sd.c   <- int2num(sd.c)
   
   
-  if (sm == "WMD"|sm=="wmd"){
-    if (warn)
-      warning("Effect measure '", sm, "' renamed as 'MD'.")
-    sm <- "MD"
-  }
-  
-  if (match(sm, c("MD", "SMD"), nomatch=0) == 0)
-    stop("possible summary measures are \"MD\" and \"SMD\"")
   ##
-  if ((length(n.c) != k.all) ||
-      (length(mean.e) != k.all) || (length(sd.e) != k.all) ||
-      (length(mean.c) != k.all) || (length(sd.c) != k.all))
-    stop("n.e, mean.e, sd.e, n.c, mean.c and sd.c must have the same length")
   ##
-  if (!(is.numeric(n.e) & is.numeric(mean.e) & is.numeric(sd.e) &
-        is.numeric(n.c) & is.numeric(mean.c) & is.numeric(sd.c)))
-    stop("Non-numeric value for n.e, mean.e, sd.e, n.c, mean.c or sd.c")
+  ## (7) Calculate results for individual studies
   ##
-  npn <- n.e <= 0 | n.c <= 0
+  ##
+  npn1 <- npn(n.e)
+  npn2 <- npn(n.c)
+  npn <- npn1 | npn2
+  ##
   if (any(npn) & warn)
     warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
-  ##
-  ## Studies with zero sd.e and/or sd.c will be included in
-  ## meta-analysis, however with zero weight
-  ## (if-statement commented out by sc, 3.6.2008):
-  ##
-  ##if (any(sd.e <= 0 | sd.c <= 0))
-  ##  stop("sd.e and sd.c must be larger than zero")
-  ##
-  if (length(studlab) != k.all)
-    stop("Number of studies and labels are different")
-  
-  
-  ##
-  ## Check for levels of confidence interval
-  ##
-  if (!is.numeric(level) | length(level)!=1)
-    stop("parameter 'level' must be a numeric of length 1")
-  if (level <= 0 | level >= 1)
-    stop("parameter 'level': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.comb) | length(level.comb)!=1)
-    stop("parameter 'level.comb' must be a numeric of length 1")
-  if (level.comb <= 0 | level.comb >= 1)
-    stop("parameter 'level.comb': no valid level for confidence interval")
-  ##
-  if (!is.numeric(level.predict) | length(level.predict)!=1)
-    stop("parameter 'level.predict' must be a numeric of length 1")
-  if (level.predict <= 0 | level.predict >= 1)
-    stop("parameter 'level.predict': no valid level for confidence interval")
-  
-  
+  ##  
   if (sm == "MD"){
     TE    <- ifelse(npn, NA,
                     mean.e - mean.c)
@@ -226,13 +284,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     seTE[is.na(TE)] <- NA
   }
   ##
-  ## Studies with zero variance get zero weight in meta-analysis
-  ## (added by sc, 3.6.2008):
+  ## Studies with non-positive variance get zero weight in meta-analysis
   ##
-  sel <- sd.e==0 | sd.c == 0
+  sel <- sd.e <= 0 | sd.c <= 0
   ##
   if (any(sel[!is.na(sel)]) & warn)
-    warning("Studies with zero values for sd.e or sd.c get no weight in meta-analysis.")
+    warning("Studies with non-positive values for sd.e or sd.c get no weight in meta-analysis.")
   ##
   seTE[sel] <- NA
   ##
@@ -241,161 +298,100 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   
   ##
-  ## Recode integer as numeric:
   ##
-  if (is.integer(n.e))    n.e    <- as.numeric(n.e)
-  if (is.integer(mean.e)) mean.e <- as.numeric(mean.e)
-  if (is.integer(sd.e))   sd.e   <- as.numeric(sd.e)
-  if (is.integer(n.c))    n.c    <- as.numeric(n.c)
-  if (is.integer(mean.c)) mean.c <- as.numeric(mean.c)
-  if (is.integer(sd.c))   sd.c   <- as.numeric(sd.c)
-  
-  
+  ## (8) Do meta-analysis
   ##
-  ## Subgroup analysis with equal tau^2:
   ##
-  if (!missing.byvar & tau.common){
-    if (!is.null(tau.preset))
-      warning("Value for argument 'tau.preset' not considered as argument 'tau.common=TRUE'.")
-    ##
-    sm1 <- summary(metagen(TE, seTE, byvar=byvar,
-                           method.tau=method.tau,
-                           tau.common=tau.common))
-    sQ.w <- sum(sm1$Q.w)
-    sk.w <- sum(sm1$k.w-1)
-    sC.w <- sum(sm1$C.w)
-    ##
-    if (round(sQ.w, digits=18)<=sk.w) tau2 <- 0
-    else tau2 <- (sQ.w-sk.w)/sC.w
-    tau.preset <- sqrt(tau2)
-  }
-  
-  
-  if (!is.null(tau.preset))
-    m <- metagen(TE, seTE,
-                 hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau,
-                 level=level,
-                 level.comb=level.comb,
-                 prediction=prediction,
-                 level.predict=level.predict)
-  else
-    m <- metagen(TE, seTE,
-                 hakn=hakn, method.tau=method.tau,
-                 TE.tau=TE.tau,
-                 level=level,
-                 level.comb=level.comb,
-                 prediction=prediction,
-                 level.predict=level.predict)
-  
-  
-  ci.study <- ci(TE, seTE, level=level)
-  
-  
-  if (m$k>=3){
-    seTE.predict <- sqrt(m$seTE.random^2 + m$tau^2)
-    ci.p <- ci(m$TE.random, seTE.predict, level.predict, m$k-2)
-    p.lower <- ci.p$lower
-    p.upper <- ci.p$upper
-  }
-  else{
-    seTE.predict <- NA
-    p.lower <- NA
-    p.upper <- NA
-  }
-  
-  
-  ##
-  ## Heterogeneity statistic
+  m <- metagen(TE, seTE, studlab,
+               ##
+               sm=sm,
+               level=level,
+               level.comb=level.comb,
+               comb.fixed=comb.fixed,
+               comb.random=comb.random,
+               ##
+               hakn=hakn,
+               method.tau=method.tau,
+               tau.preset=tau.preset,
+               TE.tau=TE.tau,
+               tau.common=FALSE,
+               ##
+               prediction=prediction,
+               level.predict=level.predict,
+               ##
+               method.bias=method.bias,
+               ##
+               backtransf=backtransf,
+               title=title, complab=complab, outclab=outclab,
+               label.e=label.e, label.c=label.c,
+               label.left=label.left, label.right=label.right,
+               ##
+               keepdata=FALSE,
+               warn=warn)
   ##
   if (!missing.byvar & tau.common){
-    Q <- sQ.w
-    df.Q <- sk.w
-    Cval <- sC.w
-  }
-  else{
-    Q <- m$Q
-    df.Q <- m$df.Q
-    Cval <- m$C
+    ## Estimate common tau-squared across subgroups
+    hcc <- hetcalc(TE, seTE, method.tau,
+                   TE.tau,
+                   byvar)
   }
   
   
   ##
-  ## Calculate H and I-Squared
   ##
-  Hres  <- calcH(Q, df.Q, level.comb)
-  I2res <- isquared(Q, df.Q, level.comb)
-  
-  
-  if (!missing.byvar & tau.common)
-    tau.preset <- NULL
-  
-  
+  ## (9) Generate R object
+  ##
+  ##
   res <- list(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
               n.c=n.c, mean.c=mean.c, sd.c=sd.c,
-              studlab=studlab,
-              TE=TE, seTE=seTE,
-              lower=ci.study$lower, upper=ci.study$upper,
-              zval=ci.study$z, pval=ci.study$p,
-              w.fixed=m$w.fixed, w.random=m$w.random,
-              ##
-              TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
-              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
-              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
-              TE.random=m$TE.random, seTE.random=m$seTE.random,
-              lower.random=m$lower.random, upper.random=m$upper.random,
-              zval.random=m$zval.random, pval.random=m$pval.random,
-              ##
-              seTE.predict=seTE.predict,
-              lower.predict=p.lower, upper.predict=p.upper,
-              level.predict=level.predict,
-              ##
-              k=m$k, Q=Q, df.Q=df.Q,
-              tau=m$tau, se.tau2=m$se.tau2,
-              C=Cval,
-              ##
-              H=Hres$TE,
-              lower.H=Hres$lower,
-              upper.H=Hres$upper,
-              ##
-              I2=I2res$TE,
-              lower.I2=I2res$lower,
-              upper.I2=I2res$upper,
-              ##
-              sm=sm, pooledvar=pooledvar, method=m$method,
-              level=level,
-              level.comb=level.comb,
-              comb.fixed=comb.fixed,
-              comb.random=comb.random,
-              hakn=hakn,
-              df.hakn=if (hakn) m$df.hakn else NULL,
-              method.tau=method.tau,
-              tau.preset=tau.preset,
-              TE.tau=if (!missing(TE.tau) & method.tau=="DL") TE.tau else NULL,
-              tau.common=tau.common,
-              prediction=prediction,
-              method.bias=method.bias,
-              title=title, complab=complab, outclab=outclab,
-              label.e=label.e,
-              label.c=label.c,
-              label.left=label.left,
-              label.right=label.right,
-              data=if (keepdata) data else NULL,
-              subset=if (keepdata) subset else NULL,
-              warn=warn,
-              call=match.call())
+              pooledvar=pooledvar)
+  ##
+  ## Add meta-analysis results
+  ## (after removing unneeded list elements)
+  ##
+  m$n.e <- NULL
+  m$n.c <- NULL
+  ##
+  res <- c(res, m)
+  ##
+  ## Add data
+  ##
+  res$call <- match.call()
+  ##
+  if (keepdata){
+    res$data <- data
+    if (!missing.subset)
+      res$subset <- subset
+  }
+  ##
+  class(res) <- c(fun, "meta")
+  ##
+  ## Add results from subgroup analysis
   ##
   if (!missing.byvar){
     res$byvar <- byvar
-    res$bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+    res$bylab <- bylab
+    res$print.byvar <- print.byvar
+    res$tau.common <- tau.common
+    ##
+    if (!tau.common)
+      res <- c(res, subgroup(res))
+    else if (!is.null(tau.preset))
+      res <- c(res, subgroup(res, tau.preset))
+    else{
+      res <- c(res, subgroup(res, hcc$tau))
+      res$Q.w.random <- hcc$Q
+      res$df.Q.w.random <- hcc$df.Q
+    }
+    ##
+    res$event.e.w <- NULL
+    res$event.c.w <- NULL
+    res$event.w <- NULL
+    res$n.w <- NULL
   }
-  res$print.byvar <- print.byvar
+  ##
+  class(res) <- c(fun, "meta")
   
-  res$backtransf <- FALSE
-  
-  res$version <- packageDescription("meta")$Version
-  
-  class(res) <- c("metacont", "meta")
   
   res
 }

@@ -116,13 +116,13 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   if (!all(c("I2", "tau2") %in% nam)){
     pos1 <- seq(along=nam)[nam=="pval.Q"]
     pos2 <- seq(along=nam)[nam=="Z"]
-    if ((pos2-pos1)==3)
+    if ((pos2-pos1) == 3)
       nam[pos1+1:2] <- c("I2", "tau2")
   }
   if (!"I2.Qint" %in% nam){
     pos3 <- seq(along=nam)[nam=="pval.Qint"]
     pos4 <- seq(along=nam)[nam=="df"]
-    if ((pos4-pos3)==2)
+    if ((pos4-pos3) == 2)
       nam[pos1+1] <- c("I2.Qint")
   }
   ##
@@ -134,8 +134,8 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   tdata$method[tdata$method=="IV"] <- "Inverse"
   tdata$sm <- as.character(tdata$sm)
   tdata$model <- as.character(tdata$model)
-  tdata$comb.fixed <- tdata$model=="Fixed"
-  tdata$comb.random <- tdata$model=="Random"
+  tdata$comb.fixed  <- tdata$model == "Fixed"
+  tdata$comb.random <- tdata$model == "Random"
   ##
   tdata$sm[tdata$sm=="Odds Ratio"] <- "OR"
   tdata$sm[tdata$sm=="Odds Ratio (Non-event)"] <- "OR"
@@ -146,11 +146,11 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   tdata$sm[tdata$sm=="Std. Mean Difference"] <- "SMD"
   tdata$sm[tdata$sm=="Hazard Ratio"] <- "HR"
   ##
-  sel.oe <- tdata$method=="EXP_O_E_VAR"
+  sel.oe <- tdata$method == "EXP_O_E_VAR"
   tdata$method[sel.oe] <- "Peto"
   tdata$sm[sel.oe] <- "OR"
   ##
-  sel.peto <- tdata$method=="PETO" & tdata$sm=="PETO_OR"
+  sel.peto <- tdata$method == "PETO" & tdata$sm == "PETO_OR"
   tdata$method[sel.peto] <- "Peto"
   tdata$sm[sel.peto] <- "OR"
   ##
@@ -292,8 +292,8 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   res2 <- merge(res2, res$comparison,
                 by=c("comp.no"))
   ##
-  sel.nocont <- (res2$mean.e==0 & res2$sd.e==0 &
-                 res2$mean.c==0 & res2$sd.c==0)
+  sel.nocont <- (res2$mean.e == 0 & res2$sd.e == 0 &
+                 res2$mean.c == 0 & res2$sd.c == 0)
   res2$mean.e[sel.nocont] <- NA
   res2$sd.e[sel.nocont]   <- NA
   res2$mean.c[sel.nocont] <- NA
@@ -303,7 +303,7 @@ read.rm5 <- function(file, sep=",", quote = "\"",
     res2$O.E <- numchar(res2$O.E)
   if (is.factor(res2$V))
     res2$V <- numchar(res2$V)
-  sel.noOE <- res2$O.E==0 & res2$V==0
+  sel.noOE <- res2$O.E == 0 & res2$V == 0
   res2$O.E[sel.noOE] <- NA
   res2$V[sel.noOE]   <- NA
   ##
@@ -345,13 +345,13 @@ read.rm5 <- function(file, sep=",", quote = "\"",
   if (length(res2$comp.no)>0){
     for (i in unique(res2$comp.no)){
       for (j in unique(res2$outcome.no[res2$comp.no==i])){
-        sel2 <- res2$comp.no==i&res2$outcome.no==j
-        if (unique(res2$sm[sel2])=="OTHER")
+        sel2 <- res2$comp.no == i & res2$outcome.no == j
+        if (unique(res2$sm[sel2]) == "OTHER")
           warning("Summary measure unclear for outcome '",
                   ##paste(unique(res2$comp.no[sel2]), ".",
                   ##      unique(res2$outcome.no[sel2]), sep=""),
                   unique(res2$outclab[sel2]),
-                  "'. Please use parameter 'sm' in function metacr to choose adequate summary measure.")
+                  "'. Please use argument 'sm' in function metacr to choose adequate summary measure.")
       }
     }
   }

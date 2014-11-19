@@ -9,10 +9,51 @@ print.meta <- function(x,
                        ...
                        ){
   
-  if (!inherits(x, "meta"))
-    stop("Argument 'x' must be an object of class \"meta\"")
   
-  
+  ##
+  ##
+  ## (1) Check for meta object and upgrade older meta object
+  ##
+  ##
+  chkclass(x, "meta")
+  x <- updateversion(x)
+  ##
+  k.all <- length(x$TE)
+
+
+  ##
+  ##
+  ## (2) Check other arguments
+  ##
+  ##
+  mf <- match.call()
+  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
+                               as.data.frame(x, stringsAsFactors=FALSE),
+                               enclos = sys.frame(sys.parent())),
+               silent=TRUE)
+  if (class(error)=="try-error"){
+    xd <- x$data
+    sortvar <- eval(mf[[match("sortvar", names(mf))]],
+                    xd, enclos = NULL)
+    if (!is.null(x$data$.subset))
+      sortvar <- sortvar[x$data$.subset]
+  }
+  sort <- !is.null(sortvar)
+  if (sort && (length(sortvar) != k.all))
+    stop("Number of studies in object 'x' and argument 'sortvar' have different length.")
+  if (!sort)
+    sortvar <- 1:k.all
+  ##
+  chklogical(comb.fixed)
+  chklogical(comb.random)
+  chklogical(prediction)
+  chklogical(details)
+  chklogical(ma)
+  chklogical(backtransf)
+  chknumeric(digits)
+  ##
+  ## Additional arguments / checks for metacont objects
+  ##
   cl <- class(x)[1]
   addargs <- names(list(...))
   ##
@@ -26,8 +67,7 @@ print.meta <- function(x,
   level <- x$level
   level.comb <- x$level.comb
   level.predict <- x$level.predict
-  
-  
+  ##  
   format.TE <- function(TE, na=FALSE){
     TE <- rmSpace(TE)
     if (na) res <- format(TE)
@@ -36,67 +76,19 @@ print.meta <- function(x,
   }
   
   
-  ## Upgrade meta objects created with older versions of meta
   ##
-  if (!(!is.null(x$version) &&
-        as.numeric(unlist(strsplit(x$version, "-"))[1]) >= 3.8))
-    x <- update(x, warn=FALSE)
-  
-  
+  ##
+  ## (3) Some additional settings
+  ##
+  ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  
-  
-  if (is.null(backtransf))
-    if (!is.null(list(...)[["logscale"]]))
-      backtransf <- !list(...)[["logscale"]]
-    else
-      backtransf <- TRUE
-  
-  
-  k.all <- length(x$TE)
-  ##
-  if (missing(sortvar)) sortvar <- 1:k.all
-  ##
-  if (length(sortvar) != k.all)
-    stop("'x' and 'sortvar' have different length")
-  
-  
-  if (length(comb.fixed)==0)
-    comb.fixed <- TRUE
-  ##
-  if (length(comb.random)==0)
-    comb.random <- TRUE
-  ##
-  if (length(prediction)==0)
-    prediction <- FALSE
   ##  
   prediction <- prediction & comb.random & x$k>=3
-  
-  
-  if (length(level)==0){
-    warning("level set to 0.95")
-    level <- 0.95
-  }
-  ##
-  if (length(level.comb)==0){
-    if (comb.fixed | comb.random)
-      warning("level.comb set to 0.95")
-    level.comb <- 0.95
-  }
-  ##
-  if (length(level.predict)==0){
-    if (prediction)
-      warning("level.predict set to 0.95")
-    level.predict <- 0.95
-  }
-  
-  
+  ##  
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
-  
-  
+  ##  
   sm <- x$sm
-  
-  
+  ##  
   sm.lab <- sm
   ##
   if (backtransf){
@@ -110,11 +102,14 @@ print.meta <- function(x,
       sm.lab <- paste("log", sm, sep="")
   
   
+  ##
+  ##
+  ## (4) Print title and details
+  ##
+  ##
   crtitle(x)
-  
-  
+  ##  
   if (details){
-
     if (inherits(x, "metabin")){
       res <- data.frame(event.e=x$event.e, n.e=x$n.e,
                         event.c=x$event.c, n.c=x$n.c,
@@ -125,28 +120,35 @@ print.meta <- function(x,
       res <- data.frame(n.e=x$n.e, mean.e=x$mean.e, sd.e=x$sd.e,
                         n.c=x$n.c, mean.c=x$mean.c, sd.c=x$sd.c)
     }
+    else if (inherits(x, "metacor")){
+      res <- data.frame(cor=x$cor, n=x$n)
+    }
     else if (inherits(x, "metagen")){
       res <- data.frame(TE=round(x$TE, digits),
                         seTE=round(x$seTE, digits))
+    }
+    else if (inherits(x, "metainc")){
+      res <- data.frame(event.e=x$event.e, time.e=x$time.e,
+                        event.c=x$event.c, time.c=x$time.c)
     }
     else if (inherits(x, "metaprop")){
       res <- data.frame(event=x$event, n=x$n,
                         p=round(x$event/x$n, digits))
     }
-    else if (inherits(x, "metacor")){
-      res <- data.frame(cor=x$cor, n=x$n)
-    }
     else{
       res <- data.frame(TE=x$TE, seTE=x$seTE)
     }
-    
     dimnames(res)[[1]] <- x$studlab
-    
     prmatrix(res[order(sortvar),])
     cat("\n\n")
   }
   
   
+  ##
+  ##
+  ## (5) Print results for individual studies
+  ##
+  ##
   if (k.all == 1 & !inherits(x, "metaprop")){
     if (inherits(x, "metabin") & x$method=="MH")
       print(summary(metabin(x$event.e, x$n.e,
@@ -179,9 +181,7 @@ print.meta <- function(x,
     }
     ##
     if (backtransf){
-      ##
       ## Freeman-Tukey Arcsin transformation (sm="PFT")
-      ##
       if (metainf.metacum)
         npft <- x$n.harmonic.mean
       else
@@ -199,20 +199,17 @@ print.meta <- function(x,
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
-    
-    
+    ##    
     if (comb.fixed)
       if (sum(x$w.fixed)>0)
         w.fixed.p <- 100*round(x$w.fixed/sum(x$w.fixed, na.rm=TRUE), 4)
       else w.fixed.p <- x$w.fixed
-    
-    
+    ##    
     if (comb.random)
       if (sum(x$w.random)>0)
         w.random.p <- 100*round(x$w.random/sum(x$w.random, na.rm=TRUE), 4)
       else w.random.p <- x$w.random
-    
-    
+    ##    
     if (metainf.metacum){
       is.random <- x$pooled=="random"
       ##
@@ -232,7 +229,7 @@ print.meta <- function(x,
                    p.value, paste("  ", format(tau2), sep=""),
                    paste("  ", I2, ifelse(sel1, "", "%"), sep=""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep=""),
-                            c(sm.lab, ci.lab, "p.value", "tau^2", "I^2"))
+                            c(sm.lab, ci.lab, "p-value", "tau^2", "I^2"))
       ##
       if (inherits(x, "metainf")){
         if (!is.random)
@@ -240,7 +237,6 @@ print.meta <- function(x,
         else
           cat("\nInfluential analysis (Random effects model)\n")
       }
-      ##
       if (inherits(x, "metacum")){
         if (!is.random)
           cat("\nCumulative meta-analysis (Fixed effect model)\n")
@@ -249,9 +245,7 @@ print.meta <- function(x,
       }
       cat("\n")
       prmatrix(res, quote=FALSE, right=TRUE, na.print="--")
-      
       ## Print information on summary method:
-      ##
       catmeth(method=x$method,
               method.tau=if (is.random) x$method.tau else "",
               sm=sm,
@@ -266,10 +260,8 @@ print.meta <- function(x,
                    p.ci(format(lowTE), format(uppTE)),
                    if (comb.fixed) format(w.fixed.p),
                    if (comb.random) format(w.random.p))
-      ##
       ## Printout for a single proportion:
-      ##
-      if (k.all==1){
+      if (k.all == 1){
         ##
         if (!is.null(x$method.ci)){
           if  (x$method.ci=="CP")
@@ -284,7 +276,6 @@ print.meta <- function(x,
             method.ci.details <- "Simple approximation confidence interval:\n\n"
           else if (x$method.ci=="SACC")
             method.ci.details <- "Simple approximation confidence interval with continuity correction:\n\n"
-          
           if (x$method.ci!="NAsm"){
             cat(method.ci.details)
             dimnames(res) <- list("", c(sm.lab, ci.lab,
@@ -294,7 +285,6 @@ print.meta <- function(x,
             cat("\n\n")
           }
         }
-        ##
         cat("Normal approximation confidence interval:\n")
       }
       else{
@@ -307,6 +297,11 @@ print.meta <- function(x,
     }
     
     
+    ##
+    ##
+    ## (6) Print result for meta-analysis
+    ##
+    ##
     if (ma & !metainf.metacum){
       cat("\n")
       print(summary(x, warn=FALSE), digits=digits,
@@ -314,8 +309,8 @@ print.meta <- function(x,
             prediction=prediction,
             header=FALSE, backtransf=backtransf)
     }
-    
   }
+  
   
   invisible(NULL)
 }

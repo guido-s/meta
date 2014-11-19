@@ -1,7 +1,12 @@
 print.summary.rm5 <- function(x, ...){
   
-  if (!inherits(x, "summary.rm5"))
-    stop("Argument 'object' must be an object of class \"summary.rm5\"")
+  ##
+  ##
+  ## (1) Check for summary.rm5 object
+  ##
+  ##
+  chkclass(x, "summary.rm5")
+  
   
   n <- 1
   for (i in 1:length(x)){
@@ -10,6 +15,7 @@ print.summary.rm5 <- function(x, ...){
     print(x[[i]])
     n <- n+1
   }
+  
   
   invisible(NULL)
 }

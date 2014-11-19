@@ -210,90 +210,54 @@ settings.meta <- function(...){
     ##
     if (!is.na(idlevel)){
       level <- args[[idlevel]]
-      if (!is.numeric(level) | length(level)!=1)
-        stop("Argument 'level' must be a numeric of length 1.")
-      if (level <= 0 | level >= 1)
-        stop("Argument 'level': no valid level for confidence interval")
-      ##
+      chklevel(level)
       setOption("level", level)
     }
     if (!is.na(idlevel.comb)){
       level.comb <- args[[idlevel.comb]]
-      if (!is.numeric(level.comb) | length(level.comb)!=1)
-        stop("Argument 'level.comb' must be a numeric of length 1.")
-      if (level.comb <= 0 | level.comb >= 1)
-        stop("Argument 'level.comb': no valid level for confidence interval")
-      ##
+      chklevel(level.comb)
       setOption("level.comb", level.comb)
     }
     if (!is.na(idcomb.fixed)){
       comb.fixed <- args[[idcomb.fixed]]
-      if (length(comb.fixed)!= 1 || !is.logical(comb.fixed))
-        stop("Argument 'comb.fixed' must be a logical.")
-      ##
+      chklogical(comb.fixed)
       setOption("comb.fixed", comb.fixed)
     }
     if (!is.na(idcomb.random)){
       comb.random <- args[[idcomb.random]]
-      if (length(comb.random)!= 1 || !is.logical(comb.random))
-        stop("Argument 'comb.random' must be a logical.")
-      ##
+      chklogical(comb.random)
       setOption("comb.random", comb.random)
     }
     if (!is.na(idhakn)){
       hakn <- args[[idhakn]]
-      if (length(hakn)!= 1 || !is.logical(hakn))
-        stop("Argument 'hakn' must be a logical.")
-      ##
+      chklogical(hakn)
       setOption("hakn", hakn)
     }
     if (!is.na(idmethod.tau)){
       method.tau <- args[[idmethod.tau]]
-      ##
-      imethod.tau <- charmatch(tolower(method.tau),
-                               c("dl", "pm", "reml", "ml", "hs", "sj", "he", "eb"), nomatch = NA)
-      ##
-      if (is.na(imethod.tau) || imethod.tau==0)
-        stop('Argument \'method.tau\' should be "DL", "PM", "REML", "ML", "HS", "SJ", "HE", or "EB".')
-      ##
-      method.tau <- c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB")[imethod.tau]
-      ##
+      method.tau <- setchar(method.tau,
+                           c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
       setOption("method.tau", method.tau)
     }
     if (!is.na(idtau.common)){
       tau.common <- args[[idtau.common]]
-      if (length(tau.common)!= 1 || !is.logical(tau.common))
-        stop("Argument 'tau.common' must be a logical.")
-      ##
+      chklogical(tau.common)
       setOption("tau.common", tau.common)
     }
     if (!is.na(idprediction)){
       prediction <- args[[idprediction]]
-      if (length(prediction)!= 1 || !is.logical(prediction))
-        stop("Argument 'prediction' must be a logical.")
-      ##
+      chklogical(prediction)
       setOption("prediction", prediction)
     }
     if (!is.na(idlevel.predict)){
       level.predict <- args[[idlevel.predict]]
-      if (!is.numeric(level.predict) | length(level.predict)!=1)
-        stop("Argument 'level.predict' must be a numeric of length 1.")
-      if (level.predict <= 0 | level.predict >= 1)
-        stop("Argument 'level.predict': no valid level for confidence interval")
-      ##
+      chklevel(level.predict)
       setOption("level.predict", level.predict)
     }
     if (!is.na(idmethod.bias)){
       method.bias <- args[[idmethod.bias]]
-      ##
-      imethod.bias <- charmatch(method.bias,
-                         c("rank", "linreg", "mm", "count", "score", "peters"),
-                         nomatch = NA)
-      if(is.na(imethod.bias) | imethod.bias==0)
-        stop("method.bias should be \"rank\", \"linreg\", \"mm\", \"count\", \"score\", or \"peters\"")
-      ##
-      method.bias <- c("rank", "linreg", "mm", "count", "score", "peters")[imethod.bias]
-      ##
+      method.bias <- setchar(method.bias,
+                            c("rank", "linreg", "mm", "count", "score", "peters"))
       setOption("method.bias", method.bias)
     }
     if (!is.na(idtitle)){
@@ -312,30 +276,22 @@ settings.meta <- function(...){
     }
     if (!is.na(idprint.byvar)){
       print.byvar <- args[[idprint.byvar]]
-      if (length(print.byvar)!= 1 || !is.logical(print.byvar))
-        stop("Argument 'print.byvar' must be a logical.")
-      ##
+      chklogical(print.byvar)
       setOption("print.byvar", print.byvar)
     }
     if (!is.na(idkeepdata)){
       keepdata <- args[[idkeepdata]]
-      if (length(keepdata)!= 1 || !is.logical(keepdata))
-        stop("Argument 'keepdata' must be a logical.")
-      ##
+      chklogical(keepdata)
       setOption("keepdata", keepdata)
     }
     if (!is.na(idwarn)){
       warn <- args[[idwarn]]
-      if (length(warn)!= 1 || !is.logical(warn))
-        stop("Argument 'warn' must be a logical.")
-      ##
+      chklogical(warn)
       setOption("warn", warn)
     }
     if (!is.na(idbacktransf)){
       backtransf <- args[[idbacktransf]]
-      if (length(backtransf)!= 1 || !is.logical(backtransf))
-        stop("Argument 'backtransf' must be a logical.")
-      ##
+      chklogical(backtransf)
       setOption("backtransf", backtransf)
     }
     ##
@@ -343,81 +299,49 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsmbin)){
       smbin <- args[[idsmbin]]
-      ##
-      if (match(smbin, c("OR", "RD", "RR", "AS"), nomatch=0) == 0)
-        stop("possible summary measures are \"OR\", \"RD\", \"RR\", and \"AS\"")
-      ##
+      smbin <- setchar(smbin, c("OR", "RD", "RR", "AS"))
       setOption("smbin", smbin)
     }
     if (!is.na(idmethod)){
       method <- args[[idmethod]]
-      ##
-      imeth <- charmatch(tolower(method),
-                         c("inverse", "mh", "peto"), nomatch = NA)
-      ##
-      if(is.na(imeth))
-        stop("Argument 'method' should be \"Inverse\", \"MH\", or \"Peto\".")
-      ##
-      method <- c("Inverse", "MH", "Peto")[imeth]
-      ##
+      method <- setchar(method, c("Inverse", "MH", "Peto"))
       setOption("method", method)
     }
     if (!is.na(idincr)){
       incr <- args[[idincr]]
-      ##
-      if (!is.numeric(incr)){
-        ##
-        iincr <- charmatch(tolower(incr),
-                           c("tacc"), nomatch = NA)
-        ##
-        if(is.na(iincr))
-          stop("incr should be numeric or the character string \"TACC\"")
-        ##
-        incr <- c("TACC")[iincr]
-      }
-      ##
+      if (!is.numeric(incr))
+        incr <- setchar(incr, "TACC",
+                       "should be numeric or the character string \"TACC\"")
       setOption("incr", incr)
     }
     if (!is.na(idallincr)){
       allincr <- args[[idallincr]]
-      if (length(allincr)!= 1 || !is.logical(allincr))
-        stop("Argument 'allincr' must be a logical.")
-      ##
+      chklogical(allincr)
       setOption("allincr", allincr)
     }
-    if (!is.na(idcomb.fixed)){
+    if (!is.na(idaddincr)){
       addincr <- args[[idaddincr]]
-      if (length(addincr)!= 1 || !is.logical(addincr))
-        stop("Argument 'addincr' must be a logical.")
-      ##
+      chklogical(addincr)
       setOption("addincr", addincr)
     }
     if (!is.na(idallstudies)){
       allstudies <- args[[idallstudies]]
-      if (length(allstudies)!= 1 || !is.logical(allstudies))
-        stop("Argument 'allstudies' must be a logical.")
-      ##
+      chklogical(allstudies)
       setOption("allstudies", allstudies)
     }
     if (!is.na(idMH.exact)){
       MH.exact <- args[[idMH.exact]]
-      if (length(MH.exact)!= 1 || !is.logical(MH.exact))
-        stop("Argument 'MH.exact' must be a logical.")
-      ##
+      chklogical(MH.exact)
       setOption("MH.exact", MH.exact)
     }
     if (!is.na(idRR.cochrane)){
       RR.cochrane <- args[[idRR.cochrane]]
-      if (length(RR.cochrane)!= 1 || !is.logical(RR.cochrane))
-        stop("Argument 'RR.cochrane' must be a logical.")
-      ##
+      chklogical(RR.cochrane)
       setOption("RR.cochrane", RR.cochrane)
     }
     if (!is.na(idprint.CMH)){
       print.CMH <- args[[idprint.CMH]]
-      if (length(print.CMH)!= 1 || !is.logical(print.CMH))
-        stop("Argument 'print.CMH' must be a logical.")
-      ##
+      chklogical(print.CMH)
       setOption("print.CMH", print.CMH)
     }
     ##
@@ -425,16 +349,7 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsmcont)){
       smcont <- args[[idsmcont]]
-      ##
-      if (smcont == "WMD"|smcont=="wmd"){
-        if (warn)
-          warning("Effect measure '", smcont, "' renamed as 'MD'.")
-        smcont <- "MD"
-      }
-      ##
-      if (match(smcont, c("MD", "SMD"), nomatch=0) == 0)
-        stop("Possible summary measures are \"MD\" and \"SMD\".")
-      ##
+      smcont <- setchar(smcont, c("MD", "SMD"))
       setOption("smcont", smcont)
     }
     ##
@@ -442,14 +357,7 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsmcor)){
       smcor <- args[[idsmcor]]
-      ##
-      imeth <- charmatch(tolower(smcor), c("zcor", "cor"), nomatch = NA)
-      ##
-      if(is.na(imeth) || imeth==0)
-        stop("Argument 'smcr' should be \"ZCOR\" or \"COR\".")
-      ##
-      smcor <- c("ZCOR", "COR")[imeth]
-      ##
+      smcor <- setchar(smcor, c("ZCOR", "COR"))
       setOption("smcor", smcor)
     }
     ##
@@ -457,15 +365,7 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsminc)){
       sminc <- args[[idsminc]]
-      ##
-      imeth <- charmatch(tolower(sminc),
-                         c("irr", "ird"), nomatch = NA)
-      ##
-      if(is.na(imeth) || imeth==0)
-        stop("Argument 'sminc' should be \"IRR\", \"IRD\".")
-      ##
-      sminc <- c("IRR", "IRD")[imeth]
-      ##
+      sminc <- setchar(sminc, c("IRR", "IRD"))
       setOption("sminc", sminc)
     }
     ##
@@ -473,9 +373,7 @@ settings.meta <- function(...){
     ##
     if (!is.na(idpooledvar)){
       pooledvar <- args[[idpooledvar]]
-      if (length(pooledvar)!= 1 || !is.logical(pooledvar))
-        stop("Argument 'pooledvar' must be a logical.")
-      ##
+      chklogical(pooledvar)
       setOption("pooledvar", pooledvar)
     }
     ##
@@ -483,29 +381,14 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsmprop)){
       smprop <- args[[idsmprop]]
-      ##
-      imeth <- charmatch(tolower(smprop),
-                         c("pft", "pas", "praw", "pln", "plogit"), nomatch = NA)
-      ##
-      if(is.na(imeth) || imeth==0)
-        stop("Argument 'smprop' should be \"PLOGIT\", \"PLN\", \"PFT\", \"PAS\", or \"PRAW\".")
-      ##
-      smprop <- c("PFT", "PAS", "PRAW", "PLN", "PLOGIT")[imeth]
-      ##
+      smprop <- setchar(smprop, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
       setOption("smprop", smprop)
     }
     ##
     if (!is.na(idmethod.ci)){
       method.ci <- args[[idmethod.ci]]
-      ##
-      imci <- charmatch(tolower(method.ci),
-                        c("cp", "ws", "wscc", "ac", "sa", "sacc", "nasm"), nomatch = NA)
-      ##
-      if(is.na(imci) || imci==0)
-        stop("Argument 'method.ci' should be \"CP\", \"WS\", \"WSCC\", \"AC\", \"SA\", \"SACC\", or \"NAsm\".")
-      ##
-      method.ci <- c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm")[imci]
-      ##
+      method.ci <- setchar(method.ci,
+                          c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
       setOption("method.ci", method.ci)
     }
     ##

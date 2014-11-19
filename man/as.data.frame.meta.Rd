@@ -1,18 +1,14 @@
-\name{addvar}
-\alias{addvar}
+\name{as.data.frame.meta}
 \alias{as.data.frame.meta}
 \title{Additional functions for objects of class meta}
 \description{
   The \code{as.data.frame} method returns a data frame containing
   information on individual studies, e.g., estimated treatment effect
-  and its standard error. The function \code{addvar} can be used to add
-  a single variable to an object of class \code{meta} which for example
-  is useful to add columns to a forest plot.
+  and its standard error.
 }
 \usage{
 \method{as.data.frame}{meta}(x, row.names=NULL, optional=FALSE, ...)
 
-addvar(x, y, varname, by.x="studlab", by.y=by.x)
 }
 \arguments{
   \item{x}{An object of class \code{meta}.}
@@ -20,19 +16,10 @@ addvar(x, y, varname, by.x="studlab", by.y=by.x)
   names for the data frame.}
   \item{optional}{logical. If \code{TRUE}, setting row names and
     converting column names (to syntactic names) is optional.}
-  \item{y}{A data frame with an additional covariate}
-  \item{varname}{A character specifying name of additional variable}
-  \item{by.x, by.y}{Specifications of the common columns (see \code{merge})}
   \item{\dots}{other arguments}
 }
 \value{
   A data frame is returned by the function \code{as.data.frame}.
-
-  A single covariate is returned by the function \code{addvar} which
-  can be added to an object of class \code{meta}. Internally, the
-  \code{merge} function is utilised. See help page
-  \code{\link{metagen}} for an example on the use of R function
-  addvar.
 }
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 \seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{forest.meta}}}
