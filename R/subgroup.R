@@ -126,8 +126,8 @@ subgroup <- function(x, tau.preset=NULL){
                    meta1$tau,                               # 14
                    meta1$C,                                 # 15
                    mean(1/x$n[sel]),                        # 16
-                   sum(meta1$w.fixed),                      # 17
-                   sum(meta1$w.random),                     # 18
+                   sum(x$w.fixed[sel]),                     # 17
+                   sum(x$w.random[sel]),                    # 18
                    if (bin.inc) sum(meta1$event.e) else NA, # 19
                    if (bin.cont) sum(meta1$n.e) else NA,    # 20
                    if (bin.inc) sum(meta1$event.c) else NA, # 21

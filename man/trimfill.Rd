@@ -47,7 +47,7 @@ trimfill(x, ...)
   \item{n.iter.max}{Maximum number of iterations to estimate number of
     missing studies.}
   \item{sm}{An optional character string indicating underlying summary
-    measure, e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"AS"},
+    measure, e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
     \code{"MD"}, \code{"SMD"}; ignored if \code{x} is of class
     \code{meta}.}
   \item{studlab}{An optional vector with study labels; ignored if

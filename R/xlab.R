@@ -14,8 +14,8 @@ xlab <- function(sm, backtransf){
   else if (sm=="RD" )
     res <- "Risk Difference"
   ##
-  else if (sm=="AS" )
-    res <- "Arcus Sinus Transformation"
+  else if (sm=="ASD" )
+    res <- "Arcus Sinus Difference"
   ##
   else if (sm=="IRD" )
     res <- "Incidence Rate Difference"

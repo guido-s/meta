@@ -107,7 +107,7 @@ radial(x, ...)
     to be used. Either \code{"se"}, \code{"invvar"}, \code{"invse"}, or \code{"size"}
     (applies only to function \code{funnel}). }
   \item{sm}{A character string indicating underlying summary measure,
-    e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"AS"}, \code{"MD"},
+    e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"}, \code{"MD"},
     \code{"SMD"} (applies only to function \code{funnel}).}
   \item{contour.levels}{A numeric vector specifying contour levels to
     produce contour-enhanced funnel plot.}

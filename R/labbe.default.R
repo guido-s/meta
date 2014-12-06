@@ -18,6 +18,7 @@ labbe.default <- function(x, y,
   if(length(pc) != length(pe))
     stop("arguments 'x' and 'y' must be of same length")
   
+  sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
   
   if (!missing(weight))
     cex.i <- 4*cex*sqrt(weight)/sqrt(max(weight))
@@ -105,7 +106,7 @@ labbe.default <- function(x, y,
       }
     }
     ##
-    if (sm=="AS" & length(TE.fixed)>0){
+    if (sm=="ASD" & length(TE.fixed)>0){
       for (i in 1:length(TE.fixed)){
         y.line <- sin(asin(sqrt(x.line)) + TE.fixed[i])^2
         sel <- min(ylim) <= y.line & y.line <= max(ylim)
@@ -150,7 +151,7 @@ labbe.default <- function(x, y,
       }
     }
     ##
-    if (sm=="AS" & length(TE.random)>0){
+    if (sm=="ASD" & length(TE.random)>0){
       for (i in 1:length(TE.random)){
         y.line <- sin(asin(sqrt(x.line)) + TE.random[i])^2
         sel <- min(ylim) <= y.line & y.line <= max(ylim)

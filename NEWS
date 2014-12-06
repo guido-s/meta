@@ -1,3 +1,18 @@
+2014-12-06, version 4.0-2
+
+Function metabin:
+- bug fix such that use of Peto method does not result in an error
+- argument 'sm="ASD"' for arcsine difference instead of 'sm="AS"'
+  (abbreviations 'sm="AS"' and 'sm="A"' can be used as well)
+
+Functions metabin, metacont, metacor, metagen, metainc, and metaprop:
+- Weights w.random.w are calculated from random effects meta-analysis
+  ignoring subgroup membership (internally used function subgroup
+  changed accordingly)
+- for subgroup analysis, argument 'tau.common' is set to TRUE if
+  argument tau.preset is not NULL
+
+
 2014-11-19, version 4.0-1
 
 Function forest.meta:
@@ -354,8 +369,8 @@ Some help pages updated
 
 Function forest.meta:
 - bug fix such that forest plot with subgroups will not result in an
-  error message for any meta object besides metaprop objects (this bug
-  has been introduced in version 3.1-1 of meta)
+  error for any meta object besides metaprop objects (this bug has
+  been introduced in version 3.1-1 of meta)
 
 
 2013-11-19, version 3.1-1
@@ -387,8 +402,8 @@ Function metabin:
 - inverse variance method (argument sm="Inverse") is used
   automatically if argument tau.common is TRUE
 - bug fix such that call of R function metabin will not result in an
-  error message if argument tau.common is TRUE and method is equal to
-  "MH" (Mantel-Haenszel method)
+  error if argument tau.common is TRUE and method is equal to "MH"
+  (Mantel-Haenszel method)
 
 Function catmeth (used internally in R function print.summmary.meta):
 - print information on continuity correction for objects of class
@@ -479,8 +494,8 @@ Function metaprop:
 
 Function forest.meta:
 - bug fix such that call of forest.meta function will not result in an
-  error message in the following setting: (i) effect measure is equal
-  to RR, OR, or HR and (ii) argument label is not a logical value.
+  error in the following setting: (i) effect measure is equal to RR,
+  OR, or HR and (ii) argument label is not a logical value.
 
 Function print.summary.meta:
 - modified such that "0" instead of "< 0.0001" is printed if
@@ -548,8 +563,8 @@ Update of several help pages.
 
 Function metaprop:
 - bug fix such that call of forest.meta function with metaprop object
-  does not result in an error message (bug was introduced with meta,
-  version 2.4-0)
+  does not result in an error (bug was introduced with meta, version
+  2.4-0)
 - new list components incr, allincr, addincr added to metaprop R
   object (should have been part of exported list since meta,
   version 1.5-0)
@@ -627,8 +642,8 @@ Function forest.meta:
 
 Functions metabin:
 - bug fix such that function call with arguments sm="RR" and
-  allstudies=TRUE does not result in an error message in meta-analyses
-  with zero events in both groups
+  allstudies=TRUE does not result in an error in meta-analyses with
+  zero events in both groups
 
 
 2013-03-20, version 2.2-1
@@ -640,12 +655,12 @@ Function forest.meta:
   colgap.forest.right are considered (instead of only colgap.forest)
 
 Functions labbe.metabin and labbe.default:
-- bug fix such that function call does not result in an error message
-  if any event probability is equal to NA
+- bug fix such that function call does not result in an error if any
+  event probability is equal to NA
 
 Function format.p (only used internally):
-- bug fix such that function call does not result in an error message
-  if any NAs were provided in the first function argument
+- bug fix such that function call does not result in an error if any
+  NAs were provided in the first function argument
 
 
 2013-03-12, version 2.2-0
@@ -728,11 +743,11 @@ Function catmeth, print.meta, print.summary.meta:
   printed
 
 Functions metabias.meta:
-- modified so that error message is printed if used with object of
+- modified so that an error message is printed if used with object of
   class 'metacum' or 'metainf'
 
 Functions funnel.meta:
-- modified so that error message is printed if used with object of
+- modified so that an error message is printed if used with object of
   class 'metacum' or 'metainf'
 - modified so that by default different plot symbols (argument pch)
   are used with object of class 'trimfill'

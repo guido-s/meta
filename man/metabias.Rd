@@ -90,7 +90,7 @@ metabias(x, ...)
 
   In order to calculate an arcsine test for funnel plot asymmetry
   (Ruecker et al., 2008), one has to use the \code{metabin} function
-  with argument \code{sm="AS"} as input to the \code{metabias}
+  with argument \code{sm="ASD"} as input to the \code{metabias}
   command. The three arcsine tests described in Ruecker et al. (2008)
   can be calculated by setting \code{method.bias} to \code{"rank"},
   \code{"linreg"} and \code{"mm"}, respectively.
@@ -196,7 +196,7 @@ metabias(meta1, method.bias="linreg")$p.value
 #
 meta1.as <- metabin(event.e, n.e, event.c, n.c,
                     data=Olkin95, subset=1:10,
-                    sm="AS", method="I")
+                    sm="ASD", method="I")
 metabias(meta1.as)
 #
 # Same result (using function metabias.default):

@@ -299,7 +299,7 @@ settings.meta <- function(...){
     ##
     if (!is.na(idsmbin)){
       smbin <- args[[idsmbin]]
-      smbin <- setchar(smbin, c("OR", "RD", "RR", "AS"))
+      smbin <- setchar(smbin, c("OR", "RD", "RR", "ASD"))
       setOption("smbin", smbin)
     }
     if (!is.na(idmethod)){

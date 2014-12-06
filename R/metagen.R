@@ -136,9 +136,9 @@ metagen <- function(TE, seTE, studlab,
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & tau.common & !is.null(tau.preset)){
-    warning("Value for argument 'tau.preset' ignored as argument tau.common=TRUE.")
-    tau.preset <- NULL
+  if (!missing.byvar & !tau.common & !is.null(tau.preset)){
+    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    tau.common <- TRUE
   }
   if (!is.null(n.e))
     chklength(n.e, k.All, fun)

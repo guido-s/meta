@@ -67,7 +67,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Additional arguments / checks for metabin objects
   ##
   fun <- "metabin"
-  sm <- setchar(sm, c("OR", "RD", "RR", "AS"))
+  sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
   method <- setchar(method, c("Inverse", "MH", "Peto"))
   chklogical(allincr)
   chklogical(addincr)
@@ -78,7 +78,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(warn)
   chkmetafor(method.tau, fun)
   ##
-  if (sm == "AS")
+  if (sm == "ASD")
     method <- "Inverse"
   ##
   if (!is.numeric(incr))
@@ -194,9 +194,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & tau.common & !is.null(tau.preset)){
-    warning("Value for argument 'tau.preset' ignored as argument tau.common=TRUE.")
-    tau.preset <- NULL
+  if (!(method %in% c("MH", "Cochran"))){
+    if (!missing.byvar & !tau.common & !is.null(tau.preset)){
+      warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+      tau.common <- TRUE
+    }
   }
   
   
@@ -308,7 +310,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Include non-informative studies?
   ## (i.e. studies with either zero or all events in both groups)
   ##
-  if (sm == "RD" | sm == "AS")
+  if (sm == "RD" | sm == "ASD")
     incl <- rep(1, k.all)
   else{
     allevents <- event.c==n.c & event.e==n.e
@@ -352,7 +354,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     (n.c - event.c) == 0 | event.c == 0),
                 RR=((n.e - event.e) == 0 | event.e == 0 |
                     (n.c - event.c) == 0 | event.c == 0),
-                AS=rep(FALSE, length(event.e)))
+                ASD=rep(FALSE, length(event.e)))
   ##
   sel[is.na(incl)] <- FALSE
   ##
@@ -489,7 +491,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     seTE <- sqrt((n11+incr.e)*(n12+incr.e)/(n1.+2*incr.e)^3 +
                  (n21+incr.c)*(n22+incr.c)/(n2.+2*incr.c)^3)
   }
-  else if (sm == "AS"){
+  else if (sm == "ASD"){
     ## 
     ## Ruecker et al. (2009)
     ## 
@@ -564,6 +566,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       TE.fixed <- weighted.mean(TE, w.fixed, na.rm=TRUE)
       seTE.fixed <- sqrt(sum(R, na.rm=TRUE)/sum(S, na.rm=TRUE)^2)
     }
+  }
+  else if (method == "Peto"){
+    w.fixed <- 1/seTE^2
+    TE.fixed   <- weighted.mean(TE, w.fixed, na.rm=TRUE)
+    seTE.fixed <- sqrt(1/sum(w.fixed, na.rm=TRUE))
   }
   ##
   m <- metagen(TE, seTE, studlab,

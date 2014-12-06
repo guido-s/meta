@@ -52,12 +52,12 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
     \code{"Peto"}, can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
-    (\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"AS"}) is to be used
+    (\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"ASD"}) is to be used
     for pooling of studies, see Details.}
-  \item{incr}{Could be either a numerical value which is added to each cell
-  frequency for studies with a zero cell count or the character string
-  \code{"TA"} which stands for treatment arm continuity correction, see
-  Details.}
+  \item{incr}{Could be either a numerical value which is added to each
+    cell frequency for studies with a zero cell count or the character
+    string \code{"TACC"} which stands for treatment arm continuity
+    correction, see Details.}
   \item{allincr}{A logical indicating if \code{incr} is added to each
     cell frequency of all studies if at least one study has a zero cell
     count. If FALSE (default), \code{incr} is added only to each cell frequency of
@@ -138,15 +138,15 @@ metabin(event.e, n.e, event.c, n.c, studlab,
    \item Risk ratio (\code{sm="RR"})
    \item Odds ratio (\code{sm="OR"})
    \item Risk difference (\code{sm="RD"})
-   \item Arcsine difference (\code{sm="AS"})
+   \item Arcsine difference (\code{sm="ASD"})
   }
 
-  For studies with a zero cell count, by default, 0.5 is added to
-  all cell frequencies of these studies; if \code{incr} is
-  \code{"TA"} a treatment arm continuity correction is used instead
-  (Sweeting et al., 2004; Diamond et al., 2007). Treatment estimates
-  and standard errors are only calculated for studies with zero or all
-  events in both groups if \code{allstudies} is \code{TRUE}.
+  For studies with a zero cell count, by default, 0.5 is added to all
+  cell frequencies of these studies; if \code{incr} is \code{"TACC"} a
+  treatment arm continuity correction is used instead (Sweeting et
+  al., 2004; Diamond et al., 2007). Treatment estimates and standard
+  errors are only calculated for studies with zero or all events in
+  both groups if \code{allstudies} is \code{TRUE}.
   
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
@@ -450,5 +450,14 @@ meta2 <- metabin(event.e, n.e, event.c, n.c,
                  sm="RR", method="I")
 summary(meta2)
 forest(meta2)
+
+meta3 <- update(meta2, sm="OR")
+summary(meta3)
+
+meta4 <- update(meta3, method="MH")
+summary(meta4)
+
+meta5 <- update(meta3, method="Peto")
+summary(meta5)
 }
 \keyword{htest}

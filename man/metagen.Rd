@@ -36,7 +36,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{data}{An optional data frame containing the study information.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
   \item{sm}{A character string indicating underlying summary measure,
-    e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"AS"},
+    e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
     \code{"MD"}, \code{"SMD"}.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}

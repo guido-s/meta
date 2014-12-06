@@ -52,7 +52,7 @@ catmeth <- function(method, method.tau=NULL,
   }
   ##
   if (metabin | metainc | metaprop){
-    if (!(sm=="AS" | method=="Peto")){
+    if (!(sm=="ASD" | method=="Peto")){
       if (addincr){
         if (incr=="TACC")
           sm.details <- paste(sm.details,
@@ -98,7 +98,7 @@ catmeth <- function(method, method.tau=NULL,
   if (is.null(method.tau))
     lab.method.tau <- ""
   else {
-    if (!is.null(tau.preset) & !tau.common){
+    if (!is.null(tau.preset)){
       tau2 <- tau.preset^2
       if (tau2 > 0 & tau2 < 0.0001)
         tau2 <- paste("tau^2", format.tau(tau2))
