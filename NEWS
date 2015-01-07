@@ -1,3 +1,11 @@
+2015-01-06, version 4.0-3
+
+Function metabin:
+- bug fix such that printing an R object created using the
+  Mantel-Haenszel and Peto method does not result in an error if any
+  study has zero events in both groups
+
+
 2014-12-06, version 4.0-2
 
 Function metabin:

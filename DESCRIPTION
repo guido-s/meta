@@ -1,11 +1,11 @@
 Package: meta
 Title: Meta-Analysis with R
-Version: 4.0-2
+Version: 4.0-3
 Depends: R (>= 2.9.1)
 Imports: grid
 Suggests: metafor
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
-Date: 2014-12-06
+Date: 2015-01-06
 Description: User-friendly general package providing standard methods for meta-analysis:
  - fixed effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);

@@ -566,11 +566,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       TE.fixed <- weighted.mean(TE, w.fixed, na.rm=TRUE)
       seTE.fixed <- sqrt(sum(R, na.rm=TRUE)/sum(S, na.rm=TRUE)^2)
     }
+    ##
+    w.fixed[is.na(w.fixed)] <- 0
   }
   else if (method == "Peto"){
     w.fixed <- 1/seTE^2
     TE.fixed   <- weighted.mean(TE, w.fixed, na.rm=TRUE)
     seTE.fixed <- sqrt(1/sum(w.fixed, na.rm=TRUE))
+    ##
+    w.fixed[is.na(w.fixed)] <- 0
   }
   ##
   m <- metagen(TE, seTE, studlab,
