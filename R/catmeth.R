@@ -13,7 +13,9 @@ catmeth <- function(method, method.tau=NULL,
                     MH.exact=FALSE,
                     method.ci=NULL,
                     metacont=FALSE,
-                    pooledvar=FALSE){
+                    pooledvar=FALSE,
+                    method.smd,
+                    sd.glass){
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -49,6 +51,21 @@ catmeth <- function(method, method.tau=NULL,
       method.ci.details <- "\n- Normal approximation confidence interval for individual studies"
     ##
     sm.details <- paste(sm.details, method.ci.details, sep="")
+  }
+  ##
+  if (metacont && sm=="SMD" && !is.null(method.smd)){
+    if  (method.smd=="Hedges")
+      method.details <- "\n- Hedges' g (bias corrected standardised mean difference)"
+    else if  (method.smd=="Cohen")
+      method.details <- "\n- Cohen's d (standardised mean differnce)"
+    else if  (method.smd=="Glass"){
+      if (!is.null(sd.glass) && sd.glass=="control")
+        method.details <- "\n- Glass' delta (standardised mean difference; based on control group)"
+      else if (!is.null(sd.glass) && sd.glass=="experimental")
+        method.details <- "\n- Glass' delta (standardised mean difference; based on experimental group)"
+    }
+    ##
+    sm.details <- paste(sm.details, method.details, sep="")
   }
   ##
   if (metabin | metainc | metaprop){

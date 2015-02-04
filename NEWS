@@ -1,3 +1,50 @@
+2015-02-04, version 4.1-0
+
+Title of R package changed.
+
+Function metacont:
+- new argument 'method.smd' to implement Cohen's d
+  (method.smd="Cohen") and Glass' delta (method.smd="Glass") as
+  additional effect measures for the standardised mean difference
+  (sm="SMD")
+- new argument 'sd.glass' to choose the denominator for Glass' delta
+
+Function update.meta:
+- new arguments 'method.smd' and 'sd.glass' added
+
+Function summary.meta:
+- information for new arguments 'method.smd' and 'sd.glass' added to
+  summary.meta object
+
+Functions settings.meta and meta-internal:
+- code added for new arguments 'method.smd' and 'sd.glass' in metacont
+  function
+
+Function forest.meta:
+- bug fix such that using this function with a metaprop object and
+  subgroups will not result in staggered point estimates
+
+Function metagen:
+- bug fix such that studies with missing treatment effect (argument
+  TE) but available standard error (argument seTE) get zero weight in
+  meta-analysis
+
+Function paulemandel (used internally):
+- only consider studies without missing treatment effect (argument TE)
+  and standard error (argument seTE) in calculation of between-study
+  variance tau-squared
+
+Function chklevel (used internally):
+- print meaningful error message if confidence limit is outside the
+  range (0, 1)
+
+Function catmeth (used internally):
+- print information on method to estimate the standardised mean
+  difference used in metacont function
+
+Help pages of metacont and update.meta functions updated
+
+
 2015-01-06, version 4.0-3
 
 Function metabin:

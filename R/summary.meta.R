@@ -209,6 +209,8 @@ summary.meta <- function(object,
   ##
   if (inherits(object, "metacont")){
     res$pooledvar <- object$pooledvar
+    res$method.smd <- object$method.smd
+    res$sd.glass <- object$sd.glass
     ##
     class(res) <- c(class(res), "metacont")
   }

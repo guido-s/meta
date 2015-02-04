@@ -5,6 +5,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      sm=.settings$smcont,
                      ##
                      pooledvar=.settings$pooledvar,
+                     method.smd=.settings$method.smd,
+                     sd.glass=.settings$sd.glass,
                      ##
                      level=.settings$level, level.comb=.settings$level.comb,
                      comb.fixed=.settings$comb.fixed,
@@ -62,6 +64,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   fun <- "metacont"
   sm <- setchar(sm, c("MD", "SMD"))
   chklogical(pooledvar)
+  method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
+  sd.glass <- setchar(sd.glass, c("control", "experimental"))
   chklogical(warn)
   chkmetafor(method.tau, fun)
   
@@ -258,29 +262,67 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   npn2 <- npn(n.c)
   npn <- npn1 | npn2
   ##
+  N <- n.e+n.c
+  ##
   if (any(npn) & warn)
     warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
   ##  
-  if (sm == "MD"){
-    TE    <- ifelse(npn, NA,
-                    mean.e - mean.c)
+  if (sm=="MD"){
+    TE    <- ifelse(npn, NA, mean.e - mean.c)
     ##
     if (pooledvar)
       seTE <- ifelse(npn, NA,
-                     sqrt((1/n.e+1/n.c) * ((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2) / (n.e + n.c - 2)))
+                     sqrt((1/n.e + 1/n.c) *
+                            ((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2) / (N-2)))
     else
       seTE <- ifelse(npn, NA,
                      sqrt(sd.e^2/n.e + sd.c^2/n.c))
     ##
     seTE[is.na(TE)] <- NA
   }
-  else if (sm == "SMD"){
-    N <- n.e+n.c
-    TE    <- ifelse(npn, NA,
-                    (1-3/(4*N-9)) * (mean.e - mean.c) /
-                    sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2)))
-    seTE <- ifelse(npn, NA,
-                   sqrt(N / (n.e*n.c) + TE^2/(2*(N-3.94))))
+  else if (sm=="SMD"){
+    if (method.smd %in% c("Hedges", "Cohen"))
+      S.within <- sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2))
+    else
+      S.within <- if (sd.glass=="control") sd.c else sd.e
+    ##
+    smd <- ifelse(npn, NA, (mean.e - mean.c) / S.within)
+    ##
+    if (method.smd=="Cohen"){
+      ##
+      ## see Cooper & Hedges (1994), p. 238
+      ## and Borenstein et al. (2009), p. 26-27
+      ## (neither formula for seTE is exactly equal to the one used
+      ##  here)
+      ##
+      TE   <- smd
+      seTE <- ifelse(npn, NA,
+                     sqrt(N / (n.e*n.c) + TE^2/(2*N-2)))
+    }
+    else if (method.smd=="Hedges"){
+      ##
+      ## see RevMan 5
+      ##
+      J <- 1-3/(4*N-9)
+      TE   <- J*smd
+      seTE <- ifelse(npn, NA,
+                     sqrt(N / (n.e*n.c) + TE^2/(2*(N-3.94))))
+    }
+    else if (method.smd=="Glass"){
+      ##
+      ## see Cooper & Hedges (1994), p. 238
+      ##
+      sd.g <- ifelse(sd.glass=="control", sd.c,
+                     ifelse(sd.glass=="experimental", sd.e, NA))
+      n.g  <- ifelse(sd.glass=="control", n.c,
+                     ifelse(sd.glass=="experimental", n.e, NA))
+      ##
+      TE   <- ifelse(npn, NA,
+                     (mean.e - mean.c) / sd.g)
+      seTE <- ifelse(npn, NA,
+                     sqrt(N / (n.e*n.c) + TE^2/(2*n.g-1)))
+    }
+    ##
     seTE[is.na(TE)] <- NA
   }
   ##
@@ -344,7 +386,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   res <- list(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
               n.c=n.c, mean.c=mean.c, sd.c=sd.c,
-              pooledvar=pooledvar)
+              pooledvar=pooledvar,
+              method.smd=method.smd, sd.glass=sd.glass)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

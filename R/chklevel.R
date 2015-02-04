@@ -21,7 +21,7 @@ chklevel <- function(x, single=TRUE, ci=TRUE){
          call.=FALSE)
   ##
   if (any(x <= 0) | any(x >= 1))
-    stop("Argument '", name, "': no valid ", text, ".",
+    stop("Argument '", name, "' must be a numeric between 0 and 1.",
          call.=FALSE)
   ##
   invisible(NULL)

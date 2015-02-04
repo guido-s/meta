@@ -238,7 +238,9 @@ print.summary.meta <- function(x,
             addincr=ifelse(bip, x$addincr, FALSE),
             method.ci=x$method.ci,
             metacont=inherits(x, "metacont"),
-            pooledvar=x$pooledvar)
+            pooledvar=x$pooledvar,
+            method.smd=x$method.smd,
+            sd.glass=x$sd.glass)
   }
   else{
     ##
@@ -455,7 +457,9 @@ print.summary.meta <- function(x,
             MH.exact=ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
             method.ci=x$method.ci,
             metacont=inherits(x, "metacont"),
-            pooledvar=x$pooledvar)
+            pooledvar=x$pooledvar,
+            method.smd=x$method.smd,
+            sd.glass=x$sd.glass)
   }
   
   

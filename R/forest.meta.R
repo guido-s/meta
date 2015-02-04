@@ -590,6 +590,7 @@ forest.meta <- function(x,
   ##
   if (by & any(is.na(byvar)))
     stop("Missing values in 'byvar'")
+  ##
   if (allstudies)
     sel <- 1:length(x$TE)
   else
@@ -942,7 +943,7 @@ forest.meta <- function(x,
     ## Individual study results
     ##
     if (metaprop){
-      TE <- x$event/x$n
+      TE <- x$event.e/x$n.e
     }
     ## Relative effect measures will be back transformed later
     else if (!is.relative.effect(sm)){

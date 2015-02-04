@@ -27,7 +27,8 @@
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
        n.e=object$n.e, n.c=object$n.c,
-       pooledvar=object$pooledvar, method.ci=object$method.ci,
+       pooledvar=object$pooledvar, method.smd=object$method.smd,
+       sd.glass=object$sd.glass, method.ci=object$method.ci,
        byvar=object$byvar, bylab=object$bylab, print.byvar=object$print.byvar,
        print.CMH=object$print.CMH, keepdata=TRUE,
        left=object$left, ma.fixed=object$ma.fixed,
@@ -113,6 +114,18 @@
   \item{pooledvar}{A logical indicating if a pooled variance should be
     used for the mean difference (only for metacont object with
     \code{sm="MD"}).}
+  \item{method.smd}{A character string indicating which method is used
+    to estimate the standardised mean difference (only for metacont
+    object with \code{sm="SMD"}). Either \code{"Hedges"} for Hedges' g
+    (default), \code{"Cohen"} for Cohen's d, or \code{"Glass"} for
+    Glass' delta, can be abbreviated.}
+  \item{sd.glass}{A character string indicating which standard
+    deviation is used in the denominator for Glass' method to estimate
+    the standardised mean difference (only for metacont object with
+    \code{sm="SMD"}). Either \code{"control"} using the standard
+    deviation in the control group (\code{sd.c}) or
+    \code{"experimental"} using the standard deviation in the
+    experimental group (\code{sd.e}), can be abbreviated.}
   \item{method.ci}{A character string indicating which method is used
     to calculate confidence intervals for individual studies. Either
     \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},

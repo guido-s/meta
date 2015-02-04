@@ -8,6 +8,13 @@ paulemandel <- function(TE, seTE,
   ## Author: S. Cowen <simon.cowen@lgc.co.uk> with amendments by
   ##         S.L.R. Ellison <s.ellison@lgc.co.uk>
   ##
+
+  sel <- !is.na(TE) & !is.na(seTE)
+  TE <- TE[sel]
+  seTE <- seTE[sel]
+  ##
+  if (length(TE)==0)
+    stop("Mandel-Paule estimate not defined as all studies have missing values in argument TE and/or seTE.")
   
   if (tol >= 1.0 )
     stop("Tolerance must be smaller than 1.0.")
@@ -24,6 +31,7 @@ paulemandel <- function(TE, seTE,
     n.iter <- n.iter + 1
     ##
     w.random <- 1 / (seTE^2 + tau2)
+    w.random[is.na(w.random)] <- 0
     TE.random <- weighted.mean(TE, w.random)
     ##
     F <- sum(w.random*(TE - TE.random)^2) - (length(TE) - 1)
@@ -34,6 +42,7 @@ paulemandel <- function(TE, seTE,
       tau2  <- 0.0
       dv <- 0.0
       w.random <- 1 / (seTE^2 + tau2)
+      w.random[is.na(w.random)] <- 0
       TE.random <- weighted.mean(TE, w.random)
       converged <- 2L
     }
@@ -46,7 +55,7 @@ paulemandel <- function(TE, seTE,
   }
   else{
     ## Not changed if already set to 2L
-    if (converged == 0L)
+    if (converged==0L)
       converged <- 1L
   }
   

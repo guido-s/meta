@@ -253,7 +253,9 @@ print.meta <- function(x,
               hakn=is.random & x$hakn,
               metaprop=inherits(x, "metaprop"),
               trimfill=inherits(x, "trimfill"),
-              tau.preset=x$tau.preset)
+              tau.preset=x$tau.preset,
+              method.smd=x$method.smd,
+              sd.glass=x$sd.glass)
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

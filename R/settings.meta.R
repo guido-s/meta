@@ -96,6 +96,8 @@ settings.meta <- function(...){
     ##
     cat("\nAdditional setting for R function metacont:\n")
     catarg("pooledvar")
+    catarg("method.smd")
+    catarg("sd.glass")
     ##
     cat("\nAdditional setting for R function metaprop:\n")
     catarg("method.ci")
@@ -143,6 +145,8 @@ settings.meta <- function(...){
       setOption("smprop", "PLOGIT")
       ##
       setOption("pooledvar", FALSE)
+      setOption("method.smd", "Hedges")
+      setOption("sd.glass", "control")
       ##
       setOption("method.ci", "CP")
       ##
@@ -198,6 +202,8 @@ settings.meta <- function(...){
     idsmprop <- argid(names, "smprop")
     ##
     idpooledvar <- argid(names, "pooledvar")
+    idmethod.smd <- argid(names, "method.smd")
+    idsd.glass <- argid(names, "sd.glass")
     ##
     idmethod.ci <- argid(names, "method.ci")
     ##
@@ -375,6 +381,16 @@ settings.meta <- function(...){
       pooledvar <- args[[idpooledvar]]
       chklogical(pooledvar)
       setOption("pooledvar", pooledvar)
+    }
+    if (!is.na(idmethod.smd)){
+      method.smd <- args[[idmethod.smd]]
+      method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
+      setOption("method.smd", method.smd)
+    }
+    if (!is.na(idsd.glass)){
+      sd.glass <- args[[idsd.glass]]
+      sd.glass <- setchar(sd.glass, c("control", "experimental"))
+      setOption("sd.glass", sd.glass)
     }
     ##
     ## R function metaprop

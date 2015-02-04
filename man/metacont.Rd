@@ -14,6 +14,7 @@
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          data=NULL, subset=NULL,
          sm=.settings$smcont, pooledvar=.settings$pooledvar,
+	 method.smd=.settings$method.smd, sd.glass=.settings$sd.glass,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
@@ -80,6 +81,17 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     studies.}
   \item{pooledvar}{A logical indicating if a pooled variance should be
     used for the mean difference (\code{sm="MD"}).}
+  \item{method.smd}{A character string indicating which method is used
+    to estimate the standardised mean difference
+    (\code{sm="SMD"}). Either \code{"Hedges"} for Hedges' g (default),
+    \code{"Cohen"} for Cohen's d, or \code{"Glass"} for Glass' delta,
+    can be abbreviated.}
+  \item{sd.glass}{A character string indicating which standard
+    deviation is used in the denominator for Glass' method to estimate
+    the standardised mean difference. Either \code{"control"} using
+    the standard deviation in the control group (\code{sd.c}) or
+    \code{"experimental"} using the standard deviation in the
+    experimental group (\code{sd.e}), can be abbreviated.}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{n.e}).}
   \item{bylab}{A character string with a label for the grouping variable.}
@@ -98,10 +110,20 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   pooling. By default, the DerSimonian-Laird estimate (1986) is used
   in the random effects model (\code{method.tau="DL"}).
 
-  The mean difference is used as measure of treatment effect if
-  \code{sm="MD"} -- which correspond to \code{sm="WMD"} in older
-  versions (<0.9) of the meta package. For the summary measure
-  \code{"SMD"}, Hedges' adjusted g is utilised for pooling.
+  Two different types of summary measures are available for continuous
+  outcomes: the mean difference (argument \code{sm="MD"}) and the
+  standardised mean difference (\code{sm="SMD"}). For the standardised
+  mean difference three methods are implemented:
+  \itemize{
+   \item Hedges' g (default, \code{method.smd="Hedges"}) - see Hedges (1981)
+   \item Cohen's d (\code{method.smd="Cohen"}) - see Cohen (1988)
+   \item Glass' delta (\code{method.smd="Glass"}) - see Glass (1976)
+  }
+  For Glass' delta, by default (argument \code{sd.glass="control"}),
+  the standard deviation in the control group (\code{sd.c}) is used in
+  the denominator of the standard mean difference. The standard
+  deviation in the experimental group (\code{sd.e}) can be used by
+  specifying \code{sd.glass="experimental"}.
   
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
@@ -136,8 +158,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   The iterative Paule-Mandel method (1982) to estimate the
   between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
-  called which is based on R function mpaule.default from R package
-  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+  called which is based on R function \code{mpaule.default} from R
+  package metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
   
   If R package metafor (Viechtbauer 2010) is installed, the following
   methods to estimate the between-study variance \eqn{\tau^2}
@@ -163,6 +185,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{n.c, mean.c, sd.c,}{}
   \item{studlab, sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
+  \item{pooledvar, method.smd, sd.glass,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
@@ -275,6 +298,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 }
 
 \references{
+  Cohen J (1988),
+  Statistical Power Analysis for the Behavioral Sciences (second ed.).
+  Lawrence Erlbaum Associates.
+
   Cooper H & Hedges LV (1994),
   \emph{The Handbook of Research Synthesis}.
   Newbury Park, CA: Russell Sage Foundation.
@@ -283,12 +310,22 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
   \bold{7}, 177--188.
 
+  Glass G (1976),
+  Primary, secondary, and meta-analysis of research.
+  \emph{Educational Researcher}, \bold{5}, 3--8.
+
   Hartung J & Knapp G (2001),
   On tests of the overall treatment effect in meta-analysis with
   normally distributed responses.
   \emph{Statistics in Medicine}, \bold{20}, 1771--82.
   doi: 10.1002/sim.791 .
   
+  Hedges LV (1981),
+  Distribution theory for Glass's estimator of effect size and related
+  estimators.
+  \emph{Journal of Educational and Behavioral Statistics},
+  \bold{6}, 107--28.
+
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
@@ -340,6 +377,24 @@ meta4 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
                   data=amlodipine, studlab=study,
                   pooledvar=TRUE)
 summary(meta4)
+
+# Use Cohen's d instead of Hedges' g as effect measure
+#
+meta5 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont,
+                  sm="SMD", method.smd="Cohen")
+meta5
+
+# Use Glass' delta instead of Hedges' g as effect measure
+#
+meta6 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont,
+                  sm="SMD", method.smd="Glass")
+meta6
+
+# Use Glass' delta based on the standard deviation in the experimental group
+#
+meta7 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont,
+                  sm="SMD", method.smd="Glass", sd.glass="experimental")
+meta7
 }
 
 \keyword{htest}

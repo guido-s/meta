@@ -308,7 +308,7 @@ metagen <- function(TE, seTE, studlab,
     ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
     ##
     w.fixed <- 1/seTE^2
-    w.fixed[is.na(w.fixed)] <- 0
+    w.fixed[is.na(w.fixed) | is.na(TE)] <- 0
     ##
     TE.fixed   <- weighted.mean(TE, w.fixed, na.rm=TRUE)
     seTE.fixed <- sqrt(1/sum(w.fixed, na.rm=TRUE))
@@ -326,7 +326,6 @@ metagen <- function(TE, seTE, studlab,
       TE.random <- pm$TE.random
       seTE.random <- pm$seTE.random
       w.random <- pm$w.random
-      w.random[is.na(w.random)] <- 0
       ##
       tau2 <- pm$tau^2
     }
@@ -335,7 +334,7 @@ metagen <- function(TE, seTE, studlab,
       ## Cooper & Hedges (1994), p. 265, 274-5
       ##
       w.random <- 1/(seTE^2 + tau2)
-      w.random[is.na(w.random)] <- 0
+      w.random[is.na(w.random) | is.na(TE)] <- 0
       ##
       TE.random   <- weighted.mean(TE, w.random, na.rm=TRUE)
       seTE.random <- sqrt(1/sum(w.random, na.rm=TRUE))

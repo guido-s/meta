@@ -2,7 +2,7 @@ setchar <- function(x, val, text, list=FALSE){
   name <- deparse(substitute(x))
   nval <- length(val)
   ##
-  idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
+  idx <- charmatch(tolower(x), tolower(val), nomatch=NA)
   ##
   if (is.na(idx) || idx == 0){
     if (list)
