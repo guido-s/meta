@@ -57,7 +57,7 @@ catmeth <- function(method, method.tau=NULL,
     if  (method.smd=="Hedges")
       method.details <- "\n- Hedges' g (bias corrected standardised mean difference)"
     else if  (method.smd=="Cohen")
-      method.details <- "\n- Cohen's d (standardised mean differnce)"
+      method.details <- "\n- Cohen's d (standardised mean difference)"
     else if  (method.smd=="Glass"){
       if (!is.null(sd.glass) && sd.glass=="control")
         method.details <- "\n- Glass' delta (standardised mean difference; based on control group)"
