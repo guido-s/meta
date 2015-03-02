@@ -1,3 +1,13 @@
+2015-mm-dd, version 4.1-1
+
+Copyright changed (new names for Institute and Medical Center)
+
+Function forest.meta:
+- bug fix such that additional columns used in arguments leftcols and
+  rightcols are sorted appropriately if argument sortvar is not
+  missing
+
+
 2015-02-04, version 4.1-0
 
 Title of R package changed.

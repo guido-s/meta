@@ -410,20 +410,21 @@ forest.meta <- function(x,
   newcols <- length(colnames.new)>0
   ##
   if (newcols){
+    dataset2 <- as.data.frame(x)
+    ##
     if (is.null(x$data))
-      dataset <- as.data.frame(x)
-    else{
-      if (!is.null(x$subset))
-        dataset <- x$data[x$subset,]
-      else
-        dataset <- x$data
-    }
+      dataset1 <- dataset2
+    else
+      dataset1 <- x$data
+    ##
+    if (!is.null(x$subset))
+      dataset1 <- dataset1[x$subset,]
     ##
     ## Check whether additional variables are
     ## part of meta-object
     ##
     for (i in colnames.new)
-      if (length(x[[i]]) == 0 & length(dataset[[i]]) == 0)
+      if (length(dataset1[[i]]) == 0 & length(dataset2[[i]]) == 0)
         stop("Variable '", i, "' not available in '", x.name, "'.")
     ##
     rightcols.new <- rightcols[! rightcols %in% colnames]
@@ -684,8 +685,10 @@ forest.meta <- function(x,
     ##
     col.i.inside.square <- col.i.inside.square[o]
     ##
-    if (newcols)
-      dataset <- dataset[o,]
+    if (newcols){
+      dataset1 <- dataset1[o,]
+      dataset2 <- dataset2[o,]
+    }
   }
   ##
   if (by)
@@ -1847,10 +1850,10 @@ forest.meta <- function(x,
     if (by){
       for (i in seq(along=rightcols.new)){
         tname <- paste("col.", rightcols.new[i], sep="")
-        if (length(dataset[[rightcols.new[i]]])!=0)
-          tmp.r <- dataset[[rightcols.new[i]]]
-        else if (length(x[[rightcols.new[i]]])!=0)
-          tmp.r <- x[[rightcols.new[i]]]
+        if (length(dataset1[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset1[[rightcols.new[i]]]
+        else if (length(dataset2[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset2[[rightcols.new[i]]]
         if (is.factor(tmp.r))
           tmp.r <- as.character(tmp.r)
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
@@ -1863,10 +1866,10 @@ forest.meta <- function(x,
       }
       for (i in seq(along=leftcols.new)){
         tname <- paste("col.", leftcols.new[i], sep="")
-        if (length(dataset[[leftcols.new[i]]])!=0)
-          tmp.l <- dataset[[leftcols.new[i]]]        
-        else if (length(x[[leftcols.new[i]]])!=0)
-          tmp.l <- x[[leftcols.new[i]]]
+        if (length(dataset1[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset1[[leftcols.new[i]]]        
+        else if (length(dataset2[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset2[[leftcols.new[i]]]
         if (is.factor(tmp.l))
           tmp.l <- as.character(tmp.l)
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
@@ -1881,10 +1884,10 @@ forest.meta <- function(x,
     else{
       for (i in seq(along=rightcols.new)){
         tname <- paste("col.", rightcols.new[i], sep="")
-        if (length(dataset[[rightcols.new[i]]])!=0)
-          tmp.r <- dataset[[rightcols.new[i]]]
-        else if (length(x[[rightcols.new[i]]])!=0)
-          tmp.r <- x[[rightcols.new[i]]]
+        if (length(dataset1[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset1[[rightcols.new[i]]]
+        else if (length(dataset2[[rightcols.new[i]]])!=0)
+          tmp.r <- dataset2[[rightcols.new[i]]]
         if (is.factor(tmp.r))
           tmp.r <- as.character(tmp.r)
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
@@ -1895,10 +1898,10 @@ forest.meta <- function(x,
       }
       for (i in seq(along=leftcols.new)){
         tname <- paste("col.", leftcols.new[i], sep="")
-        if (length(dataset[[leftcols.new[i]]])!=0)
-          tmp.l <- dataset[[leftcols.new[i]]]        
-        else if (length(x[[leftcols.new[i]]])!=0)
-          tmp.l <- x[[leftcols.new[i]]]
+        if (length(dataset1[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset1[[leftcols.new[i]]]        
+        else if (length(dataset2[[leftcols.new[i]]])!=0)
+          tmp.l <- dataset2[[leftcols.new[i]]]
         if (is.factor(tmp.l))
           tmp.l <- as.character(tmp.l)
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
