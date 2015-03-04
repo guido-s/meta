@@ -290,14 +290,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (method.smd=="Cohen"){
       ##
-      ## see Cooper & Hedges (1994), p. 238
-      ## and Borenstein et al. (2009), p. 26-27
-      ## (neither formula for seTE is exactly equal to the one used
-      ##  here)
-      ##
+      ## Borenstein et al. (2009), p. 26, 27:
+      ## 
       TE   <- smd
       seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + TE^2/(2*N-2)))
+                     sqrt(N / (n.e*n.c) + TE^2/(2*N)))
     }
     else if (method.smd=="Hedges"){
       ##

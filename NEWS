@@ -2,6 +2,10 @@
 
 Copyright changed (new names for Institute and Medical Center)
 
+Function metacont:
+- use formula from Borenstein et al. (2009) to calculate standard
+  error for Cohen's d
+
 Function forest.meta:
 - bug fix such that additional columns used in arguments leftcols and
   rightcols are sorted appropriately if argument sortvar is not
