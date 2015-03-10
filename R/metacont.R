@@ -7,6 +7,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      pooledvar=.settings$pooledvar,
                      method.smd=.settings$method.smd,
                      sd.glass=.settings$sd.glass,
+                     exact.smd=.settings$exact.smd,
                      ##
                      level=.settings$level, level.comb=.settings$level.comb,
                      comb.fixed=.settings$comb.fixed,
@@ -281,6 +282,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     seTE[is.na(TE)] <- NA
   }
   else if (sm=="SMD"){
+    J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
+    K <- function(x) 1 - (x-2) / (x*J(x)^2)
+    ##
     if (method.smd %in% c("Hedges", "Cohen"))
       S.within <- sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2))
     else
@@ -290,20 +294,37 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (method.smd=="Cohen"){
       ##
-      ## Borenstein et al. (2009), p. 26, 27:
-      ## 
+      ## Borenstein et al. (2009), p. 26-27;
+      ## White and Thomas (2005), p. 143
+      ##
       TE   <- smd
-      seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + TE^2/(2*N)))
+      if (exact.smd){
+        J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
+        K <- function(x) 1 - (x-2) / (x*J(x)^2)
+        seTE <- ifelse(npn, NA,
+                     sqrt(N / (n.e*n.c) + (J(N-2)*smd)^2 * K(N-2)))
+      }
+      else
+        seTE <- ifelse(npn, NA,
+                       sqrt(N / (n.e*n.c) + TE^2/(2*N)))
     }
     else if (method.smd=="Hedges"){
       ##
-      ## see RevMan 5
+      ## Hedges and Olkin (1985); White and Thomas (2005), p. 143;
+      ## formulae used in RevMan 5 (exact.smd=FALSE)
       ##
-      J <- 1-3/(4*N-9)
-      TE   <- J*smd
+      if (exact.smd){
+        J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
+        K <- function(x) 1 - (x-2) / (x*J(x)^2)
+      }
+      else{
+        J <- function(x) 1-3/(4*x-1)
+        K <- function(x) 1/(2*(x-1.94))
+      }
+      ##
+      TE   <- J(N-2)*smd
       seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + TE^2/(2*(N-3.94))))
+                     sqrt(N / (n.e*n.c) + TE^2 * K(N-2)))
     }
     else if (method.smd=="Glass"){
       ##
@@ -384,7 +405,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   res <- list(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
               n.c=n.c, mean.c=mean.c, sd.c=sd.c,
               pooledvar=pooledvar,
-              method.smd=method.smd, sd.glass=sd.glass)
+              method.smd=method.smd, sd.glass=sd.glass,
+              exact.smd=exact.smd)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

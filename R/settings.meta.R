@@ -98,6 +98,7 @@ settings.meta <- function(...){
     catarg("pooledvar")
     catarg("method.smd")
     catarg("sd.glass")
+    catarg("exact.smd")
     ##
     cat("\nAdditional setting for R function metaprop:\n")
     catarg("method.ci")
@@ -147,6 +148,7 @@ settings.meta <- function(...){
       setOption("pooledvar", FALSE)
       setOption("method.smd", "Hedges")
       setOption("sd.glass", "control")
+      setOption("exact.smd", FALSE)
       ##
       setOption("method.ci", "CP")
       ##
@@ -204,6 +206,7 @@ settings.meta <- function(...){
     idpooledvar <- argid(names, "pooledvar")
     idmethod.smd <- argid(names, "method.smd")
     idsd.glass <- argid(names, "sd.glass")
+    idexact.smd <- argid(names, "exact.smd")
     ##
     idmethod.ci <- argid(names, "method.ci")
     ##
@@ -391,6 +394,11 @@ settings.meta <- function(...){
       sd.glass <- args[[idsd.glass]]
       sd.glass <- setchar(sd.glass, c("control", "experimental"))
       setOption("sd.glass", sd.glass)
+    }
+    if (!is.na(idexact.smd)){
+      exact.smd <- args[[idexact.smd]]
+      chklogical(exact.smd)
+      setOption("exact.smd", exact.smd)
     }
     ##
     ## R function metaprop

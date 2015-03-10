@@ -153,10 +153,10 @@ read.rm5(file, sep=",", quote = "\"", title,
   \item{complab}{Comparison label.}
 }
 
-\references{
+\references{  
   \emph{Review Manager (RevMan)} [Computer program]. Version
-  5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
-  Collaboration, 2011.
+  5.3. Copenhagen: The Nordic Cochrane Centre, The Cochrane
+  Collaboration, 2014.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}

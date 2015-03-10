@@ -1,8 +1,10 @@
-2015-mm-dd, version 4.1-1
+2015-mm-dd, version 4.2-0
 
 Copyright changed (new names for Institute and Medical Center)
 
 Function metacont:
+- new argument 'exact.smd' to implement exact formulae for Hedges' g
+  and Cohen's d (White and Thomas, 2005; Hedges, 1981)
 - use formula from Borenstein et al. (2009) to calculate standard
   error for Cohen's d
 
@@ -10,6 +12,13 @@ Function forest.meta:
 - bug fix such that additional columns used in arguments leftcols and
   rightcols are sorted appropriately if argument sortvar is not
   missing
+
+Functions settings.meta, meta-internal, catmeth and update.meta:
+- code added for new argument 'exact.smd' in metacont function
+
+Several help pages updated
+- reflect changes in metacont function
+- updated RevMan 5 reference
 
 
 2015-02-04, version 4.1-0

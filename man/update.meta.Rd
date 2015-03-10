@@ -28,7 +28,7 @@
        label.left=object$label.left, label.right=object$label.right,
        n.e=object$n.e, n.c=object$n.c,
        pooledvar=object$pooledvar, method.smd=object$method.smd,
-       sd.glass=object$sd.glass, method.ci=object$method.ci,
+       sd.glass=object$sd.glass, exact.smd=object$exact.smd, method.ci=object$method.ci,
        byvar=object$byvar, bylab=object$bylab, print.byvar=object$print.byvar,
        print.CMH=object$print.CMH, keepdata=TRUE,
        left=object$left, ma.fixed=object$ma.fixed,
@@ -126,6 +126,9 @@
     deviation in the control group (\code{sd.c}) or
     \code{"experimental"} using the standard deviation in the
     experimental group (\code{sd.e}), can be abbreviated.}
+  \item{exact.smd}{A logical indicating whether exact formulae should
+    be used in estimation of the standardised mean difference and its
+    standard error.}
   \item{method.ci}{A character string indicating which method is used
     to calculate confidence intervals for individual studies. Either
     \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},

@@ -15,6 +15,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          data=NULL, subset=NULL,
          sm=.settings$smcont, pooledvar=.settings$pooledvar,
 	 method.smd=.settings$method.smd, sd.glass=.settings$sd.glass,
+	 exact.smd=.settings$exact.smd,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
@@ -92,6 +93,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     the standard deviation in the control group (\code{sd.c}) or
     \code{"experimental"} using the standard deviation in the
     experimental group (\code{sd.e}), can be abbreviated.}
+  \item{exact.smd}{A logical indicating whether exact formulae should
+    be used in estimation of the standardised mean difference and its
+    standard error (see Details).}
   \item{byvar}{An optional vector containing grouping information (must
     be of same length as \code{n.e}).}
   \item{bylab}{A character string with a label for the grouping variable.}
@@ -119,6 +123,23 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
    \item Cohen's d (\code{method.smd="Cohen"}) - see Cohen (1988)
    \item Glass' delta (\code{method.smd="Glass"}) - see Glass (1976)
   }
+  Hedges (1981) calculated the exact bias in Cohen's d which is a
+  ratio of gamma distributions with the degrees of freedom, i.e. total
+  sample size minus two, as argument. By default (argument
+  \code{exact.smd=FALSE}), an accurate approximation of this bias
+  provided in Hedges (1981) is utilised for Hedges' g as well as its
+  standard error; these approximations are also used in RevMan
+  5. Following Borenstein et al. (2009) these approximations are not
+  used in the estimation of Cohen's d. White and Thomas (2005) argued
+  that approximations are unnecessary with modern software and
+  accordingly promote to use the exact formulae; this is possible
+  using argument \code{exact.smd=TRUE}. For Hedges' g the exact
+  formulae are used to calculate the standardised mean difference as
+  well as the standard error; for Cohen's d the exact formula is only
+  used to calculate the standard error. In typical applications (with
+  sample sizes above 10), the differences between using the exact
+  formulae and the approximation will be minimal.
+  
   For Glass' delta, by default (argument \code{sd.glass="control"}),
   the standard deviation in the control group (\code{sd.c}) is used in
   the denominator of the standard mean difference. The standard
@@ -298,6 +319,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 }
 
 \references{
+  Borenstein et al. (2009),
+  \emph{Introduction to Meta-Analysis},
+  Chichester: Wiley.
+
   Cohen J (1988),
   Statistical Power Analysis for the Behavioral Sciences (second ed.).
   Lawrence Erlbaum Associates.
@@ -342,9 +367,18 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \emph{Journal of Research of the National Bureau of Standards},
   \bold{87}, 377--385.
   
+  \emph{Review Manager (RevMan)} [Computer program]. Version
+  5.3. Copenhagen: The Nordic Cochrane Centre, The Cochrane
+  Collaboration, 2014.
+
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
   \emph{Journal of Statistical Software}, \bold{36}, 1--48.
+
+  White IR, Thomas J (2005),
+  Standardized mean differences in individually-randomized and
+  cluster-randomized trials, with applications to meta-analysis.
+  \emph{Clinical Trials}, \bold{2}, 141--51.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
@@ -395,6 +429,10 @@ meta6
 meta7 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, data=Fleiss93cont,
                   sm="SMD", method.smd="Glass", sd.glass="experimental")
 meta7
+
+# Calculate Hedges' g based on exact formulae
+#
+update(meta1, exact.smd=TRUE)
 }
 
 \keyword{htest}

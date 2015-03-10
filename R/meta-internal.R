@@ -97,7 +97,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
               "RR.cochrane", "print.CMH",
-              "pooledvar", "method.smd", "sd.glass", "method.ci",
+              "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
               "label.e", "label.c", "label.left", "label.right")
 setOption("argslist", argslist)
 ##
@@ -147,6 +147,7 @@ setOption("print.CMH", FALSE)
 setOption("pooledvar", FALSE)
 setOption("method.smd", "Hedges")
 setOption("sd.glass", "control")
+setOption("exact.smd", FALSE)
 ##
 ## Additional setting for R function metaprop
 ##

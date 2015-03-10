@@ -393,8 +393,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   doi: 10.1002/sim.1482 .
   
   \emph{Review Manager (RevMan)} [Computer program]. Version
-  5.1. Copenhagen: The Nordic Cochrane Centre, The Cochrane
-  Collaboration, 2011.
+  5.3. Copenhagen: The Nordic Cochrane Centre, The Cochrane
+  Collaboration, 2014.
   
   Paule RC & Mandel J (1982),
   Consensus values and weighting factors.

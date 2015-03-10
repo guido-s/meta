@@ -211,6 +211,7 @@ summary.meta <- function(object,
     res$pooledvar <- object$pooledvar
     res$method.smd <- object$method.smd
     res$sd.glass <- object$sd.glass
+    res$exact.smd <- object$exact.smd
     ##
     class(res) <- c(class(res), "metacont")
   }

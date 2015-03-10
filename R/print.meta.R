@@ -255,7 +255,8 @@ print.meta <- function(x,
               trimfill=inherits(x, "trimfill"),
               tau.preset=x$tau.preset,
               method.smd=x$method.smd,
-              sd.glass=x$sd.glass)
+              sd.glass=x$sd.glass,
+              exact.smd=x$exact.smd)
     }
     else{
       res <- cbind(format.TE(TE, na=TRUE),

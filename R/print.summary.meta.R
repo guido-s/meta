@@ -240,7 +240,8 @@ print.summary.meta <- function(x,
             metacont=inherits(x, "metacont"),
             pooledvar=x$pooledvar,
             method.smd=x$method.smd,
-            sd.glass=x$sd.glass)
+            sd.glass=x$sd.glass,
+            exact.smd=x$exact.smd)
   }
   else{
     ##
@@ -459,7 +460,8 @@ print.summary.meta <- function(x,
             metacont=inherits(x, "metacont"),
             pooledvar=x$pooledvar,
             method.smd=x$method.smd,
-            sd.glass=x$sd.glass)
+            sd.glass=x$sd.glass,
+            exact.smd=x$exact.smd)
   }
   
   
