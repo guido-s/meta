@@ -284,7 +284,7 @@ forest.meta <- function(x,
     prediction <- FALSE
   }
   ##
-  prediction <- prediction & comb.random & x$k >= 3
+  prediction <- prediction & x$k >= 3
   ##  
   x.name <- deparse(substitute(x))
   ##
@@ -1521,8 +1521,14 @@ forest.meta <- function(x,
         text.fixed <- "Overall"
   }
   ##
-  if (!is.na(yTE.random) & prediction)
-    yTE.predict <- yTE.random+1
+  if (prediction){
+    if (!is.na(yTE.random))
+      yTE.predict <- yTE.random+1
+    else if (!is.na(yTE.fixed))
+      yTE.predict <- yTE.fixed+1
+    else
+      yTE.predict <- max.yTE+2
+  }
   ##
   if (overall.hetstat)
     if (is.na(yTE.fixed) & is.na(yTE.random))

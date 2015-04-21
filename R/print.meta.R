@@ -83,7 +83,7 @@ print.meta <- function(x,
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##  
-  prediction <- prediction & comb.random & x$k>=3
+  prediction <- prediction & x$k>=3
   ##  
   ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
   ##  

@@ -61,7 +61,7 @@ print.summary.meta <- function(x,
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop"))
   ##
-  prediction <- prediction & comb.random & k>=3
+  prediction <- prediction & k>=3
   ##
   if (is.null(x$df.Q))
     df.Q <- k-1
@@ -247,7 +247,7 @@ print.summary.meta <- function(x,
     ##
     ## Print results for meta-analysis with more than one study
     ##
-    if (comb.fixed|comb.random){
+    if (comb.fixed|comb.random|prediction){
       if (!inherits(x, "trimfill"))
         cat(paste("Number of studies combined: k=", k, "\n\n", sep=""))
       else

@@ -12,6 +12,12 @@ Function forest.meta:
 - bug fix such that additional columns used in arguments leftcols and
   rightcols are sorted appropriately if argument sortvar is not
   missing
+- prediction interval can be printed if random effects estimate is not
+  shown
+
+Function print.meta and print.summary.meta:
+- prediction interval can be printed if random effects estimate is not
+  shown
 
 Functions settings.meta, meta-internal, catmeth and update.meta:
 - code added for new argument 'exact.smd' in metacont function
