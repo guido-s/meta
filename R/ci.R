@@ -9,7 +9,7 @@ ci <- function(TE, seTE, level=0.95, df=NULL){
     lower  <- TE - qnorm(1-alpha/2)*seTE
     upper  <- TE + qnorm(1-alpha/2)*seTE
     zscore <- TE/seTE
-    pval   <- 2*(1-pnorm(abs(zscore)))
+    pval   <- 2*pnorm(abs(zscore), lower.tail=FALSE)
     df <- NA
   }
   else {
@@ -22,8 +22,8 @@ ci <- function(TE, seTE, level=0.95, df=NULL){
                     TE + qnorm(1-alpha/2)*seTE)
     zscore <- TE/seTE
     pval <- ifelse(!is.na(df),
-                   2*(1-pt(abs(zscore), df=df)),
-                   2*(1-pnorm(abs(zscore))))
+                   2*pt(abs(zscore), df=df, lower.tail=FALSE),
+                   2*pnorm(abs(zscore), lower.tail=FALSE))
     df[is.na(df)] <- 0
   }
 

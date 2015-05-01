@@ -48,7 +48,7 @@ kentau <- function(x, y, correct=FALSE, keep.data=FALSE){
                   "p.67.\n ", sep=""))
   ##
   statistic <- (ks - sign(ks) * as.logical(correct)) / se.ks
-  p.value <- 2*(1-pnorm(abs(statistic)))
+  p.value <- 2*pnorm(abs(statistic), lower.tail=FALSE)
   ##
   N <- 0.5 * n * (n-1)
   N1 <- N-sum(t*(t-1)/2)

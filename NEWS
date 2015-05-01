@@ -22,6 +22,11 @@ Function print.meta and print.summary.meta:
 Functions settings.meta, meta-internal, catmeth and update.meta:
 - code added for new argument 'exact.smd' in metacont function
 
+Functions ci and kentau:
+- calculate p-values without floating point number representation
+  problems, e.g. the command ci(9, 1) does not result in a p-value
+  of 0 but 2.257177e-19
+
 Several help pages updated
 - reflect changes in metacont function
 - updated RevMan 5 reference
