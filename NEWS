@@ -14,6 +14,7 @@ Function forest.meta:
   missing
 - prediction interval can be printed if random effects estimate is not
   shown
+- new argument print.I2.ci to print confidence intervals for I-squared
 
 Function print.meta and print.summary.meta:
 - prediction interval can be printed if random effects estimate is not

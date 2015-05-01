@@ -69,6 +69,7 @@ forest.meta <- function(x,
                         col.by="darkgray",
                         ##
                         print.I2=comb.fixed|comb.random,
+                        print.I2.ci=FALSE,
                         print.tau2=comb.fixed|comb.random,
                         print.Q=FALSE,
                         print.pval.Q=comb.fixed|comb.random,
@@ -203,6 +204,7 @@ forest.meta <- function(x,
   chkchar(col.predict)
   chkchar(col.predict.lines)
   chklogical(print.I2)
+  chklogical(print.I2.ci)
   chklogical(print.tau2)
   chklogical(print.Q)
   chklogical(print.pval.Q)
@@ -717,6 +719,8 @@ forest.meta <- function(x,
     df   <- NA
     I2   <- NA
     tau2 <- NA
+    lowI2 <- NA
+    uppI2 <- NA
   }
   else{
     TE <- x$TE
@@ -746,6 +750,8 @@ forest.meta <- function(x,
     tau2 <- x$tau^2
     ##
     I2 <- x$I2
+    lowI2 <- x$lower.I2
+    uppI2 <- x$upper.I2
   }
   ##
   if (overall.hetstat){
@@ -758,6 +764,12 @@ forest.meta <- function(x,
                                text.I2, "=",
                                round(100*I2, 1), "%",
                                sep="")
+      if (print.I2.ci & x$k>2)
+        hetstat.overall <- paste(hetstat.overall,
+                                 " ",
+                                 p.ci(paste(round(100*lowI2, 1), "%", sep=""),
+                                      paste(round(100*uppI2, 1), "%", sep="")),
+                                 sep="")
       dummy <- TRUE
     }
     ##
@@ -808,6 +820,8 @@ forest.meta <- function(x,
     upper.random.w <- x$upper.random.w[o]
     Q.w        <- x$Q.w[o]
     I2.w       <- x$I2.w[o]
+    lowI2.w    <- x$lower.I2.w[o]
+    uppI2.w    <- x$upper.I2.w[o]
     tau.w      <- x$tau.w[o]
     w.fixed.w  <- x$w.fixed.w[o]
     w.random.w <- x$w.random.w[o]
@@ -831,6 +845,8 @@ forest.meta <- function(x,
     upper.random.w <- upper.random.w[sel]
     Q.w        <- Q.w[sel]
     I2.w       <- I2.w[sel]
+    lowI2.w    <- lowI2.w[sel]
+    uppI2.w    <- uppI2.w[sel]
     tau.w      <- tau.w[sel]
     w.fixed.w  <- w.fixed.w[sel]
     w.random.w <- w.random.w[sel]
@@ -879,6 +895,15 @@ forest.meta <- function(x,
                            text.I2, "=",
                            round(100*I2.w, 1), "%",
                            sep="")
+        if (print.I2.ci)
+          hetstat.w <- paste(hetstat.w,
+                             ifelse(k.w>2,
+                                    paste(" ",
+                                          p.ci(paste(round(100*lowI2.w, 1), "%", sep=""),
+                                               paste(round(100*uppI2.w, 1), "%", sep="")),
+                                          sep=""),
+                                    ""),
+                             sep="")
         dummy <- TRUE
       }
       ##

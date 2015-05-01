@@ -56,7 +56,7 @@ forest(x, ...)
        col.diamond.random.lines=col.diamond.lines,
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
-       print.I2=comb.fixed|comb.random, print.tau2=comb.fixed|comb.random,
+       print.I2=comb.fixed|comb.random, print.I2.ci=FALSE, print.tau2=comb.fixed|comb.random,
        print.Q=FALSE, print.pval.Q=comb.fixed|comb.random,
        hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
        overall.hetstat=overall&hetstat,
@@ -213,6 +213,8 @@ forest(x, ...)
   \item{col.by}{The colour to print information on subgroups.}
   \item{print.I2}{A logical value indicating whether to print the value
     of the I-squared statistic.}
+  \item{print.I2.ci}{A logical value indicating whether to print the
+    confidence interval of the I-squared statistic.}
   \item{print.tau2}{A logical value indicating whether to print the value
     of the between-study variance tau-squared.}
   \item{print.Q}{A logical value indicating whether to print the value
