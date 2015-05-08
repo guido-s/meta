@@ -13,6 +13,6 @@ Description: User-friendly general package providing standard methods for meta-a
  - import data from RevMan 5;
  - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
  - cumulative meta-analysis and leave-one-out meta-analysis;
- - meta-regression (if R package metafor is installed).
+ - meta-regression (if R package 'metafor' is installed).
 License: GPL (>= 2)
 Encoding: UTF-8
