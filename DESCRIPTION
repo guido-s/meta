@@ -5,7 +5,7 @@ Depends: R (>= 2.9.1)
 Imports: grid
 Suggests: metafor
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
-Date: 2015-mm-dd
+Date: 2015-05-08
 Description: User-friendly general package providing standard methods for meta-analysis:
  - fixed effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
