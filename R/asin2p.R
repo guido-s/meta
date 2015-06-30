@@ -27,7 +27,7 @@ asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
   ##
   ## Check for (impossible) negative values
   ##
-  if (any(sel0[!is.na(sel0)])){
+  if (any(sel0, na.rm=TRUE)){
     if (is.null(n)){
       if (warn)
         warning("Negative value for ",
@@ -51,7 +51,7 @@ asin2p <- function(x, n=NULL, value="mean", warn=TRUE){
   ##
   ## Check for (impossible) large values
   ##
-  if (any(sel1[!is.na(sel1)])){
+  if (any(sel1, na.rm=TRUE)){
     if (is.null(n)){
       if (warn)
         warning("Too large value for ",

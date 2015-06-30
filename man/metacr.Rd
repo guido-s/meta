@@ -84,7 +84,7 @@ metacr(x, comp.no=1, outcome.no=1,
   outcomes can be define. For each outcome, a seperate meta-analysis is
   conducted. Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
-  (\url{http://www.cc-ims.net/revman/}).
+  (\url{http://tech.cochrane.org/revman/}).
   
   This wrapper function can be used to perform meta-analysis for a
   single outcome of a Cochrane Intervention review. Internally, R

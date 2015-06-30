@@ -348,7 +348,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   sel <- sd.e <= 0 | sd.c <= 0
   ##
-  if (any(sel[!is.na(sel)]) & warn)
+  if (any(sel, na.rm=TRUE) & warn)
     warning("Studies with non-positive values for sd.e or sd.c get no weight in meta-analysis.")
   ##
   seTE[sel] <- NA

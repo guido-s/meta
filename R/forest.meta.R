@@ -2135,7 +2135,7 @@ forest.meta <- function(x,
                      gp=gpar(lty=lty.fixed, lwd=lwd)) # lty="dashed"
     if (comb.random & overall)
       if (col$range[1] <= TE.random & TE.random <= col$range[2])
-        if (!is.null(lty.random))
+        if (!is.null(lty.random) & !is.na(TE.random))
           grid.lines(x=unit(TE.random, "native"),
                      y=unit(c(0, ymax.line), "lines"),
                      gp=gpar(lty=lty.random, lwd=lwd))

@@ -329,19 +329,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   sel1 <- event.e > n.e
   sel2 <- event.c > n.c
-  if ((any(sel1)) & warn)
+  if ((any(sel1, na.rm=TRUE)) & warn)
     warning("Studies with event.e > n.e get no weight in meta-analysis.")
-  if ((any(sel2)) & warn)
+  if ((any(sel2, na.rm=TRUE)) & warn)
     warning("Studies with event.c > n.c get no weight in meta-analysis.")
   incl[sel1 | sel2] <- NA
   ##
   sel3 <- n.e <= 0 | n.c <= 0
-  if ((any(sel3)) & warn)
+  if ((any(sel3, na.rm=TRUE)) & warn)
     warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
   incl[sel3] <- NA
   ##
   sel4 <- event.e < 0 | event.c < 0
-  if ((any(sel4)) & warn)
+  if ((any(sel4, na.rm=TRUE)) & warn)
     warning("Studies with negative values for event.e and/or event.c get no weight in meta-analysis.")
   incl[sel4] <- NA
   ##
@@ -358,7 +358,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   sel[is.na(incl)] <- FALSE
   ##
-  sparse <- any(sel)
+  sparse <- any(sel, na.rm=TRUE)
   ##
   ## No need to add anything to cell counts for
   ##  (i)  arcsine difference

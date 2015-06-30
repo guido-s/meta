@@ -306,7 +306,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Sparse computation
   ##
-  sparse <- any(sel)
+  sparse <- any(sel, na.rm=TRUE)
   ##
   if (addincr)
     incr.event <- rep(incr, k.all)

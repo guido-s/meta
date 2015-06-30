@@ -6,12 +6,13 @@
 
 \description{
   Meta-regression for objects of class \code{meta}. This is a wrapper
-  function for the R function \code{rma.uni} in the R package metafor
-  (Viechtbauer 2010).
+  function for the R function \code{\link{rma.uni}} in the R package
+  metafor (Viechtbauer 2010).
 }
 
 \usage{
-metareg(x, formula, method.tau=x$method.tau, ...)
+metareg(x, formula, method.tau=x$method.tau, hakn=x$hakn,
+        level.comb=x$level.comb, intercept=TRUE,...)
 }
 
 \arguments{
@@ -21,14 +22,28 @@ metareg(x, formula, method.tau=x$method.tau, ...)
     to estimate the between-study variance tau-squared. Either
     \code{"FE"}, \code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
     \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be abbreviated.}
-  \item{\dots}{Additional arguments (ignored at the moment).}
+  \item{hakn}{A logical indicating whether the method by Hartung and
+    Knapp should be used to adjust test statistics and confidence
+    intervals.}
+  \item{level.comb}{The level used to calculate confidence intervals for
+    parameter estimates in the meta-regression model.}
+  \item{intercept}{A logical indicating whether an intercept should be
+    included in the meta-regression model.}
+  \item{\dots}{Additional arguments passed to R function
+    \code{\link{rma.uni}}.}
 }
 
 \details{
-  This R function is a wrapper function for R function \code{rma.uni}
-  in the R package metafor (Viechtbauer 2010), i.e. the function
-  \code{metareg} can only be used if the R package metafor is
-  installed.
+  This R function is a wrapper function for R function
+  \code{\link{rma.uni}} in the R package metafor (Viechtbauer 2010),
+  i.e. the function \code{metareg} can only be used if the R package
+  'metafor' is installed.
+
+  Argument '\dots' can be used to pass additional arguments to R
+  function \code{\link{rma.uni}}. For example, argument \code{control}
+  to provide a list of control values for the iterative estimation
+  algorithm. See help page of R function \code{\link{rma.uni}} for
+  more details.
 }
 
 \value{
@@ -38,7 +53,8 @@ output from this function.
 
 In addition, a list \code{.meta} is added to the output containing the
 following components:
-  \item{x, formula, method.tau}{As definied above.}
+  \item{x, formula, method.tau, hakn, level.comb, intercept}{As definied above.}
+  \item{dots}{Information provided in argument '\dots'.}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
   \item{version.metafor}{Version of R package metafor used to create object.}
@@ -118,6 +134,13 @@ metareg(mu1, region + age)
 #
 metareg(meta1, ~region)
 metareg(mu1, ~region + age)
+
+# Do meta-regression using REML method and print intermediate results
+# for iterative estimation algorithm; furthermore print results with
+# three digits.
+#
+metareg(mu1, region, method.tau="REML",
+        control=list(verbose=TRUE), digits=3)
 }
 
 \keyword{print}

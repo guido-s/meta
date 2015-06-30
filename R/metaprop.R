@@ -209,10 +209,10 @@ metaprop <- function(event, n, studlab,
   chknumeric(event, 0)
   chknumeric(n, 0, zero=TRUE)
   ##
-  if (any(n < 10) & sm=="PFT")
+  if (any(n < 10, na.rm=TRUE) & sm=="PFT")
     warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
   ##
-  if (any(event > n))
+  if (any(event > n, na.rm=TRUE))
     stop("Number of events must be larger than number of observations")
   ##
   ## Recode integer as numeric:
@@ -233,7 +233,7 @@ metaprop <- function(event, n, studlab,
                 PLN=event == 0 | (n-event) == 0,
                 PLOGIT=event == 0 | (n-event) == 0)
   ##
-  sparse <- any(sel)
+  sparse <- any(sel, na.rm=TRUE)
   ##
   ## No need to add anything to cell counts for arcsine transformation
   ##
