@@ -6,7 +6,7 @@
 
 \description{
   Meta-regression for objects of class \code{meta}. This is a wrapper
-  function for the R function \code{\link{rma.uni}} in the R package
+  function for the R function \code{\link[metafor]{rma.uni}} in the R package
   metafor (Viechtbauer 2010).
 }
 
@@ -30,19 +30,19 @@ metareg(x, formula, method.tau=x$method.tau, hakn=x$hakn,
   \item{intercept}{A logical indicating whether an intercept should be
     included in the meta-regression model.}
   \item{\dots}{Additional arguments passed to R function
-    \code{\link{rma.uni}}.}
+    \code{\link[metafor]{rma.uni}}.}
 }
 
 \details{
   This R function is a wrapper function for R function
-  \code{\link{rma.uni}} in the R package metafor (Viechtbauer 2010),
+  \code{\link[metafor]{rma.uni}} in the R package metafor (Viechtbauer 2010),
   i.e. the function \code{metareg} can only be used if the R package
   'metafor' is installed.
 
   Argument '\dots' can be used to pass additional arguments to R
-  function \code{\link{rma.uni}}. For example, argument \code{control}
+  function \code{\link[metafor]{rma.uni}}. For example, argument \code{control}
   to provide a list of control values for the iterative estimation
-  algorithm. See help page of R function \code{\link{rma.uni}} for
+  algorithm. See help page of R function \code{\link[metafor]{rma.uni}} for
   more details.
 }
 
@@ -111,7 +111,7 @@ metareg(mu2)
 # (as argument 'tau.common' was used to create mu2)
 #
 mu2
-metareg(mu2)
+metareg(mu2, intercept=FALSE)
 metareg(meta1, region)
 #
 # Different result for
@@ -141,6 +141,12 @@ metareg(mu1, ~region + age)
 #
 metareg(mu1, region, method.tau="REML",
         control=list(verbose=TRUE), digits=3)
+
+# Use Hartung-Knapp method
+#
+mu3 <- update(mu2, hakn=TRUE)
+mu3
+metareg(mu3, intercept=FALSE)
 }
 
 \keyword{print}

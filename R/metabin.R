@@ -505,6 +505,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (8) Do meta-analysis
   ##
   ##
+  if (sum(!is.na(TE)) == 1 & k.all > 1 & method == "MH"){
+    if (warn)
+      warning("For a single study, inverse variance method used instead of Mantel-Haenszel method.")
+    method <- "Inverse"
+  }
+  ##  
   if (method == "MH"){
     incr.e <- incr.e*(!MH.exact)
     incr.c <- incr.c*(!MH.exact)

@@ -45,6 +45,7 @@ forest(x, ...)
        lab.e.attach.to.col=NULL, lab.c.attach.to.col=NULL,
        label.right=x$label.right, label.left=x$label.left,
        lab.NA=".",
+       lab.NA.effect="",
        lwd=1,
        at=NULL, label=TRUE,
        col.i="black", col.i.inside.square="white",
@@ -186,6 +187,8 @@ forest(x, ...)
   \item{label.left}{Graph label on left side of forest plot.}
   \item{label.right}{Graph label on right side of forest plot.}
   \item{lab.NA}{A character string to label missing values.}
+  \item{lab.NA.effect}{A character string to label missing values in
+    individual treatment estimates and confidence intervals.}
   \item{lwd}{The line width, see \code{\link{par}}.}
   \item{at}{The points at which tick-marks are to be drawn, see
   \code{grid.xaxis}.}

@@ -18,6 +18,12 @@ subgroup <- function(x, tau.preset=NULL){
   cor.prop <- inherits(x, "metacor") | inherits(x, "metaprop")
   
   
+  sumNA <- function(x)
+    if (all(is.na(x)))
+      NA
+    else sum(x, na.rm=TRUE)
+  
+  
   res.w <- matrix(NA, ncol=24, nrow=length(bylevs))
     j <- 0
   ##
@@ -110,30 +116,30 @@ subgroup <- function(x, tau.preset=NULL){
                        warn=x$warn)
     ##
     ##
-    res.w[j,] <- c(meta1$TE.fixed,                          #  1
-                   meta1$seTE.fixed,                        #  2
-                   meta1$Q,                                 #  3
-                   meta1$k,                                 #  4
-                   length(meta1$TE),                        #  5
-                   meta1$TE.random,                         #  6
-                   meta1$seTE.random,                       #  7
-                   meta1$H,                                 #  8
-                   meta1$lower.H,                           #  9
-                   meta1$upper.H,                           # 10
-                   meta1$I2,                                # 11
-                   meta1$lower.I2,                          # 12
-                   meta1$upper.I2,                          # 13
-                   meta1$tau,                               # 14
-                   meta1$C,                                 # 15
-                   mean(1/x$n[sel]),                        # 16
-                   sum(x$w.fixed[sel]),                     # 17
-                   sum(x$w.random[sel]),                    # 18
-                   if (bin.inc) sum(meta1$event.e) else NA, # 19
-                   if (bin.cont) sum(meta1$n.e) else NA,    # 20
-                   if (bin.inc) sum(meta1$event.c) else NA, # 21
-                   if (bin.cont) sum(meta1$n.c) else NA,    # 22
-                   if (prop) sum(meta1$event) else NA,      # 23
-                   if (cor.prop) sum(meta1$n) else NA       # 24
+    res.w[j,] <- c(meta1$TE.fixed,                                      #  1
+                   meta1$seTE.fixed,                                    #  2
+                   meta1$Q,                                             #  3
+                   meta1$k,                                             #  4
+                   length(meta1$TE),                                    #  5
+                   meta1$TE.random,                                     #  6
+                   meta1$seTE.random,                                   #  7
+                   meta1$H,                                             #  8
+                   meta1$lower.H,                                       #  9
+                   meta1$upper.H,                                       # 10
+                   meta1$I2,                                            # 11
+                   meta1$lower.I2,                                      # 12
+                   meta1$upper.I2,                                      # 13
+                   meta1$tau,                                           # 14
+                   meta1$C,                                             # 15
+                   mean(1/x$n[sel]),                                    # 16
+                   sum(x$w.fixed[sel]),                                 # 17
+                   sum(x$w.random[sel]),                                # 18
+                   if (bin.inc) sumNA(meta1$event.e) else NA, # 19
+                   if (bin.cont) sumNA(meta1$n.e) else NA,    # 20
+                   if (bin.inc) sumNA(meta1$event.c) else NA, # 21
+                   if (bin.cont) sumNA(meta1$n.c) else NA,    # 22
+                   if (prop) sumNA(meta1$event) else NA,      # 23
+                   if (cor.prop) sumNA(meta1$n) else NA       # 24
                    )
   }
   ##

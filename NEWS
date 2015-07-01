@@ -1,24 +1,31 @@
-2015-mm-dd, version 4.3-0
+2015-07-01, version 4.3-0
 
-Function metareg:
-- additional arguments implemented (hakn, level.comb, intercept)
-- furthermore, argument '...' is not ignored any longer but passed on
-  to R function rma.uni; for example, to control the iterative
-  estimation process
-- bug fix such that a fixed effect meta-regression can be conducted
-  (argument method.tau="FE")
+Functions metabin, metainc, and metaprop:
+- missing values are allowed in numbers of events or patients
+  (studies with missing values get zero weight in meta-analysis)
 
 Function forest.meta:
+- argument 'lab.NA' considered for all columns in forest plot
+  (e.g. numbers of events and patients for metabin objects)
+- new argument 'lab.NA.effect' to label NAs in individual treatment
+  estimates and confidence intervals
 - bug fix such that no error occurs if random effects estimate is
   missing
 
-Functions metabin, metainc, and metaprop:
-- bug fix such that no error occurs if any of the numbers of events or
-  patients has missing values
+Function metareg:
+- additional arguments implemented (hakn, level.comb, intercept)
+- argument '...' is no longer ignored but passed on to R function
+  rma.uni (e.g., to control the iterative estimation process)
+- bug fix such that a fixed effect meta-regression can be conducted
+  (argument method.tau="FE")
+
+Function metabin:
+- use Inverse Variance instead of Mantel-Haenszel method if only a
+  single study has a non-missing treatment estimate orstandard error
 
 Help pages:
-- help page of R function metareg updated
-- webpage for RevMan updated
+- help page of R functions metareg and forest.meta updated
+- link to RevMan webpage updated
 
 
 2015-05-08, version 4.2-0

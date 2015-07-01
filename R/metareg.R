@@ -64,8 +64,6 @@ metareg <- function(x, formula,
   ##
   chklevel(level.comb)
   chklogical(intercept)
-
-  level.comb <- 100*level.comb
   
   if (is.null(x$data)){
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
@@ -81,7 +79,7 @@ metareg <- function(x, formula,
                           sei=x$seTE,
                           data=dataset,
                           mods=formula, method=method.tau,
-                          knha=hakn, level=level.comb,
+                          knha=hakn, level=100*level.comb,
                           ...)
 
   res$.meta <- list(x=x,
