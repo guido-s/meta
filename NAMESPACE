@@ -48,21 +48,17 @@ S3method(trimfill, default)
 S3method(trimfill, meta)
 S3method(update, meta)
 
-importFrom(grid, arrow)
-importFrom(grid, gpar)
-importFrom(grid, grid.draw)
-importFrom(grid, grid.layout)
-importFrom(grid, grid.lines)
-importFrom(grid, grid.newpage)
-importFrom(grid, grid.polygon)
-importFrom(grid, grid.rect)
-importFrom(grid, grid.text)
-importFrom(grid, grid.xaxis)
-importFrom(grid, textGrob)
-importFrom(grid, popViewport)
-importFrom(grid, pushViewport)
-importFrom(grid, viewport)
-importFrom(grid, unit)
-importFrom(grid, unit.c)
-importFrom(grid, convertX)
+importFrom("grid", "arrow", "gpar", "grid.draw", "grid.layout",
+           "grid.lines", "grid.newpage", "grid.polygon", "grid.rect",
+           "grid.text", "grid.xaxis", "textGrob",
+           "popViewport", "pushViewport", "viewport", "unit", "unit.c", "convertX")
 
+importFrom("grDevices", "gray")
+
+importFrom("graphics", "abline", "axis", "lines", "par", "plot", "points", "polygon", "text")
+
+importFrom("stats", "as.formula", "binom.test", "coef", "lm", "pchisq",
+           "pnorm", "pt", "qnorm", "qt", "runif", "update", "var", "weighted.mean")
+
+importFrom("utils", "assignInNamespace", "count.fields", "getFromNamespace",
+           "installed.packages", "packageDescription", "read.table")
