@@ -108,6 +108,10 @@ settings.meta <- function(...){
     catarg("label.c")
     catarg("label.left")
     catarg("label.right")
+    ##
+    cat("\nSettings for R function forest.meta:\n")
+    catarg("test.overall")
+    catarg("test.subgroup")
   }
   else if (length(args)==1 && names=="reset"){
     if (is.logical(args[[1]]) && args[[1]]==TRUE){
@@ -156,6 +160,9 @@ settings.meta <- function(...){
       setOption("label.c", "Control")
       setOption("label.left", "")
       setOption("label.right", "")
+      ##
+      setOption("test.overall", FALSE)
+      setOption("test.subgroup", FALSE)
     }
     else
       cat("To reset all settings use argument 'reset=TRUE' (R package meta)\n")
@@ -214,6 +221,9 @@ settings.meta <- function(...){
     idlabel.c <- argid(names, "label.c")
     idlabel.left <- argid(names, "label.left")
     idlabel.right <- argid(names, "label.right")
+    ##
+    idtest.overall <- argid(names, "test.overall")
+    idtest.subgroup <- argid(names, "test.subgroup")
     ##
     ## General settings
     ##
@@ -445,6 +455,19 @@ settings.meta <- function(...){
         stop("Argument 'label.right' must be a character string.")
       ##
       setOption("label.right", label.right)
+    }
+    ##
+    ## R function forest.meta
+    ##
+    if (!is.na(idtest.overall)){
+      test.overall <- args[[idtest.overall]]
+      chklogical(test.overall)
+      setOption("test.overall", test.overall)
+    }
+    if (!is.na(idtest.subgroup)){
+      test.subgroup <- args[[idtest.subgroup]]
+      chklogical(test.subgroup)
+      setOption("test.subgroup", test.subgroup)
     }
   }
   

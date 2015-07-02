@@ -1,4 +1,6 @@
 format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE){
+  if (is.null(p))
+    return("")
   outdec <- options()$OutDec
   if (lab)
     res <- format(ifelse(is.na(p), paste(labval, "= --"),

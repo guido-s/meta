@@ -32,6 +32,8 @@ forest.meta <- function(x,
                         ##
                         ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
+                        layout="meta",
+                        ##
                         leftcols=NULL, rightcols=NULL,
                         leftlabs=NULL, rightlabs=NULL,
                         ##
@@ -79,6 +81,20 @@ forest.meta <- function(x,
                         text.I2="I-squared",
                         text.tau2="tau-squared",
                         ##
+                        test.overall.fixed=comb.fixed&overall&.settings$test.overall,
+                        test.overall.random=comb.random&overall&.settings$test.overall,
+                        label.test.overall.fixed=paste("Test for overall effect",
+                          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
+                        label.test.overall.random=paste("Test for overall effect",
+                          if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
+                        ##
+                        test.subgroup.fixed=FALSE,
+                        test.subgroup.random=!is.null(x$byvar)&comb.random&.settings$test.subgroup,
+                        print.Q.subgroup=print.Q,
+                        label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
+                        label.test.subgroup.random=paste("Test for subgroup differences",
+                          if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
+                        ##
                         fontsize=12,
                         fs.heading=fontsize,
                         fs.fixed=fontsize,
@@ -90,6 +106,8 @@ forest.meta <- function(x,
                         fs.predict.labels=fs.predict,
                         fs.study.labels=fs.study,
                         fs.hetstat=fontsize-2,
+                        fs.test.overall=fs.hetstat,
+                        fs.test.subgroup=fs.hetstat,
                         fs.axis=fontsize,
                         fs.smlab=fontsize,
                         fs.xlab=fontsize,
@@ -105,6 +123,8 @@ forest.meta <- function(x,
                         ff.predict.labels=ff.predict,
                         ff.study.labels=ff.study,
                         ff.hetstat="bold.italic",
+                        ff.test.overall=ff.hetstat,
+                        ff.test.subgroup=ff.hetstat,
                         ff.axis="plain",
                         ff.smlab="bold",
                         ff.xlab="plain",
@@ -193,6 +213,7 @@ forest.meta <- function(x,
   chklogical(allstudies)
   chknumeric(pscale, single=TRUE)
   chknumeric(ref)
+  layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
   if (!is.null(at))
@@ -212,6 +233,11 @@ forest.meta <- function(x,
   chklogical(print.pval.Q)
   chklogical(hetstat)
   chklogical(overall.hetstat)
+  chklogical(test.overall.fixed)
+  chklogical(test.overall.random)
+  chklogical(test.subgroup.fixed)
+  chklogical(test.subgroup.random)
+  chklogical(print.Q.subgroup)
   chknumeric(fontsize, single=TRUE)
   chknumeric(fs.heading, single=TRUE)
   chknumeric(fs.fixed, single=TRUE)
@@ -286,6 +312,15 @@ forest.meta <- function(x,
     overall.hetstat <- FALSE
     hetstat <- FALSE
     prediction <- FALSE
+    test.overall.fixed   <- FALSE
+    test.overall.random  <- FALSE
+    test.subgroup.fixed  <- FALSE
+    test.subgroup.random <- FALSE
+  }
+  ##
+  if (metaprop){
+    test.overall.fixed  <- FALSE
+    test.overall.random <- FALSE
   }
   ##
   prediction <- prediction & x$k >= 3
@@ -356,6 +391,8 @@ forest.meta <- function(x,
   ## of forest plot
   ##
   rsel <- !(is.logical(rightcols) && length(rightcols)==1 && !rightcols)
+  if (layout=="revman5")
+    rsel <- FALSE
   ##
   if (!rsel)
     rightcols <- NULL
@@ -476,35 +513,77 @@ forest.meta <- function(x,
   ## rightcols not specified
   ##
   if (is.null(leftcols)){
-    if (inherits(x, "metabin"))
-      leftcols <- c("studlab",
-                    "event.e", "n.e",
-                    "event.c", "n.c")
-    ##
-    if (inherits(x, "metacont"))
-      leftcols <- c("studlab",
-                    "n.e", "mean.e", "sd.e",
-                    "n.c", "mean.c", "sd.c")
-    ##
-    if (inherits(x, "metagen"))
-      leftcols <- c("studlab",
-                    "TE", "seTE")
-    ##
-    if (metainf.metacum)
-      leftcols <- "studlab"
-    ##
-    if (metaprop)
-      leftcols <- c("studlab",
-                    "event.e", "n.e")
-    ##
-    if (metacor)
-      leftcols <- c("studlab",
-                    "n.e")
-    ##
-    if (inherits(x, "metainc"))
-      leftcols <- c("studlab",
-                    "event.e", "time.e",
-                    "event.c", "time.c")
+    if (layout=="meta"){
+      if (inherits(x, "metabin"))
+        leftcols <- c("studlab",
+                      "event.e", "n.e",
+                      "event.c", "n.c")
+      ##
+      if (inherits(x, "metacont"))
+        leftcols <- c("studlab",
+                      "n.e", "mean.e", "sd.e",
+                      "n.c", "mean.c", "sd.c")
+      ##
+      if (inherits(x, "metagen"))
+        leftcols <- c("studlab",
+                      "TE", "seTE")
+      ##
+      if (metaprop)
+        leftcols <- c("studlab",
+                      "event.e", "n.e")
+      ##
+      if (metacor)
+        leftcols <- c("studlab",
+                      "n.e")
+      ##
+      if (inherits(x, "metainc"))
+        leftcols <- c("studlab",
+                      "event.e", "time.e",
+                      "event.c", "time.c")
+      ##
+      if (metainf.metacum)
+        leftcols <- "studlab"
+    }
+    else if (layout=="revman5"){
+      if (inherits(x, "metabin"))
+        leftcols <- c("studlab",
+                      "event.e", "n.e",
+                      "event.c", "n.c")
+      ##
+      if (inherits(x, "metacont"))
+        leftcols <- c("studlab",
+                      "n.e", "mean.e", "sd.e",
+                      "n.c", "mean.c", "sd.c")
+      ##
+      if (inherits(x, "metagen"))
+        leftcols <- c("studlab",
+                      "TE", "seTE")
+      ##
+      if (metaprop)
+        leftcols <- c("studlab",
+                      "event.e", "n.e")
+      ##
+      if (metacor)
+        leftcols <- c("studlab",
+                      "n.e")
+      ##
+      if (inherits(x, "metainc"))
+        leftcols <- c("studlab",
+                      "event.e", "time.e",
+                      "event.c", "time.c")
+      ##
+      if (metainf.metacum)
+        leftcols <- "studlab"
+      ##
+      if (!metainf.metacum){
+        if (comb.fixed & overall)
+          leftcols <- c(leftcols, "w.fixed")
+        if (comb.random & overall)
+          leftcols <- c(leftcols, "w.random")
+      }
+      ##
+      leftcols <- c(leftcols, "effect", "ci")
+    }
   }
   ##
   if (is.null(rightcols) & rsel){
@@ -734,6 +813,10 @@ forest.meta <- function(x,
     tau2 <- NA
     lowI2 <- NA
     uppI2 <- NA
+    ##
+    Q.b.fixed  <- NA
+    Q.b.random <- NA
+    df.Q.b     <- NA
   }
   else{
     TE <- x$TE
@@ -765,6 +848,10 @@ forest.meta <- function(x,
     I2 <- x$I2
     lowI2 <- x$lower.I2
     uppI2 <- x$upper.I2
+    ##
+    Q.b.fixed  <- x$Q.b.fixed
+    Q.b.random <- x$Q.b.random
+    df.Q.b     <- x$df.Q.b
   }
   ##
   if (overall.hetstat){
@@ -815,6 +902,65 @@ forest.meta <- function(x,
   }
   else
     hetstat.overall <- ""
+  ##
+  ## Text of test for subgroup differences
+  ##
+  if (!by){
+    test.subgroup.fixed  <- FALSE
+    test.subgroup.random <- FALSE
+    Q.b.fixed  <- NA
+    Q.b.random <- NA
+    df.Q.b     <- NA
+  }
+  ##
+  ## Label of test for overall effect
+  ##
+  pvals.overall <- format.p(c(x$pval.fixed, x$pval.random),
+                            lab=TRUE, noblanks=TRUE)
+  ##
+  if (test.overall.fixed)
+    text.overall.fixed  <- paste(label.test.overall.fixed, pvals.overall[1])
+  else
+    text.overall.fixed <- ""
+  ##
+  if (test.overall.random)
+    text.overall.random  <- paste(label.test.overall.random, pvals.overall[2])
+  else
+    text.overall.random <- ""
+  ##
+  ##
+  ## Label of test for subgroup differences
+  ##
+  if (!test.subgroup.fixed)
+    label.test.subgroup.fixed <- ""
+  if (!test.subgroup.random)
+    label.test.subgroup.random <- ""
+  ##
+  dummy.het <- FALSE
+  ##
+  Q.bs <- c(Q.b.fixed, Q.b.random)
+  Q.bs.format <- format(round(Q.bs, 1))
+  pval.Qbs <- format.p(1-pchisq(Q.bs, df.Q.b), lab=TRUE, noblanks=TRUE)
+  ##
+  if (print.Q.subgroup){
+    label.test.subgroup.fixed  <- paste(label.test.subgroup.fixed,
+                                        "Q=", Q.bs.format[1],
+                                        ", df=", df.Q.b, sep="")
+    label.test.subgroup.random <- paste(label.test.subgroup.random,
+                                        "Q=", Q.bs.format[2],
+                                        ", df=", df.Q.b, sep="")
+    dummy.het <- TRUE
+  }
+  ##
+  text.subgroup.fixed <- paste(label.test.subgroup.fixed,
+                               if (dummy.het) ", ",
+                               pval.Qbs[1],
+                               sep="")
+  ##
+  text.subgroup.random <- paste(label.test.subgroup.random,
+                                if (dummy.het) ", ",
+                                pval.Qbs[2],
+                                sep="")
   
   
   ##
@@ -1144,8 +1290,6 @@ forest.meta <- function(x,
   ## (10) Define columns in forest plot as well as x- and y-limits
   ##
   ##
-  text.subgroup.random <- "Subgroup difference (RE model): ..."
-  ##
   if (by){
     ##
     if (print.byvar){
@@ -1164,7 +1308,10 @@ forest.meta <- function(x,
     if (length(text.random.w)==1&n.by>1)
       text.random.w <- rep(text.random.w, n.by)
     ##
-    modlabs <- c(text.fixed, text.random, hetstat.overall, text.predict,
+    modlabs <- c(text.fixed, text.random, text.predict,
+                 hetstat.overall,
+                 text.overall.fixed, text.overall.random,
+                 text.subgroup.fixed, text.subgroup.random,
                  bylab, text.fixed.w, text.random.w, hetstat.w,
                  studlab)
     ##
@@ -1192,8 +1339,8 @@ forest.meta <- function(x,
     sel.fixed  <- w.fixeds.text=="--"
     sel.random <- w.randoms.text=="--"
     ##
-    sel.fixed[3+n.by+1:n.by] <- TRUE
-    sel.random[3+1:n.by] <- TRUE
+    sel.fixed[sel.by.random] <- TRUE
+    sel.random[sel.by.fixed] <- TRUE
     ##
     col.diamond <- c(col.diamond.fixed, col.diamond.random, col.predict,
                      rep(col.diamond.fixed, n.by),
@@ -1204,7 +1351,10 @@ forest.meta <- function(x,
                            rep(col.diamond.random.lines, n.by))
   }
   else{
-    modlabs <- c(text.fixed, text.random, hetstat.overall, text.predict, studlab)
+    modlabs <- c(text.fixed, text.random, text.predict,
+                 hetstat.overall,
+                 text.overall.fixed, text.overall.random,
+                 text.subgroup.fixed, text.subgroup.random, studlab)
     ##
     TEs    <- c(TE.fixed, TE.random, NA, TE)
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE)
@@ -1270,10 +1420,10 @@ forest.meta <- function(x,
   ##
   w.fixed.format[sel.fixed] <- "--"
   if (by)
-    w.fixed.format[3+2*n.by+1:n.by] <- ""
+    w.fixed.format[sel.by.het] <- ""
   w.random.format[sel.random] <- "--"
   if (by)
-    w.random.format[3+2*n.by+1:n.by] <- ""
+    w.random.format[sel.by.het] <- ""
   ##
   ## Treatment estimate and its standard error
   ##
@@ -1335,67 +1485,49 @@ forest.meta <- function(x,
   Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific=FALSE))
   Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific=FALSE))
   ##
-  Te.format[1:3] <- ""
-  Tc.format[1:3] <- ""
+  ## Do not print treatment estimates for summary results
+  ## (this information is provided in column 'effect')
+  ##
+  Te.format[1:3] <- Tc.format[1:3] <- ""
+  ##
+  ## Print nothing in line with prediction interval
+  ##
+  Ne.format[3] <- Nc.format[3] <- Ee.format[3] <- Ec.format[3] <- ""
   ##
   if (by){
-    ##
-    ## Print nothing in lines with heterogeneity results for subgroups
-    ##
-    Ne.format[sel.by.het] <- ""
-    Nc.format[sel.by.het] <- ""
-    Ee.format[sel.by.het] <- ""
-    Ec.format[sel.by.het] <- ""
-    Te.format[sel.by.het] <- ""
-    Tc.format[sel.by.het] <- ""
     ##
     ## Do not print treatment estimates for summary results
     ## (this information is provided in column 'effect')
     ##
-    Te.format[c(sel.by.fixed, sel.by.random)] <- ""
-    Tc.format[c(sel.by.fixed, sel.by.random)] <- ""
+    Te.format[sel.by] <- Tc.format[sel.by] <- ""
+    ##
+    ## Print nothing in lines with heterogeneity results for subgroups
+    ##
+    Ne.format[sel.by.het] <- Nc.format[sel.by.het] <- ""
+    Ee.format[sel.by.het] <- Ec.format[sel.by.het] <- ""
   }
   ##
   if (comb.fixed & comb.random){
     ##
-    ## Do not print numbers in lines with results for random effects
-    ## model
+    ## Print nothing in lines with results for random effects model
     ##
-    Ne.format[2] <- ""
-    Nc.format[2] <- ""
-    Ee.format[2] <- ""
-    Ec.format[2] <- ""
+    Ne.format[2] <- Nc.format[2] <- Ee.format[2] <- Ec.format[2] <- ""
     ##
     if (by){
-      Ne.format[sel.by.random] <- ""
-      Nc.format[sel.by.random] <- ""
-      Ee.format[sel.by.random] <- ""
-      Ec.format[sel.by.random] <- ""
+      Ne.format[sel.by.random] <- Nc.format[sel.by.random] <- ""
+      Ee.format[sel.by.random] <- Ec.format[sel.by.random] <- ""
     }
   }
   ##
   ## Only print total number of events if pooled.events is TRUE
   ##
   if (!pooled.events){
-    Ee.format[1:2] <- ""
-    Ec.format[1:2] <- ""
+    Ee.format[1:2] <- Ec.format[1:2] <- ""
+    ##
     if (by){
-      Ee.format[3+1:n.by] <- ""
-      Ec.format[3+1:n.by] <- ""
+      Ee.format[sel.by.fixed]  <- Ec.format[sel.by.fixed] <- ""
+      Ee.format[sel.by.random] <- Ec.format[sel.by.random] <- ""
     }
-  }
-  ##
-  ## Print no numbers in line with prediction interval
-  ##
-  Ne.format[3] <- ""
-  Nc.format[3] <- ""
-  Ee.format[3] <- ""
-  Ec.format[3] <- ""
-  Te.format[3] <- ""
-  Tc.format[3] <- ""
-  if (by){
-    Te.format[sel.by] <- ""
-    Tc.format[sel.by] <- ""
   }
   ##
   ## Mean and standard deviation
@@ -1420,16 +1552,11 @@ forest.meta <- function(x,
   ##
   ## Print nothing for lines with summary results
   ##
-  Me.format[1:3] <- ""
-  Mc.format[1:3] <- ""
-  Se.format[1:3] <- ""
-  Sc.format[1:3] <- ""
+  Me.format[1:3] <- Mc.format[1:3] <- Se.format[1:3] <- Sc.format[1:3] <- ""
   ##
   if (by){
-    Me.format[sel.by] <- ""
-    Mc.format[sel.by] <- ""
-    Se.format[sel.by] <- ""
-    Sc.format[sel.by] <- ""
+    Me.format[sel.by] <- Mc.format[sel.by] <- ""
+    Se.format[sel.by] <- Sc.format[sel.by] <- ""
   }
   ##
   ## Correlation
@@ -1445,11 +1572,12 @@ forest.meta <- function(x,
   ##
   cor.format[1:3] <- ""
   ##
-  if (by){
+  if (by)
     cor.format[sel.by] <- ""
-  }
+  ##
   ##
   ## y-axis:
+  ##
   ##
   if (any(rightcols %in% c("n.e", "n.c")) |
       any(leftcols  %in% c("n.e", "n.c")) |
@@ -1532,7 +1660,9 @@ forest.meta <- function(x,
     yTE.w <- c(yTE.w.fixed, yTE.w.random, yTE.w.hetstat)
   }
   ##
+  ##
   ## x-axis:
+  ##
   ##
   if (notmiss.xlim && is.numeric(xlim[1]))
     if (is.relative.effect(sm))
@@ -1597,7 +1727,7 @@ forest.meta <- function(x,
   else
     max.yTE <- max(yTE, na.rm=TRUE)
   ##
-  next.yTE <- max.yTE + 2
+  yNext <- max.yTE + 2
   ##  
   if (!is.na(ref) & missing(xlab.pos))
     if (ref <= min(xlim) | ref >= max(xlim))
@@ -1613,60 +1743,81 @@ forest.meta <- function(x,
   if (is.null(smlab.pos) || is.na(smlab.pos))
     smlab.pos <- mean(xlim)
   ##
-  yTE.fixed    <- NA
-  yTE.random   <- NA
-  yTE.predict  <- NA
-  yTE.hetstat  <- NA
-  yTE.subgroup <- NA
+  yTE.fixed  <- NA
+  yTE.random <- NA
+  yPredict   <- NA
+  yHetstat <- NA
+  yOverall.fixed  <- NA
+  yOverall.random <- NA
+  ySubgroup.fixed  <- NA
+  ySubgroup.random <- NA
   ##
   if (comb.fixed & comb.random & overall){
-    yTE.fixed  <- next.yTE
-    yTE.random <- next.yTE + 1
-    next.yTE   <- next.yTE + 2
+    yTE.fixed  <- yNext
+    yTE.random <- yNext + 1
+    yNext      <- yNext + 2
   }
   ##
   else if (comb.fixed & !comb.random & overall){
-    yTE.fixed <- next.yTE
-    next.yTE  <- next.yTE + 1
+    yTE.fixed <- yNext
+    yNext     <- yNext + 1
   }
   ##
   else if (!comb.fixed & comb.random & overall){
-    yTE.random <- next.yTE
-    next.yTE   <- next.yTE + 1
+    yTE.random <- yNext
+    yNext      <- yNext + 1
   }
   ##
   else if (!comb.fixed & !comb.random & pooled.totals & overall){
-    yTE.fixed  <- next.yTE
-    next.yTE   <- next.yTE + 1
+    yTE.fixed  <- yNext
+    yNext      <- yNext + 1
     if (missing(text.fixed))
-        text.fixed <- "Overall"
+      text.fixed <- "Overall"
   }
   ##
   if (prediction){
-    yTE.predict <- next.yTE
-    next.yTE    <- next.yTE + 1
+    yPredict <- yNext
+    yNext    <- yNext + 1
   }
   ##
   if (overall.hetstat){
-    yTE.hetstat <- next.yTE
-    next.yTE    <- next.yTE + 1
+    yHetstat <- yNext
+    yNext    <- yNext + 1
   }
   ##
-  if (TRUE){
-    yTE.subgroup <- next.yTE
-    next.yTE     <- next.yTE + 1
+  if (test.overall.fixed){
+    yOverall.fixed <- yNext
+    yNext          <- yNext + 1
+  }
+  ##
+  if (test.overall.random){
+    yOverall.random <- yNext
+    yNext           <- yNext + 1
+  }
+  ##
+  if (test.subgroup.fixed){
+    ySubgroup.fixed <- yNext
+    yNext           <- yNext + 1
+  }
+  ##
+  if (test.subgroup.random){
+    ySubgroup.random <- yNext
+    yNext            <- yNext + 1
   }
   ##
   if (!comb.fixed & !pooled.totals) text.fixed <- ""
   if (!comb.random) text.random <- ""
   if (!prediction) text.predict <- ""
   ##  
-  yTE          <- yHead + yTE + addspace
-  yTE.fixed    <- yHead + yTE.fixed + addspace
-  yTE.random   <- yHead + yTE.random + addspace
-  yTE.predict  <- yHead + yTE.predict + addspace
-  yTE.hetstat  <- yHead + yTE.hetstat + addspace
-  yTE.subgroup <- yHead + yTE.subgroup + addspace
+  yTE        <- yHead + yTE + addspace
+  yTE.fixed  <- yHead + yTE.fixed + addspace
+  yTE.random <- yHead + yTE.random + addspace
+  yPredict   <- yHead + yPredict + addspace
+  yHetstat <- yHead + yHetstat + addspace
+  yOverall.fixed  <- yHead + yOverall.fixed + addspace
+  yOverall.random <- yHead + yOverall.random + addspace
+  ySubgroup.fixed  <- yHead + ySubgroup.fixed + addspace
+  ySubgroup.random <- yHead + ySubgroup.random + addspace
   ##
   if (by){
     yBylab <- yHead + yBylab + addspace
@@ -1675,15 +1826,22 @@ forest.meta <- function(x,
   ##  
   if (by){
     yLab <- c(yHead,
-              yTE.fixed, yTE.random, yTE.hetstat, yTE.predict,
+              yTE.fixed, yTE.random, yPredict,
+              yHetstat,
+              yOverall.fixed, yOverall.random,
+              ySubgroup.fixed, ySubgroup.random,
               yBylab, yTE.w,
               yTE)
     ##
-    yS <- c(yHead, yTE.fixed, yTE.random, yTE.predict, yTE.w, yTE)
+    yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE.w, yTE)
   }
   else{
-    yLab <- c(yHead, yTE.fixed, yTE.random, yTE.hetstat, yTE.predict, yTE)
-    yS   <- c(yHead, yTE.fixed, yTE.random, yTE.predict, yTE)
+    yLab <- c(yHead, yTE.fixed, yTE.random, yPredict,
+              yHetstat,
+              yOverall.fixed, yOverall.random,
+              ySubgroup.fixed, ySubgroup.random,
+              yTE)
+    yS   <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
   }
   
   
@@ -1810,70 +1968,108 @@ forest.meta <- function(x,
                                         fontface=ff.random.labels)
                                       )
   ##
-  ## Heterogeneity statistics:
-  ##
-  col.studlab$labels[[4]] <- textGrob(hetstat.overall,
-                                      x=xpos.studlab, just=just.studlab,
-                                      gp=gpar(
-                                        fontsize=fs.hetstat,
-                                        fontface=ff.hetstat)
-                                      )
-  ##
   ## Prediction interval:
   ##
-  col.studlab$labels[[5]] <- textGrob(text.predict,
+  col.studlab$labels[[4]] <- textGrob(text.predict,
                                       x=xpos.studlab, just=just.studlab,
                                       gp=gpar(
                                         fontsize=fs.predict.labels,
                                         fontface=ff.predict.labels)
                                       )
   ##
+  ## Heterogeneity statistics:
+  ##
+  col.studlab$labels[[5]] <- textGrob(hetstat.overall,
+                                      x=xpos.studlab, just=just.studlab,
+                                      gp=gpar(
+                                        fontsize=fs.hetstat,
+                                        fontface=ff.hetstat)
+                                      )
+  ##
+  ## Test for overall effect (fixed effect model):
+  ##
+  col.studlab$labels[[6]] <- textGrob(text.overall.fixed,
+                                      x=xpos.studlab, just=just.studlab,
+                                      gp=gpar(
+                                        fontsize=fs.test.overall,
+                                        fontface=ff.test.overall)
+                                      )
+  ##
+  ## Test for overall effect (random effects model):
+  ##
+  col.studlab$labels[[7]] <- textGrob(text.overall.random,
+                                      x=xpos.studlab, just=just.studlab,
+                                      gp=gpar(
+                                        fontsize=fs.test.overall,
+                                        fontface=ff.test.overall)
+                                      )
+  ##
+  ## Test for subgroup differences (fixed effect model):
+  ##
+  col.studlab$labels[[8]] <- textGrob(text.subgroup.fixed,
+                                      x=xpos.studlab, just=just.studlab,
+                                      gp=gpar(
+                                        fontsize=fs.test.subgroup,
+                                        fontface=ff.test.subgroup)
+                                      )
+  ##
+  ## Test for subgroup differences (random effects model):
+  ##
+  col.studlab$labels[[9]] <- textGrob(text.subgroup.random,
+                                      x=xpos.studlab, just=just.studlab,
+                                      gp=gpar(
+                                        fontsize=fs.test.subgroup,
+                                        fontface=ff.test.subgroup)
+                                      )
+  ##
+  n.summaries <- 9
+  ##
   if (by){
     for (i in 1:n.by){
       ##
       ## Subgroup labels:
       ##
-      col.studlab$labels[[5+i]] <- textGrob(bylab[i],
-                                            x=xpos.studlab, just=just.studlab,
-                                            gp=
-                                            gpar(
-                                                 fontsize=fs.heading,
-                                                 fontface=ff.heading,
-                                                 col=col.by)
-                                            )
+      col.studlab$labels[[n.summaries+i]] <- textGrob(bylab[i],
+                                                      x=xpos.studlab, just=just.studlab,
+                                                      gp=
+                                                        gpar(
+                                                          fontsize=fs.heading,
+                                                          fontface=ff.heading,
+                                                          col=col.by)
+                                                      )
       ##
       ## Fixed effect estimates:
       ##
-      col.studlab$labels[[5+n.by+i]] <- textGrob(text.fixed.w[i],
-                                                 x=xpos.studlab, just=just.studlab,
-                                                 gp=
-                                                 gpar(
-                                                      fontsize=fs.fixed.labels,
-                                                      fontface=ff.fixed.labels,
-                                                      col=col.by)
-                                                 )
+      col.studlab$labels[[n.summaries+n.by+i]] <- textGrob(text.fixed.w[i],
+                                                           x=xpos.studlab, just=just.studlab,
+                                                           gp=
+                                                             gpar(
+                                                               fontsize=fs.fixed.labels,
+                                                               fontface=ff.fixed.labels,
+                                                               col=col.by)
+                                                           )
       ##
       ## Random effects estimates:
       ##
-      col.studlab$labels[[5+2*n.by+i]] <- textGrob(text.random.w[i],
-                                                   x=xpos.studlab, just=just.studlab,
-                                                   gp=
-                                                   gpar(
-                                                        fontsize=fs.random.labels,
-                                                        fontface=ff.random.labels,
-                                                        col=col.by)
-                                                   )
+      col.studlab$labels[[n.summaries+2*n.by+i]] <- textGrob(text.random.w[i],
+                                                             x=xpos.studlab, just=just.studlab,
+                                                             gp=
+                                                               gpar(
+                                                                 fontsize=fs.random.labels,
+                                                                 fontface=ff.random.labels,
+                                                                 col=col.by)
+                                                             )
       ##
       ## Heterogeneity statistics:
       ##
-      col.studlab$labels[[5+3*n.by+i]] <- textGrob(hetstat.w[i],
-                                                   x=xpos.studlab, just=just.studlab,
-                                                   gp=
-                                                   gpar(
-                                                        fontsize=fs.hetstat,
-                                                        fontface=ff.hetstat,
-                                                        col=col.by)
-                                                   )
+      col.studlab$labels[[n.summaries+3*n.by+i]] <- textGrob(hetstat.w[i],
+                                                             x=xpos.studlab, just=just.studlab,
+                                                             gp=
+                                                               gpar(
+                                                                 fontsize=fs.hetstat,
+                                                                 fontface=ff.hetstat,
+                                                                 col=col.by)
+                                                             )
     }
   }
   ##
@@ -2377,14 +2573,14 @@ forest.meta <- function(x,
   for (i in seq(along=leftcols)){
     if (i==1)
       if (leftcols[[i]]=="col.studlab")
-        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-(c(4, 5+3*n.by+1:n.by))]))
+        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-(c(4:n.summaries, n.summaries+3*n.by+1:n.by))]))
       else
         x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels))
     else
       if (leftcols[[i]]=="col.studlab")
         x1 <- unit.c(x1,
                      colgap.left,
-                     wcalc(cols[[leftcols[i]]]$labels[-(c(4, 5+3*n.by+1:n.by))]))
+                     wcalc(cols[[leftcols[i]]]$labels[-(c(4:n.summaries, n.summaries+3*n.by+1:n.by))]))
       else
         x1 <- unit.c(x1,
                      colgap.left,
@@ -2410,10 +2606,23 @@ forest.meta <- function(x,
   if (new)
     grid.newpage()
   ##
-  if (by)
-    nrow <- max(c(yTE, yTE.fixed, yTE.random, yTE.hetstat, yTE.predict, yTE.w), na.rm=TRUE)
-  else
-    nrow <- max(c(yTE, yTE.fixed, yTE.random, yTE.hetstat, yTE.predict), na.rm=TRUE)
+  if (by){
+    addline <- addspace*(!any(c(test.overall.fixed, test.overall.random,
+                                hetstat,
+                                test.subgroup.fixed, test.subgroup.random)))
+    ##
+    nrow <- max(addline+c(yTE, yTE.fixed, yTE.random, yPredict,
+                          yHetstat,
+                          yOverall.fixed, yOverall.random,
+                          ySubgroup.fixed, ySubgroup.random, yTE.w), na.rm=TRUE)
+  }
+  else{
+    addline <- addspace*(!any(c(test.overall.fixed, test.overall.random, hetstat)))
+    ##
+    nrow <- max(addline+c(yTE, yTE.fixed, yTE.random, yPredict,
+                          yHetstat,
+                          yOverall.fixed, yOverall.random), na.rm=TRUE)
+  }
   ##
   pushViewport(viewport(layout=grid.layout(
                           nrow,

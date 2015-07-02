@@ -86,6 +86,7 @@ metainf(meta1)
 metainf(meta1, pooled="random")
 
 forest(metainf(meta1))
+forest(metainf(meta1), layout="revman5")
 forest(metainf(meta1, pooled="random"))
 
 metainf(meta1, sortvar=study)

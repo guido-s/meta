@@ -1,10 +1,16 @@
-2015-07-01, version 4.3-0
+2015-07-02, version 4.3-0
 
 Functions metabin, metainc, and metaprop:
 - missing values are allowed in numbers of events or patients
   (studies with missing values get zero weight in meta-analysis)
 
 Function forest.meta:
+- print information on test for overall effect (see arguments
+  'test.overall.fixed' and 'test.overall.random')  
+- print information on test for subgroup differences in meta-analysis
+  with subgroups (see arguments 'test.subgroup.fixed' and
+  'test.subgroup.random')
+- new argument 'layout' to change the layout of the forest plot
 - argument 'lab.NA' considered for all columns in forest plot
   (e.g. numbers of events and patients for metabin objects)
 - new argument 'lab.NA.effect' to label NAs in individual treatment
@@ -22,6 +28,10 @@ Function metareg:
 Function metabin:
 - use Inverse Variance instead of Mantel-Haenszel method if only a
   single study has a non-missing treatment estimate orstandard error
+
+Functions settings.meta and meta-internal:
+- code added for new arguments in forest.meta function to print
+  information on tests
 
 Help pages:
 - help page of R functions metareg and forest.meta updated

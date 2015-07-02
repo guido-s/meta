@@ -39,6 +39,7 @@ forest(x, ...)
        weight,
        pscale=1,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+       layout="meta",
        leftcols=NULL, rightcols=NULL,
        leftlabs=NULL, rightlabs=NULL,
        lab.e=x$label.e, lab.c=x$label.c,
@@ -65,18 +66,30 @@ forest(x, ...)
        hetlab="Heterogeneity: ",
        text.I2 = "I-squared",
        text.tau2 = "tau-squared",
+       test.overall.fixed=comb.fixed&overall&.settings$test.overall,
+       test.overall.random=comb.random&overall&.settings$test.overall,
+       label.test.overall.fixed=paste("Test for overall effect",
+         if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
+       label.test.overall.random=paste("Test for overall effect",
+         if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
+       test.subgroup.fixed=FALSE,
+       test.subgroup.random=!is.null(x$byvar)&comb.random&.settings$test.subgroup,
+       print.Q.subgroup=print.Q,
+       label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
+       label.test.subgroup.random=paste("Test for subgroup differences",
+        if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
        fontsize=12,
        fs.heading=fontsize,
        fs.fixed=fontsize, fs.random=fs.fixed, fs.predict=fs.fixed, fs.study=fontsize,
        fs.fixed.labels=fs.fixed, fs.random.labels=fs.random, fs.predict.labels=fs.predict,
        fs.study.labels=fs.study, fs.hetstat=fontsize-2,
-       fs.axis=fontsize,
+       fs.test.overall=fs.hetstat, fs.test.subgroup=fs.hetstat, fs.axis=fontsize,
        fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
        ff.heading="bold",
        ff.fixed="bold", ff.random=ff.fixed, ff.predict=ff.fixed, ff.study="plain",
        ff.fixed.labels=ff.fixed, ff.random.labels=ff.random, ff.predict.labels=ff.predict,
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
-       ff.axis="plain",
+       ff.test.overall=ff.hetstat, ff.test.subgroup=ff.hetstat, ff.axis="plain",
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
        #
        squaresize=0.8,
@@ -166,6 +179,8 @@ forest(x, ...)
   \item{ref}{A numerical giving the reference value to be plotted as a
     line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}
+  \item{layout}{A character string specifying the layout of the forest
+    plot (see Details).}
   \item{leftcols}{A character vector specifying (additional) columns
   to be plotted on the left side of the forest plot or a logical value
   (see Details).}
@@ -232,9 +247,33 @@ forest(x, ...)
     comparisons. This argument is useful in combination with subgroup
     analyses (list object \code{byvar}) if heterogeneity statistics
     should only be printed on group level.}
-  \item{hetlab}{Label printed in front of results for heterogeneity measures.}
+  \item{hetlab}{Label printed in front of results for heterogeneity
+    measures.}
   \item{text.I2}{Label for I-squared statistic.}
   \item{text.tau2}{Label for between-study variance tau-squared.}
+  \item{test.overall.fixed}{A logical value indicating whether to
+    print results of test for overall effect (based on fixed effect
+    model).}
+  \item{test.overall.random}{A logical value indicating whether to
+    print results of test for overall effect (based on random effects
+    model).}
+  \item{label.test.overall.fixed}{Label printed in front of results of
+    test for overall effect (based on fixed effect model).}
+  \item{label.test.overall.random}{Label printed in front of results
+    of test for overall effect (based on random effects model).}
+  \item{test.subgroup.fixed}{A logical value indicating whether to
+    print results of test for subgroup difference (based on fixed
+    effect model).}
+  \item{test.subgroup.random}{A logical value indicating whether to
+    print results of test for subgroup difference (based on random
+    effects model).}
+  \item{label.test.subgroup.fixed}{Label printed in front of results
+    of test for subgroup differences (based on fixed effect model).}
+  \item{label.test.subgroup.random}{Label printed in front of results
+    of test for subgroup differences (based on random effects model).}
+  \item{print.Q.subgroup}{A logical value indicating whether to print
+    the value of the heterogeneity statistic Q (test for subgroup
+    difference).}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
@@ -246,6 +285,8 @@ forest(x, ...)
   \item{fs.predict.labels}{The size of text for label of prediction interval, see \code{\link{gpar}}.}
   \item{fs.study.labels}{The size of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
+  \item{fs.test.overall}{The size of text of test for overall effect, see \code{\link{gpar}}.}
+  \item{fs.test.subgroup}{The size of text of test of subgroup differences, see \code{\link{gpar}}.}
   \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
   \item{fs.smlab}{The size of text of label for summary measure, see \code{\link{gpar}}.}
   \item{fs.xlab}{The size of text of label on x-axis, see \code{\link{gpar}}.}
@@ -260,6 +301,8 @@ forest(x, ...)
   \item{ff.predict.labels}{The fontface of text for label of prediction interval, see \code{\link{gpar}}.}
   \item{ff.study.labels}{The fontface of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
+  \item{ff.test.overall}{The fontface of text of test for overall effect, see \code{\link{gpar}}.}
+  \item{ff.test.subgroup}{The fontface of text for test of subgroup differences, see \code{\link{gpar}}.}
   \item{ff.axis}{The fontface of text on x-axis, see \code{\link{gpar}}.}
   \item{ff.smlab}{The fontface of text of label for summary measure, see \code{\link{gpar}}.}
   \item{ff.xlab}{The fontface of text of label on x-axis, see \code{\link{gpar}}.}
@@ -306,18 +349,19 @@ forest(x, ...)
   active graphics window. Subgroup analyses are conducted and
   displayed in the plot if \code{byvar} is not missing.
   
-  Note, in R package meta, version 3.0-0 the following arguments have
-  been removed from R function forest.meta: byvar, level, level.comb,
-  level.predict. This functionality is now provided by R function
-  \code{\link{update.meta}} (or directly in R functions
-  \code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{metagen}}, \code{\link{metacor}}, and
-  \code{\link{metaprop}}).
-  
   The \code{forest} function is based on the grid graphics
   system. In order to print the forest plot, (i) resize the graphics
   window, (ii) either use \code{\link{dev.copy2eps}} or
   \code{\link{dev.copy2pdf}}.
+
+  Result of a test for overall effect or subgroup differences are
+  printed if argument \code{test.overall.fixed},
+  \code{test.overall.random}, \code{test.subgroup.fixed}, or
+  \code{test.subgroup.random} is \code{TRUE}; by default, these
+  arguments are \code{FALSE}. R function \code{\link{settings.meta}}
+  can be used to change this default for the entire R session by
+  setting argument \code{test.overall=TRUE} or
+  \code{test.subgroup=TRUE}.
   
   Information from object \code{x} is utilised if argument \code{weight}
   is missing. Weights from the fixed effect model are used
@@ -331,7 +375,8 @@ forest(x, ...)
   forest plot, respectively. If argument \code{rightcols} is
   \code{FALSE}, no columns will be plotted on the right side. By
   default, i.e. if arguments \code{leftcols} and \code{rightcols} are
-  \code{NULL}, the following default columns will be plotted.
+  \code{NULL} and \code{layout="meta"}, the following default columns
+  will be plotted.
 
   \tabular{cl}{
    Additional settings \tab Default for argument \code{rightcols} \cr
@@ -384,6 +429,10 @@ forest(x, ...)
   columns. The value \code{NA} can be used to specify columns using
   the default labels (see Example).
 
+  If argument \code{layout="revman5"} (and arguments \code{leftcols}
+  and \code{rightcols} are \code{NULL}) all columns mentioned above
+  will be printed on the left side of the forest plot.
+
   If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
@@ -400,6 +449,14 @@ forest(x, ...)
   \code{prediction} and \code{comb.random} are \code{TRUE}. For
   graphical presentation of prediction intervals the approach by
   Guddat et al. (2012) is used.
+  
+  Note, in R package meta, version 3.0-0 the following arguments have
+  been removed from R function forest.meta: byvar, level, level.comb,
+  level.predict. This functionality is now provided by R function
+  \code{\link{update.meta}} (or directly in R functions
+  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metagen}}, \code{\link{metacor}}, and
+  \code{\link{metaprop}}).
 }
 
 \references{
@@ -444,10 +501,22 @@ forest(meta1, prediction=TRUE)
 
 
 #
+# Print results of test for overall effect
+#
+forest(meta1, test.overall.fixed=TRUE, test.overall.random=TRUE)
+
+
+#
 # Forest plot with 'classic' layout used in
 # R package meta, version < 1.6-0
 #
 forest(meta1, col.square="black", hetstat=FALSE)
+
+
+#
+# Layout of forest plot similar to RevMan 5
+#
+forest(meta1, layout="revman5", comb.random=FALSE)
 
 
 #
@@ -571,9 +640,17 @@ forest(meta1, sortvar=-year, comb.random=FALSE)
 #
 # Sort studies by decreasing treatment effect within year subgroups
 #
-forest(update(meta1, byvar=ifelse(year < 1987, "Before 1987", "1987 and later"),
-              print.byvar=FALSE),
+meta2 <- update(meta1, byvar=ifelse(year < 1987, "Before 1987", "1987 and later"),
+                print.byvar=FALSE)
+forest(meta2,
        sortvar=-TE, comb.random=FALSE)
+
+#
+# Print results of test for subgroup differences (random effects model)
+#
+forest(meta2,
+       sortvar=-TE, comb.fixed=FALSE,
+       test.subgroup.random=TRUE)
 }
 
 \keyword{hplot}

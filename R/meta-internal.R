@@ -98,7 +98,8 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "method", "allstudies", "MH.exact",
               "RR.cochrane", "print.CMH",
               "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
-              "label.e", "label.c", "label.left", "label.right")
+              "label.e", "label.c", "label.left", "label.right",
+              "test.overall", "test.subgroup")
 setOption("argslist", argslist)
 ##
 ## General settings
@@ -159,3 +160,8 @@ setOption("label.e", "Experimental")
 setOption("label.c", "Control")
 setOption("label.left", "")
 setOption("label.right", "")
+##
+## Settings for R function forest.meta
+##
+setOption("test.overall", FALSE)
+setOption("test.subgroup", FALSE)
