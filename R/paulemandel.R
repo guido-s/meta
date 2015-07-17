@@ -59,8 +59,11 @@ paulemandel <- function(TE, seTE,
       converged <- 1L
   }
   
+  w.random.all <- rep(0, length(sel))
+  w.random.all[sel] <- w.random
+  
   res <- list(TE.random=TE.random, seTE.random=seTE.random,
-              w.random=w.random, tau=sqrt(tau2),
+              w.random=w.random.all, tau=sqrt(tau2),
               n.iter=n.iter, converged=converged, tol=tol*variance.TE)
   
   res

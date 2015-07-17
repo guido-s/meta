@@ -1,4 +1,5 @@
-format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE){
+format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE,
+                     digits=4){
   if (is.null(p))
     return("")
   outdec <- options()$OutDec
@@ -7,7 +8,7 @@ format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE){
                          ifelse(p < 0.0001,
                                 paste(labval, " < 0", outdec, "0001", sep=""),
                                 paste(paste(labval, "="),
-                                      formatC(round(p, 4), decimal.mark=outdec)
+                                      formatC(round(p, digits), decimal.mark=outdec)
                                       )
                                 )
                          )
@@ -16,7 +17,7 @@ format.p <- function(p, lab=FALSE, labval="p", noblanks=FALSE){
     res <- format(ifelse(is.na(p), "      --",
                          ifelse(p < 0.0001,
                                 paste("< 0", outdec, "0001", sep=""),
-                                paste(" ", formatC(round(p, 4), decimal.mark=outdec)
+                                paste(" ", formatC(round(p, digits), decimal.mark=outdec)
                                       )
                                 )
                          )

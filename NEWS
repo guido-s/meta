@@ -1,3 +1,22 @@
+2015-mm-dd, version 4.3-1
+
+Function forest.meta:
+- new arguments digits.se, digits.tau2, digits.pval, digits.pval.Q,
+  digits.Q, digits.I2 to control printing of standard errors,
+  p-values, tau-squared and heterogeneity statistics
+- new argument test.overall controlling whether information on test
+  for overall effect should be printed
+
+Internal function paulemandel:
+- bug fix such that studies with missing treatment effect and standard
+  error get zero weight in random effects meta-analysis
+
+Internal functions format.p and format.tau:
+- new argument digits to round p-values and tau-squared values
+
+Help page of R function forest.meta updated
+
+
 2015-07-02, version 4.3-0
 
 Functions metabin, metainc, and metaprop:

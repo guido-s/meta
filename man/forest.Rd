@@ -66,8 +66,9 @@ forest(x, ...)
        hetlab="Heterogeneity: ",
        text.I2 = "I-squared",
        text.tau2 = "tau-squared",
-       test.overall.fixed=comb.fixed&overall&.settings$test.overall,
-       test.overall.random=comb.random&overall&.settings$test.overall,
+       test.overall=.settings$test.overall,
+       test.overall.fixed=comb.fixed&overall&test.overall,
+       test.overall.random=comb.random&overall&test.overall,
        label.test.overall.fixed=paste("Test for overall effect",
          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
        label.test.overall.random=paste("Test for overall effect",
@@ -100,16 +101,15 @@ forest(x, ...)
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
-       just="right",
-       just.studlab="left",
-       just.addcols="center",
+       just="right", just.studlab="left", just.addcols="center",
        #
        addspace=TRUE,
        #
        new=TRUE,
        #
        backtransf=x$backtransf,
-       digits=2, ...)
+       digits=2, digits.se=4, digits.tau2=4, digits.pval=4, digits.pval.Q=digits.pval,
+       digits.Q=1, digits.I2=1, ...)
 }
 
 \arguments{
@@ -251,6 +251,8 @@ forest(x, ...)
     measures.}
   \item{text.I2}{Label for I-squared statistic.}
   \item{text.tau2}{Label for between-study variance tau-squared.}
+  \item{test.overall}{A logical value indicating whether to print
+    results of test for overall effect.}
   \item{test.overall.fixed}{A logical value indicating whether to
     print results of test for overall effect (based on fixed effect
     model).}
@@ -339,8 +341,21 @@ forest(x, ...)
     than log odds ratios and results for \code{sm="ZCOR"} are
     presented as correlations rather than Fisher's z transformed
     correlations, for example.}
-  \item{digits}{Minimal number of significant digits, see
-    \code{print.default}.}
+    
+  \item{digits}{Minimal number of significant digits for treatment
+    effects, see \code{print.default}.}
+  \item{digits.se}{Minimal number of significant digits for standard
+    errors, see \code{print.default}.}
+  \item{digits.tau2}{Minimal number of significant digits for
+    between-study variance, see \code{print.default}.}
+  \item{digits.pval}{Minimal number of significant digits for p-value
+    of overall treatment effect, see \code{print.default}.}
+  \item{digits.pval.Q}{Minimal number of significant digits for
+    p-value of heterogeneity test, see \code{print.default}.}
+  \item{digits.Q}{Minimal number of significant digits for
+    heterogeneity statistic Q, see \code{print.default}.}
+  \item{digits.I2}{Minimal number of significant digits for I-squared
+    statistic, see \code{print.default}.}
  \item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 
