@@ -89,8 +89,9 @@ forest.meta <- function(x,
                         label.test.overall.random=paste("Test for overall effect",
                           if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
                         ##
-                        test.subgroup.fixed=FALSE,
-                        test.subgroup.random=!is.null(x$byvar)&comb.random&.settings$test.subgroup,
+                        test.subgroup=.settings$test.subgroup,
+                        test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
+                        test.subgroup.random=if (missing(test.subgroup)) !is.null(x$byvar)&comb.random&test.subgroup else test.subgroup,
                         print.Q.subgroup=print.Q,
                         label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
                         label.test.subgroup.random=paste("Test for subgroup differences",
@@ -957,7 +958,7 @@ forest.meta <- function(x,
   dummy.het <- FALSE
   ##
   Q.bs <- c(Q.b.fixed, Q.b.random)
-  Q.bs.format <- format(round(Q.bs, digits.Q))
+  Q.bs.format <- gsub(" ", "", format(round(Q.bs, digits.Q)))
   pval.Qbs <- format.p(1-pchisq(Q.bs, df.Q.b), lab=TRUE, noblanks=TRUE,
                        digits=digits.pval.Q)
   ##

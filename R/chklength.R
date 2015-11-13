@@ -1,8 +1,9 @@
-chklength <- function(x, k.all, fun, text){
+chklength <- function(x, k.all, fun, text, name=NULL){
   ##
   ## Check length of vector
   ##
-  name <- deparse(substitute(x))
+  if (is.null(name))
+    name <- deparse(substitute(x))
   ##
   if (length(x) != k.all){
     funcs <- c("metabin", "metacont", "metacor",

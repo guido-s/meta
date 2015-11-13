@@ -1,8 +1,9 @@
-chkclass <- function(x, class){
+chkclass <- function(x, class, name=NULL){
   ##
   ## Check class of R object
   ##
-  name <- deparse(substitute(x))
+  if (is.null(name))
+    name <- deparse(substitute(x))
   ##
   if (!inherits(x, class))
     stop("Argument '", name,

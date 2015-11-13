@@ -1,8 +1,9 @@
-chklevel <- function(x, single=TRUE, ci=TRUE){
+chklevel <- function(x, single=TRUE, ci=TRUE, name=NULL){
   ##
   ## Check for levels of confidence interval / contour level
   ##
-  name <- deparse(substitute(x))
+  if (is.null(name))
+    name <- deparse(substitute(x))
   if (ci)
     "level for confidence interval (range: 0-1)"
   else

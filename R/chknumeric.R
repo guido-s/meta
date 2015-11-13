@@ -1,8 +1,10 @@
-chknumeric <- function(x, min, max, zero=FALSE, single=FALSE){
+chknumeric <- function(x, min, max, zero=FALSE, single=FALSE,
+                       name=NULL){
   ##
   ## Check numeric variable
   ##
-  name <- deparse(substitute(x))
+  if (is.null(name))
+    name <- deparse(substitute(x))
   ##
   x <- x[!is.na(x)]
   if (length(x) == 0)

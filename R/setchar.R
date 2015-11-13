@@ -1,5 +1,6 @@
-setchar <- function(x, val, text, list=FALSE){
-  name <- deparse(substitute(x))
+setchar <- function(x, val, text, list=FALSE, name=NULL){
+  if (is.null(name))
+    name <- deparse(substitute(x))
   nval <- length(val)
   ##
   idx <- charmatch(tolower(x), tolower(val), nomatch=NA)

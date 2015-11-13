@@ -1,18 +1,29 @@
-2015-mm-dd, version 4.3-1
+2015-11-13, version 4.3-1
 
 Function forest.meta:
-- new arguments digits.se, digits.tau2, digits.pval, digits.pval.Q,
-  digits.Q, digits.I2 to control printing of standard errors,
-  p-values, tau-squared and heterogeneity statistics
-- new argument test.overall controlling whether information on test
-  for overall effect should be printed
+- new arguments 'digits.se', 'digits.tau2', 'digits.pval',
+  'digits.pval.Q', 'digits.Q', 'digits.I2' to control printing of
+  standard errors, p-values, tau-squared and heterogeneity statistics
+- new arguments 'test.overall' and 'test.subgroup' controlling whether
+  information on test for overall effect and heterogeneity should be
+  printed
 
 Internal function paulemandel:
 - bug fix such that studies with missing treatment effect and standard
   error get zero weight in random effects meta-analysis
+- do not stop estimation algorithm if estimated tau-squared is
+  negative
+
+Function settings.meta:
+- bug fix such that no error occurs if function is used with an
+  unassigned argument
 
 Internal functions format.p and format.tau:
-- new argument digits to round p-values and tau-squared values
+- new argument 'digits' to round p-values and tau-squared values
+
+Internal functions chkchar, chkclass, chklength, chklevel, chklogical,
+chkmiss, chknull, chknumeric, setchar:
+- new argument 'name' to change name of checked argument in printout
 
 Help page of R function forest.meta updated
 

@@ -73,8 +73,10 @@ forest(x, ...)
          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
        label.test.overall.random=paste("Test for overall effect",
          if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
-       test.subgroup.fixed=FALSE,
-       test.subgroup.random=!is.null(x$byvar)&comb.random&.settings$test.subgroup,
+       test.subgroup=.settings$test.subgroup,
+       test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
+       test.subgroup.random=if (missing(test.subgroup)) !is.null(x$byvar)&
+         comb.random&test.subgroup else test.subgroup,
        print.Q.subgroup=print.Q,
        label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
        label.test.subgroup.random=paste("Test for subgroup differences",
@@ -263,11 +265,13 @@ forest(x, ...)
     test for overall effect (based on fixed effect model).}
   \item{label.test.overall.random}{Label printed in front of results
     of test for overall effect (based on random effects model).}
+  \item{test.subgroup}{A logical value indicating whether to print
+    results of test for subgroup differences.}
   \item{test.subgroup.fixed}{A logical value indicating whether to
-    print results of test for subgroup difference (based on fixed
+    print results of test for subgroup differences (based on fixed
     effect model).}
   \item{test.subgroup.random}{A logical value indicating whether to
-    print results of test for subgroup difference (based on random
+    print results of test for subgroup differences (based on random
     effects model).}
   \item{label.test.subgroup.fixed}{Label printed in front of results
     of test for subgroup differences (based on fixed effect model).}
@@ -275,7 +279,7 @@ forest(x, ...)
     of test for subgroup differences (based on random effects model).}
   \item{print.Q.subgroup}{A logical value indicating whether to print
     the value of the heterogeneity statistic Q (test for subgroup
-    difference).}
+    differences).}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}

@@ -7,6 +7,7 @@ settings.meta <- function(...){
   res$CIseparator <- NULL
   res$argslist <- NULL
   
+  
   catarg <- function(x, lab, newline=TRUE){
     if (!missing(lab))
       xname <- lab
@@ -24,6 +25,30 @@ settings.meta <- function(...){
   }
   
   
+  specificSetting <- function(args, new, ischar, title){
+    old <- as.vector(unlist(.settings[args]))
+    label.old <- ifelse(ischar, paste("\"", old, "\"", sep=""), old)
+    label.new <- ifelse(ischar, paste("\"", new, "\"", sep=""), new)
+    ##
+    sel <- new != old
+    if (any(sel)){
+      tdata <- data.frame(argument=args[sel],
+                          new=label.new[sel],
+                          previous=label.old[sel])
+      names(tdata) <- c("Argument", "New value", "Previous value")
+      ##
+      cat(paste("\n** ", title, " **\n\n", sep=""))
+      prmatrix(tdata, quote=FALSE, right=FALSE,
+               rowlab=rep("", length(args)))
+      ##
+      for (i in seq(along=args))
+        setOption(args[i], new[i])
+    }
+    else
+      cat("No setting changed.\n")
+  }
+  
+  
   args  <- list(...)
   ## Check whether first argument is a list. In this case only use
   ## this list as input.
@@ -37,7 +62,7 @@ settings.meta <- function(...){
     stop("Arguments must be unique.")
   
   
-  unknown <- !(names %in% c(.settings$argslist, "reset", "print"))
+  unknown <- !(names %in% c(.settings$argslist, "reset", "print", "setting", ""))
   ##
   if (sum(unknown)==1)
     warning(paste("Argument '", names[unknown], "' unknown.", sep=""))
@@ -46,12 +71,55 @@ settings.meta <- function(...){
                   paste(paste("'", names[unknown], "'", sep=""),
                         collapse=" - "), sep=""))
   
-
-  if (length(args)==1 && names=="print"){
+  
+  if (length(args)>1 && any(names=="reset")){
+    cat("To reset all settings use a single argument 'reset=TRUE' (R package meta)\n")
+    return(invisible(res))
+  }
+  ##
+  if (length(args)>1 && any(names=="setting")){
+    cat("Argument 'setting' can only be used without other arguments (R package meta)\n")
+    return(invisible(res))
+  }
+  
+  
+  print.settings <- FALSE
+  reset.settings <- FALSE
+  specific.settings <- FALSE
+  ##
+  if (length(args)==1){
+    if (!is.null(names)){
+      if (names=="print"){
+        chklogical(args[[1]], "print")
+        print.settings <- args[[1]]
+      }
+      ##
+      else if (names=="reset"){
+        chklogical(args[[1]], "reset")
+        if (args[[1]])
+          reset.settings <- TRUE
+        else{
+          cat("To reset all settings use argument 'reset=TRUE' (R package meta)\n")
+          return(invisible(res))
+        }
+      }
+      ##
+      else if (names=="setting"){
+        setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name="setting")
+      specific.settings <- TRUE
+      }
+    }
+    else if (is.null(names) & is.character(args[[1]])){
+      setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name="setting")
+      specific.settings <- TRUE
+    }
+  }
+  
+  
+  if (print.settings){
     cat(paste("\n*** Settings for meta-analysis method (R package meta, version ",
               utils::packageDescription("meta")$Version, ") ***\n\n", sep=""))
-    ##cat("General settings (i.e. for R functions metabin, metacont,\n",
-    ##    "                  metacor, metagen, metainc, metaprop):\n", sep="")
+    ##
     cat("General settings:\n", sep="")
     catarg("level")
     catarg("level.comb")
@@ -113,62 +181,75 @@ settings.meta <- function(...){
     catarg("test.overall")
     catarg("test.subgroup")
   }
-  else if (length(args)==1 && names=="reset"){
-    if (is.logical(args[[1]]) && args[[1]]==TRUE){
-      cat("Reset all settings back to default (R package meta).\n")
-      ##
-      setOption("level", 0.95)
-      setOption("level.comb", 0.95)
-      setOption("comb.fixed", TRUE)
-      setOption("comb.random", TRUE)
-      setOption("hakn", FALSE)
-      setOption("method.tau", "DL")
-      setOption("tau.common", FALSE)
-      setOption("prediction", FALSE)
-      setOption("level.predict", 0.95)
-      setOption("method.bias", "linreg")
-      setOption("title", "")
-      setOption("complab", "")
-      setOption("print.byvar", TRUE)
-      setOption("keepdata", TRUE)
-      setOption("warn", TRUE)
-      setOption("backtransf", TRUE)
-      ##
-      setOption("method", "MH")
-      setOption("incr", 0.5)
-      setOption("allincr", FALSE)
-      setOption("addincr", FALSE)
-      setOption("allstudies", FALSE)
-      setOption("MH.exact", FALSE)
-      setOption("RR.cochrane", FALSE)
-      setOption("print.CMH", FALSE)
-      ##
-      setOption("smbin", "RR")
-      setOption("smcont", "MD")
-      setOption("smcor", "ZCOR")
-      setOption("sminc", "IRR")
-      setOption("smprop", "PLOGIT")
-      ##
-      setOption("pooledvar", FALSE)
-      setOption("method.smd", "Hedges")
-      setOption("sd.glass", "control")
-      setOption("exact.smd", FALSE)
-      ##
-      setOption("method.ci", "CP")
-      ##
-      setOption("label.e", "Experimental")
-      setOption("label.c", "Control")
-      setOption("label.left", "")
-      setOption("label.right", "")
-      ##
-      setOption("test.overall", FALSE)
-      setOption("test.subgroup", FALSE)
-    }
-    else
-      cat("To reset all settings use argument 'reset=TRUE' (R package meta)\n")
+  else if (reset.settings){
+    cat("Reset all settings back to default (R package meta).\n")
+    ##
+    setOption("level", 0.95)
+    setOption("level.comb", 0.95)
+    setOption("comb.fixed", TRUE)
+    setOption("comb.random", TRUE)
+    setOption("hakn", FALSE)
+    setOption("method.tau", "DL")
+    setOption("tau.common", FALSE)
+    setOption("prediction", FALSE)
+    setOption("level.predict", 0.95)
+    setOption("method.bias", "linreg")
+    setOption("title", "")
+    setOption("complab", "")
+    setOption("print.byvar", TRUE)
+    setOption("keepdata", TRUE)
+    setOption("warn", TRUE)
+    setOption("backtransf", TRUE)
+    ##
+    setOption("method", "MH")
+    setOption("incr", 0.5)
+    setOption("allincr", FALSE)
+    setOption("addincr", FALSE)
+    setOption("allstudies", FALSE)
+    setOption("MH.exact", FALSE)
+    setOption("RR.cochrane", FALSE)
+    setOption("print.CMH", FALSE)
+    ##
+    setOption("smbin", "RR")
+    setOption("smcont", "MD")
+    setOption("smcor", "ZCOR")
+    setOption("sminc", "IRR")
+    setOption("smprop", "PLOGIT")
+    ##
+    setOption("pooledvar", FALSE)
+    setOption("method.smd", "Hedges")
+    setOption("sd.glass", "control")
+    setOption("exact.smd", FALSE)
+    ##
+    setOption("method.ci", "CP")
+    ##
+    setOption("label.e", "Experimental")
+    setOption("label.c", "Control")
+    setOption("label.left", "")
+    setOption("label.right", "")
+    ##
+    setOption("test.overall", FALSE)
+    setOption("test.subgroup", FALSE)
   }
-  else if (length(args)>1 && any(names=="reset"))
-    cat("To reset all settings use a single argument 'reset=TRUE' (R package meta)\n")
+  else if (specific.settings){
+    if (setting=="RevMan5")
+      specificSetting(args=c("RR.cochrane"),
+                      new=TRUE,
+                      ischar=FALSE,
+                      title="Use RevMan 5 settings")
+    ##
+    else if (setting=="IQWiG")
+      specificSetting(args=c("hakn", "method.tau"),
+                      new=c(TRUE, "PM"),
+                      ischar=c(FALSE, TRUE),
+                      title="Use IQWiG settings")
+    ##
+    else if (setting=="meta4")
+      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
+                      new=c(FALSE, "DL", FALSE),
+                      ischar=c(FALSE, TRUE, FALSE),
+                      title="Use settings from R package meta (version 4.3-1 and older)")
+  }
   else{
     argid <- function(x, value){
       if (any(names==value))

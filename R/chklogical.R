@@ -1,8 +1,9 @@
-chklogical <- function(x){
+chklogical <- function(x, name=NULL){
   ##
   ## Check whether argument is logical
   ##
-  name <- deparse(substitute(x))
+  if (is.null(name))
+    name <- deparse(substitute(x))
   ##
   if (is.numeric(x))
     x <- as.logical(x)
