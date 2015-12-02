@@ -1,3 +1,15 @@
+2015-12-02, version 4.3-2
+
+Function metacont:
+- bug fix such that correct treatment estimates for individual studies
+  are calculated for Glass's delta (i.e. arguments sm = "SMD" and
+  method.smd = "Glass")
+
+Function metaprop:
+- print correct error message if number of events is larger than
+  number of observations
+
+
 2015-11-13, version 4.3-1
 
 Function forest.meta:

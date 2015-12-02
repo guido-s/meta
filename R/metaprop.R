@@ -213,7 +213,7 @@ metaprop <- function(event, n, studlab,
     warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
   ##
   if (any(event > n, na.rm=TRUE))
-    stop("Number of events must be larger than number of observations")
+    stop("Number of events must not be larger than number of observations")
   ##
   ## Recode integer as numeric:
   ##

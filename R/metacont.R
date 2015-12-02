@@ -297,12 +297,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ## Borenstein et al. (2009), p. 26-27;
       ## White and Thomas (2005), p. 143
       ##
-      TE   <- smd
+      TE <- smd
       if (exact.smd){
         J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
         K <- function(x) 1 - (x-2) / (x*J(x)^2)
         seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + (J(N-2)*smd)^2 * K(N-2)))
+                       sqrt(N / (n.e*n.c) + (J(N-2)*smd)^2 * K(N-2)))
       }
       else
         seTE <- ifelse(npn, NA,
@@ -330,13 +330,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       ## see Cooper & Hedges (1994), p. 238
       ##
-      sd.g <- ifelse(sd.glass=="control", sd.c,
-                     ifelse(sd.glass=="experimental", sd.e, NA))
-      n.g  <- ifelse(sd.glass=="control", n.c,
-                     ifelse(sd.glass=="experimental", n.e, NA))
+      n.g  <- if (sd.glass=="control") n.c else n.e
       ##
-      TE   <- ifelse(npn, NA,
-                     (mean.e - mean.c) / sd.g)
+      TE <- smd
       seTE <- ifelse(npn, NA,
                      sqrt(N / (n.e*n.c) + TE^2/(2*n.g-1)))
     }
