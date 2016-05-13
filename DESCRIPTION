@@ -3,7 +3,7 @@ Title: General Package for Meta-Analysis
 Version: 4.4-0
 Depends: R (>= 2.9.1)
 Imports: grid
-Suggests: metafor, lme4, BiasedUrn
+Suggests: metafor, lme4, numDeriv, BiasedUrn
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
 Date: 2016-05-13
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
@@ -14,6 +14,6 @@ Description: User-friendly general package providing standard methods for meta-a
  - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression (if R package metafor is installed);
- - generalised linear mixed models (if R packages metafor, lme4, and BiasedUrn are installed).
+ - generalised linear mixed models (if R packages metafor, lme4, numDeriv, and BiasedUrn are installed).
 License: GPL (>= 2)
 Encoding: UTF-8

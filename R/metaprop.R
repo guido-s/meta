@@ -67,7 +67,8 @@ metaprop <- function(event, n, studlab,
   ##
   method <- setchar(method, c("Inverse", "GLMM"))
   if (method == "GLMM") {
-    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
+    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
     is.installed.package("metafor", fun, "method", " = \"GLMM\"")
   }
   ##

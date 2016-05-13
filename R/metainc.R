@@ -74,7 +74,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
   if (method == "GLMM") {
-    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
+    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
     is.installed.package("metafor", fun, "method", " = \"GLMM\"")
   }
   ##

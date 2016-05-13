@@ -502,9 +502,23 @@ settings.meta <- function(...){
     }
     if (!is.na(idmethod)){
       method <- args[[idmethod]]
-      method <- setchar(method, c("Inverse", "MH", "Peto"))
+      method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+      if (method == "GLMM") {
+        is.installed.package("metafor", chksettings = TRUE,
+                             argument = "method", value = method)
+        is.installed.package("lme4", chksettings = TRUE,
+                             argument = "method", value = method)
+        is.installed.package("numDeriv", chksettings = TRUE,
+                             argument = "method", value = method)
+      }
       setOption("method", method)
     }
+    if (!is.na(idmodel.glmm)){
+      model.glmm <- args[[idmodel.glmm]]
+      model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+      setOption("model.glmm", model.glmm)
+    }
+    ##
     if (!is.na(idincr)){
       incr <- args[[idincr]]
       if (!is.numeric(incr))
@@ -536,11 +550,6 @@ settings.meta <- function(...){
       RR.cochrane <- args[[idRR.cochrane]]
       chklogical(RR.cochrane)
       setOption("RR.cochrane", RR.cochrane)
-    }
-    if (!is.na(idmodel.glmm)){
-      model.glmm <- args[[idmodel.glmm]]
-      model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
-      setOption("model.glmm", model.glmm)
     }
     if (!is.na(idprint.CMH)){
       print.CMH <- args[[idprint.CMH]]

@@ -77,7 +77,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
   if (method == "GLMM") {
-    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
+    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
     is.installed.package("metafor", fun, "method", " = \"GLMM\"")
   }
   ##
