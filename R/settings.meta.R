@@ -137,6 +137,17 @@ settings.meta <- function(...){
     catarg("keepdata")
     catarg("warn")
     catarg("backtransf")
+    catarg("digits")
+    catarg("digits.se")
+    catarg("digits.zval")
+    catarg("digits.Q")
+    catarg("digits.tau2")
+    catarg("digits.H")
+    catarg("digits.I2")
+    catarg("digits.prop")
+    catarg("digits.weight")
+    catarg("digits.pval")
+    catarg("digits.pval.Q")
     ##
     cat("\nDefault summary measure (argument 'sm' in corresponding function):\n")
     cat("- metabin:  ")
@@ -160,6 +171,7 @@ settings.meta <- function(...){
     catarg("allstudies")
     catarg("MH.exact")
     catarg("RR.cochrane")
+    catarg("model.glmm")
     catarg("print.CMH")
     ##
     cat("\nAdditional setting for R function metacont:\n")
@@ -180,6 +192,8 @@ settings.meta <- function(...){
     cat("\nSettings for R function forest.meta:\n")
     catarg("test.overall")
     catarg("test.subgroup")
+    cat("- argument 'digits': ")
+    catarg("digits.forest", newline = FALSE)
   }
   else if (reset.settings){
     cat("Reset all settings back to default (R package meta).\n")
@@ -200,6 +214,17 @@ settings.meta <- function(...){
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
     setOption("backtransf", TRUE)
+    setOption("digits", 4)
+    setOption("digits.se", 4)
+    setOption("digits.zval", 2)
+    setOption("digits.Q", 2)
+    setOption("digits.tau2", 4)
+    setOption("digits.H", 2)
+    setOption("digits.I2", 1)
+    setOption("digits.prop", 4)
+    setOption("digits.weight", 1)
+    setOption("digits.pval", 4)
+    setOption("digits.pval.Q", 4)
     ##
     setOption("method", "MH")
     setOption("incr", 0.5)
@@ -208,6 +233,7 @@ settings.meta <- function(...){
     setOption("allstudies", FALSE)
     setOption("MH.exact", FALSE)
     setOption("RR.cochrane", FALSE)
+    setOption("model.glmm", "UM.FS")
     setOption("print.CMH", FALSE)
     ##
     setOption("smbin", "RR")
@@ -230,18 +256,19 @@ settings.meta <- function(...){
     ##
     setOption("test.overall", FALSE)
     setOption("test.subgroup", FALSE)
+    setOption("digits.forest", 2)
   }
   else if (specific.settings){
     if (setting=="RevMan5")
-      specificSetting(args=c("RR.cochrane"),
-                      new=TRUE,
-                      ischar=FALSE,
+      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
+                      new=c(FALSE, "DL", TRUE),
+                      ischar=c(FALSE, TRUE, FALSE),
                       title="Use RevMan 5 settings")
     ##
     else if (setting=="IQWiG")
-      specificSetting(args=c("hakn", "method.tau"),
-                      new=c(TRUE, "PM"),
-                      ischar=c(FALSE, TRUE),
+      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
+                      new=c(TRUE, "PM", FALSE),
+                      ischar=c(FALSE, TRUE, FALSE),
                       title="Use IQWiG settings")
     ##
     else if (setting=="meta4")
@@ -275,6 +302,17 @@ settings.meta <- function(...){
     idkeepdata <- argid(names, "keepdata")
     idwarn <- argid(names, "warn")
     idbacktransf <- argid(names, "backtransf")
+    iddigits <- argid(names, "digits")
+    iddigits.se <- argid(names, "digits.se")
+    iddigits.zval <- argid(names, "digits.zval")
+    iddigits.Q <- argid(names, "digits.Q") 
+    iddigits.tau2 <- argid(names, "digits.tau2")
+    iddigits.H <- argid(names, "digits.H") 
+    iddigits.I2 <- argid(names, "digits.I2")
+    iddigits.prop <- argid(names, "digits.prop")
+    iddigits.weight <- argid(names,"digits.weight")
+    iddigits.pval <- argid(names, "digits.pval")
+    iddigits.pval.Q <- argid(names, "digits.pval.Q")
     ##
     idsmbin <- argid(names, "smbin")
     idmethod <- argid(names, "method")
@@ -284,6 +322,7 @@ settings.meta <- function(...){
     idallstudies <- argid(names, "allstudies")
     idMH.exact <- argid(names, "MH.exact")
     idRR.cochrane <- argid(names, "RR.cochrane")
+    idmodel.glmm <- argid(names, "model.glmm")
     idprint.CMH <- argid(names, "print.CMH")
     ##
     idsmcont <- argid(names, "smcont")
@@ -305,6 +344,7 @@ settings.meta <- function(...){
     ##
     idtest.overall <- argid(names, "test.overall")
     idtest.subgroup <- argid(names, "test.subgroup")
+    iddigits.forest <- argid(names, "digits.forest")
     ##
     ## General settings
     ##
@@ -336,8 +376,11 @@ settings.meta <- function(...){
     if (!is.na(idmethod.tau)){
       method.tau <- args[[idmethod.tau]]
       method.tau <- setchar(method.tau,
-                           c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
-      setOption("method.tau", method.tau)
+                            c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+      if (method.tau %in% c("REML", "ML", "HS", "SJ", "HE", "EB") &
+          is.installed.package("metafor", chksettings = TRUE,
+                               argument = "method.tau", value = method.tau))
+        setOption("method.tau", method.tau)
     }
     if (!is.na(idtau.common)){
       tau.common <- args[[idtau.common]]
@@ -394,6 +437,61 @@ settings.meta <- function(...){
       chklogical(backtransf)
       setOption("backtransf", backtransf)
     }
+    if (!is.na(iddigits)){
+      digits <- args[[iddigits]]
+      chknumeric(digits, min = 0, single = TRUE)
+      setOption("digits", digits)
+    }
+    if (!is.na(iddigits.se)){
+      digits.se <- args[[iddigits.se]]
+      chknumeric(digits.se, min = 0, single = TRUE)
+      setOption("digits.se", digits.se)
+    }
+    if (!is.na(iddigits.zval)){
+      digits.zval <- args[[iddigits.zval]]
+      chknumeric(digits.zval, min = 0, single = TRUE)
+      setOption("digits.zval", digits.zval)
+    }
+    if (!is.na(iddigits.Q)){
+      digits.Q <- args[[iddigits.Q]]
+      chknumeric(digits.Q, min = 0, single = TRUE)
+      setOption("digits.Q", digits.Q)
+    }
+    if (!is.na(iddigits.tau2)){
+      digits.tau2 <- args[[iddigits.tau2]]
+      chknumeric(digits.tau2, min = 0, single = TRUE)
+      setOption("digits.tau2", digits.tau2)
+    }
+    if (!is.na(iddigits.H)){
+      digits.H <- args[[iddigits.H]]
+      chknumeric(digits.H, min = 0, single = TRUE)
+      setOption("digits.H", digits.H)
+    }
+    if (!is.na(iddigits.I2)){
+      digits.I2 <- args[[iddigits.I2]]
+      chknumeric(digits.I2, min = 0, single = TRUE)
+      setOption("digits.I2", digits.I2)
+    }
+    if (!is.na(iddigits.prop)){
+      digits.prop <- args[[iddigits.prop]]
+      chknumeric(digits.prop, min = 0, single = TRUE)
+      setOption("digits.prop", digits.prop)
+    }
+    if (!is.na(iddigits.weight)){
+      digits.weight <- args[[iddigits.weight]]
+      chknumeric(digits.weight, min = 0, single = TRUE)
+      setOption("digits.weight", digits.weight)
+    }
+    if (!is.na(iddigits.pval)){
+      digits.pval <- args[[iddigits.pval]]
+      chknumeric(digits.pval, min = 0, single = TRUE)
+      setOption("digits.pval", digits.pval)
+    }
+    if (!is.na(iddigits.pval.Q)){
+      digits.pval.Q <- args[[iddigits.pval.Q]]
+      chknumeric(digits.pval.Q, min = 0, single = TRUE)
+      setOption("digits.pval.Q", digits.pval.Q)
+    }
     ##
     ## R function metabin
     ##
@@ -438,6 +536,11 @@ settings.meta <- function(...){
       RR.cochrane <- args[[idRR.cochrane]]
       chklogical(RR.cochrane)
       setOption("RR.cochrane", RR.cochrane)
+    }
+    if (!is.na(idmodel.glmm)){
+      model.glmm <- args[[idmodel.glmm]]
+      model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+      setOption("model.glmm", model.glmm)
     }
     if (!is.na(idprint.CMH)){
       print.CMH <- args[[idprint.CMH]]
@@ -549,6 +652,11 @@ settings.meta <- function(...){
       test.subgroup <- args[[idtest.subgroup]]
       chklogical(test.subgroup)
       setOption("test.subgroup", test.subgroup)
+    }
+    if (!is.na(iddigits.forest)){
+      digits.forest <- args[[iddigits.forest]]
+      chknumeric(digits.forest, min = 0, single = TRUE)
+      setOption("digits.forest", digits.forest)
     }
   }
   

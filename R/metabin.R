@@ -4,19 +4,23 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
                     method=ifelse(tau.common, "Inverse", .settings$method),
                     sm=
-                    ifelse(!is.na(charmatch(method, c("Peto", "peto"),
+                    ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"),
                                             nomatch = NA)),
                            "OR", .settings$smbin),
                     incr=.settings$incr, allincr=.settings$allincr,
                     addincr=.settings$addincr, allstudies=.settings$allstudies,
                     MH.exact=.settings$MH.exact, RR.cochrane=.settings$RR.cochrane,
+                    model.glmm = "UM.FS",
                     ##
                     level=.settings$level, level.comb=.settings$level.comb,
                     comb.fixed=.settings$comb.fixed,
                     comb.random=.settings$comb.random,
                     ##
                     hakn=.settings$hakn,
-                    method.tau=.settings$method.tau,
+                    method.tau =
+                      ifelse(!is.na(charmatch(tolower(method), "glmm",
+                                              nomatch = NA)),
+                             "ML", .settings$method.tau),
                     tau.preset=NULL, TE.tau=NULL,
                     tau.common=.settings$tau.common,
                     ##
@@ -36,7 +40,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     print.CMH=.settings$print.CMH,
                     ##
                     keepdata=.settings$keepdata,
-                    warn=.settings$warn
+                    warn=.settings$warn,
+                    ...
                     ){
   
   
@@ -67,13 +72,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Additional arguments / checks for metabin objects
   ##
   fun <- "metabin"
+  ##
   sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
-  method <- setchar(method, c("Inverse", "MH", "Peto"))
+  ##
+  method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+  if (method == "GLMM") {
+    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("metafor", fun, "method", " = \"GLMM\"")
+  }
+  ##
   chklogical(allincr)
   chklogical(addincr)
   chklogical(allstudies)
   chklogical(MH.exact)
   chklogical(RR.cochrane)
+  ##
+  model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+  if (method == "GLMM" & model.glmm == "CM.EL")
+    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
+  ##
   chklogical(print.CMH)
   chklogical(warn)
   chkmetafor(method.tau, fun)
@@ -85,14 +102,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     incr <- setchar(incr, "TACC",
                     "should be numeric or the character string \"TACC\"")
   ##
-  if (method=="MH" & tau.common==TRUE){
-    warning(paste("Inverse variance method used (method=\"Inverse\") as argument 'tau.common' is TRUE."),
-            call.=FALSE)
-    method <- "Inverse"
-  }
-  ##
   if (method == "Peto" & sm != "OR")
-    stop("Peto's method only possible with \"sm=OR\"")
+    stop("Peto's method only possible with argument 'sm = \"OR\"'")
+  ##
+  if (method == "GLMM" & sm != "OR")
+    stop("Generalised linear mixed models only possible with argument 'sm = \"OR\"'.")
+  ##
+  if (method == "GLMM" & method.tau != "ML")
+    stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
   
   
   ##
@@ -133,6 +150,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   missing.byvar <- is.null(byvar)
+  if (method == "GLMM" & !missing.byvar) {
+    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
+    byvar <- NULL
+    missing.byvar <- is.null(byvar)
+  }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -154,51 +176,31 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Additional checks
   ##
-  if (method %in% c("MH", "Peto")){
-    ##
-    mtl <- if (method=="MH") "Mantel-Haenszel method" else "Peto method"
-    ##
-    if (method.tau!="DL"){
+  if (method == "GLMM") {
+    if (tau.common) {
       if (warn)
-        warning("DerSimonian-Laird method used to estimate between-study variance for ",
-                mtl, ".")
-      method.tau <- "DL"
-    }
-    ##
-    if (hakn){
-      if (warn)
-        warning("Hartung-Knapp method not available for ", mtl, ".")
-      hakn <- FALSE
-    }
-    ##
-    if (!missing.byvar & tau.common){
-      if (warn)
-        warning("Argument 'tau.common' not considered for ", mtl, ".")
+        warning("Argument 'tau.common' not considered for GLMM.")
       tau.common <- FALSE
     }
-    ##
-    if (!is.null(TE.tau)){
+    if (!is.null(TE.tau)) {
       if (warn)
-        warning("Argument 'TE.tau' not considered for ", mtl, ".")
+        warning("Argument 'TE.tau' not considered for GLMM.")
       TE.tau <- NULL
     }
     ##
-    if (!is.null(tau.preset)){
+    if (!is.null(tau.preset)) {
       if (warn)
-        warning("Argument 'tau.preset' not considered for ", mtl, ".")
+        warning("Argument 'tau.preset' not considered for GLMM.")
       tau.preset <- NULL
     }
   }
-  ##
   if (missing.byvar & tau.common){
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!(method %in% c("MH", "Cochran"))){
-    if (!missing.byvar & !tau.common & !is.null(tau.preset)){
-      warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
-      tau.common <- TRUE
-    }
+  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
+    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    tau.common <- TRUE
   }
   
   
@@ -280,11 +282,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     comb.random <- FALSE
     prediction  <- FALSE
     ##
-    if (method == "MH"){
-      if (warn)
-        warning("For a single study, inverse variance method used instead of Mantel-Haenszel method.")
+    if (method == "MH")
       method <- "Inverse"
-    }
   }
   ##
   ## Check variable values
@@ -360,10 +359,36 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   sparse <- any(sel, na.rm=TRUE)
   ##
+  ## Check for studies with zero cell frequencies in both groups
+  ##
+  doublezeros <- FALSE
+  if (sparse & sm %in% c("RR", "OR") & !(method %in% c("Peto", "GLMM"))) {
+    sel.doublezeros <- switch(sm,
+                              OR = (event.e == 0   & event.c ==   0) |
+                                   (event.c == n.c & event.e == n.e),
+                              RR = (event.c==0 & event.e==0))
+    if (any(sel.doublezeros))
+      doublezeros <- TRUE
+  }
+  ##
   ## No need to add anything to cell counts for
-  ##  (i)  arcsine difference
-  ##  (ii) Peto method
-  ## as summary measure.
+  ##  (i)  arcsine difference as summary measure
+  ##  (ii) Peto method or GLMM
+  ##
+  if ( sm == "ASD" | method %in% c("Peto", "GLMM")) {
+    if ((!missing(incr) & incr != 0) &
+        ((!missing(allincr) & allincr ) |
+         (!missing(addincr) & addincr) |
+         (!missing(allstudies) & allstudies)
+         )
+        )
+      if (sm == "ASD")
+        warning("No continuity correction considered for arcsine difference (sm = \"ASD\").")
+      else if (method %in% c("Peto", "GLMM"))
+        warning("No continuity correction considered for method = \"", method, "\".")
+  }
+  ##
+  ## Define continuity correction
   ##
   if (addincr){
     ##
@@ -441,8 +466,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Estimation of treatment effects in individual studies
   ##
-  if (sm == "OR"){
-    if (method == "MH" || method == "Inverse"){
+  if (sm == "OR") {
+    if (method %in% c("MH", "Inverse", "GLMM")) {
       ## 
       ## Cooper & Hedges (1994), p. 251-2
       ## 
@@ -451,7 +476,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       seTE <- sqrt((1/(n11+incr.e) + 1/(n12+incr.e) +
                     1/(n21+incr.c) + 1/(n22+incr.c)))
     }
-    else if (method == "Peto"){
+    else if (method == "Peto") {
       ## 
       ## Cooper & Hedges (1994), p. 252
       ## 
@@ -582,6 +607,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     w.fixed[is.na(w.fixed)] <- 0
   }
+  else if (method == "GLMM") {
+    glmm.fixed <- metafor::rma.glmm(ai = event.e, n1i = n.e,
+                                    ci = event.c, n2i = n.c,
+                                    method = "FE",
+                                    tdist = hakn, level = 100 * level.comb,
+                                    measure = "OR", model = model.glmm,
+                                    ...)
+    ##
+    TE.fixed   <- as.numeric(glmm.fixed$b)
+    seTE.fixed <- as.numeric(glmm.fixed$se)
+    ##
+    w.fixed <- rep(NA, length(event.e))
+  }
   ##
   m <- metagen(TE, seTE, studlab,
                ##
@@ -629,6 +667,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               incr=incr, sparse=sparse,
               allincr=allincr, addincr=addincr,
               allstudies=allstudies,
+              doublezeros = doublezeros,
               MH.exact=MH.exact, RR.cochrane=RR.cochrane,
               Q.CMH=Q.CMH, print.CMH=print.CMH,
               incr.e=incr.e, incr.c=incr.c)
@@ -647,7 +686,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$TE.tau <- TE.tau
   res$call <- match.call()
   ##
-  if (method %in% c("MH", "Peto")){
+  if (method %in% c("MH", "Peto", "GLMM")) {
     ##
     ci.f <- ci(TE.fixed, seTE.fixed, level=level.comb)
     ##
@@ -658,6 +697,50 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$upper.fixed <- ci.f$upper
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
+  }
+  ##
+  if (method == "GLMM") {
+    ##
+    glmm.random <- metafor::rma.glmm(ai = event.e, n1i = n.e,
+                                     ci = event.c, n2i = n.c,
+                                     method = method.tau,
+                                     tdist = hakn, level = 100 * level.comb,
+                                     measure = "OR", model = model.glmm,
+                                     ...)
+    ##
+    TE.random   <- as.numeric(glmm.random$b)
+    seTE.random <- as.numeric(glmm.random$se)
+    ##
+    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ##
+    res$w.random <- rep(NA, length(event.e))
+    ##
+    res$TE.random <- TE.random
+    res$seTE.random <- seTE.random
+    res$lower.random <- ci.r$lower
+    res$upper.random <- ci.r$upper
+    res$zval.random <- ci.r$z
+    res$pval.random <- ci.r$p
+    ##
+    res$model.glmm <- model.glmm
+    ##
+    res$Q <- glmm.random$QE.Wld
+    res$df.Q <- glmm.random$QE.df
+    res$Q.LRT <- glmm.random$QE.LRT
+    ##
+    res$tau <- sqrt(glmm.random$tau2)
+    ##
+    res$H <- sqrt(glmm.random$H2)
+    res$lower.H <- NA
+    res$upper.H <- NA
+    ##
+    res$I2 <- glmm.random$I2 / 100
+    res$lower.I2 <- NA
+    res$upper.I2 <- NA
+    ##
+    res$.glmm.fixed  <- glmm.fixed
+    res$.glmm.random <- glmm.random
+    res$version.metafor <- packageDescription("metafor")$Version
   }
   ##
   if (keepdata){

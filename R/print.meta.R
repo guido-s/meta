@@ -5,7 +5,15 @@ print.meta <- function(x,
                        prediction=x$prediction,
                        details=FALSE, ma=TRUE,
                        backtransf=x$backtransf,
-                       digits=max(4, .Options$digits - 3),
+                       digits = .settings$digits,
+                       digits.se = .settings$digits.se,
+                       digits.zval = .settings$digits.zval,
+                       digits.Q = .settings$digits.Q,
+                       digits.tau2 = .settings$digits.tau2,
+                       digits.H = .settings$digits.H,
+                       digits.I2 = .settings$digits.I2,
+                       digits.prop = .settings$digits.prop,
+                       digits.weight = .settings$digits.weight,
                        ...
                        ){
   
@@ -50,7 +58,14 @@ print.meta <- function(x,
   chklogical(details)
   chklogical(ma)
   chklogical(backtransf)
-  chknumeric(digits)
+  chknumeric(digits, min = 0, single = TRUE)
+  chknumeric(digits.se, min = 0, single = TRUE)
+  chknumeric(digits.tau2, min = 0, single = TRUE)
+  chknumeric(digits.zval, min = 0, single = TRUE)
+  chknumeric(digits.Q, min = 0, single = TRUE)
+  chknumeric(digits.H, min = 0, single = TRUE)
+  chknumeric(digits.I2, min = 0, single = TRUE)
+  chknumeric(digits.prop, min = 0, single = TRUE)
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -67,13 +82,6 @@ print.meta <- function(x,
   level <- x$level
   level.comb <- x$level.comb
   level.predict <- x$level.predict
-  ##  
-  format.TE <- function(TE, na=FALSE){
-    TE <- rmSpace(TE)
-    if (na) res <- format(TE)
-    else res <- ifelse(is.na(TE), "", format(TE))
-    res
-  }
   
   
   ##
@@ -109,34 +117,41 @@ print.meta <- function(x,
   ##
   crtitle(x)
   ##  
-  if (details){
-    if (inherits(x, "metabin")){
-      res <- data.frame(event.e=x$event.e, n.e=x$n.e,
-                        event.c=x$event.c, n.c=x$n.c,
-                        p.e=round(x$event.e/x$n.e, digits),
-                        p.c=round(x$event.c/x$n.c, digits))
+  if (details) {
+    if (inherits(x, "metabin")) {
+      res <- data.frame(event.e = x$event.e, n.e = x$n.e,
+                        event.c = x$event.c, n.c = x$n.c,
+                        p.e = format.NA(round(x$event.e / x$n.e, digits.prop)),
+                        p.c = format.NA(round(x$event.c / x$n.c, digits.prop)))
     }
     else if (inherits(x, "metacont")){
-      res <- data.frame(n.e=x$n.e, mean.e=x$mean.e, sd.e=x$sd.e,
-                        n.c=x$n.c, mean.c=x$mean.c, sd.c=x$sd.c)
+      res <- data.frame(n.e = x$n.e,
+                        mean.e = format.NA(round(x$mean.e, digits), digits, "NA"),
+                        sd.e = format.NA(round(x$sd.e, digits.se), digits.se, "NA"),
+                        n.c = x$n.c,
+                        mean.c = format.NA(round(x$mean.c, digits), digits, "NA"),
+                        sd.c = format.NA(round(x$sd.c, digits.se), digits.se, "NA"))
     }
     else if (inherits(x, "metacor")){
       res <- data.frame(cor=x$cor, n=x$n)
     }
     else if (inherits(x, "metagen")){
-      res <- data.frame(TE=round(x$TE, digits),
-                        seTE=round(x$seTE, digits))
+      res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
+                        seTE = format.NA(round(x$seTE, digits.se), digits.se, "NA"))
     }
     else if (inherits(x, "metainc")){
-      res <- data.frame(event.e=x$event.e, time.e=x$time.e,
-                        event.c=x$event.c, time.c=x$time.c)
+      res <- data.frame(event.e = x$event.e,
+                        time.e = format.NA(round(x$time.e, digits), digits, "NA"),
+                        event.c = x$event.c,
+                        time.c = format.NA(round(x$time.c, digits), digits, "NA"))
     }
     else if (inherits(x, "metaprop")){
       res <- data.frame(event=x$event, n=x$n,
-                        p=round(x$event/x$n, digits))
+                        p = format.NA(round(x$event / x$n, digits.prop), digits.prop, "NA"))
     }
     else{
-      res <- data.frame(TE=x$TE, seTE=x$seTE)
+      res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
+                        seTE = format.NA(round(x$seTE, digits), digits, "NA"))
     }
     dimnames(res)[[1]] <- x$studlab
     prmatrix(res[order(sortvar),])
@@ -158,13 +173,15 @@ print.meta <- function(x,
                             studlab=x$studlab,
                             incr=x$incr,
                             allincr=x$allincr,
-                            allstudies=x$allstudies,
+                            doublezeros=x$doublezeros,
                             MH.exact=x$MH.exact,
                             warn=FALSE, level.comb=level.comb)),
-            digits=digits, header=FALSE, backtransf=backtransf)
+            digits=digits, header=FALSE, backtransf=backtransf,
+            digits.zval = digits.zval)
     else
       print(summary(x),
-            digits=digits, header=FALSE, backtransf=backtransf)
+            digits=digits, header=FALSE, backtransf=backtransf,
+            digits.zval = digits.zval, ...)
   }
   else{
     TE <- x$TE
@@ -200,34 +217,36 @@ print.meta <- function(x,
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
     ##    
-    if (comb.fixed)
-      if (sum(x$w.fixed)>0)
-        w.fixed.p <- 100*round(x$w.fixed/sum(x$w.fixed, na.rm=TRUE), 4)
-      else w.fixed.p <- x$w.fixed
-    ##    
-    if (comb.random)
-      if (sum(x$w.random)>0)
-        w.random.p <- 100*round(x$w.random/sum(x$w.random, na.rm=TRUE), 4)
-      else w.random.p <- x$w.random
+    if (!metainf.metacum) {
+      if (comb.fixed)
+        if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
+          w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE), digits.weight)
+        else w.fixed.p <- x$w.fixed
+      ##
+      if (comb.random)
+        if (!is.null(x$w.random) & !all(is.na(x$w.random)) && sum(x$w.random) > 0)
+          w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE), digits.weight)
+        else w.random.p <- x$w.random
+    }
     ##    
     if (metainf.metacum){
       is.random <- x$pooled=="random"
       ##
-      sel1 <- is.na(x$I2)
-      I2 <- 100*x$I2
-      I2 <- ifelse(sel1, "", format(round(I2, 1)))
+      I2 <- format.NA(round(100 * x$I2, digits.I2), digits.I2, "")
       ##
-      sel2 <- is.na(x$p.value)
+      sel <- is.na(x$p.value)
       p.value <- format.p(x$p.value)
-      p.value <- ifelse(sel2, "", p.value)
+      p.value <- ifelse(sel, "", p.value)
       ##
-      sel3 <- is.na(x$tau)
       tau2 <- x$tau^2
-      tau2 <- ifelse(sel3, "", round(tau2, digits))
+      tau2 <- format.NA(round(tau2, digits.tau2), digits.tau2, "")
       ##
-      res <- cbind(format.TE(TE), p.ci(format(lowTE), format(uppTE)),
-                   p.value, paste("  ", format(tau2), sep=""),
-                   paste("  ", I2, ifelse(sel1, "", "%"), sep=""))
+      res <- cbind(format.NA(round(TE, digits), digits, ""),
+                   p.ci(format.NA(round(lowTE, digits), digits, "NA"),
+                        format.NA(round(uppTE, digits), digits, "NA")),
+                   p.value,
+                   paste("  ", tau2, sep = ""),
+                   paste("  ", I2, ifelse(I2 == "", "", "%"), sep=""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep=""),
                             c(sm.lab, ci.lab, "p-value", "tau^2", "I^2"))
       ##
@@ -256,13 +275,15 @@ print.meta <- function(x,
               tau.preset=x$tau.preset,
               method.smd=x$method.smd,
               sd.glass=x$sd.glass,
-              exact.smd=x$exact.smd)
+              exact.smd=x$exact.smd,
+              model.glmm = x$model.glmm)
     }
     else{
-      res <- cbind(format.TE(TE, na=TRUE),
-                   p.ci(format(lowTE), format(uppTE)),
-                   if (comb.fixed) format(w.fixed.p),
-                   if (comb.random) format(w.random.p))
+      res <- cbind(format.NA(round(TE, digits), digits, "NA"),
+                   p.ci(format.NA(round(lowTE, digits), digits, "NA"),
+                        format.NA(round(uppTE, digits), digits, "NA")),
+                   if (comb.fixed) format.NA(w.fixed.p, digits.weight),
+                   if (comb.random) format.NA(w.random.p, digits.weight))
       ## Printout for a single proportion:
       if (k.all == 1){
         ##
@@ -310,7 +331,12 @@ print.meta <- function(x,
       print(summary(x, warn=FALSE), digits=digits,
             comb.fixed=comb.fixed, comb.random=comb.random,
             prediction=prediction,
-            header=FALSE, backtransf=backtransf)
+            header=FALSE, backtransf=backtransf,
+            digits.tau2 = digits.tau2,
+            digits.zval = digits.zval,
+            digits.Q = digits.Q,
+            digits.H = digits.H,
+            digits.I2 = digits.I2)
     }
   }
   

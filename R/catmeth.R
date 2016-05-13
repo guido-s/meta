@@ -10,13 +10,17 @@ catmeth <- function(method, method.tau=NULL,
                     incr=NULL,
                     allincr=FALSE,
                     addincr=FALSE,
+                    doublezeros = FALSE,
                     MH.exact=FALSE,
                     method.ci=NULL,
                     metacont=FALSE,
                     pooledvar=FALSE,
                     method.smd,
                     sd.glass,
-                    exact.smd=FALSE){
+                    exact.smd=FALSE,
+                    model.glmm){
+  
+  if (is.null(doublezeros)) doublezeros <- FALSE
   
   if  (sm=="PFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
@@ -112,6 +116,10 @@ catmeth <- function(method, method.tau=NULL,
                                 " in all studies", sep="")
           else
             sm.details <- ""
+        ##
+        if (doublezeros)
+          sm.details <- paste(sm.details,
+                              "\n- Studies with double zeros included in meta-analysis")
       }
     }
   }
@@ -145,12 +153,12 @@ catmeth <- function(method, method.tau=NULL,
       ##
       lab.method.tau <- c("\n- DerSimonian-Laird estimator for tau^2",
                           "\n- Paule-Mandel estimator for tau^2",
-                          "\n- restricted maximum-likelihood estimator for tau^2",
-                          "\n- maximum-likelihood estimator for tau^2",
+                          "\n- Restricted maximum-likelihood estimator for tau^2",
+                          "\n- Maximum-likelihood estimator for tau^2",
                           "\n- Hunter-Schmidt estimator for tau^2",
                           "\n- Sidik-Jonkman estimator for tau^2",
                           "\n- Hedges estimator for tau^2",
-                          "\n- empirical Bayes estimator for tau^2")[i.lab.method.tau]
+                          "\n- Empirical Bayes estimator for tau^2")[i.lab.method.tau]
       ##
       if (tau.common)
         lab.method.tau <- paste(lab.method.tau, " (assuming common tau^2 in subgroups)", sep="")
@@ -165,7 +173,7 @@ catmeth <- function(method, method.tau=NULL,
   }
   ##
   imeth <- charmatch(method,
-                     c("MH", "Peto", "Inverse", "Cochran"),
+                     c("MH", "Peto", "Inverse", "Cochran", "GLMM"),
                      nomatch = NA)
   ##
   if ((metabin|metainc) & imeth==1 & (sparse | addincr))
@@ -180,7 +188,27 @@ catmeth <- function(method, method.tau=NULL,
   method <- c("\n- Mantel-Haenszel method",
               "\n- Peto method",
               "\n- Inverse variance method",
-              "\n- Cochran method")[imeth]
+              "\n- Cochran method",
+              "GLMM")[imeth]
+  ##
+  if (method == "GLMM") {
+    
+    i.model.glmm <- charmatch(model.glmm,
+                              c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+    ##
+    if (metabin)
+      method <- c("\n- Logistic regression model (fixed study effects)",
+                  "\n- Mixed-effects logistic regression model (random study effects)",
+                  "\n- Generalised linear mixed model (conditional Hypergeometric-Normal)",
+                  "\n- Generalised linear mixed model (conditional Binomial-Normal)")[i.model.glmm]
+    else if (metainc)
+      method <- c("\n- Poisson regression model (fixed study effects)",
+                  "\n- Mixed-effects Poisson regression model (random study effects)",
+                  "\n- Generalised linear mixed model (conditional Poisson-Normal)")[i.model.glmm]
+    else if (metaprop)
+      method <- "\n- Random intercept logistic regression model"
+  }
+  ##
   method <- paste(method, lab.method.details, sep="")
   ##
   if (k.all > 1){

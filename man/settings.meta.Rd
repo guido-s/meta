@@ -37,16 +37,16 @@ settings.meta(print=TRUE)
 #
 # Meta-analyses using default settings of R pacakge meta
 #
-metabin(10, 20, 15, 20, warn=FALSE)
+metabin(10, 20, 15, 20)
 metaprop(4, 20)
-metabin(10, 20, 15, 20, sm="RD", warn=FALSE)
+metabin(10, 20, 15, 20, sm="RD")
 metaprop(4, 20, sm="PLN")
 #
 # Change default summary measure for R functions metabin and metaprop
 #
 oldset <- settings.meta(smbin="RD", smprop="PLN")
 #
-metabin(10, 20, 15, 20, warn=FALSE)
+metabin(10, 20, 15, 20)
 metaprop(4, 20)
 #
 # Reset settings
@@ -75,7 +75,7 @@ settings.meta(unknownarg=TRUE)
 # Reset to default settings of R package meta
 #
 settings.meta(reset=TRUE)
-metabin(10, 20, 15, 20, warn=FALSE)
+metabin(10, 20, 15, 20)
 metaprop(4, 20)
 metagen(1:3, (2:4)/10, sm="MD")
 
@@ -85,7 +85,7 @@ metagen(1:3, (2:4)/10, sm="MD")
 # correlations/proportions)
 #
 oldset <- settings.meta(backtransf=FALSE)
-metabin(10, 20, 15, 20, warn=FALSE)
+metabin(10, 20, 15, 20)
 metaprop(4, 20)
 metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 settings.meta(oldset)

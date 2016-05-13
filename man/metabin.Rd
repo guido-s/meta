@@ -5,10 +5,13 @@
 \title{Meta-analysis of binary outcome data}
 
 \description{
-  Calculation of fixed and random effects estimates (risk ratio, odds
-  ratio, risk difference or arcsine difference) for meta-analyses with
-  binary outcome data. Mantel-Haenszel, inverse variance and Peto
-  method are available for pooling.
+  Calculation of fixed effect and random effects estimates (risk
+  ratio, odds ratio, risk difference, or arcsine difference) for
+  meta-analyses with binary outcome data. Mantel-Haenszel, inverse
+  variance, Peto method, and generalised linear mixed model (GLMM) are
+  available for pooling. For GLMMs, the
+  \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} (Viechtbauer 2010) is called internally.
 }
 
 \usage{
@@ -16,16 +19,20 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         data=NULL, subset=NULL,
         method=ifelse(tau.common, "Inverse", .settings$method),
         sm=
-        ifelse(!is.na(charmatch(method, c("Peto", "peto"),
+        ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"),
                                 nomatch = NA)),
-               "OR", .settings$smbin),
+                      "OR", .settings$smbin),
         incr=.settings$incr, allincr=.settings$allincr,
         addincr=.settings$addincr, allstudies=.settings$allstudies,
         MH.exact=.settings$MH.exact, RR.cochrane=.settings$RR.cochrane,
+        model.glmm = "UM.FS",
         level=.settings$level, level.comb=.settings$level.comb,
         comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
         hakn=.settings$hakn,
-        method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+        method.tau=
+        ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)),
+               "ML", .settings$method.tau),
+        tau.preset=NULL, TE.tau=NULL,
         tau.common=.settings$tau.common,
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=ifelse(sm=="OR", "score", .settings$method.bias),
@@ -36,7 +43,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         byvar, bylab, print.byvar=.settings$print.byvar,
         print.CMH=.settings$print.CMH,
         keepdata=.settings$keepdata,
-        warn=.settings$warn)
+        warn=.settings$warn,
+        ...)
 }
 
 \arguments{
@@ -48,9 +56,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event.e, n.e, event.c, and n.c.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
-  \item{method}{A character string indicating which method is to be used
-    for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
-    \code{"Peto"}, can be abbreviated.}
+  \item{method}{A character string indicating which method is to be
+    used for pooling of studies. One of \code{"Inverse"}, \code{"MH"},
+    \code{"Peto"}, or \code{"GLMM"}, can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
     (\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"ASD"}) is to be used
     for pooling of studies, see Details.}
@@ -76,6 +84,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     with a zero cell. This is used in RevMan 5, the
     Cochrane Collaboration's program for preparing and maintaining
     Cochrane reviews.}
+  \item{model.glmm}{A character string indicating which GLMM should be
+    used. One of \code{"UM.FS"}, \code{"UM.RS"}, \code{"CM.EL"}, and
+    \code{"CM.AL"}, see Details.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
@@ -129,6 +140,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}
+  \item{\dots}{Additional arguments passed on to
+    \code{\link[metafor]{rma.glmm}} function.}
 }
 
 \details{
@@ -140,25 +153,18 @@ metabin(event.e, n.e, event.c, n.c, studlab,
    \item Risk difference (\code{sm="RD"})
    \item Arcsine difference (\code{sm="ASD"})
   }
-
-  For studies with a zero cell count, by default, 0.5 is added to all
-  cell frequencies of these studies; if \code{incr} is \code{"TACC"} a
-  treatment arm continuity correction is used instead (Sweeting et
-  al., 2004; Diamond et al., 2007). Treatment estimates and standard
-  errors are only calculated for studies with zero or all events in
-  both groups if \code{allstudies} is \code{TRUE}.
   
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
   \code{\link{settings.meta}} function.
   
   Internally, both fixed effect and random effects models are
-  calculated regardless of values choosen for arguments
+  calculated regardless of values chosen for arguments
   \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
   for the random effects model can be extracted from component
   \code{TE.random} of an object of class \code{"meta"} even if
   argument \code{comb.random=FALSE}. However, all functions in R
-  package \code{meta} will adequately consider the values for
+  package \bold{meta} will adequately consider the values for
   \code{comb.fixed} and \code{comb.random}. E.g. function
   \code{\link{print.meta}} will not print results for the random
   effects model if \code{comb.random=FALSE}.
@@ -168,30 +174,80 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \code{comb.random}). If \code{method} is \code{"MH"} (default), the
   Mantel-Haenszel method is used to calculate the fixed effect
   estimate; if \code{method} is \code{"Inverse"}, inverse variance
-  weighting is used for pooling; finally, if \code{method} is
-  \code{"Peto"}, the Peto method is used for pooling. By default, the
+  weighting is used for pooling; if \code{method} is \code{"Peto"},
+  the Peto method is used for pooling. By default, the
   DerSimonian-Laird estimate (1986) is used in the random effects
   model (\code{method.tau="DL"}). For the Peto method, Peto's log odds
-  ratio, i.e. \code{(O-E)/V} and its standard error \code{sqrt(1/V)}
-  with \code{O-E} and \code{V} denoting "Observed minus Expected" and
-  "V", are utilised in the random effects model. Accordingly, results
-  of a random effects model using \code{sm="Peto"} can be (slightly)
-  different to results from a random effects model using
-  \code{sm="MH"} or \code{sm="Inverse"}.
+  ratio, i.e. \code{(O - E) / V} and its standard error \code{sqrt(1 / V)}
+  with \code{O - E} and \code{V} denoting "Observed minus
+  Expected" and "V", are utilised in the random effects
+  model. Accordingly, results of a random effects model using
+  \code{sm="Peto"} can be (slightly) different to results from a
+  random effects model using \code{sm="MH"} or \code{sm="Inverse"}.
   
-  For the Mantel-Haenszel method, by default (if \code{MH.exact} is
-  FALSE), 0.5 is added to all cell frequencies of a study with a zero cell
-  count in the calculation of the pooled risk ratio or odds ratio as
-  well as the estimation of the variance of the pooled risk difference,
-  risk ratio or odds ratio. This approach is also used in other
-  software, e.g. RevMan 5 and the Stata procedure metan. According to
-  Fleiss (in Cooper & Hedges, 1994), there is no need to add 0.5 to a
-  cell frequency of zero to calculate the Mantel-Haenszel estimate and
-  he advocates the exact method (\code{MH.exact}=TRUE). Note, the
-  estimate based on the exact method is not defined if the number of
-  events is zero in all studies either in the experimental or control
-  group.
+  A distinctive and frequently overlooked advantage of binary
+  endpoints is that individual patient data (IPD) can be extracted
+  from a two-by-two table. Accordingly, statistical methods for IPD,
+  i.e., logistic regression and generalised linear mixed models, can
+  be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
+  2010; Simmonds et al., 2014). These methods are available (argument
+  \code{method = "GLMM"}) for the odds ratio as summary measure by
+  calling the \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} internally. Four different GLMMs are available for
+  meta-analysis with binary outcomes using argument \code{model.glmm}
+  (which corresponds to argument \code{model} in the
+  \code{\link[metafor]{rma.glmm}} function): 
+  \itemize{
+    \item Logistic regression model with fixed study effects (default)
+    \item[] (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
+      \bold{M}odel - \bold{F}ixed \bold{S}tudy effects)
+    \item Mixed-effects logistic regression model with random study
+      effects
+    \item[] (\code{model.glmm = "UM.RS"}, i.e., \bold{U}nconditional
+      \bold{M}odel - \bold{R}andom \bold{S}tudy effects)
+    \item Generalised linear mixed model (conditional Hypergeometric-Normal)
+    \item[] (\code{model.glmm = "CM.EL"}, i.e., \bold{C}onditional
+      \bold{M}odel - \bold{E}xact \bold{L}ikelihood)
+    \item Generalised linear mixed model (conditional Binomial-Normal)
+    \item[] (\code{model.glmm = "CM.AL"}, i.e., \bold{C}onditional
+      \bold{M}odel - \bold{A}pproximate \bold{L}ikelihood)
+  }
+  Details on these four GLMMs as well as additional arguments which
+  can be provided using argument '\code{\dots}' in \code{metabin} are
+  described in \code{\link[metafor]{rma.glmm}} where you can also find
+  information on the iterative algorithms used for estimation.  Note,
+  regardless of which value is used for argument \code{model.glmm},
+  results for two different GLMMs are calculated: fixed effect model
+  (with fixed treatment effect) and random effects model (with random
+  treatment effects).
+    
+  For studies with a zero cell count, by default, 0.5 is added to all
+  cell frequencies of these studies; if \code{incr} is \code{"TACC"} a
+  treatment arm continuity correction is used instead (Sweeting et
+  al., 2004; Diamond et al., 2007). For odds ratio and risk ratio,
+  treatment estimates and standard errors are only calculated for
+  studies with zero or all events in both groups if \code{allstudies}
+  is \code{TRUE}. This continuity correction is used both to calculate
+  individual study results with confidence limits and to conduct
+  meta-analysis based on the inverse variance method. For Peto method
+  and GLMMs no continuity correction is used. For the Mantel-Haenszel
+  method, by default (if \code{MH.exact} is FALSE), \code{incr} is
+  added to all cell frequencies of a study with a zero cell count in
+  the calculation of the pooled risk ratio or odds ratio as well as
+  the estimation of the variance of the pooled risk difference, risk
+  ratio or odds ratio. This approach is also used in other software,
+  e.g. RevMan 5 and the Stata procedure metan. According to Fleiss (in
+  Cooper & Hedges, 1994), there is no need to add 0.5 to a cell
+  frequency of zero to calculate the Mantel-Haenszel estimate and he
+  advocates the exact method (\code{MH.exact}=TRUE). Note, estimates
+  based on exact Mantel-Haenszel method or GLMM are not defined if the
+  number of events is zero in all studies either in the experimental
+  or control group.
 
+  Argument \code{byvar} can be used to conduct subgroup analysis for
+  all methods but GLMMs. Instead use the \code{\link{metareg}}
+  function for GLMMs which can also be used for continuous covariates.
+  
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
@@ -200,19 +256,21 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   meta-analysis of an existing metabin object by only specifying
   arguments which should be changed.
 
-  For the random effects, the method by Hartung and Knapp (2003) is
+  For the random effects, the method by Hartung and Knapp (2001) is
   used to adjust test statistics and confidence intervals if argument
-  \code{hakn=TRUE}.
+  \code{hakn=TRUE}. For GLMMs, a method similar to Knapp and Hartung
+  (2003) is implemented, see description of argument \code{tdist} in
+  \code{\link[metafor]{rma.glmm}}.
 
   The iterative Paule-Mandel method (1982) to estimate the
   between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
-  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+  \bold{metRology} from S.L.R. Ellison <s.ellison at lgc.co.uk>.
   
-  If R package metafor (Viechtbauer 2010) is installed, the following
-  methods to estimate the between-study variance \eqn{\tau^2}
-  (argument \code{method.tau}) are also available:
+  If R package \bold{metafor} (Viechtbauer 2010) is installed, the
+  following methods to estimate the between-study variance
+  \eqn{\tau^2} (argument \code{method.tau}) are also available:
   \itemize{
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
@@ -221,9 +279,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For these methods the R function \code{rma.uni} of R package metafor
-  is called internally. See help page of R function \code{rma.uni} for
-  more details on these methods to estimate between-study variance.
+  For these methods the R function \code{rma.uni} of R package
+  \bold{metafor} is called internally. See help page of R function
+  \code{rma.uni} for more details on these methods to estimate
+  between-study variance.
 }
 
 \value{
@@ -232,7 +291,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   list containing the following components:
   \item{event.e, n.e, event.c, n.c, studlab,}{}
   \item{sm, method, incr, allincr, addincr, }{}
-  \item{allstudies, MH.exact, RR.cochrane, warn,}{}
+  \item{allstudies, MH.exact, RR.cochrane, model.glmm, warn,}{}
   \item{level, level.comb, comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
@@ -264,6 +323,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
+  \item{Q.LRT}{Heterogeneity statistic for likelihood-ratio test (only
+    if \code{method = "GLMM"}).}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
@@ -273,6 +334,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     control group, respectively.}
   \item{sparse}{Logical flag indicating if any study included in
     meta-analysis has any zero cell frequencies.}
+  \item{doublezeros}{Logical flag indicating if any study has zero
+    cell frequencies in both treatment groups.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}
   \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
@@ -350,8 +413,13 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     \code{keepdata=TRUE}).}
   \item{subset}{Information on subset of original data used in
     meta-analysis (if \code{keepdata=TRUE}).}
+  \item{.glmm.fixed}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
+  \item{.glmm.random}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (random effects model).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
+  \item{version.metafor}{Version of R package metafor used for GLMMs.}
 }
 
 \references{
@@ -385,7 +453,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
   \bold{172}, 137--159.
-
+  
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
   Covariate.
@@ -405,13 +473,24 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   The bias and higher cumulants of the logarithm of a binomial
   variate. \emph{Biometrika}, \bold{73}, 425--435.
 
-  Ruecker G, Schwarzer G, Carpenter JR (2008)
+  Rücker G, Schwarzer G, Carpenter JR (2008),
   Arcsine test for publication bias in meta-analyses with binary
   outcomes. \emph{Statistics in Medicine}, \bold{27}, 746--763.
+  
+  Simmonds MC, Higgins JP (2014),
+  A general framework for the use of logistic regression models in
+  meta-analysis.
+  \emph{Statistical Methods in Medical Research}.
     
   StataCorp. 2011.
   \emph{Stata Statistical Software: Release 12}. College Station, TX:
   StataCorp LP.
+  
+  Stijnen T, Hamza TH, Ozdemir P (2010),
+  Random effects meta-analysis of event outcome in the framework of
+  the generalized linear mixed model with applications in sparse
+  data.
+  \emph{Statistics in Medicine}, \bold{29}, 3046--67.
   
   Sweeting MJ, Sutton AJ, Lambert PC (2004),
   What to add to nothing? Use and avoidance of continuity corrections
@@ -425,39 +504,136 @@ metabin(event.e, n.e, event.c, n.c, studlab,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{update.meta}}, \code{\link{funnel}}, \code{\link{metabias}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
+\seealso{\code{\link{update.meta}}, \code{\link{forest}}, \code{\link{funnel}}, \code{\link{metabias}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{metareg}}, \code{\link{print.meta}}}
 
 \examples{
-metabin(10, 20, 15, 20, sm="OR", warn=FALSE)
+#
+# Calculate odds ratio and confidence interval for a single study
+#
+metabin(10, 20, 15, 20, sm = "OR")
 
 #
-# Different results:
+# Different results (due to handling of studies with double zeros)
 #
-metabin(0, 10, 0, 10, sm="OR", warn=FALSE)
-metabin(0, 10, 0, 10, sm="OR", allstudies=TRUE, warn=FALSE)
+metabin(0, 10, 0, 10, sm = "OR")
+metabin(0, 10, 0, 10, sm = "OR", allstudies = TRUE)
 
 
+#
+# Use subset of Olkin (1995) to conduct meta-analysis based on inverse
+# variance method (with risk ratio as summary measure)
+#
 data(Olkin95)
-
 meta1 <- metabin(event.e, n.e, event.c, n.c,
-                 data=Olkin95, subset=c(41,47,51,59),
-                 sm="RR", method="I")
+                 data = Olkin95, subset = c(41, 47, 51, 59),
+                 method = "Inverse")
 summary(meta1)
 funnel(meta1)
 
+
+#
+# Use different subset of Olkin (1995)
+#
 meta2 <- metabin(event.e, n.e, event.c, n.c,
-                 data=Olkin95, subset=Olkin95$year<1970,
-                 sm="RR", method="I")
+                 data = Olkin95, subset = Olkin95$year < 1970,
+                 method = "Inverse", studlab = author)
 summary(meta2)
 forest(meta2)
-
-meta3 <- update(meta2, sm="OR")
+#
+# Meta-analysis with odds ratio as summary measure
+#
+meta3 <- metabin(event.e, n.e, event.c, n.c,
+                 data = Olkin95, subset = Olkin95$year < 1970,
+                 sm = "OR", method = "Inverse", studlab = author)
+# Same meta-analysis result using 'update.meta' function
+meta3 <- update(meta2, sm = "OR")
 summary(meta3)
-
-meta4 <- update(meta3, method="MH")
+#
+# Meta-analysis based on Mantel-Haenszel method
+# (with odds ratio as summary measure)
+#
+meta4 <- update(meta3, method = "MH")
 summary(meta4)
-
-meta5 <- update(meta3, method="Peto")
+#
+# Meta-analysis based on Peto method
+# (only available for odds ratio as summary measure)
+#
+meta5 <- update(meta3, method = "Peto")
 summary(meta5)
+
+
+#
+# Meta-analysis using generalised linear mixed models
+# (only if R packages 'metafor' and 'lme4' are available)
+#
+if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
+    require(lme4, quietly = TRUE)) {
+#
+# Logistic regression model with (k = 4) fixed study effects
+# (default: model.glmm = "UM.FS")
+#
+meta6 <- metabin(event.e, n.e, event.c, n.c,
+                 data = Olkin95, subset = Olkin95$year < 1970,
+                 method = "GLMM")
+# Same results:
+meta6 <- update(meta2, method = "GLMM")
+summary(meta6)
+#
+# Mixed-effects logistic regression model with random study effects
+# (warning message printed due to argument 'nAGQ')
+#
+meta7 <- update(meta6, model.glmm = "UM.RS")
+#
+# Use additional argument 'nAGQ' for internal call of 'rma.glmm' function
+#
+meta7 <- update(meta6, model.glmm = "UM.RS", nAGQ = 1)
+summary(meta7)
+#
+# Generalised linear mixed model (conditional Hypergeometric-Normal)
+# (R package 'BiasedUrn' must be available)
+#
+if (require(BiasedUrn, quietly = TRUE)) {
+ meta8 <- update(meta6, model.glmm = "CM.EL")
+ summary(meta8)
+}
+#
+# Generalised linear mixed model (conditional Binomial-Normal)
+#
+meta9 <- update(meta6, model.glmm = "CM.AL")
+summary(meta9)
+
+\dontrun{
+#
+# Logistic regression model with (k = 70) fixed study effects
+# (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
+#
+meta10 <- metabin(event.e, n.e, event.c, n.c,
+                  data = Olkin95, method = "GLMM")
+summary(meta10)
+#
+# Mixed-effects logistic regression model with random study effects
+# - about 50 seconds with Intel Core i7-3667U, 2.0GHz
+# - several warning messages, e.g. "failure to converge, ..."
+#
+summary(update(meta10, model.glmm = "UM.RS"))
+#
+# Conditional Hypergeometric-Normal GLMM
+# - long computation time (about 12 minutes with Intel Core i7-3667U, 2.0GHz)
+# - estimation problems for this very large dataset:
+#   * warning that Choleski factorization of Hessian failed
+#   * confidence interval for treatment effect smaller in random
+#     effects model compared to fixed effect model
+#
+if (require(BiasedUrn, quietly = TRUE)) {
+ system.time(meta11 <- update(meta10, model.glmm = "CM.EL"))
+ summary(meta11)
+}
+#
+# Generalised linear mixed model (conditional Binomial-Normal)
+# (less than 1 second with Intel Core i7-3667U, 2.0GHz)
+#
+summary(update(meta10, model.glmm = "CM.AL"))
+}
+}
 }
 \keyword{htest}

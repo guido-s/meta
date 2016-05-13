@@ -16,6 +16,7 @@
        incr=object$incr, allincr=object$allincr,
        addincr=object$addincr, allstudies=object$allstudies,
        MH.exact=object$MH.exact, RR.cochrane=object$RR.cochrane,
+       model.glmm = object$model.glmm,
        level=object$level, level.comb=object$level.comb,
        comb.fixed=object$comb.fixed, comb.random=object$comb.random,
        hakn=object$hakn, method.tau=object$method.tau,
@@ -41,9 +42,9 @@
   \item{data}{Dataset.}
   \item{subset}{Subset.}
   \item{studlab}{Study label.}
-  \item{method}{A character string indicating which method is to be used
-    for pooling of studies. One of \code{"Inverse"}, \code{"MH"}, or
-    \code{"Peto"}, can be abbreviated. (only for metabin object)}
+  \item{method}{A character string indicating which method is to be
+    used for pooling of studies; see \code{\link{metabin}} and
+    \code{\link{metainc}} function for admissible values.}
   \item{sm}{A character string indicating which summary measure is used for pooling.}
   \item{incr}{Could be either a numerical value which is added to each cell
   frequency for studies with a zero cell count or the character string
@@ -66,6 +67,8 @@
     with a zero cell. This is used in RevMan 5, the
     Cochrane Collaboration's program for preparing and maintaining
     Cochrane reviews.}
+  \item{model.glmm}{A character string indicating which GLMM model
+    should be used.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for

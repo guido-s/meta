@@ -1,16 +1,20 @@
 \name{metaprop}
+
 \alias{metaprop}
 
 \title{Meta-analysis of single proportions}
 
 \description{
   Calculation of an overall proportion from studies reporting a single
-  proportion.
+  proportion. Inverse variance method, and generalised linear mixed
+  model (GLMM) are available for pooling. For GLMMs, the
+  \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} (Viechtbauer 2010) is called internally.
 }
 
 \usage{
 metaprop(event, n, studlab,
-         data=NULL, subset=NULL,
+         data=NULL, subset=NULL, method = "Inverse",
          sm=.settings$smprop,
          incr=.settings$incr, allincr=.settings$allincr,
          addincr=.settings$addincr,
@@ -18,7 +22,10 @@ metaprop(event, n, studlab,
          level=.settings$level, level.comb=.settings$level.comb,
          comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
          hakn=.settings$hakn,
-         method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+         method.tau=
+         ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)),
+                "ML", .settings$method.tau),
+         tau.preset=NULL, TE.tau=NULL,
          tau.common=.settings$tau.common,
          prediction=.settings$prediction, level.predict=.settings$level.predict,
          method.bias=.settings$method.bias,
@@ -26,7 +33,8 @@ metaprop(event, n, studlab,
          title=.settings$title, complab=.settings$complab, outclab="",
          byvar, bylab, print.byvar=.settings$print.byvar,
          keepdata=.settings$keepdata,
-         warn=.settings$warn)
+         warn=.settings$warn,
+	 ...)
 }
 
 \arguments{
@@ -36,6 +44,9 @@ metaprop(event, n, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event and n.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{method}{A character string indicating which method is to be
+    used for pooling of studies. One of \code{"Inverse"} and
+    \code{"GLMM"}, can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
     (\code{"PFT"}, \code{"PAS"}, \code{"PRAW"}, \code{"PLN"}, or
     \code{"PLOGIT"}) is to be used for pooling of studies, see Details.}
@@ -94,6 +105,8 @@ metaprop(event, n, studlab,
     should be kept in meta object.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
     to studies with zero cell frequencies should result in a warning.}
+  \item{\dots}{Additional arguments passed on to
+    \code{\link[metafor]{rma.glmm}} function.}
 }
 
 \details{
@@ -104,24 +117,14 @@ metaprop(event, n, studlab,
   
   The following transformations of proportions are implemented to
   calculate an overall proportion:
-
   \itemize{
-
   \item Logit transformation (\code{sm="PLOGIT"}, default)
-  
   \item Log transformation (\code{sm="PLN"})
-
   \item Freeman-Tukey Double arcsine transformation (\code{sm="PFT"})  
-  
   \item Arcsine transformation (\code{sm="PAS"})
+  \item Raw, i.e. untransformed, proportions (\code{sm="PRAW"})
+  }
   
-  \item Raw, i.e. untransformed, proportions (\code{sm="PRAW"})}
-
-  If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
-  continuity correction is applied if any studies has a zero cell
-  count. By default, 0.5 is added to all cell frequencies of studies
-  with a zero cell count (argument \code{incr}).
-
   Various methods are available to calculate confidence intervals for
   individual study results (see Agresti & Coull 1998; Newcombe 1988):
 
@@ -166,10 +169,30 @@ metaprop(event, n, studlab,
   for the random effects model can be extracted from component
   \code{TE.random} of an object of class \code{"meta"} even if
   argument \code{comb.random=FALSE}. However, all functions in R
-  package \code{meta} will adequately consider the values for
+  package \bold{meta} will adequately consider the values for
   \code{comb.fixed} and \code{comb.random}. E.g. function
   \code{\link{print.meta}} will not print results for the random
   effects model if \code{comb.random=FALSE}.
+  
+  A distinctive and frequently overlooked advantage of binary data is
+  that individual patient data (IPD) can be extracted. Accordingly, a
+  random intercept logistic regression model can be utilised for the
+  meta-analysis of proportions (Stijnen et al., 2010). This method is
+  available (argument \code{method = "GLMM"}) by calling the
+  \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} internally.
+
+  If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
+  continuity correction is applied if any studies has a zero cell
+  count. By default, 0.5 is added to all cell frequencies of studies
+  with a zero cell count (argument \code{incr}). This continuity
+  correction is used both to calculate individual study results with
+  confidence limits and to conduct meta-analysis based on the inverse
+  variance method. For GLMMs no continuity correction is used.
+  
+  Argument \code{byvar} can be used to conduct subgroup analysis for
+  all methods but GLMMs. Instead use the \code{\link{metareg}}
+  function for GLMMs which can also be used for continuous covariates.
 
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
@@ -189,9 +212,9 @@ metaprop(event, n, studlab,
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
 
-  If R package metafor (Viechtbauer 2010) is installed, the following
-  methods to estimate the between-study variance \eqn{\tau^2}
-  (argument \code{method.tau}) are also available:
+  If R package \bold{metafor} (Viechtbauer 2010) is installed, the
+  following methods to estimate the between-study variance
+  \eqn{\tau^2} (argument \code{method.tau}) are also available:
   \itemize{
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
@@ -200,9 +223,10 @@ metaprop(event, n, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For these methods the R function \code{rma.uni} of R package metafor
-  is called internally. See help page of R function \code{rma.uni} for
-  more details on these methods to estimate between-study variance.
+  For these methods the R function \code{rma.uni} of R package
+  \bold{metafor} is called internally. See help page of R function
+  \code{rma.uni} for more details on these methods to estimate
+  between-study variance.
 }
 
 \value{
@@ -323,8 +347,13 @@ metaprop(event, n, studlab,
     \code{keepdata=TRUE}).}
   \item{subset}{Information on subset of original data used in
     meta-analysis (if \code{keepdata=TRUE}).}
+  \item{.glmm.fixed}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
+  \item{.glmm.random}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (random effects model).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
+  \item{version.metafor}{Version of R package metafor used for GLMMs.}
 }
 
 \references{
@@ -378,7 +407,13 @@ metaprop(event, n, studlab,
   Pettigrew HM, Gart JJ, Thomas DG (1986),
   The bias and higher cumulants of the logarithm of a binomial
   variate. \emph{Biometrika}, \bold{73}, 425--435.
-
+  
+  Stijnen T, Hamza TH, Ozdemir P (2010),
+  Random effects meta-analysis of event outcome in the framework of
+  the generalized linear mixed model with applications in sparse
+  data.
+  \emph{Statistics in Medicine}, \bold{29}, 3046--67.
+  
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
   \emph{Journal of Statistical Software}, \bold{36}, 1--48.
@@ -524,6 +559,15 @@ print(metaprop(event, n, sm="PLN", method.ci="NAsm"), ma=FALSE)
 print(metaprop(event, n, sm="PLN"), ma=FALSE, backtransf=FALSE)
 # Results for first study (on log scale)
 round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
+
+
+#
+# Meta-analysis using generalised linear mixed models
+# (only if R packages 'metafor' and 'lme4' are available)
+#
+if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
+    require(lme4, quietly = TRUE))
+ metaprop(event, n, method = "GLMM")
 }
 
 \keyword{htest}

@@ -1,6 +1,6 @@
 metaprop <- function(event, n, studlab,
                      ##
-                     data=NULL, subset=NULL,
+                     data = NULL, subset = NULL, method = "Inverse",
                      ##
                      sm=.settings$smprop,
                      ##
@@ -13,7 +13,10 @@ metaprop <- function(event, n, studlab,
                      comb.random=.settings$comb.random,
                      ##
                      hakn=.settings$hakn,
-                     method.tau=.settings$method.tau,
+                     method.tau =
+                       ifelse(!is.na(charmatch(tolower(method), "glmm",
+                                               nomatch = NA)),
+                              "ML", .settings$method.tau),
                      tau.preset=NULL, TE.tau=NULL,
                      tau.common=.settings$tau.common,
                      ##
@@ -29,13 +32,14 @@ metaprop <- function(event, n, studlab,
                      byvar, bylab, print.byvar=.settings$print.byvar,
                      ##
                      keepdata=.settings$keepdata,
-                     warn=.settings$warn
+                     warn=.settings$warn,
+                     ...
                      ){
   
   
   ##
   ##
-  ## (1) Check arguments
+  ## (1) Check and set arguments
   ##
   ##
   chklevel(level)
@@ -60,6 +64,13 @@ metaprop <- function(event, n, studlab,
   ## Additional arguments / checks for metainc objects
   ##
   fun <- "metaprop"
+  ##
+  method <- setchar(method, c("Inverse", "GLMM"))
+  if (method == "GLMM") {
+    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("metafor", fun, "method", " = \"GLMM\"")
+  }
+  ##
   sm <- setchar(sm, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
   chklogical(allincr)
   chklogical(addincr)
@@ -67,6 +78,12 @@ metaprop <- function(event, n, studlab,
                       c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
   chklogical(warn)
   chkmetafor(method.tau, fun)
+  ##
+  if (method == "GLMM" & sm != "PLOGIT")
+    stop("Generalised linear mixed models only possible with argument 'sm = \"PLOGIT\"'.")
+  ##
+  if (method == "GLMM" & method.tau != "ML")
+    stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
   
   
   ##
@@ -101,6 +118,11 @@ metaprop <- function(event, n, studlab,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   missing.byvar <- is.null(byvar)
+  if (method == "GLMM" & !missing.byvar) {
+    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
+    byvar <- NULL
+    missing.byvar <- is.null(byvar)
+  }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -120,6 +142,24 @@ metaprop <- function(event, n, studlab,
   ##
   ## Additional checks
   ##
+  if (method == "GLMM") {
+    if (tau.common) {
+      if (warn)
+        warning("Argument 'tau.common' not considered for GLMM.")
+      tau.common <- FALSE
+    }
+    if (!is.null(TE.tau)) {
+      if (warn)
+        warning("Argument 'TE.tau' not considered for GLMM.")
+      TE.tau <- NULL
+    }
+    ##
+    if (!is.null(tau.preset)) {
+      if (warn)
+        warning("Argument 'tau.preset' not considered for GLMM.")
+      tau.preset <- NULL
+    }
+  }
   if (missing.byvar & tau.common){
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
@@ -343,6 +383,19 @@ metaprop <- function(event, n, studlab,
   ## (8) Do meta-analysis
   ##
   ##
+  if (method == "GLMM") {
+    glmm.fixed <- metafor::rma.glmm(xi = event, ni = n,
+                                    method = "FE",
+                                    tdist = hakn, level = 100 * level.comb,
+                                    measure = "PLO",
+                                    ...)
+    ##
+    TE.fixed   <- as.numeric(glmm.fixed$b)
+    seTE.fixed <- as.numeric(glmm.fixed$se)
+    ##
+    w.fixed <- rep(NA, length(event))
+  }
+  ##
   m <- metagen(TE, seTE, studlab,
                ##
                sm=sm,
@@ -400,6 +453,63 @@ metaprop <- function(event, n, studlab,
   res <- c(res, m)
   ##
   ## Add data
+  ##
+  ##
+  if (method == "GLMM") {
+    ##
+    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
+    ##
+    res$method <- "GLMM"
+    ##
+    res$TE.fixed <- TE.fixed
+    res$seTE.fixed <- seTE.fixed
+    res$w.fixed <- w.fixed
+    res$lower.fixed <- ci.f$lower
+    res$upper.fixed <- ci.f$upper
+    res$zval.fixed <- ci.f$z
+    res$pval.fixed <- ci.f$p
+  }
+  ##
+  if (method == "GLMM") {
+    ##
+    glmm.random <- metafor::rma.glmm(xi = event, ni = n,
+                                     method = method.tau,
+                                     tdist = hakn, level = 100 * level.comb,
+                                     measure = "PLO",
+                                     ...)
+    ##
+    TE.random   <- as.numeric(glmm.random$b)
+    seTE.random <- as.numeric(glmm.random$se)
+    ##
+    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ##
+    res$w.random <- rep(NA, length(event))
+    ##
+    res$TE.random <- TE.random
+    res$seTE.random <- seTE.random
+    res$lower.random <- ci.r$lower
+    res$upper.random <- ci.r$upper
+    res$zval.random <- ci.r$z
+    res$pval.random <- ci.r$p
+    ##
+    res$Q <- glmm.random$QE.Wld
+    res$df.Q <- glmm.random$QE.df
+    res$Q.LRT <- glmm.random$QE.LRT
+    ##
+    res$tau <- sqrt(glmm.random$tau2)
+    ##
+    res$H <- sqrt(glmm.random$H2)
+    res$lower.H <- NA
+    res$upper.H <- NA
+    ##
+    res$I2 <- glmm.random$I2 / 100
+    res$lower.I2 <- NA
+    res$upper.I2 <- NA
+    ##
+    res$.glmm.fixed  <- glmm.fixed
+    res$.glmm.random <- glmm.random
+    res$version.metafor <- packageDescription("metafor")$Version
+  }
   ##
   res$lower <- lower.study
   res$upper <- upper.study

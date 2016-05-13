@@ -110,8 +110,12 @@ forest(x, ...)
        new=TRUE,
        #
        backtransf=x$backtransf,
-       digits=2, digits.se=4, digits.tau2=4, digits.pval=4, digits.pval.Q=digits.pval,
-       digits.Q=1, digits.I2=1, ...)
+       digits = .settings$digits.forest, digits.se = .settings$digits.se,
+       digits.pval = .settings$digits.pval, digits.pval.Q = .settings$digits.pval.Q,
+       digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
+       digits.I2 = .settings$digits.I2, digits.weight = .settings$digits.weight,
+
+       ...)
 }
 
 \arguments{
@@ -360,6 +364,8 @@ forest(x, ...)
     heterogeneity statistic Q, see \code{print.default}.}
   \item{digits.I2}{Minimal number of significant digits for I-squared
     statistic, see \code{print.default}.}
+  \item{digits.weight}{Minimal number of significant digits for
+    weights, see \code{print.default}.}
  \item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 

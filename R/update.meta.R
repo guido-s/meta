@@ -10,6 +10,7 @@ update.meta <- function(object,
                         allstudies=object$allstudies,
                         MH.exact=object$MH.exact,
                         RR.cochrane=object$RR.cochrane,
+                        model.glmm=object$model.glmm,
                         level=object$level,
                         level.comb=object$level.comb,
                         comb.fixed=object$comb.fixed,
@@ -83,6 +84,8 @@ update.meta <- function(object,
   ##
   comb.fixed <- replacemiss(comb.fixed)
   comb.random <- replacemiss(comb.random)
+  ##
+  model.glmm <- replacemiss(model.glmm)
   ##
   level <- replacemiss(level)
   level.comb <- replacemiss(level.comb)
@@ -265,6 +268,14 @@ update.meta <- function(object,
   ##
   if (missing.studlab & !is.null(object$data$.studlab))
     studlab <- object$data$.studlab
+  ##
+  if (method == "GLMM")
+    if (inherits(object, "metabin") & !missing(sm) & sm != "OR")
+      warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
+    else if (inherits(object, "metainc") & !missing(sm) & sm != "IRR")
+      warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
+    else if (inherits(object, "metaprop") & !missing(sm) & sm != "PLOGIT")
+      warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
   
   
   ##
@@ -282,14 +293,15 @@ update.meta <- function(object,
                  data=data, subset=subset,
                  ##
                  method=method,
-                 sm=sm,
+                 sm = ifelse(method == "GLMM", "OR", sm),
                  incr=incr, allincr=allincr, addincr=addincr, allstudies=allstudies,
                  MH.exact=MH.exact, RR.cochrane=RR.cochrane,
+                 model.glmm = model.glmm,
                  ##
                  level=level, level.comb=level.comb,
                  comb.fixed=comb.fixed, comb.random=comb.random,
                  ##
-                 hakn=hakn, method.tau=method.tau,
+                 hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
                  ##
                  prediction=prediction, level.predict=level.predict,
@@ -305,7 +317,8 @@ update.meta <- function(object,
                  print.CMH=print.CMH,
                  ##
                  keepdata=keepdata,
-                 warn=warn)
+                 warn=warn,
+                 ...)
   ##
   if (inherits(object,"metacont"))
     m <- metacont(n.e=object$data$.n.e,
@@ -406,13 +419,14 @@ update.meta <- function(object,
                  data=data, subset=subset,
                  ##
                  method=method,
-                 sm=sm,
+                 sm = ifelse(method == "GLMM", "IRR", sm),
                  incr=incr, allincr=allincr, addincr=addincr,
+                 model.glmm = model.glmm,
                  ##
                  level=level, level.comb=level.comb,
                  comb.fixed=comb.fixed, comb.random=comb.random,
                  ##
-                 hakn=hakn, method.tau=method.tau,
+                 hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
                  ##
                  prediction=prediction, level.predict=level.predict,
@@ -429,23 +443,25 @@ update.meta <- function(object,
                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
                  ##
                  keepdata=keepdata,
-                 warn=warn)
+                 warn=warn,
+                 ...)
   ##
   if (inherits(object,"metaprop"))
     m <- metaprop(event=object$data$.event,
                   n=object$data$.n,
                   studlab=studlab,
                   ##
-                  data=data, subset=subset,
+                  data=data, subset=subset, method = method,
                   ##
-                  sm=sm,
+                  sm = ifelse(method == "GLMM", "PLOGIT", sm),
                   incr=incr, allincr=allincr, addincr=addincr,
+                  model.glmm = model.glmm,
                   method.ci=ifelse(is.null(method.ci), "CP", method.ci),
                   ##
                   level=level, level.comb=level.comb,
                   comb.fixed=comb.fixed, comb.random=comb.random,
                   ##
-                  hakn=hakn, method.tau=method.tau,
+                  hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
                   tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
                   ##
                   prediction=prediction, level.predict=level.predict,
@@ -457,7 +473,8 @@ update.meta <- function(object,
                   byvar=byvar, bylab=bylab, print.byvar=print.byvar,
                   ##
                   keepdata=keepdata,
-                  warn=warn)
+                  warn=warn,
+                  ...)
   ##  
   m$call.object <- object$call
   m$call <- match.call()

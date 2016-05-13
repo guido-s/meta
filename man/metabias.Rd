@@ -89,9 +89,9 @@ metabias(x, ...)
   degrees of freedom.
 
   In order to calculate an arcsine test for funnel plot asymmetry
-  (Ruecker et al., 2008), one has to use the \code{metabin} function
+  (Rücker et al., 2008), one has to use the \code{metabin} function
   with argument \code{sm="ASD"} as input to the \code{metabias}
-  command. The three arcsine tests described in Ruecker et al. (2008)
+  command. The three arcsine tests described in Rücker et al. (2008)
   can be calculated by setting \code{method.bias} to \code{"rank"},
   \code{"linreg"} and \code{"mm"}, respectively.
 
@@ -151,7 +151,7 @@ metabias(x, ...)
   \emph{Journal of the American Medical Association},
   \bold{295}, 676--680.
 
-  Ruecker G, Schwarzer G, Carpenter JR (2008)
+  Rücker G, Schwarzer G, Carpenter JR (2008)
   Arcsine test for publication bias in meta-analyses with binary
   outcomes. \emph{Statistics in Medicine}, \bold{27},746--763.
   

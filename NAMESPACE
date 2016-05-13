@@ -22,7 +22,7 @@ export(ci, settings.meta, forest, forest.meta,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
-# hetcalc, chkarg, chklevel, chklogical
+# hetcalc, chkarg, chklevel, chklogical, format.NA
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)

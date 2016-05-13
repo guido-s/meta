@@ -151,13 +151,14 @@ forest.meta <- function(x,
                         new=TRUE,
                         ##
                         backtransf=x$backtransf,
-                        digits=2,
-                        digits.se=4,
-                        digits.tau2=4,
-                        digits.pval=4,
-                        digits.pval.Q=digits.pval,
-                        digits.Q=1,
-                        digits.I2=1,
+                        digits = .settings$digits.forest,
+                        digits.se = .settings$digits.se,
+                        digits.pval = .settings$digits.pval,
+                        digits.pval.Q = .settings$digits.pval.Q,
+                        digits.Q = .settings$digits.Q,
+                        digits.tau2 = .settings$digits.tau2,
+                        digits.I2 = .settings$digits.I2,
+                        digits.weight = .settings$digits.weight,
                         ...){
   
   
@@ -270,13 +271,13 @@ forest.meta <- function(x,
   if (missing(weight))
     weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
   weight <- setchar(weight, c("same", "fixed", "random"))
-  chknumeric(digits, single=TRUE)
-  chknumeric(digits.se, single=TRUE)
-  chknumeric(digits.tau2, single=TRUE)
-  chknumeric(digits.pval, single=TRUE)
-  chknumeric(digits.pval.Q, single=TRUE)
-  chknumeric(digits.Q, single=TRUE)
-  chknumeric(digits.I2, single=TRUE)
+  chknumeric(digits, min = 0, single = TRUE)
+  chknumeric(digits.se, min = 0, single = TRUE)
+  chknumeric(digits.tau2, min = 0, single = TRUE)
+  chknumeric(digits.pval, min = 0, single = TRUE)
+  chknumeric(digits.pval.Q, min = 0, single = TRUE)
+  chknumeric(digits.Q, min = 0, single = TRUE)
+  chknumeric(digits.I2, min = 0, single = TRUE)
   ##
   cl <- class(x)[1]
   addargs <- names(list(...))
@@ -287,6 +288,24 @@ forest.meta <- function(x,
   warnarg("level", addargs, fun, cl)
   warnarg("level.comb", addargs, fun, cl)
   warnarg("level.predict", addargs, fun, cl)
+  ##
+  ## Check for argument 'labels' in '...'
+  ##
+  args  <- list(...)
+  ## Check whether first argument is a list. In this case only use
+  ## this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  ##
+  additional.arguments <- names(args)
+  ##
+  if (length(additional.arguments) > 0 &&
+      "labels" %in% additional.arguments){
+    if (!missing(label))
+      warning("Argument 'labels' ignored as both arguments 'label' and 'labels' are provided.")
+    else
+      label <- args[["labels"]]
+  }
   
   
   ##
@@ -605,7 +624,7 @@ forest.meta <- function(x,
   if (is.null(rightcols) & rsel){
     rightcols <- c("effect", "ci")
     ##
-    if (!metainf.metacum){
+    if (!metainf.metacum & !x$method == "GLMM") {
       if (comb.fixed & overall)
         rightcols <- c(rightcols, "w.fixed")
       if (comb.random & overall)
@@ -958,7 +977,7 @@ forest.meta <- function(x,
   dummy.het <- FALSE
   ##
   Q.bs <- c(Q.b.fixed, Q.b.random)
-  Q.bs.format <- gsub(" ", "", format(round(Q.bs, digits.Q)))
+  Q.bs.format <- gsub(" ", "", format.NA(round(Q.bs, digits.Q), digits.Q))
   pval.Qbs <- format.p(1-pchisq(Q.bs, df.Q.b), lab=TRUE, noblanks=TRUE,
                        digits=digits.pval.Q)
   ##
@@ -1037,9 +1056,9 @@ forest.meta <- function(x,
     k.all.w <- k.all.w[sel]
     bylevs <- bylevs[sel]
     ##
-    if (comb.fixed){
-      if (sum(w.fixed.w)>0)
-        w.fixed.w.p <- 100*round(w.fixed.w/sum(w.fixed.w, na.rm=TRUE), 3)
+    if (!metainf.metacum & comb.fixed) {
+      if (!all(is.na(w.fixed.w)) && sum(w.fixed.w) > 0)
+        w.fixed.w.p <- round(100 * w.fixed.w / sum(w.fixed.w, na.rm = TRUE), digits.weight)
       else
         w.fixed.w.p <- w.fixed.w
     }
@@ -1051,9 +1070,9 @@ forest.meta <- function(x,
         text.fixed.w <- rep("Overall", n.by)
     }
     ##
-    if (comb.random){
-      if (sum(w.random.w)>0)
-        w.random.w.p <- 100*round(w.random.w/sum(w.random.w, na.rm=TRUE), 3)
+    if (!metainf.metacum & comb.random) {
+      if (!all(is.na(w.random.w)) && sum(w.random.w)>0)
+        w.random.w.p <- round(100 * w.random.w / sum(w.random.w, na.rm = TRUE), digits.weight)
       else
         w.random.w.p <- w.random.w
     }
@@ -1236,27 +1255,21 @@ forest.meta <- function(x,
     lowTE.predict <- NA
     uppTE.predict <- NA
   }
-  ##  
-  if (sum(x$w.fixed)>0)
-    w.fixed.p <- 100*round(x$w.fixed/sum(x$w.fixed, na.rm=TRUE), 3)
-  else
-    w.fixed.p <- x$w.fixed
   ##
-  if (sum(x$w.random)>0)
-    w.random.p <- 100*round(x$w.random/sum(x$w.random, na.rm=TRUE), 3)
-  else
-    w.random.p <- x$w.random
-  ##
-  if (metainf.metacum){
-    if (sum(x$w.fixed)>0)
-      w.fixed.p <- 100*round(x$w.fixed/x$w.all, 3)
+  if (!metainf.metacum) {
+    if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
+      w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE), digits.weight)
     else
       w.fixed.p <- x$w.fixed
     ##
-    if (sum(x$w.random)>0)
-      w.random.p <- 100*round(x$w.random/x$w.all, 3)
+    if (!all(is.na(x$w.random)) && sum(x$w.random)>0)
+      w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE), digits.weight)
     else
       w.random.p <- x$w.random
+  }
+  else {
+    w.fixed.p  <- rep(NA, length(TE))
+    w.random.p <- rep(NA, length(TE))
   }
   
   
@@ -1341,22 +1354,16 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     ##
-    TEs.study <- c("", "", "", rep("", 3*n.by),
-                   ifelse(is.na(TE.orig), lab.NA,
-                          format(round(TE.orig, digits),
-                                 scientific=FALSE))
-                   )
-    seTEs.study <- c("", "", "", rep("", 3*n.by),
-                     ifelse(is.na(seTE), lab.NA,
-                            format(round(seTE, digits.se),
-                                   scientific=FALSE))
-                     )
+    TEs.study <- c("", "", "", rep("", 3 * n.by),
+                   format.NA(round(TE.orig, digits), digits, lab.NA))
+    seTEs.study <- c("", "", "", rep("", 3 * n.by),
+                     format.NA(round(seTE, digits.se), digits.se, lab.NA))
     ##
     w.fixeds  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.fixed.p)
     w.randoms <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.random.p)
     ##
-    w.fixeds.text  <- c(100, "--", "", format(c(weight.w.p, w.fixed.p), scientific=FALSE))
-    w.randoms.text <- c("--", 100, "", format(c(weight.w.p, w.random.p), scientific=FALSE))
+    w.fixeds.text  <- c(100, "--", "", format.NA(c(weight.w.p, w.fixed.p), digits.weight))
+    w.randoms.text <- c("--", 100, "", format.NA(c(weight.w.p, w.random.p), digits.weight))
     ##
     sel.fixed  <- w.fixeds.text=="--"
     sel.random <- w.randoms.text=="--"
@@ -1383,21 +1390,15 @@ forest.meta <- function(x,
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE)
     ##
     TEs.study <- c("", "", "",
-                   ifelse(is.na(TE.orig), lab.NA,
-                          format(round(TE.orig, digits),
-                                 scientific=FALSE))
-                   )
+                   format.NA(round(TE.orig, digits), digits, lab.NA))
     seTEs.study <- c("", "", "",
-                     ifelse(is.na(seTE), lab.NA,
-                            format(round(seTE, digits.se),
-                                   scientific=FALSE))
-                     )
+                     format.NA(round(seTE, digits.se), digits.se, lab.NA))
     ##
     w.fixeds  <- c(NA, NA, NA, w.fixed.p)
     w.randoms <- c(NA, NA, NA, w.random.p)
     ##
-    w.fixeds.text  <- c(100, "--", "", format(w.fixed.p, scientific=FALSE))
-    w.randoms.text <- c("--", 100, "", format(w.random.p, scientific=FALSE))
+    w.fixeds.text  <- c(100, "--", "", format.NA(w.fixed.p, digits.weight))
+    w.randoms.text <- c("--", 100, "", format.NA(w.random.p, digits.weight))
     ##
     sel.fixed <- w.fixeds.text=="--"
     sel.random <- w.randoms.text=="--"
@@ -1410,15 +1411,13 @@ forest.meta <- function(x,
   ## Treatment effect and confidence interval
   ##
   if (backtransf & is.relative.effect(sm)){
-    effect.format <- ifelse(is.na(TEs), lab.NA.effect,
-                            format(round(exp(TEs), digits), scientific=FALSE))
+    effect.format <- format.NA(round(exp(TEs), digits), digits, lab.NA.effect)
     ci.format <- ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
                         p.ci(format(round(exp(lowTEs), digits), scientific=FALSE),
                              format(round(exp(uppTEs), digits), scientific=FALSE)))
   }
   else{
-    effect.format <- ifelse(is.na(TEs), lab.NA.effect,
-                            format(round(TEs, digits), scientific=FALSE))
+    effect.format <- format.NA(round(TEs, digits), digits, lab.NA.effect)
     ci.format <- ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
                         p.ci(format(round(lowTEs, digits), scientific=FALSE),
                              format(round(uppTEs, digits), scientific=FALSE)))
@@ -2150,7 +2149,10 @@ forest.meta <- function(x,
     else if (weight=="random")
       information <- sqrt(w.randoms)
     ## Square height equal to 1 for most precise study result
-    information <- information/max(information, na.rm=TRUE)
+    if (!all(is.na(information)))
+      information <- information/max(information, na.rm=TRUE)
+    else
+      information <- rep(0.9, length(TEs))
     ## Same/maximum polygon height for all meta-analytical results
     ## (both overall and subgroup results)
     information[is.na(information)] <- 1

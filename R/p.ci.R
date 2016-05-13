@@ -51,11 +51,13 @@ p.ci <- function(lower, upper, rmspace=TRUE,
     upper <- rmSpace(upper)
   }
   ##
-  ifelse (lower=="NA" & upper=="NA",
-          "",
-          paste(bracket.left,
-                format(lower, justify=justify.lower),
-                separator,
-                format(upper, justify=justify.upper),
-                bracket.right, sep=""))
+  res <- ifelse(lower != "NA" & upper != "NA",
+                paste(bracket.left,
+                      format(lower, justify=justify.lower),
+                      separator,
+                      format(upper, justify=justify.upper),
+                      bracket.right, sep=""),
+                "")
+  ##
+  res
 }

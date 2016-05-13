@@ -131,6 +131,7 @@ summary.meta <- function(object,
               fixed=ci.f, random=ci.r,
               predict=ci.p,
               k=object$k, Q=object$Q, df.Q=object$df.Q,
+              Q.LRT = object$Q.LRT,
               tau=object$tau, H=ci.H, I2=ci.I2,
               tau.preset=object$tau.preset,
               k.all=length(object$TE),
@@ -163,14 +164,14 @@ summary.meta <- function(object,
                        harmonic.mean=object$n.harmonic.mean.w)
     ##
     ci.random.w <- list(TE=object$TE.random.w,
-                       seTE=object$seTE.random.w,
-                       lower=object$lower.random.w,
-                       upper=object$upper.random.w,
-                       z=object$zval.random.w,
-                       p=object$pval.random.w,
-                       level=object$level.comb,
-                       df=object$df.hakn.w,
-                       harmonic.mean=object$n.harmonic.mean.w)
+                        seTE=object$seTE.random.w,
+                        lower=object$lower.random.w,
+                        upper=object$upper.random.w,
+                        z=object$zval.random.w,
+                        p=object$pval.random.w,
+                        level=object$level.comb,
+                        df=object$df.hakn.w,
+                        harmonic.mean=object$n.harmonic.mean.w)
     ##
     ci.H <- list(TE=object$H.w, lower=object$lower.H.w, upper=object$upper.H.w)
     ci.I2 <- list(TE=object$I2.w, lower=object$lower.I2.w, upper=object$upper.I2.w)
@@ -202,7 +203,13 @@ summary.meta <- function(object,
     res$incr     <- object$incr
     res$allincr  <- object$allincr
     res$addincr  <- object$addincr
+    res$allstudies <- object$allstudies
+    res$doublezeros <- object$doublezeros
     res$MH.exact <- object$MH.exact
+    ##
+    res$model.glmm <- object$model.glmm
+    res$.glmm.fixed <- object$.glmm.fixed
+    res$.glmm.random <- object$.glmm.random
     ##
     class(res) <- c(class(res), "metabin")
   }
@@ -229,6 +236,10 @@ summary.meta <- function(object,
     res$incr <- object$incr
     res$allincr <- object$allincr
     res$addincr <- object$addincr
+    ##
+    res$model.glmm <- object$model.glmm
+    res$.glmm.fixed <- object$.glmm.fixed
+    res$.glmm.random <- object$.glmm.random
   }
   ##
   if (inherits(object, "metaprop")){
@@ -239,6 +250,10 @@ summary.meta <- function(object,
     res$allincr <- object$allincr
     res$addincr <- object$addincr
     res$method.ci <- object$method.ci
+    ##
+    res$model.glmm <- object$model.glmm
+    res$.glmm.fixed <- object$.glmm.fixed
+    res$.glmm.random <- object$.glmm.random
     ##
     class(res) <- c(class(res), "metaprop")
   }
@@ -262,7 +277,11 @@ summary.meta <- function(object,
   ##
   res$backtransf <- backtransf
   ##
-  res$version <- packageDescription("meta")$Version
+  res$version <- object$version
+  if (is.null(res$version))
+    res$version <- packageDescription("meta")$Version
+  ##
+  res$version.metafor <- object$version.metafor
   
   
   res

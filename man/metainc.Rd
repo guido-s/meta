@@ -5,10 +5,12 @@
 \title{Meta-analysis of incidence rates}
 
 \description{
-  Calculation of fixed and random effects estimates (incidence rate
-  ratio or incidence rate difference) for meta-analyses with event
-  counts. Mantel-Haenszel, Cochran, and inverse variance method are
-  available for pooling.
+  Calculation of fixed effect and random effects estimates (incidence
+  rate ratio or incidence rate difference) for meta-analyses with
+  event counts. Mantel-Haenszel, Cochran, inverse variance method, and
+  generalised linear mixed model (GLMM) are available for pooling. For
+  GLMMs, the \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} (Viechtbauer 2010) is called internally.
 }
 
 \usage{
@@ -17,10 +19,14 @@ metainc(event.e, time.e, event.c, time.c, studlab,
         sm=.settings$sminc,
         incr=.settings$incr, allincr=.settings$allincr,
         addincr=.settings$addincr,
+        model.glmm = "UM.FS",
         level=.settings$level, level.comb=.settings$level.comb,
         comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
         hakn=.settings$hakn,
-        method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
+        method.tau=
+	ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)),
+               "ML", .settings$method.tau),
+        tau.preset=NULL, TE.tau=NULL,
         tau.common=.settings$tau.common,
         prediction=.settings$prediction, level.predict=.settings$level.predict,
         method.bias=.settings$method.bias,
@@ -31,7 +37,8 @@ metainc(event.e, time.e, event.c, time.c, studlab,
         label.left=.settings$label.left, label.right=.settings$label.right,
         byvar, bylab, print.byvar=.settings$print.byvar,
         keepdata=.settings$keepdata,
-        warn=.settings$warn)
+        warn=.settings$warn,
+	...)
 }
 
 \arguments{
@@ -43,9 +50,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event.e, time.e, event.c, and time.c.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
-  \item{method}{A character string indicating which method is to be used
-    for pooling of studies. One of \code{"MH"}, \code{"Inverse"}, or
-    \code{"Cochran"}, can be abbreviated.}
+  \item{method}{A character string indicating which method is to be
+    used for pooling of studies. One of \code{"MH"}, \code{"Inverse"},
+    \code{"Cochran"}, or \code{"GLMM"} can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
     (\code{"IRR"} or \code{"IRD"}) is to be used for pooling of
     studies, see Details.}
@@ -57,6 +64,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
     studies with a zero cell count.}
   \item{addincr}{A logical indicating if \code{incr} is added to each cell
     frequency of all studies irrespective of zero cell counts.}
+  \item{model.glmm}{A character string indicating which GLMM should be
+    used. One of \code{"UM.FS"}, \code{"UM.RS"}, and \code{"CM.EL"},
+    see Details.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
@@ -109,6 +119,8 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}
+  \item{\dots}{Additional arguments passed on to
+    \code{\link[metafor]{rma.glmm}} function.}
 }
 
 \details{
@@ -118,10 +130,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
    \item Incidence Rate Ratio (\code{sm="IRR"})
    \item Incidence Rate Difference (\code{sm="IRD"})
   }
-
-  For studies with a zero cell count, by default, 0.5 is added to
-  all cell frequencies of these studies (argument \code{incr}).
-  
+    
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
   \code{\link{settings.meta}} function.
@@ -132,7 +141,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   for the random effects model can be extracted from component
   \code{TE.random} of an object of class \code{"meta"} even if
   argument \code{comb.random=FALSE}. However, all functions in R
-  package \code{meta} will adequately consider the values for
+  package \bold{meta} will adequately consider the values for
   \code{comb.fixed} and \code{comb.random}. E.g. function
   \code{\link{print.meta}} will not print results for the random
   effects model if \code{comb.random=FALSE}.
@@ -142,17 +151,58 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \code{comb.random}). If \code{method} is \code{"MH"} (default), the
   Mantel-Haenszel method is used to calculate the fixed effect
   estimate (Greenland & Robbins, 1985); if \code{method} is
-  \code{"Inverse"}, inverse variance weighting is used for pooling;
-  finally, if \code{method} is \code{"Cochran"}, the Cochran method is
-  used for pooling (Bayne-Jones, 1964, Chapter 8). By default, the
+  \code{"Inverse"}, inverse variance weighting is used for pooling; if
+  \code{method} is \code{"Cochran"}, the Cochran method is used for
+  pooling (Bayne-Jones, 1964, Chapter 8). By default, the
   DerSimonian-Laird estimate (1986) is used in the random effects
   model (\code{method.tau="DL"}).
   
-  For Mantel-Haenszel and Cochran method, nothing is added to zero
-  cell counts. Accordingly, Mantel-Haenszel and Cochran estimate are
-  not defined if the number of events is zero in all studies either in
-  the experimental or control group.
-
+  A distinctive and frequently overlooked advantage of incidence rates
+  is that individual patient data (IPD) can be extracted from count
+  data. Accordingly, statistical methods for IPD, i.e., generalised
+  linear mixed models, can be utilised in a meta-analysis of incidence
+  rate ratios (Stijnen et al., 2010). These methods are available
+  (argument \code{method = "GLMM"}) by calling the
+  \code{\link[metafor]{rma.glmm}} function from R package
+  \bold{metafor} internally. Three different GLMMs are available for
+  meta-analysis of incidence rate ratios using argument
+  \code{model.glmm} (which corresponds to argument \code{model} in the
+  \code{\link[metafor]{rma.glmm}} function):
+  \itemize{
+    \item Poisson regression model with fixed study effects (default)
+    \item[] (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
+      \bold{M}odel - \bold{F}ixed \bold{S}tudy effects)
+    \item Mixed-effects Poisson regression model with random study
+      effects
+    \item[] (\code{model.glmm = "UM.RS"}, i.e., \bold{U}nconditional
+      \bold{M}odel - \bold{R}andom \bold{S}tudy effects)
+    \item Generalised linear mixed model (conditional Poisson-Normal)
+    \item[] (\code{model.glmm = "CM.EL"}, i.e., \bold{C}onditional
+      \bold{M}odel - \bold{E}xact \bold{L}ikelihood)
+  }
+  Details on these three GLMMs as well as additional arguments which
+  can be provided using argument '\code{\dots}' in \code{metainc} are
+  described in \code{\link[metafor]{rma.glmm}} where you can also find
+  information on the iterative algorithms used for estimation.  Note,
+  regardless of which value is used for argument \code{model.glmm},
+  results for two different GLMMs are calculated: fixed effect model
+  (with fixed treatment effect) and random effects model (with random
+  treatment effects).
+  
+  For studies with a zero cell count, by default, 0.5 is added to all
+  cell frequencies of these studies (argument \code{incr}). This
+  continuity correction is used both to calculate individual study
+  results with confidence limits and to conduct meta-analysis based on
+  the inverse variance method. For Mantel-Haenszel method, Cochran
+  method, and GLMMs, nothing is added to zero cell counts.
+  Accordingly, estimates for these methods are not defined if the
+  number of events is zero in all studies either in the experimental
+  or control group.
+  
+  Argument \code{byvar} can be used to conduct subgroup analysis for
+  all methods but GLMMs. Instead use the \code{\link{metareg}}
+  function for GLMMs which can also be used for continuous covariates.
+  
   A prediction interval for treatment effect of a new study is
   calculated (Higgins et al., 2009) if arguments \code{prediction} and
   \code{comb.random} are \code{TRUE}.
@@ -171,9 +221,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
 
-  If R package metafor (Viechtbauer 2010) is installed, the following
-  methods to estimate the between-study variance \eqn{\tau^2}
-  (argument \code{method.tau}) are also available:
+  If R package \bold{metafor} (Viechtbauer 2010) is installed, the
+  following methods to estimate the between-study variance
+  \eqn{\tau^2} (argument \code{method.tau}) are also available:
   \itemize{
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
@@ -182,9 +232,10 @@ metainc(event.e, time.e, event.c, time.c, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For these methods the R function \code{rma.uni} of R package metafor
-  is called internally. See help page of R function \code{rma.uni} for
-  more details on these methods to estimate between-study variance.
+  For these methods the R function \code{rma.uni} of R package
+  \bold{metafor} is called internally. See help page of R function
+  \code{rma.uni} for more details on these methods to estimate
+  between-study variance.
 }
 
 \value{
@@ -192,7 +243,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
   \item{event.e, time.e, event.c, time.c, studlab,}{}
-  \item{sm, method, incr, allincr, addincr, warn,}{}
+  \item{sm, method, incr, allincr, addincr, model.glmm, warn,}{}
   \item{level, level.comb, comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
@@ -308,8 +359,13 @@ metainc(event.e, time.e, event.c, time.c, studlab,
     \code{keepdata=TRUE}).}
   \item{subset}{Information on subset of original data used in
     meta-analysis (if \code{keepdata=TRUE}).}
+  \item{.glmm.fixed}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
+  \item{.glmm.random}{GLMM object generated by call of
+    \code{\link[metafor]{rma.glmm}} function (random effects model).}
   \item{call}{Function call.}
   \item{version}{Version of R package meta used to create object.}
+  \item{version.metafor}{Version of R package metafor used for GLMMs.}
 }
 
 \references{
@@ -347,6 +403,12 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   Consensus values and weighting factors.
   \emph{Journal of Research of the National Bureau of Standards},
   \bold{87}, 377--385.
+  
+  Stijnen T, Hamza TH, Ozdemir P (2010),
+  Random effects meta-analysis of event outcome in the framework of
+  the generalized linear mixed model with applications in sparse
+  data.
+  \emph{Statistics in Medicine}, \bold{29}, 3046--67.
 
   Viechtbauer W (2010),
   Conducting Meta-Analyses in R with the Metafor Package.
@@ -400,5 +462,27 @@ seTEl <- sqrt(1/lungcancer$d.smokers +
               1/lungcancer$d.nonsmokers + 2.25/lungcancer$d.nonsmokers)
 #
 metagen(TEl, seTEl, sm="IRR", studlab=lungcancer$study)
+
+
+#
+# Meta-analysis using generalised linear mixed models
+# (only if R packages 'metafor' and 'lme4' are available)
+#
+if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
+    require(lme4, quietly = TRUE))
+ #
+ # Poisson regression model (fixed study effects)
+ #
+ m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+               data = smoking, studlab = study, method = "GLMM")
+ m4
+ #
+ # Mixed-effects Poisson regression model (random study effects)
+ #
+ update(m4, model.glmm = "UM.RS", nAGQ = 1)
+ #
+ # Generalised linear mixed model (conditional Poisson-Normal)
+ #
+ update(m4, model.glmm = "CM.EL")
 }
 \keyword{htest}

@@ -18,7 +18,12 @@
         comb.random=x$comb.random,
         prediction=x$prediction,
         details=FALSE, ma=TRUE, backtransf=x$backtransf,
-        digits=max(4, .Options$digits - 3), ...)
+        digits = .settings$digits, digits.se = .settings$digits.se,
+        digits.zval = .settings$digits.zval,
+        digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
+        digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
+        digits.prop = .settings$digits.prop, digits.weight = .settings$digits.weight,
+        ...)
 
 \method{print}{metabias}(x, ...)
 
@@ -30,12 +35,16 @@
         bystud=FALSE, print.CMH=object$print.CMH,
         warn=object$warn, ...)
 
-\method{print}{summary.meta}(x, digits = max(3, .Options$digits - 3),
+\method{print}{summary.meta}(x, digits = .settings$digits,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
         print.byvar=x$print.byvar, print.CMH=x$print.CMH,
         header=TRUE, backtransf=x$backtransf,
-        bylab.nchar=35, ...)
+        bylab.nchar=35,
+        digits.zval = .settings$digits.zval,
+        digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
+        digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
+        ...)
 
 cilayout(bracket="[", separator="; ")
 }
@@ -82,6 +91,22 @@ cilayout(bracket="[", separator="; ")
     confidence interval: "[", "(", "\{", "".}
   \item{separator}{A character string with information on separator
     between lower and upper confidence interval.}
+  \item{digits.se}{Minimal number of significant digits for standard
+    deviations and standard errors, see \code{print.default}.}
+  \item{digits.zval}{Minimal number of significant digits for z- or
+    t-value, see \code{print.default}.}
+  \item{digits.Q}{Minimal number of significant digits for
+    heterogeneity statistic Q, see \code{print.default}.}
+  \item{digits.tau2}{Minimal number of significant digits for
+    between-study variance, see \code{print.default}.}
+  \item{digits.H}{Minimal number of significant digits for H
+    statistic, see \code{print.default}.}
+  \item{digits.I2}{Minimal number of significant digits for I-squared
+    statistic, see \code{print.default}.}
+  \item{digits.prop}{Minimal number of significant digits for
+    proportions, see \code{print.default}.} 
+  \item{digits.weight}{Minimal number of significant digits for
+    weights, see \code{print.default}.}
   \item{\dots}{Additional arguments.}
 }
 

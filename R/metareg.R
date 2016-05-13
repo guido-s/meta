@@ -74,14 +74,41 @@ metareg <- function(x, formula,
     dataset <- x$data[x$subset,]
   else
     dataset <- x$data
-  
-  res <- metafor::rma.uni(yi=x$TE,
-                          sei=x$seTE,
-                          data=dataset,
-                          mods=formula, method=method.tau,
-                          knha=hakn, level=100*level.comb,
-                          ...)
 
+  
+  if (x$method != "GLMM")
+    res <- metafor::rma.uni(yi=x$TE,
+                            sei=x$seTE,
+                            data=dataset,
+                            mods=formula, method=method.tau,
+                            knha=hakn, level=100*level.comb,
+                            ...)
+  else
+    if (inherits(x, "metabin"))
+      res <- metafor::rma.glmm(ai = x$event.e, n1i = x$n.e,
+                               ci = x$event.c, n2i = x$n.c,
+                               data = dataset,
+                               mods = formula, method = method.tau,
+                               tdist = hakn, level = 100 * level.comb,
+                               measure = "OR", model = x$model.glmm,
+                               ...)
+    else if (inherits(x, "metainc"))
+      res <- metafor::rma.glmm(x1i = x$event.e, t1i = x$time.e,
+                               x2i = x$event.c, t2i = x$time.c,
+                               data = dataset,
+                               mods = formula, method = method.tau,
+                               tdist = hakn, level = 100 * level.comb,
+                               measure = "IRR", model = x$model.glmm,
+                               ...)
+    else if (inherits(x, "metaprop"))
+      glmm.fixed <- metafor::rma.glmm(xi = x$event, ni = x$n,
+                                      data = dataset,
+                                      mods = formula, method = method.tau,
+                                      tdist = hakn, level = 100 * level.comb,
+                                      measure = "PLO",
+                                      ...)
+  
+  
   res$.meta <- list(x=x,
                     formula=formula,
                     method.tau=method.tau,

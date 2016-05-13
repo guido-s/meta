@@ -1,3 +1,111 @@
+2016-05-13, version 4.4-0
+
+Generalised Linear Mixed Models (GLMMs) implemented by internal call
+of rma.glmm function from R package metafor by Wolfgang Viechtbauer
+
+R packages lme4 and BiasedUrn added to suggested packages which are
+called by rma.glmm function
+
+Print layout, i.e., number of printed digits, slightly modified which
+impacts output from print.meta, print.summary.meta, and forest.meta
+function. Arguments to change number of digits can be set for the R
+session using settings.meta function.
+
+Functions metabin, metainc, and metaprop:
+- extension for meta-analysis based on GLMM; see argument 'method' and
+  new argument 'model.glmm' (not used in metaprop function)
+- some arguments can be used for other meta-analysis methods than
+  inverse variance method:
+  - 'method.tau', 'hakn'
+  - 'tau.common', 'TE.tau', 'tau.preset' (not considered for GLMMs)
+- new argument '...' to provide additional arguments to rma.glmm
+  function from R package metafor
+- new list elements 'model.glmm', '.glmm.fixed', '.glmm.random', and
+  'version.metafor'
+
+Functions metabin:
+- new list element 'doublezeros' indicating if any study has zeros in
+  both treatment groups (only relevant if sm = "OR" or sm = "RR")
+- print warning if continuity correction (arguments 'incr', 'allincr',
+  'addincr', 'allstudies') is used with arcsine difference, Peto
+  method, or GLMM
+- do not print warning that inverse variance instead of
+  Mantel-Haenszel method is used for analysis of a single study
+
+Function forest.meta:
+- argument 'labels' can be used instead of 'label' to change labels on
+  x-axis (function axis from base R uses argument 'labels')
+- extension to plot meta-analysis based on GLMM
+
+Function funnel.meta:
+- print default labels on y-axis with capital first letter
+
+Function metagen:
+- only call internal function paulemandel if heterogeneity statistic Q
+  is larger equal than number of studies minus 1 (otherwise
+  between-study heterogeneity tau-squared is set equal to 0)
+
+Function summary.meta:
+- new list elements 'allstudies', 'doublezeros', 'model.glmm',
+  '.glmm.fixed', '.glmm.random', and 'version.metafor'
+
+Functions metareg and update.meta:
+- extension for meta-analysis based on GLMM
+
+Function print.meta:
+- new arguments 'digits.se', 'digits.zval', 'digits.Q', 'digits.tau2',
+  'digits.H', 'digits.I2', 'digits.prop', and 'digits.weight' to
+  control printing of standard errors, z-values, etc.
+- argument '...' passed on to internal call of print.summary.meta
+  function
+
+Function print.summary.meta:
+- new arguments 'digits.zval', 'digits.Q', 'digits.tau2', 'digits.H',
+  and 'digits.I2' to control printing of z-values, Q statistics, etc.
+- print text for NAs in z-values instead of "NA"
+  (see new internal function format.NA)
+- only print confidence interval for H and I2 if lower and upper
+  limits are not NA
+- print Wald-type and Likelihood-Ratio test of heterogeneity for
+  meta-analysis based on GLMM
+
+Functions settings.meta and meta-internal:
+- code added for default settings for new arguments 'model.glmm',
+  'digits', 'digits.se', 'digits.zval', 'digits.Q', 'digits.tau2',
+  'digits.H', 'digits.I2', 'digits.prop', 'digits.weight',
+  'digits.pval', and 'digits.pval.Q'
+  
+Functions settings.meta:
+- check whether R package metafor is installed for specific values of
+  argument 'method.tau'
+- arguments 'hakn', 'method.tau', and 'RR.cochrane' reset if argument
+  setting = "RevMan5" or setting = "IQWiG"
+
+Internal function paulemandel:
+- more sensible warning if maximum number of iterations is reached
+- maximum number of iterations increased from 25 to 100
+
+New internal function:
+- format.NA (print text for NAs instead of "NA", default is "--")
+
+Internal function format.p:
+- print trailing zeros
+
+Internal function catmeth:
+- print information for GLMMs (new argument 'model.glmm')
+- print information if studies with double zeros are included in
+  meta-analysis (only relevant for metabin objects with sm = "OR" or
+  sm = "RR")
+
+Internal function is.installed.package:
+- new arguments 'func', 'argument', 'value', 'chksettings' for more
+  flexible printing of errors and warnings
+
+Help pages updated for R functions metabin, metainc, metaprop,
+metareg, forest, print.meta, print.summary.meta, settings.meta, and
+update.meta
+
+
 2015-12-02, version 4.3-2
 
 Function metacont:
@@ -69,7 +177,7 @@ Function metareg:
 
 Function metabin:
 - use Inverse Variance instead of Mantel-Haenszel method if only a
-  single study has a non-missing treatment estimate orstandard error
+  single study has a non-missing treatment estimate or standard error
 
 Functions settings.meta and meta-internal:
 - code added for new arguments in forest.meta function to print
@@ -674,7 +782,7 @@ Function print.summary.meta:
   between-study heterogeneity tau-squared is equal to 0
 
 New function format.tau (used internally):
-- print "0" instead of "< 0.0001" tau-squared is zero
+- print "0" instead of "< 0.0001" if tau-squared is zero
 
 Function p.ci (used internally):
 - new arguments bracket.left, separator, bracket.right for more

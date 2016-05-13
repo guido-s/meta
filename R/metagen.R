@@ -321,13 +321,22 @@ metagen <- function(TE, seTE, studlab,
     ##
     ## Random effects estimate
     ##
-    if (method.tau=="PM"){
-      pm <- paulemandel(TE, seTE)
-      TE.random <- pm$TE.random
-      seTE.random <- pm$seTE.random
-      w.random <- pm$w.random
-      ##
-      tau2 <- pm$tau^2
+    if (method.tau == "PM") {
+      if (Q < k - 1) {
+        TE.random <- TE.fixed
+        seTE.random <- seTE.fixed
+        w.random <- w.fixed
+        ##
+        tau2 <- 0
+      }
+      else {
+        pm <- paulemandel(TE, seTE)
+        TE.random <- pm$TE.random
+        seTE.random <- pm$seTE.random
+        w.random <- pm$w.random
+        ##
+        tau2 <- pm$tau^2
+      }
     }
     else{
       ##

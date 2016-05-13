@@ -6,13 +6,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     incr=.settings$incr, allincr=.settings$allincr,
                     addincr=.settings$addincr,
+                    model.glmm = "UM.FS",
                     ##
                     level=.settings$level, level.comb=.settings$level.comb,
                     comb.fixed=.settings$comb.fixed,
                     comb.random=.settings$comb.random,
                     ##
                     hakn=.settings$hakn,
-                    method.tau=.settings$method.tau,
+                    method.tau =
+                      ifelse(!is.na(charmatch(tolower(method), "glmm",
+                                              nomatch = NA)),
+                             "ML", .settings$method.tau),
                     tau.preset=NULL, TE.tau=NULL,
                     tau.common=.settings$tau.common,
                     ##
@@ -33,7 +37,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     byvar, bylab, print.byvar=.settings$print.byvar,
                     ##
                     keepdata=.settings$keepdata,
-                    warn=.settings$warn
+                    warn=.settings$warn,
+                    ...
                     ){
   
   
@@ -64,12 +69,26 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## Additional arguments / checks for metainc objects
   ##
   fun <- "metainc"
+  ##
   sm <- setchar(sm, c("IRR", "IRD"))
-  method <- setchar(method, c("Inverse", "MH", "Cochran"))
+  ##
+  method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
+  if (method == "GLMM") {
+    is.installed.package("lme4",    fun, "method", " = \"GLMM\"")
+    is.installed.package("metafor", fun, "method", " = \"GLMM\"")
+  }
+  ##
   chklogical(allincr)
   chklogical(addincr)
+  model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL"))
   chklogical(warn)
   chkmetafor(method.tau, fun)
+  ##
+  if (method == "GLMM" & sm != "IRR")
+    stop("Generalised linear mixed models only possible with argument 'sm = \"IRR\"'.")
+  ##
+  if (method == "GLMM" & method.tau != "ML")
+    stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
   
   
   ##
@@ -117,6 +136,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   missing.byvar <- is.null(byvar)
+  if (method == "GLMM" & !missing.byvar) {
+    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
+    byvar <- NULL
+    missing.byvar <- is.null(byvar)
+  }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -143,51 +167,31 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Additional checks
   ##
-  if (method %in% c("MH", "Cochran")){
-    ##
-    mtl <- if (method=="MH") "Mantel-Haenszel method" else "Cochran method"
-    ##
-    if (method.tau!="DL"){
+  if (method == "GLMM") {
+    if (tau.common) {
       if (warn)
-        warning("DerSimonian-Laird method used to estimate between-study variance for ",
-                mtl, ".")
-      method.tau <- "DL"
-    }
-    ##
-    if (hakn){
-      if (warn)
-        warning("Hartung-Knapp method not available for ", mtl, ".")
-      hakn <- FALSE
-    }
-    ##
-    if (!missing.byvar & tau.common){
-      if (warn)
-        warning("Argument 'tau.common' not considered for ", mtl, ".")
+        warning("Argument 'tau.common' not considered for GLMM.")
       tau.common <- FALSE
     }
-    ##
-    if (!is.null(TE.tau)){
+   if (!is.null(TE.tau)) {
       if (warn)
-        warning("Argument 'TE.tau' not considered for ", mtl, ".")
+        warning("Argument 'TE.tau' not considered for GLMM.")
       TE.tau <- NULL
     }
     ##
-    if (!is.null(tau.preset)){
+    if (!is.null(tau.preset)) {
       if (warn)
-        warning("Argument 'tau.preset' not considered for ", mtl, ".")
+        warning("Argument 'tau.preset' not considered for GLMM.")
       tau.preset <- NULL
     }
   }
-  ##
   if (missing.byvar & tau.common){
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!(method %in% c("MH", "Cochran"))){
-    if (!missing.byvar & !tau.common & !is.null(tau.preset)){
-      warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
-      tau.common <- TRUE
-    }
+  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
+    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    tau.common <- TRUE
   }
   
   
@@ -383,6 +387,19 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       return(NULL)
     }
   }
+  else if (method == "GLMM") {
+    glmm.fixed <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
+                                    x2i = event.c, t2i = time.c,
+                                    method = "FE",
+                                    tdist = hakn, level = 100 * level.comb,
+                                    measure = "IRR", model = model.glmm,
+                                    ...)
+    ##
+    TE.fixed   <- as.numeric(glmm.fixed$b)
+    seTE.fixed <- as.numeric(glmm.fixed$se)
+    ##
+    w.fixed <- rep(NA, length(time.e))
+  }
   ##
   m <- metagen(TE, seTE, studlab,
                ##
@@ -447,7 +464,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res$TE.tau <- TE.tau
   res$call <- match.call()
   ##
-  if (method %in% c("MH", "Cochran")){
+  if (method %in% c("MH", "Cochran", "GLMM")) {
     ##
     ci.f <- ci(TE.fixed, seTE.fixed, level=level.comb)
     ##
@@ -458,6 +475,50 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$upper.fixed <- ci.f$upper
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
+  }
+  ##
+  if (method == "GLMM") {
+    ##
+    glmm.random <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
+                                     x2i = event.c, t2i = time.c,
+                                     method = method.tau,
+                                     tdist = hakn, level = 100 * level.comb,
+                                     measure = "IRR", model = model.glmm,
+                                     ...)
+    ##
+    TE.random   <- as.numeric(glmm.random$b)
+    seTE.random <- as.numeric(glmm.random$se)
+    ##
+    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ##
+    res$w.random <- rep(NA, length(event.e))
+    ##
+    res$TE.random <- TE.random
+    res$seTE.random <- seTE.random
+    res$lower.random <- ci.r$lower
+    res$upper.random <- ci.r$upper
+    res$zval.random <- ci.r$z
+    res$pval.random <- ci.r$p
+    ##
+    res$model.glmm <- model.glmm
+    ##
+    res$Q <- glmm.random$QE.Wld
+    res$df.Q <- glmm.random$QE.df
+    res$Q.LRT <- glmm.random$QE.LRT
+    ##
+    res$tau <- sqrt(glmm.random$tau2)
+    ##
+    res$H <- sqrt(glmm.random$H2)
+    res$lower.H <- NA
+    res$upper.H <- NA
+    ##
+    res$I2 <- glmm.random$I2 / 100
+    res$lower.I2 <- NA
+    res$upper.I2 <- NA
+    ##
+    res$.glmm.fixed  <- glmm.fixed
+    res$.glmm.random <- glmm.random
+    res$version.metafor <- packageDescription("metafor")$Version
   }
   ##
   if (keepdata){

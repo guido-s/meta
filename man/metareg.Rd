@@ -11,8 +11,8 @@
 }
 
 \usage{
-metareg(x, formula, method.tau=x$method.tau, hakn=x$hakn,
-        level.comb=x$level.comb, intercept=TRUE,...)
+metareg(x, formula, method.tau = x$method.tau, hakn = x$hakn,
+        level.comb = x$level.comb, intercept = TRUE,...)
 }
 
 \arguments{
@@ -48,8 +48,8 @@ metareg(x, formula, method.tau=x$method.tau, hakn=x$hakn,
 
 \value{
 An object of class \code{c("metareg", "rma.uni","rma")}. Please look
-at the help page of R function \code{rma.uni} for more details on the
-output from this function.
+at the help page of R function \code{\link[metafor]{rma.uni}} for more
+details on the output from this function.
 
 In addition, a list \code{.meta} is added to the output containing the
 following components:
@@ -79,20 +79,20 @@ Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 meta1 <- metacont(n.e, mean.e, sd.e,
                   n.c, mean.c, sd.c,
-                  data=Fleiss93cont, sm="MD")
+                  data = Fleiss93cont, sm = "MD")
 
 
-mu1 <- update(meta1, byvar=region)
+mu1 <- update(meta1, byvar = region)
 
-mu2 <- update(meta1, byvar=region,
-              tau.common=TRUE, comb.fixed=FALSE)
+mu2 <- update(meta1, byvar = region,
+              tau.common = TRUE, comb.fixed = FALSE)
 
 \dontrun{
 # Warnings due to wrong ordering of arguments (order has changed with
 # version 3.0-0 of R package meta)
 #
-metareg(~region, meta1)
-metareg(~region, data=meta1)
+metareg(~ region, meta1)
+metareg(~ region, data = meta1)
 
 # Warning as no information on covariate is available
 #
@@ -111,7 +111,7 @@ metareg(mu2)
 # (as argument 'tau.common' was used to create mu2)
 #
 mu2
-metareg(mu2, intercept=FALSE)
+metareg(mu2, intercept = FALSE)
 metareg(meta1, region)
 #
 # Different result for
@@ -132,21 +132,21 @@ metareg(mu1, region + age)
 
 # Do same meta-regressions using 'official' formula notation
 #
-metareg(meta1, ~region)
-metareg(mu1, ~region + age)
+metareg(meta1, ~ region)
+metareg(mu1, ~ region + age)
 
 # Do meta-regression using REML method and print intermediate results
 # for iterative estimation algorithm; furthermore print results with
 # three digits.
 #
-metareg(mu1, region, method.tau="REML",
-        control=list(verbose=TRUE), digits=3)
+metareg(mu1, region, method.tau = "REML",
+        control = list(verbose = TRUE), digits = 3)
 
 # Use Hartung-Knapp method
 #
-mu3 <- update(mu2, hakn=TRUE)
+mu3 <- update(mu2, hakn = TRUE)
 mu3
-metareg(mu3, intercept=FALSE)
+metareg(mu3, intercept = FALSE)
 }
 
 \keyword{print}

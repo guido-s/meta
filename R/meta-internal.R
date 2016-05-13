@@ -96,10 +96,15 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "smbin", "smcont", "smcor", "sminc", "smprop",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
-              "RR.cochrane", "print.CMH",
+              "RR.cochrane", "model.glmm", "print.CMH",
               "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
               "label.e", "label.c", "label.left", "label.right",
-              "test.overall", "test.subgroup")
+              "test.overall", "test.subgroup",
+              "digits", "digits.se", "digits.zval",
+              "digits.Q", "digits.tau2", "digits.H", "digits.I2",
+              "digits.prop", "digits.weight",
+              "digits.pval", "digits.pval.Q", "digits.forest"
+              )
 setOption("argslist", argslist)
 ##
 ## General settings
@@ -120,6 +125,17 @@ setOption("print.byvar", TRUE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("backtransf", TRUE)
+setOption("digits", 4)
+setOption("digits.se", 4)
+setOption("digits.zval", 2)
+setOption("digits.Q", 2)
+setOption("digits.tau2", 4)
+setOption("digits.H", 2)
+setOption("digits.I2", 1)
+setOption("digits.prop", 4)
+setOption("digits.weight", 1)
+setOption("digits.pval", 4)
+setOption("digits.pval.Q", 4)
 ##
 ## Default summary measure
 ##
@@ -141,6 +157,7 @@ setOption("method", "MH")
 setOption("allstudies", FALSE)
 setOption("MH.exact", FALSE)
 setOption("RR.cochrane", FALSE)
+setOption("model.glmm", "UM.FS")
 setOption("print.CMH", FALSE)
 ##
 ## Additional setting for R function metacont
@@ -165,3 +182,4 @@ setOption("label.right", "")
 ##
 setOption("test.overall", FALSE)
 setOption("test.subgroup", FALSE)
+setOption("digits.forest", 2)

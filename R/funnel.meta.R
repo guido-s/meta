@@ -169,10 +169,10 @@ funnel.meta <- function(x,
   ##
   ## y-axis: labels / ylim
   ##
-  if (yaxis=="se"     & is.null(ylab)) ylab <- "Standard error"
-  if (yaxis=="size"   & is.null(ylab)) ylab <- "Study size"
-  if (yaxis=="invvar" & is.null(ylab)) ylab <- "Inverse of variance"
-  if (yaxis=="invse"  & is.null(ylab)) ylab <- "Inverse of standard error"
+  if (yaxis=="se"     & is.null(ylab)) ylab <- "Standard Error"
+  if (yaxis=="size"   & is.null(ylab)) ylab <- "Study Size"
+  if (yaxis=="invvar" & is.null(ylab)) ylab <- "Inverse of Variance"
+  if (yaxis=="invse"  & is.null(ylab)) ylab <- "Inverse of Standard Error"
   ##
   if (is.null(ylim) & yaxis=="se") ylim <- c(max(weight, na.rm=TRUE), 0)
   if (is.null(ylim)              ) ylim <- range(weight, na.rm=TRUE)
