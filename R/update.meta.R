@@ -455,7 +455,6 @@ update.meta <- function(object,
                   ##
                   sm = ifelse(method == "GLMM", "PLOGIT", sm),
                   incr=incr, allincr=allincr, addincr=addincr,
-                  model.glmm = model.glmm,
                   method.ci=ifelse(is.null(method.ci), "CP", method.ci),
                   ##
                   level=level, level.comb=level.comb,

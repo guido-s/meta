@@ -101,12 +101,12 @@ metareg <- function(x, formula,
                                measure = "IRR", model = x$model.glmm,
                                ...)
     else if (inherits(x, "metaprop"))
-      glmm.fixed <- metafor::rma.glmm(xi = x$event, ni = x$n,
-                                      data = dataset,
-                                      mods = formula, method = method.tau,
-                                      tdist = hakn, level = 100 * level.comb,
-                                      measure = "PLO",
-                                      ...)
+      res <- metafor::rma.glmm(xi = x$event, ni = x$n,
+                               data = dataset,
+                               mods = formula, method = method.tau,
+                               tdist = hakn, level = 100 * level.comb,
+                               measure = "PLO",
+                               ...)
   
   
   res$.meta <- list(x = x,

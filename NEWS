@@ -1,3 +1,12 @@
+*** meta, version 4.4-1, 2016-06-20 ***
+
+ ** User-visible changes **
+
+  * metareg(), update.meta():
+    - bug fix such that use of these functions with metaprop objects
+      using argument method = "GLMM" does not result in an error
+
+
 *** meta, version 4.4-0, 2016-05-13 ***
 
  ** Major changes **
