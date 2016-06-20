@@ -1,16 +1,16 @@
 metareg <- function(x, formula,
-                    method.tau=x$method.tau,
-                    hakn=x$hakn,
-                    level.comb=x$level.comb,
-                    intercept=TRUE,
-                    ...){
+                    method.tau = x$method.tau,
+                    hakn = x$hakn,
+                    level.comb = x$level.comb,
+                    intercept = TRUE,
+                    ...) {
   
-  if ("data" %in% names(list(...))){
+  if ("data" %in% names(list(...))) {
     warning("Please note, argument 'data' has been renamed to 'x' in version 3.0-0 of R package meta (see help page of R function metareg). No meta-regression conducted.")
     return(invisible(NULL))
   }
   
-  if (is.call(x)){
+  if (is.call(x)) {
     warning("Please note, first two arguments of R function metareg have been interchanged in version 3.0-0 of R package meta. No meta-regression conducted.")
     return(invisible(NULL))
   }
@@ -33,9 +33,9 @@ metareg <- function(x, formula,
   if (missing(formula))
     if (!is.null(x$data$.byvar))
       if (intercept)
-        formula <- as.call(~.byvar)
+        formula <- as.call(~ .byvar)
       else
-        formula <- as.call(~.byvar-1)
+        formula <- as.call(~ .byvar - 1)
         
     else{
       warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
@@ -55,8 +55,8 @@ metareg <- function(x, formula,
   method.tau <- setchar(method.tau,
                         c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB", "FE"))
   ##
-  if (method.tau=="PM"){
-    warning("Meta-regresion method not available for method.tau=\"PM\". Using REML method instead (method.tau=\"REML\").")
+  if (method.tau == "PM") {
+    warning("Meta-regresion method not available for method.tau = \"PM\". Using REML method instead (method.tau = \"REML\").")
     method.tau <- "REML"
   }
   ##
@@ -65,23 +65,23 @@ metareg <- function(x, formula,
   chklevel(level.comb)
   chklogical(intercept)
   
-  if (is.null(x$data)){
-    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
+  if (is.null(x$data)) {
+    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
   
   if (!is.null(x$subset))
-    dataset <- x$data[x$subset,]
+    dataset <- x$data[x$subset, ]
   else
     dataset <- x$data
 
   
   if (x$method != "GLMM")
-    res <- metafor::rma.uni(yi=x$TE,
-                            sei=x$seTE,
-                            data=dataset,
-                            mods=formula, method=method.tau,
-                            knha=hakn, level=100*level.comb,
+    res <- metafor::rma.uni(yi = x$TE,
+                            sei = x$seTE,
+                            data = dataset,
+                            mods = formula, method = method.tau,
+                            knha = hakn, level = 100 * level.comb,
                             ...)
   else
     if (inherits(x, "metabin"))
@@ -109,16 +109,16 @@ metareg <- function(x, formula,
                                       ...)
   
   
-  res$.meta <- list(x=x,
-                    formula=formula,
-                    method.tau=method.tau,
-                    hakn=hakn,
-                    level.comb=level.comb,
-                    intercept=intercept,
-                    dots=list(...),
-                    call=match.call(),
-                    version=packageDescription("meta")$Version,
-                    version.metafor=packageDescription("metafor")$Version)
+  res$.meta <- list(x = x,
+                    formula = formula,
+                    method.tau = method.tau,
+                    hakn = hakn,
+                    level.comb = level.comb,
+                    intercept = intercept,
+                    dots = list(...),
+                    call = match.call(),
+                    version = packageDescription("meta")$Version,
+                    version.metafor = packageDescription("metafor")$Version)
 
   class(res) <- c("metareg", class(res))
   

@@ -1,4 +1,4 @@
-settings.meta <- function(...){
+settings.meta <- function(...) {
   
   ## Return current settings
   ##
@@ -8,7 +8,7 @@ settings.meta <- function(...){
   res$argslist <- NULL
   
   
-  catarg <- function(x, lab, newline=TRUE){
+  catarg <- function(x, lab, newline = TRUE) {
     if (!missing(lab))
       xname <- lab
     else
@@ -18,30 +18,30 @@ settings.meta <- function(...){
       cat("- ")
     ##
     if (is.character(.settings[[x]]))
-      cat(xname, '="', .settings[[x]], '"\n', sep="")
+      cat(xname, ' = "', .settings[[x]], '"\n', sep = "")
     else
-      cat(xname, '=', .settings[[x]], "\n", sep="")
+      cat(xname, ' = ', .settings[[x]], "\n", sep = "")
     invisible(NULL)
   }
   
   
-  specificSetting <- function(args, new, ischar, title){
+  specificSetting <- function(args, new, ischar, title) {
     old <- as.vector(unlist(.settings[args]))
-    label.old <- ifelse(ischar, paste("\"", old, "\"", sep=""), old)
-    label.new <- ifelse(ischar, paste("\"", new, "\"", sep=""), new)
+    label.old <- ifelse(ischar, paste("\"", old, "\"", sep = ""), old)
+    label.new <- ifelse(ischar, paste("\"", new, "\"", sep = ""), new)
     ##
     sel <- new != old
-    if (any(sel)){
-      tdata <- data.frame(argument=args[sel],
-                          new=label.new[sel],
-                          previous=label.old[sel])
+    if (any(sel)) {
+      tdata <- data.frame(argument = args[sel],
+                          new = label.new[sel],
+                          previous = label.old[sel])
       names(tdata) <- c("Argument", "New value", "Previous value")
       ##
-      cat(paste("\n** ", title, " **\n\n", sep=""))
-      prmatrix(tdata, quote=FALSE, right=FALSE,
-               rowlab=rep("", length(args)))
+      cat(paste("\n** ", title, " **\n\n", sep = ""))
+      prmatrix(tdata, quote = FALSE, right = FALSE,
+               rowlab = rep("", length(args)))
       ##
-      for (i in seq(along=args))
+      for (i in seq(along = args))
         setOption(args[i], new[i])
     }
     else
@@ -64,20 +64,20 @@ settings.meta <- function(...){
   
   unknown <- !(names %in% c(.settings$argslist, "reset", "print", "setting", ""))
   ##
-  if (sum(unknown)==1)
-    warning(paste("Argument '", names[unknown], "' unknown.", sep=""))
+  if (sum(unknown) == 1)
+    warning(paste("Argument '", names[unknown], "' unknown.", sep = ""))
   else if (sum(unknown)>1)
     warning(paste("Unknown arguments: ", 
-                  paste(paste("'", names[unknown], "'", sep=""),
-                        collapse=" - "), sep=""))
+                  paste(paste("'", names[unknown], "'", sep = ""),
+                        collapse = " - "), sep = ""))
   
   
-  if (length(args)>1 && any(names=="reset")){
-    cat("To reset all settings use a single argument 'reset=TRUE' (R package meta)\n")
+  if (length(args)>1 && any(names == "reset")) {
+    cat("To reset all settings use a single argument 'reset = TRUE' (R package meta)\n")
     return(invisible(res))
   }
   ##
-  if (length(args)>1 && any(names=="setting")){
+  if (length(args)>1 && any(names == "setting")) {
     cat("Argument 'setting' can only be used without other arguments (R package meta)\n")
     return(invisible(res))
   }
@@ -87,40 +87,40 @@ settings.meta <- function(...){
   reset.settings <- FALSE
   specific.settings <- FALSE
   ##
-  if (length(args)==1){
-    if (!is.null(names)){
-      if (names=="print"){
+  if (length(args) == 1) {
+    if (!is.null(names)) {
+      if (names == "print") {
         chklogical(args[[1]], "print")
         print.settings <- args[[1]]
       }
       ##
-      else if (names=="reset"){
+      else if (names == "reset") {
         chklogical(args[[1]], "reset")
         if (args[[1]])
           reset.settings <- TRUE
         else{
-          cat("To reset all settings use argument 'reset=TRUE' (R package meta)\n")
+          cat("To reset all settings use argument 'reset = TRUE' (R package meta)\n")
           return(invisible(res))
         }
       }
       ##
-      else if (names=="setting"){
-        setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name="setting")
+      else if (names == "setting") {
+        setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name = "setting")
       specific.settings <- TRUE
       }
     }
-    else if (is.null(names) & is.character(args[[1]])){
-      setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name="setting")
+    else if (is.null(names) & is.character(args[[1]])) {
+      setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name = "setting")
       specific.settings <- TRUE
     }
   }
   
   
-  if (print.settings){
+  if (print.settings) {
     cat(paste("\n*** Settings for meta-analysis method (R package meta, version ",
-              utils::packageDescription("meta")$Version, ") ***\n\n", sep=""))
+              utils::packageDescription("meta")$Version, ") ***\n\n", sep = ""))
     ##
-    cat("General settings:\n", sep="")
+    cat("General settings:\n", sep = "")
     catarg("level")
     catarg("level.comb")
     catarg("comb.fixed")
@@ -151,15 +151,15 @@ settings.meta <- function(...){
     ##
     cat("\nDefault summary measure (argument 'sm' in corresponding function):\n")
     cat("- metabin:  ")
-    catarg("smbin", newline=FALSE)
+    catarg("smbin", newline = FALSE)
     cat("- metacont: ")
-    catarg("smcont", newline=FALSE)
+    catarg("smcont", newline = FALSE)
     cat("- metacor:  ")
-    catarg("smcor", newline=FALSE)
+    catarg("smcor", newline = FALSE)
     cat("- metainc:  ")
-    catarg("sminc", newline=FALSE)
+    catarg("sminc", newline = FALSE)
     cat("- metaprop: ")
-    catarg("smprop", newline=FALSE)
+    catarg("smprop", newline = FALSE)
     ##
     cat("\nSettings for R functions metabin, metainc, and metaprop:\n")
     catarg("incr")
@@ -195,7 +195,7 @@ settings.meta <- function(...){
     cat("- argument 'digits': ")
     catarg("digits.forest", newline = FALSE)
   }
-  else if (reset.settings){
+  else if (reset.settings) {
     cat("Reset all settings back to default (R package meta).\n")
     ##
     setOption("level", 0.95)
@@ -258,29 +258,29 @@ settings.meta <- function(...){
     setOption("test.subgroup", FALSE)
     setOption("digits.forest", 2)
   }
-  else if (specific.settings){
-    if (setting=="RevMan5")
-      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
-                      new=c(FALSE, "DL", TRUE),
-                      ischar=c(FALSE, TRUE, FALSE),
-                      title="Use RevMan 5 settings")
+  else if (specific.settings) {
+    if (setting == "RevMan5")
+      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
+                      new = c(FALSE, "DL", TRUE),
+                      ischar = c(FALSE, TRUE, FALSE),
+                      title = "Use RevMan 5 settings")
     ##
-    else if (setting=="IQWiG")
-      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
-                      new=c(TRUE, "PM", FALSE),
-                      ischar=c(FALSE, TRUE, FALSE),
-                      title="Use IQWiG settings")
+    else if (setting == "IQWiG")
+      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
+                      new = c(TRUE, "PM", FALSE),
+                      ischar = c(FALSE, TRUE, FALSE),
+                      title = "Use IQWiG settings")
     ##
-    else if (setting=="meta4")
-      specificSetting(args=c("hakn", "method.tau", "RR.cochrane"),
-                      new=c(FALSE, "DL", FALSE),
-                      ischar=c(FALSE, TRUE, FALSE),
-                      title="Use settings from R package meta (version 4.3-1 and older)")
+    else if (setting == "meta4")
+      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
+                      new = c(FALSE, "DL", FALSE),
+                      ischar = c(FALSE, TRUE, FALSE),
+                      title = "Use settings from R package meta (version 4.3-1 and older)")
   }
   else{
-    argid <- function(x, value){
-      if (any(names==value))
-        res <- seq(along=x)[names==value]
+    argid <- function(x, value) {
+      if (any(names == value))
+        res <- seq(along = x)[names == value]
       else
         res <- NA
       res
@@ -348,32 +348,32 @@ settings.meta <- function(...){
     ##
     ## General settings
     ##
-    if (!is.na(idlevel)){
+    if (!is.na(idlevel)) {
       level <- args[[idlevel]]
       chklevel(level)
       setOption("level", level)
     }
-    if (!is.na(idlevel.comb)){
+    if (!is.na(idlevel.comb)) {
       level.comb <- args[[idlevel.comb]]
       chklevel(level.comb)
       setOption("level.comb", level.comb)
     }
-    if (!is.na(idcomb.fixed)){
+    if (!is.na(idcomb.fixed)) {
       comb.fixed <- args[[idcomb.fixed]]
       chklogical(comb.fixed)
       setOption("comb.fixed", comb.fixed)
     }
-    if (!is.na(idcomb.random)){
+    if (!is.na(idcomb.random)) {
       comb.random <- args[[idcomb.random]]
       chklogical(comb.random)
       setOption("comb.random", comb.random)
     }
-    if (!is.na(idhakn)){
+    if (!is.na(idhakn)) {
       hakn <- args[[idhakn]]
       chklogical(hakn)
       setOption("hakn", hakn)
     }
-    if (!is.na(idmethod.tau)){
+    if (!is.na(idmethod.tau)) {
       method.tau <- args[[idmethod.tau]]
       method.tau <- setchar(method.tau,
                             c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
@@ -382,112 +382,112 @@ settings.meta <- function(...){
                                argument = "method.tau", value = method.tau))
         setOption("method.tau", method.tau)
     }
-    if (!is.na(idtau.common)){
+    if (!is.na(idtau.common)) {
       tau.common <- args[[idtau.common]]
       chklogical(tau.common)
       setOption("tau.common", tau.common)
     }
-    if (!is.na(idprediction)){
+    if (!is.na(idprediction)) {
       prediction <- args[[idprediction]]
       chklogical(prediction)
       setOption("prediction", prediction)
     }
-    if (!is.na(idlevel.predict)){
+    if (!is.na(idlevel.predict)) {
       level.predict <- args[[idlevel.predict]]
       chklevel(level.predict)
       setOption("level.predict", level.predict)
     }
-    if (!is.na(idmethod.bias)){
+    if (!is.na(idmethod.bias)) {
       method.bias <- args[[idmethod.bias]]
       method.bias <- setchar(method.bias,
                             c("rank", "linreg", "mm", "count", "score", "peters"))
       setOption("method.bias", method.bias)
     }
-    if (!is.na(idtitle)){
+    if (!is.na(idtitle)) {
       title <- args[[idtitle]]
-      if (length(title)!=1)
+      if (length(title) != 1)
         stop("Argument 'title' must be a character string.")
       ##
       setOption("title", title)
     }
-    if (!is.na(idcomplab)){
+    if (!is.na(idcomplab)) {
       complab <- args[[idcomplab]]
-      if (length(complab)!=1)
+      if (length(complab) != 1)
         stop("Argument 'complab' must be a character string.")
       ##
       setOption("complab", complab)
     }
-    if (!is.na(idprint.byvar)){
+    if (!is.na(idprint.byvar)) {
       print.byvar <- args[[idprint.byvar]]
       chklogical(print.byvar)
       setOption("print.byvar", print.byvar)
     }
-    if (!is.na(idkeepdata)){
+    if (!is.na(idkeepdata)) {
       keepdata <- args[[idkeepdata]]
       chklogical(keepdata)
       setOption("keepdata", keepdata)
     }
-    if (!is.na(idwarn)){
+    if (!is.na(idwarn)) {
       warn <- args[[idwarn]]
       chklogical(warn)
       setOption("warn", warn)
     }
-    if (!is.na(idbacktransf)){
+    if (!is.na(idbacktransf)) {
       backtransf <- args[[idbacktransf]]
       chklogical(backtransf)
       setOption("backtransf", backtransf)
     }
-    if (!is.na(iddigits)){
+    if (!is.na(iddigits)) {
       digits <- args[[iddigits]]
       chknumeric(digits, min = 0, single = TRUE)
       setOption("digits", digits)
     }
-    if (!is.na(iddigits.se)){
+    if (!is.na(iddigits.se)) {
       digits.se <- args[[iddigits.se]]
       chknumeric(digits.se, min = 0, single = TRUE)
       setOption("digits.se", digits.se)
     }
-    if (!is.na(iddigits.zval)){
+    if (!is.na(iddigits.zval)) {
       digits.zval <- args[[iddigits.zval]]
       chknumeric(digits.zval, min = 0, single = TRUE)
       setOption("digits.zval", digits.zval)
     }
-    if (!is.na(iddigits.Q)){
+    if (!is.na(iddigits.Q)) {
       digits.Q <- args[[iddigits.Q]]
       chknumeric(digits.Q, min = 0, single = TRUE)
       setOption("digits.Q", digits.Q)
     }
-    if (!is.na(iddigits.tau2)){
+    if (!is.na(iddigits.tau2)) {
       digits.tau2 <- args[[iddigits.tau2]]
       chknumeric(digits.tau2, min = 0, single = TRUE)
       setOption("digits.tau2", digits.tau2)
     }
-    if (!is.na(iddigits.H)){
+    if (!is.na(iddigits.H)) {
       digits.H <- args[[iddigits.H]]
       chknumeric(digits.H, min = 0, single = TRUE)
       setOption("digits.H", digits.H)
     }
-    if (!is.na(iddigits.I2)){
+    if (!is.na(iddigits.I2)) {
       digits.I2 <- args[[iddigits.I2]]
       chknumeric(digits.I2, min = 0, single = TRUE)
       setOption("digits.I2", digits.I2)
     }
-    if (!is.na(iddigits.prop)){
+    if (!is.na(iddigits.prop)) {
       digits.prop <- args[[iddigits.prop]]
       chknumeric(digits.prop, min = 0, single = TRUE)
       setOption("digits.prop", digits.prop)
     }
-    if (!is.na(iddigits.weight)){
+    if (!is.na(iddigits.weight)) {
       digits.weight <- args[[iddigits.weight]]
       chknumeric(digits.weight, min = 0, single = TRUE)
       setOption("digits.weight", digits.weight)
     }
-    if (!is.na(iddigits.pval)){
+    if (!is.na(iddigits.pval)) {
       digits.pval <- args[[iddigits.pval]]
       chknumeric(digits.pval, min = 0, single = TRUE)
       setOption("digits.pval", digits.pval)
     }
-    if (!is.na(iddigits.pval.Q)){
+    if (!is.na(iddigits.pval.Q)) {
       digits.pval.Q <- args[[iddigits.pval.Q]]
       chknumeric(digits.pval.Q, min = 0, single = TRUE)
       setOption("digits.pval.Q", digits.pval.Q)
@@ -495,12 +495,12 @@ settings.meta <- function(...){
     ##
     ## R function metabin
     ##
-    if (!is.na(idsmbin)){
+    if (!is.na(idsmbin)) {
       smbin <- args[[idsmbin]]
       smbin <- setchar(smbin, c("OR", "RD", "RR", "ASD"))
       setOption("smbin", smbin)
     }
-    if (!is.na(idmethod)){
+    if (!is.na(idmethod)) {
       method <- args[[idmethod]]
       method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
       if (method == "GLMM") {
@@ -513,45 +513,45 @@ settings.meta <- function(...){
       }
       setOption("method", method)
     }
-    if (!is.na(idmodel.glmm)){
+    if (!is.na(idmodel.glmm)) {
       model.glmm <- args[[idmodel.glmm]]
       model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
       setOption("model.glmm", model.glmm)
     }
     ##
-    if (!is.na(idincr)){
+    if (!is.na(idincr)) {
       incr <- args[[idincr]]
       if (!is.numeric(incr))
         incr <- setchar(incr, "TACC",
                        "should be numeric or the character string \"TACC\"")
       setOption("incr", incr)
     }
-    if (!is.na(idallincr)){
+    if (!is.na(idallincr)) {
       allincr <- args[[idallincr]]
       chklogical(allincr)
       setOption("allincr", allincr)
     }
-    if (!is.na(idaddincr)){
+    if (!is.na(idaddincr)) {
       addincr <- args[[idaddincr]]
       chklogical(addincr)
       setOption("addincr", addincr)
     }
-    if (!is.na(idallstudies)){
+    if (!is.na(idallstudies)) {
       allstudies <- args[[idallstudies]]
       chklogical(allstudies)
       setOption("allstudies", allstudies)
     }
-    if (!is.na(idMH.exact)){
+    if (!is.na(idMH.exact)) {
       MH.exact <- args[[idMH.exact]]
       chklogical(MH.exact)
       setOption("MH.exact", MH.exact)
     }
-    if (!is.na(idRR.cochrane)){
+    if (!is.na(idRR.cochrane)) {
       RR.cochrane <- args[[idRR.cochrane]]
       chklogical(RR.cochrane)
       setOption("RR.cochrane", RR.cochrane)
     }
-    if (!is.na(idprint.CMH)){
+    if (!is.na(idprint.CMH)) {
       print.CMH <- args[[idprint.CMH]]
       chklogical(print.CMH)
       setOption("print.CMH", print.CMH)
@@ -559,7 +559,7 @@ settings.meta <- function(...){
     ##
     ## R function metacont
     ##
-    if (!is.na(idsmcont)){
+    if (!is.na(idsmcont)) {
       smcont <- args[[idsmcont]]
       smcont <- setchar(smcont, c("MD", "SMD"))
       setOption("smcont", smcont)
@@ -567,7 +567,7 @@ settings.meta <- function(...){
     ##
     ## R function metacor
     ##
-    if (!is.na(idsmcor)){
+    if (!is.na(idsmcor)) {
       smcor <- args[[idsmcor]]
       smcor <- setchar(smcor, c("ZCOR", "COR"))
       setOption("smcor", smcor)
@@ -575,7 +575,7 @@ settings.meta <- function(...){
     ##
     ## R function metainc
     ##
-    if (!is.na(idsminc)){
+    if (!is.na(idsminc)) {
       sminc <- args[[idsminc]]
       sminc <- setchar(sminc, c("IRR", "IRD"))
       setOption("sminc", sminc)
@@ -583,22 +583,22 @@ settings.meta <- function(...){
     ##
     ## R function metacont
     ##
-    if (!is.na(idpooledvar)){
+    if (!is.na(idpooledvar)) {
       pooledvar <- args[[idpooledvar]]
       chklogical(pooledvar)
       setOption("pooledvar", pooledvar)
     }
-    if (!is.na(idmethod.smd)){
+    if (!is.na(idmethod.smd)) {
       method.smd <- args[[idmethod.smd]]
       method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
       setOption("method.smd", method.smd)
     }
-    if (!is.na(idsd.glass)){
+    if (!is.na(idsd.glass)) {
       sd.glass <- args[[idsd.glass]]
       sd.glass <- setchar(sd.glass, c("control", "experimental"))
       setOption("sd.glass", sd.glass)
     }
-    if (!is.na(idexact.smd)){
+    if (!is.na(idexact.smd)) {
       exact.smd <- args[[idexact.smd]]
       chklogical(exact.smd)
       setOption("exact.smd", exact.smd)
@@ -606,13 +606,13 @@ settings.meta <- function(...){
     ##
     ## R function metaprop
     ##
-    if (!is.na(idsmprop)){
+    if (!is.na(idsmprop)) {
       smprop <- args[[idsmprop]]
       smprop <- setchar(smprop, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
       setOption("smprop", smprop)
     }
     ##
-    if (!is.na(idmethod.ci)){
+    if (!is.na(idmethod.ci)) {
       method.ci <- args[[idmethod.ci]]
       method.ci <- setchar(method.ci,
                           c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
@@ -621,30 +621,30 @@ settings.meta <- function(...){
     ##
     ## R functions comparing two treatments
     ##
-    if (!is.na(idlabel.e)){
+    if (!is.na(idlabel.e)) {
       label.e <- args[[idlabel.e]]
-      if (length(label.e)!=1)
+      if (length(label.e) != 1)
         stop("Argument 'label.e' must be a character string.")
       ##
       setOption("label.e", label.e)
     }
-    if (!is.na(idlabel.c)){
+    if (!is.na(idlabel.c)) {
       label.c <- args[[idlabel.c]]
-      if (length(label.c)!=1)
+      if (length(label.c) != 1)
         stop("Argument 'label.c' must be a character string.")
       ##
       setOption("label.c", label.c)
     }
-    if (!is.na(idlabel.left)){
+    if (!is.na(idlabel.left)) {
       label.left <- args[[idlabel.left]]
-      if (length(label.left)!=1)
+      if (length(label.left) != 1)
         stop("Argument 'label.left' must be a character string.")
       ##
       setOption("label.left", label.left)
     }
-    if (!is.na(idlabel.right)){
+    if (!is.na(idlabel.right)) {
       label.right <- args[[idlabel.right]]
-      if (length(label.right)!=1)
+      if (length(label.right) != 1)
         stop("Argument 'label.right' must be a character string.")
       ##
       setOption("label.right", label.right)
@@ -652,17 +652,17 @@ settings.meta <- function(...){
     ##
     ## R function forest.meta
     ##
-    if (!is.na(idtest.overall)){
+    if (!is.na(idtest.overall)) {
       test.overall <- args[[idtest.overall]]
       chklogical(test.overall)
       setOption("test.overall", test.overall)
     }
-    if (!is.na(idtest.subgroup)){
+    if (!is.na(idtest.subgroup)) {
       test.subgroup <- args[[idtest.subgroup]]
       chklogical(test.subgroup)
       setOption("test.subgroup", test.subgroup)
     }
-    if (!is.na(iddigits.forest)){
+    if (!is.na(iddigits.forest)) {
       digits.forest <- args[[iddigits.forest]]
       chknumeric(digits.forest, min = 0, single = TRUE)
       setOption("digits.forest", digits.forest)

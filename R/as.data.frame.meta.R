@@ -1,5 +1,5 @@
-as.data.frame.meta <- function(x, row.names=NULL,
-                               optional=FALSE, ...){
+as.data.frame.meta <- function(x, row.names = NULL,
+                               optional = FALSE, ...) {
   
   
   ##
