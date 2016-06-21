@@ -562,6 +562,7 @@ meta5 <- update(meta3, method = "Peto")
 summary(meta5)
 
 
+\dontrun{
 #
 # Meta-analysis using generalised linear mixed models
 # (only if R packages 'metafor' and 'lme4' are available)
@@ -602,7 +603,6 @@ if (require(BiasedUrn, quietly = TRUE)) {
 meta9 <- update(meta6, model.glmm = "CM.AL")
 summary(meta9)
 
-\dontrun{
 #
 # Logistic regression model with (k = 70) fixed study effects
 # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
