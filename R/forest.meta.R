@@ -390,7 +390,7 @@ forest.meta <- function(x,
   ##
   log.xaxis <- FALSE
   ##
-  if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
+  if (missing(ref) && sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
     ref <- NA
   ##
   if (backtransf & is.relative.effect(sm)) {
