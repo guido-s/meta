@@ -1,4 +1,4 @@
-chklogical <- function(x, name=NULL){
+chklogical <- function(x, name = NULL) {
   ##
   ## Check whether argument is logical
   ##
@@ -8,8 +8,8 @@ chklogical <- function(x, name=NULL){
   if (is.numeric(x))
     x <- as.logical(x)
   ##
-  if (length(x)!= 1 || !is.logical(x) || is.na(x))
-    stop("Argument '", name, "' must be a logical.", call.=FALSE)
+  if (length(x) !=  1 || !is.logical(x) || is.na(x))
+    stop("Argument '", name, "' must be a logical.", call. = FALSE)
   ##
   invisible(NULL)
 }

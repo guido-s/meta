@@ -1,4 +1,4 @@
-chkclass <- function(x, class, name=NULL){
+chkclass <- function(x, class, name = NULL) {
   ##
   ## Check class of R object
   ##
@@ -8,7 +8,7 @@ chkclass <- function(x, class, name=NULL){
   if (!inherits(x, class))
     stop("Argument '", name,
          "' must be an object of class \"",
-         class, "\".", call.=FALSE)
+         class, "\".", call. = FALSE)
   ##
   invisible(NULL)
 }

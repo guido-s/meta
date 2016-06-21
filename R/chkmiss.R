@@ -1,4 +1,4 @@
-chkmiss <- function(x, name=NULL){
+chkmiss <- function(x, name = NULL) {
   ##
   ## Check for missing values
   ##
@@ -7,7 +7,7 @@ chkmiss <- function(x, name=NULL){
   ##
   if (any(is.na(x)))
     stop("Missing values in argument '", name, "'.",
-         call.=FALSE)
+         call. = FALSE)
   ##
   invisible(NULL)
 }

@@ -1,5 +1,5 @@
-chknumeric <- function(x, min, max, zero=FALSE, single=FALSE,
-                       name=NULL){
+chknumeric <- function(x, min, max, zero = FALSE, single = FALSE,
+                       name = NULL) {
   ##
   ## Check numeric variable
   ##
@@ -12,34 +12,34 @@ chknumeric <- function(x, min, max, zero=FALSE, single=FALSE,
   ##
   if (!(is.numeric(x)))
     stop("Non-numeric value for argument '", name, "'.",
-         call.=FALSE)
+         call. = FALSE)
   ##
-  if (single & length(x)!=1)
+  if (single & length(x) != 1)
     stop("Argument '", name, "' must be a numeric of length 1.",
-         call.=FALSE)
+         call. = FALSE)
   ##
-  if (!missing(min) & missing(max)){
-    if (zero & min==0 & any(x <= min))
+  if (!missing(min) & missing(max)) {
+    if (zero & min == 0 & any(x <= min))
       stop("Argument '", name, "' must be positive.",
-           call.=FALSE)
+           call. = FALSE)
     else if (any(x < min))
       stop("Argument '", name, "' must be larger equal ",
-           min, ".", call.=FALSE)
+           min, ".", call. = FALSE)
   }
   ##
-  if (missing(min) & !missing(max)){
-    if (zero & max==0 & any(x >= max))
+  if (missing(min) & !missing(max)) {
+    if (zero & max == 0 & any(x >= max))
       stop("Argument '", name, "' must be negative.",
-           call.=FALSE)
+           call. = FALSE)
     else if (any(x > max))
       stop("Argument '", name, "' must be smaller equal ",
-           min, ".", call.=FALSE)
+           min, ".", call. = FALSE)
   }
   ##
   if ((!missing(min) & !missing(max)) &&
       (any(x < min) | any(x > max)))
-      stop("Argument '", name, "' must be between ",
-           min, " and ", max, ".", call.=FALSE)
+    stop("Argument '", name, "' must be between ",
+         min, " and ", max, ".", call. = FALSE)
   ##
   invisible(NULL)
 }

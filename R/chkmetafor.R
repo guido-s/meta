@@ -1,4 +1,4 @@
-chkmetafor <- function(x, name){
+chkmetafor <- function(x, name) {
   ##
   ## Check whether R package metafor is installed
   ##
@@ -8,7 +8,7 @@ chkmetafor <- function(x, name){
                          paste("'", name,
                                "' with\n       argument 'method.tau' ",
                                "unequal to 'DL' and 'PM'.",
-                               sep=""))
+                               sep = ""))
   ##
   invisible(NULL)
 }
