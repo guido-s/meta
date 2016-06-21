@@ -1,4 +1,4 @@
-ciSimpleAsymptotic <- function(event, n, level=0.95, correct=FALSE){
+ciSimpleAsymptotic <- function(event, n, level = 0.95, correct = FALSE) {
   
   ## Reference:
   ## Newcombe RG. Two-sided confidence intervals for the single
@@ -8,21 +8,21 @@ ciSimpleAsymptotic <- function(event, n, level=0.95, correct=FALSE){
   if (level <= 0 | level >= 1)
     stop("no valid level for confidence interval")
   
-  p <- event/n
-  q <- 1-p
-  z <- qnorm(1 - (1-level)/2)
+  p <- event / n
+  q <- 1 - p
+  z <- qnorm(1 - (1 - level) / 2)
 
-  if (!correct){
-    lower  <- p - z*sqrt(p*q/n)
-    upper  <- p + z*sqrt(p*q/n)
-    }
+  if (!correct) {
+    lower  <- p - z * sqrt(p * q / n)
+    upper  <- p + z * sqrt(p * q / n)
+  }
   else{
-    lower  <- p - (z*sqrt(p*q/n) + 1/(2*n))
-    upper  <- p + (z*sqrt(p*q/n) + 1/(2*n))
+    lower  <- p - (z * sqrt(p * q / n) + 1 / (2 * n))
+    upper  <- p + (z * sqrt(p * q / n) + 1 / (2 * n))
   }
   ##
-  lower[lower<0] <- 0
-  upper[upper>1] <- 1
+  lower[lower < 0] <- 0
+  upper[upper > 1] <- 1
   
-  list(n=n, p=p, lower=lower, upper=upper, level=level)
+  list(n = n, p = p, lower = lower, upper = upper, level = level)
 }

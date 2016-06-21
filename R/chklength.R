@@ -1,11 +1,11 @@
-chklength <- function(x, k.all, fun, text, name=NULL){
+chklength <- function(x, k.all, fun, text, name = NULL) {
   ##
   ## Check length of vector
   ##
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (length(x) != k.all){
+  if (length(x) != k.all) {
     funcs <- c("metabin", "metacont", "metacor",
                "metagen", "metainc", "metaprop",
                "funnel", "forest.meta")
@@ -19,9 +19,9 @@ chklength <- function(x, k.all, fun, text, name=NULL){
     if (missing(text))
       stop("Arguments '", argname, "' and '", name,
            "' must have the same length.",
-           call.=FALSE)
+           call. = FALSE)
     else
-      stop(text, call.=FALSE)
+      stop(text, call. = FALSE)
   }
   ##
   invisible(NULL)

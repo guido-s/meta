@@ -1,4 +1,4 @@
-bylevs <- function(x){
+bylevs <- function(x) {
   if (is.factor(x))
     res <- levels(x)
   else
