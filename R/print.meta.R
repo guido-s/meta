@@ -1,10 +1,10 @@
 print.meta <- function(x,
                        sortvar,
-                       comb.fixed=x$comb.fixed,
-                       comb.random=x$comb.random,
-                       prediction=x$prediction,
-                       details=FALSE, ma=TRUE,
-                       backtransf=x$backtransf,
+                       comb.fixed = x$comb.fixed,
+                       comb.random = x$comb.random,
+                       prediction = x$prediction,
+                       details = FALSE, ma = TRUE,
+                       backtransf = x$backtransf,
                        digits = .settings$digits,
                        digits.se = .settings$digits.se,
                        digits.zval = .settings$digits.zval,
@@ -15,7 +15,7 @@ print.meta <- function(x,
                        digits.prop = .settings$digits.prop,
                        digits.weight = .settings$digits.weight,
                        ...
-                       ){
+                       ) {
   
   
   ##
@@ -36,10 +36,10 @@ print.meta <- function(x,
   ##
   mf <- match.call()
   error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x, stringsAsFactors=FALSE),
+                               as.data.frame(x, stringsAsFactors = FALSE),
                                enclos = sys.frame(sys.parent())),
-               silent=TRUE)
-  if (class(error)=="try-error"){
+               silent = TRUE)
+  if (class(error) == "try-error") {
     xd <- x$data
     sortvar <- eval(mf[[match("sortvar", names(mf))]],
                     xd, enclos = NULL)
@@ -77,7 +77,7 @@ print.meta <- function(x,
   warnarg("level", addargs, fun, cl)
   warnarg("level.comb", addargs, fun, cl)
   warnarg("level.predict", addargs, fun, cl)
-  warnarg("logscale", addargs, fun, otherarg="backtransf")
+  warnarg("logscale", addargs, fun, otherarg = "backtransf")
   ##
   level <- x$level
   level.comb <- x$level.comb
@@ -91,23 +91,23 @@ print.meta <- function(x,
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##  
-  prediction <- prediction & x$k>=3
+  prediction <- prediction & x$k >= 3
   ##  
-  ci.lab <- paste(round(100*level, 1), "%-CI", sep="")
+  ci.lab <- paste(round(100 * level, 1), "%-CI", sep = "")
   ##  
   sm <- x$sm
   ##  
   sm.lab <- sm
   ##
-  if (backtransf){
-    if (sm=="ZCOR")
+  if (backtransf) {
+    if (sm == "ZCOR")
       sm.lab <- "COR"
     if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
       sm.lab <- "proportion"
   }
   else 
     if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep="")
+      sm.lab <- paste("log", sm, sep = "")
   
   
   ##
@@ -124,7 +124,7 @@ print.meta <- function(x,
                         p.e = format.NA(round(x$event.e / x$n.e, digits.prop)),
                         p.c = format.NA(round(x$event.c / x$n.c, digits.prop)))
     }
-    else if (inherits(x, "metacont")){
+    else if (inherits(x, "metacont")) {
       res <- data.frame(n.e = x$n.e,
                         mean.e = format.NA(round(x$mean.e, digits), digits, "NA"),
                         sd.e = format.NA(round(x$sd.e, digits.se), digits.se, "NA"),
@@ -132,21 +132,21 @@ print.meta <- function(x,
                         mean.c = format.NA(round(x$mean.c, digits), digits, "NA"),
                         sd.c = format.NA(round(x$sd.c, digits.se), digits.se, "NA"))
     }
-    else if (inherits(x, "metacor")){
-      res <- data.frame(cor=x$cor, n=x$n)
+    else if (inherits(x, "metacor")) {
+      res <- data.frame(cor = x$cor, n = x$n)
     }
-    else if (inherits(x, "metagen")){
+    else if (inherits(x, "metagen")) {
       res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
                         seTE = format.NA(round(x$seTE, digits.se), digits.se, "NA"))
     }
-    else if (inherits(x, "metainc")){
+    else if (inherits(x, "metainc")) {
       res <- data.frame(event.e = x$event.e,
                         time.e = format.NA(round(x$time.e, digits), digits, "NA"),
                         event.c = x$event.c,
                         time.c = format.NA(round(x$time.c, digits), digits, "NA"))
     }
-    else if (inherits(x, "metaprop")){
-      res <- data.frame(event=x$event, n=x$n,
+    else if (inherits(x, "metaprop")) {
+      res <- data.frame(event = x$event, n = x$n,
                         p = format.NA(round(x$event / x$n, digits.prop), digits.prop, "NA"))
     }
     else{
@@ -164,23 +164,23 @@ print.meta <- function(x,
   ## (5) Print results for individual studies
   ##
   ##
-  if (k.all == 1 & !inherits(x, "metaprop")){
-    if (inherits(x, "metabin") & x$method=="MH")
+  if (k.all == 1 & !inherits(x, "metaprop")) {
+    if (inherits(x, "metabin") & x$method == "MH")
       print(summary(metabin(x$event.e, x$n.e,
                             x$event.c, x$n.c,
-                            sm=sm,
-                            method="Inverse",
-                            studlab=x$studlab,
-                            incr=x$incr,
-                            allincr=x$allincr,
-                            doublezeros=x$doublezeros,
-                            MH.exact=x$MH.exact,
-                            warn=FALSE, level.comb=level.comb)),
-            digits=digits, header=FALSE, backtransf=backtransf,
+                            sm = sm,
+                            method = "Inverse",
+                            studlab = x$studlab,
+                            incr = x$incr,
+                            allincr = x$allincr,
+                            doublezeros = x$doublezeros,
+                            MH.exact = x$MH.exact,
+                            warn = FALSE, level.comb = level.comb)),
+            digits = digits, header = FALSE, backtransf = backtransf,
             digits.zval = digits.zval)
     else
       print(summary(x),
-            digits=digits, header=FALSE, backtransf=backtransf,
+            digits = digits, header = FALSE, backtransf = backtransf,
             digits.zval = digits.zval, ...)
   }
   else{
@@ -189,23 +189,23 @@ print.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    if (inherits(x, "metaprop") & !backtransf){
-      ciTE <- ci(TE, seTE, level=level)
+    if (inherits(x, "metaprop") & !backtransf) {
+      ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
       uppTE <- ciTE$upper
       ##
       x$method.ci <- "NAsm"
     }
     ##
-    if (backtransf){
-      ## Freeman-Tukey Arcsin transformation (sm="PFT")
+    if (backtransf) {
+      ## Freeman-Tukey Arcsin transformation (sm = "PFT")
       if (metainf.metacum)
         npft <- x$n.harmonic.mean
       else
         npft <- x$n
       ##
       if (inherits(x, "metaprop"))
-        TE <- x$event/x$n
+        TE <- x$event / x$n
       else{
         TE <- backtransf(TE, sm, "mean", npft)
         lowTE <- backtransf(lowTE, sm, "lower", npft)
@@ -229,8 +229,8 @@ print.meta <- function(x,
         else w.random.p <- x$w.random
     }
     ##    
-    if (metainf.metacum){
-      is.random <- x$pooled=="random"
+    if (metainf.metacum) {
+      is.random <- x$pooled == "random"
       ##
       I2 <- format.NA(round(100 * x$I2, digits.I2), digits.I2, "")
       ##
@@ -246,36 +246,36 @@ print.meta <- function(x,
                         format.NA(round(uppTE, digits), digits, "NA")),
                    p.value,
                    paste("  ", tau2, sep = ""),
-                   paste("  ", I2, ifelse(I2 == "", "", "%"), sep=""))
-      dimnames(res) <- list(paste(x$studlab, "  ", sep=""),
+                   paste("  ", I2, ifelse(I2 == "", "", "%"), sep = ""))
+      dimnames(res) <- list(paste(x$studlab, "  ", sep = ""),
                             c(sm.lab, ci.lab, "p-value", "tau^2", "I^2"))
       ##
-      if (inherits(x, "metainf")){
+      if (inherits(x, "metainf")) {
         if (!is.random)
           cat("\nInfluential analysis (Fixed effect model)\n")
         else
           cat("\nInfluential analysis (Random effects model)\n")
       }
-      if (inherits(x, "metacum")){
+      if (inherits(x, "metacum")) {
         if (!is.random)
           cat("\nCumulative meta-analysis (Fixed effect model)\n")
         else
           cat("\nCumulative meta-analysis (Random effects model)\n")
       }
       cat("\n")
-      prmatrix(res, quote=FALSE, right=TRUE, na.print="--")
+      prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
       ## Print information on summary method:
-      catmeth(method=x$method,
-              method.tau=if (is.random) x$method.tau else "",
-              sm=sm,
-              k.all=k.all,
-              hakn=is.random & x$hakn,
-              metaprop=inherits(x, "metaprop"),
-              trimfill=inherits(x, "trimfill"),
-              tau.preset=x$tau.preset,
-              method.smd=x$method.smd,
-              sd.glass=x$sd.glass,
-              exact.smd=x$exact.smd,
+      catmeth(method = x$method,
+              method.tau = if (is.random) x$method.tau else "",
+              sm = sm,
+              k.all = k.all,
+              hakn = is.random & x$hakn,
+              metaprop = inherits(x, "metaprop"),
+              trimfill = inherits(x, "trimfill"),
+              tau.preset = x$tau.preset,
+              method.smd = x$method.smd,
+              sd.glass = x$sd.glass,
+              exact.smd = x$exact.smd,
               model.glmm = x$model.glmm)
     }
     else{
@@ -285,27 +285,27 @@ print.meta <- function(x,
                    if (comb.fixed) format.NA(w.fixed.p, digits.weight),
                    if (comb.random) format.NA(w.random.p, digits.weight))
       ## Printout for a single proportion:
-      if (k.all == 1){
+      if (k.all == 1) {
         ##
-        if (!is.null(x$method.ci)){
-          if  (x$method.ci=="CP")
+        if (!is.null(x$method.ci)) {
+          if  (x$method.ci == "CP")
             method.ci.details <- "Clopper-Pearson confidence interval:\n\n"
-          else if (x$method.ci=="WS")
+          else if (x$method.ci == "WS")
             method.ci.details <- "Wilson Score confidence interval:\n\n"
-          else if (x$method.ci=="WSCC")
+          else if (x$method.ci == "WSCC")
             method.ci.details <- "Wilson Score confidence interval with continuity correction:\n\n"
-          else if (x$method.ci=="AC")
+          else if (x$method.ci == "AC")
             method.ci.details <- "Agresti-Coull confidence interval:\n\n"
-          else if (x$method.ci=="SA")
+          else if (x$method.ci == "SA")
             method.ci.details <- "Simple approximation confidence interval:\n\n"
-          else if (x$method.ci=="SACC")
+          else if (x$method.ci == "SACC")
             method.ci.details <- "Simple approximation confidence interval with continuity correction:\n\n"
-          if (x$method.ci!="NAsm"){
+          if (x$method.ci != "NAsm") {
             cat(method.ci.details)
             dimnames(res) <- list("", c(sm.lab, ci.lab,
                                         if (comb.fixed) "%W(fixed)",
                                         if (comb.random) "%W(random)"))
-            prmatrix(res, quote=FALSE, right=TRUE)
+            prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n\n")
           }
         }
@@ -316,7 +316,7 @@ print.meta <- function(x,
           list(x$studlab, c(sm.lab, ci.lab,
                             if (comb.fixed) "%W(fixed)",
                             if (comb.random) "%W(random)"))
-        prmatrix(res[order(sortvar),], quote=FALSE, right=TRUE)
+        prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
       }
     }
     
@@ -326,12 +326,12 @@ print.meta <- function(x,
     ## (6) Print result for meta-analysis
     ##
     ##
-    if (ma & !metainf.metacum){
+    if (ma & !metainf.metacum) {
       cat("\n")
-      print(summary(x, warn=FALSE), digits=digits,
-            comb.fixed=comb.fixed, comb.random=comb.random,
-            prediction=prediction,
-            header=FALSE, backtransf=backtransf,
+      print(summary(x, warn = FALSE), digits = digits,
+            comb.fixed = comb.fixed, comb.random = comb.random,
+            prediction = prediction,
+            header = FALSE, backtransf = backtransf,
             digits.tau2 = digits.tau2,
             digits.zval = digits.zval,
             digits.Q = digits.Q,

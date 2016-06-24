@@ -1,19 +1,19 @@
 print.summary.meta <- function(x,
                                digits = .settings$digits,
-                               comb.fixed=x$comb.fixed,
-                               comb.random=x$comb.random,
-                               prediction=x$prediction,
-                               print.byvar=x$print.byvar,
-                               print.CMH=x$print.CMH,
-                               header=TRUE,
-                               backtransf=x$backtransf,
-                               bylab.nchar=35,
+                               comb.fixed = x$comb.fixed,
+                               comb.random = x$comb.random,
+                               prediction = x$prediction,
+                               print.byvar = x$print.byvar,
+                               print.CMH = x$print.CMH,
+                               header = TRUE,
+                               backtransf = x$backtransf,
+                               bylab.nchar = 35,
                                digits.zval = .settings$digits.zval,
                                digits.Q = .settings$digits.Q,
                                digits.tau2 = .settings$digits.tau2,
                                digits.H = .settings$digits.H,
                                digits.I2 = .settings$digits.I2,
-                               ...){
+                               ...) {
   
   
   ##
@@ -58,7 +58,7 @@ print.summary.meta <- function(x,
   ##
   fun <- "print.summary.meta"
   ##
-  warnarg("logscale", addargs, fun, otherarg="backtransf")
+  warnarg("logscale", addargs, fun, otherarg = "backtransf")
   
   
   ##
@@ -71,14 +71,14 @@ print.summary.meta <- function(x,
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop"))
   ##
-  prediction <- prediction & k>=3
+  prediction <- prediction & k >= 3
   ##
   if (is.null(x$df.Q))
     df.Q <- k - 1
   else
     df.Q <- x$df.Q
   ##
-  if (by){
+  if (by) {
     k.w <- x$k.w
     if (is.null(x$df.Q.w))
       df.Q.w <- sum((k.w - 1)[!is.na(x$Q.w)])
@@ -93,25 +93,25 @@ print.summary.meta <- function(x,
   ##  
   sm.lab <- sm
   ##
-  if (backtransf){
-    if (sm=="ZCOR")
+  if (backtransf) {
+    if (sm == "ZCOR")
       sm.lab <- "COR"
     if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
       sm.lab <- "proportion"
   }
   else 
     if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep="")
+      sm.lab <- paste("log", sm, sep = "")
   ##
-  if (length(x$tau.common)==0)
+  if (length(x$tau.common) == 0)
     x$tau.common <- FALSE
   ##
-  if (length(x$tau.common)==0)
+  if (length(x$tau.common) == 0)
     x$tau.common <- FALSE
   ##
   if (by)
     bylevs <- ifelse(nchar(x$bylevs) > bylab.nchar,
-                     paste(substring(x$bylevs, 1, bylab.nchar-4), " ...", sep=""),#
+                     paste(substring(x$bylevs, 1, bylab.nchar - 4), " ...", sep = ""),
                      x$bylevs)
   
   
@@ -135,7 +135,7 @@ print.summary.meta <- function(x,
   Q.CMH <- x$Q.CMH
   Q.LRT <- x$Q.LRT
   ##
-  if (by){
+  if (by) {
     TE.fixed.w     <- x$within.fixed$TE
     lowTE.fixed.w  <- x$within.fixed$lower
     uppTE.fixed.w  <- x$within.fixed$upper
@@ -154,44 +154,44 @@ print.summary.meta <- function(x,
     Q.w <- x$Q.w
   }
   ##  
-  if (backtransf){
-    npft.ma <- 1/mean(1/x$n)
+  if (backtransf) {
+    npft.ma <- 1 / mean(1 / x$n)
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
-                              npft.ma, warn=comb.fixed)
+                              npft.ma, warn = comb.fixed)
     lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
-                              npft.ma, warn=comb.fixed)
+                              npft.ma, warn = comb.fixed)
     uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
-                              npft.ma, warn=comb.fixed)
+                              npft.ma, warn = comb.fixed)
     ##
     TE.random <- backtransf(TE.random, sm, "mean",
-                            npft.ma, warn=comb.random)
+                            npft.ma, warn = comb.random)
     lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                               npft.ma, warn=comb.random)
+                               npft.ma, warn = comb.random)
     uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                               npft.ma, warn=comb.random)
+                               npft.ma, warn = comb.random)
     ##
     lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                npft.ma, warn=prediction)
+                                npft.ma, warn = prediction)
     uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                npft.ma, warn=prediction)
+                                npft.ma, warn = prediction)
     ##
-    if (by){
+    if (by) {
       npft.w <- n.harmonic.mean.w
       ##
       TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
-                                   npft.w, warn=comb.fixed)
+                                   npft.w, warn = comb.fixed)
       lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
-                                   npft.w, warn=comb.fixed)
+                                   npft.w, warn = comb.fixed)
       uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
-                                   npft.w, warn=comb.fixed)
+                                   npft.w, warn = comb.fixed)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
-                                   npft.w, warn=comb.random)
+                                   npft.w, warn = comb.random)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   npft.w, warn=comb.random)
+                                   npft.w, warn = comb.random)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   npft.w, warn=comb.random)
+                                   npft.w, warn = comb.random)
     }
   }
   ##
@@ -212,7 +212,7 @@ print.summary.meta <- function(x,
   lowTE.predict <- round(lowTE.predict, digits)
   uppTE.predict <- round(uppTE.predict, digits)
   ##
-  if (by){
+  if (by) {
     TE.fixed.w     <- round(TE.fixed.w, digits)
     lowTE.fixed.w  <- round(lowTE.fixed.w, digits)
     uppTE.fixed.w  <- round(uppTE.fixed.w, digits)
@@ -241,7 +241,7 @@ print.summary.meta <- function(x,
   if (header)
     crtitle(x)
   ##
-  if (x$k.all == 1){
+  if (x$k.all == 1) {
     ##
     ## Print results for a single study
     ##
@@ -251,37 +251,37 @@ print.summary.meta <- function(x,
                  format.NA(zTE.fixed, digits.zval),
                  format.p(pTE.fixed))
     dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p-value"))
-    prmatrix(res, quote=FALSE, right=TRUE, ...)
+    prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
-    catmeth(method=x$method,
-            sm=sm,
-            k.all=x$k.all,
-            metaprop=inherits(x, "metaprop"),
-            metabin=inherits(x, "metabin"),
-            metainc=inherits(x, "metainc"),
-            sparse=ifelse(bip, x$sparse, FALSE),
-            incr=ifelse(bip, x$incr, FALSE),
-            allincr=ifelse(bip, x$allincr, FALSE),
-            addincr=ifelse(bip, x$addincr, FALSE),
+    catmeth(method = x$method,
+            sm = sm,
+            k.all = x$k.all,
+            metaprop = inherits(x, "metaprop"),
+            metabin = inherits(x, "metabin"),
+            metainc = inherits(x, "metainc"),
+            sparse = ifelse(bip, x$sparse, FALSE),
+            incr = ifelse(bip, x$incr, FALSE),
+            allincr = ifelse(bip, x$allincr, FALSE),
+            addincr = ifelse(bip, x$addincr, FALSE),
             doublezeros = x$doublezeros,
-            method.ci=x$method.ci,
-            metacont=inherits(x, "metacont"),
-            pooledvar=x$pooledvar,
-            method.smd=x$method.smd,
-            sd.glass=x$sd.glass,
-            exact.smd=x$exact.smd,
+            method.ci = x$method.ci,
+            metacont = inherits(x, "metacont"),
+            pooledvar = x$pooledvar,
+            method.smd = x$method.smd,
+            sd.glass = x$sd.glass,
+            exact.smd = x$exact.smd,
             model.glmm = x$model.glmm)
   }
   else{
     ##
     ## Print results for meta-analysis with more than one study
     ##
-    if (comb.fixed|comb.random|prediction){
+    if (comb.fixed | comb.random | prediction) {
       if (!inherits(x, "trimfill"))
-        cat(paste("Number of studies combined: k = ", k, "\n\n", sep=""))
+        cat(paste("Number of studies combined: k = ", k, "\n\n", sep = ""))
       else
         cat(paste("Number of studies combined: k = ", k,
-                  " (with ", x$k0, " added studies)\n\n", sep=""))
+                  " (with ", x$k0, " added studies)\n\n", sep = ""))
       res <- cbind(format(c(if (comb.fixed) TE.fixed,
                             if (comb.random) TE.random,
                             if (prediction) NA)),
@@ -302,7 +302,7 @@ print.summary.meta <- function(x,
                               if (prediction) NA)))
       if (prediction)
         res[dim(res)[1], c(1,3:4)] <- ""
-      if (!is.null(x$hakn) && x$hakn){
+      if (!is.null(x$hakn) && x$hakn) {
         if (comb.fixed & comb.random)
           zlab <- "z|t"
         else if (comb.fixed & !comb.random)
@@ -317,19 +317,19 @@ print.summary.meta <- function(x,
                               if (comb.random) "Random effects model",
                               if (prediction) "Prediction interval"),  
                             c(sm.lab, x$ci.lab, zlab, "p-value"))
-      prmatrix(res, quote=FALSE, right=TRUE, ...)
+      prmatrix(res, quote = FALSE, right = TRUE, ...)
       ##
-      if (inherits(x, "metabin") && print.CMH){
+      if (inherits(x, "metabin") && print.CMH) {
         Qdata <- cbind(format.NA(round(Q.CMH, digits.Q), digits.Q, "NA"),
                        1, format.p(1 - pchisq(Q.CMH, df = 1)))
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         ##
         cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
-        prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
+        prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
       }
     }
     else
-      cat(paste("Number of studies: k = ", k, "\n", sep=""))
+      cat(paste("Number of studies: k = ", k, "\n", sep = ""))
     ##
     ## Print information on heterogeneity
     ##
@@ -342,7 +342,7 @@ print.summary.meta <- function(x,
                         ifelse(x$tau == 0,
                                "0",
                                format.NA(round(x$tau^2, digits.tau2), digits.tau2)),
-                        sep=""),
+                        sep = ""),
                 paste("; H = ",
                       if (is.nan(H)) "NA" else format.NA(H, digits.H, "NA"),
                       ifelse(k > 2 & !(is.na(lowH) | is.na(uppH)),
@@ -363,7 +363,7 @@ print.summary.meta <- function(x,
                 "\n", sep = "")
           )
     ##    
-    if (k > 1 & (comb.fixed|comb.random)){
+    if (k > 1 & (comb.fixed|comb.random)) {
       if (x$method != "GLMM") {
         Qdata <- cbind(format.NA(round(Q, digits.Q), digits.Q, "NA"),
                        df.Q, format.p(1 - pchisq(Q, df = df.Q)))
@@ -379,13 +379,13 @@ print.summary.meta <- function(x,
       }
       ##
       cat("\nTest of heterogeneity:\n")
-      prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
+      prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
       ##
-      if (by){
+      if (by) {
         ##
         ## Print information for subgroup analysis
         ##
-        if (comb.fixed){
+        if (comb.fixed) {
           ##
           ## Subgroup analysis based on fixed effect model
           ##
@@ -397,12 +397,12 @@ print.summary.meta <- function(x,
                          ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
                          ifelse(is.na(I2.w),
                                 "--",
-                                paste(format.NA(I2.w, digits.I2), "%", sep=""))
+                                paste(format.NA(I2.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.fixed.w))
           if (print.byvar)
             bylab <- paste(x$bylab,
                            " = ", 
-                           format(bylevs), sep="")
+                           format(bylevs), sep = "")
           else
             bylab <- format(bylevs)
           dimnames(Tdata) <- list(bylab,
@@ -410,15 +410,15 @@ print.summary.meta <- function(x,
                                     "Q", "tau^2", "I^2")
                                   ) #, "p-value"))
           cat("\nResults for subgroups (fixed effect model):\n")
-          prmatrix(Tdata, quote=FALSE, right=TRUE, ...)
+          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
           cat("\nTest for subgroup differences (fixed effect model):\n")
-          if (x$method=="MH"){
+          if (x$method == "MH") {
             Qdata <- cbind(format.NA(round(Q.b.fixed, digits.Q), digits.Q, "NA"),
                            df.Q.b, format.p(1 - pchisq(Q.b.fixed, df = df.Q.b)))
             dimnames(Qdata) <- list("Between groups  ",
                                     c("Q", "d.f.", "p-value"))
-            prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
+            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
           else{
             Qs  <- c(Q.b.fixed, Q.w.fixed)
@@ -428,11 +428,11 @@ print.summary.meta <- function(x,
                            format.p(1 - pchisq(Qs, df = dfs)))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                     c("Q", "d.f.", "p-value"))
-            prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
+            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
         }
         ##
-        if (comb.random){
+        if (comb.random) {
           ##
           ## Subgroup analysis based on random effects model
           ##
@@ -444,12 +444,12 @@ print.summary.meta <- function(x,
                          ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
                          ifelse(is.na(I2.w),
                                 "--",
-                                paste(format.NA(I2.w, digits.I2), "%", sep=""))
+                                paste(format.NA(I2.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.random.w))
           if (print.byvar)
             bylab <- paste(x$bylab,
                            " = ", 
-                           format(bylevs), sep="")
+                           format(bylevs), sep = "")
           else
             bylab <- format(bylevs)
           dimnames(Tdata) <- list(bylab,
@@ -457,7 +457,7 @@ print.summary.meta <- function(x,
                                     "Q", "tau^2", "I^2")
                                   ) #, "p-value"))
           cat("\nResults for subgroups (random effects model):\n")
-          prmatrix(Tdata, quote=FALSE, right=TRUE, ...)
+          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
           cat("\nTest for subgroup differences (random effects model):\n")
           if (is.na(Q.w.random)) {
@@ -474,36 +474,36 @@ print.summary.meta <- function(x,
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                     c("Q", "d.f.", "p-value"))
           }
-          prmatrix(Qdata, quote=FALSE, right=TRUE, ...)
+          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
         }
       }
     }
     ##
     ## Print information on summary method:
     ##
-    catmeth(method=x$method,
-            method.tau=if (comb.random) x$method.tau else "",
-            sm=sm,
-            k.all=x$k.all,
-            hakn=!is.null(x$hakn) && (x$hakn & comb.random),
-            tau.common=by & x$tau.common,
-            tau.preset=x$tau.preset,
-            trimfill=inherits(x, "trimfill"),
-            metaprop=inherits(x, "metaprop"),
-            metabin=inherits(x, "metabin"),
-            metainc=inherits(x, "metainc"),
-            sparse=ifelse(bip, x$sparse, FALSE),
-            incr=ifelse(bip, x$incr, FALSE),
-            allincr=ifelse(bip, x$allincr, FALSE),
-            addincr=ifelse(bip, x$addincr, FALSE),
+    catmeth(method = x$method,
+            method.tau = if (comb.random) x$method.tau else "",
+            sm = sm,
+            k.all = x$k.all,
+            hakn = !is.null(x$hakn) && (x$hakn & comb.random),
+            tau.common = by & x$tau.common,
+            tau.preset = x$tau.preset,
+            trimfill = inherits(x, "trimfill"),
+            metaprop = inherits(x, "metaprop"),
+            metabin = inherits(x, "metabin"),
+            metainc = inherits(x, "metainc"),
+            sparse = ifelse(bip, x$sparse, FALSE),
+            incr = ifelse(bip, x$incr, FALSE),
+            allincr = ifelse(bip, x$allincr, FALSE),
+            addincr = ifelse(bip, x$addincr, FALSE),
             doublezeros = x$doublezeros,
-            MH.exact=ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
-            method.ci=x$method.ci,
-            metacont=inherits(x, "metacont"),
-            pooledvar=x$pooledvar,
-            method.smd=x$method.smd,
-            sd.glass=x$sd.glass,
-            exact.smd=x$exact.smd,
+            MH.exact = ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
+            method.ci = x$method.ci,
+            metacont = inherits(x, "metacont"),
+            pooledvar = x$pooledvar,
+            method.smd = x$method.smd,
+            sd.glass = x$sd.glass,
+            exact.smd = x$exact.smd,
             model.glmm = x$model.glmm)
   }
   

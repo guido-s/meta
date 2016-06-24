@@ -1,17 +1,17 @@
-p.ci <- function(lower, upper, rmspace=TRUE,
-                 bracket.left="[",
-                 separator="; ",
-                 bracket.right="]",
-                 justify.lower="right",
-                 justify.upper=justify.lower,
+p.ci <- function(lower, upper, rmspace = TRUE,
+                 bracket.left = "[",
+                 separator = "; ",
+                 bracket.right = "]",
+                 justify.lower = "right",
+                 justify.upper = justify.lower,
                  ...
-                 ){
+                 ) {
 
   ## Change layout of CIs
   ##
   ibracktype <- charmatch(.settings$CIbracket,
                           c("[", "(", "{", ""), nomatch = NA)
-  if (is.na(ibracktype) | ibracktype==0){
+  if (is.na(ibracktype) | ibracktype == 0) {
     warning("No valid bracket type specified globally for R package meta: ",
             .settings$CIbracket,
             "\n  Using default bracket type: '['. See help page on R command 'cilayout' for further information.")
@@ -20,19 +20,19 @@ p.ci <- function(lower, upper, rmspace=TRUE,
   else
     bracktype <- c("[", "(", "{", "")[ibracktype]
   ##
-  if (bracktype=="["){
+  if (bracktype == "[") {
     bracketLeft <- "["
     bracketRight <- "]"
   }
-  else if (bracktype=="("){
+  else if (bracktype == "(") {
     bracketLeft <- "("
     bracketRight <- ")"
   }
-  else if (bracktype=="{"){
+  else if (bracktype == "{") {
     bracketLeft <- "{"
     bracketRight <- "}"
   }
-  else if (bracktype==""){
+  else if (bracktype == "") {
     bracketLeft <- ""
     bracketRight <- ""
   }
@@ -46,17 +46,17 @@ p.ci <- function(lower, upper, rmspace=TRUE,
   if (missing(separator))
     separator <- .settings$CIseparator
   
-  if (rmspace){
+  if (rmspace) {
     lower <- rmSpace(lower)
     upper <- rmSpace(upper)
   }
   ##
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste(bracket.left,
-                      format(lower, justify=justify.lower),
+                      format(lower, justify = justify.lower),
                       separator,
-                      format(upper, justify=justify.upper),
-                      bracket.right, sep=""),
+                      format(upper, justify = justify.upper),
+                      bracket.right, sep = ""),
                 "")
   ##
   res

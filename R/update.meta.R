@@ -1,57 +1,57 @@
 update.meta <- function(object, 
-                        data=object$data,
-                        subset=object$subset,
-                        studlab=object$data$.studlab,
-                        method=object$method,
-                        sm=object$sm,
-                        incr=object$incr,
-                        allincr=object$allincr,
-                        addincr=object$addincr,
-                        allstudies=object$allstudies,
-                        MH.exact=object$MH.exact,
-                        RR.cochrane=object$RR.cochrane,
-                        model.glmm=object$model.glmm,
-                        level=object$level,
-                        level.comb=object$level.comb,
-                        comb.fixed=object$comb.fixed,
-                        comb.random=object$comb.random,
-                        hakn=object$hakn,
-                        method.tau=object$method.tau,
-                        tau.preset=object$tau.preset,
-                        TE.tau=object$TE.tau,
-                        tau.common=object$tau.common,
-                        prediction=object$prediction,
-                        level.predict=object$level.predict,
-                        method.bias=object$method.bias,
+                        data = object$data,
+                        subset = object$subset,
+                        studlab = object$data$.studlab,
+                        method = object$method,
+                        sm = object$sm,
+                        incr = object$incr,
+                        allincr = object$allincr,
+                        addincr = object$addincr,
+                        allstudies = object$allstudies,
+                        MH.exact = object$MH.exact,
+                        RR.cochrane = object$RR.cochrane,
+                        model.glmm = object$model.glmm,
+                        level = object$level,
+                        level.comb = object$level.comb,
+                        comb.fixed = object$comb.fixed,
+                        comb.random = object$comb.random,
+                        hakn = object$hakn,
+                        method.tau = object$method.tau,
+                        tau.preset = object$tau.preset,
+                        TE.tau = object$TE.tau,
+                        tau.common = object$tau.common,
+                        prediction = object$prediction,
+                        level.predict = object$level.predict,
+                        method.bias = object$method.bias,
                         ##
-                        backtransf=object$backtransf,
-                        title=object$title,
-                        complab=object$complab,
-                        outclab=object$outclab,
-                        label.e=object$label.e,
-                        label.c=object$label.c,
-                        label.left=object$label.left,
-                        label.right=object$label.right,
-                        n.e=object$n.e,
-                        n.c=object$n.c,
-                        pooledvar=object$pooledvar,
-                        method.smd=object$method.smd,
-                        sd.glass=object$sd.glass,
-                        exact.smd=object$exact.smd,
-                        method.ci=object$method.ci,
-                        byvar=object$byvar,
-                        bylab=object$bylab,
-                        print.byvar=object$print.byvar,
-                        print.CMH=object$print.CMH,
-                        keepdata=TRUE,
+                        backtransf = object$backtransf,
+                        title = object$title,
+                        complab = object$complab,
+                        outclab = object$outclab,
+                        label.e = object$label.e,
+                        label.c = object$label.c,
+                        label.left = object$label.left,
+                        label.right = object$label.right,
+                        n.e = object$n.e,
+                        n.c = object$n.c,
+                        pooledvar = object$pooledvar,
+                        method.smd = object$method.smd,
+                        sd.glass = object$sd.glass,
+                        exact.smd = object$exact.smd,
+                        method.ci = object$method.ci,
+                        byvar = object$byvar,
+                        bylab = object$bylab,
+                        print.byvar = object$print.byvar,
+                        print.CMH = object$print.CMH,
+                        keepdata = TRUE,
                         ##
-                        left=object$left,
-                        ma.fixed=object$ma.fixed,
-                        type=object$type,
-                        n.iter.max=object$n.iter.max,
+                        left = object$left,
+                        ma.fixed = object$ma.fixed,
+                        type = object$type,
+                        n.iter.max = object$n.iter.max,
                         ##
-                        warn=object$warn,
-                        ...){
+                        warn = object$warn,
+                        ...) {
   
   
   ##
@@ -67,7 +67,7 @@ update.meta <- function(object,
   ## (2) Replace missing arguments with defaults
   ##
   ##
-  replacemiss <- function(x, replacement){
+  replacemiss <- function(x, replacement) {
     ##
     xnam <- deparse(substitute(x))
     ##
@@ -120,9 +120,9 @@ update.meta <- function(object,
   ## (3) Update trim-and-fill object
   ##
   ##
-  if (inherits(object, "trimfill")){
+  if (inherits(object, "trimfill")) {
     ##
-    rmfilled <- function(x){
+    rmfilled <- function(x) {
       ##
       if (!is.null(object[[x]]))
         res <- object[[x]][!object$trimfill]
@@ -145,14 +145,14 @@ update.meta <- function(object,
     oldclass <- object$class.x
     ##
     res <- trimfill(object,
-                    left=left, ma.fixed=ma.fixed,
-                    type=type, n.iter.max=n.iter.max,
-                    level=level, level.comb=level.comb,
-                    comb.fixed=comb.fixed, comb.random=comb.random,
-                    hakn=hakn,
-                    method.tau=method.tau,
-                    prediction=prediction, level.predict=level.predict,
-                    silent=TRUE,
+                    left = left, ma.fixed = ma.fixed,
+                    type = type, n.iter.max = n.iter.max,
+                    level = level, level.comb = level.comb,
+                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    hakn = hakn,
+                    method.tau = method.tau,
+                    prediction = prediction, level.predict = level.predict,
+                    silent = TRUE,
                     ...)
     ##
     res$call.object <- object$call
@@ -168,12 +168,12 @@ update.meta <- function(object,
   ## (4) Update metacum or metainf object
   ##
   ##
-  if (inherits(object, "metacum") | inherits(object, "metainf")){
+  if (inherits(object, "metacum") | inherits(object, "metainf")) {
     ##
     res <- object
     ##
-    res$comb.fixed <- ifelse(res$pooled=="fixed", TRUE, FALSE)
-    res$comb.random <- ifelse(res$pooled=="random", TRUE, FALSE)
+    res$comb.fixed <- ifelse(res$pooled == "fixed", TRUE, FALSE)
+    res$comb.random <- ifelse(res$pooled == "random", TRUE, FALSE)
     ##
     res$call.object <- object$call
     res$call <- match.call()
@@ -189,22 +189,22 @@ update.meta <- function(object,
   ##
   ##
   if (!(!is.null(object$version) &&
-        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)){
+          as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)) {
     ## Some additional changes for meta objects with version < 3.2
     object$subset <- NULL
     ##
-    object$data <- data.frame(.studlab=object$studlab)
+    object$data <- data.frame(.studlab = object$studlab)
     ##
     if (!is.null(object$byvar))
       object$data$.byvar <- object$byvar
     ##
-    if (inherits(object,"metabin")){
+    if (inherits(object,"metabin")) {
       object$data$.event.e <- object$event.e
       object$data$.n.e <- object$n.e
       object$data$.event.c <- object$event.c
       object$data$.n.c <- object$n.c
     }
-    if (inherits(object,"metacont")){
+    if (inherits(object,"metacont")) {
       object$data$.n.e <- object$n.e
       object$data$.mean.e <- object$mean.e
       object$data$.sd.e <- object$sd.e
@@ -212,22 +212,22 @@ update.meta <- function(object,
       object$data$.mean.c <- object$mean.c
       object$data$.sd.c <- object$sd.c
     }
-    if (inherits(object,"metagen")){
+    if (inherits(object,"metagen")) {
       object$data$.TE <- object$TE
       object$data$.seTE <- object$seTE
     }
-    if (inherits(object,"metaprop")){
+    if (inherits(object,"metaprop")) {
       object$data$.event <- object$event
       object$data$.n <- object$n
     }
-    if (inherits(object,"metacor")){
+    if (inherits(object,"metacor")) {
       object$data$.cor <- object$cor
       object$data$.n <- object$n
     }
   }
   ##  
-  if (is.null(object$data)){
-    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata=FALSE'.")
+  if (is.null(object$data)) {
+    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
   ##  
@@ -243,11 +243,11 @@ update.meta <- function(object,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   ##
-  if (!missing.byvar){
+  if (!missing.byvar) {
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
-    if (length(byvar.name)>1 & byvar.name[1]=="$")
+    if (length(byvar.name) > 1 & byvar.name[1] == "$")
       byvar.name <- byvar.name[length(byvar.name)]
-    if (length(byvar.name)>1)
+    if (length(byvar.name) > 1)
       byvar.name <- "byvar"
     ##
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
@@ -256,7 +256,7 @@ update.meta <- function(object,
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   ##
-  if (missing.subset){
+  if (missing.subset) {
     if (!is.null(object$subset))
       subset <- object$subset
     else if (!is.null(object$data$.subset))
@@ -284,195 +284,195 @@ update.meta <- function(object,
   ##
   ##
   if (inherits(object,"metabin"))
-    m <- metabin(event.e=object$data$.event.e,
-                 n.e=object$data$.n.e,
-                 event.c=object$data$.event.c,
-                 n.c=object$data$.n.c,
-                 studlab=studlab,
+    m <- metabin(event.e = object$data$.event.e,
+                 n.e = object$data$.n.e,
+                 event.c = object$data$.event.c,
+                 n.c = object$data$.n.c,
+                 studlab = studlab,
                  ##
-                 data=data, subset=subset,
+                 data = data, subset = subset,
                  ##
-                 method=method,
+                 method = method,
                  sm = ifelse(method == "GLMM", "OR", sm),
-                 incr=incr, allincr=allincr, addincr=addincr, allstudies=allstudies,
-                 MH.exact=MH.exact, RR.cochrane=RR.cochrane,
+                 incr = incr, allincr = allincr, addincr = addincr, allstudies = allstudies,
+                 MH.exact = MH.exact, RR.cochrane = RR.cochrane,
                  model.glmm = model.glmm,
                  ##
-                 level=level, level.comb=level.comb,
-                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 level = level, level.comb = level.comb,
+                 comb.fixed = comb.fixed, comb.random = comb.random,
                  ##
-                 hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
-                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 hakn = hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                 tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                  ##
-                 prediction=prediction, level.predict=level.predict,
+                 prediction = prediction, level.predict = level.predict,
                  ##
-                 method.bias=method.bias,
+                 method.bias = method.bias,
                  ##
-                 backtransf=backtransf,
-                 title=title, complab=complab, outclab=outclab,
-                 label.e=label.e, label.c=label.c,
-                 label.right=label.right, label.left=label.left,
+                 backtransf = backtransf,
+                 title = title, complab = complab, outclab = outclab,
+                 label.e = label.e, label.c = label.c,
+                 label.right = label.right, label.left = label.left,
                  ##
-                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
-                 print.CMH=print.CMH,
+                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                 print.CMH = print.CMH,
                  ##
-                 keepdata=keepdata,
-                 warn=warn,
+                 keepdata = keepdata,
+                 warn = warn,
                  ...)
   ##
   if (inherits(object,"metacont"))
-    m <- metacont(n.e=object$data$.n.e,
-                  mean.e=object$data$.mean.e,
-                  sd.e=object$data$.sd.e,
-                  n.c=object$data$.n.c,
-                  mean.c=object$data$.mean.c,
-                  sd.c=object$data$.sd.c,
-                  studlab=studlab,
+    m <- metacont(n.e = object$data$.n.e,
+                  mean.e = object$data$.mean.e,
+                  sd.e = object$data$.sd.e,
+                  n.c = object$data$.n.c,
+                  mean.c = object$data$.mean.c,
+                  sd.c = object$data$.sd.c,
+                  studlab = studlab,
                   ##
-                  data=data, subset=subset,
+                  data = data, subset = subset,
                   ##
-                  sm=sm, pooledvar=pooledvar,
-                  method.smd=method.smd, sd.glass=sd.glass, exact.smd=exact.smd,
+                  sm = sm, pooledvar = pooledvar,
+                  method.smd = method.smd, sd.glass = sd.glass, exact.smd = exact.smd,
                   ##
-                  level=level, level.comb=level.comb,
-                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  level = level, level.comb = level.comb,
+                  comb.fixed = comb.fixed, comb.random = comb.random,
                   ##
-                  hakn=hakn, method.tau=method.tau,
-                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                  hakn = hakn, method.tau = method.tau,
+                  tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                   ##
-                  prediction=prediction, level.predict=level.predict,
+                  prediction = prediction, level.predict = level.predict,
                   ##
-                  method.bias=method.bias,
+                  method.bias = method.bias,
                   ##
-                  title=title, complab=complab, outclab=outclab,
-                  label.e=label.e, label.c=label.c,
-                  label.right=label.right, label.left=label.left,
+                  title = title, complab = complab, outclab = outclab,
+                  label.e = label.e, label.c = label.c,
+                  label.right = label.right, label.left = label.left,
                   ##
-                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   ##
-                  keepdata=keepdata,
-                  warn=warn)
+                  keepdata = keepdata,
+                  warn = warn)
   ##
   if (inherits(object,"metacor"))
-    m <- metacor(cor=object$data$.cor,
-                 n=object$data$.n,
-                 studlab=studlab,
+    m <- metacor(cor = object$data$.cor,
+                 n = object$data$.n,
+                 studlab = studlab,
                  ##
-                 data=data, subset=subset,
+                 data = data, subset = subset,
                  ##
-                 sm=sm,
+                 sm = sm,
                  ##
-                 level=level, level.comb=level.comb,
-                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 level = level, level.comb = level.comb,
+                 comb.fixed = comb.fixed, comb.random = comb.random,
                  ##
-                 hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 hakn = hakn, method.tau = method.tau,
+                 tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                  ##
-                 prediction=prediction, level.predict=level.predict,
+                 prediction = prediction, level.predict = level.predict,
                  ##
-                 method.bias=method.bias,
+                 method.bias = method.bias,
                  ##
-                 backtransf=backtransf,
-                 title=title, complab=complab, outclab=outclab,
-                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 backtransf = backtransf,
+                 title = title, complab = complab, outclab = outclab,
+                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                  ##
-                 keepdata=keepdata)
+                 keepdata = keepdata)
   ##
   if (inherits(object,"metagen"))
-    m <- metagen(TE=object$data$.TE,
-                 seTE=object$data$.seTE,
-                 studlab=studlab,
+    m <- metagen(TE = object$data$.TE,
+                 seTE = object$data$.seTE,
+                 studlab = studlab,
                  ##
-                 data=data, subset=subset,
+                 data = data, subset = subset,
                  ##
-                 sm=sm,
+                 sm = sm,
                  ##
-                 level=level, level.comb=level.comb,
-                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 level = level, level.comb = level.comb,
+                 comb.fixed = comb.fixed, comb.random = comb.random,
                  ##
-                 hakn=hakn, method.tau=method.tau,
-                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 hakn = hakn, method.tau = method.tau,
+                 tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                  ##
-                 prediction=prediction, level.predict=level.predict,
+                 prediction = prediction, level.predict = level.predict,
                  ##
-                 method.bias=method.bias,
+                 method.bias = method.bias,
                  ##
-                 n.e=n.e, n.c=n.c,
+                 n.e = n.e, n.c = n.c,
                  ##
-                 backtransf=backtransf,
-                 title=title, complab=complab, outclab=outclab,
-                 label.e=label.e, label.c=label.c,
-                 label.right=label.right, label.left=label.left,
+                 backtransf = backtransf,
+                 title = title, complab = complab, outclab = outclab,
+                 label.e = label.e, label.c = label.c,
+                 label.right = label.right, label.left = label.left,
                  ##
-                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                  ##
-                 keepdata=keepdata,
-                 warn=warn)
+                 keepdata = keepdata,
+                 warn = warn)
   ##
   if (inherits(object,"metainc"))
-    m <- metainc(event.e=object$data$.event.e,
-                 time.e=object$data$.time.e,
-                 event.c=object$data$.event.c,
-                 time.c=object$data$.time.c,
-                 studlab=studlab,
+    m <- metainc(event.e = object$data$.event.e,
+                 time.e = object$data$.time.e,
+                 event.c = object$data$.event.c,
+                 time.c = object$data$.time.c,
+                 studlab = studlab,
                  ##
-                 data=data, subset=subset,
+                 data = data, subset = subset,
                  ##
-                 method=method,
+                 method = method,
                  sm = ifelse(method == "GLMM", "IRR", sm),
-                 incr=incr, allincr=allincr, addincr=addincr,
+                 incr = incr, allincr = allincr, addincr = addincr,
                  model.glmm = model.glmm,
                  ##
-                 level=level, level.comb=level.comb,
-                 comb.fixed=comb.fixed, comb.random=comb.random,
+                 level = level, level.comb = level.comb,
+                 comb.fixed = comb.fixed, comb.random = comb.random,
                  ##
-                 hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
-                 tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                 hakn = hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                 tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                  ##
-                 prediction=prediction, level.predict=level.predict,
+                 prediction = prediction, level.predict = level.predict,
                  ##
-                 method.bias=method.bias,
+                 method.bias = method.bias,
                  ##
-                 n.e=n.e, n.c=n.c,
+                 n.e = n.e, n.c = n.c,
                  ##
-                 backtransf=backtransf,
-                 title=title, complab=complab, outclab=outclab,
-                 label.e=label.e, label.c=label.c,
-                 label.right=label.right, label.left=label.left,
+                 backtransf = backtransf,
+                 title = title, complab = complab, outclab = outclab,
+                 label.e = label.e, label.c = label.c,
+                 label.right = label.right, label.left = label.left,
                  ##
-                 byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                  ##
-                 keepdata=keepdata,
-                 warn=warn,
+                 keepdata = keepdata,
+                 warn = warn,
                  ...)
   ##
   if (inherits(object,"metaprop"))
-    m <- metaprop(event=object$data$.event,
-                  n=object$data$.n,
-                  studlab=studlab,
+    m <- metaprop(event = object$data$.event,
+                  n = object$data$.n,
+                  studlab = studlab,
                   ##
-                  data=data, subset=subset, method = method,
+                  data = data, subset = subset, method = method,
                   ##
                   sm = ifelse(method == "GLMM", "PLOGIT", sm),
-                  incr=incr, allincr=allincr, addincr=addincr,
-                  method.ci=ifelse(is.null(method.ci), "CP", method.ci),
+                  incr = incr, allincr = allincr, addincr = addincr,
+                  method.ci = ifelse(is.null(method.ci), "CP", method.ci),
                   ##
-                  level=level, level.comb=level.comb,
-                  comb.fixed=comb.fixed, comb.random=comb.random,
+                  level = level, level.comb = level.comb,
+                  comb.fixed = comb.fixed, comb.random = comb.random,
                   ##
-                  hakn=hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
-                  tau.preset=tau.preset, TE.tau=TE.tau, tau.common=tau.common,
+                  hakn = hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                  tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                   ##
-                  prediction=prediction, level.predict=level.predict,
+                  prediction = prediction, level.predict = level.predict,
                   ##
-                  method.bias=method.bias,
+                  method.bias = method.bias,
                   ##
-                  backtransf=backtransf,
-                  title=title, complab=complab, outclab=outclab,
-                  byvar=byvar, bylab=bylab, print.byvar=print.byvar,
+                  backtransf = backtransf,
+                  title = title, complab = complab, outclab = outclab,
+                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   ##
-                  keepdata=keepdata,
-                  warn=warn,
+                  keepdata = keepdata,
+                  warn = warn,
                   ...)
   ##  
   m$call.object <- object$call

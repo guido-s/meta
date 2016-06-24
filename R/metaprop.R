@@ -2,39 +2,39 @@ metaprop <- function(event, n, studlab,
                      ##
                      data = NULL, subset = NULL, method = "Inverse",
                      ##
-                     sm=.settings$smprop,
+                     sm = .settings$smprop,
                      ##
-                     incr=.settings$incr, allincr=.settings$allincr,
-                     addincr=.settings$addincr,
-                     method.ci=.settings$method.ci,
+                     incr = .settings$incr, allincr = .settings$allincr,
+                     addincr = .settings$addincr,
+                     method.ci = .settings$method.ci,
                      ##
-                     level=.settings$level, level.comb=.settings$level.comb,
-                     comb.fixed=.settings$comb.fixed,
-                     comb.random=.settings$comb.random,
+                     level = .settings$level, level.comb = .settings$level.comb,
+                     comb.fixed = .settings$comb.fixed,
+                     comb.random = .settings$comb.random,
                      ##
-                     hakn=.settings$hakn,
+                     hakn = .settings$hakn,
                      method.tau =
                        ifelse(!is.na(charmatch(tolower(method), "glmm",
                                                nomatch = NA)),
                               "ML", .settings$method.tau),
-                     tau.preset=NULL, TE.tau=NULL,
-                     tau.common=.settings$tau.common,
+                     tau.preset = NULL, TE.tau = NULL,
+                     tau.common = .settings$tau.common,
                      ##
-                     prediction=.settings$prediction,
-                     level.predict=.settings$level.predict,
+                     prediction = .settings$prediction,
+                     level.predict = .settings$level.predict,
                      ##
-                     method.bias=.settings$method.bias,
+                     method.bias = .settings$method.bias,
                      ##
-                     backtransf=.settings$backtransf,
-                     title=.settings$title, complab=.settings$complab,
-                     outclab="",
+                     backtransf = .settings$backtransf,
+                     title = .settings$title, complab = .settings$complab,
+                     outclab = "",
                      ##
-                     byvar, bylab, print.byvar=.settings$print.byvar,
+                     byvar, bylab, print.byvar = .settings$print.byvar,
                      ##
-                     keepdata=.settings$keepdata,
-                     warn=.settings$warn,
+                     keepdata = .settings$keepdata,
+                     warn = .settings$warn,
                      ...
-                     ){
+                     ) {
   
   
   ##
@@ -76,7 +76,7 @@ metaprop <- function(event, n, studlab,
   chklogical(allincr)
   chklogical(addincr)
   method.ci <- setchar(method.ci,
-                      c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
+                       c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
   chklogical(warn)
   chkmetafor(method.tau, fun)
   ##
@@ -161,11 +161,11 @@ metaprop <- function(event, n, studlab,
       tau.preset <- NULL
     }
   }
-  if (missing.byvar & tau.common){
+  if (missing.byvar & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & !tau.common & !is.null(tau.preset)){
+  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
@@ -181,7 +181,7 @@ metaprop <- function(event, n, studlab,
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
   ##  
-  if (!missing.byvar){
+  if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
@@ -194,9 +194,9 @@ metaprop <- function(event, n, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
-  if (keepdata){
+  if (keepdata) {
     if (nulldata)
-      data <- data.frame(.event=event)
+      data <- data.frame(.event = event)
     else
       data$.event <- event
     ##
@@ -206,7 +206,7 @@ metaprop <- function(event, n, studlab,
     if (!missing.byvar)
       data$.byvar <- byvar
     ##
-    if (!missing.subset){
+    if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
       else{
@@ -222,7 +222,7 @@ metaprop <- function(event, n, studlab,
   ## (6) Use subset for analysis
   ##
   ##
-  if (!missing.subset){
+  if (!missing.subset) {
     event <- event[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
@@ -239,7 +239,7 @@ metaprop <- function(event, n, studlab,
   ##
   ## No meta-analysis for a single study
   ##
-  if (k.all == 1){
+  if (k.all == 1) {
     comb.fixed  <- FALSE
     comb.random <- FALSE
     prediction  <- FALSE
@@ -248,12 +248,12 @@ metaprop <- function(event, n, studlab,
   ## Check variable values
   ##
   chknumeric(event, 0)
-  chknumeric(n, 0, zero=TRUE)
+  chknumeric(n, 0, zero = TRUE)
   ##
-  if (any(n < 10, na.rm=TRUE) & sm=="PFT")
-    warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm='PAS' or sm='PLOGIT'), too.")
+  if (any(n < 10, na.rm = TRUE) & sm == "PFT")
+    warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm = 'PAS' or sm = 'PLOGIT'), too.")
   ##
-  if (any(event > n, na.rm=TRUE))
+  if (any(event > n, na.rm = TRUE))
     stop("Number of events must not be larger than number of observations")
   ##
   ## Recode integer as numeric:
@@ -268,13 +268,13 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   sel <- switch(sm,
-                PFT=rep(FALSE, length(event)),
-                PAS=rep(FALSE, length(event)),
-                PRAW=event == 0 | (n-event) == 0,
-                PLN=event == 0 | (n-event) == 0,
-                PLOGIT=event == 0 | (n-event) == 0)
+                PFT = rep(FALSE, length(event)),
+                PAS = rep(FALSE, length(event)),
+                PRAW = event == 0 | (n - event) == 0,
+                PLN = event == 0 | (n - event) == 0,
+                PLOGIT = event == 0 | (n - event) == 0)
   ##
-  sparse <- any(sel, na.rm=TRUE)
+  sparse <- any(sel, na.rm = TRUE)
   ##
   ## No need to add anything to cell counts for arcsine transformation
   ##
@@ -285,45 +285,45 @@ metaprop <- function(event, n, studlab,
       if (allincr)
         incr.event <- rep(incr, k.all)
       else
-        incr.event <- incr*sel
+        incr.event <- incr * sel
     else
       incr.event <- rep(0, k.all)
   ##  
-  if (sm=="PFT"){
-    TE <- asin(sqrt(event/(n+1))) + asin(sqrt((event+1)/(n+1)))
-    seTE <- sqrt(1/(n+0.5))
+  if (sm == "PFT") {
+    TE <- asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1)))
+    seTE <- sqrt(1 / (n + 0.5))
   }
-  else if (sm=="PAS"){
-    TE <- asin(sqrt(event/n))
-    seTE <- sqrt(0.25*(1/n))
+  else if (sm == "PAS") {
+    TE <- asin(sqrt(event / n))
+    seTE <- sqrt(0.25 * (1 / n))
   }
-  else if (sm=="PRAW"){
-    TE <- event/n
-    seTE <- sqrt((event+incr.event)*(n-event+incr.event)/
-                 (n+2*incr.event)^3)
+  else if (sm == "PRAW") {
+    TE <- event / n
+    seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
+                   (n + 2 * incr.event)^3)
   }
-  else if (sm=="PLN"){
-    TE <- log((event+incr.event)/(n+incr.event))
+  else if (sm == "PLN") {
+    TE <- log((event + incr.event) / (n + incr.event))
     ## Hartung, Knapp (2001), p. 4.00, formula (18):
     seTE <- ifelse(event == n,
-                   sqrt(1/event - 1/(n+incr.event)),
-                   sqrt(1/(event+incr.event) - 1/(n+incr.event))
+                   sqrt(1 / event - 1 / (n + incr.event)),
+                   sqrt(1 / (event + incr.event) - 1 / (n + incr.event))
                    )
   }
-  else if (sm=="PLOGIT"){
-    TE <- log((event+incr.event)/(n-event+incr.event))
-    seTE <- sqrt(1/(event+incr.event) +
-                 1/((n-event+incr.event)))
+  else if (sm == "PLOGIT") {
+    TE <- log((event + incr.event) / (n - event + incr.event))
+    seTE <- sqrt(1 / (event + incr.event) +
+                   1 / ((n - event + incr.event)))
   }
   ##
   ## Calculate confidence intervals
   ##
   NAs <- rep(NA, k.all)
   ##
-  if (method.ci=="CP"){
+  if (method.ci == "CP") {
     lower.study <- upper.study <- NAs
-    for (i in 1:k.all){
-      cint <- binom.test(event[i], n[i], conf.level=level)
+    for (i in 1:k.all) {
+      cint <- binom.test(event[i], n[i], conf.level = level)
       ##
       lower.study[i] <- cint$conf.int[[1]]
       upper.study[i] <- cint$conf.int[[2]]
@@ -331,47 +331,47 @@ metaprop <- function(event, n, studlab,
   }
   ##
   else{
-    if (method.ci=="WS")
-      ci.study <- ciWilsonScore(event, n, level=level)
+    if (method.ci == "WS")
+      ci.study <- ciWilsonScore(event, n, level = level)
     ##
-    else if (method.ci=="WSCC")
-      ci.study <- ciWilsonScore(event, n, level=level, correct=TRUE)
+    else if (method.ci == "WSCC")
+      ci.study <- ciWilsonScore(event, n, level = level, correct = TRUE)
     ##
-    else if (method.ci=="AC")
-      ci.study <- ciAgrestiCoull(event, n, level=level)
+    else if (method.ci == "AC")
+      ci.study <- ciAgrestiCoull(event, n, level = level)
     ##
-    else if (method.ci=="SA")
-      ci.study <- ciSimpleAsymptotic(event, n, level=level)
+    else if (method.ci == "SA")
+      ci.study <- ciSimpleAsymptotic(event, n, level = level)
     ##
-    else if (method.ci=="SACC")
-      ci.study <- ciSimpleAsymptotic(event, n, level=level, correct=TRUE)
+    else if (method.ci == "SACC")
+      ci.study <- ciSimpleAsymptotic(event, n, level = level, correct = TRUE)
     ##
-    else if (method.ci=="NAsm")
-      ci.study <- ci(TE, seTE, level=level)
+    else if (method.ci == "NAsm")
+      ci.study <- ci(TE, seTE, level = level)
     ##
     lower.study <- ci.study$lower
     upper.study <- ci.study$upper
   }
   ##  
-  if (method.ci=="NAsm"){
-    if (sm=="PLN"){
+  if (method.ci == "NAsm") {
+    if (sm == "PLN") {
       lower.study <- exp(lower.study)
       upper.study <- exp(upper.study)
     }
     ##
-    else if (sm=="PLOGIT"){
+    else if (sm == "PLOGIT") {
       lower.study <- logit2p(lower.study)
       upper.study <- logit2p(upper.study)
     }
     ##
-    else if (sm=="PAS"){
-      lower.study <- asin2p(lower.study, value="lower")
-      upper.study <- asin2p(upper.study, value="upper")
+    else if (sm == "PAS") {
+      lower.study <- asin2p(lower.study, value = "lower")
+      upper.study <- asin2p(upper.study, value = "upper")
     }
     ##
-    else if (sm=="PFT"){
-      lower.study <- asin2p(lower.study, n, value="lower")
-      upper.study <- asin2p(upper.study, n, value="upper")
+    else if (sm == "PFT") {
+      lower.study <- asin2p(lower.study, n, value = "lower")
+      upper.study <- asin2p(upper.study, n, value = "upper")
     }
     ##
     lower.study[lower.study<0] <- 0
@@ -399,30 +399,30 @@ metaprop <- function(event, n, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                ##
-               sm=sm,
-               level=level,
-               level.comb=level.comb,
-               comb.fixed=comb.fixed,
-               comb.random=comb.random,
+               sm = sm,
+               level = level,
+               level.comb = level.comb,
+               comb.fixed = comb.fixed,
+               comb.random = comb.random,
                ##
-               hakn=hakn,
-               method.tau=method.tau,
-               tau.preset=tau.preset,
-               TE.tau=TE.tau,
-               tau.common=FALSE,
+               hakn = hakn,
+               method.tau = method.tau,
+               tau.preset = tau.preset,
+               TE.tau = TE.tau,
+               tau.common = FALSE,
                ##
-               prediction=prediction,
-               level.predict=level.predict,
+               prediction = prediction,
+               level.predict = level.predict,
                ##
-               method.bias=method.bias,
+               method.bias = method.bias,
                ##
-               backtransf=backtransf,
-               title=title, complab=complab, outclab=outclab,
+               backtransf = backtransf,
+               title = title, complab = complab, outclab = outclab,
                ##
-               keepdata=FALSE,
-               warn=warn)
+               keepdata = FALSE,
+               warn = warn)
   ##
-  if (!missing.byvar & tau.common){
+  if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    TE.tau,
@@ -435,11 +435,11 @@ metaprop <- function(event, n, studlab,
   ## (9) Generate R object
   ##
   ##
-  res <- list(event=event, n=n,
-              incr=incr, sparse=sparse,
-              allincr=allincr, addincr=addincr,
-              method.ci=method.ci,
-              incr.event=incr.event)
+  res <- list(event = event, n = n,
+              incr = incr, sparse = sparse,
+              allincr = allincr, addincr = addincr,
+              method.ci = method.ci,
+              incr.event = incr.event)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)
@@ -524,7 +524,7 @@ metaprop <- function(event, n, studlab,
   ##
   res$call <- match.call()
   ##
-  if (keepdata){
+  if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
@@ -534,7 +534,7 @@ metaprop <- function(event, n, studlab,
   ##
   ## Add results from subgroup analysis
   ##
-  if (!missing.byvar){
+  if (!missing.byvar) {
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar

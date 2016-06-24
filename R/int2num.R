@@ -1,4 +1,4 @@
-int2num <- function(x){
+int2num <- function(x) {
   ##
   ## Convert integer to numeric
   ##

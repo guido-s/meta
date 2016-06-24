@@ -1,4 +1,4 @@
-linregcore <- function(x, y, w=NULL){
+linregcore <- function(x, y, w = NULL) {
   ##
   ## core function for method.bias linreg and mm
   ##
@@ -8,7 +8,7 @@ linregcore <- function(x, y, w=NULL){
   if(length(x) != length(y))
     stop("length of argument x and y must be equal")
   ##
-  if (!is.null(w)){
+  if (!is.null(w)) {
     if(length(x) != length(w))
       stop("length of argument x and w must be equal")
   }
@@ -29,12 +29,12 @@ linregcore <- function(x, y, w=NULL){
   ##
   W <- diag(w)
   ##
-  if (n > 2){
+  if (n > 2) {
     X <- cbind(rep(1, n), x)
     XWX <- solve(t(X) %*% W %*% X)
     ##
     coefs <- XWX %*% t(X) %*% W %*% y
-    MSE.w <- 1/(n-2) * sum(w*(y - X %*% coefs)^2)
+    MSE.w <- 1 / (n - 2) * sum(w * (y - X %*% coefs)^2)
     df <- n - 2
     se.coefs <- sqrt(MSE.w * diag(XWX))
     ##
@@ -50,11 +50,11 @@ linregcore <- function(x, y, w=NULL){
     se.slope <- NA
   }
   ##
-  res <- list(intercept=intercept,
-              se.intercept=se.intercept,
-              slope=slope,
-              se.slope=se.slope,
-              df=df,
-              MSE.w=MSE.w)
+  res <- list(intercept = intercept,
+              se.intercept = se.intercept,
+              slope = slope,
+              se.slope = se.slope,
+              df = df,
+              MSE.w = MSE.w)
   res
 }

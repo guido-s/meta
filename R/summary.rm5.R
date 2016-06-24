@@ -1,4 +1,4 @@
-summary.rm5 <- function(object, comp.no, outcome.no, ...){
+summary.rm5 <- function(object, comp.no, outcome.no, ...) {
   
   
   ##
@@ -16,16 +16,16 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...){
   ##
   n <- 1
   ##
-  for (i in comp.no){
+  for (i in comp.no) {
     if (missing(outcome.no))
-      jj <- unique(object$outcome.no[object$comp.no==i])
+      jj <- unique(object$outcome.no[object$comp.no == i])
     else
       jj <- outcome.no
-    for (j in jj){
+    for (j in jj) {
       ##
       res[[n]] <- summary(metacr(object, i, j, ...))
       ##
-      n <- n+1
+      n <- n + 1
       ##
     }
   }

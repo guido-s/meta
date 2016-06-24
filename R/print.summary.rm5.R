@@ -1,4 +1,4 @@
-print.summary.rm5 <- function(x, ...){
+print.summary.rm5 <- function(x, ...) {
   
   ##
   ##
@@ -9,11 +9,11 @@ print.summary.rm5 <- function(x, ...){
   
   
   n <- 1
-  for (i in 1:length(x)){
-    if (n>1)
+  for (i in 1:length(x)) {
+    if (n > 1)
       cat("\n*****\n\n")
     print(x[[i]])
-    n <- n+1
+    n <- n + 1
   }
   
   

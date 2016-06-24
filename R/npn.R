@@ -1,4 +1,4 @@
-npn <- function(x){
+npn <- function(x) {
   ##
   ## Check for non-positive values in vector
   ##

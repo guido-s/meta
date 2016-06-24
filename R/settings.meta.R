@@ -52,7 +52,7 @@ settings.meta <- function(...) {
   args  <- list(...)
   ## Check whether first argument is a list. In this case only use
   ## this list as input.
-  if (length(args)>0 && is.list(args[[1]]))
+  if (length(args) > 0 && is.list(args[[1]]))
     args <- args[[1]]
   ##
   names <- names(args)
@@ -66,18 +66,18 @@ settings.meta <- function(...) {
   ##
   if (sum(unknown) == 1)
     warning(paste("Argument '", names[unknown], "' unknown.", sep = ""))
-  else if (sum(unknown)>1)
+  else if (sum(unknown) > 1)
     warning(paste("Unknown arguments: ", 
                   paste(paste("'", names[unknown], "'", sep = ""),
                         collapse = " - "), sep = ""))
   
   
-  if (length(args)>1 && any(names == "reset")) {
+  if (length(args) > 1 && any(names == "reset")) {
     cat("To reset all settings use a single argument 'reset = TRUE' (R package meta)\n")
     return(invisible(res))
   }
   ##
-  if (length(args)>1 && any(names == "setting")) {
+  if (length(args) > 1 && any(names == "setting")) {
     cat("Argument 'setting' can only be used without other arguments (R package meta)\n")
     return(invisible(res))
   }

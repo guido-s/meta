@@ -1,22 +1,22 @@
-trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
-                             type="L", n.iter.max=50,
-                             sm=NULL, studlab=NULL,
-                             level=0.95, level.comb=level,
-                             comb.fixed=FALSE, comb.random=TRUE,
-                             hakn=FALSE,
-                             method.tau="DL",
-                             prediction=FALSE, level.predict=level,
-                             backtransf=TRUE,
-                             silent=TRUE, ...){
+trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
+                             type = "L", n.iter.max = 50,
+                             sm = NULL, studlab = NULL,
+                             level = 0.95, level.comb = level,
+                             comb.fixed = FALSE, comb.random = TRUE,
+                             hakn = FALSE,
+                             method.tau = "DL",
+                             prediction = FALSE, level.predict = level,
+                             backtransf = TRUE,
+                             silent = TRUE, ...) {
   
   
   TE <- x
   ##
   if (is.null(sm)) sm <- ""
-  if (is.null(studlab)) studlab <- seq(along=x)
+  if (is.null(studlab)) studlab <- seq(along = x)
   data.name <- paste(deparse(substitute(x)),
                      deparse(substitute(seTE)),
-                     sep=", ")
+                     sep = ", ")
   
   
   ##
@@ -49,14 +49,14 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   ##
   k <- length(TE)
   ##
-  if (k<=2){
+  if (k <= 2) {
     warning("Minimal number of three studies for trim-and-fill method.")
     return(invisible(NULL))
   }
   
   
   if (is.null(left))
-    left <- as.logical(sign(metabias(TE, seTE, method="linreg", k.min=3)$estimate[1])==1)
+    left <- as.logical(sign(metabias(TE, seTE, method = "linreg", k.min = 3)$estimate[1]) == 1)
   ##
   if (!left) TE <- -TE
   ##
@@ -69,10 +69,10 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   if (ma.fixed)
     TE.sum <- metagen(TE, seTE)$TE.fixed
   else
-    TE.sum <- metagen(TE, seTE, method.tau=method.tau)$TE.random
+    TE.sum <- metagen(TE, seTE, method.tau = method.tau)$TE.random
   
   
-  if (k==1){
+  if (k == 1) {
     n.iter <- 0
     k0 <- -9
   }
@@ -81,28 +81,28 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
     k0.last <- -1
     k0      <-  0
     ##
-    while (k0.last != k0 & k0 <= (k-1) & n.iter < n.iter.max){
+    while (k0.last != k0 & k0 <= (k - 1) & n.iter < n.iter.max) {
       ##
       n.iter <- n.iter + 1
       ##
       k0.last <- k0
       ##
-      sel <- 1:(k-k0)
+      sel <- 1:(k - k0)
       ##
       if (ma.fixed)
         TE.sum <- metagen(TE[sel], seTE[sel])$TE.fixed
       else
         TE.sum <- metagen(TE[sel], seTE[sel],
-                          method.tau=method.tau)$TE.random
+                          method.tau = method.tau)$TE.random
       ##
       trim1 <- estimate.missing(TE, TE.sum, type)
       ##
-      if (!silent){
-        cat("n.iter = ", n.iter, "\n", sep="")
-        if (type=="L")
-          cat("L0 = ", round(trim1$res0, 2), "\n\n", sep="")
-        if (type=="R")
-          cat("R0 = ", round(trim1$res0+0.5, 2), "\n\n", sep="")
+      if (!silent) {
+        cat("n.iter = ", n.iter, "\n", sep = "")
+        if (type == "L")
+          cat("L0 = ", round(trim1$res0, 2), "\n\n", sep = "")
+        if (type == "R")
+          cat("R0 = ", round(trim1$res0 + 0.5, 2), "\n\n", sep = "")
       }
       ##
       k0 <- trim1$res0.plus
@@ -110,11 +110,11 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   }
   
   
-  if (k0 > (k-1)) k0 <- k-1
+  if (k0 > (k - 1)) k0 <-  k - 1
   ##
-  if (k0 > 0){
-    TE.star   <- 2 * TE.sum - TE[(k-k0+1):k]
-    seTE.star <- seTE[(k-k0+1):k]
+  if (k0 > 0) {
+    TE.star   <- 2 * TE.sum - TE[(k - k0 + 1):k]
+    seTE.star <-  seTE[(k - k0 + 1):k]
     ##
     trimfill  <- c(rep(FALSE, length(TE)),
                    rep(TRUE, length(TE.star)))
@@ -122,7 +122,7 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
     TE        <- c(TE[order(ord)], TE.star)
     seTE      <- c(seTE[order(ord)], seTE.star)
     studlab   <- c(studlab[order(ord)],
-                   paste("Filled:", studlab[(k-k0+1):k]))
+                   paste("Filled:", studlab[(k - k0 + 1):k]))
   }
   else{
     TE.star   <- NA
@@ -135,15 +135,15 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   
   
   if (!left)
-    m <- metagen(-TE, seTE, studlab=studlab,
-                 level=level, level.comb=level.comb,
-                 hakn=hakn, method.tau=method.tau,
-                 prediction=prediction, level.predict=level.predict)
+    m <- metagen(-TE, seTE, studlab = studlab,
+                 level = level, level.comb = level.comb,
+                 hakn = hakn, method.tau = method.tau,
+                 prediction = prediction, level.predict = level.predict)
   else
-    m <- metagen(TE, seTE, studlab=studlab,
-                 level=level, level.comb=level.comb,
-                 hakn=hakn, method.tau=method.tau,
-                 prediction=prediction, level.predict=level.predict)
+    m <- metagen(TE, seTE, studlab = studlab,
+                 level = level, level.comb = level.comb,
+                 hakn = hakn, method.tau = method.tau,
+                 prediction = prediction, level.predict = level.predict)
   
   
   ##
@@ -153,52 +153,52 @@ trimfill.default <- function(x, seTE, left=NULL, ma.fixed=TRUE,
   I2res <- isquared(m$Q, m$df.Q, level.comb)
   
   
-  res <- list(studlab=m$studlab,
-              TE=m$TE, seTE=m$seTE,
-              lower=m$lower, upper=m$upper,
-              zval=m$zval, pval=m$pval,
-              w.fixed=m$w.fixed, w.random=m$w.random,
-              TE.fixed=m$TE.fixed, seTE.fixed=m$seTE.fixed,
-              lower.fixed=m$lower.fixed, upper.fixed=m$upper.fixed,
-              zval.fixed=m$zval.fixed, pval.fixed=m$pval.fixed,
+  res <- list(studlab = m$studlab,
+              TE = m$TE, seTE = m$seTE,
+              lower = m$lower, upper = m$upper,
+              zval = m$zval, pval = m$pval,
+              w.fixed = m$w.fixed, w.random = m$w.random,
+              TE.fixed = m$TE.fixed, seTE.fixed = m$seTE.fixed,
+              lower.fixed = m$lower.fixed, upper.fixed = m$upper.fixed,
+              zval.fixed = m$zval.fixed, pval.fixed = m$pval.fixed,
               ##
-              TE.random=m$TE.random, seTE.random=m$seTE.random,
-              lower.random=m$lower.random, upper.random=m$upper.random,
-              zval.random=m$zval.random, pval.random=m$pval.random,
+              TE.random = m$TE.random, seTE.random = m$seTE.random,
+              lower.random = m$lower.random, upper.random = m$upper.random,
+              zval.random = m$zval.random, pval.random = m$pval.random,
               ##
               ##
-              seTE.predict=m$seTE.predict,
-              lower.predict=m$lower.predict,
-              upper.predict=m$upper.predict,
-              level.predict=level.predict,
+              seTE.predict = m$seTE.predict,
+              lower.predict = m$lower.predict,
+              upper.predict = m$upper.predict,
+              level.predict = level.predict,
               ##
-              k=m$k, Q=m$Q, df.Q=m$df.Q, tau=m$tau,
+              k = m$k, Q = m$Q, df.Q = m$df.Q, tau = m$tau,
               ##
-              H=Hres$TE,
-              lower.H=Hres$lower,
-              upper.H=Hres$upper,
+              H = Hres$TE,
+              lower.H = Hres$lower,
+              upper.H = Hres$upper,
               ##
-              I2=I2res$TE,
-              lower.I2=I2res$lower,
-              upper.I2=I2res$upper,
+              I2 = I2res$TE,
+              lower.I2 = I2res$lower,
+              upper.I2 = I2res$upper,
               ##
-              sm=sm,
-              method=m$method,
+              sm = sm,
+              method = m$method,
               ##
-              call=match.call(),
-              left=left,
-              ma.fixed=ma.fixed,
-              type=type,
-              n.iter.max=n.iter.max,
-              n.iter=n.iter,
-              trimfill=trimfill,
-              hakn=m$hakn,
-              df.hakn=m$df.hakn,
-              method.tau=m$method.tau,
-              prediction=prediction,
-              k0=sum(trimfill),
-              level=level, level.comb=level.comb,
-              comb.fixed=comb.fixed, comb.random=comb.random)
+              call = match.call(),
+              left = left,
+              ma.fixed = ma.fixed,
+              type = type,
+              n.iter.max = n.iter.max,
+              n.iter = n.iter,
+              trimfill = trimfill,
+              hakn = m$hakn,
+              df.hakn = m$df.hakn,
+              method.tau = m$method.tau,
+              prediction = prediction,
+              k0 = sum(trimfill),
+              level = level, level.comb = level.comb,
+              comb.fixed = comb.fixed, comb.random = comb.random)
   
   res$backtransf <- backtransf
   

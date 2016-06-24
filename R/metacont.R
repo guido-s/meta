@@ -1,39 +1,39 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data=NULL, subset=NULL,
+                     data = NULL, subset = NULL,
                      ##
-                     sm=.settings$smcont,
+                     sm = .settings$smcont,
                      ##
-                     pooledvar=.settings$pooledvar,
-                     method.smd=.settings$method.smd,
-                     sd.glass=.settings$sd.glass,
-                     exact.smd=.settings$exact.smd,
+                     pooledvar = .settings$pooledvar,
+                     method.smd = .settings$method.smd,
+                     sd.glass = .settings$sd.glass,
+                     exact.smd = .settings$exact.smd,
                      ##
-                     level=.settings$level, level.comb=.settings$level.comb,
-                     comb.fixed=.settings$comb.fixed,
-                     comb.random=.settings$comb.random,
+                     level = .settings$level, level.comb = .settings$level.comb,
+                     comb.fixed = .settings$comb.fixed,
+                     comb.random = .settings$comb.random,
                      ##
-                     hakn=.settings$hakn,
-                     method.tau=.settings$method.tau,
-                     tau.preset=NULL, TE.tau=NULL,
-                     tau.common=.settings$tau.common,
+                     hakn = .settings$hakn,
+                     method.tau = .settings$method.tau,
+                     tau.preset = NULL, TE.tau = NULL,
+                     tau.common = .settings$tau.common,
                      ##
-                     prediction=.settings$prediction,
-                     level.predict=.settings$level.predict,
+                     prediction = .settings$prediction,
+                     level.predict = .settings$level.predict,
                      ##
-                     method.bias=.settings$method.bias,
+                     method.bias = .settings$method.bias,
                      ##
-                     title=.settings$title, complab=.settings$complab,
-                     outclab="",
-                     label.e=.settings$label.e, label.c=.settings$label.c,
-                     label.left=.settings$label.left,
-                     label.right=.settings$label.right,
+                     title = .settings$title, complab = .settings$complab,
+                     outclab = "",
+                     label.e = .settings$label.e, label.c = .settings$label.c,
+                     label.left = .settings$label.left,
+                     label.right = .settings$label.right,
                      ##
-                     byvar, bylab, print.byvar=.settings$print.byvar,
+                     byvar, bylab, print.byvar = .settings$print.byvar,
                      ##
-                     keepdata=.settings$keepdata,
-                     warn=.settings$warn
-                     ){
+                     keepdata = .settings$keepdata,
+                     warn = .settings$warn
+                     ) {
   
   
   ##
@@ -142,11 +142,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## Additional checks
   ##
-  if (missing.byvar & tau.common){
+  if (missing.byvar & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & !tau.common & !is.null(tau.preset)){
+  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
@@ -162,7 +162,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
   ##  
-  if (!missing.byvar){
+  if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
@@ -175,9 +175,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
-  if (keepdata){
+  if (keepdata) {
     if (nulldata)
-      data <- data.frame(.n.e=n.e)
+      data <- data.frame(.n.e = n.e)
     else
       data$.n.e <- n.e
     ##
@@ -191,7 +191,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (!missing.byvar)
       data$.byvar <- byvar
     ##
-    if (!missing.subset){
+    if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
       else{
@@ -207,7 +207,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (6) Use subset for analysis
   ##
   ##
-  if (!missing.subset){
+  if (!missing.subset) {
     n.e <- n.e[subset]
     mean.e <- mean.e[subset]
     sd.e <- sd.e[subset]
@@ -229,7 +229,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## No meta-analysis for a single study
   ##
-  if (k.all == 1){
+  if (k.all == 1) {
     comb.fixed  <- FALSE
     comb.random <- FALSE
     prediction  <- FALSE
@@ -263,78 +263,78 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   npn2 <- npn(n.c)
   npn <- npn1 | npn2
   ##
-  N <- n.e+n.c
+  N <- n.e + n.c
   ##
   if (any(npn) & warn)
-    warning("Studies with non-positive values for n.e and/or n.c get no weight in meta-analysis.")
+    warning("Studies with non-positive values for n.e and / or n.c get no weight in meta-analysis.")
   ##  
-  if (sm=="MD"){
-    TE    <- ifelse(npn, NA, mean.e - mean.c)
+  if (sm == "MD") {
+    TE <- ifelse(npn, NA, mean.e - mean.c)
     ##
     if (pooledvar)
       seTE <- ifelse(npn, NA,
-                     sqrt((1/n.e + 1/n.c) *
-                            ((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2) / (N-2)))
+                     sqrt((1 / n.e + 1 / n.c) *
+                            ((n.e - 1) * sd.e^2 + (n.c - 1) * sd.c^2) / (N - 2)))
     else
       seTE <- ifelse(npn, NA,
-                     sqrt(sd.e^2/n.e + sd.c^2/n.c))
+                     sqrt(sd.e^2 / n.e + sd.c^2 / n.c))
     ##
     seTE[is.na(TE)] <- NA
   }
-  else if (sm=="SMD"){
-    J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
-    K <- function(x) 1 - (x-2) / (x*J(x)^2)
+  else if (sm == "SMD") {
+    J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+    K <- function(x) 1 - (x - 2) / (x * J(x)^2)
     ##
     if (method.smd %in% c("Hedges", "Cohen"))
-      S.within <- sqrt(((n.e-1)*sd.e^2 + (n.c-1)*sd.c^2)/(N-2))
+      S.within <- sqrt(((n.e - 1) * sd.e^2 + (n.c - 1) * sd.c^2) / (N - 2))
     else
-      S.within <- if (sd.glass=="control") sd.c else sd.e
+      S.within <- if (sd.glass == "control") sd.c else sd.e
     ##
     smd <- ifelse(npn, NA, (mean.e - mean.c) / S.within)
     ##
-    if (method.smd=="Cohen"){
+    if (method.smd == "Cohen") {
       ##
       ## Borenstein et al. (2009), p. 26-27;
       ## White and Thomas (2005), p. 143
       ##
       TE <- smd
-      if (exact.smd){
-        J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
-        K <- function(x) 1 - (x-2) / (x*J(x)^2)
+      if (exact.smd) {
+        J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+        K <- function(x) 1 - (x - 2) / (x * J(x)^2)
         seTE <- ifelse(npn, NA,
-                       sqrt(N / (n.e*n.c) + (J(N-2)*smd)^2 * K(N-2)))
+                       sqrt(N / (n.e * n.c) + (J(N - 2) * smd)^2 * K(N - 2)))
       }
       else
         seTE <- ifelse(npn, NA,
-                       sqrt(N / (n.e*n.c) + TE^2/(2*N)))
+                       sqrt(N / (n.e * n.c) + TE^2 / (2 * N)))
     }
-    else if (method.smd=="Hedges"){
+    else if (method.smd == "Hedges") {
       ##
       ## Hedges and Olkin (1985); White and Thomas (2005), p. 143;
-      ## formulae used in RevMan 5 (exact.smd=FALSE)
+      ## formulae used in RevMan 5 (exact.smd = FALSE)
       ##
-      if (exact.smd){
-        J <- function(x) gamma(x/2)/(sqrt(x/2)*gamma((x-1)/2))
-        K <- function(x) 1 - (x-2) / (x*J(x)^2)
+      if (exact.smd) {
+        J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+        K <- function(x) 1 - (x - 2) / (x * J(x)^2)
       }
       else{
-        J <- function(x) 1-3/(4*x-1)
-        K <- function(x) 1/(2*(x-1.94))
+        J <- function(x) 1 - 3 / (4 * x - 1)
+        K <- function(x) 1 / (2 * (x - 1.94))
       }
       ##
-      TE   <- J(N-2)*smd
+      TE   <- J(N - 2) * smd
       seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + TE^2 * K(N-2)))
+                     sqrt(N / (n.e * n.c) + TE^2 * K(N - 2)))
     }
-    else if (method.smd=="Glass"){
+    else if (method.smd == "Glass") {
       ##
       ## see Cooper & Hedges (1994), p. 238
       ##
-      n.g  <- if (sd.glass=="control") n.c else n.e
+      n.g  <- if (sd.glass == "control") n.c else n.e
       ##
       TE <- smd
       seTE <- ifelse(npn, NA,
-                     sqrt(N / (n.e*n.c) + TE^2/(2*n.g-1)))
+                     sqrt(N / (n.e * n.c) + TE^2 / (2 * n.g - 1)))
     }
     ##
     seTE[is.na(TE)] <- NA
@@ -344,7 +344,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   sel <- sd.e <= 0 | sd.c <= 0
   ##
-  if (any(sel, na.rm=TRUE) & warn)
+  if (any(sel, na.rm = TRUE) & warn)
     warning("Studies with non-positive values for sd.e or sd.c get no weight in meta-analysis.")
   ##
   seTE[sel] <- NA
@@ -360,32 +360,32 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                ##
-               sm=sm,
-               level=level,
-               level.comb=level.comb,
-               comb.fixed=comb.fixed,
-               comb.random=comb.random,
+               sm = sm,
+               level = level,
+               level.comb = level.comb,
+               comb.fixed = comb.fixed,
+               comb.random = comb.random,
                ##
-               hakn=hakn,
-               method.tau=method.tau,
-               tau.preset=tau.preset,
-               TE.tau=TE.tau,
-               tau.common=FALSE,
+               hakn = hakn,
+               method.tau = method.tau,
+               tau.preset = tau.preset,
+               TE.tau = TE.tau,
+               tau.common = FALSE,
                ##
-               prediction=prediction,
-               level.predict=level.predict,
+               prediction = prediction,
+               level.predict = level.predict,
                ##
-               method.bias=method.bias,
+               method.bias = method.bias,
                ##
-               backtransf=backtransf,
-               title=title, complab=complab, outclab=outclab,
-               label.e=label.e, label.c=label.c,
-               label.left=label.left, label.right=label.right,
+               backtransf = backtransf,
+               title = title, complab = complab, outclab = outclab,
+               label.e = label.e, label.c = label.c,
+               label.left = label.left, label.right = label.right,
                ##
-               keepdata=FALSE,
-               warn=warn)
+               keepdata = FALSE,
+               warn = warn)
   ##
-  if (!missing.byvar & tau.common){
+  if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    TE.tau,
@@ -398,11 +398,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (9) Generate R object
   ##
   ##
-  res <- list(n.e=n.e, mean.e=mean.e, sd.e=sd.e,
-              n.c=n.c, mean.c=mean.c, sd.c=sd.c,
-              pooledvar=pooledvar,
-              method.smd=method.smd, sd.glass=sd.glass,
-              exact.smd=exact.smd)
+  res <- list(n.e = n.e, mean.e = mean.e, sd.e = sd.e,
+              n.c = n.c, mean.c = mean.c, sd.c = sd.c,
+              pooledvar = pooledvar,
+              method.smd = method.smd, sd.glass = sd.glass,
+              exact.smd = exact.smd)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)
@@ -416,7 +416,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   res$call <- match.call()
   ##
-  if (keepdata){
+  if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
@@ -426,7 +426,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## Add results from subgroup analysis
   ##
-  if (!missing.byvar){
+  if (!missing.byvar) {
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar

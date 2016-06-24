@@ -1,4 +1,4 @@
-kentau <- function(x, y, correct=FALSE, keep.data=FALSE){
+kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   ##
   ## Check:
   ##
@@ -19,7 +19,7 @@ kentau <- function(x, y, correct=FALSE, keep.data=FALSE){
            x = as.double(x),
            y = as.double(y),
            n = as.integer(n),
-           PACKAGE="meta")$kenscore
+           PACKAGE = "meta")$kenscore
   ##
   ## Calculate S and s.e(S) according to
   ## Stata, release 5, Reference P-Z, p.239-240
@@ -31,38 +31,38 @@ kentau <- function(x, y, correct=FALSE, keep.data=FALSE){
   u <- rle(sort(y))$lengths
   ##
   ##
-  se.ks <- sqrt(1/18 * (n*(n-1)*(2*n+5) -
-                        sum(t*(t-1)*(2*t+5)) -
-                        sum(u*(u-1)*(2*u+5))) +
-                1/(9*n*(n-1)*(n-2)) *
-                sum(t*(t-1)*(t-2))*
-                sum(u*(u-1)*(u-2)) +
-                1/(2*n*(n-1)) *
-                sum(t*(t-1)) *
-                sum(u*(u-1)))
+  se.ks <- sqrt(1 / 18 * (n * (n - 1) * (2 * n + 5) -
+                            sum(t * (t - 1) * (2 * t + 5)) -
+                              sum(u * (u - 1) * (2 * u + 5))) +
+                                1 / (9 * n * (n - 1) * (n - 2))  * 
+                                  sum(t * (t - 1) * (t - 2)) * 
+                                    sum(u * (u - 1) * (u - 2)) +
+                                      1 / (2 * n * (n - 1))  * 
+                                        sum(t * (t - 1))  * 
+                                          sum(u * (u - 1)))
   ##
   if (as.logical(correct) &
-      any(c(length(unique(x)), length(unique(y)))==2))
+      any(c(length(unique(x)), length(unique(y))) == 2))
     warning(paste("Continuity corrected statistic may be inappropriate,\n",
                   "see Kendall, Gibbons (1990), Rank Correlation Methods, ",
-                  "p.67.\n ", sep=""))
+                  "p.67.\n ", sep = ""))
   ##
   statistic <- (ks - sign(ks) * as.logical(correct)) / se.ks
-  p.value <- 2*pnorm(abs(statistic), lower.tail=FALSE)
+  p.value <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
   ##
-  N <- 0.5 * n * (n-1)
-  N1 <- N-sum(t*(t-1)/2)
-  N2 <- N-sum(u*(u-1)/2)
+  N <- 0.5 * n * (n - 1)
+  N1 <- N - sum(t * (t - 1) / 2)
+  N2 <- N - sum(u * (u - 1) / 2)
   ##
-  res <- list(tau.a=ks/N,
-              tau.b=ks/(sqrt(N1)*sqrt(N2)),
-              ks=ks - sign(ks) * as.logical(correct),
-              se.ks=se.ks,
-              statistic=statistic,
-              p.value=p.value,
-              correction=as.logical(correct))
+  res <- list(tau.a = ks / N,
+              tau.b = ks / (sqrt(N1) * sqrt(N2)),
+              ks = ks - sign(ks) * as.logical(correct),
+              se.ks = se.ks,
+              statistic = statistic,
+              p.value = p.value,
+              correction = as.logical(correct))
   ##
-  if (keep.data){
+  if (keep.data) {
     res$x <- x
     res$y <- y
   }

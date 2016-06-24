@@ -1,4 +1,4 @@
-print.rm5 <- function(x, ...){
+print.rm5 <- function(x, ...) {
   
   
   ##
