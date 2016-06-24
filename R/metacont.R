@@ -194,7 +194,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
-      else{
+      else {
         data$.subset <- FALSE
         data$.subset[subset] <- TRUE
       }
@@ -317,7 +317,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
         K <- function(x) 1 - (x - 2) / (x * J(x)^2)
       }
-      else{
+      else {
         J <- function(x) 1 - 3 / (4 * x - 1)
         K <- function(x) 1 / (2 * (x - 1.94))
       }
@@ -436,7 +436,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       res <- c(res, subgroup(res))
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else{
+    else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q

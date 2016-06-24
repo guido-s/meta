@@ -149,7 +149,7 @@ print.meta <- function(x,
       res <- data.frame(event = x$event, n = x$n,
                         p = format.NA(round(x$event / x$n, digits.prop), digits.prop, "NA"))
     }
-    else{
+    else {
       res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
                         seTE = format.NA(round(x$seTE, digits), digits, "NA"))
     }
@@ -183,7 +183,7 @@ print.meta <- function(x,
             digits = digits, header = FALSE, backtransf = backtransf,
             digits.zval = digits.zval, ...)
   }
-  else{
+  else {
     TE <- x$TE
     seTE <- x$seTE
     lowTE <- x$lower
@@ -206,7 +206,7 @@ print.meta <- function(x,
       ##
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
-      else{
+      else {
         TE <- backtransf(TE, sm, "mean", npft)
         lowTE <- backtransf(lowTE, sm, "lower", npft)
         uppTE <- backtransf(uppTE, sm, "upper", npft)
@@ -278,7 +278,7 @@ print.meta <- function(x,
               exact.smd = x$exact.smd,
               model.glmm = x$model.glmm)
     }
-    else{
+    else {
       res <- cbind(format.NA(round(TE, digits), digits, "NA"),
                    p.ci(format.NA(round(lowTE, digits), digits, "NA"),
                         format.NA(round(uppTE, digits), digits, "NA")),
@@ -311,7 +311,7 @@ print.meta <- function(x,
         }
         cat("Normal approximation confidence interval:\n")
       }
-      else{
+      else {
         dimnames(res) <-
           list(x$studlab, c(sm.lab, ci.lab,
                             if (comb.fixed) "%W(fixed)",

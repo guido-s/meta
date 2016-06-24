@@ -56,7 +56,7 @@ paulemandel <- function(TE, seTE,
     else
       warning("Maximum number of iterations reached.")
   }
-  else{
+  else {
     ## Not changed if already set to 2L
     if (converged == 0L)
       converged <- 1L

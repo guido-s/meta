@@ -16,7 +16,7 @@ ciWilsonScore <- function(event, n, level = 0.95, correct = FALSE) {
     lower  <- (2 * n * p + z^2 - z * sqrt(z^2 + 4 * n * p * q)) / (2 * (n + z^2))
     upper  <- (2 * n * p + z^2 + z * sqrt(z^2 + 4 * n * p * q)) / (2 * (n + z^2))
     }
-  else{
+  else {
     lower <- (2 * n * p + z^2 - 1 - z * sqrt(z^2 - 2 - 1/n + 4 * p * (n * q + 1))) / (2 * (n + z^2))
     lower[lower < 0] <- 0
     upper <- (2 * n * p + z^2 + 1 + z * sqrt(z^2 + 2 - 1/n + 4 * p * (n * q - 1))) / (2 * (n + z^2))

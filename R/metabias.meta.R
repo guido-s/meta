@@ -82,7 +82,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     res <- list(k = k, k.min = k.min)
   else if (length(x$byvar) != 0)
     res <- list(subgroup = TRUE)
-  else{
+  else {
     if (method.bias == "rank") {
       if (length(unique(seTE)) == 1)
         stop("Test for small-study effects not feasible as all studies have same precision")
@@ -154,7 +154,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           lreg <- linregcore(seTE.score, TE.score, 1 / seTE.score^2)
           se.bias <- lreg$se.slope
         }
-        else{
+        else {
           stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
         }
       }
@@ -169,7 +169,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           lreg <- linregcore(1 / (n.e + n.c), TE, 1 / seTE.peters^2)
           se.bias <- lreg$se.slope
         }
-        else{
+        else {
           stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
         }
       }
@@ -221,7 +221,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         names(res$statistic) <- "z"
         names(res$estimate) <- c("ks", "se.ks")
       }
-      else{
+      else {
         stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
       }
     }

@@ -245,7 +245,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
-      else{
+      else {
         data$.subset <- FALSE
         data$.subset[subset] <- TRUE
       }
@@ -312,11 +312,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sm == "RD" | sm == "ASD")
     incl <- rep(1, k.all)
-  else{
+  else {
     allevents <- event.c == n.c & event.e == n.e
     if (allstudies)
       incl <- rep(1, k.all)
-    else{
+    else {
       if (sm == "OR")
         incl <- ifelse((event.c == 0   & event.e == 0) |
                          (event.c == n.c & event.e == n.e), NA, 1)
@@ -397,7 +397,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       incr.e <- rep(incr, k.all)
       incr.c <- rep(incr, k.all)
     }
-    else{
+    else {
       if (incr == "TACC") {
         ##
         ## Treatment arm continuity correction:
@@ -407,7 +407,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       }
     }
   }
-  else{
+  else {
     if (sparse) {
       if (allincr) {
         ##
@@ -415,7 +415,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           incr.e <- rep(incr, k.all)
           incr.c <- rep(incr, k.all)
         }
-        else{
+        else {
           if (incr == "TACC") {
             ##
             ## Treatment arm continuity correction:
@@ -425,7 +425,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           }
         }
       }
-      else{
+      else {
         ##
         ## Bradburn, Deeks, Altman, Stata-procedure "metan":
         ## & SAS PROC FREQ (for method = "Inverse")
@@ -434,7 +434,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           incr.e <- incr * sel
           incr.c <- incr * sel
         }
-        else{
+        else {
           if (incr == "TACC") {
             ##
             ## Treatment arm continuity correction:
@@ -445,7 +445,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         }
       }
     }
-    else{
+    else {
       incr.e <- rep(0, k.all)
       incr.c <- rep(0, k.all)
     }
@@ -502,7 +502,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       seTE <- sqrt((1 / (n11 + incr.e * (!allevents)) - 1 / (n1. + incr.e) +
                       1 / (n21 + incr.c * (!allevents)) - 1 / (n2. + incr.c)))
     }
-    else{
+    else {
       TE <- log(((n11 + incr.e) / (n1. + 2 * incr.e)) /
                   ((n21 + incr.c) / (n2. + 2 * incr.c)))
       seTE <- sqrt((1 / (n11 + incr.e) - 1 / (n1. + 2 * incr.e) +
@@ -764,7 +764,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       res <- c(res, subgroup(res))
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else{
+    else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q

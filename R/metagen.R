@@ -186,7 +186,7 @@ metagen <- function(TE, seTE, studlab,
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
-      else{
+      else {
         data$.subset <- FALSE
         data$.subset[subset] <- TRUE
       }
@@ -283,7 +283,7 @@ metagen <- function(TE, seTE, studlab,
     ##
     Cval <- NA
   }
-  else{
+  else {
     ## Estimate tau-squared
     hc <- hetcalc(TE, seTE, method.tau, TE.tau)
     ##
@@ -296,7 +296,7 @@ metagen <- function(TE, seTE, studlab,
       tau2 <- hc$tau^2
       se.tau2 <- hc$se.tau2
     }
-    else{
+    else {
       tau2 <- tau.preset^2
       se.tau2 <- NULL
     }
@@ -338,7 +338,7 @@ metagen <- function(TE, seTE, studlab,
         tau2 <- pm$tau^2
       }
     }
-    else{
+    else {
       ##
       ## Cooper & Hedges (1994), p. 265, 274-5
       ##
@@ -378,7 +378,7 @@ metagen <- function(TE, seTE, studlab,
     p.lower <- ci.p$lower
     p.upper <- ci.p$upper
   }
-  else{
+  else {
     seTE.predict <- NA
     p.lower <- NA
     p.upper <- NA
@@ -466,7 +466,7 @@ metagen <- function(TE, seTE, studlab,
       res <- c(res, subgroup(res))
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else{
+    else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q

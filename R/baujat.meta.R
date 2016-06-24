@@ -41,7 +41,7 @@ baujat.meta <- function(x,
     else
       studlab <- rep("", length(TE))
   }
-  else{
+  else {
     studlab <- as.character(studlab)
     if (length(studlab) != length(TE))
       stop("Length of argument 'studlab' must be the same as number of studies in meta-analysis.")

@@ -33,7 +33,7 @@ metabias.default <- function(x, seTE,
   if (k < k.min) {
     res <- list(k = k, k.min = k.min)
   }
-  else{
+  else {
     if (method.bias == "rank") {
       ##
       ## Begg und Mazumdar (1994), Biometrics, 50, 1088-1101

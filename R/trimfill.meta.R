@@ -142,7 +142,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     n.iter <- 0
     k0 <- -9
   }
-  else{
+  else {
     n.iter  <-  0
     k0.last <- -1
     k0      <-  0
@@ -212,7 +212,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     if (!is.null(sd.c))
       sd.c <- c(sd.c[order(ord)], sd.c[(k - k0 + 1):k])
   }
-  else{
+  else {
     TE.star   <- NA
     seTE.star <- NA
     trimfill  <- rep(FALSE, length(TE))

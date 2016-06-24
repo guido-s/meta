@@ -34,7 +34,7 @@ radial.default <- function(x, y,
     else
       points(1 / seTE, zscore, pch = pch, cex = cex, col = col)
   }
-  else{
+  else {
     if (is.null(col))
       text(1 / seTE, zscore, labels = text, cex = cex)
     else

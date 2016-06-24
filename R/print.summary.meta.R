@@ -272,7 +272,7 @@ print.summary.meta <- function(x,
             exact.smd = x$exact.smd,
             model.glmm = x$model.glmm)
   }
-  else{
+  else {
     ##
     ## Print results for meta-analysis with more than one study
     ##
@@ -420,7 +420,7 @@ print.summary.meta <- function(x,
                                     c("Q", "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
-          else{
+          else {
             Qs  <- c(Q.b.fixed, Q.w.fixed)
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),
@@ -466,7 +466,7 @@ print.summary.meta <- function(x,
             dimnames(Qdata) <- list("Between groups  ",
                                     c("Q", "d.f.", "p-value"))
           }
-          else{
+          else {
             Qs  <- c(Q.b.random, Q.w.random)
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),

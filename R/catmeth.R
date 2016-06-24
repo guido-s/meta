@@ -1,6 +1,9 @@
-catmeth <- function(method, method.tau = NULL,
-                    sm = "", k.all,
-                    hakn = FALSE, metaprop = FALSE,
+catmeth <- function(method,
+                    method.tau = NULL,
+                    sm = "",
+                    k.all,
+                    hakn = FALSE,
+                    metaprop = FALSE,
                     trimfill = FALSE,
                     tau.common = FALSE,
                     tau.preset = NULL,
@@ -86,7 +89,7 @@ catmeth <- function(method, method.tau = NULL,
           sm.details <- paste(sm.details,
                               "\n- Treatment arm continuity correction in all studies",
                               sep = "")
-        else if (incr!=0)
+        else if (incr != 0)
           sm.details <- paste(sm.details,
                               "\n- Continuity correction of ", round(incr, 4),
                               " in all studies", sep = "")
@@ -99,7 +102,7 @@ catmeth <- function(method, method.tau = NULL,
             sm.details <- paste(sm.details,
                                 "\n- Treatment arm continuity correction in studies with zero cell frequencies",
                                 sep = "")
-          else if (incr!=0)
+          else if (incr != 0)
             sm.details <- paste(sm.details,
                                 "\n- Continuity correction of ", round(incr, 4),
                                 " in studies with zero cell frequencies", sep = "")
@@ -110,7 +113,7 @@ catmeth <- function(method, method.tau = NULL,
               sm.details <- paste(sm.details,
                                   "\n- Treatment arm continuity correction in all studies",
                                   sep = "")
-            else if (incr!=0)
+            else if (incr != 0)
               sm.details <- paste(sm.details,
                                   "\n- Continuity correction of ", round(incr, 4),
                                   " in all studies", sep = "")
@@ -146,7 +149,7 @@ catmeth <- function(method, method.tau = NULL,
       ##
       lab.method.details <- lab.method.tau
     }
-    else{
+    else {
       i.lab.method.tau <- charmatch(method.tau,
                                     c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"),
                                     nomatch = NA)
@@ -219,7 +222,7 @@ catmeth <- function(method, method.tau = NULL,
   else
     cat(paste("\nDetails:", method, sep = ""))
   ##
-  if (sm.details!="")
+  if (sm.details != "")
     cat(sm.details,
         "\n",
         sep = "")

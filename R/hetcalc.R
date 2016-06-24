@@ -39,7 +39,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       ##
       se.tau2 <- NULL
     }
-    else{
+    else {
       if (is.numeric(byvar))
         byvar <- as.factor(byvar)
       ##
@@ -54,7 +54,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       se.tau2 <- mf1$se.tau2
     }
   }
-  else{
+  else {
     if (method.tau == "DL" | method.tau == "PM") {
       w.fixed <- 1 / seTE^2
       w.fixed[is.na(w.fixed)] <- 0
@@ -76,7 +76,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       ##
       se.tau2 <- NULL
     }
-    else{
+    else {
       mf2 <- metafor::rma.uni(yi = TE, vi = seTE^2, method = method.tau)
       Q    <- mf2$QE
       df.Q <- mf2$k - mf2$p

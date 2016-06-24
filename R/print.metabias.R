@@ -17,7 +17,7 @@ print.metabias <- function(x, ...) {
   ##
   if (length(x$p.value) != 0)
     print(x)
-  else{
+  else {
     ##
     ## Check whether number of studies is too small:
     ##

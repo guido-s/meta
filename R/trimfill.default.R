@@ -76,7 +76,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
     n.iter <- 0
     k0 <- -9
   }
-  else{
+  else {
     n.iter  <-  0
     k0.last <- -1
     k0      <-  0
@@ -124,7 +124,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
     studlab   <- c(studlab[order(ord)],
                    paste("Filled:", studlab[(k - k0 + 1):k]))
   }
-  else{
+  else {
     TE.star   <- NA
     seTE.star <- NA
     trimfill  <- rep(FALSE, length(TE))

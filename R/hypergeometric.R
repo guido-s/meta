@@ -90,7 +90,7 @@ hypergeometric <- function(n1, m1, N, psi) {
         upper <- upper + 1                            
       }
       
-      else{
+      else {
         if(ran < prob[lower + shift]) return(lower)
         ran <- ran - prob[lower + shift]
         if(lower == ll) return(sample.low.to.high(upper, ran))

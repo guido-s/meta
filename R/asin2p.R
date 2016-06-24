@@ -15,7 +15,7 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
     minimum <- asin(sqrt(0))
     maximum <- asin(sqrt(1))
   }
-  else{
+  else {
     minimum <- asin(sqrt(0 / (n + 1))) + asin(sqrt((0 + 1) / (n + 1)))
     maximum <- asin(sqrt(n / (n + 1))) + asin(sqrt((n + 1) / (n + 1)))
   }
@@ -37,7 +37,7 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
                 if (value == "upper") "upper confidence limit using arcsine transformation.\n  Upper confidence limit set to 0.",
                 sep = "")
     }
-    else{
+    else {
       if (warn)
         warning("Too small value for ",
                 if (length(x) > 1) "at least one ",
@@ -61,7 +61,7 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
                 if (value == "upper") "upper confidence limit using arcsine transformation.\n  Upper confidence limit set to 1.",
                 sep = "")
     }
-    else{
+    else {
       if (warn)
         warning("Too large value for ",
                 if (length(x) > 1) "at least one ",
@@ -87,7 +87,7 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
     ##
     res[sel] <- sin(x[sel])^2
   }
-  else{
+  else {
     ##
     ## Back transformation of Freeman-Tukey double arcsine transformation:
     ##

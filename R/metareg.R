@@ -37,11 +37,11 @@ metareg <- function(x, formula,
       else
         formula <- as.call(~ .byvar - 1)
         
-    else{
+    else {
       warning("No meta-regression conducted as argument 'formula' is missing and no information is provided on subgroup variable, i.e. list element 'byvar' in meta-analysis object 'x' (see help page of R function metareg).")
       return(invisible(NULL))
     }
-  else{
+  else {
     formula.text <- deparse(substitute(formula))
     formula.text <- gsub("~", "", formula.text)
     formula.text <- gsub("\\\"", "", formula.text)

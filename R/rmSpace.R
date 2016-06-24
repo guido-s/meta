@@ -6,7 +6,7 @@ rmSpace <- function(x, end = FALSE, pat = " ") {
       x[sel] <- substring(x[sel], 2)
     }
   }
-  else{
+  else {
     last <- nchar(x)
     
     while (any(substring(x, last, last) == pat, na.rm = TRUE)) {

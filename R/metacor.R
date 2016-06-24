@@ -158,7 +158,7 @@ metacor <- function(cor, n, studlab,
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
-      else{
+      else {
         data$.subset <- FALSE
         data$.subset[subset] <- TRUE
       }
@@ -298,7 +298,7 @@ metacor <- function(cor, n, studlab,
       res <- c(res, subgroup(res))
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else{
+    else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q

@@ -36,7 +36,7 @@ bubble.metareg <- function(x,
     else
       studlab <- rep("", length(TE))
   }
-  else{
+  else {
     studlab <- as.character(studlab)
     if (length(studlab) != length(TE))
       stop("Length of argument 'studlab' must be the same as number of studies in meta-analysis.")
@@ -92,7 +92,7 @@ bubble.metareg <- function(x,
     if (missing(xlab))
       xlab <- ""
   }
-  else{
+  else {
     xs <- covar
     if (missing(xlim))
       xlim <- range(xs)
@@ -178,7 +178,7 @@ bubble.metareg <- function(x,
         box()
     }
   }
-  else{
+  else {
     plot(xs, ys,
          pch = pch, cex = cexs,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,

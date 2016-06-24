@@ -113,7 +113,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     if (!unique(x$logscale[sel]))
       x$TE[sel] <- log(x$TE[sel])
   }
-  else{
+  else {
     if (!missing(logscale)) {
       if (!logscale)
         x$TE[sel] <- log(x$TE[sel])
@@ -138,7 +138,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         event.e  <- x$n.e[sel] - x$event.e[sel]
         event.c  <- x$n.c[sel] - x$event.c[sel]
       }
-      else{
+      else {
         event.e <- x$event.e[sel]
         event.c <- x$event.c[sel]
       }
@@ -230,7 +230,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right)
   }
-  else{
+  else {
     if (type == "D") {
       ##
       if (missing(swap.events))
@@ -239,7 +239,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         event.e  <- x$n.e[sel] - x$event.e[sel]
         event.c  <- x$n.c[sel] - x$event.c[sel]
       }
-      else{
+      else {
         event.e <- x$event.e[sel]
         event.c <- x$event.c[sel]
       }

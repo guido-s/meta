@@ -853,7 +853,7 @@ forest.meta <- function(x,
     Q.b.random <- NA
     df.Q.b     <- NA
   }
-  else{
+  else {
     TE <- x$TE
     seTE <- x$seTE
     lowTE <- x$lower
@@ -1062,7 +1062,7 @@ forest.meta <- function(x,
       else
         w.fixed.w.p <- w.fixed.w
     }
-    else{
+    else {
       TE.fixed.w <- lower.fixed.w <- upper.fixed.w <- rep(NA, n.by)
       ##
       w.fixed.w.p <- rep(NA, n.by)
@@ -1076,7 +1076,7 @@ forest.meta <- function(x,
       else
         w.random.w.p <- w.random.w
     }
-    else{
+    else {
       TE.random.w <- lower.random.w <- upper.random.w <- rep(NA, n.by)
       ##
       w.random.w.p <- rep(NA, n.by)
@@ -1163,7 +1163,7 @@ forest.meta <- function(x,
       npft <- x$n.harmonic.mean
       npft.ma <- x$n.harmonic.mean.ma
     }
-    else{
+    else {
       npft <- x$n
       npft.ma <- 1 / mean(1 / x$n)
     }
@@ -1379,7 +1379,7 @@ forest.meta <- function(x,
                            rep(col.diamond.fixed.lines, n.by),
                            rep(col.diamond.random.lines, n.by))
   }
-  else{
+  else {
     modlabs <- c(text.fixed, text.random, text.predict,
                  hetstat.overall,
                  text.overall.fixed, text.overall.random,
@@ -1416,7 +1416,7 @@ forest.meta <- function(x,
                         p.ci(format(round(exp(lowTEs), digits), scientific = FALSE),
                              format(round(exp(uppTEs), digits), scientific = FALSE)))
   }
-  else{
+  else {
     effect.format <- format.NA(round(TEs, digits), digits, lab.NA.effect)
     ci.format <- ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
                         p.ci(format(round(lowTEs, digits), scientific = FALSE),
@@ -1463,7 +1463,7 @@ forest.meta <- function(x,
       Ne <- c(sum.n.e, sum.n.e, NA, n.e.w, n.e.w, rep(NA, n.by), x$n.e)
       Nc <- c(sum.n.c, sum.n.c, NA, n.c.w, n.c.w, rep(NA, n.by), x$n.c)
     }
-    else{
+    else {
       Ne <- c(NA, NA, NA, rep(NA, 3 * n.by), x$n.e)
       Nc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$n.c)
     }
@@ -1471,19 +1471,19 @@ forest.meta <- function(x,
       Ee <- c(sum.e.e, sum.e.e, NA, e.e.w, e.e.w, rep(NA, n.by), x$event.e)
       Ec <- c(sum.e.c, sum.e.c, NA, e.c.w, e.c.w, rep(NA, n.by), x$event.c)
     }
-    else{
+    else {
       Ee <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.e)
       Ec <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.c)
     }
     Te <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.e)
     Tc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.c)
   }
-  else{
+  else {
     if (pooled.totals) {
       Ne <- c(sum.n.e, sum.n.e, NA, x$n.e)
       Nc <- c(sum.n.c, sum.n.c, NA, x$n.c)
     }
-    else{
+    else {
       Ne <- c(NA, NA, NA, x$n.e)
       Nc <- c(NA, NA, NA, x$n.c)
     }
@@ -1491,7 +1491,7 @@ forest.meta <- function(x,
       Ee <- c(sum.e.e, sum.e.e, NA, x$event.e)
       Ec <- c(sum.e.c, sum.e.c, NA, x$event.c)
     }
-    else{
+    else {
       Ee <- c(NA, NA, NA, x$event.e)
       Ec <- c(NA, NA, NA, x$event.c)
     }
@@ -1559,7 +1559,7 @@ forest.meta <- function(x,
     Se <- c(NA, NA, NA, rep(NA, 3 * n.by), x$sd.e)
     Sc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$sd.c)
   }
-  else{
+  else {
     Me <- c(NA, NA, NA, x$mean.e)
     Mc <- c(NA, NA, NA, x$mean.c)
     Se <- c(NA, NA, NA, x$sd.e)
@@ -1610,7 +1610,7 @@ forest.meta <- function(x,
     yHead <- 2
     yHeadadd <- 1
   }
-  else{
+  else {
     yHead <- 1
     yHeadadd <- NA
   }
@@ -1620,7 +1620,7 @@ forest.meta <- function(x,
     yTE <- 1:N
     yTE <- yTE
   }
-  else{
+  else {
     ##
     j <- 1
     k <- 0
@@ -1699,7 +1699,7 @@ forest.meta <- function(x,
       if (!is.na(ref) && ref > xlim[2])
         xlim[2] <- ref
     }
-    else{
+    else {
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
       xlim <- c(min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE),
@@ -1724,7 +1724,7 @@ forest.meta <- function(x,
       xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
                 max(c(uppTE, uppTE.predict), na.rm = TRUE))
     }
-    else{
+    else {
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
       minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
@@ -1856,7 +1856,7 @@ forest.meta <- function(x,
     ##
     yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE.w, yTE)
   }
-  else{
+  else {
     yLab <- c(yHead, yTE.fixed, yTE.random, yPredict,
               yHetstat,
               yOverall.fixed, yOverall.random,
@@ -2142,7 +2142,7 @@ forest.meta <- function(x,
   if (weight == "same") {
     information <- rep(0.9, length(TEs))
   }
-  else{
+  else {
     ##
     if (weight == "fixed")
       information <- sqrt(w.fixeds)
@@ -2225,7 +2225,7 @@ forest.meta <- function(x,
                                    just = just.addcols)
       }
     }
-    else{
+    else {
       for (i in seq(along = rightcols.new)) {
         tname <- paste("col.", rightcols.new[i], sep = "")
         if (length(dataset1[[rightcols.new[i]]]) != 0)
@@ -2502,7 +2502,7 @@ forest.meta <- function(x,
         at <- log(label)
         label <- round(label, 2)
       }
-      else{
+      else {
         if (length(label) == 1 && is.logical(label) && label)
           label <- round(at, 2)
         at <- log(at)
@@ -2510,7 +2510,7 @@ forest.meta <- function(x,
       grid.xaxis(at = at, label = label,
                  gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
     }
-    else{
+    else {
       if (is.null(at))
         grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
       else
@@ -2640,7 +2640,7 @@ forest.meta <- function(x,
                             yOverall.fixed, yOverall.random,
                             ySubgroup.fixed, ySubgroup.random, yTE.w), na.rm = TRUE)
   }
-  else{
+  else {
     addline <- addspace * (!any(c(test.overall.fixed, test.overall.random, hetstat)))
     ##
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,

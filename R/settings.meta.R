@@ -98,7 +98,7 @@ settings.meta <- function(...) {
         chklogical(args[[1]], "reset")
         if (args[[1]])
           reset.settings <- TRUE
-        else{
+        else {
           cat("To reset all settings use argument 'reset = TRUE' (R package meta)\n")
           return(invisible(res))
         }
@@ -277,7 +277,7 @@ settings.meta <- function(...) {
                       ischar = c(FALSE, TRUE, FALSE),
                       title = "Use settings from R package meta (version 4.3-1 and older)")
   }
-  else{
+  else {
     argid <- function(x, value) {
       if (any(names == value))
         res <- seq(along = x)[names == value]

@@ -16,7 +16,7 @@ ciSimpleAsymptotic <- function(event, n, level = 0.95, correct = FALSE) {
     lower  <- p - z * sqrt(p * q / n)
     upper  <- p + z * sqrt(p * q / n)
   }
-  else{
+  else {
     lower  <- p - (z * sqrt(p * q / n) + 1 / (2 * n))
     upper  <- p + (z * sqrt(p * q / n) + 1 / (2 * n))
   }
