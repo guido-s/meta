@@ -1,3 +1,21 @@
+*** meta, version 4.4-2, 2016-mm-dd ***
+
+ ** User-visible changes **
+
+  * labbe.metabin(), labbe.default():
+    - transformed event probabilites can be plotted, e.g., log odds
+      event probabilities for odds ratio as summary measure (see
+      argument backtransf)
+    - line for null effect added by default (see arguments nulleffect,
+      lwd.nulleffect, col.nulleffect)
+
+  * forest.meta():
+    - argument ref considered for metaprop objects
+
+  * Help page updated:
+    labbe()
+
+
 *** meta, version 4.4-1, 2016-06-20 ***
 
  ** User-visible changes **
