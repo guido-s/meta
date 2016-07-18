@@ -6,7 +6,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                              hakn = FALSE,
                              method.tau = "DL",
                              prediction = FALSE, level.predict = level,
-                             backtransf = TRUE,
+                             backtransf = TRUE, pscale = 1,
                              silent = TRUE, ...) {
   
   
@@ -30,6 +30,18 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
+  ##
+  chklogical(prediction)
+  chklogical(backtransf)
+  if (!(sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+    pscale <- 1
+  chknumeric(pscale, single = TRUE)
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  ##
+  chklogical(silent)
   
   
   if(length(TE) != length(seTE))
@@ -201,6 +213,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
               comb.fixed = comb.fixed, comb.random = comb.random)
   
   res$backtransf <- backtransf
+  res$pscale <- pscale
   
   res$version <- packageDescription("meta")$Version
   

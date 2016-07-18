@@ -21,7 +21,8 @@ catmeth <- function(method,
                     method.smd,
                     sd.glass,
                     exact.smd = FALSE,
-                    model.glmm) {
+                    model.glmm,
+                    pscale = 1) {
   
   if (is.null(doublezeros)) doublezeros <- FALSE
   
@@ -126,6 +127,13 @@ catmeth <- function(method,
       }
     }
   }
+  
+  
+  if (pscale != 1)
+    sm.details <- paste(sm.details,
+                        "\n- Events per ",
+                        format(pscale, scientific = FALSE),
+                        " observations", sep = "")
   
   
   lab.method.details <- ""

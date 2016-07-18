@@ -3,6 +3,7 @@ summary.meta <- function(object,
                          comb.random = object$comb.random,
                          prediction = object$prediction,
                          backtransf = object$backtransf,
+                         pscale = object$pscale,
                          bylab = object$bylab,
                          print.byvar = object$print.byvar,
                          bystud = FALSE,
@@ -42,6 +43,13 @@ summary.meta <- function(object,
   chklogical(comb.random)
   chklogical(prediction)
   chklogical(backtransf)
+  chknumeric(pscale, single = TRUE)
+  ##
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  ##
   if (!is.null(print.byvar))
     chklogical(print.byvar)
   chklogical(bystud)
@@ -276,6 +284,7 @@ summary.meta <- function(object,
   res$subset <- object$subset
   ##
   res$backtransf <- backtransf
+  res$pscale <- pscale
   ##
   res$version <- object$version
   if (is.null(res$version))

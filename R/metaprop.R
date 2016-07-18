@@ -26,6 +26,7 @@ metaprop <- function(event, n, studlab,
                      method.bias = .settings$method.bias,
                      ##
                      backtransf = .settings$backtransf,
+                     pscale = 1,
                      title = .settings$title, complab = .settings$complab,
                      outclab = "",
                      ##
@@ -59,6 +60,12 @@ metaprop <- function(event, n, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  chknumeric(pscale, single = TRUE)
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  ##
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metainc objects
@@ -469,9 +476,6 @@ metaprop <- function(event, n, studlab,
     res$upper.fixed <- ci.f$upper
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
-  }
-  ##
-  if (method == "GLMM") {
     ##
     glmm.random <- metafor::rma.glmm(xi = event, ni = n,
                                      method = method.tau,
@@ -521,6 +525,8 @@ metaprop <- function(event, n, studlab,
   res$pval.fixed <- NA
   res$zval.random <- NA
   res$pval.random <- NA
+  ##
+  res$pscale <- pscale
   ##
   res$call <- match.call()
   ##

@@ -1,4 +1,4 @@
-xlab <- function(sm, backtransf) {
+xlab <- function(sm, backtransf, pscale = 1) {
 
   res <- NULL
   
@@ -36,7 +36,12 @@ xlab <- function(sm, backtransf) {
       res <- "Correlation"
     ##
     else if (sm %in% c("PFT", "PAS", "PLN", "PLOGIT", "PRAW"))
-      res <- ""
+      if (pscale == 1)
+        res <- ""
+      else
+        res <- paste("Events per",
+                     format(pscale, scientific = FALSE),
+                     "observations")
   }
   else {
     if (sm == "OR")

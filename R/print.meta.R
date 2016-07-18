@@ -5,6 +5,7 @@ print.meta <- function(x,
                        prediction = x$prediction,
                        details = FALSE, ma = TRUE,
                        backtransf = x$backtransf,
+                       pscale = x$pscale,
                        digits = .settings$digits,
                        digits.se = .settings$digits.se,
                        digits.zval = .settings$digits.zval,
@@ -58,6 +59,16 @@ print.meta <- function(x,
   chklogical(details)
   chklogical(ma)
   chklogical(backtransf)
+  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+    pscale <- 1
+  if (!is.null(pscale))
+    chknumeric(pscale, single = TRUE)
+  else
+    pscale <- 1
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
@@ -102,8 +113,12 @@ print.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
-      sm.lab <- "proportion"
+    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+      if (pscale == 1)
+        sm.lab <- "proportion"
+      else
+        sm.lab <- "events"
+    }
   }
   else 
     if (is.relative.effect(sm))
@@ -146,8 +161,11 @@ print.meta <- function(x,
                         time.c = format.NA(round(x$time.c, digits), digits, "NA"))
     }
     else if (inherits(x, "metaprop")) {
-      res <- data.frame(event = x$event, n = x$n,
-                        p = format.NA(round(x$event / x$n, digits.prop), digits.prop, "NA"))
+      res <- data.frame(event = x$event, n = x$n)
+      if (pscale == 1)
+        res$p <- format.NA(round(pscale * x$event / x$n, digits.prop), digits.prop, "NA")
+      else
+        res$events <- format.NA(round(pscale * x$event / x$n, digits.prop), digits.prop, "NA")
     }
     else {
       res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
@@ -176,11 +194,13 @@ print.meta <- function(x,
                             doublezeros = x$doublezeros,
                             MH.exact = x$MH.exact,
                             warn = FALSE, level.comb = level.comb)),
-            digits = digits, header = FALSE, backtransf = backtransf,
+            digits = digits, header = FALSE,
+            backtransf = backtransf, pscale = pscale,
             digits.zval = digits.zval)
     else
       print(summary(x),
-            digits = digits, header = FALSE, backtransf = backtransf,
+            digits = digits, header = FALSE,
+            backtransf = backtransf, pscale = pscale,
             digits.zval = digits.zval, ...)
   }
   else {
@@ -211,12 +231,18 @@ print.meta <- function(x,
         lowTE <- backtransf(lowTE, sm, "lower", npft)
         uppTE <- backtransf(uppTE, sm, "upper", npft)
       }
+      ##
+      if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+        TE <- pscale * TE
+        lowTE <- pscale * lowTE
+        uppTE <- pscale * uppTE
+      }
     }
     ##
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
-    ##    
+    ##
     if (!metainf.metacum) {
       if (comb.fixed)
         if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
@@ -331,7 +357,8 @@ print.meta <- function(x,
       print(summary(x, warn = FALSE), digits = digits,
             comb.fixed = comb.fixed, comb.random = comb.random,
             prediction = prediction,
-            header = FALSE, backtransf = backtransf,
+            header = FALSE,
+            backtransf = backtransf, pscale = pscale,
             digits.tau2 = digits.tau2,
             digits.zval = digits.zval,
             digits.Q = digits.Q,

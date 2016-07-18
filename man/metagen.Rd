@@ -21,6 +21,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         method.bias=.settings$method.bias,
         n.e=NULL, n.c=NULL,
         backtransf=.settings$backtransf,
+	pscale=1,
         title=.settings$title, complab=.settings$complab, outclab="",
         label.e=.settings$label.e, label.c=.settings$label.c,
         label.left=.settings$label.left, label.right=.settings$label.right,
@@ -74,6 +75,10 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
     rather than log odds ratios and results for \code{sm="ZCOR"} are
     printed as correlations rather than Fisher's z transformed
     correlations, for example.}
+  \item{pscale}{A numeric defining a scaling factor for printing of
+    single event probabilities, i.e. if argument \code{sm} is equal to
+    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
+    \code{"PFT"}. See also \code{\link{metaprop}}}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -148,6 +153,11 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   For these methods the R function \code{rma.uni} of R package metafor
   is called internally. See help page of R function \code{rma.uni} for
   more details on these methods to estimate between-study variance.
+  
+  Argument \code{pscale} can be used to rescale proportions,
+  e.g. \code{pscale=1000} means that proportions are expressed as
+  events per 1000 observations. This is useful in situations with
+  (very) low event probabilities.
 }
 
 \value{

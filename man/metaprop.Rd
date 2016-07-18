@@ -30,6 +30,7 @@ metaprop(event, n, studlab,
          prediction=.settings$prediction, level.predict=.settings$level.predict,
          method.bias=.settings$method.bias,
          backtransf=.settings$backtransf,
+	 pscale=1,
          title=.settings$title, complab=.settings$complab, outclab="",
          byvar, bylab, print.byvar=.settings$print.byvar,
          keepdata=.settings$keepdata,
@@ -93,6 +94,8 @@ metaprop(event, n, studlab,
     results will be presented as proportions; otherwise transformed
     proportions will be shown. See Details for presentation of
     confidence intervals.}
+  \item{pscale}{A numeric defining a scaling factor for printing of
+    single event probabilities.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -158,6 +161,11 @@ metaprop(event, n, studlab,
   function. In this case, argument \code{method.ci="NAsm"} is used,
   i.e. confidence intervals based on the normal approximation based on
   the summary measure.
+  
+  Argument \code{pscale} can be used to rescale proportions,
+  e.g. \code{pscale=1000} means that proportions are expressed as
+  events per 1000 observations. This is useful in situations with
+  (very) low event probabilities.
   
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
@@ -568,6 +576,12 @@ round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
     require(lme4, quietly = TRUE))
  metaprop(event, n, method = "GLMM")
+
+
+#
+# Print results as events per 1000 observations
+#
+print(metaprop(6:8, c(100, 1200, 1000)), pscale = 1000, digits = 1)
 }
 
 \keyword{htest}

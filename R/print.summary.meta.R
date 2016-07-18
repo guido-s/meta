@@ -7,6 +7,7 @@ print.summary.meta <- function(x,
                                print.CMH = x$print.CMH,
                                header = TRUE,
                                backtransf = x$backtransf,
+                               pscale = x$pscale,
                                bylab.nchar = 35,
                                digits.zval = .settings$digits.zval,
                                digits.Q = .settings$digits.Q,
@@ -41,6 +42,16 @@ print.summary.meta <- function(x,
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chklogical(backtransf)
+  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+    pscale <- 1
+  if (!is.null(pscale))
+    chknumeric(pscale, single = TRUE)
+  else
+    pscale <- 1
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
@@ -96,8 +107,12 @@ print.summary.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    if (sm %in% c("PFT", "PAS", "PRAW", "PLOGIT", "PLN"))
-      sm.lab <- "proportion"
+    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+      if (pscale == 1)
+        sm.lab <- "proportion"
+      else
+        sm.lab <- "events"
+    }
   }
   else 
     if (is.relative.effect(sm))
@@ -195,6 +210,31 @@ print.summary.meta <- function(x,
     }
   }
   ##
+  ## Apply argument 'pscale' to proportions
+  ##
+  if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+    TE.fixed    <- pscale * TE.fixed
+    lowTE.fixed <- pscale * lowTE.fixed
+    uppTE.fixed <- pscale * uppTE.fixed
+    ##
+    TE.random    <- pscale * TE.random
+    lowTE.random <- pscale * lowTE.random
+    uppTE.random <- pscale * uppTE.random
+    ##
+    lowTE.predict <- pscale * lowTE.predict
+    uppTE.predict <- pscale * uppTE.predict
+    ##
+    if (by) {
+      TE.fixed.w    <- pscale * TE.fixed.w
+      lowTE.fixed.w <- pscale * lowTE.fixed.w
+      uppTE.fixed.w <- pscale * uppTE.fixed.w
+      ##   
+      TE.random.w    <- pscale * TE.random.w
+      lowTE.random.w <- pscale * lowTE.random.w
+      uppTE.random.w <- pscale * uppTE.random.w
+    }
+  }
+  ##
   ## Round and round ...
   ##
   TE.fixed    <- round(TE.fixed, digits)
@@ -270,7 +310,8 @@ print.summary.meta <- function(x,
             method.smd = x$method.smd,
             sd.glass = x$sd.glass,
             exact.smd = x$exact.smd,
-            model.glmm = x$model.glmm)
+            model.glmm = x$model.glmm,
+            pscale = pscale)
   }
   else {
     ##
@@ -504,7 +545,8 @@ print.summary.meta <- function(x,
             method.smd = x$method.smd,
             sd.glass = x$sd.glass,
             exact.smd = x$exact.smd,
-            model.glmm = x$model.glmm)
+            model.glmm = x$model.glmm,
+            pscale = pscale)
   }
   
   

@@ -21,6 +21,7 @@ metagen <- function(TE, seTE, studlab,
                     n.e = NULL, n.c = NULL,
                     ##
                     backtransf = .settings$backtransf,
+                    pscale = 1,
                     title = .settings$title, complab = .settings$complab,
                     outclab = "",
                     label.e = .settings$label.e, label.c = .settings$label.c,
@@ -56,6 +57,14 @@ metagen <- function(TE, seTE, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  if (!(sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+    pscale <- 1
+  chknumeric(pscale, single = TRUE)
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  ##
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metacont objects
@@ -452,6 +461,7 @@ metagen <- function(TE, seTE, studlab,
               warn = warn,
               call = match.call(),
               backtransf = backtransf,
+              pscale = pscale,
               version = packageDescription("meta")$Version)
   ##
   class(res) <- c(fun, "meta")

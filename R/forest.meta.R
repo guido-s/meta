@@ -28,7 +28,7 @@ forest.meta <- function(x,
                         ##
                         allstudies = TRUE,
                         weight,
-                        pscale = 1,
+                        pscale = x$pscale,
                         ##
                         ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
@@ -221,7 +221,10 @@ forest.meta <- function(x,
   ## chknumeric(xlab.pos) ??
   ## chknumeric(smlab.pos) ??
   chklogical(allstudies)
-  chknumeric(pscale, single = TRUE)
+  if (!is.null(pscale))
+    chknumeric(pscale, single = TRUE)
+  else
+    pscale <- 1
   chknumeric(ref)
   layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
@@ -407,7 +410,7 @@ forest.meta <- function(x,
     xlab <- xlab(sm, backtransf)
   ##
   if (is.null(smlab))
-    smlab <- xlab(sm, backtransf)
+    smlab <- xlab(sm, backtransf, pscale = pscale)
   ##
   if (is.null(label.right))
     label.right <- ""
@@ -446,12 +449,10 @@ forest.meta <- function(x,
     if (sm == "ZCOR")
       sm.lab <- "COR"
     else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
-      if (pscale == 100)
-        sm.lab <- "Prop (in %)"
-      else if (pscale == 1)
+      if (pscale == 1)
         sm.lab <- "Proportion"
       else
-        sm.lab <- sm
+        sm.lab <- "Events"
     }
     else if (sm == "proportion")
       sm.lab <- "Proportion"

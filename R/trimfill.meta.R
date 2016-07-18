@@ -6,6 +6,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           method.tau = x$method.tau,
                           prediction = x$prediction, level.predict = x$level.predict,
                           backtransf = x$backtransf,
+                          pscale = x$pscale,
                           silent = TRUE, ...) {
   
   
@@ -33,11 +34,23 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
+  ##
+  chklogical(prediction)
+  ##
+  chklogical(backtransf)
+  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+    pscale <- 1
+  chknumeric(pscale, single = TRUE)
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  ##
+  chklogical(silent)
   
   
   TE <- x$TE
   seTE <- x$seTE
-  sm <- x$sm
   studlab <- x$studlab
   n.e <- x$n.e
   event.e <- x$event.e
@@ -291,7 +304,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               lower.I2 = I2res$lower,
               upper.I2 = I2res$upper,
               ##
-              sm = sm,
+              sm = x$sm,
               method = m$method,
               ##
               call = match.call(),
@@ -331,7 +344,8 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               )
   
   res$backtransf <- backtransf
-  
+  res$pscale <- pscale
+
   res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metagen", "meta", "trimfill")

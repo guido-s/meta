@@ -37,7 +37,7 @@ forest(x, ...)
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
        weight,
-       pscale=1,
+       pscale=x$pscale,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        layout="meta",
        leftcols=NULL, rightcols=NULL,
@@ -180,8 +180,10 @@ forest(x, ...)
     \code{"random"}, can be abbreviated. Plot symbols have the same size
     for all studies or represent study weights from fixed effect or
     random effects model.}
-  \item{pscale}{A numeric giving scaling factor for probabilities for
-    objects of class \code{metaprop}.}
+  \item{pscale}{A numeric giving scaling factor for printing of single
+    event probabilities, i.e. if argument \code{sm} is equal to
+    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
+    \code{"PFT"}.}
   \item{ref}{A numerical giving the reference value to be plotted as a
     line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}
@@ -462,13 +464,11 @@ forest(x, ...)
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
   
-  The arguments \code{pscale} can be used to rescale proportions
-  for objects of class \code{metaprop}, e.g. \code{pscale=100} means
-  that proportions are expressed per 100 observations. This is useful in
-  situations with (very) low proportions. For \code{pscale=100}, column
-  heading and x-axis label are changed to "Prop (in \%)" and
-  "Proportion (in \%)", respectively.
-
+  Argument \code{pscale} can be used to rescale proportions,
+  e.g. \code{pscale=1000} means that proportions are expressed as
+  events per 1000 observations. This is useful in situations with
+  (very) low event probabilities.
+  
   A prediction interval for treatment effect of a new study (Higgins
   et al., 2009) is given in the forest plot if arguments
   \code{prediction} and \code{comb.random} are \code{TRUE}. For

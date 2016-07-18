@@ -24,6 +24,7 @@
        TE.tau=object$TE.tau, tau.common=object$tau.common,
        prediction=object$prediction, level.predict=object$level.predict,
        method.bias=object$method.bias, backtransf = object$backtransf,
+       pscale = object$pscale,
        title=object$title, complab=object$complab, outclab=object$outclab,
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
@@ -105,6 +106,10 @@
     odds ratios rather than log odds ratios and results for
     \code{sm="ZCOR"} are printed as correlations rather than Fisher's
     z transformed correlations, for example.}
+  \item{pscale}{A numeric giving scaling factor for printing of single
+    event probabilities, i.e. if argument \code{sm} is equal to
+    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
+    \code{"PFT"}.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

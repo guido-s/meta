@@ -1,6 +1,18 @@
-*** meta, version 4.4-2, 2016-mm-dd ***
+*** meta, version 4.5-0, 2016-mm-dd ***
+
+ ** Major changes **
+
+  * Argument pscale - a scaling factor for printing of single event
+    probabilities - considered in all R functions for single
+    proportions; before this update, the pscale argument was only
+    available in forest.meta()
 
  ** User-visible changes **
+
+  * metagen(), metaprop(), print.meta(), print.summary.meta(),
+    summary.meta(), trimfill.meta(), trimfill.default(),
+    update.meta():
+     - new argument pscale
 
   * labbe.metabin(), labbe.default():
     - transformed event probabilites can be plotted, e.g., log odds
@@ -12,8 +24,18 @@
   * forest.meta():
     - argument ref considered for metaprop objects
 
-  * Help page updated:
-    labbe()
+  * Help pages updated:
+    labbe.metabin(), labbe.default(), forest.meta(), metagen(),
+    metaprop(), print.meta(), print.summary.meta(), summary.meta(),
+    trimfill.meta(), trimfill.default(), update.meta()
+
+ ** Internal changes **
+
+  * catmeth(), xlab():
+     - new argument pscale
+
+  * metacum(), metainf():
+    - list object pscale added
 
 
 *** meta, version 4.4-1, 2016-06-20 ***

@@ -19,7 +19,7 @@ trimfill(x, ...)
          comb.fixed=FALSE, comb.random=TRUE,
          hakn=FALSE, method.tau="DL",
          prediction=FALSE, level.predict=level,
-         backtransf=TRUE,
+         backtransf=TRUE, pscale=1,
          silent=TRUE, ...)
 
 \method{trimfill}{meta}(x, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
@@ -27,7 +27,7 @@ trimfill(x, ...)
          comb.fixed=FALSE, comb.random=TRUE,
          hakn=x$hakn, method.tau=x$method.tau,
          prediction=x$prediction, level.predict=x$level.predict,
-         backtransf=x$backtransf,
+         backtransf=x$backtransf, pscale=x$pscale,
          silent=TRUE, ...)
 }
 
@@ -79,6 +79,10 @@ trimfill(x, ...)
     odds ratios rather than log odds ratios and results for
     \code{sm="ZCOR"} are printed as correlations rather than Fisher's
     z transformed correlations, for example.}
+  \item{pscale}{A numeric giving scaling factor for printing of single
+    event probabilities, i.e. if argument \code{sm} is equal to
+    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
+    \code{"PFT"}.}
   \item{silent}{A logical indicating whether basic information on
     iterations shown.}
   \item{\dots}{other arguments}

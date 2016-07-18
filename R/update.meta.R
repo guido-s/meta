@@ -25,6 +25,7 @@ update.meta <- function(object,
                         method.bias = object$method.bias,
                         ##
                         backtransf = object$backtransf,
+                        pscale = object$pscale,
                         title = object$title,
                         complab = object$complab,
                         outclab = object$outclab,
@@ -104,6 +105,8 @@ update.meta <- function(object,
   level.predict <- replacemiss(level.predict)
   prediction <- replacemiss(prediction)
   ##
+  pscale <- replacemiss(pscale, 1)
+  ##
   title <- replacemiss(title)
   complab <- replacemiss(complab)
   outclab <- replacemiss(outclab, "")
@@ -113,6 +116,11 @@ update.meta <- function(object,
   print.byvar <- replacemiss(print.byvar)
   ##
   warn <- replacemiss(warn)
+  ##
+  if (!backtransf & pscale != 1) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
   
   
   ##
@@ -467,7 +475,7 @@ update.meta <- function(object,
                   ##
                   method.bias = method.bias,
                   ##
-                  backtransf = backtransf,
+                  backtransf = backtransf, pscale = pscale,
                   title = title, complab = complab, outclab = outclab,
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   ##

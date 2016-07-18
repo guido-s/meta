@@ -266,6 +266,7 @@ metainf <- function(x, pooled, sortvar) {
               prediction = FALSE,
               ##
               backtransf = x$backtransf,
+              pscale = x$pscale,
               title = x$title, complab = x$complab,
               outclab = x$outclab,
               ##
