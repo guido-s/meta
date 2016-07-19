@@ -1,5 +1,13 @@
-# meta
+# meta: General Package for Meta-Analysis
 Official GitHub repository of R package meta
+
+[![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
+[![Monthly Downloads](http://cranlogs.r-pkg.org/badges/meta)](http://cranlogs.r-pkg.org/badges/meta)
+[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/meta)](http://cranlogs.r-pkg.org/badges/grand-total/meta)
+[![Research software impact](http://depsy.org/api/package/cran/meta/badge.svg)](http://depsy.org/package/r/meta)
+
+
+## Description
 
 User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015), http://meta-analysis-with-r.org/ :
  - fixed effect and random effects meta-analysis;
@@ -10,3 +18,18 @@ User-friendly general package providing standard methods for meta-analysis and s
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression (if R package 'metafor' is installed);
  - generalised linear mixed models (if R packages 'metafor', 'lme4', 'numDeriv', and 'BiasedUrn' are installed).
+
+
+## Installation
+
+### Current official [![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
+```r
+install.packages("meta")
+```
+
+### Current beta / GitHub release:
+```r
+install.packages("devtools")
+library("devtools")
+install_github("guido-s/meta")
+```
