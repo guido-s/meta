@@ -4,6 +4,5 @@ kenscore.o
 meta.so
 src-x86_64
 symbols.rds
-.Rbuildignore
 .Rhistory
 .DS_Store
