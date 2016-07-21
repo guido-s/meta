@@ -51,14 +51,15 @@ metaprop(event, n, studlab,
   \item{sm}{A character string indicating which summary measure
     (\code{"PFT"}, \code{"PAS"}, \code{"PRAW"}, \code{"PLN"}, or
     \code{"PLOGIT"}) is to be used for pooling of studies, see Details.}
-  \item{incr}{A numeric which is added to each cell frequency for
-    studies with a zero cell count.}
-  \item{allincr}{A logical indicating if \code{incr} is added to each
-    cell frequency of all studies if at least one study has a zero cell
-    count. If FALSE (default), \code{incr} is added only to each cell frequency of
-    studies with a zero cell count.}
-  \item{addincr}{A logical indicating if \code{incr} is added to each cell
-    frequency of all studies irrespective of zero cell counts.}
+  \item{incr}{A numeric which is added to event number and sample size
+    of studies with zero or all events, i.e., studies with an event
+    probability of either 0 or 1.}
+  \item{allincr}{A logical indicating if \code{incr} is considered for
+    all studies if at least one study has either zero or all
+    events. If FALSE (default), \code{incr} is considered only in
+    studies with zero or all events.}
+  \item{addincr}{A logical indicating if \code{incr} is used for all
+    studies irrespective of number of events.}
   \item{method.ci}{A character string indicating which method is used
     to calculate confidence intervals for individual studies, see
     Details.}
@@ -107,7 +108,7 @@ metaprop(event, n, studlab,
   \item{keepdata}{A logical indicating whether original data (set)
     should be kept in meta object.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
-    to studies with zero cell frequencies should result in a warning.}
+    to studies with zero or all events should result in a warning.}
   \item{\dots}{Additional arguments passed on to
     \code{\link[metafor]{rma.glmm}} function.}
 }
@@ -191,12 +192,13 @@ metaprop(event, n, studlab,
   \bold{metafor} internally.
 
   If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
-  continuity correction is applied if any studies has a zero cell
-  count. By default, 0.5 is added to all cell frequencies of studies
-  with a zero cell count (argument \code{incr}). This continuity
-  correction is used both to calculate individual study results with
-  confidence limits and to conduct meta-analysis based on the inverse
-  variance method. For GLMMs no continuity correction is used.
+  continuity correction is applied if any study has either zero or all
+  events, i.e., an event probability of either 0 or 1. By default, 0.5
+  is used as continuity correction (argument \code{incr}). This
+  continuity correction is used both to calculate individual study
+  results with confidence limits and to conduct meta-analysis based on
+  the inverse variance method. For GLMMs no continuity correction is
+  used.
   
   Argument \code{byvar} can be used to conduct subgroup analysis for
   all methods but GLMMs. Instead use the \code{\link{metareg}}

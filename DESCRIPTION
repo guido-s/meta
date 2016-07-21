@@ -5,7 +5,7 @@ Depends: R (>= 2.9.1)
 Imports: grid
 Suggests: metafor, lme4, numDeriv, BiasedUrn
 Authors@R: c(person("Guido","Schwarzer", role=c("cre","aut"), email="sc@imbi.uni-freiburg.de"))
-Date: 2016-07-18
+Date: 2016-07-21
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
  - fixed effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);

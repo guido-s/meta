@@ -277,8 +277,8 @@ metaprop <- function(event, n, studlab,
   sel <- switch(sm,
                 PFT = rep(FALSE, length(event)),
                 PAS = rep(FALSE, length(event)),
-                PRAW = event == 0 | (n - event) == 0,
-                PLN = event == 0 | (n - event) == 0,
+                PRAW =   event == 0 | (n - event) == 0,
+                PLN =    event == 0 | (n - event) == 0,
                 PLOGIT = event == 0 | (n - event) == 0)
   ##
   sparse <- any(sel, na.rm = TRUE)
@@ -311,16 +311,16 @@ metaprop <- function(event, n, studlab,
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
-    ## Hartung, Knapp (2001), p. 4.00, formula (18):
+    ## Hartung, Knapp (2001), p. 3880, formula (18):
     seTE <- ifelse(event == n,
-                   sqrt(1 / event - 1 / (n + incr.event)),
+                   sqrt(1 / event                - 1 / (n + incr.event)),
                    sqrt(1 / (event + incr.event) - 1 / (n + incr.event))
                    )
   }
   else if (sm == "PLOGIT") {
     TE <- log((event + incr.event) / (n - event + incr.event))
     seTE <- sqrt(1 / (event + incr.event) +
-                   1 / ((n - event + incr.event)))
+                 1 / ((n - event + incr.event)))
   }
   ##
   ## Calculate confidence intervals
