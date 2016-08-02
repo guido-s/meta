@@ -104,6 +104,8 @@ forest(x, ...)
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
+       calcwidth.pooled = TRUE,
+       #
        just="right", just.studlab="left", just.addcols="center",
        #
        addspace=TRUE,
@@ -336,7 +338,10 @@ forest(x, ...)
   \item{colgap.forest.left}{A unit object specifying gap between column
     on the left side of forest plot and the forest plot.}
   \item{colgap.forest.right}{A unit object specifying gap between column
-    on the right side of forest plot and the forest plot.}
+    on the right side of forest plot and the forest plot.} 
+  \item{calcwidth.pooled}{A logical indicating whether text given in
+    arguments \code{text.fixed} and \code{text.random} should be
+    considered to calculate width of column with study labels..}
   \item{just}{Justification of text in all columns but columns
     with study labels and additional variables (possible values:
     "left", "right", "center").}
