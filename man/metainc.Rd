@@ -314,9 +314,13 @@ metainc(event.e, time.e, event.c, time.c, studlab,
     transformation) - if \code{byvar} is not missing.}
   \item{event.e.w}{Number of events in experimental group in subgroups
     - if \code{byvar} is not missing.}
+  \item{time.e.w}{Total person time in subgroups (experimental group)
+    - if \code{byvar} is not missing.}
   \item{n.e.w}{Number of observations in experimental group in
     subgroups - if \code{byvar} is not missing.}
   \item{event.c.w}{Number of events in control group in subgroups - if
+    \code{byvar} is not missing.}
+  \item{time.c.w}{Total person time in subgroups (control group) - if
     \code{byvar} is not missing.}
   \item{n.c.w}{Number of observations in control group in subgroups -
     if \code{byvar} is not missing.}

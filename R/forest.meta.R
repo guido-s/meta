@@ -22,6 +22,7 @@ forest.meta <- function(x,
                         bysort = FALSE,
                         ##
                         pooled.totals = comb.fixed | comb.random, pooled.events = FALSE,
+                        pooled.times = FALSE,
                         ##
                         xlab = "", xlab.pos = ref,
                         smlab = NULL, smlab.pos = ref, xlim = "symmetric",
@@ -142,6 +143,8 @@ forest.meta <- function(x,
                         colgap.forest.left = colgap.forest,
                         colgap.forest.right = colgap.forest,
                         ##
+                        calcwidth.pooled = TRUE,
+                        ##
                         just = "right",
                         just.studlab = "left",
                         just.addcols = "center",
@@ -168,6 +171,7 @@ forest.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
+  x.name <- deparse(substitute(x))
   x <- updateversion(x)
   ##
   K.all <- length(x$TE)
@@ -218,6 +222,7 @@ forest.meta <- function(x,
   chklogical(bysort)
   chklogical(pooled.totals)
   chklogical(pooled.events)
+  chklogical(pooled.times)
   ## chknumeric(xlab.pos) ??
   ## chknumeric(smlab.pos) ??
   chklogical(allstudies)
@@ -344,6 +349,7 @@ forest.meta <- function(x,
   ##
   metaprop <- inherits(x, "metaprop")
   metacor <- inherits(x, "metacor")
+  metainc <- inherits(x, "metainc")
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##  
   if (metainf.metacum) {
@@ -363,8 +369,6 @@ forest.meta <- function(x,
   ##
   prediction <- prediction & x$k >= 3
   ##  
-  x.name <- deparse(substitute(x))
-  ##
   byvar <- x$byvar
   level <- x$level
   level.comb <- x$level.comb
@@ -376,8 +380,20 @@ forest.meta <- function(x,
     chklevel(level.predict)
   ##  
   if (is.logical(leftcols)) {
-    warning("Logical value not possible for argument 'leftcols', set to 'NULL'.")
-    leftcols <- NULL
+    if (!leftcols) {
+      text.fixed <- ""
+      text.random <- ""
+      text.predict <- ""
+      leftcols <- "studlab"
+      studlab <- rep("", K.all)
+      slab <- FALSE
+      hetstat <- FALSE
+      overall.hetstat <- FALSE
+      colgap.left <- grid::unit(0, "mm")
+      colgap.forest.left <- grid::unit(0, "mm")
+    }
+    else
+      leftcols <- NULL
   }
   ##
   notmiss.xlim <- !missing(xlim)
@@ -479,10 +495,36 @@ forest.meta <- function(x,
                 sm.lab, paste(100 * level, "%-CI", sep = ""),
                 "W(fixed)", "W(random)")
   ##
+  ## If any of the following list elements is NULL, these 'special'
+  ## variable names are searched for in original data set (i.e., list
+  ## element x$data)
+  ##
+  removeNULL <- function(x, names, varname) {
+    if (is.null(x[[varname]]))
+      res <- names[names != varname]
+    else
+      res <- names
+    ##
+    res
+  }
+  ##
+  colnames.notNULL <- colnames
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cor")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.c")
+  ##
   ## Identify and process columns in addition to columns
   ## defined above in variables 'colnames' and 'labnames'
   ##
-  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames]
+  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
   ##
   newcols <- length(colnames.new) > 0
   ##
@@ -504,8 +546,8 @@ forest.meta <- function(x,
       if (length(dataset1[[i]]) == 0 & length(dataset2[[i]]) == 0)
         stop("Variable '", i, "' not available in '", x.name, "'.")
     ##
-    rightcols.new <- rightcols[! rightcols %in% colnames]
-    leftcols.new  <- leftcols[! leftcols %in% colnames]
+    rightcols.new <- rightcols[! rightcols %in% colnames.notNULL]
+    leftcols.new  <- leftcols[! leftcols %in% colnames.notNULL]
     ##
     ## Determine label for new columns
     ## 1. Use column name as label if no label is given
@@ -516,8 +558,15 @@ forest.meta <- function(x,
     if (length(rightcols.new) > 0) {
       pos.rightcols.new <- match(rightcols.new, rightcols)
       ##
+      rightlabs.new <- rightcols.new
+      for (i in seq(along = rightcols.new)) {
+        j <- match(rightcols.new[i], colnames)
+        if (!is.na(j))
+          rightlabs.new[i] <- labnames[j]
+      }
+      ##
       if (missing(rightlabs))
-        rightlabs.new <- rightcols.new
+        rightlabs.new <- rightlabs.new
       else if (length(rightcols.new) == length(rightlabs))
         rightlabs.new <- rightlabs
       else if (max(pos.rightcols.new) <= length(rightlabs))
@@ -531,8 +580,15 @@ forest.meta <- function(x,
     if (length(leftcols.new) > 0) {
       pos.leftcols.new <- match(leftcols.new, leftcols)
       ##
+      leftlabs.new <- leftcols.new
+      for (i in seq(along = leftcols.new)) {
+        j <- match(leftcols.new[i], colnames)
+        if (!is.na(j))
+          leftlabs.new[i] <- labnames[j]
+      }
+      ##
       if (missing(leftlabs))
-        leftlabs.new <- leftcols.new
+        leftlabs.new <- leftlabs.new
       else if (length(leftcols.new) == length(leftlabs))
         leftlabs.new <- leftlabs
       else if (max(pos.leftcols.new) <= length(leftlabs))
@@ -540,7 +596,7 @@ forest.meta <- function(x,
       else if (max(pos.leftcols.new) > length(leftlabs))
         stop("Too few labels defined for argument 'leftcols'.")
       ##
-      if ( (metacor | metaprop) & any(leftcols.new == "n"))
+      if ((metacor | metaprop) & any(leftcols.new == "n"))
         leftlabs.new[leftlabs.new == "n"] <- "Total"
     }
   }
@@ -572,7 +628,7 @@ forest.meta <- function(x,
         leftcols <- c("studlab",
                       "n.e")
       ##
-      if (inherits(x, "metainc"))
+      if (metainc)
         leftcols <- c("studlab",
                       "event.e", "time.e",
                       "event.c", "time.c")
@@ -603,7 +659,7 @@ forest.meta <- function(x,
         leftcols <- c("studlab",
                       "n.e")
       ##
-      if (inherits(x, "metainc"))
+      if (metainc)
         leftcols <- c("studlab",
                       "event.e", "time.e",
                       "event.c", "time.c")
@@ -1025,8 +1081,10 @@ forest.meta <- function(x,
     w.fixed.w  <- x$w.fixed.w[o]
     w.random.w <- x$w.random.w[o]
     e.e.w <- if (metaprop) x$event.w[o] else x$event.e.w[o]
+    t.e.w <- if (metainc) x$time.e.w[o] else rep(NA, n.by)
     n.e.w <- if (metacor | metaprop) x$n.w[o] else x$n.e.w[o]
     e.c.w <- x$event.c.w[o]
+    t.c.w <- if (metainc) x$time.c.w[o] else rep(NA, n.by)
     n.c.w <- x$n.c.w[o]
     n.harmonic.mean.w <- x$n.harmonic.mean.w[o]
     k.all.w <- x$k.all.w[o]
@@ -1050,8 +1108,10 @@ forest.meta <- function(x,
     w.fixed.w  <- w.fixed.w[sel]
     w.random.w <- w.random.w[sel]
     e.e.w <- e.e.w[sel]
+    t.e.w <- t.e.w[sel]
     n.e.w <- n.e.w[sel]
     e.c.w <- e.c.w[sel]
+    t.c.w <- t.c.w[sel]
     n.c.w <- n.c.w[sel]
     n.harmonic.mean.w <- n.harmonic.mean.w[sel]
     k.all.w <- k.all.w[sel]
@@ -1424,9 +1484,17 @@ forest.meta <- function(x,
                              format(round(uppTEs, digits), scientific = FALSE)))
   }
   ##
+  ## No treatment effect for prediction interval
+  ##
   effect.format[3] <- ""
+  ##
+  ## Only print prediction interval if requested
+  ##
   if (!prediction)
     ci.format[3] <- ""
+  ##
+  ## No treatment effect and confidence interval in heterogeneity line
+  ##
   if (by) {
     effect.format[sel.by.het] <- ""
     ci.format[sel.by.het] <- ""
@@ -1452,12 +1520,14 @@ forest.meta <- function(x,
   TE.format <- TEs.study
   seTE.format <- seTEs.study
   ##
-  ## Number of Events and patients and person time
+  ## Number of patients, events, and person times
   ##
   sum.n.e <- sum(x$n.e, na.rm = TRUE)
   sum.n.c <- sum(x$n.c, na.rm = TRUE)
   sum.e.e <- sum(x$event.e, na.rm = TRUE)
   sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  sum.t.c <- sum(x$time.c, na.rm = TRUE)
   ##
   if (by) {
     if (pooled.totals) {
@@ -1476,8 +1546,14 @@ forest.meta <- function(x,
       Ee <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.e)
       Ec <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.c)
     }
-    Te <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.e)
-    Tc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.c)
+    if (pooled.times) {
+      Te <- c(sum.t.e, sum.t.e, NA, t.e.w, t.e.w, rep(NA, n.by), x$time.e)
+      Tc <- c(sum.t.c, sum.t.c, NA, t.c.w, t.c.w, rep(NA, n.by), x$time.c)
+    }
+    else {
+      Te <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.e)
+      Tc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.c)
+    }
   }
   else {
     if (pooled.totals) {
@@ -1496,8 +1572,14 @@ forest.meta <- function(x,
       Ee <- c(NA, NA, NA, x$event.e)
       Ec <- c(NA, NA, NA, x$event.c)
     }
-    Te <- c(NA, NA, NA, x$time.e)
-    Tc <- c(NA, NA, NA, x$time.c)
+    if (pooled.times) {
+      Te <- c(sum.t.e, sum.t.e, NA, x$time.e)
+      Tc <- c(sum.t.c, sum.t.c, NA, x$time.c)
+    }
+    else {
+      Te <- c(NA, NA, NA, x$time.e)
+      Tc <- c(NA, NA, NA, x$time.c)
+    }
   }
   ##
   Ne.format <- ifelse(is.na(Ne), lab.NA, format(Ne, scientific = FALSE))
@@ -1507,37 +1589,32 @@ forest.meta <- function(x,
   Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific = FALSE))
   Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific = FALSE))
   ##
-  ## Do not print treatment estimates for summary results
-  ## (this information is provided in column 'effect')
-  ##
-  Te.format[1:3] <- Tc.format[1:3] <- ""
-  ##
   ## Print nothing in line with prediction interval
   ##
-  Ne.format[3] <- Nc.format[3] <- Ee.format[3] <- Ec.format[3] <- ""
+  Ne.format[3] <- Nc.format[3] <- Ee.format[3] <- Ec.format[3] <-
+    Te.format[3] <- Tc.format[3] <- ""
   ##
   if (by) {
-    ##
-    ## Do not print treatment estimates for summary results
-    ## (this information is provided in column 'effect')
-    ##
-    Te.format[sel.by] <- Tc.format[sel.by] <- ""
     ##
     ## Print nothing in lines with heterogeneity results for subgroups
     ##
     Ne.format[sel.by.het] <- Nc.format[sel.by.het] <- ""
     Ee.format[sel.by.het] <- Ec.format[sel.by.het] <- ""
+    Te.format[sel.by.het] <- Tc.format[sel.by.het] <- ""
   }
   ##
   if (comb.fixed & comb.random) {
     ##
     ## Print nothing in lines with results for random effects model
     ##
-    Ne.format[2] <- Nc.format[2] <- Ee.format[2] <- Ec.format[2] <- ""
+    Ne.format[2] <- Nc.format[2] <- ""
+    Ee.format[2] <- Ec.format[2] <- ""
+    Te.format[2] <- Tc.format[2] <- ""
     ##
     if (by) {
       Ne.format[sel.by.random] <- Nc.format[sel.by.random] <- ""
       Ee.format[sel.by.random] <- Ec.format[sel.by.random] <- ""
+      Te.format[sel.by.random] <- Tc.format[sel.by.random] <- ""
     }
   }
   ##
@@ -1547,8 +1624,19 @@ forest.meta <- function(x,
     Ee.format[1:2] <- Ec.format[1:2] <- ""
     ##
     if (by) {
-      Ee.format[sel.by.fixed]  <- Ec.format[sel.by.fixed] <- ""
+      Ee.format[sel.by.fixed]  <- Ec.format[sel.by.fixed]  <- ""
       Ee.format[sel.by.random] <- Ec.format[sel.by.random] <- ""
+    }
+  }
+  ##
+  ## Only print total person times if pooled.times is TRUE
+  ##
+  if (!pooled.times) {
+    Te.format[1:2] <- Tc.format[1:2] <- ""
+    ##
+    if (by) {
+      Te.format[sel.by.fixed]  <- Tc.format[sel.by.fixed]  <- ""
+      Te.format[sel.by.random] <- Tc.format[sel.by.random] <- ""
     }
   }
   ##
@@ -1603,7 +1691,7 @@ forest.meta <- function(x,
   ##
   if (any(rightcols %in% c("n.e", "n.c")) |
       any(leftcols  %in% c("n.e", "n.c")) |
-      (inherits(x, "metainc") &
+      (metainc &
          (any(rightcols %in% c("time.e", "time.c")) |
             any(leftcols  %in% c("time.e", "time.c")))
        )
@@ -2167,7 +2255,7 @@ forest.meta <- function(x,
   ##
   ## Range on the x-axis for column 3
   col.forest$range <- xlim
-  ##  
+  ##
   cols <- list(col.studlab = col.studlab,
                col.effect = col.effect,
                col.ci = col.ci,
@@ -2595,21 +2683,43 @@ forest.meta <- function(x,
   wcalc <- function(x)
     max(unit(rep(1, length(x)), "grobwidth", x))
   ##
+  ## Exclude lines with summary measures from calculation of column
+  ## width for study labels
+  ##
+  if (by)
+    del.lines <- c(if (!calcwidth.pooled) # FE + RE
+                     c(2, 3),
+                   4:n.summaries,         # PI + tests
+                   ##
+                   n.summaries + 0 * n.by + 1:n.by, # subgroup labels
+                   if (!calcwidth.pooled) # FE in subgroups
+                     n.summaries + 1 * n.by + 1:n.by,
+                   if (!calcwidth.pooled) # RE in subgroups
+                     n.summaries + 2 * n.by + 1:n.by,
+                   n.summaries + 3 * n.by + 1:n.by # heterogeneity statistic in subgroups
+                   )
+  else
+    del.lines <- c(if (!calcwidth.pooled) # FE + RE
+                     c(2, 3),
+                   4:n.summaries)         # PI + tests
+  ##
   for (i in seq(along = leftcols)) {
-    if (i == 1)
+    if (i == 1) {
       if (leftcols[[i]] == "col.studlab")
-        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-(c(4:n.summaries, n.summaries + 3 * n.by + 1:n.by))]))
+        x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-del.lines]))
       else
         x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels))
-    else
+    }
+    else {
       if (leftcols[[i]] == "col.studlab")
         x1 <- unit.c(x1,
                      colgap.left,
-                     wcalc(cols[[leftcols[i]]]$labels[-(c(4:n.summaries, n.summaries + 3 * n.by + 1:n.by))]))
+                     wcalc(cols[[leftcols[i]]]$labels[-del.lines]))
       else
         x1 <- unit.c(x1,
                      colgap.left,
                      wcalc(cols[[leftcols[i]]]$labels))
+    }
   }
   ##
   x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
@@ -2678,7 +2788,7 @@ forest.meta <- function(x,
         else if (leftcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
           drawLabelCol(col.lab.e, j)
       }
-      else if (inherits(x, "metainc")) {
+      else if (metainc) {
         if (leftcols[i] == "col.time.e" & just.cols == "right")
           drawLabelCol(col.lab.e, j)
         else if (leftcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
@@ -2701,7 +2811,7 @@ forest.meta <- function(x,
         else if (leftcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
           drawLabelCol(col.lab.c, j)
       }
-      else if (inherits(x, "metainc")) {
+      else if (metainc) {
         if (leftcols[i] == "col.time.c" & just.cols == "right")
           drawLabelCol(col.lab.c, j)
         else if (leftcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
@@ -2736,7 +2846,7 @@ forest.meta <- function(x,
           else if (rightcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
             drawLabelCol(col.lab.e, j)
         }
-        else if (inherits(x, "metainc")) {
+        else if (metainc) {
           if (rightcols[i] == "col.time.e" & just.cols == "right")
             drawLabelCol(col.lab.e, j)
           else if (rightcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
@@ -2759,7 +2869,7 @@ forest.meta <- function(x,
           else if (rightcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
             drawLabelCol(col.lab.c, j)
         }
-        else if (inherits(x, "metainc")) {
+        else if (metainc) {
           if (rightcols[i] == "col.time.c" & just.cols == "right")
             drawLabelCol(col.lab.c, j)
           else if (rightcols[i] == "col.event.c" & just.cols %in% c("left", "center"))

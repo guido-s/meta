@@ -446,6 +446,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$event.c.w <- NULL
     res$event.w <- NULL
     res$n.w <- NULL
+    res$time.e.w <- NULL
+    res$time.c.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

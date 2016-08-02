@@ -30,6 +30,7 @@ funnel.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
+  x.name <- deparse(substitute(x))
   ##
   if (inherits(x, "metacum"))
     stop("Funnel plot not meaningful for object of class \"metacum\"")
@@ -147,7 +148,7 @@ funnel.meta <- function(x,
       weight <- floor(x$n)
     else
       stop("No information on sample size available in object '",
-           deparse(substitute(x)), "'.")
+           x.name, "'.")
   ##
   ## x-axis: labels / xlim
   ##

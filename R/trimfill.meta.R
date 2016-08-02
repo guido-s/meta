@@ -63,8 +63,6 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   sd.e <- x$sd.e
   mean.c <- x$mean.c
   sd.c <- x$sd.c
-  ##
-  data.name <- deparse(substitute(x))
   
   
   if(length(TE) != length(seTE))

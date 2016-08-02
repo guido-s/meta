@@ -772,6 +772,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     res$event.w <- NULL
     res$n.w <- NULL
+    res$time.e.w <- NULL
+    res$time.c.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

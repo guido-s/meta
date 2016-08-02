@@ -7,6 +7,12 @@
     proportions; before this update, the pscale argument was only
     available in forest.meta()
 
+  * New features in forest plots:
+    - printing of columns on left side of forest plot can be omitted
+    - total person time can be printed
+    - text for fixed effect and random effects model can be omitted
+      from calculation of width for study labels
+
  ** User-visible changes **
 
   * metagen(), metaprop(), print.meta(), print.summary.meta(),
@@ -23,6 +29,11 @@
 
   * forest.meta():
     - argument ref considered for metaprop objects
+    - new argument pooled.times to print total person time
+    - argument leftcols = FALSE omits printing of columns on left side
+      of forest plot
+    - new argument calcwidth.pooled to include or exclude text from
+      pooled estimates to determine width of study labels
 
   * Help pages updated:
     labbe.metabin(), labbe.default(), forest.meta(), metagen(),
@@ -30,6 +41,11 @@
     trimfill.meta(), trimfill.default(), update.meta()
 
  ** Internal changes **
+
+  * update.meta():
+     - do not consider columns 'n.e' and 'n.c' as sample sizes for
+       metagen or metainc object if not used in original call of
+       metagen() or metainc()
 
   * catmeth(), xlab():
      - new argument pscale

@@ -33,6 +33,7 @@ forest(x, ...)
        text.fixed.w=text.fixed, text.random.w=text.random,
        bysort=FALSE,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
+       pooled.times = FALSE,
        xlab="", xlab.pos=ref,
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
@@ -163,7 +164,9 @@ forest(x, ...)
   \item{pooled.totals}{A logical indicating whether total number of
     observations should be given in the figure.}
   \item{pooled.events}{A logical indicating whether total number of
-    events should be given in the figure.}
+    events should be given in the figure.}  
+  \item{pooled.times}{A logical indicating whether total person time
+    at risk should be given in the figure.}
   \item{xlab}{A label for the x-axis.}
   \item{xlab.pos}{A numeric specifying the center of the label
     on the x-axis.}

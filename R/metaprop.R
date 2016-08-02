@@ -560,6 +560,8 @@ metaprop <- function(event, n, studlab,
     res$event.c.w <- NULL
     res$n.e.w <- NULL
     res$n.c.w <- NULL
+    res$time.e.w <- NULL
+    res$time.c.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

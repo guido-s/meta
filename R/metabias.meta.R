@@ -8,6 +8,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   ##
   chkclass(x, "meta")
+  x.name <- deparse(substitute(x))
   ##  
   if (inherits(x, "metacum"))
     stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\".")
@@ -20,7 +21,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   seTE <- x$seTE
   n.e <- x$n.e
   n.c <- x$n.c
-  data.name <- deparse(substitute(x))
   ##
   if (inherits(x, "metabin")) {
     event.e <- x$event.e
@@ -239,7 +239,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
                     "Linear regression test of funnel plot asymmetry (efficient score)",
                     "Linear regression test of funnel plot asymmetry (based on sample size)")[imeth]
     
-    res$data.name <- data.name
+    res$data.name <- x.name
     
     if (plotit) {
       ##

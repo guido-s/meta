@@ -14,6 +14,7 @@ subgroup <- function(x, tau.preset = NULL) {
   
   bin.cont <- inherits(x, "metabin") | inherits(x, "metacont")
   bin.inc <- inherits(x, "metabin") | inherits(x, "metainc")
+  inc <- inherits(x, "metainc")
   prop <- inherits(x, "metaprop")
   cor.prop <- inherits(x, "metacor") | inherits(x, "metaprop")
   
@@ -24,7 +25,7 @@ subgroup <- function(x, tau.preset = NULL) {
     else sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 24, nrow = length(bylevs))
+  res.w <- matrix(NA, ncol = 26, nrow = length(bylevs))
     j <- 0
   ##
   for (i in bylevs) {
@@ -139,7 +140,9 @@ subgroup <- function(x, tau.preset = NULL) {
                    if (bin.inc) sumNA(meta1$event.c) else NA, # 21
                    if (bin.cont) sumNA(meta1$n.c) else NA,    # 22
                    if (prop) sumNA(meta1$event) else NA,      # 23
-                   if (cor.prop) sumNA(meta1$n) else NA       # 24
+                   if (cor.prop) sumNA(meta1$n) else NA,      # 24
+                   if (inc) sumNA(meta1$time.e) else NA,      # 25
+                   if (inc) sumNA(meta1$time.c) else NA       # 26
                    )
   }
   ##
@@ -175,6 +178,9 @@ subgroup <- function(x, tau.preset = NULL) {
   event.w <- res.w[,23]
   n.w <- res.w[,24]
   ##
+  time.e.w <- res.w[, 25]
+  time.c.w <- res.w[, 26]
+  ##
   ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
   ##
   if (!is.null(x$hakn) && x$hakn)
@@ -207,8 +213,10 @@ subgroup <- function(x, tau.preset = NULL) {
               n.harmonic.mean.w = n.harmonic.mean.w,
               ##
               event.e.w = event.e.w,
+              time.e.w = time.e.w,
               n.e.w = n.e.w,
               event.c.w = event.c.w,
+              time.c.w = time.c.w,
               n.c.w = n.c.w,
               n.w = n.w,
               event.w = event.w,

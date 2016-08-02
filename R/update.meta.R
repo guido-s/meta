@@ -61,6 +61,13 @@ update.meta <- function(object,
   ##
   ##
   chkclass(object, "meta")
+  ##
+  metabin  <- inherits(object, "metabin")
+  metacont <- inherits(object, "metacont")
+  metagen  <- inherits(object, "metagen")
+  metaprop <- inherits(object, "metaprop")
+  metacor  <- inherits(object, "metacor")
+  metainc  <- inherits(object, "metainc")
   
   
   ##
@@ -206,13 +213,13 @@ update.meta <- function(object,
     if (!is.null(object$byvar))
       object$data$.byvar <- object$byvar
     ##
-    if (inherits(object,"metabin")) {
+    if (metabin) {
       object$data$.event.e <- object$event.e
       object$data$.n.e <- object$n.e
       object$data$.event.c <- object$event.c
       object$data$.n.c <- object$n.c
     }
-    if (inherits(object,"metacont")) {
+    if (metacont) {
       object$data$.n.e <- object$n.e
       object$data$.mean.e <- object$mean.e
       object$data$.sd.e <- object$sd.e
@@ -220,15 +227,15 @@ update.meta <- function(object,
       object$data$.mean.c <- object$mean.c
       object$data$.sd.c <- object$sd.c
     }
-    if (inherits(object,"metagen")) {
+    if (metagen) {
       object$data$.TE <- object$TE
       object$data$.seTE <- object$seTE
     }
-    if (inherits(object,"metaprop")) {
+    if (metaprop) {
       object$data$.event <- object$event
       object$data$.n <- object$n
     }
-    if (inherits(object,"metacor")) {
+    if (metacor) {
       object$data$.cor <- object$cor
       object$data$.n <- object$n
     }
@@ -278,11 +285,11 @@ update.meta <- function(object,
     studlab <- object$data$.studlab
   ##
   if (method == "GLMM")
-    if (inherits(object, "metabin") & !missing(sm) & sm != "OR")
+    if (metabin & !missing(sm) & sm != "OR")
       warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
-    else if (inherits(object, "metainc") & !missing(sm) & sm != "IRR")
+    else if (metaprop & !missing(sm) & sm != "IRR")
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
-    else if (inherits(object, "metaprop") & !missing(sm) & sm != "PLOGIT")
+    else if (metaprop & !missing(sm) & sm != "PLOGIT")
       warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
   
   
@@ -291,7 +298,7 @@ update.meta <- function(object,
   ## (6) Update meta object
   ##
   ##
-  if (inherits(object,"metabin"))
+  if (metabin)
     m <- metabin(event.e = object$data$.event.e,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
@@ -328,7 +335,7 @@ update.meta <- function(object,
                  warn = warn,
                  ...)
   ##
-  if (inherits(object,"metacont"))
+  if (metacont)
     m <- metacont(n.e = object$data$.n.e,
                   mean.e = object$data$.mean.e,
                   sd.e = object$data$.sd.e,
@@ -361,7 +368,7 @@ update.meta <- function(object,
                   keepdata = keepdata,
                   warn = warn)
   ##
-  if (inherits(object,"metacor"))
+  if (metacor)
     m <- metacor(cor = object$data$.cor,
                  n = object$data$.n,
                  studlab = studlab,
@@ -386,12 +393,25 @@ update.meta <- function(object,
                  ##
                  keepdata = keepdata)
   ##
-  if (inherits(object,"metagen"))
+  if (metagen) {
+    data.m <- data
+    add.e <- FALSE
+    add.c <- FALSE
+    ##
+    if ("n.e" %in% names(data)) {
+      add.e <- TRUE
+      data.m <- data.m[, names(data.m) != "n.e"]
+    }
+    if ("n.c" %in% names(data)) {
+      add.c <- TRUE
+      data.m <- data.m[, names(data.m) != "n.c"]
+    }
+    ##
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
                  studlab = studlab,
                  ##
-                 data = data, subset = subset,
+                 data = data.m, subset = subset,
                  ##
                  sm = sm,
                  ##
@@ -416,8 +436,28 @@ update.meta <- function(object,
                  ##
                  keepdata = keepdata,
                  warn = warn)
+    if (add.e)
+      m$data$n.e <- data$n.e
+    if (add.c)
+      m$data$n.c <- data$n.c
+    if (add.e | add.c)
+      m$data <- m$data[, names(data)]
+  }
   ##
-  if (inherits(object,"metainc"))
+  if (metainc) {
+    data.m <- data
+    add.e <- FALSE
+    add.c <- FALSE
+    ##
+    if ("n.e" %in% names(data)) {
+      add.e <- TRUE
+      data.m <- data.m[, names(data.m) != "n.e"]
+    }
+    if ("n.c" %in% names(data)) {
+      add.c <- TRUE
+      data.m <- data.m[, names(data.m) != "n.c"]
+    }
+    ##
     m <- metainc(event.e = object$data$.event.e,
                  time.e = object$data$.time.e,
                  event.c = object$data$.event.c,
@@ -453,8 +493,15 @@ update.meta <- function(object,
                  keepdata = keepdata,
                  warn = warn,
                  ...)
+    if (add.e)
+      m$data$n.e <- data$n.e
+    if (add.c)
+      m$data$n.c <- data$n.c
+    if (add.e | add.c)
+      m$data <- m$data[, names(data)]
+  }
   ##
-  if (inherits(object,"metaprop"))
+  if (metaprop)
     m <- metaprop(event = object$data$.event,
                   n = object$data$.n,
                   studlab = studlab,

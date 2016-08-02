@@ -486,6 +486,8 @@ metagen <- function(TE, seTE, studlab,
     res$event.c.w <- NULL
     res$event.w <- NULL
     res$n.w <- NULL
+    res$time.e.w <- NULL
+    res$time.c.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")
