@@ -50,13 +50,19 @@ forest(x, ...)
        lab.NA.effect="",
        lwd=1,
        at=NULL, label=TRUE,
-       col.i="black", col.i.inside.square="white",
+       type.study = "square",
+       type.fixed = "diamond",
+       type.random = type.fixed,
+       col.study="black",
        col.square="gray", col.square.lines=col.square,
+       col.inside="white",
        col.diamond="gray",
        col.diamond.fixed=col.diamond, col.diamond.random=col.diamond,
        col.diamond.lines="black",
-       col.diamond.fixed.lines=col.diamond.lines,
-       col.diamond.random.lines=col.diamond.lines,
+       col.diamond.lines.fixed=col.diamond.lines,
+       col.diamond.lines.random=col.diamond.lines,
+       col.inside.fixed = col.inside,
+       col.inside.random = col.inside,
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
        print.I2=comb.fixed|comb.random, print.I2.ci=FALSE,
@@ -117,6 +123,7 @@ forest(x, ...)
        digits.pval = .settings$digits.pval, digits.pval.Q = .settings$digits.pval.Q,
        digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
        digits.I2 = .settings$digits.I2, digits.weight = .settings$digits.weight,
+       col.i = col.study,
 
        ...)
 }
@@ -137,9 +144,8 @@ forest(x, ...)
   \item{comb.random}{A logical indicating whether random effects estimate
   should be plotted.}
   \item{overall}{A logical indicating whether overall summaries should
-    be plotted. This argument is useful in combination with the
-    argument \code{byvar} if summaries should only be plotted on group
-    level.}
+    be plotted. This argument is useful in a meta-analysis with
+    subgroups if summaries should only be plotted on group level.}
   \item{text.fixed}{A character string used in the plot to label the
     pooled fixed effect estimate.}
   \item{text.random}{A character string used in the plot to label the
@@ -223,9 +229,20 @@ forest(x, ...)
   \item{label}{A logical value indicating whether to draw the
     labels on the tick marks, or an expression or character vector which
     specify the labels to use. See \code{\link{grid.xaxis}}.}
-  \item{col.i}{The colour for individual study results and confidence limits.}
-  \item{col.i.inside.square}{The colour for individual study results and
-    confidence limits if confidence limits are completely within squares.}
+  \item{type.study}{A character string or vector specifying how to
+    plot treatment effects and confidence intervals for individual
+    studies.}
+  \item{type.fixed}{A character string specifying how to plot
+    treatment effect and confidence interval for fixed effect
+    meta-analysis.}
+  \item{type.random}{A character string specifying how to plot
+    treatment effect and confidence interval for random effects
+    meta-analysis.}
+  \item{col.study}{The colour for individual study results and
+    confidence limits.}
+  \item{col.inside}{The colour for individual study results and
+    confidence limits if confidence limits are completely within
+    squares.}
   \item{col.square}{The colour for squares reflecting study's weight in
     the meta-analysis.}
   \item{col.square.lines}{The colour for the outer lines of squares
@@ -236,10 +253,14 @@ forest(x, ...)
   \item{col.diamond.random}{The colour of diamonds for random effects estimates.}
   \item{col.diamond.lines}{The colour of the outer lines of diamonds
     representing the results for fixed effect and random effects models.}
-  \item{col.diamond.fixed.lines}{The colour of the outer lines of diamond
-    for fixed effect estimate.}
-  \item{col.diamond.random.lines}{The colour of the outer lines of diamond
-    for random effects estimate.}
+  \item{col.diamond.lines.fixed}{The colour of the outer lines of
+    diamond for fixed effect estimate.}
+  \item{col.diamond.lines.random}{The colour of the outer lines of
+    diamond for random effects estimate.}
+  \item{col.inside.fixed}{The colour for result of fixed effect
+    meta-analysis if confidence limit lies completely within square.}
+  \item{col.inside.random}{The colour for result of random effects
+    meta-analysis if confidence limit lies completely within square.}  
   \item{col.predict}{Background colour of prediction interval.}
   \item{col.predict.lines}{Colour of outer lines of prediction interval.}
   \item{col.by}{The colour to print information on subgroups.}
@@ -257,9 +278,9 @@ forest(x, ...)
     heterogeneity measures at all.}
   \item{overall.hetstat}{A logical value indicating whether to print
     results for heterogeneity measures for overall treatment
-    comparisons. This argument is useful in combination with subgroup
-    analyses (list object \code{byvar}) if heterogeneity statistics
-    should only be printed on group level.}
+    comparisons. This argument is useful in a meta-analysis with
+    subgroups if heterogeneity statistics should only be printed on
+    subgroup level.}
   \item{hetlab}{Label printed in front of results for heterogeneity
     measures.}
   \item{text.I2}{Label for I-squared statistic.}
@@ -341,7 +362,7 @@ forest(x, ...)
     on the right side of forest plot and the forest plot.} 
   \item{calcwidth.pooled}{A logical indicating whether text given in
     arguments \code{text.fixed} and \code{text.random} should be
-    considered to calculate width of column with study labels..}
+    considered to calculate width of column with study labels.}
   \item{just}{Justification of text in all columns but columns
     with study labels and additional variables (possible values:
     "left", "right", "center").}
@@ -376,19 +397,40 @@ forest(x, ...)
     statistic, see \code{print.default}.}
   \item{digits.weight}{Minimal number of significant digits for
     weights, see \code{print.default}.}
- \item{\dots}{Additional graphical arguments (ignored at the moment).}
+  \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
+  \item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 
 \details{
   A forest plot, also called confidence interval plot, is drawn in the
-  active graphics window. Subgroup analyses are conducted and
-  displayed in the plot if \code{byvar} is not missing.
-  
-  The \code{forest} function is based on the grid graphics
-  system. In order to print the forest plot, (i) resize the graphics
-  window, (ii) either use \code{\link{dev.copy2eps}} or
+  active graphics window. The \code{forest} function is based on the
+  grid graphics system. In order to print the forest plot, (i) resize
+  the graphics window, (ii) either use \code{\link{dev.copy2eps}} or
   \code{\link{dev.copy2pdf}}.
-
+  
+  By default, treatment estimates and confidence intervals are plotted
+  in the following way:
+  \itemize{
+   \item for an individual study, a square with treatment estimate in
+     the center and confidence interval as line extending either side
+     of the square (\code{type.study="square"});
+   \item for meta-analysis results, a diamond with treatment estimate
+     in the center and right and left side corresponding to lower and
+     upper confidence limits (\code{type.fixed="diamond"},
+     \code{type.random="diamond"}).
+  }
+  
+  In a forest plot, size of the squares typically reflects the
+  precision of individual treatment estimates based either on the
+  fixed effect (\code{weight="fixed"}) or random effects meta-analysis
+  (\code{weight="random"}). Information from meta-analysis object
+  \code{x} is utilised if argument \code{weight} is missing. Weights
+  from the fixed effect model are used (\code{weight="fixed"}) if
+  argument \code{x$comb.fixed} is \code{TRUE}; weights from the random
+  effects model are used (\code{weight="random"}) if argument
+  \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed} is
+  \code{FALSE}.
+  
   Result of a test for overall effect or subgroup differences are
   printed if argument \code{test.overall.fixed},
   \code{test.overall.random}, \code{test.subgroup.fixed}, or
@@ -398,13 +440,6 @@ forest(x, ...)
   setting argument \code{test.overall=TRUE} or
   \code{test.subgroup=TRUE}.
   
-  Information from object \code{x} is utilised if argument \code{weight}
-  is missing. Weights from the fixed effect model are used
-  (\code{weight="fixed"}) if argument \code{x$comb.fixed} is
-  \code{TRUE}; weights from the random effects model are used
-  (\code{weight="random"}) if argument \code{x$comb.random}
-  is \code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
-
   The arguments \code{leftcols} and \code{rightcols} can be used to
   specify columns which are plotted on the left and right side of the
   forest plot, respectively. If argument \code{rightcols} is
@@ -476,7 +511,7 @@ forest(x, ...)
   e.g. \code{pscale=1000} means that proportions are expressed as
   events per 1000 observations. This is useful in situations with
   (very) low event probabilities.
-  
+      
   A prediction interval for treatment effect of a new study (Higgins
   et al., 2009) is given in the forest plot if arguments
   \code{prediction} and \code{comb.random} are \code{TRUE}. For
@@ -636,7 +671,7 @@ forest(meta1,
 #
 forest(meta1,
        col.diamond="green", col.diamond.lines="red",
-       col.i=c("green", "blue", "red", "orange"),
+       col.study=c("green", "blue", "red", "orange"),
        col.square="pink", col.square.lines="black")
 
 

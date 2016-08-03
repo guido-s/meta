@@ -12,6 +12,9 @@
     - total person time can be printed
     - text for fixed effect and random effects model can be omitted
       from calculation of width for study labels
+    - plot type for confidence intervals (square or diamond) can be
+      specified for each study as well as fixed effect and random
+      effects estimate
 
  ** User-visible changes **
 
@@ -34,6 +37,19 @@
       of forest plot
     - new argument calcwidth.pooled to include or exclude text from
       pooled estimates to determine width of study labels
+    - the following arguments have been renamed (old arguments can
+      still be used at the moment, however, will result in an
+      informative warning message):      
+      . col.i                    -> col.study
+      . col.i.inside.square      -> col.inside
+      . col.diamond.fixed.lines  -> col.diamond.lines.fixed
+      . col.diamond.random.lines -> col.diamond.lines.random
+    - new arguments:
+      . type.study, type.fixed, type.random
+        (use squares or diamonds to plot treatment effects and
+         confidence intervals)	
+      . col.inside.fixed, col.inside.random
+        (colour to print confidence interval inside square)
 
   * Help pages updated:
     labbe.metabin(), labbe.default(), forest.meta(), metagen(),

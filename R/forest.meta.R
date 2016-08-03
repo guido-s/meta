@@ -54,17 +54,24 @@ forest.meta <- function(x,
                         at = NULL,
                         label = TRUE,
                         ##
-                        col.i = "black",
-                        col.i.inside.square = "white",
+                        type.study = "square",
+                        type.fixed = "diamond",
+                        type.random = type.fixed,
+                        ##
+                        col.study = "black",
                         col.square = "gray",
                         col.square.lines = col.square,
+                        col.inside = "white",
                         ##
                         col.diamond = "gray",
                         col.diamond.fixed = col.diamond,
                         col.diamond.random = col.diamond,
                         col.diamond.lines = "black",
-                        col.diamond.fixed.lines = col.diamond.lines,
-                        col.diamond.random.lines = col.diamond.lines,
+                        col.diamond.lines.fixed = col.diamond.lines,
+                        col.diamond.lines.random = col.diamond.lines,
+                        ##
+                        col.inside.fixed = col.inside,
+                        col.inside.random = col.inside,
                         ##
                         col.predict = "red",
                         col.predict.lines = "black",
@@ -162,6 +169,8 @@ forest.meta <- function(x,
                         digits.tau2 = .settings$digits.tau2,
                         digits.I2 = .settings$digits.I2,
                         digits.weight = .settings$digits.weight,
+                        ##
+                        col.i = col.study,
                         ...) {
   
   
@@ -231,6 +240,9 @@ forest.meta <- function(x,
   else
     pscale <- 1
   chknumeric(ref)
+  type.study <- setchar(type.study, c("square", "diamond"))
+  type.fixed <- setchar(type.fixed, c("square", "diamond"))
+  type.random <- setchar(type.random, c("square", "diamond"))
   layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
@@ -240,8 +252,10 @@ forest.meta <- function(x,
   chkchar(col.diamond.fixed)
   chkchar(col.diamond.random)
   chkchar(col.diamond.lines)
-  chkchar(col.diamond.fixed.lines)
-  chkchar(col.diamond.random.lines)
+  chkchar(col.diamond.lines.fixed)
+  chkchar(col.diamond.lines.random)
+  chkchar(col.inside.fixed)
+  chkchar(col.inside.random)
   chkchar(col.predict)
   chkchar(col.predict.lines)
   chklogical(print.I2)
@@ -297,7 +311,17 @@ forest.meta <- function(x,
   warnarg("level.comb", addargs, fun, cl)
   warnarg("level.predict", addargs, fun, cl)
   ##
-  ## Check for argument 'labels' in '...'
+  ## Check for deprecated argument 'col.i'
+  ##
+  if (!missing(col.i))
+    if (!missing(col.study))
+      warning("Deprecated argument 'col.i' ignored as argument 'col.study' is also provided.")
+    else {
+      warning("Deprecated argument 'col.i' has been replaced by argument 'col.study'.")
+      col.study <- col.i
+    }
+  ##
+  ## Check for other deprecated arguments in '...'
   ##
   args  <- list(...)
   ## Check whether first argument is a list. In this case only use
@@ -307,12 +331,36 @@ forest.meta <- function(x,
   ##
   additional.arguments <- names(args)
   ##
-  if (length(additional.arguments) > 0 &&
-      "labels" %in% additional.arguments) {
-    if (!missing(label))
-      warning("Argument 'labels' ignored as both arguments 'label' and 'labels' are provided.")
-    else
-      label <- args[["labels"]]
+  if (length(additional.arguments) > 0) {
+    if ("labels" %in% additional.arguments)
+      if (!missing(label))
+        warning("Argument 'labels' ignored as both arguments 'label' and 'labels' are provided.")
+      else
+        label <- args[["labels"]]
+    ##
+    if (!is.na(charmatch("col.i.i", additional.arguments)))
+      if (!missing(col.inside))
+        warning("Deprecated argument 'col.i.inside.square' ignored as argument 'col.inside' is also provided.")
+      else {
+        warning("Deprecated argument 'col.i.inside.square' has been replaced by argument 'col.inside'.")
+        col.inside <- args[[charmatch("col.i.i", additional.arguments)]]
+      }
+    ##
+    if (!is.na(charmatch("col.diamond.f", additional.arguments)))
+      if (!missing(col.diamond.lines.fixed))
+        warning("Deprecated argument 'col.diamond.fixed.lines' ignored as argument 'col.diamond.lines.fixed' is also provided.")
+      else {
+        warning("Deprecated argument 'col.diamond.fixed.lines' has been replaced by argument 'col.diamond.lines.fixed'.")
+        col.diamond.lines.fixed <- args[[charmatch("col.diamond.f", additional.arguments)]]
+      }
+    ##
+    if (!is.na(charmatch("col.diamond.r", additional.arguments)))
+      if (!missing(col.diamond.lines.random))
+        warning("Deprecated argument 'col.diamond.random.lines' ignored as argument 'col.diamond.lines.random'.")
+      else {
+        warning("Deprecated argument 'col.diamond.random.lines' has been replaced by argument 'col.diamond.lines.random'.")
+        col.diamond.lines.random <- args[[charmatch("col.diamond.r", additional.arguments)]]
+      }
   }
   
   
@@ -321,15 +369,15 @@ forest.meta <- function(x,
   ## (3) Check length of variables
   ##
   ##
-  if (length(col.i) == 1)
-    col.i <- rep(col.i, K.all)
+  if (length(col.study) == 1)
+    col.study <- rep(col.study, K.all)
   else
-    chklength(col.i, K.all, fun)
+    chklength(col.study, K.all, fun)
   ##
-  if (length(col.i.inside.square) == 1)
-    col.i.inside.square <- rep(col.i.inside.square, K.all)
+  if (length(col.inside) == 1)
+    col.inside <- rep(col.inside, K.all)
   else
-    chklength(col.i.inside.square, K.all, fun)
+    chklength(col.inside, K.all, fun)
   ##
   if (length(col.square) == 1)
     col.square <- rep(col.square, K.all)
@@ -813,11 +861,11 @@ forest.meta <- function(x,
   byvar   <- byvar[sel]
   sortvar <- sortvar[sel]
   ##
-  col.i <- col.i[sel]
+  col.study <- col.study[sel]
   col.square <- col.square[sel]
   col.square.lines <- col.square.lines[sel]
   ##
-  col.i.inside.square <- col.i.inside.square[sel]
+  col.inside <- col.inside[sel]
   ##  
   if (sort | by) {
     if (bysort)
@@ -860,11 +908,11 @@ forest.meta <- function(x,
     byvar   <- byvar[o]
     sortvar <- sortvar[o]
     ##
-    col.i <- col.i[o]
+    col.study <- col.study[o]
     col.square <- col.square[o]
     col.square.lines <- col.square.lines[o]
     ##
-    col.i.inside.square <- col.i.inside.square[o]
+    col.inside <- col.inside[o]
     ##
     if (newcols) {
       dataset1 <- dataset1[o, ]
@@ -1432,13 +1480,24 @@ forest.meta <- function(x,
     sel.fixed[sel.by.random] <- TRUE
     sel.random[sel.by.fixed] <- TRUE
     ##
-    col.diamond <- c(col.diamond.fixed, col.diamond.random, col.predict,
-                     rep(col.diamond.fixed, n.by),
-                     rep(col.diamond.random, n.by))
-    col.diamond.lines <- c(col.diamond.fixed.lines, col.diamond.random.lines,
-                           col.predict.lines,
-                           rep(col.diamond.fixed.lines, n.by),
-                           rep(col.diamond.random.lines, n.by))
+    col.diamond.pooled <- c(col.diamond.fixed,
+                            col.diamond.random,
+                            col.predict,
+                            rep(col.diamond.fixed, n.by),
+                            rep(col.diamond.random, n.by),
+                            rep(NA, n.by))
+    col.diamond.lines.pooled <- c(col.diamond.lines.fixed,
+                                  col.diamond.lines.random,
+                                  col.predict.lines,
+                                  rep(col.diamond.lines.fixed, n.by),
+                                  rep(col.diamond.lines.random, n.by),
+                                  rep(NA, n.by))
+    col.inside.pooled <- c(col.inside.fixed,
+                           col.inside.random,
+                           "",
+                           rep(col.inside.fixed, n.by),
+                           rep(col.inside.random, n.by),
+                           rep(NA, n.by))
   }
   else {
     modlabs <- c(text.fixed, text.random, text.predict,
@@ -1464,9 +1523,10 @@ forest.meta <- function(x,
     sel.fixed <- w.fixeds.text == "--"
     sel.random <- w.randoms.text == "--"
     ##
-    col.diamond <- c(col.diamond.fixed, col.diamond.random, col.predict)
-    col.diamond.lines <- c(col.diamond.fixed.lines, col.diamond.random.lines,
-                           col.predict.lines)
+    col.diamond.pooled <- c(col.diamond.fixed, col.diamond.random, col.predict)
+    col.diamond.lines.pooled <- c(col.diamond.lines.fixed, col.diamond.lines.random,
+                                  col.predict.lines)
+    col.inside.pooled <- c(col.inside.fixed, col.inside.random, "")
   }
   ##
   ## Treatment effect and confidence interval
@@ -2209,21 +2269,31 @@ forest.meta <- function(x,
   ##
   col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.cols)
   col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.cols)
-  ##  
+  ##
+  if (length(type.study) == 1)
+    type.study <- rep(type.study, length(TE))
+  else if (length(type.study) != length(TE))
+    stop("Argument 'type.study' must be a single character or of same length as number of studies.")
+  ##
   col.forest <- list(eff = TEs,
                      low = lowTEs,
                      upp = uppTEs,
                      rows = yS[-1],
                      ##
-                     ## "p" means prediction, "s" means summary, "n" means normal
+                     ## "square" means normal confidence interval, "diamond" means meta-analysis diamond,
+                     ## "predict" means prediction interval
                      ##
-                     type = c("s", "s", "p", rep("s", length(TEs) - length(TE) - 3), rep("n", length(TE))),
-                     col = c(rep("", length(TEs) - length(TE)), col.i),
-                     col.square = c(rep("", length(TEs) - length(TE)), col.square),
-                     col.square.lines = c(rep("", length(TEs) - length(TE)), col.square.lines),
-                     col.i.inside.square = c(rep("", length(TEs) - length(TE)), col.i.inside.square),
-                     col.diamond = c(col.diamond, rep("", length(TE))),
-                     col.diamond.lines = c(col.diamond.lines, rep("", length(TE)))
+                     type = c(type.fixed, type.random, "predict",
+                              rep(type.fixed, length(TEs) - length(TE) - 3),
+                              type.study),
+                     ##
+                     col = c(col.diamond.lines.pooled, col.study),
+                     col.square = c(col.diamond.pooled, col.square),
+                     col.square.lines = c(col.diamond.lines.pooled, col.square.lines),
+                     col.inside = c(col.inside.pooled, col.inside),
+                     ##
+                     col.diamond = c(col.diamond.pooled, col.square),
+                     col.diamond.lines = c(col.diamond.lines.pooled, col.square.lines)
                      )
   ##
   ## Sizes of squares
@@ -2390,7 +2460,7 @@ forest.meta <- function(x,
   ##
   drawNormalCI <- function(low, eff, upp, size, min, max,
                            col, col.square, col.square.lines,
-                           col.i.inside.square) {
+                           col.inside) {
     ##
     ## Function to draw a non-summary rect-plus-CI
     ##
@@ -2404,7 +2474,7 @@ forest.meta <- function(x,
     ##
     if (!is.na(eff)) {
       ##
-      ## Draw lines in colour "col.i.inside.square" if totally inside rect
+      ## Draw lines in colour "col.inside" if totally inside rect
       ##
       if (!is.na(size)) {
         TElineCol <- if (size > 0 &&
@@ -2412,7 +2482,7 @@ forest.meta <- function(x,
                                    "native", valueOnly = TRUE) > upp) &&
                          (convertX(unit(eff, "native") - unit(0.5 * size, "lines"),
                                    "native", valueOnly = TRUE) < low))
-                       col.i.inside.square
+                       col.inside
                      else
                        col
       }
@@ -2435,7 +2505,7 @@ forest.meta <- function(x,
     }
     if (!is.na(eff)) {
       ##
-      ## Draw lines in colour "col.i.inside.square" if totally inside rect
+      ## Draw lines in colour "col.inside" if totally inside rect
       ##
       if (!is.na(size)) {
         lineCol <- if (size > 0 &&
@@ -2443,7 +2513,7 @@ forest.meta <- function(x,
                                  "native", valueOnly = TRUE) > upp) &&
                        (convertX(unit(eff, "native") - unit(0.5 * size, "lines"),
                                  "native", valueOnly = TRUE) < low))
-                     col.i.inside.square
+                     col.inside
                    else
                      col
         ##
@@ -2649,25 +2719,26 @@ forest.meta <- function(x,
       if (!is.na(col$rows[i])) {
         pushViewport(viewport(layout.pos.row = col$rows[i], layout.pos.col = j,
                               xscale = col$range))
-        if (col$type[i] == "n")
+        
+        if (col$type[i] == "square")
           drawNormalCI(low = col$low[i], eff = col$eff[i], upp = col$upp[i],
                        size = col$sizes[i],
                        min = col$range[1], max = col$range[2],
                        col = col$col[i], col.square = col$col.square[i],
                        col.square.lines = col$col.square.lines[i],
-                       col.i.inside.square = col$col.i.inside.square[i])
-        else if (col$type[i] == "s")
+                       col.inside = col$col.inside[i])
+        else if (col$type[i] == "diamond")
           drawSummaryCI(low = col$low[i], eff = col$eff[i], upp = col$upp[i],
                         size = col$sizes[i],
                         min = col$range[1], max = col$range[2],
-                        col.diamond = col.diamond[i],
-                        col.diamond.lines = col.diamond.lines[i])
-        else if (col$type[i] == "p") {
+                        col.diamond = col$col.diamond[i],
+                        col.diamond.lines = col$col.diamond.lines[i])
+        else if (col$type[i] == "predict") {
           drawPredictionCI(low = col$low[i], upp = col$upp[i],
                            size = col$sizes[i],
                            min = col$range[1], max = col$range[2],
-                           col.predict = col.diamond[i],
-                           col.predict.lines = col.diamond.lines[i])
+                           col.predict = col$col.diamond[i],
+                           col.predict.lines = col$col.diamond.lines[i])
         }
         popViewport()
       }
