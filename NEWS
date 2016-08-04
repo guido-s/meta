@@ -16,6 +16,9 @@
       specified for each study as well as fixed effect and random
       effects estimate
 
+  * New function weights.meta() to calculate absolute and percentage
+    weights in meta-analysis
+
  ** User-visible changes **
 
   * metagen(), metaprop(), print.meta(), print.summary.meta(),
@@ -68,6 +71,13 @@
 
   * metacum(), metainf():
     - list object pscale added
+
+  * metacr():
+    - keep dataset used to conduct meta-analysis in list object data
+
+  * paulemandel():
+    - bug fix such that function does not result in an error if used
+      with a single study
 
 
 *** meta, version 4.4-1, 2016-06-20 ***

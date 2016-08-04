@@ -19,51 +19,65 @@ paulemandel <- function(TE, seTE,
   if (tol >= 1.0 )
     stop("Tolerance must be smaller than 1.0.")
   
-  ## Guarantees TE.random exists in case no iterations are run
-  TE.random <- NA
   
-  tau2 <- variance.TE <- dv <- var(TE)
-  ##
-  n.iter <- 0
-  converged <- 0L
-  ##
-  while (n.iter < maxiter && abs(dv) > tol * variance.TE) {
-    n.iter <- n.iter + 1
+  if (length(TE) == 1) {
+    tau2 <- 0
+    w.random <- 1 / seTE
+    w.random[is.na(w.random)] <- 0
+    TE.random <- TE
+    seTE.random <- seTE
+    converged <- 9L
+    variance.TE <- NA
+    n.iter <- NA
+  }
+  else {
+    ## Guarantees TE.random exists in case no iterations are run
+    TE.random <- NA
+    ##
+    tau2 <- variance.TE <- dv <- var(TE)
+    ##
+    n.iter <- 0
     converged <- 0L
     ##
-    w.random <- 1 / (seTE^2 + tau2)
-    w.random[is.na(w.random)] <- 0
-    TE.random <- weighted.mean(TE, w.random)
-    ##
-    F <- sum(w.random * (TE - TE.random)^2) - (length(TE) - 1)
-    dv <- F / sum(w.random^2 * (TE - TE.random)^2)
-    tau2 <- tau2 + dv
-    ##
-    if (tau2 < 0) {
-      tau2 <- 0.0
+    while (n.iter < maxiter && abs(dv) > tol * variance.TE) {
+      n.iter <- n.iter + 1
+      converged <- 0L
+      ##
       w.random <- 1 / (seTE^2 + tau2)
       w.random[is.na(w.random)] <- 0
       TE.random <- weighted.mean(TE, w.random)
-      converged <- 2L
+      ##
+      F <- sum(w.random * (TE - TE.random)^2) - (length(TE) - 1)
+      dv <- F / sum(w.random^2 * (TE - TE.random)^2)
+      tau2 <- tau2 + dv
+      ##
+      if (tau2 < 0) {
+        tau2 <- 0.0
+        w.random <- 1 / (seTE^2 + tau2)
+        w.random[is.na(w.random)] <- 0
+        TE.random <- weighted.mean(TE, w.random)
+        converged <- 2L
+      }
     }
-  }
-  ##
-  seTE.random <- 1 / sqrt(sum(w.random))
-  
-  if(abs(dv) >= tol * variance.TE) {
-    if (converged == 2L)
-      warning("Maximum number of iterations reached; between-study variance set to zero.")
-    else
-      warning("Maximum number of iterations reached.")
-  }
-  else {
-    ## Not changed if already set to 2L
-    if (converged == 0L)
-      converged <- 1L
+    ##
+    seTE.random <- 1 / sqrt(sum(w.random))
+    
+    if(abs(dv) >= tol * variance.TE) {
+      if (converged == 2L)
+        warning("Maximum number of iterations reached; between-study variance set to zero.")
+      else
+        warning("Maximum number of iterations reached.")
+    }
+    else {
+      ## Not changed if already set to 2L
+      if (converged == 0L)
+        converged <- 1L
+    }
   }
   
   w.random.all <- rep(0, length(sel))
   w.random.all[sel] <- w.random
+  
   
   res <- list(TE.random = TE.random, seTE.random = seTE.random,
               w.random = w.random.all, tau = sqrt(tau2),

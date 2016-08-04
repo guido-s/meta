@@ -13,7 +13,7 @@ export(ci, settings.meta, forest, forest.meta,
        print.summary.meta, summary.meta,
        trimfill, trimfill.default, trimfill.meta,
        labbe, labbe.default, labbe.metabin,
-       update.meta, cilayout)
+       update.meta, cilayout, weights.meta)
 
 # not visible:
 # asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
@@ -47,6 +47,7 @@ S3method(summary, rm5)
 S3method(trimfill, default)
 S3method(trimfill, meta)
 S3method(update, meta)
+S3method(weights, meta)
 
 importFrom("grid", "arrow", "gpar", "grid.draw", "grid.layout",
            "grid.lines", "grid.newpage", "grid.polygon", "grid.rect",
@@ -58,7 +59,8 @@ importFrom("grDevices", "gray")
 importFrom("graphics", "abline", "axis", "lines", "par", "plot", "points", "polygon", "text")
 
 importFrom("stats", "as.formula", "binom.test", "coef", "lm", "pchisq",
-           "pnorm", "pt", "qnorm", "qt", "runif", "update", "var", "weighted.mean")
+           "pnorm", "pt", "qnorm", "qt", "runif", "update", "var", "weighted.mean",
+           "weights")
 
 importFrom("utils", "assignInNamespace", "count.fields", "getFromNamespace",
            "installed.packages", "packageDescription", "read.table")
