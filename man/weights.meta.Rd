@@ -60,5 +60,9 @@ meta2 <- update(meta1, comb.fixed = FALSE)
 #
 # Print weights for random effects meta-analysis
 #
+weights(meta2)
+#
+# Print weights for fixed effect and random effects meta-analysis
+#
 weights(meta2, comb.fixed = TRUE)
 }
