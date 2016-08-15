@@ -1995,16 +1995,14 @@ forest.meta <- function(x,
   ySubgroup.fixed  <- yHead + ySubgroup.fixed + addspace
   ySubgroup.random <- yHead + ySubgroup.random + addspace
   ##
-  yStats <- c(yHetstat, yOverall.fixed, yOverall.random)
-  if (by)
-    yStats <- c(yStats, ySubgroup.fixed, ySubgroup.random)
+  yStats <- c(yHetstat,
+              yOverall.fixed, yOverall.random,
+              ySubgroup.fixed, ySubgroup.random)
   ##
   if (by) {
     yBylab <- yHead + yBylab + addspace
     yTE.w  <- yHead + yTE.w + addspace
-  }
-  ##  
-  if (by) {
+    ##  
     yLab <- c(yHead,
               yTE.fixed, yTE.random, yPredict,
               yStats,
