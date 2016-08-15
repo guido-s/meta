@@ -6,6 +6,7 @@ summary.meta <- function(object,
                          pscale = object$pscale,
                          bylab = object$bylab,
                          print.byvar = object$print.byvar,
+                         byseparator = object$byseparator,
                          bystud = FALSE,
                          print.CMH = object$print.CMH,
                          warn = object$warn,
@@ -52,6 +53,8 @@ summary.meta <- function(object,
   ##
   if (!is.null(print.byvar))
     chklogical(print.byvar)
+  if (!is.null(byseparator))
+    chkchar(byseparator)
   chklogical(bystud)
   if (!is.null(print.CMH))
     chklogical(print.CMH)
@@ -278,6 +281,7 @@ summary.meta <- function(object,
   res$title   <- object$title
   ##
   res$print.byvar <- print.byvar
+  res$byseparator <- byseparator
   res$print.CMH   <- print.CMH
   ##
   res$data   <- object$data

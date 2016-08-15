@@ -35,6 +35,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     label.right = .settings$label.right,
                     ##
                     byvar, bylab, print.byvar = .settings$print.byvar,
+                    byseparator = .settings$byseparator,
                     ##
                     keepdata = .settings$keepdata,
                     warn = .settings$warn,
@@ -536,6 +537,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar
+    res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
     if (!tau.common)

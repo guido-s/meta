@@ -17,6 +17,7 @@ forest.meta <- function(x,
                         ##
                         bylab = x$bylab,
                         print.byvar = x$print.byvar,
+                        byseparator = .settings$byseparator,
                         text.fixed.w = text.fixed,
                         text.random.w = text.random,
                         bysort = FALSE,
@@ -228,6 +229,7 @@ forest.meta <- function(x,
   chklogical(prediction)
   if (!is.null(print.byvar))
     chklogical(print.byvar)
+  chkchar(byseparator)
   chklogical(bysort)
   chklogical(pooled.totals)
   chklogical(pooled.events)
@@ -1445,16 +1447,7 @@ forest.meta <- function(x,
   ##
   if (by) {
     ##
-    if (print.byvar) {
-      if (length(bylab) == 0 || bylab == "")
-        bylab <- format(bylevs)
-      else
-        bylab <- paste(bylab,
-                       " = ",
-                       format(bylevs), sep = "")
-    }
-    else
-      bylab <- format(bylevs)
+    bylab <- bylabel(bylab, bylevs, print.byvar, byseparator)
     ##
     if (length(text.fixed.w) == 1 & n.by > 1)
       text.fixed.w <- rep(text.fixed.w, n.by)
@@ -1991,17 +1984,20 @@ forest.meta <- function(x,
   if (!prediction) text.predict <- ""
   ##  
   yTE        <- yHead + yTE + addspace
+  ##
   yTE.fixed  <- yHead + yTE.fixed + addspace
   yTE.random <- yHead + yTE.random + addspace
   yPredict   <- yHead + yPredict + addspace
+  ##
   yHetstat <- yHead + yHetstat + addspace
   yOverall.fixed  <- yHead + yOverall.fixed + addspace
   yOverall.random <- yHead + yOverall.random + addspace
   ySubgroup.fixed  <- yHead + ySubgroup.fixed + addspace
   ySubgroup.random <- yHead + ySubgroup.random + addspace
-  yStats <- c(yHetstat,
-              yOverall.fixed, yOverall.random,
-              ySubgroup.fixed, ySubgroup.random)
+  ##
+  yStats <- c(yHetstat, yOverall.fixed, yOverall.random)
+  if (by)
+    yStats <- c(yStats, ySubgroup.fixed, ySubgroup.random)
   ##
   if (by) {
     yBylab <- yHead + yBylab + addspace
@@ -2011,9 +2007,7 @@ forest.meta <- function(x,
   if (by) {
     yLab <- c(yHead,
               yTE.fixed, yTE.random, yPredict,
-              yHetstat,
-              yOverall.fixed, yOverall.random,
-              ySubgroup.fixed, ySubgroup.random,
+              yStats,
               yBylab, yTE.w,
               yTE)
     ##
@@ -2021,9 +2015,7 @@ forest.meta <- function(x,
   }
   else {
     yLab <- c(yHead, yTE.fixed, yTE.random, yPredict,
-              yHetstat,
-              yOverall.fixed, yOverall.random,
-              ySubgroup.fixed, ySubgroup.random,
+              yStats,
               yTE)
     ##
     yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
@@ -2833,16 +2825,13 @@ forest.meta <- function(x,
                                   test.subgroup.fixed, test.subgroup.random)))
     ##
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
-                            yHetstat,
-                            yOverall.fixed, yOverall.random,
-                            ySubgroup.fixed, ySubgroup.random, yTE.w), na.rm = TRUE)
+                            yStats, yTE.w), na.rm = TRUE)
   }
   else {
     addline <- addspace * (!any(c(test.overall.fixed, test.overall.random, overall.hetstat)))
     ##
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
-                            yHetstat,
-                            yOverall.fixed, yOverall.random), na.rm = TRUE)
+                            yStats), na.rm = TRUE)
   }
   ##
   pushViewport(viewport(layout = grid.layout(

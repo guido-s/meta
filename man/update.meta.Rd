@@ -32,6 +32,7 @@
        pooledvar=object$pooledvar, method.smd=object$method.smd,
        sd.glass=object$sd.glass, exact.smd=object$exact.smd, method.ci=object$method.ci,
        byvar=object$byvar, bylab=object$bylab, print.byvar=object$print.byvar,
+       byseparator = object$byseparator,
        print.CMH=object$print.CMH, keepdata=TRUE,
        left=object$left, ma.fixed=object$ma.fixed,
        type=object$type, n.iter.max=object$n.iter.max,
@@ -147,6 +148,8 @@
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{keepdata}{A logical indicating whether original data (set)

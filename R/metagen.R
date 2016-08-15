@@ -29,6 +29,7 @@ metagen <- function(TE, seTE, studlab,
                     label.right = .settings$label.right,
                     ##
                     byvar, bylab, print.byvar = .settings$print.byvar,
+                    byseparator = .settings$byseparator,
                     ##
                     keepdata = .settings$keepdata,
                     warn = .settings$warn
@@ -153,8 +154,10 @@ metagen <- function(TE, seTE, studlab,
     chklength(n.e, k.All, fun)
   if (!is.null(n.c))
     chklength(n.c, k.All, fun)
-  if (!missing.byvar)
+  if (!missing.byvar) {
     chklogical(print.byvar)
+    chkchar(byseparator)
+  }
   
   
   ##
@@ -458,6 +461,7 @@ metagen <- function(TE, seTE, studlab,
               data = if (keepdata) data else NULL,
               subset = if (keepdata) subset else NULL,
               print.byvar = print.byvar,
+              byseparator = byseparator,
               warn = warn,
               call = match.call(),
               backtransf = backtransf,

@@ -30,6 +30,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      label.right = .settings$label.right,
                      ##
                      byvar, bylab, print.byvar = .settings$print.byvar,
+                     byseparator = .settings$byseparator,
                      ##
                      keepdata = .settings$keepdata,
                      warn = .settings$warn
@@ -430,6 +431,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar
+    res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
     if (!tau.common)

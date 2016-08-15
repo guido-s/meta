@@ -43,6 +43,7 @@ update.meta <- function(object,
                         byvar = object$byvar,
                         bylab = object$bylab,
                         print.byvar = object$print.byvar,
+                        byseparator = object$byseparator,
                         print.CMH = object$print.CMH,
                         keepdata = TRUE,
                         ##
@@ -121,6 +122,7 @@ update.meta <- function(object,
   label.c <- replacemiss(label.c)
   ##
   print.byvar <- replacemiss(print.byvar)
+  byseparator <- replacemiss(byseparator)
   ##
   warn <- replacemiss(warn)
   ##
@@ -329,6 +331,7 @@ update.meta <- function(object,
                  label.right = label.right, label.left = label.left,
                  ##
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                 byseparator = byseparator,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
@@ -364,6 +367,7 @@ update.meta <- function(object,
                   label.right = label.right, label.left = label.left,
                   ##
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                  byseparator = byseparator,
                   ##
                   keepdata = keepdata,
                   warn = warn)
@@ -390,6 +394,7 @@ update.meta <- function(object,
                  backtransf = backtransf,
                  title = title, complab = complab, outclab = outclab,
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                 byseparator = byseparator,
                  ##
                  keepdata = keepdata)
   ##
@@ -433,6 +438,7 @@ update.meta <- function(object,
                  label.right = label.right, label.left = label.left,
                  ##
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                 byseparator = byseparator,
                  ##
                  keepdata = keepdata,
                  warn = warn)
@@ -489,6 +495,7 @@ update.meta <- function(object,
                  label.right = label.right, label.left = label.left,
                  ##
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                 byseparator = byseparator,
                  ##
                  keepdata = keepdata,
                  warn = warn,
@@ -525,6 +532,7 @@ update.meta <- function(object,
                   backtransf = backtransf, pscale = pscale,
                   title = title, complab = complab, outclab = outclab,
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                  byseparator = byseparator,
                   ##
                   keepdata = keepdata,
                   warn = warn,

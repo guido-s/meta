@@ -29,7 +29,7 @@ forest(x, ...)
                      paste("Prediction interval (",
                            round(x$level.predict*100), "\%)",
                      sep="") else "Prediction interval",
-       bylab=x$bylab, print.byvar=x$print.byvar,
+       bylab=x$bylab, print.byvar=x$print.byvar, byseparator=.settings$byseparator,
        text.fixed.w=text.fixed, text.random.w=text.random,
        bysort=FALSE,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
@@ -161,6 +161,8 @@ forest(x, ...)
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{text.fixed.w}{A character string to label the pooled fixed
     effect estimate within subgroups, or a character vector of same
     length as number of subgroups with corresponging labels.}

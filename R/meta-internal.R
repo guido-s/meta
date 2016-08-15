@@ -91,7 +91,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "hakn", "method.tau", "tau.common",
               "prediction", "level.predict",
               "method.bias", "title", "complab",
-              "print.byvar", "keepdata", "warn",
+              "print.byvar", "byseparator", "keepdata", "warn",
               "backtransf",
               "smbin", "smcont", "smcor", "sminc", "smprop",
               "incr", "allincr", "addincr",
@@ -122,6 +122,7 @@ setOption("method.bias", "linreg")
 setOption("title", "")
 setOption("complab", "")
 setOption("print.byvar", TRUE)
+setOption("byseparator", " = ")
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("backtransf", TRUE)

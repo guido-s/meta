@@ -4,6 +4,7 @@ print.summary.meta <- function(x,
                                comb.random = x$comb.random,
                                prediction = x$prediction,
                                print.byvar = x$print.byvar,
+                               byseparator = x$byseparator,
                                print.CMH = x$print.CMH,
                                header = TRUE,
                                backtransf = x$backtransf,
@@ -55,8 +56,10 @@ print.summary.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
-  if (by)
+  if (by) {
     chklogical(print.byvar)
+    chkchar(byseparator)
+  }
   if (!is.null(print.CMH))
     chklogical(print.CMH)
   chklogical(header)
@@ -440,12 +443,9 @@ print.summary.meta <- function(x,
                                 "--",
                                 paste(format.NA(I2.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.fixed.w))
-          if (print.byvar)
-            bylab <- paste(x$bylab,
-                           " = ", 
-                           format(bylevs), sep = "")
-          else
-            bylab <- format(bylevs)
+          ##
+          bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator)
+          ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
                                     "Q", "tau^2", "I^2")
@@ -487,12 +487,9 @@ print.summary.meta <- function(x,
                                 "--",
                                 paste(format.NA(I2.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.random.w))
-          if (print.byvar)
-            bylab <- paste(x$bylab,
-                           " = ", 
-                           format(bylevs), sep = "")
-          else
-            bylab <- format(bylevs)
+          ##
+          bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator)
+          ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
                                     "Q", "tau^2", "I^2")

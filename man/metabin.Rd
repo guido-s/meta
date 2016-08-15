@@ -41,6 +41,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         label.e=.settings$label.e, label.c=.settings$label.c,
         label.left=.settings$label.left, label.right=.settings$label.right,
         byvar, bylab, print.byvar=.settings$print.byvar,
+	byseparator = .settings$byseparator,
         print.CMH=.settings$print.CMH,
         keepdata=.settings$keepdata,
         warn=.settings$warn,
@@ -133,6 +134,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{keepdata}{A logical indicating whether original data (set)
@@ -296,7 +299,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
-  \item{byvar, bylab, print.byvar}{As defined above.}
+  \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
   \item{lower, upper}{Lower and upper confidence interval limits
     for individual studies.}

@@ -22,6 +22,7 @@ metacor(cor, n, studlab,
         backtransf=.settings$backtransf,
         title=.settings$title, complab=.settings$complab, outclab="",
         byvar, bylab, print.byvar=.settings$print.byvar,
+	byseparator = .settings$byseparator,
         keepdata=.settings$keepdata
         )
 }
@@ -77,6 +78,8 @@ metacor(cor, n, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{keepdata}{A logical indicating whether original data (set)
     should be kept in meta object.}
 }
@@ -153,7 +156,7 @@ metacor(cor, n, studlab,
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
-  \item{byvar, bylab, print.byvar}{As defined above.}
+  \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
   \item{TE, seTE}{Either Fisher's z transformation of correlations
     (\code{sm="ZCOR"}) or correlations (\code{sm="COR"}) for individual
     studies.}

@@ -23,6 +23,7 @@ metacor <- function(cor, n, studlab,
                     outclab = "",
                     ##
                     byvar, bylab, print.byvar = .settings$print.byvar,
+                    byseparator = .settings$byseparator,
                     ##
                     keepdata = .settings$keepdata
                     ) {
@@ -292,6 +293,7 @@ metacor <- function(cor, n, studlab,
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar
+    res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
     if (!tau.common)

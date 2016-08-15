@@ -34,13 +34,14 @@
         backtransf=object$backtransf,
 	pscale=object$pscale,
         bylab=object$bylab, print.byvar=object$print.byvar,
-        bystud=FALSE, print.CMH=object$print.CMH,
-        warn=object$warn, ...)
+	byseparator=object$byseparator, bystud=FALSE,
+	print.CMH=object$print.CMH, warn=object$warn, ...)
 
 \method{print}{summary.meta}(x, digits = .settings$digits,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
-        print.byvar=x$print.byvar, print.CMH=x$print.CMH,
+        print.byvar=x$print.byvar, byseparator=x$byseparator,
+	print.CMH=x$print.CMH,
         header=TRUE, backtransf=x$backtransf,
 	pscale=x$pscale,
         bylab.nchar=35,
@@ -67,6 +68,8 @@ cilayout(bracket="[", separator="; ")
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{header}{A logical indicating whether information on title of
     meta-analysis, comparison and outcome should be printed at the
     beginning of the printout.}

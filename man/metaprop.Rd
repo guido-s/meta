@@ -33,6 +33,7 @@ metaprop(event, n, studlab,
 	 pscale=1,
          title=.settings$title, complab=.settings$complab, outclab="",
          byvar, bylab, print.byvar=.settings$print.byvar,
+	 byseparator = .settings$byseparator,
          keepdata=.settings$keepdata,
          warn=.settings$warn,
 	 ...)
@@ -105,6 +106,8 @@ metaprop(event, n, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{keepdata}{A logical indicating whether original data (set)
     should be kept in meta object.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
@@ -249,7 +252,7 @@ metaprop(event, n, studlab,
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
-  \item{byvar, bylab, print.byvar, warn}{}
+  \item{byvar, bylab, print.byvar, byseparator, warn}{}
   \item{TE, seTE}{Estimated (un)transformed proportion and its standard
     error for individual studies.}
   \item{lower, upper}{Lower and upper confidence interval limits

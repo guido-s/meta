@@ -2,11 +2,6 @@
 
  ** Major changes **
 
-  * Argument pscale - a scaling factor for printing of single event
-    probabilities - considered in all R functions for single
-    proportions; before this update, the pscale argument was only
-    available in forest.meta()
-
   * New features in forest plots:
     - printing of columns on left side of forest plot can be omitted
     - total person time can be printed
@@ -19,19 +14,17 @@
   * New function weights.meta() to calculate absolute and percentage
     weights in meta-analysis
 
+  * New argument byseparator to define the separator between label and
+    subgroup levels which is printed in meta-analysis summaries and
+    forest plots - considered in all R functions dealing with
+    meta-analysis and subgroups
+
+  * Argument pscale - a scaling factor for printing of single event
+    probabilities - considered in all R functions for single
+    proportions; before this update, the pscale argument was only
+    available in forest.meta()
+
  ** User-visible changes **
-
-  * metagen(), metaprop(), print.meta(), print.summary.meta(),
-    summary.meta(), trimfill.meta(), trimfill.default(),
-    update.meta():
-     - new argument pscale
-
-  * labbe.metabin(), labbe.default():
-    - transformed event probabilites can be plotted, e.g., log odds
-      event probabilities for odds ratio as summary measure (see
-      argument backtransf)
-    - line for null effect added by default (see arguments nulleffect,
-      lwd.nulleffect, col.nulleffect)
 
   * forest.meta():
     - argument ref considered for metaprop objects
@@ -58,12 +51,34 @@
     - bug fix: arguments lab.e.attach.to.col and lab.c.attach.to.col
       were ignored for R objects created with metagen()
 
+  * metabin(), metacont(), metacor(), metagen(), metainc(),
+    metaprop(), forest.meta(), print.summary.meta(), summary.meta(),
+    update.meta(), settings.meta():
+    - new argument byseparator
+
+  * metagen(), metaprop(), print.meta(), print.summary.meta(),
+    summary.meta(), trimfill.meta(), trimfill.default(),
+    update.meta():
+     - new argument pscale
+
+  * labbe.metabin(), labbe.default():
+    - transformed event probabilites can be plotted, e.g., log odds
+      event probabilities for odds ratio as summary measure (see
+      argument backtransf)
+    - line for null effect added by default (see arguments nulleffect,
+      lwd.nulleffect, col.nulleffect)
+
   * Help pages updated:
     labbe.metabin(), labbe.default(), forest.meta(), metagen(),
     metaprop(), print.meta(), print.summary.meta(), summary.meta(),
     trimfill.meta(), trimfill.default(), update.meta()
 
  ** Internal changes **
+
+  * New function bylabel() to print subgroup labels
+
+  * settings.meta()
+    - new argument: byseparator
 
   * update.meta():
      - do not consider columns 'n.e' and 'n.c' as sample sizes for
@@ -89,7 +104,7 @@
     - bug fix such that function does not result in an error if used
       with a single study
 
-  * setting.meta():
+  * settings.meta():
     - bug fix such that use of argument method.tau works as expected
 
 

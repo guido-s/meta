@@ -27,6 +27,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          label.e=.settings$label.e, label.c=.settings$label.c,
          label.left=.settings$label.left, label.right=.settings$label.right,
          byvar, bylab, print.byvar=.settings$print.byvar,
+	 byseparator = .settings$byseparator,
          keepdata=.settings$keepdata,
          warn=.settings$warn)
 }
@@ -101,6 +102,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
+  \item{byseparator}{A character string defining the separator between
+    label and levels of grouping variable.}
   \item{keepdata}{A logical indicating whether original data (set)
     should be kept in meta object.}
   \item{warn}{A logical indicating whether warnings should be printed
@@ -210,7 +213,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
   \item{tau.common, title, complab, outclab,}{}
   \item{label.e, label.c, label.left, label.right,}{}
-  \item{byvar, bylab, print.byvar, warn}{As defined above.}
+  \item{byvar, bylab, print.byvar, byseparator, warn}{As defined above.}
   \item{TE, seTE}{Estimated treatment effect and standard error of individual studies.}
   \item{lower, upper}{Lower and upper confidence interval limits
     for individual studies.}

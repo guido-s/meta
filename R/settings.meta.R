@@ -134,6 +134,7 @@ settings.meta <- function(...) {
     catarg("title")
     catarg("complab")
     catarg("print.byvar")
+    catarg("byseparator")
     catarg("keepdata")
     catarg("warn")
     catarg("backtransf")
@@ -211,6 +212,7 @@ settings.meta <- function(...) {
     setOption("title", "")
     setOption("complab", "")
     setOption("print.byvar", TRUE)
+    setOption("byseparator", " = ")
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
     setOption("backtransf", TRUE)
@@ -299,6 +301,7 @@ settings.meta <- function(...) {
     idtitle <- argid(names, "title")
     idcomplab <- argid(names, "complab")
     idprint.byvar <- argid(names, "print.byvar")
+    idbyseparator <- argid(names, "byseparator")
     idkeepdata <- argid(names, "keepdata")
     idwarn <- argid(names, "warn")
     idbacktransf <- argid(names, "backtransf")
@@ -421,6 +424,13 @@ settings.meta <- function(...) {
       print.byvar <- args[[idprint.byvar]]
       chklogical(print.byvar)
       setOption("print.byvar", print.byvar)
+    }
+    if (!is.na(idbyseparator)) {
+      byseparator <- args[[idbyseparator]]
+      if (length(byseparator) != 1)
+        stop("Argument 'byseparator' must be a character string.")
+      ##
+      setOption("byseparator", byseparator)
     }
     if (!is.na(idkeepdata)) {
       keepdata <- args[[idkeepdata]]
