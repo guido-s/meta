@@ -50,9 +50,13 @@
     - new arguments:
       . type.study, type.fixed, type.random
         (use squares or diamonds to plot treatment effects and
-         confidence intervals)	
+         confidence intervals)
       . col.inside.fixed, col.inside.random
         (colour to print confidence interval inside square)
+    - bug fix: reference line and lines for fixed effect and random
+      effects estimate were too short if test.overall is TRUE
+    - bug fix: arguments lab.e.attach.to.col and lab.c.attach.to.col
+      were ignored for R objects created with metagen()
 
   * Help pages updated:
     labbe.metabin(), labbe.default(), forest.meta(), metagen(),
@@ -72,12 +76,21 @@
   * metacum(), metainf():
     - list object pscale added
 
+  * metabin():
+    - list objects incr.e and incr.c contains zeros for Peto method
+    - print warning that no continuity correction is used for Peto
+      method if any of the following arguments is used: incr, allincr,
+      addincr, allstudies
+
   * metacr():
     - keep dataset used to conduct meta-analysis in list object data
 
   * paulemandel():
     - bug fix such that function does not result in an error if used
       with a single study
+
+  * setting.meta():
+    - bug fix such that use of argument method.tau works as expected
 
 
 *** meta, version 4.4-1, 2016-06-20 ***

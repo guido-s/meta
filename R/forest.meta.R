@@ -399,7 +399,7 @@ forest.meta <- function(x,
   metacor <- inherits(x, "metacor")
   metainc <- inherits(x, "metainc")
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  ##  
+  ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
     hetstat <- FALSE
@@ -413,6 +413,15 @@ forest.meta <- function(x,
   if (metaprop) {
     test.overall.fixed  <- FALSE
     test.overall.random <- FALSE
+  }
+  ##
+  if (!overall) {
+    if (test.overall)
+      test.overall <- FALSE
+    if (test.overall.fixed)
+      test.overall.fixed <- FALSE
+    if (test.overall.random)
+      test.overall.random <- FALSE
   }
   ##
   prediction <- prediction & x$k >= 3
@@ -1754,7 +1763,9 @@ forest.meta <- function(x,
       (metainc &
          (any(rightcols %in% c("time.e", "time.c")) |
             any(leftcols  %in% c("time.e", "time.c")))
-       )
+       ) |
+      !is.null(lab.e.attach.to.col) |
+      !is.null(lab.c.attach.to.col)
       ) {
     yHead <- 2
     yHeadadd <- 1
@@ -1988,6 +1999,9 @@ forest.meta <- function(x,
   yOverall.random <- yHead + yOverall.random + addspace
   ySubgroup.fixed  <- yHead + ySubgroup.fixed + addspace
   ySubgroup.random <- yHead + ySubgroup.random + addspace
+  yStats <- c(yHetstat,
+              yOverall.fixed, yOverall.random,
+              ySubgroup.fixed, ySubgroup.random)
   ##
   if (by) {
     yBylab <- yHead + yBylab + addspace
@@ -2011,7 +2025,8 @@ forest.meta <- function(x,
               yOverall.fixed, yOverall.random,
               ySubgroup.fixed, ySubgroup.random,
               yTE)
-    yS   <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
+    ##
+    yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
   }
   
   
@@ -2591,7 +2606,7 @@ forest.meta <- function(x,
     ##
     pushViewport(viewport(layout.pos.col = j, xscale = col$range))
     ##
-    ymax.line <- max(yS, na.rm = TRUE) - 1
+    ymax.line <- nrow - 1 - ifelse(is.na(yHeadadd), 0, 1)
     ##
     ## Reference line:
     ##
@@ -2758,16 +2773,16 @@ forest.meta <- function(x,
   ## width for study labels
   ##
   if (by)
-    del.lines <- c(if (!calcwidth.pooled) # FE + RE
+    del.lines <- c(if (!calcwidth.pooled)             # FE + RE
                      c(2, 3),
-                   4:n.summaries,         # PI + tests
+                   4:n.summaries,                     # PI + tests
                    ##
-                   n.summaries + 0 * n.by + 1:n.by, # subgroup labels
-                   if (!calcwidth.pooled) # FE in subgroups
+                   n.summaries + 0 * n.by + 1:n.by,   # subgroup labels
+                   if (!calcwidth.pooled)             # FE in subgroups
                      n.summaries + 1 * n.by + 1:n.by,
-                   if (!calcwidth.pooled) # RE in subgroups
+                   if (!calcwidth.pooled)             # RE in subgroups
                      n.summaries + 2 * n.by + 1:n.by,
-                   n.summaries + 3 * n.by + 1:n.by # heterogeneity statistic in subgroups
+                   n.summaries + 3 * n.by + 1:n.by    # heterogeneity statistic in subgroups
                    )
   else
     del.lines <- c(if (!calcwidth.pooled) # FE + RE
@@ -2814,7 +2829,7 @@ forest.meta <- function(x,
   ##
   if (by) {
     addline <- addspace * (!any(c(test.overall.fixed, test.overall.random,
-                                  hetstat,
+                                  overall.hetstat,
                                   test.subgroup.fixed, test.subgroup.random)))
     ##
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
@@ -2823,7 +2838,7 @@ forest.meta <- function(x,
                             ySubgroup.fixed, ySubgroup.random, yTE.w), na.rm = TRUE)
   }
   else {
-    addline <- addspace * (!any(c(test.overall.fixed, test.overall.random, hetstat)))
+    addline <- addspace * (!any(c(test.overall.fixed, test.overall.random, overall.hetstat)))
     ##
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
                             yHetstat,

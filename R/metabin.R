@@ -377,16 +377,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (ii) Peto method or GLMM
   ##
   if ( sm == "ASD" | method %in% c("Peto", "GLMM")) {
-    if ((!missing(incr) & incr != 0) &
-        ((!missing(allincr) & allincr ) |
-           (!missing(addincr) & addincr) |
-             (!missing(allstudies) & allstudies)
-         )
+    if ((!missing(incr) & incr != 0) |
+        (!missing(allincr) & allincr ) |
+        (!missing(addincr) & addincr) |
+        (!missing(allstudies) & allstudies)
         )
-      if (sm == "ASD")
-        warning("No continuity correction considered for arcsine difference (sm = \"ASD\").")
-      else if (method %in% c("Peto", "GLMM"))
-        warning("No continuity correction considered for method = \"", method, "\".")
+      if (sm == "ASD") {
+        if (sparse | addincr) {
+          warning("Note, no continuity correction considered for arcsine difference (sm = \"ASD\").")
+        }
+      }
+      else if (method %in% c("Peto", "GLMM")) {
+        if (sparse | addincr)
+          warning("Note, no continuity correction considered for method = \"", method, "\".")
+      }
   }
   ##
   ## Define continuity correction
@@ -449,6 +453,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       incr.e <- rep(0, k.all)
       incr.c <- rep(0, k.all)
     }
+  }
+  ##
+  ## No continuity correction for Peto method
+  ##
+  if (method == "Peto") {
+    incr.e <- rep(0, k.all)
+    incr.c <- rep(0, k.all)
   }
   ##  
   n11 <- event.e * incl

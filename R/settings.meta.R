@@ -377,10 +377,10 @@ settings.meta <- function(...) {
       method.tau <- args[[idmethod.tau]]
       method.tau <- setchar(method.tau,
                             c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
-      if (method.tau %in% c("REML", "ML", "HS", "SJ", "HE", "EB") &
-          is.installed.package("metafor", chksettings = TRUE,
-                               argument = "method.tau", value = method.tau))
-        setOption("method.tau", method.tau)
+      if (method.tau %in% c("REML", "ML", "HS", "SJ", "HE", "EB"))
+        is.installed.package("metafor", chksettings = TRUE,
+                             argument = "method.tau", value = method.tau)
+      setOption("method.tau", method.tau)
     }
     if (!is.na(idtau.common)) {
       tau.common <- args[[idtau.common]]
