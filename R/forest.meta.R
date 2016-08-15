@@ -106,6 +106,14 @@ forest.meta <- function(x,
                         label.test.subgroup.random = paste("Test for subgroup differences",
                           if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep = ""),
                         ##
+                        test.effect.subgroup = .settings$test.effect.subgroup,
+                        test.effect.subgroup.fixed = comb.fixed & test.effect.subgroup,
+                        test.effect.subgroup.random = comb.random & test.effect.subgroup,
+                        label.test.effect.subgroup.fixed = paste("Test for effect in subgroup",
+                          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep = ""),
+                        label.test.effect.subgroup.random = paste("Test for effect in subgroup",
+                          if (comb.fixed & comb.random) " (random effects)", ": ", sep = ""),
+                        ##
                         fontsize = 12,
                         fs.heading = fontsize,
                         fs.fixed = fontsize,
@@ -119,6 +127,7 @@ forest.meta <- function(x,
                         fs.hetstat = fontsize - 2,
                         fs.test.overall = fs.hetstat,
                         fs.test.subgroup = fs.hetstat,
+                        fs.test.effect.subgroup = fs.hetstat,
                         fs.axis = fontsize,
                         fs.smlab = fontsize,
                         fs.xlab = fontsize,
@@ -136,6 +145,7 @@ forest.meta <- function(x,
                         ff.hetstat = "bold.italic",
                         ff.test.overall = ff.hetstat,
                         ff.test.subgroup = ff.hetstat,
+                        ff.test.effect.subgroup = ff.hetstat,
                         ff.axis = "plain",
                         ff.smlab = "bold",
                         ff.xlab = "plain",
@@ -933,10 +943,13 @@ forest.meta <- function(x,
   ##
   if (by) {
     n.by <- length(bylevs)
-    sel.by.fixed  <- 3 + 0 * n.by + 1:n.by
-    sel.by.random <- 3 + 1 * n.by + 1:n.by
-    sel.by.het    <- 3 + 2 * n.by + 1:n.by
-    sel.by <- c(sel.by.fixed, sel.by.random, sel.by.het)
+    sel.by.fixed         <- 3 + 0 * n.by + 1:n.by
+    sel.by.random        <- 3 + 1 * n.by + 1:n.by
+    sel.by.het           <- 3 + 2 * n.by + 1:n.by
+    sel.by.effect.fixed  <- 3 + 3 * n.by + 1:n.by
+    sel.by.effect.random <- 3 + 4 * n.by + 1:n.by
+    sel.by <- c(sel.by.fixed, sel.by.random, sel.by.het,
+                sel.by.effect.fixed, sel.by.effect.random)
   }
   else
     n.by <- 0
@@ -1129,9 +1142,11 @@ forest.meta <- function(x,
     TE.fixed.w <- x$TE.fixed.w[o]
     lower.fixed.w <- x$lower.fixed.w[o]
     upper.fixed.w <- x$upper.fixed.w[o]
+    pval.fixed.w <- x$pval.fixed.w[o]
     TE.random.w <- x$TE.random.w[o]
     lower.random.w <- x$lower.random.w[o]
     upper.random.w <- x$upper.random.w[o]
+    pval.random.w <- x$pval.random.w[o]
     Q.w        <- x$Q.w[o]
     I2.w       <- x$I2.w[o]
     lowI2.w    <- x$lower.I2.w[o]
@@ -1156,9 +1171,11 @@ forest.meta <- function(x,
     TE.fixed.w <- TE.fixed.w[sel]
     lower.fixed.w <- lower.fixed.w[sel]
     upper.fixed.w <- upper.fixed.w[sel]
+    pval.fixed.w <- pval.fixed.w[sel]
     TE.random.w <- TE.random.w[sel]
     lower.random.w <- lower.random.w[sel]
     upper.random.w <- upper.random.w[sel]
+    pval.random.w <- pval.random.w[sel]
     Q.w        <- Q.w[sel]
     I2.w       <- I2.w[sel]
     lowI2.w    <- lowI2.w[sel]
@@ -1260,11 +1277,31 @@ forest.meta <- function(x,
     else
       hetstat.w <- rep("", n.by)
     ##
-    TE.w <- c(TE.fixed.w, TE.random.w, rep(NA, n.by))
-    lowTE.w <- c(lower.fixed.w, lower.random.w, rep(NA, n.by))
-    uppTE.w <- c(upper.fixed.w, upper.random.w, rep(NA, n.by))
-    n.harmonic.mean.w <- c(n.harmonic.mean.w, n.harmonic.mean.w, rep(NA, n.by))
-    weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, n.by))
+    TE.w <- c(TE.fixed.w, TE.random.w, rep(NA, 3 * n.by))
+    lowTE.w <- c(lower.fixed.w, lower.random.w, rep(NA, 3 * n.by))
+    uppTE.w <- c(upper.fixed.w, upper.random.w, rep(NA, 3 * n.by))
+    n.harmonic.mean.w <- c(n.harmonic.mean.w, n.harmonic.mean.w, rep(NA, 3 * n.by))
+    weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, 3 * n.by))
+    ##
+    test.fixed.w <- ""
+    ##
+    ## Label of test for effect in subgroups
+    ##
+    pvals.effect.w <- format.p(c(x$pval.fixed.w, x$pval.random.w),
+                               lab = TRUE, noblanks = TRUE,
+                               digits = digits.pval)
+    ##
+    if (test.effect.subgroup.fixed)
+      text.effect.subgroup.fixed  <- paste(label.test.effect.subgroup.fixed,
+                                           pvals.effect.w[1:n.by])
+    else
+      text.effect.subgroup.fixed <- rep("", n.by)
+    ##
+    if (test.effect.subgroup.random)
+      text.effect.subgroup.random  <- paste(label.test.effect.subgroup.random,
+                                            pvals.effect.w[n.by + 1:n.by])
+    else
+      text.effect.subgroup.random <- rep("", n.by)
   }
   
   
@@ -1459,15 +1496,16 @@ forest.meta <- function(x,
                  text.overall.fixed, text.overall.random,
                  text.subgroup.fixed, text.subgroup.random,
                  bylab, text.fixed.w, text.random.w, hetstat.w,
+                 text.effect.subgroup.fixed, text.effect.subgroup.random,
                  studlab)
     ##
     TEs    <- c(TE.fixed, TE.random, NA, TE.w, TE)
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     ##
-    TEs.study <- c("", "", "", rep("", 3 * n.by),
+    TEs.study <- c("", "", "", rep("", 5 * n.by),
                    format.NA(round(TE.orig, digits), digits, lab.NA))
-    seTEs.study <- c("", "", "", rep("", 3 * n.by),
+    seTEs.study <- c("", "", "", rep("", 5 * n.by),
                      format.NA(round(seTE, digits.se), digits.se, lab.NA))
     ##
     w.fixeds  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.fixed.p)
@@ -1487,19 +1525,19 @@ forest.meta <- function(x,
                             col.predict,
                             rep(col.diamond.fixed, n.by),
                             rep(col.diamond.random, n.by),
-                            rep(NA, n.by))
+                            rep(NA, 3 * n.by))
     col.diamond.lines.pooled <- c(col.diamond.lines.fixed,
                                   col.diamond.lines.random,
                                   col.predict.lines,
                                   rep(col.diamond.lines.fixed, n.by),
                                   rep(col.diamond.lines.random, n.by),
-                                  rep(NA, n.by))
+                                  rep(NA, 3 * n.by))
     col.inside.pooled <- c(col.inside.fixed,
                            col.inside.random,
                            "",
                            rep(col.inside.fixed, n.by),
                            rep(col.inside.random, n.by),
-                           rep(NA, n.by))
+                           rep(NA, 3 * n.by))
   }
   else {
     modlabs <- c(text.fixed, text.random, text.predict,
@@ -1571,11 +1609,17 @@ forest.meta <- function(x,
   w.random.format[w.random.format == "%"] <- ""
   ##
   w.fixed.format[sel.fixed] <- "--"
-  if (by)
+  if (by) {
     w.fixed.format[sel.by.het] <- ""
+    w.fixed.format[sel.by.effect.fixed] <- ""
+    w.fixed.format[sel.by.effect.random] <- ""
+  }
   w.random.format[sel.random] <- "--"
-  if (by)
+  if (by) {
     w.random.format[sel.by.het] <- ""
+    w.random.format[sel.by.effect.fixed] <- ""
+    w.random.format[sel.by.effect.random] <- ""
+  }
   ##
   ## Treatment estimate and its standard error
   ##
@@ -1593,28 +1637,28 @@ forest.meta <- function(x,
   ##
   if (by) {
     if (pooled.totals) {
-      Ne <- c(sum.n.e, sum.n.e, NA, n.e.w, n.e.w, rep(NA, n.by), x$n.e)
-      Nc <- c(sum.n.c, sum.n.c, NA, n.c.w, n.c.w, rep(NA, n.by), x$n.c)
+      Ne <- c(sum.n.e, sum.n.e, NA, n.e.w, n.e.w, rep(NA, 3 * n.by), x$n.e)
+      Nc <- c(sum.n.c, sum.n.c, NA, n.c.w, n.c.w, rep(NA, 3 * n.by), x$n.c)
     }
     else {
-      Ne <- c(NA, NA, NA, rep(NA, 3 * n.by), x$n.e)
-      Nc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$n.c)
+      Ne <- c(NA, NA, NA, rep(NA, 5 * n.by), x$n.e)
+      Nc <- c(NA, NA, NA, rep(NA, 5 * n.by), x$n.c)
     }
     if (pooled.events) {
-      Ee <- c(sum.e.e, sum.e.e, NA, e.e.w, e.e.w, rep(NA, n.by), x$event.e)
-      Ec <- c(sum.e.c, sum.e.c, NA, e.c.w, e.c.w, rep(NA, n.by), x$event.c)
+      Ee <- c(sum.e.e, sum.e.e, NA, e.e.w, e.e.w, rep(NA, 3 * n.by), x$event.e)
+      Ec <- c(sum.e.c, sum.e.c, NA, e.c.w, e.c.w, rep(NA, 3 * n.by), x$event.c)
     }
     else {
-      Ee <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.e)
-      Ec <- c(NA, NA, NA, rep(NA, 3 * n.by), x$event.c)
+      Ee <- c(NA, NA, NA, rep(NA, 5 * n.by), x$event.e)
+      Ec <- c(NA, NA, NA, rep(NA, 5 * n.by), x$event.c)
     }
     if (pooled.times) {
-      Te <- c(sum.t.e, sum.t.e, NA, t.e.w, t.e.w, rep(NA, n.by), x$time.e)
-      Tc <- c(sum.t.c, sum.t.c, NA, t.c.w, t.c.w, rep(NA, n.by), x$time.c)
+      Te <- c(sum.t.e, sum.t.e, NA, t.e.w, t.e.w, rep(NA, 3 * n.by), x$time.e)
+      Tc <- c(sum.t.c, sum.t.c, NA, t.c.w, t.c.w, rep(NA, 3 * n.by), x$time.c)
     }
     else {
-      Te <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.e)
-      Tc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$time.c)
+      Te <- c(NA, NA, NA, rep(NA, 5 * n.by), x$time.e)
+      Tc <- c(NA, NA, NA, rep(NA, 5 * n.by), x$time.c)
     }
   }
   else {
@@ -1705,10 +1749,10 @@ forest.meta <- function(x,
   ## Mean and standard deviation
   ##
   if (by) {
-    Me <- c(NA, NA, NA, rep(NA, 3 * n.by), x$mean.e)
-    Mc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$mean.c)
-    Se <- c(NA, NA, NA, rep(NA, 3 * n.by), x$sd.e)
-    Sc <- c(NA, NA, NA, rep(NA, 3 * n.by), x$sd.c)
+    Me <- c(NA, NA, NA, rep(NA, 5 * n.by), x$mean.e)
+    Mc <- c(NA, NA, NA, rep(NA, 5 * n.by), x$mean.c)
+    Se <- c(NA, NA, NA, rep(NA, 5 * n.by), x$sd.e)
+    Sc <- c(NA, NA, NA, rep(NA, 5 * n.by), x$sd.c)
   }
   else {
     Me <- c(NA, NA, NA, x$mean.e)
@@ -1734,7 +1778,7 @@ forest.meta <- function(x,
   ## Correlation
   ##
   if (by)
-    cor <- c(NA, NA, NA, rep(NA, 3 * n.by), x$cor)
+    cor <- c(NA, NA, NA, rep(NA, 5 * n.by), x$cor)
   else
     cor <- c(NA, NA, NA, x$cor)
   ##
@@ -1782,6 +1826,8 @@ forest.meta <- function(x,
     yTE.w.fixed <- yBylab
     yTE.w.random <- yBylab
     yTE.w.hetstat <- yBylab
+    yTE.w.effect.fixed <- yBylab
+    yTE.w.effect.random <- yBylab
     ##
     for (i in 1:n.by) {
       ##
@@ -1828,10 +1874,29 @@ forest.meta <- function(x,
       else
         yTE.w.hetstat[i] <- NA
       ##
+      ## Test for effect in subgroup (fixed effect)
+      ##
+      if (test.effect.subgroup.fixed) {
+        yTE.w.effect.fixed[i] <- j
+        j <- j + 1
+      }
+      else
+        yTE.w.effect.fixed[i] <- NA
+      ##
+      ## Test for effect in subgroup (random effects)
+      ##
+      if (test.effect.subgroup.random) {
+        yTE.w.effect.random[i] <- j
+        j <- j + 1
+      }
+      else
+        yTE.w.effect.random[i] <- NA
+      ##
       j <- j + 1
     }
     ##
-    yTE.w <- c(yTE.w.fixed, yTE.w.random, yTE.w.hetstat)
+    yTE.w <- c(yTE.w.fixed, yTE.w.random, yTE.w.hetstat,
+               yTE.w.effect.fixed, yTE.w.effect.random)
   }
   ##
   ##
@@ -2243,6 +2308,28 @@ forest.meta <- function(x,
                                                                      gpar(
                                                                        fontsize = fs.hetstat,
                                                                        fontface = ff.hetstat,
+                                                                       col = col.by)
+                                                                   )
+      ##
+      ## Test for effect in subgroup (fixed effect model):
+      ##
+      col.studlab$labels[[n.summaries + 4 * n.by + i]] <- textGrob(text.effect.subgroup.fixed[i],
+                                                                   x = xpos.studlab, just = just.studlab,
+                                                                   gp = 
+                                                                     gpar(
+                                                                       fontsize = fs.test.effect.subgroup,
+                                                                       fontface = ff.test.effect.subgroup,
+                                                                       col = col.by)
+                                                                   )
+      ##
+      ## Test for effect in subgroup (random effects model):
+      ##
+      col.studlab$labels[[n.summaries + 5 * n.by + i]] <- textGrob(text.effect.subgroup.random[i],
+                                                                   x = xpos.studlab, just = just.studlab,
+                                                                   gp = 
+                                                                     gpar(
+                                                                       fontsize = fs.test.effect.subgroup,
+                                                                       fontface = ff.test.effect.subgroup,
                                                                        col = col.by)
                                                                    )
     }
@@ -2772,7 +2859,9 @@ forest.meta <- function(x,
                      n.summaries + 1 * n.by + 1:n.by,
                    if (!calcwidth.pooled)             # RE in subgroups
                      n.summaries + 2 * n.by + 1:n.by,
-                   n.summaries + 3 * n.by + 1:n.by    # heterogeneity statistic in subgroups
+                   n.summaries + 3 * n.by + 1:n.by,   # heterogeneity statistic in subgroups
+                   n.summaries + 4 * n.by + 1:n.by,   # test for effect in subgroup (fixed effect)
+                   n.summaries + 5 * n.by + 1:n.by    # test for effect in subgroup (random effects)
                    )
   else
     del.lines <- c(if (!calcwidth.pooled) # FE + RE

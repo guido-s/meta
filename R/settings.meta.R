@@ -193,6 +193,7 @@ settings.meta <- function(...) {
     cat("\nSettings for R function forest.meta:\n")
     catarg("test.overall")
     catarg("test.subgroup")
+    catarg("test.effect.subgroup")
     cat("- argument 'digits': ")
     catarg("digits.forest", newline = FALSE)
   }
@@ -258,6 +259,7 @@ settings.meta <- function(...) {
     ##
     setOption("test.overall", FALSE)
     setOption("test.subgroup", FALSE)
+    setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
   }
   else if (specific.settings) {
@@ -347,6 +349,7 @@ settings.meta <- function(...) {
     ##
     idtest.overall <- argid(names, "test.overall")
     idtest.subgroup <- argid(names, "test.subgroup")
+    idtest.effect.subgroup <- argid(names, "test.effect.subgroup")
     iddigits.forest <- argid(names, "digits.forest")
     ##
     ## General settings
@@ -671,6 +674,11 @@ settings.meta <- function(...) {
       test.subgroup <- args[[idtest.subgroup]]
       chklogical(test.subgroup)
       setOption("test.subgroup", test.subgroup)
+    }
+    if (!is.na(idtest.effect.subgroup)) {
+      test.effect.subgroup <- args[[idtest.effect.subgroup]]
+      chklogical(test.effect.subgroup)
+      setOption("test.effect.subgroup", test.effect.subgroup)
     }
     if (!is.na(iddigits.forest)) {
       digits.forest <- args[[iddigits.forest]]

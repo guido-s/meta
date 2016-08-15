@@ -89,37 +89,42 @@ catmeth <- function(method,
         if (incr == "TACC")
           sm.details <- paste(sm.details,
                               "\n- Treatment arm continuity correction in all studies",
+                              if (method == "GLMM") "\n  (only used to calculate individual study results)",
                               sep = "")
         else if (incr != 0)
           sm.details <- paste(sm.details,
                               "\n- Continuity correction of ", round(incr, 4),
-                              " in all studies", sep = "")
-        else
-          sm.details <- ""
+                              " in all studies",
+                              if (method == "GLMM") "\n  (only used to calculate individual study results)",
+                              sep = "")
       }
       else if (sparse) {
-        if (allincr == FALSE)
+        if (allincr == FALSE) {
           if (incr == "TACC")
             sm.details <- paste(sm.details,
                                 "\n- Treatment arm continuity correction in studies with zero cell frequencies",
+                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
                                 sep = "")
           else if (incr != 0)
             sm.details <- paste(sm.details,
                                 "\n- Continuity correction of ", round(incr, 4),
-                                " in studies with zero cell frequencies", sep = "")
-          else
-            sm.details <- ""
-          else
-            if (incr == "TACC")
-              sm.details <- paste(sm.details,
-                                  "\n- Treatment arm continuity correction in all studies",
-                                  sep = "")
-            else if (incr != 0)
-              sm.details <- paste(sm.details,
-                                  "\n- Continuity correction of ", round(incr, 4),
-                                  " in all studies", sep = "")
-            else
-              sm.details <- ""
+                                " in studies with zero cell frequencies",
+                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
+                                sep = "")
+        }
+        else {
+          if (incr == "TACC")
+            sm.details <- paste(sm.details,
+                                "\n- Treatment arm continuity correction in all studies",
+                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
+                               sep = "")
+          else if (incr != 0)
+            sm.details <- paste(sm.details,
+                                "\n- Continuity correction of ", round(incr, 4),
+                                " in all studies",
+                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
+                                sep = "")
+        }
         ##
         if (doublezeros)
           sm.details <- paste(sm.details,

@@ -377,7 +377,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (i)  arcsine difference as summary measure
   ##  (ii) Peto method or GLMM
   ##
-  if ( sm == "ASD" | method %in% c("Peto", "GLMM")) {
+  if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
     if ((!missing(incr) & incr != 0) |
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr) |
@@ -388,9 +388,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           warning("Note, no continuity correction considered for arcsine difference (sm = \"ASD\").")
         }
       }
-      else if (method %in% c("Peto", "GLMM")) {
+      else if (method == "Peto") {
         if (sparse | addincr)
-          warning("Note, no continuity correction considered for method = \"", method, "\".")
+          warning("Note, no continuity correction considered for method = \"Peto\".")
+      }
+      else if (method == "GLMM") {
+        if (sparse | addincr)
+          warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
       }
   }
   ##

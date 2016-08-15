@@ -99,7 +99,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "RR.cochrane", "model.glmm", "print.CMH",
               "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
               "label.e", "label.c", "label.left", "label.right",
-              "test.overall", "test.subgroup",
+              "test.overall", "test.subgroup", "test.effect.subgroup",
               "digits", "digits.se", "digits.zval",
               "digits.Q", "digits.tau2", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
@@ -183,4 +183,5 @@ setOption("label.right", "")
 ##
 setOption("test.overall", FALSE)
 setOption("test.subgroup", FALSE)
+setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)

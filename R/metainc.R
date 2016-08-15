@@ -314,6 +314,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
+  if (method == "GLMM" & sparse)
+    if ((!missing(incr) & incr != 0) |
+        (!missing(allincr) & allincr ) |
+        (!missing(addincr) & addincr)
+        )
+      warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
+  ##
   if (addincr)
     incr.event <- rep(incr, k.all)
   else

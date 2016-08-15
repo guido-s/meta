@@ -284,6 +284,13 @@ metaprop <- function(event, n, studlab,
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
+  if (method == "GLMM" & sparse)
+    if ((!missing(incr) & incr != 0) |
+        (!missing(allincr) & allincr ) |
+        (!missing(addincr) & addincr)
+        )
+      warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
+  ##
   ## No need to add anything to cell counts for arcsine transformation
   ##
   if (addincr)

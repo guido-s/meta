@@ -73,6 +73,7 @@ forest(x, ...)
        hetlab="Heterogeneity: ",
        text.I2 = "I-squared",
        text.tau2 = "tau-squared",
+       ##
        test.overall=.settings$test.overall,
        test.overall.fixed=comb.fixed&overall&test.overall,
        test.overall.random=comb.random&overall&test.overall,
@@ -80,6 +81,7 @@ forest(x, ...)
          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
        label.test.overall.random=paste("Test for overall effect",
          if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
+       ##
        test.subgroup=.settings$test.subgroup,
        test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
        test.subgroup.random=if (missing(test.subgroup)) !is.null(x$byvar)&
@@ -88,18 +90,29 @@ forest(x, ...)
        label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
        label.test.subgroup.random=paste("Test for subgroup differences",
         if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
+       ##
+       test.effect.subgroup = .settings$test.effect.subgroup,
+       test.effect.subgroup.fixed = comb.fixed & test.effect.subgroup,
+       test.effect.subgroup.random = comb.random & test.effect.subgroup,
+       label.test.effect.subgroup.fixed = paste("Test for effect in subgroup",
+        if (comb.fixed & comb.random) " (fixed effect)", ": ", sep = ""),
+       label.test.effect.subgroup.random = paste("Test for effect in subgroup",
+        if (comb.fixed & comb.random) " (random effects)", ": ", sep = ""),
+       ##
        fontsize=12,
        fs.heading=fontsize,
        fs.fixed=fontsize, fs.random=fs.fixed, fs.predict=fs.fixed, fs.study=fontsize,
        fs.fixed.labels=fs.fixed, fs.random.labels=fs.random, fs.predict.labels=fs.predict,
        fs.study.labels=fs.study, fs.hetstat=fontsize-2,
-       fs.test.overall=fs.hetstat, fs.test.subgroup=fs.hetstat, fs.axis=fontsize,
+       fs.test.overall=fs.hetstat, fs.test.subgroup=fs.hetstat,
+       fs.test.effect.subgroup = fs.hetstat, fs.axis=fontsize,
        fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
        ff.heading="bold",
        ff.fixed="bold", ff.random=ff.fixed, ff.predict=ff.fixed, ff.study="plain",
        ff.fixed.labels=ff.fixed, ff.random.labels=ff.random, ff.predict.labels=ff.predict,
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
-       ff.test.overall=ff.hetstat, ff.test.subgroup=ff.hetstat, ff.axis="plain",
+       ff.test.overall=ff.hetstat, ff.test.subgroup=ff.hetstat,
+       ff.test.effect.subgroup = ff.hetstat, ff.axis="plain",
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
        #
        squaresize=0.8,
@@ -314,6 +327,20 @@ forest(x, ...)
   \item{print.Q.subgroup}{A logical value indicating whether to print
     the value of the heterogeneity statistic Q (test for subgroup
     differences).}
+  \item{test.effect.subgroup}{A logical value indicating whether to
+    print results of test for effect in subgroups.}
+  \item{test.effect.subgroup.fixed}{A logical value indicating whether
+    to print results of test for effect in subgroups (based on fixed
+    effect model).}
+  \item{test.effect.subgroup.random}{A logical value indicating
+    whether to print results of test for effect in subgroups (based on
+    random effects model).}
+  \item{label.test.effect.subgroup.fixed}{Label printed in front of
+    results of test for effect in subgroups (based on fixed effect
+    model).}
+  \item{label.test.effect.subgroup.random}{Label printed in front of
+    results of test for effect in subgroups (based on random effects
+    model).}
   \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
   \item{fs.heading}{The size of text for column headings, see \code{\link{gpar}}.}
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
@@ -327,6 +354,7 @@ forest(x, ...)
   \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{fs.test.overall}{The size of text of test for overall effect, see \code{\link{gpar}}.}
   \item{fs.test.subgroup}{The size of text of test of subgroup differences, see \code{\link{gpar}}.}
+  \item{fs.test.effect.subgroup}{The size of text of test of effect in subgroups, see \code{\link{gpar}}.}
   \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
   \item{fs.smlab}{The size of text of label for summary measure, see \code{\link{gpar}}.}
   \item{fs.xlab}{The size of text of label on x-axis, see \code{\link{gpar}}.}
@@ -343,6 +371,7 @@ forest(x, ...)
   \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{ff.test.overall}{The fontface of text of test for overall effect, see \code{\link{gpar}}.}
   \item{ff.test.subgroup}{The fontface of text for test of subgroup differences, see \code{\link{gpar}}.}
+  \item{ff.test.effect.subgroup}{The fontface of text for test of effect in subgroups, see \code{\link{gpar}}.}
   \item{ff.axis}{The fontface of text on x-axis, see \code{\link{gpar}}.}
   \item{ff.smlab}{The fontface of text of label for summary measure, see \code{\link{gpar}}.}
   \item{ff.xlab}{The fontface of text of label on x-axis, see \code{\link{gpar}}.}
@@ -433,7 +462,18 @@ forest(x, ...)
   \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed} is
   \code{FALSE}.
   
-  Result of a test for overall effect or subgroup differences are
+  Result of a test for an overall effect, effect in subgroups, or
+  subgroup differences are printed if argument
+  \code{test.overall.fixed}, \code{test.overall.random},
+  \code{test.effect.subgroup.fixed},
+  \code{test.effect.subgroup.random}, \code{test.subgroup.fixed}, or
+  \code{test.subgroup.random} is \code{TRUE}; by default, these
+  arguments are \code{FALSE}. R function \code{\link{settings.meta}}
+  can be used to change this default for the entire R session by
+  setting argument \code{test.overall=TRUE},
+  \code{test.effect.subgroup=TRUE} or \code{test.subgroup=TRUE}.
+  
+  Results of tests for treatment effect in subgroups are
   printed if argument \code{test.overall.fixed},
   \code{test.overall.random}, \code{test.subgroup.fixed}, or
   \code{test.subgroup.random} is \code{TRUE}; by default, these

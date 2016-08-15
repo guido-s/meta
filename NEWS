@@ -10,6 +10,7 @@
     - plot type for confidence intervals (square or diamond) can be
       specified for each study as well as fixed effect and random
       effects estimate
+    - printing of test for treatment effect in subgroups possible
 
   * New function weights.meta() to calculate absolute and percentage
     weights in meta-analysis
@@ -46,6 +47,11 @@
          confidence intervals)
       . col.inside.fixed, col.inside.random
         (colour to print confidence interval inside square)
+      . test.effect.subgroup, test.effect.subgroup.fixed,
+        test.effect.subgroup.random, label.test.effect.subgroup.fixed,
+        label.test.effect.subgroup.random, fs.test.effect.subgroup,
+        ff.test.effect.subgroup
+	(print results for test of treatment effect in subgroups)
     - bug fix: reference line and lines for fixed effect and random
       effects estimate were too short if test.overall is TRUE
     - bug fix: arguments lab.e.attach.to.col and lab.c.attach.to.col
@@ -68,6 +74,10 @@
     - line for null effect added by default (see arguments nulleffect,
       lwd.nulleffect, col.nulleffect)
 
+  * metabin(), metainc(), metaprop():
+    - print note for GLMM method that continuity correction is only
+      used to calculate individual study results
+    
   * Help pages updated:
     labbe.metabin(), labbe.default(), forest.meta(), metagen(),
     metaprop(), print.meta(), print.summary.meta(), summary.meta(),
@@ -87,6 +97,10 @@
 
   * catmeth(), xlab():
      - new argument pscale
+
+  * catmeth():
+     - for GLMM, print information that continuity correction is only
+       used to calculate individual study results
 
   * metacum(), metainf():
     - list object pscale added
