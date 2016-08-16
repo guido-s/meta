@@ -505,6 +505,12 @@ metaprop <- function(event, n, studlab,
     res$zval.random <- ci.r$z
     res$pval.random <- ci.r$p
     ##
+    res$se.tau2 <- NA
+    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    res$seTE.predict <- NA
+    res$lower.predict <- ci.p$cr.lb
+    res$upper.predict <- ci.p$cr.ub
+    ##
     res$Q <- glmm.random$QE.Wld
     res$df.Q <- glmm.random$QE.df
     res$Q.LRT <- glmm.random$QE.LRT

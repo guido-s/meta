@@ -75,6 +75,8 @@
       lwd.nulleffect, col.nulleffect)
 
   * metabin(), metainc(), metaprop():
+    - use predict.rma() from metafor package to calculate prediction
+      interval for GLMM method
     - print note for GLMM method that continuity correction is only
       used to calculate individual study results
     

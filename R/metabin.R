@@ -739,6 +739,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$zval.random <- ci.r$z
     res$pval.random <- ci.r$p
     ##
+    res$se.tau2 <- NA
+    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    res$seTE.predict <- NA
+    res$lower.predict <- ci.p$cr.lb
+    res$upper.predict <- ci.p$cr.ub
+    ##
     res$model.glmm <- model.glmm
     ##
     res$Q <- glmm.random$QE.Wld
