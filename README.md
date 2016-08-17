@@ -38,3 +38,10 @@ install.packages("devtools")
 library("devtools")
 install_github("guido-s/meta")
 ```
+
+## Bug Reports
+
+Please use the following R command for bug reports:
+```r
+bug.report(package = "meta")
+```
