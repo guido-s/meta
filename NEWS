@@ -1,4 +1,4 @@
-*** meta, version 4.5-0, 2016-mm-dd ***
+*** meta, version 4.5-0, 2016-08-17 ***
 
  ** Major changes **
 
@@ -29,9 +29,9 @@
 
   * forest.meta():
     - argument ref considered for metaprop objects
-    - new argument pooled.times to print total person time
     - argument leftcols = FALSE omits printing of columns on left side
       of forest plot
+    - new argument pooled.times to print total person time
     - new argument calcwidth.pooled to include or exclude text from
       pooled estimates to determine width of study labels
     - the following arguments have been renamed (old arguments can
@@ -81,16 +81,14 @@
       used to calculate individual study results
     
   * Help pages updated:
-    labbe.metabin(), labbe.default(), forest.meta(), metagen(),
-    metaprop(), print.meta(), print.summary.meta(), summary.meta(),
+    labbe.metabin(), labbe.default(), forest.meta(), metabin(),
+    metacont(), metacor(), metagen(), metainc(), metaprop(),
+    print.meta(), print.summary.meta(), summary.meta(),
     trimfill.meta(), trimfill.default(), update.meta()
 
  ** Internal changes **
 
   * New function bylabel() to print subgroup labels
-
-  * settings.meta()
-    - new argument: byseparator
 
   * update.meta():
      - do not consider columns 'n.e' and 'n.c' as sample sizes for
