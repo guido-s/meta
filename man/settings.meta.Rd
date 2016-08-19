@@ -35,7 +35,7 @@ settings.meta(...)
 settings.meta(print=TRUE)
 
 #
-# Meta-analyses using default settings of R pacakge meta
+# Meta-analyses using default settings of R package meta
 #
 metabin(10, 20, 15, 20)
 metaprop(4, 20)
@@ -65,6 +65,7 @@ metagen(1:3, (2:4)/10, sm="MD")
 #
 settings.meta(prediction=TRUE)
 metagen(1:3, (2:4)/10, sm="MD")
+metagen(4:6, (4:2)/10, sm="MD")
 
 #
 # Try to set unknown argument

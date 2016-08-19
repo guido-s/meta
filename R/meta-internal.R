@@ -9,7 +9,11 @@
 .onAttach <- function (libname, pkgname) {
   msg <- paste("Loading 'meta' package (version ",
                utils::packageDescription("meta")$Version,
-               ").", sep = "")
+               ").",
+               "\nType 'citation(\"meta\")' on how to cite 'meta' in publications.",
+               "\nType 'bug.report(package = \"meta\")' to report problems and bugs.",
+               "\nType 'help(settings.meta) to learn how to specify default meta-analysis methods.",
+               sep = "")
   packageStartupMessage(msg)
 }
 
