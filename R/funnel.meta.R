@@ -18,7 +18,7 @@ funnel.meta <- function(x,
                         ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
                         level = x$level,
-                        studlab = FALSE, cex.studlab = 0.8,
+                        studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                         ##
                         backtransf = x$backtransf,
                         ...) {
@@ -62,6 +62,7 @@ funnel.meta <- function(x,
   if (!is.null(level))
     chklevel(level)
   chknumeric(cex.studlab)
+  pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   chklogical(backtransf)
   
   
@@ -335,7 +336,7 @@ funnel.meta <- function(x,
   ## Add study labels
   ##
   if (!is.logical(studlab) && length(studlab) > 0)
-    text(TE, weight, labels = studlab, pos = 2, cex = cex.studlab)  
+    text(TE, weight, labels = studlab, pos = pos.studlab, cex = cex.studlab)  
   
   
   ##

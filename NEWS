@@ -1,3 +1,13 @@
+*** meta, version 4.5-1, 2016-mm-dd ***
+
+ ** User-visible changes **
+
+  * funnel.meta(), funnel.default():
+    - new argument pos.studlab to change position of study labels
+    
+  * help page with brief overview of meta package added
+
+
 *** meta, version 4.5-0, 2016-08-17 ***
 
  ** Major changes **

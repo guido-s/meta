@@ -36,7 +36,8 @@ radial(x, ...)
        contour.levels=NULL, col.contour,
        ref=ifelse(backtransf & is.relative.effect(sm), 1, 0),
        level=NULL,
-       studlab=FALSE, cex.studlab=0.8, backtransf=TRUE, ...)
+       studlab=FALSE, cex.studlab=0.8, pos.studlab = 2,
+       backtransf=TRUE, ...)
 
 \method{funnel}{meta}(x,
        xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
@@ -52,7 +53,8 @@ radial(x, ...)
        contour.levels=NULL, col.contour,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        level=x$level,
-       studlab=FALSE, cex.studlab=0.8, backtransf=x$backtransf, ...)
+       studlab=FALSE, cex.studlab=0.8, pos.studlab = 2,
+       backtransf=x$backtransf, ...)
 
 \method{radial}{default}(x, y, xlim=NULL, ylim=NULL,
        xlab="Inverse of standard error",
@@ -119,7 +121,10 @@ radial(x, ...)
   \item{studlab}{A logical indicating whether study labels should be
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$TE} then).}
-  \item{cex.studlab}{Size of study labels.}
+  \item{cex.studlab}{Size of study labels, see argument \code{cex} in
+    \code{\link{text}}.}
+  \item{pos.studlab}{Position of study labels, see argument \code{pos}
+    in \code{\link{text}}.}
   \item{backtransf}{A logical indicating whether results for relative
     summary measures (argument \code{sm} equal to \code{"OR"},
     \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back

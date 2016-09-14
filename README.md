@@ -44,3 +44,6 @@ install_github("guido-s/meta")
 ```r
 bug.report(package = "meta")
 ```
+
+The bug.report function is not supported in RStudio. Please send an
+email to Guido Schwarzer <sc@imbi.uni-freiburg.de> if you use RStudio.

@@ -18,7 +18,7 @@ funnel.default <- function(x, y,
                            ref = ifelse(backtransf & is.relative.effect(sm), 1, 0),
                            ##
                            level = NULL,
-                           studlab = FALSE, cex.studlab = 0.8,
+                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                            ##
                            backtransf = TRUE,
                            ...) {
@@ -72,7 +72,7 @@ funnel.default <- function(x, y,
                 ref = ref,
                 ##
                 level = level,
-                studlab = studlab, cex.studlab = cex.studlab,
+                studlab = studlab, cex.studlab = cex.studlab, pos.studlab = pos.studlab,
                 ##
                 backtransf = backtransf,
                 ...)

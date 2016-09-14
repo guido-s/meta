@@ -10,11 +10,7 @@
   msg <- paste("Loading 'meta' package (version ",
                utils::packageDescription("meta")$Version,
                ").",
-               "\nType 'help(settings.meta) to learn how to specify default meta-analysis methods.",
-               "\nType 'citation(\"meta\")' on how to cite 'meta' in publications.",
-               "\nTo report problems and bugs",
-               "\n- type 'bug.report(package = \"meta\")' if you do not use RStudio,",
-               "\n- send an email to sc@imbi.uni-freiburg.de if you use RStudio.",
+               "\nType 'help(\"meta-package\")' for a brief overview.",
                sep = "")
   packageStartupMessage(msg)
 }
