@@ -4,7 +4,7 @@ export(ci, settings.meta, forest, forest.meta,
        bubble, bubble.metareg,
        as.data.frame.meta,
        metabias, metabias.default, metabias.meta,
-       metabin, metacont, metacor, metacr, metaprop,
+       metabin, metacont, metacor, metacr, metaprop, metarate,
        metareg, metainc,
        metacum, metagen, metainf, radial, radial.default, radial.meta,
        print.meta, print.metabias,
@@ -22,7 +22,7 @@ export(ci, settings.meta, forest, forest.meta,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
-# hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel
+# hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)

@@ -24,7 +24,7 @@
        TE.tau=object$TE.tau, tau.common=object$tau.common,
        prediction=object$prediction, level.predict=object$level.predict,
        method.bias=object$method.bias, backtransf = object$backtransf,
-       pscale = object$pscale,
+       pscale = object$pscale, irscale = object$irscale, irunit = object$irunit,
        title=object$title, complab=object$complab, outclab=object$outclab,
        label.e=object$label.e, label.c=object$label.c,
        label.left=object$label.left, label.right=object$label.right,
@@ -111,6 +111,11 @@
     event probabilities, i.e. if argument \code{sm} is equal to
     \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
     \code{"PFT"}.}
+  \item{irscale}{A numeric defining a scaling factor for printing of
+    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
+    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+  \item{irunit}{A character specifying the time unit used to calculate
+    rates, e.g. person-years.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

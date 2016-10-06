@@ -38,7 +38,7 @@ forest(x, ...)
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
        weight,
-       pscale=x$pscale,
+       pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        layout="meta",
        leftcols=NULL, rightcols=NULL,
@@ -210,6 +210,11 @@ forest(x, ...)
     event probabilities, i.e. if argument \code{sm} is equal to
     \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
     \code{"PFT"}.}
+  \item{irscale}{A numeric defining a scaling factor for printing of
+    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
+    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+  \item{irunit}{A character specifying the time unit used to calculate
+    rates, e.g. person-years.}
   \item{ref}{A numerical giving the reference value to be plotted as a
     line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}

@@ -107,6 +107,13 @@ metareg <- function(x, formula,
                                tdist = hakn, level = 100 * level.comb,
                                measure = "PLO",
                                ...)
+    else if (inherits(x, "metarate"))
+      res <- metafor::rma.glmm(xi = x$event, ti = x$time,
+                               data = dataset,
+                               mods = formula, method = method.tau,
+                               tdist = hakn, level = 100 * level.comb,
+                               measure = "IRLN",
+                               ...)
   
   
   res$.meta <- list(x = x,

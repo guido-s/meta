@@ -13,18 +13,28 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
 \details{
   R package \bold{meta} provides the following meta-analysis methods:
   \itemize{
-  \item fixed effect and random effects meta-analysis;
-  \item several plots (forest, funnel, Galbraith / radial, L'Abbe,
-    Baujat, bubble);
-  \item statistical tests and trim-and-fill method to evaluate bias in
-    meta-analysis;
-  \item import data from 'RevMan 5';
+  \item fixed effect and random effects meta-analysis (functions
+    \code{\link{metabin}}, \code{\link{metacont}},
+    \code{\link{metacor}}, \code{\link{metagen}},
+    \code{\link{metainc}}, \code{\link{metaprop}}, and
+    \code{\link{metarate}});
+  \item several plots (\code{\link{forest}}, \code{\link{funnel}},
+    Galbraith / \code{\link{radial}}, \code{\link{labbe}},
+    \code{\link{baujat}}, \code{\link{bubble}});
+  \item statistical tests (\code{\link{metabias}}) and trim-and-fill
+    method (\code{\link{trimfill}}) to evaluate bias in meta-analysis;
+  \item import data from 'RevMan 5' (\code{\link{read.rm5}}; see also
+    \code{\link{metacr}});
   \item prediction interval, Hartung-Knapp and Paule-Mandel method for
-    random effects model;
-  \item cumulative meta-analysis and leave-one-out meta-analysis;
-  \item meta-regression (if R package \bold{metafor} is installed);
-  \item generalised linear mixed models (if R packages \bold{metafor},
-    \bold{lme4}, \bold{numDeriv}, and \bold{BiasedUrn} are installed).
+    random effects model (arguments in meta-analysis functions);
+  \item cumulative meta-analysis (\code{\link{metacum}}) and
+    leave-one-out meta-analysis (\code{\link{metainf}});
+  \item meta-regression (\code{\link{metareg}}; if R package
+    \bold{metafor} is installed);
+  \item generalised linear mixed models (\code{\link{metabin}},
+    \code{\link{metainc}}, \code{\link{metaprop}}, and
+    \code{\link{metarate}}; if R packages \bold{metafor}, \bold{lme4},
+    \bold{numDeriv}, and \bold{BiasedUrn} are installed).
   }
 
   See \code{\link{settings.meta}} to learn how to print and specify

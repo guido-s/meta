@@ -71,6 +71,7 @@ metacum <- function(x, pooled, sortvar) {
   ##
   time.e <- x$time.e[o]
   time.c <- x$time.c[o]
+  time   <- x$time[o]
   ##
   cor <- x$cor[o]
   ##
@@ -91,7 +92,7 @@ metacum <- function(x, pooled, sortvar) {
   ## (4) Do sensitivity analysis
   ##
   ##
-  res.i <- matrix(NA, ncol = 10, nrow = k.all)
+  res.i <- matrix(NA, ncol = 11, nrow = k.all)
   ##
   for (i in 1:k.all) {
     sel <- 1:i
@@ -187,24 +188,52 @@ metacum <- function(x, pooled, sortvar) {
                     keepdata = FALSE,
                     warn = FALSE)
     ##
+    if (inherits(x, "metarate"))
+      m <- metaprop(event[sel], time[sel],
+                    ##
+                    sm = x$sm,
+                    incr = x$incr, allincr = x$allincr, addincr = x$addincr,
+                    ##
+                    level.comb = x$level.comb,
+                    ##
+                    hakn = x$hakn,
+                    method.tau = x$method.tau,
+                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    keepdata = FALSE,
+                    warn = FALSE)
+    ##
     sel.pft <- inherits(x, "metaprop") & x$sm == "PFT"
+    sel.irft <- inherits(x, "metarate") & x$sm == "IRFT"
     ##
     if (pooled == "fixed") {
-      res.i[i,] <- c(m$TE.fixed, m$seTE.fixed,
-                     m$lower.fixed, m$upper.fixed,
-                     m$pval.fixed, m$I2,
-                     m$tau, sum(m$w.fixed, na.rm = TRUE),
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,
-                     NA)
+      res.i[i,] <- c(m$TE.fixed,                                   #  1
+                     m$seTE.fixed,                                 #  2
+                     m$lower.fixed,                                #  3
+                     m$upper.fixed,                                #  4
+                     m$pval.fixed,                                 #  5
+                     m$I2,                                         #  6
+                     m$tau,                                        #  7
+                     sum(m$w.fixed, na.rm = TRUE),                 #  8
+                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,    #  9
+                     NA,                                           # 10
+                     if (sel.irft) 1 / mean(1 / time[sel]) else NA # 11
+                     )
     }
     ##
     else if (pooled == "random") {
-      res.i[i,] <- c(m$TE.random, m$seTE.random,
-                     m$lower.random, m$upper.random,
-                     m$pval.random, m$I2,
-                     m$tau, sum(m$w.random, na.rm = TRUE),
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,
-                     if (x$hakn) m$df.hakn else NA)
+      res.i[i,] <- c(m$TE.random,                                  #  1
+                     m$seTE.random,                                #  2
+                     m$lower.random,                               #  3
+                     m$upper.random,                               #  4
+                     m$pval.random,                                #  5
+                     m$I2,                                         #  6
+                     m$tau,                                        #  7
+                     sum(m$w.random, na.rm = TRUE),                #  8
+                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,    #  9
+                     if (x$hakn) m$df.hakn else NA,                # 10
+                     if (sel.irft) 1 / mean(1 / time[sel]) else NA # 11
+                     )
     }
   }
   ##
@@ -219,6 +248,7 @@ metacum <- function(x, pooled, sortvar) {
   n.harmonic.mean.i <- res.i[, 9]
   if (pooled == "random" & x$hakn)
     df.hakn.i <- res.i[, 10]
+  t.harmonic.mean.i <- res.i[, 11]
   ##  
   if (pooled == "fixed") {
     TE.s <- x$TE.fixed
@@ -267,10 +297,12 @@ metacum <- function(x, pooled, sortvar) {
               tau.preset = x$tau.preset,
               TE.tau = x$TE.tau,
               n.harmonic.mean = c(n.harmonic.mean.i, NA, 1 / mean(1 / n)),
+              t.harmonic.mean = c(t.harmonic.mean.i, NA, 1 / mean(1 / time)),
               prediction = FALSE,
               ##
               backtransf = x$backtransf,
               pscale = x$pscale,
+              irscale = x$irscale, irunit = x$irunit,
               title = x$title, complab = x$complab,
               outclab = x$outclab,
               ##

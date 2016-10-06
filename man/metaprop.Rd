@@ -6,7 +6,7 @@
 
 \description{
   Calculation of an overall proportion from studies reporting a single
-  proportion. Inverse variance method, and generalised linear mixed
+  proportion. Inverse variance method and generalised linear mixed
   model (GLMM) are available for pooling. For GLMMs, the
   \code{\link[metafor]{rma.glmm}} function from R package
   \bold{metafor} (Viechtbauer 2010) is called internally.
@@ -118,12 +118,8 @@ metaprop(event, n, studlab,
 
 \details{
   Fixed effect and random effects meta-analysis of single proportions
-  to calculate an overall proportion. By default, the
-  DerSimonian-Laird estimate (1986) is used in the random effects
-  model (\code{method.tau="DL"}).
-  
-  The following transformations of proportions are implemented to
-  calculate an overall proportion:
+  to calculate an overall proportion. The following transformations of
+  proportions are implemented to calculate an overall proportion:
   \itemize{
   \item Logit transformation (\code{sm="PLOGIT"}, default)
   \item Log transformation (\code{sm="PLN"})
@@ -131,6 +127,11 @@ metaprop(event, n, studlab,
   \item Arcsine transformation (\code{sm="PAS"})
   \item Raw, i.e. untransformed, proportions (\code{sm="PRAW"})
   }
+     
+  Note, you should use R function \code{\link{metabin}} to compare
+  proportions of pairwise comparisons instead of using \code{metaprop}
+  for each treatment arm separately which will break randomisation in
+  randomised controlled trials.
   
   Various methods are available to calculate confidence intervals for
   individual study results (see Agresti & Coull 1998; Newcombe 1988):
@@ -219,8 +220,9 @@ metaprop(event, n, studlab,
   used to adjust test statistics and confidence intervals if argument
   \code{hakn=TRUE}.
   
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
@@ -283,7 +285,6 @@ metaprop(event, n, studlab,
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
     tau-squared across subgroups.}
-  \item{sm}{A character string: \code{"proportion"}}
   \item{method}{A character string indicating method used
     for pooling: \code{"Inverse"}}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for

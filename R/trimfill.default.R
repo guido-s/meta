@@ -7,6 +7,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                              method.tau = "DL",
                              prediction = FALSE, level.predict = level,
                              backtransf = TRUE, pscale = 1,
+                             irscale = 1, irunit = "person-years",
                              silent = TRUE, ...) {
   
   
@@ -39,6 +40,13 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  if (!(sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+    irscale <- 1
+  chknumeric(irscale, single = TRUE)
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   ##
   chklogical(silent)
@@ -214,6 +222,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   
   res$backtransf <- backtransf
   res$pscale <- pscale
+  res$irscale <- irscale
+  res$irunit <- irunit
   
   res$version <- packageDescription("meta")$Version
   

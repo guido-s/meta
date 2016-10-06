@@ -66,6 +66,19 @@ metabias(x, ...)
   additive between-study variance component (method 3a in Thompson,
   Sharp, 1999). The test statistic follows a t distribution with
   \code{number of studies - 2} degrees of freedom.
+  
+  If argument \code{method.bias} is \code{"peters"}, the test
+  statistic is based on a weighted linear regression of the treatment
+  effect on the inverse of the total sample size using the variance of
+  the average event rate as weights (Peters et al., 2006). The test
+  statistic follows a t distribution with \code{number of studies - 2}
+  degrees of freedom. This test is available for meta-analyses
+  comparing two binary outcomes or combining single proportions, i.e.
+  generated with functions \code{metabin} and \code{metaprop}.
+
+  The following tests for funnel plot asymmetry are only available for
+  meta-analyses comparing two binary outcomes, i.e. meta-analyses
+  generated with the \code{metabin} function.
 
   If argument \code{method.bias} is \code{"count"}, the test statistic
   is based on the rank correlation between a standardised cell
@@ -80,13 +93,6 @@ metabias(x, ...)
   and score variance (Harbord et al., 2006). The test statistic
   follows a t distribution with \code{number of studies - 2} degrees
   of freedom.
-  
-  If argument \code{method.bias} is \code{"peters"}, the test
-  statistic is based on a weighted linear regression of the treatment
-  effect on the inverse of the total sample size using the variance of
-  the average event rate as weights (Peters et al., 2006). The test
-  statistic follows a t distribution with \code{number of studies - 2}
-  degrees of freedom.
 
   In order to calculate an arcsine test for funnel plot asymmetry
   (Rücker et al., 2008), one has to use the \code{metabin} function

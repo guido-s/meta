@@ -25,7 +25,7 @@ subgroup <- function(x, tau.preset = NULL) {
     else sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 26, nrow = length(bylevs))
+  res.w <- matrix(NA, ncol = 27, nrow = length(bylevs))
     j <- 0
   ##
   for (i in bylevs) {
@@ -116,6 +116,19 @@ subgroup <- function(x, tau.preset = NULL) {
                        TE.tau = x$TE.tau,
                        warn = x$warn)
     ##
+    if (inherits(x, "metarate"))
+      meta1 <- metaprop(x$event[sel], x$time[sel],
+                        sm = x$sm,
+                        studlab = x$studlab[sel],
+                        level = x$level, level.comb = x$level.comb,
+                        incr = x$incr,
+                        allincr = x$allincr,
+                        addincr = x$addincr,
+                        hakn = x$hakn,
+                        method.tau = x$method.tau,
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        warn = x$warn)
+    ##
     ##
     res.w[j,] <- c(meta1$TE.fixed,                            #  1
                    meta1$seTE.fixed,                          #  2
@@ -142,7 +155,8 @@ subgroup <- function(x, tau.preset = NULL) {
                    if (prop) sumNA(meta1$event) else NA,      # 23
                    if (cor.prop) sumNA(meta1$n) else NA,      # 24
                    if (inc) sumNA(meta1$time.e) else NA,      # 25
-                   if (inc) sumNA(meta1$time.c) else NA       # 26
+                   if (inc) sumNA(meta1$time.c) else NA,      # 26
+                   mean(1 / x$time[sel])                      # 27
                    )
   }
   ##
@@ -180,6 +194,7 @@ subgroup <- function(x, tau.preset = NULL) {
   ##
   time.e.w <- res.w[, 25]
   time.c.w <- res.w[, 26]
+  t.harmonic.mean.w <- res.w[, 27]
   ##
   ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
   ##
@@ -211,6 +226,7 @@ subgroup <- function(x, tau.preset = NULL) {
               w.random.w = w.random.w,
               ##
               n.harmonic.mean.w = n.harmonic.mean.w,
+              t.harmonic.mean.w = t.harmonic.mean.w,
               ##
               event.e.w = event.e.w,
               time.e.w = time.e.w,

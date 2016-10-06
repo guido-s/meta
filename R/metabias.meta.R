@@ -37,6 +37,11 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       seTE <- m$seTE
     }
   }
+  ##
+  if (inherits(x, "metaprop")) {
+    event <- x$event
+    n     <- x$n
+  }
   
   if(length(TE) != length(seTE))
     stop("length of argument TE and seTE must be equal")
@@ -169,8 +174,15 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           lreg <- linregcore(1 / (n.e + n.c), TE, 1 / seTE.peters^2)
           se.bias <- lreg$se.slope
         }
+        else if (inherits(x, "metaprop")) {
+          seTE.peters <- sqrt(1 / event + 1 / (n - event))
+          ##
+          lreg <- linregcore(1 / n, TE, 1 / seTE.peters^2)
+          se.bias <- lreg$se.slope
+        }
         else {
-          stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
+          stop(paste("method.bias '", method.bias,
+                     "' only defined for meta-analysis conducted with metabin() or metaprop()", sep = ""))
         }
       }
       ##

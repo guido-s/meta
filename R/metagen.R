@@ -22,6 +22,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     backtransf = .settings$backtransf,
                     pscale = 1,
+                    irscale = 1, irunit = "person-years",
                     title = .settings$title, complab = .settings$complab,
                     outclab = "",
                     label.e = .settings$label.e, label.c = .settings$label.c,
@@ -64,6 +65,13 @@ metagen <- function(TE, seTE, studlab,
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  if (!(sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+    irscale <- 1
+  chknumeric(irscale, single = TRUE)
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   ##
   chklogical(keepdata)
@@ -466,6 +474,7 @@ metagen <- function(TE, seTE, studlab,
               call = match.call(),
               backtransf = backtransf,
               pscale = pscale,
+              irscale = irscale, irunit = irunit,
               version = packageDescription("meta")$Version)
   ##
   class(res) <- c(fun, "meta")

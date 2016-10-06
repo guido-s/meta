@@ -16,8 +16,8 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
     maximum <- asin(sqrt(1))
   }
   else {
-    minimum <- asin(sqrt(0 / (n + 1))) + asin(sqrt((0 + 1) / (n + 1)))
-    maximum <- asin(sqrt(n / (n + 1))) + asin(sqrt((n + 1) / (n + 1)))
+    minimum <- 0.5 * (asin(sqrt(0 / (n + 1))) + asin(sqrt((0 + 1) / (n + 1))))
+    maximum <- 0.5 * (asin(sqrt(n / (n + 1))) + asin(sqrt((n + 1) / (n + 1))))
   }
   ##
   sel0 <- x < minimum
@@ -91,9 +91,9 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
     ##
     ## Back transformation of Freeman-Tukey double arcsine transformation:
     ##
-    res[sel] <- 0.5 * (1 - sign(cos(x[sel])) *
-                         sqrt(1 - (sin(x[sel]) +
-                                     (sin(x[sel]) - 1 / sin(x[sel])) / n[sel])^2)) 
+    res[sel] <- 0.5 * (1 - sign(cos(2 * x[sel])) *
+                       sqrt(1 - (sin(2 * x[sel]) +
+                                 (sin(2 * x[sel]) - 1 / sin(2 * x[sel])) / n[sel])^2)) 
   }
   res
 }

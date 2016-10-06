@@ -95,7 +95,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "method.bias", "title", "complab",
               "print.byvar", "byseparator", "keepdata", "warn",
               "backtransf",
-              "smbin", "smcont", "smcor", "sminc", "smprop",
+              "smbin", "smcont", "smcor", "sminc", "smprop", "smrate",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
               "RR.cochrane", "model.glmm", "print.CMH",
@@ -147,6 +147,7 @@ setOption("smcont", "MD")
 setOption("smcor", "ZCOR")
 setOption("sminc", "IRR")
 setOption("smprop", "PLOGIT")
+setOption("smrate", "IRLN")
 ##
 ## Settings for R functions metabin, metainc, metaprop
 ##

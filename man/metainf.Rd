@@ -1,8 +1,8 @@
 \name{metainf}
 \alias{metainf}
-\title{Influence analysis in meta-analysis}
+\title{Influence analysis in meta-analysis using leave-one-out method}
 \description{
-  Performs a influence analysis. Pooled estimates are calculated
+  Performs an influence analysis. Pooled estimates are calculated
   omitting one study at a time.
 }
 \usage{

@@ -4,6 +4,8 @@ summary.meta <- function(object,
                          prediction = object$prediction,
                          backtransf = object$backtransf,
                          pscale = object$pscale,
+                         irscale = object$irscale,
+                         irunit = object$irunit,
                          bylab = object$bylab,
                          print.byvar = object$print.byvar,
                          byseparator = object$byseparator,
@@ -33,6 +35,9 @@ summary.meta <- function(object,
   if (length(warn) == 0)
     warn <- .settings$warn
   object <- updateversion(object)
+  ##
+  metaprop <- inherits(object, "metaprop")
+  metarate <- inherits(object, "metarate")
   
   
   ##
@@ -45,10 +50,16 @@ summary.meta <- function(object,
   chklogical(prediction)
   chklogical(backtransf)
   chknumeric(pscale, single = TRUE)
+  chknumeric(irscale, single = TRUE)
   ##
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  ##
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   ##
   if (!is.null(print.byvar))
@@ -85,7 +96,7 @@ summary.meta <- function(object,
                    level = object$level,
                    df = NA)
   ##
-  if (inherits(object, "metaprop")) {
+  if (metaprop) {
     ci.study$event <- object$event
     ci.study$n <- object$n
   }
@@ -103,8 +114,10 @@ summary.meta <- function(object,
                z = object$zval.fixed,
                p = object$pval.fixed,
                level = object$level.comb)
-  if (inherits(object, "metaprop"))
+  if (metaprop)
     ci.f$harmonic.mean <- mean(1 / object$n)
+  else if (metarate)
+    ci.f$harmonic.mean <- mean(1 / object$time)
   ##
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
@@ -114,8 +127,10 @@ summary.meta <- function(object,
                p = object$pval.random,
                level = object$level.comb,
                df = if (!is.null(object$df.hakn)) object$df.hakn else NA)
-  if (inherits(object, "metaprop"))
+  if (metaprop)
     ci.r$harmonic.mean <- mean(1 / object$n)
+  else if (metarate)
+    ci.r$harmonic.mean <- mean(1 / object$time)
   ##
   ci.H <- list(TE = object$H, lower = object$lower.H, upper = object$upper.H)
   ##
@@ -174,6 +189,9 @@ summary.meta <- function(object,
                        level = object$level.comb,
                        harmonic.mean = object$n.harmonic.mean.w)
     ##
+    if (metarate)
+      ci.fixed.w$harmonic.mean <- object$t.harmonic.mean.w
+    ##
     ci.random.w <- list(TE = object$TE.random.w,
                         seTE = object$seTE.random.w,
                         lower = object$lower.random.w,
@@ -183,6 +201,9 @@ summary.meta <- function(object,
                         level = object$level.comb,
                         df = object$df.hakn.w,
                         harmonic.mean = object$n.harmonic.mean.w)
+    ##
+    if (metarate)
+      ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ##
     ci.H <- list(TE = object$H.w, lower = object$lower.H.w, upper = object$upper.H.w)
     ci.I2 <- list(TE = object$I2.w, lower = object$lower.I2.w, upper = object$upper.I2.w)
@@ -253,7 +274,7 @@ summary.meta <- function(object,
     res$.glmm.random <- object$.glmm.random
   }
   ##
-  if (inherits(object, "metaprop")) {
+  if (metaprop) {
     res$event     <- object$event
     res$n         <- object$n
     res$sparse    <- object$sparse
@@ -267,6 +288,21 @@ summary.meta <- function(object,
     res$.glmm.random <- object$.glmm.random
     ##
     class(res) <- c(class(res), "metaprop")
+  }
+  ##
+  if (metarate) {
+    res$event     <- object$event
+    res$time      <- object$time
+    res$sparse    <- object$sparse
+    res$incr      <- object$incr
+    res$allincr   <- object$allincr
+    res$addincr   <- object$addincr
+    ##
+    res$model.glmm   <- object$model.glmm
+    res$.glmm.fixed  <- object$.glmm.fixed
+    res$.glmm.random <- object$.glmm.random
+    ##
+    class(res) <- c(class(res), "metarate")
   }
   ##
   if (inherits(object, "trimfill")) {
@@ -289,6 +325,8 @@ summary.meta <- function(object,
   ##
   res$backtransf <- backtransf
   res$pscale <- pscale
+  res$ircale <- irscale
+  res$irunit  <- irunit
   ##
   res$version <- object$version
   if (is.null(res$version))

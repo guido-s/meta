@@ -26,6 +26,8 @@ update.meta <- function(object,
                         ##
                         backtransf = object$backtransf,
                         pscale = object$pscale,
+                        irscale = object$irscale,
+                        irunit = object$irunit,
                         title = object$title,
                         complab = object$complab,
                         outclab = object$outclab,
@@ -65,10 +67,11 @@ update.meta <- function(object,
   ##
   metabin  <- inherits(object, "metabin")
   metacont <- inherits(object, "metacont")
-  metagen  <- inherits(object, "metagen")
-  metaprop <- inherits(object, "metaprop")
   metacor  <- inherits(object, "metacor")
+  metagen  <- inherits(object, "metagen")
   metainc  <- inherits(object, "metainc")
+  metaprop <- inherits(object, "metaprop")
+  metarate <- inherits(object, "metarate")
   
   
   ##
@@ -113,7 +116,9 @@ update.meta <- function(object,
   level.predict <- replacemiss(level.predict)
   prediction <- replacemiss(prediction)
   ##
-  pscale <- replacemiss(pscale, 1)
+  pscale  <- replacemiss(pscale, 1)
+  irscale <- replacemiss(irscale, 1)
+  irunit   <- replacemiss(irunit, 1)
   ##
   title <- replacemiss(title)
   complab <- replacemiss(complab)
@@ -129,6 +134,10 @@ update.meta <- function(object,
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   
   
@@ -229,6 +238,10 @@ update.meta <- function(object,
       object$data$.mean.c <- object$mean.c
       object$data$.sd.c <- object$sd.c
     }
+    if (metacor) {
+      object$data$.cor <- object$cor
+      object$data$.n <- object$n
+    }
     if (metagen) {
       object$data$.TE <- object$TE
       object$data$.seTE <- object$seTE
@@ -237,9 +250,9 @@ update.meta <- function(object,
       object$data$.event <- object$event
       object$data$.n <- object$n
     }
-    if (metacor) {
-      object$data$.cor <- object$cor
-      object$data$.n <- object$n
+    if (metarate) {
+      object$data$.event <- object$event
+      object$data$.time <- object$time
     }
   }
   ##  
@@ -289,10 +302,12 @@ update.meta <- function(object,
   if (method == "GLMM")
     if (metabin & !missing(sm) & sm != "OR")
       warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
-    else if (metaprop & !missing(sm) & sm != "IRR")
+    else if (metainc & !missing(sm) & sm != "IRR")
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
     else if (metaprop & !missing(sm) & sm != "PLOGIT")
       warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
+    else if (metarate & !missing(sm) & sm != "IRLN")
+      warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")
   
   
   ##
@@ -530,6 +545,36 @@ update.meta <- function(object,
                   method.bias = method.bias,
                   ##
                   backtransf = backtransf, pscale = pscale,
+                  title = title, complab = complab, outclab = outclab,
+                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
+                  byseparator = byseparator,
+                  ##
+                  keepdata = keepdata,
+                  warn = warn,
+                  ...)
+  ##
+  if (metarate)
+    m <- metarate(event = object$data$.event,
+                  time = object$data$.time,
+                  studlab = studlab,
+                  ##
+                  data = data, subset = subset, method = method,
+                  ##
+                  sm = ifelse(method == "GLMM", "IRLN", sm),
+                  incr = incr, allincr = allincr, addincr = addincr,
+                  method.ci = ifelse(is.null(method.ci), "CP", method.ci),
+                  ##
+                  level = level, level.comb = level.comb,
+                  comb.fixed = comb.fixed, comb.random = comb.random,
+                  ##
+                  hakn = hakn, method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                  tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
+                  ##
+                  prediction = prediction, level.predict = level.predict,
+                  ##
+                  method.bias = method.bias,
+                  ##
+                  backtransf = backtransf, irscale = irscale, irunit = irunit,
                   title = title, complab = complab, outclab = outclab,
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   byseparator = byseparator,

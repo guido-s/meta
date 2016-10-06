@@ -1,12 +1,11 @@
-metaprop <- function(event, n, studlab,
+metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, method = "Inverse",
                      ##
-                     sm = .settings$smprop,
+                     sm = .settings$smrate,
                      ##
                      incr = .settings$incr, allincr = .settings$allincr,
                      addincr = .settings$addincr,
-                     method.ci = .settings$method.ci,
                      ##
                      level = .settings$level, level.comb = .settings$level.comb,
                      comb.fixed = .settings$comb.fixed,
@@ -26,7 +25,7 @@ metaprop <- function(event, n, studlab,
                      method.bias = .settings$method.bias,
                      ##
                      backtransf = .settings$backtransf,
-                     pscale = 1,
+                     irscale = 1, irunit = "person-years",
                      title = .settings$title, complab = .settings$complab,
                      outclab = "",
                      ##
@@ -61,17 +60,17 @@ metaprop <- function(event, n, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
-  chknumeric(pscale, single = TRUE)
-  if (!backtransf & pscale != 1) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
-    pscale <- 1
+  chknumeric(irscale, single = TRUE)
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   ##
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metainc objects
   ##
-  fun <- "metaprop"
+  fun <- "metarate"
   ##
   method <- setchar(method, c("Inverse", "GLMM"))
   if (method == "GLMM") {
@@ -80,16 +79,14 @@ metaprop <- function(event, n, studlab,
     is.installed.package("metafor", fun, "method", " = \"GLMM\"")
   }
   ##
-  sm <- setchar(sm, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+  sm <- setchar(sm, c("IR", "IRLN", "IRS", "IRFT"))
   chklogical(allincr)
   chklogical(addincr)
-  method.ci <- setchar(method.ci,
-                       c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
   chklogical(warn)
   chkmetafor(method.tau, fun)
   ##
-  if (method == "GLMM" & sm != "PLOGIT")
-    stop("Generalised linear mixed models only possible with argument 'sm = \"PLOGIT\"'.")
+  if (method == "GLMM" & sm != "IRLN")
+    stop("Generalised linear mixed models only possible with argument 'sm = \"IRLN\"'.")
   ##
   if (method == "GLMM" & method.tau != "ML")
     stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
@@ -114,9 +111,9 @@ metaprop <- function(event, n, studlab,
   chknull(event)
   k.All <- length(event)
   ##
-  n <- eval(mf[[match("n", names(mf))]],
-            data, enclos = sys.frame(sys.parent()))
-  chknull(n)
+  time <- eval(mf[[match("time", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
+  chknull(time)
   ##
   ## Catch studlab, byvar, subset from data:
   ##
@@ -143,7 +140,7 @@ metaprop <- function(event, n, studlab,
   ## (3) Check length of essential variables
   ##
   ##
-  chklength(n, k.All, fun)
+  chklength(time, k.All, fun)
   chklength(studlab, k.All, fun)
   ##
   if (!missing.byvar)
@@ -208,7 +205,7 @@ metaprop <- function(event, n, studlab,
     else
       data$.event <- event
     ##
-    data$.n <- n
+    data$.time <- time
     data$.studlab <- studlab
     ##
     if (!missing.byvar)
@@ -232,7 +229,7 @@ metaprop <- function(event, n, studlab,
   ##
   if (!missing.subset) {
     event <- event[subset]
-    n   <- n[subset]
+    time  <- time[subset]
     studlab <- studlab[subset]
     if (!missing.byvar)
       byvar <- byvar[subset]
@@ -256,18 +253,12 @@ metaprop <- function(event, n, studlab,
   ## Check variable values
   ##
   chknumeric(event, 0)
-  chknumeric(n, 0, zero = TRUE)
-  ##
-  if (any(n < 10, na.rm = TRUE) & sm == "PFT")
-    warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm = 'PAS' or sm = 'PLOGIT'), too.")
-  ##
-  if (any(event > n, na.rm = TRUE))
-    stop("Number of events must not be larger than number of observations")
+  chknumeric(time, 0, zero = TRUE)
   ##
   ## Recode integer as numeric:
   ##
   event <- int2num(event)
-  n     <- int2num(n)
+  time  <- int2num(time)
   
   
   ##
@@ -276,11 +267,10 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   sel <- switch(sm,
-                PFT = rep(FALSE, length(event)),
-                PAS = rep(FALSE, length(event)),
-                PRAW =   event == 0 | (n - event) == 0,
-                PLN =    event == 0 | (n - event) == 0,
-                PLOGIT = event == 0 | (n - event) == 0)
+                IR   = event == 0,
+                IRLN = event == 0,
+                IRS  = rep(FALSE, length(event)),
+                IRFT = rep(FALSE, length(event)))
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
@@ -304,94 +294,31 @@ metaprop <- function(event, n, studlab,
     else
       incr.event <- rep(0, k.all)
   ##  
-  if (sm == "PFT") {
-    TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
-    seTE <- sqrt(1 / (4 * n + 2))
+  if (sm == "IR") {
+    TE <- (event + incr.event) / time
+    seTE <- sqrt(TE / time)
   }
-  else if (sm == "PAS") {
-    TE <- asin(sqrt(event / n))
-    seTE <- sqrt(0.25 * (1 / n))
+  else if (sm == "IRLN") {
+    TE <- log((event + incr.event) / time)
+    seTE <- sqrt(1 / (event + incr.event))
   }
-  else if (sm == "PRAW") {
-    TE <- event / n
-    seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
-                   (n + 2 * incr.event)^3)
+  else if (sm == "IRS") {
+    TE <- sqrt(event / time)
+    seTE <- sqrt(1 / (4 * time))
   }
-  else if (sm == "PLN") {
-    TE <- log((event + incr.event) / (n + incr.event))
-    ## Hartung, Knapp (2001), p. 3880, formula (18):
-    seTE <- ifelse(event == n,
-                   sqrt(1 / event                - 1 / (n + incr.event)),
-                   sqrt(1 / (event + incr.event) - 1 / (n + incr.event))
-                   )
-  }
-  else if (sm == "PLOGIT") {
-    TE <- log((event + incr.event) / (n - event + incr.event))
-    seTE <- sqrt(1 / (event + incr.event) +
-                 1 / ((n - event + incr.event)))
+  else if (sm == "IRFT") {
+    TE <- 0.5 * (sqrt(event / time) + sqrt((event + 1) / time))
+    seTE <- sqrt(1 / (4 * time))
   }
   ##
   ## Calculate confidence intervals
   ##
   NAs <- rep(NA, k.all)
   ##
-  if (method.ci == "CP") {
-    lower.study <- upper.study <- NAs
-    for (i in 1:k.all) {
-      cint <- binom.test(event[i], n[i], conf.level = level)
-      ##
-      lower.study[i] <- cint$conf.int[[1]]
-      upper.study[i] <- cint$conf.int[[2]]
-    }
-  }
+  ci.study <- ci(TE, seTE, level = level)
   ##
-  else {
-    if (method.ci == "WS")
-      ci.study <- ciWilsonScore(event, n, level = level)
-    ##
-    else if (method.ci == "WSCC")
-      ci.study <- ciWilsonScore(event, n, level = level, correct = TRUE)
-    ##
-    else if (method.ci == "AC")
-      ci.study <- ciAgrestiCoull(event, n, level = level)
-    ##
-    else if (method.ci == "SA")
-      ci.study <- ciSimpleAsymptotic(event, n, level = level)
-    ##
-    else if (method.ci == "SACC")
-      ci.study <- ciSimpleAsymptotic(event, n, level = level, correct = TRUE)
-    ##
-    else if (method.ci == "NAsm")
-      ci.study <- ci(TE, seTE, level = level)
-    ##
-    lower.study <- ci.study$lower
-    upper.study <- ci.study$upper
-  }
-  ##  
-  if (method.ci == "NAsm") {
-    if (sm == "PLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
-    }
-    ##
-    else if (sm == "PLOGIT") {
-      lower.study <- logit2p(lower.study)
-      upper.study <- logit2p(upper.study)
-    }
-    ##
-    else if (sm == "PAS") {
-      lower.study <- asin2p(lower.study, value = "lower")
-      upper.study <- asin2p(upper.study, value = "upper")
-    }
-    ##
-    else if (sm == "PFT") {
-      lower.study <- asin2p(lower.study, n, value = "lower")
-      upper.study <- asin2p(upper.study, n, value = "upper")
-    }
-    ##
-    lower.study[lower.study<0] <- 0
-    upper.study[upper.study>1] <- 1
-  }
+  lower.study <- ci.study$lower
+  upper.study <- ci.study$upper
   
   
   ##
@@ -400,10 +327,10 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(xi = event, ni = n,
+    glmm.fixed <- metafor::rma.glmm(xi = event, ti = time,
                                     method = "FE",
                                     tdist = hakn, level = 100 * level.comb,
-                                    measure = "PLO",
+                                    measure = "IRLN",
                                     ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
@@ -450,10 +377,9 @@ metaprop <- function(event, n, studlab,
   ## (9) Generate R object
   ##
   ##
-  res <- list(event = event, n = n,
+  res <- list(event = event, time = time,
               incr = incr, sparse = sparse,
               allincr = allincr, addincr = addincr,
-              method.ci = method.ci,
               incr.event = incr.event)
   ##
   ## Add meta-analysis results
@@ -485,10 +411,10 @@ metaprop <- function(event, n, studlab,
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
     ##
-    glmm.random <- metafor::rma.glmm(xi = event, ni = n,
+    glmm.random <- metafor::rma.glmm(xi = event, ti = time,
                                      method = method.tau,
                                      tdist = hakn, level = 100 * level.comb,
-                                     measure = "PLO",
+                                     measure = "IRLN",
                                      ...)
     ##
     TE.random   <- as.numeric(glmm.random$b)
@@ -540,7 +466,8 @@ metaprop <- function(event, n, studlab,
   res$zval.random <- NA
   res$pval.random <- NA
   ##
-  res$pscale <- pscale
+  res$irscale <- irscale
+  res$irunit   <- irunit
   ##
   res$call <- match.call()
   ##

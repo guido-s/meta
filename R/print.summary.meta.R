@@ -9,6 +9,8 @@ print.summary.meta <- function(x,
                                header = TRUE,
                                backtransf = x$backtransf,
                                pscale = x$pscale,
+                               irscale = x$irscale,
+                               irunit = x$irunit,
                                bylab.nchar = 35,
                                digits.zval = .settings$digits.zval,
                                digits.Q = .settings$digits.Q,
@@ -52,6 +54,16 @@ print.summary.meta <- function(x,
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+    irscale <- 1
+  if (!is.null(irscale))
+    chknumeric(irscale, single = TRUE)
+  else
+    irscale <- 1
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   chklogical(comb.fixed)
   chklogical(comb.random)
@@ -116,8 +128,14 @@ print.summary.meta <- function(x,
       else
         sm.lab <- "events"
     }
+    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+      if (irscale == 1)
+        sm.lab <- "rate"
+      else
+        sm.lab <- "events"
+    }
   }
-  else 
+  else
     if (is.relative.effect(sm))
       sm.lab <- paste("log", sm, sep = "")
   ##
@@ -173,7 +191,10 @@ print.summary.meta <- function(x,
   }
   ##  
   if (backtransf) {
-    npft.ma <- 1 / mean(1 / x$n)
+    if (inherits(x, "metarate"))
+      npft.ma <- 1 / mean(1 / x$time)
+    else
+      npft.ma <- 1 / mean(1 / x$n)
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
                               npft.ma, warn = comb.fixed)
@@ -235,6 +256,31 @@ print.summary.meta <- function(x,
       TE.random.w    <- pscale * TE.random.w
       lowTE.random.w <- pscale * lowTE.random.w
       uppTE.random.w <- pscale * uppTE.random.w
+    }
+  }
+  ##
+  ## Apply argument 'irscale' to rates
+  ##
+  if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    TE.fixed    <- irscale * TE.fixed
+    lowTE.fixed <- irscale * lowTE.fixed
+    uppTE.fixed <- irscale * uppTE.fixed
+    ##
+    TE.random    <- irscale * TE.random
+    lowTE.random <- irscale * lowTE.random
+    uppTE.random <- irscale * uppTE.random
+    ##
+    lowTE.predict <- irscale * lowTE.predict
+    uppTE.predict <- irscale * uppTE.predict
+    ##
+    if (by) {
+      TE.fixed.w    <- irscale * TE.fixed.w
+      lowTE.fixed.w <- irscale * lowTE.fixed.w
+      uppTE.fixed.w <- irscale * uppTE.fixed.w
+      ##   
+      TE.random.w    <- irscale * TE.random.w
+      lowTE.random.w <- irscale * lowTE.random.w
+      uppTE.random.w <- irscale * uppTE.random.w
     }
   }
   ##
@@ -314,7 +360,9 @@ print.summary.meta <- function(x,
             sd.glass = x$sd.glass,
             exact.smd = x$exact.smd,
             model.glmm = x$model.glmm,
-            pscale = pscale)
+            pscale = pscale,
+            irscale = irscale,
+            irunit = irunit)
   }
   else {
     ##
@@ -543,7 +591,9 @@ print.summary.meta <- function(x,
             sd.glass = x$sd.glass,
             exact.smd = x$exact.smd,
             model.glmm = x$model.glmm,
-            pscale = pscale)
+            pscale = pscale,
+            irscale = irscale,
+            irunit = irunit)
   }
   
   

@@ -7,6 +7,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           prediction = x$prediction, level.predict = x$level.predict,
                           backtransf = x$backtransf,
                           pscale = x$pscale,
+                          irscale = x$irscale, irunit = x$irunit,
                           silent = TRUE, ...) {
   
   
@@ -44,6 +45,13 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
+  }
+  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+    irscale <- 1
+  chknumeric(irscale, single = TRUE)
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
   }
   ##
   chklogical(silent)
@@ -343,7 +351,9 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   
   res$backtransf <- backtransf
   res$pscale <- pscale
-
+  res$irscale <- irscale
+  res$irunit <- irunit
+  
   res$version <- packageDescription("meta")$Version
   
   class(res) <- c("metagen", "meta", "trimfill")

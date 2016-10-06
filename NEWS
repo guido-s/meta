@@ -1,11 +1,62 @@
-*** meta, version 4.5-1, 2016-mm-dd ***
+*** meta, version 4.6-0, 2016-mm-dd ***
+
+ ** Major changes **
+
+  * New function metarate() to conduct meta-analysis of single
+    incidence rates
+
+  * Peters' test for funnel plot asymmetry implemented for
+    meta-analysis of single proportions
+
+  * Calculation of Freeman-Tukey double arcsin transformation and
+    backtransformation slightly changed in meta-analysis of single
+    proportions
 
  ** User-visible changes **
+    
+  * help page with brief overview of meta package added
+    
+  * preferred citation of meta package in publications changed;
+    see output of command 'citation("meta")'
+
+  * forest.meta(), metagen(), print.meta(), print.summary.meta(),
+    summary.meta(), trimfill.default(), trimfill.meta(),
+    update.meta():
+    - new arguments irscale and irunit for meta-analysis objects
+      created with metarate()
+
+  * settings.meta():
+    - new arguments smrate for meta-analysis objects created with
+      metarate()
 
   * funnel.meta(), funnel.default():
     - new argument pos.studlab to change position of study labels
-    
-  * help page with brief overview of meta package added
+
+  * metaprop():
+    - change in Freeman-Tukey double arcsin transformation only
+      visible in printouts if argument backtransf = FALSE or if list
+      elements TE, TE.fixed, and TE.random (as well as confidence
+      intervals) are extracted from a metaprop object
+
+  * Help pages updated:
+    forest.meta(), metabias.meta(), metagen(), metainf(), metaprop(),
+    print.meta(), print.summary.meta(), summary.meta(),
+    trimfill.default(), trimfill.meta(), update.meta()
+
+ ** Internal changes **
+
+  * New function asin2ir() to backtransform arcsine transformed
+    incidence rates
+
+  * backtransf(), catmeth(), metacum(), metainf(), subgroup(), xlab():
+    - extension to handle meta-analysis objects created with
+      metarate()
+
+  * metaprop(), asin2p():  
+    - calculation of Freeman-Tukey double arcsin transformation
+      changed such that sm = "PFT" and sm = "PAS" result in similar
+      estimates (TE, TE.fixed, TE.random), i.e. values are multiplied
+      by 0.5 for sm = "PFT"
 
 
 *** meta, version 4.5-0, 2016-08-17 ***

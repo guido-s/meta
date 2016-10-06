@@ -6,6 +6,8 @@ print.meta <- function(x,
                        details = FALSE, ma = TRUE,
                        backtransf = x$backtransf,
                        pscale = x$pscale,
+                       irscale = x$irscale,
+                       irunit = x$irunit,
                        digits = .settings$digits,
                        digits.se = .settings$digits.se,
                        digits.zval = .settings$digits.zval,
@@ -69,6 +71,16 @@ print.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
+  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+    irscale <- 1
+  if (!is.null(irscale))
+    chknumeric(irscale, single = TRUE)
+  else
+    irscale <- 1
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
+  }
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
@@ -119,8 +131,14 @@ print.meta <- function(x,
       else
         sm.lab <- "events"
     }
+    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+      if (irscale == 1)
+        sm.lab <- "rate"
+      else
+        sm.lab <- "events"
+    }
   }
-  else 
+  else
     if (is.relative.effect(sm))
       sm.lab <- paste("log", sm, sep = "")
   
@@ -163,9 +181,16 @@ print.meta <- function(x,
     else if (inherits(x, "metaprop")) {
       res <- data.frame(event = x$event, n = x$n)
       if (pscale == 1)
-        res$p <- format.NA(round(pscale * x$event / x$n, digits.prop), digits.prop, "NA")
+        res$p <- format.NA(round(x$event / x$n, digits.prop), digits.prop, "NA")
       else
         res$events <- format.NA(round(pscale * x$event / x$n, digits.prop), digits.prop, "NA")
+    }
+    else if (inherits(x, "metarate")) {
+      res <- data.frame(event = x$event, time = x$time)
+      if (irscale == 1)
+        res$rate <- format.NA(round(x$event / x$time, digits.prop), digits.prop, "NA")
+      else
+        res$events <- format.NA(round(irscale * x$event / x$time, digits.prop), digits.prop, "NA")
     }
     else {
       res <- data.frame(TE = format.NA(round(x$TE, digits), digits, "NA"),
@@ -196,11 +221,13 @@ print.meta <- function(x,
                             warn = FALSE, level.comb = level.comb)),
             digits = digits, header = FALSE,
             backtransf = backtransf, pscale = pscale,
+            irscale = irscale, irunit = irunit,
             digits.zval = digits.zval)
     else
       print(summary(x),
             digits = digits, header = FALSE,
             backtransf = backtransf, pscale = pscale,
+            irscale = irscale, irunit = irunit,
             digits.zval = digits.zval, ...)
   }
   else {
@@ -218,11 +245,17 @@ print.meta <- function(x,
     }
     ##
     if (backtransf) {
-      ## Freeman-Tukey Arcsin transformation (sm = "PFT")
+      ## Freeman-Tukey Arcsin transformation
       if (metainf.metacum)
-        npft <- x$n.harmonic.mean
+        if (sm == "IRFT")
+          npft <- x$t.harmonic.mean
+        else
+          npft <- x$n.harmonic.mean
       else
-        npft <- x$n
+        if (sm == "IRFT")
+          npft <- x$time
+        else
+          npft <- x$n
       ##
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
@@ -236,6 +269,12 @@ print.meta <- function(x,
         TE <- pscale * TE
         lowTE <- pscale * lowTE
         uppTE <- pscale * uppTE
+      }
+      ##
+      if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+        TE <- irscale * TE
+        lowTE <- irscale * lowTE
+        uppTE <- irscale * uppTE
       }
     }
     ##
@@ -359,6 +398,7 @@ print.meta <- function(x,
             prediction = prediction,
             header = FALSE,
             backtransf = backtransf, pscale = pscale,
+            irscale = irscale, irunit = irunit,
             digits.tau2 = digits.tau2,
             digits.zval = digits.zval,
             digits.Q = digits.Q,

@@ -1,9 +1,18 @@
-year <- sub("-.*", "", meta$Date)
-note <- sprintf("R package version %s", meta$Version)
+citHeader("To cite package 'meta' in publications use:")
 
-bibentry(bibtype = "Manual",
-         title = "{meta}: General Package for Meta-Analysis",
-         author = person("Guido", "Schwarzer"),
-         year = year,
-         note = note,
-         url = "https://CRAN.R-project.org/package=meta")
+citEntry(
+  entry   = "Article",
+  title   = "Meta: {A}n {R} package for meta-analysis",
+  author  = personList(as.person("Guido Schwarzer")),
+  journal = "R News",
+  year    = "2007",
+  volume  = "7",
+  number  = "3",
+  pages   = "40--45",
+
+  textVersion = paste("Guido Schwarzer (2007),",
+                      "Meta: An R package for meta-analysis,",
+                      "R News, 7(3), 40-45.")
+)
+
+citFooter("URL https://cran.r-project.org/doc/Rnews/Rnews_2007-3.pdf")

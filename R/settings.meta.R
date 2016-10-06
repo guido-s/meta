@@ -161,6 +161,8 @@ settings.meta <- function(...) {
     catarg("sminc", newline = FALSE)
     cat("- metaprop: ")
     catarg("smprop", newline = FALSE)
+    cat("- metarate: ")
+    catarg("smrate", newline = FALSE)
     ##
     cat("\nSettings for R functions metabin, metainc, and metaprop:\n")
     catarg("incr")
@@ -244,6 +246,7 @@ settings.meta <- function(...) {
     setOption("smcor", "ZCOR")
     setOption("sminc", "IRR")
     setOption("smprop", "PLOGIT")
+    setOption("smrate", "IRLN")
     ##
     setOption("pooledvar", FALSE)
     setOption("method.smd", "Hedges")
@@ -334,6 +337,7 @@ settings.meta <- function(...) {
     idsmcor <- argid(names, "smcor")
     idsminc <- argid(names, "sminc")
     idsmprop <- argid(names, "smprop")
+    idsmrate <- argid(names, "smrate")
     ##
     idpooledvar <- argid(names, "pooledvar")
     idmethod.smd <- argid(names, "method.smd")
@@ -630,6 +634,14 @@ settings.meta <- function(...) {
       method.ci <- setchar(method.ci,
                           c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
       setOption("method.ci", method.ci)
+    }
+    ##
+    ## R function metarate
+    ##
+    if (!is.na(idsmrate)) {
+      smrate <- args[[idsmrate]]
+      smrate <- setchar(smrate, c("IR", "IRLN", "IRS", "IRFT"))
+      setOption("smrate", smrate)
     }
     ##
     ## R functions comparing two treatments

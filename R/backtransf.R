@@ -6,7 +6,7 @@ backtransf <- function(x, sm, value, n, warn = TRUE) {
   if (all(is.na(x)))
     return(x)
   
-  if (is.relative.effect(sm) | sm == "PLN")
+  if (is.relative.effect(sm) | sm == "PLN" | sm == "IRLN")
     res <- exp(x)
   ##
   else if (sm == "ZCOR")
@@ -20,6 +20,12 @@ backtransf <- function(x, sm, value, n, warn = TRUE) {
   ##
   else if (sm == "PFT")
     res <- asin2p(x, n, value = value, warn = warn)
+  ##
+  else if (sm == "IRS")
+    res <- x^2
+  ##
+  else if (sm == "IRFT")
+    res <- asin2ir(x, n, value = value, warn = warn)
   ##
   else
     res <- x

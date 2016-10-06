@@ -31,6 +31,7 @@ forest.meta <- function(x,
                         allstudies = TRUE,
                         weight,
                         pscale = x$pscale,
+                        irscale = x$irscale, irunit = x$irunit,
                         ##
                         ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
@@ -251,6 +252,10 @@ forest.meta <- function(x,
     chknumeric(pscale, single = TRUE)
   else
     pscale <- 1
+  if (!is.null(irscale))
+    chknumeric(irscale, single = TRUE)
+  else
+    irscale <- 1
   chknumeric(ref)
   type.study <- setchar(type.study, c("square", "diamond"))
   type.fixed <- setchar(type.fixed, c("square", "diamond"))
@@ -411,6 +416,7 @@ forest.meta <- function(x,
   metacor <- inherits(x, "metacor")
   metainc <- inherits(x, "metainc")
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  metarate <- inherits(x, "metarate")
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
@@ -422,7 +428,7 @@ forest.meta <- function(x,
     test.subgroup.random <- FALSE
   }
   ##
-  if (metaprop) {
+  if (metaprop | metarate) {
     test.overall.fixed  <- FALSE
     test.overall.random <- FALSE
   }
@@ -478,7 +484,8 @@ forest.meta <- function(x,
   ##
   log.xaxis <- FALSE
   ##
-  if (missing(ref) && sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
+  if (missing(ref) && sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT",
+                                "IR", "IRLN", "IRS", "IRFT"))
     ref <- NA
   ##
   if (backtransf & is.relative.effect(sm)) {
@@ -491,11 +498,19 @@ forest.meta <- function(x,
     pscale <- 1
   }
   ##  
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
+  }
+  ##  
   if (is.null(xlab))
     xlab <- xlab(sm, backtransf)
   ##
   if (is.null(smlab))
-    smlab <- xlab(sm, backtransf, pscale = pscale)
+    if (sm %in% c("IR", "IRLN", "IRS", "IRFT"))
+      smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit)
+    else
+      smlab <- xlab(sm, backtransf, pscale = pscale)
   ##
   if (is.null(label.right))
     label.right <- ""
@@ -536,6 +551,12 @@ forest.meta <- function(x,
     else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
       if (pscale == 1)
         sm.lab <- "Proportion"
+      else
+        sm.lab <- "Events"
+    }
+    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+      if (irscale == 1)
+        sm.lab <- "Rate"
       else
         sm.lab <- "Events"
     }
@@ -645,6 +666,9 @@ forest.meta <- function(x,
       ##
       if ( (metacor | metaprop) & any(rightcols.new == "n"))
         rightlabs.new[rightlabs.new == "n"] <- "Total"
+      ##
+      if ( (metarate) & any(rightcols.new == "time"))
+        rightlabs.new[rightlabs.new == "time"] <- "Time"
     }
     if (length(leftcols.new) > 0) {
       pos.leftcols.new <- match(leftcols.new, leftcols)
@@ -667,6 +691,9 @@ forest.meta <- function(x,
       ##
       if ((metacor | metaprop) & any(leftcols.new == "n"))
         leftlabs.new[leftlabs.new == "n"] <- "Total"
+      ##
+      if ((metarate) & any(leftcols.new == "time"))
+        leftlabs.new[leftlabs.new == "time"] <- "Time"
     }
   }
   ##
@@ -692,6 +719,10 @@ forest.meta <- function(x,
       if (metaprop)
         leftcols <- c("studlab",
                       "event.e", "n.e")
+      ##
+      if (metarate)
+        leftcols <- c("studlab",
+                      "event.e", "time.e")
       ##
       if (metacor)
         leftcols <- c("studlab",
@@ -723,6 +754,10 @@ forest.meta <- function(x,
       if (metaprop)
         leftcols <- c("studlab",
                       "event.e", "n.e")
+      ##
+      if (metarate)
+        leftcols <- c("studlab",
+                      "event.e", "time.e")
       ##
       if (metacor)
         leftcols <- c("studlab",
@@ -764,6 +799,10 @@ forest.meta <- function(x,
   ## (6) Select data for forest plot
   ##
   ##
+  if (metacor) {
+    x$n.e <- x$n
+  }
+  ##
   if (metaprop) {
     x$event.e <- x$event
     x$n.e <- x$n
@@ -782,9 +821,23 @@ forest.meta <- function(x,
         leftcols[leftcols == "event"] <- "event.e"
     }
   }
-  ##
-  if (metacor) {
-    x$n.e <- x$n
+  if (metarate) {
+    x$event.e <- x$event
+    x$time.e <- x$time
+    ##
+    if (!is.null(rightcols)) {
+      if (any(rightcols == "time"))
+        rightcols[rightcols == "time"] <- "time.e"
+      if (any(rightcols == "event"))
+        rightcols[rightcols == "event"] <- "event.e"
+    }
+    ##
+    if (!is.null(leftcols)) {
+      if (any(leftcols == "time"))
+        leftcols[leftcols == "time"] <- "time.e"
+      if (any(leftcols == "event"))
+        leftcols[leftcols == "event"] <- "event.e"
+    }
   }
   ##  
   if (metainf.metacum) {
@@ -800,6 +853,7 @@ forest.meta <- function(x,
     x$upper.random <- rev(x$upper)[1]
     ##
     x$n.harmonic.mean.ma <- rev(x$n.harmonic.mean)[1]
+    x$t.harmonic.mean.ma <- rev(x$t.harmonic.mean)[1]
     ##
     x$w.all <- rev(x$w)[1]
     ##
@@ -814,6 +868,7 @@ forest.meta <- function(x,
     x$w.random <- rev(rev(x$w)[-(1:2)])
     ##
     x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
+    x$t.harmonic.mean <- rev(rev(x$t.harmonic.mean)[-(1:2)])
     ##
     if (overall & x$pooled == "fixed") {
       comb.fixed <- TRUE
@@ -878,6 +933,7 @@ forest.meta <- function(x,
   studlab  <- studlab[sel]
   ##
   x$n.harmonic.mean <- x$n.harmonic.mean[sel]
+  x$t.harmonic.mean <- x$t.harmonic.mean[sel]
   ##
   byvar   <- byvar[sel]
   sortvar <- sortvar[sel]
@@ -925,6 +981,7 @@ forest.meta <- function(x,
     studlab  <- studlab[o]
     ##
     x$n.harmonic.mean <- x$n.harmonic.mean[o]
+    x$t.harmonic.mean <- x$t.harmonic.mean[o]
     ##
     byvar   <- byvar[o]
     sortvar <- sortvar[o]
@@ -1154,13 +1211,14 @@ forest.meta <- function(x,
     tau.w      <- x$tau.w[o]
     w.fixed.w  <- x$w.fixed.w[o]
     w.random.w <- x$w.random.w[o]
-    e.e.w <- if (metaprop) x$event.w[o] else x$event.e.w[o]
-    t.e.w <- if (metainc) x$time.e.w[o] else rep(NA, n.by)
+    e.e.w <- if (metaprop | metarate) x$event.w[o] else x$event.e.w[o]
+    t.e.w <- if (metainc | metarate) x$time.e.w[o] else rep(NA, n.by)
     n.e.w <- if (metacor | metaprop) x$n.w[o] else x$n.e.w[o]
     e.c.w <- x$event.c.w[o]
     t.c.w <- if (metainc) x$time.c.w[o] else rep(NA, n.by)
     n.c.w <- x$n.c.w[o]
     n.harmonic.mean.w <- x$n.harmonic.mean.w[o]
+    t.harmonic.mean.w <- x$t.harmonic.mean.w[o]
     k.all.w <- x$k.all.w[o]
     ##
     if (allstudies)
@@ -1190,6 +1248,7 @@ forest.meta <- function(x,
     t.c.w <- t.c.w[sel]
     n.c.w <- n.c.w[sel]
     n.harmonic.mean.w <- n.harmonic.mean.w[sel]
+    t.harmonic.mean.w <- t.harmonic.mean.w[sel]
     k.all.w <- k.all.w[sel]
     bylevs <- bylevs[sel]
     ##
@@ -1281,6 +1340,7 @@ forest.meta <- function(x,
     lowTE.w <- c(lower.fixed.w, lower.random.w, rep(NA, 3 * n.by))
     uppTE.w <- c(upper.fixed.w, upper.random.w, rep(NA, 3 * n.by))
     n.harmonic.mean.w <- c(n.harmonic.mean.w, n.harmonic.mean.w, rep(NA, 3 * n.by))
+    t.harmonic.mean.w <- c(t.harmonic.mean.w, t.harmonic.mean.w, rep(NA, 3 * n.by))
     weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, 3 * n.by))
     ##
     test.fixed.w <- ""
@@ -1314,15 +1374,27 @@ forest.meta <- function(x,
   ##
   if (backtransf) {
     ##
-    ## Freeman-Tukey Arcsin transformation (sm = "PFT")
+    ## Freeman-Tukey Arcsin transformation
     ##
     if (metainf.metacum) {
-      npft <- x$n.harmonic.mean
-      npft.ma <- x$n.harmonic.mean.ma
+      if (sm == "IRFT") {
+        npft <- x$t.harmonic.mean
+        npft.ma <- x$t.harmonic.mean.ma
+      }
+      else {
+        npft <- x$n.harmonic.mean
+        npft.ma <- x$n.harmonic.mean.ma
+      }
     }
     else {
-      npft <- x$n
-      npft.ma <- 1 / mean(1 / x$n)
+      if (sm == "IRFT") {
+        npft <- x$time
+        npft.ma <- 1 / mean(1 / x$time)
+      }
+      else {
+        npft <- x$n
+        npft.ma <- 1 / mean(1 / x$n)
+      }
     }
     ##
     ## Individual study results
@@ -1362,7 +1434,10 @@ forest.meta <- function(x,
       }
       ##
       if (by) {
-        npft.w <- n.harmonic.mean.w
+        if (sm == "IRFT")
+          npft.w <- t.harmonic.mean.w
+        else
+          npft.w <- n.harmonic.mean.w
         ##
         TE.w     <- backtransf(TE.w, sm, "mean", npft.w)
         lowTE.w  <- backtransf(lowTE.w, sm, "lower", npft.w)
@@ -1393,6 +1468,31 @@ forest.meta <- function(x,
         lowTE.w <- pscale * lowTE.w
         uppTE.w <- pscale * uppTE.w
       }
+    }
+  }
+  ##
+  ## Apply argument 'irscale' to rates
+  ##
+  if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    TE <- irscale * TE
+    lowTE <- irscale * lowTE
+    uppTE <- irscale * uppTE
+    ##
+    TE.fixed    <- irscale * TE.fixed
+    lowTE.fixed <- irscale * lowTE.fixed
+    uppTE.fixed <- irscale * uppTE.fixed
+    ##
+    TE.random    <- irscale * TE.random
+    lowTE.random <- irscale * lowTE.random
+    uppTE.random <- irscale * uppTE.random
+    ##
+    lowTE.predict <- irscale * lowTE.predict
+    uppTE.predict <- irscale * uppTE.predict
+    ##
+    if (by) {
+      TE.w    <- irscale * TE.w
+      lowTE.w <- irscale * lowTE.w
+      uppTE.w <- irscale * uppTE.w
     }
   }
   ##    
@@ -1428,8 +1528,8 @@ forest.meta <- function(x,
     w.fixed.p  <- rep(NA, length(TE))
     w.random.p <- rep(NA, length(TE))
   }
-  
-  
+
+
   ##
   ##
   ## (9) Determine column labels
@@ -1475,8 +1575,8 @@ forest.meta <- function(x,
   ##
   if (!slab)
     labs[["lab.studlab"]] <- ""
-  
-  
+
+
   ##
   ##
   ## (10) Define columns in forest plot as well as x- and y-limits
@@ -1938,7 +2038,7 @@ forest.meta <- function(x,
                     "should be a numeric vector (min, max) or the character string \"symmetric\"")
     symmetric <- TRUE
     ##
-    if (metaprop) {
+    if (metaprop | metarate) {
       xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
                 max(c(uppTE, uppTE.predict), na.rm = TRUE))
     }
@@ -2083,8 +2183,8 @@ forest.meta <- function(x,
     ##
     yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
   }
-  
-  
+
+
   ##
   ##
   ## (11) Format columns in forest plot
@@ -2526,8 +2626,8 @@ forest.meta <- function(x,
   ##  
   leftcols  <- paste("col.", leftcols, sep = "")
   rightcols <- paste("col.", rightcols, sep = "")
-  
-  
+
+
   ##
   ##
   ## (12) Definition of auxiliary plot functions
@@ -2836,8 +2936,8 @@ forest.meta <- function(x,
       }
     }
   }
-  
-  
+
+
   ##
   ##
   ## (13) Calculate width of columns in forest plot
@@ -2896,8 +2996,8 @@ forest.meta <- function(x,
                    wcalc(cols[[rightcols[i]]]$labels))
     }
   }
-  
-  
+
+
   ##
   ##
   ## (14) Generate forest plot
@@ -3044,7 +3144,7 @@ forest.meta <- function(x,
   }
   ##
   popViewport()
-  
-  
+
+
   invisible(NULL)
 }

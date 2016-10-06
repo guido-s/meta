@@ -22,24 +22,33 @@ catmeth <- function(method,
                     sd.glass,
                     exact.smd = FALSE,
                     model.glmm,
-                    pscale = 1) {
+                    pscale = 1,
+                    irscale = 1,
+                    irunit = "person-years") {
   
   if (is.null(doublezeros)) doublezeros <- FALSE
   
-  if  (sm == "PFT")
+  if (sm == "ZCOR")
+    sm.details <- "\n- Fisher's z transformation of correlations"
+  else if (sm == "COR")
+    sm.details <- "\n- Untransformed correlations"
+  ##
+  else if  (sm == "PFT" | sm == "IRFT")
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
   else if (sm == "PAS")
     sm.details <- "\n- Arcsine transformation"
-  else if (sm == "PLN")
+  else if (sm == "PLN" | sm == "IRLN")
     sm.details <- "\n- Log transformation"
   else if (sm == "PLOGIT")
     sm.details <- "\n- Logit transformation"
   else if (sm == "PRAW")
     sm.details <- "\n- Untransformed proportions"
-  else if (sm == "ZCOR")
-    sm.details <- "\n- Fisher's z transformation of correlations"
-  else if (sm == "COR")
-    sm.details <- "\n- Untransformed correlations"
+  ##
+  else if  (sm == "IR")
+    sm.details <- "\n- Untransformed rates"
+  else if  (sm == "IRS")
+    sm.details <- "\n- Square root transformation"
+  ##
   else
     sm.details <- ""
   ##
@@ -139,6 +148,12 @@ catmeth <- function(method,
                         "\n- Events per ",
                         format(pscale, scientific = FALSE),
                         " observations", sep = "")
+  ##
+  if (irscale != 1)
+    sm.details <- paste(sm.details,
+                        "\n- Events per ",
+                        format(irscale, scientific = FALSE),
+                        " ", irunit, sep = "")
   
   
   lab.method.details <- ""
