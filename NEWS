@@ -12,6 +12,9 @@
     backtransformation slightly changed in meta-analysis of single
     proportions
 
+  * Justification of additional columns in forest plot can be
+    specified individually for each additional column
+
  ** User-visible changes **
     
   * help page with brief overview of meta package added
@@ -31,6 +34,11 @@
 
   * funnel.meta(), funnel.default():
     - new argument pos.studlab to change position of study labels
+
+  * forest.meta():
+    - new arguments just.addcols.left and just.addcols.right to
+      specify justification of additional columns on left and right
+      side of forest plot
 
   * metaprop():
     - change in Freeman-Tukey double arcsin transformation only

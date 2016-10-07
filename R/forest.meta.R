@@ -167,6 +167,8 @@ forest.meta <- function(x,
                         just = "right",
                         just.studlab = "left",
                         just.addcols = "center",
+                        just.addcols.left = just.addcols,
+                        just.addcols.right = just.addcols,
                         ##
                         addspace = TRUE,
                         ##
@@ -306,6 +308,8 @@ forest.meta <- function(x,
   just.cols <- setchar(just, c("right", "center", "left"))
   just.studlab <- setchar(just.studlab, c("right", "center", "left"))
   just.addcols <- setchar(just.addcols, c("right", "center", "left"))
+  just.addcols.left <- setchar(just.addcols.left, c("right", "center", "left"))
+  just.addcols.right <- setchar(just.addcols.right, c("right", "center", "left"))
   ##
   if (missing(weight))
     weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
@@ -2542,6 +2546,23 @@ forest.meta <- function(x,
   cols[["col.time.c"]] <- col.time.c
   ##
   if (newcols) {
+    ##
+    if (length(leftcols.new) > 0)
+      if (length(just.addcols.left) != 1) {
+        if (length(just.addcols.left) != length(leftcols.new))
+            stop("Length of argument 'just.addcols.left' must be one or same as number of additional columms in argument 'leftcols'.")
+      }
+      else
+        just.addcols.left <- rep(just.addcols.left, length(leftcols.new))
+    ##
+    if (length(rightcols.new) > 0)
+      if (length(just.addcols.right) != 1) {
+        if (length(just.addcols.right) != length(rightcols.new))
+            stop("Length of argument 'just.addcols.right' must be one or same as number of additional columms in argument 'rightcols'.")
+      }
+      else
+        just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
+    ##
     if (by) {
       for (i in seq(along = rightcols.new)) {
         tname <- paste("col.", rightcols.new[i], sep = "")
@@ -2557,7 +2578,7 @@ forest.meta <- function(x,
                                      rep("", length(TE.w)),
                                      tmp.r),
                                    yS,
-                                   just = just.addcols)
+                                   just = just.addcols.right[i])
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -2573,7 +2594,7 @@ forest.meta <- function(x,
                                      rep("", length(TE.w)),
                                      tmp.l),
                                    yS,
-                                   just = just.addcols)
+                                   just = just.addcols.left[i])
       }
     }
     else {
@@ -2589,7 +2610,7 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(rightlabs.new[i],
                                    c("", "", "", tmp.r),
                                    yS,
-                                   just = just.addcols)
+                                   just = just.addcols.right[i])
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -2603,7 +2624,7 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(leftlabs.new[i],
                                    c("", "", "", tmp.l),
                                    yS,
-                                   just = just.addcols)
+                                   just = just.addcols.left[i])
       }
     }
   }
