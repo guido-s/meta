@@ -24,6 +24,7 @@
         digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
         digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
         digits.prop = .settings$digits.prop, digits.weight = .settings$digits.weight,
+	warn.backtransf = FALSE,
         ...)
 
 \method{print}{metabias}(x, ...)
@@ -48,6 +49,7 @@
         digits.zval = .settings$digits.zval,
         digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
         digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
+	warn.backtransf = FALSE,
         ...)
 
 cilayout(bracket="[", separator="; ")
@@ -102,6 +104,9 @@ cilayout(bracket="[", separator="; ")
   \item{warn}{A logical indicating whether the use of
     \code{summary.meta} in connection with \code{metacum} or
     \code{metainf} should result in a warning.}
+  \item{warn.backtransf}{A logical indicating whether a warning should
+    be printed if backtransformed proportions and rates are below 0
+    and backtransformed proportions are above 1.}
   \item{bracket}{A character with bracket symbol to print lower
     confidence interval: "[", "(", "\{", "".}
   \item{separator}{A character string with information on separator

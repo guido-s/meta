@@ -8,12 +8,17 @@
   * Peters' test for funnel plot asymmetry implemented for
     meta-analysis of single proportions
 
+  * Justification of additional columns in forest plot can be
+    specified individually for each additional column
+
   * Calculation of Freeman-Tukey double arcsin transformation and
     backtransformation slightly changed in meta-analysis of single
     proportions
 
-  * Justification of additional columns in forest plot can be
-    specified individually for each additional column
+  * By default, do not print a warning if backtransformation for
+    metaprop() and metarate() objects results in values below 0 or
+    above 1 (only for proportions); note, respective values are set
+    to 0 or 1
 
  ** User-visible changes **
     
@@ -46,6 +51,15 @@
       elements TE, TE.fixed, and TE.random (as well as confidence
       intervals) are extracted from a metaprop object
 
+  * print.summary.meta():
+    - print correct results for subgroup analyses of metaprop objects
+      with sm = "PFT" (bugfix in internal subgroup() function)
+
+  * print.meta(), print.summary.meta():
+    - new argument warn.backtransf to specify whether a warning should
+      be printed if backtransformed proportions and rates are below 0
+      and backtransformed proportions are above 1
+
   * Help pages updated:
     forest.meta(), metabias.meta(), metagen(), metainf(), metaprop(),
     print.meta(), print.summary.meta(), summary.meta(),
@@ -65,6 +79,11 @@
       changed such that sm = "PFT" and sm = "PAS" result in similar
       estimates (TE, TE.fixed, TE.random), i.e. values are multiplied
       by 0.5 for sm = "PFT"
+
+  * subgroup():
+    - bux fix in calculation of harmonic mean of sample sizes (for
+      metaprop objects with sm = "PFT") and event times (for metarate
+      objects with sm = "IRFT")
 
 
 *** meta, version 4.5-0, 2016-08-17 ***

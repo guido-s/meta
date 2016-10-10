@@ -1,4 +1,4 @@
-backtransf <- function(x, sm, value, n, warn = TRUE) {
+backtransf <- function(x, sm, value, n, warn = FALSE) {
   
   ##
   ## Do nothing if all values are NA
@@ -34,7 +34,7 @@ backtransf <- function(x, sm, value, n, warn = TRUE) {
     sel0 <- res[!is.na(res)] < 0 & value == "lower"
     sel1 <- res[!is.na(res)] > 1 & value == "upper"
     ##
-    if (warn & (sel0 | sel1))
+    if (warn & any(sel0 | sel1))
       warning("Negative value for ",
               if (length(x) > 1) "at least one ",
               if (value == "lower") "lower confidence limit of raw proportions.\n  Lower confidence limit set to 0.",
@@ -50,7 +50,7 @@ backtransf <- function(x, sm, value, n, warn = TRUE) {
     sel0 <- res[!is.na(res)] < 0 & value == "lower"
     sel1 <- res[!is.na(res)] > 1 & value == "upper"
     ##
-    if (warn & (sel0 | sel1))
+    if (warn & any(sel0 | sel1))
       warning("Negative value for ",
               if (length(x) > 1) "at least one ",
               if (value == "lower") "lower confidence limit using log transformation for proportions.\n  Lower confidence limit set to 0.",
@@ -62,5 +62,17 @@ backtransf <- function(x, sm, value, n, warn = TRUE) {
       res[sel1] <- 1
   }
   
+  if (sm == "IR") {
+    sel0 <- res[!is.na(res)] < 0 & value == "lower"
+    ##
+    if (warn & any(sel0))
+      warning("Negative value for ",
+              if (length(x) > 1) "at least one ",
+              if (value == "lower") "lower confidence limit of incidence rates.\n  Lower confidence limit set to 0.",
+              sep = "")
+    if (any(sel0) & value == "lower")
+      res[sel0] <- 0
+  }
+
   res
 }

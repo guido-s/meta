@@ -17,6 +17,7 @@ print.summary.meta <- function(x,
                                digits.tau2 = .settings$digits.tau2,
                                digits.H = .settings$digits.H,
                                digits.I2 = .settings$digits.I2,
+                               warn.backtransf = FALSE,
                                ...) {
   
   
@@ -45,7 +46,10 @@ print.summary.meta <- function(x,
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chklogical(backtransf)
-  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+  is.prop <- x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")
+  is.rate <- x$sm %in% c("IR", "IRLN", "IRS", "IRFT")
+  ##
+  if (!is.prop)
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
@@ -55,7 +59,7 @@ print.summary.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+  if (!is.rate)
     irscale <- 1
   if (!is.null(irscale))
     chknumeric(irscale, single = TRUE)
@@ -122,13 +126,13 @@ print.summary.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+    else if (is.prop) {
       if (pscale == 1)
         sm.lab <- "proportion"
       else
         sm.lab <- "events"
     }
-    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    else if (is.rate) {
       if (irscale == 1)
         sm.lab <- "rate"
       else
@@ -176,7 +180,7 @@ print.summary.meta <- function(x,
     lowTE.fixed.w  <- x$within.fixed$lower
     uppTE.fixed.w  <- x$within.fixed$upper
     pval.fixed.w   <- x$within.fixed$p
-    n.harmonic.mean.w <- x$within.fixed$harmonic.mean
+    harmonic.mean.w <- x$within.fixed$harmonic.mean
     TE.random.w    <- x$within.random$TE
     lowTE.random.w <- x$within.random$lower
     uppTE.random.w <- x$within.random$upper
@@ -189,98 +193,76 @@ print.summary.meta <- function(x,
     ##
     Q.w <- x$Q.w
   }
-  ##  
+  ##
   if (backtransf) {
     if (inherits(x, "metarate"))
-      npft.ma <- 1 / mean(1 / x$time)
+      harmonic.mean <- 1 / mean(1 / x$time)
     else
-      npft.ma <- 1 / mean(1 / x$n)
+      harmonic.mean <- 1 / mean(1 / x$n)
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
-                              npft.ma, warn = comb.fixed)
+                              harmonic.mean, warn = comb.fixed & warn.backtransf)
     lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
-                              npft.ma, warn = comb.fixed)
+                              harmonic.mean, warn = comb.fixed & warn.backtransf)
     uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
-                              npft.ma, warn = comb.fixed)
+                              harmonic.mean, warn = comb.fixed & warn.backtransf)
     ##
     TE.random <- backtransf(TE.random, sm, "mean",
-                            npft.ma, warn = comb.random)
+                            harmonic.mean, warn = comb.random & warn.backtransf)
     lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                               npft.ma, warn = comb.random)
+                               harmonic.mean, warn = comb.random & warn.backtransf)
     uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                               npft.ma, warn = comb.random)
+                               harmonic.mean, warn = comb.random & warn.backtransf)
     ##
     lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                npft.ma, warn = prediction)
+                                harmonic.mean, warn = prediction & warn.backtransf)
     uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                npft.ma, warn = prediction)
+                                harmonic.mean, warn = prediction & warn.backtransf)
     ##
     if (by) {
-      npft.w <- n.harmonic.mean.w
-      ##
       TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
-                                   npft.w, warn = comb.fixed)
+                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
       lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
-                                   npft.w, warn = comb.fixed)
+                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
       uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
-                                   npft.w, warn = comb.fixed)
+                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
-                                   npft.w, warn = comb.random)
+                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   npft.w, warn = comb.random)
+                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   npft.w, warn = comb.random)
+                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
     }
   }
   ##
-  ## Apply argument 'pscale' to proportions
+  ## Apply argument 'pscale' to proportions and 'irscale' to rates
   ##
-  if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
-    TE.fixed    <- pscale * TE.fixed
-    lowTE.fixed <- pscale * lowTE.fixed
-    uppTE.fixed <- pscale * uppTE.fixed
+  if (is.prop | is.rate) {
+    if (is.prop)
+      scale <- pscale
+    else if (is.rate)
+      scale <- irscale
     ##
-    TE.random    <- pscale * TE.random
-    lowTE.random <- pscale * lowTE.random
-    uppTE.random <- pscale * uppTE.random
+    TE.fixed    <- scale * TE.fixed
+    lowTE.fixed <- scale * lowTE.fixed
+    uppTE.fixed <- scale * uppTE.fixed
     ##
-    lowTE.predict <- pscale * lowTE.predict
-    uppTE.predict <- pscale * uppTE.predict
+    TE.random    <- scale * TE.random
+    lowTE.random <- scale * lowTE.random
+    uppTE.random <- scale * uppTE.random
+    ##
+    lowTE.predict <- scale * lowTE.predict
+    uppTE.predict <- scale * uppTE.predict
     ##
     if (by) {
-      TE.fixed.w    <- pscale * TE.fixed.w
-      lowTE.fixed.w <- pscale * lowTE.fixed.w
-      uppTE.fixed.w <- pscale * uppTE.fixed.w
+      TE.fixed.w    <- scale * TE.fixed.w
+      lowTE.fixed.w <- scale * lowTE.fixed.w
+      uppTE.fixed.w <- scale * uppTE.fixed.w
       ##   
-      TE.random.w    <- pscale * TE.random.w
-      lowTE.random.w <- pscale * lowTE.random.w
-      uppTE.random.w <- pscale * uppTE.random.w
-    }
-  }
-  ##
-  ## Apply argument 'irscale' to rates
-  ##
-  if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
-    TE.fixed    <- irscale * TE.fixed
-    lowTE.fixed <- irscale * lowTE.fixed
-    uppTE.fixed <- irscale * uppTE.fixed
-    ##
-    TE.random    <- irscale * TE.random
-    lowTE.random <- irscale * lowTE.random
-    uppTE.random <- irscale * uppTE.random
-    ##
-    lowTE.predict <- irscale * lowTE.predict
-    uppTE.predict <- irscale * uppTE.predict
-    ##
-    if (by) {
-      TE.fixed.w    <- irscale * TE.fixed.w
-      lowTE.fixed.w <- irscale * lowTE.fixed.w
-      uppTE.fixed.w <- irscale * uppTE.fixed.w
-      ##   
-      TE.random.w    <- irscale * TE.random.w
-      lowTE.random.w <- irscale * lowTE.random.w
-      uppTE.random.w <- irscale * uppTE.random.w
+      TE.random.w    <- scale * TE.random.w
+      lowTE.random.w <- scale * lowTE.random.w
+      uppTE.random.w <- scale * uppTE.random.w
     }
   }
   ##

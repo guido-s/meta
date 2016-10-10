@@ -584,7 +584,7 @@ forest(x, ...)
 }
 
 \references{
-  Guddat C, Grouven U, Bender R, Skipka G 2012), A note on the
+  Guddat C, Grouven U, Bender R, Skipka G (2012), A note on the
   graphical presentation of prediction intervals in random-effects
   meta-analyses. \emph{Systematic Reviews}, \bold{1}, 34.
 

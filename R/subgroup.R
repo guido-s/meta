@@ -12,11 +12,17 @@ subgroup <- function(x, tau.preset = NULL) {
   }
   
   
-  bin.cont <- inherits(x, "metabin") | inherits(x, "metacont")
-  bin.inc <- inherits(x, "metabin") | inherits(x, "metainc")
-  inc <- inherits(x, "metainc")
+  bin  <- inherits(x, "metabin")
+  cont <- inherits(x, "metacont")
+  cor  <- inherits(x, "metacor")
+  gen  <- inherits(x, "metagen")
+  inc  <- inherits(x, "metainc")
   prop <- inherits(x, "metaprop")
-  cor.prop <- inherits(x, "metacor") | inherits(x, "metaprop")
+  rate <- inherits(x, "metarate")
+  ##
+  bin.cont <- bin | cont
+  bin.inc  <- bin | inc
+  cor.prop <- cor | prop
   
   
   sumNA <- function(x)
@@ -36,7 +42,7 @@ subgroup <- function(x, tau.preset = NULL) {
       stop("No data available for byvar = ", i)
     ##
     ##
-    if (inherits(x, "metabin"))
+    if (bin)
       meta1 <- metabin(x$event.e[sel], x$n.e[sel],
                        x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
@@ -55,7 +61,7 @@ subgroup <- function(x, tau.preset = NULL) {
                        TE.tau = x$TE.tau,
                        warn = x$warn)
     ##
-    if (inherits(x, "metacont"))
+    if (cont)
       meta1 <- metacont(x$n.e[sel], x$mean.e[sel],
                         x$sd.e[sel],
                         x$n.c[sel], x$mean.c[sel],
@@ -68,7 +74,7 @@ subgroup <- function(x, tau.preset = NULL) {
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
     ##
-    if (inherits(x, "metagen"))
+    if (gen)
       meta1 <- metagen(x$TE[sel], x$seTE[sel],
                        sm = x$sm,
                        studlab = x$studlab[sel],
@@ -78,7 +84,7 @@ subgroup <- function(x, tau.preset = NULL) {
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
                        warn = x$warn)
     ##
-    if (inherits(x, "metaprop"))
+    if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
                         sm = x$sm,
                         studlab = x$studlab[sel],
@@ -91,7 +97,7 @@ subgroup <- function(x, tau.preset = NULL) {
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
     ##
-    if (inherits(x, "metacor"))
+    if (cor)
       meta1 <- metacor(x$cor[sel], x$n[sel],
                        sm = x$sm,
                        studlab = x$studlab[sel],
@@ -100,7 +106,7 @@ subgroup <- function(x, tau.preset = NULL) {
                        method.tau = x$method.tau,
                        tau.preset = tau.preset, TE.tau = x$TE.tau)
     ##
-    if (inherits(x, "metainc"))
+    if (inc)
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
@@ -116,8 +122,8 @@ subgroup <- function(x, tau.preset = NULL) {
                        TE.tau = x$TE.tau,
                        warn = x$warn)
     ##
-    if (inherits(x, "metarate"))
-      meta1 <- metaprop(x$event[sel], x$time[sel],
+    if (rate)
+      meta1 <- metarate(x$event[sel], x$time[sel],
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         level = x$level, level.comb = x$level.comb,
@@ -145,18 +151,18 @@ subgroup <- function(x, tau.preset = NULL) {
                    meta1$upper.I2,                            # 13
                    meta1$tau,                                 # 14
                    meta1$C,                                   # 15
-                   mean(1/x$n[sel]),                          # 16
+                   1 / mean(1 / x$n[sel]),                    # 16
                    sum(x$w.fixed[sel]),                       # 17
                    sum(x$w.random[sel]),                      # 18
-                   if (bin.inc) sumNA(meta1$event.e) else NA, # 19
+                   if (bin.inc)  sumNA(meta1$event.e) else NA,# 19
                    if (bin.cont) sumNA(meta1$n.e) else NA,    # 20
-                   if (bin.inc) sumNA(meta1$event.c) else NA, # 21
+                   if (bin.inc)  sumNA(meta1$event.c) else NA,# 21
                    if (bin.cont) sumNA(meta1$n.c) else NA,    # 22
-                   if (prop) sumNA(meta1$event) else NA,      # 23
+                   if (prop)     sumNA(meta1$event) else NA,  # 23
                    if (cor.prop) sumNA(meta1$n) else NA,      # 24
-                   if (inc) sumNA(meta1$time.e) else NA,      # 25
-                   if (inc) sumNA(meta1$time.c) else NA,      # 26
-                   mean(1 / x$time[sel])                      # 27
+                   if (inc)      sumNA(meta1$time.e) else NA, # 25
+                   if (inc)      sumNA(meta1$time.c) else NA, # 26
+                   1 / mean(1 / x$time[sel])                  # 27
                    )
   }
   ##

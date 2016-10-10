@@ -17,6 +17,7 @@ print.meta <- function(x,
                        digits.I2 = .settings$digits.I2,
                        digits.prop = .settings$digits.prop,
                        digits.weight = .settings$digits.weight,
+                       warn.backtransf = FALSE,
                        ...
                        ) {
   
@@ -246,23 +247,25 @@ print.meta <- function(x,
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
-      if (metainf.metacum)
+      if (metainf.metacum) {
         if (sm == "IRFT")
-          npft <- x$t.harmonic.mean
+          harmonic.mean <- x$t.harmonic.mean
         else
-          npft <- x$n.harmonic.mean
-      else
+          harmonic.mean <- x$n.harmonic.mean
+      }
+      else {
         if (sm == "IRFT")
-          npft <- x$time
+          harmonic.mean <- x$time
         else
-          npft <- x$n
+          harmonic.mean <- x$n
+      }
       ##
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
       else {
-        TE <- backtransf(TE, sm, "mean", npft)
-        lowTE <- backtransf(lowTE, sm, "lower", npft)
-        uppTE <- backtransf(uppTE, sm, "upper", npft)
+        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, warn.backtransf)
+        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, warn.backtransf)
+        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, warn.backtransf)
       }
       ##
       if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
