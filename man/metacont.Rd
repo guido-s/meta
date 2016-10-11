@@ -28,7 +28,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          label.e=.settings$label.e, label.c=.settings$label.c,
          label.left=.settings$label.left, label.right=.settings$label.right,
          byvar, bylab, print.byvar=.settings$print.byvar,
-	 byseparator = .settings$byseparator,
+	 byseparator=.settings$byseparator,
          keepdata=.settings$keepdata,
          warn=.settings$warn)
 }
@@ -128,6 +128,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
    \item standardised mean difference (\code{sm="SMD"})
    \item ratio of means (\code{sm="ROM"})
   }
+
+  Meta-analysis of ratio of means -- also called response ratios -- is
+  described in Hedges et al. (1999).
   
   For the standardised mean difference three methods are implemented:
   \itemize{
@@ -370,6 +373,11 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \emph{Journal of Educational and Behavioral Statistics},
   \bold{6}, 107--28.
 
+  Hedges LV, Gurevitch J, Curtis PS (1999),
+  The meta-analysis of response ratios in experimental ecology.
+  \emph{Ecology},
+  \bold{80}, 1150--6.
+
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
@@ -452,6 +460,16 @@ meta7
 # Calculate Hedges' g based on exact formulae
 #
 update(meta1, exact.smd=TRUE)
+
+#
+# Meta-analysis of response ratios (Hedges et al., 1999)
+#
+data(woodyplants)
+meta8 <- metacont(n.elev, mean.elev, sd.elev,
+		  n.amb, mean.amb, sd.amb,
+                  data=woodyplants, sm="ROM")
+summary(meta8)
+summary(meta8, backtransf=FALSE)
 }
 
 \keyword{htest}
