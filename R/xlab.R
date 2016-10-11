@@ -30,6 +30,9 @@ xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years
     else if (sm == "RR")
       res <- "Risk Ratio"
     ##
+    else if (sm == "ROM")
+      res <- "Ratio of Means"
+    ##
     else if (sm == "ZCOR")
       res <- "Correlation"
     ##
@@ -63,6 +66,9 @@ xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years
     ##
     else if (sm == "RR")
       res <- "Log Risk Ratio"
+    ##
+    else if (sm == "ROM")
+      res <- "Log Ratio of Means"
     ##
     else if (sm == "HR")
       res <- "Log Hazard Ratio"

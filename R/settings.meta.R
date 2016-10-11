@@ -578,7 +578,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmcont)) {
       smcont <- args[[idsmcont]]
-      smcont <- setchar(smcont, c("MD", "SMD"))
+      smcont <- setchar(smcont, c("MD", "SMD", "ROM"))
       setOption("smcont", smcont)
     }
     ##

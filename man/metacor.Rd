@@ -88,9 +88,7 @@ metacor(cor, n, studlab,
   Fixed effect and random effects meta-analysis of correlations based
   either on Fisher's z transformation of correlations
   (\code{sm="ZCOR"}) or direct combination of correlations
-  (\code{sm="COR"}) (see Cooper et al., p264-5 and p273-4). By
-  default, the DerSimonian-Laird estimate (1986) is used in the random
-  effects model (\code{method.tau="DL"}).
+  (\code{sm="COR"}) (see Cooper et al., p264-5 and p273-4).
 
   Only few statisticians would advocate the use of untransformed
   correlations unless sample sizes are very large (see Cooper et al.,
@@ -125,8 +123,9 @@ metacor(cor, n, studlab,
   used to adjust test statistics and confidence intervals if argument
   \code{hakn=TRUE}.
   
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.

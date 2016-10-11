@@ -8,6 +8,11 @@
   * Peters' test for funnel plot asymmetry implemented for
     meta-analysis of single proportions
 
+  * Meta-analysis of ratio of means added to metacont()
+
+  * Justification of additional columns in forest plot can be
+    specified individually for each additional column
+
   * Justification of additional columns in forest plot can be
     specified individually for each additional column
 
@@ -45,6 +50,10 @@
       specify justification of additional columns on left and right
       side of forest plot
 
+  * metacont():
+    - meta-analysis for ratio of means implemented (argument sm = "ROM")
+    - new argument backtransf (if argument sm = "ROM")
+
   * metaprop():
     - change in Freeman-Tukey double arcsin transformation only
       visible in printouts if argument backtransf = FALSE or if list
@@ -61,9 +70,10 @@
       and backtransformed proportions are above 1
 
   * Help pages updated:
-    forest.meta(), metabias.meta(), metagen(), metainf(), metaprop(),
-    print.meta(), print.summary.meta(), summary.meta(),
-    trimfill.default(), trimfill.meta(), update.meta()
+    forest.meta(), metabias.meta(), metabin(), metacont(), metacor(),
+    metagen(), metainc(), metainf(), metaprop(), print.meta(),
+    print.summary.meta(), summary.meta(), trimfill.default(),
+    trimfill.meta(), update.meta()
 
  ** Internal changes **
 

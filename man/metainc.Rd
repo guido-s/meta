@@ -156,9 +156,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   estimate (Greenland & Robbins, 1985); if \code{method} is
   \code{"Inverse"}, inverse variance weighting is used for pooling; if
   \code{method} is \code{"Cochran"}, the Cochran method is used for
-  pooling (Bayne-Jones, 1964, Chapter 8). By default, the
-  DerSimonian-Laird estimate (1986) is used in the random effects
-  model (\code{method.tau="DL"}).
+  pooling (Bayne-Jones, 1964, Chapter 8).
   
   A distinctive and frequently overlooked advantage of incidence rates
   is that individual patient data (IPD) can be extracted from count
@@ -218,8 +216,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   used to adjust test statistics and confidence intervals if argument
   \code{hakn=TRUE}.
   
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.

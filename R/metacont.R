@@ -23,6 +23,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      method.bias = .settings$method.bias,
                      ##
+                     backtransf = .settings$backtransf,
                      title = .settings$title, complab = .settings$complab,
                      outclab = "",
                      label.e = .settings$label.e, label.c = .settings$label.c,
@@ -58,13 +59,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
-  backtransf <- FALSE
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metacont objects
   ##
   fun <- "metacont"
-  sm <- setchar(sm, c("MD", "SMD"))
+  sm <- setchar(sm, c("MD", "SMD", "ROM"))
   chklogical(pooledvar)
   method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
   sd.glass <- setchar(sd.glass, c("control", "experimental"))
@@ -260,24 +260,23 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (7) Calculate results for individual studies
   ##
   ##
-  npn1 <- npn(n.e)
-  npn2 <- npn(n.c)
-  npn <- npn1 | npn2
+  npn.n <- npn(n.e) | npn(n.c)
   ##
   N <- n.e + n.c
+  if (sm == "MD" | sm == "ROM")
+    var.pooled <- ((n.e - 1) * sd.e^2 + (n.c - 1) * sd.c^2) / (N - 2)
   ##
-  if (any(npn) & warn)
+  if (any(npn.n) & warn)
     warning("Studies with non-positive values for n.e and / or n.c get no weight in meta-analysis.")
-  ##  
+  ##
   if (sm == "MD") {
-    TE <- ifelse(npn, NA, mean.e - mean.c)
+    TE <- ifelse(npn.n, NA, mean.e - mean.c)
     ##
     if (pooledvar)
-      seTE <- ifelse(npn, NA,
-                     sqrt((1 / n.e + 1 / n.c) *
-                            ((n.e - 1) * sd.e^2 + (n.c - 1) * sd.c^2) / (N - 2)))
+      seTE <- ifelse(npn.n, NA,
+                     sqrt(var.pooled * (1 / n.e + 1 / n.c)))
     else
-      seTE <- ifelse(npn, NA,
+      seTE <- ifelse(npn.n, NA,
                      sqrt(sd.e^2 / n.e + sd.c^2 / n.c))
     ##
     seTE[is.na(TE)] <- NA
@@ -291,7 +290,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     else
       S.within <- if (sd.glass == "control") sd.c else sd.e
     ##
-    smd <- ifelse(npn, NA, (mean.e - mean.c) / S.within)
+    smd <- ifelse(npn.n, NA, (mean.e - mean.c) / S.within)
     ##
     if (method.smd == "Cohen") {
       ##
@@ -302,11 +301,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       if (exact.smd) {
         J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
         K <- function(x) 1 - (x - 2) / (x * J(x)^2)
-        seTE <- ifelse(npn, NA,
+        seTE <- ifelse(npn.n, NA,
                        sqrt(N / (n.e * n.c) + (J(N - 2) * smd)^2 * K(N - 2)))
       }
       else
-        seTE <- ifelse(npn, NA,
+        seTE <- ifelse(npn.n, NA,
                        sqrt(N / (n.e * n.c) + TE^2 / (2 * N)))
     }
     else if (method.smd == "Hedges") {
@@ -324,7 +323,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       }
       ##
       TE   <- J(N - 2) * smd
-      seTE <- ifelse(npn, NA,
+      seTE <- ifelse(npn.n, NA,
                      sqrt(N / (n.e * n.c) + TE^2 * K(N - 2)))
     }
     else if (method.smd == "Glass") {
@@ -334,9 +333,27 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       n.g  <- if (sd.glass == "control") n.c else n.e
       ##
       TE <- smd
-      seTE <- ifelse(npn, NA,
+      seTE <- ifelse(npn.n, NA,
                      sqrt(N / (n.e * n.c) + TE^2 / (2 * n.g - 1)))
     }
+    ##
+    seTE[is.na(TE)] <- NA
+  }
+  ##
+  else if (sm == "ROM") {
+    npn.mean <- npn(mean.e) | npn(mean.c)
+    ##
+    if (any(npn.mean) & warn)
+      warning("Studies with negative or zero means get no weight in meta-analysis.")
+
+    TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / log(mean.c)))
+    ##
+    if (pooledvar)
+      seTE <- ifelse(npn.n, NA,
+                     sqrt(var.pooled * (1 / (n.e * mean.e^2) + 1 / (n.c * mean.c^2))))
+    else
+      seTE <- ifelse(npn.n | npn.mean, NA,
+                     sqrt(sd.e^2 / (n.e * mean.e^2) + sd.c^2 / (n.c * mean.c^2)))
     ##
     seTE[is.na(TE)] <- NA
   }

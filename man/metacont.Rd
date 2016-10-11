@@ -23,6 +23,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          tau.common=.settings$tau.common,
          prediction=.settings$prediction, level.predict=.settings$level.predict,
          method.bias=.settings$method.bias,
+         backtransf=.settings$backtransf,
          title=.settings$title, complab=.settings$complab, outclab="",
          label.e=.settings$label.e, label.c=.settings$label.c,
          label.left=.settings$label.left, label.right=.settings$label.right,
@@ -71,6 +72,10 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}}
+  \item{backtransf}{A logical indicating whether results for ratio of
+    means (\code{sm="ROM"}) should be back transformed in printouts
+    and plots. If TRUE (default), results will be presented as ratio
+    of means; otherwise log ratio of means will be shown.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
@@ -79,8 +84,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{label.left}{Graph label on left side of forest plot.}
   \item{label.right}{Graph label on right side of forest plot.}
   \item{sm}{A character string indicating which summary measure
-    (\code{"MD"} or \code{"SMD"}) is to be used for pooling of
-    studies.}
+    (\code{"MD"}, \code{"SMD"}, or \code{"ROM"}) is to be used for
+    pooling of studies.}
   \item{pooledvar}{A logical indicating if a pooled variance should be
     used for the mean difference (\code{sm="MD"}).}
   \item{method.smd}{A character string indicating which method is used
@@ -114,13 +119,17 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 \details{
   Calculation of fixed and random effects estimates for meta-analyses
   with continuous outcome data; inverse variance weighting is used for
-  pooling. By default, the DerSimonian-Laird estimate (1986) is used
-  in the random effects model (\code{method.tau="DL"}).
+  pooling.
 
-  Two different types of summary measures are available for continuous
-  outcomes: the mean difference (argument \code{sm="MD"}) and the
-  standardised mean difference (\code{sm="SMD"}). For the standardised
-  mean difference three methods are implemented:
+  Three different types of summary measures are available for continuous
+  outcomes:
+  \itemize{
+   \item mean difference (argument \code{sm="MD"})
+   \item standardised mean difference (\code{sm="SMD"})
+   \item ratio of means (\code{sm="ROM"})
+  }
+  
+  For the standardised mean difference three methods are implemented:
   \itemize{
    \item Hedges' g (default, \code{method.smd="Hedges"}) - see Hedges (1981)
    \item Cohen's d (\code{method.smd="Cohen"}) - see Cohen (1988)
@@ -148,6 +157,12 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   the denominator of the standard mean difference. The standard
   deviation in the experimental group (\code{sd.e}) can be used by
   specifying \code{sd.glass="experimental"}.
+  
+  Calculations are conducted on the log scale for ratio of means
+  (\code{sm="ROM"}). Accordingly, list elements \code{TE},
+  \code{TE.fixed}, and \code{TE.random} contain the logarithm of ratio
+  of means. In printouts and plots these values are back transformed
+  if argument \code{backtransf=TRUE}.
   
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
@@ -179,8 +194,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   used to adjust test statistics and confidence intervals if argument
   \code{hakn=TRUE}.
 
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function \code{mpaule.default} from R
   package metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.

@@ -110,9 +110,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   Generic method for meta-analysis, only treatment estimates and their
   standard error are needed. The method is useful, e.g., for pooling
   of survival data (using log hazard ratio and standard errors as
-  input). The inverse variance method is used for pooling. By default,
-  the DerSimonian-Laird estimate (1986) is used in the random effects
-  model (\code{method.tau="DL"}).
+  input). The inverse variance method is used for pooling.
 
   For several arguments defaults settings are utilised (assignments
   with \code{.settings$}). These defaults can be changed using the
@@ -141,8 +139,9 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   used to adjust test statistics and confidence intervals if argument
   \code{hakn=TRUE}.
   
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
   metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.

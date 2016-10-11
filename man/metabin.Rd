@@ -178,12 +178,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   Mantel-Haenszel method is used to calculate the fixed effect
   estimate; if \code{method} is \code{"Inverse"}, inverse variance
   weighting is used for pooling; if \code{method} is \code{"Peto"},
-  the Peto method is used for pooling. By default, the
-  DerSimonian-Laird estimate (1986) is used in the random effects
-  model (\code{method.tau="DL"}). For the Peto method, Peto's log odds
-  ratio, i.e. \code{(O - E) / V} and its standard error \code{sqrt(1 / V)}
-  with \code{O - E} and \code{V} denoting "Observed minus
-  Expected" and "V", are utilised in the random effects
+  the Peto method is used for pooling. For the Peto method, Peto's log
+  odds ratio, i.e. \code{(O - E) / V} and its standard error
+  \code{sqrt(1 / V)} with \code{O - E} and \code{V} denoting "Observed
+  minus Expected" and "V", are utilised in the random effects
   model. Accordingly, results of a random effects model using
   \code{sm="Peto"} can be (slightly) different to results from a
   random effects model using \code{sm="MH"} or \code{sm="Inverse"}.
@@ -265,8 +263,9 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   (2003) is implemented, see description of argument \code{tdist} in
   \code{\link[metafor]{rma.glmm}}.
 
-  The iterative Paule-Mandel method (1982) to estimate the
-  between-study variance is used if argument
+  The DerSimonian-Laird estimate (1986) is used in the random effects
+  model if \code{method.tau="DL"}. The iterative Paule-Mandel method
+  (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
   \bold{metRology} from S.L.R. Ellison <s.ellison at lgc.co.uk>.
