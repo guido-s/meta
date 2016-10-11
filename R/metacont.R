@@ -346,7 +346,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (any(npn.mean) & warn)
       warning("Studies with negative or zero means get no weight in meta-analysis.")
 
-    TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / log(mean.c)))
+    TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / mean.c))
     ##
     if (pooledvar)
       seTE <- ifelse(npn.n, NA,
