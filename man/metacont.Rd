@@ -130,7 +130,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
 
   Meta-analysis of ratio of means -- also called response ratios -- is
-  described in Hedges et al. (1999).
+  described in Hedges et al. (1999) and Friedrich et al. (2008).
   
   For the standardised mean difference three methods are implemented:
   \itemize{
@@ -346,7 +346,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   Chichester: Wiley.
 
   Cohen J (1988),
-  Statistical Power Analysis for the Behavioral Sciences (second ed.).
+  \emph{Statistical Power Analysis for the Behavioral Sciences (second ed.)},
   Lawrence Erlbaum Associates.
 
   Cooper H & Hedges LV (1994),
@@ -355,7 +355,13 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 
   DerSimonian R & Laird N (1986),
   Meta-analysis in clinical trials. \emph{Controlled Clinical Trials},
-  \bold{7}, 177--188.
+  \bold{7}, 177--88.
+
+  Friedrich JO, Adhikari NK, Beyene J (2008),
+  The ratio of means method as an alternative to mean differences for
+  analyzing continuous outcome variables in meta-analysis: A
+  simulation study.
+  \emph{BMC Med Res Methodol}, \bold{8}, 32.
 
   Glass G (1976),
   Primary, secondary, and meta-analysis of research.
@@ -381,7 +387,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   Higgins JPT, Thompson SG, Spiegelhalter DJ (2009),
   A re-evaluation of random-effects meta-analysis.
   \emph{Journal of the Royal Statistical Society: Series A},
-  \bold{172}, 137--159.
+  \bold{172}, 137--59.
 
   Knapp G & Hartung J (2003),
   Improved Tests for a Random Effects Meta-regression with a Single
@@ -392,7 +398,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   Paule RC & Mandel J (1982),
   Consensus values and weighting factors.
   \emph{Journal of Research of the National Bureau of Standards},
-  \bold{87}, 377--385.
+  \bold{87}, 377--85.
   
   \emph{Review Manager (RevMan)} [Computer program]. Version
   5.3. Copenhagen: The Nordic Cochrane Centre, The Cochrane

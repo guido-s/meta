@@ -2,7 +2,7 @@ citHeader("To cite package 'meta' in publications use:")
 
 citEntry(
   entry   = "Article",
-  title   = "Meta: {A}n {R} package for meta-analysis",
+  title   = "meta: {A}n {R} package for meta-analysis",
   author  = personList(as.person("Guido Schwarzer")),
   journal = "R News",
   year    = "2007",
@@ -11,7 +11,7 @@ citEntry(
   pages   = "40--45",
 
   textVersion = paste("Guido Schwarzer (2007),",
-                      "Meta: An R package for meta-analysis,",
+                      "meta: An R package for meta-analysis,",
                       "R News, 7(3), 40-45.")
 )
 

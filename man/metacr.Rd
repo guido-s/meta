@@ -34,8 +34,8 @@ metacr(x, comp.no=1, outcome.no=1,
     \code{"Peto"}, can be abbreviated.}
   \item{sm}{A character string indicating which summary measure
     (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"}, \code{"HR"},
-    \code{"MD"}, or \code{"SMD"}) is to be used for pooling of
-    studies.}
+    \code{"MD"}, or \code{"SMD"}, or \code{"ROM"}) is to be used for
+    pooling of studies.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for

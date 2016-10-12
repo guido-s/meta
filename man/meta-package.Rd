@@ -11,7 +11,8 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
 }
 
 \details{
-  R package \bold{meta} provides the following meta-analysis methods:
+  R package \bold{meta} (Schwarzer, 2007) provides the following
+  meta-analysis methods:
   \itemize{
   \item fixed effect and random effects meta-analysis (functions
     \code{\link{metabin}}, \code{\link{metacont}},
@@ -36,15 +37,31 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
     \code{\link{metarate}}; if R packages \bold{metafor}, \bold{lme4},
     \bold{numDeriv}, and \bold{BiasedUrn} are installed).
   }
-
+  
+  The following more advanced statistical methods are provided by
+  add-on R packages:
+  \itemize{
+  \item frequentist methods for network meta-analysis (R package
+    \bold{netmeta});
+  \item advanced methods to model and adjust for bias in meta-analysis
+    (R package \bold{metasens}).
+  }
+  
   See \code{\link{settings.meta}} to learn how to print and specify
-  default meta-analysis methods used during your R session.
+  default meta-analysis methods used during your R session. For
+  example, the following R command specifies the use of the
+  Hartung-Knapp and Paule-Mandel methods, and the printing of
+  prediction intervals for any meta-analysis in the current R session:
+  \itemize{
+  \item \code{settings.meta(hakn=TRUE, method.tau="PM", prediction=TRUE)}
+  }
 
   Type \code{help(package = "meta")} for a listing of R functions
   available in \bold{meta}.
 
-  Type \code{citation("meta")} on how to cite \bold{meta} in
-  publications.
+  Schwarzer (2007) is the preferred citation in publications for
+  \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of this
+  publication.
 
   To report problems and bugs
   \itemize{
@@ -59,6 +76,11 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
 }
 
 \references{
+  Schwarzer G (2007),
+  meta: An R package for meta-analysis.
+  \emph{R News}, \bold{7}(3), 40--5.
+  \url{https://cran.r-project.org/doc/Rnews/Rnews_2007-3.pdf}
+
   Schwarzer G, Carpenter JR and Rücker G (2015),
   \emph{Meta-Analysis with R (Use-R!)}.
   Springer International Publishing, Switzerland.

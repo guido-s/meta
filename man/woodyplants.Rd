@@ -24,16 +24,14 @@
 
 \details{
   This dataset has been used as an example in Hedges et al. (1999) to
-  describe methods for the meta-analysis of response ratios. Data are
-  based on Curtis & Brenkert (1998) evaluating the effect of elevated
-  CO_2-levels on total biomass of woody plants.
+  describe methods for the meta-analysis of response ratios. The
+  complete dataset with 102 observations and 26 variables is available
+  online as a supplement. Here only a subset of 10 variables is
+  provided and used in the examples.
 }
 
 \source{
-  Curtis PS, Wang X (1998),
-  A meta-analysis of elevated CO2 effects on woody plant mass, form, and physiology.
-  \emph{Oecologia},
-  \bold{113}, 299--313.
+  Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
 }
 
 \references{
@@ -46,20 +44,20 @@
 \examples{
 data(woodyplants)
 
-#
 # Meta-analysis of response ratios (Hedges et al., 1999)
 #
 meta8 <- metacont(n.elev, mean.elev, sd.elev,
-		  n.amb, mean.amb, sd.amb,
-                  data=woodyplants, sm="ROM")
+                  n.amb, mean.amb, sd.amb,
+                  data=woodyplants, sm="ROM",
+                  studlab=paste(obsno, papno, sep = " / "))
 summary(meta8, prediction=TRUE)
 
-# Meta-analysis for plants grown under nutrient stress
+# Meta-analysis for plants grown with low soil fertility treatment
 #
 meta9 <- update(meta8, subset=(treat=="fert"&level=="low"))
 summary(meta9, prediction=TRUE)
 
-# Meta-analysis for plants grown under nutrient stress
+# Meta-analysis for plants grown under low light conditions
 #
 meta10 <- update(meta8, subset=(treat=="light"&level=="low"))
 summary(meta10, prediction=TRUE)
