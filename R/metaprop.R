@@ -402,7 +402,8 @@ metaprop <- function(event, n, studlab,
   if (method == "GLMM") {
     glmm.fixed <- metafor::rma.glmm(xi = event, ni = n,
                                     method = "FE",
-                                    tdist = hakn, level = 100 * level.comb,
+                                    test = ifelse(hakn, "t", "z"),
+                                    level = 100 * level.comb,
                                     measure = "PLO",
                                     ...)
     ##
@@ -487,7 +488,8 @@ metaprop <- function(event, n, studlab,
     ##
     glmm.random <- metafor::rma.glmm(xi = event, ni = n,
                                      method = method.tau,
-                                     tdist = hakn, level = 100 * level.comb,
+                                     test = ifelse(hakn, "t", "z"),
+                                     level = 100 * level.comb,
                                      measure = "PLO",
                                      ...)
     ##

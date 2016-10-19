@@ -329,7 +329,8 @@ metarate <- function(event, time, studlab,
   if (method == "GLMM") {
     glmm.fixed <- metafor::rma.glmm(xi = event, ti = time,
                                     method = "FE",
-                                    tdist = hakn, level = 100 * level.comb,
+                                    test = ifelse(hakn, "t", "z"),
+                                    level = 100 * level.comb,
                                     measure = "IRLN",
                                     ...)
     ##
@@ -413,7 +414,8 @@ metarate <- function(event, time, studlab,
     ##
     glmm.random <- metafor::rma.glmm(xi = event, ti = time,
                                      method = method.tau,
-                                     tdist = hakn, level = 100 * level.comb,
+                                     test = ifelse(hakn, "t", "z"),
+                                     level = 100 * level.comb,
                                      measure = "IRLN",
                                      ...)
     ##

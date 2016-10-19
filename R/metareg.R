@@ -74,14 +74,21 @@ metareg <- function(x, formula,
     dataset <- x$data[x$subset, ]
   else
     dataset <- x$data
-
+  
+  
+  ##
+  ## Argument test in rma.uni() and rma.glmm()
+  ##
+  test <- ifelse(!hakn, "z",
+                 ifelse(x$method != "GLMM", "knha", "t"))
+  
   
   if (x$method != "GLMM")
     res <- metafor::rma.uni(yi = x$TE,
                             sei = x$seTE,
                             data = dataset,
                             mods = formula, method = method.tau,
-                            knha = hakn, level = 100 * level.comb,
+                            test = test, level = 100 * level.comb,
                             ...)
   else
     if (inherits(x, "metabin"))
@@ -89,7 +96,7 @@ metareg <- function(x, formula,
                                ci = x$event.c, n2i = x$n.c,
                                data = dataset,
                                mods = formula, method = method.tau,
-                               tdist = hakn, level = 100 * level.comb,
+                               test = test, level = 100 * level.comb,
                                measure = "OR", model = x$model.glmm,
                                ...)
     else if (inherits(x, "metainc"))
@@ -97,21 +104,21 @@ metareg <- function(x, formula,
                                x2i = x$event.c, t2i = x$time.c,
                                data = dataset,
                                mods = formula, method = method.tau,
-                               tdist = hakn, level = 100 * level.comb,
+                               test = test, level = 100 * level.comb,
                                measure = "IRR", model = x$model.glmm,
                                ...)
     else if (inherits(x, "metaprop"))
       res <- metafor::rma.glmm(xi = x$event, ni = x$n,
                                data = dataset,
                                mods = formula, method = method.tau,
-                               tdist = hakn, level = 100 * level.comb,
+                               test = test, level = 100 * level.comb,
                                measure = "PLO",
                                ...)
     else if (inherits(x, "metarate"))
       res <- metafor::rma.glmm(xi = x$event, ti = x$time,
                                data = dataset,
                                mods = formula, method = method.tau,
-                               tdist = hakn, level = 100 * level.comb,
+                               test = test, level = 100 * level.comb,
                                measure = "IRLN",
                                ...)
   

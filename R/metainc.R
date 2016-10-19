@@ -400,7 +400,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     glmm.fixed <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
                                     x2i = event.c, t2i = time.c,
                                     method = "FE",
-                                    tdist = hakn, level = 100 * level.comb,
+                                    test = ifelse(hakn, "t", "z"),
+                                    level = 100 * level.comb,
                                     measure = "IRR", model = model.glmm,
                                     ...)
     ##
@@ -491,7 +492,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     glmm.random <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
                                      x2i = event.c, t2i = time.c,
                                      method = method.tau,
-                                     tdist = hakn, level = 100 * level.comb,
+                                     test = ifelse(hakn, "t", "z"),
+                                     level = 100 * level.comb,
                                      measure = "IRR", model = model.glmm,
                                      ...)
     ##

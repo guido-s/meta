@@ -628,7 +628,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     glmm.fixed <- metafor::rma.glmm(ai = event.e, n1i = n.e,
                                     ci = event.c, n2i = n.c,
                                     method = "FE",
-                                    tdist = hakn, level = 100 * level.comb,
+                                    test = ifelse(hakn, "t", "z"),
+                                    level = 100 * level.comb,
                                     measure = "OR", model = model.glmm,
                                     ...)
     ##
@@ -721,7 +722,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     glmm.random <- metafor::rma.glmm(ai = event.e, n1i = n.e,
                                      ci = event.c, n2i = n.c,
                                      method = method.tau,
-                                     tdist = hakn, level = 100 * level.comb,
+                                     test = ifelse(hakn, "t", "z"),
+                                     level = 100 * level.comb,
                                      measure = "OR", model = model.glmm,
                                      ...)
     ##
