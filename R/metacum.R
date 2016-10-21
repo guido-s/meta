@@ -92,7 +92,7 @@ metacum <- function(x, pooled, sortvar) {
   ## (4) Do sensitivity analysis
   ##
   ##
-  res.i <- matrix(NA, ncol = 11, nrow = k.all)
+  res.i <- matrix(NA, ncol = 12, nrow = k.all)
   ##
   for (i in 1:k.all) {
     sel <- 1:i
@@ -207,32 +207,34 @@ metacum <- function(x, pooled, sortvar) {
     sel.irft <- inherits(x, "metarate") & x$sm == "IRFT"
     ##
     if (pooled == "fixed") {
-      res.i[i,] <- c(m$TE.fixed,                                   #  1
-                     m$seTE.fixed,                                 #  2
-                     m$lower.fixed,                                #  3
-                     m$upper.fixed,                                #  4
-                     m$pval.fixed,                                 #  5
-                     m$I2,                                         #  6
-                     m$tau,                                        #  7
-                     sum(m$w.fixed, na.rm = TRUE),                 #  8
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,    #  9
-                     NA,                                           # 10
-                     if (sel.irft) 1 / mean(1 / time[sel]) else NA # 11
+      res.i[i,] <- c(m$TE.fixed,                                    #  1
+                     m$seTE.fixed,                                  #  2
+                     m$lower.fixed,                                 #  3
+                     m$upper.fixed,                                 #  4
+                     m$pval.fixed,                                  #  5
+                     m$I2,                                          #  6
+                     m$tau,                                         #  7
+                     sum(m$w.fixed, na.rm = TRUE),                  #  8
+                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,     #  9
+                     NA,                                            # 10
+                     if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 11
+                     m$Rb                                           # 12
                      )
     }
     ##
     else if (pooled == "random") {
-      res.i[i,] <- c(m$TE.random,                                  #  1
-                     m$seTE.random,                                #  2
-                     m$lower.random,                               #  3
-                     m$upper.random,                               #  4
-                     m$pval.random,                                #  5
-                     m$I2,                                         #  6
-                     m$tau,                                        #  7
-                     sum(m$w.random, na.rm = TRUE),                #  8
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,    #  9
-                     if (x$hakn) m$df.hakn else NA,                # 10
-                     if (sel.irft) 1 / mean(1 / time[sel]) else NA # 11
+      res.i[i,] <- c(m$TE.random,                                   #  1
+                     m$seTE.random,                                 #  2
+                     m$lower.random,                                #  3
+                     m$upper.random,                                #  4
+                     m$pval.random,                                 #  5
+                     m$I2,                                          #  6
+                     m$tau,                                         #  7
+                     sum(m$w.random, na.rm = TRUE),                 #  8
+                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,     #  9
+                     if (x$hakn) m$df.hakn else NA,                 # 10
+                     if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 11
+                     m$Rb                                           # 12
                      )
     }
   }
@@ -249,6 +251,7 @@ metacum <- function(x, pooled, sortvar) {
   if (pooled == "random" & x$hakn)
     df.hakn.i <- res.i[, 10]
   t.harmonic.mean.i <- res.i[, 11]
+  Rb.i <- res.i[, 12]
   ##  
   if (pooled == "fixed") {
     TE.s <- x$TE.fixed
@@ -282,6 +285,7 @@ metacum <- function(x, pooled, sortvar) {
               p.value = c(pval.i, NA, pval.s),
               w = c(weight.i, NA, w.s),
               I2 = c(I2.i, NA, x$I2),
+              Rb = c(Rb.i, NA, x$Rb),
               tau = c(tau.i, NA, x$tau),
               df.hakn = if (pooled == "random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
               sm = x$sm, method = x$method, k = x$k,

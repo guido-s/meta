@@ -29,7 +29,7 @@ forest(x, ...)
                      paste("Prediction interval (",
                            round(x$level.predict*100), "\%)",
                      sep="") else "Prediction interval",
-       bylab=x$bylab, print.byvar=x$print.byvar, byseparator=.settings$byseparator,
+       bylab=x$bylab, print.byvar=x$print.byvar, byseparator=gs("byseparator"),
        text.fixed.w=text.fixed, text.random.w=text.random,
        bysort=FALSE,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
@@ -66,15 +66,17 @@ forest(x, ...)
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
        print.I2=comb.fixed|comb.random, print.I2.ci=FALSE,
+       print.Rb=FALSE, print.Rb.ci=FALSE,
        print.tau2=comb.fixed|comb.random,
        print.Q=FALSE, print.pval.Q=comb.fixed|comb.random,
-       hetstat=print.I2|print.tau2|print.Q|print.pval.Q,
+       hetstat=print.I2|print.Rb|print.tau2|print.Q|print.pval.Q,
        overall.hetstat=overall&hetstat,
        hetlab="Heterogeneity: ",
-       text.I2 = "I-squared",
-       text.tau2 = "tau-squared",
+       text.I2="I-squared",
+       text.Rb="Rb",
+       text.tau2="tau-squared",
        ##
-       test.overall=.settings$test.overall,
+       test.overall=gs("test.overall"),
        test.overall.fixed=comb.fixed&overall&test.overall,
        test.overall.random=comb.random&overall&test.overall,
        label.test.overall.fixed=paste("Test for overall effect",
@@ -82,7 +84,7 @@ forest(x, ...)
        label.test.overall.random=paste("Test for overall effect",
          if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
        ##
-       test.subgroup=.settings$test.subgroup,
+       test.subgroup=gs("test.subgroup"),
        test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
        test.subgroup.random=if (missing(test.subgroup)) !is.null(x$byvar)&
          comb.random&test.subgroup else test.subgroup,
@@ -91,7 +93,7 @@ forest(x, ...)
        label.test.subgroup.random=paste("Test for subgroup differences",
         if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
        ##
-       test.effect.subgroup = .settings$test.effect.subgroup,
+       test.effect.subgroup = gs("test.effect.subgroup"),
        test.effect.subgroup.fixed = comb.fixed & test.effect.subgroup,
        test.effect.subgroup.random = comb.random & test.effect.subgroup,
        label.test.effect.subgroup.fixed = paste("Test for effect in subgroup",
@@ -133,10 +135,10 @@ forest(x, ...)
        new=TRUE,
        #
        backtransf=x$backtransf,
-       digits = .settings$digits.forest, digits.se = .settings$digits.se,
-       digits.pval = .settings$digits.pval, digits.pval.Q = .settings$digits.pval.Q,
-       digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
-       digits.I2 = .settings$digits.I2, digits.weight = .settings$digits.weight,
+       digits = gs("digits.forest"), digits.se = gs("digits.se"),
+       digits.pval = gs("digits.pval"), digits.pval.Q = gs("digits.pval.Q"),
+       digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
+       digits.I2 = gs("digits.I2"), digits.weight = gs("digits.weight"),
        col.i = col.study,
 
        ...)
@@ -289,6 +291,10 @@ forest(x, ...)
     of the I-squared statistic.}
   \item{print.I2.ci}{A logical value indicating whether to print the
     confidence interval of the I-squared statistic.}
+  \item{print.Rb}{A logical value indicating whether to print the value
+    of the I-squared statistic.}
+  \item{print.Rb.ci}{A logical value indicating whether to print the
+    confidence interval of the I-squared statistic.}
   \item{print.tau2}{A logical value indicating whether to print the value
     of the between-study variance tau-squared.}
   \item{print.Q}{A logical value indicating whether to print the value
@@ -305,6 +311,7 @@ forest(x, ...)
   \item{hetlab}{Label printed in front of results for heterogeneity
     measures.}
   \item{text.I2}{Label for I-squared statistic.}
+  \item{text.Rb}{Label for Rb statistic.}
   \item{text.tau2}{Label for between-study variance tau-squared.}
   \item{test.overall}{A logical value indicating whether to print
     results of test for overall effect.}

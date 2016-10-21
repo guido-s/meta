@@ -13,24 +13,24 @@
 \usage{
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          data=NULL, subset=NULL,
-         sm=.settings$smcont, pooledvar=.settings$pooledvar,
-	 method.smd=.settings$method.smd, sd.glass=.settings$sd.glass,
-	 exact.smd=.settings$exact.smd,
-         level=.settings$level, level.comb=.settings$level.comb,
-         comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
-         hakn=.settings$hakn,
-         method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
-         tau.common=.settings$tau.common,
-         prediction=.settings$prediction, level.predict=.settings$level.predict,
-         method.bias=.settings$method.bias,
-         backtransf=.settings$backtransf,
-         title=.settings$title, complab=.settings$complab, outclab="",
-         label.e=.settings$label.e, label.c=.settings$label.c,
-         label.left=.settings$label.left, label.right=.settings$label.right,
-         byvar, bylab, print.byvar=.settings$print.byvar,
-	 byseparator=.settings$byseparator,
-         keepdata=.settings$keepdata,
-         warn=.settings$warn)
+         sm=gs("smcont"), pooledvar=gs("pooledvar"),
+	 method.smd=gs("method.smd"), sd.glass=gs("sd.glass"),
+	 exact.smd=gs("exact.smd"),
+         level=gs("level"), level.comb=gs("level.comb"),
+         comb.fixed=gs("comb.fixed"), comb.random=gs("comb.random"),
+         hakn=gs("hakn"),
+         method.tau=gs("method.tau"), tau.preset=NULL, TE.tau=NULL,
+         tau.common=gs("tau.common"),
+         prediction=gs("prediction"), level.predict=gs("level.predict"),
+         method.bias=gs("method.bias"),
+         backtransf=gs("backtransf"),
+         title=gs("title"), complab=gs("complab"), outclab="",
+         label.e=gs("label.e"), label.c=gs("label.c"),
+         label.left=gs("label.left"), label.right=gs("label.right"),
+         byvar, bylab, print.byvar=gs("print.byvar"),
+	 byseparator=gs("byseparator"),
+         keepdata=gs("keepdata"),
+         warn=gs("warn"))
 }
 
 \arguments{
@@ -168,9 +168,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if argument \code{backtransf=TRUE}.
   
   For several arguments defaults settings are utilised (assignments
-  with \code{.settings$}). These defaults can be changed using the
-  \code{\link{settings.meta}} function.
-
+  using \code{\link{gs}} function). These defaults can be changed
+  using the \code{\link{settings.meta}} function.
+  
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
   \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate

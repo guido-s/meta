@@ -13,7 +13,8 @@ export(ci, settings.meta, forest, forest.meta,
        print.summary.meta, summary.meta,
        trimfill, trimfill.default, trimfill.meta,
        labbe, labbe.default, labbe.metabin,
-       update.meta, cilayout, weights.meta)
+       update.meta, cilayout, weights.meta,
+       gs)
 
 # not visible:
 # asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
@@ -22,7 +23,7 @@ export(ci, settings.meta, forest, forest.meta,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
-# hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir
+# hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir, Rb
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)
@@ -63,4 +64,5 @@ importFrom("stats", "as.formula", "binom.test", "coef", "lm", "pchisq",
            "weights")
 
 importFrom("utils", "assignInNamespace", "count.fields", "getFromNamespace",
-           "installed.packages", "packageDescription", "read.table")
+           "installed.packages", "packageDescription", "packageVersion",
+           "read.table")

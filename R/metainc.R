@@ -2,43 +2,43 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     data = NULL, subset = NULL, method = "MH",
                     ##
-                    sm = .settings$sminc,
+                    sm = gs("sminc"),
                     ##
-                    incr = .settings$incr, allincr = .settings$allincr,
-                    addincr = .settings$addincr,
+                    incr = gs("incr"), allincr = gs("allincr"),
+                    addincr = gs("addincr"),
                     model.glmm = "UM.FS",
                     ##
-                    level = .settings$level, level.comb = .settings$level.comb,
-                    comb.fixed = .settings$comb.fixed,
-                    comb.random = .settings$comb.random,
+                    level = gs("level"), level.comb = gs("level.comb"),
+                    comb.fixed = gs("comb.fixed"),
+                    comb.random = gs("comb.random"),
                     ##
-                    hakn = .settings$hakn,
+                    hakn = gs("hakn"),
                     method.tau =
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
                                               nomatch = NA)),
-                             "ML", .settings$method.tau),
+                             "ML", gs("method.tau")),
                     tau.preset = NULL, TE.tau = NULL,
-                    tau.common = .settings$tau.common,
+                    tau.common = gs("tau.common"),
                     ##
-                    prediction = .settings$prediction,
-                    level.predict = .settings$level.predict,
+                    prediction = gs("prediction"),
+                    level.predict = gs("level.predict"),
                     ##
-                    method.bias = .settings$method.bias,
+                    method.bias = gs("method.bias"),
                     ##
                     n.e = NULL, n.c = NULL,
                     ##
-                    backtransf = .settings$backtransf,
-                    title = .settings$title, complab = .settings$complab,
+                    backtransf = gs("backtransf"),
+                    title = gs("title"), complab = gs("complab"),
                     outclab = "",
-                    label.e = .settings$label.e, label.c = .settings$label.c,
-                    label.left = .settings$label.left,
-                    label.right = .settings$label.right,
+                    label.e = gs("label.e"), label.c = gs("label.c"),
+                    label.left = gs("label.left"),
+                    label.right = gs("label.right"),
                     ##
-                    byvar, bylab, print.byvar = .settings$print.byvar,
-                    byseparator = .settings$byseparator,
+                    byvar, bylab, print.byvar = gs("print.byvar"),
+                    byseparator = gs("byseparator"),
                     ##
-                    keepdata = .settings$keepdata,
-                    warn = .settings$warn,
+                    keepdata = gs("keepdata"),
+                    warn = gs("warn"),
                     ...
                     ) {
   
@@ -77,7 +77,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (method == "GLMM") {
     is.installed.package("lme4", fun, "method", " = \"GLMM\"")
     is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"")
+    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
+                         version = .settings$metafor)
   }
   ##
   chklogical(allincr)

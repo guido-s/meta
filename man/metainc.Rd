@@ -16,29 +16,29 @@
 \usage{
 metainc(event.e, time.e, event.c, time.c, studlab,
         data=NULL, subset=NULL, method="MH",
-        sm=.settings$sminc,
-        incr=.settings$incr, allincr=.settings$allincr,
-        addincr=.settings$addincr,
+        sm=gs("sminc"),
+        incr=gs("incr"), allincr=gs("allincr"),
+        addincr=gs("addincr"),
         model.glmm = "UM.FS",
-        level=.settings$level, level.comb=.settings$level.comb,
-        comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
-        hakn=.settings$hakn,
+        level=gs("level"), level.comb=gs("level.comb"),
+        comb.fixed=gs("comb.fixed"), comb.random=gs("comb.random"),
+        hakn=gs("hakn"),
         method.tau=
 	ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)),
-               "ML", .settings$method.tau),
+               "ML", gs("method.tau")),
         tau.preset=NULL, TE.tau=NULL,
-        tau.common=.settings$tau.common,
-        prediction=.settings$prediction, level.predict=.settings$level.predict,
-        method.bias=.settings$method.bias,
+        tau.common=gs("tau.common"),
+        prediction=gs("prediction"), level.predict=gs("level.predict"),
+        method.bias=gs("method.bias"),
         n.e=NULL, n.c=NULL,
-        backtransf=.settings$backtransf,
-        title=.settings$title, complab=.settings$complab, outclab="",
-        label.e=.settings$label.e, label.c=.settings$label.c,
-        label.left=.settings$label.left, label.right=.settings$label.right,
-        byvar, bylab, print.byvar=.settings$print.byvar,
-	byseparator = .settings$byseparator,
-        keepdata=.settings$keepdata,
-        warn=.settings$warn,
+        backtransf=gs("backtransf"),
+        title=gs("title"), complab=gs("complab"), outclab="",
+        label.e=gs("label.e"), label.c=gs("label.c"),
+        label.left=gs("label.left"), label.right=gs("label.right"),
+        byvar, bylab, print.byvar=gs("print.byvar"),
+	byseparator = gs("byseparator"),
+        keepdata=gs("keepdata"),
+        warn=gs("warn"),
 	...)
 }
 
@@ -135,9 +135,9 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   }
     
   For several arguments defaults settings are utilised (assignments
-  with \code{.settings$}). These defaults can be changed using the
-  \code{\link{settings.meta}} function.
-  
+  using \code{\link{gs}} function). These defaults can be changed
+  using the \code{\link{settings.meta}} function.
+    
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
   \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate

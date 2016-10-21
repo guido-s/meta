@@ -17,7 +17,7 @@ forest.meta <- function(x,
                         ##
                         bylab = x$bylab,
                         print.byvar = x$print.byvar,
-                        byseparator = .settings$byseparator,
+                        byseparator = gs("byseparator"),
                         text.fixed.w = text.fixed,
                         text.random.w = text.random,
                         bysort = FALSE,
@@ -82,16 +82,19 @@ forest.meta <- function(x,
                         ##
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
+                        print.Rb = FALSE,
+                        print.Rb.ci = FALSE,
                         print.tau2 = comb.fixed | comb.random,
                         print.Q = FALSE,
                         print.pval.Q = comb.fixed | comb.random,
-                        hetstat = print.I2 | print.tau2 | print.Q | print.pval.Q,
+                        hetstat = print.I2 | print.Rb | print.tau2 | print.Q | print.pval.Q,
                         overall.hetstat = overall & hetstat,
                         hetlab = "Heterogeneity: ",
                         text.I2 = "I-squared",
+                        text.Rb = "Rb",
                         text.tau2 = "tau-squared",
                         ##
-                        test.overall = .settings$test.overall,
+                        test.overall = gs("test.overall"),
                         test.overall.fixed = comb.fixed & overall & test.overall,
                         test.overall.random = comb.random & overall & test.overall,
                         label.test.overall.fixed = paste("Test for overall effect",
@@ -99,7 +102,7 @@ forest.meta <- function(x,
                         label.test.overall.random = paste("Test for overall effect",
                           if (comb.fixed & comb.random) " (random effects)", ": ", sep = ""),
                         ##
-                        test.subgroup = .settings$test.subgroup,
+                        test.subgroup = gs("test.subgroup"),
                         test.subgroup.fixed = if (missing(test.subgroup)) FALSE else test.subgroup,
                         test.subgroup.random = if (missing(test.subgroup)) !is.null(x$byvar) & comb.random & test.subgroup else test.subgroup,
                         print.Q.subgroup = print.Q,
@@ -107,7 +110,7 @@ forest.meta <- function(x,
                         label.test.subgroup.random = paste("Test for subgroup differences",
                           if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep = ""),
                         ##
-                        test.effect.subgroup = .settings$test.effect.subgroup,
+                        test.effect.subgroup = gs("test.effect.subgroup"),
                         test.effect.subgroup.fixed = comb.fixed & test.effect.subgroup,
                         test.effect.subgroup.random = comb.random & test.effect.subgroup,
                         label.test.effect.subgroup.fixed = paste("Test for effect in subgroup",
@@ -175,14 +178,14 @@ forest.meta <- function(x,
                         new = TRUE,
                         ##
                         backtransf = x$backtransf,
-                        digits = .settings$digits.forest,
-                        digits.se = .settings$digits.se,
-                        digits.pval = .settings$digits.pval,
-                        digits.pval.Q = .settings$digits.pval.Q,
-                        digits.Q = .settings$digits.Q,
-                        digits.tau2 = .settings$digits.tau2,
-                        digits.I2 = .settings$digits.I2,
-                        digits.weight = .settings$digits.weight,
+                        digits = gs("digits.forest"),
+                        digits.se = gs("digits.se"),
+                        digits.pval = gs("digits.pval"),
+                        digits.pval.Q = gs("digits.pval.Q"),
+                        digits.Q = gs("digits.Q"),
+                        digits.tau2 = gs("digits.tau2"),
+                        digits.I2 = gs("digits.I2"),
+                        digits.weight = gs("digits.weight"),
                         ##
                         col.i = col.study,
                         ...) {
@@ -282,6 +285,8 @@ forest.meta <- function(x,
   chklogical(print.tau2)
   chklogical(print.Q)
   chklogical(print.pval.Q)
+  chklogical(print.Rb)
+  chklogical(print.Rb.ci)
   chklogical(hetstat)
   chklogical(overall.hetstat)
   chklogical(test.overall.fixed)
@@ -1038,6 +1043,9 @@ forest.meta <- function(x,
     tau2 <- NA
     lowI2 <- NA
     uppI2 <- NA
+    Rb   <- NA
+    lowRb <- NA
+    uppRb <- NA
     ##
     Q.b.fixed  <- NA
     Q.b.random <- NA
@@ -1074,6 +1082,10 @@ forest.meta <- function(x,
     lowI2 <- x$lower.I2
     uppI2 <- x$upper.I2
     ##
+    Rb <- x$Rb
+    lowRb <- x$lower.Rb
+    uppRb <- x$upper.Rb
+    ##
     Q.b.fixed  <- x$Q.b.fixed
     Q.b.random <- x$Q.b.random
     df.Q.b     <- x$df.Q.b
@@ -1094,6 +1106,21 @@ forest.meta <- function(x,
                                  " ",
                                  p.ci(paste(round(100 * lowI2, digits.I2), "%", sep = ""),
                                       paste(round(100 * uppI2, digits.I2), "%", sep = "")),
+                                 sep = "")
+      dummy <- TRUE
+    }
+    ##
+    if (print.Rb) {
+      hetstat.overall <- paste(hetstat.overall,
+                               if (dummy) ", ",
+                               text.Rb, "=",
+                               round(100 * Rb, digits.I2), "%",
+                               sep = "")
+      if (print.Rb.ci & x$k > 2)
+        hetstat.overall <- paste(hetstat.overall,
+                                 " ",
+                                 p.ci(paste(round(100 * lowRb, digits.I2), "%", sep = ""),
+                                      paste(round(100 * uppRb, digits.I2), "%", sep = "")),
                                  sep = "")
       dummy <- TRUE
     }
@@ -1212,6 +1239,9 @@ forest.meta <- function(x,
     I2.w       <- x$I2.w[o]
     lowI2.w    <- x$lower.I2.w[o]
     uppI2.w    <- x$upper.I2.w[o]
+    Rb.w       <- x$Rb.w[o]
+    lowRb.w    <- x$lower.Rb.w[o]
+    uppRb.w    <- x$upper.Rb.w[o]
     tau.w      <- x$tau.w[o]
     w.fixed.w  <- x$w.fixed.w[o]
     w.random.w <- x$w.random.w[o]
@@ -1242,6 +1272,9 @@ forest.meta <- function(x,
     I2.w       <- I2.w[sel]
     lowI2.w    <- lowI2.w[sel]
     uppI2.w    <- uppI2.w[sel]
+    Rb.w       <- Rb.w[sel]
+    lowRb.w    <- lowRb.w[sel]
+    uppRb.w    <- uppRb.w[sel]
     tau.w      <- tau.w[sel]
     w.fixed.w  <- w.fixed.w[sel]
     w.random.w <- w.random.w[sel]
@@ -1299,6 +1332,24 @@ forest.meta <- function(x,
                                     paste(" ",
                                           p.ci(paste(round(100 * lowI2.w, digits.I2), "%", sep = ""),
                                                paste(round(100 * uppI2.w, digits.I2), "%", sep = "")),
+                                          sep = ""),
+                                    ""),
+                             sep = "")
+        dummy <- TRUE
+      }
+      ##
+      if (print.Rb) {
+        hetstat.w <- paste(hetstat.w,
+                           if (dummy) ", ",
+                           text.Rb, "=",
+                           round(100 * Rb.w, digits.I2), "%",
+                           sep = "")
+        if (print.Rb.ci)
+          hetstat.w <- paste(hetstat.w,
+                             ifelse(k.w > 2,
+                                    paste(" ",
+                                          p.ci(paste(round(100 * lowRb.w, digits.I2), "%", sep = ""),
+                                               paste(round(100 * uppRb.w, digits.I2), "%", sep = "")),
                                           sep = ""),
                                     ""),
                              sep = "")

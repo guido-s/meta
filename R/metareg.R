@@ -27,7 +27,8 @@ metareg <- function(x, formula,
   ##
   ## Check whether R package metafor is installed
   ##
-  is.installed.package("metafor", "'metareg'")
+  is.installed.package("metafor", "metareg",
+                       version = .settings$metafor)
   
   
   if (missing(formula))

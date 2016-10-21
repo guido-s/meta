@@ -1,10 +1,64 @@
-*** meta, version 4.6-1, 2016-mm-dd ***
+*** meta, version 4.7-0, 2016-mm-dd ***
+
+ ** Major changes **
+
+  * New measure Rb of between-study heterogeneity added
+   (Crippa et al., 2016, <DOI:10.1002/sim.6980>)
+
+  * Default settings of meta-analysis methods specified via gs()
+    instead of extracting elements of list .settings
+    (which makes output of args() easier to read,
+     e.g., args(metabin))
+
+  * Version of suggested R package metafor must be at least 1.9-9
+    (due to change in arguments of rma.uni() and rma.glmm())
+  
+ ** User-visible changes **
+
+  * metabin(), metacont(), metacor(), metacr(), metacum(), metagen(),
+    metainc(), metainf(), metaprop(), metarate(), trimfill.default(),
+    trimfill.meta():
+    - new measure of between-study heterogeneity implemented
+      (list elements Rb, lower.Rb, upper.Rb)
+  
+  * summary.meta():
+    - new measure of between-study heterogeneity added
+      (list element Rb.w)
+  
+  * forest.meta():
+    - new arguments print.Rb, print.Rb.ci, Rb.text for heterogeneity
+      measure Rb
+  
+  * print.meta(), print.summary.meta():
+    - print heterogeneity measure Rb
+      
+  * New function gs() to get default settings
+
+  * forest.meta(), metabin(), metacont(), metacor(), metacr(),
+    metagen(), metainc(), metaprop(), metarate(), print.meta(),
+    print.summary.meta():
+    Use gs() to define defaults for arguments in meta-analysis
+    functions, e.g. gs(hakn) instead of .settings$hakn
+
+  * metareg():
+    Stop if version of metafor package is below 1.9-9
+
+  * metabin(), metainc(), metaprop(), metarate():
+    For GLMMs, stop if version of metafor package is below 1.9-9
+
+  * Several help pages updated
 
  ** Internal changes **
-
+    
   * metabin(), metainc(), metaprop(), metarate(), metareg():
     Use argument test instead of knha and tdist for calls of rma.uni()
     and rma.glmm(); change in R package metafor, version 1.9-9
+    
+  * subgroup():
+    - new measure Rb of between-study heterogeneity implemented
+    
+  * is.installed.package():
+    New check of version number of R package
 
 
 *** meta, version 4.6-0, 2016-10-12 ***

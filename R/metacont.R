@@ -2,39 +2,39 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      data = NULL, subset = NULL,
                      ##
-                     sm = .settings$smcont,
+                     sm = gs("smcont"),
                      ##
-                     pooledvar = .settings$pooledvar,
-                     method.smd = .settings$method.smd,
-                     sd.glass = .settings$sd.glass,
-                     exact.smd = .settings$exact.smd,
+                     pooledvar = gs("pooledvar"),
+                     method.smd = gs("method.smd"),
+                     sd.glass = gs("sd.glass"),
+                     exact.smd = gs("exact.smd"),
                      ##
-                     level = .settings$level, level.comb = .settings$level.comb,
-                     comb.fixed = .settings$comb.fixed,
-                     comb.random = .settings$comb.random,
+                     level = gs("level"), level.comb = gs("level.comb"),
+                     comb.fixed = gs("comb.fixed"),
+                     comb.random = gs("comb.random"),
                      ##
-                     hakn = .settings$hakn,
-                     method.tau = .settings$method.tau,
+                     hakn = gs("hakn"),
+                     method.tau = gs("method.tau"),
                      tau.preset = NULL, TE.tau = NULL,
-                     tau.common = .settings$tau.common,
+                     tau.common = gs("tau.common"),
                      ##
-                     prediction = .settings$prediction,
-                     level.predict = .settings$level.predict,
+                     prediction = gs("prediction"),
+                     level.predict = gs("level.predict"),
                      ##
-                     method.bias = .settings$method.bias,
+                     method.bias = gs("method.bias"),
                      ##
-                     backtransf = .settings$backtransf,
-                     title = .settings$title, complab = .settings$complab,
+                     backtransf = gs("backtransf"),
+                     title = gs("title"), complab = gs("complab"),
                      outclab = "",
-                     label.e = .settings$label.e, label.c = .settings$label.c,
-                     label.left = .settings$label.left,
-                     label.right = .settings$label.right,
+                     label.e = gs("label.e"), label.c = gs("label.c"),
+                     label.left = gs("label.left"),
+                     label.right = gs("label.right"),
                      ##
-                     byvar, bylab, print.byvar = .settings$print.byvar,
-                     byseparator = .settings$byseparator,
+                     byvar, bylab, print.byvar = gs("print.byvar"),
+                     byseparator = gs("byseparator"),
                      ##
-                     keepdata = .settings$keepdata,
-                     warn = .settings$warn
+                     keepdata = gs("keepdata"),
+                     warn = gs("warn")
                      ) {
   
   

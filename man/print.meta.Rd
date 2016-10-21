@@ -19,11 +19,11 @@
         prediction=x$prediction,
         details=FALSE, ma=TRUE, backtransf=x$backtransf,
 	pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
-        digits = .settings$digits, digits.se = .settings$digits.se,
-        digits.zval = .settings$digits.zval,
-        digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
-        digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
-        digits.prop = .settings$digits.prop, digits.weight = .settings$digits.weight,
+        digits = gs("digits"), digits.se = gs("digits.se"),
+        digits.zval = gs("digits.zval"),
+        digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
+        digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
+        digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
 	warn.backtransf = FALSE,
         ...)
 
@@ -38,7 +38,7 @@
 	byseparator=object$byseparator, bystud=FALSE,
 	print.CMH=object$print.CMH, warn=object$warn, ...)
 
-\method{print}{summary.meta}(x, digits = .settings$digits,
+\method{print}{summary.meta}(x, digits = gs("digits"),
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
         print.byvar=x$print.byvar, byseparator=x$byseparator,
@@ -46,9 +46,9 @@
         header=TRUE, backtransf=x$backtransf,
 	pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
         bylab.nchar=35,
-        digits.zval = .settings$digits.zval,
-        digits.Q = .settings$digits.Q, digits.tau2 = .settings$digits.tau2,
-        digits.H = .settings$digits.H, digits.I2 = .settings$digits.I2,
+        digits.zval = gs("digits.zval"),
+        digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
+        digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
 	warn.backtransf = FALSE,
         ...)
 
@@ -122,7 +122,7 @@ cilayout(bracket="[", separator="; ")
   \item{digits.H}{Minimal number of significant digits for H
     statistic, see \code{print.default}.}
   \item{digits.I2}{Minimal number of significant digits for I-squared
-    statistic, see \code{print.default}.}
+    and Rb statistic, see \code{print.default}.}
   \item{digits.prop}{Minimal number of significant digits for
     proportions, see \code{print.default}.} 
   \item{digits.weight}{Minimal number of significant digits for
@@ -194,6 +194,8 @@ cilayout(bracket="[", separator="; ")
   \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
+  \item{Rb}{Heterogeneity statistic Rb (a list with elements TE,
+    lower, upper), see Crippa et al. (2016).}
   \item{k.all}{Total number of studies.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{sm}{A character string indicating underlying summary measure.}
@@ -228,6 +230,8 @@ cilayout(bracket="[", separator="; ")
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
+  \item{Rb.w}{Heterogeneity statistic Rb within subgroups (a list with
+    elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
   \item{title}{Title of meta-analysis / systematic review.}
@@ -245,9 +249,13 @@ cilayout(bracket="[", separator="; ")
   \emph{The Handbook of Research Synthesis}.
   Newbury Park, CA: Russell Sage Foundation.
 
+  Crippa A, Khudyakov P, Wang M, Orsini N, Spiegelman D (2016),
+  A new measure of between-studies heterogeneity in meta-analysis.
+  \emph{Statistics in Medicine}, \bold{35}, 3661--75.
+
   Higgins JPT & Thompson SG (2002),
   Quantifying heterogeneity in a meta-analysis.
-  \emph{Statistics in Medicine}, \bold{21}, 1539--1558.
+  \emph{Statistics in Medicine}, \bold{21}, 1539--58.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}

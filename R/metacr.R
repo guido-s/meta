@@ -2,22 +2,22 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    method, sm,
                    ##
-                   level = .settings$level, level.comb = .settings$level.comb,
+                   level = gs("level"), level.comb = gs("level.comb"),
                    comb.fixed, comb.random,
                    ##
                    hakn = FALSE,
                    method.tau = "DL",
                    tau.common = FALSE,
                    ##
-                   prediction = .settings$prediction,
-                   level.predict = .settings$level.predict,
+                   prediction = gs("prediction"),
+                   level.predict = gs("level.predict"),
                    ##
                    swap.events, logscale,
                    ##
-                   backtransf = .settings$backtransf,
+                   backtransf = gs("backtransf"),
                    title, complab, outclab,
                    ##
-                   keepdata = .settings$keepdata,
+                   keepdata = gs("keepdata"),
                    warn = FALSE) {
   
   

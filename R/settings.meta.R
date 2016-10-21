@@ -5,6 +5,7 @@ settings.meta <- function(...) {
   res <- .settings
   res$CIbracket <- NULL
   res$CIseparator <- NULL
+  res$metafor <- NULL
   res$argslist <- NULL
   
   

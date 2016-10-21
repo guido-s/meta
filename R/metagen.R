@@ -4,36 +4,36 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     sm = "",
                     ##
-                    level = .settings$level, level.comb = .settings$level.comb,
-                    comb.fixed = .settings$comb.fixed,
-                    comb.random = .settings$comb.random,
+                    level = gs("level"), level.comb = gs("level.comb"),
+                    comb.fixed = gs("comb.fixed"),
+                    comb.random = gs("comb.random"),
                     ##
-                    hakn = .settings$hakn,
-                    method.tau = .settings$method.tau,
+                    hakn = gs("hakn"),
+                    method.tau = gs("method.tau"),
                     tau.preset = NULL, TE.tau = NULL,
-                    tau.common = .settings$tau.common,
+                    tau.common = gs("tau.common"),
                     ##
-                    prediction = .settings$prediction,
-                    level.predict = .settings$level.predict,
+                    prediction = gs("prediction"),
+                    level.predict = gs("level.predict"),
                     ##
-                    method.bias = .settings$method.bias,
+                    method.bias = gs("method.bias"),
                     ##
                     n.e = NULL, n.c = NULL,
                     ##
-                    backtransf = .settings$backtransf,
+                    backtransf = gs("backtransf"),
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
-                    title = .settings$title, complab = .settings$complab,
+                    title = gs("title"), complab = gs("complab"),
                     outclab = "",
-                    label.e = .settings$label.e, label.c = .settings$label.c,
-                    label.left = .settings$label.left,
-                    label.right = .settings$label.right,
+                    label.e = gs("label.e"), label.c = gs("label.c"),
+                    label.left = gs("label.left"),
+                    label.right = gs("label.right"),
                     ##
-                    byvar, bylab, print.byvar = .settings$print.byvar,
-                    byseparator = .settings$byseparator,
+                    byvar, bylab, print.byvar = gs("print.byvar"),
+                    byseparator = gs("byseparator"),
                     ##
-                    keepdata = .settings$keepdata,
-                    warn = .settings$warn
+                    keepdata = gs("keepdata"),
+                    warn = gs("warn")
                     ) {
   
   
@@ -404,10 +404,11 @@ metagen <- function(TE, seTE, studlab,
     p.upper <- NA
   }
   ##
-  ## Calculate H and I-Squared
+  ## Calculate H, I-Squared, and Rb
   ##
   Hres  <- calcH(Q, df.Q, level.comb)
   I2res <- isquared(Q, df.Q, level.comb)
+  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random, tau2, Q, df.Q, level.comb)
   
   
   ##
@@ -445,6 +446,10 @@ metagen <- function(TE, seTE, studlab,
               I2 = I2res$TE,
               lower.I2 = I2res$lower,
               upper.I2 = I2res$upper,
+              ##
+              Rb = Rbres$TE,
+              lower.Rb = Rbres$lower,
+              upper.Rb = Rbres$upper,
               ##
               sm = sm, method = "Inverse",
               level = level,

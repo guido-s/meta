@@ -276,10 +276,12 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   
   
   ##
-  ## Calculate H and I-Squared
+  ## Calculate H, I-Squared, and Rb
   ##
   Hres  <- calcH(m$Q, m$df.Q, level.comb)
   I2res <- isquared(m$Q, m$df.Q, level.comb)
+  Rbres <- with(m,
+                Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.comb))
   
   
   res <- list(studlab = m$studlab,
@@ -309,6 +311,10 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               I2 = I2res$TE,
               lower.I2 = I2res$lower,
               upper.I2 = I2res$upper,
+              ##
+              Rb = Rbres$TE,
+              lower.Rb = Rbres$lower,
+              upper.Rb = Rbres$upper,
               ##
               sm = x$sm,
               method = m$method,

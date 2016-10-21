@@ -85,7 +85,7 @@ update.meta <- function(object,
     ##
     if (is.null(x))
       if (missing(replacement))
-        res <- .settings[[xnam]]
+        res <- gs(xnam)
       else
         res <- replacement
     else

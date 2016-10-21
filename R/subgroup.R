@@ -31,7 +31,7 @@ subgroup <- function(x, tau.preset = NULL) {
     else sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 27, nrow = length(bylevs))
+  res.w <- matrix(NA, ncol = 30, nrow = length(bylevs))
     j <- 0
   ##
   for (i in bylevs) {
@@ -162,7 +162,10 @@ subgroup <- function(x, tau.preset = NULL) {
                    if (cor.prop) sumNA(meta1$n) else NA,      # 24
                    if (inc)      sumNA(meta1$time.e) else NA, # 25
                    if (inc)      sumNA(meta1$time.c) else NA, # 26
-                   1 / mean(1 / x$time[sel])                  # 27
+                   1 / mean(1 / x$time[sel]),                 # 27
+                   meta1$Rb,                                  # 28
+                   meta1$lower.Rb,                            # 29
+                   meta1$upper.Rb                             # 30
                    )
   }
   ##
@@ -201,6 +204,10 @@ subgroup <- function(x, tau.preset = NULL) {
   time.e.w <- res.w[, 25]
   time.c.w <- res.w[, 26]
   t.harmonic.mean.w <- res.w[, 27]
+  ##
+  Rb.w     <- res.w[,28]
+  Rb.w.low <- res.w[,29]
+  Rb.w.upp <- res.w[,30]
   ##
   ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
   ##
@@ -261,7 +268,11 @@ subgroup <- function(x, tau.preset = NULL) {
               ##
               I2.w = I2.w,
               lower.I2.w = I2.w.low,
-              upper.I2.w = I2.w.upp
+              upper.I2.w = I2.w.upp,
+              ##
+              Rb.w = Rb.w,
+              lower.Rb.w = Rb.w.low,
+              upper.Rb.w = Rb.w.upp
               )
 
   

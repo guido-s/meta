@@ -171,6 +171,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ##
   Hres  <- calcH(m$Q, m$df.Q, level.comb)
   I2res <- isquared(m$Q, m$df.Q, level.comb)
+  Rbres <- with(m,
+                Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.comb))
   
   
   res <- list(studlab = m$studlab,
@@ -201,6 +203,10 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
               I2 = I2res$TE,
               lower.I2 = I2res$lower,
               upper.I2 = I2res$upper,
+              ##
+              Rb = Rbres$TE,
+              lower.Rb = Rbres$lower,
+              upper.Rb = Rbres$upper,
               ##
               sm = sm,
               method = m$method,

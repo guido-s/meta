@@ -38,6 +38,7 @@ metainf(x, pooled, sortvar)
   \item{p.value}{P-value for test of overall effect.}
   \item{w}{Sum of weights from fixed effect or random effects model.}
   \item{I2}{Heterogeneity statistic I2.}
+  \item{Rb}{Heterogeneity statistic Rb.}
   \item{tau}{Square-root of between-study variance.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn=TRUE}).}

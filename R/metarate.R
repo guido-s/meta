@@ -2,38 +2,38 @@ metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, method = "Inverse",
                      ##
-                     sm = .settings$smrate,
+                     sm = gs("smrate"),
                      ##
-                     incr = .settings$incr, allincr = .settings$allincr,
-                     addincr = .settings$addincr,
+                     incr = gs("incr"), allincr = gs("allincr"),
+                     addincr = gs("addincr"),
                      ##
-                     level = .settings$level, level.comb = .settings$level.comb,
-                     comb.fixed = .settings$comb.fixed,
-                     comb.random = .settings$comb.random,
+                     level = gs("level"), level.comb = gs("level.comb"),
+                     comb.fixed = gs("comb.fixed"),
+                     comb.random = gs("comb.random"),
                      ##
-                     hakn = .settings$hakn,
+                     hakn = gs("hakn"),
                      method.tau =
                        ifelse(!is.na(charmatch(tolower(method), "glmm",
                                                nomatch = NA)),
-                              "ML", .settings$method.tau),
+                              "ML", gs("method.tau")),
                      tau.preset = NULL, TE.tau = NULL,
-                     tau.common = .settings$tau.common,
+                     tau.common = gs("tau.common"),
                      ##
-                     prediction = .settings$prediction,
-                     level.predict = .settings$level.predict,
+                     prediction = gs("prediction"),
+                     level.predict = gs("level.predict"),
                      ##
-                     method.bias = .settings$method.bias,
+                     method.bias = gs("method.bias"),
                      ##
-                     backtransf = .settings$backtransf,
+                     backtransf = gs("backtransf"),
                      irscale = 1, irunit = "person-years",
-                     title = .settings$title, complab = .settings$complab,
+                     title = gs("title"), complab = gs("complab"),
                      outclab = "",
                      ##
-                     byvar, bylab, print.byvar = .settings$print.byvar,
-                     byseparator = .settings$byseparator,
+                     byvar, bylab, print.byvar = gs("print.byvar"),
+                     byseparator = gs("byseparator"),
                      ##
-                     keepdata = .settings$keepdata,
-                     warn = .settings$warn,
+                     keepdata = gs("keepdata"),
+                     warn = gs("warn"),
                      ...
                      ) {
   
@@ -76,7 +76,8 @@ metarate <- function(event, time, studlab,
   if (method == "GLMM") {
     is.installed.package("lme4", fun, "method", " = \"GLMM\"")
     is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"")
+    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
+                         version = .settings$metafor)
   }
   ##
   sm <- setchar(sm, c("IR", "IRLN", "IRS", "IRFT"))

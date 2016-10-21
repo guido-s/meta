@@ -17,7 +17,7 @@ settings.meta(...)
   of the following R functions: \code{\link{metabin}},
   \code{\link{metacont}}, \code{\link{metacor}}, \code{\link{metacr}},
   \code{\link{metagen}}, \code{\link{metainc}},
-  \code{\link{metaprop}}.
+  \code{\link{metaprop}}, \code{\link{metarate}}.
   
   A list of all arguments with current settings is printed using the
   command \code{settings.meta(print=TRUE)}.
@@ -27,6 +27,8 @@ settings.meta(...)
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
+
+\seealso{\code{\link{gs}}}
 
 \examples{
 #

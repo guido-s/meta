@@ -33,7 +33,7 @@ summary.meta <- function(object,
   }
   ##
   if (length(warn) == 0)
-    warn <- .settings$warn
+    warn <- gs("warn")
   object <- updateversion(object)
   ##
   metaprop <- inherits(object, "metaprop")
@@ -136,6 +136,8 @@ summary.meta <- function(object,
   ##
   ci.I2 <- list(TE = object$I2, lower = object$lower.I2, upper = object$upper.I2)
   ##
+  ci.Rb <- list(TE = object$Rb, lower = object$lower.Rb, upper = object$upper.Rb)
+  ##
   ci.p <- list(TE = NA,
                seTE = object$seTE.predict,
                lower = object$lower.predict,
@@ -158,7 +160,7 @@ summary.meta <- function(object,
               predict = ci.p,
               k = object$k, Q = object$Q, df.Q = object$df.Q,
               Q.LRT = object$Q.LRT,
-              tau = object$tau, H = ci.H, I2 = ci.I2,
+              tau = object$tau, H = ci.H, I2 = ci.I2, Rb = ci.Rb,
               tau.preset = object$tau.preset,
               k.all = length(object$TE),
               Q.CMH = object$Q.CMH,
@@ -207,6 +209,7 @@ summary.meta <- function(object,
     ##
     ci.H <- list(TE = object$H.w, lower = object$lower.H.w, upper = object$upper.H.w)
     ci.I2 <- list(TE = object$I2.w, lower = object$lower.I2.w, upper = object$upper.I2.w)
+    ci.Rb <- list(TE = object$Rb.w, lower = object$lower.Rb.w, upper = object$upper.Rb.w)
     ## 
     res$within.fixed  <- ci.fixed.w
     res$within.random <- ci.random.w
@@ -222,6 +225,7 @@ summary.meta <- function(object,
     res$C.w           <- object$C.w
     res$H.w           <- ci.H
     res$I2.w          <- ci.I2
+    res$Rb.w          <- ci.Rb
     res$bylab         <- object$bylab
     res$tau.common    <- object$tau.common
     res$bylevs        <- object$bylevs

@@ -88,6 +88,7 @@ setVar <- function(var = NULL, arg = NULL) {
 ##
 setOption("CIbracket", "[")
 setOption("CIseparator", "; ")
+setOption("metafor", "1.9.9")
 ##
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "hakn", "method.tau", "tau.common",

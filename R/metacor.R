@@ -2,30 +2,30 @@ metacor <- function(cor, n, studlab,
                     ##
                     data = NULL, subset = NULL,
                     ##
-                    sm = .settings$smcor,
+                    sm = gs("smcor"),
                     ##
-                    level = .settings$level, level.comb = .settings$level.comb,
-                    comb.fixed = .settings$comb.fixed,
-                    comb.random = .settings$comb.random,
+                    level = gs("level"), level.comb = gs("level.comb"),
+                    comb.fixed = gs("comb.fixed"),
+                    comb.random = gs("comb.random"),
                     ##
-                    hakn = .settings$hakn,
-                    method.tau = .settings$method.tau,
+                    hakn = gs("hakn"),
+                    method.tau = gs("method.tau"),
                     tau.preset = NULL, TE.tau = NULL,
-                    tau.common = .settings$tau.common,
+                    tau.common = gs("tau.common"),
                     ##
-                    prediction = .settings$prediction,
-                    level.predict = .settings$level.predict,
+                    prediction = gs("prediction"),
+                    level.predict = gs("level.predict"),
                     ##
-                    method.bias = .settings$method.bias,
+                    method.bias = gs("method.bias"),
                     ##
-                    backtransf = .settings$backtransf,
-                    title = .settings$title, complab = .settings$complab,
+                    backtransf = gs("backtransf"),
+                    title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     ##
-                    byvar, bylab, print.byvar = .settings$print.byvar,
-                    byseparator = .settings$byseparator,
+                    byvar, bylab, print.byvar = gs("print.byvar"),
+                    byseparator = gs("byseparator"),
                     ##
-                    keepdata = .settings$keepdata
+                    keepdata = gs("keepdata")
                     ) {
   
   

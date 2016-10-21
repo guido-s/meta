@@ -1,5 +1,5 @@
 print.summary.meta <- function(x,
-                               digits = .settings$digits,
+                               digits = gs("digits"),
                                comb.fixed = x$comb.fixed,
                                comb.random = x$comb.random,
                                prediction = x$prediction,
@@ -12,11 +12,11 @@ print.summary.meta <- function(x,
                                irscale = x$irscale,
                                irunit = x$irunit,
                                bylab.nchar = 35,
-                               digits.zval = .settings$digits.zval,
-                               digits.Q = .settings$digits.Q,
-                               digits.tau2 = .settings$digits.tau2,
-                               digits.H = .settings$digits.H,
-                               digits.I2 = .settings$digits.I2,
+                               digits.zval = gs("digits.zval"),
+                               digits.Q = gs("digits.Q"),
+                               digits.tau2 = gs("digits.tau2"),
+                               digits.H = gs("digits.H"),
+                               digits.I2 = gs("digits.I2"),
                                warn.backtransf = FALSE,
                                ...) {
   
@@ -46,6 +46,7 @@ print.summary.meta <- function(x,
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chklogical(backtransf)
+  chklogical(warn.backtransf)
   is.prop <- x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")
   is.rate <- x$sm %in% c("IR", "IRLN", "IRS", "IRFT")
   ##
@@ -120,7 +121,7 @@ print.summary.meta <- function(x,
     else
       df.Q.b <- x$df.Q.b
   }
-  ##  
+  ##
   sm.lab <- sm
   ##
   if (backtransf) {
@@ -293,6 +294,8 @@ print.summary.meta <- function(x,
     uppTE.random.w <- round(uppTE.random.w, digits)
     ##
     I2.w <- round(100 * x$I2.w$TE, digits.I2)
+    ##
+    Rb.w <- round(100 * x$Rb.w$TE, digits.I2)
   }
   ##
   H <- round(x$H$TE, digits.H)
@@ -302,6 +305,10 @@ print.summary.meta <- function(x,
   I2 <- round(100 * x$I2$TE, digits.I2)
   lowI2 <- round(100 * x$I2$lower, digits.I2)
   uppI2 <- round(100 * x$I2$upper, digits.I2)
+  ##
+  Rb <- round(100 * x$Rb$TE, digits.I2)
+  lowRb <- round(100 * x$Rb$lower, digits.I2)
+  uppRb <- round(100 * x$Rb$upper, digits.I2)
   
   
   ##
@@ -408,7 +415,7 @@ print.summary.meta <- function(x,
     ## Print information on heterogeneity
     ##
     if (!is.na(x$tau))
-      cat(paste("\nQuantifying heterogeneity:\n",
+      cat(paste("\nQuantifying heterogeneity:\n ",
                 if (x$tau^2 > 0 & x$tau^2 < 0.0001)
                   paste("tau^2", format.tau(x$tau^2))
                 else
@@ -431,6 +438,15 @@ print.summary.meta <- function(x,
                              paste(" ",
                                    p.ci(paste(format.NA(lowI2, digits.I2), "%", sep = ""),
                                         paste(format.NA(uppI2, digits.I2), "%", sep = "")),
+                                   sep = ""),
+                             ""),
+                      ";\n ",
+                      "Rb = ",
+                      if (is.nan(Rb)) "NA" else paste(format.NA(Rb, digits.I2), "%", sep = ""),
+                      ifelse(k > 2 & !(is.na(lowRb) | is.na(uppRb)),
+                             paste(" ",
+                                   p.ci(paste(format.NA(lowRb, digits.I2), "%", sep = ""),
+                                        paste(format.NA(uppRb, digits.I2), "%", sep = "")),
                                    sep = ""),
                              ""),
                       sep = ""),
@@ -471,14 +487,17 @@ print.summary.meta <- function(x,
                          ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
                          ifelse(is.na(I2.w),
                                 "--",
-                                paste(format.NA(I2.w, digits.I2), "%", sep = ""))
+                                paste(format.NA(I2.w, digits.I2), "%", sep = "")),
+                         ifelse(is.na(Rb.w),
+                                "--",
+                                paste(format.NA(Rb.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.fixed.w))
           ##
           bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator)
           ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
-                                    "Q", "tau^2", "I^2")
+                                    "Q", "tau^2", "I^2", "Rb")
                                   ) #, "p-value"))
           cat("\nResults for subgroups (fixed effect model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
@@ -515,14 +534,17 @@ print.summary.meta <- function(x,
                          ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
                          ifelse(is.na(I2.w),
                                 "--",
-                                paste(format.NA(I2.w, digits.I2), "%", sep = ""))
+                                paste(format.NA(I2.w, digits.I2), "%", sep = "")),
+                         ifelse(is.na(Rb.w),
+                                "--",
+                                paste(format.NA(Rb.w, digits.I2), "%", sep = ""))
                          ) #, format.p(pval.random.w))
           ##
           bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator)
           ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
-                                    "Q", "tau^2", "I^2")
+                                    "Q", "tau^2", "I^2", "Rb")
                                   ) #, "p-value"))
           cat("\nResults for subgroups (random effects model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)

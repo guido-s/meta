@@ -11,19 +11,19 @@
 \usage{
 metacor(cor, n, studlab,
         data=NULL, subset=NULL,
-        sm=.settings$smcor,
-        level=.settings$level, level.comb=.settings$level.comb,
-        comb.fixed=.settings$comb.fixed, comb.random=.settings$comb.random,
-        hakn=.settings$hakn,
-        method.tau=.settings$method.tau, tau.preset=NULL, TE.tau=NULL,
-        tau.common=.settings$tau.common,
-        prediction=.settings$prediction, level.predict=.settings$level.predict,
-        method.bias=.settings$method.bias,
-        backtransf=.settings$backtransf,
-        title=.settings$title, complab=.settings$complab, outclab="",
-        byvar, bylab, print.byvar=.settings$print.byvar,
-	byseparator = .settings$byseparator,
-        keepdata=.settings$keepdata
+        sm=gs("smcor"),
+        level=gs("level"), level.comb=gs("level.comb"),
+        comb.fixed=gs("comb.fixed"), comb.random=gs("comb.random"),
+        hakn=gs("hakn"),
+        method.tau=gs("method.tau"), tau.preset=NULL, TE.tau=NULL,
+        tau.common=gs("tau.common"),
+        prediction=gs("prediction"), level.predict=gs("level.predict"),
+        method.bias=gs("method.bias"),
+        backtransf=gs("backtransf"),
+        title=gs("title"), complab=gs("complab"), outclab="",
+        byvar, bylab, print.byvar=gs("print.byvar"),
+	byseparator = gs("byseparator"),
+        keepdata=gs("keepdata")
         )
 }
 
@@ -97,9 +97,9 @@ metacor(cor, n, studlab,
   because the correlation is closest to 1.
   
   For several arguments defaults settings are utilised (assignments
-  with \code{.settings$}). These defaults can be changed using the
-  \code{\link{settings.meta}} function.
-  
+  using \code{\link{gs}} function). These defaults can be changed
+  using the \code{\link{settings.meta}} function.
+    
   Internally, both fixed effect and random effects models are
   calculated regardless of values choosen for arguments
   \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
