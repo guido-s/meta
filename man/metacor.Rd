@@ -22,7 +22,7 @@ metacor(cor, n, studlab,
         backtransf=gs("backtransf"),
         title=gs("title"), complab=gs("complab"), outclab="",
         byvar, bylab, print.byvar=gs("print.byvar"),
-	byseparator = gs("byseparator"),
+        byseparator = gs("byseparator"),
         keepdata=gs("keepdata")
         )
 }

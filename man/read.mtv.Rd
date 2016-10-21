@@ -67,7 +67,7 @@ metabin(event.e, n.e, event.c, n.c,
 # Same result: example(Fleiss93cont)
 #
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-        data=fleiss93.cc, subset=type=="C",
-        studlab=paste(studlab, year))
+         data=fleiss93.cc, subset=type=="C",
+         studlab=paste(studlab, year))
 }
 \keyword{datagen}

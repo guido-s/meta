@@ -2,11 +2,11 @@ is.installed.package <- function(pkg, func, argument, value,
                                  chksettings = FALSE, stop = TRUE,
                                  version = NULL) {
   
-  pkginstalled <- any(as.data.frame(installed.packages())$Package == pkg)
+  pkginstalled <- requireNamespace(pkg, quietly = TRUE)
   
-  oldpkg <- pkginstalled & (!is.null(version) && packageVersion(pkg) < version)
+  oldpkg <- pkginstalled && !is.null(version) && packageVersion(pkg) < version
   
-  if (stop & (oldpkg | !pkginstalled)) {
+  if (stop & (!pkginstalled) | oldpkg) {
     
     if (oldpkg) {
       oldmsg <- paste("Library '", pkg, "' is too old. ", sep = "")

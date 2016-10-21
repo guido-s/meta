@@ -19,10 +19,10 @@
 \method{summary}{rm5}(object, comp.no, outcome.no, ...)
 
 \method{metabias}{rm5}(x, comp.no, outcome.no,
-                       method.bias="linreg",
-                       method.bias.binary=method.bias,
-                       method.bias.or="score",
-                       k.min=10, ...)
+         method.bias="linreg",
+         method.bias.binary=method.bias,
+         method.bias.or="score",
+         k.min=10, ...)
 }
 
 \arguments{

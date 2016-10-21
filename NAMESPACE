@@ -63,6 +63,6 @@ importFrom("stats", "as.formula", "binom.test", "coef", "lm", "pchisq",
            "pnorm", "pt", "qnorm", "qt", "runif", "update", "var", "weighted.mean",
            "weights")
 
-importFrom("utils", "assignInNamespace", "count.fields", "getFromNamespace",
-           "installed.packages", "packageDescription", "packageVersion",
-           "read.table")
+importFrom("utils", "count.fields", "read.table",
+           "assignInNamespace", "getFromNamespace",
+           "packageDescription", "packageVersion")
