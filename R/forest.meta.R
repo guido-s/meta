@@ -3143,9 +3143,8 @@ forest.meta <- function(x,
                    wcalc(cols[[rightcols[i]]]$labels))
     }
   }
-  print(x1)
-
-
+  
+  
   ##
   ##
   ## (14) Generate forest plot
