@@ -7,6 +7,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ## (1) Check for meta object
   ##
   ##
+  
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
   ##  
@@ -15,6 +16,41 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   if (inherits(x, "metainf"))
     stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\".")
+  
+  
+  ##
+  ##
+  ## (2) Check other arguments
+  ##
+  ##
+  ## --
+  ##
+  ## Set default for method.bias (see Sterne et al., BMJ 2011;343:d4002):
+  ## - "score" for OR as effect measure
+  ## - "linreg" otherwise
+  ##
+  if (length(method.bias) == 0)
+    if (inherits(x, "metabin") & x$sm == "OR")
+      method.bias <- "score"
+    else
+      method.bias <- "linreg"
+  ##
+  tests <- c("rank", "linreg", "mm", "count", "score", "peters")
+  method.bias <- setchar(method.bias, tests)
+  imeth <- charmatch(method.bias, tests)
+  method <- c(paste("Rank correlation test of funnel plot asymmetry",
+                    ifelse(correct == TRUE, " (with continuity correction)", ""),
+                    sep = ""),
+              "Linear regression test of funnel plot asymmetry",
+              "Linear regression test of funnel plot asymmetry (methods of moment)",
+              paste("Rank correlation test of funnel plot asymmetry (based on counts)",
+                    ifelse(correct == TRUE, " (with continuity correction)", ""),
+                    sep = ""),
+              "Linear regression test of funnel plot asymmetry (efficient score)",
+              "Linear regression test of funnel plot asymmetry (based on sample size)")[imeth]    ##
+  chklogical(plotit)
+  chklogical(correct)
+  chknumeric(k.min, 1, single = TRUE)
   
   
   TE <- x$TE
@@ -62,25 +98,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   }
   ##
   k <- length(TE)
-  
-  ##
-  ## Set default for method.bias (see Sterne et al., BMJ 2011;343:d4002):
-  ## - "score" for OR as effect measure
-  ## - "linreg" otherwise
-  ##
-  if (length(method.bias) == 0)
-    if (inherits(x, "metabin") & x$sm == "OR")
-      method.bias <- "score"
-    else
-      method.bias <- "linreg"
-  
-  imeth <- charmatch(method.bias,
-                     c("rank", "linreg", "mm", "count", "score", "peters"),
-                     nomatch = NA)
-  if(is.na(imeth) | imeth == 0)
-    stop("method.bias should be \"rank\", \"linreg\", \"mm\", \"count\", \"score\", or \"peters\"")
-  ##
-  method.bias <- c("rank", "linreg", "mm", "count", "score", "peters")[imeth]
   
   
   if (k < k.min | k < 3)
@@ -240,16 +257,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     
     res$alternative <- "asymmetry in funnel plot"
     
-    res$method <- c(paste("Rank correlation test of funnel plot asymmetry",
-                          ifelse(correct == TRUE, " (with continuity correction)", ""),
-                          sep = ""),
-                    "Linear regression test of funnel plot asymmetry",
-                    "Linear regression test of funnel plot asymmetry (methods of moment)",
-                    paste("Rank correlation test of funnel plot asymmetry (based on counts)",
-                          ifelse(correct == TRUE, " (with continuity correction)", ""),
-                          sep = ""),
-                    "Linear regression test of funnel plot asymmetry (efficient score)",
-                    "Linear regression test of funnel plot asymmetry (based on sample size)")[imeth]
+    res$method <- method
     
     res$data.name <- x.name
     

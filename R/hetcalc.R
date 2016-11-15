@@ -59,7 +59,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       w.fixed <- 1 / seTE^2
       w.fixed[is.na(w.fixed)] <- 0
       ##
-      TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
+      TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
       ##
       if (is.null(TE.tau))
         Q <- sum(w.fixed * (TE - TE.fixed)^2, na.rm = TRUE)

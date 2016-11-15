@@ -3,13 +3,38 @@ metabias.default <- function(x, seTE,
                              plotit = FALSE, correct = FALSE,
                              k.min = 10, ...) {
   
+  
+  ##
+  ##
+  ## (1) Check arguments
+  ##
+  ##
   TE <- x
+  chknull(TE)
+  k.All <- length(TE)
+  chknull(seTE)
+  chknumeric(k.min, 1, single = TRUE)
+  ##
+  tests <- c("rank", "linreg", "mm")
+  method.bias <- setchar(method.bias, tests)
+  imeth <- charmatch(method.bias, tests)
+  method <- c(paste("Rank correlation test of funnel plot asymmetry",
+                    ifelse(correct == TRUE, " (with continuity correction)", ""),
+                    sep = ""),
+              "Linear regression test of funnel plot asymmetry",
+              "Linear regression test of funnel plot asymmetry (methods of moment)")[imeth]
+  ##
+  chklogical(plotit)
+  chklogical(correct)
+  chknumeric(k.min, 1, single = TRUE)
+  
+  
   data.name <- paste(deparse(substitute(x)),
                      deparse(substitute(seTE)),
                      sep = ", ")
   
   if(length(TE) != length(seTE))
-    stop("length of argument TE and seTE must be equal")
+    stop("Length of argument TE and seTE must be equal.")
   ##
   sel <- !is.na(TE) & !is.na(seTE)
   if (length(TE) != sum(sel))
@@ -20,14 +45,6 @@ metabias.default <- function(x, seTE,
   seTE <- seTE[sel]
   ##
   k <- length(TE)
-  
-  imeth <- charmatch(method.bias,
-                     c("rank", "linreg", "mm"),
-                     nomatch = NA)
-  if(is.na(imeth) | imeth == 0)
-    stop("method.bias should be \"rank\", \"linreg\", or \"mm\"")
-  ##
-  method.bias <- c("rank", "linreg", "mm")[imeth]
   
   
   if (k < k.min) {
@@ -102,11 +119,7 @@ metabias.default <- function(x, seTE,
     
     res$alternative <- "asymmetry in funnel plot"
     
-    res$method <- c(paste("Rank correlation test of funnel plot asymmetry",
-                          ifelse(correct == TRUE, " (with continuity correction)", ""),
-                          sep = ""),
-                    "Linear regression test of funnel plot asymmetry",
-                    "Linear regression test of funnel plot asymmetry (methods of moment)")[imeth]
+    res$method <- method
     
     res$data.name <- data.name
     

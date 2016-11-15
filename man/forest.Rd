@@ -33,7 +33,7 @@ forest(x, ...)
        text.fixed.w=text.fixed, text.random.w=text.random,
        bysort=FALSE,
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
-       pooled.times = FALSE,
+       pooled.times = FALSE, study.results = TRUE,
        xlab="", xlab.pos=ref,
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
@@ -50,9 +50,8 @@ forest(x, ...)
        lab.NA.effect="",
        lwd=1,
        at=NULL, label=TRUE,
-       type.study = "square",
-       type.fixed = "diamond",
-       type.random = type.fixed,
+       type.study = "square", type.fixed = "diamond", type.random = type.fixed,
+       type.subgroup = ifelse(study.results, "diamond", "square"),
        col.study="black",
        col.square="gray", col.square.lines=col.square,
        col.inside="white",
@@ -65,6 +64,7 @@ forest(x, ...)
        col.inside.random = col.inside,
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
+       col.label.right = "black", col.label.left = "black",
        print.I2=comb.fixed|comb.random, print.I2.ci=FALSE,
        print.Rb=FALSE, print.Rb.ci=FALSE,
        print.tau2=comb.fixed|comb.random,
@@ -126,6 +126,7 @@ forest(x, ...)
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
        calcwidth.pooled = TRUE,
+       calcwidth.hetstat = FALSE, calcwidth.tests = FALSE,
        #
        just="right", just.studlab="left", just.addcols="center",
        just.addcols.left=just.addcols, just.addcols.right=just.addcols,
@@ -193,6 +194,9 @@ forest(x, ...)
     events should be given in the figure.}  
   \item{pooled.times}{A logical indicating whether total person time
     at risk should be given in the figure.}
+  \item{study.results}{A logical indicating whether results for
+    individual studies should be shown in the figure (useful to only
+    plot subgroup results).}
   \item{xlab}{A label for the x-axis.}
   \item{xlab.pos}{A numeric specifying the center of the label
     on the x-axis.}
@@ -254,13 +258,16 @@ forest(x, ...)
     specify the labels to use. See \code{\link{grid.xaxis}}.}
   \item{type.study}{A character string or vector specifying how to
     plot treatment effects and confidence intervals for individual
-    studies.}
+    studies (see Details).}
   \item{type.fixed}{A character string specifying how to plot
     treatment effect and confidence interval for fixed effect
-    meta-analysis.}
+    meta-analysis (see Details).}
   \item{type.random}{A character string specifying how to plot
     treatment effect and confidence interval for random effects
-    meta-analysis.}
+    meta-analysis (see Details).}
+  \item{type.subgroup}{A character string specifying how to plot
+    treatment effect and confidence interval for subgroup results (see
+    Details).}
   \item{col.study}{The colour for individual study results and
     confidence limits.}
   \item{col.inside}{The colour for individual study results and
@@ -287,6 +294,10 @@ forest(x, ...)
   \item{col.predict}{Background colour of prediction interval.}
   \item{col.predict.lines}{Colour of outer lines of prediction interval.}
   \item{col.by}{The colour to print information on subgroups.}
+  \item{col.label.right}{The colour for label on right side of null
+    effect.}
+  \item{col.label.left}{The colour for label on left side of null
+    effect.}
   \item{print.I2}{A logical value indicating whether to print the value
     of the I-squared statistic.}
   \item{print.I2.ci}{A logical value indicating whether to print the
@@ -407,6 +418,12 @@ forest(x, ...)
   \item{calcwidth.pooled}{A logical indicating whether text given in
     arguments \code{text.fixed} and \code{text.random} should be
     considered to calculate width of column with study labels.}
+  \item{calcwidth.hetstat}{A logical indicating whether text for
+    heterogeneity statistics should be considered to calculate width
+    of column with study labels.}
+  \item{calcwidth.tests}{A logical indicating whether text for tests
+    of overall effect or subgroup differences should be considered to
+    calculate width of column with study labels.}
   \item{just}{Justification of text in all columns but columns
     with study labels and additional variables (possible values:
     "left", "right", "center").}
@@ -469,7 +486,8 @@ forest(x, ...)
    \item for meta-analysis results, a diamond with treatment estimate
      in the center and right and left side corresponding to lower and
      upper confidence limits (\code{type.fixed="diamond"},
-     \code{type.random="diamond"}).
+     \code{type.random="diamond"}, and
+     \code{type.subgroup="diamond"}).
   }
   
   In a forest plot, size of the squares typically reflects the
@@ -617,6 +635,14 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
 # Do (symmetric) forest plot
 #
 forest(meta1)
+
+
+#
+# Add labels on both sides of forest plot
+#
+forest(meta1,
+       label.right="Favours control", col.label.right="red",
+       label.left="Favours experimental", col.label.left="green")
 
 
 #

@@ -2,8 +2,12 @@
 
  ** Major changes **
 
-  * New measure Rb of between-study heterogeneity added
-   (Crippa et al., 2016, <DOI:10.1002/sim.6980>)
+  * Individual study results can be omitted from forest plot
+    (especially useful to only print subgroup results)
+
+  * Measures of between-study heterogeneity added:
+    - R_b (Crippa et al., 2016, <DOI:10.1002/sim.6980>)
+    - CV_b (Takkouche et al., 1999, Am J Epidemiol)
 
   * Default settings of meta-analysis methods specified via gs()
     instead of extracting elements of list .settings
@@ -26,11 +30,23 @@
       (list element Rb.w)
   
   * forest.meta():
+    - new argument study.results to print (default) or omit individual
+      study results from forest plot
+    - new arguments col.label.right and col.label.left to change
+      colour of labels on left and right side of forest plot
     - new arguments print.Rb, print.Rb.ci, Rb.text for heterogeneity
       measure Rb
+    - new argument type.subgroup to change ploting of subgroup results
+    - new arguments calcwidth.hetstat and calcwidth.tests to change
+      width of column with study labels (new arguments are especially
+      useful if only the study labels are printed on left side of
+      forest plot)
   
   * print.meta(), print.summary.meta():
     - print heterogeneity measure Rb
+  
+  * metabias.meta(), metabias.default():
+    - checks for arguments implemented
       
   * New function gs() to get default settings
 

@@ -22,8 +22,10 @@ forest.meta <- function(x,
                         text.random.w = text.random,
                         bysort = FALSE,
                         ##
-                        pooled.totals = comb.fixed | comb.random, pooled.events = FALSE,
-                        pooled.times = FALSE,
+                        pooled.totals = comb.fixed | comb.random,
+                        pooled.events = FALSE, pooled.times = FALSE,
+                        ##
+                        study.results = TRUE,
                         ##
                         xlab = "", xlab.pos = ref,
                         smlab = NULL, smlab.pos = ref, xlim = "symmetric",
@@ -59,6 +61,7 @@ forest.meta <- function(x,
                         type.study = "square",
                         type.fixed = "diamond",
                         type.random = type.fixed,
+                        type.subgroup = ifelse(study.results, "diamond", "square"),
                         ##
                         col.study = "black",
                         col.square = "gray",
@@ -79,6 +82,9 @@ forest.meta <- function(x,
                         col.predict.lines = "black",
                         ##
                         col.by = "darkgray",
+                        ##
+                        col.label.right = "black",
+                        col.label.left = "black",
                         ##
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
@@ -166,6 +172,8 @@ forest.meta <- function(x,
                         colgap.forest.right = colgap.forest,
                         ##
                         calcwidth.pooled = TRUE,
+                        calcwidth.hetstat = FALSE,
+                        calcwidth.tests  = FALSE,
                         ##
                         just = "right",
                         just.studlab = "left",
@@ -240,8 +248,10 @@ forest.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(overall)
-  chknumeric(lty.fixed)
-  chknumeric(lty.random)
+  if (!is.null(lty.fixed))
+    chknumeric(lty.fixed)
+  if (!is.null(lty.random))
+    chknumeric(lty.random)
   chklogical(prediction)
   if (!is.null(print.byvar))
     chklogical(print.byvar)
@@ -250,6 +260,7 @@ forest.meta <- function(x,
   chklogical(pooled.totals)
   chklogical(pooled.events)
   chklogical(pooled.times)
+  chklogical(study.results)
   ## chknumeric(xlab.pos) ??
   ## chknumeric(smlab.pos) ??
   chklogical(allstudies)
@@ -265,6 +276,7 @@ forest.meta <- function(x,
   type.study <- setchar(type.study, c("square", "diamond"))
   type.fixed <- setchar(type.fixed, c("square", "diamond"))
   type.random <- setchar(type.random, c("square", "diamond"))
+  type.subgroup <- setchar(type.subgroup, c("square", "diamond"))
   layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
@@ -310,6 +322,9 @@ forest.meta <- function(x,
   chknumeric(fs.xlab, single = TRUE)
   chknumeric(fs.lr, single = TRUE)
   chknumeric(squaresize, single = TRUE)
+  chklogical(calcwidth.pooled)
+  chklogical(calcwidth.hetstat)
+  chklogical(calcwidth.tests)
   just.cols <- setchar(just, c("right", "center", "left"))
   just.studlab <- setchar(just.studlab, c("right", "center", "left"))
   just.addcols <- setchar(just.addcols, c("right", "center", "left"))
@@ -421,10 +436,13 @@ forest.meta <- function(x,
   ## (4) Some assignments and additional checks
   ##
   ##
-  metaprop <- inherits(x, "metaprop")
+  metabin <- inherits(x, "metabin")
+  metacont <- inherits(x, "metacont")
   metacor <- inherits(x, "metacor")
+  metagen <- inherits(x, "metagen")
   metainc <- inherits(x, "metainc")
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   ##
   if (metainf.metacum) {
@@ -710,80 +728,113 @@ forest.meta <- function(x,
   ## rightcols not specified
   ##
   if (is.null(leftcols)) {
-    if (layout == "meta") {
-      if (inherits(x, "metabin"))
-        leftcols <- c("studlab",
-                      "event.e", "n.e",
-                      "event.c", "n.c")
+    if (layout == "meta" | layout == "revman5") {
       ##
-      if (inherits(x, "metacont"))
-        leftcols <- c("studlab",
-                      "n.e", "mean.e", "sd.e",
-                      "n.c", "mean.c", "sd.c")
+      leftcols <- "studlab"
       ##
-      if (inherits(x, "metagen"))
-        leftcols <- c("studlab",
+      if (metabin) {
+        if (study.results)
+          leftcols <- c(leftcols,
+                        "event.e", "n.e",
+                        "event.c", "n.c")
+        else {
+          leftcols <- c(leftcols,
+                        if (pooled.events) "event.e",
+                        if (pooled.totals) "n.e",
+                        if (pooled.events) "event.c",
+                        if (pooled.totals) "n.c")
+          if (pooled.events & !pooled.totals) {
+            if (is.null(lab.e.attach.to.col))
+              lab.e.attach.to.col <- "event.e"
+            if (is.null(lab.c.attach.to.col))
+              lab.c.attach.to.col <- "event.c"
+          }
+        }
+      }
+      ##
+      if (metacont) {
+        if (study.results)
+          leftcols <- c(leftcols,
+                        "n.e", "mean.e", "sd.e",
+                        "n.c", "mean.c", "sd.c")
+        else if (pooled.totals) {
+          leftcols <- c(leftcols, "n.e", "n.c")
+          if (is.null(lab.e.attach.to.col))
+            lab.e.attach.to.col <- "n.e"
+          if (is.null(lab.c.attach.to.col))
+            lab.c.attach.to.col <- "n.c"
+        }
+      }
+      ##
+      if (metagen & study.results)
+        leftcols <- c(leftcols,
                       "TE", "seTE")
       ##
-      if (metaprop)
-        leftcols <- c("studlab",
-                      "event.e", "n.e")
+      if (metaprop) {
+        if (study.results)
+          leftcols <- c(leftcols,
+                        "event.e", "n.e")
+        else {
+          leftcols <- c(leftcols,
+                        if (pooled.events) "event.e",
+                        if (pooled.totals) "n.e")
+          if (pooled.events & !pooled.totals) {
+            if (is.null(lab.e.attach.to.col))
+              lab.e.attach.to.col <- "event.e"
+          }
+        }
+      }
       ##
-      if (metarate)
-        leftcols <- c("studlab",
-                      "event.e", "time.e")
+      if (metarate) {
+        if (study.results)
+          leftcols <- c(leftcols,
+                        "event.e", "time.e")
+        else {
+          leftcols <- c(leftcols,
+                        if (pooled.events) "event.e",
+                        if (pooled.times) "time.e")
+          if (pooled.events & !pooled.times) {
+            if (is.null(lab.e.attach.to.col))
+              lab.e.attach.to.col <- "event.e"
+          }
+        }
+      }
       ##
-      if (metacor)
-        leftcols <- c("studlab",
-                      "n.e")
+      if (metacor) {
+        if (study.results | pooled.totals)
+          leftcols <- c(leftcols,
+                        "n.e")
+      }
       ##
-      if (metainc)
-        leftcols <- c("studlab",
-                      "event.e", "time.e",
-                      "event.c", "time.c")
-      ##
-      if (metainf.metacum)
-        leftcols <- "studlab"
+      if (metainc) {
+        if (study.results)
+          leftcols <- c(leftcols,
+                        "event.e", "time.e",
+                        "event.c", "time.c")
+        else {
+          leftcols <- c(leftcols,
+                        if (pooled.events) "event.e",
+                        if (pooled.times) "time.e",
+                        if (pooled.events) "event.c",
+                        if (pooled.times) "time.c")
+          if (pooled.events & !pooled.times) {
+            if (is.null(lab.e.attach.to.col))
+              lab.e.attach.to.col <- "event.e"
+            if (is.null(lab.c.attach.to.col))
+              lab.c.attach.to.col <- "event.c"
+          }
+        }
+      }
     }
-    else if (layout == "revman5") {
-      if (inherits(x, "metabin"))
-        leftcols <- c("studlab",
-                      "event.e", "n.e",
-                      "event.c", "n.c")
+    ##
+    ## Add columns for RevMan 5 layout
+    ##
+    if (layout == "revman5") {
       ##
-      if (inherits(x, "metacont"))
-        leftcols <- c("studlab",
-                      "n.e", "mean.e", "sd.e",
-                      "n.c", "mean.c", "sd.c")
-      ##
-      if (inherits(x, "metagen"))
-        leftcols <- c("studlab",
-                      "TE", "seTE")
-      ##
-      if (metaprop)
-        leftcols <- c("studlab",
-                      "event.e", "n.e")
-      ##
-      if (metarate)
-        leftcols <- c("studlab",
-                      "event.e", "time.e")
-      ##
-      if (metacor)
-        leftcols <- c("studlab",
-                      "n.e")
-      ##
-      if (metainc)
-        leftcols <- c("studlab",
-                      "event.e", "time.e",
-                      "event.c", "time.c")
-      ##
-      if (metainf.metacum)
-        leftcols <- "studlab"
-      ##
-      if (!metainf.metacum) {
-        if (comb.fixed & overall)
+      if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
+        if (comb.fixed)
           leftcols <- c(leftcols, "w.fixed")
-        if (comb.random & overall)
+        if (comb.random)
           leftcols <- c(leftcols, "w.random")
       }
       ##
@@ -794,10 +845,10 @@ forest.meta <- function(x,
   if (is.null(rightcols) & rsel) {
     rightcols <- c("effect", "ci")
     ##
-    if (!metainf.metacum & !x$method == "GLMM") {
-      if (comb.fixed & overall)
+    if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
+      if (comb.fixed)
         rightcols <- c(rightcols, "w.fixed")
-      if (comb.random & overall)
+      if (comb.random)
         rightcols <- c(rightcols, "w.random")
     }
   }
@@ -1675,6 +1726,12 @@ forest.meta <- function(x,
     sel.fixed[sel.by.random] <- TRUE
     sel.random[sel.by.fixed] <- TRUE
     ##
+    type.pooled <- c(type.fixed,
+                     type.random,
+                     "predict",
+                     rep(type.subgroup, n.by),
+                     rep(type.subgroup, n.by),
+                     rep("", 3 * n.by))
     col.diamond.pooled <- c(col.diamond.fixed,
                             col.diamond.random,
                             col.predict,
@@ -1718,6 +1775,7 @@ forest.meta <- function(x,
     sel.fixed <- w.fixeds.text == "--"
     sel.random <- w.randoms.text == "--"
     ##
+    type.pooled <- c(type.fixed, type.random, "predict")
     col.diamond.pooled <- c(col.diamond.fixed, col.diamond.random, col.predict)
     col.diamond.lines.pooled <- c(col.diamond.lines.fixed, col.diamond.lines.random,
                                   col.predict.lines)
@@ -1969,8 +2027,10 @@ forest.meta <- function(x,
   ##
   if (!by) {
     N <- n.stud
-    yTE <- 1:N
-    yTE <- yTE
+    if (study.results)
+      yTE <- 1:N
+    else
+      yTE <- rep(NA, N)
   }
   else {
     ##
@@ -1992,8 +2052,12 @@ forest.meta <- function(x,
       yBylab[i] <- j
       j <- j + 1
       ##
-      yTE[(k - k.i + 1):k] <- j:(j + k.i - 1)
-      j <- j + k.i
+      if (study.results) {
+        yTE[(k - k.i + 1):k] <- j:(j + k.i - 1)
+        j <- j + k.i
+      }
+      else
+        yTE[(k - k.i + 1):k] <- NA
       ##
       ## Fixed effect model
       ##
@@ -2115,13 +2179,21 @@ forest.meta <- function(x,
   if (!is.na(ref) &&
       round(xlim[2] - ref, 6) == round(ref - xlim[1], 6))
     symmetric <- TRUE
-  ##  
-  if (by)
-    max.yTE <- max(c(yTE, yTE.w), na.rm = TRUE)
-  else
-    max.yTE <- max(yTE, na.rm = TRUE)
   ##
-  yNext <- max.yTE + 2
+  if (by) {
+    if (all(is.na(c(yTE, yTE.w))))
+      max.yTE <- 0
+    else
+      max.yTE <- max(c(yTE, yTE.w), na.rm = TRUE)
+  }
+  else {
+    if (all(is.na(yTE)))
+      max.yTE <- 0
+    else
+    max.yTE <- max(yTE, na.rm = TRUE)
+  }
+  ##
+  yNext <- max.yTE + ifelse(max.yTE == 0, 1, 2)
   ##  
   if (!is.na(ref) & missing(xlab.pos))
     if (ref <= min(xlim) | ref >= max(xlim))
@@ -2530,9 +2602,7 @@ forest.meta <- function(x,
                      ## "square" means normal confidence interval, "diamond" means meta-analysis diamond,
                      ## "predict" means prediction interval
                      ##
-                     type = c(type.fixed, type.random, "predict",
-                              rep(type.fixed, length(TEs) - length(TE) - 3),
-                              type.study),
+                     type = c(type.pooled, type.study),
                      ##
                      col = c(col.diamond.lines.pooled, col.study),
                      col.square = c(col.diamond.pooled, col.square),
@@ -2970,12 +3040,12 @@ forest.meta <- function(x,
                 x = unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
                 y = unit(-2.5, "lines"),
                 just = c("right", "center"),
-                gp = gpar(fontsize = fs.lr, fontface = ff.lr))
+                gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.left))
       grid.text(label.right,
                 x = unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
                 y = unit(-2.5, "lines"),
                 just = c("left", "center"),
-                gp = gpar(fontsize = fs.lr, fontface = ff.lr))
+                gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.right))
     }
     ##
     popViewport()
@@ -3022,33 +3092,38 @@ forest.meta <- function(x,
   ## width for study labels
   ##
   if (by)
-    del.lines <- c(if (!calcwidth.pooled)             # FE + RE
-                     c(2, 3),
-                   4:n.summaries,                     # PI + tests
+    del.lines <- c(if (!calcwidth.pooled)             # FE + RE + PI
+                     2:4,
+                   if (!calcwidth.tests)              # tests
+                     5:n.summaries,
                    ##
                    n.summaries + 0 * n.by + 1:n.by,   # subgroup labels
                    if (!calcwidth.pooled)             # FE in subgroups
                      n.summaries + 1 * n.by + 1:n.by,
                    if (!calcwidth.pooled)             # RE in subgroups
                      n.summaries + 2 * n.by + 1:n.by,
-                   n.summaries + 3 * n.by + 1:n.by,   # heterogeneity statistic in subgroups
-                   n.summaries + 4 * n.by + 1:n.by,   # test for effect in subgroup (fixed effect)
-                   n.summaries + 5 * n.by + 1:n.by    # test for effect in subgroup (random effects)
+                   if (!calcwidth.hetstat)            # heterogeneity statistic in subgroups
+                     n.summaries + 3 * n.by + 1:n.by,
+                   if (!calcwidth.tests)              # test for effect in subgroup (fixed effect)
+                     n.summaries + 4 * n.by + 1:n.by,
+                   if (!calcwidth.tests)              # test for effect in subgroup (random effects)
+                     n.summaries + 5 * n.by + 1:n.by  #
                    )
   else
-    del.lines <- c(if (!calcwidth.pooled) # FE + RE
-                     c(2, 3),
-                   4:n.summaries)         # PI + tests
+    del.lines <- c(if (!calcwidth.pooled) # FE + RE + PI
+                     2:4,
+                   if (!calcwidth.tests)  # tests
+                     5:n.summaries)
   ##
   for (i in seq(along = leftcols)) {
     if (i == 1) {
-      if (leftcols[[i]] == "col.studlab")
+      if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
         x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels[-del.lines]))
       else
         x1 <- unit.c(wcalc(cols[[leftcols[i]]]$labels))
     }
     else {
-      if (leftcols[[i]] == "col.studlab")
+      if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
         x1 <- unit.c(x1,
                      colgap.left,
                      wcalc(cols[[leftcols[i]]]$labels[-del.lines]))
@@ -3068,6 +3143,7 @@ forest.meta <- function(x,
                    wcalc(cols[[rightcols[i]]]$labels))
     }
   }
+  print(x1)
 
 
   ##
@@ -3097,7 +3173,7 @@ forest.meta <- function(x,
                           nrow,
                           length(x1),
                           widths = x1,
-                          heights = unit(rep(1, max(yTE)), "lines"))))
+                          heights = unit(1, "lines"))))
   ##
   ##
   j <- 1
@@ -3110,13 +3186,13 @@ forest.meta <- function(x,
         if (leftcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
           drawLabelCol(col.lab.e, j)
       }
-      else if (inherits(x, "metabin")) {
+      else if (metabin) {
         if (leftcols[i] == "col.n.e" & just.cols == "right")
           drawLabelCol(col.lab.e, j)
         else if (leftcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
           drawLabelCol(col.lab.e, j)
       }
-      else if (inherits(x, "metacont")) {
+      else if (metacont) {
         if (leftcols[i] == "col.sd.e" & just.cols == "right")
           drawLabelCol(col.lab.e, j)
         else if (leftcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
@@ -3133,13 +3209,13 @@ forest.meta <- function(x,
         if (leftcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
           drawLabelCol(col.lab.c, j)
       }
-      else if (inherits(x, "metabin")) {
+      else if (metabin) {
         if (leftcols[i] == "col.n.c" & just.cols == "right")
           drawLabelCol(col.lab.c, j)
         else if (leftcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
           drawLabelCol(col.lab.c, j)
       }
-      else if (inherits(x, "metacont")) {
+      else if (metacont) {
         if (leftcols[i] == "col.sd.c" & just.cols == "right")
           drawLabelCol(col.lab.c, j)
         else if (leftcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
@@ -3168,13 +3244,13 @@ forest.meta <- function(x,
           if (rightcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
             drawLabelCol(col.lab.e, j)
         }
-        else if (inherits(x, "metabin")) {
+        else if (metabin) {
           if (rightcols[i] == "col.n.e" & just.cols == "right")
             drawLabelCol(col.lab.e, j)
           else if (rightcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
             drawLabelCol(col.lab.e, j)
         }
-        else if (inherits(x, "metacont")) {
+        else if (metacont) {
           if (rightcols[i] == "col.sd.e" & just.cols == "right")
             drawLabelCol(col.lab.e, j)
           else if (rightcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
@@ -3191,13 +3267,13 @@ forest.meta <- function(x,
           if (rightcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
             drawLabelCol(col.lab.c, j)
         }
-        else if (inherits(x, "metabin")) {
+        else if (metabin) {
           if (rightcols[i] == "col.n.c" & just.cols == "right")
             drawLabelCol(col.lab.c, j)
           else if (rightcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
             drawLabelCol(col.lab.c, j)
         }
-        else if (inherits(x, "metacont")) {
+        else if (metacont) {
           if (rightcols[i] == "col.sd.c" & just.cols == "right")
             drawLabelCol(col.lab.c, j)
           else if (rightcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
