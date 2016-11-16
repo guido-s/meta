@@ -5,16 +5,14 @@ forest.meta <- function(x,
                         comb.fixed = x$comb.fixed,
                         comb.random = x$comb.random,
                         overall = TRUE,
-                        text.fixed = if (x$level != x$level.comb) paste("Fixed effect model (",
-                                           round(x$level.comb * 100), "%-CI)", sep = "") else "Fixed effect model",
-                        text.random = if (x$level != x$level.comb) paste("Random effects model (",
-                                            round(x$level.comb * 100), "%-CI)", sep = "") else "Random effects model",
+                        text.fixed = NULL,
+                        text.random = NULL,
                         lty.fixed = 2, lty.random = 3,
                         ##
                         prediction = x$prediction,
-                        text.predict = if (!(length(x$level.predict) == 0) && x$level != x$level.predict) paste("Prediction interval (",
-                                                                                round(x$level.predict * 100), "%)", sep = "") else "Prediction interval",
+                        text.predict = NULL,
                         ##
+                        print.subgroup.labels = TRUE,
                         bylab = x$bylab,
                         print.byvar = x$print.byvar,
                         byseparator = gs("byseparator"),
@@ -31,7 +29,8 @@ forest.meta <- function(x,
                         smlab = NULL, smlab.pos = ref, xlim = "symmetric",
                         ##
                         allstudies = TRUE,
-                        weight,
+                        weight.study,
+                        weight.subgroup,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         ##
@@ -172,6 +171,9 @@ forest.meta <- function(x,
                         colgap.forest.right = colgap.forest,
                         ##
                         calcwidth.pooled = TRUE,
+                        calcwidth.fixed = calcwidth.pooled,
+                        calcwidth.random = calcwidth.pooled,
+                        calcwidth.predict = FALSE,
                         calcwidth.hetstat = FALSE,
                         calcwidth.tests  = FALSE,
                         ##
@@ -182,6 +184,7 @@ forest.meta <- function(x,
                         just.addcols.right = just.addcols,
                         ##
                         addspace = TRUE,
+                        addspace.between.subgroups = TRUE,
                         ##
                         new = TRUE,
                         ##
@@ -195,7 +198,13 @@ forest.meta <- function(x,
                         digits.I2 = gs("digits.I2"),
                         digits.weight = gs("digits.weight"),
                         ##
+                        digits.mean = NULL,
+                        digits.sd = NULL,
+                        digits.cor = NULL,
+                        digits.time = NULL,
+                        ##
                         col.i = col.study,
+                        weight = weight.study,
                         ...) {
   
   
@@ -248,11 +257,13 @@ forest.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(overall)
+  ##
   if (!is.null(lty.fixed))
     chknumeric(lty.fixed)
   if (!is.null(lty.random))
     chknumeric(lty.random)
   chklogical(prediction)
+  chklogical(print.subgroup.labels)
   if (!is.null(print.byvar))
     chklogical(print.byvar)
   chkchar(byseparator)
@@ -277,6 +288,13 @@ forest.meta <- function(x,
   type.fixed <- setchar(type.fixed, c("square", "diamond"))
   type.random <- setchar(type.random, c("square", "diamond"))
   type.subgroup <- setchar(type.subgroup, c("square", "diamond"))
+  ##
+  if (missing(weight.subgroup))
+    weight.subgroup <- ifelse(type.subgroup == "square",
+                              "weight", "same")
+  weight.subgroup <- setchar(weight.subgroup,
+                             c("weight", "same"))
+  ##
   layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
@@ -323,6 +341,9 @@ forest.meta <- function(x,
   chknumeric(fs.lr, single = TRUE)
   chknumeric(squaresize, single = TRUE)
   chklogical(calcwidth.pooled)
+  chklogical(calcwidth.fixed)
+  chklogical(calcwidth.random)
+  chklogical(calcwidth.predict)
   chklogical(calcwidth.hetstat)
   chklogical(calcwidth.tests)
   just.cols <- setchar(just, c("right", "center", "left"))
@@ -331,16 +352,24 @@ forest.meta <- function(x,
   just.addcols.left <- setchar(just.addcols.left, c("right", "center", "left"))
   just.addcols.right <- setchar(just.addcols.right, c("right", "center", "left"))
   ##
-  if (missing(weight))
-    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
-  weight <- setchar(weight, c("same", "fixed", "random"))
+  if (missing(weight.study))
+    weight.study <- ifelse(comb.random & !comb.fixed, "random", "fixed")
+  weight.study <- setchar(weight.study, c("same", "fixed", "random"))
   chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
   chknumeric(digits.pval, min = 0, single = TRUE)
   chknumeric(digits.pval.Q, min = 0, single = TRUE)
   chknumeric(digits.Q, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
+  chknumeric(digits.se, min = 0, single = TRUE)
+  if (!is.null(digits.mean))
+    chknumeric(digits.mean, min = 0, single = TRUE)
+  if (!is.null(digits.sd))
+    chknumeric(digits.sd, min = 0, single = TRUE)
+  if (!is.null(digits.cor))
+    chknumeric(digits.cor, min = 0, single = TRUE)
+  if (!is.null(digits.time))
+    chknumeric(digits.time, min = 0, single = TRUE)
   ##
   cl <- class(x)[1]
   addargs <- names(list(...))
@@ -360,6 +389,16 @@ forest.meta <- function(x,
     else {
       warning("Deprecated argument 'col.i' has been replaced by argument 'col.study'.")
       col.study <- col.i
+    }
+  ##
+  ## Check for deprecated argument 'weight'
+  ##
+  if (!missing(weight))
+    if (!missing(weight.study))
+      warning("Deprecated argument 'weight' ignored as argument 'weight.study' is also provided.")
+    else {
+      warning("Deprecated argument 'weight' has been replaced by argument 'weight.study'.")
+      weight.study <- weight
     }
   ##
   ## Check for other deprecated arguments in '...'
@@ -444,6 +483,26 @@ forest.meta <- function(x,
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
+  ##
+  if (is.null(text.fixed))
+    if (study.results & x$level != x$level.comb)
+      text.fixed <- paste("Fixed effect model (",
+                          round(x$level.comb * 100), "%-CI)", sep = "")
+    else
+      text.fixed <- "Fixed effect model"
+  if (is.null(text.random))
+    if (study.results & x$level != x$level.comb)
+      text.random <- paste("Random effects model (",
+                           round(x$level.comb * 100), "%-CI)", sep = "")
+    else
+      text.random <- "Random effects model"
+  if (is.null(text.predict))
+    if (!(length(x$level.predict) == 0) &&
+        (study.results & (x$level != x$level.predict | x$level.comb != x$level.predict)))
+      text.predict <- paste("Prediction interval (",
+                            round(x$level.predict * 100), "%-PI)", sep = "")
+    else
+      text.predict <- "Prediction interval"
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
@@ -609,7 +668,11 @@ forest.meta <- function(x,
                 "Mean", "Mean", "SD", "SD",
                 "Cor",
                 "Time", "Time",
-                sm.lab, paste(100 * level, "%-CI", sep = ""),
+                sm.lab,
+                if (study.results)
+                  paste(100 * level, "%-CI", sep = "")
+                else
+                  paste(100 * level.comb, "%-CI", sep = ""),
                 "W(fixed)", "W(random)")
   ##
   ## If any of the following list elements is NULL, these 'special'
@@ -933,14 +996,14 @@ forest.meta <- function(x,
     if (overall & x$pooled == "fixed") {
       comb.fixed <- TRUE
       comb.random <- FALSE
-      if (weight != "same")
-        weight <- "fixed"
+      if (weight.study != "same")
+        weight.study <- "fixed"
     }
     else if (overall & x$pooled == "random") {
       comb.fixed <- FALSE
       comb.random <- TRUE
-      if (weight != "same")
-        weight <- "random"
+      if (weight.study != "same")
+        weight.study <- "random"
     }
   }
   ## Total number of studies to plot (*not* number of studies combined)
@@ -1714,8 +1777,14 @@ forest.meta <- function(x,
     seTEs.study <- c("", "", "", rep("", 5 * n.by),
                      format.NA(round(seTE, digits.se), digits.se, lab.NA))
     ##
-    w.fixeds  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.fixed.p)
-    w.randoms <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.random.p)
+    if (weight.subgroup == "same") {
+      w.fixeds  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.fixed.p)
+      w.randoms <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.random.p)
+    }
+    else {
+      w.fixeds  <- c(NA, NA, NA, weight.w.p, w.fixed.p)
+      w.randoms <- c(NA, NA, NA, weight.w.p, w.random.p)
+    }
     ##
     w.fixeds.text  <- c(100, "--", "", format.NA(c(weight.w.p, w.fixed.p), digits.weight))
     w.randoms.text <- c("--", 100, "", format.NA(c(weight.w.p, w.random.p), digits.weight))
@@ -1905,8 +1974,15 @@ forest.meta <- function(x,
   Nc.format <- ifelse(is.na(Nc), lab.NA, format(Nc, scientific = FALSE))
   Ee.format <- ifelse(is.na(Ee), lab.NA, format(Ee, scientific = FALSE))
   Ec.format <- ifelse(is.na(Ec), lab.NA, format(Ec, scientific = FALSE))
-  Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific = FALSE))
-  Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific = FALSE))
+  ##
+  if (is.null(digits.time)) {
+    Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific = FALSE))
+    Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific = FALSE))
+  }
+  else {
+    Te.format <- format.NA(round(Te, digits.mean), digits.mean, lab.NA)
+    Tc.format <- format.NA(round(Tc, digits.mean), digits.mean, lab.NA)
+  }
   ##
   ## Print nothing in line with prediction interval
   ##
@@ -1974,10 +2050,22 @@ forest.meta <- function(x,
     Sc <- c(NA, NA, NA, x$sd.c)
   }
   ##
-  Me.format <- ifelse(is.na(Me), lab.NA, format(Me, scientific = FALSE))
-  Mc.format <- ifelse(is.na(Mc), lab.NA, format(Mc, scientific = FALSE))
-  Se.format <- ifelse(is.na(Se), lab.NA, format(Se, scientific = FALSE))
-  Sc.format <- ifelse(is.na(Sc), lab.NA, format(Sc, scientific = FALSE))
+  if (is.null(digits.mean)) {
+    Me.format <- ifelse(is.na(Me), lab.NA, format(Me, scientific = FALSE))
+    Mc.format <- ifelse(is.na(Mc), lab.NA, format(Mc, scientific = FALSE))
+  }
+  else {
+    Me.format <- format.NA(round(Me, digits.mean), digits.mean, lab.NA)
+    Mc.format <- format.NA(round(Mc, digits.mean), digits.mean, lab.NA)
+  }
+  if (is.null(digits.sd)) {
+    Se.format <- ifelse(is.na(Se), lab.NA, format(Se, scientific = FALSE))
+    Sc.format <- ifelse(is.na(Sc), lab.NA, format(Sc, scientific = FALSE))
+  }
+  else {
+    Se.format <- format.NA(round(Se, digits.sd), digits.sd, lab.NA)
+    Sc.format <- format.NA(round(Sc, digits.sd), digits.sd, lab.NA)
+  }
   ##
   ## Print nothing for lines with summary results
   ##
@@ -1995,7 +2083,10 @@ forest.meta <- function(x,
   else
     cor <- c(NA, NA, NA, x$cor)
   ##
-  cor.format <- ifelse(is.na(cor), lab.NA, format(cor, scientific = FALSE))
+  if (is.null(digits.cor))
+    cor.format <- ifelse(is.na(cor), lab.NA, format(cor, scientific = FALSE))
+  else
+    cor.format <- format.NA(round(cor, digits.cor), digits.cor, lab.NA)
   ##
   ## Print nothing for lines with summary results
   ##
@@ -2049,8 +2140,10 @@ forest.meta <- function(x,
       k.i <- k.all.w[i]
       k <- k + k.i
       ##
-      yBylab[i] <- j
-      j <- j + 1
+      if (print.subgroup.labels) {
+        yBylab[i] <- j
+        j <- j + 1
+      }
       ##
       if (study.results) {
         yTE[(k - k.i + 1):k] <- j:(j + k.i - 1)
@@ -2111,8 +2204,12 @@ forest.meta <- function(x,
       else
         yTE.w.effect.random[i] <- NA
       ##
-      j <- j + 1
+      if (addspace.between.subgroups)
+        j <- j + 1
     }
+    ##
+    if (!addspace.between.subgroups)
+      j <- j + 1
     ##
     yTE.w <- c(yTE.w.fixed, yTE.w.random, yTE.w.hetstat,
                yTE.w.effect.fixed, yTE.w.effect.random)
@@ -2615,14 +2712,14 @@ forest.meta <- function(x,
   ##
   ## Sizes of squares
   ##
-  if (weight == "same") {
+  if (weight.study == "same") {
     information <- rep(0.9, length(TEs))
   }
   else {
     ##
-    if (weight == "fixed")
+    if (weight.study == "fixed")
       information <- sqrt(w.fixeds)
-    else if (weight == "random")
+    else if (weight.study == "random")
       information <- sqrt(w.randoms)
     ## Square height equal to 1 for most precise study result
     if (!all(is.na(information)))
@@ -3091,28 +3188,37 @@ forest.meta <- function(x,
   ## Exclude lines with summary measures from calculation of column
   ## width for study labels
   ##
-  if (by)
-    del.lines <- c(if (!calcwidth.pooled)             # FE + RE + PI
-                     2:4,
+  if (by) {
+    del.lines <- c(if (!calcwidth.fixed)              # FE
+                     2,
+                   if (!calcwidth.random)             # RE
+                     3,
+                   if (!calcwidth.predict)            # PI
+                     4,
                    if (!calcwidth.tests)              # tests
                      5:n.summaries,
                    ##
                    n.summaries + 0 * n.by + 1:n.by,   # subgroup labels
-                   if (!calcwidth.pooled)             # FE in subgroups
+                   if (!calcwidth.fixed)              # FE in subgroups
                      n.summaries + 1 * n.by + 1:n.by,
-                   if (!calcwidth.pooled)             # RE in subgroups
+                   if (!calcwidth.random)             # RE in subgroups
                      n.summaries + 2 * n.by + 1:n.by,
                    if (!calcwidth.hetstat)            # heterogeneity statistic in subgroups
                      n.summaries + 3 * n.by + 1:n.by,
                    if (!calcwidth.tests)              # test for effect in subgroup (fixed effect)
                      n.summaries + 4 * n.by + 1:n.by,
                    if (!calcwidth.tests)              # test for effect in subgroup (random effects)
-                     n.summaries + 5 * n.by + 1:n.by  #
+                     n.summaries + 5 * n.by + 1:n.by
                    )
+  }
   else
-    del.lines <- c(if (!calcwidth.pooled) # FE + RE + PI
-                     2:4,
-                   if (!calcwidth.tests)  # tests
+    del.lines <- c(if (!calcwidth.fixed)   # FE
+                     2,
+                   if (!calcwidth.random)  # RE
+                     3,
+                   if (!calcwidth.predict) # PI
+                     4,
+                   if (!calcwidth.tests)   # tests
                      5:n.summaries)
   ##
   for (i in seq(along = leftcols)) {

@@ -5,9 +5,8 @@
   * Individual study results can be omitted from forest plot
     (especially useful to only print subgroup results)
 
-  * Measures of between-study heterogeneity added:
+  * Measure of between-study heterogeneity added:
     - R_b (Crippa et al., 2016, <DOI:10.1002/sim.6980>)
-    - CV_b (Takkouche et al., 1999, Am J Epidemiol)
 
   * Default settings of meta-analysis methods specified via gs()
     instead of extracting elements of list .settings
@@ -34,13 +33,22 @@
       study results from forest plot
     - new arguments col.label.right and col.label.left to change
       colour of labels on left and right side of forest plot
+    - argument weight renamed to weight.study and new argument
+      weight.subgroup added to specify whether plotted subgroup
+      results should be of same or different size
     - new arguments print.Rb, print.Rb.ci, Rb.text for heterogeneity
       measure Rb
+    - new arguments to control printing:
+      digits.mean, digits.sd, digits.cor, digits.time
+    - new argument print.subgroup.labels to print (default) or omit
+      rows with subgroup label from the forest plot
     - new argument type.subgroup to change ploting of subgroup results
-    - new arguments calcwidth.hetstat and calcwidth.tests to change
-      width of column with study labels (new arguments are especially
-      useful if only the study labels are printed on left side of
-      forest plot)
+    - new argument addspace.between.subgroups to add a blank line
+      between subgroup results
+    - new arguments calcwidth.fixed, calcwidth.random,
+      calcwidth.hetstat, and calcwidth.tests to change width of column
+      with study labels (these arguments are especially useful if only
+      study labels are printed on left side of forest plot)
   
   * print.meta(), print.summary.meta():
     - print heterogeneity measure Rb
@@ -57,10 +65,11 @@
     functions, e.g. gs(hakn) instead of .settings$hakn
 
   * metareg():
-    Stop if version of metafor package is below 1.9-9
+    Stop with an error if version of metafor package is below 1.9-9
 
   * metabin(), metainc(), metaprop(), metarate():
-    For GLMMs, stop if version of metafor package is below 1.9-9
+    For GLMMs, stop with an error if version of metafor package is
+    below 1.9-9
 
   * Several help pages updated
 

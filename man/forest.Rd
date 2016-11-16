@@ -16,29 +16,21 @@ forest(x, ...)
 \method{forest}{meta}(x, sortvar, studlab=TRUE,
        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
        overall=TRUE,
-       text.fixed=if (x$level!=x$level.comb) paste("Fixed effect model (",
-                    round(x$level.comb*100), "\%-CI)", sep="")
-                  else "Fixed effect model",
-       text.random=if (x$level!=x$level.comb) paste("Random effects model (",
-                    round(x$level.comb*100), "\%-CI)", sep="")
-                  else "Random effects model",
+       text.fixed=NULL,
+       text.random=NULL,
        lty.fixed=2, lty.random=3,
        prediction=x$prediction,
-       text.predict=if (!(length(x$level.predict)==0) &&
-                        x$level!=x$level.predict)
-                     paste("Prediction interval (",
-                           round(x$level.predict*100), "\%)",
-                     sep="") else "Prediction interval",
+       text.predict=NULL,
+       print.subgroup.labels=TRUE,
        bylab=x$bylab, print.byvar=x$print.byvar, byseparator=gs("byseparator"),
-       text.fixed.w=text.fixed, text.random.w=text.random,
-       bysort=FALSE,
+       text.fixed.w=text.fixed, text.random.w=text.random, bysort=FALSE, 
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
-       pooled.times = FALSE, study.results = TRUE,
+       pooled.times=FALSE, study.results=TRUE,
        xlab="", xlab.pos=ref,
        smlab=NULL, smlab.pos=ref, xlim="symmetric",
        allstudies=TRUE,
-       weight,
-       pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
+       weight.study, weight.subgroup,
+       pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        layout="meta",
        leftcols=NULL, rightcols=NULL,
@@ -50,8 +42,8 @@ forest(x, ...)
        lab.NA.effect="",
        lwd=1,
        at=NULL, label=TRUE,
-       type.study = "square", type.fixed = "diamond", type.random = type.fixed,
-       type.subgroup = ifelse(study.results, "diamond", "square"),
+       type.study="square", type.fixed="diamond", type.random=type.fixed,
+       type.subgroup=ifelse(study.results, "diamond", "square"),
        col.study="black",
        col.square="gray", col.square.lines=col.square,
        col.inside="white",
@@ -60,11 +52,11 @@ forest(x, ...)
        col.diamond.lines="black",
        col.diamond.lines.fixed=col.diamond.lines,
        col.diamond.lines.random=col.diamond.lines,
-       col.inside.fixed = col.inside,
-       col.inside.random = col.inside,
+       col.inside.fixed=col.inside,
+       col.inside.random=col.inside,
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
-       col.label.right = "black", col.label.left = "black",
+       col.label.right="black", col.label.left="black",
        print.I2=comb.fixed|comb.random, print.I2.ci=FALSE,
        print.Rb=FALSE, print.Rb.ci=FALSE,
        print.tau2=comb.fixed|comb.random,
@@ -93,13 +85,13 @@ forest(x, ...)
        label.test.subgroup.random=paste("Test for subgroup differences",
         if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
        ##
-       test.effect.subgroup = gs("test.effect.subgroup"),
-       test.effect.subgroup.fixed = comb.fixed & test.effect.subgroup,
-       test.effect.subgroup.random = comb.random & test.effect.subgroup,
-       label.test.effect.subgroup.fixed = paste("Test for effect in subgroup",
-        if (comb.fixed & comb.random) " (fixed effect)", ": ", sep = ""),
-       label.test.effect.subgroup.random = paste("Test for effect in subgroup",
-        if (comb.fixed & comb.random) " (random effects)", ": ", sep = ""),
+       test.effect.subgroup=gs("test.effect.subgroup"),
+       test.effect.subgroup.fixed=comb.fixed & test.effect.subgroup,
+       test.effect.subgroup.random=comb.random & test.effect.subgroup,
+       label.test.effect.subgroup.fixed=paste("Test for effect in subgroup",
+        if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
+       label.test.effect.subgroup.random=paste("Test for effect in subgroup",
+        if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
        ##
        fontsize=12,
        fs.heading=fontsize,
@@ -107,14 +99,14 @@ forest(x, ...)
        fs.fixed.labels=fs.fixed, fs.random.labels=fs.random, fs.predict.labels=fs.predict,
        fs.study.labels=fs.study, fs.hetstat=fontsize-2,
        fs.test.overall=fs.hetstat, fs.test.subgroup=fs.hetstat,
-       fs.test.effect.subgroup = fs.hetstat, fs.axis=fontsize,
+       fs.test.effect.subgroup=fs.hetstat, fs.axis=fontsize,
        fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
        ff.heading="bold",
        ff.fixed="bold", ff.random=ff.fixed, ff.predict=ff.fixed, ff.study="plain",
        ff.fixed.labels=ff.fixed, ff.random.labels=ff.random, ff.predict.labels=ff.predict,
        ff.study.labels=ff.study, ff.hetstat="bold.italic",
        ff.test.overall=ff.hetstat, ff.test.subgroup=ff.hetstat,
-       ff.test.effect.subgroup = ff.hetstat, ff.axis="plain",
+       ff.test.effect.subgroup=ff.hetstat, ff.axis="plain",
        ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
        #
        squaresize=0.8,
@@ -125,23 +117,28 @@ forest(x, ...)
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
-       calcwidth.pooled = TRUE,
-       calcwidth.hetstat = FALSE, calcwidth.tests = FALSE,
+       calcwidth.pooled=TRUE,
+       calcwidth.fixed=calcwidth.pooled, calcwidth.random=calcwidth.pooled,
+       calcwidth.predict=FALSE,
+       calcwidth.hetstat=FALSE, calcwidth.tests=FALSE,
        #
        just="right", just.studlab="left", just.addcols="center",
        just.addcols.left=just.addcols, just.addcols.right=just.addcols,
        #
-       addspace=TRUE,
+       addspace=TRUE, addspace.between.subgroups=TRUE,
        #
        new=TRUE,
        #
        backtransf=x$backtransf,
-       digits = gs("digits.forest"), digits.se = gs("digits.se"),
-       digits.pval = gs("digits.pval"), digits.pval.Q = gs("digits.pval.Q"),
-       digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
-       digits.I2 = gs("digits.I2"), digits.weight = gs("digits.weight"),
-       col.i = col.study,
-
+       digits=gs("digits.forest"), digits.se=gs("digits.se"),
+       digits.pval=gs("digits.pval"), digits.pval.Q=gs("digits.pval.Q"),
+       digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
+       digits.I2=gs("digits.I2"), digits.weight=gs("digits.weight"),
+       #
+       digits.mean = NULL, digits.sd = NULL,
+       digits.cor = NULL, digits.time = NULL,
+       #
+       col.i=col.study, weight,
        ...)
 }
 
@@ -152,10 +149,6 @@ forest(x, ...)
   \item{studlab}{A logical indicating whether study labels should be
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$TE} then).}
-  \item{level}{The level used to calculate confidence intervals for
-    individual studies.}
-  \item{level.comb}{The level used to calculate confidence intervals for
-    pooled estimates.}
   \item{comb.fixed}{A logical indicating whether fixed effect estimate
   should be plotted.}
   \item{comb.random}{A logical indicating whether random effects estimate
@@ -171,10 +164,10 @@ forest(x, ...)
   \item{lty.random}{Line type (pooled random effects estimate).}
   \item{prediction}{A logical indicating whether a prediction interval
     should be printed.}
-  \item{level.predict}{The level used to calculate prediction interval
-    for a new study.}
   \item{text.predict}{A character string used in the plot to label the
     prediction interval.}
+  \item{print.subgroup.labels}{A logical indicating whether subgroup
+    label should be printed.}
   \item{bylab}{A character string with a label for the grouping variable.}
   \item{print.byvar}{A logical indicating whether the name of the grouping
     variable should be printed in front of the group labels.}
@@ -206,13 +199,19 @@ forest(x, ...)
   \item{xlim}{The x limits (min,max) of the plot, or the character "s"
     to produce symmetric forest plots.}
   \item{allstudies}{A logical indicating whether studies with inestimable
-    treatment effects should be plotted.}
-  \item{weight}{A character string indicating which type of plotting
-    symbols is to be used for individual treatment estimates. One of
-    missing (see Details), \code{"same"}, \code{"fixed"}, or
-    \code{"random"}, can be abbreviated. Plot symbols have the same size
-    for all studies or represent study weights from fixed effect or
-    random effects model.}
+    treatment effects should be plotted.}    
+  \item{weight.study}{A character string indicating weighting used to
+    determine size of squares or diamonds (argument \code{type.study})
+    to plot individual study results. One of missing, \code{"same"},
+    \code{"fixed"}, or \code{"random"}, can be abbreviated. Plot
+    symbols have the same size for all studies or represent study
+    weights from fixed effect or random effects model.}
+  \item{weight.subgroup}{A character string indicating weighting used
+    to determine size of squares or diamonds (argument
+    \code{type.subgroup}) to plot subgroup results. One of missing,
+    \code{"same"}, or \code{"weight"}, can be abbreviated. Plot
+    symbols have the same size for all subgroup results or represent
+    subgroup weights from fixed effect or random effects model.}
   \item{pscale}{A numeric giving scaling factor for printing of single
     event probabilities, i.e. if argument \code{sm} is equal to
     \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
@@ -414,10 +413,19 @@ forest(x, ...)
   \item{colgap.forest.left}{A unit object specifying gap between column
     on the left side of forest plot and the forest plot.}
   \item{colgap.forest.right}{A unit object specifying gap between column
-    on the right side of forest plot and the forest plot.} 
-  \item{calcwidth.pooled}{A logical indicating whether text given in
-    arguments \code{text.fixed} and \code{text.random} should be
+    on the right side of forest plot and the forest plot.}
+  \item{calcwidth.pooled}{A logical indicating whether text for fixed
+    effect and random effects model should be considered to calculate
+    width of column with study labels, see next two arguments. }
+  \item{calcwidth.fixed}{A logical indicating whether text given in
+    arguments \code{text.fixed} and \code{text.fixed.w} should be
     considered to calculate width of column with study labels.}
+  \item{calcwidth.random}{A logical indicating whether text given in
+    arguments \code{text.random} and \code{text.random.w} should be
+    considered to calculate width of column with study labels.}
+  \item{calcwidth.predict}{A logical indicating whether text given in
+    argument \code{text.predict} should be considered to calculate
+    width of column with study labels.}
   \item{calcwidth.hetstat}{A logical indicating whether text for
     heterogeneity statistics should be considered to calculate width
     of column with study labels.}
@@ -441,6 +449,9 @@ forest(x, ...)
     columns on right side of forest plot.}
   \item{addspace}{A logical value indicating whether additional space
     (i.e. a blank row) is printed above and below study results.}
+  \item{addspace.between.subgroups}{A logical value indicating whether
+    additional space (i.e. a blank row) is printed between results for
+    subgroups.}
   \item{new}{A logical value indicating whether a new figure should
     be printed in an existing graphics window.}
   \item{backtransf}{A logical indicating whether results should be
@@ -449,7 +460,6 @@ forest(x, ...)
     than log odds ratios and results for \code{sm="ZCOR"} are
     presented as correlations rather than Fisher's z transformed
     correlations, for example.}
-    
   \item{digits}{Minimal number of significant digits for treatment
     effects, see \code{print.default}.}
   \item{digits.se}{Minimal number of significant digits for standard
@@ -466,7 +476,18 @@ forest(x, ...)
     statistic, see \code{print.default}.}
   \item{digits.weight}{Minimal number of significant digits for
     weights, see \code{print.default}.}
+       digits.cor = NULL, digits.time = NULL,
+  \item{digits.mean}{Minimal number of significant digits for means;
+    only applies to \code{\link{metacont}} objects.}
+  \item{digits.sd}{Minimal number of significant digits for standard
+    deviations; only applies to \code{\link{metacont}} objects.}
+  \item{digits.cor}{Minimal number of significant digits for
+    correlations; only applies to \code{\link{metacor}} objects.}
+  \item{digits.time}{Minimal number of significant digits for times;
+    only applies to \code{\link{metainc}} and \code{\link{metarate}}
+    objects.}
   \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
+  \item{weight}{Deprecated argument (replaced by \code{weight.study}).}
   \item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 
@@ -492,14 +513,35 @@ forest(x, ...)
   
   In a forest plot, size of the squares typically reflects the
   precision of individual treatment estimates based either on the
-  fixed effect (\code{weight="fixed"}) or random effects meta-analysis
-  (\code{weight="random"}). Information from meta-analysis object
-  \code{x} is utilised if argument \code{weight} is missing. Weights
-  from the fixed effect model are used (\code{weight="fixed"}) if
-  argument \code{x$comb.fixed} is \code{TRUE}; weights from the random
-  effects model are used (\code{weight="random"}) if argument
+  fixed effect (\code{weight.study="fixed"}) or random effects
+  meta-analysis (\code{weight.study="random"}). Information from
+  meta-analysis object \code{x} is utilised if argument
+  \code{weight.study} is missing. Weights from the fixed effect model
+  are used (\code{weight.study="fixed"}) if argument
+  \code{x$comb.fixed} is \code{TRUE}; weights from the random effects
+  model are used (\code{weight.study="random"}) if argument
   \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed} is
   \code{FALSE}.
+
+  Arguments \code{text.fixed}, \code{text.random}, and
+  \code{text.predict} can be used to change the label to identify
+  overall results (fixed effect and random effects model as well as
+  prediction interval). By default the following text is printed:
+  %%
+  \itemize{
+   \item "Fixed effect model" (argument \code{text.fixed})
+   \item "Random effects model" (\code{text.random})
+   \item "Prediction interval" (\code{text.predict})
+  }
+  %%
+  If levels for confidence interval are different for individual
+  studies, meta-analysis, and prediciton interval (arguments
+  \code{level}, \code{level.comb}, \code{level.predict} in
+  meta-analysis functions, e.g. \code{\link{metabin}}), additional
+  information is printed, e.g. "(99%-CI)" for a 99% confidence
+  interval in the meta-analysis.
+  
+
   
   Result of a test for an overall effect, effect in subgroups, or
   subgroup differences are printed if argument
