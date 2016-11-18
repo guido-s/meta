@@ -500,6 +500,7 @@ forest(x, ...)
   
   By default, treatment estimates and confidence intervals are plotted
   in the following way:
+  %%
   \itemize{
    \item for an individual study, a square with treatment estimate in
      the center and confidence interval as line extending either side
@@ -626,6 +627,20 @@ forest(x, ...)
   and \code{rightcols} are \code{NULL}) all columns mentioned above
   will be printed on the left side of the forest plot.
 
+  The following changes are conducted if argument
+  \code{layout="subgroup"} (and arguments \code{leftcols} and
+  \code{rightcols} are \code{NULL}) and a subgroup analysis was
+  conducted for meta-analysis object \code{x}:
+  %%
+  \itemize{
+   \item individual study results are omitted (argument
+     \code{study.results}),
+   \item total number of observations is not printed (argument
+    \code{pooled.totals}),
+   \item label "Subgroup" is printed instead of "Study" (argument
+    \code{leftlabs}).
+  }
+  
   If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
@@ -850,6 +865,18 @@ forest(meta2,
 forest(meta2,
        sortvar=-TE, comb.fixed=FALSE,
        test.subgroup.random=TRUE)
+
+#
+# Print only subgroup results
+#
+forest(meta2, layout = "subgroup")
+
+#
+# Print only subgroup results
+# (and consider text for heterogeneity measures in width of subgroup
+#  column)
+#
+forest(meta2, layout = "subgroup", calcwidth.hetstat = TRUE)
 }
 
 \keyword{hplot}

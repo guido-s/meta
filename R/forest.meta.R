@@ -284,6 +284,20 @@ forest.meta <- function(x,
   else
     irscale <- 1
   chknumeric(ref)
+  ##
+  layout <- setchar(layout, c("meta", "revman5", "subgroup"))
+  if (layout == "subgroup" & is.null(x$byvar)) {
+    warning("Argument 'layout' set to \"meta\" (default) as no subgroup analysis was conducted.")
+    layout <- "meta"
+  }
+  if (layout == "subgroup") {
+    if (missing(type.subgroup))
+      type.subgroup <- "square"
+    ##
+    if (missing(pooled.totals))
+      pooled.totals <- FALSE
+  }
+  ##
   type.study <- setchar(type.study, c("square", "diamond"))
   type.fixed <- setchar(type.fixed, c("square", "diamond"))
   type.random <- setchar(type.random, c("square", "diamond"))
@@ -295,7 +309,6 @@ forest.meta <- function(x,
   weight.subgroup <- setchar(weight.subgroup,
                              c("weight", "same"))
   ##
-  layout <- setchar(layout, c("meta", "revman5"))
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
   if (!is.null(at))
@@ -484,6 +497,12 @@ forest.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   ##
+  if (layout == "subgroup") {
+    if (!missing(study.results) & study.results)
+      warning("Argument 'study.results' set to FALSE as argument 'layout' is \"subgroup\".")
+    study.results <- FALSE
+  }
+  ##
   if (is.null(text.fixed))
     if (study.results & x$level != x$level.comb)
       text.fixed <- paste("Fixed effect model (",
@@ -663,7 +682,8 @@ forest.meta <- function(x,
                 "effect", "ci",
                 "w.fixed", "w.random")
   ##
-  labnames <- c("Study", "TE", "seTE",
+  labnames <- c(if (layout == "subgroup") "Subgroup" else "Study",
+                "TE", "seTE",
                 "Total", "Total", "Events", "Events",
                 "Mean", "Mean", "SD", "SD",
                 "Cor",
@@ -791,7 +811,7 @@ forest.meta <- function(x,
   ## rightcols not specified
   ##
   if (is.null(leftcols)) {
-    if (layout == "meta" | layout == "revman5") {
+    if (layout == "meta" | layout == "revman5" | layout == "subgroup") {
       ##
       leftcols <- "studlab"
       ##
