@@ -3,51 +3,75 @@ settings.meta <- function(...) {
   ## Return current settings
   ##
   res <- .settings
-  res$CIbracket <- NULL
-  res$CIseparator <- NULL
   res$metafor <- NULL
   res$argslist <- NULL
   
   
-  catarg <- function(x, lab, newline = TRUE) {
-    if (!missing(lab))
-      xname <- lab
-    else
-      xname <- x
+  catarg <- function(x, newline = TRUE, end = "") {
+    xname <- x
+    x <- gsub(" ", "", x)
     ##
     if (newline)
       cat("- ")
     ##
     if (is.character(.settings[[x]]))
-      cat(xname, ' = "', .settings[[x]], '"\n', sep = "")
+      cat(xname, ' = "', .settings[[x]], '"', end, '\n', sep = "")
     else
-      cat(xname, ' = ', .settings[[x]], "\n", sep = "")
+      cat(xname, ' = ', .settings[[x]], end, "\n", sep = "")
     invisible(NULL)
   }
   
   
-  specificSetting <- function(args, new, ischar, title) {
+  specificSetting <- function(args, new, setting) {
     old <- as.vector(unlist(.settings[args]))
+    ischar <- as.vector(unlist(lapply(new, is.character)))
+    new <- as.vector(unlist(new))
+    ##
     label.old <- ifelse(ischar, paste("\"", old, "\"", sep = ""), old)
     label.new <- ifelse(ischar, paste("\"", new, "\"", sep = ""), new)
     ##
     sel <- new != old
     if (any(sel)) {
-      tdata <- data.frame(argument = args[sel],
-                          new = label.new[sel],
-                          previous = label.old[sel])
-      names(tdata) <- c("Argument", "New value", "Previous value")
+      tdata <- data.frame(argument = c("Argument",
+                                       "--------",
+                                       args[sel]),
+                          space1 = rep("  ", along = c(1:2, sel)),
+                          new = c("New value",
+                                  "---------",
+                                  label.new[sel]),
+                          space2 = rep("  ", along = c(1:2, sel)),
+                          previous = c("Previous value",
+                                       "--------------",
+                                       label.old[sel]))
+
+      names(tdata) <- c("--------", "", "---------",
+                        "", "--------------")
       ##
-      cat(paste("\n** ", title, " **\n\n", sep = ""))
+      cat(paste("\n** Use ", setting, " (R package meta) **\n\n", sep = ""))
       prmatrix(tdata, quote = FALSE, right = FALSE,
-               rowlab = rep("", length(args)))
+               rowlab = rep_len("", 2 + sum(sel)))
       ##
-      for (i in seq(along = args))
-        setOption(args[i], new[i])
+      for (i in seq(along = args)) {
+        new.i <- new[i]
+        if (!ischar[i]) {
+          if (new.i %in% c("TRUE", "FALSE"))
+            new.i <- as.logical(new.i)
+          else
+            new.i <- as.numeric(new.i)
+        }
+        setOption(args[i], new.i)
+      }
     }
-    else
-      cat("No setting changed.\n")
+    else {
+      if (substring(setting, 1, 1) == "s")
+        setting <- paste("S", substring(setting, 2), sep = "")
+      cat(paste("\n** ", setting, " already in used (R package meta). **\n\n", sep = ""))
+    }
   }
+  
+  
+  settings <- c("RevMan5", "JAMA", "IQWiG4.2", "meta4")
+  layouts <- c(settings[1:2], "meta")
   
   
   args  <- list(...)
@@ -74,7 +98,7 @@ settings.meta <- function(...) {
   
   
   if (length(args) > 1 && any(names == "reset")) {
-    cat("To reset all settings use a single argument 'reset = TRUE' (R package meta)\n")
+    cat("To reset settings in R package meta use command 'settings.meta(\"reset\")'\n")
     return(invisible(res))
   }
   ##
@@ -100,108 +124,124 @@ settings.meta <- function(...) {
         if (args[[1]])
           reset.settings <- TRUE
         else {
-          cat("To reset all settings use argument 'reset = TRUE' (R package meta)\n")
+          cat("To reset settings in R package meta use command 'settings.meta(\"reset\")'\n")
           return(invisible(res))
         }
       }
       ##
       else if (names == "setting") {
-        setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name = "setting")
-      specific.settings <- TRUE
+        setting <- setchar(args[[1]], settings, name = "setting")
+        specific.settings <- TRUE
       }
     }
     else if (is.null(names) & is.character(args[[1]])) {
-      setting <- setchar(args[[1]], c("RevMan5", "IQWiG", "meta4"), name = "setting")
-      specific.settings <- TRUE
+      ##
+      idx <- charmatch(tolower(args[[1]]), "print", nomatch = NA)
+      if (!(any(is.na(idx)) || any(idx == 0)))
+        if (nchar(args[[1]]) >= 1)
+          print.settings <- TRUE
+      ##
+      idx <- charmatch(tolower(args[[1]]), "reset", nomatch = NA)
+      if (!(any(is.na(idx)) || any(idx == 0)))
+        if (nchar(args[[1]]) >= 3)
+          reset.settings <- TRUE
+      ##
+      if (!print.settings & !reset.settings) {
+        setting <- setchar(args[[1]], settings, name = "setting")
+        specific.settings <- TRUE
+      }
     }
   }
   
   
   if (print.settings) {
-    cat(paste("\n*** Settings for meta-analysis method (R package meta, version ",
-              utils::packageDescription("meta")$Version, ") ***\n\n", sep = ""))
+    cat(paste("\n** Settings for meta-analysis method (R package meta, version ",
+              utils::packageDescription("meta")$Version, ") **\n\n", sep = ""))
     ##
-    cat("General settings:\n", sep = "")
-    catarg("level")
-    catarg("level.comb")
-    catarg("comb.fixed")
-    catarg("comb.random")
-    catarg("hakn")
-    catarg("method.tau")
-    catarg("tau.common")
-    catarg("prediction")
+    cat("* General settings *\n", sep = "")
+    catarg("level        ")
+    catarg("level.comb   ")
+    catarg("comb.fixed   ")
+    catarg("comb.random  ")
+    catarg("hakn         ")
+    catarg("method.tau   ")
+    catarg("tau.common   ")
+    catarg("prediction   ")
     catarg("level.predict")
-    catarg("method.bias")
-    catarg("title")
-    catarg("complab")
-    catarg("print.byvar")
-    catarg("byseparator")
-    catarg("keepdata")
-    catarg("warn")
-    catarg("backtransf")
-    catarg("digits")
-    catarg("digits.se")
-    catarg("digits.zval")
-    catarg("digits.Q")
-    catarg("digits.tau2")
-    catarg("digits.H")
-    catarg("digits.I2")
-    catarg("digits.prop")
-    catarg("digits.weight")
-    catarg("digits.pval")
+    catarg("method.bias  ")
+    catarg("title        ")
+    catarg("complab      ")
+    catarg("CIbracket    ")
+    catarg("CIseparator  ")
+    catarg("print.byvar  ")
+    catarg("byseparator  ")
+    catarg("keepdata     ")
+    catarg("warn         ")
+    catarg("backtransf   ")
+    catarg("digits       ")
+    catarg("digits.se    ")
+    catarg("digits.zval  ")
+    catarg("digits.pval  ")
+    catarg("digits.tau2  ")
+    catarg("digits.I2    ")
+    catarg("digits.Q     ")
     catarg("digits.pval.Q")
+    catarg("digits.H     ")
+    catarg("digits.prop  ")
+    catarg("digits.weight")
     ##
-    cat("\nDefault summary measure (argument 'sm' in corresponding function):\n")
-    cat("- metabin:  ")
-    catarg("smbin", newline = FALSE)
-    cat("- metacont: ")
+    cat("\n* Default summary measure (argument 'sm' in corresponding function) *\n")
+    cat("- metabin():  ")
+    catarg("smbin ", newline = FALSE)
+    cat("- metacont(): ")
     catarg("smcont", newline = FALSE)
-    cat("- metacor:  ")
-    catarg("smcor", newline = FALSE)
-    cat("- metainc:  ")
-    catarg("sminc", newline = FALSE)
-    cat("- metaprop: ")
+    cat("- metacor():  ")
+    catarg("smcor ", newline = FALSE)
+    cat("- metainc():  ")
+    catarg("sminc ", newline = FALSE)
+    cat("- metaprop(): ")
     catarg("smprop", newline = FALSE)
-    cat("- metarate: ")
+    cat("- metarate(): ")
     catarg("smrate", newline = FALSE)
     ##
-    cat("\nSettings for R functions metabin, metainc, and metaprop:\n")
-    catarg("incr")
+    cat("\n* Additional settings for metabin(), metainc(), and metaprop() *\n")
+    catarg("incr   ")
     catarg("allincr")
     catarg("addincr")
     ##
-    cat("\nAdditional settings for R function metabin:\n")
-    catarg("method")
-    catarg("allstudies")
-    catarg("MH.exact")
+    cat("\n* Additional settings for metabin() *\n")
+    catarg("method     ")
+    catarg("allstudies ")
+    catarg("MH.exact   ")
     catarg("RR.cochrane")
-    catarg("model.glmm")
-    catarg("print.CMH")
+    catarg("model.glmm ")
+    catarg("print.CMH  ")
     ##
-    cat("\nAdditional setting for R function metacont:\n")
-    catarg("pooledvar")
+    cat("\n* Additional settings for metacont() *\n")
+    catarg("pooledvar ")
     catarg("method.smd")
-    catarg("sd.glass")
-    catarg("exact.smd")
+    catarg("sd.glass  ")
+    catarg("exact.smd ")
     ##
-    cat("\nAdditional setting for R function metaprop:\n")
+    cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci")
     ##
-    cat("\nSettings for R functions comparing two treatments:\n")
-    catarg("label.e")
-    catarg("label.c")
-    catarg("label.left")
+    cat("\n* Settings for R functions comparing two treatments *\n")
+    catarg("label.e    ")
+    catarg("label.c    ")
+    catarg("label.left ")
     catarg("label.right")
     ##
-    cat("\nSettings for R function forest.meta:\n")
-    catarg("test.overall")
-    catarg("test.subgroup")
+    cat("\n* Settings for forest.meta() *\n")
+    catarg("layout              ")
+    catarg("test.overall        ")
+    catarg("test.subgroup       ")
     catarg("test.effect.subgroup")
-    cat("- argument 'digits': ")
-    catarg("digits.forest", newline = FALSE)
+    catarg("digits.forest       ",
+           end = "\n  (argument 'digits' in forest.meta())")
   }
   else if (reset.settings) {
-    cat("Reset all settings back to default (R package meta).\n")
+    cat("\n** Reset all meta-analysis settings (R package meta). **\n\n")
     ##
     setOption("level", 0.95)
     setOption("level.comb", 0.95)
@@ -215,6 +255,8 @@ settings.meta <- function(...) {
     setOption("method.bias", "linreg")
     setOption("title", "")
     setOption("complab", "")
+    setOption("CIbracket", "[")
+    setOption("CIseparator", "; ")
     setOption("print.byvar", TRUE)
     setOption("byseparator", " = ")
     setOption("keepdata", TRUE)
@@ -261,29 +303,54 @@ settings.meta <- function(...) {
     setOption("label.left", "")
     setOption("label.right", "")
     ##
+    setOption("layout", "meta")
     setOption("test.overall", FALSE)
     setOption("test.subgroup", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
   }
   else if (specific.settings) {
-    if (setting == "RevMan5")
-      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
-                      new = c(FALSE, "DL", TRUE),
-                      ischar = c(FALSE, TRUE, FALSE),
-                      title = "Use RevMan 5 settings")
     ##
-    else if (setting == "IQWiG")
-      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
-                      new = c(TRUE, "PM", FALSE),
-                      ischar = c(FALSE, TRUE, FALSE),
-                      title = "Use IQWiG settings")
+    ## Remember:
+    ## settings <- c("RevMan5", "JAMA", "IQWiG4.2", "meta4")
     ##
-    else if (setting == "meta4")
+    if (setting == "RevMan5") {
+      specificSetting(args = c("hakn", "method.tau", "tau.common",
+                               "MH.exact", "RR.cochrane",
+                               "layout", "test.overall",
+                               "digits.I2", "digits.tau2",
+                               "CIbracket", "CIseparator"),
+                      new = list(FALSE, "DL", FALSE,
+                                 FALSE, TRUE,
+                                 "RevMan5", TRUE,
+                                 0, 2,
+                                 "[", ", "),
+                      setting = "RevMan 5 settings")
+    }
+    ##
+    else if (setting == "JAMA") {
+      specificSetting(args = c("layout", "test.overall",
+                               "digits.I2",
+                               "CIbracket", "CIseparator"),
+                      new = list("JAMA", TRUE,
+                                 0,
+                                 "(", "-"),
+                      setting = "JAMA settings")
+    }
+    ##
+    else if (setting == "IQWiG4.2") {
       specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
-                      new = c(FALSE, "DL", FALSE),
-                      ischar = c(FALSE, TRUE, FALSE),
-                      title = "Use settings from R package meta (version 4.3-1 and older)")
+                      new = list(TRUE, "PM", FALSE),
+                      setting = "IQWiG 4.2 settings")
+    }
+    ##
+    else if (setting == "meta4") {
+      specificSetting(args = c("hakn", "method.tau", "RR.cochrane",
+                               "CIbracket", "CIseparator"),
+                      new = list(FALSE, "DL", FALSE,
+                                 "[", "; "),
+                      setting = "settings from R package meta (version 4.y-z and older)")
+    }
   }
   else {
     argid <- function(x, value) {
@@ -306,6 +373,8 @@ settings.meta <- function(...) {
     idmethod.bias <- argid(names, "method.bias")
     idtitle <- argid(names, "title")
     idcomplab <- argid(names, "complab")
+    idCIbracket <- argid(names, "CIbracket")
+    idCIseparator <- argid(names, "CIseparator")
     idprint.byvar <- argid(names, "print.byvar")
     idbyseparator <- argid(names, "byseparator")
     idkeepdata <- argid(names, "keepdata")
@@ -352,6 +421,7 @@ settings.meta <- function(...) {
     idlabel.left <- argid(names, "label.left")
     idlabel.right <- argid(names, "label.right")
     ##
+    idlayout <- argid(names, "layout")
     idtest.overall <- argid(names, "test.overall")
     idtest.subgroup <- argid(names, "test.subgroup")
     idtest.effect.subgroup <- argid(names, "test.effect.subgroup")
@@ -427,6 +497,19 @@ settings.meta <- function(...) {
         stop("Argument 'complab' must be a character string.")
       ##
       setOption("complab", complab)
+    }
+    if (!is.na(idCIbracket)) {
+      CIbracket <- args[[idCIbracket]]
+      CIbracket <- setchar(CIbracket,
+                            c("[", "(", "{", ""))
+      setOption("CIbracket", CIbracket)
+    }
+    if (!is.na(idCIseparator)) {
+      CIseparator <- args[[idCIseparator]]
+      if (length(CIseparator) != 1)
+        stop("Argument 'CIseparator' must be a character string.")
+      ##
+      setOption("CIseparator", CIseparator)
     }
     if (!is.na(idprint.byvar)) {
       print.byvar <- args[[idprint.byvar]]
@@ -678,6 +761,11 @@ settings.meta <- function(...) {
     ##
     ## R function forest.meta
     ##
+    if (!is.na(idlayout)) {
+      layout <- args[[idlayout]]
+      layout <- setchar(layout, layouts)
+      setOption("layout", layout)
+    }
     if (!is.na(idtest.overall)) {
       test.overall <- args[[idtest.overall]]
       chklogical(test.overall)

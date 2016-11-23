@@ -14,44 +14,59 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
   R package \bold{meta} (Schwarzer, 2007) provides the following
   meta-analysis methods:
   \itemize{
-  \item fixed effect and random effects meta-analysis (functions
+  \item Fixed effect and random effects meta-analysis (functions
     \code{\link{metabin}}, \code{\link{metacont}},
     \code{\link{metacor}}, \code{\link{metagen}},
     \code{\link{metainc}}, \code{\link{metaprop}}, and
-    \code{\link{metarate}});
-  \item several plots (\code{\link{forest}}, \code{\link{funnel}},
+    \code{\link{metarate}})
+  \item Several plots (\code{\link{forest}}, \code{\link{funnel}},
     Galbraith / \code{\link{radial}}, \code{\link{labbe}},
-    \code{\link{baujat}}, \code{\link{bubble}});
-  \item statistical tests (\code{\link{metabias}}) and trim-and-fill
-    method (\code{\link{trimfill}}) to evaluate bias in meta-analysis;
-  \item import data from 'RevMan 5' (\code{\link{read.rm5}}; see also
-    \code{\link{metacr}});
-  \item prediction interval, Hartung-Knapp and Paule-Mandel method for
-    random effects model (arguments in meta-analysis functions);
-  \item cumulative meta-analysis (\code{\link{metacum}}) and
-    leave-one-out meta-analysis (\code{\link{metainf}});
-  \item meta-regression (\code{\link{metareg}}; if R package
-    \bold{metafor} is installed);
-  \item generalised linear mixed models (\code{\link{metabin}},
+    \code{\link{baujat}}, \code{\link{bubble}})
+  \item Statistical tests (\code{\link{metabias}}) and trim-and-fill
+    method (\code{\link{trimfill}}) to evaluate bias in meta-analysis
+  \item Import data from 'RevMan 5' (\code{\link{read.rm5}}; see also
+    \code{\link{metacr}})
+  \item Prediction interval, Hartung-Knapp and Paule-Mandel method for
+    random effects model (arguments in meta-analysis functions)
+  \item Cumulative meta-analysis (\code{\link{metacum}}) and
+    leave-one-out meta-analysis (\code{\link{metainf}})
+  \item Meta-regression (\code{\link{metareg}}; if R package
+    \bold{metafor} is installed)
+  \item Generalised linear mixed models (\code{\link{metabin}},
     \code{\link{metainc}}, \code{\link{metaprop}}, and
     \code{\link{metarate}}; if R packages \bold{metafor}, \bold{lme4},
-    \bold{numDeriv}, and \bold{BiasedUrn} are installed).
+    \bold{numDeriv}, and \bold{BiasedUrn} are installed)
   }
   
   The following more advanced statistical methods are provided by
   add-on R packages:
   \itemize{
-  \item frequentist methods for network meta-analysis (R package
-    \bold{netmeta});
-  \item advanced methods to model and adjust for bias in meta-analysis
-    (R package \bold{metasens}).
+  \item Frequentist methods for network meta-analysis (R package
+    \bold{netmeta})
+  \item Advanced methods to model and adjust for bias in meta-analysis
+    (R package \bold{metasens})
   }
   
   See \code{\link{settings.meta}} to learn how to print and specify
   default meta-analysis methods used during your R session. For
-  example, the following R command specifies the use of the
-  Hartung-Knapp and Paule-Mandel methods, and the printing of
-  prediction intervals for any meta-analysis in the current R session:
+  example, the function can be used to specify general settings:
+  \itemize{
+   \item \code{settings.meta("revman5")}
+   \item \code{settings.meta("jama")}
+  }
+  The first settings can be used to reproduce meta-analyses from
+  Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
+  \url{http://tech.cochrane.org/revman/}) and specifies to use a
+  RevMan 5 layout in forest plots. The second settings can be used to
+  generate forest plots following instructions for authors of the
+  \emph{Journal of the American Medical Association}
+  (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}).
+
+  In addition, \code{\link{settings.meta}} can be used to change
+  individual settings. For example, the following R command specifies
+  the use of the Hartung-Knapp and Paule-Mandel methods, and the
+  printing of prediction intervals in the current R session for any
+  meta-analysis generated after execution of this command:
   \itemize{
   \item \code{settings.meta(hakn=TRUE, method.tau="PM", prediction=TRUE)}
   }

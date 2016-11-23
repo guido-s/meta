@@ -131,14 +131,14 @@ cilayout(bracket="[", separator="; ")
 }
 
 \details{
-  Note, in R package meta, version 3.0-0 some arguments have been
-  removed from R functions summary.meta (arguments: byvar, level,
-  level.comb, level.prediction) and print.summary.meta (arguments:
-  level, level.comb, level.prediction). This functionality is now
-  provided by R function \code{\link{update.meta}} (or directly in R
-  functions \code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{metagen}}, \code{\link{metacor}}, and
-  \code{\link{metaprop}}).
+  Note, in R package \bold{meta}, version 3.0-0 some arguments have
+  been removed from R functions \code{\link{summary.meta}} (arguments:
+  byvar, level, level.comb, level.prediction) and print.summary.meta
+  (arguments: level, level.comb, level.prediction). This functionality
+  is now provided by R function \code{\link{update.meta}} (or directly
+  in meta-analysis functions, e.g., \code{\link{metabin}},
+  \code{\link{metacont}}, \code{\link{metagen}},
+  \code{\link{metacor}}, and \code{\link{metaprop}}).
 
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
@@ -241,7 +241,7 @@ cilayout(bracket="[", separator="; ")
   \item{subset}{Information on subset of original data used in meta-analysis.}
   \item{prediction, level.predict}{}
   \item{comb.fixed, comb.random, print.CMH}{As defined above.}
-  \item{version}{Version of R package meta used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
 }
 
 \references{

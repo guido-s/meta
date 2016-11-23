@@ -1,4 +1,4 @@
-\name{bubble}
+\name{bubble.metareg}
 
 \alias{bubble}
 \alias{bubble.metareg}

@@ -2,8 +2,11 @@
 
  ** Major changes **
 
-  * Individual study results can be omitted from forest plot
-    (especially useful to only print subgroup results)
+  * Forest plots:
+    - forest plots with RevMan 5 and JAMA layout can be generated
+    - individual study results can be omitted from forest plot
+      (especially useful to only print subgroup results)
+    - labels can be printed at top of forest plot
 
   * Measure of between-study heterogeneity added:
     - R_b (Crippa et al., 2016, <DOI:10.1002/sim.6980>)
@@ -29,8 +32,15 @@
       (list element Rb.w)
   
   * forest.meta():
+    - argument layout:
+      . new layouts:
+        "JAMA" to produce forest plots with JAMA style (see
+        http://jamanetwork.com/journals/jama/pages/instructions-for-authors)
+      . RevMan 5 layout extended
     - new argument study.results to print (default) or omit individual
       study results from forest plot
+    - new argument bottom.lr to change position of labels on left and
+      right side of forest plot
     - new arguments col.label.right and col.label.left to change
       colour of labels on left and right side of forest plot
     - argument weight renamed to weight.study and new argument
@@ -39,17 +49,29 @@
     - new arguments print.Rb, print.Rb.ci, Rb.text for heterogeneity
       measure Rb
     - new arguments to control printing:
-      digits.mean, digits.sd, digits.cor, digits.time
+      digits.cor, digits.mean, digits.sd, digits.time, digits.zval
     - new argument print.subgroup.labels to print (default) or omit
-      rows with subgroup label from the forest plot
-    - new argument type.subgroup to change ploting of subgroup results
-    - new argument addspace.between.subgroups to add a blank line
+      rows with subgroup label from forest plot  
+    - new argument type.subgroup to change plotting of subgroup
+      results
+    - argument addspace renamed to addrow
+    - new argument addrow.subgroups to add a blank line
       between subgroup results
-    - new arguments calcwidth.fixed, calcwidth.random,
-      calcwidth.hetstat, and calcwidth.tests to change width of column
-      with study labels (these arguments are especially useful if only
-      study labels are printed on left side of forest plot)
-  
+    - new argument addrow.overall to add a blank before meta-analysis
+      results
+    - new argument blanks to enhance printing of test statistics,
+      heterogeneity measurs, and p-values  
+    - new argument colgap.studlab to specify space between column with
+      study labels and subsequent column
+    - new arguments to change width of column with study labels:
+      . calcwidth.fixed (consider text for fixed effect model)
+      . calcwidth.random (consider text for random effects model)
+      . calcwidth.hetstat (consider text for heterogeneity measures)
+      . calcwidth.tests (consider text for tests of effect or
+                         subgroup differences)
+      (these arguments are especially useful if only study labels are
+       printed on left side of forest plot)
+    
   * print.meta(), print.summary.meta():
     - print heterogeneity measure Rb
   
@@ -62,7 +84,7 @@
     metagen(), metainc(), metaprop(), metarate(), print.meta(),
     print.summary.meta():
     Use gs() to define defaults for arguments in meta-analysis
-    functions, e.g. gs(hakn) instead of .settings$hakn
+    functions, e.g. gs("hakn") instead of .settings$hakn
 
   * metareg():
     Stop with an error if version of metafor package is below 1.9-9
@@ -70,8 +92,16 @@
   * metabin(), metainc(), metaprop(), metarate():
     For GLMMs, stop with an error if version of metafor package is
     below 1.9-9
+    
+  * settings.meta():
+    - general settings for RevMan 5 and JAMA implemented
+      (see help page)
+    - function can be used to change the layout of confidence
+      intervals using arguments CIbracket and CIseparator
+      (these arguments can also be set using cilayout())
 
-  * Several help pages updated
+  * Several help pages updated, especially
+    - forest.meta(), settings.meta(), meta-package()
 
  ** Internal changes **
     
@@ -83,7 +113,15 @@
     - new measure Rb of between-study heterogeneity implemented
     
   * is.installed.package():
-    New check of version number of R package
+    - new check of version number of R package
+    - use requireNamespace() instead of installed.packages()
+
+  * format.p():
+    - for small p-values, print "p < 0.01" or "p < 0.001" instead of
+      "p < 0.0001" if digits.pval is 2 or 3, respectively
+
+  * meta-internal():
+    - set defaults for new arguments: smrate, layout
 
 
 *** meta, version 4.6-0, 2016-10-12 ***

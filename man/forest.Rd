@@ -1,4 +1,4 @@
-\name{forest}
+\name{forest.meta}
 
 \alias{forest}
 \alias{forest.meta}
@@ -14,6 +14,7 @@
 forest(x, ...)
 
 \method{forest}{meta}(x, sortvar, studlab=TRUE,
+       layout=gs("layout"),
        comb.fixed=x$comb.fixed, comb.random=x$comb.random,
        overall=TRUE,
        text.fixed=NULL,
@@ -32,12 +33,11 @@ forest(x, ...)
        weight.study, weight.subgroup,
        pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
-       layout="meta",
        leftcols=NULL, rightcols=NULL,
        leftlabs=NULL, rightlabs=NULL,
        lab.e=x$label.e, lab.c=x$label.c,
        lab.e.attach.to.col=NULL, lab.c.attach.to.col=NULL,
-       label.right=x$label.right, label.left=x$label.left,
+       label.right=x$label.right, label.left=x$label.left, bottom.lr=TRUE,
        lab.NA=".",
        lab.NA.effect="",
        lwd=1,
@@ -67,6 +67,7 @@ forest(x, ...)
        text.I2="I-squared",
        text.Rb="Rb",
        text.tau2="tau-squared",
+       blanks=layout=="RevMan5",
        ##
        test.overall=gs("test.overall"),
        test.overall.fixed=comb.fixed&overall&test.overall,
@@ -75,6 +76,7 @@ forest(x, ...)
          if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
        label.test.overall.random=paste("Test for overall effect",
          if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
+       print.zval=FALSE,
        ##
        test.subgroup=gs("test.subgroup"),
        test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
@@ -114,6 +116,7 @@ forest(x, ...)
        plotwidth=grid::unit(6, "cm"),
        colgap=grid::unit(2, "mm"),
        colgap.left=colgap, colgap.right=colgap,
+       colgap.studlab=colgap.left,
        colgap.forest=colgap,
        colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
        #
@@ -125,12 +128,14 @@ forest(x, ...)
        just="right", just.studlab="left", just.addcols="center",
        just.addcols.left=just.addcols, just.addcols.right=just.addcols,
        #
-       addspace=TRUE, addspace.between.subgroups=TRUE,
+       addrow=TRUE&layout!="JAMA",
+       addrow.overall=addrow, addrow.subgroups=addrow,
        #
        new=TRUE,
        #
        backtransf=x$backtransf,
        digits=gs("digits.forest"), digits.se=gs("digits.se"),
+       digits.zval=gs("digits.zval"),
        digits.pval=gs("digits.pval"), digits.pval.Q=gs("digits.pval.Q"),
        digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
        digits.I2=gs("digits.I2"), digits.weight=gs("digits.weight"),
@@ -138,7 +143,7 @@ forest(x, ...)
        digits.mean = NULL, digits.sd = NULL,
        digits.cor = NULL, digits.time = NULL,
        #
-       col.i=col.study, weight,
+       col.i=col.study, weight=weight.study,
        ...)
 }
 
@@ -149,6 +154,8 @@ forest(x, ...)
   \item{studlab}{A logical indicating whether study labels should be
     printed in the graph. A vector with study labels can also be
     provided (must be of same length as \code{x$TE} then).}
+  \item{layout}{A character string specifying the layout of the forest
+    plot (see Details).}
   \item{comb.fixed}{A logical indicating whether fixed effect estimate
   should be plotted.}
   \item{comb.random}{A logical indicating whether random effects estimate
@@ -224,8 +231,6 @@ forest(x, ...)
   \item{ref}{A numerical giving the reference value to be plotted as a
     line in the forest plot. No reference line is plotted if argument
     \code{ref} is equal to \code{NA}.}
-  \item{layout}{A character string specifying the layout of the forest
-    plot (see Details).}
   \item{leftcols}{A character vector specifying (additional) columns
   to be plotted on the left side of the forest plot or a logical value
   (see Details).}
@@ -246,6 +251,8 @@ forest(x, ...)
     label \code{lab.c} should be attached to in table heading.}
   \item{label.left}{Graph label on left side of forest plot.}
   \item{label.right}{Graph label on right side of forest plot.}
+  \item{bottom.lr}{A logical indicating whether labels on right
+    and left side should be printed at bottom or top of forest plot.}
   \item{lab.NA}{A character string to label missing values.}
   \item{lab.NA.effect}{A character string to label missing values in
     individual treatment estimates and confidence intervals.}
@@ -323,6 +330,8 @@ forest(x, ...)
   \item{text.I2}{Label for I-squared statistic.}
   \item{text.Rb}{Label for Rb statistic.}
   \item{text.tau2}{Label for between-study variance tau-squared.}
+  \item{blanks}{A logical value indicating whether to print " = " or
+    "=" in text with overall and heterogeneity results.}
   \item{test.overall}{A logical value indicating whether to print
     results of test for overall effect.}
   \item{test.overall.fixed}{A logical value indicating whether to
@@ -335,6 +344,8 @@ forest(x, ...)
     test for overall effect (based on fixed effect model).}
   \item{label.test.overall.random}{Label printed in front of results
     of test for overall effect (based on random effects model).}
+  \item{print.zval}{A logical value indicating whether to print z- or
+    t-statistic of test for overall effect.}
   \item{test.subgroup}{A logical value indicating whether to print
     results of test for subgroup differences.}
   \item{test.subgroup.fixed}{A logical value indicating whether to
@@ -408,6 +419,8 @@ forest(x, ...)
     left side of forest plot.}
   \item{colgap.right}{A unit object specifying gap between columns printed on
     right side of forest plot.}
+  \item{colgap.studlab}{A unit object specifying gap between column
+    with study labels and subsequent column.}
   \item{colgap.forest}{A unit object specifying gap between column
     adjacent to forest plot and the forest plot.}
   \item{colgap.forest.left}{A unit object specifying gap between column
@@ -447,11 +460,12 @@ forest(x, ...)
     columns on right side of forest plot (possible values: "left",
     "right", "center"). Can be of same length as number of additional
     columns on right side of forest plot.}
-  \item{addspace}{A logical value indicating whether additional space
-    (i.e. a blank row) is printed above and below study results.}
-  \item{addspace.between.subgroups}{A logical value indicating whether
-    additional space (i.e. a blank row) is printed between results for
-    subgroups.}
+  \item{addrow}{A logical value indicating whether an empty row is
+    printed above and below study results.}
+  \item{addrow.overall}{A logical value indicating whether an emtpy
+    row is above overall meta-analysis results.}
+  \item{addrow.subgroups}{A logical value indicating whether an empty
+    row is printed between results for subgroups.}    
   \item{new}{A logical value indicating whether a new figure should
     be printed in an existing graphics window.}
   \item{backtransf}{A logical indicating whether results should be
@@ -464,6 +478,8 @@ forest(x, ...)
     effects, see \code{print.default}.}
   \item{digits.se}{Minimal number of significant digits for standard
     errors, see \code{print.default}.}
+  \item{digits.zval}{Minimal number of significant digits for z- or
+    t-statistic for test of overall effect, see \code{print.default}.}
   \item{digits.tau2}{Minimal number of significant digits for
     between-study variance, see \code{print.default}.}
   \item{digits.pval}{Minimal number of significant digits for p-value
@@ -502,14 +518,14 @@ forest(x, ...)
   in the following way:
   %%
   \itemize{
-   \item for an individual study, a square with treatment estimate in
+   \item For an individual study, a square with treatment estimate in
      the center and confidence interval as line extending either side
-     of the square (\code{type.study="square"});
-   \item for meta-analysis results, a diamond with treatment estimate
+     of the square (\code{type.study="square"})
+   \item For meta-analysis results, a diamond with treatment estimate
      in the center and right and left side corresponding to lower and
      upper confidence limits (\code{type.fixed="diamond"},
      \code{type.random="diamond"}, and
-     \code{type.subgroup="diamond"}).
+     \code{type.subgroup="diamond"})
   }
   
   In a forest plot, size of the squares typically reflects the
@@ -518,11 +534,11 @@ forest(x, ...)
   meta-analysis (\code{weight.study="random"}). Information from
   meta-analysis object \code{x} is utilised if argument
   \code{weight.study} is missing. Weights from the fixed effect model
-  are used (\code{weight.study="fixed"}) if argument
-  \code{x$comb.fixed} is \code{TRUE}; weights from the random effects
-  model are used (\code{weight.study="random"}) if argument
+  are used if argument \code{x$comb.fixed} is \code{TRUE}; weights
+  from the random effects model are used if argument
   \code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed} is
-  \code{FALSE}.
+  \code{FALSE}. The same square sizes are used if
+  \code{weight.study="same"}.
 
   Arguments \code{text.fixed}, \code{text.random}, and
   \code{text.predict} can be used to change the label to identify
@@ -535,110 +551,149 @@ forest(x, ...)
    \item "Prediction interval" (\code{text.predict})
   }
   %%
-  If levels for confidence interval are different for individual
+  If confidence interval levels are different for individual
   studies, meta-analysis, and prediciton interval (arguments
   \code{level}, \code{level.comb}, \code{level.predict} in
   meta-analysis functions, e.g. \code{\link{metabin}}), additional
-  information is printed, e.g. "(99%-CI)" for a 99% confidence
+  information is printed, e.g. " (99\%-CI)" for a 99\% confidence
   interval in the meta-analysis.
   
-
+  The following arguments can be used to print results for various statistical tests:
+  \tabular{ll}{
+   \bold{Argument} \tab \bold{Statistical test} \cr
+   \code{test.overall.fixed} \tab Test for overall effect (fixed effect model) \cr
+   \code{test.overall.random} \tab Test for overall effect (random effects model) \cr
+   \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup (FE model) \cr
+   \code{test.effect.subgroup.random} \tab Test for effect in subgroup (RE model) \cr
+   \code{test.subgroup.fixed} \tab Test for subgroup differences (FE model) \cr
+   \code{test.subgroup.random} \tab Test for subgroup differences (RE model)
+  }
+  By default, these arguments are \code{FALSE}. R function
+  \code{\link{settings.meta}} can be used to change this default for
+  the entire R session. For example, use the following command to
+  always print results of tests for an overall effect:
   
-  Result of a test for an overall effect, effect in subgroups, or
-  subgroup differences are printed if argument
-  \code{test.overall.fixed}, \code{test.overall.random},
-  \code{test.effect.subgroup.fixed},
-  \code{test.effect.subgroup.random}, \code{test.subgroup.fixed}, or
-  \code{test.subgroup.random} is \code{TRUE}; by default, these
-  arguments are \code{FALSE}. R function \code{\link{settings.meta}}
-  can be used to change this default for the entire R session by
-  setting argument \code{test.overall=TRUE},
-  \code{test.effect.subgroup=TRUE} or \code{test.subgroup=TRUE}.
-  
-  Results of tests for treatment effect in subgroups are
-  printed if argument \code{test.overall.fixed},
-  \code{test.overall.random}, \code{test.subgroup.fixed}, or
-  \code{test.subgroup.random} is \code{TRUE}; by default, these
-  arguments are \code{FALSE}. R function \code{\link{settings.meta}}
-  can be used to change this default for the entire R session by
-  setting argument \code{test.overall=TRUE} or
-  \code{test.subgroup=TRUE}.
+  \code{settings.meta(test.overall=TRUE)}
   
   The arguments \code{leftcols} and \code{rightcols} can be used to
   specify columns which are plotted on the left and right side of the
   forest plot, respectively. If argument \code{rightcols} is
   \code{FALSE}, no columns will be plotted on the right side. By
   default, i.e. if arguments \code{leftcols} and \code{rightcols} are
-  \code{NULL} and \code{layout="meta"}, the following default columns
-  will be plotted.
-
-  \tabular{cl}{
-   Additional settings \tab Default for argument \code{rightcols} \cr
-   --- \tab \code{c("effect", "ci")} \cr
-   \code{comb.fixed=TRUE} & \code{comb.random=FALSE} \tab \code{c("effect", "ci", "w.fixed")} \cr
-   \code{comb.fixed=FALSE} & \code{comb.random=TRUE} \tab \code{c("effect", "ci", "w.random")} \cr
-   \code{comb.fixed=TRUE} & \code{comb.random=TRUE} \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+  \code{NULL} and \code{layout="meta"}, the following
+  \emph{\bold{columns}} will be printed \emph{\bold{on the right side
+  of the forest plot}}:
+  \tabular{ll}{
+   \bold{Meta-analysis results} \tab \bold{Value of argument rightcols} \cr
+   No summary \tab \code{c("effect", "ci")} \cr
+   Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")} \cr
+   Only random effects model \tab \code{c("effect", "ci", "w.random")} \cr
+   Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
   }
   By default, estimated treatment effect and corresponding confidence
   interval will be printed. Depending on arguments \code{comb.fixed}
   and \code{comb.random}, weights of the fixed effect and/or random
   effects model will be given too. For an object of class
-  \code{metacum} or \code{metainf} only the estimated treatment effect
-  with confidence interval are plotted.
+  \code{\link{metacum}} or \code{\link{metainf}} only the estimated
+  treatment effect with confidence interval are plotted.
   
-  Depending on the class of the meta-analysis object a different set
-  of columns is printed on the left side of a forest plot.
+  Depending on the class of the meta-analysis object (which is defined
+  by the R function used to generate the object) a different set of
+  \emph{\bold{columns}} is printed \emph{\bold{on the left side of the
+  forest plot}}:
   \tabular{cl}{
-   Object type \tab Default for argument \code{leftcols} \cr
-   metabin \tab \code{c("studlab", "event.e", "n.e", "event.c", "n.c")} \cr
-   metacont \tab \code{c("studlab", "n.e", "mean.e",
-    "sd.e", "n.c", "mean.c", "sd.c")} \cr
-   metacor \tab \code{c("studlab", "n")} \cr
-   metagen \tab \code{c("studlab", "TE", "seTE")} \cr
-   metainc \tab \code{c("studlab", "event.e",
-     "time.e", "event.c", "time.c")} \cr
-   metaprop \tab \code{c("studlab", "event", "n")} \cr
-   metacum \tab \code{c("studlab")} \cr
-   metainf \tab \code{c("studlab")}
+   \bold{Function} \tab \bold{Value of argument leftcols} \cr
+   \code{\link{metabin}} \tab \code{c("studlab", "event.e", "n.e",} \cr
+   \tab \code{ "event.c", "n.c")} \cr
+   \code{\link{metacont}} \tab \code{c("studlab", "n.e", "mean.e", "sd.e",} \cr
+   \tab  \code{ "n.c", "mean.c", "sd.c")} \cr
+   \code{\link{metacor}} \tab \code{c("studlab", "n")} \cr
+   \code{\link{metagen}} \tab \code{c("studlab", "TE", "seTE")} \cr
+   \code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",} \cr
+   \tab  \code{ "event.c", "time.c")} \cr
+   \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
+   \code{\link{metarate}} \tab \code{c("studlab", "event", "time")} \cr
+   \code{\link{metacum}} \tab \code{"studlab"} \cr
+   \code{\link{metainf}} \tab \code{"studlab"}
   }
   The arguments \code{leftlabs} and \code{rightlabs} can be used to
   specify column headings which are plotted on left and right side of
   the forest plot, respectively. For certain columns predefined labels
   exist. If the arguments \code{leftlabs} and \code{rightlabs} are
   \code{NULL}, the following default labels will be used:
-  \tabular{ccccccc}{
-  Column \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-  Label \tab "Study" \tab "TE" \tab "seTE"  \tab "Total" \tab "Total" \tab "Total" \cr\cr
-  Column \tab \code{event.e} \tab \code{event.c} \tab \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-  Label \tab "Events" \tab "Events"  \tab "Events" \tab "Mean" \tab "Mean" \tab \cr\cr
-  Column \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e} \tab \code{time.c} \tab \tab \cr
-  Label \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab \tab \cr\cr
-  Column \tab \code{effect} \tab \code{ci} \tab \code{w.fixed} \tab \code{w.random} \tab \tab \cr
-  Label \tab \code{x$sm} \tab \code{x$level}-CI \tab "W(fixed)" \tab "W(random)" \tab \tab
+  \tabular{rcccccc}{
+  \bold{Column:} \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
+  \bold{Label:} \tab "Study" \tab "TE" \tab "seTE"  \tab "Total" \tab "Total" \tab "Total" \cr\cr
+  \bold{Column:} \tab \code{event.e} \tab \code{event.c} \tab \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
+  \bold{Label:} \tab "Events" \tab "Events"  \tab "Events" \tab "Mean" \tab "Mean" \tab \cr\cr
+  \bold{Column:} \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e} \tab \code{time.c} \tab \tab \cr
+  \bold{Label:} \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab \tab \cr\cr
+  \bold{Column:} \tab \code{effect} \tab \code{ci} \tab \code{w.fixed} \tab \code{w.random} \tab \tab \cr
+  \bold{Label:} \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab "W(fixed)" \tab "W(random)" \tab \tab
   }
-  For additional columns the column name will be used
-  as label. It is possible to only provide labels for new columns (see
+  For additional columns, the column name will be used as label. It is
+  possible to only provide labels for new columns (see
   Examples). Otherwise the length of \code{leftlabs} and
-  \code{rightlabs} must be the same as the number of printed
-  columns. The value \code{NA} can be used to specify columns using
-  the default labels (see Example).
+  \code{rightlabs} must be the same as the number of printed columns,
+  respectively. The value \code{NA} can be used to specify columns
+  which should use default labels (see Examples).
 
-  If argument \code{layout="revman5"} (and arguments \code{leftcols}
-  and \code{rightcols} are \code{NULL}) all columns mentioned above
-  will be printed on the left side of the forest plot.
-
+  If argument \code{layout="RevMan5"} (and arguments \code{leftcols}
+  and \code{rightcols} are \code{NULL}), the layout for forest plots
+  used for Cochrane reviews (which are generated with Review Manager
+  5, \url{http://tech.cochrane.org/revman/}) is reproduced:
+  %%
+  \enumerate{
+   \item All columns are printed on the left side of the forest plot
+     (see arguments \code{leftcols} and \code{rightcols})
+   \item Tests for overall effect and subgroup differences are printed
+     (\code{test.overall}, \code{test.subgroup})
+   \item Diamonds representing meta-analysis results are printed in
+     black (\code{diamond.fixed}, \code{diamond.random})
+   \item Color of squares depends on the meta-analysis object
+     (\code{col.square}, \code{col.square.lines})
+   \item Heterogeneity statistic \emph{Q} and test statistic \emph{Z}
+     are printed (\code{print.Q}, \code{print.zval})
+   \item Information on effect measure and meta-analysis method is
+     printed above the forest plot (\code{smlab})
+   }
+  If argument \code{layout="JAMA"} (and arguments \code{leftcols} and
+  \code{rightcols} are \code{NULL}), instructions for authors of the
+  \emph{Journal of the American Medical Association}, see
+  \url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors},
+  are taken into account:
+  %%
+  \enumerate{
+   \item Graph labels on right and left side are printed in bold font
+     at top of forest plot (see arguments \code{bottom.lr} and
+     \code{ff.lr})
+   \item Information on effect measure and level of confidence
+     interval is printed at bottom of forest plot (\code{xlab})
+   \item Tests for overall effect are printed (\code{test.overall})
+   \item Diamonds representing meta-analysis results are printed in
+     lightblue (\code{diamond.fixed}, \code{diamond.random})
+   \item Squares representing individual study results are printed in
+     darkblue (\code{col.square}, \code{col.square.lines})
+   \item Heterogeneity statistic \emph{Q} and test statistic \emph{Z}
+     are printed (\code{print.Q}, \code{print.zval})
+   \item Between-study variance \eqn{\tau^2} is not printed
+     (\code{print.tau2})
+   \item Empty rows are omitted (\code{addrow})
+   \item Label "Source" is printed instead of "Study"
+     (\code{leftlabs})
+  }
   The following changes are conducted if argument
   \code{layout="subgroup"} (and arguments \code{leftcols} and
   \code{rightcols} are \code{NULL}) and a subgroup analysis was
-  conducted for meta-analysis object \code{x}:
+  conducted:
   %%
-  \itemize{
-   \item individual study results are omitted (argument
-     \code{study.results}),
-   \item total number of observations is not printed (argument
-    \code{pooled.totals}),
-   \item label "Subgroup" is printed instead of "Study" (argument
-    \code{leftlabs}).
+  \enumerate{
+   \item Individual study results are omitted (see argument
+     \code{study.results})
+   \item Total number of observations is not printed
+     (\code{pooled.totals})
+   \item Label "Subgroup" is printed instead of "Study"
+     (\code{leftlabs})
   }
   
   If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
@@ -656,11 +711,11 @@ forest(x, ...)
   graphical presentation of prediction intervals the approach by
   Guddat et al. (2012) is used.
   
-  Note, in R package meta, version 3.0-0 the following arguments have
-  been removed from R function forest.meta: byvar, level, level.comb,
-  level.predict. This functionality is now provided by R function
-  \code{\link{update.meta}} (or directly in R functions
-  \code{\link{metabin}}, \code{\link{metacont}},
+  Note, in R package \bold{meta}, version 3.0-0 the following
+  arguments have been removed from R function forest.meta: byvar,
+  level, level.comb, level.predict. This functionality is now provided
+  by R function \code{\link{update.meta}} (or directly in R functions,
+  e.g., \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{metacor}}, and
   \code{\link{metaprop}}).
 }
@@ -678,7 +733,7 @@ forest(x, ...)
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}}
+\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{settings.meta}}}
 
 \examples{
 data(Olkin95)
@@ -728,9 +783,10 @@ forest(meta1, col.square="black", hetstat=FALSE)
 
 
 #
-# Layout of forest plot similar to RevMan 5
+# Layout of forest plot similar to Review Mananager 5
+# (see http://tech.cochrane.org/revman)
 #
-forest(meta1, layout="revman5", comb.random=FALSE)
+forest(meta1, layout="RevMan5", comb.random=FALSE)
 
 
 #

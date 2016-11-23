@@ -86,14 +86,12 @@ setVar <- function(var = NULL, arg = NULL) {
 ##
 ## Set defaults
 ##
-setOption("CIbracket", "[")
-setOption("CIseparator", "; ")
 setOption("metafor", "1.9.9")
 ##
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "hakn", "method.tau", "tau.common",
               "prediction", "level.predict",
-              "method.bias", "title", "complab",
+              "method.bias", "title", "complab", "CIbracket", "CIseparator",
               "print.byvar", "byseparator", "keepdata", "warn",
               "backtransf",
               "smbin", "smcont", "smcor", "sminc", "smprop", "smrate",
@@ -102,6 +100,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "RR.cochrane", "model.glmm", "print.CMH",
               "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
               "label.e", "label.c", "label.left", "label.right",
+              "layout",
               "test.overall", "test.subgroup", "test.effect.subgroup",
               "digits", "digits.se", "digits.zval",
               "digits.Q", "digits.tau2", "digits.H", "digits.I2",
@@ -124,6 +123,8 @@ setOption("level.predict", 0.95)
 setOption("method.bias", "linreg")
 setOption("title", "")
 setOption("complab", "")
+setOption("CIbracket", "[")
+setOption("CIseparator", "; ")
 setOption("print.byvar", TRUE)
 setOption("byseparator", " = ")
 setOption("keepdata", TRUE)
@@ -185,6 +186,7 @@ setOption("label.right", "")
 ##
 ## Settings for R function forest.meta
 ##
+setOption("layout", "meta")
 setOption("test.overall", FALSE)
 setOption("test.subgroup", FALSE)
 setOption("test.effect.subgroup", FALSE)

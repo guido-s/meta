@@ -1,4 +1,4 @@
-\name{trimfill}
+\name{trimfill.meta}
 
 \alias{trimfill}
 \alias{trimfill.meta}
@@ -121,9 +121,10 @@ trimfill(x, ...)
   An empirical comparison of the trim-and-fill method and the Copas
   selection model (Schwarzer et al. 2010) indicates that the
   trim-and-fill method leads to excessively conservative inference in
-  practice. The Copas selection model is available in R package copas.
+  practice. The Copas selection model is available in R package
+  \bold{metasens}.
 
-  The function \code{metagen} is called internally.
+  The function \code{\link{metagen}} is called internally.
 }
 
 \value{
@@ -188,7 +189,7 @@ trimfill(x, ...)
     \code{metacor}).}
   \item{class.x}{Main class of object \code{x} (e.g. 'metabin' or
     'metacont').}
-  \item{version}{Version of R package meta used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
 }
 
 \references{

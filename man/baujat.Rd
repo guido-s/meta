@@ -1,4 +1,4 @@
-\name{baujat}
+\name{baujat.meta}
 
 \alias{baujat}
 \alias{baujat.meta}

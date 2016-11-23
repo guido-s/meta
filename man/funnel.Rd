@@ -1,4 +1,4 @@
-\name{funnel}
+\name{funnel.meta}
 
 \alias{funnel}
 \alias{funnel.meta}

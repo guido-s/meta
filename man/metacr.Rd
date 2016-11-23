@@ -90,6 +90,13 @@ metacr(x, comp.no=1, outcome.no=1,
   single outcome of a Cochrane Intervention review. Internally, R
   functions \code{metabin}, \code{metacont}, and \code{metagen} are
   called - depending on the definition of the outcome in RevMan 5.
+
+  Note, it is recommended to specify the RevMan 5 before executing \code{metacr}, i.e.,
+  %%
+  \itemize{
+   \item[] settings.meta("revman5")
+  }
+
 }
 
 \value{
@@ -106,7 +113,7 @@ metacr(x, comp.no=1, outcome.no=1,
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{read.rm5}}}
+\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{read.rm5}}, \code{\link{settings.meta}}}
 
 \examples{
 # Locate export data file "Fleiss93_CR.csv"
@@ -115,6 +122,10 @@ metacr(x, comp.no=1, outcome.no=1,
 filename <- system.file("data/Fleiss93_CR.csv.gz", package = "meta")
 #
 Fleiss93_CR <- read.rm5(filename)
+
+# Choose RevMan 5 settings and store old settings
+#
+oldset <- settings.meta("revman5")
 
 # Same result as R command example(Fleiss93):
 #
@@ -131,6 +142,9 @@ forest(metacr(Fleiss93_CR, 1, 2))
 m1 <- metacr(Fleiss93_CR)
 update(m1, sm="RR")
 
+# Use old settings
+#
+settings.meta(oldset)
 }
 
 \keyword{htest}

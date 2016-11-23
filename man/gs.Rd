@@ -2,7 +2,7 @@
 \alias{gs}
 \title{Get default for a meta-analysis setting.}
 \description{
-  Get default for a meta-analysis setting in R package meta.
+  Get default for a meta-analysis setting in R package \bold{meta}.
 }
 \usage{
 gs(x)
@@ -19,7 +19,7 @@ gs(x)
   meta-analysis functions, e.g. \code{\link{metabin}} or
   \code{\link{metacont}}. A list of all arguments with current
   settings is printed using the command
-  \code{settings.meta(print=TRUE)}.
+  \code{settings.meta("print")}.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}

@@ -1,4 +1,4 @@
-\name{labbe}
+\name{labbe.metabin}
 
 \alias{labbe}
 \alias{labbe.metabin}

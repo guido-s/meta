@@ -6,8 +6,8 @@
 
 \description{
   Meta-regression for objects of class \code{meta}. This is a wrapper
-  function for the R function \code{\link[metafor]{rma.uni}} in the R package
-  metafor (Viechtbauer 2010).
+  function for the R function \code{\link[metafor]{rma.uni}} in the R
+  package \bold{metafor} (Viechtbauer 2010).
 }
 
 \usage{
@@ -35,9 +35,9 @@ metareg(x, formula, method.tau = x$method.tau, hakn = x$hakn,
 
 \details{
   This R function is a wrapper function for R function
-  \code{\link[metafor]{rma.uni}} in the R package metafor (Viechtbauer 2010),
-  i.e. the function \code{metareg} can only be used if the R package
-  'metafor' is installed.
+  \code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
+  (Viechtbauer 2010), i.e. the function \code{metareg} can only be
+  used if the R package \bold{metafor} is installed.
 
   Argument '\dots' can be used to pass additional arguments to R
   function \code{\link[metafor]{rma.uni}}. For example, argument \code{control}
@@ -56,8 +56,8 @@ following components:
   \item{x, formula, method.tau, hakn, level.comb, intercept}{As definied above.}
   \item{dots}{Information provided in argument '\dots'.}
   \item{call}{Function call.}
-  \item{version}{Version of R package meta used to create object.}
-  \item{version.metafor}{Version of R package metafor used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
+  \item{version.metafor}{Version of R package \bold{metafor} used to create object.}
 }
 
 \references{

@@ -106,7 +106,7 @@ metacor(cor, n, studlab,
   for the random effects model can be extracted from component
   \code{TE.random} of an object of class \code{"meta"} even if
   argument \code{comb.random=FALSE}. However, all functions in R
-  package \code{meta} will adequately consider the values for
+  package \bold{meta} will adequately consider the values for
   \code{comb.fixed} and \code{comb.random}. E.g. function
   \code{\link{print.meta}} will not print results for the random
   effects model if \code{comb.random=FALSE}.
@@ -128,11 +128,11 @@ metacor(cor, n, studlab,
   (1982) to estimate the between-study variance is used if argument
   \code{method.tau="PM"}. Internally, R function \code{paulemandel} is
   called which is based on R function mpaule.default from R package
-  metRology from S.L.R. Ellison <s.ellison at lgc.co.uk>.
+  \bold{metRology} from S.L.R. Ellison <s.ellison at lgc.co.uk>.
 
-  If R package metafor (Viechtbauer 2010) is installed, the following
-  methods to estimate the between-study variance \eqn{\tau^2}
-  (argument \code{method.tau}) are also available:
+  If R package \bold{metafor} (Viechtbauer 2010) is installed, the
+  following methods to estimate the between-study variance
+  \eqn{\tau^2} (argument \code{method.tau}) are also available:
   \itemize{
    \item Restricted maximum-likelihood estimator (\code{method.tau="REML"})
    \item Maximum-likelihood estimator (\code{method.tau="ML"})
@@ -141,9 +141,11 @@ metacor(cor, n, studlab,
    \item Hedges estimator (\code{method.tau="HE"})
    \item Empirical Bayes estimator (\code{method.tau="EB"}).
   }
-  For these methods the R function \code{rma.uni} of R package metafor
-  is called internally. See help page of R function \code{rma.uni} for
-  more details on these methods to estimate between-study variance.
+  
+  For these methods the R function \code{rma.uni} of R package
+  \bold{metafor} is called internally. See help page of R function
+  \code{rma.uni} for more details on these methods to estimate
+  between-study variance.
 }
 
 \value{
@@ -262,7 +264,7 @@ metacor(cor, n, studlab,
   \item{subset}{Information on subset of original data used in
     meta-analysis (if \code{keepdata=TRUE}).}
   \item{call}{Function call.}
-  \item{version}{Version of R package meta used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
 }
 
 \references{

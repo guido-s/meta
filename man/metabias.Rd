@@ -127,12 +127,12 @@ metabias(x, ...)
   \item{title}{Title of Cochrane review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}
-  \item{version}{Version of R package meta used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
   Or a list with the following elements if test is not conducted due
   to the number of studies:
   \item{k}{Number of studies in meta-analysis.}
   \item{k.min}{Minimum number of studies to perform test for funnel plot asymmetry.}
-  \item{version}{Version of R package meta used to create object.}
+  \item{version}{Version of R package \bold{meta} used to create object.}
 }
 \references{
   Begg CB & Mazumdar M (1994), Operating characteristics of a

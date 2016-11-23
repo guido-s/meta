@@ -1,4 +1,7 @@
 gs <- function(x) {
+
+  if (missing(x))
+    return(NULL)
   
   chkchar(x)
   
