@@ -83,15 +83,20 @@
   * forest.meta(), metabin(), metacont(), metacor(), metacr(),
     metagen(), metainc(), metaprop(), metarate(), print.meta(),
     print.summary.meta():
-    Use gs() to define defaults for arguments in meta-analysis
-    functions, e.g. gs("hakn") instead of .settings$hakn
+    - use gs() to define defaults for arguments in meta-analysis
+      functions, e.g. gs("hakn") instead of .settings$hakn
 
   * metareg():
-    Stop with an error if version of metafor package is below 1.9-9
+    - stop with an error if version of metafor package is below 1.9-9
 
   * metabin(), metainc(), metaprop(), metarate():
-    For GLMMs, stop with an error if version of metafor package is
-    below 1.9-9
+    - for GLMMs, stop with an error if version of metafor package is
+      below 1.9-9
+    
+  * metabin():
+    - bug fix, do not stop with an error if no double zero events are
+      present in a dataset with at least one study with NA event
+      counts
     
   * settings.meta():
     - general settings for RevMan 5 and JAMA implemented

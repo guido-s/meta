@@ -54,10 +54,10 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
    \item \code{settings.meta("revman5")}
    \item \code{settings.meta("jama")}
   }
-  The first settings can be used to reproduce meta-analyses from
+  The first command can be used to reproduce meta-analyses from
   Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
   \url{http://tech.cochrane.org/revman/}) and specifies to use a
-  RevMan 5 layout in forest plots. The second settings can be used to
+  RevMan 5 layout in forest plots. The second command can be used to
   generate forest plots following instructions for authors of the
   \emph{Journal of the American Medical Association}
   (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}).
