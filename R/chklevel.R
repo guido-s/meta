@@ -21,7 +21,7 @@ chklevel <- function(x, single = TRUE, ci = TRUE, name = NULL) {
     stop("Argument '", name, "' must be a numeric of length 1.",
          call. = FALSE)
   ##
-  if (any(x <= 0) | any(x >= 1))
+  if (any(x <= 0, na.rm = TRUE) | any(x >= 1, na.rm = TRUE))
     stop("Argument '", name, "' must be a numeric between 0 and 1.",
          call. = FALSE)
   ##

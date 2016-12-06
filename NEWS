@@ -97,7 +97,10 @@
     - bug fix, do not stop with an error if no double zero events are
       present in a dataset with at least one study with NA event
       counts
-    
+
+  * metareg():
+    - bug fix, use of covariate 'x' does not result in an error
+
   * settings.meta():
     - general settings for RevMan 5 and JAMA implemented
       (see help page)
