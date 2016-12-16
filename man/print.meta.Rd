@@ -142,15 +142,15 @@ cilayout(bracket="[", separator="; ")
 
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
-  (\url{http://tech.cochrane.org/revman/}). In RevMan 5, subgroup analyses
-  can be defined and data from a Cochrane review can be imported to R
-  using the function \code{read.rm5}. If a meta-analysis is then
-  conducted using function \code{metacr}, information on subgroups is
-  available in R (components \code{byvar}, \code{bylab}, and
-  \code{print.byvar}, \code{byvar} in an object of class
-  \code{"meta"}). Accordingly, by using function \code{metacr} there is
-  no need to define subgroups in order to redo the statistical analysis
-  conducted in the Cochrane review.
+  (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}). In
+  RevMan 5, subgroup analyses can be defined and data from a Cochrane
+  review can be imported to R using the function \code{read.rm5}. If a
+  meta-analysis is then conducted using function \code{metacr},
+  information on subgroups is available in R (components \code{byvar},
+  \code{bylab}, and \code{print.byvar}, \code{byvar} in an object of
+  class \code{"meta"}). Accordingly, by using function \code{metacr}
+  there is no need to define subgroups in order to redo the
+  statistical analysis conducted in the Cochrane review.
   
   Note, for an object of type \code{metaprop}, starting with version
   3.7-0 of meta, list elements \code{TE}, \code{lower} and

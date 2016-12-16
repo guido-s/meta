@@ -30,9 +30,10 @@ read.rm5(file, sep=",", quote = "\"", title,
 \details{
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
-  (\url{http://tech.cochrane.org/revman/}). RevMan 5 includes the ability
-  to write Systematic reviews of interventions, Diagnostic test accuracy
-  reviews, Methodology reviews and Overviews of reviews.
+  (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}). RevMan
+  5 includes the ability to write Systematic reviews of interventions,
+  Diagnostic test accuracy reviews, Methodology reviews and Overviews
+  of reviews.
   
   This function provides the ability to read a data file from a
   Cochrane Intervention review created with RevMan 5; a data frame

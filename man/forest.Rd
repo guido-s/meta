@@ -58,10 +58,14 @@ forest(x, ...)
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
        col.label.right="black", col.label.left="black",
-       hetstat = comb.fixed | comb.random,
+       hetstat = print.I2 | print.tau2 | print.Q | print.pval.Q | print.Rb,
        overall.hetstat = overall & hetstat,
        hetlab = "Heterogeneity: ",
+       print.I2 = comb.fixed | comb.random,
        print.I2.ci = FALSE,
+       print.tau2 = comb.fixed | comb.random,
+       print.Q = FALSE,
+       print.pval.Q = comb.fixed | comb.random,
        print.Rb = FALSE,
        print.Rb.ci = FALSE,
        ##
@@ -72,6 +76,7 @@ forest(x, ...)
        ##
        test.subgroup,
        test.subgroup.fixed, test.subgroup.random,
+       print.Q.subgroup=print.Q,
        label.test.subgroup.fixed, label.test.subgroup.random,
        ##
        test.effect.subgroup,
@@ -123,9 +128,12 @@ forest(x, ...)
        backtransf=x$backtransf,
        digits=gs("digits.forest"), digits.se=gs("digits.se"),
        digits.zval=gs("digits.zval"),
-       digits.pval=gs("digits.pval"), digits.pval.Q=gs("digits.pval.Q"),
-       digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
-       digits.I2=gs("digits.I2"), digits.weight=gs("digits.weight"),
+       digits.pval=max(gs("digits.pval")-2, 2),
+       digits.pval.Q=max(gs("digits.pval.Q")-2, 2),
+       digits.Q=gs("digits.Q"),
+       digits.tau2=gs("digits.tau2"),
+       digits.I2=max(gs("digits.I2")-1, 0),
+       digits.weight=gs("digits.weight"),
        #
        digits.mean = NULL, digits.sd = NULL,
        digits.cor = NULL, digits.time = NULL,
@@ -300,8 +308,16 @@ forest(x, ...)
     subgroup level.}
   \item{hetlab}{Label printed in front of results for heterogeneity
     measures.}
+  \item{print.I2}{A logical value indicating whether to print the value
+    of the I-squared statistic.}
   \item{print.I2.ci}{A logical value indicating whether to print the
     confidence interval of the I-squared statistic.}
+  \item{print.tau2}{A logical value indicating whether to print the value
+    of the between-study variance tau-squared.}
+  \item{print.Q}{A logical value indicating whether to print the value
+    of the heterogeneity statistic Q.}
+  \item{print.pval.Q}{A logical value indicating whether to print the
+    p-value of the heterogeneity statistic Q.}
   \item{print.Rb}{A logical value indicating whether to print the value
     of the I-squared statistic.}
   \item{print.Rb.ci}{A logical value indicating whether to print the
@@ -326,6 +342,9 @@ forest(x, ...)
   \item{test.subgroup.random}{A logical value indicating whether to
     print results of test for subgroup differences (based on random
     effects model).}
+  \item{print.Q.subgroup}{A logical value indicating whether to print
+    the value of the heterogeneity statistic Q (test for subgroup
+    differences).}
   \item{label.test.subgroup.fixed}{Label printed in front of results
     of test for subgroup differences (based on fixed effect model).}
   \item{label.test.subgroup.random}{Label printed in front of results
@@ -619,7 +638,9 @@ forest(x, ...)
   If argument \code{layout="RevMan5"} (and arguments \code{leftcols}
   and \code{rightcols} are \code{NULL}), the layout for forest plots
   used for Cochrane reviews (which are generated with Review Manager
-  5, \url{http://tech.cochrane.org/revman/}) is reproduced:
+  5,
+  \url{http://community.cochrane.org/tools/review-production-tools/revman-5})
+  is reproduced:
   %%
   \enumerate{
    \item All columns are printed on the left side of the forest plot
@@ -760,7 +781,7 @@ forest(meta1, col.square="black", hetstat=FALSE)
 
 #
 # Layout of forest plot similar to Review Mananager 5
-# (see http://tech.cochrane.org/revman)
+# (see http://community.cochrane.org/tools/review-production-tools/revman-5)
 #
 forest(meta1, layout="RevMan5", comb.random=FALSE)
 

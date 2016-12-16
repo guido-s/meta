@@ -68,7 +68,7 @@
     - new column "effect.ci" with estimated treatment effect and
       confidence interval in one column
     - unnecessary arguments removed:
-      print.I2, print.tau2, print.Q, print.pval.Q, text.I2, text.tau2
+      text.I2, text.tau2
     
   * metabin(), metacont(), metacor(), metacr(), metacum(), metagen(),
     metainc(), metainf(), metaprop(), metarate(), trimfill.default(),

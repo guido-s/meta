@@ -51,9 +51,9 @@
 \details{
   Review Manager 5 (RevMan 5) is the current software used for
   preparing and maintaining Cochrane Reviews
-  (\url{http://tech.cochrane.org/revman/}). In RevMan 5, subgroup analyses
-  can be defined and data from a Cochrane review can be imported to R
-  using the function \code{read.rm5}.
+  (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}). In
+  RevMan 5, subgroup analyses can be defined and data from a Cochrane
+  review can be imported to R using the function \code{read.rm5}.
 
   The R function \code{summary.rm5} can be used to redo all
   meta-analyses of the imported Cochrane Review.
