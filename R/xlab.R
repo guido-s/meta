@@ -1,9 +1,16 @@
-xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years") {
-
+xlab <- function(sm, backtransf,
+                 pscale = 1, irscale = 1, irunit = "person-years",
+                 newline = FALSE) {
+  
   res <- NULL
   
+  
+  newline <- if (newline) "\n" else " "
+  
+  
   if (sm == "SMD")
-    res <- "Standardised mean difference"
+    res <- paste("Standardised mean", newline,
+                 "difference", sep = "")
   ##
   else if (sm == "WMD" | sm == "MD")
     res <- "Mean difference"
@@ -15,10 +22,12 @@ xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years
     res <- "Risk Difference"
   ##
   else if (sm == "ASD")
-    res <- "Arcus Sinus Difference"
+    res <- paste("Arcus Sinus", newline,
+                 "Difference", sep = "")
   ##
   else if (sm == "IRD")
-    res <- "Incidence Rate Difference"
+    res <- paste("Incidence Rate", newline,
+                 "Difference", sep = "")
   ##
   else if (sm == "IR")
     res <- "Incidence Rate"
@@ -40,24 +49,27 @@ xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years
       res <- "Hazard Ratio"
     ##
     else if (sm == "IRR")
-      res <- "Incidence Rate Ratio"
+      res <- paste("Incidence Rate", newline,
+                   "Ratio", sep = "")
     ##
     else if (sm %in% c("PFT", "PAS", "PLN", "PLOGIT", "PRAW")) {
       if (pscale == 1)
         res <- ""
       else
-        res <- paste("Events per",
+        res <- paste("Events per ",
                      format(pscale, scientific = FALSE),
-                     "observations")
+                     newline,
+                     "observations", sep = "")
     }
     ##
     else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
       if (irscale == 1)
         res <- "Incidence Rate"
       else
-        res <- paste("Events per",
+        res <- paste("Events per ",
                      format(irscale, scientific = FALSE),
-                     irunit)
+                     newline,
+                     irunit, sep = "")
     }
   }
   else {
@@ -68,43 +80,55 @@ xlab <- function(sm, backtransf, pscale = 1, irscale = 1, irunit = "person-years
       res <- "Log Risk Ratio"
     ##
     else if (sm == "ROM")
-      res <- "Log Ratio of Means"
+      res <- paste("Log Ratio of", newline,
+                   "Means", sep = "")
     ##
     else if (sm == "HR")
-      res <- "Log Hazard Ratio"
+      res <- paste("Log Hazard", newline,
+                   "Ratio", sep = "")
     ##
     else if (sm == "IRR")
-      res <- "Log Incidence Rate Ratio"
+      res <- paste("Log Incidence Rate", newline,
+                   "Ratio", sep = "")
     ##
     else if (sm == "ZCOR")
-      res <- "Fisher's z transformed correlation"
+      res <- paste("Fisher's z transformed", newline,
+                   "correlation", sep = "")
     ##
     else if (sm == "PFT")
-      res <- "Freeman-Tukey Double Arcsine Transformed Proportion"
+      res <- paste("Freeman-Tukey Double Arcsine", newline,
+                   "Transformed Proportion", sep = "")
     ##
     else if (sm == "PAS")
-      res <- "Arcsine Transformed Proportion"
+      res <- paste("Arcsine Transformed", newline,
+                   "Proportion", sep = "")
     ##
     else if (sm == "PLN")
-      res <- "Log Transformed Proportion"
+      res <- paste("Log Transformed", newline,
+                   "Proportion", sep = "")
     ##
     else if (sm == "PLOGIT")
-      res <- "Logit Transformed Proportion"
+      res <- paste("Logit Transformed", newline,
+                   "Proportion", sep = "")
     ##
     else if (sm == "PRAW")
-      res <- "Untransformed Proportion"
+      res <- paste("Untransformed", newline,
+                   "Proportion", sep = "")
     ##
     else if (sm == "IR")
       res <- "Incidence Rate"
     ##
     else if (sm == "IRLN")
-      res <- "Log Incidence Rate"
+      res <- paste("Log Incidence", newline,
+                   "Rate", sep = "")
     ##
     else if (sm == "IRS")
-      res <- "Square Root of Incidence Rate"
+      res <- paste("Square Root of", newline,
+                   "Incidence Rate", sep = "")
     ##
     else if (sm == "IRFT")
-      res <- "Freeman-Tukey Double Arcsine Transformed Rate"
+      res <- paste("Freeman-Tukey Double Arcsine", newline,
+                   "Transformed Rate", sep = "")
   }
   
   

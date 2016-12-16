@@ -1,5 +1,5 @@
 format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
-                     digits = 4) {
+                     digits = 4, zero = TRUE) {
   if (is.null(p))
     return("")
   outdec <- options()$OutDec
@@ -31,6 +31,8 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
   ##
   if (noblanks)
     res <- gsub(" ", "", res)
+  if (!zero)
+    res <- gsub("0\\.", "\\.", res)
   ##
   res
 }

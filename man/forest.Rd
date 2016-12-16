@@ -23,7 +23,8 @@ forest(x, ...)
        prediction=x$prediction,
        text.predict=NULL,
        print.subgroup.labels=TRUE,
-       bylab=x$bylab, print.byvar=x$print.byvar, byseparator=gs("byseparator"),
+       bylab=x$bylab, print.byvar=x$print.byvar,
+       byseparator=gs("byseparator"),
        text.fixed.w=text.fixed, text.random.w=text.random, bysort=FALSE, 
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        pooled.times=FALSE, study.results=TRUE,
@@ -57,79 +58,65 @@ forest(x, ...)
        col.predict="red", col.predict.lines="black",
        col.by="darkgray",
        col.label.right="black", col.label.left="black",
-       print.I2=comb.fixed|comb.random, print.I2.ci=FALSE,
-       print.Rb=FALSE, print.Rb.ci=FALSE,
-       print.tau2=comb.fixed|comb.random,
-       print.Q=FALSE, print.pval.Q=comb.fixed|comb.random,
-       hetstat=print.I2|print.Rb|print.tau2|print.Q|print.pval.Q,
-       overall.hetstat=overall&hetstat,
-       hetlab="Heterogeneity: ",
-       text.I2="I-squared",
-       text.Rb="Rb",
-       text.tau2="tau-squared",
-       blanks=layout=="RevMan5",
+       hetstat = comb.fixed | comb.random,
+       overall.hetstat = overall & hetstat,
+       hetlab = "Heterogeneity: ",
+       print.I2.ci = FALSE,
+       print.Rb = FALSE,
+       print.Rb.ci = FALSE,
        ##
        test.overall=gs("test.overall"),
        test.overall.fixed=comb.fixed&overall&test.overall,
        test.overall.random=comb.random&overall&test.overall,
-       label.test.overall.fixed=paste("Test for overall effect",
-         if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
-       label.test.overall.random=paste("Test for overall effect",
-         if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
-       print.zval=FALSE,
+       label.test.overall.fixed, label.test.overall.random,
        ##
-       test.subgroup=gs("test.subgroup"),
-       test.subgroup.fixed=if (missing(test.subgroup)) FALSE else test.subgroup,
-       test.subgroup.random=if (missing(test.subgroup)) !is.null(x$byvar)&
-         comb.random&test.subgroup else test.subgroup,
-       print.Q.subgroup=print.Q,
-       label.test.subgroup.fixed="Test for subgroup differences (fixed effect): ",
-       label.test.subgroup.random=paste("Test for subgroup differences",
-        if (test.subgroup.fixed | comb.fixed) " (random effects)", ": ", sep=""),
+       test.subgroup,
+       test.subgroup.fixed, test.subgroup.random,
+       label.test.subgroup.fixed, label.test.subgroup.random,
        ##
-       test.effect.subgroup=gs("test.effect.subgroup"),
-       test.effect.subgroup.fixed=comb.fixed & test.effect.subgroup,
-       test.effect.subgroup.random=comb.random & test.effect.subgroup,
-       label.test.effect.subgroup.fixed=paste("Test for effect in subgroup",
-        if (comb.fixed & comb.random) " (fixed effect)", ": ", sep=""),
-       label.test.effect.subgroup.random=paste("Test for effect in subgroup",
-        if (comb.fixed & comb.random) " (random effects)", ": ", sep=""),
+       test.effect.subgroup,
+       test.effect.subgroup.fixed, test.effect.subgroup.random,
+       label.test.effect.subgroup.fixed,
+       label.test.effect.subgroup.random,
        ##
        fontsize=12,
-       fs.heading=fontsize,
-       fs.fixed=fontsize, fs.random=fs.fixed, fs.predict=fs.fixed, fs.study=fontsize,
-       fs.fixed.labels=fs.fixed, fs.random.labels=fs.random, fs.predict.labels=fs.predict,
-       fs.study.labels=fs.study, fs.hetstat=fontsize-2,
-       fs.test.overall=fs.hetstat, fs.test.subgroup=fs.hetstat,
-       fs.test.effect.subgroup=fs.hetstat, fs.axis=fontsize,
-       fs.smlab=fontsize, fs.xlab=fontsize, fs.lr=fontsize,
-       ff.heading="bold",
-       ff.fixed="bold", ff.random=ff.fixed, ff.predict=ff.fixed, ff.study="plain",
-       ff.fixed.labels=ff.fixed, ff.random.labels=ff.random, ff.predict.labels=ff.predict,
-       ff.study.labels=ff.study, ff.hetstat="bold.italic",
-       ff.test.overall=ff.hetstat, ff.test.subgroup=ff.hetstat,
-       ff.test.effect.subgroup=ff.hetstat, ff.axis="plain",
-       ff.smlab="bold", ff.xlab="plain", ff.lr="plain",
+       fs.heading = fontsize,
+       fs.fixed, fs.random, fs.predict,
+       fs.fixed.labels, fs.random.labels, fs.predict.labels,
+       fs.study = fontsize, fs.study.labels = fs.study,
+       fs.hetstat, fs.test.overall,
+       fs.test.subgroup, fs.test.effect.subgroup,
+       fs.axis = fontsize, fs.smlab = fontsize, fs.xlab = fontsize,
+       fs.lr = fontsize,
+       ff.heading = "bold",
+       ff.fixed, ff.random, ff.predict,
+       ff.fixed.labels, ff.random.labels, ff.predict.labels,
+       ff.study = "plain", ff.study.labels = ff.study,
+       ff.hetstat, ff.test.overall,
+       ff.test.subgroup, ff.test.effect.subgroup,
+       ff.axis = "plain", ff.smlab = "bold", ff.xlab = "plain",
+       ff.lr = "plain",
        #
        squaresize=0.8,
        #
-       plotwidth=grid::unit(6, "cm"),
-       colgap=grid::unit(2, "mm"),
-       colgap.left=colgap, colgap.right=colgap,
-       colgap.studlab=colgap.left,
-       colgap.forest=colgap,
-       colgap.forest.left=colgap.forest, colgap.forest.right=colgap.forest,
+       plotwidth = if (layout != "JAMA") "6cm" else "8cm",
+       colgap = "2mm",
+       colgap.left = colgap, colgap.right = colgap,
+       colgap.studlab = colgap.left, colgap.forest = colgap,
+       colgap.forest.left = colgap.forest,
+       colgap.forest.right = colgap.forest,
        #
        calcwidth.pooled=TRUE,
-       calcwidth.fixed=calcwidth.pooled, calcwidth.random=calcwidth.pooled,
+       calcwidth.fixed=calcwidth.pooled,
+       calcwidth.random=calcwidth.pooled,
        calcwidth.predict=FALSE,
        calcwidth.hetstat=FALSE, calcwidth.tests=FALSE,
        #
-       just="right", just.studlab="left", just.addcols="center",
+       just=if (layout != "JAMA") "right" else "left",
+       just.studlab="left", just.addcols="center",
        just.addcols.left=just.addcols, just.addcols.right=just.addcols,
        #
-       addrow=TRUE&layout!="JAMA",
-       addrow.overall=addrow, addrow.subgroups=addrow,
+       addrow, addrow.overall, addrow.subgroups,
        #
        new=TRUE,
        #
@@ -304,20 +291,6 @@ forest(x, ...)
     effect.}
   \item{col.label.left}{The colour for label on left side of null
     effect.}
-  \item{print.I2}{A logical value indicating whether to print the value
-    of the I-squared statistic.}
-  \item{print.I2.ci}{A logical value indicating whether to print the
-    confidence interval of the I-squared statistic.}
-  \item{print.Rb}{A logical value indicating whether to print the value
-    of the I-squared statistic.}
-  \item{print.Rb.ci}{A logical value indicating whether to print the
-    confidence interval of the I-squared statistic.}
-  \item{print.tau2}{A logical value indicating whether to print the value
-    of the between-study variance tau-squared.}
-  \item{print.Q}{A logical value indicating whether to print the value
-    of the heterogeneity statistic Q.}
-  \item{print.pval.Q}{A logical value indicating whether to print the
-    p-value of the heterogeneity statistic Q.}
   \item{hetstat}{A logical value indicating whether to print results for
     heterogeneity measures at all.}
   \item{overall.hetstat}{A logical value indicating whether to print
@@ -327,11 +300,12 @@ forest(x, ...)
     subgroup level.}
   \item{hetlab}{Label printed in front of results for heterogeneity
     measures.}
-  \item{text.I2}{Label for I-squared statistic.}
-  \item{text.Rb}{Label for Rb statistic.}
-  \item{text.tau2}{Label for between-study variance tau-squared.}
-  \item{blanks}{A logical value indicating whether to print " = " or
-    "=" in text with overall and heterogeneity results.}
+  \item{print.I2.ci}{A logical value indicating whether to print the
+    confidence interval of the I-squared statistic.}
+  \item{print.Rb}{A logical value indicating whether to print the value
+    of the I-squared statistic.}
+  \item{print.Rb.ci}{A logical value indicating whether to print the
+    confidence interval of the I-squared statistic.}
   \item{test.overall}{A logical value indicating whether to print
     results of test for overall effect.}
   \item{test.overall.fixed}{A logical value indicating whether to
@@ -344,8 +318,6 @@ forest(x, ...)
     test for overall effect (based on fixed effect model).}
   \item{label.test.overall.random}{Label printed in front of results
     of test for overall effect (based on random effects model).}
-  \item{print.zval}{A logical value indicating whether to print z- or
-    t-statistic of test for overall effect.}
   \item{test.subgroup}{A logical value indicating whether to print
     results of test for subgroup differences.}
   \item{test.subgroup.fixed}{A logical value indicating whether to
@@ -358,9 +330,6 @@ forest(x, ...)
     of test for subgroup differences (based on fixed effect model).}
   \item{label.test.subgroup.random}{Label printed in front of results
     of test for subgroup differences (based on random effects model).}
-  \item{print.Q.subgroup}{A logical value indicating whether to print
-    the value of the heterogeneity statistic Q (test for subgroup
-    differences).}
   \item{test.effect.subgroup}{A logical value indicating whether to
     print results of test for effect in subgroups.}
   \item{test.effect.subgroup.fixed}{A logical value indicating whether
@@ -380,10 +349,10 @@ forest(x, ...)
   \item{fs.fixed}{The size of text for results of fixed effect model, see \code{\link{gpar}}.}
   \item{fs.random}{The size of text for results of random effects model, see \code{\link{gpar}}.}
   \item{fs.predict}{The size of text for results of prediction interval, see \code{\link{gpar}}.}
-  \item{fs.study}{The size of text for results of individual studies, see \code{\link{gpar}}.}
   \item{fs.fixed.labels}{The size of text for label of fixed effect model, see \code{\link{gpar}}.}
   \item{fs.random.labels}{The size of text for label of random effects model, see \code{\link{gpar}}.}
   \item{fs.predict.labels}{The size of text for label of prediction interval, see \code{\link{gpar}}.}
+  \item{fs.study}{The size of text for results of individual studies, see \code{\link{gpar}}.}
   \item{fs.study.labels}{The size of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{fs.hetstat}{The size of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{fs.test.overall}{The size of text of test for overall effect, see \code{\link{gpar}}.}
@@ -397,10 +366,10 @@ forest(x, ...)
   \item{ff.fixed}{The fontface of text for results of fixed effect model, see \code{\link{gpar}}.}
   \item{ff.random}{The fontface of text for results of random effects model, see \code{\link{gpar}}.}
   \item{ff.predict}{The fontface of text for results of prediction interval, see \code{\link{gpar}}.}
-  \item{ff.study}{The fontface of text for results of individual studies, see \code{\link{gpar}}.}
   \item{ff.fixed.labels}{The fontface of text for label of fixed effect model, see \code{\link{gpar}}.}
   \item{ff.random.labels}{The fontface of text for label of random effects model, see \code{\link{gpar}}.}
   \item{ff.predict.labels}{The fontface of text for label of prediction interval, see \code{\link{gpar}}.}
+  \item{ff.study}{The fontface of text for results of individual studies, see \code{\link{gpar}}.}
   \item{ff.study.labels}{The fontface of text for labels of individual studies, see \code{\link{gpar}}.}
   \item{ff.hetstat}{The fontface of text for heterogeneity measures, see \code{\link{gpar}}.}
   \item{ff.test.overall}{The fontface of text of test for overall effect, see \code{\link{gpar}}.}
@@ -412,21 +381,30 @@ forest(x, ...)
   \item{ff.lr}{The fontface of text of label on left and right side of forest plot, see \code{\link{gpar}}.}
   \item{squaresize}{A numeric used to increase or decrease the size of
     squares in the forest plot.}
-  \item{plotwidth}{A unit object specifying width of the forest plot.}
-  \item{colgap}{A unit object specifying gap between columns printed on
-    left and right side of forest plot.}
-  \item{colgap.left}{A unit object specifying gap between columns printed on
-    left side of forest plot.}
-  \item{colgap.right}{A unit object specifying gap between columns printed on
-    right side of forest plot.}
-  \item{colgap.studlab}{A unit object specifying gap between column
-    with study labels and subsequent column.}
-  \item{colgap.forest}{A unit object specifying gap between column
+  \item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
+    "3inch", or a \code{\link[grid]{unit}} object specifying width of
+    the forest plot.}
+  \item{colgap}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between columns
+    printed on left and right side of forest plot.}
+  \item{colgap.left}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between columns
+    printed on left side of forest plot.}
+  \item{colgap.right}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between columns
+    printed on right side of forest plot.}
+  \item{colgap.studlab}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between column with
+    study labels and subsequent column.}
+  \item{colgap.forest}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between column
     adjacent to forest plot and the forest plot.}
-  \item{colgap.forest.left}{A unit object specifying gap between column
-    on the left side of forest plot and the forest plot.}
-  \item{colgap.forest.right}{A unit object specifying gap between column
-    on the right side of forest plot and the forest plot.}
+  \item{colgap.forest.left}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between column on
+    the left side of forest plot and the forest plot.}
+  \item{colgap.forest.right}{Either a character string or a
+    \code{\link[grid]{unit}} object specifying gap between column on
+    the right side of forest plot and the forest plot.}
   \item{calcwidth.pooled}{A logical indicating whether text for fixed
     effect and random effects model should be considered to calculate
     width of column with study labels, see next two arguments. }
@@ -626,10 +604,10 @@ forest(x, ...)
   \bold{Label:} \tab "Study" \tab "TE" \tab "seTE"  \tab "Total" \tab "Total" \tab "Total" \cr\cr
   \bold{Column:} \tab \code{event.e} \tab \code{event.c} \tab \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
   \bold{Label:} \tab "Events" \tab "Events"  \tab "Events" \tab "Mean" \tab "Mean" \tab \cr\cr
-  \bold{Column:} \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e} \tab \code{time.c} \tab \tab \cr
-  \bold{Label:} \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab \tab \cr\cr
-  \bold{Column:} \tab \code{effect} \tab \code{ci} \tab \code{w.fixed} \tab \code{w.random} \tab \tab \cr
-  \bold{Label:} \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab "W(fixed)" \tab "W(random)" \tab \tab
+  \bold{Column:} \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e} \tab \code{time.c} \tab \code{effect} \tab \cr
+  \bold{Label:} \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab \code{x$sm} \tab \cr\cr
+  \bold{Column:} \tab \code{ci} \tab \code{effect.ci} \tab \code{w.fixed} \tab \code{w.random} \tab \tab \cr
+  \bold{Label:} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab "W(fixed)" \tab "W(random)" \tab \tab
   }
   For additional columns, the column name will be used as label. It is
   possible to only provide labels for new columns (see
@@ -647,16 +625,17 @@ forest(x, ...)
    \item All columns are printed on the left side of the forest plot
      (see arguments \code{leftcols} and \code{rightcols})
    \item Tests for overall effect and subgroup differences are printed
-     (\code{test.overall}, \code{test.subgroup})
+     (\code{test.overall}, \code{test.effect.subgroup},
+     \code{test.subgroup})
    \item Diamonds representing meta-analysis results are printed in
      black (\code{diamond.fixed}, \code{diamond.random})
    \item Color of squares depends on the meta-analysis object
      (\code{col.square}, \code{col.square.lines})
-   \item Heterogeneity statistic \emph{Q} and test statistic \emph{Z}
-     are printed (\code{print.Q}, \code{print.zval})
    \item Information on effect measure and meta-analysis method is
      printed above the forest plot (\code{smlab})
-   }
+    \item Label "Study or Subgroup" is printed for meta-analysis with
+     subgroups (\code{leftlabs})
+  }
   If argument \code{layout="JAMA"} (and arguments \code{leftcols} and
   \code{rightcols} are \code{NULL}), instructions for authors of the
   \emph{Journal of the American Medical Association}, see
@@ -674,10 +653,7 @@ forest(x, ...)
      lightblue (\code{diamond.fixed}, \code{diamond.random})
    \item Squares representing individual study results are printed in
      darkblue (\code{col.square}, \code{col.square.lines})
-   \item Heterogeneity statistic \emph{Q} and test statistic \emph{Z}
-     are printed (\code{print.Q}, \code{print.zval})
    \item Between-study variance \eqn{\tau^2} is not printed
-     (\code{print.tau2})
    \item Empty rows are omitted (\code{addrow})
    \item Label "Source" is printed instead of "Study"
      (\code{leftlabs})
@@ -808,6 +784,13 @@ forest(meta1, rightcols=FALSE)
 #
 forest(meta1, comb.random=FALSE,
        leftlabs=c("Author", NA, NA, NA, NA))
+
+
+#
+# Just give effect estimate and 95% confidence interval
+# on right side of forest plot (in one column)
+#
+forest(meta1, rightcols=c("effect.ci"))
 
 
 #

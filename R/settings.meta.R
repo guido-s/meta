@@ -318,11 +318,13 @@ settings.meta <- function(...) {
       specificSetting(args = c("hakn", "method.tau", "tau.common",
                                "MH.exact", "RR.cochrane",
                                "layout", "test.overall",
+                               "test.subgroup", "test.effect.subgroup",
                                "digits.I2", "digits.tau2",
                                "CIbracket", "CIseparator"),
                       new = list(FALSE, "DL", FALSE,
                                  FALSE, TRUE,
                                  "RevMan5", TRUE,
+                                 TRUE, TRUE,
                                  0, 2,
                                  "[", ", "),
                       setting = "RevMan 5 settings")
@@ -330,9 +332,11 @@ settings.meta <- function(...) {
     ##
     else if (setting == "JAMA") {
       specificSetting(args = c("layout", "test.overall",
+                               "test.subgroup", "test.effect.subgroup",
                                "digits.I2",
                                "CIbracket", "CIseparator"),
                       new = list("JAMA", TRUE,
+                                 FALSE, FALSE,
                                  0,
                                  "(", "-"),
                       setting = "JAMA settings")
