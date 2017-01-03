@@ -398,7 +398,7 @@ forest.meta <- function(x,
   if (!missing(addrow.overall))
     chklogical(addrow.overall)
   else
-    addrow.overall <- !jama
+    addrow.overall <- !jama & overall & (comb.fixed | comb.random | prediction)
   if (!missing(addrow.subgroups))
     chklogical(addrow.subgroups)
   else
@@ -752,7 +752,7 @@ forest.meta <- function(x,
   }
   ##
   prediction <- prediction & x$k >= 3
-  ##  
+  ##
   byvar <- x$byvar
   level <- x$level
   level.comb <- x$level.comb
@@ -762,7 +762,7 @@ forest.meta <- function(x,
   chklevel(level.comb)
   if (prediction)
     chklevel(level.predict)
-  ##  
+  ##
   if (is.logical(leftcols)) {
     if (!leftcols) {
       text.fixed <- ""
@@ -809,12 +809,12 @@ forest.meta <- function(x,
     ref <- log(ref)
     log.xaxis <- TRUE
   }
-  ##  
+  ##
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  ##  
+  ##
   if (!backtransf & irscale != 1) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
@@ -993,17 +993,17 @@ forest.meta <- function(x,
       lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
       ##
       if (fixed.random)
-        lab.model <- "Fixed + Random"
+        lab.model <- "Fixed + Random, "
       else if (comb.fixed)
-        lab.model <- "Fixed"
+        lab.model <- "Fixed, "
       else if (comb.random)
-        lab.model <- "Random"
+        lab.model <- "Random, "
       else
         lab.model <- ""
       ##
       if (smlab.null)
         smlab <- paste(smlab, "\n", lab.method, ", ",
-                       lab.model, ", ",
+                       lab.model,
                        ci.lab, sep = "")
     }
   }
@@ -1326,7 +1326,7 @@ forest.meta <- function(x,
         leftcols[leftcols == "event"] <- "event.e"
     }
   }
-  ##  
+  ##
   if (metainf.metacum) {
     ##
     x$TE.fixed    <- rev(x$TE)[1]
@@ -1430,7 +1430,7 @@ forest.meta <- function(x,
   col.square.lines <- col.square.lines[sel]
   ##
   col.inside <- col.inside[sel]
-  ##  
+  ##
   if (sort | by) {
     if (bysort)
       bylevs <- sort(x$bylevs)
@@ -1569,6 +1569,8 @@ forest.meta <- function(x,
     Q.b.random <- x$Q.b.random
     df.Q.b     <- x$df.Q.b
   }
+  ##
+  hetstat.overall <- ""
   ##
   if (overall.hetstat) {
     ##
@@ -1921,8 +1923,6 @@ forest.meta <- function(x,
                           hb = hetstat.Rb))
     }
   }
-  else
-    hetstat.overall <- ""
   ##
   ## Text of test for subgroup differences
   ##
@@ -2279,6 +2279,10 @@ forest.meta <- function(x,
       text.random.w <- rep("", n.by)
     }
     ##
+    hetstat.w <- vector("list", n.by)
+    for (i in 1:n.by)
+      hetstat.w[[i]] <- ""
+    ##
     if (hetstat) {
       ##
       hetstat.I2.w <-
@@ -2344,7 +2348,6 @@ forest.meta <- function(x,
       while(any(grepl("  ", hetstat.Rb.w)))
         hetstat.Rb.w <- gsub("  ", " ", hetstat.Rb.w)
       ##
-      hetstat.w <- vector("list", n.by)
       for (i in 1:n.by) {
         if (revman5)
           hetstat.w[[i]] <- substitute(paste(hl,
@@ -2644,11 +2647,6 @@ forest.meta <- function(x,
           hetstat.w[[i]] <- paste(hetlab, "Not applicable", sep = "")
       }
     }
-    else {
-      hetstat.w <- vector("list", n.by)
-      for (i in 1:n.by)
-        hetstat.w[[i]] <- ""
-    }
     ##
     TE.w <- c(TE.fixed.w, TE.random.w, rep(NA, 3 * n.by))
     lowTE.w <- c(lower.fixed.w, lower.random.w, rep(NA, 3 * n.by))
@@ -2912,7 +2910,7 @@ forest.meta <- function(x,
       uppTE.w <- irscale * uppTE.w
     }
   }
-  ##    
+  ##
   if (!comb.fixed) {
     TE.fixed    <- NA
     lowTE.fixed <- NA
@@ -3896,7 +3894,7 @@ forest.meta <- function(x,
   }
   ##
   yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow.overall, 1, 2)
-  ##  
+  ##
   if (!is.na(ref) & missing(xlab.pos))
     if (ref <= min(xlim) | ref >= max(xlim))
       xlab.pos <- mean(xlim)
@@ -3976,7 +3974,7 @@ forest.meta <- function(x,
   if (!comb.fixed & !pooled.totals) text.fixed <- ""
   if (!comb.random) text.random <- ""
   if (!prediction) text.predict <- ""
-  ##  
+  ##
   yTE <- yHead + yTE + addrow
   ##
   yTE.fixed  <- yHead + yTE.fixed + addrow
@@ -3996,7 +3994,7 @@ forest.meta <- function(x,
   if (by) {
     yBylab <- yHead + yBylab + addrow
     yTE.w  <- yHead + yTE.w + addrow
-    ##  
+    ##
     yLab <- c(yHead,
               yTE.fixed, yTE.random, yPredict,
               yStats,
@@ -4276,7 +4274,7 @@ forest.meta <- function(x,
   ##
   col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS, just.cols)
   col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.cols)
-  ##  
+  ##
   col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.cols)
   col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.cols)
   ##
@@ -4307,7 +4305,7 @@ forest.meta <- function(x,
   ##
   col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.cols)
   col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.cols)
-  ##  
+  ##
   col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.cols)
   col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.cols)
   ##
@@ -5218,7 +5216,7 @@ forest.meta <- function(x,
     if (i == 1) {
       if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
         x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
-      else
+       else
         x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels))
     }
     else {
@@ -5269,7 +5267,7 @@ forest.meta <- function(x,
     nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
                             yStats), na.rm = TRUE)
   }
-  ##  
+  ##
   summary.lines <- hetstat + test.overall.fixed + test.overall.random +
     test.subgroup.fixed + test.subgroup.random
   ymin.line <- summary.lines

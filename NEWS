@@ -1,3 +1,15 @@
+*** meta, version 4.7-1, 2017-mm-dd ***
+
+ ** User-visible changes **
+
+  * forest.meta():
+    - print line with heterogeneity statistics directly below
+      individual study results if pooled effects are not shown
+      in forest plot
+    - bug fix, do not stop with an error if comb.fixed = FALSE,
+      comb.random = FALSE, and overall.hetstat = TRUE
+
+
 *** meta, version 4.7-0, 2016-12-16 ***
 
  ** Major changes **
