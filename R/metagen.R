@@ -301,9 +301,15 @@ metagen <- function(TE, seTE, studlab,
     df.Q <- NA
     se.tau2 <- NA
     ##
+    if (hakn)
+      df.hakn <- NA
+    ##
     Cval <- NA
   }
   else {
+    ## At least two studies to perform Hartung-Knapp method
+    if (k == 1 & hakn)
+      hakn <- FALSE
     ## Estimate tau-squared
     hc <- hetcalc(TE, seTE, method.tau, TE.tau)
     ##

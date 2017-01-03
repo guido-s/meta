@@ -9,6 +9,10 @@
     - bug fix, do not stop with an error if comb.fixed = FALSE,
       comb.random = FALSE, and overall.hetstat = TRUE
 
+  * metagen():
+    - Hartung-Knapp method only used for at least two studies in
+      meta-analysis
+
 
 *** meta, version 4.7-0, 2016-12-16 ***
 
