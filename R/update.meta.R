@@ -22,6 +22,7 @@ update.meta <- function(object,
                         tau.common = object$tau.common,
                         prediction = object$prediction,
                         level.predict = object$level.predict,
+                        null.effect = object$null.effect,
                         method.bias = object$method.bias,
                         ##
                         backtransf = object$backtransf,
@@ -106,6 +107,7 @@ update.meta <- function(object,
   method.tau <- replacemiss(method.tau)
   tau.preset <- replacemiss(tau.preset)
   TE.tau <- replacemiss(TE.tau)
+  null.effect <- replacemiss(null.effect, NA)
   method.bias <- replacemiss(method.bias)
   ##
   backtransf <- replacemiss(backtransf)
@@ -404,6 +406,8 @@ update.meta <- function(object,
                  ##
                  prediction = prediction, level.predict = level.predict,
                  ##
+                 null.effect = null.effect,
+                 ##
                  method.bias = method.bias,
                  ##
                  backtransf = backtransf,
@@ -542,6 +546,8 @@ update.meta <- function(object,
                   ##
                   prediction = prediction, level.predict = level.predict,
                   ##
+                  null.effect = null.effect,
+                  ##
                   method.bias = method.bias,
                   ##
                   backtransf = backtransf, pscale = pscale,
@@ -571,6 +577,8 @@ update.meta <- function(object,
                   tau.preset = tau.preset, TE.tau = TE.tau, tau.common = tau.common,
                   ##
                   prediction = prediction, level.predict = level.predict,
+                  ##
+                  null.effect = null.effect,
                   ##
                   method.bias = method.bias,
                   ##

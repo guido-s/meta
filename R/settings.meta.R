@@ -181,14 +181,20 @@ settings.meta <- function(...) {
     catarg("digits       ")
     catarg("digits.se    ")
     catarg("digits.zval  ")
-    catarg("digits.pval  ")
-    catarg("digits.tau2  ")
-    catarg("digits.I2    ")
     catarg("digits.Q     ")
-    catarg("digits.pval.Q")
+    catarg("digits.tau2  ")
     catarg("digits.H     ")
+    catarg("digits.I2    ")
     catarg("digits.prop  ")
     catarg("digits.weight")
+    catarg("digits.pval  ")
+    catarg("digits.pval.Q")
+    catarg("print.I2")
+    catarg("print.H")
+    catarg("print.Rb")
+    catarg("text.tau2")
+    catarg("text.I2")
+    catarg("text.Rb")
     ##
     cat("\n* Default summary measure (argument 'sm' in corresponding function) *\n")
     cat("- metabin():  ")
@@ -273,6 +279,12 @@ settings.meta <- function(...) {
     setOption("digits.weight", 1)
     setOption("digits.pval", 4)
     setOption("digits.pval.Q", 4)
+    setOption("print.I2", TRUE)
+    setOption("print.H", TRUE)
+    setOption("print.Rb", FALSE)
+    setOption("text.tau2", "tau^2")
+    setOption("text.I2", "I^2")
+    setOption("text.Rb", "Rb")
     ##
     setOption("method", "MH")
     setOption("incr", 0.5)
@@ -395,6 +407,12 @@ settings.meta <- function(...) {
     iddigits.weight <- argid(names,"digits.weight")
     iddigits.pval <- argid(names, "digits.pval")
     iddigits.pval.Q <- argid(names, "digits.pval.Q")
+    idprint.I2 <- argid(names, "print.I2")
+    idprint.H <- argid(names, "print.H")
+    idprint.Rb <- argid(names, "print.Rb")
+    idtext.tau2 <- argid(names, "text.tau2")
+    idtext.I2 <- argid(names, "text.I2")
+    idtext.Rb <- argid(names, "text.Rb")
     ##
     idsmbin <- argid(names, "smbin")
     idmethod <- argid(names, "method")
@@ -596,6 +614,42 @@ settings.meta <- function(...) {
       digits.pval.Q <- args[[iddigits.pval.Q]]
       chknumeric(digits.pval.Q, min = 0, single = TRUE)
       setOption("digits.pval.Q", digits.pval.Q)
+    }
+    if (!is.na(idprint.I2)) {
+      print.I2 <- args[[idprint.I2]]
+      chklogical(print.I2)
+      setOption("print.I2", print.I2)
+    }
+    if (!is.na(idprint.H)) {
+      print.H <- args[[idprint.H]]
+      chklogical(print.H)
+      setOption("print.H", print.H)
+    }
+    if (!is.na(idprint.Rb)) {
+      print.Rb <- args[[idprint.Rb]]
+      chklogical(print.Rb)
+      setOption("print.Rb", print.Rb)
+    }
+    if (!is.na(idtext.tau2)) {
+      text.tau2 <- args[[idtext.tau2]]
+      if (length(text.tau2) != 1)
+        stop("Argument 'text.tau2' must be a character string.")
+      ##
+      setOption("text.tau2", text.tau2)
+    }
+    if (!is.na(idtext.I2)) {
+      text.I2 <- args[[idtext.I2]]
+      if (length(text.I2) != 1)
+        stop("Argument 'text.I2' must be a character string.")
+      ##
+      setOption("text.I2", text.I2)
+    }
+    if (!is.na(idtext.Rb)) {
+      text.Rb <- args[[idtext.Rb]]
+      if (length(text.Rb) != 1)
+        stop("Argument 'text.Rb' must be a character string.")
+      ##
+      setOption("text.Rb", text.Rb)
     }
     ##
     ## R function metabin

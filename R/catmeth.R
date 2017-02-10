@@ -13,7 +13,8 @@ catmeth <- function(method,
                     incr = NULL,
                     allincr = FALSE,
                     addincr = FALSE,
-                    doublezeros  =  FALSE,
+                    allstudies = FALSE,
+                    doublezeros = FALSE,
                     MH.exact = FALSE,
                     method.ci = NULL,
                     metacont = FALSE,
@@ -24,8 +25,10 @@ catmeth <- function(method,
                     model.glmm,
                     pscale = 1,
                     irscale = 1,
-                    irunit = "person-years") {
+                    irunit = "person-years",
+                    null.effect = NA) {
   
+  if (is.null(allstudies)) allstudies <- FALSE
   if (is.null(doublezeros)) doublezeros <- FALSE
   
   if (sm == "ZCOR")
@@ -135,7 +138,7 @@ catmeth <- function(method,
                                 sep = "")
         }
         ##
-        if (doublezeros)
+        if (allstudies & doublezeros)
           sm.details <- paste(sm.details,
                               "\n- Studies with double zeros included in meta-analysis")
       }
@@ -154,6 +157,30 @@ catmeth <- function(method,
                         "\n- Events per ",
                         format(irscale, scientific = FALSE),
                         " ", irunit, sep = "")
+
+  if (!is.na(null.effect) && null.effect != 0) {
+    if (pscale != 1)
+      sm.details <- paste(sm.details,
+                          "\n- Null hypothesis: effect is equal to ",
+                          format(round(null.effect * pscale, gs("digits")),
+                                 scientific = FALSE),
+                          " events per ",
+                          format(pscale, scientific = FALSE),
+                          " observations", sep = "")
+    else if (irscale != 1)
+      sm.details <- paste(sm.details,
+                          "\n- Null hypothesis: effect is equal to ",
+                          format(round(null.effect * irscale, gs("digits")),
+                                 scientific = FALSE),
+                          " events per ",
+                          format(irscale, scientific = FALSE),
+                          " ", irunit, sep = "")
+    else
+      sm.details <- paste(sm.details,
+                          "\n- Null hypothesis: effect is equal to ",
+                          format(null.effect, scientific = FALSE),
+                          sep = "")
+  }
   
   
   lab.method.details <- ""

@@ -18,6 +18,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
         method.tau=gs("method.tau"), tau.preset=NULL, TE.tau=NULL,
         tau.common=gs("tau.common"),
         prediction=gs("prediction"), level.predict=gs("level.predict"),
+        null.effect=0,
         method.bias=gs("method.bias"),
         n.e=NULL, n.c=NULL,
         backtransf=gs("backtransf"),
@@ -52,6 +53,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
     should be printed.}
   \item{level.predict}{The level used to calculate prediction interval
     for a new study.}
+  \item{null.effect}{A numeric value specifying the effect under the
+    null hypothesis.}
   \item{n.e}{Number of observations in experimental group.}
   \item{n.c}{Number of observations in control group.}
   \item{hakn}{A logical indicating whether method by Hartung and
@@ -209,6 +212,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{prediction, level.predict}{As defined above.}
   \item{seTE.predict}{Standard error utilised for prediction interval.}
   \item{lower.predict, upper.predict}{Lower and upper limits of prediction interval.}
+  \item{null.effect}{As defined above.}
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic.}
   \item{df.Q}{Degrees of freedom for heterogeneity statistic.}

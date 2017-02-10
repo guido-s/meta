@@ -23,6 +23,7 @@
        tau.preset=object$tau.preset,
        TE.tau=object$TE.tau, tau.common=object$tau.common,
        prediction=object$prediction, level.predict=object$level.predict,
+       null.effect=object$null.effect,
        method.bias=object$method.bias, backtransf = object$backtransf,
        pscale = object$pscale,
        irscale = object$irscale, irunit = object$irunit,
@@ -99,6 +100,8 @@
     should be printed.}
   \item{level.predict}{The level used to calculate prediction interval
     for a new study.}
+  \item{null.effect}{A numeric value specifying the effect under the
+    null hypothesis.}
   \item{method.bias}{A character string indicating which test for
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or

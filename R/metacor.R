@@ -16,6 +16,8 @@ metacor <- function(cor, n, studlab,
                     prediction = gs("prediction"),
                     level.predict = gs("level.predict"),
                     ##
+                    null.effect = 0,
+                    ##
                     method.bias = gs("method.bias"),
                     ##
                     backtransf = gs("backtransf"),
@@ -46,6 +48,8 @@ metacor <- function(cor, n, studlab,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  chknumeric(null.effect, single = TRUE)
   ##
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
@@ -210,10 +214,12 @@ metacor <- function(cor, n, studlab,
   if (sm == "ZCOR") {
     TE   <- 0.5 * log((1 + cor) / (1 - cor))
     seTE <- sqrt(1 / (n - 3))
+    transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
   if (sm == "COR") {
     TE <- cor
     seTE <- sqrt((1 - cor^2)^2 / (n - 1))
+    transf.null.effect <- null.effect
   }
   
   
@@ -238,6 +244,8 @@ metacor <- function(cor, n, studlab,
                ##
                prediction = prediction,
                level.predict = level.predict,
+               ##
+               null.effect = transf.null.effect,
                ##
                method.bias = method.bias,
                ##
@@ -274,6 +282,7 @@ metacor <- function(cor, n, studlab,
   m$warn <- NULL
   ##
   res <- c(res, m)
+  res$null.effect <- null.effect
   ##
   ## Add data
   ##

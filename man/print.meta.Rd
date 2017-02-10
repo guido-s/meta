@@ -49,6 +49,10 @@
         digits.zval = gs("digits.zval"),
         digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
         digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
+        print.I2 = gs("print.I2"), print.H = gs("print.H"),
+        print.Rb = gs("print.Rb"),
+        text.tau2 = gs("text.tau2"), text.I2 = gs("text.I2"),
+        text.Rb = gs("text.Rb"),
         warn.backtransf = FALSE,
         ...)
 
@@ -127,6 +131,15 @@ cilayout(bracket="[", separator="; ")
     proportions, see \code{print.default}.} 
   \item{digits.weight}{Minimal number of significant digits for
     weights, see \code{print.default}.}
+  \item{print.I2}{A logical specifying whether heterogeneity statistic
+    I^2 should be printed.}
+  \item{print.H}{A logical specifying whether heterogeneity statistic
+    H should be printed.}
+  \item{print.Rb}{A logical specifying whether heterogeneity statistic
+    Rb should be printed.}
+  \item{text.tau2}{Text printed to identify between-study variance tau^2.}
+  \item{text.I2}{Text printed to identify heterogeneity statistic I^2.}
+  \item{text.Rb}{Text printed to identify heterogeneity statistic Rb.}
   \item{\dots}{Additional arguments.}
 }
 
@@ -272,6 +285,12 @@ summary(meta1)
 summary(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
 
 forest(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
+
+\dontrun{
+# Use unicode characters to print tau^2 and I^2 
+#
+print(summary(meta1), text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+}
 }
 
 \keyword{print}

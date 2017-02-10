@@ -22,6 +22,8 @@ metarate <- function(event, time, studlab,
                      prediction = gs("prediction"),
                      level.predict = gs("level.predict"),
                      ##
+                     null.effect = NA,
+                     ##
                      method.bias = gs("method.bias"),
                      ##
                      backtransf = gs("backtransf"),
@@ -55,6 +57,8 @@ metarate <- function(event, time, studlab,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  chknumeric(null.effect, single = TRUE)
   ##
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
@@ -294,27 +298,29 @@ metarate <- function(event, time, studlab,
         incr.event <- incr * sel
     else
       incr.event <- rep(0, k.all)
-  ##  
+  ##
   if (sm == "IR") {
     TE <- (event + incr.event) / time
     seTE <- sqrt(TE / time)
+    transf.null.effect <- null.effect
   }
   else if (sm == "IRLN") {
     TE <- log((event + incr.event) / time)
     seTE <- sqrt(1 / (event + incr.event))
+    transf.null.effect <- log(null.effect)
   }
   else if (sm == "IRS") {
     TE <- sqrt(event / time)
     seTE <- sqrt(1 / (4 * time))
+    transf.null.effect <- sqrt(null.effect)
   }
   else if (sm == "IRFT") {
     TE <- 0.5 * (sqrt(event / time) + sqrt((event + 1) / time))
     seTE <- sqrt(1 / (4 * time))
+    transf.null.effect <- sqrt(null.effect)
   }
   ##
   ## Calculate confidence intervals
-  ##
-  NAs <- rep(NA, k.all)
   ##
   ci.study <- ci(TE, seTE, level = level)
   ##
@@ -358,6 +364,8 @@ metarate <- function(event, time, studlab,
                prediction = prediction,
                level.predict = level.predict,
                ##
+               null.effect = transf.null.effect,
+               ##
                method.bias = method.bias,
                ##
                backtransf = backtransf,
@@ -395,13 +403,15 @@ metarate <- function(event, time, studlab,
   m$label.right <- NULL
   ##
   res <- c(res, m)
+  res$null.effect <- null.effect
   ##
   ## Add data
   ##
   ##
   if (method == "GLMM") {
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
+    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
+               null.effect = transf.null.effect)
     ##
     res$method <- "GLMM"
     ##
@@ -423,7 +433,8 @@ metarate <- function(event, time, studlab,
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)
     ##
-    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ci.r <- ci(TE.random, seTE.random, level = level.comb,
+               null.effect = transf.null.effect)
     ##
     res$w.random <- rep(NA, length(event))
     ##
@@ -461,13 +472,6 @@ metarate <- function(event, time, studlab,
   ##
   res$lower <- lower.study
   res$upper <- upper.study
-  res$zval <- NAs
-  res$pval <- NAs
-  ##
-  res$zval.fixed <- NA
-  res$pval.fixed <- NA
-  res$zval.random <- NA
-  res$pval.random <- NA
   ##
   res$irscale <- irscale
   res$irunit   <- irunit

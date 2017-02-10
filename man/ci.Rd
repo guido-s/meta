@@ -7,13 +7,15 @@ approximation or t-distribution)}
   or t-distribution.
 }
 \usage{
-ci(TE, seTE, level=0.95, df=NULL)
+ci(TE, seTE, level=0.95, df=NULL, null.effect = 0)
 }
 \arguments{
   \item{TE}{Estimated treatment effect.}
   \item{seTE}{Standard error of treatment estimate.}
   \item{level}{The confidence level required.}
   \item{df}{Degrees of freedom (for confidence intervals based on t-distribution).}
+  \item{null.effect}{A numeric value specifying the effect under the
+    null hypothesis.}
 }
 
 \value{

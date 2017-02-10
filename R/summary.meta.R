@@ -263,6 +263,8 @@ summary.meta <- function(object,
     res$cor <- object$cor
     res$n   <- object$n
     ##
+    res$null.effect <- object$null.effect
+    ##
     class(res) <- c(class(res), "metacor")
   }
   ##
@@ -281,10 +283,14 @@ summary.meta <- function(object,
   if (metaprop) {
     res$event     <- object$event
     res$n         <- object$n
+    ##
     res$sparse    <- object$sparse
     res$incr      <- object$incr
     res$allincr   <- object$allincr
     res$addincr   <- object$addincr
+    ##
+    res$null.effect <- object$null.effect
+    ##
     res$method.ci <- object$method.ci
     ##
     res$model.glmm   <- object$model.glmm
@@ -297,10 +303,13 @@ summary.meta <- function(object,
   if (metarate) {
     res$event     <- object$event
     res$time      <- object$time
+    ##
     res$sparse    <- object$sparse
     res$incr      <- object$incr
     res$allincr   <- object$allincr
     res$addincr   <- object$addincr
+    ##
+    res$null.effect <- object$null.effect
     ##
     res$model.glmm   <- object$model.glmm
     res$.glmm.fixed  <- object$.glmm.fixed
@@ -329,7 +338,7 @@ summary.meta <- function(object,
   ##
   res$backtransf <- backtransf
   res$pscale <- pscale
-  res$ircale <- irscale
+  res$irscale <- irscale
   res$irunit  <- irunit
   ##
   res$version <- object$version

@@ -27,6 +27,7 @@ metarate(event, time, studlab,
          tau.preset=NULL, TE.tau=NULL,
          tau.common=gs("tau.common"),
          prediction=gs("prediction"), level.predict=gs("level.predict"),
+	 null.effect=NA,
          method.bias=gs("method.bias"),
          backtransf=gs("backtransf"),
          irscale=1, irunit="person-years",
@@ -82,6 +83,8 @@ metarate(event, time, studlab,
     between-study variance tau-squared.}
   \item{tau.common}{A logical indicating whether tau-squared should be
     the same across subgroups.}
+  \item{null.effect}{A numeric value specifying the effect under the
+    null hypothesis.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}.}
@@ -214,8 +217,8 @@ metarate(event, time, studlab,
   \item{sm, incr, allincr, addincr, method.ci,}{}
   \item{level, level.comb,}{As defined above.}
   \item{comb.fixed, comb.random,}{}
-  \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
-  \item{tau.common, title, complab, outclab,}{}
+  \item{hakn, method.tau, tau.preset, TE.tau, null.effect,}{}
+  \item{method.bias, tau.common, title, complab, outclab,}{}
   \item{byvar, bylab, print.byvar, byseparator, warn}{}
   \item{TE, seTE}{Estimated (un)transformed incidence rate and its
     standard error for individual studies.}

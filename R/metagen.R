@@ -16,6 +16,8 @@ metagen <- function(TE, seTE, studlab,
                     prediction = gs("prediction"),
                     level.predict = gs("level.predict"),
                     ##
+                    null.effect = 0,
+                    ##
                     method.bias = gs("method.bias"),
                     ##
                     n.e = NULL, n.c = NULL,
@@ -54,6 +56,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  chknumeric(null.effect, single = TRUE)
   ##
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
@@ -339,7 +343,8 @@ metagen <- function(TE, seTE, studlab,
     TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
     seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
+    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
+               null.effect = null.effect)
     zval.fixed <- ci.f$z
     pval.fixed <- ci.f$p
     lower.fixed <- ci.f$lower
@@ -381,10 +386,12 @@ metagen <- function(TE, seTE, studlab,
       seTE.random <- sqrt(1 / (k - 1) * sum(w.random * (TE - TE.random)^2 /
                                               sum(w.random), na.rm = TRUE))
       df.hakn <- k-1
-      ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn)
+      ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn,
+                 null.effect = null.effect)
     }
     else
-      ci.r <- ci(TE.random, seTE.random, level = level.comb)
+      ci.r <- ci(TE.random, seTE.random, level = level.comb,
+                 null.effect = null.effect)
     ##
     zval.random <- ci.r$z
     pval.random <- ci.r$p
@@ -394,7 +401,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Individual study results
   ##
-  ci.study <- ci(TE, seTE, level = level)
+  ci.study <- ci(TE, seTE, level = level, null.effect = null.effect)
   ##
   ## Prediction interval
   ##
@@ -436,6 +443,8 @@ metagen <- function(TE, seTE, studlab,
               TE.random = TE.random, seTE.random = seTE.random,
               lower.random = lower.random, upper.random = upper.random,
               zval.random = zval.random, pval.random = pval.random,
+              ##
+              null.effect = null.effect,
               ##
               seTE.predict = seTE.predict,
               lower.predict = p.lower, upper.predict = p.upper,

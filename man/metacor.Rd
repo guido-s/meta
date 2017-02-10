@@ -18,6 +18,7 @@ metacor(cor, n, studlab,
         method.tau=gs("method.tau"), tau.preset=NULL, TE.tau=NULL,
         tau.common=gs("tau.common"),
         prediction=gs("prediction"), level.predict=gs("level.predict"),
+	null.effect=0,
         method.bias=gs("method.bias"),
         backtransf=gs("backtransf"),
         title=gs("title"), complab=gs("complab"), outclab="",
@@ -61,7 +62,9 @@ metacor(cor, n, studlab,
   \item{TE.tau}{Overall treatment effect used to estimate the
     between-study variance tau-squared.}
   \item{tau.common}{A logical indicating whether tau-squared should be
-    the same across subgroups.}
+    the same across subgroups.}  
+  \item{null.effect}{A numeric value specifying the effect under the
+    null hypothesis.}
   \item{method.bias}{A character string indicating which test is to be
     used. Either \code{"rank"}, \code{"linreg"}, or \code{"mm"}, can
     be abbreviated. See function \code{\link{metabias}}}
@@ -155,8 +158,8 @@ metacor(cor, n, studlab,
   \item{cor, n, studlab,}{}
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
-  \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}
-  \item{tau.common, title, complab, outclab,}{}
+  \item{hakn, method.tau, tau.preset, TE.tau, null.effect,}{}
+  \item{method.bias, tau.common, title, complab, outclab,}{}
   \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
   \item{TE, seTE}{Either Fisher's z transformation of correlations
     (\code{sm="ZCOR"}) or correlations (\code{sm="COR"}) for individual

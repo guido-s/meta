@@ -1,5 +1,17 @@
 *** meta, version 4.7-1, 2017-mm-dd ***
 
+ ** Major changes **
+
+  * Null hypothesis for test of an overall effect can be specified for
+    metacor(), metaprop(), and metarate(); for all other meta-analysis
+    functions implicit a null effect of zero is assumes (for relative
+    effect measures, e.g., odds ratio and hazard ratio, the null
+    effect is defined on the log scale)
+
+  * User can choose whether to print the following heterogeneity
+    quantities: I^2, H, R_b
+    (by default, heterogeneity measure R_b is not printed)
+
  ** User-visible changes **
 
   * forest.meta():
@@ -9,10 +21,31 @@
     - bug fix, do not stop with an error if comb.fixed = FALSE,
       comb.random = FALSE, and overall.hetstat = TRUE
 
+  * ci(), metacor(), metagen(), metaprop(), metarate():
+    - new argument null.effect to specify null hypothesis for test of
+      an overall effect, e.g., null.effect = 0.5 in metaprop() to test
+      whether the overall proportion is equal to 0.5
+
   * metagen():
     - Hartung-Knapp method only used for at least two studies in
       meta-analysis
 
+  * print.summary.meta():
+    - new arguments print.I2, print.H, print.Rb to select
+      heterogeneity quantities shown in output
+    - new arguments text.tau2, text.I2, text.Rb to change text printed
+      to identify respective quantity
+    - only print information on double zero studies if argument
+      allstudies is TRUE
+
+  * settings.meta():
+    - new arguments print.I2, print.H, print.Rb, text.tau2, text.I2,
+      text.Rb to modify printing of heterogeneity measures
+
+ ** Internal changes **
+    
+  * summary.meta():
+    - bug fix: rename list element 'ircale' to 'irscale'
 
 *** meta, version 4.7-0, 2016-12-16 ***
 

@@ -23,6 +23,8 @@ metaprop <- function(event, n, studlab,
                      prediction = gs("prediction"),
                      level.predict = gs("level.predict"),
                      ##
+                     null.effect = NA,
+                     ##
                      method.bias = gs("method.bias"),
                      ##
                      backtransf = gs("backtransf"),
@@ -56,6 +58,9 @@ metaprop <- function(event, n, studlab,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  if (any(!is.na(null.effect)) | length(null.effect) != 1)
+    chklevel(null.effect, name = "null.effect")
   ##
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
@@ -308,15 +313,18 @@ metaprop <- function(event, n, studlab,
   if (sm == "PFT") {
     TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
     seTE <- sqrt(1 / (4 * n + 2))
+    transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PAS") {
     TE <- asin(sqrt(event / n))
     seTE <- sqrt(0.25 * (1 / n))
+    transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PRAW") {
     TE <- event / n
     seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
                    (n + 2 * incr.event)^3)
+    transf.null.effect <- null.effect
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
@@ -325,11 +333,13 @@ metaprop <- function(event, n, studlab,
                    sqrt(1 / event                - 1 / (n + incr.event)),
                    sqrt(1 / (event + incr.event) - 1 / (n + incr.event))
                    )
+    transf.null.effect <- log(null.effect)
   }
   else if (sm == "PLOGIT") {
     TE <- log((event + incr.event) / (n - event + incr.event))
     seTE <- sqrt(1 / (event + incr.event) +
                  1 / ((n - event + incr.event)))
+    transf.null.effect <- log(null.effect / (1 - null.effect))
   }
   ##
   ## Calculate confidence intervals
@@ -431,6 +441,8 @@ metaprop <- function(event, n, studlab,
                prediction = prediction,
                level.predict = level.predict,
                ##
+               null.effect = transf.null.effect,
+               ##
                method.bias = method.bias,
                ##
                backtransf = backtransf,
@@ -469,13 +481,15 @@ metaprop <- function(event, n, studlab,
   m$label.right <- NULL
   ##
   res <- c(res, m)
+  res$null.effect <- null.effect
   ##
   ## Add data
   ##
   ##
   if (method == "GLMM") {
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
+    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
+               null.effect = transf.null.effect)
     ##
     res$method <- "GLMM"
     ##
@@ -497,7 +511,8 @@ metaprop <- function(event, n, studlab,
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)
     ##
-    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ci.r <- ci(TE.random, seTE.random, level = level.comb,
+               null.effect = transf.null.effect)
     ##
     res$w.random <- rep(NA, length(event))
     ##

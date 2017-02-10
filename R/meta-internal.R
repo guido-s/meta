@@ -105,7 +105,9 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "digits", "digits.se", "digits.zval",
               "digits.Q", "digits.tau2", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
-              "digits.pval", "digits.pval.Q", "digits.forest"
+              "digits.pval", "digits.pval.Q", "digits.forest",
+              "print.I2", "print.H", "print.Rb",
+              "text.tau2", "text.I2", "text.Rb"
               )
 setOption("argslist", argslist)
 ##
@@ -141,6 +143,12 @@ setOption("digits.prop", 4)
 setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
+setOption("print.I2", TRUE)
+setOption("print.H", TRUE)
+setOption("print.Rb", FALSE)
+setOption("text.tau2", "tau^2")
+setOption("text.I2", "I^2")
+setOption("text.Rb", "Rb")
 ##
 ## Default summary measure
 ##
