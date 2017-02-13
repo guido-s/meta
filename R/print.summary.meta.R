@@ -109,6 +109,7 @@ print.summary.meta <- function(x,
   ## (3) Some additional settings
   ##
   ##
+  k.all <- length(x$study$TE)
   k <- x$k
   sm <- x$sm
   ##
@@ -342,7 +343,7 @@ print.summary.meta <- function(x,
   if (header)
     crtitle(x)
   ##
-  if (x$k.all == 1) {
+  if (k.all == 1) {
     ##
     ## Print results for a single study
     ##
@@ -356,7 +357,7 @@ print.summary.meta <- function(x,
     ## Print information on summary method:
     catmeth(method = x$method,
             sm = sm,
-            k.all = x$k.all,
+            k.all = k.all,
             metaprop = inherits(x, "metaprop"),
             metabin = inherits(x, "metabin"),
             metainc = inherits(x, "metainc"),
@@ -439,7 +440,7 @@ print.summary.meta <- function(x,
     ##
     ## Print information on heterogeneity
     ##
-    if (!is.na(x$tau))
+    if (k.all > 1 & !is.na(x$tau))
       cat(paste("\nQuantifying heterogeneity:\n ",
                 ##
                 if (x$tau^2 > 0 & x$tau^2 < 0.0001)
@@ -484,24 +485,26 @@ print.summary.meta <- function(x,
                         sep = ""),
                 "\n", sep = "")
           )
-    ##    
-    if (k > 1 & (comb.fixed|comb.random)) {
-      if (x$method != "GLMM") {
-        Qdata <- cbind(format.NA(round(Q, digits.Q), digits.Q, "NA"),
-                       df.Q, format.p(1 - pchisq(Q, df = df.Q)))
-        dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+    ##
+    if (k.all > 1 & (comb.fixed|comb.random)) {
+      if (k > 1) {
+        if (x$method != "GLMM") {
+          Qdata <- cbind(format.NA(round(Q, digits.Q), digits.Q, "NA"),
+                         df.Q, format.p(1 - pchisq(Q, df = df.Q)))
+          dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+        }
+        else {
+          Qdata <- cbind(format.NA(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA"),
+                         df.Q,
+                         format.p(1 - pchisq(c(Q, Q.LRT), df = df.Q)),
+                         c("Wald-type", "Likelihood-Ratio"))
+          dimnames(Qdata) <- list(rep("", 2),
+                                  c("Q", "d.f.", "p-value", "Test"))
+        }
+        ##
+        cat("\nTest of heterogeneity:\n")
+        prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
       }
-      else {
-        Qdata <- cbind(format.NA(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA"),
-                       df.Q,
-                       format.p(1 - pchisq(c(Q, Q.LRT), df = df.Q)),
-                       c("Wald-type", "Likelihood-Ratio"))
-        dimnames(Qdata) <- list(rep("", 2),
-                                c("Q", "d.f.", "p-value", "Test"))
-      }
-      ##
-      cat("\nTest of heterogeneity:\n")
-      prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
       ##
       if (by) {
         ##
@@ -614,7 +617,7 @@ print.summary.meta <- function(x,
     catmeth(method = x$method,
             method.tau = if (comb.random) x$method.tau else "",
             sm = sm,
-            k.all = x$k.all,
+            k.all = k.all,
             hakn = !is.null(x$hakn) && (x$hakn & comb.random),
             tau.common = by & x$tau.common,
             tau.preset = x$tau.preset,

@@ -229,7 +229,6 @@ summary.meta <- function(object,
     res$bylab         <- object$bylab
     res$tau.common    <- object$tau.common
     res$bylevs        <- object$bylevs
-    res$within        <- "Returned list 'within' replaced by lists 'within.fixed' and 'within.random'."
   }
   ##  
   class(res) <- "summary.meta"

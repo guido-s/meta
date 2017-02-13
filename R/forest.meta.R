@@ -838,6 +838,8 @@ forest.meta <- function(x,
     label.left <- ""
   ##
   by <- !is.null(byvar)
+  if (!by)
+    addrow.subgroups <- FALSE
   ##
   plotwidth <- setunit(plotwidth)
   colgap <- setunit(colgap)
@@ -2253,10 +2255,21 @@ forest.meta <- function(x,
     bylevs <- bylevs[sel]
     ##
     if (!metainf.metacum & comb.fixed) {
-      if (!all(is.na(w.fixed.w)) && sum(w.fixed.w) > 0)
-        w.fixed.w.p <- round(100 * w.fixed.w / sum(w.fixed.w, na.rm = TRUE), digits.weight)
-      else
-        w.fixed.w.p <- w.fixed.w
+      if (!overall) {
+        i <- 0
+        for (bylev.i in bylevs) {
+          i <- i + 1
+          sel.i <- byvar == bylev.i
+          x$w.fixed[sel.i] <- x$w.fixed[sel.i] / w.fixed.w[i]
+        }
+        w.fixed.w.p <- ifelse(is.na(w.fixed.w), NA, 100)
+      }
+      else {
+        if (!all(is.na(w.fixed.w)) && sum(w.fixed.w) > 0)
+          w.fixed.w.p <- round(100 * w.fixed.w / sum(w.fixed.w, na.rm = TRUE), digits.weight)
+        else
+          w.fixed.w.p <- w.fixed.w
+      }
     }
     else {
       TE.fixed.w <- lower.fixed.w <- upper.fixed.w <- rep(NA, n.by)
@@ -2267,10 +2280,21 @@ forest.meta <- function(x,
     }
     ##
     if (!metainf.metacum & comb.random) {
-      if (!all(is.na(w.random.w)) && sum(w.random.w) > 0)
-        w.random.w.p <- round(100 * w.random.w / sum(w.random.w, na.rm = TRUE), digits.weight)
-      else
-        w.random.w.p <- w.random.w
+      if (!overall) {
+        i <- 0
+        for (bylev.i in bylevs) {
+          i <- i + 1
+          sel.i <- byvar == bylev.i
+          x$w.random[sel.i] <- x$w.random[sel.i] / w.random.w[i]
+        }
+        w.random.w.p <- ifelse(is.na(w.random.w), NA, 100)
+      }
+      else {
+        if (!all(is.na(w.random.w)) && sum(w.random.w) > 0)
+          w.random.w.p <- round(100 * w.random.w / sum(w.random.w, na.rm = TRUE), digits.weight)
+        else
+          w.random.w.p <- w.random.w
+      }
     }
     else {
       TE.random.w <- lower.random.w <- upper.random.w <- rep(NA, n.by)
@@ -2929,15 +2953,23 @@ forest.meta <- function(x,
   }
   ##
   if (!metainf.metacum) {
-    if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
-      w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE), digits.weight)
-    else
-      w.fixed.p <- x$w.fixed
+    if (by & !overall)
+      w.fixed.p <- round(100 * x$w.fixed, digits.weight)
+    else {
+      if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
+        w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE), digits.weight)
+      else
+        w.fixed.p <- x$w.fixed
+    }
     ##
-    if (!all(is.na(x$w.random)) && sum(x$w.random) > 0)
-      w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE), digits.weight)
-    else
-      w.random.p <- x$w.random
+    if (by & !overall)
+      w.random.p <- round(100 * x$w.random, digits.weight)
+    else {
+      if (!all(is.na(x$w.random)) && sum(x$w.random) > 0)
+        w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE), digits.weight)
+      else
+        w.random.p <- x$w.random
+    }
   }
   else {
     w.fixed.p  <- rep(NA, length(TE))
@@ -3690,8 +3722,10 @@ forest.meta <- function(x,
   ## y-axis:
   ##
   ##
-  if (any(rightcols %in% c("n.e", "n.c")) |
-      any(leftcols  %in% c("n.e", "n.c")) |
+  if ((!(metaprop | metacor) &
+         (any(rightcols %in% c("n.e", "n.c")) |
+            any(leftcols  %in% c("n.e", "n.c")))
+       ) |
       (metainc &
          (any(rightcols %in% c("time.e", "time.c")) |
             any(leftcols  %in% c("time.e", "time.c")))
@@ -3700,8 +3734,8 @@ forest.meta <- function(x,
          (any(rightcols %in% c("sd.e", "sd.c")) |
             any(leftcols  %in% c("sd.e", "sd.c")))
        ) |
-      !is.null(lab.e.attach.to.col) |
-      !is.null(lab.c.attach.to.col) |
+      (!is.null(lab.e.attach.to.col) & !is.null(lab.e)) |
+      (!is.null(lab.c.attach.to.col) & !is.null(lab.c)) |
       newline
       ) {
     yHead <- 2
@@ -4868,7 +4902,7 @@ forest.meta <- function(x,
     ##
     if (!is.na(ref) && (col$range[1] <= ref & ref <= col$range[2]))
       grid.lines(x = unit(ref, "native"),
-                 y = unit(c(ymin.line,
+                 y = unit(c(ymin.line - (!addrow & !overall),
                             ymax.line +
                             (print.label & !bottom.lr)),
                           "lines"),
@@ -4985,7 +5019,7 @@ forest.meta <- function(x,
       grid.text(label.left,
                 x = unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
                 y = if (bottom.lr)
-                      unit(ymin.line - 2.5, "lines")
+                      unit(ymin.line - 2.5 - (!addrow & !overall), "lines")
                     else
                       unit(max(yLab, na.rm = TRUE) -
                            ifelse(is.na(yHeadadd), 0.5, 1.5), "lines"),
@@ -4995,7 +5029,7 @@ forest.meta <- function(x,
         grid.text(add.label.left,
                   x = unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
                   y = if (bottom.lr)
-                        unit(ymin.line - 2.5 - 1, "lines")
+                        unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines")
                       else
                         unit(max(yLab, na.rm = TRUE) -
                              ifelse(is.na(yHeadadd), 0.5, 1.5) + 1, "lines"),
@@ -5005,7 +5039,7 @@ forest.meta <- function(x,
       grid.text(label.right,
                 x = unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
                 y = if (bottom.lr)
-                      unit(ymin.line - 2.5, "lines")
+                      unit(ymin.line - 2.5 - (!addrow & !overall), "lines")
                     else
                       unit(max(yLab, na.rm = TRUE) -
                            ifelse(is.na(yHeadadd), 0.5, 1.5), "lines"),
@@ -5015,7 +5049,7 @@ forest.meta <- function(x,
         grid.text(add.label.right,
                   x = unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
                   y = if (bottom.lr)
-                        unit(ymin.line - 2.5 - 1, "lines")
+                        unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines")
                       else
                         unit(max(yLab, na.rm = TRUE) -
                              ifelse(is.na(yHeadadd), 0.5, 1.5) + 1, "lines"),
@@ -5027,7 +5061,7 @@ forest.meta <- function(x,
     ##
     grid.text(xlab,
               x = unit(xlab.pos, "native"),
-              y = unit(ymin.line - 2.5 -
+              y = unit(ymin.line - 2.5 - (!addrow & !overall) -
                        1 * (print.label & bottom.lr) -
                        1 * (print.label & bottom.lr &
                             (newline.label.right | newline.label.left)),
