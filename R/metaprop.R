@@ -349,10 +349,16 @@ metaprop <- function(event, n, studlab,
   if (method.ci == "CP") {
     lower.study <- upper.study <- NAs
     for (i in 1:k.all) {
-      cint <- binom.test(event[i], n[i], conf.level = level)
-      ##
-      lower.study[i] <- cint$conf.int[[1]]
-      upper.study[i] <- cint$conf.int[[2]]
+      if (!is.na(event[i] & !is.na(n[i]))) {
+        cint <- binom.test(event[i], n[i], conf.level = level)
+        ##
+        lower.study[i] <- cint$conf.int[[1]]
+        upper.study[i] <- cint$conf.int[[2]]
+      }
+      else {
+        lower.study[i] <- NA
+        upper.study[i] <- NA
+      }
     }
   }
   ##
