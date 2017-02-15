@@ -556,13 +556,6 @@ metaprop <- function(event, n, studlab,
   ##
   res$lower <- lower.study
   res$upper <- upper.study
-  res$zval <- NAs
-  res$pval <- NAs
-  ##
-  res$zval.fixed <- NA
-  res$pval.fixed <- NA
-  res$zval.random <- NA
-  res$pval.random <- NA
   ##
   res$pscale <- pscale
   ##

@@ -5,6 +5,8 @@
   * metaprop():
     - bug fix in studies with missing information for events or
       sample size and argument method.ci = "CP"
+    - bug fix such that test for an overall effect is actually
+      calculated
 
 
 *** meta, version 4.7-1, 2017-02-13 ***
