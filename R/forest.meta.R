@@ -27,8 +27,8 @@ forest.meta <- function(x,
                         ##
                         study.results = TRUE,
                         ##
-                        xlab = "", xlab.pos = ref,
-                        smlab = NULL, smlab.pos = ref, xlim = "symmetric",
+                        xlab = "", xlab.pos,
+                        smlab = NULL, smlab.pos, xlim = "symmetric",
                         ##
                         allstudies = TRUE,
                         weight.study,
@@ -3888,7 +3888,7 @@ forest.meta <- function(x,
     max.yTE <- max(yTE, na.rm = TRUE)
   }
   ##
-  print.label <- label.left != "" | label.right != ""
+  print.label <- label.left != "" | label.right != "" & !is.na(ref)
   if (print.label & !bottom.lr) {
     if (!smlab.null)
       warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
@@ -3897,18 +3897,10 @@ forest.meta <- function(x,
   ##
   yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow.overall, 1, 2)
   ##
-  if (!is.na(ref) & missing(xlab.pos))
-    if (ref <= min(xlim) | ref >= max(xlim))
-      xlab.pos <- mean(xlim)
-  ##
-  if (!is.na(ref) & missing(smlab.pos))
-    if (ref <= min(xlim) | ref >= max(xlim))
-      smlab.pos <- mean(xlim)
-  ##
-  if (is.null(xlab.pos) || is.na(xlab.pos))
+  if (missing(xlab.pos))
     xlab.pos <- mean(xlim)
   ##
-  if (is.null(smlab.pos) || is.na(smlab.pos))
+  if (missing(smlab.pos))
     smlab.pos <- mean(xlim)
   ##
   yTE.fixed  <- NA
@@ -4578,22 +4570,22 @@ forest.meta <- function(x,
     lr2 <- ""
   }
   ##
-  if (!bottom.lr) {
-    ll1 <- tgl(ll1, unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+  if (!bottom.lr & !is.na(ref)) {
+    ll1 <- tgl(ll1, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                "right", fs.lr, ff.lr, col.label.left,
                rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
     ##
     if (newline.ll)
-      ll2 <- tgl(ll2, unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+      ll2 <- tgl(ll2, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                  "right", fs.lr, ff.lr, col.label.left,
                  rows = 2)
     ##
-    lr1 <- tgl(lr1, unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+    lr1 <- tgl(lr1, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                "left", fs.lr, ff.lr, col.label.right,
                rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
     ##
     if (newline.lr)
-      lr2 <- tgl(lr2, unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+      lr2 <- tgl(lr2, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                  "left", fs.lr, ff.lr, col.label.right,
                  rows = 2)    
   }
@@ -4732,43 +4724,39 @@ forest.meta <- function(x,
   ##
   if (print.label) {
     if (!bottom.lr) {
-      add.text(ll1, j,
-               xscale = col.forest$range)
+      add.text(ll1, j, xscale = col.forest$range)
       ##
       if (newline.ll)
-        add.text(ll2, j,
-                 xscale = col.forest$range)
+        add.text(ll2, j, xscale = col.forest$range)
       ##
-      add.text(lr1, j,
-               xscale = col.forest$range)
+      add.text(lr1, j, xscale = col.forest$range)
       ##
       if (newline.lr)
-        add.text(lr2, j,
-                 xscale = col.forest$range)
+        add.text(lr2, j, xscale = col.forest$range)
     }
     else {
       add.label(ll1, j,
-                unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+                unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                 unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
                 "right",
                 fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
       ##
       if (newline.ll)
         add.label(ll2, j,
-                  unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+                  unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                   unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
                   "right",
                   fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
       ##
       add.label(lr1, j,
-                unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+                unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                 unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
                 "left",
                 fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
       ##
       if (newline.lr)
         add.label(lr2, j,
-                  unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+                  unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                   unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
                   "left",
                   fs.lr, ff.lr, col.label.right, xscale = col.forest$range)

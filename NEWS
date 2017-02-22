@@ -11,9 +11,14 @@
   * forest.meta():
     - bug fix such that summary label (argument smlab) is printed
       above forest plot if argument fontsize is unequal to 12
+    - by default, label on x-axis and text on top of forest plot are
+      printed in center of forest plot (arguments xlab.pos, smlab.pos)
 
  ** Internal changes **
-    
+
+  * act on NOTE in 'R CMD check ... --as-cran' with R version, 3.4.0,
+    i.e. register and declare native C routine kenscore
+
   * forest.meta():
     - auxiliary R functions detached from R code
     - cleaning / shortening of R code

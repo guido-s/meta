@@ -1,3 +1,5 @@
+useDynLib(meta, .registration = TRUE)
+
 export(ci, settings.meta, forest, forest.meta,
        funnel, funnel.default, funnel.meta,
        baujat, baujat.meta,
@@ -24,7 +26,9 @@ export(ci, settings.meta, forest, forest.meta,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
 # hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir, Rb,
-# setunit
+# setunit, add.label, add.text, add.xlab, draw.axis, draw.ci.square,
+# draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
+# formatcol, removeNULL, tg, tgl, twolines, wcalc
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)

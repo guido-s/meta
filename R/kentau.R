@@ -14,12 +14,11 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   y <- y[sel]
   n <- length(x)
   ##
-  ks <- .C("kenscore",
+  ks <- .C(kenscore,
            kenscore = as.double(0),
            x = as.double(x),
            y = as.double(y),
-           n = as.integer(n),
-           PACKAGE = "meta")$kenscore
+           n = as.integer(n))$kenscore
   ##
   ## Calculate S and s.e(S) according to
   ## Stata, release 5, Reference P-Z, p.239-240
