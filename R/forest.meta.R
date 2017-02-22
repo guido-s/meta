@@ -784,18 +784,18 @@ forest.meta <- function(x,
   notmiss.xlim <- !missing(xlim)
   ##
   if (just.studlab == "left")
-    xpos.studlab <- 0
+    xpos.s <- 0
   else if (just.studlab == "center")
-    xpos.studlab <- 0.5
+    xpos.s <- 0.5
   else if (just.studlab == "right")
-    xpos.studlab <- 1
+    xpos.s <- 1
   ##
   if (just.cols == "left")
-    xpos.cols <- 0
+    xpos.c <- 0
   else if (just.cols == "center")
-    xpos.cols <- 0.5
+    xpos.c <- 0.5
   else if (just.cols == "right")
-    xpos.cols <- 1
+    xpos.c <- 1
   ##
   sm <- x$sm
   ##
@@ -876,6 +876,12 @@ forest.meta <- function(x,
     paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
           if (fixed.random) " (random effects)",
           ": ", sep = "")
+  ##
+  fs.head <- fs.heading
+  ff.head <- ff.heading
+  ##
+  just.c <- just.cols
+  just.s <- just.studlab
   
   
   ##
@@ -1034,15 +1040,6 @@ forest.meta <- function(x,
   ## If any of the following list elements is NULL, these 'special'
   ## variable names are searched for in original data set (i.e., list
   ## element x$data)
-  ##
-  removeNULL <- function(x, names, varname) {
-    if (is.null(x[[varname]]))
-      res <- names[names != varname]
-    else
-      res <- names
-    ##
-    res
-  }
   ##
   colnames.notNULL <- colnames
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
@@ -3044,43 +3041,14 @@ forest.meta <- function(x,
   ## "cor",
   ## "time.e", "time.c",
   ##
-  ## Look for line breaks in column headings
-  ##
-  twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
-    newline <- FALSE
-    label1 <- longer <- x
-    label2 <- NULL
-    if (!is.null(label1)) {
-      if (grepl("\n", label1)) {
-        wsplit <- unlist(strsplit(label1, "\n"))
-        if (length(wsplit) != 2)
-          if (arg)
-            stop("Maximum of two lines for argument '",
-                 xname, "'.")
-          else
-            stop("Maximum of two lines for label of column '",
-                 xname, "'.")
-        else {
-          label1 <- wsplit[2]
-          label2 <- wsplit[1]
-          longer <- wsplit[2]
-          if (nchar(wsplit[1]) > nchar(wsplit[2]))
-            longer <- wsplit[1]
-          newline <- TRUE
-        }
-      }
-    }
-    list(newline = newline, label1 = label1, label2 = label2, longer = longer)
-  }
-  ##
   ## Check for "\n" in column studlab
   ##
   clines <- twolines(labs[["lab.studlab"]], "studlab")
   ##
   if (clines$newline) {
     newline.studlab <- TRUE
-    labs[["lab.studlab"]] <- clines$label1
-    add.studlab <- clines$label2
+    labs[["lab.studlab"]] <- clines$bottom
+    add.studlab <- clines$top
     longer.studlab <- clines$longer
   }
   else {
@@ -3094,8 +3062,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.effect <- TRUE
-    labs[["lab.effect"]] <- clines$label1
-    add.effect <- clines$label2
+    labs[["lab.effect"]] <- clines$bottom
+    add.effect <- clines$top
     longer.effect <- clines$longer
   }
   else {
@@ -3109,8 +3077,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.ci <- TRUE
-    labs[["lab.ci"]] <- clines$label1
-    add.ci <- clines$label2
+    labs[["lab.ci"]] <- clines$bottom
+    add.ci <- clines$top
     longer.ci <- clines$longer
   }
   else {
@@ -3124,8 +3092,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.effect.ci <- TRUE
-    labs[["lab.effect.ci"]] <- clines$label1
-    add.effect.ci <- clines$label2
+    labs[["lab.effect.ci"]] <- clines$bottom
+    add.effect.ci <- clines$top
     longer.effect.ci <- clines$longer
   }
   else {
@@ -3139,8 +3107,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.w.fixed <- TRUE
-    labs[["lab.w.fixed"]] <- clines$label1
-    add.w.fixed <- clines$label2
+    labs[["lab.w.fixed"]] <- clines$bottom
+    add.w.fixed <- clines$top
     longer.w.fixed <- clines$longer
   }
   else {
@@ -3154,8 +3122,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.w.random <- TRUE
-    labs[["lab.w.random"]] <- clines$label1
-    add.w.random <- clines$label2
+    labs[["lab.w.random"]] <- clines$bottom
+    add.w.random <- clines$top
     longer.w.random <- clines$longer
   }
   else {
@@ -3169,8 +3137,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.TE <- TRUE
-    labs[["lab.TE"]] <- clines$label1
-    add.TE <- clines$label2
+    labs[["lab.TE"]] <- clines$bottom
+    add.TE <- clines$top
     longer.TE <- clines$longer
   }
   else {
@@ -3184,8 +3152,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.seTE <- TRUE
-    labs[["lab.seTE"]] <- clines$label1
-    add.seTE <- clines$label2
+    labs[["lab.seTE"]] <- clines$bottom
+    add.seTE <- clines$top
     longer.seTE <- clines$longer
   }
   else {
@@ -3199,8 +3167,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.n.e <- TRUE
-    labs[["lab.n.e"]] <- clines$label1
-    add.n.e <- clines$label2
+    labs[["lab.n.e"]] <- clines$bottom
+    add.n.e <- clines$top
     longer.n.e <- clines$longer
   }
   else {
@@ -3214,8 +3182,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.n.c <- TRUE
-    labs[["lab.n.c"]] <- clines$label1
-    add.n.c <- clines$label2
+    labs[["lab.n.c"]] <- clines$bottom
+    add.n.c <- clines$top
     longer.n.c <- clines$longer
   }
   else {
@@ -3229,8 +3197,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.event.e <- TRUE
-    labs[["lab.event.e"]] <- clines$label1
-    add.event.e <- clines$label2
+    labs[["lab.event.e"]] <- clines$bottom
+    add.event.e <- clines$top
     longer.event.e <- clines$longer
   }
   else {
@@ -3244,8 +3212,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.event.c <- TRUE
-    labs[["lab.event.c"]] <- clines$label1
-    add.event.c <- clines$label2
+    labs[["lab.event.c"]] <- clines$bottom
+    add.event.c <- clines$top
     longer.event.c <- clines$longer
   }
   else {
@@ -3259,8 +3227,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.mean.e <- TRUE
-    labs[["lab.mean.e"]] <- clines$label1
-    add.mean.e <- clines$label2
+    labs[["lab.mean.e"]] <- clines$bottom
+    add.mean.e <- clines$top
     longer.mean.e <- clines$longer
   }
   else {
@@ -3274,8 +3242,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.mean.c <- TRUE
-    labs[["lab.mean.c"]] <- clines$label1
-    add.mean.c <- clines$label2
+    labs[["lab.mean.c"]] <- clines$bottom
+    add.mean.c <- clines$top
     longer.mean.c <- clines$longer
   }
   else {
@@ -3289,8 +3257,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.sd.e <- TRUE
-    labs[["lab.sd.e"]] <- clines$label1
-    add.sd.e <- clines$label2
+    labs[["lab.sd.e"]] <- clines$bottom
+    add.sd.e <- clines$top
     longer.sd.e <- clines$longer
   }
   else {
@@ -3304,8 +3272,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.sd.c <- TRUE
-    labs[["lab.sd.c"]] <- clines$label1
-    add.sd.c <- clines$label2
+    labs[["lab.sd.c"]] <- clines$bottom
+    add.sd.c <- clines$top
     longer.sd.c <- clines$longer
   }
   else {
@@ -3319,8 +3287,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.cor <- TRUE
-    labs[["lab.cor"]] <- clines$label1
-    add.cor <- clines$label2
+    labs[["lab.cor"]] <- clines$bottom
+    add.cor <- clines$top
     longer.cor <- clines$longer
   }
   else {
@@ -3334,8 +3302,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.time.e <- TRUE
-    labs[["lab.time.e"]] <- clines$label1
-    add.time.e <- clines$label2
+    labs[["lab.time.e"]] <- clines$bottom
+    add.time.e <- clines$top
     longer.time.e <- clines$longer
   }
   else {
@@ -3349,8 +3317,8 @@ forest.meta <- function(x,
   ##
   if (clines$newline) {
     newline.time.c <- TRUE
-    labs[["lab.time.c"]] <- clines$label1
-    add.time.c <- clines$label2
+    labs[["lab.time.c"]] <- clines$bottom
+    add.time.c <- clines$top
     longer.time.c <- clines$longer
   }
   else {
@@ -4051,311 +4019,146 @@ forest.meta <- function(x,
   ## (11) Format columns in forest plot
   ##
   ##
-  formatcol <- function(x, y, rows, just = "right") {
-    if (just == "left")
-      xpos <- 0
-    if (just == "center")
-      xpos <- 0.5
-    if (just == "right")
-      xpos <- 1
-    ##
-    res <- list(labels = 
-                  lapply(c(x, as.list(y)),
-                         textGrob, x = xpos, just = just,
-                         gp = gpar(
-                           fontsize = fs.study,
-                           fontface = ff.study)
-                         ),
-                rows = rows)
-    ##
-    ## Study label:
-    ##
-    res$labels[[1]] <- textGrob(x,
-                                x = xpos, just = just,
-                                gp = gpar(
-                                  fontsize = fs.heading,
-                                  fontface = ff.heading)
-                                )
-    ##
-    ## Fixed effect estimate:
-    ##
-    res$labels[[2]] <- textGrob(y[1],
-                                x = xpos, just = just,
-                                gp = gpar(
-                                  fontsize = fs.fixed,
-                                  fontface = ff.fixed)
-                                )
-    ##
-    ## Random effects estimate:
-    ##
-    res$labels[[3]] <- textGrob(y[2],
-                                x = xpos, just = just,
-                                gp = gpar(
-                                  fontsize = fs.random,
-                                  fontface = ff.random)
-                                )
-    ##
-    ## Prediction interval:
-    ##
-    res$labels[[4]] <- textGrob(y[3],
-                                x = xpos, just = just,
-                                gp = gpar(
-                                  fontsize = fs.predict,
-                                  fontface = ff.predict)
-                                )
-    ##
-    if (by)
-      for (i in 1:n.by) {
-        ##
-        ## Fixed effect estimates:
-        ##
-        res$labels[[4 + i]] <- textGrob(y[3 + i],
-                                        x = xpos, just = just,
-                                        gp = 
-                                          gpar(
-                                            fontsize = fs.fixed,
-                                            fontface = ff.fixed,
-                                            col = col.by)
-                                        )
-        ##
-        ## Random effects estimates:
-        ##
-        res$labels[[4 + n.by + i]] <- textGrob(y[3 + n.by + i],
-                                               x = xpos, just = just,
-                                               gp = 
-                                                 gpar(
-                                                   fontsize = fs.random,
-                                                   fontface = ff.random,
-                                                   col = col.by)
-                                               )
-      }
-    ##
-    res
-  }
-  ##
   col.studlab <- list(labels = 
                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
-                               textGrob, x = xpos.studlab, just = just.studlab,
-                               gp = gpar(
-                                 fontsize = fs.study.labels,
-                                 fontface = ff.study.labels)),
+                               tg,
+                               xpos = xpos.s, just = just.s,
+                               fs = fs.study.labels,
+                               ff = ff.study.labels),
                       rows = yLab
                       )
-  ##
   ## Study label:
-  ##
-  col.studlab$labels[[1]] <- textGrob(labs[["lab.studlab"]],
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.heading,
-                                        fontface = ff.heading)
-                                      )
-  ##
+  col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
+                                just.s, fs.head, ff.head)
   ## Fixed effect estimate:
-  ##
-  col.studlab$labels[[2]] <- textGrob(text.fixed,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.fixed.labels,
-                                        fontface = ff.fixed.labels)
-                                      )
-  ##
+  col.studlab$labels[[2]] <- tg(text.fixed, xpos.s, just.s,
+                                fs.fixed.labels, ff.fixed.labels)
   ## Random effects estimate:
-  ##
-  col.studlab$labels[[3]] <- textGrob(text.random,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.random.labels,
-                                        fontface = ff.random.labels)
-                                      )
-  ##
+  col.studlab$labels[[3]] <- tg(text.random, xpos.s, just.s,
+                                fs.random.labels, ff.random.labels)
   ## Prediction interval:
-  ##
-  col.studlab$labels[[4]] <- textGrob(text.predict,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.predict.labels,
-                                        fontface = ff.predict.labels)
-                                      )
-  ##
+  col.studlab$labels[[4]] <- tg(text.predict,xpos.s, just.s,
+                                fs.predict.labels, ff.predict.labels)
   ## Heterogeneity statistics:
-  ##
-  col.studlab$labels[[5]] <- textGrob(hetstat.overall,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.hetstat,
-                                        fontface = ff.hetstat)
-                                      )
-  ##
+  col.studlab$labels[[5]] <- tg(hetstat.overall, xpos.s, just.s,
+                                fs.hetstat, ff.hetstat)
   ## Test for overall effect (fixed effect model):
-  ##
-  col.studlab$labels[[6]] <- textGrob(text.overall.fixed,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.test.overall,
-                                        fontface = ff.test.overall)
-                                      )
-  ##
+  col.studlab$labels[[6]] <- tg(text.overall.fixed, xpos.s, just.s,
+                                fs.test.overall, ff.test.overall)
   ## Test for overall effect (random effects model):
-  ##
-  col.studlab$labels[[7]] <- textGrob(text.overall.random,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.test.overall,
-                                        fontface = ff.test.overall)
-                                      )
-  ##
+  col.studlab$labels[[7]] <- tg(text.overall.random, xpos.s, just.s,
+                                fs.test.overall, ff.test.overall)
   ## Test for subgroup differences (fixed effect model):
-  ##
-  col.studlab$labels[[8]] <- textGrob(text.subgroup.fixed,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.test.subgroup,
-                                        fontface = ff.test.subgroup)
-                                      )
-  ##
+  col.studlab$labels[[8]] <- tg(text.subgroup.fixed, xpos.s, just.s,
+                                fs.test.subgroup, ff.test.subgroup)
   ## Test for subgroup differences (random effects model):
-  ##
-  col.studlab$labels[[9]] <- textGrob(text.subgroup.random,
-                                      x = xpos.studlab, just = just.studlab,
-                                      gp = gpar(
-                                        fontsize = fs.test.subgroup,
-                                        fontface = ff.test.subgroup)
-                                      )
+  col.studlab$labels[[9]] <- tg(text.subgroup.random, xpos.s,
+                                just.s,fs.test.subgroup, ff.test.subgroup)
   ##
   n.summaries <- 9
   ##
   if (by) {
     for (i in 1:n.by) {
-      ##
       ## Subgroup labels:
-      ##
-      col.studlab$labels[[n.summaries + i]] <- textGrob(bylab[i],
-                                                        x = xpos.studlab, just = just.studlab,
-                                                        gp = 
-                                                          gpar(
-                                                            fontsize = fs.heading,
-                                                            fontface = ff.heading,
-                                                            col = col.by)
-                                                        )
-      ##
+      col.studlab$labels[[n.summaries + i]] <-
+        tg(bylab[i], xpos.s, just.s,
+           fs.head, ff.head, col.by)
       ## Fixed effect estimates:
-      ##
-      col.studlab$labels[[n.summaries + n.by + i]] <- textGrob(text.fixed.w[i],
-                                                               x = xpos.studlab, just = just.studlab,
-                                                               gp = 
-                                                                 gpar(
-                                                                   fontsize = fs.fixed.labels,
-                                                                   fontface = ff.fixed.labels,
-                                                                   col = col.by)
-                                                               )
-      ##
+      col.studlab$labels[[n.summaries + n.by + i]] <-
+        tg(text.fixed.w[i], xpos.s, just.s,
+           fs.fixed.labels, ff.fixed.labels, col.by)
       ## Random effects estimates:
-      ##
-      col.studlab$labels[[n.summaries + 2 * n.by + i]] <- textGrob(text.random.w[i],
-                                                                   x = xpos.studlab, just = just.studlab,
-                                                                   gp = 
-                                                                     gpar(
-                                                                       fontsize = fs.random.labels,
-                                                                       fontface = ff.random.labels,
-                                                                       col = col.by)
-                                                                   )
-      ##
+      col.studlab$labels[[n.summaries + 2 * n.by + i]] <-
+        tg(text.random.w[i], xpos.s, just.s,
+           fs.random.labels, ff.random.labels, col.by)
       ## Heterogeneity statistics:
-      ##
-      col.studlab$labels[[n.summaries + 3 * n.by + i]] <- textGrob(hetstat.w[[i]],
-                                                                   x = xpos.studlab, just = just.studlab,
-                                                                   gp = 
-                                                                     gpar(
-                                                                       fontsize = fs.hetstat,
-                                                                       fontface = ff.hetstat,
-                                                                       col = col.by)
-                                                                   )
-      ##
+      col.studlab$labels[[n.summaries + 3 * n.by + i]] <-
+        tg(hetstat.w[[i]], xpos.s, just.s,
+           fs.hetstat, ff.hetstat, col.by)
       ## Test for effect in subgroup (fixed effect model):
-      ##
-      col.studlab$labels[[n.summaries + 4 * n.by + i]] <- textGrob(text.effect.subgroup.fixed[[i]],
-                                                                   x = xpos.studlab, just = just.studlab,
-                                                                   gp = 
-                                                                     gpar(
-                                                                       fontsize = fs.test.effect.subgroup,
-                                                                       fontface = ff.test.effect.subgroup,
-                                                                       col = col.by)
-                                                                   )
-      ##
+      col.studlab$labels[[n.summaries + 4 * n.by + i]] <-
+        tg(text.effect.subgroup.fixed[[i]], xpos.s, just.s,
+           fs.test.effect.subgroup, ff.test.effect.subgroup, col.by)
       ## Test for effect in subgroup (random effects model):
-      ##
-      col.studlab$labels[[n.summaries + 5 * n.by + i]] <- textGrob(text.effect.subgroup.random[[i]],
-                                                                   x = xpos.studlab, just = just.studlab,
-                                                                   gp = 
-                                                                     gpar(
-                                                                       fontsize = fs.test.effect.subgroup,
-                                                                       fontface = ff.test.effect.subgroup,
-                                                                       col = col.by)
-                                                                   )
+      col.studlab$labels[[n.summaries + 5 * n.by + i]] <-
+        tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
+           fs.test.effect.subgroup, ff.test.effect.subgroup, col.by)
     }
   }
   ##
-  col.effect <- formatcol(labs[["lab.effect"]], effect.format, yS, just.cols)
+  fcs <- list(fs.study = fs.study, ff.study = ff.study,
+              fs.heading = fs.head, ff.heading = ff.head,
+              fs.fixed = fs.fixed, ff.fixed = ff.fixed,
+              fs.random = fs.random, ff.random = ff.random,
+              fs.predict = fs.predict, ff.predict = ff.predict,
+              by = by, n.by = n.by, col.by = col.by)
   ##
-  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just.cols)
+  col.effect <- formatcol(labs[["lab.effect"]], effect.format, yS, just.c, fcs)
+  ##
+  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just.c, fcs)
   ##
   col.effect.ci <- formatcol(labs[["lab.effect.ci"]], effect.ci.format, yS,
-                             if (revman5) "center" else just.cols)
+                             if (revman5) "center" else just.c, fcs)
   ##
-  col.w.fixed  <- formatcol(labs[["lab.w.fixed"]], w.fixed.format, yS, just.cols)
-  col.w.random <- formatcol(labs[["lab.w.random"]], w.random.format, yS, just.cols)
+  col.w.fixed  <- formatcol(labs[["lab.w.fixed"]], w.fixed.format, yS,
+                            just.c, fcs)
+  col.w.random <- formatcol(labs[["lab.w.random"]], w.random.format, yS,
+                            just.c, fcs)
   ##
-  col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS, just.cols)
-  col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.cols)
+  col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS, just.c, fcs)
+  col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.c, fcs)
   ##
-  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.cols)
-  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.cols)
+  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs)
+  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.c, fcs)
   ##
-  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just.cols)
-  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just.cols)
+  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just.c, fcs)
+  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just.c, fcs)
   ##
-  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just.cols)
-  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just.cols)
+  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just.c, fcs)
+  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just.c, fcs)
   ##
-  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just.cols)
-  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just.cols)
+  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just.c, fcs)
+  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just.c, fcs)
   ##
-  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just.cols)
+  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just.c, fcs)
   ##
-  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.cols)
-  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.cols)
+  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.c, fcs)
+  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs)
   ##
   ##
   ##
-  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.cols)
+  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs)
   ##
-  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just.cols)
+  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just.c, fcs)
   ##
-  col.effect.ci.calc <- formatcol(longer.effect.ci, effect.ci.format, yS, just.cols)
+  col.effect.ci.calc <- formatcol(longer.effect.ci, effect.ci.format, yS,
+                                  just.c, fcs)
   ##
-  col.w.fixed.calc  <- formatcol(longer.w.fixed, w.fixed.format, yS, just.cols)
-  col.w.random.calc <- formatcol(longer.w.random, w.random.format, yS, just.cols)
+  col.w.fixed.calc  <- formatcol(longer.w.fixed, w.fixed.format, yS,
+                                 just.c, fcs)
+  col.w.random.calc <- formatcol(longer.w.random, w.random.format, yS,
+                                 just.c, fcs)
   ##
-  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.cols)
-  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.cols)
+  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.c, fcs)
+  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.c, fcs)
   ##
-  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.cols)
-  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.cols)
+  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs)
+  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.c, fcs)
   ##
-  col.event.e.calc <- formatcol(longer.event.e, Ee.format, yS, just.cols)
-  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just.cols)
+  col.event.e.calc <- formatcol(longer.event.e, Ee.format, yS,
+                                just.c, fcs)
+  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just.c, fcs)
   ##
-  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just.cols)
-  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just.cols)
+  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just.c, fcs)
+  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just.c, fcs)
   ##
-  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just.cols)
-  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just.cols)
+  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just.c, fcs)
+  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just.c, fcs)
   ##
-  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just.cols)
+  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just.c, fcs)
   ##
-  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just.cols)
-  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.cols)
+  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just.c, fcs)
+  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs)
   ##
   ##
   ##
@@ -4380,7 +4183,9 @@ forest.meta <- function(x,
                      col.inside = c(col.inside.pooled, col.inside),
                      ##
                      col.diamond = c(col.diamond.pooled, col.square),
-                     col.diamond.lines = c(col.diamond.lines.pooled, col.square.lines)
+                     col.diamond.lines = c(col.diamond.lines.pooled, col.square.lines),
+                     ##
+                     lwd = lwd
                      )
   ##
   ## Sizes of squares
@@ -4491,11 +4296,10 @@ forest.meta <- function(x,
         tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
         cols[[tname]] <- cols.calc[[tname]] <-
           formatcol(rightlabs.new[i],
-                    c("", "", "",
-                      rep("", length(TE.w)),
-                      tmp.r),
+                    c("", "", "", rep("", length(TE.w)), tmp.r),
                     yS,
-                    just = just.addcols.right[i])
+                    just.addcols.right[i],
+                    fcs)
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -4508,11 +4312,10 @@ forest.meta <- function(x,
         tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
         cols[[tname]] <- cols.calc[[tname]] <-
           formatcol(leftlabs.new[i],
-                    c("", "", "",
-                      rep("", length(TE.w)),
-                      tmp.l),
+                    c("", "", "", rep("", length(TE.w)), tmp.l),
                     yS,
-                    just = just.addcols.left[i])
+                    just.addcols.left[i],
+                    fcs)
       }
     }
     else {
@@ -4529,7 +4332,8 @@ forest.meta <- function(x,
           formatcol(rightlabs.new[i],
                     c("", "", "", tmp.r),
                     yS,
-                    just = just.addcols.right[i])
+                    just.addcols.right[i],
+                    fcs)
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -4544,671 +4348,86 @@ forest.meta <- function(x,
           formatcol(leftlabs.new[i],
                     c("", "", "", tmp.l),
                     yS,
-                    just = just.addcols.left[i])
+                    just.addcols.left[i],
+                    fcs)
       }
     }
   }
   ##
-  col.lab.e <- list(labels = list(textGrob(lab.e,
-                                           x = xpos.cols, just = just.cols,
-                                           gp = gpar(
-                                             fontsize = fs.heading,
-                                             fontface = ff.heading)
-                                           )),
-                    rows = 1)
+  col.lab.e <- tgl(lab.e, xpos.c, just.c, fs.head, ff.head)
   ##
-  col.lab.c <- list(labels = list(textGrob(lab.c,
-                                           x = xpos.cols, just = just.cols,
-                                           gp = gpar(
-                                             fontsize = fs.heading,
-                                             fontface = ff.heading)
-                                           )),
-                    rows = 1)
+  col.lab.c <- tgl(lab.c, xpos.c, just.c, fs.head, ff.head)
   ##
   ##
   ##
   if (newline.studlab)
-    col.add.studlab <- list(labels = list(textGrob(add.studlab,
-                                                   x = xpos.studlab, just = just.studlab,
-                                                   gp = gpar(
-                                                     fontsize = fs.heading,
-                                                     fontface = ff.heading)
-                                                   )),
-                            rows = 1)
+    col.add.studlab <- tgl(add.studlab, xpos.s, just.s, fs.head, ff.head)
   ##
   if (newline.effect)
-    col.add.effect <- list(labels = list(textGrob(add.effect,
-                                                  x = xpos.cols, just = just.cols,
-                                                  gp = gpar(
-                                                    fontsize = fs.heading,
-                                                    fontface = ff.heading)
-                                                  )),
-                           rows = 1)
+    col.add.effect <- tgl(add.effect, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.ci)
-    col.add.ci <- list(labels = list(textGrob(add.ci,
-                                              x = xpos.cols, just = just.cols,
-                                              gp = gpar(
-                                                fontsize = fs.heading,
-                                                fontface = ff.heading)
-                                              )),
-                       rows = 1)
+    col.add.ci <- tgl(add.ci, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.effect.ci)
-    col.add.effect.ci <- list(labels = list(textGrob(add.effect.ci,
-                                                     x = if (revman5) 0.5 else xpos.cols,
-                                                     just = if (revman5) "center" else just.cols,
-                                                     gp = gpar(
-                                                       fontsize = fs.heading,
-                                                       fontface = ff.heading)
-                                                     )),
-                              rows = 1)
+    col.add.effect.ci <- tgl(add.effect.ci,
+                             if (revman5) 0.5 else xpos.c,
+                             if (revman5) "center" else just.c,
+                             fs.head, ff.head)
   ##
   if (newline.w.fixed)
-    col.add.w.fixed <- list(labels = list(textGrob(add.w.fixed,
-                                                   x = xpos.cols, just = just.cols,
-                                                   gp = gpar(
-                                                     fontsize = fs.heading,
-                                                     fontface = ff.heading)
-                                                   )),
-                            rows = 1)
+    col.add.w.fixed <- tgl(add.w.fixed, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.w.random)
-    col.add.w.random <- list(labels = list(textGrob(add.w.random,
-                                                    x = xpos.cols, just = just.cols,
-                                                    gp = gpar(
-                                                      fontsize = fs.heading,
-                                                      fontface = ff.heading)
-                                                    )),
-                             rows = 1)
+    col.add.w.random <- tgl(add.w.random, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.TE)
-    col.add.TE <- list(labels = list(textGrob(add.TE,
-                                              x = xpos.cols, just = just.cols,
-                                              gp = gpar(
-                                                fontsize = fs.heading,
-                                                fontface = ff.heading)
-                                              )),
-                       rows = 1)
+    col.add.TE <- tgl(add.TE, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.seTE)
-    col.add.seTE <- list(labels = list(textGrob(add.seTE,
-                                                x = xpos.cols, just = just.cols,
-                                                gp = gpar(
-                                                  fontsize = fs.heading,
-                                                  fontface = ff.heading)
-                                                )),
-                         rows = 1)
+    col.add.seTE <- tgl(add.seTE, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.n.e)
-    col.add.n.e <- list(labels = list(textGrob(add.n.e,
-                                               x = xpos.cols, just = just.cols,
-                                               gp = gpar(
-                                                 fontsize = fs.heading,
-                                                 fontface = ff.heading)
-                                               )),
-                        rows = 1)
+    col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.n.c)
-    col.add.n.c <- list(labels = list(textGrob(add.n.c,
-                                               x = xpos.cols, just = just.cols,
-                                               gp = gpar(
-                                                 fontsize = fs.heading,
-                                                 fontface = ff.heading)
-                                               )),
-                        rows = 1)
+    col.add.n.c <- tgl(add.n.c, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.event.e)
-    col.add.event.e <- list(labels = list(textGrob(add.event.e,
-                                                   x = xpos.cols, just = just.cols,
-                                                   gp = gpar(
-                                                     fontsize = fs.heading,
-                                                     fontface = ff.heading)
-                                                   )),
-                            rows = 1)
+    col.add.event.e <- tgl(add.event.e, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.event.c)
-    col.add.event.c <- list(labels = list(textGrob(add.event.c,
-                                                   x = xpos.cols, just = just.cols,
-                                                   gp = gpar(
-                                                     fontsize = fs.heading,
-                                                     fontface = ff.heading)
-                                                   )),
-                            rows = 1)
+    col.add.event.c <- tgl(add.event.c, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.mean.e)
-    col.add.mean.e <- list(labels = list(textGrob(add.mean.e,
-                                                  x = xpos.cols, just = just.cols,
-                                                  gp = gpar(
-                                                    fontsize = fs.heading,
-                                                    fontface = ff.heading)
-                                                  )),
-                           rows = 1)
+    col.add.mean.e <- tgl(add.mean.e, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.mean.c)
-    col.add.mean.c <- list(labels = list(textGrob(add.mean.c,
-                                                  x = xpos.cols, just = just.cols,
-                                                  gp = gpar(
-                                                    fontsize = fs.heading,
-                                                    fontface = ff.heading)
-                                                  )),
-                           rows = 1)
+    col.add.mean.c <- tgl(add.mean.c, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.sd.e)
-    col.add.sd.e <- list(labels = list(textGrob(add.sd.e,
-                                                x = xpos.cols, just = just.cols,
-                                                gp = gpar(
-                                                  fontsize = fs.heading,
-                                                  fontface = ff.heading)
-                                                )),
-                         rows = 1)
+    col.add.sd.e <- tgl(add.sd.e, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.sd.c)
-    col.add.sd.c <- list(labels = list(textGrob(add.sd.c,
-                                                x = xpos.cols, just = just.cols,
-                                                gp = gpar(
-                                                  fontsize = fs.heading,
-                                                  fontface = ff.heading)
-                                                )),
-                         rows = 1)
+    col.add.sd.c <- tgl(add.sd.c, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.cor)
-    col.add.cor <- list(labels = list(textGrob(add.cor,
-                                                   x = xpos.cols, just = just.cols,
-                                                   gp = gpar(
-                                                     fontsize = fs.heading,
-                                                     fontface = ff.heading)
-                                                   )),
-                            rows = 1)
+    col.add.cor <- tgl(add.cor, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.time.e)
-    col.add.time.e <- list(labels = list(textGrob(add.time.e,
-                                                  x = xpos.cols, just = just.cols,
-                                                  gp = gpar(
-                                                    fontsize = fs.heading,
-                                                    fontface = ff.heading)
-                                                  )),
-                           rows = 1)
+    col.add.time.e <- tgl(add.time.e, xpos.c, just.c, fs.head, ff.head)
   ##
   if (newline.time.c)
-    col.add.time.c <- list(labels = list(textGrob(add.time.c,
-                                                  x = xpos.cols, just = just.cols,
-                                                  gp = gpar(
-                                                    fontsize = fs.heading,
-                                                    fontface = ff.heading)
-                                                  )),
-                           rows = 1)
+    col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head)
   ##
   leftcols  <- paste("col.", leftcols, sep = "")
   rightcols <- paste("col.", rightcols, sep = "")
-
-
-  ##
-  ##
-  ## (12) Definition of auxiliary plot functions
-  ##
-  ##
-  drawLabelCol <- function(col, j) {
-    ##
-    ## Function to draw a cell in a text column
-    ##
-    for (i in 1:length(col$rows)) {
-      if (!is.na(col$rows[i])) {
-        pushViewport(viewport(layout.pos.row = col$rows[i], layout.pos.col = j))
-        ##
-        ## Labels are grobs containing their location so just
-        ## have to grid.draw() them
-        ##
-        grid.draw(col$labels[[i]])
-        popViewport()
-      }
-    }
-  }
-  ##
-  drawNormalCI <- function(low, eff, upp, size, min, max,
-                           col, col.square, col.square.lines,
-                           col.inside) {
-    ##
-    ## Function to draw a non-summary rect-plus-CI
-    ##
-    ## NOTE the use of "native" units to position relative to
-    ## the x-axis scale, and "snpc" units to size relative to
-    ## the height of the row
-    ## ("snpc" stands for "square normalised parent coordinates"
-    ##  which means that the value is calculated as a proportion
-    ##  of the width and height of the current viewport and the
-    ##  physically smaller of these is used)
-    ##
-    if (!is.na(eff)) {
-      ##
-      ## Draw lines in colour "col.inside" if totally inside rect
-      ##
-      if (!is.na(size)) {
-        TElineCol <- if (size > 0 &&
-                         (convertX(unit(eff, "native") + unit(0.5 * size, "lines"),
-                                   "native", valueOnly = TRUE) > upp) &&
-                         (convertX(unit(eff, "native") - unit(0.5 * size, "lines"),
-                                   "native", valueOnly = TRUE) < low))
-                       col.inside
-                     else
-                       col
-      }
-    }
-    ##
-    if (!is.na(eff) && (eff >= min & eff <= max)) {
-      if (!is.na(size) && size > 0) {
-        grid.rect(x = unit(eff, "native"),
-                  width = unit(size, "snpc"),
-                  height = unit(size, "snpc"),
-                  gp = gpar(fill = col.square, col = col.square.lines))
-        grid.lines(x = unit(c(eff, eff), "native"),
-                   y = unit(c(0.4, 0.6), "npc"),
-                   gp = gpar(col = TElineCol, lwd = lwd))
-      }
-      else
-        grid.lines(x = unit(c(eff, eff), "native"),
-                   y = unit(c(0.4, 0.6), "npc"),
-                   gp = gpar(col = TElineCol, lwd = lwd))
-    }
-    if (!is.na(eff)) {
-      ##
-      ## Draw lines in colour "col.inside" if totally inside rect
-      ##
-      if (!is.na(size)) {
-        lineCol <- if (size > 0 &&
-                       (convertX(unit(eff, "native") + unit(0.5 * size, "lines"),
-                                 "native", valueOnly = TRUE) > upp) &&
-                       (convertX(unit(eff, "native") - unit(0.5 * size, "lines"),
-                                 "native", valueOnly = TRUE) < low))
-                     col.inside
-                   else
-                     col
-        ##
-        ## Draw arrow if exceed col range
-        ## convertX() used to convert between coordinate systems
-        ##
-        if (!is.na(low) && !is.na(upp) &&
-            (low >= min & upp <= max))
-          grid.lines(x = unit(c(low, upp), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd))
-        ##
-        if (!is.na(low) && !is.na(upp) &&
-            (low < min & upp > max))
-          grid.lines(x = unit(c(min, max), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd))
-        ##
-        if (!is.na(low) && !is.na(upp) &&
-            (low < min & (upp <= max & upp > min)))
-          grid.lines(x = unit(c(min, upp), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd))
-        ##
-        if (!is.na(low) && !is.na(upp) &&
-            ((low >= min & low < max) & upp > max))
-          grid.lines(x = unit(c(low, max), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd))
-        ##
-        if (!is.na(low) && low < min)
-          grid.lines(x = unit(c(min - 0.00001, min), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd),
-                     arrow = arrow(ends = "first", length = unit(0.05, "inches")))
-        if (!is.na(upp) && upp > max)
-          grid.lines(x = unit(c(max, max + 0.00001), "native"), y = 0.5,
-                     gp = gpar(col = lineCol, lwd = lwd),
-                     arrow = arrow(ends = "last", length = unit(0.05, "inches")))
-      }
-    }
-  }
-  ##
-  drawSummaryCI <- function(low, eff, upp, size, min, max,
-                            col.diamond, col.diamond.lines) {
-    ##
-    ## Function to draw a summary "diamond"
-    ##
-    ## Not sure how to calc the heights of the diamonds so
-    ## I'm just using half the height of the equivalent rect
-    ##
-    if (!is.na(eff) &&
-        ((min <= eff & eff <= max) |
-           (min <= low & low <= max) |
-             (min <= upp & upp <= max))
-        )
-      grid.polygon(x = unit(c(low, eff, upp, eff), "native"),
-                   y = unit(0.5 + c(0, 0.3 * size, 0, -0.3 * size), "npc"),
-                   gp = gpar(fill = col.diamond, col = col.diamond.lines))
-  }
-  ##
-  drawPredictionCI <- function(low, upp, size, min, max,
-                               col.predict, col.predict.lines) {
-    ##
-    ## Function to draw a prediction interval
-    ##
-    if (!(is.na(low) | is.na(upp))) {
-      ## Plot prediction interval only within plotting range
-      if ((min <= low & low <= max) |
-          (min <= upp & upp <= max))
-        grid.polygon(x = unit(c(low, low, upp, upp), "native"),
-                     y = unit(0.5 + c(-0.1 * size, 0.1 * size, 0.1 * size, -0.1 * size), "npc"),
-                     gp = gpar(fill = col.predict, col = col.predict.lines))
-    }
-  }
-  ##
-  drawLines <- function(col, j) {
-    ##
-    ## Function to draw lines
-    ##
-    pushViewport(viewport(layout.pos.col = j, xscale = col$range))
-    ##
-    ## Reference line:
-    ##
-    if (!is.na(ref) && (col$range[1] <= ref & ref <= col$range[2]))
-      grid.lines(x = unit(ref, "native"),
-                 y = unit(c(ymin.line - (!addrow & !overall),
-                            ymax.line +
-                            (print.label & !bottom.lr)),
-                          "lines"),
-                 gp = gpar(lwd = lwd))
-    ##
-    ## Line for fixed effect estimate:
-    ##
-    if (comb.fixed & overall)
-      if (col$range[1] <= TE.fixed & TE.fixed <= col$range[2])
-        if (!is.null(lty.fixed))
-          grid.lines(x = unit(TE.fixed, "native"),
-                     y = unit(c(ymin.line + prediction + comb.random + 0.5,
-                                ymax.line - 1 * addrow),
-                              "lines"),
-                     gp = gpar(lty = lty.fixed, lwd = lwd))
-    ##
-    ## Line for random effects estimate:
-    ##
-    if (comb.random & overall)
-      if (col$range[1] <= TE.random & TE.random <= col$range[2])
-        if (!is.null(lty.random) & !is.na(TE.random))
-          grid.lines(x = unit(TE.random, "native"),
-                     y = unit(c(ymin.line + prediction + 0.5,
-                                ymax.line - 1 * addrow),
-                              "lines"),
-                     gp = gpar(lty = lty.random, lwd = lwd))
-    ##
-    popViewport()
-  }
-  ##
-  drawLabels <- function(col, j) {
-    ##
-    ## Function to print labels
-    ##
-    pushViewport(viewport(layout.pos.col = j, xscale = col$range))
-    ##
-    ## Check for "\n" in argument smlab
-    ##
-    clines <- twolines(smlab, arg = TRUE)
-    ##
-    if (clines$newline) {
-      newline.smlab <- TRUE
-      smlab <- clines$label1
-      add.smlab <- clines$label2
-    }
-    else
-      newline.smlab <- FALSE
-    ##
-    ## Check for "\n" in argument xlab
-    ##
-    clines <- twolines(xlab, arg = TRUE)
-    ##
-    if (clines$newline) {
-      newline.xlab <- TRUE
-      xlab <- clines$label2
-      add.xlab <- clines$label1
-    }
-    else
-      newline.xlab <- FALSE
-    ##
-    ## sm-Label on top:
-    ##
-    grid.text(smlab,
-              x = unit(smlab.pos, "native"),
-              y = unit(ymax.line + 0.5, "lines"),
-              just = "center",
-              gp = gpar(fontsize = fs.smlab, fontface = ff.smlab))
-    ##
-    if (newline.smlab)
-      grid.text(add.smlab,
-                x = unit(smlab.pos, "native"),
-                y = unit(ymax.line + 1.5, "lines"),
-                just = "center",
-                gp = gpar(fontsize = fs.smlab, fontface = ff.smlab))
-    ##
-    ## Left and right label on x-axis:
-    ##
-    newline.label.left <- FALSE
-    newline.label.right <- FALSE
-    if (print.label) {
-      ##
-      ## Check for "\n" in argument label.left
-      ##
-      clines <- twolines(label.left, arg = TRUE)
-      ##
-      if (clines$newline) {
-        newline.label.left <- TRUE
-        if (bottom.lr) {
-          label.left <- clines$label2
-          add.label.left <- clines$label1
-        }
-        else {
-          label.left <- clines$label1
-          add.label.left <- clines$label2
-        }
-      }
-      ##
-      ## Check for "\n" in argument label.right
-      ##
-      clines <- twolines(label.right, arg = TRUE)
-      ##
-      if (clines$newline) {
-        newline.label.right <- TRUE
-        if (bottom.lr) {
-          label.right <- clines$label2
-          add.label.right <- clines$label1
-        }
-        else {
-          label.right <- clines$label1
-          add.label.right <- clines$label2
-        }
-      }
-      ##
-      grid.text(label.left,
-                x = unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
-                y = if (bottom.lr)
-                      unit(ymin.line - 2.5 - (!addrow & !overall), "lines")
-                    else
-                      unit(max(yLab, na.rm = TRUE) -
-                           ifelse(is.na(yHeadadd), 0.5, 1.5), "lines"),
-                just = "right",
-                gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.left))
-      if (newline.label.left)
-        grid.text(add.label.left,
-                  x = unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
-                  y = if (bottom.lr)
-                        unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines")
-                      else
-                        unit(max(yLab, na.rm = TRUE) -
-                             ifelse(is.na(yHeadadd), 0.5, 1.5) + 1, "lines"),
-                  just = "right",
-                  gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.left))
-      ##
-      grid.text(label.right,
-                x = unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
-                y = if (bottom.lr)
-                      unit(ymin.line - 2.5 - (!addrow & !overall), "lines")
-                    else
-                      unit(max(yLab, na.rm = TRUE) -
-                           ifelse(is.na(yHeadadd), 0.5, 1.5), "lines"),
-                just = "left",
-                gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.right))
-      if (newline.label.right)
-        grid.text(add.label.right,
-                  x = unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
-                  y = if (bottom.lr)
-                        unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines")
-                      else
-                        unit(max(yLab, na.rm = TRUE) -
-                             ifelse(is.na(yHeadadd), 0.5, 1.5) + 1, "lines"),
-                  just = "left",
-                  gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col.label.right))
-    }
-    ##
-    ## Label on x-axis:
-    ##
-    grid.text(xlab,
-              x = unit(xlab.pos, "native"),
-              y = unit(ymin.line - 2.5 - (!addrow & !overall) -
-                       1 * (print.label & bottom.lr) -
-                       1 * (print.label & bottom.lr &
-                            (newline.label.right | newline.label.left)),
-                       "lines"),
-              just = "center",
-              gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
-    ##
-    if (newline.xlab)
-      grid.text(add.xlab,
-                x = unit(xlab.pos, "native"),
-              y = unit(ymin.line - 2.5 - 1 -
-                       1 * (print.label & bottom.lr) -
-                       1 * (print.label & bottom.lr &
-                            (newline.label.right | newline.label.left)),
-                       "lines"),
-                just = "center",
-                gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
-    ##
-    popViewport()
-  }
-  ##
-  drawAxis <- function(col, j, xpos) {
-    ##
-    ## Function to draw x-axis
-    ##
-    pushViewport(viewport(layout.pos.row = max(yS, na.rm = TRUE),
-                          layout.pos.col = j,
-                          xscale = col$range))
-    ##
-    ## x-axis:
-    ##
-    if (log.xaxis) {
-      if (is.null(at)) {
-        x1000 <- c(0.001, 0.1, 1,  10, 1000)
-        x100  <- c(0.01 , 0.1, 1,  10, 100)
-        x10   <- c(0.1  , 0.5, 1,   2, 10)
-        x5    <- c(0.2  , 0.5, 1,   2, 5)
-        x2    <- c(0.5  , 1, 2)
-        x1.5  <- c(0.75 , 1, 1.5)
-        x1.25 <- c(0.8  , 1, 1.25)
-        x1    <- c(0.9  , 1, 1.1)
-        ##
-        tval.min <- min(exp(col$range[1]), 1)
-        tval.max <- max(exp(col$range[2]), 1)
-        ##
-        if (all(x1000 >= tval.min) &
-            all(x1000 <= tval.max))
-          label <- x1000
-        else if (all(x100 >= tval.min) &
-                 all(x100 <= tval.max))
-          label <- x100
-        else if (all(x10 >= tval.min) &
-                 all(x10 <= tval.max))
-          label <- x10
-        else if (all(x5 >= tval.min) &
-                 all(x5 <= tval.max))
-          label <- x5
-        else if (all(x2 >= tval.min) &
-                 all(x2 <= tval.max))
-          label <- x2
-        else if (all(x1.5 >= tval.min) &
-                 all(x1.5 <= tval.max))
-          label <- x1.5
-        else if (all(x1.25 >= tval.min) &
-                 all(x1.25 <= tval.max))
-          label <- x1.25
-        else if (all(x1 >= tval.min) &
-                 all(x1 <= tval.max))
-          label <- x1
-        else
-          label <- 1
-        ##
-        if (notmiss.xlim && is.numeric(xlim[1])) {
-          if (exp(min(xlim)) < min(label))
-            label <- c(exp(min(xlim)), label)
-          if (exp(max(xlim)) > max(label))
-            label <- c(label, exp(max(xlim)))
-        }
-        at <- log(label)
-        label <- round(label, 2)
-      }
-      else {
-        if (length(label) == 1 && is.logical(label) && label)
-          label <- round(at, 2)
-        at <- log(at)
-      }
-      grid.xaxis(at = at, label = label,
-                 gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
-    }
-    else {
-      if (is.null(at))
-        grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
-      else
-        if ((length(label) == 1 && is.logical(label) && label) |
-            (length(label) >= 1 & !is.logical(label)))
-          grid.xaxis(at = at, label = label,
-                     gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
-        else
-          grid.xaxis(at = at,
-                     gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
-    }
-    ##
-    popViewport()
-  }
-  ##
-  drawForest <- function(col, j) {
-    ##
-    ## Function to plot results for individual studies and meta-analysis
-    ##
-    for (i in 1:length(col$rows)) {
-      if (!is.na(col$rows[i])) {
-        pushViewport(viewport(layout.pos.row = col$rows[i], layout.pos.col = j,
-                              xscale = col$range))
-        
-        if (col$type[i] == "square")
-          drawNormalCI(low = col$low[i], eff = col$eff[i], upp = col$upp[i],
-                       size = col$sizes[i],
-                       min = col$range[1], max = col$range[2],
-                       col = col$col[i], col.square = col$col.square[i],
-                       col.square.lines = col$col.square.lines[i],
-                       col.inside = col$col.inside[i])
-        else if (col$type[i] == "diamond")
-          drawSummaryCI(low = col$low[i], eff = col$eff[i], upp = col$upp[i],
-                        size = col$sizes[i],
-                        min = col$range[1], max = col$range[2],
-                        col.diamond = col$col.diamond[i],
-                        col.diamond.lines = col$col.diamond.lines[i])
-        else if (col$type[i] == "predict") {
-          drawPredictionCI(low = col$low[i], upp = col$upp[i],
-                           size = col$sizes[i],
-                           min = col$range[1], max = col$range[2],
-                           col.predict = col$col.diamond[i],
-                           col.predict.lines = col$col.diamond.lines[i])
-        }
-        popViewport()
-      }
-    }
-  }
   
   
   ##
   ##
-  ## (13) Calculate width of columns in forest plot
+  ## (12) Calculate width of columns in forest plot
   ##
-  ##
-  wcalc <- function(x)
-    max(unit(rep(1, length(x)), "grobwidth", x))
   ##
   ## Exclude lines with summary measures from calculation of column
   ## width for study labels
@@ -5280,11 +4499,8 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (14) Generate forest plot
+  ## (13) Process arguments smlab, label.left and label.right
   ##
-  ##
-  if (new)
-    grid.newpage()
   ##
   if (by) {
     addline <- addrow * (!any(c(test.overall.fixed, test.overall.random,
@@ -5307,202 +4523,358 @@ forest.meta <- function(x,
   ymin.line <- summary.lines
   ymax.line <- nrow - ifelse(is.na(yHeadadd), 1, 2)
   ##
+  ## Check for "\n" in argument smlab
+  ##
+  clines <- twolines(smlab, arg = TRUE)
+  ##
+  if (clines$newline) {
+    smlab1 <- clines$top
+    smlab2 <- clines$bottom
+    ##
+    newline.smlab <- TRUE
+  }
+  else {
+    smlab1 <- smlab
+    smlab2 <- ""
+    ##
+    newline.smlab <- FALSE
+  }
+  ##
+  smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
+                rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+  ##
+  if (newline.smlab)
+    smlab2 <- tgl(smlab2, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
+                  rows = 2)
+  ##
+  ## Left and right label on x-axis:
+  ##
+  newline.ll <- FALSE
+  newline.lr <- FALSE
+  ## Check for "\n" in argument label.left
+  clines <- twolines(label.left, arg = TRUE)
+  ##
+  if (clines$newline) {
+    ll1 <- clines$top
+    ll2 <- clines$bottom
+    ##
+    newline.ll <- TRUE
+  }
+  else {
+    ll1 <- label.left
+    ll2 <- ""
+  }
+  ## Check for "\n" in argument label.right
+  clines <- twolines(label.right, arg = TRUE)
+  ##
+  if (clines$newline) {
+    lr1 <- clines$top
+    lr2 <- clines$bottom
+    ##
+    newline.lr <- TRUE
+  }
+  else {
+    lr1 <- label.right
+    lr2 <- ""
+  }
+  ##
+  if (!bottom.lr) {
+    ll1 <- tgl(ll1, unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+               "right", fs.lr, ff.lr, col.label.left,
+               rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+    ##
+    if (newline.ll)
+      ll2 <- tgl(ll2, unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+                 "right", fs.lr, ff.lr, col.label.left,
+                 rows = 2)
+    ##
+    lr1 <- tgl(lr1, unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+               "left", fs.lr, ff.lr, col.label.right,
+               rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+    ##
+    if (newline.lr)
+      lr2 <- tgl(lr2, unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+                 "left", fs.lr, ff.lr, col.label.right,
+                 rows = 2)    
+  }
+  
+  
+  ##
+  ##
+  ## (14) Generate forest plot
+  ##
+  ##
+  if (new)
+    grid.newpage()
+  ##
   pushViewport(viewport(layout = grid.layout(
                           nrow,
                           length(x1),
                           widths = x1,
                           heights = unit(1, "lines"))))
   ##
+  ## Left side of forest plot
+  ##
   j <- 1
   ##
   for (i in seq(along = leftcols)) {
-    drawLabelCol(cols[[leftcols[i]]], j)
+    add.text(cols[[leftcols[i]]], j)
     ##
     if (!is.na(yHeadadd)) {
       if (!is.null(lab.e.attach.to.col)) {
         if (leftcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
-          drawLabelCol(col.lab.e, j)
+          add.text(col.lab.e, j)
       }
       else if (metabin) {
-        if (leftcols[i] == "col.n.e" & just.cols == "right")
-          drawLabelCol(col.lab.e, j)
-        else if (leftcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.e, j)
+        if (leftcols[i] == "col.n.e" & just.c == "right")
+          add.text(col.lab.e, j)
+        else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          add.text(col.lab.e, j)
       }
       else if (metacont) {
-        if (leftcols[i] == "col.sd.e" & just.cols == "right")
-          drawLabelCol(col.lab.e, j)
-        else if (leftcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.e, j)
+        if (leftcols[i] == "col.sd.e" & just.c == "right")
+          add.text(col.lab.e, j)
+        else if (leftcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
+          add.text(col.lab.e, j)
       }
       else if (metainc) {
-        if (leftcols[i] == "col.time.e" & just.cols == "right")
-          drawLabelCol(col.lab.e, j)
-        else if (leftcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.e, j)
+        if (leftcols[i] == "col.time.e" & just.c == "right")
+          add.text(col.lab.e, j)
+        else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          add.text(col.lab.e, j)
       }
       ##
       if (!is.null(lab.c.attach.to.col)) {
         if (leftcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
-          drawLabelCol(col.lab.c, j)
+          add.text(col.lab.c, j)
       }
       else if (metabin) {
-        if (leftcols[i] == "col.n.c" & just.cols == "right")
-          drawLabelCol(col.lab.c, j)
-        else if (leftcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.c, j)
+        if (leftcols[i] == "col.n.c" & just.c == "right")
+          add.text(col.lab.c, j)
+        else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          add.text(col.lab.c, j)
       }
       else if (metacont) {
-        if (leftcols[i] == "col.sd.c" & just.cols == "right")
-          drawLabelCol(col.lab.c, j)
-        else if (leftcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.c, j)
+        if (leftcols[i] == "col.sd.c" & just.c == "right")
+          add.text(col.lab.c, j)
+        else if (leftcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
+          add.text(col.lab.c, j)
       }
       else if (metainc) {
-        if (leftcols[i] == "col.time.c" & just.cols == "right")
-          drawLabelCol(col.lab.c, j)
-        else if (leftcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
-          drawLabelCol(col.lab.c, j)
+        if (leftcols[i] == "col.time.c" & just.c == "right")
+          add.text(col.lab.c, j)
+        else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          add.text(col.lab.c, j)
       }
       ##
       if (newline.studlab & leftcols[i] == "col.studlab")
-        drawLabelCol(col.add.studlab, j)
+        add.text(col.add.studlab, j)
       if (newline.effect & leftcols[i] == "col.effect")
-        drawLabelCol(col.add.effect, j)
+        add.text(col.add.effect, j)
       if (newline.ci & leftcols[i] == "col.ci")
-        drawLabelCol(col.add.ci, j)
+        add.text(col.add.ci, j)
       if (newline.effect.ci & leftcols[i] == "col.effect.ci")
-        drawLabelCol(col.add.effect.ci, j)
+        add.text(col.add.effect.ci, j)
       if (newline.w.fixed & leftcols[i] == "col.w.fixed")
-        drawLabelCol(col.add.w.fixed, j)
+        add.text(col.add.w.fixed, j)
       if (newline.w.random & leftcols[i] == "col.w.random")
-        drawLabelCol(col.add.w.random, j)
+        add.text(col.add.w.random, j)
       if (newline.TE & leftcols[i] == "col.TE")
-        drawLabelCol(col.add.TE, j)
+        add.text(col.add.TE, j)
       if (newline.seTE & leftcols[i] == "col.seTE")
-        drawLabelCol(col.add.seTE, j)
+        add.text(col.add.seTE, j)
       if (newline.n.e & leftcols[i] == "col.n.e")
-        drawLabelCol(col.add.n.e, j)
+        add.text(col.add.n.e, j)
       if (newline.n.c & leftcols[i] == "col.n.c")
-        drawLabelCol(col.add.n.c, j)
+        add.text(col.add.n.c, j)
       if (newline.event.e & leftcols[i] == "col.event.e")
-        drawLabelCol(col.add.event.e, j)
+        add.text(col.add.event.e, j)
       if (newline.event.c & leftcols[i] == "col.event.c")
-        drawLabelCol(col.add.event.c, j)
+        add.text(col.add.event.c, j)
       if (newline.mean.e & leftcols[i] == "col.mean.e")
-        drawLabelCol(col.add.mean.e, j)
+        add.text(col.add.mean.e, j)
       if (newline.mean.c & leftcols[i] == "col.mean.c")
-        drawLabelCol(col.add.mean.c, j)
+        add.text(col.add.mean.c, j)
       if (newline.sd.e & leftcols[i] == "col.sd.e")
-        drawLabelCol(col.add.sd.e, j)
+        add.text(col.add.sd.e, j)
       if (newline.sd.c & leftcols[i] == "col.sd.c")
-        drawLabelCol(col.add.sd.c, j)
+        add.text(col.add.sd.c, j)
       if (newline.cor & leftcols[i] == "col.cor")
-        drawLabelCol(col.add.cor, j)
+        add.text(col.add.cor, j)
       if (newline.time.e & leftcols[i] == "col.time.e")
-        drawLabelCol(col.add.time.e, j)
+        add.text(col.add.time.e, j)
       if (newline.time.c & leftcols[i] == "col.time.c")
-        drawLabelCol(col.add.time.c, j)
+        add.text(col.add.time.c, j)
     }
     ##
     j <- j + 2
   }
   ##
-  drawLines(col.forest, j)
-  drawAxis(col.forest, j)
-  drawLabels(col.forest, j)
-  drawForest(col.forest, j)
+  ## Produce forest plot
+  ##
+  draw.lines(col.forest, j,
+             ref, TE.fixed, TE.random,
+             overall, comb.fixed, comb.random, prediction,
+             lwd, lty.fixed, lty.random,
+             ymin.line, ymax.line,
+             addrow, print.label, bottom.lr)
+  ##
+  draw.axis(col.forest, j, yS, log.xaxis, at, label,
+            fs.axis, ff.axis, lwd,
+            xlim, notmiss.xlim)
+  ##
+  if (bottom.lr) {
+    add.text(smlab1, j, xscale = col.forest$range)
+    ##
+    if (newline.smlab)
+      add.text(smlab2, j, xscale = col.forest$range)
+  }
+  ##
+  if (print.label) {
+    if (!bottom.lr) {
+      add.text(ll1, j,
+               xscale = col.forest$range)
+      ##
+      if (newline.ll)
+        add.text(ll2, j,
+                 xscale = col.forest$range)
+      ##
+      add.text(lr1, j,
+               xscale = col.forest$range)
+      ##
+      if (newline.lr)
+        add.text(lr2, j,
+                 xscale = col.forest$range)
+    }
+    else {
+      add.label(ll1, j,
+                unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+                unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
+                "right",
+                fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
+      ##
+      if (newline.ll)
+        add.label(ll2, j,
+                  unit(xlab.pos - (xlim[2] - xlim[1]) / 30, "native"),
+                  unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
+                  "right",
+                  fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
+      ##
+      add.label(lr1, j,
+                unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+                unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
+                "left",
+                fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
+      ##
+      if (newline.lr)
+        add.label(lr2, j,
+                  unit(xlab.pos + (xlim[2] - xlim[1]) / 30, "native"),
+                  unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
+                  "left",
+                  fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
+    }
+  }
+  ##
+  add.xlab(col.forest, j, xlab, xlab.pos, fs.xlab, ff.xlab, overall, ymin.line,
+           addrow, print.label, bottom.lr, newline.lr, newline.ll)
+  ##
+  draw.forest(col.forest, j)
+  ##
   j <- j + 2
+  ##
+  ##
+  ## Right side of forest plot
+  ##
   ##
   if (rsel) {
     for (i in seq(along = rightcols)) {
-      drawLabelCol(cols[[rightcols[i]]], j)
+      add.text(cols[[rightcols[i]]], j)
       ##
       if (!is.na(yHeadadd)) {
         if (!is.null(lab.e.attach.to.col)) {
           if (rightcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
-            drawLabelCol(col.lab.e, j)
+            add.text(col.lab.e, j)
         }
         else if (metabin) {
-          if (rightcols[i] == "col.n.e" & just.cols == "right")
-            drawLabelCol(col.lab.e, j)
-          else if (rightcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.e, j)
+          if (rightcols[i] == "col.n.e" & just.c == "right")
+            add.text(col.lab.e, j)
+          else if (rightcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+            add.text(col.lab.e, j)
         }
         else if (metacont) {
-          if (rightcols[i] == "col.sd.e" & just.cols == "right")
-            drawLabelCol(col.lab.e, j)
-          else if (rightcols[i] == "col.mean.e" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.e, j)
+          if (rightcols[i] == "col.sd.e" & just.c == "right")
+            add.text(col.lab.e, j)
+          else if (rightcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
+            add.text(col.lab.e, j)
         }
         else if (metainc) {
-          if (rightcols[i] == "col.time.e" & just.cols == "right")
-            drawLabelCol(col.lab.e, j)
-          else if (rightcols[i] == "col.event.e" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.e, j)
+          if (rightcols[i] == "col.time.e" & just.c == "right")
+            add.text(col.lab.e, j)
+          else if (rightcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+            add.text(col.lab.e, j)
         }
         ##
         if (!is.null(lab.c.attach.to.col)) {
           if (rightcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
-            drawLabelCol(col.lab.c, j)
+            add.text(col.lab.c, j)
         }
         else if (metabin) {
-          if (rightcols[i] == "col.n.c" & just.cols == "right")
-            drawLabelCol(col.lab.c, j)
-          else if (rightcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.c, j)
+          if (rightcols[i] == "col.n.c" & just.c == "right")
+            add.text(col.lab.c, j)
+          else if (rightcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+            add.text(col.lab.c, j)
         }
         else if (metacont) {
-          if (rightcols[i] == "col.sd.c" & just.cols == "right")
-            drawLabelCol(col.lab.c, j)
-          else if (rightcols[i] == "col.mean.c" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.c, j)
+          if (rightcols[i] == "col.sd.c" & just.c == "right")
+            add.text(col.lab.c, j)
+          else if (rightcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
+            add.text(col.lab.c, j)
         }
         else if (metainc) {
-          if (rightcols[i] == "col.time.c" & just.cols == "right")
-            drawLabelCol(col.lab.c, j)
-          else if (rightcols[i] == "col.event.c" & just.cols %in% c("left", "center"))
-            drawLabelCol(col.lab.c, j)
+          if (rightcols[i] == "col.time.c" & just.c == "right")
+            add.text(col.lab.c, j)
+          else if (rightcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+            add.text(col.lab.c, j)
         }
         ##
         if (newline.studlab & rightcols[i] == "col.studlab")
-          drawLabelCol(col.add.studlab, j)
+          add.text(col.add.studlab, j)
         if (newline.effect & rightcols[i] == "col.effect")
-          drawLabelCol(col.add.effect, j)
+          add.text(col.add.effect, j)
         if (newline.ci & rightcols[i] == "col.ci")
-          drawLabelCol(col.add.ci, j)
+          add.text(col.add.ci, j)
         if (newline.effect.ci & rightcols[i] == "col.effect.ci")
-          drawLabelCol(col.add.effect.ci, j)
+          add.text(col.add.effect.ci, j)
         if (newline.w.fixed & rightcols[i] == "col.w.fixed")
-          drawLabelCol(col.add.w.fixed, j)
+          add.text(col.add.w.fixed, j)
         if (newline.w.random & rightcols[i] == "col.w.random")
-          drawLabelCol(col.add.w.random, j)
+          add.text(col.add.w.random, j)
         if (newline.TE & rightcols[i] == "col.TE")
-          drawLabelCol(col.add.TE, j)
+          add.text(col.add.TE, j)
         if (newline.seTE & rightcols[i] == "col.seTE")
-          drawLabelCol(col.add.seTE, j)
+          add.text(col.add.seTE, j)
         if (newline.n.e & rightcols[i] == "col.n.e")
-          drawLabelCol(col.add.n.e, j)
+          add.text(col.add.n.e, j)
         if (newline.n.c & rightcols[i] == "col.n.c")
-          drawLabelCol(col.add.n.c, j)
+          add.text(col.add.n.c, j)
         if (newline.event.e & rightcols[i] == "col.event.e")
-          drawLabelCol(col.add.event.e, j)
+          add.text(col.add.event.e, j)
         if (newline.event.c & rightcols[i] == "col.event.c")
-          drawLabelCol(col.add.event.c, j)
+          add.text(col.add.event.c, j)
         if (newline.mean.e & rightcols[i] == "col.mean.e")
-          drawLabelCol(col.add.mean.e, j)
+          add.text(col.add.mean.e, j)
         if (newline.mean.c & rightcols[i] == "col.mean.c")
-          drawLabelCol(col.add.mean.c, j)
+          add.text(col.add.mean.c, j)
         if (newline.sd.e & rightcols[i] == "col.sd.e")
-          drawLabelCol(col.add.sd.e, j)
+          add.text(col.add.sd.e, j)
         if (newline.sd.c & rightcols[i] == "col.sd.c")
-          drawLabelCol(col.add.sd.c, j)
+          add.text(col.add.sd.c, j)
         if (newline.cor & rightcols[i] == "col.cor")
-          drawLabelCol(col.add.cor, j)
+          add.text(col.add.cor, j)
         if (newline.time.e & rightcols[i] == "col.time.e")
-          drawLabelCol(col.add.time.e, j)
+          add.text(col.add.time.e, j)
         if (newline.time.c & rightcols[i] == "col.time.c")
-          drawLabelCol(col.add.time.c, j)
+          add.text(col.add.time.c, j)
       }
       ##
       j <- j + 2

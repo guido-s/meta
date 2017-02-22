@@ -8,6 +8,21 @@
     - bug fix such that test for an overall effect is actually
       calculated
 
+  * forest.meta():
+    - bug fix such that summary label (argument smlab) is printed
+      above forest plot if argument fontsize is unequal to 12
+
+ ** Internal changes **
+    
+  * forest.meta():
+    - auxiliary R functions detached from R code
+    - cleaning / shortening of R code
+
+  * new auxiliary R functions:
+    - add.label, add.text, add.xlab, draw.axis, draw.ci.square,
+      draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
+      formatcol, removeNULL, tg, tgl, twolines, wcalc
+
 
 *** meta, version 4.7-1, 2017-02-13 ***
 
