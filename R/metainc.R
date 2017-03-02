@@ -130,6 +130,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   n.c <- eval(mf[[match("n.c", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
   ##
+  ## Catch incr from data:
+  ##
+  if (!missing(incr))
+    incr <- eval(mf[[match("incr", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  chknumeric(incr, min = 0)
+  ##
   ## Catch studlab, byvar, subset from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
@@ -159,6 +166,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklength(event.c, k.All, fun)
   chklength(time.c, k.All, fun)
   chklength(studlab, k.All, fun)
+  ##
+  if (length(incr) > 1)
+    chklength(incr, k.All, fun)
   ##
   if (!missing.byvar)
     chklength(byvar, k.All, fun)
@@ -232,6 +242,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     data$.time.c <- time.c
     data$.studlab <- studlab
     ##
+    data$.incr <- incr
+    ##
     if (!missing.byvar)
       data$.byvar <- byvar
     ##
@@ -262,6 +274,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     event.c <- event.c[subset]
     time.c <- time.c[subset]
     studlab <- studlab[subset]
+    ##
+    if (length(incr) > 1)
+      incr <- incr[subset]
     ##
     if (!missing.byvar)
       byvar <- byvar[subset]
@@ -316,18 +331,18 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   sparse <- any(sel, na.rm = TRUE)
   ##
   if (method == "GLMM" & sparse)
-    if ((!missing(incr) & incr != 0) |
+    if ((!missing(incr) & any(incr != 0)) |
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr)
         )
       warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
   ##
   if (addincr)
-    incr.event <- rep(incr, k.all)
+    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
   else
     if (sparse)
       if (allincr)
-        incr.event <- rep(incr, k.all)
+        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
     else
@@ -455,7 +470,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res <- list(event.e = event.e, time.e = time.e,
               event.c = event.c, time.c = time.c,
               method = method,
-              incr = incr, sparse = sparse,
+              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              sparse = sparse,
               allincr = allincr, addincr = addincr,
               incr.event = incr.event)
   ##

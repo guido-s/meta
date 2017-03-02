@@ -101,10 +101,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (sm == "ASD")
     method <- "Inverse"
   ##
-  if (!is.numeric(incr))
-    incr <- setchar(incr, "TACC",
-                    "should be numeric or the character string \"TACC\"")
-  ##
   if (method == "Peto" & sm != "OR")
     stop("Peto's method only possible with argument 'sm = \"OR\"'")
   ##
@@ -146,6 +142,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               data, enclos = sys.frame(sys.parent()))
   chknull(n.c)
   ##
+  ## Catch incr from data:
+  ##
+  if (!missing(incr))
+    incr <- eval(mf[[match("incr", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  ##
+  if (is.numeric(incr))
+    chknumeric(incr, min = 0)
+  else
+    incr <- setchar(incr, "TACC",
+                    "should be numeric or the character string \"TACC\"")
+  ##
+  ## Catch studlab, byvar, subset from data:
+  ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   studlab <- setstudlab(studlab, k.All)
@@ -173,6 +183,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklength(event.c, k.All, fun)
   chklength(n.c, k.All, fun)
   chklength(studlab, k.All, fun)
+  ##
+  if (length(incr) > 1)
+    chklength(incr, k.All, fun)
   ##
   if (!missing.byvar)
     chklength(byvar, k.All, fun)
@@ -241,6 +254,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     data$.n.c <- n.c
     data$.studlab <- studlab
     ##
+    data$.incr <- incr
+    ##
     if (!missing.byvar)
       data$.byvar <- byvar
     ##
@@ -266,6 +281,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     event.c <- event.c[subset]
     n.c <- n.c[subset]
     studlab <- studlab[subset]
+    ##
+    if (length(incr) > 1)
+      incr <- incr[subset]
     ##
     if (!missing.byvar)
       byvar <- byvar[subset]
@@ -379,7 +397,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (ii) Peto method or GLMM
   ##
   if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
-    if ((!missing(incr) & incr != 0) |
+    if ((!missing(incr) & any(incr != 0)) |
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr) |
         (!missing(allstudies) & allstudies)
@@ -404,11 +422,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (addincr) {
     ##
     if (is.numeric(incr)) {
-      incr.e <- rep(incr, k.all)
-      incr.c <- rep(incr, k.all)
+      incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
+      incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
     }
     else {
-      if (incr == "TACC") {
+      if (all(incr == "TACC")) {
         ##
         ## Treatment arm continuity correction:
         ##
@@ -422,11 +440,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       if (allincr) {
         ##
         if (is.numeric(incr)) {
-          incr.e <- rep(incr, k.all)
-          incr.c <- rep(incr, k.all)
+          incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
+          incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
         }
         else {
-          if (incr == "TACC") {
+          if (all(incr == "TACC")) {
             ##
             ## Treatment arm continuity correction:
             ##
@@ -445,7 +463,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           incr.c <- incr * sel
         }
         else {
-          if (incr == "TACC") {
+          if (all(incr == "TACC")) {
             ##
             ## Treatment arm continuity correction:
             ##
@@ -464,6 +482,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## No continuity correction for Peto method
   ##
   if (method == "Peto") {
+    incr <- 0
     incr.e <- rep(0, k.all)
     incr.c <- rep(0, k.all)
   }
@@ -683,7 +702,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
               method = method,
-              incr = incr, sparse = sparse,
+              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              sparse = sparse,
               allincr = allincr, addincr = addincr,
               allstudies = allstudies,
               doublezeros = doublezeros,

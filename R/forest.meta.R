@@ -837,6 +837,13 @@ forest.meta <- function(x,
   if (is.null(label.left))
     label.left <- ""
   ##
+  print.label <- label.left != "" | label.right != "" & !is.na(ref)
+  if (print.label & !bottom.lr) {
+    if (!smlab.null)
+      warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
+    smlab <- ""
+  }
+  ##
   by <- !is.null(byvar)
   if (!by)
     addrow.subgroups <- FALSE
@@ -3326,12 +3333,65 @@ forest.meta <- function(x,
     longer.time.c <- labs[["lab.time.c"]]
   }
   ##
+  ## Check for "\n" in argument smlab
+  ##
+  clines <- twolines(smlab, arg = TRUE)
+  ##
+  if (clines$newline) {
+    smlab1 <- clines$top
+    smlab2 <- clines$bottom
+    ##
+    newline.smlab <- TRUE
+  }
+  else {
+    smlab1 <- smlab
+    smlab2 <- ""
+    ##
+    newline.smlab <- FALSE
+  }
+  ##
+  ## Check for "\n" in argument label.left
+  ##
+  clines <- twolines(label.left, arg = TRUE)
+  ##
+  if (clines$newline) {
+    ll1 <- clines$top
+    ll2 <- clines$bottom
+    ##
+    newline.ll <- TRUE
+  }
+  else {
+    ll1 <- label.left
+    ll2 <- ""
+    ##
+    newline.ll <- FALSE
+  }
+  ##
+  ## Check for "\n" in argument label.right
+  ##
+  clines <- twolines(label.right, arg = TRUE)
+  ##
+  if (clines$newline) {
+    lr1 <- clines$top
+    lr2 <- clines$bottom
+    ##
+    newline.lr <- TRUE
+  }
+  else {
+    lr1 <- label.right
+    lr2 <- ""
+    ##
+    newline.lr <- FALSE
+  }
+  ##
   newline <- newline.studlab | newline.effect | newline.ci | newline.effect.ci |
     newline.w.fixed | newline.w.random | newline.TE | newline.seTE |
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
-    newline.cor | newline.time.e | newline.time.c
-
+    newline.cor | newline.time.e | newline.time.c |
+    newline.smlab
+  ##
+  newline.all <- newline | (!newline & (newline.ll | newline.lr) & !addrow)
   
   
   ##
@@ -3704,7 +3764,7 @@ forest.meta <- function(x,
        ) |
       (!is.null(lab.e.attach.to.col) & !is.null(lab.e)) |
       (!is.null(lab.c.attach.to.col) & !is.null(lab.c)) |
-      newline
+      newline.all
       ) {
     yHead <- 2
     yHeadadd <- 1
@@ -3886,13 +3946,6 @@ forest.meta <- function(x,
       max.yTE <- 0
     else
     max.yTE <- max(yTE, na.rm = TRUE)
-  }
-  ##
-  print.label <- label.left != "" | label.right != "" & !is.na(ref)
-  if (print.label & !bottom.lr) {
-    if (!smlab.null)
-      warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
-    smlab <- ""
   }
   ##
   yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow.overall, 1, 2)
@@ -4515,22 +4568,7 @@ forest.meta <- function(x,
   ymin.line <- summary.lines
   ymax.line <- nrow - ifelse(is.na(yHeadadd), 1, 2)
   ##
-  ## Check for "\n" in argument smlab
-  ##
-  clines <- twolines(smlab, arg = TRUE)
-  ##
-  if (clines$newline) {
-    smlab1 <- clines$top
-    smlab2 <- clines$bottom
-    ##
-    newline.smlab <- TRUE
-  }
-  else {
-    smlab1 <- smlab
-    smlab2 <- ""
-    ##
-    newline.smlab <- FALSE
-  }
+  ## Summary label at top of forest plot
   ##
   smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
                 rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
@@ -4541,53 +4579,33 @@ forest.meta <- function(x,
   ##
   ## Left and right label on x-axis:
   ##
-  newline.ll <- FALSE
-  newline.lr <- FALSE
-  ## Check for "\n" in argument label.left
-  clines <- twolines(label.left, arg = TRUE)
-  ##
-  if (clines$newline) {
-    ll1 <- clines$top
-    ll2 <- clines$bottom
-    ##
-    newline.ll <- TRUE
-  }
-  else {
-    ll1 <- label.left
-    ll2 <- ""
-  }
-  ## Check for "\n" in argument label.right
-  clines <- twolines(label.right, arg = TRUE)
-  ##
-  if (clines$newline) {
-    lr1 <- clines$top
-    lr2 <- clines$bottom
-    ##
-    newline.lr <- TRUE
-  }
-  else {
-    lr1 <- label.right
-    lr2 <- ""
-  }
-  ##
   if (!bottom.lr & !is.na(ref)) {
+    row1.lr <- if (!newline & (newline.ll | newline.lr) & !addrow)
+                 1
+               else if (!is.na(yHeadadd) & addrow)
+                 2
+               else if (is.na(yHeadadd))
+                 1
+               else
+                 2
+    ##
     ll1 <- tgl(ll1, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                "right", fs.lr, ff.lr, col.label.left,
-               rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+               rows = row1.lr)
     ##
     if (newline.ll)
       ll2 <- tgl(ll2, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                  "right", fs.lr, ff.lr, col.label.left,
-                 rows = 2)
+                 rows = row1.lr + 1)
     ##
     lr1 <- tgl(lr1, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                "left", fs.lr, ff.lr, col.label.right,
-               rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+               rows = row1.lr)
     ##
     if (newline.lr)
       lr2 <- tgl(lr2, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                  "left", fs.lr, ff.lr, col.label.right,
-                 rows = 2)    
+                 rows = row1.lr + 1)
   }
   
   

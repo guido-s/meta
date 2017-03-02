@@ -1,6 +1,15 @@
-*** meta, version 4.7-2, 2017-mm-dd ***
+*** meta, version 4.8-0, 2017-mm-dd ***
+
+ ** Major changes **
+ 
+  * Continuity correction can be specified for each individual study
+    in meta-analysis with proportions or incidence rates
 
  ** User-visible changes **
+
+  * metabin(), metainc(), metaprop(), metarate():
+    - argument 'incr' can be of same length as number of studies in
+      meta-analysis
 
   * metaprop():
     - bug fix in studies with missing information for events or
@@ -9,10 +18,11 @@
       calculated
 
   * forest.meta():
-    - bug fix such that summary label (argument smlab) is printed
-      above forest plot if argument fontsize is unequal to 12
+    - bug fix such that summary label (argument 'smlab') is printed
+      above forest plot if argument 'fontsize' is unequal to 12
     - by default, label on x-axis and text on top of forest plot are
-      printed in center of forest plot (arguments xlab.pos, smlab.pos)
+      printed in center of forest plot (arguments 'xlab.pos',
+      'smlab.pos')
 
  ** Internal changes **
 

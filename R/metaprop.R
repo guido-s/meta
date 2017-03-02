@@ -124,6 +124,13 @@ metaprop <- function(event, n, studlab,
             data, enclos = sys.frame(sys.parent()))
   chknull(n)
   ##
+  ## Catch incr from data:
+  ##
+  if (!missing(incr))
+    incr <- eval(mf[[match("incr", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  chknumeric(incr, min = 0)
+  ##
   ## Catch studlab, byvar, subset from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
@@ -151,6 +158,9 @@ metaprop <- function(event, n, studlab,
   ##
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
+  ##
+  if (length(incr) > 1)
+    chklength(incr, k.All, fun)
   ##
   if (!missing.byvar)
     chklength(byvar, k.All, fun)
@@ -217,6 +227,8 @@ metaprop <- function(event, n, studlab,
     data$.n <- n
     data$.studlab <- studlab
     ##
+    data$.incr <- incr
+    ##
     if (!missing.byvar)
       data$.byvar <- byvar
     ##
@@ -240,6 +252,10 @@ metaprop <- function(event, n, studlab,
     event <- event[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
+    ##
+    if (length(incr) > 1)
+      incr <- incr[subset]
+    ##
     if (!missing.byvar)
       byvar <- byvar[subset]
   }
@@ -291,7 +307,7 @@ metaprop <- function(event, n, studlab,
   sparse <- any(sel, na.rm = TRUE)
   ##
   if (method == "GLMM" & sparse)
-    if ((!missing(incr) & incr != 0) |
+    if ((!missing(incr) & any(incr != 0)) |
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr)
         )
@@ -300,11 +316,11 @@ metaprop <- function(event, n, studlab,
   ## No need to add anything to cell counts for arcsine transformation
   ##
   if (addincr)
-    incr.event <- rep(incr, k.all)
+    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
   else
     if (sparse)
       if (allincr)
-        incr.event <- rep(incr, k.all)
+        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
     else
@@ -471,7 +487,8 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   res <- list(event = event, n = n,
-              incr = incr, sparse = sparse,
+              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              sparse = sparse,
               allincr = allincr, addincr = addincr,
               method.ci = method.ci,
               incr.event = incr.event)

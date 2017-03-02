@@ -28,7 +28,8 @@ subgroup <- function(x, tau.preset = NULL) {
   sumNA <- function(x)
     if (all(is.na(x)))
       NA
-    else sum(x, na.rm = TRUE)
+    else
+      sum(x, na.rm = TRUE)
   
   
   res.w <- matrix(NA, ncol = 30, nrow = length(bylevs))
@@ -48,7 +49,7 @@ subgroup <- function(x, tau.preset = NULL) {
                        studlab = x$studlab[sel],
                        method = x$method,
                        sm = x$sm,
-                       incr = x$incr,
+                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                        allincr = x$allincr,
                        addincr = x$addincr,
                        allstudies = x$allstudies,
@@ -89,7 +90,7 @@ subgroup <- function(x, tau.preset = NULL) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         level = x$level, level.comb = x$level.comb,
-                        incr = x$incr,
+                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         allincr = x$allincr,
                         addincr = x$addincr,
                         hakn = x$hakn,
@@ -112,7 +113,7 @@ subgroup <- function(x, tau.preset = NULL) {
                        studlab = x$studlab[sel],
                        method = x$method,
                        sm = x$sm,
-                       incr = x$incr,
+                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                        allincr = x$allincr,
                        addincr = x$addincr,
                        level = x$level, level.comb = x$level.comb,
@@ -127,7 +128,7 @@ subgroup <- function(x, tau.preset = NULL) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         level = x$level, level.comb = x$level.comb,
-                        incr = x$incr,
+                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         allincr = x$allincr,
                         addincr = x$addincr,
                         hakn = x$hakn,
@@ -221,6 +222,7 @@ subgroup <- function(x, tau.preset = NULL) {
   
   
   res <- list(bylevs = bylevs,
+              ##
               TE.fixed.w = ci.fixed.w$TE,
               seTE.fixed.w = ci.fixed.w$seTE,
               lower.fixed.w = ci.fixed.w$lower,
@@ -274,7 +276,7 @@ subgroup <- function(x, tau.preset = NULL) {
               lower.Rb.w = Rb.w.low,
               upper.Rb.w = Rb.w.upp
               )
-
+  
   
   res
 }

@@ -4,7 +4,7 @@ update.meta <- function(object,
                         studlab = object$data$.studlab,
                         method = object$method,
                         sm = object$sm,
-                        incr = object$incr,
+                        incr,
                         allincr = object$allincr,
                         addincr = object$addincr,
                         allstudies = object$allstudies,
@@ -217,8 +217,10 @@ update.meta <- function(object,
   ##
   ##
   if (!(!is.null(object$version) &&
-          as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)) {
-    ## Some additional changes for meta objects with version < 3.2
+        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)) {
+    ##
+    ## Changes for meta objects with version < 3.2
+    ##
     object$subset <- NULL
     ##
     object$data <- data.frame(.studlab = object$studlab)
@@ -232,6 +234,7 @@ update.meta <- function(object,
       object$data$.event.c <- object$event.c
       object$data$.n.c <- object$n.c
     }
+    ##
     if (metacont) {
       object$data$.n.e <- object$n.e
       object$data$.mean.e <- object$mean.e
@@ -240,30 +243,39 @@ update.meta <- function(object,
       object$data$.mean.c <- object$mean.c
       object$data$.sd.c <- object$sd.c
     }
+    ##
     if (metacor) {
       object$data$.cor <- object$cor
       object$data$.n <- object$n
     }
+    ##
     if (metagen) {
       object$data$.TE <- object$TE
       object$data$.seTE <- object$seTE
     }
+    ##
     if (metaprop) {
       object$data$.event <- object$event
       object$data$.n <- object$n
     }
-    if (metarate) {
-      object$data$.event <- object$event
-      object$data$.time <- object$time
-    }
   }
-  ##  
+  ##
+  if (!(!is.null(object$version) &&
+        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 4.8)) {
+    ##
+    ## Changes for meta objects with version < 4.8
+    ##
+    if (metabin | metainc | metaprop | metarate)
+      object$data$.incr <- object$incr
+  }
+  ##
   if (is.null(object$data)) {
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
   ##  
   missing.subset  <- missing(subset)
+  missing.incr    <- missing(incr)
   missing.byvar   <- missing(byvar)
   missing.studlab <- missing(studlab)
   ##  
@@ -271,6 +283,9 @@ update.meta <- function(object,
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
+  ##
+  incr <- eval(mf[[match("incr", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
   ##
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
@@ -295,6 +310,13 @@ update.meta <- function(object,
       subset <- object$data$.subset
   }
   ##
+  if (missing.incr) {
+    if (!is.null(object$data$.incr))
+      incr <- object$data$.incr
+    else
+      incr <- gs("incr")
+  }
+  ##
   if (missing.byvar & !is.null(object$data$.byvar))
     byvar <- object$data$.byvar
   ##
@@ -317,7 +339,23 @@ update.meta <- function(object,
   ## (6) Update meta object
   ##
   ##
-  if (metabin)
+  if (metabin) {
+    sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
+    method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+    if (sm == "ASD") {
+      if (!missing.incr)
+        warning("Note, no continuity correction considered for arcsine difference (sm = \"ASD\").")
+      incr <- 0
+      object$data$.incr <- 0
+    }
+    ##
+    if (method == "Peto") {
+      if (!missing.incr)
+        warning("Note, no continuity correction considered for method = \"Peto\".")
+      incr <- 0
+      object$data$.incr <- 0
+    }
+    ##
     m <- metabin(event.e = object$data$.event.e,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
@@ -328,7 +366,8 @@ update.meta <- function(object,
                  ##
                  method = method,
                  sm = ifelse(method == "GLMM", "OR", sm),
-                 incr = incr, allincr = allincr, addincr = addincr, allstudies = allstudies,
+                 incr = incr,
+                 allincr = allincr, addincr = addincr, allstudies = allstudies,
                  MH.exact = MH.exact, RR.cochrane = RR.cochrane,
                  model.glmm = model.glmm,
                  ##
@@ -354,6 +393,7 @@ update.meta <- function(object,
                  keepdata = keepdata,
                  warn = warn,
                  ...)
+  }
   ##
   if (metacont)
     m <- metacont(n.e = object$data$.n.e,
@@ -493,7 +533,8 @@ update.meta <- function(object,
                  ##
                  method = method,
                  sm = ifelse(method == "GLMM", "IRR", sm),
-                 incr = incr, allincr = allincr, addincr = addincr,
+                 incr = incr,
+                 allincr = allincr, addincr = addincr,
                  model.glmm = model.glmm,
                  ##
                  level = level, level.comb = level.comb,
@@ -535,7 +576,8 @@ update.meta <- function(object,
                   data = data, subset = subset, method = method,
                   ##
                   sm = ifelse(method == "GLMM", "PLOGIT", sm),
-                  incr = incr, allincr = allincr, addincr = addincr,
+                  incr = incr,
+                  allincr = allincr, addincr = addincr,
                   method.ci = ifelse(is.null(method.ci), "CP", method.ci),
                   ##
                   level = level, level.comb = level.comb,
@@ -567,7 +609,8 @@ update.meta <- function(object,
                   data = data, subset = subset, method = method,
                   ##
                   sm = ifelse(method == "GLMM", "IRLN", sm),
-                  incr = incr, allincr = allincr, addincr = addincr,
+                  incr = incr,
+                  allincr = allincr, addincr = addincr,
                   method.ci = ifelse(is.null(method.ci), "CP", method.ci),
                   ##
                   level = level, level.comb = level.comb,

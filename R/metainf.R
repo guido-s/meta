@@ -78,6 +78,11 @@ metainf <- function(x, pooled, sortvar) {
   TE <- x$TE[o]
   seTE <- x$seTE[o]
   ##
+  if (length(x$incr) > 1)
+    incr <- x$incr[o]
+  else
+    incr <- rep_len(x$incr, k.all)
+  ##
   studlab <- x$studlab[o]
   slab <- c(paste("Omitting", studlab), "Pooled estimate")
   studlab <- c(rev(rev(slab)[-1]), " ", rev(slab)[1])
@@ -97,7 +102,7 @@ metainf <- function(x, pooled, sortvar) {
       m <- metabin(event.e[sel], n.e[sel], event.c[sel], n.c[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = x$incr, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.cochrane = x$RR.cochrane,
                    ##
@@ -158,7 +163,7 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    method = x$method,
                    sm = x$sm,
-                   incr = x$incr, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -172,7 +177,7 @@ metainf <- function(x, pooled, sortvar) {
       m <- metaprop(event[sel], n[sel],
                     ##
                     sm = x$sm,
-                    incr = x$incr, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
                     method.ci = x$method.ci,
                     ##
                     level.comb = x$level.comb,
@@ -188,7 +193,7 @@ metainf <- function(x, pooled, sortvar) {
       m <- metaprop(event[sel], time[sel],
                     ##
                     sm = x$sm,
-                    incr = x$incr, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
                     ##
                     level.comb = x$level.comb,
                     ##

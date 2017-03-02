@@ -13,7 +13,7 @@
        data=object$data, subset=object$subset,
        studlab=object$data$.studlab,
        method=object$method, sm=object$sm,
-       incr=object$incr, allincr=object$allincr,
+       incr, allincr=object$allincr,
        addincr=object$addincr, allstudies=object$allstudies,
        MH.exact=object$MH.exact, RR.cochrane=object$RR.cochrane,
        model.glmm = object$model.glmm,
@@ -50,19 +50,23 @@
   \item{method}{A character string indicating which method is to be
     used for pooling of studies; see \code{\link{metabin}} and
     \code{\link{metainc}} function for admissible values.}
-  \item{sm}{A character string indicating which summary measure is used for pooling.}
-  \item{incr}{Could be either a numerical value which is added to each cell
-  frequency for studies with a zero cell count or the character string
-  \code{"TA"} which stands for treatment arm continuity correction.}
+  \item{sm}{A character string indicating which summary measure is
+    used for pooling.}
+  \item{incr}{Either a numerical value or vector which can be added to
+    each cell frequency for studies with a zero cell count or the
+    character string \code{"TA"} which stands for treatment arm
+    continuity correction.}
   \item{allincr}{A logical indicating if \code{incr} is added to each
-    cell frequency of all studies if at least one study has a zero cell
-    count. If FALSE (default), \code{incr} is added only to each cell frequency of
-    studies with a zero cell count.}
+    cell frequency of all studies if at least one study has a zero
+    cell count. If FALSE (default), \code{incr} is added only to each
+    cell frequency of studies with a zero cell count.}
   \item{addincr}{A logical indicating if \code{incr} is added to each cell
     frequency of all studies irrespective of zero cell counts.}
   \item{allstudies}{A logical indicating if studies with zero or all
     events in both groups are to be included in the meta-analysis
-    (applies only if \code{sm} is equal to \code{"RR"} or \code{"OR"}).}
+    (applies only if \code{sm} is equal to \code{"RR"} or
+    \code{"OR"}).}
+    
   \item{MH.exact}{A logical indicating if \code{incr} is not to be added
     to all cell frequencies for studies with a zero cell count to
     calculate the pooled estimate based on the Mantel-Haenszel method.}
@@ -105,7 +109,8 @@
   \item{method.bias}{A character string indicating which test for
     funnel plot asymmetry is to be used. Either \code{"rank"},
     \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-    \code{"peters"}, can be abbreviated. See function \code{\link{metabias}}}
+    \code{"peters"}, can be abbreviated. See function
+    \code{\link{metabias}}}
   \item{backtransf}{A logical indicating whether results should be
     back transformed in printouts and plots. If
     \code{backtransf=TRUE}, results for \code{sm="OR"} are printed as
@@ -128,8 +133,10 @@
   \item{label.c}{Label for control group.}
   \item{label.left}{Graph label on left side of forest plot.}
   \item{label.right}{Graph label on right side of forest plot.}
-  \item{n.e}{Number of observations in experimental group. (only for metagen object)}
-  \item{n.c}{Number of observations in control group. (only for metagen object)}
+  \item{n.e}{Number of observations in experimental group. (only for
+    metagen object)}
+  \item{n.c}{Number of observations in control group. (only for
+    metagen object)}
   \item{pooledvar}{A logical indicating if a pooled variance should be
     used for the mean difference (only for metacont object with
     \code{sm="MD"}).}

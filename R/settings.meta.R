@@ -210,7 +210,7 @@ settings.meta <- function(...) {
     cat("- metarate(): ")
     catarg("smrate", newline = FALSE)
     ##
-    cat("\n* Additional settings for metabin(), metainc(), and metaprop() *\n")
+    cat("\n* Additional settings for metabin(), metainc(), metaprop(), and metarate() *\n")
     catarg("incr   ")
     catarg("allincr")
     catarg("addincr")

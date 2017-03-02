@@ -36,8 +36,8 @@ metareg(x, formula, method.tau = x$method.tau, hakn = x$hakn,
 \details{
   This R function is a wrapper function for R function
   \code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
-  (Viechtbauer 2010), i.e. the function \code{metareg} can only be
-  used if the R package \bold{metafor} is installed.
+  (Viechtbauer 2010), i.e., function \code{metareg} can only be used
+  if R package \bold{metafor} is installed.
 
   Argument '\dots' can be used to pass additional arguments to R
   function \code{\link[metafor]{rma.uni}}. For example, argument \code{control}
