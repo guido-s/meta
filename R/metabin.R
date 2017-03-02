@@ -509,9 +509,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ## Cooper & Hedges (1994), p. 251-2
       ## 
       TE <- log(((n11 + incr.e) * (n22 + incr.c)) /
-                  ((n12 + incr.e) * (n21 + incr.c)))
+                ((n12 + incr.e) * (n21 + incr.c)))
       seTE <- sqrt((1 / (n11 + incr.e) + 1 / (n12 + incr.e) +
-                      1 / (n21 + incr.c) + 1 / (n22 + incr.c)))
+                    1 / (n21 + incr.c) + 1 / (n22 + incr.c)))
     }
     else if (method == "Peto") {
       ## 

@@ -509,11 +509,26 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
   if (!is.null(bottom)) {
     if (grepl("\n", bottom)) {
       wsplit <- unlist(strsplit(bottom, "\n"))
-      if (length(wsplit) != 2)
+      if (length(wsplit) == 1) {
+        if (substring(bottom, 1, 1) == "\n") {
+          top <- ""
+          bottom <- wsplit[1]
+          longer <- bottom
+          newline <- TRUE
+        }
+        else if (substring(bottom, nchar(bottom), nchar(bottom)) == "\n") {
+          top <- wsplit[1]
+          bottom <- ""
+          longer <- top
+          newline <- TRUE
+        }
+      }
+      else if (length(wsplit) != 2) {
         if (arg)
           stop("Maximum of two lines for argument '", xname, "'.")
         else
           stop("Maximum of two lines for label of column '", xname, "'.")
+      }
       else {
         top <- wsplit[1]
         bottom <- wsplit[2]

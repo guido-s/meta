@@ -810,12 +810,12 @@ forest.meta <- function(x,
     log.xaxis <- TRUE
   }
   ##
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & !missing(pscale) & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   ##
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & !missing(irscale) & irscale != 1) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
