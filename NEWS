@@ -24,6 +24,10 @@
       printed in center of forest plot (arguments 'xlab.pos',
       'smlab.pos')
 
+  * metainc():
+    - bug fix such that argument 'incr' is considered for incidence
+      rate difference (sm = "IRD")
+
  ** Internal changes **
 
   * act on NOTE in 'R CMD check ... --as-cran' with R version, 3.4.0,

@@ -323,7 +323,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   sel <- switch(sm,
-                IRD = rep(FALSE, length(event.e)),
+                IRD = event.e == 0 | event.c == 0,
                 IRR = event.e == 0 | event.c == 0)
   ##
   ## Sparse computation
