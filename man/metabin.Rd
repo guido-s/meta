@@ -340,6 +340,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     cell frequencies in both treatment groups.}
   \item{df.hakn}{Degrees of freedom for test of treatment effect for
     Hartung-Knapp method (only if \code{hakn=TRUE}).}
+  \item{k.MH}{Number of studies combined in meta-analysis using
+    Mantel-Haenszel method.}
   \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
     missing.}
   \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and

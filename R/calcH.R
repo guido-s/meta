@@ -4,13 +4,23 @@ calcH <- function(Q, df, level) {
   ## Higgins & Thompson (2002), Statistics in Medicine, 21, 1539-58
   ##
   k <- df + 1
-  H <- sqrt(Q / (k - 1))
   ##
-  selogH <- ifelse(k > 2,
-                   ifelse(Q <= k,
-                          sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)^2))),
-                          0.5 * (log(Q) - log(k - 1)) / (sqrt(2 * Q) - sqrt(2 * k - 3))),
-                   NA)
+  if (!is.na(k)) {
+    if (k > 1)
+      H <- sqrt(Q / (k - 1))
+    else
+      H <- NA
+    ##
+    selogH <- ifelse(k > 2,
+                     ifelse(Q <= k,
+                            sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)^2))),
+                            0.5 * (log(Q) - log(k - 1)) / (sqrt(2 * Q) - sqrt(2 * k - 3))),
+                     NA)
+  }
+  else {
+    H <- NA
+    selogH <- NA
+  }
   ##
   tres <- ci(log(H), selogH, level)
   ##

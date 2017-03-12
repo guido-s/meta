@@ -709,7 +709,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               doublezeros = doublezeros,
               MH.exact = MH.exact, RR.cochrane = RR.cochrane,
               Q.CMH = Q.CMH, print.CMH = print.CMH,
-              incr.e = incr.e, incr.c = incr.c)
+              incr.e = incr.e, incr.c = incr.c,
+              k.MH = if (method == "MH") sum(w.fixed > 0) else NA)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

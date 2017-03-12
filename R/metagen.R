@@ -324,10 +324,11 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (is.null(tau.preset)) {
       tau2 <- hc$tau^2
+      tau2.calc <- if (is.na(tau2)) 0 else tau2
       se.tau2 <- hc$se.tau2
     }
     else {
-      tau2 <- tau.preset^2
+      tau2 <- tau2.calc <- tau.preset^2
       se.tau2 <- NULL
     }
     ##
@@ -358,7 +359,7 @@ metagen <- function(TE, seTE, studlab,
         seTE.random <- seTE.fixed
         w.random <- w.fixed
         ##
-        tau2 <- 0
+        tau2 <- tau2.calc <- 0
       }
       else {
         pm <- paulemandel(TE, seTE)
@@ -366,14 +367,14 @@ metagen <- function(TE, seTE, studlab,
         seTE.random <- pm$seTE.random
         w.random <- pm$w.random
         ##
-        tau2 <- pm$tau^2
+        tau2 <- tau2.calc <- pm$tau^2
       }
     }
     else {
       ##
       ## Cooper & Hedges (1994), p. 265, 274-5
       ##
-      w.random <- 1 / (seTE^2 + tau2)
+      w.random <- 1 / (seTE^2 + tau2.calc)
       w.random[is.na(w.random) | is.na(TE)] <- 0
       ##
       TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
@@ -406,7 +407,7 @@ metagen <- function(TE, seTE, studlab,
   ## Prediction interval
   ##
   if (k >= 3) {
-    seTE.predict <- sqrt(seTE.random^2 + tau2)
+    seTE.predict <- sqrt(seTE.random^2 + tau2.calc)
     ci.p <- ci(TE.random, seTE.predict, level.predict, k - 2)
     p.lower <- ci.p$lower
     p.upper <- ci.p$upper
@@ -421,7 +422,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   Hres  <- calcH(Q, df.Q, level.comb)
   I2res <- isquared(Q, df.Q, level.comb)
-  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random, tau2, Q, df.Q, level.comb)
+  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random, tau2.calc, Q, df.Q, level.comb)
   
   
   ##

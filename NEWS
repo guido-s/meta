@@ -1,4 +1,4 @@
-*** meta, version 4.8-0, 2017-mm-dd ***
+*** meta, version 4.8-0, 2017-03-12 ***
 
  ** Major changes **
  
@@ -24,6 +24,12 @@
       printed in center of forest plot (arguments 'xlab.pos',
       'smlab.pos')
 
+  * print.summary.meta():
+    - print number of studies for fixed effect meta-analysis using
+      Mantel-Haenszel method if different from number of studies in
+      random effects model (only if summary measure is "RD" or "IRD"
+      and at least one study has zero events)
+
   * metainc():
     - bug fix such that argument 'incr' is considered for incidence
       rate difference (sm = "IRD")
@@ -33,14 +39,27 @@
   * act on NOTE in 'R CMD check ... --as-cran' with R version, 3.4.0,
     i.e. register and declare native C routine kenscore
 
+  * metabin(), metainc():
+    - new list element 'k.MH' with number of studies in meta-analysis
+      using Mantel-Haenszel method
+
   * forest.meta():
-    - auxiliary R functions detached from R code
+    - auxiliary R functions removed from R code
     - cleaning / shortening of R code
 
-  * new auxiliary R functions:
+  * new auxiliary R functions used in forest.meta():
     - add.label, add.text, add.xlab, draw.axis, draw.ci.square,
       draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
       formatcol, removeNULL, tg, tgl, twolines, wcalc
+      
+  * hetcalc(), calcH():
+    - set tau^2 as well as H and I^2 to NA if only a single study
+      contributes to meta-analysis (e.g., if other studies in
+      meta-analysis have zero standard error)
+
+  * updateversion():
+    - use R function update.meta() if version of meta used to create R
+      object is below 3.2
 
 
 *** meta, version 4.7-1, 2017-02-13 ***

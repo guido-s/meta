@@ -384,8 +384,16 @@ print.summary.meta <- function(x,
     ## Print results for meta-analysis with more than one study
     ##
     if (comb.fixed | comb.random | prediction) {
-      if (!inherits(x, "trimfill"))
-        cat(paste("Number of studies combined: k = ", k, "\n\n", sep = ""))
+      if (!inherits(x, "trimfill")) {
+        if (x$method == "MH" &&
+            (inherits(x, c("metabin", "metainc")) &
+             comb.fixed & sm %in% c("RD", "IRD") &
+             (!is.null(x$k.MH) == 1 && k != x$k.MH)))
+          cat(paste("Number of studies combined:   k.MH = ", x$k.MH,
+                    " (fixed effect), k = ", k, " (random effects)\n\n", sep = ""))
+        else
+          cat(paste("Number of studies combined: k = ", k, "\n\n", sep = ""))
+      }
       else
         cat(paste("Number of studies combined: k = ", k,
                   " (with ", x$k0, " added studies)\n\n", sep = ""))
@@ -440,10 +448,12 @@ print.summary.meta <- function(x,
     ##
     ## Print information on heterogeneity
     ##
-    if (k.all > 1 & !is.na(x$tau))
+    if (k.all > 1)
       cat(paste("\nQuantifying heterogeneity:\n ",
                 ##
-                if (x$tau^2 > 0 & x$tau^2 < 0.0001)
+                if (is.na(x$tau))
+                  paste(text.tau2, "= NA")
+                else if (x$tau^2 > 0 & x$tau^2 < 0.0001)
                   paste(text.tau2, format.tau(x$tau^2))
                 else
                   paste(text.tau2, " = ",
@@ -454,7 +464,7 @@ print.summary.meta <- function(x,
                 ##
                 if (print.H)
                   paste("; H = ",
-                        if (is.nan(H)) "NA" else format.NA(H, digits.H, "NA"),
+                        if (is.na(H)) "NA" else format.NA(H, digits.H, "NA"),
                         ifelse(k > 2 & !(is.na(lowH) | is.na(uppH)),
                                paste(" ", p.ci(format.NA(lowH, digits.H),
                                                format.NA(uppH, digits.H)),
@@ -464,7 +474,7 @@ print.summary.meta <- function(x,
                 ##
                 if (print.I2)
                   paste("; ", text.I2, " = ",
-                        if (is.nan(I2)) "NA" else paste(format.NA(I2, digits.I2), "%", sep = ""),
+                        if (is.na(I2)) "NA" else paste(format.NA(I2, digits.I2), "%", sep = ""),
                         if (print.ci.I2)
                           paste(" ",
                                 p.ci(paste(format.NA(lowI2, digits.I2), "%", sep = ""),
@@ -475,7 +485,7 @@ print.summary.meta <- function(x,
                 if (print.Rb)
                   paste("; ",
                         text.Rb, " = ",
-                        if (is.nan(Rb)) "NA" else paste(format.NA(Rb, digits.I2), "%", sep = ""),
+                        if (is.na(Rb)) "NA" else paste(format.NA(Rb, digits.I2), "%", sep = ""),
                         ifelse(k > 2 & !(is.na(lowRb) | is.na(uppRb)),
                                paste(" ",
                                      p.ci(paste(format.NA(lowRb, digits.I2), "%", sep = ""),

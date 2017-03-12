@@ -25,14 +25,16 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
         ##
         m1 <- metagen(TE[sel], seTE[sel], method.tau = "DL")
         ##
-        res.w[j,] <- c(m1$Q, m1$k - 1, m1$C)
+        res.w[j, ] <- c(m1$Q, m1$k - 1, m1$C)
       }
       ##
       Q    <- sum(res.w[, 1])
       df.Q <- sum(res.w[, 2])
       Cval <- sum(res.w[, 3])
       ##
-      if (round(Q, digits = 18) <= df.Q)
+      if (df.Q == 0)
+        tau2 <- NA
+      else if (round(Q, digits = 18) <= df.Q)
         tau2 <- 0
       else
         tau2 <- (Q - df.Q) / Cval
@@ -69,7 +71,9 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       df.Q <- sum(!is.na(seTE)) - 1
       Cval <- Ccalc(w.fixed)
       ##
-      if (round(Q, digits = 18) <= df.Q)
+      if (df.Q == 0)
+        tau2 <- NA
+      else if (round(Q, digits = 18) <= df.Q)
         tau2 <- 0
       else
         tau2 <- (Q - df.Q) / Cval

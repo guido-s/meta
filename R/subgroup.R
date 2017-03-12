@@ -6,7 +6,7 @@ subgroup <- function(x, tau.preset = NULL) {
   bylevs <- bylevs(byvar)
   
   
-  if (!(length(byvar)>0)) {
+  if (!(length(byvar) > 0)) {
     warning("Argument 'byvar' is missing.")
     return(NULL)
   }

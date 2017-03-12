@@ -473,7 +473,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
-              incr.event = incr.event)
+              incr.event = incr.event,
+              k.MH = if (method == "MH") sum(w.fixed > 0) else NA)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

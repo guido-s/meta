@@ -267,6 +267,12 @@ update.meta <- function(object,
     ##
     if (metabin | metainc | metaprop | metarate)
       object$data$.incr <- object$incr
+    ##
+    if (metabin | metainc)
+      if (object$method == "MH")
+        object$k.MH <- sum(object$w.fixed > 0)
+      else
+        object$k.MH <- NA
   }
   ##
   if (is.null(object$data)) {
