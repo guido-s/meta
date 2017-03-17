@@ -197,7 +197,7 @@ metainf <- function(x, pooled, sortvar) {
                     warn = FALSE)
     ##
     if (inherits(x, "metarate"))
-      m <- metaprop(event[sel], time[sel],
+      m <- metarate(event[sel], time[sel],
                     ##
                     sm = x$sm,
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
