@@ -80,8 +80,10 @@ metacum <- function(x, pooled, sortvar) {
   ##
   if (length(x$incr) > 1)
     incr <- x$incr[o]
-  else
+  else if (!is.null(x$incr))
     incr <- rep_len(x$incr, k.all)
+  else
+    incr <- x$incr
   ##
   studlab <- x$studlab[o]
   slab <- character(k.all)
@@ -102,11 +104,16 @@ metacum <- function(x, pooled, sortvar) {
   for (i in 1:k.all) {
     sel <- 1:i
     ##
+    if (length(incr) > 1)
+      incr.i <- incr[sel]
+    else
+      incr.i <- incr
+    ##
     if (inherits(x, "metabin"))
       m <- metabin(event.e[sel], n.e[sel], event.c[sel], n.c[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.cochrane = x$RR.cochrane,
                    ##
@@ -167,7 +174,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    method = x$method,
                    sm = x$sm,
-                   incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -181,7 +188,7 @@ metacum <- function(x, pooled, sortvar) {
       m <- metaprop(event[sel], n[sel],
                     ##
                     sm = x$sm,
-                    incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     method.ci = x$method.ci,
                     ##
                     level.comb = x$level.comb,
@@ -197,7 +204,7 @@ metacum <- function(x, pooled, sortvar) {
       m <- metaprop(event[sel], time[sel],
                     ##
                     sm = x$sm,
-                    incr = incr[sel], allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     ##
                     level.comb = x$level.comb,
                     ##

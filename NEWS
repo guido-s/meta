@@ -1,3 +1,15 @@
+*** meta, version 4.8-1, 2017-03-17 ***
+
+ ** User-visible changes **
+
+  * metacum(), metainf():
+    - bug fix for meta-analysis objects without continuity correction,
+      i.e., metacont(), metacor(), metagen() (bug was introduced in
+      version 4.8-0 of meta)
+      Error message: "Error in rep_len(x$incr, k.all): cannot
+       replicate NULL to a non-zero length"
+
+
 *** meta, version 4.8-0, 2017-03-12 ***
 
  ** Major changes **
@@ -1356,8 +1368,8 @@ Update of several help pages.
 
 Function metaprop:
 - bug fix such that call of forest.meta function with metaprop object
-  does not result in an error (bug was introduced with meta, version
-  2.4-0)
+  does not result in an error (bug was introduced in version 2.4-0 of
+  meta)
 - new list components incr, allincr, addincr added to metaprop R
   object (should have been part of exported list since meta,
   version 1.5-0)
