@@ -11,11 +11,14 @@ calcH <- function(Q, df, level) {
     else
       H <- NA
     ##
-    selogH <- ifelse(k > 2,
-                     ifelse(Q <= k,
+    selogH <- ifelse(Q > k,
+                     ifelse(k >= 2,
+                            0.5 * (log(Q) - log(k - 1)) /
+                            (sqrt(2 * Q) - sqrt(2 * k - 3)),
+                            NA),
+                     ifelse(k > 2,
                             sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)^2))),
-                            0.5 * (log(Q) - log(k - 1)) / (sqrt(2 * Q) - sqrt(2 * k - 3))),
-                     NA)
+                            NA))
   }
   else {
     H <- NA

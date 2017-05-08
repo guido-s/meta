@@ -13,10 +13,13 @@ print.summary.meta <- function(x,
                                irunit = x$irunit,
                                bylab.nchar = 35,
                                digits.zval = gs("digits.zval"),
+                               digits.pval = max(gs("digits.pval"), 2),
+                               digits.pval.Q = max(gs("digits.pval.Q"), 2),
                                digits.Q = gs("digits.Q"),
                                digits.tau2 = gs("digits.tau2"),
                                digits.H = gs("digits.H"),
                                digits.I2 = gs("digits.I2"),
+                               scientific.pval = gs("scientific.pval"),
                                print.I2 = gs("print.I2"),
                                print.H = gs("print.H"),
                                print.Rb = gs("print.Rb"),
@@ -48,9 +51,12 @@ print.summary.meta <- function(x,
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
   chknumeric(digits.zval, min = 0, single = TRUE)
+  chknumeric(digits.pval, min = 1, single = TRUE)
+  chknumeric(digits.pval.Q, min = 1, single = TRUE)
   chknumeric(digits.Q, min = 0, single = TRUE)
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
+  chklogical(scientific.pval)
   chklogical(backtransf)
   chklogical(print.I2)
   chklogical(print.H)
@@ -323,7 +329,8 @@ print.summary.meta <- function(x,
     I2 <- round(100 * x$I2$TE, digits.I2)
     lowI2 <- round(100 * x$I2$lower, digits.I2)
     uppI2 <- round(100 * x$I2$upper, digits.I2)
-    print.ci.I2 <- k > 2 & !(is.na(lowI2) | is.na(uppI2))
+    print.ci.I2 <- ((Q > k & k >= 2) | (Q <= k & k > 2)) &
+                   !(is.na(lowI2) | is.na(uppI2))
   }
   else
     print.ci.I2 <- FALSE
@@ -351,7 +358,8 @@ print.summary.meta <- function(x,
                  p.ci(format.NA(lowTE.fixed, digits, "NA"),
                       format.NA(uppTE.fixed, digits, "NA")),
                  format.NA(zTE.fixed, digits.zval),
-                 format.p(pTE.fixed))
+                 format.p(pTE.fixed, digits = digits.pval,
+                          scientific = scientific.pval))
     dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p-value"))
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
@@ -414,7 +422,9 @@ print.summary.meta <- function(x,
                              digits = digits.zval),
                    format.p(c(if (comb.fixed) pTE.fixed,
                               if (comb.random) pTE.random,
-                              if (prediction) NA)))
+                              if (prediction) NA),
+                            digits = digits.pval,
+                            scientific = scientific.pval))
       if (prediction)
         res[dim(res)[1], c(1,3:4)] <- ""
       if (!is.null(x$hakn) && x$hakn) {
@@ -436,7 +446,9 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metabin") && print.CMH) {
         Qdata <- cbind(format.NA(round(Q.CMH, digits.Q), digits.Q, "NA"),
-                       1, format.p(1 - pchisq(Q.CMH, df = 1)))
+                       1, format.p(1 - pchisq(Q.CMH, df = 1),
+                                   digits = digits.pval.Q,
+                                   scientific = scientific.pval))
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         ##
         cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
@@ -500,13 +512,17 @@ print.summary.meta <- function(x,
       if (k > 1) {
         if (x$method != "GLMM") {
           Qdata <- cbind(format.NA(round(Q, digits.Q), digits.Q, "NA"),
-                         df.Q, format.p(1 - pchisq(Q, df = df.Q)))
+                         df.Q, format.p(1 - pchisq(Q, df = df.Q),
+                                        digits = digits.pval.Q,
+                                        scientific = scientific.pval))
           dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         }
         else {
           Qdata <- cbind(format.NA(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA"),
                          df.Q,
-                         format.p(1 - pchisq(c(Q, Q.LRT), df = df.Q)),
+                         format.p(1 - pchisq(c(Q, Q.LRT), df = df.Q),
+                                  digits = digits.pval.Q,
+                                  scientific = scientific.pval),
                          c("Wald-type", "Likelihood-Ratio"))
           dimnames(Qdata) <- list(rep("", 2),
                                   c("Q", "d.f.", "p-value", "Test"))
@@ -554,7 +570,9 @@ print.summary.meta <- function(x,
           cat("\nTest for subgroup differences (fixed effect model):\n")
           if (x$method == "MH") {
             Qdata <- cbind(format.NA(round(Q.b.fixed, digits.Q), digits.Q, "NA"),
-                           df.Q.b, format.p(1 - pchisq(Q.b.fixed, df = df.Q.b)))
+                           df.Q.b, format.p(1 - pchisq(Q.b.fixed, df = df.Q.b),
+                                            digits = digits.pval.Q,
+                                            scientific = scientific.pval))
             dimnames(Qdata) <- list("Between groups  ",
                                     c("Q", "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
@@ -564,7 +582,9 @@ print.summary.meta <- function(x,
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),
                            dfs,
-                           format.p(1 - pchisq(Qs, df = dfs)))
+                           format.p(1 - pchisq(Qs, df = dfs),
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                     c("Q", "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
@@ -605,7 +625,9 @@ print.summary.meta <- function(x,
           cat("\nTest for subgroup differences (random effects model):\n")
           if (is.na(Q.w.random)) {
             Qdata <- cbind(format.NA(round(Q.b.random, digits.Q), digits.Q, "NA"),
-                           df.Q.b, format.p(1 - pchisq(Q.b.random, df = df.Q.b)))
+                           df.Q.b, format.p(1 - pchisq(Q.b.random, df = df.Q.b),
+                                            digits = digits.pval.Q,
+                                            scientific = scientific.pval))
             dimnames(Qdata) <- list("Between groups  ",
                                     c("Q", "d.f.", "p-value"))
           }
@@ -613,7 +635,9 @@ print.summary.meta <- function(x,
             Qs  <- c(Q.b.random, Q.w.random)
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),
-                           dfs, format.p(1 - pchisq(Qs, df = dfs)))
+                           dfs, format.p(1 - pchisq(Qs, df = dfs),
+                                         digits = digits.pval.Q,
+                                         scientific = scientific.pval))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                     c("Q", "d.f.", "p-value"))
           }

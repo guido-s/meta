@@ -1,3 +1,44 @@
+*** meta, version 4.8-2, 2017-mm-dd ***
+
+ ** Major changes **
+ 
+  * Calculate confidence interval for I-squared in a meta-analysis
+    with two studies if the heterogeneity statistic Q is larger than 2
+
+  * P-values can be printed in scientific notation
+
+  * In forest plots, printing of z-values can be disabled
+
+ ** User-visible changes **
+
+  * forest.meta():
+    - new argument 'print.zval' to print (default) or not print
+      z-value for test of treatment effect
+    - new argument 'print.Q.subgroup' to print (default) or not print
+      Chi-squared statistic for test of subgroup differences
+    - bug fix: print first line above second line if argument 'xlab'
+      consists of two lines (bug was introduced in meta, version
+      4.8-0)  
+    - labels of additional columns are printed in correct line if
+      label consists of two lines
+    - new argument 'scientific.pval' to print p-values in scientific
+      notation, e.g., 1.2345e-01 instead of 0.12345
+    
+  * print.meta() and print.summary.meta():
+    - new arguments 'print.pval' and 'print.pval.Q' to specify number
+      of significant digits for p-values
+    - new argument 'scientific.pval' to print p-values in scientific
+      notation, e.g., 1.2345e-01 instead of 0.12345.
+      
+ ** Internal changes **
+
+  * calcH():
+    - Calculate confidence interval for H in a meta-analysis with two
+      studies if the heterogeneity statistic Q is larger than 2 (this
+      confidence is used in isquared() to calculate a confidence
+      interval for I-squared)
+
+
 *** meta, version 4.8-1, 2017-03-17 ***
 
  ** User-visible changes **
@@ -105,7 +146,7 @@
       in forest plot (overall = FALSE)
     - print right and left labels (arguments label.left, label.right)
       in correct line if arguments overall and addrow are FALSE
-    - bug fix, do not stop with an error if comb.fixed = FALSE,
+    - bug fix: do not stop with an error if comb.fixed = FALSE,
       comb.random = FALSE, and overall.hetstat = TRUE
 
   * ci(), metacor(), metagen(), metaprop(), metarate():

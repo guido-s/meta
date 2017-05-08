@@ -21,9 +21,12 @@
         pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
         digits = gs("digits"), digits.se = gs("digits.se"),
         digits.zval = gs("digits.zval"),
+        digits.pval = max(gs("digits.pval"), 2),
+        digits.pval.Q = max(gs("digits.pval.Q"), 2),
         digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
         digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
         digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
+	scientific.pval = gs("scientific.pval"),
         warn.backtransf = FALSE,
         ...)
 
@@ -47,8 +50,11 @@
         pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
         bylab.nchar=35,
         digits.zval = gs("digits.zval"),
+        digits.pval = max(gs("digits.pval"), 2),
+        digits.pval.Q = max(gs("digits.pval.Q"), 2),
         digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
         digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
+	scientific.pval = gs("scientific.pval"),
         print.I2 = gs("print.I2"), print.H = gs("print.H"),
         print.Rb = gs("print.Rb"),
         text.tau2 = gs("text.tau2"), text.I2 = gs("text.I2"),
@@ -119,6 +125,10 @@ cilayout(bracket="[", separator="; ")
     deviations and standard errors, see \code{print.default}.}
   \item{digits.zval}{Minimal number of significant digits for z- or
     t-value, see \code{print.default}.}
+  \item{digits.pval}{Minimal number of significant digits for p-value
+    of overall treatment effect, see \code{print.default}.}
+  \item{digits.pval.Q}{Minimal number of significant digits for
+    p-value of heterogeneity test, see \code{print.default}.}
   \item{digits.Q}{Minimal number of significant digits for
     heterogeneity statistic Q, see \code{print.default}.}
   \item{digits.tau2}{Minimal number of significant digits for
@@ -130,7 +140,10 @@ cilayout(bracket="[", separator="; ")
   \item{digits.prop}{Minimal number of significant digits for
     proportions, see \code{print.default}.} 
   \item{digits.weight}{Minimal number of significant digits for
-    weights, see \code{print.default}.}
+    weights, see \code{print.default}.}    
+  \item{scientific.pval}{A logical specifying whether p-values should
+    be printed in scientific notation, e.g., 1.2345e-01 instead of
+    0.12345.}
   \item{print.I2}{A logical specifying whether heterogeneity statistic
     I^2 should be printed.}
   \item{print.H}{A logical specifying whether heterogeneity statistic

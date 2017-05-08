@@ -73,10 +73,11 @@ forest(x, ...)
        test.overall.fixed=comb.fixed&overall&test.overall,
        test.overall.random=comb.random&overall&test.overall,
        label.test.overall.fixed, label.test.overall.random,
+       print.zval=TRUE,
        ##
        test.subgroup,
        test.subgroup.fixed, test.subgroup.random,
-       print.Q.subgroup=print.Q,
+       print.Q.subgroup=TRUE,
        label.test.subgroup.fixed, label.test.subgroup.random,
        ##
        test.effect.subgroup,
@@ -137,6 +138,8 @@ forest(x, ...)
        #
        digits.mean = NULL, digits.sd = NULL,
        digits.cor = NULL, digits.time = NULL,
+       #
+       scientific.pval = gs("scientific.pval"),
        #
        col.i=col.study, weight=weight.study,
        ...)
@@ -334,6 +337,8 @@ forest(x, ...)
     test for overall effect (based on fixed effect model).}
   \item{label.test.overall.random}{Label printed in front of results
     of test for overall effect (based on random effects model).}
+  \item{print.zval}{A logical value indicating whether z-value for
+    test of treatment effect should be printed.}
   \item{test.subgroup}{A logical value indicating whether to print
     results of test for subgroup differences.}
   \item{test.subgroup.fixed}{A logical value indicating whether to
@@ -499,6 +504,9 @@ forest(x, ...)
   \item{digits.time}{Minimal number of significant digits for times;
     only applies to \code{\link{metainc}} and \code{\link{metarate}}
     objects.}
+  \item{scientific.pval}{A logical specifying whether p-values should
+    be printed in scientific notation, e.g., 1.2345e-01 instead of
+    0.12345.}
   \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
   \item{weight}{Deprecated argument (replaced by \code{weight.study}).}
   \item{\dots}{Additional graphical arguments (ignored at the moment).}

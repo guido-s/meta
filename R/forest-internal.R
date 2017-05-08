@@ -49,8 +49,8 @@ add.xlab <- function(x, column,
   ##
   if (clines$newline) {
     newline.xlab <- TRUE
-    xlab <- clines$bottom
-    add.xlab <- clines$top
+    xlab <- clines$top
+    add.xlab <- clines$bottom
   }
   else
     newline.xlab <- FALSE
@@ -525,9 +525,11 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
       }
       else if (length(wsplit) != 2) {
         if (arg)
-          stop("Maximum of two lines for argument '", xname, "'.")
+          stop("Maximum of two lines for argument '", xname, "'.",
+               call. = FALSE)
         else
-          stop("Maximum of two lines for label of column '", xname, "'.")
+          stop("Maximum of two lines for label of column '", xname, "'.",
+               call. = FALSE)
       }
       else {
         top <- wsplit[1]

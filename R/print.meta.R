@@ -11,12 +11,15 @@ print.meta <- function(x,
                        digits = gs("digits"),
                        digits.se = gs("digits.se"),
                        digits.zval = gs("digits.zval"),
+                       digits.pval = max(gs("digits.pval"), 2),
+                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
                        digits.Q = gs("digits.Q"),
                        digits.tau2 = gs("digits.tau2"),
                        digits.H = gs("digits.H"),
                        digits.I2 = gs("digits.I2"),
                        digits.prop = gs("digits.prop"),
                        digits.weight = gs("digits.weight"),
+                       scientific.pval = gs("scientific.pval"),
                        warn.backtransf = FALSE,
                        ...
                        ) {
@@ -86,10 +89,13 @@ print.meta <- function(x,
   chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
   chknumeric(digits.zval, min = 0, single = TRUE)
+  chknumeric(digits.pval, min = 1, single = TRUE)
+  chknumeric(digits.pval.Q, min = 1, single = TRUE)
   chknumeric(digits.Q, min = 0, single = TRUE)
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chknumeric(digits.prop, min = 0, single = TRUE)
+  chklogical(scientific.pval)
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -223,13 +229,16 @@ print.meta <- function(x,
             digits = digits, header = FALSE,
             backtransf = backtransf, pscale = pscale,
             irscale = irscale, irunit = irunit,
-            digits.zval = digits.zval)
+            digits.zval = digits.zval, digits.pval = digits.pval,
+            scientific.pval = scientific.pval)
     else
       print(summary(x),
             digits = digits, header = FALSE,
             backtransf = backtransf, pscale = pscale,
             irscale = irscale, irunit = irunit,
-            digits.zval = digits.zval, ...)
+            digits.zval = digits.zval, digits.pval = digits.pval,
+            scientific.pval = scientific.pval,
+            ...)
   }
   else {
     TE <- x$TE
@@ -407,9 +416,12 @@ print.meta <- function(x,
             irscale = irscale, irunit = irunit,
             digits.tau2 = digits.tau2,
             digits.zval = digits.zval,
+            digits.pval = digits.pval,
+            digits.pval.Q = digits.pval.Q,
             digits.Q = digits.Q,
             digits.H = digits.H,
-            digits.I2 = digits.I2)
+            digits.I2 = digits.I2,
+            scientific.pval = scientific.pval)
     }
   }
   

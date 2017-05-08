@@ -189,6 +189,7 @@ settings.meta <- function(...) {
     catarg("digits.weight")
     catarg("digits.pval  ")
     catarg("digits.pval.Q")
+    catarg("scientific.pval")
     catarg("print.I2")
     catarg("print.H")
     catarg("print.Rb")
@@ -279,6 +280,7 @@ settings.meta <- function(...) {
     setOption("digits.weight", 1)
     setOption("digits.pval", 4)
     setOption("digits.pval.Q", 4)
+    setOption("scientific.pval", FALSE)
     setOption("print.I2", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
@@ -407,6 +409,7 @@ settings.meta <- function(...) {
     iddigits.weight <- argid(names,"digits.weight")
     iddigits.pval <- argid(names, "digits.pval")
     iddigits.pval.Q <- argid(names, "digits.pval.Q")
+    idscientific.pval <- argid(names, "scientific.pval")
     idprint.I2 <- argid(names, "print.I2")
     idprint.H <- argid(names, "print.H")
     idprint.Rb <- argid(names, "print.Rb")
@@ -614,6 +617,11 @@ settings.meta <- function(...) {
       digits.pval.Q <- args[[iddigits.pval.Q]]
       chknumeric(digits.pval.Q, min = 0, single = TRUE)
       setOption("digits.pval.Q", digits.pval.Q)
+    }
+    if (!is.na(idscientific.pval)) {
+      scientific.pval <- args[[idscientific.pval]]
+      chklogical(scientific.pval)
+      setOption("scientific.pval", scientific.pval)
     }
     if (!is.na(idprint.I2)) {
       print.I2 <- args[[idprint.I2]]
