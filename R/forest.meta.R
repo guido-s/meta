@@ -864,32 +864,38 @@ forest.meta <- function(x,
   colgap.forest.left <- setunit(colgap.forest.left)
   colgap.forest.right <- setunit(colgap.forest.right)
   ##
-  label.test.overall.fixed <-
-    paste("Test for overall effect",
-          if (fixed.random) " (fixed effect)",
-          ": ", sep = "")
-  label.test.overall.random <-
-    paste("Test for overall effect",
-          if (fixed.random) " (random effects)",
-          ": ", sep = "")
+  if (missing(label.test.overall.fixed))
+    label.test.overall.fixed <-
+      paste("Test for overall effect",
+            if (fixed.random) " (fixed effect)",
+            ": ", sep = "")
+  if (missing(label.test.overall.random))
+    label.test.overall.random <-
+      paste("Test for overall effect",
+            if (fixed.random) " (random effects)",
+            ": ", sep = "")
   ##
-  label.test.subgroup.fixed <-
-    paste("Test for subgroup differences",
-          if (fixed.random) " (fixed effect)",
-          ": ", sep = "")
-  label.test.subgroup.random <-
-    paste("Test for subgroup differences",
-          if (fixed.random) " (random effects)",
-          ": ", sep = "")
+  if (missing(label.test.subgroup.fixed))
+    label.test.subgroup.fixed <-
+      paste("Test for subgroup differences",
+            if (fixed.random) " (fixed effect)",
+            ": ", sep = "")
+  if (missing(label.test.subgroup.random))
+    label.test.subgroup.random <-
+      paste("Test for subgroup differences",
+            if (fixed.random) " (random effects)",
+            ": ", sep = "")
   ##
-  label.test.effect.subgroup.fixed <-
-    paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
-          if (fixed.random) " (fixed effect)",
-          ": ", sep = "")
-  label.test.effect.subgroup.random <-
-    paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
-          if (fixed.random) " (random effects)",
-          ": ", sep = "")
+  if (missing(label.test.effect.subgroup.fixed))
+    label.test.effect.subgroup.fixed <-
+      paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
+            if (fixed.random) " (fixed effect)",
+            ": ", sep = "")
+  if (missing(label.test.effect.subgroup.random))
+    label.test.effect.subgroup.random <-
+      paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
+            if (fixed.random) " (random effects)",
+            ": ", sep = "")
   ##
   fs.head <- fs.heading
   ff.head <- ff.heading

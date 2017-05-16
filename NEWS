@@ -7,7 +7,8 @@
 
   * P-values can be printed in scientific notation
 
-  * In forest plots, printing of z-values can be disabled
+  * In forest plots, printing of z-values can be disabled and labels
+    for tests can be changed by user
 
  ** User-visible changes **
 
@@ -23,6 +24,10 @@
       label consists of two lines
     - new argument 'scientific.pval' to print p-values in scientific
       notation, e.g., 1.2345e-01 instead of 0.12345
+    - arguments 'label.test.overall.fixed', 'label.test.overall.random',
+      'label.test.subgroup.fixed', 'label.test.subgroup.random',
+      'label.test.effect.subgroup.fixed', 'label.test.effect.subgroup.random'
+      work as expected
     
   * print.meta() and print.summary.meta():
     - new arguments 'print.pval' and 'print.pval.Q' to specify number
