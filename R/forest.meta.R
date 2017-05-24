@@ -96,6 +96,7 @@ forest.meta <- function(x,
                         print.pval.Q = comb.fixed | comb.random,
                         print.Rb = FALSE,
                         print.Rb.ci = FALSE,
+                        text.subgroup.nohet = "not applicable",
                         ##
                         test.overall = gs("test.overall"),
                         test.overall.fixed = comb.fixed & overall & test.overall,
@@ -334,6 +335,10 @@ forest.meta <- function(x,
   chklogical(print.pval.Q)
   chklogical(print.Rb)
   chklogical(print.Rb.ci)
+  if (!is.logical(text.subgroup.nohet))
+    chkchar(text.subgroup.nohet)
+  else if (text.subgroup.nohet)
+    text.subgroup.nohet <- "not applicable"
   chklogical(print.zval)
   chklogical(hetstat)
   chklogical(overall.hetstat)
@@ -1595,39 +1600,48 @@ forest.meta <- function(x,
     ##
     hetstat.I2 <-
       paste(hetseparator,
-            round(100 * I2, digits.I2), "%",
+            format.NA(round(100 * I2, digits.I2),
+                      digits.I2, "NA"), "%",
             if (print.I2.ci & x$k > 2)
               paste(" ",
-                    p.ci(paste(round(100 * lowI2, digits.I2), "%", sep = ""),
-                         paste(round(100 * uppI2, digits.I2), "%", sep = "")),
+                    p.ci(paste(format.NA(round(100 * lowI2, digits.I2),
+                                         digits.I2, lab.NA),
+                               "%", sep = ""),
+                         paste(format.NA(round(100 * uppI2, digits.I2),
+                                         digits.I2, lab.NA),
+                               "%", sep = "")),
                     sep = ""),
             sep = "")
     ##
     hetstat.tau2 <-
       paste(hetseparator,
-            if (tau2 == 0) "0"
+            if (is.na(tau2)) "NA"
+            else if (tau2 == 0) "0"
             else format.tau(tau2, digits = digits.tau2),
             sep = "")
     ##
     hetstat.Q <-
       paste(hetseparator,
-            round(Q, digits.Q),
+            format.NA(round(Q, digits.Q), digits.Q, "NA"),
             if (revman5) ", df",
             if (revman5) hetseparator,
             if (revman5) df,
             sep = "")
     ##
     hetstat.pval.Q <-
-      paste(format.p(1 - pchisq(Q, df),
+      paste(format.p(pvalQ(Q, df),
                      lab = TRUE, labval = "",
                      digits = digits.pval.Q,
                      zero = if (jama) FALSE else TRUE,
-                     scientific = scientific.pval),
+                     scientific = scientific.pval,
+                     lab.NA = "NA"),
             sep = "")
     ##
     hetstat.Rb <-
       paste(hetseparator,
-            round(100 * Rb, digits.I2), "%",
+            format.NA(round(100 * Rb, digits.I2),
+                      digits.I2, "NA"),
+                      "%",
             if (print.Rb.ci & x$k > 2)
               paste(" ",
                     p.ci(paste(round(100 * lowRb, digits.I2), "%", sep = ""),
@@ -2011,9 +2025,11 @@ forest.meta <- function(x,
                               lab = TRUE, labval = "",
                               digits = digits.pval,
                               zero = if (jama) FALSE else TRUE,
-                              scientific = scientific.pval)
+                              scientific = scientific.pval,
+                              lab.NA = "NA")
     zvals.overall <- format.NA(round(c(x$zval.fixed, x$zval.random),
-                                     digits = digits.zval), digits.zval)
+                                     digits = digits.zval),
+                               digits.zval, "NA")
     ##
     ## Remove superfluous spaces
     ##
@@ -2153,7 +2169,7 @@ forest.meta <- function(x,
   ##
   hetstat.Q.bs <-
     paste(hetseparator,
-          gsub(" ", "", format.NA(round(Q.bs, digits.Q), digits.Q)),
+          gsub(" ", "", format.NA(round(Q.bs, digits.Q), digits.Q, "NA")),
           if (!jama) ", df",
           if (!jama) hetseparator,
           if (!jama) df.Q.b,
@@ -2161,11 +2177,12 @@ forest.meta <- function(x,
   hetstat.Q.bs <- rmSpace(hetstat.Q.bs, end = TRUE)
   ##
   hetstat.pval.Q.bs <-
-    paste(format.p(1 - pchisq(Q.bs, df.Q.b),
+    paste(format.p(pvalQ(Q.bs, df.Q.b),
                    lab = TRUE, labval = "",
                    digits = digits.pval.Q,
                    zero = if (jama) FALSE else TRUE,
-                   scientific = scientific.pval),
+                   scientific = scientific.pval,
+                   lab.NA = "NA"),
           sep = "")
   ##
   ## Remove superfluous spaces
@@ -2180,88 +2197,99 @@ forest.meta <- function(x,
   if (test.subgroup.fixed) {
     if (print.Q.subgroup) {
       if (revman5)
-        text.subgroup.fixed  <- substitute(paste(tl,
-                                                 "Chi"^2, tq,
-                                                 " (P", tp, ")"),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tq = hetstat.Q.bs[1],
-                                                tp = hetstat.pval.Q.bs[1]))
+        text.subgroup.fixed <-
+          substitute(paste(tl,
+                           "Chi"^2, tq,
+                           " (P", tp, ")"),
+                     list(tl = label.test.subgroup.fixed,
+                          tq = hetstat.Q.bs[1],
+                          tp = hetstat.pval.Q.bs[1]))
       else if (jama)
-        text.subgroup.fixed  <- substitute(paste(tl,
-                                                 chi[df]^2, tq,
-                                                 " (", italic(P), tp, ")"),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tq = hetstat.Q.bs[1],
-                                                tp = hetstat.pval.Q.bs[1],
-                                                df = df.Q.b))
+        text.subgroup.fixed <-
+          substitute(paste(tl,
+                           chi[df]^2, tq,
+                           " (", italic(P), tp, ")"),
+                     list(tl = label.test.subgroup.fixed,
+                          tq = hetstat.Q.bs[1],
+                          tp = hetstat.pval.Q.bs[1],
+                          df = df.Q.b))
       else
-        text.subgroup.fixed  <- substitute(paste(tl,
-                                                 chi[df]^2, tq,
-                                                 " (", italic(p), tp, ")"),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tq = hetstat.Q.bs[1],
-                                                tp = hetstat.pval.Q.bs[1],
-                                                df = df.Q.b))
+        text.subgroup.fixed <-
+          substitute(paste(tl,
+                           chi[df]^2, tq,
+                           " (", italic(p), tp, ")"),
+                     list(tl = label.test.subgroup.fixed,
+                          tq = hetstat.Q.bs[1],
+                          tp = hetstat.pval.Q.bs[1],
+                          df = df.Q.b))
     }
     else {
       if (revman5)
-        text.subgroup.fixed  <- substitute(paste(tl, " P", tp),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tp = hetstat.pval.Q.bs[1]))
+        text.subgroup.fixed <-
+          substitute(paste(tl, " P", tp),
+                     list(tl = label.test.subgroup.fixed,
+                          tp = hetstat.pval.Q.bs[1]))
       else if (jama)
-        text.subgroup.fixed  <- substitute(paste(tl, " ", italic(P), tp),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tp = hetstat.pval.Q.bs[1]))
+        text.subgroup.fixed <-
+          substitute(paste(tl, " ", italic(P), tp),
+                     list(tl = label.test.subgroup.fixed,
+                          tp = hetstat.pval.Q.bs[1]))
       else
-        text.subgroup.fixed  <- substitute(paste(tl, " ", italic(p), tp),
-                                           list(tl = label.test.subgroup.fixed,
-                                                tp = hetstat.pval.Q.bs[1]))
+        text.subgroup.fixed <-
+          substitute(paste(tl, " ", italic(p), tp),
+                     list(tl = label.test.subgroup.fixed,
+                          tp = hetstat.pval.Q.bs[1]))
     }
   }
   else
     text.subgroup.fixed <- ""
   
   
-  ##
   if (test.subgroup.random) {
     if (print.Q.subgroup) {
       if (revman5)
-        text.subgroup.random  <- substitute(paste(tl,
-                                                  "Chi"^2, tq,
-                                                  " (P", tp, ")"),
-                                            list(tl = label.test.subgroup.random,
-                                                 tq = hetstat.Q.bs[2],
-                                                 tp = hetstat.pval.Q.bs[2]))
+        text.subgroup.random <-
+          substitute(paste(tl,
+                           "Chi"^2, tq,
+                           " (P", tp, ")"),
+                     list(tl = label.test.subgroup.random,
+                          tq = hetstat.Q.bs[2],
+                          tp = hetstat.pval.Q.bs[2]))
       else if (jama)
-        text.subgroup.random  <- substitute(paste(tl,
-                                                  chi[df]^2, tq,
-                                                  " (", italic(P), tp, ")"),
-                                            list(tl = label.test.subgroup.random,
-                                                 tq = hetstat.Q.bs[2],
-                                                 tp = hetstat.pval.Q.bs[2],
-                                                 df = df.Q.b))
+        text.subgroup.random <-
+          substitute(paste(tl,
+                           chi[df]^2, tq,
+                           " (", italic(P), tp, ")"),
+                     list(tl = label.test.subgroup.random,
+                          tq = hetstat.Q.bs[2],
+                          tp = hetstat.pval.Q.bs[2],
+                          df = df.Q.b))
       else
-        text.subgroup.random  <- substitute(paste(tl,
-                                                  chi[df]^2, tq,
-                                                  " (", italic(p), tp, ")"),
-                                            list(tl = label.test.subgroup.random,
-                                                 tq = hetstat.Q.bs[2],
-                                                 tp = hetstat.pval.Q.bs[2],
-                                                 df = df.Q.b))
+        text.subgroup.random <-
+          substitute(paste(tl,
+                           chi[df]^2, tq,
+                           " (", italic(p), tp, ")"),
+                     list(tl = label.test.subgroup.random,
+                          tq = hetstat.Q.bs[2],
+                          tp = hetstat.pval.Q.bs[2],
+                          df = df.Q.b))
     }
     else {
       if (revman5)
-        text.subgroup.random  <- substitute(paste(tl, " P", tp),
-                                            list(tl = label.test.subgroup.random,
-                                                 tp = hetstat.pval.Q.bs[2]))
+        text.subgroup.random <-
+          substitute(paste(tl, " P", tp),
+                     list(tl = label.test.subgroup.random,
+                          tp = hetstat.pval.Q.bs[2]))
       else if (jama)
-        text.subgroup.random  <- substitute(paste(tl, " ", italic(P), tp),
-                                            list(tl = label.test.subgroup.random,
-                                                 tp = hetstat.pval.Q.bs[2]))
+        text.subgroup.random <-
+          substitute(paste(tl, " ", italic(P), tp),
+                     list(tl = label.test.subgroup.random,
+                          tp = hetstat.pval.Q.bs[2]))
       else
-        text.subgroup.random  <- substitute(paste(tl, " ", italic(p), tp),
-                                            list(tl = label.test.subgroup.random,
-                                                 tp = hetstat.pval.Q.bs[2]))
+        text.subgroup.random <-
+          substitute(paste(tl, " ", italic(p), tp),
+                     list(tl = label.test.subgroup.random,
+                          tp = hetstat.pval.Q.bs[2]))
     }
   }
   else
@@ -2406,12 +2434,10 @@ forest.meta <- function(x,
               sep = "")
       ##
       hetstat.tau2.w <-
-        paste(ifelse(tau.w == 0,
-                     paste(hetseparator, "0", sep = ""),
-                     paste(hetseparator,
-                           format.tau(tau.w^2,
-                                      digits = digits.tau2),
-                           sep = "")),
+        paste(hetseparator,
+              ifelse(is.na(tau.w), "NA",
+                     ifelse(tau.w == 0, "0",
+                            format.tau(tau.w^2, digits = digits.tau2))),
               sep = "")
       ##
       hetstat.Q.w <-
@@ -2423,11 +2449,12 @@ forest.meta <- function(x,
               sep = "")
       ##
       hetstat.pval.Q.w <-
-        paste(format.p(1 - pchisq(Q.w, k.w - 1),
+        paste(format.p(pvalQ(Q.w, k.w - 1),
                        lab = TRUE, labval = "",
                        digits = digits.pval.Q,
                        zero = if (jama) FALSE else TRUE,
-                       scientific = scientific.pval),
+                       scientific = scientific.pval,
+                       lab.NA = "NA"),
               sep = "")
       ##
       hetstat.Rb.w <-
@@ -2752,8 +2779,8 @@ forest.meta <- function(x,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                               hetstat.Rb.w[i]))
         }
-        if (k.w[i] == 0 | k.w[i] == 1)
-          hetstat.w[[i]] <- paste(hetlab, "Not applicable", sep = "")
+        if (!is.logical(text.subgroup.nohet) & k.w[i] < 2)
+          hetstat.w[[i]] <- paste(hetlab, text.subgroup.nohet, sep = "")
       }
     }
     ##
@@ -2773,9 +2800,11 @@ forest.meta <- function(x,
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
                                  zero = if (jama) FALSE else TRUE,
-                                 scientific = scientific.pval)
+                                 scientific = scientific.pval,
+                                 lab.NA = "NA")
       zvals.effect.w <- format.NA(round(c(x$zval.fixed.w, x$zval.random.w),
-                                        digits = digits.zval), digits.zval)
+                                        digits = digits.zval),
+                                  digits.zval, "NA")
       ##
       ## Remove superfluous spaces
       ##
@@ -4038,8 +4067,17 @@ forest.meta <- function(x,
     else {
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
-      xlim <- c(min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE),
-                max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE))
+      ##
+      if (all(!sel.low))
+        minTE <- -0.5
+      else
+        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+      if (all(!sel.upp))
+        maxTE <- 0.5
+      else
+        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+      ##
+      xlim <- c(minTE, maxTE)
       ##
       if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
@@ -4063,8 +4101,15 @@ forest.meta <- function(x,
     else {
       sel.low <- is.finite(lowTE)
       sel.upp <- is.finite(uppTE)
-      minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
-      maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+      ##
+      if (all(!sel.low))
+        minTE <- -0.5
+      else
+        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+      if (all(!sel.upp))
+        maxTE <- 0.5
+      else
+        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
       ##
       if (minTE < 0 & maxTE < 0)
         xlim <- c(minTE, -minTE)

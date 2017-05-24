@@ -219,6 +219,8 @@ subgroup <- function(x, tau.preset = NULL) {
   ##
   Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w)$Q
   Q.b.random <- metagen(TE.random.w, seTE.random.w)$Q
+  ##
+  df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
   
   
   res <- list(bylevs = bylevs,
@@ -260,7 +262,7 @@ subgroup <- function(x, tau.preset = NULL) {
               df.Q.w = sum((k.w - 1)[!is.na(Q.w)]),
               Q.b.fixed = Q.b.fixed,
               Q.b.random = Q.b.random,
-              df.Q.b = x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]),
+              df.Q.b = df.Q.b,
               tau.w = tau.w,
               C.w = C.w,
               ##

@@ -446,7 +446,7 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metabin") && print.CMH) {
         Qdata <- cbind(format.NA(round(Q.CMH, digits.Q), digits.Q, "NA"),
-                       1, format.p(1 - pchisq(Q.CMH, df = 1),
+                       1, format.p(pvalQ(Q.CMH, 1),
                                    digits = digits.pval.Q,
                                    scientific = scientific.pval))
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
@@ -511,8 +511,9 @@ print.summary.meta <- function(x,
     if (k.all > 1 & (comb.fixed|comb.random)) {
       if (k > 1) {
         if (x$method != "GLMM") {
+          pval.Q.glmm <- 
           Qdata <- cbind(format.NA(round(Q, digits.Q), digits.Q, "NA"),
-                         df.Q, format.p(1 - pchisq(Q, df = df.Q),
+                         df.Q, format.p(pvalQ(Q, df.Q),
                                         digits = digits.pval.Q,
                                         scientific = scientific.pval))
           dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
@@ -520,7 +521,7 @@ print.summary.meta <- function(x,
         else {
           Qdata <- cbind(format.NA(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA"),
                          df.Q,
-                         format.p(1 - pchisq(c(Q, Q.LRT), df = df.Q),
+                         format.p(pvalQ(c(Q, Q.LRT), df.Q),
                                   digits = digits.pval.Q,
                                   scientific = scientific.pval),
                          c("Wald-type", "Likelihood-Ratio"))
@@ -570,7 +571,7 @@ print.summary.meta <- function(x,
           cat("\nTest for subgroup differences (fixed effect model):\n")
           if (x$method == "MH") {
             Qdata <- cbind(format.NA(round(Q.b.fixed, digits.Q), digits.Q, "NA"),
-                           df.Q.b, format.p(1 - pchisq(Q.b.fixed, df = df.Q.b),
+                           df.Q.b, format.p(pvalQ(Q.b.fixed, df.Q.b),
                                             digits = digits.pval.Q,
                                             scientific = scientific.pval))
             dimnames(Qdata) <- list("Between groups  ",
@@ -582,7 +583,7 @@ print.summary.meta <- function(x,
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),
                            dfs,
-                           format.p(1 - pchisq(Qs, df = dfs),
+                           format.p(pvalQ(Qs, dfs),
                                     digits = digits.pval.Q,
                                     scientific = scientific.pval))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
@@ -625,7 +626,7 @@ print.summary.meta <- function(x,
           cat("\nTest for subgroup differences (random effects model):\n")
           if (is.na(Q.w.random)) {
             Qdata <- cbind(format.NA(round(Q.b.random, digits.Q), digits.Q, "NA"),
-                           df.Q.b, format.p(1 - pchisq(Q.b.random, df = df.Q.b),
+                           df.Q.b, format.p(pvalQ(Q.b.random, df.Q.b),
                                             digits = digits.pval.Q,
                                             scientific = scientific.pval))
             dimnames(Qdata) <- list("Between groups  ",
@@ -635,7 +636,7 @@ print.summary.meta <- function(x,
             Qs  <- c(Q.b.random, Q.w.random)
             dfs <- c(df.Q.b, df.Q.w)
             Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA"),
-                           dfs, format.p(1 - pchisq(Qs, df = dfs),
+                           dfs, format.p(pvalQ(Qs, dfs),
                                          digits = digits.pval.Q,
                                          scientific = scientific.pval))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),

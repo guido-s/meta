@@ -353,7 +353,7 @@ draw.lines <- function(x, column,
   ##
   ## Line for fixed effect estimate:
   ##
-  if (comb.fixed & overall)
+  if (comb.fixed & overall & !is.na(TE.fixed))
     if (x$range[1] <= TE.fixed & TE.fixed <= x$range[2])
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
@@ -364,7 +364,7 @@ draw.lines <- function(x, column,
   ##
   ## Line for random effects estimate:
   ##
-  if (comb.random & overall)
+  if (comb.random & overall & !is.na(TE.random))
     if (x$range[1] <= TE.random & TE.random <= x$range[2])
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),

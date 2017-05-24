@@ -68,6 +68,7 @@ forest(x, ...)
        print.pval.Q = comb.fixed | comb.random,
        print.Rb = FALSE,
        print.Rb.ci = FALSE,
+       text.subgroup.nohet = "not applicable",
        ##
        test.overall=gs("test.overall"),
        test.overall.fixed=comb.fixed&overall&test.overall,
@@ -325,6 +326,10 @@ forest(x, ...)
     of the I-squared statistic.}
   \item{print.Rb.ci}{A logical value indicating whether to print the
     confidence interval of the I-squared statistic.}
+  \item{text.subgroup.nohet}{A logical value or character string which
+    is printed to indicate subgroups with less than two studies
+    contributing to meta-analysis (and thus without heterogeneity). If
+    FALSE, heterogeneity statistics are printed (with NAs).}
   \item{test.overall}{A logical value indicating whether to print
     results of test for overall effect.}
   \item{test.overall.fixed}{A logical value indicating whether to
@@ -749,29 +754,39 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
 
 
 #
-# Do (symmetric) forest plot
+# Do standard (symmetric) forest plot
 #
 forest(meta1)
 
 
 #
-# Add labels on both sides of forest plot
+# Layout of forest plot similar to Review Mananager 5
+# (see http://community.cochrane.org/tools/review-production-tools/revman-5)
 #
-forest(meta1,
+# Furthermore, add labels on both sides of forest plot and prediction
+# interval
+#
+forest(meta1, layout="RevMan5", comb.fixed=FALSE,
        label.right="Favours control", col.label.right="red",
-       label.left="Favours experimental", col.label.left="green")
+       label.left="Favours experimental", col.label.left="green",
+       prediction=TRUE)
+
+
+\dontrun{
+#
+# Sort studies by decreasing treatment effect within year subgroups
+#
+meta2 <- update(meta1, byvar=ifelse(year < 1987,
+                                    "Before 1987", "1987 and later"),
+                print.byvar=FALSE)
+forest(meta2,
+       sortvar=-TE, comb.random=FALSE)
 
 
 #
 # Forest plot specifying argument xlim
 #
 forest(meta1, xlim=c(0.01, 10))
-
-
-#
-# Add prediction interval to forest plot
-#
-forest(meta1, prediction=TRUE)
 
 
 #
@@ -785,13 +800,6 @@ forest(meta1, test.overall.fixed=TRUE, test.overall.random=TRUE)
 # R package meta, version < 1.6-0
 #
 forest(meta1, col.square="black", hetstat=FALSE)
-
-
-#
-# Layout of forest plot similar to Review Mananager 5
-# (see http://community.cochrane.org/tools/review-production-tools/revman-5)
-#
-forest(meta1, layout="RevMan5", comb.random=FALSE)
 
 
 #
@@ -858,7 +866,7 @@ forest(meta1,
                   "author", "year"),
        leftlabs=c("Author", "Year of Publ"), hetstat=FALSE,
        just="center", just.addcols="center", just.studlab="center")
-\dontrun{
+
 #
 # Same result
 #
@@ -867,7 +875,7 @@ forest(meta1,
                   "author", "year"),
        leftlabs=c("Author", "Year of Publ"), hetstat=FALSE,
        just="c", just.addcols="c", just.studlab="c")
-}
+
 
 #
 # Change some fontsizes and fontfaces
@@ -920,14 +928,6 @@ forest(meta1, sortvar=-year, comb.random=FALSE)
 
 
 #
-# Sort studies by decreasing treatment effect within year subgroups
-#
-meta2 <- update(meta1, byvar=ifelse(year < 1987, "Before 1987", "1987 and later"),
-                print.byvar=FALSE)
-forest(meta2,
-       sortvar=-TE, comb.random=FALSE)
-
-#
 # Print results of test for subgroup differences (random effects model)
 #
 forest(meta2,
@@ -945,6 +945,7 @@ forest(meta2, layout = "subgroup")
 #  column)
 #
 forest(meta2, layout = "subgroup", calcwidth.hetstat = TRUE)
+}
 }
 
 \keyword{hplot}

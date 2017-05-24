@@ -2,6 +2,10 @@
 
 \alias{meta-package}
 
+\alias{meta}
+
+\docType{package}
+
 \title{meta: Brief overview of methods and general hints}
 
 \description{

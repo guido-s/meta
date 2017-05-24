@@ -10,7 +10,7 @@
   msg <- paste("Loading 'meta' package (version ",
                utils::packageDescription("meta")$Version,
                ").",
-               "\nType 'help(\"meta-package\")' for a brief overview.",
+               "\nType 'help(meta)' for a brief overview.",
                sep = "")
   packageStartupMessage(msg)
 }

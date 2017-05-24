@@ -472,25 +472,27 @@ seTEl <- sqrt(1/lungcancer$d.smokers +
 metagen(TEl, seTEl, sm="IRR", studlab=lungcancer$study)
 
 
+\dontrun{
 #
 # Meta-analysis using generalised linear mixed models
 # (only if R packages 'metafor' and 'lme4' are available)
 #
-if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
-    require(lme4, quietly = TRUE))
- #
- # Poisson regression model (fixed study effects)
- #
- m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
-               data = smoking, studlab = study, method = "GLMM")
- m4
- #
- # Mixed-effects Poisson regression model (random study effects)
- #
- update(m4, model.glmm = "UM.RS", nAGQ = 1)
- #
- # Generalised linear mixed model (conditional Poisson-Normal)
- #
- update(m4, model.glmm = "CM.EL")
+
+#
+# Poisson regression model (fixed study effects)
+#
+m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+              data = smoking, studlab = study, method = "GLMM")
+m4
+#
+# Mixed-effects Poisson regression model (random study effects)
+#
+update(m4, model.glmm = "UM.RS", nAGQ = 1)
+#
+# Generalised linear mixed model (conditional Poisson-Normal)
+#
+update(m4, model.glmm = "CM.EL")
+}
+
 }
 \keyword{htest}

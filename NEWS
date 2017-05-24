@@ -1,4 +1,4 @@
-*** meta, version 4.8-2, 2017-mm-dd ***
+*** meta, version 4.8-2, 2017-05-24 ***
 
  ** Major changes **
  
@@ -19,7 +19,7 @@
       Chi-squared statistic for test of subgroup differences
     - bug fix: print first line above second line if argument 'xlab'
       consists of two lines (bug was introduced in meta, version
-      4.8-0)  
+      4.8-0)
     - labels of additional columns are printed in correct line if
       label consists of two lines
     - new argument 'scientific.pval' to print p-values in scientific
@@ -28,20 +28,52 @@
       'label.test.subgroup.fixed', 'label.test.subgroup.random',
       'label.test.effect.subgroup.fixed', 'label.test.effect.subgroup.random'
       work as expected
+    - new argument 'text.subgroup.nohet' to enable the user to change
+      the text "not applicable" in the line with heterogeneity
+      statistics for a subgroup with less than two studies
+      contributing to the meta-analysis
+    - forest plot without any study contributing to meta-analysis can
+      be generated without an error, e.g., meta-analysis with binary
+      outcome, sm="OR", and all event numbers equal to zero
     
   * print.meta() and print.summary.meta():
-    - new arguments 'print.pval' and 'print.pval.Q' to specify number
-      of significant digits for p-values
     - new argument 'scientific.pval' to print p-values in scientific
       notation, e.g., 1.2345e-01 instead of 0.12345.
+    - new arguments 'print.pval' and 'print.pval.Q' to specify number
+      of significant digits for p-values
+
+  * R command 'help(meta)' can be used to show brief overview of R
+    package meta
+
+  * Substantially decrease number of automatically run examples for
+    forest.meta() as CRAN only allows a run time below 10 seconds for
+    examples provided on a help page
       
  ** Internal changes **
+
+  * new internal function pvalQ() to calculate p-value from
+    heterogeneity tests
 
   * calcH():
     - Calculate confidence interval for H in a meta-analysis with two
       studies if the heterogeneity statistic Q is larger than 2 (this
-      confidence is used in isquared() to calculate a confidence
-      interval for I-squared)
+      confidence interval is used in isquared() to calculate a
+      confidence interval for I-squared)
+
+  * hetcalc():
+    - heterogeneity statistic Q set to 0 for a single study
+      contributing to the meta-analysis
+      (sometimes in this case Q was set to a value below 1e-30)
+
+  * subgroup():
+    - list element df.Q.b set to 0 if number of studies in
+      meta-analysis is 0
+
+  * format.p():
+    - new argument 'lab.NA' to change value printed for NAs
+
+  * forest.meta() and print.summary.meta():
+    - use internal function pvalQ() instead of dedicated R code
 
 
 *** meta, version 4.8-1, 2017-03-17 ***

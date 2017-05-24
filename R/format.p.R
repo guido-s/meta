@@ -1,5 +1,6 @@
 format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
-                     digits = 4, zero = TRUE, scientific = FALSE) {
+                     digits = 4, zero = TRUE, scientific = FALSE,
+                     lab.NA = "--") {
   
   if (is.null(p))
     return("")
@@ -8,7 +9,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
 
   if (!scientific) {
     if (lab)
-      res <- format(ifelse(is.na(p), paste(labval, "= --"),
+      res <- format(ifelse(is.na(p), paste(labval, "=", lab.NA),
                     ifelse(p < 1 / 10^digits,
                            paste(labval, " < 0", outdec,
                                  paste(rep("0", digits - 1), collapse = ""),
@@ -21,7 +22,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
                     )
                     )
     else
-      res <- format(ifelse(is.na(p), "      --",
+      res <- format(ifelse(is.na(p), paste("      ", lab.NA, sep = ""),
                     ifelse(p < 1 / 10^digits,
                            paste("< 0", outdec,
                                  paste(rep("0", digits - 1), collapse = ""),
@@ -36,7 +37,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
   else {
     if (lab)
       res <- format(ifelse(is.na(p),
-                           paste(labval, "= --"),
+                           paste(labval, "=", lab.NA),
                            paste(paste(labval, " = "),
                                  formatC(p, decimal.mark = outdec,
                                          format = "e", digits = digits))
