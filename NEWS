@@ -1,3 +1,15 @@
+*** meta, version 4.8-3, 2017-mm-dd ***
+
+ ** User-visible changes **
+
+  * ci():
+    - R function can be used with vectors or matrices of treatment
+      estimates and standard errors and a single value for argument
+      'df', i.e., degrees of freedom (which is used in R package
+      netmeta to calculate prediction intervals for network
+      meta-analysis estimates)
+
+
 *** meta, version 4.8-2, 2017-05-24 ***
 
  ** Major changes **

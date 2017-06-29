@@ -102,7 +102,7 @@ print.summary.meta <- function(x,
   ##
   ## Additional arguments / checks for metacont objects
   ##
-  cl <- class(x)[1]
+  cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
   addargs <- names(list(...))
   ##
   fun <- "print.summary.meta"

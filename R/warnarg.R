@@ -4,7 +4,7 @@ warnarg <- function(x, y, fun, cl, otherarg) {
       warning(paste("Argument '", x,
                     "' has been removed from R function ",
                     fun, ".\n",
-                    "This argument can either be used in R function update.meta or ",
+                    "This argument can be used in R function ",
                     cl,
                     ".", sep = ""),
               call. = FALSE)

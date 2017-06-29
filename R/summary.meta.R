@@ -70,8 +70,8 @@ summary.meta <- function(object,
   if (!is.null(print.CMH))
     chklogical(print.CMH)
   chklogical(warn)
-  ##  
-  cl <- class(object)[1]
+  ##
+  cl <- paste("update.meta() or ", class(object)[1], "()", sep = "")
   addargs <- names(list(...))
   ##
   fun <- "summary.meta"

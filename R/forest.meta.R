@@ -433,7 +433,7 @@ forest.meta <- function(x,
     chknumeric(digits.time, min = 0, single = TRUE)
   chklogical(scientific.pval)
   ##
-  cl <- class(x)[1]
+  cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
   addargs <- names(list(...))
   ##
   fun <- "forest.meta"
