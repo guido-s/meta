@@ -361,7 +361,10 @@ print.meta <- function(x,
                         format.NA(round(uppTE, digits), digits, "NA")),
                    if (comb.fixed) format.NA(w.fixed.p, digits.weight),
                    if (comb.random) format.NA(w.random.p, digits.weight),
-                   if (!is.null(x$byvar)) x$byvar)
+                   if (!is.null(x$byvar)) x$byvar,
+                   if (!is.null(x$exclude))
+                     ifelse(is.na(x$exclude), "",
+                            ifelse(x$exclude, "*", "")))
       ## Printout for a single proportion:
       if (k.all == 1) {
         ##
@@ -383,7 +386,8 @@ print.meta <- function(x,
             dimnames(res) <- list("", c(sm.lab, ci.lab,
                                         if (comb.fixed) "%W(fixed)",
                                         if (comb.random) "%W(random)",
-                                        if (!is.null(x$byvar)) x$bylab))
+                                        if (!is.null(x$byvar)) x$bylab,
+                                        if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n\n")
           }
@@ -395,7 +399,8 @@ print.meta <- function(x,
           list(x$studlab, c(sm.lab, ci.lab,
                             if (comb.fixed) "%W(fixed)",
                             if (comb.random) "%W(random)",
-                            if (!is.null(x$byvar)) x$bylab))
+                            if (!is.null(x$byvar)) x$bylab,
+                            if (!is.null(x$exclude)) "exclude"))
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
       }
     }

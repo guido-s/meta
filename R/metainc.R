@@ -1,6 +1,7 @@
 metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
-                    data = NULL, subset = NULL, method = "MH",
+                    data = NULL, subset = NULL, exclude = NULL,
+                    method = "MH",
                     ##
                     sm = gs("sminc"),
                     ##
@@ -106,7 +107,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch event.e, time.e, event.c, time.c, n.e, n.c from data:
+  ## Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', and 'n.c' from data:
   ##
   event.e <- eval(mf[[match("event.e", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -130,14 +131,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   n.c <- eval(mf[[match("n.c", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
   ##
-  ## Catch incr from data:
+  ## Catch 'incr' from data:
   ##
   if (!missing(incr))
     incr <- eval(mf[[match("incr", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   chknumeric(incr, min = 0)
   ##
-  ## Catch studlab, byvar, subset from data:
+  ## Catch 'studlab', 'byvar', 'subset', and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -155,6 +156,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   missing.subset <- is.null(subset)
+  ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  missing.exclude <- is.null(exclude)
   
   
   ##
@@ -210,14 +215,26 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   
   ##
   ##
-  ## (4) Subset and subgroups
+  ## (4) Subset, exclude studies, and subgroups
   ##
   ##
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##  
+  ##
+  if (!missing.exclude) {
+    if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+        (length(exclude) > k.All))
+      stop("Length of argument 'exclude' is larger than number of studies.")
+    ##
+    exclude2 <- rep(FALSE, k.All)
+    exclude2[exclude] <- TRUE
+    exclude <- exclude2
+  }
+  else
+    exclude <- rep(FALSE, k.All)
+  ##
   if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -256,6 +273,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       }
     }
     ##
+    if (!missing.exclude)
+      data$.exclude <- exclude
+    ##
     if (!is.null(n.e))
       data$.n.e <- n.e
     if (!is.null(n.e))
@@ -274,6 +294,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     event.c <- event.c[subset]
     time.c <- time.c[subset]
     studlab <- studlab[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -380,6 +402,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       R <- x.k * m.k / N.k
       S <- y.k * n.k / N.k
       ##
+      D[exclude] <- R[exclude] <- S[exclude] <- 0
+      ##
       w.fixed <- S
       TE.fixed <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
       seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
@@ -387,8 +411,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
     else if (sm == "IRD") {
       L <- (x.k * m.k^2 + y.k * n.k^2) / N.k^2
-      ##
       S <- n.k * m.k / N.k
+      ##
+      L[exclude] <- S[exclude] <- 0
       ##
       w.fixed <- S
       TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
@@ -404,6 +429,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ## 
     if (sm == "IRR") {
       w.fixed <- event.c * time.e / time.c
+      w.fixed[exclude] <- 0
       TE.fixed <- weighted.mean(TE, w.fixed)
       seTE.fixed <- sqrt(1 / sum(event.e) + 1 / sum(event.c))
     }
@@ -413,8 +439,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
   }
   else if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
-                                    x2i = event.c, t2i = time.c,
+    glmm.fixed <- metafor::rma.glmm(x1i = event.e[!exclude],
+                                    t1i = time.e[!exclude],
+                                    x2i = event.c[!exclude],
+                                    t2i = time.c[!exclude],
                                     method = "FE",
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
@@ -428,6 +456,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   m <- metagen(TE, seTE, studlab,
+               exclude = if (missing.exclude) NULL else exclude,
                ##
                sm = sm,
                level = level,
@@ -507,8 +536,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (method == "GLMM") {
     ##
-    glmm.random <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
-                                     x2i = event.c, t2i = time.c,
+    glmm.random <- metafor::rma.glmm(x1i = event.e[!exclude],
+                                     t1i = time.e[!exclude],
+                                     x2i = event.c[!exclude],
+                                     t2i = time.c[!exclude],
                                      method = method.tau,
                                      test = ifelse(hakn, "t", "z"),
                                      level = 100 * level.comb,

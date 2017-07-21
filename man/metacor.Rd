@@ -10,7 +10,7 @@
 
 \usage{
 metacor(cor, n, studlab,
-        data=NULL, subset=NULL,
+        data=NULL, subset=NULL, exclude=NULL,
         sm=gs("smcor"),
         level=gs("level"), level.comb=gs("level.comb"),
         comb.fixed=gs("comb.fixed"), comb.random=gs("comb.random"),
@@ -33,8 +33,11 @@ metacor(cor, n, studlab,
   \item{n}{Number of observations.}
   \item{studlab}{An optional vector with study labels.}
   \item{data}{An optional data frame containing the study information,
-    i.e., cor and n.}
-  \item{subset}{An optional vector specifying a subset of studies to be used.}
+    i.e., cor and n.} 
+  \item{subset}{An optional vector specifying a subset of studies to
+    be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{sm}{A character string indicating which summary measure
     (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
     studies.}
@@ -155,7 +158,7 @@ metacor(cor, n, studlab,
   An object of class \code{c("metacor", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{cor, n, studlab,}{}
+  \item{cor, n, studlab, exclude,}{}
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, null.effect,}{}

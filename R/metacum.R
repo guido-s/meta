@@ -85,11 +85,20 @@ metacum <- function(x, pooled, sortvar) {
   else
     incr <- x$incr
   ##
+  ## Exclude studies from meta-analysis
+  ##
+  if (!is.null(x$exclude))
+    exclude <- x$exclude[o]
+  else
+    exclude <- rep_len(FALSE, k.all)
+  ##
+  ncum <- cumsum(!exclude)
+  ##
   studlab <- x$studlab[o]
   slab <- character(k.all)
   for (i in 1:k.all)
     slab[i] <- paste("Adding ", studlab[i],
-                     " (k=", i, ")", sep = "")
+                     " (k=", ncum[i], ")", sep = "")
   slab <- c(slab, "Pooled estimate")
   studlab <- c(rev(rev(slab)[-1]), " ", rev(slab)[1])
   
@@ -112,6 +121,8 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x, "metabin"))
       m <- metabin(event.e[sel], n.e[sel], event.c[sel], n.c[sel],
                    ##
+                   exclude = exclude[sel],
+                   ##
                    method = x$method, sm = x$sm,
                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
@@ -130,6 +141,8 @@ metacum <- function(x, pooled, sortvar) {
       m <- metacont(n.e[sel], mean.e[sel], sd.e[sel],
                     n.c[sel], mean.c[sel], sd.c[sel],
                     ##
+                    exclude = exclude[sel],
+                    ##
                     sm = x$sm, pooledvar = x$pooledvar,
                     ##
                     level.comb = x$level.comb,
@@ -144,7 +157,10 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x, "metacor"))
       m <- metacor(cor[sel], n[sel],
                    ##
+                   exclude = exclude[sel],
+                   ##
                    sm = x$sm,
+                   null.effect = x$null.effect,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -157,7 +173,10 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x, "metagen"))
       m <- metagen(TE[sel], seTE[sel],
                    ##
+                   exclude = exclude[sel],
+                   ##
                    sm = x$sm,
+                   null.effect = x$null.effect,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -171,6 +190,8 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x,"metainc"))
       m <- metainc(event.e[sel], time.e[sel],
                    event.c[sel], time.c[sel],
+                   ##
+                   exclude = exclude[sel],
                    ##
                    method = x$method,
                    sm = x$sm,
@@ -187,7 +208,11 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],
                     ##
+                    exclude = exclude[sel],
+                    ##
                     sm = x$sm,
+                    null.effect = x$null.effect,
+                    ##
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     method.ci = x$method.ci,
                     ##
@@ -203,7 +228,11 @@ metacum <- function(x, pooled, sortvar) {
     if (inherits(x, "metarate"))
       m <- metarate(event[sel], time[sel],
                     ##
+                    exclude = exclude[sel],
+                    ##
                     sm = x$sm,
+                    null.effect = x$null.effect,
+                    ##
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     ##
                     level.comb = x$level.comb,

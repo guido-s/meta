@@ -1,6 +1,7 @@
 metarate <- function(event, time, studlab,
                      ##
-                     data = NULL, subset = NULL, method = "Inverse",
+                     data = NULL, subset = NULL, exclude = NULL,
+                     method = "Inverse",
                      ##
                      sm = gs("smrate"),
                      ##
@@ -109,7 +110,7 @@ metarate <- function(event, time, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch event, n from data:
+  ## Catch 'event' and 'n' from data:
   ##
   event <- eval(mf[[match("event", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
@@ -120,14 +121,14 @@ metarate <- function(event, time, studlab,
                data, enclos = sys.frame(sys.parent()))
   chknull(time)
   ##
-  ## Catch incr from data:
+  ## Catch 'incr' from data:
   ##
   if (!missing(incr))
     incr <- eval(mf[[match("incr", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   chknumeric(incr, min = 0)
   ##
-  ## Catch studlab, byvar, subset from data:
+  ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -145,6 +146,10 @@ metarate <- function(event, time, studlab,
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   missing.subset <- is.null(subset)
+  ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  missing.exclude <- is.null(exclude)
   
   
   ##
@@ -193,14 +198,26 @@ metarate <- function(event, time, studlab,
   
   ##
   ##
-  ## (4) Subset and subgroups
+  ## (4) Subset, exclude studies, and subgroups
   ##
   ##
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##  
+  ##
+  if (!missing.exclude) {
+    if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+        (length(exclude) > k.All))
+      stop("Length of argument 'exclude' is larger than number of studies.")
+    ##
+    exclude2 <- rep(FALSE, k.All)
+    exclude2[exclude] <- TRUE
+    exclude <- exclude2
+  }
+  else
+    exclude <- rep(FALSE, k.All)
+  ##
   if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -236,6 +253,9 @@ metarate <- function(event, time, studlab,
         data$.subset[subset] <- TRUE
       }
     }
+    ##
+    if (!missing.exclude)
+      data$.exclude <- exclude
   }
   
   
@@ -248,6 +268,8 @@ metarate <- function(event, time, studlab,
     event <- event[subset]
     time  <- time[subset]
     studlab <- studlab[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -350,7 +372,7 @@ metarate <- function(event, time, studlab,
   ##
   ##
   if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(xi = event, ti = time,
+    glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
                                     method = "FE",
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
@@ -364,6 +386,7 @@ metarate <- function(event, time, studlab,
   }
   ##
   m <- metagen(TE, seTE, studlab,
+               exclude = if (missing.exclude) NULL else exclude,
                ##
                sm = sm,
                level = level,
@@ -440,7 +463,7 @@ metarate <- function(event, time, studlab,
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
     ##
-    glmm.random <- metafor::rma.glmm(xi = event, ti = time,
+    glmm.random <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
                                      method = method.tau,
                                      test = ifelse(hakn, "t", "z"),
                                      level = 100 * level.comb,

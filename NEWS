@@ -1,13 +1,40 @@
-*** meta, version 4.8-3, 2017-mm-dd ***
+*** meta, version 4.8-3, 2017-07-21 ***
+
+ ** Major changes **
+
+  * Similar to RevMan 5, individual studies can be excluded from
+    meta-analysis, however, will be shown in printouts and forest
+    plots
+
+  * In forest plots, line spacing can be determined by the user.
 
  ** User-visible changes **
 
-  * ci():
-    - R function can be used with vectors or matrices of treatment
-      estimates and standard errors and a single value for argument
-      'df', i.e., degrees of freedom (which is used in R package
-      netmeta to calculate prediction intervals for network
-      meta-analysis estimates)
+  * metabin(), metacor(), metacont(), metagen(), metainc(),
+    metaprop(), metarate():
+    - new argument 'exclude' to exclude studies from meta-analysis
+
+  * forest.meta():
+    - new argument 'spacing' to determine line spacing
+    - bug fix for for meta-analysis with standardized mean difference
+      (sm = "SMD") and argument layout = "RevMan5"
+
+  * R function ci() can be used with vectors or matrices of treatment
+    estimates and standard errors and a single value for argument
+    'df', i.e., degrees of freedom
+    (which is used in R package netmeta to calculate prediction
+     intervals for network meta-analysis estimates)
+
+  * metacum() and metainf():
+    - argument 'null.effect' considered internally for objects
+      generated with metacor(), metagen(), metaprop(), and metarate()
+
+ ** Internal changes **
+ 
+  * baujat.meta(), metabias.meta(), metacum(), metainf(),
+    forest.meta(), funnel.meta(), metareg(), print.meta(),
+    radial.meta(), trimfill.meta(), update.meta():
+    - changes to deal with excluded studies
 
 
 *** meta, version 4.8-2, 2017-05-24 ***

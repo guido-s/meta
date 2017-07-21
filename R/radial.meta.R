@@ -24,8 +24,19 @@ radial.meta <- function(x,
 
   if (!is.null(level) && (level <=0 | level >= 1))
     stop("no valid level for confidence interval")
-
-
+  
+  
+  ##
+  ## Exclude studies from funnel plot
+  ## 
+  if (!is.null(x$exclude)) {
+    TE <- TE[!x$exclude]
+    seTE <- seTE[!x$exclude]
+    if (!is.null(text))
+      text <- text[!x$exclude]
+  }
+  
+  
   zscore <- TE / seTE
 
   if (is.null(xlim)) xlim <- c(0, max(1 / seTE, na.rm = TRUE))

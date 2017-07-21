@@ -1,6 +1,6 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data = NULL, subset = NULL,
+                     data = NULL, subset = NULL, exclude = NULL,
                      ##
                      sm = gs("smcont"),
                      ##
@@ -84,7 +84,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch n.e, mean.e, sd.e, n.c, mean.c, sd.c from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', and 'sd.c' from data:
   ##
   n.e <- eval(mf[[match("n.e", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
@@ -111,7 +111,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                data, enclos = sys.frame(sys.parent()))
   chknull(sd.c)
   ##
-  ## Catch studlab, byvar, subset from data:
+  ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -124,6 +124,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   missing.subset <- is.null(subset)
+  ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  missing.exclude <- is.null(exclude)
   
   
   ##
@@ -155,14 +159,26 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   ##
   ##
-  ## (4) Subset and subgroups
+  ## (4) Subset, exclude studies, and subgroups
   ##
   ##
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##  
+  ##
+  if (!missing.exclude) {
+    if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+        (length(exclude) > k.All))
+      stop("Length of argument 'exclude' is larger than number of studies.")
+    ##
+    exclude2 <- rep(FALSE, k.All)
+    exclude2[exclude] <- TRUE
+    exclude <- exclude2
+  }
+  else
+    exclude <- rep(FALSE, k.All)
+  ##
   if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -200,6 +216,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         data$.subset[subset] <- TRUE
       }
     }
+    ##
+    if (!missing.exclude)
+      data$.exclude <- exclude
   }
   
   
@@ -216,6 +235,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (!missing.byvar)
       byvar <- byvar[subset]
@@ -377,6 +398,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ##
   m <- metagen(TE, seTE, studlab,
+               exclude = if (missing.exclude) NULL else exclude,
                ##
                sm = sm,
                level = level,

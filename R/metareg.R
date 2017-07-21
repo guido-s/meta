@@ -107,10 +107,25 @@ metareg <- function(x, formula,
     return(invisible(NULL))
   }
   
+  
+  ##
+  ## Use subset of studies in meta-regression
+  ##  
   if (!is.null(x$subset))
     dataset <- x$data[x$subset, ]
   else
     dataset <- x$data
+  
+  
+  ##
+  ## Exclude studies from meta-regression
+  ## 
+  if (!is.null(x$exclude)) {
+    exclude <- dataset$.exclude
+    dataset <- dataset[!dataset$.exclude, ]
+  }
+  else
+    exclude <- rep(FALSE, nrow(dataset))
   
   
   ##
@@ -126,38 +141,38 @@ metareg <- function(x, formula,
   rm(x)
   ##
   if (method != "GLMM")
-    res <- metafor::rma.uni(yi = TE,
-                            sei = seTE,
+    res <- metafor::rma.uni(yi = TE[!exclude],
+                            sei = seTE[!exclude],
                             data = dataset,
                             mods = formula, method = method.tau,
                             test = test, level = 100 * level.comb,
                             ...)
   else
     if (metabin)
-      res <- metafor::rma.glmm(ai = event.e, n1i = n.e,
-                               ci = event.c, n2i = n.c,
+      res <- metafor::rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                               ci = event.c[!exclude], n2i = n.c[!exclude],
                                data = dataset,
                                mods = formula, method = method.tau,
                                test = test, level = 100 * level.comb,
                                measure = "OR", model = model.glmm,
                                ...)
     else if (metainc)
-      res <- metafor::rma.glmm(x1i = event.e, t1i = time.e,
-                               x2i = event.c, t2i = time.c,
+      res <- metafor::rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                               x2i = event.c[!exclude], t2i = time.c[!exclude],
                                data = dataset,
                                mods = formula, method = method.tau,
                                test = test, level = 100 * level.comb,
                                measure = "IRR", model = model.glmm,
                                ...)
     else if (metaprop)
-      res <- metafor::rma.glmm(xi = event, ni = n,
+      res <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
                                data = dataset,
                                mods = formula, method = method.tau,
                                test = test, level = 100 * level.comb,
                                measure = "PLO",
                                ...)
     else if (metarate)
-      res <- metafor::rma.glmm(xi = event, ti = time,
+      res <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
                                data = dataset,
                                mods = formula, method = method.tau,
                                test = test, level = 100 * level.comb,

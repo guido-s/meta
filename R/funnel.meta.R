@@ -92,6 +92,17 @@ funnel.meta <- function(x,
     chklength(studlab, k.All, fun)
   if (!is.null(text))
     chklength(text, k.All, fun)
+  ##
+  ## Exclude studies from funnel plot
+  ## 
+  if (!is.null(x$exclude)) {
+    TE <- TE[!x$exclude]
+    seTE <- seTE[!x$exclude]
+    if (slab)
+      studlab <- studlab[!x$exclude]
+    if (!is.null(text))
+      text <- text[!x$exclude]
+  }
   
   
   ##

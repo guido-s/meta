@@ -156,7 +156,7 @@ forest.meta <- function(x,
                         ff.xlab = "plain",
                         ff.lr = "plain",
                         ##
-                        squaresize = 0.8,
+                        squaresize = 0.8 / spacing,
                         ##
                         plotwidth = if (layout != "JAMA") "6cm" else "8cm",
                         colgap = "2mm",
@@ -180,6 +180,7 @@ forest.meta <- function(x,
                         just.addcols.left = just.addcols,
                         just.addcols.right = just.addcols,
                         ##
+                        spacing = 1,
                         addrow,
                         addrow.overall,
                         addrow.subgroups,
@@ -399,6 +400,8 @@ forest.meta <- function(x,
   if (missing(weight.study))
     weight.study <- ifelse(comb.random & !comb.fixed, "random", "fixed")
   weight.study <- setchar(weight.study, c("same", "fixed", "random"))
+  ##
+  chknumeric(spacing, single = TRUE)
   ##
   ## Check and set additional empty rows in forest plot
   ##
@@ -833,16 +836,16 @@ forest.meta <- function(x,
   }
   ##
   if (is.null(xlab))
-    xlab <- xlab(sm, backtransf, newline = revman5.jama)
+    xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5)
   ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
     if (sm %in% c("IR", "IRLN", "IRS", "IRFT"))
       smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
-                    newline = !jama)
+                    newline = !revman5.jama, revman5 = revman5)
     else
       smlab <- xlab(sm, backtransf, pscale = pscale,
-                    newline = !jama)
+                    newline = !revman5.jama, revman5 = revman5)
   ##
   if (is.null(label.right))
     label.right <- ""
@@ -1455,6 +1458,9 @@ forest.meta <- function(x,
   ##
   col.inside <- col.inside[sel]
   ##
+  if (!is.null(x$exclude))
+    exclude <- x$exclude[sel]
+  ##
   if (sort | by) {
     if (bysort)
       bylevs <- sort(x$bylevs)
@@ -1502,6 +1508,9 @@ forest.meta <- function(x,
     col.square.lines <- col.square.lines[o]
     ##
     col.inside <- col.inside[o]
+    ##
+    if (!is.null(x$exclude))
+      exclude <- exclude[o]
     ##
     if (newcols) {
       dataset1 <- dataset1[o, ]
@@ -3088,6 +3097,18 @@ forest.meta <- function(x,
     }
   }
   ##
+  ## Exclude study results from forest plot
+  ##
+  TE.exclude <- TE
+  lowTE.exclude <- lowTE
+  uppTE.exclude <- uppTE
+  ##
+  if (!is.null(x$exclude)) {
+    TE.exclude[exclude] <- NA
+    lowTE.exclude[exclude] <- NA
+    uppTE.exclude[exclude] <- NA
+  }
+  ##
   if (!comb.fixed) {
     TE.fixed    <- NA
     lowTE.fixed <- NA
@@ -3594,6 +3615,12 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     ##
+    TEs.exclude    <- c(TE.fixed, TE.random, NA, TE.w, TE.exclude)
+    lowTEs.exclude <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w,
+                        lowTE.exclude)
+    uppTEs.exclude <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w,
+                        uppTE.exclude)
+    ##
     TEs.study <- c("", "", "", rep("", 5 * n.by),
                    format.NA(round(TE.orig, digits), digits, lab.NA))
     seTEs.study <- c("", "", "", rep("", 5 * n.by),
@@ -3653,6 +3680,10 @@ forest.meta <- function(x,
     TEs    <- c(TE.fixed, TE.random, NA, TE)
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE)
     uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE)
+    ##
+    TEs.exclude    <- c(TE.fixed, TE.random, NA, TE.exclude)
+    lowTEs.exclude <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.exclude)
+    uppTEs.exclude <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.exclude)
     ##
     TEs.study <- c("", "", "",
                    format.NA(round(TE.orig, digits), digits, lab.NA))
@@ -4401,9 +4432,9 @@ forest.meta <- function(x,
   else if (length(type.study) != length(TE))
     stop("Argument 'type.study' must be a single character or of same length as number of studies.")
   ##
-  col.forest <- list(eff = TEs,
-                     low = lowTEs,
-                     upp = uppTEs,
+  col.forest <- list(eff = TEs.exclude,
+                     low = lowTEs.exclude,
+                     upp = uppTEs.exclude,
                      rows = yS[-1],
                      ##
                      ## "square" means normal confidence interval, "diamond" means meta-analysis diamond,
@@ -4876,7 +4907,7 @@ forest.meta <- function(x,
                           nrow,
                           length(x1),
                           widths = x1,
-                          heights = unit(1, "lines"))))
+                          heights = unit(spacing, "lines"))))
   ##
   ## Left side of forest plot
   ##
@@ -5007,7 +5038,8 @@ forest.meta <- function(x,
              ref, TE.fixed, TE.random,
              overall, comb.fixed, comb.random, prediction,
              lwd, lty.fixed, lty.random,
-             ymin.line, ymax.line,
+             spacing * ymin.line, spacing * ymax.line,
+             spacing * (ymin.line + 0.5), spacing * ymax.line,
              addrow, print.label, bottom.lr)
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,

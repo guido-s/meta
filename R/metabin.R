@@ -1,6 +1,6 @@
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
-                    data = NULL, subset = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm = 
@@ -123,7 +123,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch event.e, n.e, event.c, n.c from data:
+  ## Catch 'event.e', 'n.e', 'event.c', and 'n.c' from data:
   ##
   event.e <- eval(mf[[match("event.e", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -142,7 +142,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               data, enclos = sys.frame(sys.parent()))
   chknull(n.c)
   ##
-  ## Catch incr from data:
+  ## Catch 'incr' from data:
   ##
   if (!missing(incr))
     incr <- eval(mf[[match("incr", names(mf))]],
@@ -154,7 +154,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     incr <- setchar(incr, "TACC",
                     "should be numeric or the character string \"TACC\"")
   ##
-  ## Catch studlab, byvar, subset from data:
+  ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -172,6 +172,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   missing.subset <- is.null(subset)
+  ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  missing.exclude <- is.null(exclude)
   
   
   ##
@@ -222,14 +226,26 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (4) Subset and subgroups
+  ## (4) Subset, exclude studies, and subgroups
   ##
   ##
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##  
+  ##
+  if (!missing.exclude) {
+    if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+        (length(exclude) > k.All))
+      stop("Length of argument 'exclude' is larger than number of studies.")
+    ##
+    exclude2 <- rep(FALSE, k.All)
+    exclude2[exclude] <- TRUE
+    exclude <- exclude2
+  }
+  else
+    exclude <- rep(FALSE, k.All)
+  ##
   if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -267,6 +283,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         data$.subset[subset] <- TRUE
       }
     }
+    ##
+    if (!missing.exclude)
+      data$.exclude <- exclude
   }
   
   
@@ -281,6 +300,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     event.c <- event.c[subset]
     n.c <- n.c[subset]
     studlab <- studlab[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -498,8 +519,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.1 <- n11 + n21
   n.2 <- n12 + n22
   ##
-  Q.CMH <- (sum(n11 - n1. * n.1 / n.., na.rm = TRUE)^2 /
-              sum(n1. * n2. * n.1 * n.2 / n..^3, na.rm = TRUE))
+  Q.CMH <- (sum((n11 - n1. * n.1 / n..)[!exclude], na.rm = TRUE)^2 /
+              sum((n1. * n2. * n.1 * n.2 / n..^3)[!exclude], na.rm = TRUE))
   ##
   ## Estimation of treatment effects in individual studies
   ##
@@ -589,6 +610,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       C <- (n12 + incr.e) * (n21 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       D <- (n12 + incr.e + n21 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       ##
+      A[exclude] <- B[exclude] <- C[exclude] <- D[exclude] <- 0
+      ##
       ## Cooper & Hedges (1994), p. 265-6
       ##
       w.fixed <- C
@@ -612,6 +635,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       R <- (n11 + incr.e) * (n2. + 2 * incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       S <- (n21 + incr.c) * (n1. + 2 * incr.e) / (n.. + 2 * incr.e + 2 * incr.c)
       ##
+      D[exclude] <- R[exclude] <- S[exclude] <- 0
+      ##
       w.fixed <- S
       TE.fixed <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
       seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) * 
@@ -627,8 +652,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       R <- ((n11 + incr.e) * (n12 + incr.e) * (n2. + 2 * incr.c)^3 +
               (n21 + incr.c) * (n22 + incr.c) * (n1. + 2 * incr.e)^3) /
                 ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.. + 2 * incr.e + 2 * incr.c)^2)
-      ##
       S <- n1. * n2. / n..
+      ##
+      R[exclude] <- S[exclude] <- 0
       ##
       w.fixed <- S
       TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
@@ -639,14 +665,17 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   else if (method == "Peto") {
     w.fixed <- 1 / seTE^2
+    w.fixed[exclude] <- 0
     TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
     seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
     ##
     w.fixed[is.na(w.fixed)] <- 0
   }
   else if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(ai = event.e, n1i = n.e,
-                                    ci = event.c, n2i = n.c,
+    glmm.fixed <- metafor::rma.glmm(ai = event.e[!exclude],
+                                    n1i = n.e[!exclude],
+                                    ci = event.c[!exclude],
+                                    n2i = n.c[!exclude],
                                     method = "FE",
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
@@ -660,6 +689,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   m <- metagen(TE, seTE, studlab,
+               exclude = if (missing.exclude) NULL else exclude,
                ##
                sm = sm,
                level = level,
@@ -741,8 +771,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (method == "GLMM") {
     ##
-    glmm.random <- metafor::rma.glmm(ai = event.e, n1i = n.e,
-                                     ci = event.c, n2i = n.c,
+    glmm.random <- metafor::rma.glmm(ai = event.e[!exclude],
+                                     n1i = n.e[!exclude],
+                                     ci = event.c[!exclude],
+                                     n2i = n.c[!exclude],
                                      method = method.tau,
                                      test = ifelse(hakn, "t", "z"),
                                      level = 100 * level.comb,

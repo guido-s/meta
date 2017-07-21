@@ -2,6 +2,7 @@ update.meta <- function(object,
                         data = object$data,
                         subset = object$subset,
                         studlab = object$data$.studlab,
+                        exclude = object$data$.exclude,
                         method = object$method,
                         sm = object$sm,
                         incr,
@@ -223,7 +224,8 @@ update.meta <- function(object,
     ##
     object$subset <- NULL
     ##
-    object$data <- data.frame(.studlab = object$studlab)
+    object$data <- data.frame(.studlab = object$studlab,
+                              .exclude = rep_len(FALSE, length(object$studlab)))
     ##
     if (!is.null(object$byvar))
       object$data$.byvar <- object$byvar
@@ -284,6 +286,7 @@ update.meta <- function(object,
   missing.incr    <- missing(incr)
   missing.byvar   <- missing(byvar)
   missing.studlab <- missing(studlab)
+  missing.exclude <- missing(exclude)
   ##  
   mf <- match.call()
   ##
@@ -309,6 +312,9 @@ update.meta <- function(object,
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  ##
   if (missing.subset) {
     if (!is.null(object$subset))
       subset <- object$subset
@@ -328,6 +334,9 @@ update.meta <- function(object,
   ##
   if (missing.studlab & !is.null(object$data$.studlab))
     studlab <- object$data$.studlab
+  ##
+  if (missing.exclude & !is.null(object$data$.exclude))
+    exclude <- object$data$.exclude
   ##
   if (method == "GLMM")
     if (metabin & !missing(sm) & sm != "OR")
@@ -366,7 +375,9 @@ update.meta <- function(object,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
                  n.c = object$data$.n.c,
+                 ##
                  studlab = studlab,
+                 exclude = exclude,
                  ##
                  data = data, subset = subset,
                  ##
@@ -408,7 +419,9 @@ update.meta <- function(object,
                   n.c = object$data$.n.c,
                   mean.c = object$data$.mean.c,
                   sd.c = object$data$.sd.c,
+                  ##
                   studlab = studlab,
+                  exclude = exclude,
                   ##
                   data = data, subset = subset,
                   ##
@@ -438,7 +451,9 @@ update.meta <- function(object,
   if (metacor)
     m <- metacor(cor = object$data$.cor,
                  n = object$data$.n,
+                 ##
                  studlab = studlab,
+                 exclude = exclude,
                  ##
                  data = data, subset = subset,
                  ##
@@ -479,7 +494,9 @@ update.meta <- function(object,
     ##
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
+                 ##
                  studlab = studlab,
+                 exclude = exclude,
                  ##
                  data = data.m, subset = subset,
                  ##
@@ -533,7 +550,9 @@ update.meta <- function(object,
                  time.e = object$data$.time.e,
                  event.c = object$data$.event.c,
                  time.c = object$data$.time.c,
+                 ##
                  studlab = studlab,
+                 exclude = exclude,
                  ##
                  data = data, subset = subset,
                  ##
@@ -577,7 +596,9 @@ update.meta <- function(object,
   if (metaprop)
     m <- metaprop(event = object$data$.event,
                   n = object$data$.n,
+                  ##
                   studlab = studlab,
+                  exclude = exclude,
                   ##
                   data = data, subset = subset, method = method,
                   ##
@@ -610,7 +631,9 @@ update.meta <- function(object,
   if (metarate)
     m <- metarate(event = object$data$.event,
                   time = object$data$.time,
+                  ##
                   studlab = studlab,
+                  exclude = exclude,
                   ##
                   data = data, subset = subset, method = method,
                   ##

@@ -12,7 +12,7 @@
 
 \usage{
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
-         data=NULL, subset=NULL,
+         data=NULL, subset=NULL, exclude=NULL,
          sm=gs("smcont"), pooledvar=gs("pooledvar"),
          method.smd=gs("method.smd"), sd.glass=gs("sd.glass"),
          exact.smd=gs("exact.smd"),
@@ -43,7 +43,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{studlab}{An optional vector with study labels.}
   \item{data}{An optional data frame containing the study information.}
   \item{subset}{An optional vector specifying a subset of studies to be
-  used.}
+    used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{level}{The level used to calculate confidence intervals for
     individual studies.}
   \item{level.comb}{The level used to calculate confidence intervals for
@@ -228,7 +230,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   list containing the following components:
   \item{n.e, mean.e, sd.e,}{}
   \item{n.c, mean.c, sd.c,}{}
-  \item{studlab, sm, level, level.comb,}{}
+  \item{studlab, exclude, sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
   \item{pooledvar, method.smd, sd.glass,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}

@@ -14,7 +14,8 @@
 
 \usage{
 metarate(event, time, studlab,
-         data=NULL, subset=NULL, method = "Inverse",
+         data=NULL, subset=NULL, exclude=NULL,
+         method = "Inverse",
          sm=gs("smrate"),
          incr=gs("incr"), allincr=gs("allincr"),
          addincr=gs("addincr"),
@@ -46,6 +47,8 @@ metarate(event, time, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event and time.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{method}{A character string indicating which method is to be
     used for pooling of studies. One of \code{"Inverse"} and
     \code{"GLMM"}, can be abbreviated.}
@@ -213,7 +216,7 @@ metarate(event, time, studlab,
   An object of class \code{c("metarate", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{event, n, studlab,}{}
+  \item{event, n, studlab, exclude,}{}
   \item{sm, incr, allincr, addincr, method.ci,}{}
   \item{level, level.comb,}{As defined above.}
   \item{comb.fixed, comb.random,}{}

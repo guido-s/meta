@@ -1,6 +1,6 @@
 metagen <- function(TE, seTE, studlab,
                     ##
-                    data = NULL, subset = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
                     ##
                     sm = "",
                     ##
@@ -109,7 +109,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch TE, seTE, n.e, n.c from data:
+  ## Catch 'TE', 'seTE', 'n.e', and 'n.c' from data:
   ##
   TE <- eval(mf[[match("TE", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
@@ -126,7 +126,7 @@ metagen <- function(TE, seTE, studlab,
   n.c <- eval(mf[[match("n.c", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
   ##
-  ## Catch studlab, byvar, subset from data:
+  ## Catch 'studlab', 'byvar', 'subset', and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -139,6 +139,10 @@ metagen <- function(TE, seTE, studlab,
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   missing.subset <- is.null(subset)
+  ##
+  exclude <- eval(mf[[match("exclude", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+  missing.exclude <- is.null(exclude)
   
   
   ##
@@ -174,14 +178,26 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (4) Subset and subgroups
+  ## (4) Subset, exclude studies, and subgroups
   ##
   ##
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
-      stop("Length of subset is larger than number of studies.")
+      stop("Length of argument 'subset' is larger than number of studies.")
   ##  
+  if (!missing.exclude) {
+    if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+        (length(exclude) > k.All))
+      stop("Length of argument 'exclude' is larger than number of studies.")
+    ##
+    exclude2 <- rep(FALSE, k.All)
+    exclude2[exclude] <- TRUE
+    exclude <- exclude2
+  }
+  else
+    exclude <- rep(FALSE, k.All)
+  ##
   if (!missing.byvar) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -215,6 +231,9 @@ metagen <- function(TE, seTE, studlab,
         data$.subset[subset] <- TRUE
       }
     }
+    ##
+    if (!missing.exclude)
+      data$.exclude <- exclude
   }
   
   
@@ -227,6 +246,8 @@ metagen <- function(TE, seTE, studlab,
     TE <- TE[subset]
     seTE <- seTE[subset]
     studlab <- studlab[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (!missing.byvar)
       byvar <- byvar[subset]
@@ -280,7 +301,7 @@ metagen <- function(TE, seTE, studlab,
   ## (8) Do meta-analysis
   ##
   ##
-  k <- sum(!is.na(seTE))
+  k <- sum(!is.na(seTE[!exclude]))
   ##
   tau2 <- NA
   ##
@@ -315,11 +336,11 @@ metagen <- function(TE, seTE, studlab,
     if (k == 1 & hakn)
       hakn <- FALSE
     ## Estimate tau-squared
-    hc <- hetcalc(TE, seTE, method.tau, TE.tau)
+    hc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau)
     ##
     if (!missing.byvar & tau.common) {
       ## Estimate common tau-squared across subgroups
-      hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar)
+      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau, byvar)
     }
     ##
     if (is.null(tau.preset)) {
@@ -339,7 +360,7 @@ metagen <- function(TE, seTE, studlab,
     ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
     ##
     w.fixed <- 1 / seTE^2
-    w.fixed[is.na(w.fixed) | is.na(TE)] <- 0
+    w.fixed[is.na(w.fixed) | is.na(TE) | exclude] <- 0
     ##
     TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
     seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
@@ -362,7 +383,7 @@ metagen <- function(TE, seTE, studlab,
         tau2 <- tau2.calc <- 0
       }
       else {
-        pm <- paulemandel(TE, seTE)
+        pm <- paulemandel(TE[!exclude], seTE[!exclude])
         TE.random <- pm$TE.random
         seTE.random <- pm$seTE.random
         w.random <- pm$w.random
@@ -375,7 +396,7 @@ metagen <- function(TE, seTE, studlab,
       ## Cooper & Hedges (1994), p. 265, 274-5
       ##
       w.random <- 1 / (seTE^2 + tau2.calc)
-      w.random[is.na(w.random) | is.na(TE)] <- 0
+      w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
       ##
       TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
       seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
@@ -489,6 +510,7 @@ metagen <- function(TE, seTE, studlab,
               label.right = label.right,
               data = if (keepdata) data else NULL,
               subset = if (keepdata) subset else NULL,
+              exclude = if (!missing.exclude) exclude else NULL,
               print.byvar = print.byvar,
               byseparator = byseparator,
               warn = warn,

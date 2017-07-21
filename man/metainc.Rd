@@ -15,7 +15,7 @@
 
 \usage{
 metainc(event.e, time.e, event.c, time.c, studlab,
-        data=NULL, subset=NULL, method="MH",
+        data=NULL, subset=NULL, exclude=NULL, method="MH",
         sm=gs("sminc"),
         incr=gs("incr"), allincr=gs("allincr"),
         addincr=gs("addincr"),
@@ -51,6 +51,8 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event.e, time.e, event.c, and time.c.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{method}{A character string indicating which method is to be
     used for pooling of studies. One of \code{"MH"}, \code{"Inverse"},
     \code{"Cochran"}, or \code{"GLMM"} can be abbreviated.}
@@ -244,7 +246,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   An object of class \code{c("metainc", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{event.e, time.e, event.c, time.c, studlab,}{}
+  \item{event.e, time.e, event.c, time.c, studlab, exclude,}{}
   \item{sm, method, incr, allincr, addincr, model.glmm, warn,}{}
   \item{level, level.comb, comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}

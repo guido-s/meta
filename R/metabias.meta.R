@@ -76,11 +76,33 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   if (inherits(x, "metaprop")) {
     event <- x$event
-    n     <- x$n
+    n <- x$n
   }
   
   if(length(TE) != length(seTE))
     stop("length of argument TE and seTE must be equal")
+  ##
+  ## Exclude studies from meta-analysis
+  ##
+  if (!is.null(x$exclude)) {
+    TE <- TE[!x$exclude]
+    seTE <- seTE[!x$exclude]
+    ##
+    if (!is.null(n.e))
+      n.e <- n.e[!x$exclude]
+    if (!is.null(n.c))
+      n.c <- n.c[!x$exclude]
+    ##
+    if (inherits(x, "metabin")) {
+      event.e <- event.e[!x$exclude]
+      event.c <- event.c[!x$exclude]
+    }
+    ##
+    if (inherits(x, "metaprop")) {
+      n <- n[!x$exclude]
+      event <- event[!x$exclude]
+    }
+  }
   ##
   sel <- !is.na(TE) & !is.na(seTE)
   if (length(TE) != sum(sel))

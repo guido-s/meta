@@ -104,7 +104,7 @@ forest(x, ...)
        ff.axis = "plain", ff.smlab = "bold", ff.xlab = "plain",
        ff.lr = "plain",
        #
-       squaresize=0.8,
+       squaresize=0.8 / spacing,
        #
        plotwidth = if (layout != "JAMA") "6cm" else "8cm",
        colgap = "2mm",
@@ -123,6 +123,7 @@ forest(x, ...)
        just.studlab="left", just.addcols="center",
        just.addcols.left=just.addcols, just.addcols.right=just.addcols,
        #
+       spacing = 1,
        addrow, addrow.overall, addrow.subgroups,
        #
        new=TRUE,
@@ -467,6 +468,7 @@ forest(x, ...)
     columns on right side of forest plot (possible values: "left",
     "right", "center"). Can be of same length as number of additional
     columns on right side of forest plot.}
+  \item{spacing}{A numeric determining line spacing in a forest plot.}
   \item{addrow}{A logical value indicating whether an empty row is
     printed above and below study results.}
   \item{addrow.overall}{A logical value indicating whether an emtpy

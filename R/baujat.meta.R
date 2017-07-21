@@ -32,7 +32,7 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  TE.fixed <- metagen(TE, seTE)$TE.fixed
+  TE.fixed <- metagen(TE, seTE, exclude = x$exclude)$TE.fixed
   k <- x$k
 
   if (is.logical(studlab)) {
@@ -49,13 +49,16 @@ baujat.meta <- function(x,
   
   
   m.inf <- metainf(x, pooled = "fixed")
-  TE.inf <- m.inf$TE[1:m.inf$k]
-  seTE.inf <- m.inf$seTE[1:m.inf$k]
+  TE.inf <- m.inf$TE[1:length(TE)]
+  seTE.inf <- m.inf$seTE[1:length(TE)]
   ##
   ys <- (TE.inf - TE.fixed)^2 / seTE.inf^2
-  ys <- ys*yscale
+  ys <- ys * yscale
   ##  
   xs <- (TE - TE.fixed)^2 / seTE^2
+  ##
+  if (!is.null(x$exclude))
+    xs[x$exclude] <- 0
   
   
   if (missing(xlim))

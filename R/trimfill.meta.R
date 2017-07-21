@@ -79,11 +79,28 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   if(length(TE) != length(studlab))
     stop("length of argument TE and studlab must be equal")
   ##
-  sel <- !is.na(TE) & !is.na(seTE)
-  if (length(TE) != sum(sel))
-    warning(paste(length(TE) - sum(sel),
-                  "observation(s) dropped due to missing values"))
+  ## Exclude studies from meta-analysis
   ##
+  if (!is.null(x$exclude)) {
+    exclude <- x$exclude
+    nomiss <- !is.na(TE) & !is.na(seTE)
+    miss <- !nomiss & !exclude
+    ##
+    sel <- nomiss & !exclude
+  }
+  else {
+    exclude <- exclude.na <- NULL
+    nomiss <- !is.na(TE) & !is.na(seTE)
+    miss <- !nomiss
+    ##
+    sel <- nomiss
+  }
+  ##
+  if (any(miss))
+    warning(paste(sum(miss),
+                  "observation(s) dropped due to missing values"))
+  
+  
   TE <- TE[sel]
   seTE <- seTE[sel]
   studlab <- studlab[sel]
@@ -284,11 +301,46 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                 Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.comb))
   
   
-  res <- list(studlab = m$studlab,
-              TE = m$TE, seTE = m$seTE,
-              lower = m$lower, upper = m$upper,
-              zval = m$zval, pval = m$pval,
-              w.fixed = m$w.fixed, w.random = m$w.random,
+  ##
+  ## Number of filled studies
+  ##
+  k0 <- sum(trimfill)
+  
+  
+  if (!is.null(exclude) && any(exclude)) {
+    exclude.na <- c(exclude, rep(NA, k0))
+    exclude <- c(exclude, rep(FALSE, k0))
+    TE.all <- seTE.all <- studlab.all <- rep(NA, length(exclude))
+    ##
+    TE.all[exclude] <- x$TE[exclude]
+    TE.all[!exclude] <- TE
+    ##
+    seTE.all[exclude] <- x$seTE[exclude]
+    seTE.all[!exclude] <- seTE
+    ##
+    studlab.all[exclude] <- x$studlab[exclude]
+    studlab.all[!exclude] <- studlab
+    ##
+    if (!left)
+      m.all <- metagen(-TE.all, seTE.all, studlab = studlab.all,
+                       exclude = exclude,
+                       level = level)
+    else
+      m.all <- metagen(TE.all, seTE.all, studlab = studlab.all,
+                       exclude = exclude,
+                       level = level)
+  }
+  else
+    m.all <- m
+  
+  
+  res <- list(studlab = m.all$studlab,
+              TE = m.all$TE, seTE = m.all$seTE,
+              lower = m.all$lower, upper = m.all$upper,
+              zval = m.all$zval, pval = m.all$pval,
+              w.fixed = m.all$w.fixed, w.random = m.all$w.random,
+              exclude = exclude.na,
+              ##
               TE.fixed = m$TE.fixed, seTE.fixed = m$seTE.fixed,
               lower.fixed = m$lower.fixed, upper.fixed = m$upper.fixed,
               zval.fixed = m$zval.fixed, pval.fixed = m$pval.fixed,
@@ -337,7 +389,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               label.c = x$label.c,
               label.left = x$label.left,
               label.right = x$label.right,
-              k0 = sum(trimfill),
+              k0 = k0,
               level = level, level.comb = level.comb,
               comb.fixed = comb.fixed,
               comb.random = comb.random,

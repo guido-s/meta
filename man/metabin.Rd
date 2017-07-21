@@ -16,7 +16,7 @@
 
 \usage{
 metabin(event.e, n.e, event.c, n.c, studlab,
-        data=NULL, subset=NULL,
+        data=NULL, subset=NULL, exclude=NULL,
         method=ifelse(tau.common, "Inverse", gs("method")),
         sm=
         ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"),
@@ -56,7 +56,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{studlab}{An optional vector with study labels.}
   \item{data}{An optional data frame containing the study information,
     i.e., event.e, n.e, event.c, and n.c.}
-  \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{subset}{An optional vector specifying a subset of studies to
+    be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{method}{A character string indicating which method is to be
     used for pooling of studies. One of \code{"Inverse"}, \code{"MH"},
     \code{"Peto"}, or \code{"GLMM"}, can be abbreviated.}
@@ -291,8 +294,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   An object of class \code{c("metabin", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{event.e, n.e, event.c, n.c, studlab,}{}
-  \item{sm, method, incr, allincr, addincr, }{}
+  \item{event.e, n.e, event.c, n.c, studlab, exclude,}{}
+  \item{sm, method, incr, allincr, addincr,}{}
   \item{allstudies, MH.exact, RR.cochrane, model.glmm, warn,}{}
   \item{level, level.comb, comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}

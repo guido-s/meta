@@ -11,7 +11,8 @@
 }
 
 \usage{
-metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
+metagen(TE, seTE, studlab,
+        data=NULL, subset=NULL, exclude=NULL, sm="",
         level=gs("level"), level.comb=gs("level.comb"),
         comb.fixed=gs("comb.fixed"), comb.random=gs("comb.random"),
         hakn=gs("hakn"),
@@ -38,6 +39,8 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   \item{studlab}{An optional vector with study labels.}
   \item{data}{An optional data frame containing the study information.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{sm}{A character string indicating underlying summary measure,
     e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
     \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.}
@@ -183,7 +186,7 @@ metagen(TE, seTE, studlab, data=NULL, subset=NULL, sm="",
   An object of class \code{c("metagen", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{TE, seTE, studlab, n.e, n.c}{}
+  \item{TE, seTE, studlab, exclude, n.e, n.c}{}
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}
   \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{}

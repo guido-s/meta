@@ -57,6 +57,15 @@ labbe.metabin <- function(x,
     w.fixed <- x$w.fixed
     w.random <- x$w.random
   }
+  ##
+  ## Exclude studies from meta-analysis
+  ##
+  if (!is.null(x$exclude)) {
+    xpos <- xpos[!x$exclude]
+    ypos <- ypos[!x$exclude]
+    w.fixed <- w.fixed[!x$exclude]
+    w.random <- w.random[!x$exclude]
+  }
   
   
   if (!backtransf) {

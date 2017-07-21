@@ -336,7 +336,8 @@ draw.lines <- function(x, column,
                        ref, TE.fixed, TE.random,
                        overall, comb.fixed, comb.random, prediction,
                        lwd, lty.fixed, lty.random,
-                       ymin.line, ymax.line,
+                       ymin.refline, ymax.refline,
+                       ymin.combline, ymax.combline,
                        addrow, print.label, bottom.lr) {
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
@@ -345,8 +346,8 @@ draw.lines <- function(x, column,
   ##
   if (!is.na(ref) && (x$range[1] <= ref & ref <= x$range[2]))
     grid.lines(x = unit(ref, "native"),
-               y = unit(c(ymin.line - (!addrow & !overall),
-                          ymax.line +
+               y = unit(c(ymin.refline - (!addrow & !overall),
+                          ymax.refline +
                           (print.label & !bottom.lr)),
                         "lines"),
                gp = gpar(lwd = lwd))
@@ -357,8 +358,8 @@ draw.lines <- function(x, column,
     if (x$range[1] <= TE.fixed & TE.fixed <= x$range[2])
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
-                   y = unit(c(ymin.line + prediction + comb.random + 0.5,
-                              ymax.line - 1 * addrow),
+                   y = unit(c(ymin.combline + prediction + comb.random + 0.5,
+                              ymax.combline - 1 * addrow),
                             "lines"),
                    gp = gpar(lty = lty.fixed, lwd = lwd))
   ##
@@ -368,8 +369,8 @@ draw.lines <- function(x, column,
     if (x$range[1] <= TE.random & TE.random <= x$range[2])
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),
-                   y = unit(c(ymin.line + prediction + 0.5,
-                              ymax.line - 1 * addrow),
+                   y = unit(c(ymin.combline + prediction + 0.5,
+                              ymax.combline - 1 * addrow),
                             "lines"),
                    gp = gpar(lty = lty.random, lwd = lwd))
   ##

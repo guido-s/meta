@@ -1,6 +1,6 @@
 xlab <- function(sm, backtransf,
                  pscale = 1, irscale = 1, irunit = "person-years",
-                 newline = FALSE) {
+                 newline = FALSE, revman5 = FALSE) {
   
   res <- NULL
   
@@ -9,11 +9,12 @@ xlab <- function(sm, backtransf,
   
   
   if (sm == "SMD")
-    res <- paste("Standardised mean", newline,
-                 "difference", sep = "")
+    res <- paste(if (revman5) "Std. Mean" else "Standardised Mean",
+                 newline,
+                 "Difference", sep = "")
   ##
   else if (sm == "WMD" | sm == "MD")
-    res <- "Mean difference"
+    res <- "Mean Difference"
   ##
   else if (sm == "COR")
     res <- "Correlation"

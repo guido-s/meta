@@ -14,7 +14,8 @@
 
 \usage{
 metaprop(event, n, studlab,
-         data=NULL, subset=NULL, method = "Inverse",
+         data=NULL, subset=NULL, exclude=NULL,
+         method = "Inverse",
          sm=gs("smprop"),
          incr=gs("incr"), allincr=gs("allincr"),
          addincr=gs("addincr"),
@@ -28,7 +29,7 @@ metaprop(event, n, studlab,
          tau.preset=NULL, TE.tau=NULL,
          tau.common=gs("tau.common"),
          prediction=gs("prediction"), level.predict=gs("level.predict"),
-	 null.effect=NA,
+         null.effect=NA,
          method.bias=gs("method.bias"),
          backtransf=gs("backtransf"),
          pscale=1,
@@ -37,7 +38,7 @@ metaprop(event, n, studlab,
          byseparator = gs("byseparator"),
          keepdata=gs("keepdata"),
          warn=gs("warn"),
-	 ...)
+         ...)
 }
 
 \arguments{
@@ -47,6 +48,8 @@ metaprop(event, n, studlab,
   \item{data}{An optional data frame containing the study information,
     i.e., event and n.}
   \item{subset}{An optional vector specifying a subset of studies to be used.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{method}{A character string indicating which method is to be
     used for pooling of studies. One of \code{"Inverse"} and
     \code{"GLMM"}, can be abbreviated.}
@@ -251,7 +254,7 @@ metaprop(event, n, studlab,
   An object of class \code{c("metaprop", "meta")} with corresponding
   \code{print}, \code{summary}, \code{plot} function. The object is a
   list containing the following components:
-  \item{event, n, studlab,}{}
+  \item{event, n, studlab, exclude,}{}
   \item{sm, incr, allincr, addincr, method.ci,}{}
   \item{level, level.comb,}{As defined above.}
   \item{comb.fixed, comb.random,}{}

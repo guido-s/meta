@@ -12,6 +12,7 @@
 \method{update}{meta}(object, 
        data=object$data, subset=object$subset,
        studlab=object$data$.studlab,
+       exclude=object$data$.exclude,
        method=object$method, sm=object$sm,
        incr, allincr=object$allincr,
        addincr=object$addincr, allstudies=object$allstudies,
@@ -47,6 +48,8 @@
   \item{data}{Dataset.}
   \item{subset}{Subset.}
   \item{studlab}{Study label.}
+  \item{exclude}{An optional vector specifying studies to exclude from
+    meta-analysis, however, to include in printouts and forest plots.}
   \item{method}{A character string indicating which method is to be
     used for pooling of studies; see \code{\link{metabin}} and
     \code{\link{metainc}} function for admissible values.}
