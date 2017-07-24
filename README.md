@@ -38,6 +38,9 @@ install.packages("devtools")
 devtools::install_github("guido-s/meta")
 ```
 
+Note, you have to install the [Rtools](https://cloud.r-project.org/bin/windows/Rtools/) in order to install **meta** under Microsoft Windows.
+
+
 ### Bug Reports:
 
 ```r
