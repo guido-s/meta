@@ -19,7 +19,7 @@ forest(x, ...)
        overall=TRUE,
        text.fixed=NULL,
        text.random=NULL,
-       lty.fixed=2, lty.random=3,
+       lty.fixed=2, lty.random=3, col.fixed="black", col.random="black",
        prediction=x$prediction,
        text.predict=NULL,
        print.subgroup.labels=TRUE,
@@ -169,6 +169,8 @@ forest(x, ...)
     pooled random effects estimate.}
   \item{lty.fixed}{Line type (pooled fixed effect estimate).}
   \item{lty.random}{Line type (pooled random effects estimate).}
+  \item{col.fixed}{Line colour (pooled fixed effect estimate).}
+  \item{col.random}{Line colour (pooled random effects estimate).}
   \item{prediction}{A logical indicating whether a prediction interval
     should be printed.}
   \item{text.predict}{A character string used in the plot to label the

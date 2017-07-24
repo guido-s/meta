@@ -10,6 +10,7 @@ forest.meta <- function(x,
                         text.fixed = NULL,
                         text.random = NULL,
                         lty.fixed = 2, lty.random = 3,
+                        col.fixed = "black", col.random = "black",
                         ##
                         prediction = x$prediction,
                         text.predict = NULL,
@@ -264,6 +265,8 @@ forest.meta <- function(x,
     chknumeric(lty.fixed)
   if (!is.null(lty.random))
     chknumeric(lty.random)
+  chkchar(col.fixed)
+  chkchar(col.random)
   chklogical(prediction)
   chklogical(print.subgroup.labels)
   if (!is.null(print.byvar))
@@ -5037,10 +5040,10 @@ forest.meta <- function(x,
   draw.lines(col.forest, j,
              ref, TE.fixed, TE.random,
              overall, comb.fixed, comb.random, prediction,
-             lwd, lty.fixed, lty.random,
-             spacing * ymin.line, spacing * ymax.line,
-             spacing * (ymin.line + 0.5), spacing * ymax.line,
-             addrow, print.label, bottom.lr)
+             lwd, lty.fixed, lty.random, col.fixed, col.random,
+             ymin.line, ymax.line,
+             addrow, print.label, bottom.lr,
+             spacing)
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, lwd,

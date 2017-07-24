@@ -1,3 +1,14 @@
+*** meta, version 4.8-4, 2017-mm-dd ***
+
+ ** User-visible changes **
+
+  * forest.meta():
+    - Lines for fixed effect and random effects effect start in center
+      of diamond
+    - new arguments 'col.fixed' and 'col.random' to change colour of
+      fixed effect and random effects lines
+
+
 *** meta, version 4.8-3, 2017-07-21 ***
 
  ** Major changes **
