@@ -53,7 +53,7 @@ xlab <- function(sm, backtransf,
       res <- paste("Incidence Rate", newline,
                    "Ratio", sep = "")
     ##
-    else if (sm %in% c("PFT", "PAS", "PLN", "PLOGIT", "PRAW")) {
+    else if (is.prop(sm)) {
       if (pscale == 1)
         res <- ""
       else
@@ -63,7 +63,7 @@ xlab <- function(sm, backtransf,
                      "observations", sep = "")
     }
     ##
-    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    else if (is.rate(sm)) {
       if (irscale == 1)
         res <- "Incidence Rate"
       else

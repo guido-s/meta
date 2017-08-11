@@ -5,7 +5,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL) {
   ##
   idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
   ##
-  if (any(is.na(idx)) || any(idx == 0)) {
+  if (anyNA(idx) || any(idx == 0)) {
     if (list)
       first <- "List element '"
     else

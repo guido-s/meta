@@ -85,7 +85,7 @@ metarate <- function(event, time, studlab,
                          version = .settings$metafor)
   }
   ##
-  sm <- setchar(sm, c("IR", "IRLN", "IRS", "IRFT"))
+  sm <- setchar(sm, .settings$sm4rate)
   chklogical(allincr)
   chklogical(addincr)
   chklogical(warn)

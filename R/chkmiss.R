@@ -5,7 +5,7 @@ chkmiss <- function(x, name = NULL) {
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (any(is.na(x)))
+  if (anyNA(x))
     stop("Missing values in argument '", name, "'.",
          call. = FALSE)
   ##

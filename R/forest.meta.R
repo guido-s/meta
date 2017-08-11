@@ -819,8 +819,7 @@ forest.meta <- function(x,
   ##
   log.xaxis <- FALSE
   ##
-  if (missing(ref) && sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT",
-                                "IR", "IRLN", "IRS", "IRFT"))
+  if (missing(ref) && (is.prop(sm) | is.rate(sm)))
     ref <- NA
   ##
   if (backtransf & is.relative.effect(sm)) {
@@ -843,7 +842,7 @@ forest.meta <- function(x,
   ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
-    if (sm %in% c("IR", "IRLN", "IRS", "IRFT"))
+    if (is.rate(sm))
       smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
                     newline = !revman5.jama, revman5 = revman5)
     else
@@ -943,13 +942,13 @@ forest.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+    else if (is.prop(sm)) {
       if (pscale == 1)
         sm.lab <- "Proportion"
       else
         sm.lab <- "Events"
     }
-    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    else if (is.rate(sm)) {
       if (irscale == 1)
         sm.lab <- "Rate"
       else
@@ -1411,7 +1410,7 @@ forest.meta <- function(x,
   if (!by)
     byvar <- rep(1, k.all)
   ##
-  if (by & any(is.na(byvar)))
+  if (by & anyNA(byvar))
     stop("Missing values in 'byvar'")
   ##
   if (allstudies)
@@ -3051,7 +3050,7 @@ forest.meta <- function(x,
     ##
     ## Apply argument 'pscale' to proportions
     ##
-    if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+    if (is.prop(sm)) {
       TE <- pscale * TE
       lowTE <- pscale * lowTE
       uppTE <- pscale * uppTE
@@ -3077,7 +3076,7 @@ forest.meta <- function(x,
   ##
   ## Apply argument 'irscale' to rates
   ##
-  if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+  if (is.rate(sm)) {
     TE <- irscale * TE
     lowTE <- irscale * lowTE
     uppTE <- irscale * uppTE

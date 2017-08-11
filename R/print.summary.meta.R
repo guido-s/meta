@@ -65,8 +65,8 @@ print.summary.meta <- function(x,
   chkchar(text.I2)
   chkchar(text.Rb)
   chklogical(warn.backtransf)
-  is.prop <- x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")
-  is.rate <- x$sm %in% c("IR", "IRLN", "IRS", "IRFT")
+  is.prop <- is.prop(x$sm)
+  is.rate <- is.rate(x$sm)
   ##
   if (!is.prop)
     pscale <- 1
@@ -120,6 +120,22 @@ print.summary.meta <- function(x,
   sm <- x$sm
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop"))
+  null.given <- inherits(x, c("metaprop", "metarate", "metacor")) |
+    is.prop(sm) | is.rate(sm) | is.cor(sm)
+  ##
+  null.effect <- x$null.effect
+  ##
+  if (null.given & !backtransf) {
+    ##
+    if (sm %in% c("PFT", "PAS"))
+      null.effect <- asin(sqrt(null.effect))
+    else if (sm %in% c("PLN", "IRLN"))
+      null.effect <- log(null.effect)
+    else if (sm == c("PLOGIT"))
+      null.effect <- log(null.effect / (1 - null.effect))
+    else if (sm %in% c("IRS", "IRFT"))
+      null.effect <- sqrt(null.effect)
+  }
   ##
   prediction <- prediction & k >= 3
   ##
@@ -215,7 +231,7 @@ print.summary.meta <- function(x,
   }
   ##
   if (backtransf) {
-    if (inherits(x, "metarate"))
+    if (sm %in% c("IR", "IRLN", "IRS", "IRFT"))
       harmonic.mean <- 1 / mean(1 / x$time)
     else
       harmonic.mean <- 1 / mean(1 / x$n)
@@ -385,7 +401,7 @@ print.summary.meta <- function(x,
             pscale = pscale,
             irscale = irscale,
             irunit = irunit,
-            null.effect = if (inherits(x, c("metaprop", "metarate", "metacor"))) x$null.effect else 0)
+            null.effect = if (null.given) null.effect else 0)
   }
   else {
     ##
@@ -405,6 +421,7 @@ print.summary.meta <- function(x,
       else
         cat(paste("Number of studies combined: k = ", k,
                   " (with ", x$k0, " added studies)\n\n", sep = ""))
+      ##
       res <- cbind(format(c(if (comb.fixed) TE.fixed,
                             if (comb.random) TE.random,
                             if (prediction) NA)),
@@ -677,7 +694,7 @@ print.summary.meta <- function(x,
             pscale = pscale,
             irscale = irscale,
             irunit = irunit,
-            null.effect = if (inherits(x, c("metaprop", "metarate", "metacor"))) x$null.effect else 0)
+            null.effect = if (null.given) null.effect else 0)
   }
   
   

@@ -87,6 +87,9 @@ setVar <- function(var = NULL, arg = NULL) {
 ## Set defaults
 ##
 setOption("metafor", "1.9.9")
+setOption("sm4cor", c("ZCOR", "COR"))
+setOption("sm4prop", c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
+setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
 ##
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "hakn", "method.tau", "tau.common",

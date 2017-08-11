@@ -4,6 +4,7 @@ settings.meta <- function(...) {
   ##
   res <- .settings
   res$metafor <- NULL
+  res$sm4cor <- res$sm4prop <- res$sm4rate <- NULL
   res$argslist <- NULL
   
   
@@ -137,12 +138,12 @@ settings.meta <- function(...) {
     else if (is.null(names) & is.character(args[[1]])) {
       ##
       idx <- charmatch(tolower(args[[1]]), "print", nomatch = NA)
-      if (!(any(is.na(idx)) || any(idx == 0)))
+      if (!(anyNA(idx) || any(idx == 0)))
         if (nchar(args[[1]]) >= 1)
           print.settings <- TRUE
       ##
       idx <- charmatch(tolower(args[[1]]), "reset", nomatch = NA)
-      if (!(any(is.na(idx)) || any(idx == 0)))
+      if (!(anyNA(idx) || any(idx == 0)))
         if (nchar(args[[1]]) >= 3)
           reset.settings <- TRUE
       ##
@@ -736,7 +737,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmcor)) {
       smcor <- args[[idsmcor]]
-      smcor <- setchar(smcor, c("ZCOR", "COR"))
+      smcor <- setchar(smcor, .settings$sm4cor)
       setOption("smcor", smcor)
     }
     ##
@@ -775,7 +776,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmprop)) {
       smprop <- args[[idsmprop]]
-      smprop <- setchar(smprop, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+      smprop <- setchar(smprop, .settings$sm4prop)
       setOption("smprop", smprop)
     }
     ##
@@ -790,7 +791,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmrate)) {
       smrate <- args[[idsmrate]]
-      smrate <- setchar(smrate, c("IR", "IRLN", "IRS", "IRFT"))
+      smrate <- setchar(smrate, .settings$sm4rate)
       setOption("smrate", smrate)
     }
     ##

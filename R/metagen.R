@@ -63,14 +63,14 @@ metagen <- function(TE, seTE, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
-  if (!(sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+  if (!is.prop(sm))
     pscale <- 1
   chknumeric(pscale, single = TRUE)
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!(sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+  if (!is.rate(sm))
     irscale <- 1
   chknumeric(irscale, single = TRUE)
   if (!backtransf & irscale != 1) {

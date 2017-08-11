@@ -10,7 +10,7 @@ chknumeric <- function(x, min, max, zero = FALSE, single = FALSE,
   if (length(x) == 0)
     return(invisible(NULL))
   ##
-  if (!(is.numeric(x)))
+  if (!is.numeric(x))
     stop("Non-numeric value for argument '", name, "'.",
          call. = FALSE)
   ##

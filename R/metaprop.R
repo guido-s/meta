@@ -60,7 +60,7 @@ metaprop <- function(event, n, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  if (any(!is.na(null.effect)) | length(null.effect) != 1)
+  if (!anyNA(null.effect) | length(null.effect) != 1)
     chklevel(null.effect, name = "null.effect")
   ##
   method.bias <- setchar(method.bias,
@@ -87,7 +87,7 @@ metaprop <- function(event, n, studlab,
                          version = .settings$metafor)
   }
   ##
-  sm <- setchar(sm, c("PFT", "PAS", "PRAW", "PLN", "PLOGIT"))
+  sm <- setchar(sm, .settings$sm4prop)
   chklogical(allincr)
   chklogical(addincr)
   method.ci <- setchar(method.ci,

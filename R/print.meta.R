@@ -65,7 +65,7 @@ print.meta <- function(x,
   chklogical(details)
   chklogical(ma)
   chklogical(backtransf)
-  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+  if (!is.prop(x$sm))
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
@@ -75,7 +75,7 @@ print.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+  if (!is.rate(x$sm))
     irscale <- 1
   if (!is.null(irscale))
     chknumeric(irscale, single = TRUE)
@@ -132,13 +132,13 @@ print.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    else if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+    else if (is.prop(sm)) {
       if (pscale == 1)
         sm.lab <- "proportion"
       else
         sm.lab <- "events"
     }
-    else if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+    else if (is.rate(sm)) {
       if (irscale == 1)
         sm.lab <- "rate"
       else
@@ -277,13 +277,13 @@ print.meta <- function(x,
         uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, warn.backtransf)
       }
       ##
-      if (sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")) {
+      if (is.prop(sm)) {
         TE <- pscale * TE
         lowTE <- pscale * lowTE
         uppTE <- pscale * uppTE
       }
       ##
-      if (sm %in% c("IR", "IRLN", "IRS", "IRFT")) {
+      if (is.rate(sm)) {
         TE <- irscale * TE
         lowTE <- irscale * lowTE
         uppTE <- irscale * uppTE

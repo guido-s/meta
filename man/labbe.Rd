@@ -54,11 +54,11 @@ labbe(x, ...)
       ...)
 }
 \arguments{
-  \item{x}{The x coordinates of points of the L'Abbé
-    plot. Alternatively, an object of class \code{metabin}.}
-  \item{y}{The y coordinates of the L'Abbé plot, optional if \code{x}
-    is an appropriate structure.}
-\item{xlim}{The x limits (min, max) of the plot.}
+  \item{x}{An object of class \code{metabin}. Alternatively, the x
+    coordinates of points of the L'Abbé plot.}
+  \item{y}{The y coordinates of the L'Abbé plot, if argument \code{x}
+    is not an object of class \code{metabin}.}
+  \item{xlim}{The x limits (min, max) of the plot.}
   \item{ylim}{The y limits (min, max) of the plot.}
   \item{xlab}{A label for the x-axis.}
   \item{ylab}{A label for the y-axis.}
@@ -155,7 +155,6 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  data = Olkin95,
                  studlab = paste(author, year),
                  sm = "RR", method = "I")
-
 
 #
 # L'Abbe plot for risk ratio

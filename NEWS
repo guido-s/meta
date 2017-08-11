@@ -3,10 +3,35 @@
  ** User-visible changes **
 
   * forest.meta():
-    - Lines for fixed effect and random effects effect start in center
-      of diamond
     - new arguments 'col.fixed' and 'col.random' to change colour of
       fixed effect and random effects lines
+
+ ** Bug fixes **
+
+  * forest.meta():
+    - lines for treatment effect in fixed effect and random effects
+      model always start in center of diamond
+
+  * print.summary.meta():
+    - print transformed null effect for meta-analysis of single
+      correlations, proportions, or rates if argument backtransf is
+      FALSE, i.e., for metacor(), metaprop(), and metarate() objects
+    
+  * trimfill.meta():
+    - argument 'null.effect' is considered to calculate p-value for
+      fixed effect and random effects model for metacor(), metaprop(),
+      and metarate() objects
+
+** Internal changes **
+
+  * New internal functions is.cor(), is.prop(), and is.rate() to check
+    whether summary measure refers to meta-analysis of correlations,
+    proportions, or rates
+
+  * metabias.default(), radial.default(), and trimfill.default():
+    - call metagen() internally to create meta-analysis object
+    - call metabias.meta(), radial.meta(), or trimfill.meta()
+      internally to conduct analysis
 
 
 *** meta, version 4.8-3, 2017-07-21 ***

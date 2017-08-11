@@ -281,13 +281,13 @@ summary.meta <- function(object,
   }
   ##
   if (metaprop) {
-    res$event     <- object$event
-    res$n         <- object$n
+    res$event <- object$event
+    res$n     <- object$n
     ##
-    res$sparse    <- object$sparse
-    res$incr      <- object$incr
-    res$allincr   <- object$allincr
-    res$addincr   <- object$addincr
+    res$sparse  <- object$sparse
+    res$incr    <- object$incr
+    res$allincr <- object$allincr
+    res$addincr <- object$addincr
     ##
     res$null.effect <- object$null.effect
     ##
@@ -300,14 +300,21 @@ summary.meta <- function(object,
     class(res) <- c(class(res), "metaprop")
   }
   ##
-  if (metarate) {
-    res$event     <- object$event
-    res$time      <- object$time
+  if (is.prop(object$sm)) {
+    res$event <- object$event
+    res$n     <- object$n
     ##
-    res$sparse    <- object$sparse
-    res$incr      <- object$incr
-    res$allincr   <- object$allincr
-    res$addincr   <- object$addincr
+    res$null.effect <- object$null.effect    
+  }
+  ##
+  if (metarate) {
+    res$event <- object$event
+    res$time  <- object$time
+    ##
+    res$sparse  <- object$sparse
+    res$incr    <- object$incr
+    res$allincr <- object$allincr
+    res$addincr <- object$addincr
     ##
     res$null.effect <- object$null.effect
     ##
@@ -316,6 +323,13 @@ summary.meta <- function(object,
     res$.glmm.random <- object$.glmm.random
     ##
     class(res) <- c(class(res), "metarate")
+  }
+  ##
+  if (is.rate(object$sm)) {
+    res$event     <- object$event
+    res$time      <- object$time
+    ##
+    res$null.effect <- object$null.effect    
   }
   ##
   if (inherits(object, "trimfill")) {

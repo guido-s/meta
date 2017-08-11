@@ -5,8 +5,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           hakn = x$hakn,
                           method.tau = x$method.tau,
                           prediction = x$prediction, level.predict = x$level.predict,
-                          backtransf = x$backtransf,
-                          pscale = x$pscale,
+                          backtransf = x$backtransf, pscale = x$pscale,
                           irscale = x$irscale, irunit = x$irunit,
                           silent = TRUE, ...) {
   
@@ -39,14 +38,15 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   chklogical(prediction)
   ##
   chklogical(backtransf)
-  if (!(x$sm %in% c("PLOGIT", "PLN", "PRAW", "PAS", "PFT")))
+  sm <- x$sm
+  if (!is.prop(sm))
     pscale <- 1
   chknumeric(pscale, single = TRUE)
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!(x$sm %in% c("IR", "IRLN", "IRS", "IRFT")))
+  if (!is.rate(sm))
     irscale <- 1
   chknumeric(irscale, single = TRUE)
   if (!backtransf & irscale != 1) {
@@ -60,17 +60,37 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   TE <- x$TE
   seTE <- x$seTE
   studlab <- x$studlab
+  ##
   n.e <- x$n.e
-  event.e <- x$event.e
   n.c <- x$n.c
-  event.c <- x$event.c
   n <- x$n
+  ##
+  event.e <- x$event.e
+  event.c <- x$event.c
   event <- x$event
+  ##
+  time.e <- x$time.e
+  time.c <- x$time.c
+  time <- x$time
+  ##
   cor <- x$cor
+  ##
   mean.e <- x$mean.e
-  sd.e <- x$sd.e
   mean.c <- x$mean.c
+  ##
+  sd.e <- x$sd.e
   sd.c <- x$sd.c
+  ##
+  transf.null.effect <- null.effect <- x$null.effect
+  ##
+  if (sm %in% c("PFT", "PAS"))
+    transf.null.effect <- asin(sqrt(null.effect))
+  else if (sm %in% c("PLN", "IRLN"))
+    transf.null.effect <- log(null.effect)
+  else if (sm == c("PLOGIT"))
+    transf.null.effect <- log(null.effect / (1 - null.effect))
+  else if (sm %in% c("IRS", "IRFT"))
+    transf.null.effect <- sqrt(null.effect)
   
   
   if(length(TE) != length(seTE))
@@ -104,24 +124,36 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   TE <- TE[sel]
   seTE <- seTE[sel]
   studlab <- studlab[sel]
+  ##
   if (!is.null(n.e))
     n.e <- n.e[sel]
   if (!is.null(n.c))
     n.c <- n.c[sel]
   if (!is.null(n))
     n <- n[sel]
+  ##
   if (!is.null(event.e))
     event.e <- event.e[sel]
   if (!is.null(event.c))
     event.c <- event.c[sel]
   if (!is.null(event))
     event <- event[sel]
+  ##
+  if (!is.null(time.e))
+    time.e <- time.e[sel]
+  if (!is.null(time.c))
+    time.c <- time.c[sel]
+  if (!is.null(time))
+    time <- time[sel]
+  ##
   if (!is.null(cor))
     cor <- cor[sel]
+  ##
   if (!is.null(mean.e))
     mean.e <- mean.e[sel]
   if (!is.null(mean.c))
     mean.c <- mean.c[sel]
+  ##
   if (!is.null(sd.e))
     sd.e <- sd.e[sel]
   if (!is.null(sd.c))
@@ -144,24 +176,36 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   TE <- TE[ord]
   seTE <- seTE[ord]
   studlab <- studlab[ord]
+  ##
   if (!is.null(n.e))
     n.e <- n.e[ord]
   if (!is.null(n.c))
     n.c <- n.c[ord]
   if (!is.null(n))
     n <- n[ord]
+  ##
   if (!is.null(event.e))
     event.e <- event.e[ord]
   if (!is.null(event.c))
     event.c <- event.c[ord]
   if (!is.null(event))
     event <- event[ord]
+  ##
+  if (!is.null(time.e))
+    time.e <- time.e[ord]
+  if (!is.null(time.c))
+    time.c <- time.c[ord]
+  if (!is.null(time))
+    time <- time[ord]
+  ##
   if (!is.null(cor))
     cor <- cor[ord]
+  ##
   if (!is.null(mean.e))
     mean.e <- mean.e[ord]
   if (!is.null(mean.c))
     mean.c <- mean.c[ord]
+  ##
   if (!is.null(sd.e))
     sd.e <- sd.e[ord]
   if (!is.null(sd.c))
@@ -225,24 +269,36 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     seTE    <- c(seTE[order(ord)], seTE.star)
     studlab <- c(studlab[order(ord)],
                  paste("Filled:", studlab[(k - k0 + 1):k]))
+    ##
     if (!is.null(n.e))
       n.e <- c(n.e[order(ord)], n.e[(k - k0 + 1):k])
     if (!is.null(n.c))
       n.c <- c(n.c[order(ord)], n.c[(k - k0 + 1):k])
     if (!is.null(n))
       n <- c(n[order(ord)], n[(k - k0 + 1):k])
+    ##
     if (!is.null(event.e))
       event.e <- c(event.e[order(ord)], event.e[(k - k0 + 1):k])
     if (!is.null(event.c))
       event.c <- c(event.c[order(ord)], event.c[(k - k0 + 1):k])
     if (!is.null(event))
       event <- c(event[order(ord)], event[(k - k0 + 1):k])
+    ##
+    if (!is.null(time.e))
+      time.e <- c(time.e[order(ord)], time.e[(k - k0 + 1):k])
+    if (!is.null(time.c))
+      time.c <- c(time.c[order(ord)], time.c[(k - k0 + 1):k])
+    if (!is.null(time))
+      time <- c(time[order(ord)], time[(k - k0 + 1):k])
+    ##
     if (!is.null(cor))
       cor <- c(cor[order(ord)], cor[(k - k0 + 1):k])
+    ##
     if (!is.null(mean.e))
       mean.e <- c(mean.e[order(ord)], mean.e[(k - k0 + 1):k])
     if (!is.null(mean.c))
       mean.c <- c(mean.c[order(ord)], mean.c[(k - k0 + 1):k])
+    ##
     if (!is.null(sd.e))
       sd.e <- c(sd.e[order(ord)], sd.e[(k - k0 + 1):k])
     if (!is.null(sd.c))
@@ -255,24 +311,36 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     TE        <- TE[order(ord)]
     seTE      <- seTE[order(ord)]
     studlab   <- studlab[order(ord)]
+    ##
     if (!is.null(n.e))
       n.e <- n.e[order(ord)]
     if (!is.null(n.c))
       n.c <- n.c[order(ord)]
     if (!is.null(n))
       n <- n[order(ord)]
+    ##
     if (!is.null(event.e))
       event.e <- event.e[order(ord)]
     if (!is.null(event.c))
       event.c <- event.c[order(ord)]
     if (!is.null(event))
       event <- event[order(ord)]
+    ##
+    if (!is.null(time.e))
+      time.e <- time.e[order(ord)]
+    if (!is.null(time.c))
+      time.c <- time.c[order(ord)]
+    if (!is.null(time))
+      time <- time[order(ord)]
+    ##
     if (!is.null(cor))
       cor <- cor[order(ord)]
+    ##
     if (!is.null(mean.e))
       mean.e <- mean.e[order(ord)]
     if (!is.null(mean.c))
       mean.c <- mean.c[order(ord)]
+    ##
     if (!is.null(sd.e))
       sd.e <- sd.e[order(ord)]
     if (!is.null(sd.c))
@@ -284,12 +352,14 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     m <- metagen(-TE, seTE, studlab = studlab,
                  level = level, level.comb = level.comb,
                  hakn = hakn, method.tau = method.tau,
-                 prediction = prediction, level.predict = level.predict)
+                 prediction = prediction, level.predict = level.predict,
+                 null.effect = transf.null.effect)
   else
     m <- metagen(TE, seTE, studlab = studlab,
                  level = level, level.comb = level.comb,
                  hakn = hakn, method.tau = method.tau,
-                 prediction = prediction, level.predict = level.predict)
+                 prediction = prediction, level.predict = level.predict,
+                 null.effect = transf.null.effect)
   
   
   ##
@@ -323,12 +393,12 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     ##
     if (!left)
       m.all <- metagen(-TE.all, seTE.all, studlab = studlab.all,
-                       exclude = exclude,
-                       level = level)
+                       exclude = exclude, level = level,
+                       null.effect = transf.null.effect)
     else
       m.all <- metagen(TE.all, seTE.all, studlab = studlab.all,
-                       exclude = exclude,
-                       level = level)
+                       exclude = exclude, level = level,
+                       null.effect = transf.null.effect)
   }
   else
     m.all <- m
@@ -368,7 +438,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               lower.Rb = Rbres$lower,
               upper.Rb = Rbres$upper,
               ##
-              sm = x$sm,
+              sm = sm,
               method = m$method,
               ##
               call = match.call(),
@@ -393,17 +463,29 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               level = level, level.comb = level.comb,
               comb.fixed = comb.fixed,
               comb.random = comb.random,
+              ##
               n.e = n.e,
               n.c = n.c,
+              n = n,
+              ##
               event.e = event.e,
               event.c = event.c,
+              event = event,
+              ##
+              time.e = time.e,
+              time.c = time.c,
+              time = time,
+              ##
+              cor = cor,
+              ##
               mean.e = mean.e,
               mean.c = mean.c,
+              ##
               sd.e = sd.e,
               sd.c = sd.c,
-              n = n,
-              event = event,
-              cor = cor,
+              ##
+              null.effect = x$null.effect,
+              ##
               class.x = class(x)[1]
               )
   

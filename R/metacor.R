@@ -60,7 +60,7 @@ metacor <- function(cor, n, studlab,
   ## Additional arguments / checks for metacor objects
   ##
   fun <- "metacor"
-  sm <- setchar(sm, c("ZCOR", "COR"))
+  sm <- setchar(sm, .settings$sm4cor)
   chkmetafor(method.tau, fun)
   
   

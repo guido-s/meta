@@ -28,7 +28,8 @@ export(ci, settings.meta, forest, forest.meta,
 # hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir, Rb,
 # setunit, add.label, add.text, add.xlab, draw.axis, draw.ci.square,
 # draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
-# formatcol, removeNULL, tg, tgl, twolines, wcalc, pvalQ
+# formatcol, removeNULL, tg, tgl, twolines, wcalc, pvalQ,
+# is.prop, is.rate
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)
