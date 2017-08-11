@@ -757,10 +757,12 @@ meta1 <- metabin(event.e, n.e, event.c, n.c,
                  studlab=paste(author, year))
 
 
+\dontrun{
 #
 # Do standard (symmetric) forest plot
 #
 forest(meta1)
+}
 
 
 #

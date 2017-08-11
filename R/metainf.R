@@ -121,6 +121,8 @@ metainf <- function(x, pooled, sortvar) {
                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.cochrane = x$RR.cochrane,
+                   model.glmm =
+                     if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -190,6 +192,8 @@ metainf <- function(x, pooled, sortvar) {
                    method = x$method,
                    sm = x$sm,
                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                   model.glmm =
+                     if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
                    level.comb = x$level.comb,
                    ##
