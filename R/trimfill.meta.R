@@ -91,6 +91,8 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     transf.null.effect <- log(null.effect / (1 - null.effect))
   else if (sm %in% c("IRS", "IRFT"))
     transf.null.effect <- sqrt(null.effect)
+  else if (sm == "ZCOR")
+    transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   
   
   if(length(TE) != length(seTE))

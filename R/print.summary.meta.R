@@ -135,6 +135,8 @@ print.summary.meta <- function(x,
       null.effect <- log(null.effect / (1 - null.effect))
     else if (sm %in% c("IRS", "IRFT"))
       null.effect <- sqrt(null.effect)
+    else if (sm == "ZCOR")
+      null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
   ##
   prediction <- prediction & k >= 3

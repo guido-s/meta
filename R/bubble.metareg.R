@@ -75,7 +75,12 @@ bubble.metareg <- function(x,
     if (missing(xlab))
       xlab = paste("Covariate", covar.name)
   ##
-  covar <- x$.meta$x$data[,covar.name]
+  if (covar.name %in% names(x$.meta$x$data))
+    covar <- x$.meta$x$data[, covar.name]
+  else if (".byvar" %in% names(x$.meta$x$data))
+    covar <- x$.meta$x$data[, ".byvar"]
+  else
+    covar <- get(covar.name)
   ##
   if (!is.null(x$.meta$x$subset))
     covar <- covar[x$.meta$x$subset]
@@ -99,7 +104,11 @@ bubble.metareg <- function(x,
   }
   ##
   alpha <- ifelse(nointrcpt, 0, coef(x)["intrcpt"])
-  beta <- coef(x)[covar.name]
+  ##
+  if (covar.name %in% names(coef(x)))
+    beta <- coef(x)[covar.name]
+  else
+    beta <- coef(x)[".byvar"]
   
   
   ys <- TE

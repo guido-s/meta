@@ -22,6 +22,10 @@
       fixed effect and random effects model for metacor(), metaprop(),
       and metarate() objects
 
+  * bubble.metareg():
+    - works if covariate used in metareg() is not part of dataset used
+      to generate meta analysis object
+
 ** Internal changes **
 
   * New internal functions is.cor(), is.prop(), and is.rate() to check
