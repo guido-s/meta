@@ -392,7 +392,8 @@ print.meta <- function(x,
               method.smd = x$method.smd,
               sd.glass = x$sd.glass,
               exact.smd = x$exact.smd,
-              model.glmm = x$model.glmm)
+              model.glmm = x$model.glmm,
+              big.mark = big.mark)
     }
     else {
       res <- cbind(format.NA(round(TE, digits), digits, "NA", big.mark = big.mark),

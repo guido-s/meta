@@ -840,16 +840,19 @@ forest.meta <- function(x,
   }
   ##
   if (is.null(xlab))
-    xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5)
+    xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
+                 big.mark = big.mark)
   ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
     if (is.rate(sm))
       smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
-                    newline = !revman5.jama, revman5 = revman5)
+                    newline = !revman5.jama, revman5 = revman5,
+                    big.mark = big.mark)
     else
       smlab <- xlab(sm, backtransf, pscale = pscale,
-                    newline = !revman5.jama, revman5 = revman5)
+                    newline = !revman5.jama, revman5 = revman5,
+                    big.mark = big.mark)
   ##
   if (is.null(label.right))
     label.right <- ""
@@ -3600,7 +3603,8 @@ forest.meta <- function(x,
   ##
   if (by) {
     ##
-    bylab <- bylabel(bylab, bylevs, print.byvar, byseparator)
+    bylab <- bylabel(bylab, bylevs, print.byvar, byseparator,
+                     big.mark = big.mark)
     ##
     if (length(text.fixed.w) == 1 & n.by > 1)
       text.fixed.w <- rep(text.fixed.w, n.by)

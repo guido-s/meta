@@ -13,7 +13,7 @@
 
  ** Internal changes **
 
-  * format.NA():
+  * bylabel(), catmeth(), format.NA(), format.tau(), xlab():
     - new argument 'big.mark' (see above)
 
 

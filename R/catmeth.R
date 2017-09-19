@@ -26,7 +26,8 @@ catmeth <- function(method,
                     pscale = 1,
                     irscale = 1,
                     irunit = "person-years",
-                    null.effect = NA) {
+                    null.effect = NA,
+                    big.mark = "") {
   
   if (is.null(allstudies)) allstudies <- FALSE
   if (is.null(doublezeros)) doublezeros <- FALSE
@@ -155,13 +156,15 @@ catmeth <- function(method,
   if (pscale != 1)
     sm.details <- paste(sm.details,
                         "\n- Events per ",
-                        format(pscale, scientific = FALSE),
+                        format(pscale, scientific = FALSE,
+                               big.mark = big.mark),
                         " observations", sep = "")
   ##
   if (irscale != 1)
     sm.details <- paste(sm.details,
                         "\n- Events per ",
-                        format(irscale, scientific = FALSE),
+                        format(irscale, scientific = FALSE,
+                               big.mark = big.mark),
                         " ", irunit, sep = "")
 
   if (!is.na(null.effect) && null.effect != 0) {
@@ -169,22 +172,25 @@ catmeth <- function(method,
       sm.details <- paste(sm.details,
                           "\n- Null hypothesis: effect is equal to ",
                           format(round(null.effect * pscale, gs("digits")),
-                                 scientific = FALSE),
+                                 scientific = FALSE, big.mark = big.mark),
                           " events per ",
-                          format(pscale, scientific = FALSE),
+                          format(pscale, scientific = FALSE,
+                                 big.mark = big.mark),
                           " observations", sep = "")
     else if (irscale != 1)
       sm.details <- paste(sm.details,
                           "\n- Null hypothesis: effect is equal to ",
                           format(round(null.effect * irscale, gs("digits")),
-                                 scientific = FALSE),
+                                 scientific = FALSE, big.mark = big.mark),
                           " events per ",
-                          format(irscale, scientific = FALSE),
+                          format(irscale, scientific = FALSE,
+                                 big.mark = big.mark),
                           " ", irunit, sep = "")
     else
       sm.details <- paste(sm.details,
                           "\n- Null hypothesis: effect is equal to ",
-                          format(null.effect, scientific = FALSE),
+                          format(null.effect, scientific = FALSE,
+                                 big.mark = big.mark),
                           sep = "")
   }
   
@@ -197,12 +203,13 @@ catmeth <- function(method,
     if (!is.null(tau.preset)) {
       tau2 <- tau.preset^2
       if (tau2 > 0 & tau2 < 0.0001)
-        tau2 <- paste("tau^2", format.tau(tau2))
+        tau2 <- paste("tau^2", format.tau(tau2, big.mark = big.mark))
       else
         tau2 <- paste("tau^2 = ",
                       ifelse(tau2 == 0,
                              "0",
-                             format(round(tau2, 4), 4, nsmall = 4, scientific = FALSE)),
+                             format(round(tau2, 4), 4, nsmall = 4,
+                                    scientific = FALSE, big.mark = big.mark)),
                       sep = "")
       ##
       lab.method.tau <- paste("\n- Preset between-study variance: ",
