@@ -177,6 +177,12 @@ draw.ci.diamond <- function(TE, lower, upper,
                             size, min, max,
                             col.diamond, col.diamond.lines) {
   ##
+  if (min > max) {
+    tmp <- min
+    min <- max
+    max <- tmp
+  }
+  ##
   if (!is.na(TE) &&
       ((min <= TE & TE <= max) |
        (min <= lower & lower <= max) |
@@ -193,6 +199,12 @@ draw.ci.diamond <- function(TE, lower, upper,
 draw.ci.predict <- function(lower.predict, upper.predict,
                             size, min, max,
                             col.predict, col.predict.lines) {
+  ##
+  if (min > max) {
+    tmp <- min
+    min <- max
+    max <- tmp
+  }
   ##
   if (!(is.na(lower.predict) | is.na(upper.predict))) {
     ## Plot prediction interval only within plotting range
@@ -213,6 +225,12 @@ draw.ci.square <- function(TE, lower, upper,
                            lwd,
                            col, col.square,
                            col.square.lines, col.inside) {
+  ##
+  if (min > max) {
+    tmp <- min
+    min <- max
+    max <- tmp
+  }
   ##
   if (!is.na(TE)) {
     ##
@@ -338,13 +356,22 @@ draw.lines <- function(x, column,
                        lwd, lty.fixed, lty.random, col.fixed, col.random,
                        ymin.line, ymax.line,
                        addrow, print.label, bottom.lr,
-                       spacing) {
+                       spacing, min, max) {
+  ##
+  if (min > max) {
+    min <- x$range[2]
+    max <- x$range[1]
+  }
+  else {
+    min <- x$range[1]
+    max <- x$range[2]
+  }
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
   ##
   ## Reference line:
   ##
-  if (!is.na(ref) && (x$range[1] <= ref & ref <= x$range[2]))
+  if (!is.na(ref) && (min <= ref & ref <= max))
     grid.lines(x = unit(ref, "native"),
                y = unit(spacing * c(ymin.line - (!addrow & !overall),
                                     ymax.line + (print.label & !bottom.lr)),
@@ -354,7 +381,7 @@ draw.lines <- function(x, column,
   ## Line for fixed effect estimate:
   ##
   if (comb.fixed & overall & !is.na(TE.fixed))
-    if (x$range[1] <= TE.fixed & TE.fixed <= x$range[2])
+    if (min <= TE.fixed & TE.fixed <= max)
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
                    y = unit(spacing * c(ymin.line + prediction +
@@ -366,7 +393,7 @@ draw.lines <- function(x, column,
   ## Line for random effects estimate:
   ##
   if (comb.random & overall & !is.na(TE.random))
-    if (x$range[1] <= TE.random & TE.random <= x$range[2])
+    if (min <= TE.random & TE.random <= max)
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),
                    y = unit(spacing * c(ymin.line + prediction + 0.5,

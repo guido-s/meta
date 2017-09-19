@@ -5077,7 +5077,7 @@ forest.meta <- function(x,
              lwd, lty.fixed, lty.random, col.fixed, col.random,
              ymin.line, ymax.line,
              addrow, print.label, bottom.lr,
-             spacing)
+             spacing, xlim[1], xlim[2])
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, lwd,

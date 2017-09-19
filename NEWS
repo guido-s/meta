@@ -1,5 +1,12 @@
 *** meta, version 4.8-5, 2017-mm-dd ***
 
+ ** Major changes **
+
+  * Axis direction can be reversed for x-axis in forest plots
+
+  * Thousands separator can be used in printouts and forest plots for
+    large numbers
+  
  ** User-visible changes **
 
   * forest.meta(), print.meta(), print.summary.meta():
@@ -8,6 +15,8 @@
       printing of 1,000 for the number 1000
 
   * forest.meta():
+    - sensible forest plot generated if first value in argument 'xlim'
+      is larger than second value, e.g. xlim = c(10, -10)
     - separator between label and levels of grouping variable
       (argument 'byseparator') is considered from meta-analysis object
 
