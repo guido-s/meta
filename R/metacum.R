@@ -65,9 +65,11 @@ metacum <- function(x, pooled, sortvar) {
   ##
   mean.e <- x$mean.e[o]
   mean.c <- x$mean.c[o]
+  mean   <- x$mean[o]
   ##
   sd.e <- x$sd.e[o]
   sd.c <- x$sd.c[o]
+  sd   <- x$sd[o]
   ##
   time.e <- x$time.e[o]
   time.c <- x$time.c[o]
@@ -208,6 +210,23 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    keepdata = FALSE,
                    warn = FALSE)
+    ##
+    if (inherits(x, "metamean"))
+      m <- metamean(n[sel], mean[sel], sd[sel],
+                    ##
+                    exclude = exclude[sel],
+                    ##
+                    sm = x$sm,
+                    null.effect = x$null.effect,
+                    ##
+                    level.comb = x$level.comb,
+                    ##
+                    hakn = x$hakn,
+                    method.tau = x$method.tau,
+                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    keepdata = FALSE,
+                    warn = FALSE)
     ##
     if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],

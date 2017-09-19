@@ -7,7 +7,7 @@ export(ci, settings.meta, forest, forest.meta,
        as.data.frame.meta,
        metabias, metabias.default, metabias.meta,
        metabin, metacont, metacor, metacr, metaprop, metarate,
-       metareg, metainc,
+       metareg, metainc, metamean,
        metacum, metagen, metainf, radial, radial.default, radial.meta,
        print.meta, print.metabias,
        read.rm5, print.rm5, print.summary.rm5, summary.rm5, metabias.rm5,
@@ -29,7 +29,7 @@ export(ci, settings.meta, forest, forest.meta,
 # setunit, add.label, add.text, add.xlab, draw.axis, draw.ci.square,
 # draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
 # formatcol, removeNULL, tg, tgl, twolines, wcalc, pvalQ,
-# is.prop, is.rate
+# is.prop, is.rate, is.log.effect, is.mean
 
 S3method(as.data.frame, meta)
 S3method(baujat, meta)

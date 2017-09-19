@@ -34,6 +34,9 @@ xlab <- function(sm, backtransf,
   else if (sm == "IR")
     res <- "Incidence Rate"
   ##
+  else if (sm == "MRAW")
+    res <- "Mean"
+  ##
   else if (backtransf) {
     if (sm == "OR")
       res <- "Odds Ratio"
@@ -73,6 +76,9 @@ xlab <- function(sm, backtransf,
                      newline,
                      irunit, sep = "")
     }
+    ##
+    else if (sm == "MLN")
+      res <- "Mean"
   }
   else {
     if (sm == "OR")
@@ -131,6 +137,9 @@ xlab <- function(sm, backtransf,
     else if (sm == "IRFT")
       res <- paste("Freeman-Tukey Double Arcsine", newline,
                    "Transformed Rate", sep = "")
+    ##
+    else if (sm == "MLN")
+      res <- "Log Mean"
   }
   
   

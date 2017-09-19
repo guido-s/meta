@@ -268,6 +268,15 @@ summary.meta <- function(object,
     class(res) <- c(class(res), "metacor")
   }
   ##
+  if (inherits(object, "metagen")) {
+    res$n.e <- object$n.e
+    res$n.c <- object$n.c
+    ##
+    res$null.effect <- object$null.effect
+    ##
+    class(res)  <- c(class(res), "metagen")
+  }
+  ##
   if (inherits(object, "metainc")) {
     class(res)  <- c(class(res), "metainc")
     res$sparse  <- object$sparse
@@ -278,6 +287,16 @@ summary.meta <- function(object,
     res$model.glmm   <- object$model.glmm
     res$.glmm.fixed  <- object$.glmm.fixed
     res$.glmm.random <- object$.glmm.random
+  }
+  ##
+  if (inherits(object, "metamean")) {
+    res$n    <- object$n
+    res$mean <- object$mean
+    res$sd   <- object$sd
+    ##
+    res$null.effect <- object$null.effect
+    ##
+    class(res)  <- c(class(res), "metamean")
   }
   ##
   if (metaprop) {

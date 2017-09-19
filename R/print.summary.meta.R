@@ -121,8 +121,9 @@ print.summary.meta <- function(x,
   sm <- x$sm
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop"))
-  null.given <- inherits(x, c("metaprop", "metarate", "metacor")) |
-    is.prop(sm) | is.rate(sm) | is.cor(sm)
+  null.given <- (inherits(x, c("metacor", "metagen", "metamean",
+                               "metaprop", "metarate")) |
+                 is.prop(sm) | is.rate(sm) | is.cor(sm) | is.mean(sm))
   ##
   null.effect <- x$null.effect
   ##
@@ -130,7 +131,7 @@ print.summary.meta <- function(x,
     ##
     if (sm %in% c("PFT", "PAS"))
       null.effect <- asin(sqrt(null.effect))
-    else if (sm %in% c("PLN", "IRLN"))
+    else if (is.log.effect(sm))
       null.effect <- log(null.effect)
     else if (sm == c("PLOGIT"))
       null.effect <- log(null.effect / (1 - null.effect))
@@ -165,6 +166,8 @@ print.summary.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
+    else if (is.mean(sm))
+      sm.lab <- "mean"
     else if (is.prop) {
       if (pscale == 1)
         sm.lab <- "proportion"

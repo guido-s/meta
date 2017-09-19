@@ -74,7 +74,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   fun <- "metabin"
   ##
-  sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
+  sm <- setchar(sm, .settings$sm4bin)
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
   if (method == "GLMM") {

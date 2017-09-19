@@ -90,8 +90,7 @@ metaprop <- function(event, n, studlab,
   sm <- setchar(sm, .settings$sm4prop)
   chklogical(allincr)
   chklogical(addincr)
-  method.ci <- setchar(method.ci,
-                       c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
+  method.ci <- setchar(method.ci, .settings$ci4prop)
   chklogical(warn)
   chkmetafor(method.tau, fun)
   ##

@@ -6,7 +6,7 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
   if (all(is.na(x)))
     return(x)
   
-  if (is.relative.effect(sm) | sm == "PLN" | sm == "IRLN" | sm == "ROM")
+  if (is.relative.effect(sm) | is.log.effect(sm))
     res <- exp(x)
   ##
   else if (sm == "ZCOR")

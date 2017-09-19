@@ -69,7 +69,6 @@
     events in both groups are to be included in the meta-analysis
     (applies only if \code{sm} is equal to \code{"RR"} or
     \code{"OR"}).}
-    
   \item{MH.exact}{A logical indicating if \code{incr} is not to be added
     to all cell frequencies for studies with a zero cell count to
     calculate the pooled estimate based on the Mantel-Haenszel method.}
@@ -90,8 +89,8 @@
   \item{comb.random}{A logical indicating whether a random effects
     meta-analysis should be conducted.}
   \item{hakn}{A logical indicating whether the method by Hartung and
-          Knapp should be used to adjust test statistics and
-          confidence intervals.}
+    Knapp should be used to adjust test statistics and confidence
+    intervals.}	  
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
@@ -192,26 +191,32 @@
 }
 
 \details{
-  Wrapper function to update an existing meta-analysis object which
-  was created with R function metabin, metacont, metagen, metacor,
-  metainc, or metaprop.
 
+  Wrapper function to update an existing meta-analysis object which
+  was created with R function \code{\link{metabin}},
+  \code{\link{metacont}}, \code{\link{metacor}},
+  \code{\link{metagen}}, \code{\link{metainc}},
+  \code{\link{metamean}}, \code{\link{metaprop}}, or
+  \code{\link{metarate}}. More details on function arguments are
+  available in help files of respective R functions
+  
   This function can also be used for objects of class 'trimfill',
   'metacum', and 'metainf'.
-  
-  More details on function arguments are available in help files of
-  respective R functions, i.e. metabin, metacont, ...
 }
 
 \value{
   An object of class \code{"meta"} and \code{"metabin"},
-  \code{"metacont"}, \code{"metagen"}, \code{"metaprop"}, or
-  \code{"metacor"}.
+  \code{"metacont"}, \code{"metacor"}, \code{"metainc"},
+  \code{"metagen"}, \code{"metamean"}, \code{"metaprop"}, or
+  \code{"metarate"}.
 }
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{metaprop}}, \code{\link{metacor}}}
+\seealso{\code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{metacor}}, \code{\link{metagen}}, \code{\link{metainc}},
+\code{\link{metamean}}, \code{\link{metaprop}},
+\code{\link{metarate}}}
 
 \examples{
 data(Fleiss93cont)

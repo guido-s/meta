@@ -85,7 +85,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   ##
   if (sm %in% c("PFT", "PAS"))
     transf.null.effect <- asin(sqrt(null.effect))
-  else if (sm %in% c("PLN", "IRLN"))
+  else if (is.log.effect(sm))
     transf.null.effect <- log(null.effect)
   else if (sm == c("PLOGIT"))
     transf.null.effect <- log(null.effect / (1 - null.effect))

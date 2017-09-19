@@ -41,7 +41,7 @@ catmeth <- function(method,
     sm.details <- "\n- Freeman-Tukey double arcsine transformation"
   else if (sm == "PAS")
     sm.details <- "\n- Arcsine transformation"
-  else if (sm == "PLN" | sm == "IRLN")
+  else if (is.log.effect(sm))
     sm.details <- "\n- Log transformation"
   else if (sm == "PLOGIT")
     sm.details <- "\n- Logit transformation"
@@ -52,6 +52,9 @@ catmeth <- function(method,
     sm.details <- "\n- Untransformed rates"
   else if  (sm == "IRS")
     sm.details <- "\n- Square root transformation"
+  ##
+  else if  (sm == "MRAW")
+    sm.details <- "\n- Untransformed (raw) means"
   ##
   else
     sm.details <- ""

@@ -4,7 +4,9 @@ settings.meta <- function(...) {
   ##
   res <- .settings
   res$metafor <- NULL
-  res$sm4cor <- res$sm4prop <- res$sm4rate <- NULL
+  res$sm4bin <- res$sm4cont <- res$sm4cor <- res$sm4inc <-
+    res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
+  res$ci4prop <- NULL
   res$argslist <- NULL
   
   
@@ -44,7 +46,7 @@ settings.meta <- function(...) {
                           previous = c("Previous value",
                                        "--------------",
                                        label.old[sel]))
-
+      
       names(tdata) <- c("--------", "", "---------",
                         "", "--------------")
       ##
@@ -208,6 +210,8 @@ settings.meta <- function(...) {
     catarg("smcor ", newline = FALSE)
     cat("- metainc():  ")
     catarg("sminc ", newline = FALSE)
+    cat("- metamean(): ")
+    catarg("smmean", newline = FALSE)
     cat("- metaprop(): ")
     catarg("smprop", newline = FALSE)
     cat("- metarate(): ")
@@ -305,6 +309,7 @@ settings.meta <- function(...) {
     setOption("smcont", "MD")
     setOption("smcor", "ZCOR")
     setOption("sminc", "IRR")
+    setOption("smmean", "MRAW")
     setOption("smprop", "PLOGIT")
     setOption("smrate", "IRLN")
     ##
@@ -435,6 +440,7 @@ settings.meta <- function(...) {
     idsmcont <- argid(names, "smcont")
     idsmcor <- argid(names, "smcor")
     idsminc <- argid(names, "sminc")
+    idsmmean <- argid(names, "smmean")
     idsmprop <- argid(names, "smprop")
     idsmrate <- argid(names, "smrate")
     ##
@@ -510,7 +516,7 @@ settings.meta <- function(...) {
     if (!is.na(idmethod.bias)) {
       method.bias <- args[[idmethod.bias]]
       method.bias <- setchar(method.bias,
-                            c("rank", "linreg", "mm", "count", "score", "peters"))
+                             c("rank", "linreg", "mm", "count", "score", "peters"))
       setOption("method.bias", method.bias)
     }
     if (!is.na(idtitle)) {
@@ -530,7 +536,7 @@ settings.meta <- function(...) {
     if (!is.na(idCIbracket)) {
       CIbracket <- args[[idCIbracket]]
       CIbracket <- setchar(CIbracket,
-                            c("[", "(", "{", ""))
+                           c("[", "(", "{", ""))
       setOption("CIbracket", CIbracket)
     }
     if (!is.na(idCIseparator)) {
@@ -675,7 +681,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmbin)) {
       smbin <- args[[idsmbin]]
-      smbin <- setchar(smbin, c("OR", "RD", "RR", "ASD"))
+      smbin <- setchar(smbin, .settings$sm4bin)
       setOption("smbin", smbin)
     }
     if (!is.na(idmethod)) {
@@ -701,7 +707,7 @@ settings.meta <- function(...) {
       incr <- args[[idincr]]
       if (!is.numeric(incr))
         incr <- setchar(incr, "TACC",
-                       "should be numeric or the character string \"TACC\"")
+                        "should be numeric or the character string \"TACC\"")
       setOption("incr", incr)
     }
     if (!is.na(idallincr)) {
@@ -739,7 +745,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmcont)) {
       smcont <- args[[idsmcont]]
-      smcont <- setchar(smcont, c("MD", "SMD", "ROM"))
+      smcont <- setchar(smcont, .settings$sm4cont)
       setOption("smcont", smcont)
     }
     ##
@@ -749,14 +755,6 @@ settings.meta <- function(...) {
       smcor <- args[[idsmcor]]
       smcor <- setchar(smcor, .settings$sm4cor)
       setOption("smcor", smcor)
-    }
-    ##
-    ## R function metainc
-    ##
-    if (!is.na(idsminc)) {
-      sminc <- args[[idsminc]]
-      sminc <- setchar(sminc, c("IRR", "IRD"))
-      setOption("sminc", sminc)
     }
     ##
     ## R function metacont
@@ -782,6 +780,22 @@ settings.meta <- function(...) {
       setOption("exact.smd", exact.smd)
     }
     ##
+    ## R function metainc
+    ##
+    if (!is.na(idsminc)) {
+      sminc <- args[[idsminc]]
+      sminc <- setchar(sminc, .settings$sm4inc)
+      setOption("sminc", sminc)
+    }
+    ##
+    ## R function metamean
+    ##
+    if (!is.na(idsmmean)) {
+      smmean <- args[[idsmmean]]
+      smmean <- setchar(smmean, .settings$sm4mean)
+      setOption("smmean", smmean)
+    }
+    ##
     ## R function metaprop
     ##
     if (!is.na(idsmprop)) {
@@ -792,8 +806,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idmethod.ci)) {
       method.ci <- args[[idmethod.ci]]
-      method.ci <- setchar(method.ci,
-                          c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
+      method.ci <- setchar(method.ci, .settings$ci4prop)
       setOption("method.ci", method.ci)
     }
     ##

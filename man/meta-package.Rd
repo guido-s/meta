@@ -16,30 +16,46 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
 
 \details{
   R package \bold{meta} (Schwarzer, 2007) provides the following
-  meta-analysis methods:
-  \itemize{
-  \item Fixed effect and random effects meta-analysis (functions
-    \code{\link{metabin}}, \code{\link{metacont}},
-    \code{\link{metacor}}, \code{\link{metagen}},
-    \code{\link{metainc}}, \code{\link{metaprop}}, and
-    \code{\link{metarate}})
-  \item Several plots (\code{\link{forest}}, \code{\link{funnel}},
-    Galbraith / \code{\link{radial}}, \code{\link{labbe}},
-    \code{\link{baujat}}, \code{\link{bubble}})
-  \item Statistical tests (\code{\link{metabias}}) and trim-and-fill
-    method (\code{\link{trimfill}}) to evaluate bias in meta-analysis
-  \item Import data from 'RevMan 5' (\code{\link{read.rm5}}; see also
-    \code{\link{metacr}})
+  statistical methods for meta-analysis.
+  \enumerate{
+  \item Fixed effect and random effects model:
+    \itemize{
+    \item Meta-analysis of continuous outcome data (\code{\link{metacont}})
+    \item Meta-analysis of binary outcome data (\code{\link{metabin}})
+    \item Meta-analysis of incidence rates (\code{\link{metainc}})
+    \item Generic inverse variance meta-analysis (\code{\link{metagen}})
+    \item Meta-analysis of single correlations (\code{\link{metacor}})
+    \item Meta-analysis of single means (\code{\link{metamean}})
+    \item Meta-analysis of single proportions (\code{\link{metaprop}})
+    \item Meta-analysis of single incidence rates (\code{\link{metarate}})
+  }
+  \item Several plots for meta-analysis:
+    \itemize{
+    \item Forest plot (\code{\link{forest}})
+    \item Funnel plot (\code{\link{funnel}})
+    \item Galbraith plot / radial plot (\code{\link{radial}})
+    \item L'Abbe plot for meta-analysis with binary outcome data (\code{\link{labbe}})
+    \item Baujat plot to explore heterogeneity in meta-analysis (\code{\link{baujat}})
+    \item Bubble plot to display the result of a meta-regression (\code{\link{bubble}})
+  }
+  \item Statistical tests for funnel plot asymmetry
+    (\code{\link{metabias}}) and trim-and-fill method
+    (\code{\link{trimfill}}) to evaluate bias in meta-analysis
+  \item Import data from 'RevMan 5' (\code{\link{read.rm5}}); see also
+    \code{\link{metacr}} to conduct meta-analysis for a single
+    comparison and outcome from a Cochrane review
   \item Prediction interval, Hartung-Knapp and Paule-Mandel method for
-    random effects model (arguments in meta-analysis functions)
+    random effects model (see arguments \code{prediction},
+    \code{hakn}, and \code{method.tau}, respectively, in meta-analysis
+    functions listed under \emph{1. Fixed effect and random effects model})
   \item Cumulative meta-analysis (\code{\link{metacum}}) and
     leave-one-out meta-analysis (\code{\link{metainf}})
-  \item Meta-regression (\code{\link{metareg}}; if R package
-    \bold{metafor} is installed)
+  \item Meta-regression (\code{\link{metareg}}); if R package
+    \bold{metafor} is installed
   \item Generalised linear mixed models (\code{\link{metabin}},
     \code{\link{metainc}}, \code{\link{metaprop}}, and
-    \code{\link{metarate}}; if R packages \bold{metafor}, \bold{lme4},
-    \bold{numDeriv}, and \bold{BiasedUrn} are installed)
+    \code{\link{metarate}}); if R packages \bold{metafor}, \bold{lme4},
+    \bold{numDeriv}, and \bold{BiasedUrn} are installed
   }
   
   The following more advanced statistical methods are provided by
@@ -76,8 +92,8 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
   \item \code{settings.meta(hakn=TRUE, method.tau="PM", prediction=TRUE)}
   }
 
-  Type \code{help(package = "meta")} for a listing of R functions
-  available in \bold{meta}.
+  Type \code{help(package = "meta")} for a listing of R functions and
+  datasets available in \bold{meta}.
 
   Schwarzer (2007) is the preferred citation in publications for
   \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of this

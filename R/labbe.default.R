@@ -23,7 +23,7 @@ labbe.default <- function(x, y,
   if(length(xpos) != length(ypos))
     stop("arguments 'x' and 'y' must be of same length")
   
-  sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
+  sm <- setchar(sm, .settings$sm4bin)
   
   if (!backtransf) {
     if (sm == "OR") {

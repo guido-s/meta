@@ -133,6 +133,8 @@ print.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
+    else if (is.mean(sm))
+      sm.lab <- "mean"
     else if (is.prop(sm)) {
       if (pscale == 1)
         sm.lab <- "proportion"

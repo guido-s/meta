@@ -2,6 +2,8 @@
 
  ** Major changes **
 
+  * New function metamean() to conduct meta-analysis of single means
+
   * Axis direction can be reversed for x-axis in forest plots
 
   * Thousands separator can be used in printouts and forest plots for
@@ -20,10 +22,18 @@
     - separator between label and levels of grouping variable
       (argument 'byseparator') is considered from meta-analysis object
 
+  * Help page with overview of R functions in R package meta updated
+
  ** Internal changes **
 
   * bylabel(), catmeth(), format.NA(), format.tau(), xlab():
     - new argument 'big.mark' (see above)
+
+  * New internal function is.log.effect() to check for treatment
+    effects combined on log scale
+
+  * New internal functions is.mean() to check whether summary measure
+    refers to meta-analysis of single means
 
 
 *** meta, version 4.8-4, 2017-08-11 ***
@@ -450,7 +460,7 @@
       (these arguments can also be set using cilayout())
 
   * Several help pages updated, especially
-    - forest.meta(), settings.meta(), meta-package()
+    - forest.meta(), settings.meta(), meta-package
 
  ** Internal changes **
     
