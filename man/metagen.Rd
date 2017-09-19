@@ -34,7 +34,8 @@ metagen(TE, seTE, studlab,
 }
 
 \arguments{
-  \item{TE}{Estimate of treatment effect.}
+  \item{TE}{Estimate of treatment effect, e.g., log hazard ratio or
+    risk difference.}
   \item{seTE}{Standard error of treatment estimate.}
   \item{studlab}{An optional vector with study labels.}
   \item{data}{An optional data frame containing the study information.}

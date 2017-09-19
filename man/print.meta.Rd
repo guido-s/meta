@@ -26,7 +26,7 @@
         digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
         digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
         digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
-	scientific.pval = gs("scientific.pval"),
+	scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
         warn.backtransf = FALSE,
         ...)
 
@@ -54,7 +54,7 @@
         digits.pval.Q = max(gs("digits.pval.Q"), 2),
         digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
         digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
-	scientific.pval = gs("scientific.pval"),
+	scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
         print.I2 = gs("print.I2"), print.H = gs("print.H"),
         print.Rb = gs("print.Rb"),
         text.tau2 = gs("text.tau2"), text.I2 = gs("text.I2"),
@@ -144,6 +144,7 @@ cilayout(bracket="[", separator="; ")
   \item{scientific.pval}{A logical specifying whether p-values should
     be printed in scientific notation, e.g., 1.2345e-01 instead of
     0.12345.}
+  \item{big.mark}{A character used as thousands separator.} 
   \item{print.I2}{A logical specifying whether heterogeneity statistic
     I^2 should be printed.}
   \item{print.H}{A logical specifying whether heterogeneity statistic

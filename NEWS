@@ -1,3 +1,22 @@
+*** meta, version 4.8-5, 2017-mm-dd ***
+
+ ** User-visible changes **
+
+  * forest.meta(), print.meta(), print.summary.meta():
+    - new argument 'big.mark' to specify character printed as
+      thousands separator, e.g., big.mark = "," will result in
+      printing of 1,000 for the number 1000
+
+  * forest.meta():
+    - separator between label and levels of grouping variable
+      (argument 'byseparator') is considered from meta-analysis object
+
+ ** Internal changes **
+
+  * format.NA():
+    - new argument 'big.mark' (see above)
+
+
 *** meta, version 4.8-4, 2017-08-11 ***
 
  ** User-visible changes **

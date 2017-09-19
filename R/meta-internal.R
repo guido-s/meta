@@ -109,7 +109,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "digits.Q", "digits.tau2", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
               "digits.pval", "digits.pval.Q", "digits.forest",
-              "scientific.pval",
+              "scientific.pval", "big.mark",
               "print.I2", "print.H", "print.Rb",
               "text.tau2", "text.I2", "text.Rb"
               )
@@ -148,6 +148,7 @@ setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("scientific.pval", FALSE)
+setOption("big.mark", "")
 setOption("print.I2", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)

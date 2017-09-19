@@ -24,7 +24,7 @@ forest(x, ...)
        text.predict=NULL,
        print.subgroup.labels=TRUE,
        bylab=x$bylab, print.byvar=x$print.byvar,
-       byseparator=gs("byseparator"),
+       byseparator=x$byseparator,
        text.fixed.w=text.fixed, text.random.w=text.random, bysort=FALSE, 
        pooled.totals=comb.fixed|comb.random, pooled.events=FALSE,
        pooled.times=FALSE, study.results=TRUE,
@@ -141,7 +141,7 @@ forest(x, ...)
        digits.mean = NULL, digits.sd = NULL,
        digits.cor = NULL, digits.time = NULL,
        #
-       scientific.pval = gs("scientific.pval"),
+       scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
        #
        col.i=col.study, weight=weight.study,
        ...)
@@ -516,6 +516,7 @@ forest(x, ...)
   \item{scientific.pval}{A logical specifying whether p-values should
     be printed in scientific notation, e.g., 1.2345e-01 instead of
     0.12345.}
+  \item{big.mark}{A character used as thousands separator.} 
   \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
   \item{weight}{Deprecated argument (replaced by \code{weight.study}).}
   \item{\dots}{Additional graphical arguments (ignored at the moment).}
