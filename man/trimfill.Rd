@@ -15,7 +15,7 @@
 trimfill(x, ...)
 
 \method{trimfill}{default}(x, seTE, left=NULL, ma.fixed=TRUE, type="L", n.iter.max=50,
-         sm=NULL, studlab=NULL, level=0.95, level.comb=level,
+         sm="", studlab=NULL, level=0.95, level.comb=level,
          comb.fixed=FALSE, comb.random=TRUE,
          hakn=FALSE, method.tau="DL",
          prediction=FALSE, level.predict=level,

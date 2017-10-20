@@ -37,6 +37,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

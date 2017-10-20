@@ -35,6 +35,7 @@ funnel.default <- function(x, y,
   ##
   chknumeric(TE)
   chknumeric(seTE)
+  chknull(sm)
   ##
   fun <- "funnel"
   chklength(seTE, k.All, fun)

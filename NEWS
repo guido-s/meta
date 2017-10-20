@@ -8,7 +8,10 @@
 
   * Thousands separator can be used in printouts and forest plots for
     large numbers
-  
+
+  * P-values equal to 0 are actually printed as "0" instead of
+    "< 0.0001"
+
  ** User-visible changes **
 
   * forest.meta(), print.meta(), print.summary.meta():
@@ -21,6 +24,9 @@
       is larger than second value, e.g. xlim = c(10, -10)
     - separator between label and levels of grouping variable
       (argument 'byseparator') is considered from meta-analysis object
+    - bug fix:
+      lines for treatment effect in fixed effect and random effects
+      model start in center of diamond if argument hetstat = FALSE
 
   * Help page with overview of R functions in R package meta updated
 
@@ -34,6 +40,15 @@
 
   * New internal functions is.mean() to check whether summary measure
     refers to meta-analysis of single means
+
+  * Check whether argument 'sm' is NULL in meta-analysis functions
+
+  * Internal function format.p():
+    - zero p-values are printed as "0" instead of "< 0.001"
+    - new argument 'big.mark'
+
+  * Internal function format.tau() removed as functionality is
+    now provided by format.p()
 
 
 *** meta, version 4.8-4, 2017-08-11 ***

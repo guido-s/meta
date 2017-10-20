@@ -1,6 +1,6 @@
 trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                              type = "L", n.iter.max = 50,
-                             sm = NULL, studlab = NULL,
+                             sm = "", studlab = NULL,
                              level = 0.95, level.comb = level,
                              comb.fixed = FALSE, comb.random = TRUE,
                              hakn = FALSE,
@@ -20,6 +20,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ##
   chknumeric(x)
   chknumeric(seTE)
+  chknull(sm)
   ##
   fun <- "trimfill"
   chklength(seTE, k.All, fun)

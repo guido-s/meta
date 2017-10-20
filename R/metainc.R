@@ -49,6 +49,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

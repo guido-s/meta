@@ -35,46 +35,23 @@ add.text <- function(x, column, ...) {
 }
 
 
-add.xlab <- function(x, column,
-                     xlab, xpos, fs.xlab, ff.xlab,
-                     overall, ymin.line, addrow,
-                     print.label, bottom.lr,
-                     newline.label.right, newline.label.left) {
+add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
+                     xpos, ypos, fs.xlab, ff.xlab) {
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
-  ##
-  ## Check for "\n" in argument xlab
-  ##
-  clines <- twolines(xlab, arg = TRUE)
-  ##
-  if (clines$newline) {
-    newline.xlab <- TRUE
-    xlab <- clines$top
-    add.xlab <- clines$bottom
-  }
-  else
-    newline.xlab <- FALSE
   ##
   ## Label on x-axis:
   ##
   grid.text(xlab,
             x = unit(xpos, "native"),
-            y = unit(ymin.line - 2.5 - (!addrow & !overall) -
-                     1 * (print.label & bottom.lr) -
-                     1 * (print.label & bottom.lr &
-                          (newline.label.right | newline.label.left)),
-                     "lines"),
+            y = unit(ypos, "lines"),
             just = "center",
             gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
   ##
   if (newline.xlab)
-    grid.text(add.xlab,
+    grid.text(xlab.add,
               x = unit(xpos, "native"),
-              y = unit(ymin.line - 2.5 - 1 -
-                       1 * (print.label & bottom.lr) -
-                       1 * (print.label & bottom.lr &
-                            (newline.label.right | newline.label.left)),
-                       "lines"),
+              y = unit(ypos - 1, "lines"),
               just = "center",
               gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
   ##
@@ -353,10 +330,9 @@ draw.forest <- function(x, column) {
 draw.lines <- function(x, column,
                        ref, TE.fixed, TE.random,
                        overall, comb.fixed, comb.random, prediction,
-                       lwd, lty.fixed, lty.random, col.fixed, col.random,
-                       ymin.line, ymax.line,
-                       addrow, print.label, bottom.lr,
-                       spacing, min, max) {
+                       ylim.fixed, ylim.random, ylim.ref,
+		       lwd, lty.fixed, lty.random, col.fixed, col.random,
+                       min, max) {
   ##
   if (min > max) {
     min <- x$range[2]
@@ -373,9 +349,7 @@ draw.lines <- function(x, column,
   ##
   if (!is.na(ref) && (min <= ref & ref <= max))
     grid.lines(x = unit(ref, "native"),
-               y = unit(spacing * c(ymin.line - (!addrow & !overall),
-                                    ymax.line + (print.label & !bottom.lr)),
-                        "lines"),
+               y = unit(ylim.ref, "lines"),
                gp = gpar(lwd = lwd))
   ##
   ## Line for fixed effect estimate:
@@ -384,10 +358,7 @@ draw.lines <- function(x, column,
     if (min <= TE.fixed & TE.fixed <= max)
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
-                   y = unit(spacing * c(ymin.line + prediction +
-                                        comb.random + 0.5,
-                                        ymax.line - 1 * addrow),
-                            "lines"),
+                   y = unit(ylim.fixed, "lines"),
                    gp = gpar(lty = lty.fixed, lwd = lwd, col = col.fixed))
   ##
   ## Line for random effects estimate:
@@ -396,9 +367,7 @@ draw.lines <- function(x, column,
     if (min <= TE.random & TE.random <= max)
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),
-                   y = unit(spacing * c(ymin.line + prediction + 0.5,
-                                        ymax.line - 1 * addrow),
-                            "lines"),
+                   y = unit(ylim.random, "lines"),
                    gp = gpar(lty = lty.random, lwd = lwd, col = col.random))
   ##
   popViewport()

@@ -411,7 +411,8 @@ print.summary.meta <- function(x,
             irscale = irscale,
             irunit = irunit,
             null.effect = if (null.given) null.effect else 0,
-            big.mark = big.mark)
+            big.mark = big.mark,
+            digits = digits, digits.tau2 = digits.tau2)
   }
   else {
     ##
@@ -496,19 +497,13 @@ print.summary.meta <- function(x,
     ## Print information on heterogeneity
     ##
     if (k.all > 1)
-      cat(paste("\nQuantifying heterogeneity:\n ",
+      cat(paste("\nQuantifying heterogeneity:\n",
                 ##
-                if (is.na(x$tau))
-                  paste(text.tau2, "= NA")
-                else if (x$tau^2 > 0 & x$tau^2 < 0.0001)
-                  paste(text.tau2, format.tau(x$tau^2))
-                else
-                  paste(text.tau2, " = ",
-                        ifelse(x$tau == 0,
-                               "0",
-                               format.NA(round(x$tau^2, digits.tau2),
-                                         digits.tau2, big.mark = big.mark)),
-                        sep = ""),
+                format.p(x$tau^2,
+                         lab = TRUE, labval = text.tau2,
+                         digits = digits.tau2,
+                         lab.NA = "NA",
+                         big.mark = big.mark),
                 ##
                 if (print.H)
                   paste("; H = ",
@@ -601,7 +596,11 @@ print.summary.meta <- function(x,
                                         big.mark = big.mark)),
                          format.NA(round(Q.w, digits.Q), digits.Q,
                                    big.mark = big.mark),
-                         ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
+                         ifelse(k.w == 1, "--",
+                                format.p(x$tau.w^2,
+                                         digits = digits.tau2,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE)),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -666,7 +665,11 @@ print.summary.meta <- function(x,
                                         big.mark = big.mark)),
                          format.NA(round(Q.w, digits.Q), digits.Q,
                                    big.mark = big.mark),
-                         ifelse(k.w == 1, "--", format.tau(x$tau.w^2)),
+                         ifelse(k.w == 1, "--",
+                                format.p(x$tau.w^2,
+                                         digits = digits.tau2,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE)),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -751,7 +754,8 @@ print.summary.meta <- function(x,
             irscale = irscale,
             irunit = irunit,
             null.effect = if (null.given) null.effect else 0,
-            big.mark = big.mark)
+            big.mark = big.mark,
+            digits = digits, digits.tau2 = digits.tau2)
   }
   
   

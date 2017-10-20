@@ -473,8 +473,8 @@ forest(x, ...)
   \item{spacing}{A numeric determining line spacing in a forest plot.}
   \item{addrow}{A logical value indicating whether an empty row is
     printed above and below study results.}
-  \item{addrow.overall}{A logical value indicating whether an emtpy
-    row is above overall meta-analysis results.}
+  \item{addrow.overall}{A logical value indicating whether an empty
+    row is printed above overall meta-analysis results.}
   \item{addrow.subgroups}{A logical value indicating whether an empty
     row is printed between results for subgroups.}    
   \item{new}{A logical value indicating whether a new figure should

@@ -43,6 +43,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

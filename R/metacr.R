@@ -28,6 +28,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chkclass(x, "rm5")
   ##
+  if (!missing(sm))
+    chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   ##

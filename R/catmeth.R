@@ -27,7 +27,11 @@ catmeth <- function(method,
                     irscale = 1,
                     irunit = "person-years",
                     null.effect = NA,
-                    big.mark = "") {
+                    big.mark = "",
+                    digits = gs("digits"),
+                    digits.tau2 = gs("digits.tau2"),
+                    text.tau2 = gs("text.tau2")
+                    ) {
   
   if (is.null(allstudies)) allstudies <- FALSE
   if (is.null(doublezeros)) doublezeros <- FALSE
@@ -174,7 +178,7 @@ catmeth <- function(method,
     if (pscale != 1)
       sm.details <- paste(sm.details,
                           "\n- Null hypothesis: effect is equal to ",
-                          format(round(null.effect * pscale, gs("digits")),
+                          format(round(null.effect * pscale, digits),
                                  scientific = FALSE, big.mark = big.mark),
                           " events per ",
                           format(pscale, scientific = FALSE,
@@ -183,7 +187,7 @@ catmeth <- function(method,
     else if (irscale != 1)
       sm.details <- paste(sm.details,
                           "\n- Null hypothesis: effect is equal to ",
-                          format(round(null.effect * irscale, gs("digits")),
+                          format(round(null.effect * irscale, digits),
                                  scientific = FALSE, big.mark = big.mark),
                           " events per ",
                           format(irscale, scientific = FALSE,
@@ -205,15 +209,10 @@ catmeth <- function(method,
   else {
     if (!is.null(tau.preset)) {
       tau2 <- tau.preset^2
-      if (tau2 > 0 & tau2 < 0.0001)
-        tau2 <- paste("tau^2", format.tau(tau2, big.mark = big.mark))
-      else
-        tau2 <- paste("tau^2 = ",
-                      ifelse(tau2 == 0,
-                             "0",
-                             format(round(tau2, 4), 4, nsmall = 4,
-                                    scientific = FALSE, big.mark = big.mark)),
-                      sep = "")
+      tau2 <- format.p(tau2, lab = TRUE, labval = text.tau2,
+                       digits = digits.tau2,
+                       lab.NA = "NA",
+                       big.mark = big.mark)
       ##
       lab.method.tau <- paste("\n- Preset between-study variance: ",
                               tau2, sep = "")

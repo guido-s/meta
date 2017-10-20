@@ -44,6 +44,7 @@ metagen <- function(TE, seTE, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

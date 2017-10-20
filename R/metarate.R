@@ -46,6 +46,7 @@ metarate <- function(event, time, studlab,
   ## (1) Check and set arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

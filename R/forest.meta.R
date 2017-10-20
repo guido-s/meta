@@ -755,7 +755,7 @@ forest.meta <- function(x,
     test.effect.subgroup.random <- FALSE
   }
   ##
-  if (metaprop | metarate) {
+  if (is.null(x$null.effect) || is.na(x$null.effect)) {
     test.overall.fixed  <- FALSE
     test.overall.random <- FALSE
     test.effect.subgroup.fixed  <- FALSE
@@ -1630,11 +1630,8 @@ forest.meta <- function(x,
             sep = "")
     ##
     hetstat.tau2 <-
-      paste(hetseparator,
-            if (is.na(tau2)) "NA"
-            else if (tau2 == 0) "0"
-            else format.tau(tau2, digits = digits.tau2),
-            sep = "")
+      format.p(tau2, digits = digits.tau2, big.mark = big.mark,
+               lab = TRUE, labval = "")
     ##
     hetstat.Q <-
       paste(hetseparator,
@@ -1645,13 +1642,12 @@ forest.meta <- function(x,
             sep = "")
     ##
     hetstat.pval.Q <-
-      paste(format.p(pvalQ(Q, df),
-                     lab = TRUE, labval = "",
-                     digits = digits.pval.Q,
-                     zero = if (jama) FALSE else TRUE,
-                     scientific = scientific.pval,
-                     lab.NA = "NA"),
-            sep = "")
+      format.p(pvalQ(Q, df),
+               lab = TRUE, labval = "",
+               digits = digits.pval.Q,
+               zero = if (jama) FALSE else TRUE,
+               scientific = scientific.pval,
+               lab.NA = "NA")
     ##
     hetstat.Rb <-
       paste(hetseparator,
@@ -2454,7 +2450,8 @@ forest.meta <- function(x,
         paste(hetseparator,
               ifelse(is.na(tau.w), "NA",
                      ifelse(tau.w == 0, "0",
-                            format.tau(tau.w^2, digits = digits.tau2))),
+                            format.p(tau.w^2, digits = digits.tau2,
+                                     big.mark = big.mark))),
               sep = "")
       ##
       hetstat.Q.w <-
@@ -3226,7 +3223,7 @@ forest.meta <- function(x,
   ## "cor",
   ## "time.e", "time.c",
   ##
-  ## Check for "\n" in column studlab
+  ## Check for "\n" in label of column 'studlab'
   ##
   clines <- twolines(labs[["lab.studlab"]], "studlab")
   ##
@@ -3241,7 +3238,7 @@ forest.meta <- function(x,
     longer.studlab <- labs[["lab.studlab"]]
   }
   ##
-  ## Check for "\n" in column effect
+  ## Check for "\n" in label of column 'effect'
   ##
   clines <- twolines(labs[["lab.effect"]], "effect")
   ##
@@ -3256,7 +3253,7 @@ forest.meta <- function(x,
     longer.effect <- labs[["lab.effect"]]
   }
   ##
-  ## Check for "\n" in column ci
+  ## Check for "\n" in label of column 'ci'
   ##
   clines <- twolines(labs[["lab.ci"]], "ci")
   ##
@@ -3271,7 +3268,7 @@ forest.meta <- function(x,
     longer.ci <- labs[["lab.ci"]]
   }
   ##
-  ## Check for "\n" in column effect.ci
+  ## Check for "\n" in label of column 'effect.ci'
   ##
   clines <- twolines(labs[["lab.effect.ci"]], "effect.ci")
   ##
@@ -3286,7 +3283,7 @@ forest.meta <- function(x,
     longer.effect.ci <- labs[["lab.effect.ci"]]
   }
   ##
-  ## Check for "\n" in column w.fixed
+  ## Check for "\n" in label of column 'w.fixed'
   ##
   clines <- twolines(labs[["lab.w.fixed"]], "w.fixed")
   ##
@@ -3301,7 +3298,7 @@ forest.meta <- function(x,
     longer.w.fixed <- labs[["lab.w.fixed"]]
   }
   ##
-  ## Check for "\n" in column w.random
+  ## Check for "\n" in label of column 'w.random'
   ##
   clines <- twolines(labs[["lab.w.random"]], "w.random")
   ##
@@ -3316,7 +3313,7 @@ forest.meta <- function(x,
     longer.w.random <- labs[["lab.w.random"]]
   }
   ##
-  ## Check for "\n" in column TE
+  ## Check for "\n" in label of column 'TE'
   ##
   clines <- twolines(labs[["lab.TE"]], "TE")
   ##
@@ -3331,7 +3328,7 @@ forest.meta <- function(x,
     longer.TE <- labs[["lab.TE"]]
   }
   ##
-  ## Check for "\n" in column seTE
+  ## Check for "\n" in label of column 'seTE'
   ##
   clines <- twolines(labs[["lab.seTE"]], "seTE")
   ##
@@ -3346,7 +3343,7 @@ forest.meta <- function(x,
     longer.seTE <- labs[["lab.seTE"]]
   }
   ##
-  ## Check for "\n" in column n.e
+  ## Check for "\n" in label of column 'n.e'
   ##
   clines <- twolines(labs[["lab.n.e"]], "n.e")
   ##
@@ -3361,7 +3358,7 @@ forest.meta <- function(x,
     longer.n.e <- labs[["lab.n.e"]]
   }
   ##
-  ## Check for "\n" in column n.c
+  ## Check for "\n" in label of column 'n.c'
   ##
   clines <- twolines(labs[["lab.n.c"]], "n.c")
   ##
@@ -3376,7 +3373,7 @@ forest.meta <- function(x,
     longer.n.c <- labs[["lab.n.c"]]
   }
   ##
-  ## Check for "\n" in column event.e
+  ## Check for "\n" in label of column 'event.e'
   ##
   clines <- twolines(labs[["lab.event.e"]], "event.e")
   ##
@@ -3391,7 +3388,7 @@ forest.meta <- function(x,
     longer.event.e <- labs[["lab.event.e"]]
   }
   ##
-  ## Check for "\n" in column event.c
+  ## Check for "\n" in label of column 'event.c'
   ##
   clines <- twolines(labs[["lab.event.c"]], "event.c")
   ##
@@ -3406,7 +3403,7 @@ forest.meta <- function(x,
     longer.event.c <- labs[["lab.event.c"]]
   }
   ##
-  ## Check for "\n" in column mean.e
+  ## Check for "\n" in label of column 'mean.e'
   ##
   clines <- twolines(labs[["lab.mean.e"]], "mean.e")
   ##
@@ -3421,7 +3418,7 @@ forest.meta <- function(x,
     longer.mean.e <- labs[["lab.mean.e"]]
   }
   ##
-  ## Check for "\n" in column mean.c
+  ## Check for "\n" in label of column 'mean.c'
   ##
   clines <- twolines(labs[["lab.mean.c"]], "mean.c")
   ##
@@ -3436,7 +3433,7 @@ forest.meta <- function(x,
     longer.mean.c <- labs[["lab.mean.c"]]
   }
   ##
-  ## Check for "\n" in column sd.e
+  ## Check for "\n" in label of column 'sd.e'
   ##
   clines <- twolines(labs[["lab.sd.e"]], "sd.e")
   ##
@@ -3451,7 +3448,7 @@ forest.meta <- function(x,
     longer.sd.e <- labs[["lab.sd.e"]]
   }
   ##
-  ## Check for "\n" in column sd.c
+  ## Check for "\n" in label of column 'sd.c'
   ##
   clines <- twolines(labs[["lab.sd.c"]], "sd.c")
   ##
@@ -3466,7 +3463,7 @@ forest.meta <- function(x,
     longer.sd.c <- labs[["lab.sd.c"]]
   }
   ##
-  ## Check for "\n" in column cor
+  ## Check for "\n" in label of column 'cor'
   ##
   clines <- twolines(labs[["lab.cor"]], "cor")
   ##
@@ -3481,7 +3478,7 @@ forest.meta <- function(x,
     longer.cor <- labs[["lab.cor"]]
   }
   ##
-  ## Check for "\n" in column time.e
+  ## Check for "\n" in label of column 'time.e'
   ##
   clines <- twolines(labs[["lab.time.e"]], "time.e")
   ##
@@ -3496,7 +3493,7 @@ forest.meta <- function(x,
     longer.time.e <- labs[["lab.time.e"]]
   }
   ##
-  ## Check for "\n" in column time.c
+  ## Check for "\n" in label of column 'time.c'
   ##
   clines <- twolines(labs[["lab.time.c"]], "time.c")
   ##
@@ -3511,7 +3508,7 @@ forest.meta <- function(x,
     longer.time.c <- labs[["lab.time.c"]]
   }
   ##
-  ## Check for "\n" in argument smlab
+  ## Check for "\n" in argument 'smlab'
   ##
   clines <- twolines(smlab, arg = TRUE)
   ##
@@ -3528,7 +3525,21 @@ forest.meta <- function(x,
     newline.smlab <- FALSE
   }
   ##
-  ## Check for "\n" in argument label.left
+  ## Check for "\n" in argument 'xlab'
+  ##
+  clines <- twolines(xlab, arg = TRUE)
+  ##
+  if (clines$newline) {
+    newline.xlab <- TRUE
+    xlab <- clines$top
+    xlab.add <- clines$bottom
+  }
+  else {
+    xlab.add <- ""
+    newline.xlab <- FALSE
+  }
+  ##
+  ## Check for "\n" in argument 'label.left'
   ##
   clines <- twolines(label.left, arg = TRUE)
   ##
@@ -3545,7 +3556,7 @@ forest.meta <- function(x,
     newline.ll <- FALSE
   }
   ##
-  ## Check for "\n" in argument label.right
+  ## Check for "\n" in argument 'label.right'
   ##
   clines <- twolines(label.right, arg = TRUE)
   ##
@@ -3562,7 +3573,7 @@ forest.meta <- function(x,
     newline.lr <- FALSE
   }
   ##
-  ## Check for newlines in additional columns
+  ## Check for "\n" in additional columns
   ##
   newline.addcol.left  <- FALSE
   newline.addcol.right <- FALSE
@@ -4886,10 +4897,30 @@ forest.meta <- function(x,
                             yStats), na.rm = TRUE)
   }
   ##
-  summary.lines <- hetstat + test.overall.fixed + test.overall.random +
+  ymin.line <- overall.hetstat + test.overall.fixed + test.overall.random +
     test.subgroup.fixed + test.subgroup.random
-  ymin.line <- summary.lines
+  ##
+  ymin.line <- ymin.line + (overall & ymin.line == 0 &
+                            !(!addrow.overall | !addrow))
+  ##
   ymax.line <- nrow - ifelse(is.na(yHeadadd), 1, 2)
+  ##
+  ylim.fixed <- spacing * c(ymin.line + prediction + comb.random + 0.5,
+                            ymax.line - 1 * addrow)
+  ylim.random <- spacing * c(ymin.line + prediction + 0.5,
+                             ymax.line - 1 * addrow)
+  ##
+  ylim.ref <- spacing * c(ymin.line - (!addrow & !overall),
+                          ymax.line + (print.label & !bottom.lr))
+  ##
+  ## Position on y-axis of left and right labels (at bottom of forest plot)
+  ##
+  y.bottom.lr <- ymin.line - 2.5 # - (!addrow & !overall)
+  ##
+  ## Position on y-axis of label below x-axis
+  ##
+  xlab.ypos <- y.bottom.lr - 1 * (print.label & bottom.lr) -
+    1 * (print.label & bottom.lr & (newline.lr | newline.ll))
   ##
   ## Summary label at top of forest plot
   ##
@@ -5074,10 +5105,9 @@ forest.meta <- function(x,
   draw.lines(col.forest, j,
              ref, TE.fixed, TE.random,
              overall, comb.fixed, comb.random, prediction,
+             ylim.fixed, ylim.random, ylim.ref,
              lwd, lty.fixed, lty.random, col.fixed, col.random,
-             ymin.line, ymax.line,
-             addrow, print.label, bottom.lr,
-             spacing, xlim[1], xlim[2])
+             xlim[1], xlim[2])
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, lwd,
@@ -5105,34 +5135,34 @@ forest.meta <- function(x,
     else {
       add.label(ll1, j,
                 unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
+                unit(y.bottom.lr, "lines"),
                 "right",
                 fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
       ##
       if (newline.ll)
         add.label(ll2, j,
                   unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
+                  unit(y.bottom.lr - 1, "lines"),
                   "right",
                   fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
       ##
       add.label(lr1, j,
                 unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                unit(ymin.line - 2.5 - (!addrow & !overall), "lines"),
+                unit(y.bottom.lr, "lines"),
                 "left",
                 fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
       ##
       if (newline.lr)
         add.label(lr2, j,
                   unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(ymin.line - 2.5 - (!addrow & !overall) - 1, "lines"),
+                  unit(y.bottom.lr - 1, "lines"),
                   "left",
                   fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
     }
   }
   ##
-  add.xlab(col.forest, j, xlab, xlab.pos, fs.xlab, ff.xlab, overall, ymin.line,
-           addrow, print.label, bottom.lr, newline.lr, newline.ll)
+  add.xlab(col.forest, j, xlab, xlab.add, newline.xlab,
+           xlab.pos, xlab.ypos, fs.xlab, ff.xlab)
   ##
   draw.forest(col.forest, j)
   ##

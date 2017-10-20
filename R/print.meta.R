@@ -241,7 +241,7 @@ print.meta <- function(x,
                                          "NA", big.mark = big.mark))
     }
     dimnames(res)[[1]] <- x$studlab
-    prmatrix(res[order(sortvar),])
+    prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
     cat("\n\n")
   }
   
@@ -363,10 +363,11 @@ print.meta <- function(x,
                         format.NA(round(uppTE, digits), digits, "NA",
                                   big.mark = big.mark)),
                    p.value,
-                   paste("  ", tau2, sep = ""),
-                   paste("  ", I2, ifelse(I2 == "", "", "%"), sep = ""))
+                   paste(" ", tau2, sep = ""),
+                   paste(" ", I2, ifelse(I2 == "", "", "%"), sep = ""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep = ""),
-                            c(sm.lab, ci.lab, "p-value", "tau^2", "I^2"))
+                            c(sm.lab, ci.lab, "p-value",
+                              gs("text.tau2"), gs("text.I2")))
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
@@ -395,7 +396,9 @@ print.meta <- function(x,
               sd.glass = x$sd.glass,
               exact.smd = x$exact.smd,
               model.glmm = x$model.glmm,
-              big.mark = big.mark)
+              big.mark = big.mark,
+              digits = digits, digits.tau2 = digits.tau2,
+              text.tau2 = gs("text.tau2"))
     }
     else {
       res <- cbind(format.NA(round(TE, digits), digits, "NA", big.mark = big.mark),

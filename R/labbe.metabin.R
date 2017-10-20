@@ -42,6 +42,7 @@ labbe.metabin <- function(x,
     stop("event rates must be of same length")
   
   
+  chknull(sm)
   sm <- setchar(sm, .settings$sm4bin)
   ##
   if (sm != x$sm) {

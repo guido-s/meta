@@ -36,6 +36,7 @@ metacor <- function(cor, n, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

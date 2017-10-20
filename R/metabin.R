@@ -51,6 +51,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknull(sm)
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)

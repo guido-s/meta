@@ -27,7 +27,7 @@ labbe(x, ...)
       col.fixed = col, col.random = col,
       nulleffect = TRUE,
       lwd.nulleffect = lwd, col.nulleffect = "lightgray",
-      sm = NULL, weight,
+      sm = "", weight,
       studlab = FALSE, cex.studlab = 0.8,
       label.e = NULL, label.c = NULL,
       ...)
