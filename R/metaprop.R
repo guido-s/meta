@@ -81,7 +81,8 @@ metaprop <- function(event, n, studlab,
   fun <- "metaprop"
   ##
   method <- setchar(method, c("Inverse", "GLMM"))
-  if (method == "GLMM") {
+  is.glmm <- method == "GLMM"
+  if (is.glmm) {
     is.installed.package("lme4", fun, "method", " = \"GLMM\"")
     is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
     is.installed.package("metafor", fun, "method", " = \"GLMM\"",
@@ -95,10 +96,10 @@ metaprop <- function(event, n, studlab,
   chklogical(warn)
   chkmetafor(method.tau, fun)
   ##
-  if (method == "GLMM" & sm != "PLOGIT")
+  if (is.glmm & sm != "PLOGIT")
     stop("Generalised linear mixed models only possible with argument 'sm = \"PLOGIT\"'.")
   ##
-  if (method == "GLMM" & method.tau != "ML")
+  if (is.glmm & method.tau != "ML")
     stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
   
   
@@ -141,11 +142,6 @@ metaprop <- function(event, n, studlab,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   missing.byvar <- is.null(byvar)
-  if (method == "GLMM" & !missing.byvar) {
-    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
-    byvar <- NULL
-    missing.byvar <- is.null(byvar)
-  }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -172,12 +168,7 @@ metaprop <- function(event, n, studlab,
   ##
   ## Additional checks
   ##
-  if (method == "GLMM") {
-    if (tau.common) {
-      if (warn)
-        warning("Argument 'tau.common' not considered for GLMM.")
-      tau.common <- FALSE
-    }
+  if (is.glmm) {
     if (!is.null(TE.tau)) {
       if (warn)
         warning("Argument 'TE.tau' not considered for GLMM.")
@@ -328,13 +319,6 @@ metaprop <- function(event, n, studlab,
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
-  if (method == "GLMM" & sparse)
-    if ((!missing(incr) & any(incr != 0)) |
-        (!missing(allincr) & allincr ) |
-        (!missing(addincr) & addincr)
-        )
-      warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
-  ##
   ## No need to add anything to cell counts for arcsine transformation
   ##
   if (addincr)
@@ -454,7 +438,7 @@ metaprop <- function(event, n, studlab,
   ## (8) Do meta-analysis
   ##
   ##
-  if (method == "GLMM") {
+  if (is.glmm) {
     glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
                                     method = "FE",
                                     test = ifelse(hakn, "t", "z"),
@@ -496,7 +480,7 @@ metaprop <- function(event, n, studlab,
                keepdata = FALSE,
                warn = warn)
   ##
-  if (!missing.byvar & tau.common) {
+  if (method != "GLMM" & !missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    TE.tau,
@@ -531,8 +515,7 @@ metaprop <- function(event, n, studlab,
   ##
   ## Add data
   ##
-  ##
-  if (method == "GLMM") {
+  if (is.glmm) {
     ##
     ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
                null.effect = transf.null.effect)
@@ -623,9 +606,14 @@ metaprop <- function(event, n, studlab,
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
     else {
-      res <- c(res, subgroup(res, hcc$tau))
-      res$Q.w.random <- hcc$Q
-      res$df.Q.w.random <- hcc$df.Q
+      if (is.glmm)
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$byvar, bylevs(res$byvar)), ...))
+      else {
+        res <- c(res, subgroup(res, hcc$tau))
+        res$Q.w.random <- hcc$Q
+        res$df.Q.w.random <- hcc$df.Q
+      }
     }
     ##
     res$event.e.w <- NULL

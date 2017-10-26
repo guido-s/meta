@@ -4,6 +4,10 @@
 
   * New function metamean() to conduct meta-analysis of single means
 
+  * Subgroup analyses implemented for generalised linear mixed models
+    (GLMMs) with and without assumption of common between-study
+    variance (arguments 'byvar' and 'tau.common')
+
   * Axis direction can be reversed for x-axis in forest plots
 
   * Thousands separator can be used in printouts and forest plots for
@@ -28,6 +32,9 @@
       lines for treatment effect in fixed effect and random effects
       model start in center of diamond if argument hetstat = FALSE
 
+  * metaprop():
+    - arguments 'byvar' and 'tau.common' can be used for GLMMs
+
   * Help page with overview of R functions in R package meta updated
 
  ** Internal changes **
@@ -49,6 +56,8 @@
 
   * Internal function format.tau() removed as functionality is
     now provided by format.p()
+
+  * Internal function subgroup(): extended for GLMMs
 
 
 *** meta, version 4.8-4, 2017-08-11 ***

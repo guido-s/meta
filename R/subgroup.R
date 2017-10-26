@@ -1,9 +1,10 @@
-subgroup <- function(x, tau.preset = NULL) {
+subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   
   
   byvar <- x$byvar
   ##
   bylevs <- bylevs(byvar)
+  n.bylevs <- length(bylevs)
   
   
   if (!(length(byvar) > 0)) {
@@ -32,8 +33,8 @@ subgroup <- function(x, tau.preset = NULL) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 30, nrow = length(bylevs))
-    j <- 0
+  res.w <- matrix(NA, ncol = 30, nrow = n.bylevs)
+  j <- 0
   ##
   for (i in bylevs) {
     j <- j+1
@@ -94,6 +95,7 @@ subgroup <- function(x, tau.preset = NULL) {
                         allincr = x$allincr,
                         addincr = x$addincr,
                         hakn = x$hakn,
+                        method = x$method,
                         method.tau = x$method.tau,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
@@ -209,6 +211,60 @@ subgroup <- function(x, tau.preset = NULL) {
   Rb.w     <- res.w[,28]
   Rb.w.low <- res.w[,29]
   Rb.w.upp <- res.w[,30]
+  ##
+  ## GLMM with common tau-squared
+  ##
+  if (x$method == "GLMM" & !missing(byvar.glmm)) {
+    if (prop) {
+      mod <- as.call(~ byvar.glmm - 1)
+      ##
+      glmm.fixed <- metafor::rma.glmm(xi = x$event, #[!x$exclude],
+                                      ni = x$n, #[!x$exclude],
+                                      mods = mod, #[!x$exclude],
+                                      method = "FE",
+                                      test = ifelse(x$hakn, "t", "z"),
+                                      level = 100 * x$level.comb,
+                                      measure = "PLO",
+                                      intercept = FALSE,
+                                      ...)
+      ##
+      glmm.random <- metafor::rma.glmm(xi = x$event, #[!x$exclude],
+                                       ni = x$n, #[!x$exclude],
+                                       mods = mod, #[!x$exclude],
+                                       method = x$method.tau,
+                                       test = ifelse(x$hakn, "t", "z"),
+                                       level = 100 * x$level.comb,
+                                       measure = "PLO",
+                                       intercept = FALSE,
+                                       ...)
+    }
+    ##
+    TE.fixed.w   <- as.numeric(glmm.fixed$b)
+    seTE.fixed.w <- as.numeric(glmm.fixed$se)
+    ##
+    TE.random.w   <- as.numeric(glmm.random$b)
+    seTE.random.w <- as.numeric(glmm.random$se)
+    ##
+    H.w     <- rep_len(sqrt(glmm.random$H2), n.bylevs)
+    H.w.low <- rep_len(NA, n.bylevs)
+    H.w.upp <- rep_len(NA, n.bylevs)
+    ##
+    I2.w     <- rep_len(glmm.random$I2 / 100, n.bylevs)
+    I2.w.low <- rep_len(NA, n.bylevs)
+    I2.w.upp <- rep_len(NA, n.bylevs)
+    ##
+    tau.w <- rep_len(sqrt(glmm.random$tau2), n.bylevs)
+    ##
+    C.w <- rep_len(NA, n.bylevs)
+    ##
+    n.harmonic.mean.w <- rep_len(NA, n.bylevs)
+    t.harmonic.mean.w <- rep_len(NA, n.bylevs)
+    ##
+    Rb.w     <- rep_len(NA, n.bylevs)
+    Rb.w.low <- rep_len(NA, n.bylevs)
+    Rb.w.upp <- rep_len(NA, n.bylevs)
+
+  }
   ##
   ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
   ##
