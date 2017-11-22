@@ -282,13 +282,13 @@ update.meta <- function(object,
     warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
-  ##  
+  ##
   missing.subset  <- missing(subset)
   missing.incr    <- missing(incr)
   missing.byvar   <- missing(byvar)
   missing.studlab <- missing(studlab)
   missing.exclude <- missing(exclude)
-  ##  
+  ##
   mf <- match.call()
   ##
   subset <- eval(mf[[match("subset", names(mf))]],

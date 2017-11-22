@@ -308,7 +308,7 @@ forest.meta <- function(x,
   jama <- layout == "JAMA"
   revman5.jama <- revman5 | jama
   ##
-  type.study <- setchar(type.study, c("square", "diamond"))
+  type.study <- setchar(type.study, c("square", "diamond", "predict"))
   type.fixed <- setchar(type.fixed, c("square", "diamond"))
   type.random <- setchar(type.random, c("square", "diamond"))
   type.subgroup <- setchar(type.subgroup, c("square", "diamond"))
@@ -1412,6 +1412,11 @@ forest.meta <- function(x,
   else
     n.stud <- x$k   # number of studies combined in meta-analysis
   ##
+  if (length(type.study) == 1)
+    type.study <- rep(type.study, k.all)
+  else if (length(type.study) != k.all)
+    stop("Argument 'type.study' must be a single character or of same length as number of studies.")
+  ##
   if (!by)
     byvar <- rep(1, k.all)
   ##
@@ -1452,6 +1457,7 @@ forest.meta <- function(x,
   x$w.fixed  <- x$w.fixed[sel]
   x$w.random <- x$w.random[sel]
   studlab  <- studlab[sel]
+  type.study  <- type.study[sel]
   ##
   x$n.harmonic.mean <- x$n.harmonic.mean[sel]
   x$t.harmonic.mean <- x$t.harmonic.mean[sel]
@@ -1503,6 +1509,7 @@ forest.meta <- function(x,
     x$w.fixed  <- x$w.fixed[o]
     x$w.random <- x$w.random[o]
     studlab  <- studlab[o]
+    type.study  <- type.study[o]
     ##
     x$n.harmonic.mean <- x$n.harmonic.mean[o]
     x$t.harmonic.mean <- x$t.harmonic.mean[o]
@@ -4474,11 +4481,6 @@ forest.meta <- function(x,
   col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs)
   ##
   ##
-  ##
-  if (length(type.study) == 1)
-    type.study <- rep(type.study, length(TE))
-  else if (length(type.study) != length(TE))
-    stop("Argument 'type.study' must be a single character or of same length as number of studies.")
   ##
   col.forest <- list(eff = TEs.exclude,
                      low = lowTEs.exclude,

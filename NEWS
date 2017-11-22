@@ -31,6 +31,8 @@
     - bug fix:
       lines for treatment effect in fixed effect and random effects
       model start in center of diamond if argument hetstat = FALSE
+    - bug fix:
+      argument 'type.study' will be sorted according to arguments 'sortvar'
 
   * metaprop():
     - arguments 'byvar' and 'tau.common' can be used for GLMMs
