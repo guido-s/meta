@@ -22,6 +22,7 @@ forest(x, ...)
        lty.fixed=2, lty.random=3, col.fixed="black", col.random="black",
        prediction=x$prediction,
        text.predict=NULL,
+       subgroup=TRUE,
        print.subgroup.labels=TRUE,
        bylab=x$bylab, print.byvar=x$print.byvar,
        byseparator=x$byseparator,
@@ -175,6 +176,10 @@ forest(x, ...)
     should be printed.}
   \item{text.predict}{A character string used in the plot to label the
     prediction interval.}
+  \item{subgroup}{A logical indicating whether subgroup results should
+    be shown in forest plot. This argument is useful in a
+    meta-analysis with subgroups if summaries should not be plotted on
+    group level.}
   \item{print.subgroup.labels}{A logical indicating whether subgroup
     label should be printed.}
   \item{bylab}{A character string with a label for the grouping variable.}

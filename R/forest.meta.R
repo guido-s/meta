@@ -15,6 +15,7 @@ forest.meta <- function(x,
                         prediction = x$prediction,
                         text.predict = NULL,
                         ##
+                        subgroup = TRUE,
                         print.subgroup.labels = TRUE,
                         bylab = x$bylab,
                         print.byvar = x$print.byvar,
@@ -1638,7 +1639,7 @@ forest.meta <- function(x,
     ##
     hetstat.tau2 <-
       format.p(tau2, digits = digits.tau2, big.mark = big.mark,
-               lab = TRUE, labval = "")
+               lab = TRUE, labval = "", lab.NA = "NA")
     ##
     hetstat.Q <-
       paste(hetseparator,
@@ -2142,7 +2143,7 @@ forest.meta <- function(x,
                                                   hetseparator = hetseparator,
                                                   tt = zvals.overall[2],
                                                   tp = pvals.overall[2],
-                                                  df = df))
+                                                  df = round(x$df.hakn, 1)))
         else if (jama)
           text.overall.random  <- substitute(paste(tl,
                                                    italic(t)[df], hetseparator, tt,
@@ -2151,7 +2152,7 @@ forest.meta <- function(x,
                                                   hetseparator = hetseparator,
                                                   tt = zvals.overall[2],
                                                   tp = pvals.overall[2],
-                                                  df = df))
+                                                  df = round(x$df.hakn, 1)))
       else
         text.overall.random  <- substitute(paste(tl,
                                                  italic(t)[df], hetseparator, tt,
@@ -2160,7 +2161,7 @@ forest.meta <- function(x,
                                                 hetseparator = hetseparator,
                                                 tt = zvals.overall[2],
                                                 tp = pvals.overall[2],
-                                                df = df))
+                                                df = round(x$df.hakn, 1)))
       }
     }
     else {
@@ -2458,7 +2459,7 @@ forest.meta <- function(x,
               ifelse(is.na(tau.w), "NA",
                      ifelse(tau.w == 0, "0",
                             format.p(tau.w^2, digits = digits.tau2,
-                                     big.mark = big.mark))),
+                                     big.mark = big.mark, lab.NA = "NA"))),
               sep = "")
       ##
       hetstat.Q.w <-
@@ -4071,7 +4072,7 @@ forest.meta <- function(x,
       ##
       ## Fixed effect model
       ##
-      if (comb.fixed) {
+      if (comb.fixed & subgroup) {
         yTE.w.fixed[i] <- j
         j <- j + 1
       }
@@ -4080,7 +4081,7 @@ forest.meta <- function(x,
       ##
       ## Random effect model
       ##
-      if (comb.random) {
+      if (comb.random & subgroup) {
         yTE.w.random[i] <- j
         j <- j + 1
       }
@@ -4089,7 +4090,8 @@ forest.meta <- function(x,
       ##
       ## Only pooled totals
       ##
-      if (pooled.totals & !(comb.fixed | comb.random)) {
+      if (pooled.totals & subgroup &
+          !(comb.fixed | comb.random)) {
         yTE.w.fixed[i] <- j
         j <- j + 1
       }
