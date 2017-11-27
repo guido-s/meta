@@ -12,7 +12,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
   
   if (!scientific) {
     if (lab)
-      res <- format(ifelse(is.na(p),
+      res <- format(ifelse(is.na(p) | is.nan(p),
                            paste(labval, "=", lab.NA),
                     ifelse(p == 0,
                            paste(labval, "= 0"),
@@ -32,7 +32,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
                     )
                     )
     else
-      res <- format(ifelse(is.na(p),
+      res <- format(ifelse(is.na(p) | is.nan(p),
                            lab.NA,
                     ifelse(p == 0,
                            0,
@@ -51,7 +51,7 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
   }
   else {
     if (lab)
-      res <- format(ifelse(is.na(p),
+      res <- format(ifelse(is.na(p) | is.nan(p),
                            paste(labval, "=", lab.NA),
                            paste(labval, "=",
                                  formatC(p, decimal.mark = outdec,
@@ -70,5 +70,9 @@ format.p <- function(p, lab = FALSE, labval = "p", noblanks = FALSE,
   if (!zero)
     res <- gsub("0\\.", "\\.", res)
   ##
+  ## Treat NaNs as NAs
+  ##
+  res[grep("NaN", res)] <- lab.NA
+  
   res
 }

@@ -14,21 +14,26 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   y <- y[sel]
   n <- length(x)
   ##
-  ks <- .C(kenscore,
-           kenscore = as.double(0),
-           x = as.double(x),
-           y = as.double(y),
-           n = as.integer(n))$kenscore
+  t <- rle(sort(x))$lengths
+  u <- rle(sort(y))$lengths
+  ##
+  N <- 0.5 * n * (n - 1)
+  N1 <- N - sum(t * (t - 1) / 2)
+  N2 <- N - sum(u * (u - 1) / 2)
+  ##
+  ks <- sqrt(N1) * sqrt(N2) * cor(x, y, method = "kendall")
+  ##
+  ## ks <- .C(kenscore,
+  ##          kenscore = as.double(0),
+  ##          x = as.double(x),
+  ##          y = as.double(y),
+  ##          n = as.integer(n))$kenscore
   ##
   ## Calculate S and s.e(S) according to
   ## Stata, release 5, Reference P-Z, p.239-240
   ##
   ## see also Kendall, Gibbons (1990), Rank Correlation Methods
   ## p. 66-68
-  ##
-  t <- rle(sort(x))$lengths
-  u <- rle(sort(y))$lengths
-  ##
   ##
   se.ks <- sqrt(1 / 18 * (n * (n - 1) * (2 * n + 5) -
                             sum(t * (t - 1) * (2 * t + 5)) -
@@ -48,10 +53,6 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   ##
   statistic <- (ks - sign(ks) * as.logical(correct)) / se.ks
   p.value <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
-  ##
-  N <- 0.5 * n * (n - 1)
-  N1 <- N - sum(t * (t - 1) / 2)
-  N2 <- N - sum(u * (u - 1) / 2)
   ##
   res <- list(tau.a = ks / N,
               tau.b = ks / (sqrt(N1) * sqrt(N2)),

@@ -16,6 +16,14 @@
   * P-values equal to 0 are actually printed as "0" instead of
     "< 0.0001"
 
+  * Source code version of meta can be installed without compilation,
+    i.e., without use of Rtools under Windows
+
+  * Rank test for funnel plot asymmetry uses cor() from R package
+    stats instead of internal C routine (negligibly slower, however,
+    no need for compilation to install R package meta using the source
+    code)
+
  ** User-visible changes **
 
   * forest.meta(), print.meta(), print.summary.meta():
@@ -44,22 +52,25 @@
   * bylabel(), catmeth(), format.NA(), format.tau(), xlab():
     - new argument 'big.mark' (see above)
 
-  * New internal function is.log.effect() to check for treatment
-    effects combined on log scale
-
-  * New internal functions is.mean() to check whether summary measure
-    refers to meta-analysis of single means
+  * New internal functions:
+    - is.log.effect() to check for treatment effects combined on log
+      scale
+    - is.mean() to check whether summary measure refers to
+      meta-analysis of single means
 
   * Check whether argument 'sm' is NULL in meta-analysis functions
 
-  * Internal function format.p():
+  * format.p():
     - zero p-values are printed as "0" instead of "< 0.001"
+    - NaNs are handled like NAs
     - new argument 'big.mark'
 
-  * Internal function format.tau() removed as functionality is
-    now provided by format.p()
+  * Removed R functions:
+    - format.tau() as functionality is now provided by format.p()
+    - C program kenscore.c as cor() from R package stats is used
+      instead to calculate Kendall's tau
 
-  * Internal function subgroup(): extended for GLMMs
+  * subgroup(): extended for GLMMs
 
 
 *** meta, version 4.8-4, 2017-08-11 ***

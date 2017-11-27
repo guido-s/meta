@@ -1,5 +1,3 @@
-useDynLib(meta, .registration = TRUE)
-
 export(ci, settings.meta, forest, forest.meta,
        funnel, funnel.default, funnel.meta,
        baujat, baujat.meta,
@@ -65,7 +63,7 @@ importFrom("grDevices", "gray")
 
 importFrom("graphics", "abline", "axis", "lines", "par", "plot", "points", "polygon", "text")
 
-importFrom("stats", "as.formula", "binom.test", "coef", "lm", "pchisq",
+importFrom("stats", "as.formula", "binom.test", "coef", "cor", "lm", "pchisq",
            "pnorm", "pt", "qnorm", "qt", "runif", "update", "var", "weighted.mean",
            "weights")
 
