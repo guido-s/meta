@@ -18,8 +18,9 @@ User-friendly general package providing standard methods for meta-analysis and s
  - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression (if R package 'metafor' is installed);
- - generalised linear mixed models (if R packages 'metafor', 'lme4', 'numDeriv', and 'BiasedUrn' are installed).
-
+ - generalised linear mixed models (if R packages 'metafor', 'lme4', 'numDeriv', and 'BiasedUrn' are installed);
+ - produce forest plot summarising several (subgroup) meta-analyses.
+ 
 ### References
 
 [Schwarzer G, Carpenter JR and Rücker G (2015), *Meta-Analysis with R (Use-R!)*. Springer International Publishing, Switzerland](http://www.springer.com/gp/book/9783319214153)
@@ -37,8 +38,6 @@ install.packages("meta")
 install.packages("devtools")
 devtools::install_github("guido-s/meta")
 ```
-
-Note, you have to install the [Rtools](https://cloud.r-project.org/bin/windows/Rtools/) in order to install **meta** under Microsoft Windows.
 
 
 ### Bug Reports:

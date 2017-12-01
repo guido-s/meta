@@ -4,6 +4,9 @@
 
   * New function metamean() to conduct meta-analysis of single means
 
+  * New function metabind() to combine meta-analysis objects, e.g. to
+    generate a forest plot with results of several subgroup analyses
+
   * Subgroup analyses implemented for generalised linear mixed models
     (GLMMs) with and without assumption of common between-study
     variance (arguments 'byvar' and 'tau.common')
