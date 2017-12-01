@@ -142,6 +142,8 @@ print.summary.meta <- function(x,
   }
   ##
   prediction <- prediction & k >= 3
+  if (is.na(prediction))
+    prediction <- FALSE
   ##
   if (is.null(x$df.Q))
     df.Q <- k - 1
@@ -352,7 +354,9 @@ print.summary.meta <- function(x,
     lowI2 <- round(100 * x$I2$lower, digits.I2)
     uppI2 <- round(100 * x$I2$upper, digits.I2)
     print.ci.I2 <- ((Q > k & k >= 2) | (Q <= k & k > 2)) &
-                   !(is.na(lowI2) | is.na(uppI2))
+      !(is.na(lowI2) | is.na(uppI2))
+    if (is.na(print.ci.I2))
+      print.ci.I2 <- FALSE
   }
   else
     print.ci.I2 <- FALSE
@@ -372,7 +376,10 @@ print.summary.meta <- function(x,
   if (header)
     crtitle(x)
   ##
-  if (k.all == 1) {
+  if (is.na(k.all)) {
+    ## Do nothing
+  }
+  else if (k.all == 1) {
     ##
     ## Print results for a single study
     ##
@@ -413,6 +420,9 @@ print.summary.meta <- function(x,
             null.effect = if (null.given) null.effect else 0,
             big.mark = big.mark,
             digits = digits, digits.tau2 = digits.tau2)
+  }
+  else if (is.na(k)) {
+    ## Do nothing
   }
   else {
     ##
@@ -625,30 +635,32 @@ print.summary.meta <- function(x,
           cat("\nResults for subgroups (fixed effect model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
-          cat("\nTest for subgroup differences (fixed effect model):\n")
-          if (x$method == "MH") {
-            Qdata <- cbind(format.NA(round(Q.b.fixed, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                           format(df.Q.b, big.mark = big.mark),
-                           format.p(pvalQ(Q.b.fixed, df.Q.b),
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval))
-            dimnames(Qdata) <- list("Between groups  ",
-                                    c("Q", "d.f.", "p-value"))
-            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
-          }
-          else {
-            Qs  <- c(Q.b.fixed, Q.w.fixed)
-            dfs <- c(df.Q.b, df.Q.w)
-            Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                           format(dfs, big.mark = big.mark),
-                           format.p(pvalQ(Qs, dfs),
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval))
-            dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                    c("Q", "d.f.", "p-value"))
-            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          if (!inherits(x, "metabind")) {
+            cat("\nTest for subgroup differences (fixed effect model):\n")
+            if (x$method == "MH") {
+              Qdata <- cbind(format.NA(round(Q.b.fixed, digits.Q), digits.Q, "NA",
+                                       big.mark = big.mark),
+                             format(df.Q.b, big.mark = big.mark),
+                             format.p(pvalQ(Q.b.fixed, df.Q.b),
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval))
+              dimnames(Qdata) <- list("Between groups  ",
+                                      c("Q", "d.f.", "p-value"))
+              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            }
+            else {
+              Qs  <- c(Q.b.fixed, Q.w.fixed)
+              dfs <- c(df.Q.b, df.Q.w)
+              Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA",
+                                       big.mark = big.mark),
+                             format(dfs, big.mark = big.mark),
+                             format.p(pvalQ(Qs, dfs),
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval))
+              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                      c("Q", "d.f.", "p-value"))
+              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            }
           }
         }
         ##
@@ -695,33 +707,39 @@ print.summary.meta <- function(x,
           cat("\nResults for subgroups (random effects model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
-          cat("\nTest for subgroup differences (random effects model):\n")
-          if (is.na(Q.w.random)) {
-            Qdata <- cbind(format.NA(round(Q.b.random, digits.Q), digits.Q,
-                                     "NA", big.mark = big.mark),
-                           format(df.Q.b, big.mark = big.mark),
-                           format.p(pvalQ(Q.b.random, df.Q.b),
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval))
-            dimnames(Qdata) <- list("Between groups  ",
-                                    c("Q", "d.f.", "p-value"))
+          if (!inherits(x, "metabind")) {
+            cat("\nTest for subgroup differences (random effects model):\n")
+            if (is.na(Q.w.random)) {
+              Qdata <- cbind(format.NA(round(Q.b.random, digits.Q), digits.Q,
+                                       "NA", big.mark = big.mark),
+                             format(df.Q.b, big.mark = big.mark),
+                             format.p(pvalQ(Q.b.random, df.Q.b),
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval))
+              dimnames(Qdata) <- list("Between groups  ",
+                                      c("Q", "d.f.", "p-value"))
+            }
+            else {
+              Qs  <- c(Q.b.random, Q.w.random)
+              dfs <- c(df.Q.b, df.Q.w)
+              Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA",
+                                       big.mark = big.mark),
+                             format(dfs, big.mark = big.mark),
+                             format.p(pvalQ(Qs, dfs),
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval))
+              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                      c("Q", "d.f.", "p-value"))
+            }
+            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
-          else {
-            Qs  <- c(Q.b.random, Q.w.random)
-            dfs <- c(df.Q.b, df.Q.w)
-            Qdata <- cbind(format.NA(round(Qs, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                           format(dfs, big.mark = big.mark),
-                           format.p(pvalQ(Qs, dfs),
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval))
-            dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                    c("Q", "d.f.", "p-value"))
-          }
-          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
         }
       }
     }
+  }
+  
+  
+  if ((comb.fixed | comb.random | prediction) & (is.na(k.all) | k.all > 1)) {
     ##
     ## Print information on summary method:
     ##

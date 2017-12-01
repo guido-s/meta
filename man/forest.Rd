@@ -139,8 +139,8 @@ forest(x, ...)
        digits.I2=max(gs("digits.I2")-1, 0),
        digits.weight=gs("digits.weight"),
        #
-       digits.mean = NULL, digits.sd = NULL,
-       digits.cor = NULL, digits.time = NULL,
+       digits.mean = digits, digits.sd = digits.se,
+       digits.cor = digits, digits.time = digits,
        #
        scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
        #

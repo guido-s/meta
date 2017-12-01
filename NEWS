@@ -17,12 +17,12 @@
     "< 0.0001"
 
   * Source code version of meta can be installed without compilation,
-    i.e., without use of Rtools under Windows
+    i.e., without use of Rtools on Windows or 'Command-line tools for
+    Xcode' on macOS
 
   * Rank test for funnel plot asymmetry uses cor() from R package
     stats instead of internal C routine (negligibly slower, however,
-    no need for compilation to install R package meta using the source
-    code)
+    no need for compilation of source installs)
 
  ** User-visible changes **
 

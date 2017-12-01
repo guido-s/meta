@@ -200,10 +200,10 @@ forest.meta <- function(x,
                         digits.I2 = max(gs("digits.I2") - 1, 0),
                         digits.weight = gs("digits.weight"),
                         ##
-                        digits.mean = NULL,
-                        digits.sd = NULL,
-                        digits.cor = NULL,
-                        digits.time = NULL,
+                        digits.mean = digits,
+                        digits.sd = digits.se,
+                        digits.cor = digits,
+                        digits.time = digits,
                         ##
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
@@ -432,13 +432,13 @@ forest.meta <- function(x,
   chknumeric(digits.Q, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
-  if (!is.null(digits.mean))
+  if (!missing(digits.mean))
     chknumeric(digits.mean, min = 0, single = TRUE)
-  if (!is.null(digits.sd))
+  if (!missing(digits.sd))
     chknumeric(digits.sd, min = 0, single = TRUE)
-  if (!is.null(digits.cor))
+  if (!missing(digits.cor))
     chknumeric(digits.cor, min = 0, single = TRUE)
-  if (!is.null(digits.time))
+  if (!missing(digits.time))
     chknumeric(digits.time, min = 0, single = TRUE)
   chklogical(scientific.pval)
   ##

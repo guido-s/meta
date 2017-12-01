@@ -110,7 +110,8 @@ cilayout(bracket="[", separator="; ")
     studies should be printed by grouping variable.}
   \item{print.CMH}{A logical indicating whether result of the
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
-  \item{digits}{Minimal number of significant digits, see \code{print.default}.}
+  \item{digits}{Minimal number of significant digits, see
+    \code{print.default}.}
   \item{warn}{A logical indicating whether the use of
     \code{summary.meta} in connection with \code{metacum} or
     \code{metainf} should result in a warning.}

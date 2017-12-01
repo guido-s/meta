@@ -122,8 +122,11 @@ print.meta <- function(x,
   ##
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  mb <- inherits(x, "metabind")
   ##  
   prediction <- prediction & x$k >= 3
+  if (is.na(prediction))
+    prediction <- FALSE
   ##  
   ci.lab <- paste(round(100 * level, 1), "%-CI", sep = "")
   ##  
@@ -335,12 +338,15 @@ print.meta <- function(x,
     if (!metainf.metacum) {
       if (comb.fixed)
         if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
-          w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE), digits.weight)
+          w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE),
+                             digits.weight)
         else w.fixed.p <- x$w.fixed
       ##
       if (comb.random)
-        if (!is.null(x$w.random) & !all(is.na(x$w.random)) && sum(x$w.random) > 0)
-          w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE), digits.weight)
+        if (!is.null(x$w.random) & !all(is.na(x$w.random)) &&
+            sum(x$w.random) > 0)
+          w.random.p <- round(100 * x$w.random / sum(x$w.random, na.rm = TRUE),
+                              digits.weight)
         else w.random.p <- x$w.random
     }
     ##    
@@ -407,10 +413,12 @@ print.meta <- function(x,
                                   big.mark = big.mark),
                         format.NA(round(uppTE, digits), digits, "NA",
                                   big.mark = big.mark)),
-                   if (comb.fixed) format.NA(w.fixed.p, digits.weight,
-                                             big.mark = big.mark),
-                   if (comb.random) format.NA(w.random.p, digits.weight,
-                                              big.mark = big.mark),
+                   if (comb.fixed & !mb)
+                     format.NA(w.fixed.p, digits.weight,
+                               big.mark = big.mark),
+                   if (comb.random & !mb)
+                     format.NA(w.random.p, digits.weight,
+                               big.mark = big.mark),
                    if (!is.null(x$byvar)) x$byvar,
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
@@ -434,8 +442,8 @@ print.meta <- function(x,
           if (x$method.ci != "NAsm") {
             cat(method.ci.details)
             dimnames(res) <- list("", c(sm.lab, ci.lab,
-                                        if (comb.fixed) "%W(fixed)",
-                                        if (comb.random) "%W(random)",
+                                        if (comb.fixed & !mb) "%W(fixed)",
+                                        if (comb.random & !mb) "%W(random)",
                                         if (!is.null(x$byvar)) x$bylab,
                                         if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
@@ -447,8 +455,8 @@ print.meta <- function(x,
       else {
         dimnames(res) <-
           list(x$studlab, c(sm.lab, ci.lab,
-                            if (comb.fixed) "%W(fixed)",
-                            if (comb.random) "%W(random)",
+                            if (comb.fixed & !mb) "%W(fixed)",
+                            if (comb.random & !mb) "%W(random)",
                             if (!is.null(x$byvar)) x$bylab,
                             if (!is.null(x$exclude)) "exclude"))
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
@@ -462,7 +470,9 @@ print.meta <- function(x,
     ##
     ##
     if (ma & !metainf.metacum) {
-      cat("\n")
+      if (!is.na(x$k))
+        cat("\n")
+      ##
       print(summary(x, warn = FALSE), digits = digits,
             comb.fixed = comb.fixed, comb.random = comb.random,
             prediction = prediction,
