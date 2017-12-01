@@ -172,8 +172,8 @@ metamean(n, mean, sd, studlab,
 
 \value{
   An object of class \code{c("metamean", "meta")} with corresponding
-  \code{print}, \code{summary}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, \code{summary}, and \code{forest} functions. The
+  object is a list containing the following components:
   \item{n, mean, sd,}{}
   \item{studlab, exclude, sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}

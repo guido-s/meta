@@ -632,7 +632,10 @@ print.summary.meta <- function(x,
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb)
                                   )
-          cat("\nResults for subgroups (fixed effect model):\n")
+          if (inherits(x, "metabind"))
+            cat("\nResults for meta-analyses (fixed effect model):\n")
+          else
+            cat("\nResults for subgroups (fixed effect model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
           if (!inherits(x, "metabind")) {
@@ -704,7 +707,10 @@ print.summary.meta <- function(x,
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb)
                                   )
-          cat("\nResults for subgroups (random effects model):\n")
+          if (inherits(x, "metabind"))
+            cat("\nResults for meta-analyses (random effects model):\n")
+          else
+            cat("\nResults for subgroups (random effects model):\n")
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
           if (!inherits(x, "metabind")) {

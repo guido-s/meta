@@ -156,8 +156,8 @@ metacor(cor, n, studlab,
 
 \value{
   An object of class \code{c("metacor", "meta")} with corresponding
-  \code{print}, \code{summary}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, \code{summary}, and \code{forest} functions. The
+  object is a list containing the following components:
   \item{cor, n, studlab, exclude,}{}
   \item{sm, level, level.comb,}{}
   \item{comb.fixed, comb.random,}{}

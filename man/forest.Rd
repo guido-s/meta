@@ -1,7 +1,8 @@
-\name{forest.meta}
+\name{forest}
 
 \alias{forest}
 \alias{forest.meta}
+\alias{forest.metabind}
 
 \title{Forest plot to display the result of a meta-analysis}
 
@@ -146,10 +147,33 @@ forest(x, ...)
        #
        col.i=col.study, weight=weight.study,
        ...)
+
+\method{forest}{metabind}(x,
+       leftcols, leftlabs,
+       rightcols=c("effect", "ci"), rightlabs,
+       #
+       overall=FALSE, subgroup=FALSE, overall.hetstat=FALSE,
+       #
+       lab.NA="",
+       #
+       digits=gs("digits.forest"),
+       digits.se=gs("digits.se"),
+       digits.zval=gs("digits.zval"),
+       digits.pval=max(gs("digits.pval") - 2, 2),
+       digits.pval.Q=max(gs("digits.pval.Q") - 2, 2),
+       digits.Q=gs("digits.Q"),
+       digits.tau2=gs("digits.tau2"),
+       digits.I2=max(gs("digits.I2") - 1, 0),
+       #
+       scientific.pval=gs("scientific.pval"),
+       big.mark=gs("big.mark"),
+       #
+       smlab,
+       ...)			    
 }
 
 \arguments{
-  \item{x}{An object of class \code{meta}.}
+  \item{x}{An object of class \code{meta} or \code{metabind}.}
   \item{sortvar}{An optional vector used to sort the individual studies
     (must be of same length as \code{x$TE}).}
   \item{studlab}{A logical indicating whether study labels should be
@@ -508,7 +532,7 @@ forest(x, ...)
     statistic, see \code{print.default}.}
   \item{digits.weight}{Minimal number of significant digits for
     weights, see \code{print.default}.}
-       digits.cor = NULL, digits.time = NULL,
+       digits.cor=NULL, digits.time=NULL,
   \item{digits.mean}{Minimal number of significant digits for means;
     only applies to \code{\link{metacont}} objects.}
   \item{digits.sd}{Minimal number of significant digits for standard
@@ -753,7 +777,7 @@ forest(x, ...)
 
 \author{Guido Schwarzer \email{sc@imbi.uni-freiburg.de}}
 
-\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{settings.meta}}}
+\seealso{\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{metabind}}, \code{\link{settings.meta}}}
 
 \examples{
 data(Olkin95)
@@ -949,14 +973,14 @@ forest(meta2,
 #
 # Print only subgroup results
 #
-forest(meta2, layout = "subgroup")
+forest(meta2, layout="subgroup")
 
 #
 # Print only subgroup results
 # (and consider text for heterogeneity measures in width of subgroup
 #  column)
 #
-forest(meta2, layout = "subgroup", calcwidth.hetstat = TRUE)
+forest(meta2, layout="subgroup", calcwidth.hetstat=TRUE)
 }
 }
 

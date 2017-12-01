@@ -66,6 +66,10 @@ al. (2015), \url{http://meta-analysis-with-r.org/}.
   \item Advanced methods to model and adjust for bias in meta-analysis
     (R package \bold{metasens})
   }
+
+  Results of several meta-analyses can be combined with
+  \code{\link{metabind}}. This is, for example, useful to generate a
+  forest plot with results of subgroup analyses.
   
   See \code{\link{settings.meta}} to learn how to print and specify
   default meta-analysis methods used during your R session. For

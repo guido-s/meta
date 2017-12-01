@@ -292,8 +292,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
 
 \value{
   An object of class \code{c("metabin", "meta")} with corresponding
-  \code{print}, \code{summary}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, \code{summary}, and \code{forest} functions. The
+  object is a list containing the following components:
   \item{event.e, n.e, event.c, n.c, studlab, exclude,}{}
   \item{sm, method, incr, allincr, addincr,}{}
   \item{allstudies, MH.exact, RR.cochrane, model.glmm, warn,}{}

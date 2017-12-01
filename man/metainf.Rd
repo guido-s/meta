@@ -29,8 +29,8 @@ metainf(x, pooled, sortvar)
 }
 \value{
   An object of class \code{c("metainf", "meta")} with corresponding
-  \code{print}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, and \code{forest} functions. The object is a list
+  containing the following components:
   \item{TE, seTE}{Estimated treatment effect and standard error of
     pooled estimate in influence analysis.}
   \item{lower, upper}{Lower and upper confidence interval limits.}

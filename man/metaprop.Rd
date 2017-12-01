@@ -252,8 +252,8 @@ metaprop(event, n, studlab,
 
 \value{
   An object of class \code{c("metaprop", "meta")} with corresponding
-  \code{print}, \code{summary}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, \code{summary}, and \code{forest} functions. The
+  object is a list containing the following components:
   \item{event, n, studlab, exclude,}{}
   \item{sm, incr, allincr, addincr, method.ci,}{}
   \item{level, level.comb,}{As defined above.}

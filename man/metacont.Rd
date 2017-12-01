@@ -226,8 +226,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
 
 \value{
   An object of class \code{c("metacont", "meta")} with corresponding
-  \code{print}, \code{summary}, \code{plot} function. The object is a
-  list containing the following components:
+  \code{print}, \code{summary}, and \code{forest} functions. The
+  object is a list containing the following components:
   \item{n.e, mean.e, sd.e,}{}
   \item{n.c, mean.c, sd.c,}{}
   \item{studlab, exclude, sm, level, level.comb,}{}
