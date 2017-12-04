@@ -1,4 +1,4 @@
-*** meta, version 4.8-5, 2017-mm-dd ***
+*** meta, version 4.9-0, 2017-12-04 ***
 
  ** Major changes **
 
@@ -13,12 +13,6 @@
 
   * Axis direction can be reversed for x-axis in forest plots
 
-  * Thousands separator can be used in printouts and forest plots for
-    large numbers
-
-  * P-values equal to 0 are actually printed as "0" instead of
-    "< 0.0001"
-
   * Source code version of meta can be installed without compilation,
     i.e., without use of Rtools on Windows or 'Command-line tools for
     Xcode' on macOS
@@ -26,6 +20,12 @@
   * Rank test for funnel plot asymmetry uses cor() from R package
     stats instead of internal C routine (negligibly slower, however,
     no need for compilation of source installs)
+
+  * Thousands separator can be used in printouts and forest plots for
+    large numbers
+
+  * P-values equal to 0 are actually printed as "0" instead of
+    "< 0.0001"
 
  ** User-visible changes **
 
@@ -39,6 +39,9 @@
       is larger than second value, e.g. xlim = c(10, -10)
     - separator between label and levels of grouping variable
       (argument 'byseparator') is considered from meta-analysis object
+    - for relative summary measures, e.g., odds ratio and risk ratio,
+      labels on x-axis are not rounded to two digits (which resulted
+      in the value 0 for a tick-mark at 0.001)
     - bug fix:
       lines for treatment effect in fixed effect and random effects
       model start in center of diamond if argument hetstat = FALSE

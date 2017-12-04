@@ -18,16 +18,16 @@
         comb.random=x$comb.random,
         prediction=x$prediction,
         details=FALSE, ma=TRUE, backtransf=x$backtransf,
-        pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
-        digits = gs("digits"), digits.se = gs("digits.se"),
-        digits.zval = gs("digits.zval"),
-        digits.pval = max(gs("digits.pval"), 2),
-        digits.pval.Q = max(gs("digits.pval.Q"), 2),
-        digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
-        digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
-        digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
-	scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-        warn.backtransf = FALSE,
+        pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
+        digits=gs("digits"), digits.se=gs("digits.se"),
+        digits.zval=gs("digits.zval"),
+        digits.pval=max(gs("digits.pval"), 2),
+        digits.pval.Q=max(gs("digits.pval.Q"), 2),
+        digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
+        digits.H=gs("digits.H"), digits.I2=gs("digits.I2"),
+        digits.prop=gs("digits.prop"), digits.weight=gs("digits.weight"),
+	scientific.pval=gs("scientific.pval"), big.mark=gs("big.mark"),
+        warn.backtransf=FALSE,
         ...)
 
 \method{print}{metabias}(x, ...)
@@ -36,30 +36,30 @@
         comb.fixed=object$comb.fixed, comb.random=object$comb.random,
         prediction=object$prediction,
         backtransf=object$backtransf,
-        pscale=object$pscale, irscale = object$irscale, irunit = object$irunit,
+        pscale=object$pscale, irscale=object$irscale, irunit=object$irunit,
         bylab=object$bylab, print.byvar=object$print.byvar,
         byseparator=object$byseparator, bystud=FALSE,
         print.CMH=object$print.CMH, warn=object$warn, ...)
 
-\method{print}{summary.meta}(x, digits = gs("digits"),
+\method{print}{summary.meta}(x, digits=gs("digits"),
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
         print.byvar=x$print.byvar, byseparator=x$byseparator,
         print.CMH=x$print.CMH,
         header=TRUE, backtransf=x$backtransf,
-        pscale=x$pscale, irscale = x$irscale, irunit = x$irunit,
+        pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
         bylab.nchar=35,
-        digits.zval = gs("digits.zval"),
-        digits.pval = max(gs("digits.pval"), 2),
-        digits.pval.Q = max(gs("digits.pval.Q"), 2),
-        digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
-        digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
-	scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-        print.I2 = gs("print.I2"), print.H = gs("print.H"),
-        print.Rb = gs("print.Rb"),
-        text.tau2 = gs("text.tau2"), text.I2 = gs("text.I2"),
-        text.Rb = gs("text.Rb"),
-        warn.backtransf = FALSE,
+        digits.zval=gs("digits.zval"),
+        digits.pval=max(gs("digits.pval"), 2),
+        digits.pval.Q=max(gs("digits.pval.Q"), 2),
+        digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
+        digits.H=gs("digits.H"), digits.I2=gs("digits.I2"),
+	scientific.pval=gs("scientific.pval"), big.mark=gs("big.mark"),
+        print.I2=gs("print.I2"), print.H=gs("print.H"),
+        print.Rb=gs("print.Rb"),
+        text.tau2=gs("text.tau2"), text.I2=gs("text.I2"),
+        text.Rb=gs("text.Rb"),
+        warn.backtransf=FALSE,
         ...)
 
 cilayout(bracket="[", separator="; ")
@@ -304,7 +304,7 @@ forest(update(meta1, byvar=c(1,2,1,1,2), bylab="group"))
 \dontrun{
 # Use unicode characters to print tau^2 and I^2 
 #
-print(summary(meta1), text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+print(summary(meta1), text.tau2="\u03c4\u00b2", text.I2="I\u00b2")
 }
 }
 

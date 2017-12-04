@@ -73,7 +73,7 @@ following components:
 \examples{
 data(Fleiss93cont)
 
-# Add some (fictious) grouping variables:
+# Add some (fictitious) grouping variables:
 Fleiss93cont$age <- c(55, 65, 55, 65, 55)
 Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 

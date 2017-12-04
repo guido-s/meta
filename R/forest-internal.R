@@ -121,11 +121,10 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
           label <- c(label, exp(max(xlim)))
       }
       at <- log(label)
-      label <- round(label, 2)
     }
     else {
       if (length(label) == 1 && is.logical(label) && label)
-        label <- round(at, 2)
+        label <- at
       at <- log(at)
     }
     grid.xaxis(at = at, label = label,
