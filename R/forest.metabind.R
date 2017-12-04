@@ -150,29 +150,29 @@ forest.metabind <- function(x,
   ##
   if (any(x$is.subgroup)) {
     x$data$Q.b <- round(x$data$Q.b, digits.Q)
-    x$data$pval.Q.b <- format.p(x$data$pval.Q.b,
-                                       lab = FALSE,
-                                       digits = digits.pval.Q,
-                                       scientific = scientific.pval,
-                                       lab.NA = lab.NA)
+    x$data$pval.Q.b <- formatPT(x$data$pval.Q.b,
+                                lab = FALSE,
+                                digits = digits.pval.Q,
+                                scientific = scientific.pval,
+                                lab.NA = lab.NA)
     x$data$pval.Q.b <- rmSpace(x$data$pval.Q.b)
   }
   ##
   x$Q <- round(x$Q, digits.Q)
   ##
-  x$data$tau2 <- format.p(x$data$tau2, digits = digits.tau2,
-                                 big.mark = big.mark,
-                                 lab = FALSE, lab.NA = lab.NA)
+  x$data$tau2 <- formatPT(x$data$tau2, digits = digits.tau2,
+                          big.mark = big.mark,
+                          lab = FALSE, lab.NA = lab.NA)
   ##
   I2.na <- is.na(x$data$I2)
-  x$data$I2 <- format.NA(round(100 * x$data$I2, digits.I2),
-                                digits.I2, "")
-  x$data$lower.I2 <- format.NA(round(100 * x$data$lower.I2,
-                                            digits.I2),
-                                      digits.I2, "")
-  x$data$upper.I2 <- format.NA(round(100 * x$data$upper.I2,
-                                            digits.I2),
-                                      digits.I2, "")
+  x$data$I2 <- formatN(round(100 * x$data$I2, digits.I2),
+                       digits.I2, "")
+  x$data$lower.I2 <- formatN(round(100 * x$data$lower.I2,
+                                   digits.I2),
+                             digits.I2, "")
+  x$data$upper.I2 <- formatN(round(100 * x$data$upper.I2,
+                                   digits.I2),
+                             digits.I2, "")
   ##
   x$data$I2 <- paste(x$data$I2,
                      ifelse(I2.na, "", "%"),

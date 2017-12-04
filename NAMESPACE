@@ -18,13 +18,13 @@ export(ci, settings.meta, forest, forest.meta,
        gs)
 
 # not visible:
-# asin2p, format.p, meta-internal, logit2p, p.ci, rmSpace, xlab, z2cor,
+# asin2p, formatPT, meta-internal, logit2p, formatCI, rmSpace, xlab, z2cor,
 # is.installed.package, crtitle, catmeth,
 # kentau, hypergeometric, linregcore, setOption, warnarg,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,
 # is.relative.effect, backtransf,
-# hetcalc, chkarg, chklevel, chklogical, format.NA, bylabel, asin2ir, Rb,
+# hetcalc, chkarg, chklevel, chklogical, formatN, bylabel, asin2ir, Rb,
 # setunit, add.label, add.text, add.xlab, draw.axis, draw.ci.square,
 # draw.ci.diamond, draw.ci.predict, draw.forest, draw.lines,
 # formatcol, removeNULL, tg, tgl, twolines, wcalc, pvalQ,

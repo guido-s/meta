@@ -209,7 +209,7 @@ catmeth <- function(method,
   else {
     if (!is.null(tau.preset)) {
       tau2 <- tau.preset^2
-      tau2 <- format.p(tau2, lab = TRUE, labval = text.tau2,
+      tau2 <- formatPT(tau2, lab = TRUE, labval = text.tau2,
                        digits = digits.tau2,
                        lab.NA = "NA",
                        big.mark = big.mark)

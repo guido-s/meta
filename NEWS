@@ -55,28 +55,34 @@
 
  ** Internal changes **
 
-  * bylabel(), catmeth(), format.NA(), format.tau(), xlab():
-    - new argument 'big.mark' (see above)
-
   * New internal functions:
     - is.log.effect() to check for treatment effects combined on log
       scale
     - is.mean() to check whether summary measure refers to
       meta-analysis of single means
 
-  * Check whether argument 'sm' is NULL in meta-analysis functions
-
-  * format.p():
-    - zero p-values are printed as "0" instead of "< 0.001"
-    - NaNs are handled like NAs
-    - new argument 'big.mark'
+  * Renamed internal functions:
+    - formatCI() instead of p.ci()
+    - formatN() instead of format.NA()
+    - formatPT() instead of format.p()
 
   * Removed R functions:
-    - format.tau() as functionality is now provided by format.p()
+    - format.tau() as functionality is now provided by formatPT()
     - C program kenscore.c as cor() from R package stats is used
       instead to calculate Kendall's tau
 
+  * Deprecated functions: format.NA(), format.p(), and p.ci()
+
+  * Check whether argument 'sm' is NULL in meta-analysis functions
+
   * subgroup(): extended for GLMMs
+
+  * formatPT():
+    - zero p-values are printed as "0" instead of "< 0.001"
+    - NaNs are handled like NAs
+
+  * bylabel(), catmeth(), formatPT(), formatN(), xlab():
+    - new argument 'big.mark' (see above)
 
 
 *** meta, version 4.8-4, 2017-08-11 ***

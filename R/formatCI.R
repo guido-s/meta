@@ -1,13 +1,11 @@
-p.ci <- function(lower, upper, rmspace = TRUE,
-                 bracket.left = "[",
-                 separator = "; ",
-                 bracket.right = "]",
-                 justify.lower = "right",
-                 justify.upper = justify.lower,
-                 ...
-                 ) {
-  
-  warning("Use of function p.ci() from R package meta is deprecated; use instead formatCI().")
+formatCI <- function(lower, upper, rmspace = TRUE,
+                     bracket.left = "[",
+                     separator = "; ",
+                     bracket.right = "]",
+                     justify.lower = "right",
+                     justify.upper = justify.lower,
+                     ...
+                     ) {
   
   ## Change layout of CIs
   ##

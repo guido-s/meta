@@ -1,6 +1,4 @@
-format.NA <- function(x, digits = 2, text.NA = "--", big.mark = "") {
-  
-  warning("Use of function format.NA() from R package meta is deprecated; use instead formatN().")
+formatN <- function(x, digits = 2, text.NA = "--", big.mark = "") {
   
   outdec <- options()$OutDec
   

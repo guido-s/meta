@@ -1,8 +1,6 @@
-format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
+formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "") {
-  
-  warning("Use of function format.p() from R package meta is deprecated; use instead formatPT().")
   
   if (is.null(x))
     return("")
