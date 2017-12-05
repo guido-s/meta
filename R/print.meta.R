@@ -7,19 +7,12 @@ print.meta <- function(x,
                        backtransf = x$backtransf,
                        pscale = x$pscale,
                        irscale = x$irscale,
-                       irunit = x$irunit,
                        digits = gs("digits"),
                        digits.se = gs("digits.se"),
-                       digits.zval = gs("digits.zval"),
-                       digits.pval = max(gs("digits.pval"), 2),
-                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
-                       digits.Q = gs("digits.Q"),
                        digits.tau2 = gs("digits.tau2"),
-                       digits.H = gs("digits.H"),
                        digits.I2 = gs("digits.I2"),
                        digits.prop = gs("digits.prop"),
                        digits.weight = gs("digits.weight"),
-                       scientific.pval = gs("scientific.pval"),
                        big.mark = gs("big.mark"),
                        warn.backtransf = FALSE,
                        ...
@@ -66,6 +59,8 @@ print.meta <- function(x,
   chklogical(details)
   chklogical(ma)
   chklogical(backtransf)
+  chklogical(warn.backtransf)
+  ##
   if (!is.prop(x$sm))
     pscale <- 1
   if (!is.null(pscale))
@@ -90,14 +85,8 @@ print.meta <- function(x,
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
-  chknumeric(digits.zval, min = 0, single = TRUE)
-  chknumeric(digits.pval, min = 1, single = TRUE)
-  chknumeric(digits.pval.Q, min = 1, single = TRUE)
-  chknumeric(digits.Q, min = 0, single = TRUE)
-  chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chknumeric(digits.prop, min = 0, single = TRUE)
-  chklogical(scientific.pval)
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -267,18 +256,19 @@ print.meta <- function(x,
                             doublezeros = x$doublezeros,
                             MH.exact = x$MH.exact,
                             warn = FALSE, level.comb = level.comb)),
-            digits = digits, header = FALSE,
+            header = FALSE,
+            digits = digits,
             backtransf = backtransf, pscale = pscale,
-            irscale = irscale, irunit = irunit,
-            digits.zval = digits.zval, digits.pval = digits.pval,
-            scientific.pval = scientific.pval, big.mark = big.mark)
+            irscale = irscale, big.mark = big.mark,
+            warn.backtransf = warn.backtransf,
+            ...)
     else
       print(summary(x),
-            digits = digits, header = FALSE,
+            header = FALSE,
+            digits = digits,
             backtransf = backtransf, pscale = pscale,
-            irscale = irscale, irunit = irunit,
-            digits.zval = digits.zval, digits.pval = digits.pval,
-            scientific.pval = scientific.pval, big.mark = big.mark,
+            irscale = irscale, big.mark = big.mark,
+            warn.backtransf = warn.backtransf,
             ...)
   }
   else {
@@ -473,20 +463,16 @@ print.meta <- function(x,
       if (!is.na(x$k))
         cat("\n")
       ##
-      print(summary(x, warn = FALSE), digits = digits,
+      print(summary(x, warn = FALSE),
+            header = FALSE,
+            digits = digits,
             comb.fixed = comb.fixed, comb.random = comb.random,
             prediction = prediction,
-            header = FALSE,
-            backtransf = backtransf, pscale = pscale,
-            irscale = irscale, irunit = irunit,
-            digits.tau2 = digits.tau2,
-            digits.zval = digits.zval,
-            digits.pval = digits.pval,
-            digits.pval.Q = digits.pval.Q,
-            digits.Q = digits.Q,
-            digits.H = digits.H,
-            digits.I2 = digits.I2,
-            scientific.pval = scientific.pval, big.mark = big.mark)
+            backtransf = backtransf, pscale = pscale, irscale = irscale,
+            digits.tau2 = digits.tau2, digits.I2 = digits.I2,
+            big.mark = big.mark,
+            warn.backtransf = warn.backtransf,
+            ...)
     }
   }
   

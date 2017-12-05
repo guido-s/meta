@@ -18,15 +18,11 @@
         comb.random=x$comb.random,
         prediction=x$prediction,
         details=FALSE, ma=TRUE, backtransf=x$backtransf,
-        pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
+        pscale=x$pscale, irscale=x$irscale,
         digits=gs("digits"), digits.se=gs("digits.se"),
-        digits.zval=gs("digits.zval"),
-        digits.pval=max(gs("digits.pval"), 2),
-        digits.pval.Q=max(gs("digits.pval.Q"), 2),
-        digits.Q=gs("digits.Q"), digits.tau2=gs("digits.tau2"),
-        digits.H=gs("digits.H"), digits.I2=gs("digits.I2"),
+        digits.tau2=gs("digits.tau2"), digits.I2=gs("digits.I2"),
         digits.prop=gs("digits.prop"), digits.weight=gs("digits.weight"),
-	scientific.pval=gs("scientific.pval"), big.mark=gs("big.mark"),
+	big.mark=gs("big.mark"),
         warn.backtransf=FALSE,
         ...)
 
@@ -41,7 +37,7 @@
         byseparator=object$byseparator, bystud=FALSE,
         print.CMH=object$print.CMH, warn=object$warn, ...)
 
-\method{print}{summary.meta}(x, digits=gs("digits"),
+\method{print}{summary.meta}(x,
         comb.fixed=x$comb.fixed, comb.random=x$comb.random,
         prediction=x$prediction,
         print.byvar=x$print.byvar, byseparator=x$byseparator,
@@ -49,6 +45,7 @@
         header=TRUE, backtransf=x$backtransf,
         pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
         bylab.nchar=35,
+        digits=gs("digits"),
         digits.zval=gs("digits.zval"),
         digits.pval=max(gs("digits.pval"), 2),
         digits.pval.Q=max(gs("digits.pval.Q"), 2),
@@ -112,16 +109,6 @@ cilayout(bracket="[", separator="; ")
     Cochran-Mantel-Haenszel test for overall effect should be printed.}
   \item{digits}{Minimal number of significant digits, see
     \code{print.default}.}
-  \item{warn}{A logical indicating whether the use of
-    \code{summary.meta} in connection with \code{metacum} or
-    \code{metainf} should result in a warning.}
-  \item{warn.backtransf}{A logical indicating whether a warning should
-    be printed if backtransformed proportions and rates are below 0
-    and backtransformed proportions are above 1.}
-  \item{bracket}{A character with bracket symbol to print lower
-    confidence interval: "[", "(", "\{", "".}
-  \item{separator}{A character string with information on separator
-    between lower and upper confidence interval.}
   \item{digits.se}{Minimal number of significant digits for standard
     deviations and standard errors, see \code{print.default}.}
   \item{digits.zval}{Minimal number of significant digits for z- or
@@ -148,6 +135,16 @@ cilayout(bracket="[", separator="; ")
   \item{big.mark}{A character used as thousands separator.} 
   \item{print.I2}{A logical specifying whether heterogeneity statistic
     I^2 should be printed.}
+  \item{warn}{A logical indicating whether the use of
+    \code{summary.meta} in connection with \code{metacum} or
+    \code{metainf} should result in a warning.}
+  \item{warn.backtransf}{A logical indicating whether a warning should
+    be printed if backtransformed proportions and rates are below 0
+    and backtransformed proportions are above 1.}
+  \item{bracket}{A character with bracket symbol to print lower
+    confidence interval: "[", "(", "\{", "".}
+  \item{separator}{A character string with information on separator
+    between lower and upper confidence interval.}
   \item{print.H}{A logical specifying whether heterogeneity statistic
     H should be printed.}
   \item{print.Rb}{A logical specifying whether heterogeneity statistic
@@ -155,7 +152,9 @@ cilayout(bracket="[", separator="; ")
   \item{text.tau2}{Text printed to identify between-study variance tau^2.}
   \item{text.I2}{Text printed to identify heterogeneity statistic I^2.}
   \item{text.Rb}{Text printed to identify heterogeneity statistic Rb.}
-  \item{\dots}{Additional arguments.}
+  \item{\dots}{In \code{print.meta}, additional arguments are passed
+    on to \code{print.summary.meta} called internally; otherwise, this
+    argument is ignored.}
 }
 
 \details{
