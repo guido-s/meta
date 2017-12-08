@@ -1,3 +1,19 @@
+*** meta, version 4.9-1, yyyy-mm-dd ***
+
+ ** Bug fixes **
+
+  * metamean():
+    - use of argument 'byvar' for subgroup analyses possible
+
+  * metacor(), metamean(), metaprop(), and metarate():
+    - use as input to metabind() possible
+
+ ** Internal changes **
+
+  * subgroup():
+    - code for metamean() added
+
+
 *** meta, version 4.9-0, 2017-12-06 ***
 
  ** Major changes **

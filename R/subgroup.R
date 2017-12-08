@@ -17,6 +17,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   cont <- inherits(x, "metacont")
   cor  <- inherits(x, "metacor")
   gen  <- inherits(x, "metagen")
+  mean <- inherits(x, "metamean")
   inc  <- inherits(x, "metainc")
   prop <- inherits(x, "metaprop")
   rate <- inherits(x, "metarate")
@@ -76,6 +77,15 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
     ##
+    if (cor)
+      meta1 <- metacor(x$cor[sel], x$n[sel],
+                       sm = x$sm,
+                       studlab = x$studlab[sel],
+                       level = x$level, level.comb = x$level.comb,
+                       hakn = x$hakn,
+                       method.tau = x$method.tau,
+                       tau.preset = tau.preset, TE.tau = x$TE.tau)
+    ##
     if (gen)
       meta1 <- metagen(x$TE[sel], x$seTE[sel],
                        sm = x$sm,
@@ -85,6 +95,16 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        method.tau = x$method.tau,
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
                        warn = x$warn)
+    ##
+    if (mean)
+      meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
+                        sm = x$sm,
+                        studlab = x$studlab[sel],
+                        level = x$level, level.comb = x$level.comb,
+                        hakn = x$hakn,
+                        method.tau = x$method.tau,
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        warn = x$warn)
     ##
     if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
@@ -99,15 +119,6 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         method.tau = x$method.tau,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
-    ##
-    if (cor)
-      meta1 <- metacor(x$cor[sel], x$n[sel],
-                       sm = x$sm,
-                       studlab = x$studlab[sel],
-                       level = x$level, level.comb = x$level.comb,
-                       hakn = x$hakn,
-                       method.tau = x$method.tau,
-                       tau.preset = tau.preset, TE.tau = x$TE.tau)
     ##
     if (inc)
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],

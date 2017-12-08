@@ -505,10 +505,10 @@ metaprop <- function(event, n, studlab,
   ##
   m$n.e <- NULL
   m$n.c <- NULL
-  m$label.e <- NULL
-  m$label.c <- NULL
-  m$label.left <- NULL
-  m$label.right <- NULL
+  m$label.e <- ""
+  m$label.c <- ""
+  m$label.left <- ""
+  m$label.right <- ""
   ##
   res <- c(res, m)
   res$null.effect <- null.effect

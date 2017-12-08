@@ -358,8 +358,11 @@ summary.meta <- function(object,
     class(res) <- c(class(res), "trimfill")
   }
   ##
-  if (inherits(object, "metabind"))
+  if (inherits(object, "metabind")) {
+    res$null.effect <- object$null.effect    
+    ##
     class(res) <- c(class(res), "metabind")
+  }
   ##
   res$complab <- object$complab
   res$outclab <- object$outclab
