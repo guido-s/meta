@@ -291,6 +291,10 @@ forest.meta <- function(x,
     chknumeric(irscale, single = TRUE)
   else
     irscale <- 1
+  if (!backtransf & irscale != 1) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
+  }
   chknumeric(ref)
   ##
   layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))

@@ -22,7 +22,7 @@ asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
     if (warn)
       warning("Too small value for ",
               if (length(x) > 1) "at least one ",
-              if (value == "mean") "transformed proportion using Freeman-Tukey double arcsine transformation.\n  Proportion set to 0.",
+              if (value == "mean") "transformed proportion using Freeman-Tukey double arcsine transformation.\n  Rate set to 0.",
               if (value == "lower") "lower confidence limit using Freeman-Tukey double arcsine transformation.\n  Lower confidence limit set to 0.",
               if (value == "upper") "upper confidence limit using Freeman-Tukey double arcsine transformation.\n  Upper confidence limit set to 0.",
               sep = "")
@@ -40,6 +40,9 @@ asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
   ##
   res[sel] <- (1 / time[sel] - 8 * x[sel]^2 + 16 * time[sel] * x[sel]^4) /
     (16 * x[sel]^2 * time[sel])
+  ##
+  res[res < 0] <- 0
+  
   
   res
 }

@@ -120,7 +120,7 @@ print.summary.meta <- function(x,
   k <- x$k
   sm <- x$sm
   ##
-  bip <- inherits(x, c("metabin", "metainc", "metaprop"))
+  bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
   null.given <- (inherits(x, c("metacor", "metagen", "metamean",
                                "metaprop", "metarate")) |
                  is.prop(sm) | is.rate(sm) | is.cor(sm) | is.mean(sm))
@@ -395,12 +395,10 @@ print.summary.meta <- function(x,
     dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p-value"))
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
-    catmeth(method = x$method,
+    catmeth(class = class(x),
+            method = x$method,
             sm = sm,
             k.all = k.all,
-            metaprop = inherits(x, "metaprop"),
-            metabin = inherits(x, "metabin"),
-            metainc = inherits(x, "metainc"),
             sparse = ifelse(bip, x$sparse, FALSE),
             incr = if (bip) x$incr else FALSE,
             allincr = ifelse(bip, x$allincr, FALSE),
@@ -408,7 +406,6 @@ print.summary.meta <- function(x,
             allstudies = x$allstudies,
             doublezeros = x$doublezeros,
             method.ci = x$method.ci,
-            metacont = inherits(x, "metacont"),
             pooledvar = x$pooledvar,
             method.smd = x$method.smd,
             sd.glass = x$sd.glass,
@@ -749,17 +746,14 @@ print.summary.meta <- function(x,
     ##
     ## Print information on summary method:
     ##
-    catmeth(method = x$method,
+    catmeth(class = class(x),
+            method = x$method,
             method.tau = if (comb.random) x$method.tau else "",
             sm = sm,
             k.all = k.all,
             hakn = !is.null(x$hakn) && (x$hakn & comb.random),
             tau.common = by & x$tau.common,
             tau.preset = x$tau.preset,
-            trimfill = inherits(x, "trimfill"),
-            metaprop = inherits(x, "metaprop"),
-            metabin = inherits(x, "metabin"),
-            metainc = inherits(x, "metainc"),
             sparse = ifelse(bip, x$sparse, FALSE),
             incr = if (bip) x$incr else FALSE,
             allincr = ifelse(bip, x$allincr, FALSE),
@@ -768,7 +762,6 @@ print.summary.meta <- function(x,
             doublezeros = x$doublezeros,
             MH.exact = ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
             method.ci = x$method.ci,
-            metacont = inherits(x, "metacont"),
             pooledvar = x$pooledvar,
             method.smd = x$method.smd,
             sd.glass = x$sd.glass,

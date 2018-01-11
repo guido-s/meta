@@ -8,7 +8,20 @@
   * metacor(), metamean(), metaprop(), and metarate():
     - use as input to metabind() possible
 
+ ** User-visible changes **
+
+  * print.summary.meta():
+    - print information on Generalized Linear Mixed Model (GLMM) for
+      metarate() objects
+    - print information on increments added to calculate confidence
+      intervals for individual studies (for metarate() with GLMM)
+
  ** Internal changes **
+
+  * asin2ir():
+    - back-transformation could result in (very small) negative zero
+      values due to imprecisions (-1e-19); these values are set to
+      zero now
 
   * subgroup():
     - code for metamean() added

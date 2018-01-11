@@ -674,7 +674,6 @@ update.meta <- function(object,
                   sm = ifelse(method == "GLMM", "IRLN", sm),
                   incr = incr,
                   allincr = allincr, addincr = addincr,
-                  method.ci = ifelse(is.null(method.ci), "CP", method.ci),
                   ##
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,

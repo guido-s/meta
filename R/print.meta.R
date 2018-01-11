@@ -381,13 +381,12 @@ print.meta <- function(x,
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
       ## Print information on summary method:
-      catmeth(method = x$method,
+      catmeth(class = class(x),
+              method = x$method,
               method.tau = if (is.random) x$method.tau else "",
               sm = sm,
               k.all = k.all,
               hakn = is.random & x$hakn,
-              metaprop = inherits(x, "metaprop"),
-              trimfill = inherits(x, "trimfill"),
               tau.preset = x$tau.preset,
               method.smd = x$method.smd,
               sd.glass = x$sd.glass,

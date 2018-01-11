@@ -3,12 +3,9 @@ catmeth <- function(method,
                     sm = "",
                     k.all,
                     hakn = FALSE,
-                    metaprop = FALSE,
-                    trimfill = FALSE,
+                    class = "",
                     tau.common = FALSE,
                     tau.preset = NULL,
-                    metabin = FALSE,
-                    metainc = FALSE,
                     sparse = FALSE,
                     incr = NULL,
                     allincr = FALSE,
@@ -17,7 +14,6 @@ catmeth <- function(method,
                     doublezeros = FALSE,
                     MH.exact = FALSE,
                     method.ci = NULL,
-                    metacont = FALSE,
                     pooledvar = FALSE,
                     method.smd,
                     sd.glass,
@@ -32,6 +28,13 @@ catmeth <- function(method,
                     digits.tau2 = gs("digits.tau2"),
                     text.tau2 = gs("text.tau2")
                     ) {
+  
+  metabin  <- "metabin"  %in% class
+  metacont <- "metacont" %in% class
+  metainc  <- "metainc"  %in% class
+  metaprop <- "metaprop" %in% class
+  metarate <- "metarate" %in% class
+  trimfill <- "trimfill" %in% class
   
   if (is.null(allstudies)) allstudies <- FALSE
   if (is.null(doublezeros)) doublezeros <- FALSE
@@ -103,7 +106,7 @@ catmeth <- function(method,
     sm.details <- paste(sm.details, method.details, sep = "")
   }
   ##
-  if (metabin | metainc | metaprop) {
+  if (metabin | metainc | metaprop | metarate) {
     if (!(sm == "ASD" | method == "Peto")) {
       if (addincr) {
         if (all(incr == "TACC"))
@@ -280,6 +283,8 @@ catmeth <- function(method,
                   "\n- Generalised linear mixed model (conditional Poisson-Normal)")[i.model.glmm]
     else if (metaprop)
       method <- "\n- Random intercept logistic regression model"
+    else if (metarate)
+      method <- "\n- Random intercept Poisson regression model"
   }
   ##
   method <- paste(method, lab.method.details, sep = "")
