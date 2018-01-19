@@ -372,6 +372,8 @@ metarate <- function(event, time, studlab,
   ## (8) Do meta-analysis
   ##
   ##
+  k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
+  ##
   if (method == "GLMM") {
     glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
                                     method = "FE",
@@ -507,7 +509,8 @@ metarate <- function(event, time, studlab,
     res$df.Q <- glmm.random$QE.df
     res$Q.LRT <- glmm.random$QE.LRT
     ##
-    res$tau <- sqrt(glmm.random$tau2)
+    if (k > 1)
+      res$tau <- sqrt(glmm.random$tau2)
     ##
     res$H <- sqrt(glmm.random$H2)
     res$lower.H <- NA

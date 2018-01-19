@@ -345,7 +345,8 @@ metagen <- function(TE, seTE, studlab,
     }
     ##
     if (is.null(tau.preset)) {
-      tau2 <- hc$tau^2
+      if (k > 1)
+        tau2 <- hc$tau^2
       tau2.calc <- if (is.na(tau2)) 0 else tau2
       se.tau2 <- hc$se.tau2
     }
@@ -381,7 +382,9 @@ metagen <- function(TE, seTE, studlab,
         seTE.random <- seTE.fixed
         w.random <- w.fixed
         ##
-        tau2 <- tau2.calc <- 0
+        if (k > 1)
+          tau2 <- 0
+        tau2.calc <- 0
       }
       else {
         pm <- paulemandel(TE[!exclude], seTE[!exclude])

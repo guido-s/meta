@@ -438,7 +438,9 @@ metaprop <- function(event, n, studlab,
   ## (8) Do meta-analysis
   ##
   ##
-  if (is.glmm) {
+  k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
+  ##
+  if (is.glmm & k > 0) {
     glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
                                     method = "FE",
                                     test = ifelse(hakn, "t", "z"),
@@ -515,7 +517,7 @@ metaprop <- function(event, n, studlab,
   ##
   ## Add data
   ##
-  if (is.glmm) {
+  if (is.glmm & k > 0) {
     ##
     ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
                null.effect = transf.null.effect)
@@ -573,7 +575,8 @@ metaprop <- function(event, n, studlab,
     res$df.Q <- glmm.random$QE.df
     res$Q.LRT <- glmm.random$QE.LRT
     ##
-    res$tau <- sqrt(glmm.random$tau2)
+    if (k > 1)
+      res$tau <- sqrt(glmm.random$tau2)
     ##
     res$H <- sqrt(glmm.random$H2)
     res$lower.H <- NA

@@ -589,6 +589,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (8) Do meta-analysis
   ##
   ##
+  k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
+           !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
+  ##
   if (sum(!is.na(TE)) == 1 & k.all > 1 & method == "MH") {
     if (warn)
       warning("For a single study, inverse variance method used instead of Mantel-Haenszel method.")
@@ -819,7 +822,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$df.Q <- glmm.random$QE.df
     res$Q.LRT <- glmm.random$QE.LRT
     ##
-    res$tau <- sqrt(glmm.random$tau2)
+    if (k > 1)
+      res$tau <- sqrt(glmm.random$tau2)
     ##
     res$H <- sqrt(glmm.random$H2)
     res$lower.H <- NA

@@ -1,4 +1,11 @@
-*** meta, version 4.9-1, yyyy-mm-dd ***
+*** meta, version 4.9-1, 2018-mm-dd ***
+
+ ** Major changes **
+
+  * Subgroup results consider the exclusion of individual studies (bug fix)
+
+  * For generalized linear mixed models, between-study variance set to
+    NA if only a single study is considered in meta-analysis
 
  ** Bug fixes **
 
@@ -7,6 +14,9 @@
 
   * metacor(), metamean(), metaprop(), and metarate():
     - use as input to metabind() possible
+
+  * Internal function subgroup():
+    - consider argument 'exclude' in subgroup analyses
 
   * Internal function bylevs():
     - drop unused levels if subgroup variable is a factor variable
