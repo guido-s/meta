@@ -772,15 +772,22 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (method == "GLMM") {
     ##
-    glmm.random <- metafor::rma.glmm(ai = event.e[!exclude],
-                                     n1i = n.e[!exclude],
-                                     ci = event.c[!exclude],
-                                     n2i = n.c[!exclude],
-                                     method = method.tau,
-                                     test = ifelse(hakn, "t", "z"),
-                                     level = 100 * level.comb,
-                                     measure = "OR", model = model.glmm,
-                                     ...)
+    if (sum(!exclude) > 1)
+      glmm.random <- metafor::rma.glmm(ai = event.e[!exclude],
+                                       n1i = n.e[!exclude],
+                                       ci = event.c[!exclude],
+                                       n2i = n.c[!exclude],
+                                       method = method.tau,
+                                       test = ifelse(hakn, "t", "z"),
+                                       level = 100 * level.comb,
+                                       measure = "OR", model = model.glmm,
+                                       ...)
+    else {
+      ##
+      ## Fallback to fixed effect model due to small number of studies
+      ##
+      glmm.random <- glmm.fixed
+    }
     ##
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)

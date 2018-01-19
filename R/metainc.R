@@ -537,15 +537,22 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (method == "GLMM") {
     ##
-    glmm.random <- metafor::rma.glmm(x1i = event.e[!exclude],
-                                     t1i = time.e[!exclude],
-                                     x2i = event.c[!exclude],
-                                     t2i = time.c[!exclude],
-                                     method = method.tau,
-                                     test = ifelse(hakn, "t", "z"),
-                                     level = 100 * level.comb,
-                                     measure = "IRR", model = model.glmm,
-                                     ...)
+    if (sum(!exclude) > 1)
+      glmm.random <- metafor::rma.glmm(x1i = event.e[!exclude],
+                                       t1i = time.e[!exclude],
+                                       x2i = event.c[!exclude],
+                                       t2i = time.c[!exclude],
+                                       method = method.tau,
+                                       test = ifelse(hakn, "t", "z"),
+                                       level = 100 * level.comb,
+                                       measure = "IRR", model = model.glmm,
+                                       ...)
+    else {
+      ##
+      ## Fallback to fixed effect model due to small number of studies
+      ##
+      glmm.random <- glmm.fixed
+    }
     ##
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)

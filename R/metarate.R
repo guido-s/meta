@@ -464,12 +464,19 @@ metarate <- function(event, time, studlab,
     res$zval.fixed <- ci.f$z
     res$pval.fixed <- ci.f$p
     ##
-    glmm.random <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                                     method = method.tau,
-                                     test = ifelse(hakn, "t", "z"),
-                                     level = 100 * level.comb,
-                                     measure = "IRLN",
-                                     ...)
+    if (sum(!exclude) > 1)
+      glmm.random <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
+                                       method = method.tau,
+                                       test = ifelse(hakn, "t", "z"),
+                                       level = 100 * level.comb,
+                                       measure = "IRLN",
+                                       ...)
+    else {
+      ##
+      ## Fallback to fixed effect model due to small number of studies
+      ##
+      glmm.random <- glmm.fixed
+    }
     ##
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)

@@ -18,6 +18,16 @@
 
  ** Internal changes **
 
+  * metaprop():
+    - for random effects model, rma.glmm() from package metafor is
+      called internally with argument 'method = "FE"' if only a single
+      study is available
+
+  * metareg():
+    - for generalised linear mixed models, fallback to fixed effect
+      model if number of studies is too small for random effects
+      meta-regression
+
   * asin2ir():
     - back-transformation could result in (very small) negative zero
       values due to imprecisions (-1e-19); these values are set to

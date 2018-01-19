@@ -140,6 +140,8 @@ metareg <- function(x, formula,
   ..x <- x
   rm(x)
   ##
+  warn.FE <- "Fallback to fixed effect model (argument method.tau = \"FE\") due to small number of studies."
+  ##
   if (method != "GLMM")
     res <- metafor::rma.uni(yi = TE[!exclude],
                             sei = seTE[!exclude],
@@ -147,37 +149,88 @@ metareg <- function(x, formula,
                             mods = formula, method = method.tau,
                             test = test, level = 100 * level.comb,
                             ...)
-  else
-    if (metabin)
-      res <- metafor::rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                               ci = event.c[!exclude], n2i = n.c[!exclude],
-                               data = dataset,
-                               mods = formula, method = method.tau,
-                               test = test, level = 100 * level.comb,
-                               measure = "OR", model = model.glmm,
-                               ...)
-    else if (metainc)
-      res <- metafor::rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                               x2i = event.c[!exclude], t2i = time.c[!exclude],
-                               data = dataset,
-                               mods = formula, method = method.tau,
-                               test = test, level = 100 * level.comb,
-                               measure = "IRR", model = model.glmm,
-                               ...)
-    else if (metaprop)
-      res <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
-                               data = dataset,
-                               mods = formula, method = method.tau,
-                               test = test, level = 100 * level.comb,
-                               measure = "PLO",
-                               ...)
-    else if (metarate)
-      res <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                               data = dataset,
-                               mods = formula, method = method.tau,
-                               test = test, level = 100 * level.comb,
-                               measure = "IRLN",
-                               ...)
+  else {
+    if (metabin) {
+      if (sum(!exclude) > (1 + intercept))
+        res <- metafor::rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                                 ci = event.c[!exclude], n2i = n.c[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = method.tau,
+                                 test = test, level = 100 * level.comb,
+                                 measure = "OR", model = model.glmm,
+                                 ...)
+      else {
+        if (method.tau != "FE")
+          warning(warn.FE)
+        res <- metafor::rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                                 ci = event.c[!exclude], n2i = n.c[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = "FE",
+                                 test = test, level = 100 * level.comb,
+                                 measure = "OR", model = model.glmm,
+                                 ...)
+      }
+    }
+    else if (metainc) {
+      if (sum(!exclude) > (1 + intercept))
+        res <- metafor::rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                                 x2i = event.c[!exclude], t2i = time.c[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = method.tau,
+                                 test = test, level = 100 * level.comb,
+                                 measure = "IRR", model = model.glmm,
+                                 ...)
+      else {
+        if (method.tau != "FE")
+          warning(warn.FE)
+        res <- metafor::rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                                 x2i = event.c[!exclude], t2i = time.c[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = "FE",
+                                 test = test, level = 100 * level.comb,
+                                 measure = "IRR", model = model.glmm,
+                                 ...)
+      }
+    }
+    else if (metaprop) {
+      if (sum(!exclude) > (1 + intercept))
+        res <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = method.tau,
+                                 test = test, level = 100 * level.comb,
+                                 measure = "PLO",
+                                 ...)
+      else {
+        if (method.tau != "FE")
+          warning(warn.FE)
+        res <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = "FE",
+                                 test = test, level = 100 * level.comb,
+                                 measure = "PLO",
+                                 ...)
+      }
+    }
+    else if (metarate) {
+      if (sum(!exclude) > (1 + intercept))
+        res <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = method.tau,
+                                 test = test, level = 100 * level.comb,
+                                 measure = "IRLN",
+                                 ...)
+      else {
+        if (method.tau != "FE")
+          warning(warn.FE)
+        res <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
+                                 data = dataset,
+                                 mods = formula, method = "FE",
+                                 test = test, level = 100 * level.comb,
+                                 measure = "IRLN",
+                                 ...)
+      }
+    }
+  }
   
   
   res$.meta <- list(x = ..x,
