@@ -229,9 +229,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     if (prop) {
       mod <- as.call(~ byvar.glmm - 1)
       ##
-      glmm.fixed <- metafor::rma.glmm(xi = x$event, #[!x$exclude],
-                                      ni = x$n, #[!x$exclude],
-                                      mods = mod, #[!x$exclude],
+      glmm.fixed <- metafor::rma.glmm(xi = x$event,
+                                      ni = x$n,
+                                      mods = mod,
                                       method = "FE",
                                       test = ifelse(x$hakn, "t", "z"),
                                       level = 100 * x$level.comb,
@@ -239,9 +239,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                                       intercept = FALSE,
                                       ...)
       ##
-      glmm.random <- metafor::rma.glmm(xi = x$event, #[!x$exclude],
-                                       ni = x$n, #[!x$exclude],
-                                       mods = mod, #[!x$exclude],
+      glmm.random <- metafor::rma.glmm(xi = x$event,
+                                       ni = x$n,
+                                       mods = mod,
                                        method = x$method.tau,
                                        test = ifelse(x$hakn, "t", "z"),
                                        level = 100 * x$level.comb,

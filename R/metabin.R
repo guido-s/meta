@@ -808,6 +808,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
     res$upper.predict <- ci.p$cr.ub
+    if (is.null(res$lower.predict))
+      res$lower.predict <- NA
+    if (is.null(res$upper.predict))
+      res$upper.predict <- NA
     ##
     res$model.glmm <- model.glmm
     ##

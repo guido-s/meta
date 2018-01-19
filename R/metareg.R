@@ -151,7 +151,7 @@ metareg <- function(x, formula,
                             ...)
   else {
     if (metabin) {
-      if (sum(!exclude) > (1 + intercept))
+      if (sum(!exclude) > 2)
         res <- metafor::rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
                                  ci = event.c[!exclude], n2i = n.c[!exclude],
                                  data = dataset,
@@ -172,7 +172,7 @@ metareg <- function(x, formula,
       }
     }
     else if (metainc) {
-      if (sum(!exclude) > (1 + intercept))
+      if (sum(!exclude) > 2)
         res <- metafor::rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
                                  x2i = event.c[!exclude], t2i = time.c[!exclude],
                                  data = dataset,
@@ -193,7 +193,7 @@ metareg <- function(x, formula,
       }
     }
     else if (metaprop) {
-      if (sum(!exclude) > (1 + intercept))
+      if (sum(!exclude) > 2)
         res <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
                                  data = dataset,
                                  mods = formula, method = method.tau,
@@ -212,7 +212,7 @@ metareg <- function(x, formula,
       }
     }
     else if (metarate) {
-      if (sum(!exclude) > (1 + intercept))
+      if (sum(!exclude) > 2)
         res <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
                                  data = dataset,
                                  mods = formula, method = method.tau,

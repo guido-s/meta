@@ -8,6 +8,9 @@
   * metacor(), metamean(), metaprop(), and metarate():
     - use as input to metabind() possible
 
+  * Internal function bylevs():
+    - drop unused levels if subgroup variable is a factor variable
+
  ** User-visible changes **
 
   * print.summary.meta():
