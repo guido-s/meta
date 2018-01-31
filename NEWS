@@ -29,6 +29,11 @@
     - print information on increments added to calculate confidence
       intervals for individual studies (for metarate() with GLMM)
 
+  * funnel.meta():
+    - new arguments 'null.triangle', 'lty.null', 'lwd.null',
+      'col.null', and 'lty.null.triangle' to add null effect and
+      corresponding confidence intervals to the funnel plot
+
  ** Internal changes **
 
   * metaprop():

@@ -54,6 +54,9 @@ radial(x, ...)
        ref=ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
        level=x$level,
        studlab=FALSE, cex.studlab=0.8, pos.studlab = 2,
+       null.triangle = FALSE,
+       lty.null = 1, lwd.null = lwd, col.null = "black",
+       lty.null.triangle = 5,
        backtransf=x$backtransf, ...)
 
 \method{radial}{default}(x, y, xlim=NULL, ylim=NULL,
@@ -93,8 +96,8 @@ radial(x, ...)
   \item{col}{A vector with colour of plotting symbols.}
   \item{bg}{A vector with background colour of plotting symbols (only
     used if \code{pch} in \code{21:25}).}
-  \item{col.fixed}{Color of line representign fixed effect estimate.}
-  \item{col.random}{Color of line representign random effects estimate.}
+  \item{col.fixed}{Color of line representing fixed effect estimate.}
+  \item{col.random}{Color of line representing random effects estimate.}
   \item{lwd}{The line width for confidence intervals (if \code{level} is
     not \code{NULL}).}
   \item{lwd.fixed}{The line width for fixed effect estimate (if
@@ -126,6 +129,15 @@ radial(x, ...)
     \code{\link{text}}.}
   \item{pos.studlab}{Position of study labels, see argument \code{pos}
     in \code{\link{text}}.}
+  \item{null.triangle}{A logical indicating whether null effect should be
+    printed.}
+  \item{lty.null}{Line type (null effect).}
+  \item{lwd.null}{The line width for the null effet and corresponding
+    confidence intervals (if \code{null.triangle} is not
+    \code{NULL}).}
+  \item{col.null}{Color of line representing null effect.}
+  \item{lty.null.triangle}{Line type (confidence intervals for null
+    effect).}
   \item{backtransf}{A logical indicating whether results for relative
     summary measures (argument \code{sm} equal to \code{"OR"},
     \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back

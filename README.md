@@ -35,8 +35,8 @@ install.packages("meta")
 
 ### Current beta / GitHub release:
 ```r
-install.packages("devtools")
-devtools::install_github("guido-s/meta")
+install.packages("ghit")
+ghit::install_github("guido-s/meta")
 ```
 
 
