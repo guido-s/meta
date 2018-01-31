@@ -20,11 +20,11 @@ funnel.meta <- function(x,
                         level = x$level,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                         ##
-                        null.triangle = FALSE,
-                        lty.null = 1,
-                        lwd.null = lwd,
-                        col.null = "black",
-                        lty.null.triangle = 5,
+                        ref.triangle = FALSE,
+                        lty.ref = 1,
+                        lwd.ref = lwd,
+                        col.ref = "black",
+                        lty.ref.triangle = 5,
                         ##
                         backtransf = x$backtransf,
                         ...) {
@@ -69,10 +69,10 @@ funnel.meta <- function(x,
     chklevel(level)
   chknumeric(cex.studlab)
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
-  chklogical(null.triangle)
-  chknumeric(lty.null)
-  chknumeric(lwd.null)
-  chknumeric(lty.null.triangle)
+  chklogical(ref.triangle)
+  chknumeric(lty.ref)
+  chknumeric(lwd.ref)
+  chknumeric(lty.ref.triangle)
   chklogical(backtransf)
   
   
@@ -136,15 +136,15 @@ funnel.meta <- function(x,
     seTE.seq <- seq(seTE.min, seTE.max, length.out = 500)
     ##
     ciTE <- ci(TE.fixed, seTE.seq, level)
-    ciTE.null <- ci(0, seTE.seq, level)
+    ciTE.ref <- ci(0, seTE.seq, level)
     ##
-    if (comb.fixed | !null.triangle)
+    if (comb.fixed | !ref.triangle)
       TE.xlim <- c(min(c(TE, ciTE$lower), na.rm = TRUE) / 1.025,
                    1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
     ##
-    if (null.triangle)
-      TE.xlim <- c(min(c(TE, ciTE.null$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE.null$upper), na.rm = TRUE))
+    if (ref.triangle)
+      TE.xlim <- c(min(c(TE, ciTE.ref$lower), na.rm = TRUE) / 1.025,
+                   1.025 * max(c(TE, ciTE.ref$upper), na.rm = TRUE))
   }
   ##
   if (backtransf & is.relative.effect(sm)) {
@@ -155,8 +155,8 @@ funnel.meta <- function(x,
       ciTE$lower <- exp(ciTE$lower)
       ciTE$upper <- exp(ciTE$upper)
       ##
-      ciTE.null$lower <- exp(ciTE.null$lower)
-      ciTE.null$upper <- exp(ciTE.null$upper)
+      ciTE.ref$lower <- exp(ciTE.ref$lower)
+      ciTE.ref$upper <- exp(ciTE.ref$upper)
       ##
       TE.xlim <- exp(TE.xlim)
     }
@@ -348,13 +348,13 @@ funnel.meta <- function(x,
   if (comb.random)
     lines(c(TE.random, TE.random), range(ylim), lty = lty.random, lwd = lwd.random, col = col.random)
   ##
-  if (null.triangle)
-    lines(c(0, 0), range(ylim), lty = lty.null, lwd = lwd.null, col = col.null)
+  if (ref.triangle)
+    lines(c(ref, ref), range(ylim), lty = lty.ref, lwd = lwd.ref, col = col.ref)
   ##
   ## Add approximate confidence intervals
   ##
   if (!is.null(level)) {
-    if (comb.fixed | !null.triangle) {
+    if (comb.fixed | !ref.triangle) {
       tlow <- ciTE$lower
       tupp <- ciTE$upper
       ##
@@ -378,27 +378,27 @@ funnel.meta <- function(x,
       }
     }
     ##
-    if (null.triangle) {
-      tlow <- ciTE.null$lower
-      tupp <- ciTE.null$upper
+    if (ref.triangle) {
+      tlow <- ciTE.ref$lower
+      tupp <- ciTE.ref$upper
       ##
       if (yaxis == "se") {
-        points(tlow, seTE.seq, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
-        points(tupp, seTE.seq, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
+        points(tlow, seTE.seq, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
+        points(tupp, seTE.seq, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
       }
       else if (yaxis == "invvar") {
-        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
-        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
+        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
+        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
       }
       else if (yaxis == "invse") {
-        points(tlow, 1 / seTE.seq, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
-        points(tupp, 1 / seTE.seq, type = "l", lty = lty.null.triangle,
-               lwd = lwd.null, col = col.null)
+        points(tlow, 1 / seTE.seq, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
+        points(tupp, 1 / seTE.seq, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
       }
     }
   }
