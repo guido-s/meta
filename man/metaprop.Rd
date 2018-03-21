@@ -447,7 +447,7 @@ metaprop(event, n, studlab,
 #
 # Apply various meta-analysis methods to estimate proportions
 #
-m1 <- metaprop(4:1, c(10, 20, 30, 40))
+m1 <- metaprop(4:1, 10 * 1:4)
 m2 <- update(m1, sm="PAS")
 m3 <- update(m1, sm="PRAW")
 m4 <- update(m1, sm="PLN")

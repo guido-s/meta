@@ -21,15 +21,27 @@ xlab <- function(sm, backtransf,
     res <- "Correlation"
   ##
   else if (sm == "RD")
-    res <- "Risk Difference"
+    if (pscale == 1)
+      res <- "Risk Difference"
+    else
+      res <- paste("Risk Difference\n(events per ",
+                   format(pscale, scientific = FALSE, big.mark = big.mark),
+                   " obs.)",
+                   sep = "")
   ##
   else if (sm == "ASD")
     res <- paste("Arcus Sinus", newline,
                  "Difference", sep = "")
   ##
   else if (sm == "IRD")
-    res <- paste("Incidence Rate", newline,
-                 "Difference", sep = "")
+    if (irscale == 1)
+      res <- paste("Incidence Rate", newline,
+                   "Difference", sep = "")
+    else
+      res <- paste("Incidence Rate Diff.\n(events per ",
+                   format(irscale, scientific = FALSE, big.mark = big.mark),
+                   newline,
+                   irunit, sep = "")
   ##
   else if (sm == "IR")
     res <- "Incidence Rate"

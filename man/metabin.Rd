@@ -36,7 +36,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         tau.common=gs("tau.common"),
         prediction=gs("prediction"), level.predict=gs("level.predict"),
         method.bias=ifelse(sm=="OR", "score", gs("method.bias")),
-        backtransf=gs("backtransf"),
+        backtransf=gs("backtransf"), pscale = 1,
         title=gs("title"), complab=gs("complab"), outclab="",
         label.e=gs("label.e"), label.c=gs("label.c"),
         label.left=gs("label.left"), label.right=gs("label.right"),
@@ -125,6 +125,8 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     back transformed in printouts and plots. If TRUE (default),
     results will be presented as odds ratios and risk ratios;
     otherwise log odds ratios and log risk ratios will be shown.}
+  \item{pscale}{A numeric defining a scaling factor for printing of
+    risk differences.}
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

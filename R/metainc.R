@@ -29,6 +29,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     n.e = NULL, n.c = NULL,
                     ##
                     backtransf = gs("backtransf"),
+                    irscale = 1, irunit = "person-years",
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     label.e = gs("label.e"), label.c = gs("label.c"),
@@ -50,6 +51,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   chknull(sm)
+  sm <- setchar(sm, c("IRR", "IRD"))
+  ##
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)
@@ -67,13 +70,20 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  ##
+  chknumeric(irscale, single = TRUE)
+  chkchar(irunit)
+  ##
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metainc objects
   ##
   fun <- "metainc"
   ##
-  sm <- setchar(sm, c("IRR", "IRD"))
+  if (sm != "IRD" & irscale != 1) {
+    warning("Argument 'irscale' only considered for incidence rate differences.")
+    irscale <- 1
+  }
   ##
   method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
   if (method == "GLMM") {
@@ -523,6 +533,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res$n.e <- n.e
   res$n.c <- n.c
   res$TE.tau <- TE.tau
+  ##
+  res$irscale <- irscale
+  res$irunit  <- irunit
+  ##
   res$call <- match.call()
   ##
   if (method %in% c("MH", "Cochran", "GLMM")) {

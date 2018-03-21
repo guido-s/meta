@@ -135,11 +135,11 @@ update.meta <- function(object,
   ##
   warn <- replacemiss(warn)
   ##
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -399,7 +399,7 @@ update.meta <- function(object,
                  ##
                  method.bias = method.bias,
                  ##
-                 backtransf = backtransf,
+                 backtransf = backtransf, pscale = pscale,
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
@@ -575,7 +575,7 @@ update.meta <- function(object,
                  ##
                  n.e = n.e, n.c = n.c,
                  ##
-                 backtransf = backtransf,
+                 backtransf = backtransf, irscale = irscale, irunit = irunit,
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,

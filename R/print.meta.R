@@ -7,6 +7,7 @@ print.meta <- function(x,
                        backtransf = x$backtransf,
                        pscale = x$pscale,
                        irscale = x$irscale,
+                       irunit = x$irunit,
                        digits = gs("digits"),
                        digits.se = gs("digits.se"),
                        digits.tau2 = gs("digits.tau2"),
@@ -58,29 +59,35 @@ print.meta <- function(x,
   chklogical(prediction)
   chklogical(details)
   chklogical(ma)
+  ##
+  if (is.untransformed(x$sm))
+    backtransf <- TRUE
   chklogical(backtransf)
+  ##
   chklogical(warn.backtransf)
   ##
-  if (!is.prop(x$sm))
+  if (!is.prop(x$sm) & x$sm != "RD")
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
   else
     pscale <- 1
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & pscale != 1 & !is.untransformed(x$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is.rate(x$sm))
+  if (!is.rate(x$sm) & x$sm != "IRD")
     irscale <- 1
   if (!is.null(irscale))
     chknumeric(irscale, single = TRUE)
   else
     irscale <- 1
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & irscale != 1 & !is.untransformed(x$sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  if (!is.null(irunit) && !is.na(irunit))
+    chkchar(irunit)
   ##
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
@@ -154,7 +161,7 @@ print.meta <- function(x,
   crtitle(x)
   ##  
   if (details) {
-    if (inherits(x, "metabin")) {
+    if (inherits(x, "metabin")) {      
       res <- data.frame(event.e = formatN(x$event.e, digits = 0,
                                           "NA", big.mark = big.mark),
                         n.e = formatN(x$n.e, digits = 0,
@@ -162,11 +169,22 @@ print.meta <- function(x,
                         event.c = formatN(x$event.c, digits = 0,
                                           "NA", big.mark = big.mark),
                         n.c = formatN(x$n.c, digits = 0,
-                                      "NA", big.mark = big.mark),
-                        p.e = formatN(round(x$event.e / x$n.e, digits.prop),
-                                      big.mark = big.mark),
-                        p.c = formatN(round(x$event.c / x$n.c, digits.prop),
-                                      big.mark = big.mark))
+                                      "NA", big.mark = big.mark))
+      ##
+      if (pscale == 1) {
+        res$p.e <- formatN(round(x$event.e / x$n.e, digits.prop),
+                           big.mark = big.mark)
+        res$p.c <- formatN(round(x$event.c / x$n.c, digits.prop),
+                           big.mark = big.mark)
+      }
+      else {
+        res$events.e <- formatN(round(pscale * x$event.e / x$n.e, digits),
+                                digits,
+                                "NA", big.mark = big.mark)
+        res$events.c <- formatN(round(pscale * x$event.c / x$n.c, digits),
+                                digits,
+                                "NA", big.mark = big.mark)
+      }
     }
     else if (inherits(x, "metacont")) {
       res <- data.frame(n.e = formatN(x$n.e, digits = 0,
@@ -202,6 +220,21 @@ print.meta <- function(x,
                                           "NA", big.mark = big.mark),
                         time.c = formatN(round(x$time.c, digits), digits,
                                          "NA", big.mark = big.mark))
+      ##
+      if (irscale == 1) {
+        res$rate.e <- formatN(round(x$event.e / x$time.e, digits.prop),
+                              big.mark = big.mark)
+        res$rate.c <- formatN(round(x$event.c / x$time.c, digits.prop),
+                              big.mark = big.mark)
+      }
+      else {
+        res$events.e <- formatN(round(irscale * x$event.e / x$n.e, digits),
+                                digits,
+                                "NA", big.mark = big.mark)
+        res$events.c <- formatN(round(irscale * x$event.c / x$n.c, digits),
+                                digits,
+                                "NA", big.mark = big.mark)
+      }
     }
     else if (inherits(x, "metaprop")) {
       res <- data.frame(event = formatN(x$event, digits = 0,
@@ -212,7 +245,7 @@ print.meta <- function(x,
         res$p <- formatN(round(x$event / x$n, digits.prop), digits.prop,
                          "NA", big.mark = big.mark)
       else
-        res$events <- formatN(round(pscale * x$event / x$n, digits.prop), digits.prop,
+        res$events <- formatN(round(pscale * x$event / x$n, digits), digits,
                               "NA", big.mark = big.mark)
     }
     else if (inherits(x, "metarate")) {
@@ -224,8 +257,8 @@ print.meta <- function(x,
         res$rate <- formatN(round(x$event / x$time, digits.prop), digits.prop,
                             "NA", big.mark = big.mark)
       else
-        res$events <- formatN(round(irscale * x$event / x$time, digits.prop),
-                              digits.prop, "NA", big.mark = big.mark)
+        res$events <- formatN(round(irscale * x$event / x$time, digits),
+                              digits, "NA", big.mark = big.mark)
     }
     else {
       res <- data.frame(TE = formatN(round(x$TE, digits), digits,
@@ -259,7 +292,7 @@ print.meta <- function(x,
             header = FALSE,
             digits = digits,
             backtransf = backtransf, pscale = pscale,
-            irscale = irscale, big.mark = big.mark,
+            irscale = irscale, irunit = irunit, big.mark = big.mark,
             warn.backtransf = warn.backtransf,
             ...)
     else
@@ -267,7 +300,7 @@ print.meta <- function(x,
             header = FALSE,
             digits = digits,
             backtransf = backtransf, pscale = pscale,
-            irscale = irscale, big.mark = big.mark,
+            irscale = irscale, irunit = irunit, big.mark = big.mark,
             warn.backtransf = warn.backtransf,
             ...)
   }
@@ -308,13 +341,13 @@ print.meta <- function(x,
         uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, warn.backtransf)
       }
       ##
-      if (is.prop(sm)) {
+      if (is.prop(sm) | sm == "RD") {
         TE <- pscale * TE
         lowTE <- pscale * lowTE
         uppTE <- pscale * uppTE
       }
       ##
-      if (is.rate(sm)) {
+      if (is.rate(sm) | sm == "IRD") {
         TE <- irscale * TE
         lowTE <- irscale * lowTE
         uppTE <- irscale * uppTE
@@ -467,7 +500,8 @@ print.meta <- function(x,
             digits = digits,
             comb.fixed = comb.fixed, comb.random = comb.random,
             prediction = prediction,
-            backtransf = backtransf, pscale = pscale, irscale = irscale,
+            backtransf = backtransf, pscale = pscale,
+            irscale = irscale, irunit = irunit,
             digits.tau2 = digits.tau2, digits.I2 = digits.I2,
             big.mark = big.mark,
             warn.backtransf = warn.backtransf,

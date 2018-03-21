@@ -223,6 +223,8 @@ forest.meta <- function(x,
   x <- updateversion(x)
   ##
   K.all <- length(x$TE)
+  ##
+  sm <- x$sm
   
   
   ##
@@ -283,6 +285,9 @@ forest.meta <- function(x,
   ## chknumeric(xlab.pos) ??
   ## chknumeric(smlab.pos) ??
   chklogical(allstudies)
+  ##
+  chklogical(backtransf)
+  ##
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
   else
@@ -291,10 +296,9 @@ forest.meta <- function(x,
     chknumeric(irscale, single = TRUE)
   else
     irscale <- 1
-  if (!backtransf & irscale != 1) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
-    irscale <- 1
-  }
+  if (!is.null(irunit) && !is.na(irunit))
+    chkchar(irunit)
+  ##
   chknumeric(ref)
   ##
   layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
@@ -822,8 +826,6 @@ forest.meta <- function(x,
   else if (just.cols == "right")
     xpos.c <- 1
   ##
-  sm <- x$sm
-  ##
   log.xaxis <- FALSE
   ##
   if (missing(ref) && (is.prop(sm) | is.rate(sm)))
@@ -834,12 +836,12 @@ forest.meta <- function(x,
     log.xaxis <- TRUE
   }
   ##
-  if (!backtransf & !missing(pscale) & pscale != 1) {
+  if (!backtransf & !missing(pscale) & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   ##
-  if (!backtransf & !missing(irscale) & irscale != 1) {
+  if (!backtransf & !missing(irscale) & irscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -3063,9 +3065,9 @@ forest.meta <- function(x,
       }
     }
     ##
-    ## Apply argument 'pscale' to proportions
+    ## Apply argument 'pscale' to proportions / risk differences
     ##
-    if (is.prop(sm)) {
+    if (is.prop(sm) | sm == "RD") {
       TE <- pscale * TE
       lowTE <- pscale * lowTE
       uppTE <- pscale * uppTE
@@ -3089,9 +3091,9 @@ forest.meta <- function(x,
     }
   }
   ##
-  ## Apply argument 'irscale' to rates
+  ## Apply argument 'irscale' to rates / incidence rate differences
   ##
-  if (is.rate(sm)) {
+  if (is.rate(sm) | sm == "IRD") {
     TE <- irscale * TE
     lowTE <- irscale * lowTE
     uppTE <- irscale * uppTE

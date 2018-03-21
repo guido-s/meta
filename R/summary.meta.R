@@ -48,16 +48,18 @@ summary.meta <- function(object,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
+  ##
   chklogical(backtransf)
+  ##
   chknumeric(pscale, single = TRUE)
   chknumeric(irscale, single = TRUE)
   ##
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & pscale != 1 & !is.untransformed(object$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   ##
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & irscale != 1 & !is.untransformed(object$sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -231,7 +233,7 @@ summary.meta <- function(object,
     res$tau.common    <- object$tau.common
     res$bylevs        <- object$bylevs
   }
-  ##  
+  ##
   class(res) <- "summary.meta"
   ##
   if (inherits(object, "metabin")) {

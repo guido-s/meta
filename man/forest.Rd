@@ -251,12 +251,13 @@ forest(x, ...)
     symbols have the same size for all subgroup results or represent
     subgroup weights from fixed effect or random effects model.}
   \item{pscale}{A numeric giving scaling factor for printing of single
-    event probabilities, i.e. if argument \code{sm} is equal to
-    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
-    \code{"PFT"}.}
+    event probabilities or risk differences, i.e. if argument
+    \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+    \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
   \item{irscale}{A numeric defining a scaling factor for printing of
-    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
-    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+    single incidence rates or incidence rate differences, i.e. if
+    argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+    \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
   \item{irunit}{A character specifying the time unit used to calculate
     rates, e.g. person-years.}
   \item{ref}{A numerical giving the reference value to be plotted as a
@@ -744,10 +745,18 @@ forest(x, ...)
   "Experimental" and "Control" are used as labels for experimental and
   control group, respectively.
   
-  Argument \code{pscale} can be used to rescale proportions,
-  e.g. \code{pscale=1000} means that proportions are expressed as
-  events per 1000 observations. This is useful in situations with
-  (very) low event probabilities.
+  Argument \code{pscale} can be used to rescale single proportions or
+  risk differences, e.g. \code{pscale=1000} means that proportions are
+  expressed as events per 1000 observations. This is useful in
+  situations with (very) low event probabilities.
+  
+  Argument \code{irscale} can be used to rescale single rates or rate
+  differences, e.g. \code{irscale=1000} means that rates are expressed
+  as events per 1000 time units, e.g. person-years. This is useful in
+  situations with (very) low rates. Argument \code{irunit} can be used
+  to specify the time unit used in individual studies (default:
+  "person-years"). This information is printed in summaries and forest
+  plots if argument \code{irscale} is not equal to 1.
       
   A prediction interval for treatment effect of a new study (Higgins
   et al., 2009) is given in the forest plot if arguments

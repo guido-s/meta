@@ -58,7 +58,11 @@ print.summary.meta <- function(x,
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chklogical(scientific.pval)
+  ##
+  if (is.untransformed(x$sm))
+    backtransf <- TRUE
   chklogical(backtransf)
+  ##
   chklogical(print.I2)
   chklogical(print.H)
   chklogical(print.Rb)
@@ -69,26 +73,29 @@ print.summary.meta <- function(x,
   is.prop <- is.prop(x$sm)
   is.rate <- is.rate(x$sm)
   ##
-  if (!is.prop)
+  if (!is.prop & x$sm != "RD")
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
   else
     pscale <- 1
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & pscale != 1 & !is.untransformed(x$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is.rate)
+  if (!is.rate & x$sm != "IRD")
     irscale <- 1
   if (!is.null(irscale))
     chknumeric(irscale, single = TRUE)
   else
     irscale <- 1
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & irscale != 1 & !is.untransformed(x$sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  if (!is.null(irunit) && !is.na(irunit))
+    chkchar(irunit)
+  ##
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
@@ -280,12 +287,13 @@ print.summary.meta <- function(x,
     }
   }
   ##
-  ## Apply argument 'pscale' to proportions and 'irscale' to rates
+  ## Apply argument 'pscale' to proportions / risk differences and
+  ## 'irscale' to rates / incidence rate differences
   ##
-  if (is.prop | is.rate) {
-    if (is.prop)
+  if (is.prop | sm == "RD" | is.rate | sm == "IRD") {
+    if (is.prop | sm == "RD")
       scale <- pscale
-    else if (is.rate)
+    else if (is.rate | sm == "IRD")
       scale <- irscale
     ##
     TE.fixed    <- scale * TE.fixed

@@ -47,6 +47,8 @@ metarate <- function(event, time, studlab,
   ##
   ##
   chknull(sm)
+  sm <- setchar(sm, .settings$sm4rate)
+  ##
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)
@@ -66,11 +68,13 @@ metarate <- function(event, time, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  ##
   chknumeric(irscale, single = TRUE)
-  if (!backtransf & irscale != 1) {
+  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  chkchar(irunit)
   ##
   chklogical(keepdata)
   ##
@@ -86,7 +90,6 @@ metarate <- function(event, time, studlab,
                          version = .settings$metafor)
   }
   ##
-  sm <- setchar(sm, .settings$sm4rate)
   chklogical(allincr)
   chklogical(addincr)
   chklogical(warn)
@@ -529,7 +532,7 @@ metarate <- function(event, time, studlab,
   res$upper <- upper.study
   ##
   res$irscale <- irscale
-  res$irunit   <- irunit
+  res$irunit  <- irunit
   ##
   res$call <- match.call()
   ##

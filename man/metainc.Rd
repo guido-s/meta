@@ -31,7 +31,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
         prediction=gs("prediction"), level.predict=gs("level.predict"),
         method.bias=gs("method.bias"),
         n.e=NULL, n.c=NULL,
-        backtransf=gs("backtransf"),
+        backtransf=gs("backtransf"), irscale = 1, irunit="person-years",
         title=gs("title"), complab=gs("complab"), outclab="",
         label.e=gs("label.e"), label.c=gs("label.c"),
         label.left=gs("label.left"), label.right=gs("label.right"),
@@ -83,8 +83,8 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \item{level.predict}{The level used to calculate prediction interval
     for a new study.}
   \item{hakn}{A logical indicating whether the method by Hartung and
-          Knapp should be used to adjust test statistics and
-          confidence intervals.}
+    Knapp should be used to adjust test statistics and confidence
+    intervals.}
   \item{method.tau}{A character string indicating which method is used
     to estimate the between-study variance \eqn{\tau^2}. Either
     \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"}, \code{"HS"},
@@ -105,6 +105,10 @@ metainc(event.e, time.e, event.c, time.c, studlab,
     printouts and plots. If TRUE (default), results will be presented
     as incidence rate ratios; otherwise log incidence rate ratios will
     be shown.}
+  \item{irscale}{A numeric defining a scaling factor for printing of
+    incidence rate differences.}
+  \item{irunit}{A character string specifying the time unit used to
+    calculate rates, e.g. person-years.}    
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

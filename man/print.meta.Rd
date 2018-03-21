@@ -18,7 +18,7 @@
         comb.random=x$comb.random,
         prediction=x$prediction,
         details=FALSE, ma=TRUE, backtransf=x$backtransf,
-        pscale=x$pscale, irscale=x$irscale,
+        pscale=x$pscale, irscale=x$irscale, irunit=x$irunit,
         digits=gs("digits"), digits.se=gs("digits.se"),
         digits.tau2=gs("digits.tau2"), digits.I2=gs("digits.I2"),
         digits.prop=gs("digits.prop"), digits.weight=gs("digits.weight"),
@@ -93,12 +93,13 @@ cilayout(bracket="[", separator="; ")
     correlations rather than Fisher's z transformed correlations, for
     example.}
   \item{pscale}{A numeric giving scaling factor for printing of single
-    event probabilities, i.e. if argument \code{sm} is equal to
-    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
-    \code{"PFT"}.}
+    event probabilities or risk differences, i.e. if argument
+    \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+    \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
   \item{irscale}{A numeric defining a scaling factor for printing of
-    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
-    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+    single incidence rates or incidence rate differences, i.e. if
+    argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+    \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
   \item{irunit}{A character specifying the time unit used to calculate
     rates, e.g. person-years.}
   \item{bylab.nchar}{A numeric specifying the number of characters to
@@ -197,10 +198,18 @@ cilayout(bracket="[", separator="; ")
   upper)" which is used throughout an R session by using R command
   \code{cilayout("(", " - ")}.
   
-  Argument \code{pscale} can be used to rescale proportions,
-  e.g. \code{pscale=1000} means that proportions are expressed as
-  events per 1000 observations. This is useful in situations with
-  (very) low event probabilities.
+  Argument \code{pscale} can be used to rescale single proportions or
+  risk differences, e.g. \code{pscale=1000} means that proportions are
+  expressed as events per 1000 observations. This is useful in
+  situations with (very) low event probabilities.
+  
+  Argument \code{irscale} can be used to rescale single rates or rate
+  differences, e.g. \code{irscale=1000} means that rates are expressed
+  as events per 1000 time units, e.g. person-years. This is useful in
+  situations with (very) low rates. Argument \code{irunit} can be used
+  to specify the time unit used in individual studies (default:
+  "person-years"). This information is printed in summaries and forest
+  plots if argument \code{irscale} is not equal to 1.
 }
 
 \value{

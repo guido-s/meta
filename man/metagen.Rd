@@ -83,13 +83,14 @@ metagen(TE, seTE, studlab,
     rather than log odds ratios and results for \code{sm="ZCOR"} are
     printed as correlations rather than Fisher's z transformed
     correlations, for example.}
-  \item{pscale}{A numeric defining a scaling factor for printing of
-    single event probabilities, i.e. if argument \code{sm} is equal to
-    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
-    \code{"PFT"}. See also \code{\link{metaprop}}}
+  \item{pscale}{A numeric giving scaling factor for printing of single
+    event probabilities or risk differences, i.e. if argument
+    \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+    \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
   \item{irscale}{A numeric defining a scaling factor for printing of
-    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
-    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+    single incidence rates or incidence rate differences, i.e. if
+    argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+    \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
   \item{irunit}{A character specifying the time unit used to calculate
     rates, e.g. person-years.}
   \item{title}{Title of meta-analysis / systematic review.}
@@ -169,16 +170,16 @@ metagen(TE, seTE, studlab,
   \code{rma.uni} for more details on these methods to estimate
   between-study variance.
   
-  Argument \code{pscale} can be used to rescale proportions,
-  e.g. \code{pscale=1000} means that proportions are expressed as
-  events per 1000 observations. This is useful in situations with
-  (very) low event probabilities.
-
-  Argument \code{irscale} can be used to rescale rates,
-  e.g. \code{irscale=1000} means that rates are expressed as events
-  per 1000 time units, e.g. person-years. This is useful in situations
-  with (very) low rates. Argument \code{irunit} can be used to specify
-  the time unit used in individual studies (default:
+  Argument \code{pscale} can be used to rescale single proportions or
+  risk differences, e.g. \code{pscale=1000} means that proportions are
+  expressed as events per 1000 observations. This is useful in
+  situations with (very) low event probabilities.
+  
+  Argument \code{irscale} can be used to rescale single rates or rate
+  differences, e.g. \code{irscale=1000} means that rates are expressed
+  as events per 1000 time units, e.g. person-years. This is useful in
+  situations with (very) low rates. Argument \code{irunit} can be used
+  to specify the time unit used in individual studies (default:
   "person-years"). This information is printed in summaries and forest
   plots if argument \code{irscale} is not equal to 1.
 }

@@ -30,6 +30,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     method.bias = ifelse(sm == "OR", "score", gs("method.bias")),
                     ##
                     backtransf = gs("backtransf"),
+                    pscale = 1,
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     label.e = gs("label.e"), label.c = gs("label.c"),
@@ -52,6 +53,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ##
   chknull(sm)
+  sm <- setchar(sm, .settings$sm4bin)
+  ##
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)
@@ -69,13 +72,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  ##
+  chknumeric(pscale, single = TRUE)
+  ##
   chklogical(keepdata)
   ##
   ## Additional arguments / checks for metabin objects
   ##
   fun <- "metabin"
   ##
-  sm <- setchar(sm, .settings$sm4bin)
+  if (sm != "RD" & pscale != 1) {
+    warning("Argument 'pscale' only considered for risk differences.")
+    pscale <- 1
+  }
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
   if (method == "GLMM") {
@@ -758,6 +767,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Add data
   ##
   res$TE.tau <- TE.tau
+  ##
+  res$pscale <- pscale
+  ##
   res$call <- match.call()
   ##
   if (method %in% c("MH", "Peto", "GLMM")) {

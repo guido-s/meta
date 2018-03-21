@@ -2,7 +2,8 @@
 
  ** Major changes **
 
-  * Subgroup results consider the exclusion of individual studies (bug fix)
+  * Subgroup results consider the exclusion of individual studies
+    (bug fix)
 
   * For generalized linear mixed models, between-study variance set to
     NA if only a single study is considered in meta-analysis
@@ -34,6 +35,20 @@
       and 'lty.ref.triangle' to add reference value (null effect) and
       corresponding confidence intervals to the funnel plot
 
+  * metabin():
+    - new argument 'pscale' to change printout of risk differences
+
+  * metainc():
+    - new arguments 'irscale' and 'irunit' to change printout of
+      incidence rate differences
+
+  * forest.meta(), print.meta(), print.summary.meta(), update.meta():
+    - consider arguments 'pscale', 'irscale', and 'irunit' for
+      meta-analysis objects created with metabin() and metainc()
+
+  * print.meta():
+    - new argument 'irunit'
+
  ** Internal changes **
 
   * metaprop():
@@ -53,6 +68,12 @@
 
   * subgroup():
     - code for metamean() added
+
+  * chkchar():
+    - new argument 'nchar' to test the length of character string(s)
+
+  * New internal function is.untransformed() to check for effect
+    measures without (back-)transformation
 
 
 *** meta, version 4.9-0, 2017-12-06 ***

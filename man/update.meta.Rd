@@ -120,12 +120,13 @@
     \code{sm="ZCOR"} are printed as correlations rather than Fisher's
     z transformed correlations, for example.}
   \item{pscale}{A numeric giving scaling factor for printing of single
-    event probabilities, i.e. if argument \code{sm} is equal to
-    \code{"PLOGIT"}, \code{"PLN"}, \code{"PRAW"}, \code{"PAS"}, or
-    \code{"PFT"}.}
+    event probabilities or risk differences, i.e. if argument
+    \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+    \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
   \item{irscale}{A numeric defining a scaling factor for printing of
-    rates, i.e. if argument \code{sm} is equal to \code{"IR"},
-    \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}.}
+    single incidence rates or incidence rate differences, i.e. if
+    argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+    \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
   \item{irunit}{A character specifying the time unit used to calculate
     rates, e.g. person-years.}
   \item{title}{Title of meta-analysis / systematic review.}

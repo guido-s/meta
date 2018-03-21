@@ -98,8 +98,8 @@ metarate(event, time, studlab,
     rates will be shown.}
   \item{irscale}{A numeric defining a scaling factor for printing of
     rates.}
-  \item{irunit}{A character specifying the time unit used to calculate
-    rates, e.g. person-years.}
+  \item{irunit}{A character string specifying the time unit used to
+    calculate rates, e.g. person-years.}    
   \item{title}{Title of meta-analysis / systematic review.}
   \item{complab}{Comparison label.}
   \item{outclab}{Outcome label.}

@@ -48,6 +48,8 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   chknull(sm)
+  sm <- setchar(sm, .settings$sm4prop)
+  ##
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)
@@ -68,8 +70,9 @@ metaprop <- function(event, n, studlab,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
   ##
   chklogical(backtransf)
+  ##
   chknumeric(pscale, single = TRUE)
-  if (!backtransf & pscale != 1) {
+  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
@@ -89,7 +92,6 @@ metaprop <- function(event, n, studlab,
                          version = .settings$metafor)
   }
   ##
-  sm <- setchar(sm, .settings$sm4prop)
   chklogical(allincr)
   chklogical(addincr)
   method.ci <- setchar(method.ci, .settings$ci4prop)
