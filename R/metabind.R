@@ -129,8 +129,8 @@ metabind <- function(..., name, pooled, backtransf) {
       Q.b.fixed.i <- m.i$Q.b.fixed
       Q.b.random.i <- m.i$Q.b.random
       df.Q.b.i <- m.i$df.Q.b
-      pval.Q.b.fixed.i <- 1 - pchisq(Q.b.fixed.i, df.Q.b.i)
-      pval.Q.b.random.i <- 1 - pchisq(Q.b.random.i, df.Q.b.i)
+      pval.Q.b.fixed.i  <- m.i$pval.Q.b.fixed
+      pval.Q.b.random.i <- m.i$pval.Q.b.random
       ##
       n.bylevs.i <- length(m.i$k.w) - 1
       ##
@@ -153,7 +153,7 @@ metabind <- function(..., name, pooled, backtransf) {
                            k.all = m.i$k.all.w,
                            Q = m.i$Q.w,
                            df.Q = m.i$df.Q.w,
-                           pval.Q = 1 - pchisq(m.i$Q.w, m.i$df.Q.w),
+                           pval.Q = pvalQ(m.i$Q.w, m.i$df.Q.w),
                            ##
                            tau = m.i$tau.w,
                            tau2 = m.i$tau.w^2,
@@ -187,7 +187,7 @@ metabind <- function(..., name, pooled, backtransf) {
                            k.all = length(m.i$TE),
                            Q = m.i$Q,
                            df.Q = m.i$df.Q,
-                           pval.Q = 1 - pchisq(m.i$Q, m.i$df.Q),
+                           pval.Q = pvalQ(m.i$Q, m.i$df.Q),
                            ##
                            tau = m.i$tau,
                            tau2 = m.i$tau^2,

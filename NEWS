@@ -1,3 +1,15 @@
+*** meta, version 4.9-2, 2018-mm-dd ***
+
+ ** Major changes **
+
+  * All p-values of Q statistics are list elements of meta-analysis
+    objects
+
+ ** Internal changes **
+
+  * New internal function replaceNULL()
+
+
 *** meta, version 4.9-1, 2018-03-21 ***
 
  ** Major changes **

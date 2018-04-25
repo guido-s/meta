@@ -246,15 +246,19 @@ metamean(n, mean, sd, studlab,
     \code{byvar} is not missing.}
   \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
     is not missing.}
-  \item{Q.w}{Heterogeneity statistics within subgroups - if
-    \code{byvar} is not missing.}
   \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-    (based on fixed effect model) - if \code{byvar} is not missing.}
+    (based on fixed effect model) - if \code{byvar} is not missing.}    
   \item{Q.w.random}{Overall within subgroups heterogeneity statistic Q
     (based on random effects model) - if \code{byvar} is not missing
     (only calculated if argument \code{tau.common} is TRUE).}
   \item{df.Q.w}{Degrees of freedom for test of overall within
     subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+    statistic Q (based on fixed effect model) - if \code{byvar} is not
+    missing.}
+  \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
+    statistic Q (based on random effects model) - if \code{byvar} is
+    not missing.}
   \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic Q
     (based on fixed effect model) - if \code{byvar} is not missing.}
   \item{Q.b.random}{Overall between subgroups heterogeneity statistic
@@ -262,6 +266,12 @@ metamean(n, mean, sd, studlab,
     missing.}
   \item{df.Q.b}{Degrees of freedom for test of overall between
     subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+    statistic Q (based on fixed effect model) - if \code{byvar} is not
+    missing.}
+  \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
+    statistic Q (based on random effects model) - if \code{byvar} is
+    not missing.}
   \item{tau.w}{Square-root of between-study variance within subgroups
     - if \code{byvar} is not missing.}
   \item{C.w}{Scaling factor utilised internally to calculate common

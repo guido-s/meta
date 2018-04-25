@@ -476,7 +476,7 @@ metagen <- function(TE, seTE, studlab,
               lower.predict = p.lower, upper.predict = p.upper,
               level.predict = level.predict,
               ##
-              k = k, Q = Q, df.Q = df.Q,
+              k = k, Q = Q, df.Q = df.Q, pval.Q = pvalQ(Q, df.Q),
               tau = sqrt(tau2), se.tau2 = se.tau2,
               C = Cval,
               ##

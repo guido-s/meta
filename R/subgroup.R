@@ -292,10 +292,17 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   else
     ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb)
   ##
+  Q.w.fixed <- sum(Q.w, na.rm = TRUE)
+  df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
+  pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
+  ##
   Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w)$Q
   Q.b.random <- metagen(TE.random.w, seTE.random.w)$Q
   ##
   df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
+  ##
+  pval.Q.b.fixed  <- pvalQ(Q.b.fixed, df.Q.b)
+  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
   
   
   res <- list(bylevs = bylevs,
@@ -332,12 +339,17 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               k.w = k.w,
               k.all.w = k.all.w,
               Q.w = Q.w,
-              Q.w.fixed = sum(Q.w, na.rm = TRUE),
+              Q.w.fixed = Q.w.fixed,
               Q.w.random = NA,
-              df.Q.w = sum((k.w - 1)[!is.na(Q.w)]),
+              df.Q.w = df.Q.w,
+              pval.Q.w.fixed = pval.Q.w.fixed,
+              pval.Q.w.random = NA,
+              ##
               Q.b.fixed = Q.b.fixed,
               Q.b.random = Q.b.random,
               df.Q.b = df.Q.b,
+              pval.Q.b.fixed = pval.Q.b.fixed,
+              pval.Q.b.random = pval.Q.b.random,
               tau.w = tau.w,
               C.w = C.w,
               ##

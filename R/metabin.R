@@ -751,7 +751,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               allstudies = allstudies,
               doublezeros = doublezeros,
               MH.exact = MH.exact, RR.cochrane = RR.cochrane,
-              Q.CMH = Q.CMH, print.CMH = print.CMH,
+              Q.CMH = Q.CMH, df.Q.CMH = 1, pval.Q.CMH = pvalQ(Q.CMH, 1),
+              print.CMH = print.CMH,
               incr.e = incr.e, incr.c = incr.c,
               k.MH = if (method == "MH") sum(w.fixed > 0) else NA)
   ##
@@ -830,9 +831,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     res$model.glmm <- model.glmm
     ##
-    res$Q <- glmm.random$QE.Wld
-    res$df.Q <- glmm.random$QE.df
-    res$Q.LRT <- glmm.random$QE.LRT
+    res$Q      <- glmm.random$QE.Wld
+    res$df.Q   <- glmm.random$QE.df
+    res$pval.Q <- pvalQ(res$Q, res$df.Q)
+    ##
+    res$Q.LRT      <- glmm.random$QE.LRT
+    res$df.Q.LRT   <- res$df.Q
+    res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
     if (k > 1)
       res$tau <- sqrt(glmm.random$tau2)
@@ -875,6 +880,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q
+      res$pval.Q.w.random <- pvalQ(hcc$Q, hcc$df.Q)
     }
     ##
     res$event.w <- NULL

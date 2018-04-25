@@ -332,13 +332,19 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{k}{Number of studies combined in meta-analysis.}
   \item{Q}{Heterogeneity statistic Q.}
   \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
+  \item{pval.Q}{P-value of heterogeneity test.}
   \item{Q.LRT}{Heterogeneity statistic for likelihood-ratio test (only
     if \code{method = "GLMM"}).}
+  \item{df.Q.LRT}{Degrees of freedom for likelihood-ratio test}
+  \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
   \item{tau}{Square-root of between-study variance.}
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
     tau-squared across subgroups.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
+  \item{df.Q.CMH}{Degrees of freedom for Cochran-Mantel-Haenszel test
+    statistic.}
+  \item{pval.Q.CMH}{P-value of Cochran-Mantel-Haenszel test.}
   \item{incr.e, incr.c}{Increment added to cells in the experimental and
     control group, respectively.}
   \item{sparse}{Logical flag indicating if any study included in
@@ -389,15 +395,19 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     \code{byvar} is not missing.}
   \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
     is not missing.}
-  \item{Q.w}{Heterogeneity statistics within subgroups - if
-    \code{byvar} is not missing.}
   \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-    (based on fixed effect model) - if \code{byvar} is not missing.}
+    (based on fixed effect model) - if \code{byvar} is not missing.}    
   \item{Q.w.random}{Overall within subgroups heterogeneity statistic Q
     (based on random effects model) - if \code{byvar} is not missing
     (only calculated if argument \code{tau.common} is TRUE).}
   \item{df.Q.w}{Degrees of freedom for test of overall within
     subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+    statistic Q (based on fixed effect model) - if \code{byvar} is not
+    missing.}
+  \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
+    statistic Q (based on random effects model) - if \code{byvar} is
+    not missing.}
   \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic Q
     (based on fixed effect model) - if \code{byvar} is not missing.}
   \item{Q.b.random}{Overall between subgroups heterogeneity statistic
@@ -405,6 +415,12 @@ metabin(event.e, n.e, event.c, n.c, studlab,
     missing.}
   \item{df.Q.b}{Degrees of freedom for test of overall between
     subgroups heterogeneity - if \code{byvar} is not missing.}
+  \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+    statistic Q (based on fixed effect model) - if \code{byvar} is not
+    missing.}
+  \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
+    statistic Q (based on random effects model) - if \code{byvar} is
+    not missing.}
   \item{tau.w}{Square-root of between-study variance within subgroups
     - if \code{byvar} is not missing.}
   \item{C.w}{Scaling factor utilised internally to calculate common

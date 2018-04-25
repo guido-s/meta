@@ -214,24 +214,27 @@ summary.meta <- function(object,
     ci.I2 <- list(TE = object$I2.w, lower = object$lower.I2.w, upper = object$upper.I2.w)
     ci.Rb <- list(TE = object$Rb.w, lower = object$lower.Rb.w, upper = object$upper.Rb.w)
     ## 
-    res$within.fixed  <- ci.fixed.w
-    res$within.random <- ci.random.w
-    res$k.w           <- object$k.w
-    res$Q.w           <- object$Q.w
-    res$Q.w.fixed     <- object$Q.w.fixed
-    res$Q.w.random    <- object$Q.w.random
-    res$df.Q.w        <- object$df.Q.w
-    res$Q.b.fixed     <- object$Q.b.fixed
-    res$Q.b.random    <- object$Q.b.random
-    res$df.Q.b        <- object$df.Q.b
-    res$tau.w         <- object$tau.w
-    res$C.w           <- object$C.w
-    res$H.w           <- ci.H
-    res$I2.w          <- ci.I2
-    res$Rb.w          <- ci.Rb
-    res$bylab         <- object$bylab
-    res$tau.common    <- object$tau.common
-    res$bylevs        <- object$bylevs
+    res$within.fixed    <- ci.fixed.w
+    res$within.random   <- ci.random.w
+    res$k.w             <- object$k.w
+    res$Q.w             <- object$Q.w
+    res$Q.w.fixed       <- object$Q.w.fixed
+    res$Q.w.random      <- object$Q.w.random
+    res$df.Q.w          <- object$df.Q.w
+    res$pval.Q.w        <- object$pval.Q.w
+    res$Q.b.fixed       <- object$Q.b.fixed
+    res$Q.b.random      <- object$Q.b.random
+    res$df.Q.b          <- object$df.Q.b
+    res$pval.Q.b.fixed  <- object$pval.Q.b.fixed
+    res$pval.Q.b.random <- object$pval.Q.b.random
+    res$tau.w           <- object$tau.w
+    res$C.w             <- object$C.w
+    res$H.w             <- ci.H
+    res$I2.w            <- ci.I2
+    res$Rb.w            <- ci.Rb
+    res$bylab           <- object$bylab
+    res$tau.common      <- object$tau.common
+    res$bylevs          <- object$bylevs
   }
   ##
   class(res) <- "summary.meta"

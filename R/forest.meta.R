@@ -1571,7 +1571,8 @@ forest.meta <- function(x,
     uppTE.predict <- NA
     ##
     Q    <- NA
-    df   <- NA
+    df.Q <- NA
+    pval.Q <- NA
     I2   <- NA
     tau2 <- NA
     lowI2 <- NA
@@ -1583,6 +1584,8 @@ forest.meta <- function(x,
     Q.b.fixed  <- NA
     Q.b.random <- NA
     df.Q.b     <- NA
+    pval.Q.b.fixed  <- NA
+    pval.Q.b.random <- NA
   }
   else {
     TE <- x$TE
@@ -1608,7 +1611,8 @@ forest.meta <- function(x,
     uppTE.predict <- x$upper.predict
     ##
     Q    <- x$Q
-    df   <- x$df.Q
+    df.Q <- x$df.Q
+    pval.Q <- replaceNULL(x$pval.Q, pvalQ(Q, df.Q))
     tau2 <- x$tau^2
     ##
     I2 <- x$I2
@@ -1619,9 +1623,13 @@ forest.meta <- function(x,
     lowRb <- x$lower.Rb
     uppRb <- x$upper.Rb
     ##
-    Q.b.fixed  <- x$Q.b.fixed
-    Q.b.random <- x$Q.b.random
-    df.Q.b     <- x$df.Q.b
+    if (by) {
+      Q.b.fixed  <- x$Q.b.fixed
+      Q.b.random <- x$Q.b.random
+      df.Q.b     <- x$df.Q.b
+      pval.Q.b.fixed <- replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
+      pval.Q.b.random <- replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
+    }
   }
   ##
   hetstat.overall <- ""
@@ -1652,11 +1660,11 @@ forest.meta <- function(x,
             formatN(round(Q, digits.Q), digits.Q, "NA", big.mark = big.mark),
             if (revman5) ", df",
             if (revman5) hetseparator,
-            if (revman5) df,
+            if (revman5) df.Q,
             sep = "")
     ##
     hetstat.pval.Q <-
-      formatPT(pvalQ(Q, df),
+      formatPT(pval.Q,
                lab = TRUE, labval = "",
                digits = digits.pval.Q,
                zero = if (jama) FALSE else TRUE,
@@ -1713,7 +1721,7 @@ forest.meta <- function(x,
                                          hi = hetstat.I2,
                                          hq = hetstat.Q,
                                          hp = hetstat.pval.Q,
-                                         df = df))
+                                         df = df.Q))
     else {
       ##
       ## One
@@ -1729,7 +1737,7 @@ forest.meta <- function(x,
       else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq),
-                     list(hl = hetlab, df = df, hq = hetstat.Q))
+                     list(hl = hetlab, df = df.Q, hq = hetstat.Q))
       else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(p), hp),
@@ -1753,7 +1761,7 @@ forest.meta <- function(x,
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            chi[df]^2, hq),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, hq = hetstat.Q))
       else if (print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
@@ -1774,7 +1782,7 @@ forest.meta <- function(x,
           substitute(paste(hl, tau^2, ht,
                            ", ",
                            chi[df]^2, hq),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           ht = hetstat.tau2, hq = hetstat.Q))
       else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
@@ -1795,14 +1803,14 @@ forest.meta <- function(x,
           substitute(paste(hl, chi[df]^2, hq,
                            " (",
                            italic(p), hp, ")"),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
       else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq,
                            ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hq = hetstat.Q, hb = hetstat.Rb))
       else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
@@ -1820,7 +1828,7 @@ forest.meta <- function(x,
                            italic(I)^2, hi, ", ",
                            tau^2, ht, ", ",
                            chi[df]^2, hq),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, ht = hetstat.tau2,
                           hq = hetstat.Q))
       else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
@@ -1838,7 +1846,7 @@ forest.meta <- function(x,
                            italic(I)^2, hi, ", ",
                            chi[df]^2, hq,
                            " (", italic(p), hp, ")"),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
       else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
@@ -1847,7 +1855,7 @@ forest.meta <- function(x,
                            tau^2, ht, ", ",
                            chi[df]^2, hq,
                            " (", italic(p), hp, ")"),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           ht = hetstat.tau2,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
       else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
@@ -1865,7 +1873,7 @@ forest.meta <- function(x,
                            italic(I)^2, hi, ", ",
                            chi[df]^2, hq, ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2,
                           hq = hetstat.Q,
                           hb = hetstat.Rb))
@@ -1875,7 +1883,7 @@ forest.meta <- function(x,
                            tau^2, ht, ", ",
                            chi[df]^2, hq, ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           ht = hetstat.tau2,
                           hq = hetstat.Q,
                           hb = hetstat.Rb))
@@ -1905,7 +1913,7 @@ forest.meta <- function(x,
                            " (", italic(p), hp, ")",
                            ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hq = hetstat.Q, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))      
       ##
@@ -1918,7 +1926,7 @@ forest.meta <- function(x,
                            tau^2, ht, ", ",
                            chi[df]^2, hq,
                            " (", italic(p), hp, ")"),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, ht = hetstat.tau2,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
       else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
@@ -1928,7 +1936,7 @@ forest.meta <- function(x,
                            tau^2, ht, ", ",
                            chi[df]^2, hq, ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, ht = hetstat.tau2,
                           hq = hetstat.Q, hb = hetstat.Rb))
       else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
@@ -1949,7 +1957,7 @@ forest.meta <- function(x,
                            " (", italic(p), hp, ")",
                            ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           ht = hetstat.tau2,
                           hq = hetstat.Q, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))
@@ -1961,7 +1969,7 @@ forest.meta <- function(x,
                            " (", italic(p), hp, ")",
                            ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           ht = hetstat.tau2,
                           hq = hetstat.Q, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))
@@ -1977,7 +1985,7 @@ forest.meta <- function(x,
                            " (", italic(p), hp, ")",
                            ", ",
                            italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df,
+                     list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, ht = hetstat.tau2,
                           hq = hetstat.Q, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))
@@ -2191,7 +2199,14 @@ forest.meta <- function(x,
   ##
   ## Label of test for subgroup differences
   ##
-  Q.bs <- c(Q.b.fixed, Q.b.random)
+  if (by) {
+    Q.bs <- c(Q.b.fixed, Q.b.random)
+    pval.Q.bs <- c(pval.Q.b.fixed, pval.Q.b.random)
+  }
+  else {
+    Q.bs <- NA
+    pval.Q.bs <- NA
+  }
   ##
   hetstat.Q.bs <-
     paste(hetseparator,
@@ -2204,7 +2219,7 @@ forest.meta <- function(x,
   hetstat.Q.bs <- rmSpace(hetstat.Q.bs, end = TRUE)
   ##
   hetstat.pval.Q.bs <-
-    paste(formatPT(pvalQ(Q.bs, df.Q.b),
+    paste(formatPT(pval.Q.bs,
                    lab = TRUE, labval = "",
                    digits = digits.pval.Q,
                    zero = if (jama) FALSE else TRUE,

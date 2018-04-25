@@ -34,9 +34,21 @@ install.packages("meta")
 ```
 
 ### Current beta / GitHub release:
+
+Installation using R package
+[**ghit**](https://cran.r-project.org/package=ghit) without
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/) for Windows:
 ```r
 install.packages("ghit")
 ghit::install_github("guido-s/meta")
+```
+
+Installation using R package
+[**devtools**](https://cran.r-project.org/package=devtools) with
+[Rtools](https://cran.r-project.org/bin/windows/Rtools/) for Windows:
+```r
+install.packages("devtools")
+devtools::install_github("guido-s/meta")
 ```
 
 

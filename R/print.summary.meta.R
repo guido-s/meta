@@ -152,24 +152,6 @@ print.summary.meta <- function(x,
   if (is.na(prediction))
     prediction <- FALSE
   ##
-  if (is.null(x$df.Q))
-    df.Q <- k - 1
-  else
-    df.Q <- x$df.Q
-  ##
-  if (by) {
-    k.w <- x$k.w
-    if (is.null(x$df.Q.w))
-      df.Q.w <- sum((k.w - 1)[!is.na(x$Q.w)])
-    else
-      df.Q.w <- x$df.Q.w
-    ##
-    if (is.null(x$df.Q.b))
-      df.Q.b <- (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)])
-    else
-      df.Q.b <- x$df.Q.b
-  }
-  ##
   sm.lab <- sm
   ##
   if (backtransf) {
@@ -223,8 +205,20 @@ print.summary.meta <- function(x,
   uppTE.predict <- x$predict$upper
   ##
   Q <- x$Q
-  Q.CMH <- x$Q.CMH
-  Q.LRT <- x$Q.LRT
+  df.Q <- replaceNULL(x$df.Q, k - 1)
+  pval.Q <- replaceNULL(x$pval.Q, pvalQ(Q, df.Q))
+  ##
+  if (!is.null(x$Q.CMH)) {
+    Q.CMH <- x$Q.CMH
+    df.Q.CMH <- replaceNULL(x$df.Q.CMH, 1)
+    pval.Q.CMH <- replaceNULL(x$pval.Q.CMH, pvalQ(Q.CMH, df.Q.CMH))
+  }
+  ##
+  if (x$method == "GLMM") {
+    Q.LRT <- x$Q.LRT
+    df.Q.LRT <- replaceNULL(x$df.Q.LRT, df.Q)
+    pval.Q.LRT <- replaceNULL(x$pval.Q.LRT, pvalQ(Q.LRT, df.Q.LRT))
+  }
   ##
   if (by) {
     TE.fixed.w     <- x$within.fixed$TE
@@ -243,6 +237,16 @@ print.summary.meta <- function(x,
     Q.w.random <- x$Q.w.random
     ##
     Q.w <- x$Q.w
+    ##
+    k.w <- x$k.w
+    ##
+    df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
+    ##
+    pval.Q.b.fixed  <- replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
+    pval.Q.w.fixed  <- replaceNULL(x$pval.Q.w.fixed, pvalQ(Q.w.fixed, df.Q.w))
+    pval.Q.b.random <- replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
+    pval.Q.w.random <- replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w))
   }
   ##
   if (backtransf) {
@@ -497,9 +501,10 @@ print.summary.meta <- function(x,
       if (inherits(x, "metabin") && print.CMH) {
         Qdata <- cbind(formatN(round(Q.CMH, digits.Q), digits.Q, "NA",
                                big.mark = big.mark),
-                       1, formatPT(pvalQ(Q.CMH, 1),
-                                   digits = digits.pval.Q,
-                                   scientific = scientific.pval))
+                       df.Q.CMH,
+                       formatPT(pval.Q.CMH,
+                                digits = digits.pval.Q,
+                                scientific = scientific.pval))
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         ##
         cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
@@ -569,20 +574,19 @@ print.summary.meta <- function(x,
     if (k.all > 1 & (comb.fixed|comb.random)) {
       if (k > 1) {
         if (x$method != "GLMM") {
-          pval.Q.glmm <- 
-            Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
-                                   big.mark = big.mark),
-                           format(df.Q, big.mark = big.mark),
-                           formatPT(pvalQ(Q, df.Q),
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval))
+          Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
+                                 big.mark = big.mark),
+                         format(df.Q, big.mark = big.mark),
+                         formatPT(pval.Q,
+                                  digits = digits.pval.Q,
+                                  scientific = scientific.pval))
           dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         }
         else {
           Qdata <- cbind(formatN(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA",
                                  big.mark = big.mark),
-                         format(df.Q, big.mark = big.mark),
-                         formatPT(pvalQ(c(Q, Q.LRT), df.Q),
+                         format(c(df.Q, df.Q.LRT), big.mark = big.mark),
+                         formatPT(c(pval.Q, pval.Q.LRT),
                                   digits = digits.pval.Q,
                                   scientific = scientific.pval),
                          c("Wald-type", "Likelihood-Ratio"))
@@ -649,7 +653,7 @@ print.summary.meta <- function(x,
               Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
                                      big.mark = big.mark),
                              format(df.Q.b, big.mark = big.mark),
-                             formatPT(pvalQ(Q.b.fixed, df.Q.b),
+                             formatPT(pval.Q.b.fixed,
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval))
               dimnames(Qdata) <- list("Between groups  ",
@@ -659,10 +663,11 @@ print.summary.meta <- function(x,
             else {
               Qs  <- c(Q.b.fixed, Q.w.fixed)
               dfs <- c(df.Q.b, df.Q.w)
+              pvals <- c(pval.Q.b.fixed, pval.Q.w.fixed)
               Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
                                      big.mark = big.mark),
                              format(dfs, big.mark = big.mark),
-                             formatPT(pvalQ(Qs, dfs),
+                             formatPT(pvals,
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval))
               dimnames(Qdata) <- list(c("Between groups", "Within groups"),
@@ -724,7 +729,7 @@ print.summary.meta <- function(x,
               Qdata <- cbind(formatN(round(Q.b.random, digits.Q), digits.Q,
                                      "NA", big.mark = big.mark),
                              format(df.Q.b, big.mark = big.mark),
-                             formatPT(pvalQ(Q.b.random, df.Q.b),
+                             formatPT(pval.Q.b.random,
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval))
               dimnames(Qdata) <- list("Between groups  ",
@@ -733,10 +738,11 @@ print.summary.meta <- function(x,
             else {
               Qs  <- c(Q.b.random, Q.w.random)
               dfs <- c(df.Q.b, df.Q.w)
+              pvals <- c(pval.Q.b.random, pval.Q.w.random)
               Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
                                      big.mark = big.mark),
                              format(dfs, big.mark = big.mark),
-                             formatPT(pvalQ(Qs, dfs),
+                             formatPT(pvals,
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval))
               dimnames(Qdata) <- list(c("Between groups", "Within groups"),

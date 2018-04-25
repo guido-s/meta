@@ -82,15 +82,15 @@ update.meta <- function(object,
   ## (2) Replace missing arguments with defaults
   ##
   ##
-  replacemiss <- function(x, replacement) {
+  replacemiss <- function(x, replace) {
     ##
     xnam <- deparse(substitute(x))
     ##
     if (is.null(x))
-      if (missing(replacement))
+      if (missing(replace))
         res <- gs(xnam)
       else
-        res <- replacement
+        res <- replace
     else
       res <- x
     ##
