@@ -16,7 +16,9 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
   if (missing(comp.no))
     comp.no <- unique(x$comp.no)
   
+  
   n <- 1
+  ##
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$outcome.no[x$comp.no == i])
@@ -24,20 +26,24 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
       jj <- outcome.no
     for (j in jj) {
       ##
-      if (n > 1)
-        cat("\n*****\n\n")
-      n <- n + 1
-      ##
       m1 <- metacr(x, i, j)
       ##
       if (inherits(m1, "metabin")) {
         if (m1$sm == "OR")
-          print(metabias(m1, k.min = k.min, method.bias = method.bias.or))
+          mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.or)
         else 
-          print(metabias(m1, k.min = k.min, method.bias = method.bias.binary))
+          mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.binary)
       }
       else
-        print(metabias(m1, k.min = k.min, method.bias = method.bias))
+        mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias)
+      ##
+      if (!is.null(mb1$estimate)) {
+        if (n > 1)
+          cat("\n*****\n\n")
+        print(mb1)
+        ##
+        n <- n + 1
+      }
     }
   }
   

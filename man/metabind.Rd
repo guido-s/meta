@@ -10,7 +10,7 @@ analyses.
 }
 
 \usage{
-metabind(..., name, pooled, backtransf)
+metabind(..., name, pooled, backtransf, outclab)
 }
 
 \arguments{
@@ -24,6 +24,7 @@ metabind(..., name, pooled, backtransf)
     back transformed in printouts and plots. If \code{backtransf=TRUE}
     (default), results for \code{sm="OR"} are printed as odds ratios
     rather than log odds ratios, for example.}
+  \item{outclab}{Outcome label for all meta-analyis objects.}
 }
 
 \details{

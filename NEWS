@@ -5,6 +5,12 @@
   * All p-values of Q statistics are list elements of meta-analysis
     objects
 
+ ** Bug fixes **
+
+  * metareg():
+    - consider argument 'intercept = FALSE' if argument 'formula' has
+      been provided
+    
  ** Internal changes **
 
   * New internal function replaceNULL()

@@ -1,4 +1,4 @@
-metabind <- function(..., name, pooled, backtransf) {
+metabind <- function(..., name, pooled, backtransf, outclab) {
   
   
   replace.NULL <- function(x, val = NA) {
@@ -19,6 +19,12 @@ metabind <- function(..., name, pooled, backtransf) {
   
   
   args <- list(...)
+  ##
+  if (length(args) == 1 & inherits(args[[1]], "meta.rm5")) {
+    args <- args[[1]]
+    if (missing(name))
+      name <- unlist(lapply(args, "[[" , "outclab"))
+  }
   ##
   n.meta <- length(args)
   n.i <- seq_len(n.meta)
@@ -278,7 +284,7 @@ metabind <- function(..., name, pooled, backtransf) {
                          ##
                          title = m.i$title,
                          complab = m.i$complab,
-                         outclab = m.i$outclab,
+                         outclab = if (missing(outclab)) m.i$outclab else outclab,
                          label.e = m.i$label.e,
                          label.c = m.i$label.c,
                          label.left = m.i$label.left,
@@ -392,6 +398,7 @@ metabind <- function(..., name, pooled, backtransf) {
         study.i$w.random <- 1
       }
     }
+    ##
     study.i$byvar <- name[i]
     ##
     if (i == 1)
