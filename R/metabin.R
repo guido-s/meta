@@ -3,7 +3,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     data = NULL, subset = NULL, exclude = NULL,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
-                    sm = 
+                    sm =
                       ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"),
                                               nomatch = NA)),
                              "OR", gs("smbin")),
@@ -45,8 +45,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     warn = gs("warn"),
                     ...
                     ) {
-  
-  
+
+
   ##
   ##
   ## (1) Check arguments
@@ -119,8 +119,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (method == "GLMM" & method.tau != "ML")
     stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
-  
-  
+
+
   ##
   ##
   ## (2) Read data
@@ -186,8 +186,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   exclude <- eval(mf[[match("exclude", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   missing.exclude <- is.null(exclude)
-  
-  
+
+
   ##
   ##
   ## (3) Check length of essential variables
@@ -232,8 +232,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
-  
-  
+
+
   ##
   ##
   ## (4) Subset, exclude studies, and subgroups
@@ -261,8 +261,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
-  
-  
+
+
   ##
   ##
   ## (5) Store complete dataset in list object data
@@ -297,8 +297,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
   }
-  
-  
+
+
   ##
   ##
   ## (6) Use subset for analysis
@@ -318,7 +318,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (!missing.byvar)
       byvar <- byvar[subset]
-  }  
+  }
   ##
   ## Determine total number of studies
   ##
@@ -351,8 +351,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.e     <- int2num(n.e)
   event.c <- int2num(event.c)
   n.c     <- int2num(n.c)
-  
-  
+
+
   ##
   ##
   ## (7) Calculate results for individual studies
@@ -517,7 +517,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     incr.e <- rep(0, k.all)
     incr.c <- rep(0, k.all)
   }
-  ##  
+  ##
   n11 <- event.e * incl
   n21 <- event.c * incl
   n1. <- n.e * incl
@@ -536,18 +536,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sm == "OR") {
     if (method %in% c("MH", "Inverse", "GLMM")) {
-      ## 
+      ##
       ## Cooper & Hedges (1994), p. 251-2
-      ## 
+      ##
       TE <- log(((n11 + incr.e) * (n22 + incr.c)) /
                 ((n12 + incr.e) * (n21 + incr.c)))
       seTE <- sqrt((1 / (n11 + incr.e) + 1 / (n12 + incr.e) +
                     1 / (n21 + incr.c) + 1 / (n22 + incr.c)))
     }
     else if (method == "Peto") {
-      ## 
+      ##
       ## Cooper & Hedges (1994), p. 252
-      ## 
+      ##
       O <- n11
       E <- n1. * n.1 / n..
       V <- n1. * n2. * n.1 * n.2 / ((n.. - 1) * n..^2)
@@ -557,7 +557,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   else if (sm == "RR") {
-    ## 
+    ##
     ## Cooper & Hedges (1994), p. 247-8
     ##
     if (!RR.cochrane) {
@@ -577,22 +577,22 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   else if (sm == "RD") {
-    ## 
+    ##
     ## Cooper & Hedges (1994), p. 246-7
-    ## 
+    ##
     TE <- n11 / n1. - n21 / n2.
     seTE <- sqrt((n11 + incr.e) * (n12 + incr.e) / (n1. + 2 * incr.e)^3 +
                    (n21 + incr.c) * (n22 + incr.c) / (n2. + 2 * incr.c)^3)
   }
   else if (sm == "ASD") {
-    ## 
+    ##
     ## Ruecker et al. (2009)
-    ## 
+    ##
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
-  
-  
+
+
   ##
   ##
   ## (8) Do meta-analysis
@@ -603,21 +603,26 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sum(!is.na(TE)) == 1 & k.all > 1 & method == "MH") {
     if (warn)
-      warning("For a single study, inverse variance method used instead of Mantel-Haenszel method.")
+      warning("For a single study, inverse variance method used ",
+              "instead of Mantel-Haenszel method.",
+              call. = FALSE)
     method <- "Inverse"
   }
-  ##  
+  ##
+  if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" & MH.exact == FALSE)
+    MH.exact <- TRUE
+  ##
   if (method == "MH") {
     incr.e <- incr.e * (!MH.exact)
     incr.c <- incr.c * (!MH.exact)
     ##
     if (sm == "OR") {
-      ## 
+      ##
       ## Cooper & Hedges (1994), p. 253-5 (MH.exact == TRUE)
       ##
       ## Bradburn, Deeks, Altman, Stata-procedure "metan"
       ## und RevMan 3.1 (MH.exact == FALSE)
-      ## 
+      ##
       A <- (n11 + incr.e) * (n22 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       B <- (n11 + incr.e + n22 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       C <- (n12 + incr.e) * (n21 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
@@ -629,7 +634,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ##
       w.fixed <- C
       TE.fixed <- log(sum(A, na.rm = TRUE) / sum(C, na.rm = TRUE))
-      seTE.fixed <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  * 
+      seTE.fixed <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  *
                             (sum(A * B, na.rm = TRUE) +
                                exp(TE.fixed) * (sum(B * C, na.rm = TRUE) +
                                                   sum(A * D, na.rm = TRUE)) +
@@ -652,7 +657,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ##
       w.fixed <- S
       TE.fixed <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
-      seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) * 
+      seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
                                                    sum(S, na.rm = TRUE)))
     }
     else if (sm == "RD") {
@@ -661,7 +666,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ##
       ## Bradburn, Deeks, Altman, Stata-procedure "metan"
       ## und RevMan 3.1 (MH.exact == FALSE)
-      ## 
+      ##
       R <- ((n11 + incr.e) * (n12 + incr.e) * (n2. + 2 * incr.c)^3 +
               (n21 + incr.c) * (n22 + incr.c) * (n1. + 2 * incr.e)^3) /
                 ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.. + 2 * incr.e + 2 * incr.c)^2)
@@ -735,8 +740,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                    if (method == "Inverse") TE.tau else TE.fixed,
                    byvar)
   }
-  
-  
+
+
   ##
   ##
   ## (9) Generate R object
@@ -890,7 +895,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   class(res) <- c(fun, "meta")
-  
-  
+
+
   res
 }

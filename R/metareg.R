@@ -152,7 +152,7 @@ metareg <- function(x, formula,
   ..x <- x
   rm(x)
   ##
-  warn.FE <- paste("Fallback to fixed effect model (argument ",
+  warn.FE <- paste("Fallback to fixed effect model (argument",
                    "method.tau = \"FE\") due to small number of studies.")
   ##
   if (method != "GLMM")
