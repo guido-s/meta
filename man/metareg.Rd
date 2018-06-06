@@ -36,14 +36,19 @@ metareg(x, formula, method.tau = x$method.tau, hakn = x$hakn,
 \details{
   This R function is a wrapper function for R function
   \code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
-  (Viechtbauer 2010), i.e., function \code{metareg} can only be used
-  if R package \bold{metafor} is installed.
+  (Viechtbauer 2010), i.e., function \code{metareg} can only be used if
+  R package \bold{metafor} is installed.
+
+  Note, results are not back-transformed in printouts of meta-analyses
+  using summary measures with transformations, e.g., log risk ratios are
+  printed instead of the risk ratio if argument \code{sm="RR"} and logit
+  transformed proportions are printed if argument \code{sm="PLOGIT"}.
 
   Argument '\dots' can be used to pass additional arguments to R
-  function \code{\link[metafor]{rma.uni}}. For example, argument \code{control}
-  to provide a list of control values for the iterative estimation
-  algorithm. See help page of R function \code{\link[metafor]{rma.uni}} for
-  more details.
+  function \code{\link[metafor]{rma.uni}}. For example, argument
+  \code{control} to provide a list of control values for the iterative
+  estimation algorithm. See help page of R function
+  \code{\link[metafor]{rma.uni}} for more details.
 }
 
 \value{
