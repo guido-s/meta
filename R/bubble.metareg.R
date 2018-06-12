@@ -8,16 +8,16 @@ bubble.metareg <- function(x,
                            pos = 2, offset = 0.5,
                            regline = TRUE,
                            axes = TRUE, box = TRUE, ...) {
-  
-  
+
+
   ##
   ##
   ## (1) Check for meta object
   ##
   ##
   chkclass(x, "metareg")
-  
-  
+
+
   m0 <- x$.meta$x
   method.tau0 <- x$.meta$method.tau
   ##
@@ -28,8 +28,8 @@ bubble.metareg <- function(x,
   ##
   TE <- m1$TE
   sm <- m1$sm
-  
-  
+
+
   if (is.logical(studlab)) {
     if (studlab)
       studlab <- m1$studlab
@@ -41,8 +41,8 @@ bubble.metareg <- function(x,
     if (length(studlab) != length(TE))
       stop("Length of argument 'studlab' must be the same as number of studies in meta-analysis.")
   }
-  
-  
+
+
   charform <- as.character(x$.meta$formula)[2]
   splitform <- strsplit(charform, " ")[[1]]
   covar.name <- splitform[1]
@@ -100,7 +100,7 @@ bubble.metareg <- function(x,
   else {
     xs <- covar
     if (missing(xlim))
-      xlim <- range(xs)
+      xlim <- range(xs, na.rm = TRUE)
   }
   ##
   alpha <- ifelse(nointrcpt, 0, coef(x)["intrcpt"])
@@ -109,8 +109,8 @@ bubble.metareg <- function(x,
     beta <- coef(x)[covar.name]
   else
     beta <- coef(x)[".byvar"]
-  
-  
+
+
   ys <- TE
   ##
   if (missing(ylim))
@@ -120,8 +120,8 @@ bubble.metareg <- function(x,
     ylab <- paste("Treatment effect (",
                   tolower(xlab(sm, backtransf = FALSE)),
                   ")", sep = "")
-  
-  
+
+
   missing.cex <- missing(cex)
   fixed.cex   <- !missing.cex && (length(cex) == 1 & all(cex == "fixed"))
   ##
@@ -142,8 +142,8 @@ bubble.metareg <- function(x,
   }
   else
     cexs <- cex
-  
-  
+
+
   ##
   ## Generate bubble plot
   ##
@@ -179,7 +179,7 @@ bubble.metareg <- function(x,
       ##
       if (axes)
         axis(2, ...)
-      ##  
+      ##
       text(xs.i, ys.i, labels = studlab.i, cex = cex.studlab,
            pos = pos, offset = offset)
       ##
@@ -210,14 +210,14 @@ bubble.metareg <- function(x,
     ##
     if (axes)
       axis(2, ...)
-    ##  
+    ##
     text(xs, ys, labels = studlab, cex = cex.studlab,
          pos = pos, offset = offset)
     ##
     if (box)
       box()
   }
-  
-  
+
+
   invisible(NULL)
 }
