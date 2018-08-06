@@ -6,8 +6,8 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
   alpha <- 1 - level
   
   if (is.null(df)) {
-    lower  <- TE - qnorm(1 - alpha / 2)*seTE
-    upper  <- TE + qnorm(1 - alpha / 2)*seTE
+    lower  <- TE - qnorm(1 - alpha / 2) * seTE
+    upper  <- TE + qnorm(1 - alpha / 2) * seTE
     zscore <- (TE - null.effect) / seTE
     pval   <- 2 * pnorm(abs(zscore), lower.tail = FALSE)
     df <- NA

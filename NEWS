@@ -4,7 +4,12 @@
 
   * bubble.metareg():
     - ignore missing values in covariate to calculate limits on x-axis
-    
+
+ ** Internal changes **
+
+  * metabind():
+    - argument 'tau.common' only considered for subgroup analyses
+
 
 *** meta, version 4.9-2, 2018-06-06 ***
 

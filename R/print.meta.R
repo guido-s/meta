@@ -18,8 +18,8 @@ print.meta <- function(x,
                        warn.backtransf = FALSE,
                        ...
                        ) {
-  
-  
+
+
   ##
   ##
   ## (1) Check for meta object and upgrade older meta object
@@ -66,8 +66,6 @@ print.meta <- function(x,
   ##
   chklogical(warn.backtransf)
   ##
-  if (!is.prop(x$sm) & x$sm != "RD")
-    pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, single = TRUE)
   else
@@ -110,8 +108,8 @@ print.meta <- function(x,
   level <- x$level
   level.comb <- x$level.comb
   level.predict <- x$level.predict
-  
-  
+
+
   ##
   ##
   ## (3) Some additional settings
@@ -119,15 +117,15 @@ print.meta <- function(x,
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   mb <- inherits(x, "metabind")
-  ##  
+  ##
   prediction <- prediction & x$k >= 3
   if (is.na(prediction))
     prediction <- FALSE
-  ##  
+  ##
   ci.lab <- paste(round(100 * level, 1), "%-CI", sep = "")
-  ##  
+  ##
   sm <- x$sm
-  ##  
+  ##
   sm.lab <- sm
   ##
   if (backtransf) {
@@ -151,17 +149,17 @@ print.meta <- function(x,
   else
     if (is.relative.effect(sm))
       sm.lab <- paste("log", sm, sep = "")
-  
-  
+
+
   ##
   ##
   ## (4) Print title and details
   ##
   ##
   crtitle(x)
-  ##  
+  ##
   if (details) {
-    if (inherits(x, "metabin")) {      
+    if (inherits(x, "metabin")) {
       res <- data.frame(event.e = formatN(x$event.e, digits = 0,
                                           "NA", big.mark = big.mark),
                         n.e = formatN(x$n.e, digits = 0,
@@ -173,9 +171,9 @@ print.meta <- function(x,
       ##
       if (pscale == 1) {
         res$p.e <- formatN(round(x$event.e / x$n.e, digits.prop),
-                           big.mark = big.mark)
+                           digits.prop, big.mark = big.mark)
         res$p.c <- formatN(round(x$event.c / x$n.c, digits.prop),
-                           big.mark = big.mark)
+                           digits.prop, big.mark = big.mark)
       }
       else {
         res$events.e <- formatN(round(pscale * x$event.e / x$n.e, digits),
@@ -270,8 +268,8 @@ print.meta <- function(x,
     prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
     cat("\n\n")
   }
-  
-  
+
+
   ##
   ##
   ## (5) Print results for individual studies
@@ -372,7 +370,7 @@ print.meta <- function(x,
                               digits.weight)
         else w.random.p <- x$w.random
     }
-    ##    
+    ##
     if (metainf.metacum) {
       is.random <- x$pooled == "random"
       ##
@@ -484,8 +482,8 @@ print.meta <- function(x,
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
       }
     }
-    
-    
+
+
     ##
     ##
     ## (6) Print result for meta-analysis
@@ -508,7 +506,7 @@ print.meta <- function(x,
             ...)
     }
   }
-  
-  
+
+
   invisible(NULL)
 }

@@ -1,6 +1,6 @@
 metabind <- function(..., name, pooled, backtransf, outclab) {
-  
-  
+
+
   replace.NULL <- function(x, val = NA) {
     if (is.null(x))
       res <- val
@@ -9,15 +9,15 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     ##
     res
   }
-  
-  
+
+
   if (!missing(pooled))
     pooled <- setchar(pooled, c("fixed", "random"))
   ##
   if (!missing(backtransf))
     chklogical(backtransf)
-  
-  
+
+
   args <- list(...)
   ##
   if (length(args) == 1 & inherits(args[[1]], "meta.rm5")) {
@@ -28,8 +28,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   n.meta <- length(args)
   n.i <- seq_len(n.meta)
-  
-  
+
+
   is.subgroup <- rep(FALSE, n.meta)
   ##
   for (i in n.i) {
@@ -40,13 +40,13 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     if (!is.null(args[[i]]$byvar))
       is.subgroup[i] <- TRUE
   }
-  
-  
+
+
   print.warning1 <- FALSE
   print.warning2 <- FALSE
   print.warning3 <- FALSE
-  
-  
+
+
   ##
   ## Name of meta-analysis object
   ##
@@ -83,8 +83,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       name <- paste("meta", n.i, sep = "")
     }
   }
-  
-  
+
+
   for (i in n.i) {
     m.i <- args[[i]]
     ##
@@ -314,8 +314,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       meth <- rbind(meth, meth.i)
     }
   }
-  
-  
+
+
   if (missing(pooled)) {
     if (all(meth$comb.fixed) & all(!meth$comb.random))
       pooled <- "fixed"
@@ -340,8 +340,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     meth$comb.fixed <- FALSE
     meth$comb.random <- TRUE
   }
-  
-  
+
+
   for (i in n.i) {
     m.i <- args[[i]]
     ##
@@ -406,16 +406,25 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     else
       study <- rbind(study, study.i)
   }
-  
-  
+
+
   if (missing(backtransf)) {
     if (any(meth$backtransf))
       meth$backtransf <- TRUE
   }
   else
     meth$backtransf <- backtransf
-  
-  
+
+
+  ## Only consider argument 'tau.common' from subgroup meta-analyses
+  ##
+  if (any(is.subgroup) & any(!is.subgroup)) {
+    tau.common.uniq <- unique(meth$tau.common[is.subgroup])
+    if (length(tau.common.uniq) == 1)
+      meth$tau.common[!is.subgroup] <- tau.common.uniq
+  }
+
+
   n.meth <- apply(meth, 2,
                   function(x)
                     length(unique(x)))
@@ -427,8 +436,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                ": ",
                paste(paste("'", names(meth)[n.meth != 1], "'", sep = ""),
                      collapse = " - "), sep = ""))
-  
-  
+
+
   if (length(unique(study$byvar)) == 1) {
     res <- c(as.list(study), as.list(meth[1, ]), as.list(overall))
     res$byvar <- NULL
@@ -441,8 +450,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
-  
-  
+
+
   makeunique <- function(x, val = NA) {
     if (length(unique(x)) == 1)
       res <- unique(x)
@@ -503,11 +512,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$Q.b.random <- makeunique(res$Q.b.random)
   res$df.Q.b <- makeunique(res$df.Q.b, 0)
   res$pval.Q.b.random <- makeunique(res$pval.Q.b.random)
-  
-  
+
+
   res$is.subgroup <- is.subgroup
-  
-  
+
+
   if (!is.null(res$byvar)) {
     res$bylab <- "meta-analysis"
     res$bylevs <- unique(res$byvar)
@@ -516,15 +525,15 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     res$w.random <- rep(0, length(res$w.random))
     res$w.random.w <- rep(0, length(res$w.random.w))
   }
-  
-  
+
+
   if (is.na(res$tau.preset))
     res$tau.preset <- NULL
-  
-  
+
+
   class(res) <- c("metabind", "meta")
-  
-  
+
+
   ##
   ##
   ##
@@ -534,7 +543,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     warning(warning2)
   if (print.warning3)
     warning(warning3)
-  
-  
+
+
   res
 }
