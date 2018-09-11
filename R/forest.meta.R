@@ -4510,8 +4510,9 @@ forest.meta <- function(x,
                      upp = uppTEs.exclude,
                      rows = yS[-1],
                      ##
-                     ## "square" means normal confidence interval, "diamond" means meta-analysis diamond,
-                     ## "predict" means prediction interval
+                     ## "square"  - normal confidence interval
+                     ## "diamond" - meta-analysis diamond
+                     ## "predict" - prediction interval
                      ##
                      type = c(type.pooled, type.study),
                      ##
