@@ -411,7 +411,7 @@ metagen <- function(TE, seTE, studlab,
     if (hakn) {
       seTE.random <- sqrt(1 / (k - 1) * sum(w.random * (TE - TE.random)^2 /
                                               sum(w.random), na.rm = TRUE))
-      df.hakn <- k-1
+      df.hakn <- k - 1
       ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn,
                  null.effect = null.effect)
     }

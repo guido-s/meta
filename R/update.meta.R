@@ -319,24 +319,24 @@ update.meta <- function(object,
   if (missing.subset) {
     if (!is.null(object$subset))
       subset <- object$subset
-    else if (!is.null(object$data$.subset))
+    else if (isCol(object$data, ".subset"))
       subset <- object$data$.subset
   }
   ##
   if (missing.incr) {
-    if (!is.null(object$data$.incr))
+    if (isCol(object$data, ".incr"))
       incr <- object$data$.incr
     else
       incr <- gs("incr")
   }
   ##
-  if (missing.byvar & !is.null(object$data$.byvar))
+  if (missing.byvar & isCol(object$data, ".byvar"))
     byvar <- object$data$.byvar
   ##
-  if (missing.studlab & !is.null(object$data$.studlab))
+  if (missing.studlab & isCol(object$data, ".studlab"))
     studlab <- object$data$.studlab
   ##
-  if (missing.exclude & !is.null(object$data$.exclude))
+  if (missing.exclude & isCol(object$data, ".exclude"))
     exclude <- object$data$.exclude
   ##
   if (method == "GLMM")

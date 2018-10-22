@@ -38,7 +38,7 @@ metacum <- function(x, pooled, sortvar) {
     xd <- x$data
     sortvar <- eval(mf[[match("sortvar", names(mf))]],
                     xd, enclos = NULL)
-    if (!is.null(x$data$.subset))
+    if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
   sort <- !is.null(sortvar)

@@ -8,6 +8,11 @@
 }
 
 
+isCol <- function(data, varname) {
+  !is.null(data) & varname %in% names(data)
+}
+
+
 ## The following R code is based on the file snowfall-internal.R from
 ## R package snowfall (Maintainer: Jochen Knaus <jo@imbi.uni-freiburg.de>)
 ##
