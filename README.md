@@ -36,8 +36,7 @@ install.packages("meta")
 ### Current beta / GitHub release:
 
 Installation using R package
-[**devtools**](https://cran.r-project.org/package=devtools) (with
-[Rtools](https://cran.r-project.org/bin/windows/Rtools/) for Windows):
+[**devtools**](https://cran.r-project.org/package=devtools):
 ```r
 install.packages("devtools")
 devtools::install_github("guido-s/meta")
