@@ -30,7 +30,7 @@ metagen(TE, seTE, studlab,
         byvar, bylab, print.byvar=gs("print.byvar"),
         byseparator = gs("byseparator"),
         keepdata=gs("keepdata"),
-        warn=gs("warn"))
+        warn=gs("warn"), control=NULL)
 }
 
 \arguments{
@@ -112,6 +112,9 @@ metagen(TE, seTE, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if studies are excluded from meta-analysis due to zero
     standard errors).}
+  \item{control}{A list to control the iterative process to estimate the
+    between-study variance tau^2 passed on to \code{rma.uni} of R
+    package metafor.}
 }
 
 \details{

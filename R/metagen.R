@@ -35,7 +35,9 @@ metagen <- function(TE, seTE, studlab,
                     byseparator = gs("byseparator"),
                     ##
                     keepdata = gs("keepdata"),
-                    warn = gs("warn")
+                    warn = gs("warn"),
+                    ##
+                    control = NULL
                     ) {
   
   
@@ -337,11 +339,13 @@ metagen <- function(TE, seTE, studlab,
     if (k == 1 & hakn)
       hakn <- FALSE
     ## Estimate tau-squared
-    hc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau)
+    hc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau,
+                  control = control)
     ##
     if (!missing.byvar & tau.common) {
       ## Estimate common tau-squared across subgroups
-      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau, byvar)
+      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau, byvar,
+                     control = control)
     }
     ##
     if (is.null(tau.preset)) {
@@ -549,6 +553,8 @@ metagen <- function(TE, seTE, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
   }
+  ##
+  res$control  <- control
   ##
   class(res) <- c(fun, "meta")
   

@@ -1,11 +1,22 @@
 *** meta, version 4.9-3, 2018-mm-dd ***
 
+ ** User-visible changes **
+
+  * metagen():
+    - new argument 'control' which is passed on to R function
+      rma.uni() from R package metafor to control the iterative
+      process to estimate the between-study variance tau^2
+
  ** Bug fixes **
 
   * bubble.metareg():
     - ignore missing values in covariate to calculate limits on x-axis
 
  ** Internal changes **
+
+  * hetcalc():
+    - new argument 'control' passed on to R function rma.uni() from R
+      package metafor
 
   * metabind():
     - argument 'tau.common' only considered for subgroup analyses

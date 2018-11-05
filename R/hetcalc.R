@@ -1,4 +1,4 @@
-hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
+hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
   
   Ccalc <- function(x) {
     res <- (sum(x, na.rm = TRUE) -
@@ -45,7 +45,9 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       if (is.numeric(byvar))
         byvar <- as.factor(byvar)
       ##
-      mf1 <- metafor::rma.uni(yi = TE, vi = seTE^2, method = method.tau, mods = ~ byvar)
+      mf1 <- metafor::rma.uni(yi = TE, sei = seTE,
+                              method = method.tau, mods = ~ byvar,
+                              control = control)
       ##
       Q    <- mf1$QE
       df.Q <- mf1$k - mf1$p
@@ -85,7 +87,9 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar) {
       se.tau2 <- NULL
     }
     else {
-      mf2 <- metafor::rma.uni(yi = TE, vi = seTE^2, method = method.tau)
+      mf2 <- metafor::rma.uni(yi = TE, sei = seTE,
+                              method = method.tau,
+                              control = control)
       Q    <- mf2$QE
       df.Q <- mf2$k - mf2$p
       Cval <- NA
