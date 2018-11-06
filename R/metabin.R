@@ -43,6 +43,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"),
+                    ##
+                    control = NULL,
                     ...
                     ) {
 
@@ -698,6 +700,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
                                     measure = "OR", model = model.glmm,
+                                    control = control,
                                     ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
@@ -732,13 +735,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                label.left = label.left, label.right = label.right,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    if (method == "Inverse") TE.tau else TE.fixed,
-                   byvar)
+                   byvar, control = control)
   }
 
 
@@ -802,6 +807,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                        test = ifelse(hakn, "t", "z"),
                                        level = 100 * level.comb,
                                        measure = "OR", model = model.glmm,
+                                       control = control,
                                        ...)
     else {
       ##

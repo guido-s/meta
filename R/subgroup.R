@@ -98,7 +98,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        hakn = x$hakn,
                        method.tau = x$method.tau,
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
-                       warn = x$warn)
+                       warn = x$warn,
+                       control = x$control)
     ##
     else if (inc)
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],

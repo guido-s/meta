@@ -30,7 +30,8 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          byvar, bylab, print.byvar=gs("print.byvar"),
          byseparator=gs("byseparator"),
          keepdata=gs("keepdata"),
-         warn=gs("warn"))
+         warn=gs("warn"),
+         control=NULL)
 }
 
 \arguments{
@@ -116,6 +117,9 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if studies are excluded from meta-analysis due to zero
     standard deviations).}
+  \item{control}{An optional list to control the iterative process to
+    estimate the between-study variance tau^2. This argument is passed
+    on to \code{\link[metafor]{rma.uni}}.}  
 }
 
 \details{

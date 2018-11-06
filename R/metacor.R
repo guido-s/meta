@@ -27,7 +27,9 @@ metacor <- function(cor, n, studlab,
                     byvar, bylab, print.byvar = gs("print.byvar"),
                     byseparator = gs("byseparator"),
                     ##
-                    keepdata = gs("keepdata")
+                    keepdata = gs("keepdata"),
+                    ##
+                    control = NULL
                     ) {
   
   
@@ -276,13 +278,14 @@ metacor <- function(cor, n, studlab,
                title = title, complab = complab, outclab = outclab,
                ##
                keepdata = FALSE,
-               warn = FALSE)
+               warn = FALSE,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
-                   TE.tau,
-                   byvar)
+    hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar,
+                   control = control)
   }
   
   

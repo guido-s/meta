@@ -41,6 +41,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"),
+                    ##
+                    control = NULL,
                     ...
                     ) {
   
@@ -461,6 +463,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
                                     measure = "IRR", model = model.glmm,
+                                    control = control,
                                     ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
@@ -495,13 +498,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                label.left = label.left, label.right = label.right,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    if (method == "Inverse") TE.tau else TE.fixed,
-                   byvar)
+                   byvar, control = control)
   }
   
   
@@ -563,6 +568,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                                        test = ifelse(hakn, "t", "z"),
                                        level = 100 * level.comb,
                                        measure = "IRR", model = model.glmm,
+                                       control = control,
                                        ...)
     else {
       ##

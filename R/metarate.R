@@ -37,6 +37,8 @@ metarate <- function(event, time, studlab,
                      ##
                      keepdata = gs("keepdata"),
                      warn = gs("warn"),
+                     ##
+                     control = NULL,
                      ...
                      ) {
   
@@ -383,6 +385,7 @@ metarate <- function(event, time, studlab,
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
                                     measure = "IRLN",
+                                    control = control,
                                     ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
@@ -417,13 +420,14 @@ metarate <- function(event, time, studlab,
                title = title, complab = complab, outclab = outclab,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
-                   TE.tau,
-                   byvar)
+    hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar,
+                   control = control)
   }
   
   
@@ -475,6 +479,7 @@ metarate <- function(event, time, studlab,
                                        test = ifelse(hakn, "t", "z"),
                                        level = 100 * level.comb,
                                        measure = "IRLN",
+                                       control = control,
                                        ...)
     else {
       ##

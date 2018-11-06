@@ -1,11 +1,17 @@
 *** meta, version 4.9-3, 2018-mm-dd ***
 
+ ** Major changes **
+
+  * New argument 'control' in meta-analysis functions which is passed
+    on to R function rma.uni() or rma.glmm() from R package metafor to
+    control the iterative process to estimate the between-study
+    variance tau^2
+
  ** User-visible changes **
 
-  * metagen():
-    - new argument 'control' which is passed on to R function
-      rma.uni() from R package metafor to control the iterative
-      process to estimate the between-study variance tau^2
+  * metabin(), metacont(), metacor(), metagen(), metainc(),
+    metamean(), metaprop(), metarate(), update.meta():
+    - new argument 'control' (see major changes)
 
  ** Bug fixes **
 
@@ -14,12 +20,15 @@
 
  ** Internal changes **
 
-  * hetcalc():
-    - new argument 'control' passed on to R function rma.uni() from R
-      package metafor
-
   * metabind():
     - argument 'tau.common' only considered for subgroup analyses
+
+  * hetcalc():
+    - argument 'control' passed on to R function rma.uni() from R
+      package metafor
+
+  * metacum(), metainf(), subgroup():
+    - argument 'control' from meta-analysis objects considered
 
 
 *** meta, version 4.9-2, 2018-06-06 ***

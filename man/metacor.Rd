@@ -24,7 +24,8 @@ metacor(cor, n, studlab,
         title=gs("title"), complab=gs("complab"), outclab="",
         byvar, bylab, print.byvar=gs("print.byvar"),
         byseparator = gs("byseparator"),
-        keepdata=gs("keepdata")
+        keepdata=gs("keepdata"),
+        control=NULL
         )
 }
 
@@ -88,6 +89,9 @@ metacor(cor, n, studlab,
     label and levels of grouping variable.}
   \item{keepdata}{A logical indicating whether original data (set)
     should be kept in meta object.}
+  \item{control}{An optional list to control the iterative process to
+    estimate the between-study variance tau^2. This argument is passed
+    on to \code{\link[metafor]{rma.uni}}.}  
 }
 
 \details{

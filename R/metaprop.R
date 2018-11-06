@@ -38,6 +38,8 @@ metaprop <- function(event, n, studlab,
                      ##
                      keepdata = gs("keepdata"),
                      warn = gs("warn"),
+                     ##
+                     control = NULL,
                      ...
                      ) {
   
@@ -448,6 +450,7 @@ metaprop <- function(event, n, studlab,
                                     test = ifelse(hakn, "t", "z"),
                                     level = 100 * level.comb,
                                     measure = "PLO",
+                                    control = control,
                                     ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
@@ -482,13 +485,14 @@ metaprop <- function(event, n, studlab,
                title = title, complab = complab, outclab = outclab,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (method != "GLMM" & !missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
-                   TE.tau,
-                   byvar)
+    hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar,
+                   control = control)
   }
   
   
@@ -540,6 +544,7 @@ metaprop <- function(event, n, studlab,
                                        test = ifelse(hakn, "t", "z"),
                                        level = 100 * level.comb,
                                        measure = "PLO",
+                                       control = control,
                                        ...)
     else {
       ##

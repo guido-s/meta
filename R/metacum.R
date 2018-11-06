@@ -139,7 +139,9 @@ metacum <- function(x, pooled, sortvar) {
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    keepdata = FALSE,
-                   warn = FALSE)
+                   warn = FALSE,
+                   ##
+                   control = x$control)
     ##
     if (inherits(x, "metacont"))
       m <- metacont(n.e[sel], mean.e[sel], sd.e[sel],
@@ -156,7 +158,9 @@ metacum <- function(x, pooled, sortvar) {
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     keepdata = FALSE,
-                    warn = FALSE)
+                    warn = FALSE,
+                    ##
+                    control = x$control)
     ##
     if (inherits(x, "metacor"))
       m <- metacor(cor[sel], n[sel],
@@ -172,7 +176,9 @@ metacum <- function(x, pooled, sortvar) {
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
-                   keepdata = FALSE)
+                   keepdata = FALSE,
+                   ##
+                   control = x$control)
     ##
     if (inherits(x, "metagen"))
       m <- metagen(TE[sel], seTE[sel],
@@ -189,7 +195,9 @@ metacum <- function(x, pooled, sortvar) {
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    keepdata = FALSE,
-                   warn = FALSE)
+                   warn = FALSE,
+                   ##
+                   control = x$control)
     ##
     if (inherits(x,"metainc"))
       m <- metainc(event.e[sel], time.e[sel],
@@ -209,7 +217,9 @@ metacum <- function(x, pooled, sortvar) {
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    keepdata = FALSE,
-                   warn = FALSE)
+                   warn = FALSE,
+                   ##
+                   control = x$control)
     ##
     if (inherits(x, "metamean"))
       m <- metamean(n[sel], mean[sel], sd[sel],
@@ -226,7 +236,9 @@ metacum <- function(x, pooled, sortvar) {
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     keepdata = FALSE,
-                    warn = FALSE)
+                    warn = FALSE,
+                    ##
+                    control = x$control)
     ##
     if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],
@@ -246,7 +258,9 @@ metacum <- function(x, pooled, sortvar) {
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     keepdata = FALSE,
-                    warn = FALSE)
+                    warn = FALSE,
+                    ##
+                    control = x$control)
     ##
     if (inherits(x, "metarate"))
       m <- metarate(event[sel], time[sel],
@@ -265,7 +279,9 @@ metacum <- function(x, pooled, sortvar) {
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     keepdata = FALSE,
-                    warn = FALSE)
+                    warn = FALSE,
+                    ##
+                    control = x$control)
     ##
     sel.pft <- inherits(x, "metaprop") & x$sm == "PFT"
     sel.irft <- inherits(x, "metarate") & x$sm == "IRFT"

@@ -28,7 +28,9 @@ metamean <- function(n, mean, sd, studlab,
                      byseparator = gs("byseparator"),
                      ##
                      keepdata = gs("keepdata"),
-                     warn = gs("warn")
+                     warn = gs("warn"),
+                     ##
+                     control = NULL
                      ) {
   
   
@@ -319,13 +321,14 @@ metamean <- function(n, mean, sd, studlab,
                title = title, complab = complab, outclab = outclab,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
-                   TE.tau,
-                   byvar)
+    hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar,
+                   control = control)
   }
   
   

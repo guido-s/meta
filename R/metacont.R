@@ -34,7 +34,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      byseparator = gs("byseparator"),
                      ##
                      keepdata = gs("keepdata"),
-                     warn = gs("warn")
+                     warn = gs("warn"),
+                     ##
+                     control = NULL
                      ) {
   
   
@@ -424,13 +426,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                label.left = label.left, label.right = label.right,
                ##
                keepdata = FALSE,
-               warn = warn)
+               warn = warn,
+               ##
+               control = control)
   ##
   if (!missing.byvar & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
-                   TE.tau,
-                   byvar)
+    hcc <- hetcalc(TE, seTE, method.tau, TE.tau, byvar,
+                   control = control)
   }
   
   

@@ -45,6 +45,7 @@ metabin(event.e, n.e, event.c, n.c, studlab,
         print.CMH=gs("print.CMH"),
         keepdata=gs("keepdata"),
         warn=gs("warn"),
+        control=NULL,
         ...)
 }
 
@@ -148,6 +149,10 @@ metabin(event.e, n.e, event.c, n.c, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}
+  \item{control}{An optional list to control the iterative process to
+    estimate the between-study variance tau^2. This argument is passed
+    on to \code{\link[metafor]{rma.uni}} or
+    \code{\link[metafor]{rma.glmm}}, respectively.}
   \item{\dots}{Additional arguments passed on to
     \code{\link[metafor]{rma.glmm}} function.}
 }

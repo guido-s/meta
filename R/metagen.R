@@ -526,6 +526,7 @@ metagen <- function(TE, seTE, studlab,
               backtransf = backtransf,
               pscale = pscale,
               irscale = irscale, irunit = irunit,
+              control = control,
               version = packageDescription("meta")$Version)
   ##
   class(res) <- c(fun, "meta")
@@ -553,8 +554,6 @@ metagen <- function(TE, seTE, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
   }
-  ##
-  res$control  <- control
   ##
   class(res) <- c(fun, "meta")
   

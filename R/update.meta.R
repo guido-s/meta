@@ -57,6 +57,8 @@ update.meta <- function(object,
                         n.iter.max = object$n.iter.max,
                         ##
                         warn = object$warn,
+                        ##
+                        control = object$control,
                         ...) {
   
   
@@ -410,6 +412,8 @@ update.meta <- function(object,
                  ##
                  keepdata = keepdata,
                  warn = warn,
+                 ##
+                 control = control,
                  ...)
   }
   ##
@@ -447,7 +451,9 @@ update.meta <- function(object,
                   byseparator = byseparator,
                   ##
                   keepdata = keepdata,
-                  warn = warn)
+                  warn = warn,
+                  ##
+                  control = control)
   ##
   if (metacor)
     m <- metacor(cor = object$data$.cor,
@@ -477,7 +483,9 @@ update.meta <- function(object,
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                  byseparator = byseparator,
                  ##
-                 keepdata = keepdata)
+                 keepdata = keepdata,
+                 ##
+                 control = control)
   ##
   if (metagen) {
     data.m <- data
@@ -524,7 +532,9 @@ update.meta <- function(object,
                  byseparator = byseparator,
                  ##
                  keepdata = keepdata,
-                 warn = warn)
+                 warn = warn,
+                 ##
+                 control = control)
     if (add.e)
       m$data$n.e <- data$n.e
     if (add.c)
@@ -585,6 +595,8 @@ update.meta <- function(object,
                  ##
                  keepdata = keepdata,
                  warn = warn,
+                 ##
+                 control = control,
                  ...)
     if (add.e)
       m$data$n.e <- data$n.e
@@ -625,7 +637,9 @@ update.meta <- function(object,
                   byseparator = byseparator,
                   ##
                   keepdata = keepdata,
-                  warn = warn)
+                  warn = warn,
+                  ##
+                  control = control)
   ##
   if (metaprop)
     m <- metaprop(event = object$data$.event,
@@ -660,6 +674,8 @@ update.meta <- function(object,
                   ##
                   keepdata = keepdata,
                   warn = warn,
+                  ##
+                  control = control,
                   ...)
   ##
   if (metarate)
@@ -694,6 +710,8 @@ update.meta <- function(object,
                   ##
                   keepdata = keepdata,
                   warn = warn,
+                  ##
+                  control = control,
                   ...)
   ##  
   m$call.object <- object$call

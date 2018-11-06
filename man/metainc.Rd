@@ -39,6 +39,7 @@ metainc(event.e, time.e, event.c, time.c, studlab,
         byseparator = gs("byseparator"),
         keepdata=gs("keepdata"),
         warn=gs("warn"),
+        control=NULL,
 	...)
 }
 
@@ -128,6 +129,10 @@ metainc(event.e, time.e, event.c, time.c, studlab,
   \item{warn}{A logical indicating whether warnings should be printed
     (e.g., if \code{incr} is added to studies with zero cell
     frequencies).}
+  \item{control}{An optional list to control the iterative process to
+    estimate the between-study variance tau^2. This argument is passed
+    on to \code{\link[metafor]{rma.uni}} or
+    \code{\link[metafor]{rma.glmm}}, respectively.}
   \item{\dots}{Additional arguments passed on to
     \code{\link[metafor]{rma.glmm}} function.}
 }

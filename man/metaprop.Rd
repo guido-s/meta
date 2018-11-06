@@ -38,6 +38,7 @@ metaprop(event, n, studlab,
          byseparator = gs("byseparator"),
          keepdata=gs("keepdata"),
          warn=gs("warn"),
+         control=NULL,
          ...)
 }
 
@@ -118,6 +119,10 @@ metaprop(event, n, studlab,
     should be kept in meta object.}
   \item{warn}{A logical indicating whether the addition of \code{incr}
     to studies with zero or all events should result in a warning.}
+  \item{control}{An optional list to control the iterative process to
+    estimate the between-study variance tau^2. This argument is passed
+    on to \code{\link[metafor]{rma.uni}} or
+    \code{\link[metafor]{rma.glmm}}, respectively.}
   \item{\dots}{Additional arguments passed on to
     \code{\link[metafor]{rma.glmm}} function.}
 }
