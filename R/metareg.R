@@ -72,7 +72,7 @@ metareg <- function(x, formula,
 
 
   if (missing(formula)) {
-    if (!is.null(x$data$.byvar))
+    if (isCol(x$data, ".byvar"))
       if (intercept)
         formula <- as.call(~ .byvar)
       else

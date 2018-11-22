@@ -17,6 +17,8 @@
 
   * bubble.metareg():
     - ignore missing values in covariate to calculate limits on x-axis
+    - works if data set used to create meta-analysis object is a
+      tibble instead of a data frame
 
  ** Internal changes **
 

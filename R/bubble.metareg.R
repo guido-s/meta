@@ -76,9 +76,9 @@ bubble.metareg <- function(x,
       xlab = paste("Covariate", covar.name)
   ##
   if (covar.name %in% names(x$.meta$x$data))
-    covar <- x$.meta$x$data[, covar.name]
+    covar <- x$.meta$x$data[[covar.name]]
   else if (".byvar" %in% names(x$.meta$x$data))
-    covar <- x$.meta$x$data[, ".byvar"]
+    covar <- x$.meta$x$data[[".byvar"]]
   else
     covar <- get(covar.name)
   ##
