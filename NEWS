@@ -1,4 +1,4 @@
-*** meta, version 4.9-3, 2018-mm-dd ***
+*** meta, version 4.9-3, 2018-12-29 ***
 
  ** Major changes **
 
@@ -12,6 +12,9 @@
   * metabin(), metacont(), metacor(), metagen(), metainc(),
     metamean(), metaprop(), metarate(), update.meta():
     - new argument 'control' (see major changes)
+
+  * forest.meta():
+    - new argument 'calcwidth.subgroup'
 
  ** Bug fixes **
 

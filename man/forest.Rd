@@ -120,6 +120,7 @@ forest(x, ...)
        calcwidth.random=calcwidth.pooled,
        calcwidth.predict=FALSE,
        calcwidth.hetstat=FALSE, calcwidth.tests=FALSE,
+       calcwidth.subgroup=FALSE,
        #
        just=if (layout != "JAMA") "right" else "left",
        just.studlab="left", just.addcols="center",
@@ -469,22 +470,25 @@ forest(x, ...)
     the right side of forest plot and the forest plot.}
   \item{calcwidth.pooled}{A logical indicating whether text for fixed
     effect and random effects model should be considered to calculate
-    width of column with study labels, see next two arguments. }
+    width of the column with study labels.}
   \item{calcwidth.fixed}{A logical indicating whether text given in
     arguments \code{text.fixed} and \code{text.fixed.w} should be
-    considered to calculate width of column with study labels.}
+    considered to calculate width of the column with study labels.}
   \item{calcwidth.random}{A logical indicating whether text given in
     arguments \code{text.random} and \code{text.random.w} should be
-    considered to calculate width of column with study labels.}
+    considered to calculate width of the column with study labels.}
   \item{calcwidth.predict}{A logical indicating whether text given in
     argument \code{text.predict} should be considered to calculate
-    width of column with study labels.}
+    width of the column with study labels.}
   \item{calcwidth.hetstat}{A logical indicating whether text for
     heterogeneity statistics should be considered to calculate width
-    of column with study labels.}
+    of the column with study labels.}
   \item{calcwidth.tests}{A logical indicating whether text for tests
     of overall effect or subgroup differences should be considered to
-    calculate width of column with study labels.}
+    calculate width of the column with study labels.}
+  \item{calcwidth.subgroup}{A logical indicating whether text with
+    subgroup labels should be considered to calculate width of the
+    column with study labels.}
   \item{just}{Justification of text in all columns but columns
     with study labels and additional variables (possible values:
     "left", "right", "center").}
