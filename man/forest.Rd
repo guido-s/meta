@@ -207,9 +207,10 @@ forest(x, ...)
     group level.}
   \item{print.subgroup.labels}{A logical indicating whether subgroup
     label should be printed.}
-  \item{bylab}{A character string with a label for the grouping variable.}
-  \item{print.byvar}{A logical indicating whether the name of the grouping
-    variable should be printed in front of the group labels.}
+  \item{bylab}{A character string with a label for the grouping
+    variable.}
+  \item{print.byvar}{A logical indicating whether the name of the
+    grouping variable should be printed in front of the group labels.}
   \item{byseparator}{A character string defining the separator between
     label and levels of grouping variable.}
   \item{text.fixed.w}{A character string to label the pooled fixed
