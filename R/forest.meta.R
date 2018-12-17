@@ -1541,17 +1541,8 @@ forest.meta <- function(x,
     }
   }
   ##
-  if (by) {
+  if (by)
     n.by <- length(bylevs)
-    sel.by.fixed         <- 3 + 0 * n.by + 1:n.by
-    sel.by.random        <- 3 + 1 * n.by + 1:n.by
-    sel.by.het           <- 3 + 2 * n.by + 1:n.by
-    sel.by.effect.fixed  <- 3 + 3 * n.by + 1:n.by
-    sel.by.effect.random <- 3 + 4 * n.by + 1:n.by
-    sel.by <- c(sel.by.fixed, sel.by.random, sel.by.het,
-                sel.by.effect.fixed, sel.by.effect.random)
-    sel.by.noNA <- c(sel.by.het, sel.by.effect.fixed, sel.by.effect.random)
-  }
   else
     n.by <- 0
   ##
@@ -2408,7 +2399,18 @@ forest.meta <- function(x,
     n.harmonic.mean.w <- n.harmonic.mean.w[sel]
     t.harmonic.mean.w <- t.harmonic.mean.w[sel]
     k.all.w <- k.all.w[sel]
+    ##
     bylevs <- bylevs[sel]
+    n.by <- length(bylevs)
+    ##
+    sel.by.fixed         <- 3 + 0 * n.by + 1:n.by
+    sel.by.random        <- 3 + 1 * n.by + 1:n.by
+    sel.by.het           <- 3 + 2 * n.by + 1:n.by
+    sel.by.effect.fixed  <- 3 + 3 * n.by + 1:n.by
+    sel.by.effect.random <- 3 + 4 * n.by + 1:n.by
+    sel.by <- c(sel.by.fixed, sel.by.random, sel.by.het,
+                sel.by.effect.fixed, sel.by.effect.random)
+    sel.by.noNA <- c(sel.by.het, sel.by.effect.fixed, sel.by.effect.random)
     ##
     if (!metainf.metacum & comb.fixed) {
       if (!overall) {
@@ -4078,7 +4080,11 @@ forest.meta <- function(x,
     ##
     for (i in 1:n.by) {
       ##
-      k.i <- k.all.w[i]
+      if (allstudies)
+        k.i <- k.all.w[i]
+      else
+        k.i <- k.w[i]
+      ##
       k <- k + k.i
       ##
       if (print.subgroup.labels) {
@@ -5324,7 +5330,7 @@ forest.meta <- function(x,
   }
   ##
   popViewport()
-
-
+  
+  
   invisible(NULL)
 }
