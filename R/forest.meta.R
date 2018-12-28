@@ -2012,7 +2012,7 @@ forest.meta <- function(x,
   ##
   hetstat.resid <- ""
   ##
-  if (by && length(tau2.resid) == 0)
+  if (by && (length(tau2.resid) == 0 || is.na(tau2.resid)))
     print.tau2.resid <- FALSE
   else
     print.tau2.resid <- print.tau2
@@ -2023,7 +2023,7 @@ forest.meta <- function(x,
       paste(hetseparator,
             formatN(round(100 * I2.resid, digits.I2),
                     digits.I2, "NA"), "%",
-            if (print.I2.ci & !(is.na(lowI2.resid)| is.na(uppI2.resid)))
+            if (print.I2.ci & !(is.na(lowI2.resid) | is.na(uppI2.resid)))
               paste(" ",
                     formatCI(paste(formatN(round(100 * lowI2.resid, digits.I2),
                                            digits.I2, lab.NA),
