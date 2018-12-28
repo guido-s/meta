@@ -640,14 +640,19 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
-    else if (!is.null(tau.preset))
+      res$tau.resid <- NA
+    }
+    else if (!is.null(tau.preset)) {
       res <- c(res, subgroup(res, tau.preset))
+      res$tau.resid <- NA
+    }
     else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q
+      res$tau.resid <- hcc$tau
     }
     ##
     if (!tau.common || method.tau == "DL") {

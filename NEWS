@@ -1,9 +1,16 @@
 *** meta, version 4.9-4, 201y-mm-dd ***
 
+ ** Major changes **
+
+  * Information on residual heterogeneity in meta-analyses with
+    subgroups shown in printouts and forest plots
+
  ** User-visible changes **
 
-  * Print information on residual heterogeneity in meta-analyses with
-    subgroups
+  * forest.meta():
+    - new arguments 'resid.hetstat' and 'resid.hetlab' to control
+      printing of information on residual heterogeneity in
+      meta-analyses with subgroups
 
  ** Bug fixes **
 

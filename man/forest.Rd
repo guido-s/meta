@@ -63,6 +63,8 @@ forest(x, ...)
        hetstat = print.I2 | print.tau2 | print.Q | print.pval.Q | print.Rb,
        overall.hetstat = overall & hetstat,
        hetlab = "Heterogeneity: ",
+       resid.hetstat = overall & hetstat,
+       resid.hetlab = "Residual heterogeneity: ",
        print.I2 = comb.fixed | comb.random,
        print.I2.ci = FALSE,
        print.tau2 = comb.fixed | comb.random,
@@ -341,12 +343,16 @@ forest(x, ...)
   \item{hetstat}{A logical value indicating whether to print results for
     heterogeneity measures at all.}
   \item{overall.hetstat}{A logical value indicating whether to print
-    results for heterogeneity measures for overall treatment
-    comparisons. This argument is useful in a meta-analysis with
-    subgroups if heterogeneity statistics should only be printed on
-    subgroup level.}
+    heterogeneity measures for overall treatment comparisons. This
+    argument is useful in a meta-analysis with subgroups if
+    heterogeneity statistics should only be printed on subgroup level.}
   \item{hetlab}{Label printed in front of results for heterogeneity
     measures.}
+  \item{resid.hetstat}{A logical value indicating whether to print
+    measures of residual heterogeneity in a meta-analysis with
+    subgroups.}
+  \item{resid.hetlab}{Label printed in front of results for residual
+    heterogeneity measures.}
   \item{print.I2}{A logical value indicating whether to print the value
     of the I-squared statistic.}
   \item{print.I2.ci}{A logical value indicating whether to print the
