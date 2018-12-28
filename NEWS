@@ -1,5 +1,10 @@
 *** meta, version 4.9-4, 201y-mm-dd ***
 
+ ** User-visible changes **
+
+  * Print information on residual heterogeneity in meta-analyses with
+    subgroups
+
  ** Bug fixes **
 
   * forest.meta():

@@ -1,4 +1,6 @@
-hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
+hetcalc <- function(TE, seTE, method.tau, TE.tau,
+                    level.comb, byvar, control) {
+  
   
   Ccalc <- function(x) {
     res <- (sum(x, na.rm = TRUE) -
@@ -9,7 +11,10 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
   }
   
   
-  if (!missing(byvar)) {
+  by <- !missing(byvar)
+  
+  
+  if (by) {
     bylevs <- bylevs(byvar)
     ##
     if (method.tau == "DL") {
@@ -40,6 +45,12 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
         tau2 <- (Q - df.Q) / Cval
       ##
       se.tau2 <- NULL
+      ##
+      H.resid <- NA
+      lower.H.resid <- upper.H.resid <- NA
+      ##
+      I2.resid <- NA
+      lower.I2.resid <- upper.I2.resid <- NA
     }
     else {
       if (is.numeric(byvar))
@@ -56,6 +67,12 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
       tau2 <- mf1$tau2
       ##
       se.tau2 <- mf1$se.tau2
+      ##
+      H.resid <- sqrt(mf1$H2)
+      lower.H.resid <- upper.H.resid <- NA
+      ##
+      I2.resid <- mf1$I2 / 100
+      lower.I2.resid <- upper.I2.resid <- NA
     }
   }
   else {
@@ -101,11 +118,32 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau, byvar, control = NULL) {
   }
   
   
+  H  <- calcH(Q, df.Q, level.comb)
+  I2 <- isquared(Q, df.Q, level.comb)
+  
+  
   res <- list(tau = sqrt(tau2),
               se.tau2 = se.tau2,
               Q = Q,
               df.Q = df.Q,
-              Cval = Cval)
+              Cval = Cval,
+              ##
+              H = H$TE,
+              lower.H = H$lower,
+              upper.H = H$upper,
+              ##
+              I2 = I2$TE,
+              lower.I2 = I2$lower,
+              upper.I2 = I2$upper,
+              ##
+              H.resid = if (by) H.resid else NULL,
+              lower.H.resid = if (by) lower.H.resid else NULL,
+              upper.H.resid = if (by) upper.H.resid else NULL,
+              ##
+              I2.resid = if (by) I2.resid else NULL,
+              lower.I2.resid = if (by) lower.I2.resid else NULL,
+              upper.I2.resid = if (by) upper.I2.resid else NULL
+              )
   ##
   res
 }

@@ -140,6 +140,14 @@ summary.meta <- function(object,
   ##
   ci.Rb <- list(TE = object$Rb, lower = object$lower.Rb, upper = object$upper.Rb)
   ##
+  ci.H.resid <- list(TE = object$H.resid,
+                     lower = object$lower.H.resid,
+                     upper = object$upper.H.resid)
+  ##
+  ci.I2.resid <- list(TE = object$I2.resid,
+                      lower = object$lower.I2.resid,
+                      upper = object$upper.I2.resid)
+  ##
   ci.p <- list(TE = NA,
                seTE = object$seTE.predict,
                lower = object$lower.predict,
@@ -163,6 +171,7 @@ summary.meta <- function(object,
               k = object$k, Q = object$Q, df.Q = object$df.Q,
               Q.LRT = object$Q.LRT,
               tau = object$tau, H = ci.H, I2 = ci.I2, Rb = ci.Rb,
+              H.resid = ci.H.resid, I2.resid = ci.I2.resid,
               tau.preset = object$tau.preset,
               k.all = length(object$TE),
               Q.CMH = object$Q.CMH,

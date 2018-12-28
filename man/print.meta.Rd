@@ -227,11 +227,11 @@ cilayout(bracket="[", separator="; ")
   \item{se.tau}{Standard error of square-root of between-study variance.}
   \item{C}{Scaling factor utilised internally to calculate common
     tau-squared across subgroups.}
-  \item{H}{Heterogeneity statistic H  (a list with elements TE, lower, upper).}
+  \item{H}{Heterogeneity statistic H (a list with elements TE, lower, upper).}
   \item{I2}{Heterogeneity statistic I2 (a list with elements TE, lower,
     upper), see Higgins & Thompson (2002).}
   \item{Rb}{Heterogeneity statistic Rb (a list with elements TE,
-    lower, upper), see Crippa et al. (2016).}
+    lower, upper), see Crippa et al. (2016).}  
   \item{k.all}{Total number of studies.}
   \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall effect.}
   \item{sm}{A character string indicating underlying summary measure.}
@@ -267,6 +267,10 @@ cilayout(bracket="[", separator="; ")
   \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{Rb.w}{Heterogeneity statistic Rb within subgroups (a list with
+    elements TE, lower, upper) - if \code{byvar} is not missing.}
+  \item{H.resid}{Statistic H for residual heterogeneity (a list with
+    elements TE, lower, upper) - if \code{byvar} is not missing.}
+  \item{I2.resid}{Statistic I2 for residual heterogeneity (a list with
     elements TE, lower, upper) - if \code{byvar} is not missing.}
   \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
     missing.}

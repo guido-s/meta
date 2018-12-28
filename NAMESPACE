@@ -19,7 +19,7 @@ export(ci, settings.meta, forest, forest.meta,
 
 # not visible:
 # asin2p, formatPT, meta-internal, logit2p, formatCI, rmSpace, xlab, z2cor,
-# is.installed.package, crtitle, catmeth,
+# is.installed.package, crtitle, catmeth, cathet,
 # kentau, hypergeometric, linregcore, setOption, warnarg,
 # isquared, calcH, paulemandel, estimate.missing,
 # ciWilsonScore, ciAgrestiCoull, ciSimpleAsymptotic,

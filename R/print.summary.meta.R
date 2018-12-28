@@ -390,6 +390,7 @@ print.summary.meta <- function(x,
   ##
   if (is.na(k.all)) {
     ## Do nothing
+    return(invisible(NULL))
   }
   else if (k.all == 1) {
     ##
@@ -432,10 +433,13 @@ print.summary.meta <- function(x,
   }
   else if (is.na(k)) {
     ## Do nothing
+    return(invisible(NULL))
   }
   else {
     ##
+    ##
     ## Print results for meta-analysis with more than one study
+    ##
     ##
     if (comb.fixed | comb.random | prediction) {
       if (!inherits(x, "trimfill")) {
@@ -516,62 +520,56 @@ print.summary.meta <- function(x,
     ##
     ## Print information on heterogeneity
     ##
-    if (k.all > 1)
-      cat(paste("\nQuantifying heterogeneity:\n",
-                ##
-                formatPT(x$tau^2,
-                         lab = TRUE, labval = text.tau2,
-                         digits = digits.tau2,
-                         lab.NA = "NA",
-                         big.mark = big.mark),
-                ##
-                if (print.H)
-                  paste("; H = ",
-                        if (is.na(H)) "NA" else formatN(H, digits.H, "NA",
-                                                        big.mark = big.mark),
-                        ifelse(k > 2 & !(is.na(lowH) | is.na(uppH)),
-                               paste(" ", formatCI(formatN(lowH, digits.H,
-                                                           big.mark = big.mark),
-                                                   formatN(uppH, digits.H,
-                                                           big.mark = big.mark)),
-                                     sep = ""),
-                               ""),
-                        sep = ""),
-                ##
-                if (print.I2)
-                  paste("; ", text.I2, " = ",
-                        if (is.na(I2)) "NA" else paste(formatN(I2, digits.I2),
-                                                       "%", sep = ""),
-                        if (print.ci.I2)
-                          paste(" ",
-                                formatCI(paste(formatN(lowI2, digits.I2),
-                                               "%", sep = ""),
-                                         paste(formatN(uppI2, digits.I2),
-                                               "%", sep = "")),
-                                sep = ""),
-                        sep = ""),
-                ##
-                if (print.Rb)
-                  paste("; ",
-                        text.Rb, " = ",
-                        if (is.na(Rb)) "NA" else paste(formatN(Rb, digits.I2,
-                                                               big.mark = big.mark),
-                                                       "%", sep = ""),
-                        ifelse(k > 2 & !(is.na(lowRb) | is.na(uppRb)),
-                               paste(" ",
-                                     formatCI(paste(formatN(lowRb, digits.I2,
-                                                            big.mark = big.mark),
-                                                    "%", sep = ""),
-                                              paste(formatN(uppRb, digits.I2,
-                                                            big.mark = big.mark),
-                                                    "%", sep = "")),
-                                     sep = ""),
-                               ""),
-                        sep = ""),
-                "\n", sep = "")
-          )
+    cat("\nQuantifying heterogeneity:\n")
     ##
-    if (k.all > 1 & (comb.fixed|comb.random)) {
+    cathet(k, 
+           TRUE, text.tau2, x$tau, digits.tau2, big.mark,
+           print.H, H, lowH, uppH, digits.H,
+           print.I2, print.ci.I2, text.I2,
+           I2, lowI2, uppI2, digits.I2,
+           print.Rb, text.Rb, Rb, lowRb, uppRb)
+    ##
+    ## Print information on residual heterogeneity
+    ##
+    if (by & !inherits(x, "metabind")) {
+      ##
+      Q.resid <- x$Q.w.fixed
+      k.resid <- x$df.Q.w + 1
+      ##
+      if (print.H) {
+        H.resid <- round(x$H.resid$TE, digits.H)
+        lowH.resid <- round(x$H.resid$lower, digits.H)
+        uppH.resid <- round(x$H.resid$upper, digits.H)
+      }
+      if (print.I2) {
+        I2.resid <- round(100 * x$I2.resid$TE, digits.I2)
+        lowI2.resid <- round(100 * x$I2.resid$lower, digits.I2)
+        uppI2.resid <- round(100 * x$I2.resid$upper, digits.I2)
+        print.ci.I2 <-
+          ((Q.resid  > k.resid & k.resid >= 2) |
+           (Q.resid <= k.resid & k.resid > 2)) &
+          !(is.na(lowI2.resid) | is.na(uppI2.resid))
+        ##
+        if (is.na(print.ci.I2))
+          print.ci.I2 <- FALSE
+      }
+      ##
+      if (!is.na(I2.resid)) {
+        cat("\nQuantifying residual heterogeneity:\n")
+        ##
+        cathet(k.resid, 
+               x$tau.common, text.tau2, unique(x$tau.w),
+               digits.tau2, big.mark,
+               print.H, H.resid, lowH.resid, uppH.resid, digits.H,
+               print.I2, print.ci.I2, text.I2,
+               I2.resid, lowI2.resid, uppI2.resid, digits.I2,
+               FALSE, text.Rb, NA, NA, NA)
+      }
+    }
+    ##
+    ## Test of heterogeneity
+    ##
+    if (comb.fixed | comb.random) {
       if (k > 1) {
         if (x$method != "GLMM") {
           Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
@@ -753,40 +751,37 @@ print.summary.meta <- function(x,
         }
       }
     }
-  }
-  
-  
-  if ((comb.fixed | comb.random | prediction) & (is.na(k.all) | k.all > 1)) {
     ##
     ## Print information on summary method:
     ##
-    catmeth(class = class(x),
-            method = x$method,
-            method.tau = if (comb.random) x$method.tau else "",
-            sm = sm,
-            k.all = k.all,
-            hakn = !is.null(x$hakn) && (x$hakn & comb.random),
-            tau.common = by & x$tau.common,
-            tau.preset = x$tau.preset,
-            sparse = ifelse(bip, x$sparse, FALSE),
-            incr = if (bip) x$incr else FALSE,
-            allincr = ifelse(bip, x$allincr, FALSE),
-            addincr = ifelse(bip, x$addincr, FALSE),
-            allstudies = x$allstudies,
-            doublezeros = x$doublezeros,
-            MH.exact = ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
-            method.ci = x$method.ci,
-            pooledvar = x$pooledvar,
-            method.smd = x$method.smd,
-            sd.glass = x$sd.glass,
-            exact.smd = x$exact.smd,
-            model.glmm = x$model.glmm,
-            pscale = pscale,
-            irscale = irscale,
-            irunit = irunit,
-            null.effect = if (null.given) null.effect else 0,
-            big.mark = big.mark,
-            digits = digits, digits.tau2 = digits.tau2)
+    if (comb.fixed | comb.random | prediction)
+      catmeth(class = class(x),
+              method = x$method,
+              method.tau = if (comb.random) x$method.tau else "",
+              sm = sm,
+              k.all = k.all,
+              hakn = !is.null(x$hakn) && (x$hakn & comb.random),
+              tau.common = by & x$tau.common,
+              tau.preset = x$tau.preset,
+              sparse = ifelse(bip, x$sparse, FALSE),
+              incr = if (bip) x$incr else FALSE,
+              allincr = ifelse(bip, x$allincr, FALSE),
+              addincr = ifelse(bip, x$addincr, FALSE),
+              allstudies = x$allstudies,
+              doublezeros = x$doublezeros,
+              MH.exact = ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
+              method.ci = x$method.ci,
+              pooledvar = x$pooledvar,
+              method.smd = x$method.smd,
+              sd.glass = x$sd.glass,
+              exact.smd = x$exact.smd,
+              model.glmm = x$model.glmm,
+              pscale = pscale,
+              irscale = irscale,
+              irunit = irunit,
+              null.effect = if (null.given) null.effect else 0,
+              big.mark = big.mark,
+              digits = digits, digits.tau2 = digits.tau2)
   }
   
   

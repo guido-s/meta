@@ -137,7 +137,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
-  missing.byvar <- is.null(byvar)
+  by <- !is.null(byvar)
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -156,16 +156,16 @@ metagen <- function(TE, seTE, studlab,
   chklength(seTE, k.All, fun)
   chklength(studlab, k.All, fun)
   ##
-  if (!missing.byvar)
+  if (by)
     chklength(byvar, k.All, fun)
   ##
   ## Additional checks
   ##
-  if (missing.byvar & tau.common) {
+  if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
+  if (by & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
@@ -173,7 +173,7 @@ metagen <- function(TE, seTE, studlab,
     chklength(n.e, k.All, fun)
   if (!is.null(n.c))
     chklength(n.c, k.All, fun)
-  if (!missing.byvar) {
+  if (by) {
     chklogical(print.byvar)
     chkchar(byseparator)
   }
@@ -201,7 +201,7 @@ metagen <- function(TE, seTE, studlab,
   else
     exclude <- rep(FALSE, k.All)
   ##
-  if (!missing.byvar) {
+  if (by) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
@@ -223,7 +223,7 @@ metagen <- function(TE, seTE, studlab,
     data$.seTE <- seTE
     data$.studlab <- studlab
     ##
-    if (!missing.byvar)
+    if (by)
       data$.byvar <- byvar
     ##
     if (!missing.subset) {
@@ -252,7 +252,7 @@ metagen <- function(TE, seTE, studlab,
     ##
     exclude <- exclude[subset]
     ##
-    if (!missing.byvar)
+    if (by)
       byvar <- byvar[subset]
     ##
     if (!is.null(n.e))
@@ -333,6 +333,9 @@ metagen <- function(TE, seTE, studlab,
       df.hakn <- NA
     ##
     Cval <- NA
+    ##
+    hc <- list(H = NA, lower.H = NA, upper.H = NA,
+               I2 = NA, lower.I2 = NA, upper.I2 = NA)
   }
   else {
     ## At least two studies to perform Hartung-Knapp method
@@ -340,12 +343,12 @@ metagen <- function(TE, seTE, studlab,
       hakn <- FALSE
     ## Estimate tau-squared
     hc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau,
-                  control = control)
+                  level.comb, control = control)
     ##
-    if (!missing.byvar & tau.common) {
+    if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
-      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau, byvar,
-                     control = control)
+      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau,
+                     level.comb, byvar, control)
     }
     ##
     if (is.null(tau.preset)) {
@@ -447,10 +450,8 @@ metagen <- function(TE, seTE, studlab,
     p.upper <- NA
   }
   ##
-  ## Calculate H, I-Squared, and Rb
+  ## Calculate Rb
   ##
-  Hres  <- calcH(Q, df.Q, level.comb)
-  I2res <- isquared(Q, df.Q, level.comb)
   Rbres <- Rb(seTE[!is.na(seTE)], seTE.random, tau2.calc, Q, df.Q, level.comb)
   
   
@@ -484,13 +485,13 @@ metagen <- function(TE, seTE, studlab,
               tau = sqrt(tau2), se.tau2 = se.tau2,
               C = Cval,
               ##
-              H = Hres$TE,
-              lower.H = Hres$lower,
-              upper.H = Hres$upper,
+              H = hc$H,
+              lower.H = hc$lower.H,
+              upper.H = hc$upper.H,
               ##
-              I2 = I2res$TE,
-              lower.I2 = I2res$lower,
-              upper.I2 = I2res$upper,
+              I2 = hc$I2,
+              lower.I2 = hc$lower.I2,
+              upper.I2 = hc$upper.I2,
               ##
               Rb = Rbres$TE,
               lower.Rb = Rbres$lower,
@@ -533,7 +534,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Add results from subgroup analysis
   ##
-  if (!missing.byvar) {
+  if (by) {
     res$byvar <- byvar
     res$bylab <- bylab
     ##
@@ -547,12 +548,38 @@ metagen <- function(TE, seTE, studlab,
       res$df.Q.w.random <- hcc$df.Q
     }
     ##
+    if (!tau.common || method.tau == "DL") {
+      ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
+      ##
+      res$H.resid <- ci.H.resid$TE
+      res$lower.H.resid <- ci.H.resid$lower
+      res$upper.H.resid <- ci.H.resid$upper
+    }
+    else {
+      res$H.resid <- hcc$H.resid
+      res$lower.H.resid <- hcc$lower.H.resid
+      res$upper.H.resid <- hcc$upper.H.resid
+    }
+    ##
+    if (!tau.common || method.tau == "DL") {
+      ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
+      ##
+      res$I2.resid <- ci.I2.resid$TE
+      res$lower.I2.resid <- ci.I2.resid$lower
+      res$upper.I2.resid <- ci.I2.resid$upper
+    }
+    else {
+      res$I2.resid <- hcc$I2.resid
+      res$lower.I2.resid <- hcc$lower.I2.resid
+      res$upper.I2.resid <- hcc$upper.I2.resid
+    }
+    ##
     res$event.e.w <- NULL
     res$event.c.w <- NULL
-    res$event.w <- NULL
-    res$n.w <- NULL
-    res$time.e.w <- NULL
-    res$time.c.w <- NULL
+    res$event.w   <- NULL
+    res$n.w       <- NULL
+    res$time.e.w  <- NULL
+    res$time.c.w  <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

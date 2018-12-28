@@ -159,11 +159,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
-  missing.byvar <- is.null(byvar)
-  if (method == "GLMM" & !missing.byvar) {
+  by <- !is.null(byvar)
+  if (method == "GLMM" & by) {
     warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
     byvar <- NULL
-    missing.byvar <- is.null(byvar)
+    by <- FALSE
   }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
@@ -188,7 +188,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
   ##
-  if (!missing.byvar)
+  if (by)
     chklength(byvar, k.All, fun)
   ##
   if (!is.null(n.e))
@@ -216,11 +216,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       tau.preset <- NULL
     }
   }
-  if (missing.byvar & tau.common) {
+  if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
-  if (!missing.byvar & !tau.common & !is.null(tau.preset)) {
+  if (by & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
@@ -248,7 +248,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   else
     exclude <- rep(FALSE, k.All)
   ##
-  if (!missing.byvar) {
+  if (by) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
@@ -274,7 +274,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     data$.incr <- incr
     ##
-    if (!missing.byvar)
+    if (by)
       data$.byvar <- byvar
     ##
     if (!missing.subset) {
@@ -313,7 +313,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (length(incr) > 1)
       incr <- incr[subset]
     ##
-    if (!missing.byvar)
+    if (by)
       byvar <- byvar[subset]
     ##
     if (!is.null(n.e))
@@ -502,11 +502,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                ##
                control = control)
   ##
-  if (!missing.byvar & tau.common) {
+  if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
                    if (method == "Inverse") TE.tau else TE.fixed,
-                   byvar, control = control)
+                   level.comb, byvar, control)
   }
   
   
@@ -633,7 +633,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Add results from subgroup analysis
   ##
-  if (!missing.byvar) {
+  if (by) {
     res$byvar <- byvar
     res$bylab <- bylab
     res$print.byvar <- print.byvar
@@ -648,6 +648,32 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q
+    }
+    ##
+    if (!tau.common || method.tau == "DL") {
+      ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
+      ##
+      res$H.resid <- ci.H.resid$TE
+      res$lower.H.resid <- ci.H.resid$lower
+      res$upper.H.resid <- ci.H.resid$upper
+    }
+    else {
+      res$H.resid <- hcc$H.resid
+      res$lower.H.resid <- hcc$lower.H.resid
+      res$upper.H.resid <- hcc$upper.H.resid
+    }
+    ##
+    if (!tau.common || method.tau == "DL") {
+      ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
+      ##
+      res$I2.resid <- ci.I2.resid$TE
+      res$lower.I2.resid <- ci.I2.resid$lower
+      res$upper.I2.resid <- ci.I2.resid$upper
+    }
+    else {
+      res$I2.resid <- hcc$I2.resid
+      res$lower.I2.resid <- hcc$lower.I2.resid
+      res$upper.I2.resid <- hcc$upper.I2.resid
     }
     ##
     res$event.w <- NULL

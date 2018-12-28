@@ -192,45 +192,45 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    )
   }
   ##
-  TE.fixed.w    <- res.w[,1]
-  seTE.fixed.w  <- res.w[,2]
-  Q.w           <- res.w[,3]
-  k.w           <- res.w[,4]
-  k.all.w       <- res.w[,5]
-  TE.random.w   <- res.w[,6]
-  seTE.random.w <- res.w[,7]
+  TE.fixed.w    <- res.w[, 1]
+  seTE.fixed.w  <- res.w[, 2]
+  Q.w           <- res.w[, 3]
+  k.w           <- res.w[, 4]
+  k.all.w       <- res.w[, 5]
+  TE.random.w   <- res.w[, 6]
+  seTE.random.w <- res.w[, 7]
   ##
-  H.w     <- res.w[,8]
-  H.w.low <- res.w[,9]
-  H.w.upp <- res.w[,10]
+  H.w     <- res.w[, 8]
+  H.w.low <- res.w[, 9]
+  H.w.upp <- res.w[, 10]
   ##
-  I2.w     <- res.w[,11]
-  I2.w.low <- res.w[,12]
-  I2.w.upp <- res.w[,13]
+  I2.w     <- res.w[, 11]
+  I2.w.low <- res.w[, 12]
+  I2.w.upp <- res.w[, 13]
   ##
-  tau.w <- res.w[,14]
+  tau.w <- res.w[, 14]
   ##
-  C.w   <- res.w[,15]
+  C.w <- res.w[, 15]
   ##
-  n.harmonic.mean.w <- res.w[,16]
+  n.harmonic.mean.w <- res.w[, 16]
   ##
-  w.fixed.w <- res.w[,17]
-  w.random.w <- res.w[,18]
+  w.fixed.w  <- res.w[, 17]
+  w.random.w <- res.w[, 18]
   ##
-  event.e.w <- res.w[,19]
-  n.e.w <- res.w[,20]
-  event.c.w <- res.w[,21]
-  n.c.w <- res.w[,22]
-  event.w <- res.w[,23]
-  n.w <- res.w[,24]
+  event.e.w <- res.w[, 19]
+  n.e.w     <- res.w[, 20]
+  event.c.w <- res.w[, 21]
+  n.c.w     <- res.w[, 22]
+  event.w   <- res.w[, 23]
+  n.w       <- res.w[, 24]
   ##
   time.e.w <- res.w[, 25]
   time.c.w <- res.w[, 26]
   t.harmonic.mean.w <- res.w[, 27]
   ##
-  Rb.w     <- res.w[,28]
-  Rb.w.low <- res.w[,29]
-  Rb.w.upp <- res.w[,30]
+  Rb.w     <- res.w[, 28]
+  Rb.w.low <- res.w[, 29]
+  Rb.w.upp <- res.w[, 30]
   ##
   ## GLMM with common tau-squared
   ##
@@ -293,6 +293,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   else
     ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb)
   ##
+  ## Tests for subgroup differences
+  ##
   Q.w.fixed <- sum(Q.w, na.rm = TRUE)
   df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
   pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
@@ -340,17 +342,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               k.w = k.w,
               k.all.w = k.all.w,
               Q.w = Q.w,
-              Q.w.fixed = Q.w.fixed,
-              Q.w.random = NA,
-              df.Q.w = df.Q.w,
-              pval.Q.w.fixed = pval.Q.w.fixed,
-              pval.Q.w.random = NA,
               ##
-              Q.b.fixed = Q.b.fixed,
-              Q.b.random = Q.b.random,
-              df.Q.b = df.Q.b,
-              pval.Q.b.fixed = pval.Q.b.fixed,
-              pval.Q.b.random = pval.Q.b.random,
               tau.w = tau.w,
               C.w = C.w,
               ##
@@ -364,7 +356,19 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               ##
               Rb.w = Rb.w,
               lower.Rb.w = Rb.w.low,
-              upper.Rb.w = Rb.w.upp
+              upper.Rb.w = Rb.w.upp,
+              ##
+              Q.w.fixed = Q.w.fixed,
+              Q.w.random = NA,
+              df.Q.w = df.Q.w,
+              pval.Q.w.fixed = pval.Q.w.fixed,
+              pval.Q.w.random = NA,
+              ##
+              Q.b.fixed = Q.b.fixed,
+              Q.b.random = Q.b.random,
+              df.Q.b = df.Q.b,
+              pval.Q.b.fixed = pval.Q.b.fixed,
+              pval.Q.b.random = pval.Q.b.random
               )
   
   
