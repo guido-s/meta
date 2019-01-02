@@ -465,7 +465,6 @@ metaprop(event, n, studlab,
 \seealso{\code{\link{update.meta}}, \code{\link{metacont}}, \code{\link{metagen}}, \code{\link{print.meta}}}
 
 \examples{
-#
 # Apply various meta-analysis methods to estimate proportions
 #
 m1 <- metaprop(4:1, 10 * 1:4)
@@ -488,7 +487,6 @@ forest(m1)
 # forest(m5)
 
 
-#
 # Do not back transform results, e.g. print logit transformed
 # proportions if sm="PLOGIT" and store old settings
 #
@@ -512,7 +510,6 @@ forest(m6)
 settings.meta(oldset)
 
 
-#
 # Examples with zero events
 #
 m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4))
@@ -525,7 +522,6 @@ summary(m2)
 # forest(m2)
 
 
-#
 # Example from Miller (1978):
 #
 death <- c(3, 6, 10, 1)
@@ -535,7 +531,6 @@ m3 <- metaprop(death, animals, sm="PFT")
 forest(m3)
 
 
-#
 # Data examples from Newcombe (1998)
 # - apply various methods to estimate confidence intervals for
 #   individual studies
@@ -602,13 +597,10 @@ print(metaprop(event, n, sm="PLN"), ma=FALSE, backtransf=FALSE)
 round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 
 
-#
 # Meta-analysis using generalised linear mixed models
-# (only if R packages 'metafor' and 'lme4' are available)
+# (R packages 'metafor' and 'lme4' must be available)
 #
-if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
-    require(lme4, quietly = TRUE))
- metaprop(event, n, method = "GLMM")
+# metaprop(event, n, method = "GLMM")
 
 
 #
