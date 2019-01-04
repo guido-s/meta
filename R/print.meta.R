@@ -52,6 +52,10 @@
 #'   below 0 and backtransformed proportions are above 1.
 #' @param \dots Additional arguments (passed on to
 #'   \code{print.summary.meta} called internally).
+#' @param bracket A character with bracket symbol to print lower
+#'   confidence interval: "[", "(", "\{", "".
+#' @param separator A character string with information on separator
+#'   between lower and upper confidence interval.
 #' 
 #' @details
 #' R function cilayout can be utilised to change the layout to print
@@ -106,6 +110,7 @@
 #' print(m1, text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
 #' }
 #' 
+#' @rdname print.meta
 #' @export
 #' @export print.meta
 
@@ -620,5 +625,30 @@ print.meta <- function(x,
   }
 
 
+  invisible(NULL)
+}
+
+
+
+
+
+#' @rdname print.meta
+#' @export cilayout
+
+
+cilayout <- function(bracket = "[", separator = "; ") {
+  
+  ibracket <- charmatch(bracket,
+                        c("[", "(", "{", ""),
+                        nomatch = NA)
+  ##
+  if (is.na(ibracket) | ibracket == 0)
+    stop("No valid bracket type specified. Admissible values: '[', '(', '{', '\"\"'")
+  
+  bracket <- c("[", "(", "{", "")[ibracket]
+  
+  setOption("CIbracket", bracket)
+  setOption("CIseparator", separator)
+  
   invisible(NULL)
 }

@@ -71,8 +71,6 @@
 #' @param warn.backtransf A logical indicating whether a warning
 #'   should be printed if backtransformed proportions and rates are
 #'   below 0 and backtransformed proportions are above 1.
-#' @param bracket A character with bracket symbol to print lower
-#'   confidence interval: "[", "(", "{", or "".
 #' @param print.H A logical specifying whether heterogeneity statistic
 #'   H should be printed.
 #' @param print.Rb A logical specifying whether heterogeneity

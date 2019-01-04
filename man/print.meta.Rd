@@ -13,6 +13,8 @@
   digits.tau2 = gs("digits.tau2"), digits.I2 = gs("digits.I2"),
   digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
   big.mark = gs("big.mark"), warn.backtransf = FALSE, ...)
+
+cilayout(bracket = "[", separator = "; ")
 }
 \arguments{
 \item{x}{An object of class \code{meta}}
@@ -81,6 +83,12 @@ below 0 and backtransformed proportions are above 1.}
 
 \item{\dots}{Additional arguments (passed on to
 \code{print.summary.meta} called internally).}
+
+\item{bracket}{A character with bracket symbol to print lower
+confidence interval: "[", "(", "\{", "".}
+
+\item{separator}{A character string with information on separator
+between lower and upper confidence interval.}
 }
 \description{
 Print method for objects of class \code{meta}.
