@@ -1,5 +1,5 @@
 # meta: General Package for Meta-Analysis
-Official GitHub repository of R package **meta**
+Official Git repository of R package **meta**
 
 [![Build Status](https://travis-ci.org/guido-s/meta.svg?branch=master)](https://travis-ci.org/guido-s/meta)
 [![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
@@ -22,7 +22,7 @@ User-friendly general package providing standard methods for meta-analysis and s
  
 ### References
 
-[Schwarzer G, Carpenter JR and Rücker G (2015), *Meta-Analysis with R (Use-R!)*. Springer International Publishing, Switzerland](http://www.springer.com/gp/book/9783319214153)
+[Schwarzer G, Carpenter JR and Rücker G (2015): *Meta-Analysis with R (Use-R!)*. Springer International Publishing, Switzerland](http://www.springer.com/gp/book/9783319214153)
 
 
 ## Installation

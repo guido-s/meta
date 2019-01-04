@@ -1,3 +1,133 @@
+#' Meta-analysis of outcome data from Cochrane review
+#' 
+#' @description
+#' Wrapper function to perform meta-analysis for a single outcome of a
+#' Cochrane Intervention review.
+#' 
+#' @param x An object of class \code{rm5} created by R function
+#'   \code{read.rm5}.
+#' @param comp.no Comparison number.
+#' @param outcome.no Outcome number.
+#' @param method A character string indicating which method is to be
+#'   used for pooling of studies. One of \code{"Inverse"},
+#'   \code{"MH"}, or \code{"Peto"}, can be abbreviated.
+#' @param sm A character string indicating which summary measure
+#'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"},
+#'   \code{"HR"}, \code{"MD"}, or \code{"SMD"}, or \code{"ROM"}) is to
+#'   be used for pooling of studies.
+#' @param level The level used to calculate confidence intervals for
+#'   individual studies.
+#' @param level.comb The level used to calculate confidence intervals
+#'   for pooled estimates.
+#' @param comb.fixed A logical indicating whether a fixed effect
+#'   meta-analysis should be conducted.
+#' @param comb.random A logical indicating whether a random effects
+#'   meta-analysis should be conducted.
+#' @param hakn A logical indicating whether the method by Hartung and
+#'   Knapp should be used to adjust test statistics and confidence
+#'   intervals.
+#' @param method.tau A character string indicating which method is
+#'   used to estimate the between-study variance \eqn{\tau^2}. Either
+#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
+#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
+#'   abbreviated.
+#' @param tau.common A logical indicating whether tau-squared should
+#'   be the same across subgroups.
+#' @param prediction A logical indicating whether a prediction
+#'   interval should be printed.
+#' @param level.predict The level used to calculate prediction
+#'   interval for a new study.
+#' @param swap.events A logical indicating whether events and
+#'   non-events should be interchanged.
+#' @param logscale A logical indicating whether effect estimates are
+#'   entered on log-scale.
+#' @param backtransf A logical indicating whether results should be
+#'   back transformed in printouts and plots. If
+#'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
+#'   printed as odds ratios rather than log odds ratios and results
+#'   for \code{sm="ZCOR"} are printed as correlations rather than
+#'   Fisher's z transformed correlations, for example.
+#' @param title Title of meta-analysis / systematic review.
+#' @param complab Comparison label.
+#' @param outclab Outcome label.
+#' @param keepdata A logical indicating whether original data (set)
+#'   should be kept in meta object.
+#' @param warn A logical indicating whether warnings should be printed
+#'   (e.g., if \code{incr} is added to studies with zero cell
+#'   frequencies).
+#' 
+#' @details
+#' Cochrane Intervention reviews are based on the comparison of two
+#' interventions. Each Cochrane Intervention review can have a
+#' variable number of comparisons. For each comparison, a variable
+#' number of outcomes can be define. For each outcome, a seperate
+#' meta-analysis is conducted. Review Manager 5 (RevMan 5) is the
+#' current software used for preparing and maintaining Cochrane
+#' Reviews
+#' (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}).
+#' 
+#' This wrapper function can be used to perform meta-analysis for a
+#' single outcome of a Cochrane Intervention review. Internally, R
+#' functions \code{metabin}, \code{metacont}, and \code{metagen} are
+#' called - depending on the definition of the outcome in RevMan 5.
+#' 
+#' Note, it is recommended to choose the RevMan 5 settings before
+#' executing \code{metacr}, i.e.,
+#' \itemize{
+#' \item[] settings.meta("revman5")
+#' }
+#' 
+#' @return
+#' An object of class \code{"meta"} and \code{"metabin"},
+#' \code{"metacont"}, or \code{"metagen"} depending on outcome type
+#' utilised in Cochrane Intervention review for selected outcome.
+#' 
+#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' 
+#' @seealso \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metagen}}, \code{\link{read.rm5}},
+#'   \code{\link{settings.meta}}
+#' 
+#' @references
+#' \emph{Review Manager (RevMan)}
+#' [Computer program]. Version 5.3.
+#' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+#' 
+#' @keywords "Cochrane review"
+#' 
+#' @examples
+#' # Locate export data file "Fleiss93_CR.csv"
+#' # in sub-directory of package "meta"
+#' #
+#' filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
+#' #
+#' Fleiss93_CR <- read.rm5(filename)
+#' 
+#' # Choose RevMan 5 settings and store old settings
+#' #
+#' oldset <- settings.meta("revman5")
+#' 
+#' # Same result as R command example(Fleiss93)
+#' #
+#' metacr(Fleiss93_CR)
+#' 
+#' # Same result as R command example(Fleiss93cont)
+#' #
+#' metacr(Fleiss93_CR, 1, 2)
+#' forest(metacr(Fleiss93_CR, 1, 2))
+#' 
+#' # Change summary measure to RR
+#' #
+#' m1 <- metacr(Fleiss93_CR)
+#' update(m1, sm="RR")
+#' 
+#' # Use old settings
+#' #
+#' settings.meta(oldset)
+#' 
+#' @export metacr
+
+
 metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    method, sm,

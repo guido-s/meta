@@ -1,0 +1,68 @@
+#' Elevated CO_2 and total biomass of woody plants
+#' 
+#' @description
+#' Meta-analysis on effects of elevated CO_2 on total biomass of woody
+#' plants
+#' 
+#' This dataset has been used as an example in Hedges et al. (1999) to
+#' describe methods for the meta-analysis of response ratios. The
+#' complete dataset with 102 observations and 26 variables is
+#' available online as a supplement. Here only a subset of 10
+#' variables is provided and used in the examples.
+#' 
+#' @name woodyplants
+#' 
+#' @docType data
+#' 
+#' @format A data frame with the following columns:
+#' \tabular{rl}{
+#' \bold{\emph{obsno}}\tab observation number \cr
+#' \bold{\emph{papno}}\tab database paper number \cr
+#' \bold{\emph{treat}}\tab treatment code \cr
+#' \bold{\emph{level}}\tab treatment level \cr
+#' \bold{\emph{n.elev}}\tab number of observations in experimental
+#'   group (elevated CO_2-level) \cr
+#' \bold{\emph{mean.elev}}\tab estimated mean in experimental group
+#'   \cr
+#' \bold{\emph{sd.elev}}\tab standard deviation in experimental group
+#'   \cr
+#' \bold{\emph{n.amb}}\tab number of observations in control group
+#'   (ambient CO_2-level) \cr
+#' \bold{\emph{mean.amb}}\tab estimated mean in control group \cr
+#' \bold{\emph{sd.amb}}\tab standard deviation in control group
+#' }
+#' 
+#' @references
+#' Hedges LV, Gurevitch J, Curtis PS (1999):
+#' The meta-analysis of response ratios in experimental ecology.
+#' \emph{Ecology},
+#' \bold{80}, 1150--6
+#' 
+#' @source
+#' Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
+#' 
+#' @keywords datasets
+#' 
+#' @examples
+#' data(woodyplants)
+#' 
+#' # Meta-analysis of response ratios (Hedges et al., 1999)
+#' #
+#' m1 <- metacont(n.elev, mean.elev, sd.elev,
+#'                n.amb, mean.amb, sd.amb,
+#'                data = woodyplants, sm = "ROM",
+#'                studlab = paste(obsno, papno, sep = " / "))
+#' summary(m1, prediction = TRUE)
+#' 
+#' # Meta-analysis for plants grown with low soil fertility treatment
+#' #
+#' m2 <- update(m1, subset = (treat == "fert" & level == "low"))
+#' summary(m2, prediction = TRUE)
+#' 
+#' # Meta-analysis for plants grown under low light conditions
+#' #
+#' m3 <- update(m1, subset = (treat == "light" & level == "low"))
+#' summary(m3, prediction = TRUE)
+
+
+"woodyplants"

@@ -1,3 +1,115 @@
+#' Print meta-analysis results
+#' 
+#' @description
+#' Print method for objects of class \code{meta}.
+#' 
+#' @aliases print.meta cilayout
+#' 
+#' @param x An object of class \code{meta}
+#' @param sortvar An optional vector used to sort the individual
+#'   studies (must be of same length as \code{x$TE}).
+#' @param comb.fixed A logical indicating whether a fixed effect
+#'   meta-analysis should be conducted.
+#' @param comb.random A logical indicating whether a random effects
+#'   meta-analysis should be conducted.
+#' @param prediction A logical indicating whether a prediction
+#'   interval should be printed.
+#' @param details A logical indicating whether further details of
+#'   individual studies should be printed.
+#' @param ma A logical indicating whether the summary results of the
+#'   meta-analysis should be printed.
+#' @param backtransf A logical indicating whether printed results
+#'   should be back transformed. If \code{backtransf = TRUE}, results
+#'   for \code{sm = "OR"} are printed as odds ratios rather than log
+#'   odds ratios and results for \code{sm = "ZCOR"} are printed as
+#'   correlations rather than Fisher's z transformed correlations, for
+#'   example.
+#' @param pscale A numeric giving scaling factor for printing of
+#'   single event probabilities or risk differences, i.e. if argument
+#'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+#'   \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.
+#' @param irscale A numeric defining a scaling factor for printing of
+#'   single incidence rates or incidence rate differences, i.e. if
+#'   argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+#'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
+#' @param irunit A character specifying the time unit used to
+#'   calculate rates, e.g. person-years.
+#' @param digits Minimal number of significant digits, see
+#'   \code{print.default}.
+#' @param digits.se Minimal number of significant digits for standard
+#'   deviations and standard errors, see \code{print.default}.
+#' @param digits.tau2 Minimal number of significant digits for
+#'   between-study variance, see \code{print.default}.
+#' @param digits.I2 Minimal number of significant digits for I-squared
+#'   and Rb statistic, see \code{print.default}.
+#' @param digits.prop Minimal number of significant digits for
+#'   proportions, see \code{print.default}.
+#' @param digits.weight Minimal number of significant digits for
+#'   weights, see \code{print.default}.
+#' @param big.mark A character used as thousands separator.
+#' @param warn.backtransf A logical indicating whether a warning
+#'   should be printed if backtransformed proportions and rates are
+#'   below 0 and backtransformed proportions are above 1.
+#' @param \dots Additional arguments (passed on to
+#'   \code{print.summary.meta} called internally).
+#' 
+#' @details
+#' R function cilayout can be utilised to change the layout to print
+#' confidence intervals (both in printout from print.meta and
+#' print.summary.meta function as well as in forest plots). The
+#' default layout is "[lower; upper]". Another popular layout is
+#' "(lower - upper)" which is used throughout an R session by using R
+#' command \code{cilayout("(", " - ")}.
+#' 
+#' Argument \code{pscale} can be used to rescale single proportions or
+#' risk differences, e.g. \code{pscale = 1000} means that proportions
+#' are expressed as events per 1000 observations. This is useful in
+#' situations with (very) low event probabilities.
+#' 
+#' Argument \code{irscale} can be used to rescale single rates or rate
+#' differences, e.g. \code{irscale = 1000} means that rates are
+#' expressed as events per 1000 time units, e.g. person-years. This is
+#' useful in situations with (very) low rates. Argument \code{irunit}
+#' can be used to specify the time unit used in individual studies
+#' (default: "person-years"). This information is printed in summaries
+#' and forest plots if argument \code{irscale} is not equal to 1.
+#'
+#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' 
+#' @seealso \code{\link{summary.meta}}, \code{\link{update.meta}},
+#'   \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metagen}}
+#' 
+#' @references Cooper H & Hedges LV (1994), \emph{The Handbook of
+#'   Research Synthesis}.  Newbury Park, CA: Russell Sage Foundation.
+#' 
+#' Crippa A, Khudyakov P, Wang M, Orsini N, Spiegelman D (2016), A new measure
+#' of between-studies heterogeneity in meta-analysis.  \emph{Statistics in
+#' Medicine}, \bold{35}, 3661--75.
+#' 
+#' Higgins JPT & Thompson SG (2002), Quantifying heterogeneity in a
+#' meta-analysis.  \emph{Statistics in Medicine}, \bold{21}, 1539--58.
+#' 
+#' @keywords print
+#' 
+#' @examples
+#' data(Fleiss93cont)
+#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
+#'                data = Fleiss93cont, sm = "SMD",
+#'                studlab = paste(study, year))
+#' m1
+#' 
+#' print(m1, digits = 2)
+#' 
+#' \dontrun{
+#' # Use unicode characters to print tau^2 and I^2 
+#' print(m1, text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+#' }
+#' 
+#' @export
+#' @export print.meta
+
+
 print.meta <- function(x,
                        sortvar,
                        comb.fixed = x$comb.fixed,

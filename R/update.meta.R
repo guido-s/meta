@@ -1,3 +1,212 @@
+#' Update a meta-analysis object
+#' 
+#' @description
+#' Update an existing meta-analysis object.
+#' 
+#' @param object An object of class \code{meta}.
+#' @param data Dataset.
+#' @param subset Subset.
+#' @param studlab Study label.
+#' @param exclude An optional vector specifying studies to exclude
+#'   from meta-analysis, however, to include in printouts and forest
+#'   plots.
+#' @param method A character string indicating which method is to be
+#'   used for pooling of studies; see \code{\link{metabin}} and
+#'   \code{\link{metainc}} function for admissible values.
+#' @param sm A character string indicating which summary measure is
+#'   used for pooling.
+#' @param incr Either a numerical value or vector which can be added
+#'   to each cell frequency for studies with a zero cell count or the
+#'   character string \code{"TA"} which stands for treatment arm
+#'   continuity correction.
+#' @param allincr A logical indicating if \code{incr} is added to each
+#'   cell frequency of all studies if at least one study has a zero
+#'   cell count. If FALSE (default), \code{incr} is added only to each
+#'   cell frequency of studies with a zero cell count.
+#' @param addincr A logical indicating if \code{incr} is added to each
+#'   cell frequency of all studies irrespective of zero cell counts.
+#' @param allstudies A logical indicating if studies with zero or all
+#'   events in both groups are to be included in the meta-analysis
+#'   (applies only if \code{sm} is equal to \code{"RR"} or
+#'   \code{"OR"}).
+#' @param MH.exact A logical indicating if \code{incr} is not to be
+#'   added to all cell frequencies for studies with a zero cell count
+#'   to calculate the pooled estimate based on the Mantel-Haenszel
+#'   method.
+#' @param RR.cochrane A logical indicating if 2*\code{incr} instead of
+#'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
+#'   calculation of the risk ratio (i.e., \code{sm = "RR"}) for
+#'   studies with a zero cell. This is used in RevMan 5, the Cochrane
+#'   Collaboration's program for preparing and maintaining Cochrane
+#'   reviews.
+#' @param model.glmm A character string indicating which GLMM model
+#'   should be used.
+#' @param level The level used to calculate confidence intervals for
+#'   individual studies.
+#' @param level.comb The level used to calculate confidence intervals
+#'   for pooled estimates.
+#' @param comb.fixed A logical indicating whether a fixed effect
+#'   meta-analysis should be conducted.
+#' @param comb.random A logical indicating whether a random effects
+#'   meta-analysis should be conducted.
+#' @param hakn A logical indicating whether the method by Hartung and
+#'   Knapp should be used to adjust test statistics and confidence
+#'   intervals.
+#' @param method.tau A character string indicating which method is
+#'   used to estimate the between-study variance \eqn{\tau^2}. Either
+#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
+#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
+#'   abbreviated. See function \code{\link{metagen}}.
+#' @param tau.preset Prespecified value for the square-root of the
+#'   between-study variance \eqn{\tau^2}.
+#' @param TE.tau Overall treatment effect used to estimate the
+#'   between-study variance \eqn{\tau^2}.
+#' @param tau.common A logical indicating whether tau-squared should
+#'   be the same across subgroups.
+#' @param prediction A logical indicating whether a prediction
+#'   interval should be printed.
+#' @param level.predict The level used to calculate prediction
+#'   interval for a new study.
+#' @param null.effect A numeric value specifying the effect under the
+#'   null hypothesis.
+#' @param method.bias A character string indicating which test for
+#'   funnel plot asymmetry is to be used. Either \code{"rank"},
+#'   \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
+#'   \code{"peters"}, can be abbreviated. See function
+#'   \code{\link{metabias}}
+#' @param backtransf A logical indicating whether results should be
+#'   back transformed in printouts and plots. If \code{backtransf =
+#'   TRUE}, results for \code{sm = "OR"} are printed as odds ratios
+#'   rather than log odds ratios and results for \code{sm = "ZCOR"}
+#'   are printed as correlations rather than Fisher's z transformed
+#'   correlations, for example.
+#' @param pscale A numeric giving scaling factor for printing of
+#'   single event probabilities or risk differences, i.e. if argument
+#'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+#'   \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.
+#' @param irscale A numeric defining a scaling factor for printing of
+#'   single incidence rates or incidence rate differences, i.e. if
+#'   argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+#'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
+#' @param irunit A character specifying the time unit used to
+#'   calculate rates, e.g. person-years.
+#' @param title Title of meta-analysis / systematic review.
+#' @param complab Comparison label.
+#' @param outclab Outcome label.
+#' @param label.e Label for experimental group.
+#' @param label.c Label for control group.
+#' @param label.left Graph label on left side of forest plot.
+#' @param label.right Graph label on right side of forest plot.
+#' @param n.e Number of observations in experimental group. (only for
+#'   metagen object)
+#' @param n.c Number of observations in control group. (only for
+#'   metagen object)
+#' @param pooledvar A logical indicating if a pooled variance should
+#'   be used for the mean difference (only for metacont object with
+#'   \code{sm = "MD"}).
+#' @param method.smd A character string indicating which method is
+#'   used to estimate the standardised mean difference (only for
+#'   metacont object with \code{sm = "SMD"}). Either \code{"Hedges"}
+#'   for Hedges' g (default), \code{"Cohen"} for Cohen's d, or
+#'   \code{"Glass"} for Glass' delta, can be abbreviated.
+#' @param sd.glass A character string indicating which standard
+#'   deviation is used in the denominator for Glass' method to
+#'   estimate the standardised mean difference (only for metacont
+#'   object with \code{sm = "SMD"}). Either \code{"control"} using the
+#'   standard deviation in the control group (\code{sd.c}) or
+#'   \code{"experimental"} using the standard deviation in the
+#'   experimental group (\code{sd.e}), can be abbreviated.
+#' @param exact.smd A logical indicating whether exact formulae should
+#'   be used in estimation of the standardised mean difference and its
+#'   standard error.
+#' @param method.ci A character string indicating which method is used
+#'   to calculate confidence intervals for individual studies. Either
+#'   \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
+#'   \code{"SA"},, \code{"SACC"}, or \code{"NAsm"}, can be
+#'   abbreviated. See function \code{\link{metaprop}}.
+#' @param byvar An optional vector containing grouping information
+#'   (must be of same length as \code{event.e}).
+#' @param bylab A character string with a label for the grouping
+#'   variable.
+#' @param print.byvar A logical indicating whether the name of the
+#'   grouping variable should be printed in front of the group labels.
+#' @param byseparator A character string defining the separator
+#'   between label and levels of grouping variable.
+#' @param print.CMH A logical indicating whether result of the
+#'   Cochran-Mantel-Haenszel test for overall effect should be
+#'   printed.
+#' @param keepdata A logical indicating whether original data (set)
+#'   should be kept in meta object.
+#' @param left A logical indicating whether studies are supposed to be
+#'   missing on the left or right side of the funnel plot. If NULL,
+#'   the linear regression test for funnel plot symmetry (i.e.,
+#'   function \code{metabias(..., method = "linreg")}) is used to
+#'   determine whether studies are missing on the left or right side.
+#' @param ma.fixed A logical indicating whether a fixed effect or
+#'   random effects model is used to estimate the number of missing
+#'   studies.
+#' @param type A character indicating which method is used to estimate
+#'   the number of missing studies. Either \code{"L"} or \code{"R"}.
+#' @param n.iter.max Maximum number of iterations to estimate number
+#'   of missing studies.
+#' @param warn A logical indicating whether warnings should be printed
+#'   (e.g., if \code{incr} is added to studies with zero cell
+#'   frequencies).
+#' @param control An optional list to control the iterative process to
+#'   estimate the between-study variance tau^2. This argument is
+#'   passed on to \code{\link[metafor]{rma.uni}} or
+#'   \code{\link[metafor]{rma.glmm}}, respectively.
+#' @param \dots Additional arguments (ignored at the moment).
+#' 
+#' @details
+#' Wrapper function to update an existing meta-analysis object which
+#' was created with R function \code{\link{metabin}},
+#' \code{\link{metacont}}, \code{\link{metacor}},
+#' \code{\link{metagen}}, \code{\link{metainc}},
+#' \code{\link{metamean}}, \code{\link{metaprop}}, or
+#' \code{\link{metarate}}. More details on function arguments are
+#' available in help files of respective R functions
+#' 
+#' This function can also be used for objects of class 'trimfill',
+#' 'metacum', and 'metainf'.
+#' 
+#' @return
+#' An object of class \code{"meta"} and \code{"metabin"},
+#' \code{"metacont"}, \code{"metacor"}, \code{"metainc"},
+#' \code{"metagen"}, \code{"metamean"}, \code{"metaprop"}, or
+#' \code{"metarate"}.
+#' 
+#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' 
+#' @seealso \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metacor}}, \code{\link{metagen}},
+#'   \code{\link{metainc}}, \code{\link{metamean}},
+#'   \code{\link{metaprop}}, \code{\link{metarate}}
+#' 
+#' @examples
+#' data(Fleiss93cont)
+#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
+#'                data = Fleiss93cont, sm = "SMD", studlab = study)
+#' m1
+#' 
+#' # Change summary measure (from 'SMD' to 'MD')
+#' #
+#' update(m1, sm = "MD")
+#' 
+#' # Restrict analysis to subset of studies
+#' #
+#' update(m1, subset = 1:2)
+#' 
+#' # Use different levels for confidence intervals
+#' #
+#' m2 <- update(m1, level = 0.66, level.comb = 0.99)
+#' print(m2, digits = 2)
+#' forest(m2)
+#' 
+#' @export
+#' @export update.meta
+
+
 update.meta <- function(object, 
                         data = object$data,
                         subset = object$subset,
