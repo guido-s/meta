@@ -319,8 +319,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Single means"
-#' 
 #' @examples
 #' m1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
 #' m1

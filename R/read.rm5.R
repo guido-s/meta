@@ -157,8 +157,8 @@
 #' \emph{Review Manager (RevMan)}
 #' [Computer program]. Version 5.3.
 #' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
-#'
-#' @keywords "Cochrane review" "Import data"
+#' 
+#' @keywords datagen
 #' 
 #' @examples
 #' # Locate export data file "Fleiss93_CR.csv"

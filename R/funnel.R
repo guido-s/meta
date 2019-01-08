@@ -126,7 +126,7 @@
 #' \emph{Journal of Clinical Epidemiology},
 #' \bold{54}, 1046--55
 #' 
-#' @keywords "Funnel plot"
+#' @keywords hplot
 #' 
 #' @examples
 #' data(Olkin95)

@@ -307,8 +307,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Correlation"
-#' 
 #' @examples
 #' m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #' 

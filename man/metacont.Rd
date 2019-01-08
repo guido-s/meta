@@ -538,5 +538,3 @@ cluster-randomized trials, with applications to meta-analysis.
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Continuous}
-\keyword{data"}

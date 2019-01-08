@@ -75,8 +75,6 @@
 #' Cooper H & Hedges LV (1994):
 #' \emph{The Handbook of Research Synthesis}.
 #' Newbury Park, CA: Russell Sage Foundation
-#' 
-#' @keywords "Leave-one-out" "Influence analysis"
 #'
 #' @examples
 #' data(Fleiss93)

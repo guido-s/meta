@@ -390,5 +390,3 @@ Conducting Meta-Analyses in R with the Metafor Package.
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Single}
-\keyword{means"}

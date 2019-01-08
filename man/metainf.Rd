@@ -113,6 +113,3 @@ Newbury Park, CA: Russell Sage Foundation
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Influence}
-\keyword{"Leave-one-out"}
-\keyword{analysis"}

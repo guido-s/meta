@@ -74,8 +74,6 @@
 #' \emph{The Handbook of Research Synthesis}.
 #' Newbury Park, CA: Russell Sage Foundation
 #' 
-#' @keywords "Cumulative meta-analysis"
-#' 
 #' @examples 
 #' data(Fleiss93)
 #' m1 <- metabin(event.e, n.e, event.c, n.c,

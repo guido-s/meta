@@ -66,5 +66,3 @@ The Cochrane Library: http://www.cochrane-handbook.org
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Cochrane}
-\keyword{review"}

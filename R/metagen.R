@@ -334,8 +334,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Generic inverse variance method"
-#' 
 #' @examples
 #' data(Fleiss93)
 #' m1 <- metabin(event.e, n.e, event.c, n.c,

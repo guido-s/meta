@@ -124,6 +124,8 @@
 #' \emph{Meta-Analysis with R (Use-R!)}.
 #' Springer International Publishing, Switzerland
 #'
+#' @keywords package
+#'
 #' @importFrom grid arrow gpar grid.draw grid.layout grid.lines
 #'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob
 #'   popViewport pushViewport viewport unit unit.c convertX

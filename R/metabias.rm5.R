@@ -49,7 +49,7 @@
 #'   Version 5.1.0 [Updated March 2011]}.
 #' The Cochrane Library: http://www.cochrane-handbook.org
 #' 
-#' @keywords "Cochrane review" "Test for funnel plot asymmetry"
+#' @keywords htest
 #' 
 #' @examples
 #' # Locate export data file "Fleiss93_CR.csv" in sub-directory of

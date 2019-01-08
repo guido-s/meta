@@ -96,7 +96,4 @@ several clinical trials.
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Galbraith}
-\keyword{"radial}
 \keyword{hplot}
-\keyword{plot"}

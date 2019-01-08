@@ -201,8 +201,6 @@
 #' \emph{Journal of Clinical Epidemiology},
 #' \bold{63}, 282--8
 #' 
-#' @keywords htest "Trim and fill method"
-#' 
 #' @examples
 #' data(Fleiss93)
 #' m1 <- metabin(event.e, n.e, event.c, n.c, data = Fleiss93, sm = "OR")

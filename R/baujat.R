@@ -67,7 +67,7 @@
 #' \emph{Statistics in Medicine},
 #' \bold{30}, 2641--52
 #' 
-#' @keywords hplot "Baujat plot"
+#' @keywords hplot
 #' 
 #' @examples
 #' data(Olkin95)

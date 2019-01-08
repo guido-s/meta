@@ -222,6 +222,4 @@ Meta-analysis in clinical research.
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"L'Abbé}
 \keyword{hplot}
-\keyword{plot"}

@@ -183,7 +183,7 @@
 #' \emph{Statistics in Medicine},
 #' \bold{18}, 2693--708
 #'
-#' @keywords "Test for funnel plot asymmetry"
+#' @keywords htest
 #' 
 #' @examples
 #' data(Olkin95)

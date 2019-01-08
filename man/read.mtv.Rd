@@ -78,7 +78,4 @@ Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2003
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Cochrane}
-\keyword{"Import}
-\keyword{data"}
-\keyword{review"}
+\keyword{datagen}

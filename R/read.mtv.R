@@ -48,8 +48,8 @@
 #' \emph{Review Manager (RevMan)}
 #' [Computer program]. Version 4.2.
 #' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2003
-
-#' @keywords "Cochrane review" "Import data"
+#' 
+#' @keywords datagen
 #' 
 #' @examples
 #' # Locate MTV-data file "FLEISS93.MTV" in sub-directory of R package

@@ -444,8 +444,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Single proportions"
-#' 
 #' @examples
 #' # Apply various meta-analysis methods to estimate proportions
 #' #

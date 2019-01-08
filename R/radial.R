@@ -50,7 +50,7 @@
 #' \emph{Statistics in Medicine},
 #' \bold{7}, 889--94
 #' 
-#' @keywords hplot "Galbraith plot" "radial plot"
+#' @keywords hplot
 #' 
 #' @examples
 #' data(Olkin95)

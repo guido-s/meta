@@ -265,8 +265,3 @@ trim-and-fill method for selection bias in meta-analysis
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Trim}
-\keyword{and}
-\keyword{fill}
-\keyword{htest}
-\keyword{method"}

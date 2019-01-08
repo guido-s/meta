@@ -34,8 +34,6 @@
 #'   Version 5.1.0 [Updated March 2011]}.
 #' The Cochrane Library: http://www.cochrane-handbook.org
 #' 
-#' @keywords "Cochrane review"
-#' 
 #' @examples
 #' # Locate export data file "Fleiss93_CR.csv"
 #' # in sub-directory of package "meta"

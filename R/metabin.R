@@ -536,8 +536,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Binary data"
-#' 
 #' @examples
 #' # Calculate odds ratio and confidence interval for a single study
 #' #

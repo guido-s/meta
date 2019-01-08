@@ -427,8 +427,6 @@
 #' \emph{Clinical Trials},
 #' \bold{2}, 141--51
 #' 
-#' @keywords "Continuous data"
-#' 
 #' @examples
 #' data(Fleiss93cont)
 #'

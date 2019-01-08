@@ -130,6 +130,4 @@ Application to a meta-analysis of 65 trials.
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Baujat}
 \keyword{hplot}
-\keyword{plot"}

@@ -441,8 +441,6 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Event data" 
-#' 
 #' @examples
 #' data(smoking)
 #' m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,

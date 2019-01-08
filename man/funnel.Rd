@@ -233,5 +233,4 @@ choice of axis.
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}, Petra
   Graham \email{pgraham@efs.mq.edu.au}
 }
-\keyword{"Funnel}
-\keyword{plot"}
+\keyword{hplot}

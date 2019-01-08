@@ -159,5 +159,3 @@ Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Cochrane}
-\keyword{review"}

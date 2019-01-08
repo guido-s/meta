@@ -63,7 +63,7 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
-#' @keywords "Meta-regression"
+#' @keywords models regression
 #' 
 #' @examples
 #' data(Fleiss93cont)

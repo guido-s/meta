@@ -93,8 +93,6 @@
 #' [Computer program]. Version 5.3.
 #' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
 #' 
-#' @keywords "Cochrane review"
-#' 
 #' @examples
 #' # Locate export data file "Fleiss93_CR.csv"
 #' # in sub-directory of package "meta"

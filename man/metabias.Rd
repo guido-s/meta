@@ -214,8 +214,4 @@ Explaining heterogeneity in meta-analysis: a comparison of methods,
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Test}
-\keyword{asymmetry"}
-\keyword{for}
-\keyword{funnel}
-\keyword{plot}
+\keyword{htest}

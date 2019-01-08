@@ -112,7 +112,7 @@
 #' \emph{Annals of Internal Medicine},
 #' \bold{107}, 224--33
 #' 
-#' @keywords hplot "L'Abbé plot"
+#' @keywords hplot
 #' 
 #' @examples
 #' data(Olkin95)

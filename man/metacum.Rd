@@ -110,5 +110,3 @@ Newbury Park, CA: Russell Sage Foundation
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{"Cumulative}
-\keyword{meta-analysis"}
