@@ -97,7 +97,6 @@
 #' 
 #' No test for funnel plot asymmetry is conducted in meta-analyses
 #' with subgroups.
-#' 
 #' @return
 #' A list with class \code{htest} containing the following components
 #' if a test for funnel plot asymmetry is conducted:
