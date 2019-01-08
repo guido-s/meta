@@ -111,6 +111,7 @@
 #' }
 #' 
 #' @rdname print.meta
+#' @method print meta
 #' @export
 #' @export print.meta
 
