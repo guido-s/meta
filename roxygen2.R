@@ -6,7 +6,7 @@ library(roxygen2)
 
 
 ##
-## (2) Create documentation file(s) in subdirectory testroxygen/man
+## (2) Create documentation file(s)
 ##
 document("../meta")
 
