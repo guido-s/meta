@@ -1,6 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 4.9-5
+Date: 2019-01-05
 Depends: R (>= 2.9.1)
 Imports: grid
 Suggests: metafor (>= 1.9-9), lme4, numDeriv, BiasedUrn
@@ -8,7 +9,6 @@ Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "sc@imbi.uni-freiburg.de",
                   comment = c(ORCID = "0000-0001-6214-9087"))
-Date: 2019-01-05
 URL: https://github.com/guido-s/meta http://meta-analysis-with-r.org
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker <DOI:10.1007/978-3-319-21416-0>, "Meta-Analysis with R" (2015):
  - fixed effect and random effects meta-analysis;

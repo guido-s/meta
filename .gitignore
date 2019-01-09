@@ -6,3 +6,4 @@ src-x86_64
 symbols.rds
 .Rhistory
 .DS_Store
+.Rproj.user
