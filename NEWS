@@ -4,6 +4,9 @@
  
   * Use roxygen2 for development of R package meta
 
+  * Harbord test for funnel plot asymmetry implemented for risk ratio
+    as effect measure
+
 *** meta, version 4.9-4, 2019-01-02 ***
 
  ** Major changes **

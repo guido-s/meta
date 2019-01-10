@@ -79,9 +79,9 @@
 #' 
 #' If argument \code{method.bias} is \code{"score"}, the test
 #' statistic is based on a weighted linear regression utilising
-#' efficient score and score variance (Harbord et al., 2006). The test
-#' statistic follows a t distribution with \code{number of studies -
-#' 2} degrees of freedom.
+#' efficient score and score variance (Harbord et al., 2006,
+#' 2009). The test statistic follows a t distribution with
+#' \code{number of studies - 2} degrees of freedom.
 #' 
 #' In order to calculate an arcsine test for funnel plot asymmetry
 #' (Rücker et al., 2008), one has to use the \code{metabin} function
@@ -116,7 +116,7 @@
 #' \item{complab}{Comparison label.}
 #' \item{outclab}{Outcome label.}
 #' \item{version}{Version of R package \bold{meta} used to create
-#'   object.
+#'   object.}
 #'
 #' Or a list with the following elements if test is not conducted due
 #' to the number of studies:
@@ -149,6 +149,11 @@
 #' controlled trials with binary endpoints.
 #' \emph{Statistics in Medicine},
 #' \bold{25}, 3443--57
+#'
+#' Harbord RM, Harris RJ, Sterne JAC (2009):
+#' Updated tests for small-study effects in meta–analyses.
+#' \emph{The Stata Journal},
+#' \bold{9}, 197--210
 #' 
 #' Kendall M & Gibbons JD (1990):
 #' \emph{Rank Correlation Methods}.
@@ -475,13 +480,27 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         se.bias <- lreg$se.slope / sqrt(lreg$MSE.w)
       }
       else if (method.bias == "score") {
-        ##
-        ## Harbord et al. (2006), Stat Med
-        ##
         if (inherits(x, "metabin")) {
-          Z <- event.e - (event.e + event.c) * n.e / (n.e + n.c)
-          V <- (n.e * n.c * (event.e + event.c) * 
-                  (n.e - event.e + n.c - event.c) / ((n.e + n.c)^2 * ((n.e + n.c) - 1)))
+          if (x$sm == "RR") {
+            ##
+            ## Harbord et al. (2009), The Stata Journal
+            ##
+            Z <- (event.e * (n.e + n.c) - (event.e + event.c) * n.e) /
+              (n.e - event.e + n.c - event.c)
+            V <- n.e * n.c * (event.e + event.c) /  
+              ((n.e + n.c) * (n.e - event.e + n.c - event.c))
+          }
+          else {
+            if (x$sm != "OR")
+              warning("Using odds ratio as effect measure in Harbord test.")
+            ##
+            ## Harbord et al. (2006), Statistics in Medicine
+            ##
+            Z <- event.e - (event.e + event.c) * n.e / (n.e + n.c)
+            V <- n.e * n.c * (event.e + event.c) * 
+              (n.e - event.e + n.c - event.c) /
+              ((n.e + n.c)^2 * ((n.e + n.c) - 1))
+          }
           ##
           TE.score <- Z / V
           seTE.score <- 1 / sqrt(V)
@@ -490,7 +509,9 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           se.bias <- lreg$se.slope
         }
         else {
-          stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
+          stop("method.bias '", method.bias,
+               "' only defined for meta-analysis ",
+               "with binary outcome data (function 'metabin')")
         }
       }
       else if (method.bias == "peters") {
@@ -660,7 +681,8 @@ print.metabias <- function(x, ...) {
     ## Check whether meta-analysis has subgroups:
     ##
     if (length(x$subgroup) != 0)
-      warning("No test for small study effects conducted for meta-analysis with subgroups.")
+      warning("No test for small study effects conducted ",
+              "for meta-analysis with subgroups.")
   }
   
   invisible(NULL)

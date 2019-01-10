@@ -42,6 +42,35 @@ statistic is used for rank correlation methods \code{"rank"} and
 \item{k.min}{Minimum number of studies to perform test for funnel
 plot asymmetry.}
 }
+\value{
+A list with class \code{htest} containing the following components
+if a test for funnel plot asymmetry is conducted:
+\item{estimate}{The estimated degree of funnel plot asymmetry, with
+  name \code{"ks"} or \code{"bias"} corresponding to the method
+  employed, i.e., rank correlation or regression method.}
+\item{statistic}{The value of the test statistic.}
+\item{parameters}{The degrees of freedom of the test statistic in
+  the case that it follows a t distribution.}
+\item{p.value}{The p-value for the test.}
+\item{alternative}{A character string describing the alternative
+  hypothesis.}
+\item{method}{A character string indicating what type of test was
+  used.}
+\item{data.name}{A character string giving the names of the data.}
+  \item{title}{Title of Cochrane review.}
+\item{complab}{Comparison label.}
+\item{outclab}{Outcome label.}
+\item{version}{Version of R package \bold{meta} used to create
+  object.}
+
+Or a list with the following elements if test is not conducted due
+to the number of studies:
+\item{k}{Number of studies in meta-analysis.}
+\item{k.min}{Minimum number of studies to perform test for funnel
+  plot asymmetry.}
+\item{version}{Version of R package \bold{meta} used to create
+  object.}
+}
 \description{
 Test for funnel plot asymmetry, based on rank correlation or linear
 regression method.
@@ -101,9 +130,9 @@ continuity correction is utilised (Kendall & Gibbons, 1990).
 
 If argument \code{method.bias} is \code{"score"}, the test
 statistic is based on a weighted linear regression utilising
-efficient score and score variance (Harbord et al., 2006). The test
-statistic follows a t distribution with \code{number of studies -
-2} degrees of freedom.
+efficient score and score variance (Harbord et al., 2006,
+2009). The test statistic follows a t distribution with
+\code{number of studies - 2} degrees of freedom.
 
 In order to calculate an arcsine test for funnel plot asymmetry
 (Rücker et al., 2008), one has to use the \code{metabin} function
@@ -172,6 +201,11 @@ A modified test for small-study effects in meta-analyses of
 controlled trials with binary endpoints.
 \emph{Statistics in Medicine},
 \bold{25}, 3443--57
+
+Harbord RM, Harris RJ, Sterne JAC (2009):
+Updated tests for small-study effects in meta–analyses.
+\emph{The Stata Journal},
+\bold{9}, 197--210
 
 Kendall M & Gibbons JD (1990):
 \emph{Rank Correlation Methods}.
