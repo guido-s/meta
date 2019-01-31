@@ -746,8 +746,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   fun <- "metabin"
   ##
+  chklogical(warn)
   if (sm != "RD" & pscale != 1) {
-    warning("Argument 'pscale' only considered for risk differences.")
+    if (warn)
+      warning("Argument 'pscale' only considered for risk differences.")
     pscale <- 1
   }
   ##
@@ -770,7 +772,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
   chklogical(print.CMH)
-  chklogical(warn)
   chkmetafor(method.tau, fun)
   ##
   if (sm == "ASD")
@@ -839,7 +840,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                 data, enclos = sys.frame(sys.parent()))
   by <- !is.null(byvar)
   if (method == "GLMM" & by) {
-    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
+    if (warn)
+      warning("Argument 'byvar' not considered for GLMMs. Use metareg ",
+              "function for subgroup analysis of GLMM meta-analyses.")
     byvar <- NULL
     by <- FALSE
   }
@@ -890,11 +893,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   if (!by & tau.common) {
-    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    if (warn)
+      warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
-    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    if (warn)
+      warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
 
@@ -1053,12 +1058,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   sel3 <- n.e <= 0 | n.c <= 0
   if ((any(sel3, na.rm = TRUE)) & warn)
-    warning("Studies with non-positive values for n.e and / or n.c get no weight in meta-analysis.")
+    warning("Studies with non-positive values for n.e and / or n.c ",
+            "get no weight in meta-analysis.")
   incl[sel3] <- NA
   ##
   sel4 <- event.e < 0 | event.c < 0
   if ((any(sel4, na.rm = TRUE)) & warn)
-    warning("Studies with negative values for event.e and / or event.c get no weight in meta-analysis.")
+    warning("Studies with negative values for event.e and / or event.c ",
+            "get no weight in meta-analysis.")
   incl[sel4] <- NA
   ##
   ## Sparse computation
@@ -1099,17 +1106,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         (!missing(allstudies) & allstudies)
         )
       if (sm == "ASD") {
-        if (sparse | addincr) {
-          warning("Note, no continuity correction considered for arcsine difference (sm = \"ASD\").")
+        if ((sparse | addincr) & warn) {
+          warning("Note, no continuity correction considered ",
+                  "for arcsine difference (sm = \"ASD\").")
         }
       }
       else if (method == "Peto") {
-        if (sparse | addincr)
-          warning("Note, no continuity correction considered for method = \"Peto\".")
+        if ((sparse | addincr) & warn)
+          warning("Note, no continuity correction considered ",
+                  "for method = \"Peto\".")
       }
       else if (method == "GLMM") {
-        if (sparse | addincr)
-          warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
+        if ((sparse | addincr) & warn)
+          warning("Note, for method = \"GLMM\", continuity correction ",
+                  "only used to calculate individual study results.")
       }
   }
   ##

@@ -158,6 +158,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
                         warn = x$warn)
     ##
+    else
+      stop("No meta-analysis object used for subgroup analysis.")
+    ##
     ##
     res.w[j,] <- c(meta1$TE.fixed,                            #  1
                    meta1$seTE.fixed,                          #  2

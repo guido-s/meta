@@ -35,6 +35,28 @@
 #'   null hypothesis.
 #' @param n.e Number of observations in experimental group.
 #' @param n.c Number of observations in control group.
+#' @param pval P-value (used to estimate the standard error).
+#' @param df Degrees of freedom (used in test or to construct
+#'   confidence interval).
+#' @param lower Lower limit of confidence interval (used to estimate
+#'   the standard error).
+#' @param upper Upper limit of confidence interval (used to estimate
+#'   the standard error).
+#' @param level.ci Level of confidence interval.
+#' @param median Median (used to estimate the treatment effect and
+#'   standard error).
+#' @param q1 First quartile (used to estimate the treatment effect and
+#'   standard error).
+#' @param q3 Third quartile (used to estimate the treatment effect and
+#'   standard error).
+#' @param min Minimum (used to estimate the treatment effect and
+#'   standard error).
+#' @param max Maximum (used to estimate the treatment effect and
+#'   standard error).
+#' @param approx.TE Approximation method to estimate treatment
+#'   estimate (see Details).
+#' @param approx.seTE Approximation method to estimate standard error
+#'   (see Details).
 #' @param hakn A logical indicating whether method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
@@ -101,6 +123,8 @@
 #' For several arguments defaults settings are utilised (assignments
 #' using \code{\link{gs}} function). These defaults can be changed
 #' using the \code{\link{settings.meta}} function.
+#'
+#' Instead of providing the standard errors of individual studies directly
 #' 
 #' Internally, both fixed effect and random effects models are
 #' calculated regardless of values choosen for arguments
@@ -389,6 +413,11 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     n.e = NULL, n.c = NULL,
                     ##
+                    pval, df, lower, upper, level.ci = 0.95,
+                    median, q1, q3, min, max,
+                    ##
+                    approx.TE, approx.seTE,
+                    ##
                     backtransf = gs("backtransf"),
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
@@ -450,7 +479,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(keepdata)
   ##
-  ## Additional arguments / checks for metacont objects
+  ## Additional arguments / checks
   ##
   fun <- "metagen"
   chklogical(warn)
@@ -462,7 +491,8 @@ metagen <- function(TE, seTE, studlab,
   }
   ##
   if (!is.null(tau.preset) & method.tau == "PM") {
-    warning("Argument 'tau.preset' not considered as argument method.tau = \"PM\".")
+    warning("Argument 'tau.preset' not considered as",
+            "argument method.tau = \"PM\".")
     tau.preset <- NULL
   }
   
@@ -479,16 +509,39 @@ metagen <- function(TE, seTE, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch 'TE', 'seTE', 'n.e', and 'n.c' from data:
+  ## Catch 'TE', 'seTE', 'median', 'n.e', and 'n.c' from data:
+  ##
+  missing.TE <- missing(TE)
+  missing.seTE <- missing(seTE)
+  missing.median <- missing(median)
+  ##
+  if (missing.TE & missing.median)
+    stop("Either argument 'TE' or 'median' must be provided.",
+         call. = FALSE)
   ##
   TE <- eval(mf[[match("TE", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
-  chknull(TE)
-  k.All <- length(TE)
   ##
   seTE <- eval(mf[[match("seTE", names(mf))]],
                data, enclos = sys.frame(sys.parent()))
-  chknull(seTE)
+  ##
+  median <- eval(mf[[match("median", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  ##
+  k.All <- if (!missing.TE) length(TE) else length(median)
+  ##
+  if (!missing.TE)
+    chknull(TE)
+  else
+    TE <- rep_len(NA, k.All)
+  ##
+  if (!missing.seTE)
+    chknull(seTE)
+  else
+    seTE <- rep_len(NA, k.All)
+  ##
+  if (!missing.median)
+    chknull(median)
   ##
   n.e <- eval(mf[[match("n.e", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
@@ -513,6 +566,53 @@ metagen <- function(TE, seTE, studlab,
   exclude <- eval(mf[[match("exclude", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   missing.exclude <- is.null(exclude)
+  ##
+  ## Catch 'pval', 'df', 'lower', 'upper', 'level.ci', 'q1', 'q3',
+  ## 'min', 'max', 'approx.TE' and 'approx.seTE', from data:
+  ##
+  missing.pval <- missing(pval)
+  pval <- eval(mf[[match("pval", names(mf))]],
+               data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.df <- missing(df)
+  df <- eval(mf[[match("df", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.lower <- missing(lower)
+  lower <- eval(mf[[match("lower", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.upper <- missing(upper)
+  upper <- eval(mf[[match("upper", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  if (!missing(level.ci))
+    level.ci <- eval(mf[[match("level.ci", names(mf))]],
+                     data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.q1 <- missing(q1)
+  q1 <- eval(mf[[match("q1", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.q3 <- missing(q3)
+  q3 <- eval(mf[[match("q3", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.min <- missing(min)
+  min <- eval(mf[[match("min", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.max <- missing(max)
+  max <- eval(mf[[match("max", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.approx.TE <- missing(approx.TE)
+  approx.TE <- eval(mf[[match("approx.TE", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.approx.seTE <- missing(approx.seTE)
+  approx.seTE <- eval(mf[[match("approx.seTE", names(mf))]],
+                      data, enclos = sys.frame(sys.parent()))
   
   
   ##
@@ -520,11 +620,12 @@ metagen <- function(TE, seTE, studlab,
   ## (3) Check length of essential variables
   ##
   ##
-  chklength(seTE, k.All, fun)
-  chklength(studlab, k.All, fun)
+  arg <- if (!missing.TE) "TE" else "median"
+  chklength(seTE, k.All, arg)
+  chklength(studlab, k.All, arg)
   ##
   if (by)
-    chklength(byvar, k.All, fun)
+    chklength(byvar, k.All, arg)
   ##
   ## Additional checks
   ##
@@ -537,13 +638,55 @@ metagen <- function(TE, seTE, studlab,
     tau.common <- TRUE
   }
   if (!is.null(n.e))
-    chklength(n.e, k.All, fun)
+    chklength(n.e, k.All, arg)
   if (!is.null(n.c))
-    chklength(n.c, k.All, fun)
+    chklength(n.c, k.All, arg)
   if (by) {
     chklogical(print.byvar)
     chkchar(byseparator)
   }
+  ##
+  if (!missing.approx.TE) {
+    if (length(approx.TE) == 1)
+      rep_len(approx.TE, k.All)
+    else
+      chklength(approx.TE, k.All, arg)
+    ##
+    approx.TE <- setchar(approx.TE, c("", "ci", "iqr.range", "iqr", "range"))
+  }
+  ##
+  if (!missing.approx.seTE) {
+    if (length(approx.seTE) == 1)
+      rep_len(approx.seTE, k.All)
+    else
+      chklength(approx.seTE, k.All, arg)
+    ##
+    approx.seTE <- setchar(approx.seTE,
+                           c("", "pval", "ci", "iqr.range", "iqr", "range"))
+  }
+  ##
+  if (!missing.pval)
+    chklength(pval, k.All, arg)
+  if (!missing.df)
+    chklength(df, k.All, arg)
+  if (!missing.lower)
+    chklength(lower, k.All, arg)
+  if (!missing.upper)
+    chklength(upper, k.All, arg)
+  if (length(level.ci) == 1)
+    level.ci <- rep_len(level.ci, k.All)
+  else
+    chklength(level.ci, k.All, arg)
+  if (!missing.median)
+    chklength(median, k.All, arg)
+  if (!missing.q1)
+    chklength(q1, k.All, arg)
+  if (!missing.q3)
+    chklength(q3, k.All, arg)
+  if (!missing.min)
+    chklength(min, k.All, arg)
+  if (!missing.max)
+    chklength(max, k.All, arg)
   
   
   ##
@@ -604,6 +747,31 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (!missing.exclude)
       data$.exclude <- exclude
+    ##
+    if (!missing.pval)
+      data$.pval <- pval
+    if (!missing.df)
+      data$.df <- df
+    if (!missing.lower)
+      data$.lower <- lower
+    if (!missing.upper)
+      data$.upper <- upper
+    if (!missing.lower | !missing.upper)
+      data$.level.ci <- level.ci
+    if (!missing.median)
+      data$.median <- median
+    if (!missing.q1)
+      data$.q1 <- q1
+    if (!missing.q3)
+      data$.q3 <- q3
+    if (!missing.min)
+      data$.min <- min
+    if (!missing.max)
+      data$.max <- max
+    if (!missing.approx.TE)
+      data$.approx.TE <- approx.TE
+    if (!missing.approx.seTE)
+      data$.approx.seTE <- approx.seTE
   }
   
   
@@ -626,6 +794,30 @@ metagen <- function(TE, seTE, studlab,
       n.e <- n.e[subset]
     if (!is.null(n.c))
       n.c <- n.c[subset]
+    ##
+    if (!missing.pval)
+      pval <- pval[subset]
+    if (!missing.df)
+      df <- df[subset]
+    if (!missing.lower)
+      lower <- lower[subset]
+    if (!missing.upper)
+      upper <- upper[subset]
+    level.ci <- level.ci[subset]
+    if (!missing.median)
+      median <- median[subset]
+    if (!missing.q1)
+      q1 <- q1[subset]
+    if (!missing.q3)
+      q3 <- q3[subset]
+    if (!missing.min)
+      min <- min[subset]
+    if (!missing.max)
+      max <- max[subset]
+    if (!missing.approx.TE)
+      approx.TE <- approx.TE[subset]
+    if (!missing.approx.seTE)
+      approx.seTE <- approx.seTE[subset]
   }
   ##
   ## Determine total number of studies
@@ -647,17 +839,283 @@ metagen <- function(TE, seTE, studlab,
   ##
   chknumeric(TE)
   chknumeric(seTE, 0)
+  
+  
   ##
-  ## Recode integer as numeric:
+  ##
+  ## (7) Calculate standard error from other information
+  ##
+  ##
+  if (missing.approx.seTE) {
+    approx.seTE <- rep_len("", length(TE))
+    ##
+    ## Use confidence limits
+    ##
+    sel.NA <- is.na(seTE)
+    if (any(sel.NA) & !missing.lower & !missing.upper) {
+      j <- sel.NA & !is.na(lower) & !is.na(upper)
+      approx.seTE[j] <- "ci"
+      if (missing.df)
+        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
+      else
+        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
+    }
+    ##
+    ## Use p-values
+    ##
+    sel.NA <- is.na(seTE)
+    if (any(sel.NA) & !missing.pval) {
+      j <- sel.NA & !is.na(TE) & !is.na(pval)
+      approx.seTE[j] <- "pval"
+      if (missing.df)
+        seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
+      else
+        seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
+    }
+    ##
+    ## Use IQR and range
+    ##
+    sel.NA <- is.na(seTE)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !missing.min & !missing.max &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+        !is.na(min) & !is.na(max)
+      approx.seTE[j] <- "iqr.range"
+      if (is.null(n.c))
+        seTE[j] <- TE.seTE.iqr.range(n.e[j], median[j], q1[j], q3[j],
+                                     min[j], max[j])$seTE
+      else if (is.null(n.e))
+        seTE[j] <- TE.seTE.iqr.range(n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j])$seTE
+      else
+        seTE[j] <- TE.seTE.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j])$seTE
+    }
+    ##
+    ## Use IQR
+    ##
+    sel.NA <- is.na(seTE)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+      approx.seTE[j] <- "iqr"
+      if (is.null(n.c))
+        seTE[j] <- TE.seTE.iqr(n.e[j], median[j], q1[j], q3[j])$seTE
+      else if (is.null(n.e))
+        seTE[j] <- TE.seTE.iqr(n.c[j], median[j], q1[j], q3[j])$seTE
+      else
+        seTE[j] <- TE.seTE.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$seTE
+    }
+    ##
+    ## Use range
+    ##
+    sel.NA <- is.na(seTE)
+    if (any(sel.NA) & !missing.median &
+        !missing.min & !missing.max &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+      approx.seTE[j] <- "range"
+      if (is.null(n.c))
+        seTE[j] <- TE.seTE.range(n.e[j], median[j], min[j], max[j])$seTE
+      else if (is.null(n.e))
+        seTE[j] <- TE.seTE.range(n.c[j], median[j], min[j], max[j])$seTE
+      else
+        seTE[j] <- TE.seTE.range(n.e[j] + n.c[j], median[j],
+                                 min[j], max[j])$seTE
+    }
+  }
+  else {
+    j <- 0
+    for (i in approx.seTE) {
+      j <- j + 1
+      ##
+      if (i == "ci") {
+        if (missing.df)
+          seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
+        else
+          seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
+      }
+      else if (i == "pval") {
+        if (missing.df)
+          seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
+        else
+          seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
+      }
+      else if (i == "iqr.range") {
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          seTE[j] <- TE.seTE.iqr.range(n.e[j], median[j], q1[j], q3[j],
+                                       min[j], max[j])$seTE
+        else if (is.null(n.e))
+          seTE[j] <- TE.seTE.iqr.range(n.c[j], median[j], q1[j], q3[j],
+                                       min[j], max[j])$seTE
+        else
+          seTE[j] <- TE.seTE.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                       min[j], max[j])$seTE
+      }
+      else if (i == "iqr") {
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          seTE[j] <- TE.seTE.iqr(n.e[j], median[j], q1[j], q3[j])$seTE
+        else if (is.null(n.e))
+          seTE[j] <- TE.seTE.iqr(n.c[j], median[j], q1[j], q3[j])$seTE
+        else
+          seTE[j] <- TE.seTE.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$seTE
+      }
+      else if (i == "range") {
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.seTE' = \"range\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          seTE[j] <- TE.seTE.range(n.e[j], median[j], min[j], max[j])$seTE
+        else if (is.null(n.e))
+          seTE[j] <- TE.seTE.range(n.c[j], median[j], min[j], max[j])$seTE
+        else
+          seTE[j] <- TE.seTE.range(n.e[j] + n.c[j], median[j],
+                                   min[j], max[j])$seTE
+      }
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (8) Calculate treatment estimate from other information
+  ##
+  ##
+  if (missing.approx.TE) {
+    approx.TE <- rep_len("", length(TE))
+    ##
+    ## Use confidence limits
+    ##
+    sel.NA <- is.na(TE)
+    if (any(sel.NA) & !missing.lower & !missing.upper) {
+      j <- sel.NA & !is.na(lower) & !is.na(upper)
+      approx.TE[j] <- "ci"
+      if (missing.df)
+        TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
+      else
+        TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$TE
+    }
+    ##
+    ## Use IQR and range
+    ##
+    sel.NA <- is.na(TE)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !missing.min & !missing.max &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+        !is.na(min) & !is.na(max)
+      approx.TE[j] <- "iqr.range"
+      if (is.null(n.c))
+        TE[j] <- TE.seTE.iqr.range(n.e[j], median[j], q1[j], q3[j],
+                                   min[j], max[j])$TE
+      else if (is.null(n.e))
+        TE[j] <- TE.seTE.iqr.range(n.c[j], median[j], q1[j], q3[j],
+                                   min[j], max[j])$TE
+      else
+        TE[j] <- TE.seTE.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                   min[j], max[j])$TE
+    }
+    ##
+    ## Use IQR
+    ##
+    sel.NA <- is.na(TE)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+      approx.TE[j] <- "iqr"
+      if (is.null(n.c))
+        TE[j] <- TE.seTE.iqr(n.e[j], median[j], q1[j], q3[j])$TE
+      else if (is.null(n.e))
+        TE[j] <- TE.seTE.iqr(n.c[j], median[j], q1[j], q3[j])$TE
+      else
+        TE[j] <- TE.seTE.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$TE
+    }
+    ##
+    ## Use range
+    ##
+    sel.NA <- is.na(TE)
+    if (any(sel.NA) & !missing.median &
+        !missing.min & !missing.max &
+        !(is.null(n.e) & is.null(n.c))) {
+      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+      approx.TE[j] <- "range"
+      if (is.null(n.c))
+        TE[j] <- TE.seTE.range(n.e[j], median[j], min[j], max[j])$TE
+      else if (is.null(n.e))
+        TE[j] <- TE.seTE.range(n.c[j], median[j], min[j], max[j])$TE
+      else
+        TE[j] <- TE.seTE.range(n.e[j] + n.c[j], median[j], min[j], max[j])$TE
+    }
+  }
+  else {
+    j <- 0
+    for (i in approx.TE) {
+      j <- j + 1
+      ##
+      if (i == "ci") {
+        if (missing.df)
+          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
+        else
+          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$TE
+      }
+      else if (i == "iqr.range")
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          TE[j] <- TE.seTE.iqr.range(n.e[j], median[j], q1[j], q3[j],
+                                     min[j], max[j])$TE
+      else if (is.null(n.e))
+        TE[j] <- TE.seTE.iqr.range(n.c[j], median[j], q1[j], q3[j],
+                                   min[j], max[j])$TE
+      else
+        TE[j] <- TE.seTE.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                   min[j], max[j])$TE
+      else if (i == "iqr") {
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.TE' = \"iqr\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          TE[j] <- TE.seTE.iqr(n.e[j], median[j], q1[j], q3[j])$TE
+        else if (is.null(n.e))
+          TE[j] <- TE.seTE.iqr(n.c[j], median[j], q1[j], q3[j])$TE
+        else
+          TE[j] <- TE.seTE.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$TE
+      }
+      else if (i == "range") {
+        cat(paste0("Use 'range' for study", j, "\n"))
+        if (is.null(n.e) & is.null(n.c))
+          stop("Sample size needed if argument 'approx.TE' = \"range\".",
+               call. = FALSE)
+        else if (is.null(n.c))
+          TE[j] <- TE.seTE.range(n.e[j], median[j], min[j], max[j])$TE
+        else if (is.null(n.e))
+          TE[j] <- TE.seTE.range(n.c[j], median[j], min[j], max[j])$TE
+        else
+          TE[j] <- TE.seTE.range(n.e[j] + n.c[j], median[j], min[j], max[j])$TE
+      }
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (9) Check standard errors
+  ##
   ##
   TE   <- int2num(TE)
   seTE <- int2num(seTE)
-  
-  
-  ##
-  ##
-  ## (7) Check standard errors
-  ##
   ##
   if (any(seTE[!is.na(seTE)] <= 0)) {
     if (warn)
@@ -668,7 +1126,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (8) Do meta-analysis
+  ## (10) Do meta-analysis
   ##
   ##
   k <- sum(!is.na(seTE[!exclude]))
@@ -824,7 +1282,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (9) Generate R object
+  ## (11) Generate R object
   ##
   ##
   res <- list(studlab = studlab,
@@ -863,6 +1321,9 @@ metagen <- function(TE, seTE, studlab,
               Rb = Rbres$TE,
               lower.Rb = Rbres$lower,
               upper.Rb = Rbres$upper,
+              ##
+              approx.TE = approx.TE,
+              approx.seTE = approx.seTE,
               ##
               sm = sm, method = "Inverse",
               level = level,

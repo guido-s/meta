@@ -7,14 +7,19 @@ chklength <- function(x, k.all, fun, text, name = NULL) {
   ##
   if (length(x) != k.all) {
     funcs <- c("metabin", "metacont", "metacor",
-               "metagen", "metainc", "metaprop",
+               "metagen", "metainc", "metamean",
+               "metaprop", "metarate",
                "funnel", "forest.meta")
     args <- c("event.e", "n.e", "cor",
-              "TE", "event.e", "event",
+              "TE", "event.e", "n",
+              "event", "event",
               "TE", "TE")
     ##
     idx <- charmatch(fun, funcs, nomatch = NA)
-    argname <- args[idx]
+    if (!is.na(idx))
+      argname <- args[idx]
+    else
+      argname <- fun
     ##
     if (missing(text))
       stop("Arguments '", argname, "' and '", name,

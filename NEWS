@@ -7,6 +7,27 @@
   * Harbord test for funnel plot asymmetry implemented for risk ratio
     as effect measure
 
+  * For the generic inverse variance method, treatment estimates and
+    standard errors of individual studies can be estimated based on
+    the following information from individual studies: p-value,
+    confidence limits, median, interquartile range, and range
+
+ ** User-visible changes **
+
+  * metagen():
+    - new arguments 'pval', 'df', 'lower', 'upper', 'level.ci',
+      'median', 'q1', 'q3', 'min', 'max', 'approx.TE', 'approx.seTE'
+
+  * forest.meta():
+    - new arguments 'type.subgroup.fixed', 'type.subgroup.random', and
+      'lab.NA.weight'
+    
+ ** Internal changes **
+
+  * New internal functions TE.seTE.ci(), TE.seTE.iqr(),
+    TE.seTE.iqr.range(), TE.seTE.range(), seTE.ci.pval()
+
+
 *** meta, version 4.9-4, 2019-01-02 ***
 
  ** Major changes **

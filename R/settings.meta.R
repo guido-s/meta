@@ -178,6 +178,7 @@ settings.meta <- function(...) {
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
   res$ci4prop <- NULL
   res$argslist <- NULL
+  res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   
   
   catarg <- function(x, newline = TRUE, end = "") {

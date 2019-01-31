@@ -3,7 +3,16 @@ setchar <- function(x, val, text, list = FALSE, name = NULL) {
     name <- deparse(substitute(x))
   nval <- length(val)
   ##
-  idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
+  if (is.numeric(x)) {
+    numeric.x <- TRUE
+    idx <- x
+    idx[idx < 1] <- NA
+    idx[idx >= nval + 1] <- NA
+  }
+  else {
+    numeric.x <- FALSE
+    idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
+  }
   ##
   if (anyNA(idx) || any(idx == 0)) {
     if (list)
@@ -12,16 +21,26 @@ setchar <- function(x, val, text, list = FALSE, name = NULL) {
       first <- "Argument '"
     ##
     if (missing(text)) {
-      if (nval == 1)
-        vlist <- paste('"', val, '"', sep = "")
-      else if (nval == 2)
-        vlist <- paste('"', val, '"', collapse = " or ", sep = "")
-      else
-        vlist <- paste(paste('"', val[-nval],
-                             '"', collapse = ", ", sep = ""),
-                       ', or ', '"', val[nval], '"', sep = "")
+      if (numeric.x) {
+        if (nval == 1)
+          vlist <- "1"
+        else if (nval == 2)
+          vlist <- "1 or 2"
+        else
+          vlist <- paste("between 1 and", nval)
+      }
+      else {
+        if (nval == 1)
+          vlist <- paste('"', val, '"', sep = "")
+        else if (nval == 2)
+          vlist <- paste('"', val, '"', collapse = " or ", sep = "")
+        else
+          vlist <- paste(paste('"', val[-nval],
+                               '"', collapse = ", ", sep = ""),
+                         ', or ', '"', val[nval], '"', sep = "")
+      }
       ##
-      stop(first, name, "' should be ", vlist, ".",
+      stop(first, name, "' must be ", vlist, ".",
            call. = FALSE)
     }
     else

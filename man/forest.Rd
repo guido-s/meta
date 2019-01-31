@@ -38,13 +38,15 @@ forest(x, ...)
   lab.c = x$label.c, lab.e.attach.to.col = NULL,
   lab.c.attach.to.col = NULL, label.right = x$label.right,
   label.left = x$label.left, bottom.lr = TRUE, lab.NA = ".",
-  lab.NA.effect = "", lwd = 1, at = NULL, label = TRUE,
-  type.study = "square", type.fixed = "diamond",
+  lab.NA.effect = "", lab.NA.weight = "--", lwd = 1, at = NULL,
+  label = TRUE, type.study = "square", type.fixed = "diamond",
   type.random = type.fixed, type.subgroup = ifelse(study.results,
-  "diamond", "square"), col.study = "black", col.square = "gray",
-  col.square.lines = col.square, col.inside = "white",
-  col.diamond = "gray", col.diamond.fixed = col.diamond,
-  col.diamond.random = col.diamond, col.diamond.lines = "black",
+  "diamond", "square"), type.subgroup.fixed = type.subgroup,
+  type.subgroup.random = type.subgroup, col.study = "black",
+  col.square = "gray", col.square.lines = col.square,
+  col.inside = "white", col.diamond = "gray",
+  col.diamond.fixed = col.diamond, col.diamond.random = col.diamond,
+  col.diamond.lines = "black",
   col.diamond.lines.fixed = col.diamond.lines,
   col.diamond.lines.random = col.diamond.lines,
   col.inside.fixed = col.inside, col.inside.random = col.inside,
@@ -311,6 +313,8 @@ left side should be printed at bottom or top of forest plot.}
 \item{lab.NA.effect}{A character string to label missing values in
 individual treatment estimates and confidence intervals.}
 
+\item{lab.NA.weight}{A character string to label missing weights.}
+
 \item{lwd}{The line width, see \code{\link{par}}.}
 
 \item{at}{The points at which tick-marks are to be drawn, see
@@ -335,6 +339,14 @@ meta-analysis (see Details).}
 \item{type.subgroup}{A character string specifying how to plot
 treatment effect and confidence interval for subgroup results
 (see Details).}
+
+\item{type.subgroup.fixed}{A character string specifying how to
+plot treatment effect and confidence interval for subgroup
+results (fixed effect model).}
+
+\item{type.subgroup.random}{A character string specifying how to
+plot treatment effect and confidence interval for subgroup
+results (random effects model).}
 
 \item{col.study}{The colour for individual study results and
 confidence limits.}

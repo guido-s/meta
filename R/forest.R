@@ -126,6 +126,7 @@
 #' @param lab.NA A character string to label missing values.
 #' @param lab.NA.effect A character string to label missing values in
 #'   individual treatment estimates and confidence intervals.
+#' @param lab.NA.weight A character string to label missing weights.
 #' @param lwd The line width, see \code{\link{par}}.
 #' @param at The points at which tick-marks are to be drawn, see
 #'   \code{grid.xaxis}.
@@ -144,6 +145,12 @@
 #' @param type.subgroup A character string specifying how to plot
 #'   treatment effect and confidence interval for subgroup results
 #'   (see Details).
+#' @param type.subgroup.fixed A character string specifying how to
+#'   plot treatment effect and confidence interval for subgroup
+#'   results (fixed effect model).
+#' @param type.subgroup.random A character string specifying how to
+#'   plot treatment effect and confidence interval for subgroup
+#'   results (random effects model).
 #' @param col.study The colour for individual study results and
 #'   confidence limits.
 #' @param col.inside The colour for individual study results and
@@ -1160,7 +1167,7 @@ forest.meta <- function(x,
                         label.left = x$label.left,
                         bottom.lr = TRUE,
                         ##
-                        lab.NA = ".", lab.NA.effect = "",
+                        lab.NA = ".", lab.NA.effect = "", lab.NA.weight = "--",
                         ##
                         lwd = 1,
                         ##
@@ -1171,6 +1178,8 @@ forest.meta <- function(x,
                         type.fixed = "diamond",
                         type.random = type.fixed,
                         type.subgroup = ifelse(study.results, "diamond", "square"),
+                        type.subgroup.fixed = type.subgroup,
+                        type.subgroup.random = type.subgroup,
                         ##
                         col.study = "black",
                         col.square = "gray",
@@ -1419,6 +1428,10 @@ forest.meta <- function(x,
   if (layout == "subgroup") {
     if (missing(type.subgroup))
       type.subgroup <- "square"
+    if (missing(type.subgroup.fixed))
+      type.subgroup.fixed <- "square"
+    if (missing(type.subgroup.random))
+      type.subgroup.random <- "square"
     ##
     if (missing(pooled.totals))
       pooled.totals <- FALSE
@@ -1428,19 +1441,22 @@ forest.meta <- function(x,
   revman5.jama <- revman5 | jama
   ##
   type.study <- setchar(type.study, c("square", "diamond", "predict"))
-  type.fixed <- setchar(type.fixed, c("square", "diamond"))
-  type.random <- setchar(type.random, c("square", "diamond"))
-  type.subgroup <- setchar(type.subgroup, c("square", "diamond"))
+  type.fixed <- setchar(type.fixed, c("square", "diamond", "predict"))
+  type.random <- setchar(type.random, c("square", "diamond", "predict"))
+  type.subgroup <- setchar(type.subgroup, c("square", "diamond", "predict"))
+  type.subgroup.fixed <- setchar(type.subgroup.fixed,
+                                 c("square", "diamond", "predict"))
+  type.subgroup.random <- setchar(type.subgroup.random,
+                                  c("square", "diamond", "predict"))
   ##
   if (missing(weight.subgroup))
-    weight.subgroup <- ifelse(type.subgroup == "square",
-                              "weight", "same")
-  weight.subgroup <- setchar(weight.subgroup,
-                             c("weight", "same"))
+    weight.subgroup <- ifelse(type.subgroup == "square", "weight", "same")
+  weight.subgroup <- setchar(weight.subgroup, c("weight", "same"))
   ##
   chklogical(bottom.lr)
   chkchar(lab.NA)
   chkchar(lab.NA.effect)
+  chkchar(lab.NA.weight)
   if (!is.null(at))
     chknumeric(at)
   chkchar(col.diamond)
@@ -5180,11 +5196,13 @@ forest.meta <- function(x,
     ##
     format.w.fixed  <- formatN(c(100, weight.w.p, w.fixed.p), digits.weight)
     format.w.random <- formatN(c(100, weight.w.p, w.random.p), digits.weight)
-    w.fixeds.text  <- c(format.w.fixed[1], "--", "", format.w.fixed[-1])
-    w.randoms.text <- c("--", format.w.random[1], "", format.w.random[-1])
+    w.fixeds.text  <- c(format.w.fixed[1], lab.NA.weight, "",
+                        format.w.fixed[-1])
+    w.randoms.text <- c(lab.NA.weight, format.w.random[1], "",
+                        format.w.random[-1])
     ##
-    sel.fixed  <- w.fixeds.text == "--"
-    sel.random <- w.randoms.text == "--"
+    sel.fixed  <- w.fixeds.text == lab.NA.weight
+    sel.random <- w.randoms.text == lab.NA.weight
     ##
     sel.fixed[sel.by.random] <- TRUE
     sel.random[sel.by.fixed] <- TRUE
@@ -5192,8 +5210,8 @@ forest.meta <- function(x,
     type.pooled <- c(type.fixed,
                      type.random,
                      "predict",
-                     rep(type.subgroup, n.by),
-                     rep(type.subgroup, n.by),
+                     rep(type.subgroup.fixed, n.by),
+                     rep(type.subgroup.random, n.by),
                      rep("", 3 * n.by))
     col.diamond.pooled <- c(col.diamond.fixed,
                             col.diamond.random,
@@ -5240,11 +5258,13 @@ forest.meta <- function(x,
     ##
     format.w.fixed  <- formatN(c(100, w.fixed.p), digits.weight)
     format.w.random <- formatN(c(100, w.random.p), digits.weight)
-    w.fixeds.text  <- c(format.w.fixed[1], "--", "", format.w.fixed[-1])
-    w.randoms.text <- c("--", format.w.random[1], "", format.w.random[-1])
+    w.fixeds.text  <- c(format.w.fixed[1], lab.NA.weight, "",
+                        format.w.fixed[-1])
+    w.randoms.text <- c(lab.NA.weight, format.w.random[1], "",
+                        format.w.random[-1])
     ##
-    sel.fixed <- w.fixeds.text == "--"
-    sel.random <- w.randoms.text == "--"
+    sel.fixed <- w.fixeds.text == lab.NA.weight
+    sel.random <- w.randoms.text == lab.NA.weight
     ##
     type.pooled <- c(type.fixed, type.random, "predict")
     col.diamond.pooled <- c(col.diamond.fixed, col.diamond.random, col.predict)
@@ -5302,10 +5322,10 @@ forest.meta <- function(x,
   w.fixed.format[w.fixed.format == "%"] <- ""
   w.random.format[w.random.format == "%"] <- ""
   ##
-  w.fixed.format[sel.fixed] <- "--"
+  w.fixed.format[sel.fixed] <- lab.NA.weight
   if (by)
     w.fixed.format[sel.by.noNA] <- ""
-  w.random.format[sel.random] <- "--"
+  w.random.format[sel.random] <- lab.NA.weight
   if (by)
     w.random.format[sel.by.noNA] <- ""
   ##

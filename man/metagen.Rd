@@ -11,9 +11,10 @@ metagen(TE, seTE, studlab, data = NULL, subset = NULL,
   method.tau = gs("method.tau"), tau.preset = NULL, TE.tau = NULL,
   tau.common = gs("tau.common"), prediction = gs("prediction"),
   level.predict = gs("level.predict"), null.effect = 0,
-  method.bias = gs("method.bias"), n.e = NULL, n.c = NULL,
-  backtransf = gs("backtransf"), pscale = 1, irscale = 1,
-  irunit = "person-years", title = gs("title"),
+  method.bias = gs("method.bias"), n.e = NULL, n.c = NULL, pval, df,
+  lower, upper, level.ci = 0.95, median, q1, q3, min, max, approx.TE,
+  approx.seTE, backtransf = gs("backtransf"), pscale = 1,
+  irscale = 1, irunit = "person-years", title = gs("title"),
   complab = gs("complab"), outclab = "", label.e = gs("label.e"),
   label.c = gs("label.c"), label.left = gs("label.left"),
   label.right = gs("label.right"), byvar, bylab,
@@ -89,6 +90,40 @@ can be abbreviated.  See function \code{\link{metabias}}}
 \item{n.e}{Number of observations in experimental group.}
 
 \item{n.c}{Number of observations in control group.}
+
+\item{pval}{P-value (used to estimate the standard error).}
+
+\item{df}{Degrees of freedom (used in test or to construct
+confidence interval).}
+
+\item{lower}{Lower limit of confidence interval (used to estimate
+the standard error).}
+
+\item{upper}{Upper limit of confidence interval (used to estimate
+the standard error).}
+
+\item{level.ci}{Level of confidence interval.}
+
+\item{median}{Median (used to estimate the treatment effect and
+standard error).}
+
+\item{q1}{First quartile (used to estimate the treatment effect and
+standard error).}
+
+\item{q3}{Third quartile (used to estimate the treatment effect and
+standard error).}
+
+\item{min}{Minimum (used to estimate the treatment effect and
+standard error).}
+
+\item{max}{Maximum (used to estimate the treatment effect and
+standard error).}
+
+\item{approx.TE}{Approximation method to estimate treatment
+estimate (see Details).}
+
+\item{approx.seTE}{Approximation method to estimate standard error
+(see Details).}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If \code{backtransf =
@@ -296,6 +331,8 @@ errors as input). The inverse variance method is used for pooling.
 For several arguments defaults settings are utilised (assignments
 using \code{\link{gs}} function). These defaults can be changed
 using the \code{\link{settings.meta}} function.
+
+Instead of providing the standard errors of individual studies directly
 
 Internally, both fixed effect and random effects models are
 calculated regardless of values choosen for arguments

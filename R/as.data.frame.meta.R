@@ -72,6 +72,12 @@ as.data.frame.meta <- function(x, row.names = NULL,
   ##
   x$call <- NULL
   
+  if (!is.null(x$approx.TE) && all(x$approx.TE == ""))
+    x$approx.TE <- NULL
+  ##
+  if (!is.null(x$approx.seTE) && all(x$approx.seTE == ""))
+    x$approx.seTE <- NULL
+  
   sel <- as.vector(lapply(x, length) == length(x$TE))
   
   res <- as.data.frame(x[names(x)[sel]], ...)
