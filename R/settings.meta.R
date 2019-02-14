@@ -118,7 +118,7 @@
 #' 
 #' # Try to set unknown argument results in a warning
 #' #
-#' settings.meta(unknownarg = TRUE)
+#' try(settings.meta(unknownarg = TRUE))
 #' 
 #' # Reset to default settings of R package meta
 #' #
@@ -257,18 +257,14 @@ settings.meta <- function(...) {
   names <- names(args)
   
   
+  for (i in seq_along(names))
+    names[i] <- setchar(names[i],
+                        c(.settings$argslist, "reset", "print", "setting", ""),
+                        "unmatched",
+                        name = names[i])
+  ##
   if (length(names) != length(unique(names)))
     stop("Arguments must be unique.")
-  
-  
-  unknown <- !(names %in% c(.settings$argslist, "reset", "print", "setting", ""))
-  ##
-  if (sum(unknown) == 1)
-    warning(paste("Argument '", names[unknown], "' unknown.", sep = ""))
-  else if (sum(unknown) > 1)
-    warning(paste("Unknown arguments: ", 
-                  paste(paste("'", names[unknown], "'", sep = ""),
-                        collapse = " - "), sep = ""))
   
   
   if (length(args) > 1 && any(names == "reset")) {

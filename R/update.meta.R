@@ -318,8 +318,8 @@ update.meta <- function(object,
   ##
   hakn <- replacemiss(hakn)
   method.tau <- replacemiss(method.tau)
-  tau.preset <- replacemiss(tau.preset)
-  TE.tau <- replacemiss(TE.tau)
+  tau.preset <- replacemiss(tau.preset, NULL)
+  TE.tau <- replacemiss(TE.tau, NULL)
   null.effect <- replacemiss(null.effect, NA)
   method.bias <- replacemiss(method.bias)
   ##

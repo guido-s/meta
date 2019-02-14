@@ -8,9 +8,10 @@
     as effect measure
 
   * For the generic inverse variance method, treatment estimates and
-    standard errors of individual studies can be estimated based on
-    the following information from individual studies: p-value,
-    confidence limits, median, interquartile range, and range
+    standard errors of individual studies can be derived from
+    - p-value or confidence limits
+    - sample size, median, interquartile range and / or range
+      (Wan et al. (2014), BMC Med Res Meth, 14, 135)
 
  ** User-visible changes **
 
@@ -21,11 +22,20 @@
   * forest.meta():
     - new arguments 'type.subgroup.fixed', 'type.subgroup.random', and
       'lab.NA.weight'
-    
+
+  * settings.meta() and gs():
+    - argument names can be abbreviated
+
+  * Major update of help pages:
+    - metagen()
+
  ** Internal changes **
 
   * New internal functions TE.seTE.ci(), TE.seTE.iqr(),
     TE.seTE.iqr.range(), TE.seTE.range(), seTE.ci.pval()
+
+  * setchar():
+    - new argument 'stop.at.error'
 
 
 *** meta, version 4.9-4, 2019-01-02 ***

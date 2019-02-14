@@ -32,13 +32,20 @@
 
 
 gs <- function(x) {
-
+  
   if (missing(x))
     return(NULL)
   
   chkchar(x)
+  ##
+  x.nam <- deparse(substitute(x))
+  x.nam <- substring(x.nam, 2, nchar(x.nam) - 1)
+  ##
+  x <- setchar(x, .settings$argslist, "unmatched", name = x.nam,
+               stop.at.error = FALSE)
   
-  val <- settings.meta()[[x]]
+  if (!is.null(x))
+    x <- settings.meta()[[x]]
   
-  val
+  x
 }

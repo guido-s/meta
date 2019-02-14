@@ -1,4 +1,5 @@
-setchar <- function(x, val, text, list = FALSE, name = NULL) {
+setchar <- function(x, val, text, list = FALSE, name = NULL,
+                    stop.at.error = TRUE) {
   if (is.null(name))
     name <- deparse(substitute(x))
   nval <- length(val)
@@ -40,11 +41,17 @@ setchar <- function(x, val, text, list = FALSE, name = NULL) {
                          ', or ', '"', val[nval], '"', sep = "")
       }
       ##
-      stop(first, name, "' must be ", vlist, ".",
-           call. = FALSE)
+      if (stop.at.error)
+        stop(first, name, "' must be ", vlist, ".", call. = FALSE)
+      else
+        return(NULL)
     }
-    else
-      stop(first, name, "' ", text, ".", call. = FALSE)
+    else {
+      if (stop.at.error)
+        stop(first, name, "' ", text, ".", call. = FALSE)
+      else
+        return(NULL)
+    }
   }
   ##
   val[idx]

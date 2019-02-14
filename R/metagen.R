@@ -176,12 +176,14 @@
 #'   \code{df};
 #' \item confidence limits (arguments \code{lower}, \code{upper}, and
 #'   (optional) \code{df});
-#' \item median, interquartile range and range (arguments
-#'   \code{median}, \code{q1}, \code{q3}, \code{min}, and \code{max});
-#' \item median and interquartile range (arguments \code{median},
-#'   \code{q1} and \code{q3});
-#' \item median and range (arguments \code{median}, \code{min} and
-#'   \code{max}).
+#' \item sample size, median, interquartile range and range (arguments
+#'   \code{n.e} and / or \code{n.c}, \code{median}, \code{q1},
+#'   \code{q3}, \code{min}, and \code{max});
+#' \item sample size, median and interquartile range (arguments
+#'   \code{n.e} and / or \code{n.c}, \code{median}, \code{q1} and
+#'   \code{q3});
+#' \item sample size, median and range (arguments \code{n.e} and / or
+#'   \code{n.c}, \code{median}, \code{min} and \code{max}).
 #' }
 #' For p-values and confidence limits, calculations are either based
 #' on the standard normal or \emph{t} distribution if argument
@@ -191,7 +193,10 @@
 #' equation (12) or (13) in Wan et al. (2014) is used to approximate
 #' the standard error. Similarly, equations (15) / (16) and (7) / (9)
 #' in Wan et al. (2014) are used if median and interquartile range or
-#' range, respectively, are provided.
+#' range, respectively, are provided. The sample size of individual
+#' studies must be provided with arguments \code{n.e} and / or
+#' \code{n.c}. The total sample size is calculated as \code{n.e} +
+#' \code{n.c} if both arguments are provided.
 #'
 #' By default, missing standard errors are replaced successively using
 #' these method, e.g., p-value before confidence limits before

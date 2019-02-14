@@ -121,7 +121,7 @@ metagen(4:6, 4:2 / 10, sm = "MD")
 
 # Try to set unknown argument results in a warning
 #
-settings.meta(unknownarg = TRUE)
+try(settings.meta(unknownarg = TRUE))
 
 # Reset to default settings of R package meta
 #
