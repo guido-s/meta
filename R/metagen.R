@@ -1,9 +1,10 @@
 #' Generic inverse variance meta-analysis
 #' 
 #' @description
-#' Fixed and random effects meta-analysis based on estimates (e.g. log
-#' hazard ratios) and their standard errors; inverse variance
-#' weighting is used for pooling.
+#' 
+#' Fixed effect and random effects meta-analysis based on estimates
+#' (e.g. log hazard ratios) and their standard errors. The inverse
+#' variance method is used for pooling.
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
 #'   risk difference.
@@ -115,16 +116,156 @@
 #'   passed on to \code{\link[metafor]{rma.uni}}.
 #' 
 #' @details
-#' Generic method for meta-analysis, only treatment estimates and
-#' their standard error are needed. The method is useful, e.g., for
-#' pooling of survival data (using log hazard ratio and standard
-#' errors as input). The inverse variance method is used for pooling.
-#' 
-#' For several arguments defaults settings are utilised (assignments
-#' using \code{\link{gs}} function). These defaults can be changed
-#' using the \code{\link{settings.meta}} function.
+#' This function provides the \emph{generic inverse variance method}
+#' for meta-analysis which requires treatment estimates and their
+#' standard errors (Borenstein et al., 2010). The method is useful,
+#' e.g., for pooling of survival data (using log hazard ratio and
+#' standard errors as input). Arguments \code{TE} and \code{seTE} can
+#' be used to provide treatment estimates and standard errors
+#' directly. However, it is possible to derive these quantities from
+#' other information.
 #'
-#' Instead of providing the standard errors of individual studies directly
+#' For several arguments defaults settings are utilised (see
+#' assignments with \code{\link{gs}} under \bold{Usage}). These
+#' defaults can be changed using \code{\link{settings.meta}}.
+#' 
+#' Furthermore, R function \code{\link{update.meta}} can be used to
+#' rerun a meta-analysis with different settings.
+#' 
+#' \subsection{Approximate treatment estimates}{
+#' 
+#' Missing treatment estimates can be derived from
+#' \enumerate{
+#' \item confidence limits provided by arguments \code{lower} and
+#'   \code{upper};
+#' \item median, interquartile range and range (arguments
+#'   \code{median}, \code{q1}, \code{q3}, \code{min}, and \code{max});
+#' \item median and interquartile range (arguments \code{median},
+#'   \code{q1} and \code{q3});
+#' \item median and range (arguments \code{median}, \code{min} and
+#'   \code{max}).
+#' }
+#' For confidence limits, the treatment estimate is defined as the
+#' center of the confidence interval (on the log scale for relative
+#' effect measures like the odds ratio or hazard ratio). For median,
+#' interquartile range and range, equation (10) in Wan et al. (2014)
+#' is used to approximate the treatment effect (i.e.,
+#' mean). Similarly, equations (14) and (2) in Wan et al. (2014) are
+#' used if median and interquartile range or range, respectively, are
+#' provided.
+#'
+#' By default, missing treatment estimates are replaced successively
+#' using these method, e.g., confidence limits are utilised before
+#' interquartile ranges. Argument \code{approx.TE} can be used to
+#' overwrite this default for each individual study:
+#' \itemize{
+#' \item Use treatment estimate directly (entry \code{""} in argument
+#'   \code{approx.TE});
+#' \item confidence limits (\code{"ci"} in argument \code{approx.TE});
+#' \item median, interquartile range and range (\code{"iqr.range"});
+#' \item median and interquartile range (\code{"iqr"});
+#' \item median and range (\code{"range"}).
+#' }
+#' }
+#'
+#' \subsection{Approximate standard errors}{
+#' 
+#' Missing standard errors can be derived from
+#' \enumerate{
+#' \item p-value provided by arguments \code{pval} and (optional)
+#'   \code{df};
+#' \item confidence limits (arguments \code{lower}, \code{upper}, and
+#'   (optional) \code{df});
+#' \item median, interquartile range and range (arguments
+#'   \code{median}, \code{q1}, \code{q3}, \code{min}, and \code{max});
+#' \item median and interquartile range (arguments \code{median},
+#'   \code{q1} and \code{q3});
+#' \item median and range (arguments \code{median}, \code{min} and
+#'   \code{max}).
+#' }
+#' For p-values and confidence limits, calculations are either based
+#' on the standard normal or \emph{t} distribution if argument
+#' \code{df} is provided. Furthermore, argument \code{level.ci} can be
+#' used to provide the level of the confidence interval. For median,
+#' interquartile range and range, depending on the sample size,
+#' equation (12) or (13) in Wan et al. (2014) is used to approximate
+#' the standard error. Similarly, equations (15) / (16) and (7) / (9)
+#' in Wan et al. (2014) are used if median and interquartile range or
+#' range, respectively, are provided.
+#'
+#' By default, missing standard errors are replaced successively using
+#' these method, e.g., p-value before confidence limits before
+#' interquartile range and range. Argument \code{approx.seTE} can be
+#' used to overwrite this default for each individual study:
+#' 
+#' \itemize{
+#' \item Use standard error directly (entry \code{""} in argument
+#'   \code{approx.seTE});
+#' \item p-value (\code{"pval"} in argument \code{approx.seTE});
+#' \item confidence limits (\code{"ci"});
+#' \item median, interquartile range and range (\code{"iqr.range"});
+#' \item median and interquartile range (\code{"iqr"});
+#' \item median and range (\code{"range"}).
+#' }
+#' }
+#'
+#' \subsection{Estimation of between-study variance}{
+#' 
+#' The following methods are available to estimate the between-study
+#' variance \eqn{\tau^2}.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr 
+#' \code{method.tau = "DL"}\tab DerSimonian-Laird estimator (DerSimonian and Laird, 1986) \cr
+#' \code{method.tau = "PM"}\tab Paule-Mandel estimator (Paule and Mandel, 1982) \cr
+#' \code{method.tau = "REML"}\tab Restricted maximum-likelihood estimator (Viechtbauer, 2005) \cr
+#' \code{method.tau = "ML"}\tab Maximum-likelihood estimator (Viechtbauer, 2005) \cr
+#' \code{method.tau = "HS"}\tab Hunter-Schmidt estimator (Hunter and Schmidt, 2015) \cr
+#' \code{method.tau = "SJ"}\tab Sidik-Jonkman estimator (Sidik and Jonkman, 2005) \cr
+#' \code{method.tau = "HE"}\tab Hedges estimator (Hedges and Olkin, 1985) \cr
+#' \code{method.tau = "EB"}\tab Empirical Bayes estimator (Morris, 1983)
+#' }
+#'
+#' Historically, the DerSimonian-Laird method was the de facto
+#' standard to estimate the between-study variance \eqn{\tau^2} and is
+#' still the default in many software packages including Review
+#' Manager 5 (RevMan 5) and R package \pkg{meta}. However, its role
+#' has been challenged and especially the Paule-Mandel and REML
+#' estimators have been recommended (Veroniki et al.,
+#' 2016). Accordingly, the following R command can be used to use the
+#' Paule-Mandel estimator in all meta-analyses of the R session:
+#' \code{settings.meta(method.tau = "PM")}
+#' 
+#' The DerSimonian-Laird and Paule-Mandel estimators are implemented
+#' in R package \pkg{meta}. The other estimators are available if R
+#' package \pkg{metafor} (Viechtbauer 2010) is installed by internally
+#' calling R function \code{\link[metafor]{rma.uni}}.
+#' }
+#' 
+#' \subsection{Hartung-Knapp method}{
+#' 
+#' Hartung and Knapp (2001a,b) proposed an alternative method for
+#' random effects meta-analysis based on a refined variance estimator
+#' for the treatment estimate. Simulation studies (Hartung and Knapp,
+#' 2001a,b; IntHout et al., 2014; Langen et al., 2018) show improved
+#' coverage probabilities compared to the classic random effects
+#' method. However, in rare settings with very homogeneous treatment
+#' estimates, the Hartung-Knapp method can be anti-conservative
+#' (Wiksten et al., 2016). The Hartung-Knapp method is used if
+#' argument \code{hakn = TRUE}.
+#' }
+#' 
+#' \subsection{Prediction interval}{
+#' 
+#' A prediction interval for the treatment effect of a new study
+#' (Higgins et al., 2009) is calculated if arguments \code{prediction}
+#' and \code{comb.random} are \code{TRUE}. Note, the definition of
+#' prediction intervals varies in the literature. This function
+#' implements equation (12) of Higgins et al., (2009) which proposed a
+#' \emph{t} distribution with \emph{K-2} degrees of freedom where
+#' \emph{K} corresponds to the number of studies in the meta-analysis.
+#' }
+#' 
+#' \subsection{Presentation of meta-analysis results}{
 #' 
 #' Internally, both fixed effect and random effects models are
 #' calculated regardless of values choosen for arguments
@@ -133,46 +274,10 @@
 #' \code{TE.random} of an object of class \code{"meta"} even if
 #' argument \code{comb.random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{comb.fixed} and \code{comb.random}. E.g. function
-#' \code{\link{print.meta}} will not print results for the random
-#' effects model if \code{comb.random = FALSE}.
-#' 
-#' A prediction interval for the treatment effect of a new study is
-#' calculated (Higgins et al., 2009) if arguments \code{prediction}
-#' and \code{comb.random} are \code{TRUE}.
-#' 
-#' R function \code{\link{update.meta}} can be used to redo the
-#' meta-analysis of an existing metagen object by only specifying
-#' arguments which should be changed.
-#' 
-#' For the random effects, the method by Hartung and Knapp (2003) is
-#' used to adjust test statistics and confidence intervals if argument
-#' \code{hakn = TRUE}.
-#' 
-#' The DerSimonian-Laird estimate (1986) is used in the random effects
-#' model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-#' method (1982) to estimate the between-study variance is used if
-#' argument \code{method.tau = "PM"}.  Internally, R function
-#' \code{paulemandel} is called which is based on R function
-#' mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-#' <s.ellison at lgc.co.uk>.
-#' 
-#' If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-#' following methods to estimate the between-study variance
-#' \eqn{\tau^2} (argument \code{method.tau}) are also available:
-#' \itemize{
-#' \item Restricted maximum-likelihood estimator (\code{method.tau =
-#'   "REML"})
-#' \item Maximum-likelihood estimator (\code{method.tau = "ML"})
-#' \item Hunter-Schmidt estimator (\code{method.tau = "HS"})
-#' \item Sidik-Jonkman estimator (\code{method.tau = "SJ"})
-#' \item Hedges estimator (\code{method.tau = "HE"})
-#' \item Empirical Bayes estimator (\code{method.tau = "EB"})
-#' }
-#' For these methods the R function \code{rma.uni} of R package
-#' \bold{metafor} is called internally. See help page of R function
-#' \code{rma.uni} for more details on these methods to estimate
-#' between-study variance.
+#' \code{comb.fixed} and \code{comb.random}. For example, functions
+#' \code{\link{print.meta}} and \code{\link{forest.meta}} will not
+#' show results for the random effects model if \code{comb.random =
+#' FALSE}.
 #' 
 #' Argument \code{pscale} can be used to rescale single proportions or
 #' risk differences, e.g. \code{pscale = 1000} means that proportions
@@ -186,6 +291,12 @@
 #' can be used to specify the time unit used in individual studies
 #' (default: "person-years"). This information is printed in summaries
 #' and forest plots if argument \code{irscale} is not equal to 1.
+#'
+#' Default settings for \code{comb.fixed}, \code{comb.random},
+#' \code{pscale}, \code{irscale}, \code{irunit} and several other
+#' arguments can be set for the whole R session using
+#' \code{\link{settings.meta}}.
+#' }
 #' 
 #' @return
 #' An object of class \code{c("metagen", "meta")} with corresponding
@@ -325,9 +436,16 @@
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
 #' @seealso \code{\link{update.meta}}, \code{\link{metabin}},
-#'   \code{\link{metacont}}, \code{\link{print.meta}}
+#'   \code{\link{metacont}}, \code{\link{print.meta}},
+#'   \code{\link{settings.meta}}
 #' 
 #' @references
+#' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
+#' A basic introduction to fixed-effect and random-effects models for
+#' meta-analysis.
+#' \emph{Research Synthesis Methods},
+#' \bold{1}, 97--111
+#' 
 #' Cooper H & Hedges LV (1994):
 #' \emph{The Handbook of Research Synthesis}.
 #' Newbury Park, CA: Russell Sage Foundation
@@ -337,26 +455,93 @@
 #' \emph{Controlled Clinical Trials},
 #' \bold{7}, 177--88
 #' 
+#' Hedges LV & Olkin I (1985):
+#' \emph{Statistical methods for meta-analysis}.
+#' San Diego, CA: Academic Press
+#' 
 #' Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
 #' A re-evaluation of random-effects meta-analysis.
 #' \emph{Journal of the Royal Statistical Society: Series A},
 #' \bold{172}, 137--59
 #' 
-#' Knapp G & Hartung J (2003):
-#' Improved tests for a random effects meta-regression with a single
-#' covariate.
+#' Hunter JE & Schmidt FL (2015):
+#' \emph{Methods of Meta-Analysis: Correcting Error and Bias in
+#' Research Findings} (Third edition).
+#' Thousand Oaks, CA: Sage
+#' 
+#' Hartung J, Knapp G (2001a):
+#' On tests of the overall treatment effect in meta-analysis with
+#' normally distributed responses.
 #' \emph{Statistics in Medicine},
-#' \bold{22}, 2693--710
+#' \bold{20}, 1771--82
+#' 
+#' Hartung J, Knapp G (2001b):
+#' A refined method for the meta-analysis of controlled clinical
+#' trials with binary outcome.
+#' \emph{Statistics in Medicine},
+#' \bold{20}, 3875--89
+#'
+#' IntHout J, Ioannidis JPA, Borm GF (2014):
+#' The Hartung-Knapp-Sidik-Jonkman method for random effects
+#' meta-analysis is straightforward and considerably outperforms the
+#' standard DerSimonian-Laird method.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{14}, 25
+#'
+#' Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
+#' Kontopantelis E, et al. (2018):
+#' A comparison of heterogeneity variance estimators in simulated
+#' random-effects meta-analyses.
+#' \emph{Research Synthesis Methods}
+#' 
+#' Morris CN (1983):
+#' Parametric empirical Bayes inference: Theory and applications (with
+#' discussion).
+#' \emph{Journal of the American Statistical Association}
+#' \bold{78}, 47--65
 #' 
 #' Paule RC & Mandel J (1982):
 #' Consensus values and weighting factors.
 #' \emph{Journal of Research of the National Bureau of Standards},
 #' \bold{87}, 377--85
 #' 
+#' \emph{Review Manager (RevMan)} [Computer program]. Version 5.3.
+#' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+#'
+#' Sidik K & Jonkman JN (2005):
+#' Simple heterogeneity variance estimation for meta-analysis.
+#' \emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)},
+#' \bold{54}, 367--84
+#'
+#' Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
+#' et al. (2016):
+#' Methods to estimate the between-study variance and its uncertainty
+#' in meta-analysis.
+#' \emph{Research Synthesis Methods},
+#' \bold{7}, 55--79 
+#' 
+#' Viechtbauer W (2005):
+#' Bias and efficiency of meta-analytic variance estimators in the
+#' random-effects model.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{30}, 261--93
+#' 
 #' Viechtbauer W (2010):
-#' Conducting Meta-Analyses in R with the Metafor Package.
+#' Conducting Meta-Analyses in R with the metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#'
+#' Wan X, Wang W, Liu J, Tong T (2014):
+#' Estimating the sample mean and standard deviation from the sample
+#' size, median, range and/or interquartile range.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{14}, 135
+#' 
+#' Wiksten A, Rücker G, Schwarzer G (2016):
+#' Hartung-Knapp method is not always conservative compared with
+#' fixed-effect meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{35}, 2503--15
 #' 
 #' @examples
 #' data(Fleiss93)
@@ -365,18 +550,21 @@
 #' m1
 #' # Identical results by using the generic inverse variance method
 #' metagen(m1$TE, m1$seTE, sm = "RR")
-#' 
+#' #
 #' forest(metagen(m1$TE, m1$seTE, sm = "RR"))
+#'
 #' 
 #' # Meta-analysis with prespecified between-study variance
 #' #
 #' summary(metagen(m1$TE, m1$seTE, sm = "RR", tau.preset = sqrt(0.1)))
+#'
 #' 
 #' # Meta-analysis of survival data:
 #' #
 #' logHR <- log(c(0.95, 1.5))
 #' selogHR <- c(0.25, 0.35)
 #' metagen(logHR, selogHR, sm = "HR")
+#'
 #' 
 #' # Paule-Mandel method to estimate between-study variance for data
 #' # from Paule & Mandel (1982)
@@ -385,6 +573,22 @@
 #' variance <- c(0.003, 0.076, 0.464, 0.003, 0.014)
 #' #
 #' summary(metagen(average, sqrt(variance), sm = "MD", method.tau = "PM"))
+#'
+#' 
+#' # Conduct meta-analysis using hazard ratios and 95% confidence intervals
+#' #
+#' # Data from Steurer et al. (2006), Analysis 1.1 Overall survival
+#' # https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD004270.pub2/abstract
+#' #
+#' study <- c("FCG on CLL 1996", "Leporrier 2001", "Rai 2000", "Robak 2000")
+#' HR <- c(0.55, 0.92, 0.79, 1.18)
+#' lower.HR <- c(0.28, 0.79, 0.59, 0.64)
+#' upper.HR <- c(1.09, 1.08, 1.05, 2.17)
+#' #
+#' # Input must be log hazard ratios, not hazard ratios
+#' #
+#' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
+#'         studlab = study, sm = "HR")
 #' 
 #' @export metagen
 
@@ -509,14 +713,19 @@ metagen <- function(TE, seTE, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch 'TE', 'seTE', 'median', 'n.e', and 'n.c' from data:
+  ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', and 'n.c'
+  ## from data:
   ##
   missing.TE <- missing(TE)
   missing.seTE <- missing(seTE)
   missing.median <- missing(median)
+  missing.lower <- missing(lower)
+  missing.upper <- missing(upper)
   ##
-  if (missing.TE & missing.median)
-    stop("Either argument 'TE' or 'median' must be provided.",
+  if (missing.TE & missing.median & (missing.lower | missing.upper))
+    stop("Treatment estimates missing. ",
+         "Provide either argument 'TE' or 'median', ",
+         "or arguments 'lower' and 'upper'.",
          call. = FALSE)
   ##
   TE <- eval(mf[[match("TE", names(mf))]],
@@ -528,7 +737,20 @@ metagen <- function(TE, seTE, studlab,
   median <- eval(mf[[match("median", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
   ##
-  k.All <- if (!missing.TE) length(TE) else length(median)
+  lower <- eval(mf[[match("lower", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  upper <- eval(mf[[match("upper", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+  ##
+  k.All <- if (!missing.TE)
+             length(TE)
+           else if (!missing.median)
+             length(median)
+           else if (!missing.lower)
+             length(lower)
+           else
+             length(upper)
   ##
   if (!missing.TE)
     chknull(TE)
@@ -567,8 +789,8 @@ metagen <- function(TE, seTE, studlab,
                   data, enclos = sys.frame(sys.parent()))
   missing.exclude <- is.null(exclude)
   ##
-  ## Catch 'pval', 'df', 'lower', 'upper', 'level.ci', 'q1', 'q3',
-  ## 'min', 'max', 'approx.TE' and 'approx.seTE', from data:
+  ## Catch 'pval', 'df', 'level.ci', 'q1', 'q3', 'min', 'max',
+  ## 'approx.TE' and 'approx.seTE', from data:
   ##
   missing.pval <- missing(pval)
   pval <- eval(mf[[match("pval", names(mf))]],
@@ -577,14 +799,6 @@ metagen <- function(TE, seTE, studlab,
   missing.df <- missing(df)
   df <- eval(mf[[match("df", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
-  ##
-  missing.lower <- missing(lower)
-  lower <- eval(mf[[match("lower", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-  ##
-  missing.upper <- missing(upper)
-  upper <- eval(mf[[match("upper", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
   ##
   if (!missing(level.ci))
     level.ci <- eval(mf[[match("level.ci", names(mf))]],
@@ -999,10 +1213,7 @@ metagen <- function(TE, seTE, studlab,
     if (any(sel.NA) & !missing.lower & !missing.upper) {
       j <- sel.NA & !is.na(lower) & !is.na(upper)
       approx.TE[j] <- "ci"
-      if (missing.df)
-        TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-      else
-        TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$TE
+      TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
     }
     ##
     ## Use IQR and range
@@ -1063,12 +1274,8 @@ metagen <- function(TE, seTE, studlab,
     for (i in approx.TE) {
       j <- j + 1
       ##
-      if (i == "ci") {
-        if (missing.df)
-          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-        else
-          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$TE
-      }
+      if (i == "ci")
+        TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
       else if (i == "iqr.range")
         if (is.null(n.e) & is.null(n.c))
           stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",

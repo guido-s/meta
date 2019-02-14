@@ -1,11 +1,11 @@
 estimate.missing <- function(TE, TE.sum, type) {
   ##
-  ## 1. Centre around mean
+  ## 1. Center around mean
   ##
   TE.c <- TE - TE.sum
   n <- length(TE.c)
   ##
-  ## 2. Rank absolute values of centred values
+  ## 2. Rank absolute values of centered values
   ##
   r.star <- rank(abs(TE.c)) * sign(TE.c)
   ##
