@@ -1,17 +1,21 @@
 *** metasens, version 4.9-5, 2019-mm-dd ***
 
  ** Major changes **
- 
-  * Use roxygen2 for development of R package meta
-
-  * Harbord test for funnel plot asymmetry implemented for risk ratio
-    as effect measure
 
   * For the generic inverse variance method, treatment estimates and
     standard errors of individual studies can be derived from
     - p-value or confidence limits
     - sample size, median, interquartile range and / or range
       (Wan et al. (2014), BMC Med Res Meth, 14, 135)
+
+  * New functions for the conversion of effect measures:
+    - smd2or() - from standardised mean difference to log odds ratio
+    - or2smd() - from log odds ratio to standardised mean difference
+
+  * Harbord test for funnel plot asymmetry implemented for risk ratio
+    as effect measure
+ 
+  * Use roxygen2 for development of R package meta
 
  ** User-visible changes **
 
@@ -36,6 +40,11 @@
 
   * setchar():
     - new argument 'stop.at.error'
+
+  * metagen():
+    - list element 'data' contains the dataset of the meta-analysis
+      object (i.e., list element 'data') instead of the whole
+      meta-analysis object
 
 
 *** meta, version 4.9-4, 2019-01-02 ***

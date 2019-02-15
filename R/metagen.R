@@ -944,6 +944,12 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   if (keepdata) {
+    if (inherits(data, "meta")) {
+      data <- data$data
+      if (!is.null(data$.subset))
+        data <- data[data$.subset, ]
+    }
+    ##
     if (nulldata)
       data <- data.frame(.TE = TE)
     else

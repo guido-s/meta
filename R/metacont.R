@@ -349,7 +349,7 @@
 #'   \code{\link{metagen}}
 #' 
 #' @references
-#' Borenstein et al. (2009):
+#' Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
 #' \emph{Introduction to Meta-Analysis}.
 #' Chichester: Wiley
 #' 
