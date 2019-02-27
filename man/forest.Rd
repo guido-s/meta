@@ -99,8 +99,11 @@ forest(x, ...)
   digits.I2 = max(gs("digits.I2") - 1, 0),
   digits.weight = gs("digits.weight"), digits.mean = digits,
   digits.sd = digits.se, digits.cor = digits, digits.time = digits,
+  digits.addcols = digits, digits.addcols.right = digits.addcols,
+  digits.addcols.left = digits.addcols,
   scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-  col.i = col.study, weight = weight.study, ...)
+  zero.pval = if (layout != "JAMA") TRUE else FALSE, col.i = col.study,
+  weight = weight.study, ...)
 }
 \arguments{
 \item{x}{An object of class \code{meta} or \code{metabind}.}
@@ -722,6 +725,20 @@ correlations; only applies to \code{\link{metacor}} objects.}
 \item{digits.time}{Minimal number of significant digits for times;
 only applies to \code{\link{metainc}} and \code{\link{metarate}}
 objects.}
+
+\item{digits.addcols}{A vector or scalar with minimal number of
+significant digits for additional columns.}
+
+\item{digits.addcols.right}{A vector or scalar with minimal number
+of significant digits for additional columns on right side of
+forest plot.}
+
+\item{digits.addcols.left}{A vector or scalar with minimal number
+of significant digits for additional columns on left side of
+forest plot.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
 
 \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
 

@@ -434,10 +434,20 @@
 #' @param digits.time Minimal number of significant digits for times;
 #'   only applies to \code{\link{metainc}} and \code{\link{metarate}}
 #'   objects.
+#' @param digits.addcols A vector or scalar with minimal number of
+#'   significant digits for additional columns.
+#' @param digits.addcols.left A vector or scalar with minimal number
+#'   of significant digits for additional columns on left side of
+#'   forest plot.
+#' @param digits.addcols.right A vector or scalar with minimal number
+#'   of significant digits for additional columns on right side of
+#'   forest plot.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
 #' @param big.mark A character used as thousands separator.
+#' @param zero.pval A logical specifying whether p-values should be
+#'   printed with a leading zero.
 #' @param col.i Deprecated argument (replaced by \code{col.study}).
 #' @param weight Deprecated argument (replaced by
 #'   \code{weight.study}).
@@ -1324,8 +1334,13 @@ forest.meta <- function(x,
                         digits.cor = digits,
                         digits.time = digits,
                         ##
+                        digits.addcols = digits,
+                        digits.addcols.right = digits.addcols,
+                        digits.addcols.left = digits.addcols,
+                        ##
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
+                        zero.pval = if (layout != "JAMA") TRUE else FALSE,
                         ##
                         col.i = col.study,
                         weight = weight.study,
@@ -1578,7 +1593,14 @@ forest.meta <- function(x,
     chknumeric(digits.cor, min = 0, single = TRUE)
   if (!missing(digits.time))
     chknumeric(digits.time, min = 0, single = TRUE)
+  if (!missing(digits.addcols))
+    chknumeric(digits.addcols, min = 0)
+  if (!missing(digits.addcols.right))
+    chknumeric(digits.addcols.right, min = 0)
+  if (!missing(digits.addcols.left))
+    chknumeric(digits.addcols.left, min = 0)
   chklogical(scientific.pval)
+  chklogical(zero.pval)
   ##
   cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
   addargs <- names(list(...))
@@ -2806,7 +2828,7 @@ forest.meta <- function(x,
       formatPT(pval.Q,
                lab = TRUE, labval = "",
                digits = digits.pval.Q,
-               zero = if (jama) FALSE else TRUE,
+               zero = zero.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
     ##
@@ -3173,7 +3195,7 @@ forest.meta <- function(x,
       formatPT(pval.Q.resid,
                lab = TRUE, labval = "",
                digits = digits.pval.Q,
-               zero = if (jama) FALSE else TRUE,
+               zero = zero.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
     ##
@@ -3555,7 +3577,7 @@ forest.meta <- function(x,
     pvals.overall <- formatPT(c(x$pval.fixed, x$pval.random),
                               lab = TRUE, labval = "",
                               digits = digits.pval,
-                              zero = if (jama) FALSE else TRUE,
+                              zero = zero.pval,
                               scientific = scientific.pval,
                               lab.NA = "NA")
     zvals.overall <- formatN(round(c(x$zval.fixed, x$zval.random),
@@ -3719,7 +3741,7 @@ forest.meta <- function(x,
     paste(formatPT(pval.Q.bs,
                    lab = TRUE, labval = "",
                    digits = digits.pval.Q,
-                   zero = if (jama) FALSE else TRUE,
+                   zero = zero.pval,
                    scientific = scientific.pval,
                    lab.NA = "NA"),
           sep = "")
@@ -4003,7 +4025,7 @@ forest.meta <- function(x,
         paste(formatPT(pvalQ(Q.w, k.w - 1),
                        lab = TRUE, labval = "",
                        digits = digits.pval.Q,
-                       zero = if (jama) FALSE else TRUE,
+                       zero = zero.pval,
                        scientific = scientific.pval,
                        lab.NA = "NA"),
               sep = "")
@@ -4350,7 +4372,7 @@ forest.meta <- function(x,
       pvals.effect.w <- formatPT(c(x$pval.fixed.w, x$pval.random.w),
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
-                                 zero = if (jama) FALSE else TRUE,
+                                 zero = zero.pval,
                                  scientific = scientific.pval,
                                  lab.NA = "NA")
       zvals.effect.w <- formatN(round(c(x$zval.fixed.w, x$zval.random.w),
@@ -6134,6 +6156,8 @@ forest.meta <- function(x,
   ##
   if (newcols) {
     ##
+    ## Check just.addcols
+    ##
     if (length(leftcols.new) > 0)
       if (length(just.addcols.left) != 1) {
         if (length(just.addcols.left) != length(leftcols.new))
@@ -6150,6 +6174,24 @@ forest.meta <- function(x,
       else
         just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
     ##
+    ## Check digits.addcols
+    ##
+    if (length(leftcols.new) > 0)
+      if (length(digits.addcols.left) != 1) {
+        if (length(digits.addcols.left) != length(leftcols.new))
+          stop("Length of argument 'digits.addcols.left' must be one or same as number of additional columms in argument 'leftcols'.")
+      }
+      else
+        digits.addcols.left <- rep(digits.addcols.left, length(leftcols.new))
+    ##
+    if (length(rightcols.new) > 0)
+      if (length(digits.addcols.right) != 1) {
+        if (length(digits.addcols.right) != length(rightcols.new))
+          stop("Length of argument 'digits.addcols.right' must be one or same as number of additional columms in argument 'rightcols'.")
+      }
+      else
+        just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
+    ##
     if (by) {
       for (i in seq(along = rightcols.new)) {
         tname <- paste("col.", rightcols.new[i], sep = "")
@@ -6159,6 +6201,9 @@ forest.meta <- function(x,
           tmp.r <- dataset2[[rightcols.new[i]]]
         if (is.factor(tmp.r))
           tmp.r <- as.character(tmp.r)
+        else if (is.numeric(tmp.r))
+          tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                           text.NA = "", big.mark = big.mark)
         tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
         ##
         ## Check for "\n" in label of new column
@@ -6190,6 +6235,9 @@ forest.meta <- function(x,
           tmp.l <- dataset2[[leftcols.new[i]]]
         if (is.factor(tmp.l))
           tmp.l <- as.character(tmp.l)
+        else if (is.numeric(tmp.l))
+          tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                           text.NA = "", big.mark = big.mark)
         tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
         ##
         ## Check for "\n" in label of new column
@@ -6227,6 +6275,9 @@ forest.meta <- function(x,
           tmp.r <- dataset2[[rightcols.new[i]]]
         if (is.factor(tmp.r))
           tmp.r <- as.character(tmp.r)
+        else if (is.numeric(tmp.r))
+          tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                           text.NA = "", big.mark = big.mark)
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
         ##
         ## Check for "\n" in label of new column
@@ -6259,6 +6310,10 @@ forest.meta <- function(x,
           tmp.l <- dataset2[[leftcols.new[i]]]
         if (is.factor(tmp.l))
           tmp.l <- as.character(tmp.l)
+        else if (is.numeric(tmp.l))
+          tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                           text.NA = "", big.mark = big.mark)
+        ##
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
         ##
         ## Check for "\n" in label of new column

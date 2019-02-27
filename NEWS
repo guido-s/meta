@@ -24,6 +24,12 @@
       'median', 'q1', 'q3', 'min', 'max', 'approx.TE', 'approx.seTE'
 
   * forest.meta():
+    - printing of leading zeros in p-values can be suppressed (new
+      argument 'zero.pval')
+    - rounding of values for additional numerical columns possible
+      (new arguments 'digits.addcols', 'digits.addcols.left', and
+      'digits.addcols.right')
+    - argument 'big.mark' is considered for additional columns
     - new arguments 'type.subgroup.fixed', 'type.subgroup.random', and
       'lab.NA.weight'
 
