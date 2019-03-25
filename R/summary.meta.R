@@ -1269,6 +1269,10 @@ print.summary.meta <- function(x,
                          c("Wald-type", "Likelihood-Ratio"))
           dimnames(Qdata) <- list(rep("", 2),
                                   c("Q", "d.f.", "p-value", "Test"))
+          ##
+          ## No p-value for Wald-type test with metafor, version 2.0-0
+          ##
+          Qdata <- Qdata[-1, , drop = FALSE]
         }
         ##
         cat("\nTest of heterogeneity:\n")

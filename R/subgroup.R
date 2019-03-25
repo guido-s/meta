@@ -241,25 +241,20 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     if (prop) {
       mod <- as.call(~ byvar.glmm - 1)
       ##
-      glmm.fixed <- metafor::rma.glmm(xi = x$event,
-                                      ni = x$n,
-                                      mods = mod,
-                                      method = "FE",
-                                      test = ifelse(x$hakn, "t", "z"),
-                                      level = 100 * x$level.comb,
-                                      measure = "PLO",
-                                      intercept = FALSE,
-                                      ...)
+      glmm.fixed <- rma.glmm(xi = x$event, ni = x$n,
+                             mods = mod,
+                             method = "FE", test = ifelse(x$hakn, "t", "z"),
+                             level = 100 * x$level.comb,
+                             measure = "PLO", intercept = FALSE,
+                             ...)
       ##
-      glmm.random <- metafor::rma.glmm(xi = x$event,
-                                       ni = x$n,
-                                       mods = mod,
-                                       method = x$method.tau,
-                                       test = ifelse(x$hakn, "t", "z"),
-                                       level = 100 * x$level.comb,
-                                       measure = "PLO",
-                                       intercept = FALSE,
-                                       ...)
+      glmm.random <- rma.glmm(xi = x$event, ni = x$n,
+                              mods = mod,
+                              method = x$method.tau,
+                              test = ifelse(x$hakn, "t", "z"),
+                              level = 100 * x$level.comb,
+                              measure = "PLO", intercept = FALSE,
+                              ...)
     }
     ##
     TE.fixed.w   <- as.numeric(glmm.fixed$b)

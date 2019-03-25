@@ -170,7 +170,14 @@
 #' 2010; Simmonds et al., 2016). These methods are available (argument
 #' \code{method = "GLMM"}) for the odds ratio as summary measure by
 #' calling the \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally. Four different GLMMs are available for
+#' \bold{metafor} internally. As a technical note, a warning
+#' "Cannot invert Hessian for saturated model" is printed using R
+#' package \bold{metafor}, version 2.0-0. This warning can be safely
+#' ignored as the inverted Hessian is only used in the calculation of
+#' a Wald-type test of heterogeneity which is not printed due to the
+#' estimation problem.
+#'
+#' Four different GLMMs are available for
 #' meta-analysis with binary outcomes using argument \code{model.glmm}
 #' (which corresponds to argument \code{model} in the
 #' \code{\link[metafor]{rma.glmm}} function):
@@ -754,12 +761,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
-  if (method == "GLMM") {
-    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
-    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
-                         version = .settings$metafor)
-  }
   ##
   chklogical(allincr)
   chklogical(addincr)
@@ -772,7 +773,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
   chklogical(print.CMH)
-  chkmetafor(method.tau, fun)
   ##
   if (sm == "ASD")
     method <- "Inverse"
@@ -1365,16 +1365,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.fixed[is.na(w.fixed)] <- 0
   }
   else if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(ai = event.e[!exclude],
-                                    n1i = n.e[!exclude],
-                                    ci = event.c[!exclude],
-                                    n2i = n.c[!exclude],
-                                    method = "FE",
-                                    test = ifelse(hakn, "t", "z"),
-                                    level = 100 * level.comb,
-                                    measure = "OR", model = model.glmm,
-                                    control = control,
-                                    ...)
+    glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                           ci = event.c[!exclude], n2i = n.c[!exclude],
+                           method = "FE", test = ifelse(hakn, "t", "z"),
+                           level = 100 * level.comb,
+                           measure = "OR", model = model.glmm,
+                           control = control,
+                           ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1472,16 +1469,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (method == "GLMM") {
     ##
     if (sum(!exclude) > 1)
-      glmm.random <- metafor::rma.glmm(ai = event.e[!exclude],
-                                       n1i = n.e[!exclude],
-                                       ci = event.c[!exclude],
-                                       n2i = n.c[!exclude],
-                                       method = method.tau,
-                                       test = ifelse(hakn, "t", "z"),
-                                       level = 100 * level.comb,
-                                       measure = "OR", model = model.glmm,
-                                       control = control,
-                                       ...)
+      glmm.random <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                              ci = event.c[!exclude], n2i = n.c[!exclude],
+                              method = method.tau,
+                              test = ifelse(hakn, "t", "z"),
+                              level = 100 * level.comb,
+                              measure = "OR", model = model.glmm,
+                              control = control,
+                              ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1504,7 +1499,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$pval.random <- ci.r$p
     ##
     res$se.tau2 <- NA
-    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
     res$upper.predict <- ci.p$cr.ub

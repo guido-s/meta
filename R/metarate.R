@@ -136,7 +136,12 @@
 #' meta-analysis of incidence rates (Stijnen et al., 2010). This
 #' method is available (argument \code{method = "GLMM"}) by calling
 #' the \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally.
+#' \bold{metafor} internally. As a technical note, a warning
+#' "Cannot invert Hessian for saturated model" is printed using R
+#' package \bold{metafor}, version 2.0-0. This warning can be safely
+#' ignored as the inverted Hessian is only used in the calculation of
+#' a Wald-type test of heterogeneity which is not printed due to the
+#' estimation problem.
 #' 
 #' If the summary measure is equal to "IR" or "IRLN", a continuity
 #' correction is applied if any study has zero events, i.e., an
@@ -499,17 +504,10 @@ metarate <- function(event, time, studlab,
   fun <- "metarate"
   ##
   method <- setchar(method, c("Inverse", "GLMM"))
-  if (method == "GLMM") {
-    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
-    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
-                         version = .settings$metafor)
-  }
   ##
   chklogical(allincr)
   chklogical(addincr)
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   ##
   if (method == "GLMM" & sm != "IRLN")
     stop("Generalised linear mixed models only possible with argument 'sm = \"IRLN\"'.")
@@ -754,8 +752,8 @@ metarate <- function(event, time, studlab,
         incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
-    else
-      incr.event <- rep(0, k.all)
+  else
+    incr.event <- rep(0, k.all)
   ##
   if (sm == "IR") {
     TE <- (event + incr.event) / time
@@ -794,13 +792,11 @@ metarate <- function(event, time, studlab,
   k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
   ##
   if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                                    method = "FE",
-                                    test = ifelse(hakn, "t", "z"),
-                                    level = 100 * level.comb,
-                                    measure = "IRLN",
-                                    control = control,
-                                    ...)
+    glmm.fixed <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
+                           method = "FE", test = ifelse(hakn, "t", "z"),
+                           level = 100 * level.comb,
+                           measure = "IRLN", control = control,
+                           ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -888,13 +884,12 @@ metarate <- function(event, time, studlab,
     res$pval.fixed <- ci.f$p
     ##
     if (sum(!exclude) > 1)
-      glmm.random <- metafor::rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                                       method = method.tau,
-                                       test = ifelse(hakn, "t", "z"),
-                                       level = 100 * level.comb,
-                                       measure = "IRLN",
-                                       control = control,
-                                       ...)
+      glmm.random <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
+                              method = method.tau,
+                              test = ifelse(hakn, "t", "z"),
+                              level = 100 * level.comb,
+                              measure = "IRLN", control = control,
+                              ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -918,7 +913,7 @@ metarate <- function(event, time, studlab,
     res$pval.random <- ci.r$p
     ##
     res$se.tau2 <- NA
-    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
     res$upper.predict <- ci.p$cr.ub
@@ -929,7 +924,11 @@ metarate <- function(event, time, studlab,
     ##
     res$Q <- glmm.random$QE.Wld
     res$df.Q <- glmm.random$QE.df
-    res$Q.LRT <- glmm.random$QE.LRT
+    res$pval.Q <- pvalQ(res$Q, res$df.Q)
+    ##
+    res$Q.LRT      <- glmm.random$QE.LRT
+    res$df.Q.LRT   <- res$df.Q
+    res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
     if (k > 1)
       res$tau <- sqrt(glmm.random$tau2)

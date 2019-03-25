@@ -1,10 +1,10 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 4.9-5
-Date: 2019-02-27
+Date: 2019-03-25
 Depends: R (>= 2.9.1)
-Imports: grid
-Suggests: metafor (>= 1.9-9), lme4, numDeriv, BiasedUrn
+Imports: grid, metafor (>= 1.9-9), lme4
+Suggests: numDeriv, BiasedUrn
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "sc@imbi.uni-freiburg.de",
@@ -17,8 +17,8 @@ Description: User-friendly general package providing standard methods for meta-a
  - import data from 'RevMan 5';
  - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
  - cumulative meta-analysis and leave-one-out meta-analysis;
- - meta-regression (if R package 'metafor' is installed);
- - generalised linear mixed models (if R packages 'metafor', 'lme4', 'numDeriv', and 'BiasedUrn' are installed);
+ - meta-regression;
+ - generalised linear mixed models;
  - produce forest plot summarising several (subgroup) meta-analyses.
 License: GPL (>= 2)
 Encoding: UTF-8

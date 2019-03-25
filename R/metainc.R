@@ -144,10 +144,17 @@
 #' of incidence rate ratios (Stijnen et al., 2010). These methods are
 #' available (argument \code{method = "GLMM"}) by calling the
 #' \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally. Three different GLMMs are available for
-#' meta-analysis of incidence rate ratios using argument
-#' \code{model.glmm} (which corresponds to argument \code{model} in
-#' the \code{\link[metafor]{rma.glmm}} function):
+#' \bold{metafor} internally. As a technical note, a warning
+#' "Cannot invert Hessian for saturated model" is printed using R
+#' package \bold{metafor}, version 2.0-0. This warning can be safely
+#' ignored as the inverted Hessian is only used in the calculation of
+#' a Wald-type test of heterogeneity which is not printed due to the
+#' estimation problem.
+#'
+#' Three different GLMMs are available for meta-analysis of incidence
+#' rate ratios using argument \code{model.glmm} (which corresponds to
+#' argument \code{model} in the \code{\link[metafor]{rma.glmm}}
+#' function):
 #' \itemize{
 #' \item Poisson regression model with fixed study effects (default)
 #' \item[] (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
@@ -586,18 +593,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
-  if (method == "GLMM") {
-    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
-    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
-                         version = .settings$metafor)
-  }
   ##
   chklogical(allincr)
   chklogical(addincr)
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL"))
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   ##
   if (method == "GLMM" & sm != "IRR")
     stop("Generalised linear mixed models only possible with argument 'sm = \"IRR\"'.")
@@ -953,16 +953,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
   }
   else if (method == "GLMM") {
-    glmm.fixed <- metafor::rma.glmm(x1i = event.e[!exclude],
-                                    t1i = time.e[!exclude],
-                                    x2i = event.c[!exclude],
-                                    t2i = time.c[!exclude],
-                                    method = "FE",
-                                    test = ifelse(hakn, "t", "z"),
-                                    level = 100 * level.comb,
-                                    measure = "IRR", model = model.glmm,
-                                    control = control,
-                                    ...)
+    glmm.fixed <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                           x2i = event.c[!exclude], t2i = time.c[!exclude],
+                           method = "FE", test = ifelse(hakn, "t", "z"),
+                           level = 100 * level.comb,
+                           measure = "IRR", model = model.glmm,
+                           control = control,
+                           ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1058,16 +1055,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (method == "GLMM") {
     ##
     if (sum(!exclude) > 1)
-      glmm.random <- metafor::rma.glmm(x1i = event.e[!exclude],
-                                       t1i = time.e[!exclude],
-                                       x2i = event.c[!exclude],
-                                       t2i = time.c[!exclude],
-                                       method = method.tau,
-                                       test = ifelse(hakn, "t", "z"),
-                                       level = 100 * level.comb,
-                                       measure = "IRR", model = model.glmm,
-                                       control = control,
-                                       ...)
+      glmm.random <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                              x2i = event.c[!exclude], t2i = time.c[!exclude],
+                              method = method.tau,
+                              test = ifelse(hakn, "t", "z"),
+                              level = 100 * level.comb,
+                              measure = "IRR", model = model.glmm,
+                              control = control,
+                              ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1090,7 +1085,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$pval.random <- ci.r$p
     ##
     res$se.tau2 <- NA
-    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
     res$upper.predict <- ci.p$cr.ub
@@ -1103,7 +1098,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     res$Q <- glmm.random$QE.Wld
     res$df.Q <- glmm.random$QE.df
-    res$Q.LRT <- glmm.random$QE.LRT
+    res$pval.Q <- pvalQ(res$Q, res$df.Q)
+    ##
+    res$Q.LRT      <- glmm.random$QE.LRT
+    res$df.Q.LRT   <- res$df.Q
+    res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
     if (k > 1)
       res$tau <- sqrt(glmm.random$tau2)

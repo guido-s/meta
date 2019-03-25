@@ -412,7 +412,14 @@ be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 2010; Simmonds et al., 2016). These methods are available (argument
 \code{method = "GLMM"}) for the odds ratio as summary measure by
 calling the \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally. Four different GLMMs are available for
+\bold{metafor} internally. As a technical note, a warning
+"Cannot invert Hessian for saturated model" is printed using R
+package \bold{metafor}, version 2.0-0. This warning can be safely
+ignored as the inverted Hessian is only used in the calculation of
+a Wald-type test of heterogeneity which is not printed due to the
+estimation problem.
+
+Four different GLMMs are available for
 meta-analysis with binary outcomes using argument \code{model.glmm}
 (which corresponds to argument \code{model} in the
 \code{\link[metafor]{rma.glmm}} function):

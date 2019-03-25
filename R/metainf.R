@@ -345,6 +345,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     exclude = exclude[sel],
                     ##
+                    method = x$method,
                     sm = x$sm,
                     null.effect = x$null.effect,
                     ##
@@ -367,6 +368,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     exclude = exclude[sel],
                     ##
+                    method = x$method,
                     sm = x$sm,
                     null.effect = x$null.effect,
                     ##

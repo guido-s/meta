@@ -56,9 +56,8 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
       if (is.numeric(byvar))
         byvar <- as.factor(byvar)
       ##
-      mf1 <- metafor::rma.uni(yi = TE, sei = seTE,
-                              method = method.tau, mods = ~ byvar,
-                              control = control)
+      mf1 <- rma.uni(yi = TE, sei = seTE, method = method.tau,
+                     mods = ~ byvar, control = control)
       ##
       Q    <- mf1$QE
       df.Q <- mf1$k - mf1$p
@@ -104,9 +103,8 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
       se.tau2 <- NULL
     }
     else {
-      mf2 <- metafor::rma.uni(yi = TE, sei = seTE,
-                              method = method.tau,
-                              control = control)
+      mf2 <- rma.uni(yi = TE, sei = seTE, method = method.tau,
+                     control = control)
       Q    <- mf2$QE
       df.Q <- mf2$k - mf2$p
       Cval <- NA

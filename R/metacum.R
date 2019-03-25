@@ -347,6 +347,7 @@ metacum <- function(x, pooled, sortvar) {
       m <- metaprop(event[sel], n[sel],
                     ##
                     exclude = exclude[sel],
+                    method = x$method,
                     ##
                     sm = x$sm,
                     null.effect = x$null.effect,

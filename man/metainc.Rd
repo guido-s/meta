@@ -374,10 +374,17 @@ generalised linear mixed models, can be utilised in a meta-analysis
 of incidence rate ratios (Stijnen et al., 2010). These methods are
 available (argument \code{method = "GLMM"}) by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally. Three different GLMMs are available for
-meta-analysis of incidence rate ratios using argument
-\code{model.glmm} (which corresponds to argument \code{model} in
-the \code{\link[metafor]{rma.glmm}} function):
+\bold{metafor} internally. As a technical note, a warning
+"Cannot invert Hessian for saturated model" is printed using R
+package \bold{metafor}, version 2.0-0. This warning can be safely
+ignored as the inverted Hessian is only used in the calculation of
+a Wald-type test of heterogeneity which is not printed due to the
+estimation problem.
+
+Three different GLMMs are available for meta-analysis of incidence
+rate ratios using argument \code{model.glmm} (which corresponds to
+argument \code{model} in the \code{\link[metafor]{rma.glmm}}
+function):
 \itemize{
 \item Poisson regression model with fixed study effects (default)
 \item[] (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional

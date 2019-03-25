@@ -543,7 +543,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       slope <- lreg$intercept
       ##
       statistic <- bias / se.bias
-      p.value <- 2 * (1 - pt(abs(statistic), df = df))[[1]]
+      p.value <- 2 * pt(abs(statistic), df = df, lower.tail = FALSE)[[1]]
       ##
       res <- list(estimate = c(bias, se.bias, slope),
                   parameters = df, statistic = statistic,

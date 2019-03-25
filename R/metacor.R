@@ -404,7 +404,6 @@ metacor <- function(cor, n, studlab,
   ##
   fun <- "metacor"
   sm <- setchar(sm, .settings$sm4cor)
-  chkmetafor(method.tau, fun)
   
   
   ##

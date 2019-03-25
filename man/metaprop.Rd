@@ -5,21 +5,18 @@
 \title{Meta-analysis of single proportions}
 \usage{
 metaprop(event, n, studlab, data = NULL, subset = NULL,
-  exclude = NULL, method = "Inverse", sm = gs("smprop"),
-  incr = gs("incr"), allincr = gs("allincr"),
-  addincr = gs("addincr"), method.ci = gs("method.ci"),
-  level = gs("level"), level.comb = gs("level.comb"),
-  comb.fixed = gs("comb.fixed"), comb.random = gs("comb.random"),
-  hakn = gs("hakn"),
-  method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch =
-  NA)), "ML", gs("method.tau")), tau.preset = NULL, TE.tau = NULL,
-  tau.common = gs("tau.common"), prediction = gs("prediction"),
-  level.predict = gs("level.predict"), null.effect = NA,
-  method.bias = gs("method.bias"), backtransf = gs("backtransf"),
-  pscale = 1, title = gs("title"), complab = gs("complab"),
-  outclab = "", byvar, bylab, print.byvar = gs("print.byvar"),
-  byseparator = gs("byseparator"), keepdata = gs("keepdata"),
-  warn = gs("warn"), control = NULL, ...)
+  exclude = NULL, method, sm = gs("smprop"), incr = gs("incr"),
+  allincr = gs("allincr"), addincr = gs("addincr"),
+  method.ci = gs("method.ci"), level = gs("level"),
+  level.comb = gs("level.comb"), comb.fixed = gs("comb.fixed"),
+  comb.random = gs("comb.random"), hakn = gs("hakn"), method.tau,
+  tau.preset = NULL, TE.tau = NULL, tau.common = gs("tau.common"),
+  prediction = gs("prediction"), level.predict = gs("level.predict"),
+  null.effect = NA, method.bias = gs("method.bias"),
+  backtransf = gs("backtransf"), pscale = 1, title = gs("title"),
+  complab = gs("complab"), outclab = "", byvar, bylab,
+  print.byvar = gs("print.byvar"), byseparator = gs("byseparator"),
+  keepdata = gs("keepdata"), warn = gs("warn"), control = NULL, ...)
 }
 \arguments{
 \item{event}{Number of events.}
@@ -306,25 +303,71 @@ mixed model (GLMM) are available for pooling. For GLMMs, the
 \bold{metafor} (Viechtbauer 2010) is called internally.
 }
 \details{
-Fixed effect and random effects meta-analysis of single proportions
-to calculate an overall proportion. The following transformations
-of proportions are implemented to calculate an overall proportion:
+This function provides methods for fixed effect and random effects
+meta-analysis of single proportions to calculate an overall
+proportion. Note, you should use R function \code{\link{metabin}}
+to compare proportions of pairwise comparisons instead of using
+\code{metaprop} for each treatment arm separately which will break
+randomisation in randomised controlled trials.
+
+The following transformations of proportions are
+implemented to calculate an overall proportion:
+
 \itemize{
 \item Logit transformation (\code{sm = "PLOGIT"}, default)
 \item Log transformation (\code{sm = "PLN"})
-\item Freeman-Tukey Double arcsine transformation (\code{sm =
-  "PFT"})
+\item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
 \item Arcsine transformation (\code{sm = "PAS"})
 \item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
 }
 
-Note, you should use R function \code{\link{metabin}} to compare
-proportions of pairwise comparisons instead of using
-\code{metaprop} for each treatment arm separately which will break
-randomisation in randomised controlled trials.
+Classic meta-analysis (Borenstein et al., 2010) utilises the
+transformed proportions and corresponding standard errors in the
+generic inverse variance method. A distinctive and frequently
+overlooked advantage of binary data is that individual patient data
+can be extracted. Accordingly, a generalised linear mixed model
+(GLMM) - more specific, a random intercept logistic regression
+model - can be utilised for the meta-analysis of proportions
+(Stijnen et al., 2010). This method - implicitly using the logit
+transformation - is available (argument \code{method = "GLMM"}) by
+calling the \code{\link[metafor]{rma.glmm}} function from R package
+\bold{metafor} internally. As a technical note, a warning
+"Cannot invert Hessian for saturated model" is printed using R
+package \bold{metafor}, version 2.0-0. This warning can be safely
+ignored as the inverted Hessian is only used in the calculation of
+a Wald-type test of heterogeneity which is not printed due to the
+estimation problem.
+
+For the logit transformation, a random intercept logistic
+regression model is used by default, i.e., argument \code{method =
+"GLMM"}. The classic meta-analysis model based on the inverse
+variance method can be used instead by setting argument
+\code{method} equal to \code{"Inverse"}.
+
+Contradictory recommendations on the use of transformations of
+proportions have been published in the literature. For example,
+Barendregt et al. (2013) recommend the use of the Freeman-Tukey
+double arcsine transformation instead of the logit transformation
+whereas Warton & Hui (2011) strongly advise to use generalised
+linear mixed models with the logit transformation instead of the
+arcsine transformation. Schwarzer et al. (2019) describe seriously
+misleading results in a meta-analysis with very different sample
+sizes due to problems with the back-transformation of the
+Freeman-Tukey transformation which requires a single sample
+size. Accordingly, Schwarzer et al. (2019) also recommend to use
+GLMMs for the meta-analysis of single proportions, however, admit
+that individual study weights are not available with this
+method. Meta-analysts which require individual study weights should
+consider the arcsine or logit transformation.
+
+In order to prevent misleading conclusions for the Freeman-Tukey
+double arcsine transformation, sensitivity analyses using other
+transformations or using a range of sample sizes should be
+conducted (Schwarzer et al., 2019).
 
 Various methods are available to calculate confidence intervals for
-individual study results (see Agresti & Coull 1998; Newcombe 1988):
+individual study results (see Agresti & Coull 1998 and Newcombe
+1988):
 \itemize{
 \item Clopper-Pearson interval also called 'exact' binomial
   interval (\code{method.ci = "CP"}, default)
@@ -370,14 +413,6 @@ package \bold{meta} will adequately consider the values for
 \code{comb.fixed} and \code{comb.random}. E.g. function
 \code{\link{print.meta}} will not print results for the random
 effects model if \code{comb.random = FALSE}.
-
-A distinctive and frequently overlooked advantage of binary data is
-that individual patient data (IPD) can be extracted. Accordingly, a
-random intercept logistic regression model can be utilised for the
-meta-analysis of proportions (Stijnen et al., 2010). This method is
-available (argument \code{method = "GLMM"}) by calling the
-\code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally.
 
 If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
 continuity correction is applied if any study has either zero or
@@ -431,9 +466,14 @@ For these methods the R function \code{rma.uni} of R package
 between-study variance.
 }
 \examples{
-# Apply various meta-analysis methods to estimate proportions
+# Meta-analysis using generalised linear mixed models
 #
-m1 <- metaprop(4:1, 10 * 1:4)
+metaprop(4:1, 10 * 1:4)
+
+# Apply various classic meta-analysis methods to estimate
+# proportions
+#
+m1 <- metaprop(4:1, 10 * 1:4, method = "Inverse")
 m2 <- update(m1, sm = "PAS")
 m3 <- update(m1, sm = "PRAW")
 m4 <- update(m1, sm = "PLN")
@@ -459,7 +499,7 @@ forest(m5)
 #
 oldset <- settings.meta(backtransf = FALSE)
 #
-m6  <- metaprop(4:1, c(10, 20, 30, 40))
+m6  <- metaprop(4:1, c(10, 20, 30, 40), method = "Inverse")
 m7  <- update(m6, sm = "PAS")
 m8  <- update(m6, sm = "PRAW")
 m9  <- update(m6, sm = "PLN")
@@ -480,8 +520,8 @@ settings.meta(oldset)
 
 # Examples with zero events
 #
-m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4))
-m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1)
+m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4), method = "Inverse")
+m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1, method = "Inverse")
 #
 summary(m1)
 summary(m2)
@@ -506,7 +546,7 @@ forest(m3)
 event <- c(81, 15, 0, 1)
 n <- c(263, 148, 20, 29)
 #
-m1 <- metaprop(event, n, sm = "PLOGIT", method.ci = "SA")
+m1 <- metaprop(event, n, method.ci = "SA", method = "Inverse")
 m2 <- update(m1, method.ci = "SACC")
 m3 <- update(m1, method.ci = "WS")
 m4 <- update(m1, method.ci = "WSCC")
@@ -536,7 +576,7 @@ tab1
 # Same confidence interval, i.e. unaffected by choice of summary
 # measure
 #
-print(metaprop(event, n, sm = "PLOGIT", method.ci = "WS"), ma = FALSE)
+print(metaprop(event, n, method.ci = "WS", method = "Inverse"), ma = FALSE)
 print(metaprop(event, n, sm = "PLN", method.ci = "WS"), ma = FALSE)
 print(metaprop(event, n, sm = "PFT", method.ci = "WS"), ma = FALSE)
 print(metaprop(event, n, sm = "PAS", method.ci = "WS"), ma = FALSE)
@@ -544,7 +584,7 @@ print(metaprop(event, n, sm = "PRAW", method.ci = "WS"), ma = FALSE)
 
 # Different confidence intervals as argument sm = "NAsm"
 #
-print(metaprop(event, n, sm = "PLOGIT", method.ci = "NAsm"), ma = FALSE)
+print(metaprop(event, n, method.ci = "NAsm", method = "Inverse"), ma = FALSE)
 print(metaprop(event, n, sm = "PLN", method.ci = "NAsm"), ma = FALSE)
 print(metaprop(event, n, sm = "PFT", method.ci = "NAsm"), ma = FALSE)
 print(metaprop(event, n, sm = "PAS", method.ci = "NAsm"), ma = FALSE)
@@ -553,7 +593,7 @@ print(metaprop(event, n, sm = "PRAW", method.ci = "NAsm"), ma = FALSE)
 # Different confidence intervals as argument backtransf = FALSE.
 # Accordingly, method.ci = "NAsm" used internally.
 #
-print(metaprop(event, n, sm = "PLOGIT", method.ci = "WS"),
+print(metaprop(event, n, method.ci = "WS", method = "Inverse"),
       ma = FALSE, backtransf = FALSE)
 print(metaprop(event, n, sm = "PLN", method.ci = "WS"),
       ma = FALSE, backtransf = FALSE)
@@ -571,14 +611,10 @@ print(metaprop(event, n, sm = "PLN"), ma = FALSE, backtransf = FALSE)
 # Results for first study (on log scale)
 round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 
-# Meta-analysis using generalised linear mixed models
-# (R packages 'metafor' and 'lme4' must be available)
-#
-# metaprop(event, n, method = "GLMM")
-
 # Print results as events per 1000 observations
 #
-print(metaprop(6:8, c(100, 1200, 1000)), pscale = 1000, digits = 1)
+print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
+      pscale = 1000, digits = 1)
 
 }
 \references{
@@ -587,6 +623,17 @@ Approximate is better than "exact" for interval estimation of
 binomial proportions.
 \emph{The American Statistician},
 \bold{52}, 119--26
+
+Barendregt JJ, Doi SA, Lee YY, Norman RE, Vos T (2013):
+Meta-analysis of prevalence.
+\emph{Journal of Epidemiology and Community Health},
+\bold{67}, 974--8
+
+Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
+A basic introduction to fixed-effect and random-effects models for
+meta-analysis.
+\emph{Research Synthesis Methods},
+\bold{1}, 97--111
 
 DerSimonian R & Laird N (1986):
 Meta-analysis in clinical trials.
@@ -637,6 +684,12 @@ variate.
 \emph{Biometrika},
 \bold{73}, 425--35
 
+Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
+Seriously misleading results using inverse of Freeman-Tukey double
+arcsine transformation in meta-analysis of single proportions.
+\emph{Research Synthesis Methods},
+accepted for publication
+
 Stijnen T, Hamza TH, Ozdemir P (2010):
 Random effects meta-analysis of event outcome in the framework of
 the generalized linear mixed model with applications in sparse
@@ -648,6 +701,11 @@ Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
+
+Warton DI, Hui FKC (2011):
+The arcsine is asinine: the analysis of proportions in ecology.
+\emph{Ecology},
+\bold{92}, 3--10
 }
 \seealso{
 \code{\link{update.meta}}, \code{\link{metacont}},

@@ -14,6 +14,15 @@
 
   * Harbord test for funnel plot asymmetry implemented for risk ratio
     as effect measure
+
+  * Generalised linear mixed model is the new default method for
+    meta-analysis of single proportions using the logit transformation
+
+  * R packages metafor and lme4 moved from Suggests to Imports
+
+  * Suppress printing of Wald-type test of heterogeneity for
+    generalised linear mixed models (problem in R function rma.glmm()
+    from R package metafor, version 2.0-0)
  
   * Use roxygen2 for development of R package meta
 
@@ -38,6 +47,12 @@
 
   * Major update of help pages:
     - metagen()
+
+ ** Bug fixes **
+
+  * metacum(), metainf():
+    - consider argument 'method' for meta-analysis objects created
+      with metaprop() or metarate()
 
  ** Internal changes **
 

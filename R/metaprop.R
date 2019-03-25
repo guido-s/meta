@@ -97,25 +97,71 @@
 #'   \code{\link[metafor]{rma.glmm}} function.
 #' 
 #' @details
-#' Fixed effect and random effects meta-analysis of single proportions
-#' to calculate an overall proportion. The following transformations
-#' of proportions are implemented to calculate an overall proportion:
-#' \itemize{
-#' \item Logit transformation (\code{sm = "PLOGIT"}, default)
-#' \item Log transformation (\code{sm = "PLN"})
-#' \item Freeman-Tukey Double arcsine transformation (\code{sm =
-#'   "PFT"})
-#' \item Arcsine transformation (\code{sm = "PAS"})
-#' \item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
-#' }
-#' 
-#' Note, you should use R function \code{\link{metabin}} to compare
-#' proportions of pairwise comparisons instead of using
+#' This function provides methods for fixed effect and random effects
+#' meta-analysis of single proportions to calculate an overall
+#' proportion. Note, you should use R function \code{\link{metabin}}
+#' to compare proportions of pairwise comparisons instead of using
 #' \code{metaprop} for each treatment arm separately which will break
 #' randomisation in randomised controlled trials.
 #' 
+#' The following transformations of proportions are
+#' implemented to calculate an overall proportion:
+#' 
+#' \itemize{
+#' \item Logit transformation (\code{sm = "PLOGIT"}, default)
+#' \item Log transformation (\code{sm = "PLN"})
+#' \item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
+#' \item Arcsine transformation (\code{sm = "PAS"})
+#' \item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
+#' }
+#'
+#' Classic meta-analysis (Borenstein et al., 2010) utilises the
+#' transformed proportions and corresponding standard errors in the
+#' generic inverse variance method. A distinctive and frequently
+#' overlooked advantage of binary data is that individual patient data
+#' can be extracted. Accordingly, a generalised linear mixed model
+#' (GLMM) - more specific, a random intercept logistic regression
+#' model - can be utilised for the meta-analysis of proportions
+#' (Stijnen et al., 2010). This method - implicitly using the logit
+#' transformation - is available (argument \code{method = "GLMM"}) by
+#' calling the \code{\link[metafor]{rma.glmm}} function from R package
+#' \bold{metafor} internally. As a technical note, a warning
+#' "Cannot invert Hessian for saturated model" is printed using R
+#' package \bold{metafor}, version 2.0-0. This warning can be safely
+#' ignored as the inverted Hessian is only used in the calculation of
+#' a Wald-type test of heterogeneity which is not printed due to the
+#' estimation problem.
+#'
+#' For the logit transformation, a random intercept logistic
+#' regression model is used by default, i.e., argument \code{method =
+#' "GLMM"}. The classic meta-analysis model based on the inverse
+#' variance method can be used instead by setting argument
+#' \code{method} equal to \code{"Inverse"}.
+#'
+#' Contradictory recommendations on the use of transformations of
+#' proportions have been published in the literature. For example,
+#' Barendregt et al. (2013) recommend the use of the Freeman-Tukey
+#' double arcsine transformation instead of the logit transformation
+#' whereas Warton & Hui (2011) strongly advise to use generalised
+#' linear mixed models with the logit transformation instead of the
+#' arcsine transformation. Schwarzer et al. (2019) describe seriously
+#' misleading results in a meta-analysis with very different sample
+#' sizes due to problems with the back-transformation of the
+#' Freeman-Tukey transformation which requires a single sample
+#' size. Accordingly, Schwarzer et al. (2019) also recommend to use
+#' GLMMs for the meta-analysis of single proportions, however, admit
+#' that individual study weights are not available with this
+#' method. Meta-analysts which require individual study weights should
+#' consider the arcsine or logit transformation.
+#'
+#' In order to prevent misleading conclusions for the Freeman-Tukey
+#' double arcsine transformation, sensitivity analyses using other
+#' transformations or using a range of sample sizes should be
+#' conducted (Schwarzer et al., 2019).
+#' 
 #' Various methods are available to calculate confidence intervals for
-#' individual study results (see Agresti & Coull 1998; Newcombe 1988):
+#' individual study results (see Agresti & Coull 1998 and Newcombe
+#' 1988):
 #' \itemize{
 #' \item Clopper-Pearson interval also called 'exact' binomial
 #'   interval (\code{method.ci = "CP"}, default)
@@ -161,14 +207,6 @@
 #' \code{comb.fixed} and \code{comb.random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{comb.random = FALSE}.
-#' 
-#' A distinctive and frequently overlooked advantage of binary data is
-#' that individual patient data (IPD) can be extracted. Accordingly, a
-#' random intercept logistic regression model can be utilised for the
-#' meta-analysis of proportions (Stijnen et al., 2010). This method is
-#' available (argument \code{method = "GLMM"}) by calling the
-#' \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally.
 #' 
 #' If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
 #' continuity correction is applied if any study has either zero or
@@ -383,6 +421,17 @@
 #' \emph{The American Statistician},
 #' \bold{52}, 119--26
 #' 
+#' Barendregt JJ, Doi SA, Lee YY, Norman RE, Vos T (2013):
+#' Meta-analysis of prevalence.
+#' \emph{Journal of Epidemiology and Community Health},
+#' \bold{67}, 974--8
+#' 
+#' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
+#' A basic introduction to fixed-effect and random-effects models for
+#' meta-analysis.
+#' \emph{Research Synthesis Methods},
+#' \bold{1}, 97--111
+#' 
 #' DerSimonian R & Laird N (1986):
 #' Meta-analysis in clinical trials.
 #' \emph{Controlled Clinical Trials},
@@ -432,6 +481,12 @@
 #' \emph{Biometrika},
 #' \bold{73}, 425--35
 #' 
+#' Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
+#' Seriously misleading results using inverse of Freeman-Tukey double
+#' arcsine transformation in meta-analysis of single proportions.
+#' \emph{Research Synthesis Methods},
+#' accepted for publication
+#' 
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
 #' the generalized linear mixed model with applications in sparse
@@ -443,11 +498,21 @@
 #' Conducting Meta-Analyses in R with the Metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#'
+#' Warton DI, Hui FKC (2011):
+#' The arcsine is asinine: the analysis of proportions in ecology.
+#' \emph{Ecology},
+#' \bold{92}, 3--10
 #' 
 #' @examples
-#' # Apply various meta-analysis methods to estimate proportions
+#' # Meta-analysis using generalised linear mixed models
 #' #
-#' m1 <- metaprop(4:1, 10 * 1:4)
+#' metaprop(4:1, 10 * 1:4)
+#' 
+#' # Apply various classic meta-analysis methods to estimate
+#' # proportions
+#' #
+#' m1 <- metaprop(4:1, 10 * 1:4, method = "Inverse")
 #' m2 <- update(m1, sm = "PAS")
 #' m3 <- update(m1, sm = "PRAW")
 #' m4 <- update(m1, sm = "PLN")
@@ -473,7 +538,7 @@
 #' #
 #' oldset <- settings.meta(backtransf = FALSE)
 #' #
-#' m6  <- metaprop(4:1, c(10, 20, 30, 40))
+#' m6  <- metaprop(4:1, c(10, 20, 30, 40), method = "Inverse")
 #' m7  <- update(m6, sm = "PAS")
 #' m8  <- update(m6, sm = "PRAW")
 #' m9  <- update(m6, sm = "PLN")
@@ -494,8 +559,8 @@
 #' 
 #' # Examples with zero events
 #' #
-#' m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4))
-#' m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1)
+#' m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4), method = "Inverse")
+#' m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1, method = "Inverse")
 #' #
 #' summary(m1)
 #' summary(m2)
@@ -520,7 +585,7 @@
 #' event <- c(81, 15, 0, 1)
 #' n <- c(263, 148, 20, 29)
 #' #
-#' m1 <- metaprop(event, n, sm = "PLOGIT", method.ci = "SA")
+#' m1 <- metaprop(event, n, method.ci = "SA", method = "Inverse")
 #' m2 <- update(m1, method.ci = "SACC")
 #' m3 <- update(m1, method.ci = "WS")
 #' m4 <- update(m1, method.ci = "WSCC")
@@ -550,7 +615,7 @@
 #' # Same confidence interval, i.e. unaffected by choice of summary
 #' # measure
 #' #
-#' print(metaprop(event, n, sm = "PLOGIT", method.ci = "WS"), ma = FALSE)
+#' print(metaprop(event, n, method.ci = "WS", method = "Inverse"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PLN", method.ci = "WS"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PFT", method.ci = "WS"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PAS", method.ci = "WS"), ma = FALSE)
@@ -558,7 +623,7 @@
 #' 
 #' # Different confidence intervals as argument sm = "NAsm"
 #' #
-#' print(metaprop(event, n, sm = "PLOGIT", method.ci = "NAsm"), ma = FALSE)
+#' print(metaprop(event, n, method.ci = "NAsm", method = "Inverse"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PLN", method.ci = "NAsm"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PFT", method.ci = "NAsm"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PAS", method.ci = "NAsm"), ma = FALSE)
@@ -567,7 +632,7 @@
 #' # Different confidence intervals as argument backtransf = FALSE.
 #' # Accordingly, method.ci = "NAsm" used internally.
 #' #
-#' print(metaprop(event, n, sm = "PLOGIT", method.ci = "WS"),
+#' print(metaprop(event, n, method.ci = "WS", method = "Inverse"),
 #'       ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PLN", method.ci = "WS"),
 #'       ma = FALSE, backtransf = FALSE)
@@ -585,14 +650,10 @@
 #' # Results for first study (on log scale)
 #' round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 #' 
-#' # Meta-analysis using generalised linear mixed models
-#' # (R packages 'metafor' and 'lme4' must be available)
-#' #
-#' # metaprop(event, n, method = "GLMM")
-#' 
 #' # Print results as events per 1000 observations
 #' #
-#' print(metaprop(6:8, c(100, 1200, 1000)), pscale = 1000, digits = 1)
+#' print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
+#'       pscale = 1000, digits = 1)
 #' 
 #' @export metaprop
 
@@ -600,7 +661,7 @@
 metaprop <- function(event, n, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     method = "Inverse",
+                     method,
                      ##
                      sm = gs("smprop"),
                      ##
@@ -613,10 +674,7 @@ metaprop <- function(event, n, studlab,
                      comb.random = gs("comb.random"),
                      ##
                      hakn = gs("hakn"),
-                     method.tau =
-                       ifelse(!is.na(charmatch(tolower(method), "glmm",
-                                               nomatch = NA)),
-                              "ML", gs("method.tau")),
+                     method.tau,
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
@@ -648,6 +706,12 @@ metaprop <- function(event, n, studlab,
   ## (1) Check and set arguments
   ##
   ##
+  if (missing(method))
+    method <- if (sm == "PLOGIT") "GLMM" else "Inverse"
+  else
+    method <- setchar(method, c("Inverse", "GLMM"))
+  is.glmm <- method == "GLMM"
+  ##
   chknull(sm)
   sm <- setchar(sm, .settings$sm4prop)
   ##
@@ -657,6 +721,9 @@ metaprop <- function(event, n, studlab,
   chklogical(comb.random)
   ##
   chklogical(hakn)
+  ##
+  if (missing(method.tau))
+    method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau,
                         c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
   chklogical(tau.common)
@@ -684,20 +751,10 @@ metaprop <- function(event, n, studlab,
   ##
   fun <- "metaprop"
   ##
-  method <- setchar(method, c("Inverse", "GLMM"))
-  is.glmm <- method == "GLMM"
-  if (is.glmm) {
-    is.installed.package("lme4", fun, "method", " = \"GLMM\"")
-    is.installed.package("numDeriv", fun, "method", " = \"GLMM\"")
-    is.installed.package("metafor", fun, "method", " = \"GLMM\"",
-                         version = .settings$metafor)
-  }
-  ##
   chklogical(allincr)
   chklogical(addincr)
   method.ci <- setchar(method.ci, .settings$ci4prop)
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   ##
   if (is.glmm & sm != "PLOGIT")
     stop("Generalised linear mixed models only possible with argument 'sm = \"PLOGIT\"'.")
@@ -896,9 +953,6 @@ metaprop <- function(event, n, studlab,
   chknumeric(event, 0)
   chknumeric(n, 0, zero = TRUE)
   ##
-  if (any(n < 10, na.rm = TRUE) & sm == "PFT")
-    warning("Sample size very small (below 10) in at least one study. Accordingly, back transformation for pooled effect may be misleading for Freeman-Tukey double arcsine transformation. Please look at results for other transformations (e.g. sm = 'PAS' or sm = 'PLOGIT'), too.")
-  ##
   if (any(event > n, na.rm = TRUE))
     stop("Number of events must not be larger than number of observations")
   ##
@@ -932,8 +986,8 @@ metaprop <- function(event, n, studlab,
         incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
-    else
-      incr.event <- rep(0, k.all)
+  else
+    incr.event <- rep(0, k.all)
   ##  
   if (sm == "PFT") {
     TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
@@ -948,7 +1002,7 @@ metaprop <- function(event, n, studlab,
   else if (sm == "PRAW") {
     TE <- event / n
     seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
-                   (n + 2 * incr.event)^3)
+                 (n + 2 * incr.event)^3)
     transf.null.effect <- null.effect
   }
   else if (sm == "PLN") {
@@ -1044,13 +1098,11 @@ metaprop <- function(event, n, studlab,
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
   ##
   if (is.glmm & k > 0) {
-    glmm.fixed <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
-                                    method = "FE",
-                                    test = ifelse(hakn, "t", "z"),
-                                    level = 100 * level.comb,
-                                    measure = "PLO",
-                                    control = control,
-                                    ...)
+    glmm.fixed <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
+                           method = "FE", test = ifelse(hakn, "t", "z"),
+                           level = 100 * level.comb,
+                           measure = "PLO", control = control,
+                           ...)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1138,13 +1190,12 @@ metaprop <- function(event, n, studlab,
     res$pval.fixed <- ci.f$p
     ##
     if (sum(!exclude) > 1)
-      glmm.random <- metafor::rma.glmm(xi = event[!exclude], ni = n[!exclude],
-                                       method = method.tau,
-                                       test = ifelse(hakn, "t", "z"),
-                                       level = 100 * level.comb,
-                                       measure = "PLO",
-                                       control = control,
-                                       ...)
+      glmm.random <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
+                              method = method.tau,
+                              test = ifelse(hakn, "t", "z"),
+                              level = 100 * level.comb,
+                              measure = "PLO", control = control,
+                              ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1168,7 +1219,7 @@ metaprop <- function(event, n, studlab,
     res$pval.random <- ci.r$p
     ##
     res$se.tau2 <- NA
-    ci.p <- metafor::predict.rma(glmm.random, level = 100 * level.predict)
+    ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
     res$upper.predict <- ci.p$cr.ub
@@ -1179,7 +1230,11 @@ metaprop <- function(event, n, studlab,
     ##
     res$Q <- glmm.random$QE.Wld
     res$df.Q <- glmm.random$QE.df
-    res$Q.LRT <- glmm.random$QE.LRT
+    res$pval.Q <- pvalQ(res$Q, res$df.Q)
+    ##
+    res$Q.LRT      <- glmm.random$QE.LRT
+    res$df.Q.LRT   <- res$df.Q
+    res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
     if (k > 1)
       res$tau <- sqrt(glmm.random$tau2)

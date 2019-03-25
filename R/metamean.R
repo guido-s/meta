@@ -408,7 +408,6 @@ metamean <- function(n, mean, sd, studlab,
   fun <- "metamean"
   sm <- setchar(sm, .settings$sm4mean)
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   
   
   ##

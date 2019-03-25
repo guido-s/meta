@@ -692,7 +692,6 @@ metagen <- function(TE, seTE, studlab,
   ##
   fun <- "metagen"
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   ##
   if (tau.common & method.tau == "PM") {
     warning("Argument 'method.tau' set to \"DL\" as argument tau.common = TRUE.")

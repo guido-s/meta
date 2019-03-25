@@ -660,9 +660,6 @@ settings.meta <- function(...) {
       method.tau <- args[[idmethod.tau]]
       method.tau <- setchar(method.tau,
                             c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
-      if (method.tau %in% c("REML", "ML", "HS", "SJ", "HE", "EB"))
-        is.installed.package("metafor", chksettings = TRUE,
-                             argument = "method.tau", value = method.tau)
       setOption("method.tau", method.tau)
     }
     if (!is.na(idtau.common)) {
@@ -854,14 +851,6 @@ settings.meta <- function(...) {
     if (!is.na(idmethod)) {
       method <- args[[idmethod]]
       method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
-      if (method == "GLMM") {
-        is.installed.package("metafor", chksettings = TRUE,
-                             argument = "method", value = method)
-        is.installed.package("lme4", chksettings = TRUE,
-                             argument = "method", value = method)
-        is.installed.package("numDeriv", chksettings = TRUE,
-                             argument = "method", value = method)
-      }
       setOption("method", method)
     }
     if (!is.na(idmodel.glmm)) {

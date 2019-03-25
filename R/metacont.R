@@ -549,7 +549,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
   sd.glass <- setchar(sd.glass, c("control", "experimental"))
   chklogical(warn)
-  chkmetafor(method.tau, fun)
   
   
   ##
