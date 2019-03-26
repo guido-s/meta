@@ -54,6 +54,10 @@
     - consider argument 'method' for meta-analysis objects created
       with metaprop() or metarate()
 
+  * forest.meta():
+    - argument 'studlab' can be used with objects created with
+      metacum() or metainf()
+
  ** Internal changes **
 
   * New internal functions TE.seTE.ci(), TE.seTE.iqr(),

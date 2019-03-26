@@ -1359,6 +1359,16 @@ forest.meta <- function(x,
   K.all <- length(x$TE)
   ##
   sm <- x$sm
+  ##
+  metabin <- inherits(x, "metabin")
+  metacont <- inherits(x, "metacont")
+  metacor <- inherits(x, "metacor")
+  metagen <- inherits(x, "metagen")
+  metainc <- inherits(x, "metainc")
+  metaprop <- inherits(x, "metaprop")
+  metarate <- inherits(x, "metarate")
+  ##
+  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   
   
   ##
@@ -1378,13 +1388,18 @@ forest.meta <- function(x,
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
-  sort <- !is.null(sortvar)
+  ##
+  if (!is.null(sortvar) & metainf.metacum)
+    warning("Argument 'sortvar' ignored for objects ",
+            "created with metacum() or metainf().")
+  sort <- !is.null(sortvar) & !metainf.metacum
   if (sort && (length(sortvar) != K.all))
     stop("Number of studies in object 'x' and argument 'sortvar' have different length.")
   if (!sort)
     sortvar <- 1:K.all
   ##
   slab <- TRUE
+  missing.studlab <- missing(studlab)
   if (length(studlab) == 1 & is.logical(studlab))
     if (studlab == FALSE) {
       studlab <- rep("", K.all)
@@ -1392,7 +1407,7 @@ forest.meta <- function(x,
     }
     else studlab <- x$studlab
   ##
-  if (length(studlab) != K.all)
+  if (length(studlab) != (K.all - 2 * (metainf.metacum & !missing.studlab)))
     stop("Number of studies in object 'x' and argument 'studlab' have different length.")
   ##
   chklogical(comb.fixed)
@@ -1836,15 +1851,6 @@ forest.meta <- function(x,
   ##
   ## (4) Some assignments and additional checks
   ##
-  ##
-  metabin <- inherits(x, "metabin")
-  metacont <- inherits(x, "metacont")
-  metacor <- inherits(x, "metacor")
-  metagen <- inherits(x, "metagen")
-  metainc <- inherits(x, "metainc")
-  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  metaprop <- inherits(x, "metaprop")
-  metarate <- inherits(x, "metarate")
   ##
   fixed.random <- comb.fixed & comb.random
   ##
