@@ -58,6 +58,9 @@
     - argument 'studlab' can be used with objects created with
       metacum() or metainf()
 
+  * subgroup():
+    - return subgroup sample sizes for objects created with metagen()
+
  ** Internal changes **
 
   * New internal functions TE.seTE.ci(), TE.seTE.iqr(),

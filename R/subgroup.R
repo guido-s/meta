@@ -22,9 +22,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   prop <- inherits(x, "metaprop")
   rate <- inherits(x, "metarate")
   ##
-  bin.cont <- bin | cont
-  bin.inc  <- bin | inc
-  cor.prop <- cor | prop
+  bin.cont.gen <- bin | cont | gen
+  bin.inc <- bin | inc
+  cor.prop.mean <- cor | prop | mean
   
   
   sumNA <- function(x)
@@ -98,6 +98,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        hakn = x$hakn,
                        method.tau = x$method.tau,
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       n.e = x$n.e[sel], n.c = x$n.c[sel],
                        warn = x$warn,
                        control = x$control)
     ##
@@ -180,14 +181,14 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    1 / mean(1 / x$n[sel]),                    # 16
                    sum(x$w.fixed[sel]),                       # 17
                    sum(x$w.random[sel]),                      # 18
-                   if (bin.inc)  sumNA(meta1$event.e) else NA,# 19
-                   if (bin.cont) sumNA(meta1$n.e) else NA,    # 20
-                   if (bin.inc)  sumNA(meta1$event.c) else NA,# 21
-                   if (bin.cont) sumNA(meta1$n.c) else NA,    # 22
-                   if (prop)     sumNA(meta1$event) else NA,  # 23
-                   if (cor.prop) sumNA(meta1$n) else NA,      # 24
-                   if (inc)      sumNA(meta1$time.e) else NA, # 25
-                   if (inc)      sumNA(meta1$time.c) else NA, # 26
+                   if (bin.inc) sumNA(meta1$event.e) else NA, # 19
+                   if (bin.cont.gen) sumNA(meta1$n.e) else NA,# 20
+                   if (bin.inc) sumNA(meta1$event.c) else NA, # 21
+                   if (bin.cont.gen) sumNA(meta1$n.c) else NA,# 22
+                   if (prop) sumNA(meta1$event) else NA,      # 23
+                   if (cor.prop.mean) sumNA(meta1$n) else NA, # 24
+                   if (inc) sumNA(meta1$time.e) else NA,      # 25
+                   if (inc) sumNA(meta1$time.c) else NA,      # 26
                    1 / mean(1 / x$time[sel]),                 # 27
                    meta1$Rb,                                  # 28
                    meta1$lower.Rb,                            # 29
