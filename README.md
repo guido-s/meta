@@ -16,8 +16,8 @@ User-friendly general package providing standard methods for meta-analysis and s
  - import data from 'RevMan 5';
  - prediction interval, Hartung-Knapp and Paule-Mandel method for random effects model;
  - cumulative meta-analysis and leave-one-out meta-analysis;
- - meta-regression (if R package 'metafor' is installed);
- - generalised linear mixed models (if R packages 'metafor', 'lme4', 'numDeriv', and 'BiasedUrn' are installed);
+ - meta-regression;
+ - generalised linear mixed models;
  - produce forest plot summarising several (subgroup) meta-analyses.
  
 ### References
