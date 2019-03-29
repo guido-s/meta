@@ -75,7 +75,7 @@
 #' \bold{117}, 167--78
 #' 
 #' @examples
-#' # Example from Borenstein et al. (2010), Chapter 7
+#' # Example from Borenstein et al. (2009), Chapter 7
 #' #
 #' mb <- or2smd(0.9069, sqrt(0.0676))
 #' # TE = standardised mean difference (SMD); seTE = standard error of SMD
