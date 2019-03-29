@@ -4,13 +4,29 @@
 \alias{smd2or}
 \title{Conversion from standardised mean difference to log odds ratio}
 \usage{
-smd2or(smd, se.smd, method = "HH", backtransf = gs("backtransf"), ...)
+smd2or(smd, se.smd, studlab, data = NULL, subset = NULL,
+  exclude = NULL, method = "HH", backtransf = gs("backtransf"), ...)
 }
 \arguments{
 \item{smd}{Standardised mean difference(s) (SMD) or meta-analysis
 object.}
 
-\item{se.smd}{Standard error(s) of SMD.}
+\item{se.smd}{Standard error(s) of SMD (ignored if argument
+\code{smd} is a meta-analysis object).}
+
+\item{studlab}{An optional vector with study labels (ignored if
+argument \code{smd} is a meta-analysis object).}
+
+\item{data}{An optional data frame containing the study information
+(ignored if argument \code{smd} is a meta-analysis object).}
+
+\item{subset}{An optional vector specifying a subset of studies to
+be used (ignored if argument \code{smd} is a meta-analysis
+object).}
+
+\item{exclude}{An optional vector specifying studies to exclude
+from meta-analysis, however, to include in printouts and forest
+plots (ignored if argument \code{smd} is a meta-analysis object).}
 
 \item{method}{A character string indicating which method is used to
 convert SMDs to log odds ratios. Either \code{"HH"} or
@@ -20,8 +36,9 @@ convert SMDs to log odds ratios. Either \code{"HH"} or
 TRUE) or log odds ratios (if FALSE) should be shown in printouts
 and plots.}
 
-\item{\dots}{Additional arguments (not considered if argument
-\code{smd} is a meta-analysis object).}
+\item{\dots}{Additional arguments passed on to
+\code{\link{metagen}} (ignored if argument \code{smd} is a
+meta-analysis object).}
 }
 \value{
 An object of class \code{"meta"} and \code{"metagen"}; see

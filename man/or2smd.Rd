@@ -4,19 +4,37 @@
 \alias{or2smd}
 \title{Conversion from log odds ratio to standardised mean difference}
 \usage{
-or2smd(lnOR, selnOR, method = "HH", ...)
+or2smd(lnOR, selnOR, studlab, data = NULL, subset = NULL,
+  exclude = NULL, method = "HH", ...)
 }
 \arguments{
 \item{lnOR}{Log odds ratio(s) or meta-analysis object.}
 
-\item{selnOR}{Standard error(s) of log odds ratio(s).}
+\item{selnOR}{Standard error(s) of log odds ratio(s) (ignored if
+argument \code{lnOR} is a meta-analysis object).}
+
+\item{studlab}{An optional vector with study labels (ignored if
+argument \code{lnOR} is a meta-analysis object).}
+
+\item{data}{An optional data frame containing the study information
+(ignored if argument \code{lnOR} is a meta-analysis object).}
+
+\item{subset}{An optional vector specifying a subset of studies to
+be used (ignored if argument \code{lnOR} is a meta-analysis
+object).}
+
+\item{exclude}{An optional vector specifying studies to exclude
+from meta-analysis, however, to include in printouts and forest
+plots (ignored if argument \code{lnOR} is a meta-analysis
+object).}
 
 \item{method}{A character string indicating which method is used to
 convert log odds ratios to standardised mean differences. Either
 \code{"HH"} or \code{"CS"}, can be abbreviated.}
 
-\item{\dots}{Additional arguments (not considered if argument
-\code{lnOR} is a meta-analysis object).}
+\item{\dots}{Additional arguments passed on to
+\code{\link{metagen}} (ignored if argument \code{lnOR} is a
+meta-analysis object).}
 }
 \value{
 An object of class \code{"meta"} and \code{"metagen"}; see

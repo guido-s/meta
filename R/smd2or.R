@@ -6,15 +6,27 @@
 #' 
 #' @param smd Standardised mean difference(s) (SMD) or meta-analysis
 #'   object.
-#' @param se.smd Standard error(s) of SMD.
+#' @param se.smd Standard error(s) of SMD (ignored if argument
+#'   \code{smd} is a meta-analysis object).
+#' @param studlab An optional vector with study labels (ignored if
+#'   argument \code{smd} is a meta-analysis object).
+#' @param data An optional data frame containing the study information
+#'   (ignored if argument \code{smd} is a meta-analysis object).
+#' @param subset An optional vector specifying a subset of studies to
+#'   be used (ignored if argument \code{smd} is a meta-analysis
+#'   object).
+#' @param exclude An optional vector specifying studies to exclude
+#'   from meta-analysis, however, to include in printouts and forest
+#'   plots (ignored if argument \code{smd} is a meta-analysis object).
 #' @param method A character string indicating which method is used to
 #'   convert SMDs to log odds ratios. Either \code{"HH"} or
 #'   \code{"CS"}, can be abbreviated.
 #' @param backtransf A logical indicating whether odds ratios (if
 #'   TRUE) or log odds ratios (if FALSE) should be shown in printouts
 #'   and plots.
-#' @param \dots Additional arguments (not considered if argument
-#'   \code{smd} is a meta-analysis object).
+#' @param \dots Additional arguments passed on to
+#'   \code{\link{metagen}} (ignored if argument \code{smd} is a
+#'   meta-analysis object).
 #' 
 #' @details
 #' This function implements the following methods for the conversion
@@ -82,8 +94,9 @@
 #' @export smd2or
 
 
-smd2or <- function(smd, se.smd, method = "HH",
-                   backtransf = gs("backtransf"), ...) {
+smd2or <- function(smd, se.smd, studlab,
+                   data = NULL, subset = NULL, exclude = NULL,
+                   method = "HH", backtransf = gs("backtransf"), ...) {
   
   
   is.meta <- inherits(smd, "meta")
@@ -96,6 +109,61 @@ smd2or <- function(smd, se.smd, method = "HH",
       smd <- mdat$TE
       se.smd <- mdat$seTE
     }
+  }
+  else {
+    ##
+    ## Read data
+    ##
+    nulldata <- is.null(data)
+    ##
+    if (nulldata)
+      data <- sys.frame(sys.parent())
+    ##
+    mf <- match.call()
+    ##
+    ## Catch 'smd' and 'se.smd' from data:
+    ##
+    smd <- eval(mf[[match("smd", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+    ##
+    se.smd <- eval(mf[[match("se.smd", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+    ##
+    k.All <- length(smd)
+    chknull(smd)
+    ##
+    ## Catch 'studlab', 'subset', and 'exclude' from data:
+    ##
+    studlab <- eval(mf[[match("studlab", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+    studlab <- setstudlab(studlab, k.All)
+    ##
+    missing.subset <- missing(subset)
+    subset <- eval(mf[[match("subset", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+    ##
+    missing.exclude <- missing(exclude)
+    exclude <- eval(mf[[match("exclude", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+    ##
+    ## Check length of essential variables
+    ##
+    arg <- "smd"
+    ##
+    chklength(se.smd, k.All, arg)
+    chklength(studlab, k.All, arg)
+    ##
+    ## Subset and exclude studies
+    ##
+    if (!missing.subset)
+      if ((is.logical(subset) & (sum(subset) > k.All)) ||
+          (length(subset) > k.All))
+        stop("Length of argument 'subset' is larger than number of studies.")
+    ##
+    if (!missing.exclude)
+      if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+          (length(exclude) > k.All))
+        stop("Length of argument 'exclude' is larger than number of studies.")
   }
   
   
@@ -162,9 +230,13 @@ smd2or <- function(smd, se.smd, method = "HH",
                      control = mdat$control)
   }
   else {
-    dat <- data.frame(smd, se.smd, lnOR, selnOR, OR = exp(lnOR))
-    res <- metagen(lnOR, selnOR, data = dat, sm = "OR",
-                   backtransf = backtransf, ...)
+    dat <- data.frame(smd, se.smd, lnOR, selnOR, OR = exp(lnOR), studlab)
+    dat$subset <- subset
+    dat$exclude <- exclude
+    ##
+    res <- metagen(lnOR, selnOR, studlab = studlab,
+                   data = dat, subset = subset, exclude = exclude,
+                   sm = "OR", backtransf = backtransf, ...)
   }
   
   

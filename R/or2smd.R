@@ -5,12 +5,25 @@
 #' using method by Hasselblad & Hedges (1995) or Cox (1970).
 #' 
 #' @param lnOR Log odds ratio(s) or meta-analysis object.
-#' @param selnOR Standard error(s) of log odds ratio(s).
+#' @param selnOR Standard error(s) of log odds ratio(s) (ignored if
+#'   argument \code{lnOR} is a meta-analysis object).
+#' @param studlab An optional vector with study labels (ignored if
+#'   argument \code{lnOR} is a meta-analysis object).
+#' @param data An optional data frame containing the study information
+#'   (ignored if argument \code{lnOR} is a meta-analysis object).
+#' @param subset An optional vector specifying a subset of studies to
+#'   be used (ignored if argument \code{lnOR} is a meta-analysis
+#'   object).
+#' @param exclude An optional vector specifying studies to exclude
+#'   from meta-analysis, however, to include in printouts and forest
+#'   plots (ignored if argument \code{lnOR} is a meta-analysis
+#'   object).
 #' @param method A character string indicating which method is used to
 #'   convert log odds ratios to standardised mean differences. Either
 #'   \code{"HH"} or \code{"CS"}, can be abbreviated.
-#' @param \dots Additional arguments (not considered if argument
-#'   \code{lnOR} is a meta-analysis object).
+#' @param \dots Additional arguments passed on to
+#'   \code{\link{metagen}} (ignored if argument \code{lnOR} is a
+#'   meta-analysis object).
 #' 
 #' @details
 #' This function implements the following methods for the conversion
@@ -80,7 +93,9 @@
 #' @export or2smd
 
 
-or2smd <- function(lnOR, selnOR, method = "HH", ...) {
+or2smd <- function(lnOR, selnOR, studlab,
+                   data = NULL, subset = NULL, exclude = NULL,
+                   method = "HH", ...) {
   
   
   is.meta <- inherits(lnOR, "meta")
@@ -93,6 +108,62 @@ or2smd <- function(lnOR, selnOR, method = "HH", ...) {
       lnOR <- mdat$TE
       selnOR <- mdat$seTE
     }
+  }
+  else {
+    ##
+    ## Read data
+    ##
+    nulldata <- is.null(data)
+    ##
+    if (nulldata)
+      data <- sys.frame(sys.parent())
+    ##
+    mf <- match.call()
+    ##
+    ## Catch 'lnOR' and 'selnOR' from data:
+    ##
+    lnOR <- eval(mf[[match("lnOR", names(mf))]],
+                data, enclos = sys.frame(sys.parent()))
+    ##
+    selnOR <- eval(mf[[match("selnOR", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+    ##
+    k.All <- length(lnOR)
+    chknull(lnOR)
+    ##
+    ## Catch 'studlab', 'subset', and 'exclude' from data:
+    ##
+    studlab <- eval(mf[[match("studlab", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+    studlab <- setstudlab(studlab, k.All)
+    print(studlab)
+    ##
+    missing.subset <- missing(subset)
+    subset <- eval(mf[[match("subset", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+    ##
+    missing.exclude <- missing(exclude)
+    exclude <- eval(mf[[match("exclude", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+    ##
+    ## Check length of essential variables
+    ##
+    arg <- "lnOR"
+    ##
+    chklength(selnOR, k.All, arg)
+    chklength(studlab, k.All, arg)
+    ##
+    ## Subset and exclude studies
+    ##
+    if (!missing.subset)
+      if ((is.logical(subset) & (sum(subset) > k.All)) ||
+          (length(subset) > k.All))
+        stop("Length of argument 'subset' is larger than number of studies.")
+    ##
+    if (!missing.exclude)
+      if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
+          (length(exclude) > k.All))
+        stop("Length of argument 'exclude' is larger than number of studies.")
   }
   
   
@@ -155,8 +226,13 @@ or2smd <- function(lnOR, selnOR, method = "HH", ...) {
                      control = mdat$control)
   }
   else {
-    dat <- data.frame(lnOR, selnOR, OR = exp(lnOR), smd, se.smd)
-    res <- metagen(smd, se.smd, data = dat, sm = "SMD", ...)
+    dat <- data.frame(lnOR, selnOR, OR = exp(lnOR), smd, se.smd, studlab)
+    dat$subset <- subset
+    dat$exclude <- exclude
+    ##
+    res <- metagen(smd, se.smd, studlab = studlab,
+                   data = dat, subset = subset, exclude = exclude,
+                   sm = "SMD", ...)
   }
   
   
