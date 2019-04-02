@@ -172,7 +172,7 @@
 #' \item Simple approximation interval (\code{method.ci = "SA"})
 #' \item Simple approximation interval with continuity correction
 #'   (\code{method.ci = "SACC"})
-#' #' \item Normal approximation interval based on summary measure,
+#' \item Normal approximation interval based on summary measure,
 #'   i.e. defined by argument \code{sm} (\code{method.ci = "NAsm"})
 #' }
 #' 
