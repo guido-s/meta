@@ -178,15 +178,15 @@
 #' 
 #' Note, with exception of the normal approximation based on the
 #' summary measure, i.e. \code{method.ci = "NAsm"}, the same
-#' confidence interval is calculated for any summary measure (argument
-#' \code{sm}) as only number of events and observations are used in
-#' the calculation disregarding the chosen summary measure. Results
-#' will be presented for transformed proportions if argument
-#' \code{backtransf = FALSE} in the \code{\link{print.meta}},
-#' \code{\link{print.summary.meta}}, or \code{\link{forest.meta}}
-#' function. In this case, argument \code{method.ci = "NAsm"} is used,
-#' i.e. confidence intervals based on the normal approximation based
-#' on the summary measure.
+#' confidence interval is calculated for individual studies for any
+#' summary measure (argument \code{sm}) as only number of events and
+#' observations are used in the calculation disregarding the chosen
+#' summary measure. Results will be presented for transformed
+#' proportions if argument \code{backtransf = FALSE} in the
+#' \code{\link{print.meta}}, \code{\link{print.summary.meta}}, or
+#' \code{\link{forest.meta}} function. In this case, argument
+#' \code{method.ci = "NAsm"} is used, i.e. confidence intervals based
+#' on the normal approximation based on the summary measure.
 #' 
 #' Argument \code{pscale} can be used to rescale proportions, e.g.
 #' \code{pscale = 1000} means that proportions are expressed as events
