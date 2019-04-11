@@ -378,21 +378,21 @@ individual study results (see Agresti & Coull 1998 and Newcombe
 \item Simple approximation interval (\code{method.ci = "SA"})
 \item Simple approximation interval with continuity correction
   (\code{method.ci = "SACC"})
-#' \item Normal approximation interval based on summary measure,
+\item Normal approximation interval based on summary measure,
   i.e. defined by argument \code{sm} (\code{method.ci = "NAsm"})
 }
 
 Note, with exception of the normal approximation based on the
 summary measure, i.e. \code{method.ci = "NAsm"}, the same
-confidence interval is calculated for any summary measure (argument
-\code{sm}) as only number of events and observations are used in
-the calculation disregarding the chosen summary measure. Results
-will be presented for transformed proportions if argument
-\code{backtransf = FALSE} in the \code{\link{print.meta}},
-\code{\link{print.summary.meta}}, or \code{\link{forest.meta}}
-function. In this case, argument \code{method.ci = "NAsm"} is used,
-i.e. confidence intervals based on the normal approximation based
-on the summary measure.
+confidence interval is calculated for individual studies for any
+summary measure (argument \code{sm}) as only number of events and
+observations are used in the calculation disregarding the chosen
+summary measure. Results will be presented for transformed
+proportions if argument \code{backtransf = FALSE} in the
+\code{\link{print.meta}}, \code{\link{print.summary.meta}}, or
+\code{\link{forest.meta}} function. In this case, argument
+\code{method.ci = "NAsm"} is used, i.e. confidence intervals based
+on the normal approximation based on the summary measure.
 
 Argument \code{pscale} can be used to rescale proportions, e.g.
 \code{pscale = 1000} means that proportions are expressed as events
@@ -687,8 +687,8 @@ variate.
 Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
 Seriously misleading results using inverse of Freeman-Tukey double
 arcsine transformation in meta-analysis of single proportions.
-\emph{Research Synthesis Methods},
-accepted for publication
+\emph{Research Synthesis Methods}, 1--8.
+https://doi.org/10.1002/jrsm.1348
 
 Stijnen T, Hamza TH, Ozdemir P (2010):
 Random effects meta-analysis of event outcome in the framework of
@@ -698,7 +698,7 @@ data.
 \bold{29}, 3046--67
 
 Viechtbauer W (2010):
-Conducting Meta-Analyses in R with the Metafor Package.
+Conducting meta-analyses in R with the metafor package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
 

@@ -1,4 +1,4 @@
-*** metasens, version 4.9-5, 2019-mm-dd ***
+*** metasens, version 4.9-5, 2019-04-11 ***
 
  ** Major changes **
 
@@ -31,6 +31,8 @@
   * metagen():
     - new arguments 'pval', 'df', 'lower', 'upper', 'level.ci',
       'median', 'q1', 'q3', 'min', 'max', 'approx.TE', 'approx.seTE'
+      to approximate treatment estimates and / or standard errors from
+      other information
 
   * forest.meta():
     - printing of leading zeros in p-values can be suppressed (new
@@ -45,8 +47,7 @@
   * settings.meta() and gs():
     - argument names can be abbreviated
 
-  * Major update of help pages:
-    - metagen()
+  * Major update of help pages of metagen() and metaprop()
 
  ** Bug fixes **
 
@@ -64,7 +65,9 @@
  ** Internal changes **
 
   * New internal functions TE.seTE.ci(), TE.seTE.iqr(),
-    TE.seTE.iqr.range(), TE.seTE.range(), seTE.ci.pval()
+    TE.seTE.iqr.range(), TE.seTE.range(), and seTE.ci.pval() to
+    approximate treatment estimates and / or standard errors from other
+    information
 
   * setchar():
     - new argument 'stop.at.error'

@@ -1,6 +1,6 @@
 ##
 ##
-## Definition of auxiliary plot functions
+## Definition of auxiliary functions for forest plots
 ##
 ##
 
