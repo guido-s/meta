@@ -1,3 +1,11 @@
+*** metasens, version 4.9-6, 2019-mm-dd ***
+
+ ** Major changes **
+
+  * New functions to calculate the number needed to treat from the
+    results of a meta-analysis
+
+
 *** metasens, version 4.9-5, 2019-04-11 ***
 
  ** Major changes **
