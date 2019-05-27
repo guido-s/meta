@@ -71,6 +71,17 @@
 #' nnt(m1, comb.random = TRUE)
 #' 
 #' @rdname nnt
+#' @export nnt
+
+
+nnt <- function(x, ...) 
+  UseMethod("nnt")
+
+
+
+
+
+#' @rdname nnt
 #' @method nnt meta
 #' @export
 #' @export nnt.meta
@@ -372,17 +383,6 @@ print.nnt.meta <- function(x,
   
   invisible(NULL)
 }
-
-
-
-
-
-#' @rdname nnt
-#' @export nnt
-
-
-nnt <- function(x, ...) 
-  UseMethod("nnt")
 
 
 

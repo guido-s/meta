@@ -100,6 +100,17 @@
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
+#' @param lower.equi A numerical giving the lower limit of the
+#'   equivalence region to be plotted as a line in the forest plot. No
+#'   line is plotted if argument \code{lower.equi} is equal to
+#'   \code{NA}.
+#' @param upper.equi A numerical giving the upper limit of the
+#'   equivalence region to be plotted as a line in the forest plot. No
+#'   line is plotted if argument \code{upper.equi} is equal to
+#'   \code{NA}.
+#' @param lty.equi Line type (equivalence lines).
+#' @param col.equi Line colour (equivalence lines).
+#' @param fill.equi Colour of area between equivalence lines.
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be plotted on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -1164,6 +1175,10 @@ forest.meta <- function(x,
                         ##
                         ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
+                        lower.equi = NA, upper.equi = NA,
+                        lty.equi = 1, col.equi = "blue",
+                        fill.equi = "transparent",
+                        ##
                         leftcols = NULL, rightcols = NULL,
                         leftlabs = NULL, rightlabs = NULL,
                         ##
@@ -1418,8 +1433,8 @@ forest.meta <- function(x,
     chknumeric(lty.fixed)
   if (!is.null(lty.random))
     chknumeric(lty.random)
-  chkchar(col.fixed)
-  chkchar(col.random)
+  chkcolor(col.fixed)
+  chkcolor(col.random)
   chklogical(prediction)
   chklogical(print.subgroup.labels)
   if (!is.null(print.byvar))
@@ -1448,7 +1463,13 @@ forest.meta <- function(x,
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
-  chknumeric(ref)
+  chknumeric(ref, single = TRUE)
+  chknumeric(lower.equi, single = TRUE)
+  chknumeric(upper.equi, single = TRUE)
+  if (!is.na(lower.equi) && !is.na(upper.equi) && lower.equi > upper.equi)
+    stop("Value for 'lower.equi' must be smaller than 'upper.equi'.")
+  chknumeric(lty.equi)
+  chkcolor(col.equi)
   ##
   layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$byvar)) {
@@ -1489,16 +1510,16 @@ forest.meta <- function(x,
   chkchar(lab.NA.weight)
   if (!is.null(at))
     chknumeric(at)
-  chkchar(col.diamond)
-  chkchar(col.diamond.fixed)
-  chkchar(col.diamond.random)
-  chkchar(col.diamond.lines)
-  chkchar(col.diamond.lines.fixed)
-  chkchar(col.diamond.lines.random)
-  chkchar(col.inside.fixed)
-  chkchar(col.inside.random)
-  chkchar(col.predict)
-  chkchar(col.predict.lines)
+  chkcolor(col.diamond)
+  chkcolor(col.diamond.fixed)
+  chkcolor(col.diamond.random)
+  chkcolor(col.diamond.lines)
+  chkcolor(col.diamond.lines.fixed)
+  chkcolor(col.diamond.lines.random)
+  chkcolor(col.inside.fixed)
+  chkcolor(col.inside.random)
+  chkcolor(col.predict)
+  chkcolor(col.predict.lines)
   chklogical(print.I2)
   chklogical(print.I2.ci)
   chklogical(print.tau2)
@@ -1993,6 +2014,8 @@ forest.meta <- function(x,
   ##
   if (backtransf & is.relative.effect(sm)) {
     ref <- log(ref)
+    lower.equi <- log(lower.equi)
+    upper.equi <- log(upper.equi)
     log.xaxis <- TRUE
   }
   ##
@@ -5716,6 +5739,16 @@ forest.meta <- function(x,
         xlim[1] <- ref
       if (!is.na(ref) && ref > xlim[2])
         xlim[2] <- ref
+      ##
+      if (!is.na(lower.equi) && lower.equi < xlim[1])
+        xlim[1] <- lower.equi
+      if (!is.na(lower.equi) && lower.equi > xlim[2])
+        xlim[2] <- lower.equi
+      ##
+      if (!is.na(upper.equi) && upper.equi < xlim[1])
+        xlim[1] <- upper.equi
+      if (!is.na(upper.equi) && upper.equi > xlim[2])
+        xlim[2] <- upper.equi
     }
     else {
       sel.low <- is.finite(lowTE)
@@ -5736,6 +5769,16 @@ forest.meta <- function(x,
         xlim[1] <- ref
       if (!is.na(ref) && ref > xlim[2])
         xlim[2] <- ref
+      ##
+      if (!is.na(lower.equi) && lower.equi < xlim[1])
+        xlim[1] <- lower.equi
+      if (!is.na(lower.equi) && lower.equi > xlim[2])
+        xlim[2] <- lower.equi
+      ##
+      if (!is.na(upper.equi) && upper.equi < xlim[1])
+        xlim[1] <- upper.equi
+      if (!is.na(upper.equi) && upper.equi > xlim[2])
+        xlim[2] <- upper.equi
     }
   }
   ##
@@ -6723,7 +6766,8 @@ forest.meta <- function(x,
              overall, comb.fixed, comb.random, prediction,
              ylim.fixed, ylim.random, ylim.ref,
              lwd, lty.fixed, lty.random, col.fixed, col.random,
-             xlim[1], xlim[2])
+             xlim[1], xlim[2],
+             lower.equi, upper.equi, lty.equi, col.equi, fill.equi)
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, lwd,

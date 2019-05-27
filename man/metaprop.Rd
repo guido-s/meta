@@ -466,7 +466,7 @@ For these methods the R function \code{rma.uni} of R package
 between-study variance.
 }
 \examples{
-# Meta-analysis using generalised linear mixed models
+# Meta-analysis using generalised linear mixed model
 #
 metaprop(4:1, 10 * 1:4)
 

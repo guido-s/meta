@@ -505,7 +505,7 @@
 #' \bold{92}, 3--10
 #' 
 #' @examples
-#' # Meta-analysis using generalised linear mixed models
+#' # Meta-analysis using generalised linear mixed model
 #' #
 #' metaprop(4:1, 10 * 1:4)
 #' 

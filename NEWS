@@ -1,12 +1,17 @@
-*** metasens, version 4.9-6, 2019-mm-dd ***
+*** meta, version 4.9-6, 2019-mm-dd ***
 
  ** Major changes **
 
   * New functions to calculate the number needed to treat from the
     results of a meta-analysis
 
+  * Equivalence limits can be added to forest plots
 
-*** metasens, version 4.9-5, 2019-04-11 ***
+  * Print Wald-type test of heterogeneity for generalised linear mixed
+    models (problem fixed in R package metafor, version 2.1-0)
+
+
+*** meta, version 4.9-5, 2019-04-11 ***
 
  ** Major changes **
 

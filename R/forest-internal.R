@@ -331,7 +331,9 @@ draw.lines <- function(x, column,
                        overall, comb.fixed, comb.random, prediction,
                        ylim.fixed, ylim.random, ylim.ref,
 		       lwd, lty.fixed, lty.random, col.fixed, col.random,
-                       min, max) {
+                       min, max,
+                       lower.equi, upper.equi,
+                       lty.equi, col.equi, fill.equi) {
   ##
   if (min > max) {
     min <- x$range[2]
@@ -343,6 +345,26 @@ draw.lines <- function(x, column,
   }
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  ##
+  ## Add equivalence region
+  ##
+  if ((!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max)) &
+      (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max)))
+    grid.polygon(x = unit(c(lower.equi, upper.equi,
+                            upper.equi, lower.equi), "native"),
+                 y = unit(c(ylim.ref[1], ylim.ref[1],
+                            ylim.ref[2], ylim.ref[2]), "lines"),
+                 gp = gpar(lwd = lwd, col = fill.equi, fill = fill.equi))
+  ##
+  if (!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max))
+    grid.lines(x = unit(lower.equi, "native"),
+               y = unit(ylim.ref, "lines"),
+               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+  ##
+  if (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max))
+    grid.lines(x = unit(upper.equi, "native"),
+               y = unit(ylim.ref, "lines"),
+               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
   ##
   ## Reference line:
   ##

@@ -33,13 +33,15 @@ forest(x, ...)
   xlab = "", xlab.pos, smlab = NULL, smlab.pos, xlim = "symmetric",
   allstudies = TRUE, weight.study, weight.subgroup, pscale = x$pscale,
   irscale = x$irscale, irunit = x$irunit, ref = ifelse(backtransf &
-  is.relative.effect(x$sm), 1, 0), leftcols = NULL, rightcols = NULL,
-  leftlabs = NULL, rightlabs = NULL, lab.e = x$label.e,
-  lab.c = x$label.c, lab.e.attach.to.col = NULL,
-  lab.c.attach.to.col = NULL, label.right = x$label.right,
-  label.left = x$label.left, bottom.lr = TRUE, lab.NA = ".",
-  lab.NA.effect = "", lab.NA.weight = "--", lwd = 1, at = NULL,
-  label = TRUE, type.study = "square", type.fixed = "diamond",
+  is.relative.effect(x$sm), 1, 0), lower.equi = NA, upper.equi = NA,
+  lty.equi = 1, col.equi = "blue", fill.equi = "transparent",
+  leftcols = NULL, rightcols = NULL, leftlabs = NULL,
+  rightlabs = NULL, lab.e = x$label.e, lab.c = x$label.c,
+  lab.e.attach.to.col = NULL, lab.c.attach.to.col = NULL,
+  label.right = x$label.right, label.left = x$label.left,
+  bottom.lr = TRUE, lab.NA = ".", lab.NA.effect = "",
+  lab.NA.weight = "--", lwd = 1, at = NULL, label = TRUE,
+  type.study = "square", type.fixed = "diamond",
   type.random = type.fixed, type.subgroup = ifelse(study.results,
   "diamond", "square"), type.subgroup.fixed = type.subgroup,
   type.subgroup.random = type.subgroup, col.study = "black",
@@ -294,6 +296,22 @@ calculate rates, e.g., person-years.}
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
+
+\item{lower.equi}{A numerical giving the lower limit of the
+equivalence region to be plotted as a line in the forest plot. No
+line is plotted if argument \code{lower.equi} is equal to
+\code{NA}.}
+
+\item{upper.equi}{A numerical giving the upper limit of the
+equivalence region to be plotted as a line in the forest plot. No
+line is plotted if argument \code{upper.equi} is equal to
+\code{NA}.}
+
+\item{lty.equi}{Line type (equivalence lines).}
+
+\item{col.equi}{Line colour (equivalence lines).}
+
+\item{fill.equi}{Colour of area between equivalence lines.}
 
 \item{lab.e}{Label to be used for experimental group in table
 heading.}

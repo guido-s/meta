@@ -1,6 +1,6 @@
 paulemandel <- function(TE, seTE,
                         tol = .Machine$double.eps^0.25,
-                        maxiter = 100, ...) {
+                        n.iter.max = 100, ...) {
   
   ##
   ## Mandel-Paule algorithm
@@ -39,7 +39,7 @@ paulemandel <- function(TE, seTE,
     n.iter <- 0
     converged <- 0L
     ##
-    while (n.iter < maxiter && abs(dv) > tol * variance.TE) {
+    while (n.iter < n.iter.max && abs(dv) > tol * variance.TE) {
       n.iter <- n.iter + 1
       converged <- 0L
       ##
@@ -62,7 +62,7 @@ paulemandel <- function(TE, seTE,
     ##
     seTE.random <- 1 / sqrt(sum(w.random))
     
-    if(abs(dv) >= tol * variance.TE) {
+    if (abs(dv) >= tol * variance.TE) {
       if (converged == 2L)
         warning("Maximum number of iterations reached; between-study variance set to zero.")
       else
