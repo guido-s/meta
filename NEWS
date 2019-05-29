@@ -9,6 +9,14 @@
 
   * Print Wald-type test of heterogeneity for generalised linear mixed
     models (problem fixed in R package metafor, version 2.1-0)
+    
+ ** Bug fixes **
+
+  * forest.meta():
+    - (always) print correct length for reference line
+    - (always) print label on x-axis at the correct vertical position
+    - (always) print graph labels on the left and right side of the
+      forest plot at the correct vertical position
 
 
 *** meta, version 4.9-5, 2019-04-11 ***

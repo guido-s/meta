@@ -329,7 +329,7 @@ draw.forest <- function(x, column) {
 draw.lines <- function(x, column,
                        ref, TE.fixed, TE.random,
                        overall, comb.fixed, comb.random, prediction,
-                       ylim.fixed, ylim.random, ylim.ref,
+                       ymin.fixed, ymin.random, ymin.ref, ymax,
 		       lwd, lty.fixed, lty.random, col.fixed, col.random,
                        min, max,
                        lower.equi, upper.equi,
@@ -352,25 +352,24 @@ draw.lines <- function(x, column,
       (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max)))
     grid.polygon(x = unit(c(lower.equi, upper.equi,
                             upper.equi, lower.equi), "native"),
-                 y = unit(c(ylim.ref[1], ylim.ref[1],
-                            ylim.ref[2], ylim.ref[2]), "lines"),
+                 y = unit(c(ymin.ref, ymin.ref, ymax, ymax), "lines"),
                  gp = gpar(lwd = lwd, col = fill.equi, fill = fill.equi))
   ##
   if (!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max))
     grid.lines(x = unit(lower.equi, "native"),
-               y = unit(ylim.ref, "lines"),
+               y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
   ##
   if (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max))
     grid.lines(x = unit(upper.equi, "native"),
-               y = unit(ylim.ref, "lines"),
+               y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
   ##
   ## Reference line:
   ##
   if (!is.na(ref) && (min <= ref & ref <= max))
     grid.lines(x = unit(ref, "native"),
-               y = unit(ylim.ref, "lines"),
+               y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd))
   ##
   ## Line for fixed effect estimate:
@@ -379,7 +378,7 @@ draw.lines <- function(x, column,
     if (min <= TE.fixed & TE.fixed <= max)
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
-                   y = unit(ylim.fixed, "lines"),
+                   y = unit(c(ymin.fixed, ymax), "lines"),
                    gp = gpar(lty = lty.fixed, lwd = lwd, col = col.fixed))
   ##
   ## Line for random effects estimate:
@@ -388,7 +387,7 @@ draw.lines <- function(x, column,
     if (min <= TE.random & TE.random <= max)
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),
-                   y = unit(ylim.random, "lines"),
+                   y = unit(c(ymin.random, ymax), "lines"),
                    gp = gpar(lty = lty.random, lwd = lwd, col = col.random))
   ##
   popViewport()

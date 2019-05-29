@@ -100,17 +100,15 @@
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
-#' @param lower.equi A numerical giving the lower limit of the
-#'   equivalence region to be plotted as a line in the forest plot. No
-#'   line is plotted if argument \code{lower.equi} is equal to
-#'   \code{NA}.
-#' @param upper.equi A numerical giving the upper limit of the
-#'   equivalence region to be plotted as a line in the forest plot. No
-#'   line is plotted if argument \code{upper.equi} is equal to
-#'   \code{NA}.
-#' @param lty.equi Line type (equivalence lines).
-#' @param col.equi Line colour (equivalence lines).
-#' @param fill.equi Colour of area between equivalence lines.
+#' @param lower.equi A numerical giving the lower limit of equivalence
+#'   to be plotted as a line in the forest plot. No line is plotted if
+#'   argument \code{lower.equi} is equal to \code{NA}.
+#' @param upper.equi A numerical giving the upper limit of equivalence
+#'   to be plotted as a line in the forest plot. No line is plotted if
+#'   argument \code{upper.equi} is equal to \code{NA}.
+#' @param lty.equi Line type (limits of equivalence).
+#' @param col.equi Line colour (limits of equivalence).
+#' @param fill.equi Colour of area between limits of equivalence.
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be plotted on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -6562,19 +6560,17 @@ forest.meta <- function(x,
   ymin.line <- ymin.line + (overall & ymin.line == 0 &
                             !(!addrow.overall | !addrow))
   ##
-  ymax.line <- nrow - ifelse(is.na(yHeadadd), 1, 2)
+  ymin.fixed <- spacing * (ymin.line + prediction + comb.random + 0.5)
+  ymin.random <- spacing * (ymin.line + prediction + 0.5)
+  ymin.ref <- spacing * (ymin.line + hetstat - overall +
+                         (!by & !hetstat) + (by & !subgroup & !hetstat) -
+                         (!addrow & !overall))
   ##
-  ylim.fixed <- spacing * c(ymin.line + prediction + comb.random + 0.5,
-                            ymax.line - 1 * addrow)
-  ylim.random <- spacing * c(ymin.line + prediction + 0.5,
-                             ymax.line - 1 * addrow)
-  ##
-  ylim.ref <- spacing * c(ymin.line - (!addrow & !overall),
-                          ymax.line + (print.label & !bottom.lr))
+  ymax <- nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow
   ##
   ## Position on y-axis of left and right labels (at bottom of forest plot)
   ##
-  y.bottom.lr <- ymin.line - 2.5 # - (!addrow & !overall)
+  y.bottom.lr <- ymin.line - 2.5 + (!overall & !(!overall & !addrow))
   ##
   ## Position on y-axis of label below x-axis
   ##
@@ -6764,7 +6760,7 @@ forest.meta <- function(x,
   draw.lines(col.forest, j,
              ref, TE.fixed, TE.random,
              overall, comb.fixed, comb.random, prediction,
-             ylim.fixed, ylim.random, ylim.ref,
+             ymin.fixed, ymin.random, ymin.ref, ymax,
              lwd, lty.fixed, lty.random, col.fixed, col.random,
              xlim[1], xlim[2],
              lower.equi, upper.equi, lty.equi, col.equi, fill.equi)

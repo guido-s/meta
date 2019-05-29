@@ -297,21 +297,19 @@ calculate rates, e.g., person-years.}
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
 
-\item{lower.equi}{A numerical giving the lower limit of the
-equivalence region to be plotted as a line in the forest plot. No
-line is plotted if argument \code{lower.equi} is equal to
-\code{NA}.}
+\item{lower.equi}{A numerical giving the lower limit of equivalence
+to be plotted as a line in the forest plot. No line is plotted if
+argument \code{lower.equi} is equal to \code{NA}.}
 
-\item{upper.equi}{A numerical giving the upper limit of the
-equivalence region to be plotted as a line in the forest plot. No
-line is plotted if argument \code{upper.equi} is equal to
-\code{NA}.}
+\item{upper.equi}{A numerical giving the upper limit of equivalence
+to be plotted as a line in the forest plot. No line is plotted if
+argument \code{upper.equi} is equal to \code{NA}.}
 
-\item{lty.equi}{Line type (equivalence lines).}
+\item{lty.equi}{Line type (limits of equivalence).}
 
-\item{col.equi}{Line colour (equivalence lines).}
+\item{col.equi}{Line colour (limits of equivalence).}
 
-\item{fill.equi}{Colour of area between equivalence lines.}
+\item{fill.equi}{Colour of area between limits of equivalence.}
 
 \item{lab.e}{Label to be used for experimental group in table
 heading.}

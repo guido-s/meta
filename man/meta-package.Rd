@@ -51,8 +51,7 @@ statistical methods for meta-analysis.
 \bold{metafor} is installed
 \item Generalised linear mixed models (\code{\link{metabin}},
   \code{\link{metainc}}, \code{\link{metaprop}}, and
-  \code{\link{metarate}}); if R packages \bold{metafor},
-  \bold{lme4}, \bold{numDeriv}, and \bold{BiasedUrn} are installed
+  \code{\link{metarate}})
 }
 
 The following more advanced statistical methods are provided by
