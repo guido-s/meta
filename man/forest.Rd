@@ -21,9 +21,9 @@ forest(x, ...)
 
 \method{forest}{meta}(x, sortvar, studlab = TRUE,
   layout = gs("layout"), comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, overall = TRUE, text.fixed = NULL,
-  text.random = NULL, lty.fixed = 2, lty.random = 3,
-  col.fixed = "black", col.random = "black",
+  comb.random = x$comb.random, overall = comb.fixed | comb.random,
+  text.fixed = NULL, text.random = NULL, lty.fixed = 2,
+  lty.random = 3, col.fixed = "black", col.random = "black",
   prediction = x$prediction, text.predict = NULL, subgroup = TRUE,
   print.subgroup.labels = TRUE, bylab = x$bylab,
   print.byvar = x$print.byvar, byseparator = x$byseparator,
