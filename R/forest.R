@@ -1139,7 +1139,7 @@ forest.meta <- function(x,
                         ##
                         comb.fixed = x$comb.fixed,
                         comb.random = x$comb.random,
-                        overall = TRUE,
+                        overall = comb.fixed | comb.random,
                         text.fixed = NULL,
                         text.random = NULL,
                         lty.fixed = 2, lty.random = 3,
@@ -1931,13 +1931,14 @@ forest.meta <- function(x,
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
-    resid.hetstat <- FALSE
-    hetstat <- FALSE
-    prediction <- FALSE
     test.overall.fixed   <- FALSE
     test.overall.random  <- FALSE
+    resid.hetstat <- FALSE
     test.subgroup.fixed  <- FALSE
     test.subgroup.random <- FALSE
+    ##
+    hetstat <- FALSE
+    prediction <- FALSE
     test.effect.subgroup.fixed  <- FALSE
     test.effect.subgroup.random <- FALSE
   }
@@ -5902,10 +5903,8 @@ forest.meta <- function(x,
     yNext           <- yNext + 1
   }
   ##
-  if (test.subgroup.random) {
+  if (test.subgroup.random)
     ySubgroup.random <- yNext
-    yNext            <- yNext + 1
-  }
   ##
   if (!comb.fixed & !pooled.totals) text.fixed <- ""
   if (!comb.random) text.random <- ""
@@ -6560,17 +6559,15 @@ forest.meta <- function(x,
   ymin.line <- ymin.line + (overall & ymin.line == 0 &
                             !(!addrow.overall | !addrow))
   ##
-  ymin.fixed <- spacing * (ymin.line + prediction + comb.random + 0.5)
+  ymin.fixed  <- spacing * (ymin.line + prediction + comb.random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
-  ymin.ref <- spacing * (ymin.line + hetstat - overall +
-                         (!by & !hetstat) + (by & !subgroup & !hetstat) -
-                         (!addrow & !overall))
+  ymin.ref    <- spacing * (ymin.line + (!overall & addrow))
   ##
-  ymax <- nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow
+  ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
   ##
   ## Position on y-axis of left and right labels (at bottom of forest plot)
   ##
-  y.bottom.lr <- ymin.line - 2.5 + (!overall & !(!overall & !addrow))
+  y.bottom.lr <- ymin.line - 2.5 + (!overall & addrow)
   ##
   ## Position on y-axis of label below x-axis
   ##
@@ -6583,7 +6580,8 @@ forest.meta <- function(x,
                 rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
   ##
   if (newline.smlab)
-    smlab2 <- tgl(smlab2, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
+    smlab2 <- tgl(smlab2, unit(smlab.pos, "native"),
+                  "center", fs.smlab, ff.smlab,
                   rows = 2)
   ##
   ## Left and right label on x-axis:
