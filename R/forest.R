@@ -272,6 +272,7 @@
 #'   model).
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
+#' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fs.heading The size of text for column headings, see
 #'   \code{\link{gpar}}.
 #' @param fs.fixed The size of text for results of fixed effect model,
@@ -1263,6 +1264,7 @@ forest.meta <- function(x,
                         label.test.effect.subgroup.random,
                         ##
                         fontsize = 12,
+                        fontfamily = NULL,
                         fs.heading = fontsize,
                         fs.fixed,
                         fs.random,
@@ -5959,39 +5961,41 @@ forest.meta <- function(x,
                                tg,
                                xpos = xpos.s, just = just.s,
                                fs = fs.study.labels,
-                               ff = ff.study.labels),
+                               ff = ff.study.labels,
+                               fontfamily = fontfamily),
                       rows = yLab
                       )
   ## Study label:
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
-                                just.s, fs.head, ff.head)
+                                just.s, fs.head, ff.head, fontfamily)
   ## Fixed effect estimate:
   col.studlab$labels[[2]] <- tg(text.fixed, xpos.s, just.s,
-                                fs.fixed.labels, ff.fixed.labels)
+                                fs.fixed.labels, ff.fixed.labels, fontfamily)
   ## Random effects estimate:
   col.studlab$labels[[3]] <- tg(text.random, xpos.s, just.s,
-                                fs.random.labels, ff.random.labels)
+                                fs.random.labels, ff.random.labels, fontfamily)
   ## Prediction interval:
   col.studlab$labels[[4]] <- tg(text.predict,xpos.s, just.s,
-                                fs.predict.labels, ff.predict.labels)
+                                fs.predict.labels, ff.predict.labels,
+                                fontfamily)
   ## Heterogeneity statistics:
   col.studlab$labels[[5]] <- tg(hetstat.overall, xpos.s, just.s,
-                                fs.hetstat, ff.hetstat)
+                                fs.hetstat, ff.hetstat, fontfamily)
   ## Statistic for residual heterogeneity:
   col.studlab$labels[[6]] <- tg(hetstat.resid, xpos.s, just.s,
-                                fs.hetstat, ff.hetstat)
+                                fs.hetstat, ff.hetstat, fontfamily)
   ## Test for overall effect (fixed effect model):
   col.studlab$labels[[7]] <- tg(text.overall.fixed, xpos.s, just.s,
-                                fs.test.overall, ff.test.overall)
+                                fs.test.overall, ff.test.overall, fontfamily)
   ## Test for overall effect (random effects model):
   col.studlab$labels[[8]] <- tg(text.overall.random, xpos.s, just.s,
-                                fs.test.overall, ff.test.overall)
+                                fs.test.overall, ff.test.overall, fontfamily)
   ## Test for subgroup differences (fixed effect model):
   col.studlab$labels[[9]] <- tg(text.subgroup.fixed, xpos.s, just.s,
-                                fs.test.subgroup, ff.test.subgroup)
+                                fs.test.subgroup, ff.test.subgroup, fontfamily)
   ## Test for subgroup differences (random effects model):
   col.studlab$labels[[10]] <- tg(text.subgroup.random, xpos.s, just.s,
-                                 fs.test.subgroup, ff.test.subgroup)
+                                 fs.test.subgroup, ff.test.subgroup, fontfamily)
   ##
   n.summaries <- 10
   ##
@@ -6000,27 +6004,27 @@ forest.meta <- function(x,
       ## Subgroup labels:
       col.studlab$labels[[n.summaries + i]] <-
         tg(bylab[i], xpos.s, just.s,
-           fs.head, ff.head, col.by)
+           fs.head, ff.head, fontfamily, col.by)
       ## Fixed effect estimates:
       col.studlab$labels[[n.summaries + n.by + i]] <-
         tg(text.fixed.w[i], xpos.s, just.s,
-           fs.fixed.labels, ff.fixed.labels, col.by)
+           fs.fixed.labels, ff.fixed.labels, fontfamily, col.by)
       ## Random effects estimates:
       col.studlab$labels[[n.summaries + 2 * n.by + i]] <-
         tg(text.random.w[i], xpos.s, just.s,
-           fs.random.labels, ff.random.labels, col.by)
+           fs.random.labels, ff.random.labels, fontfamily, col.by)
       ## Heterogeneity statistics:
       col.studlab$labels[[n.summaries + 3 * n.by + i]] <-
         tg(hetstat.w[[i]], xpos.s, just.s,
-           fs.hetstat, ff.hetstat, col.by)
+           fs.hetstat, ff.hetstat, fontfamily, col.by)
       ## Test for effect in subgroup (fixed effect model):
       col.studlab$labels[[n.summaries + 4 * n.by + i]] <-
         tg(text.effect.subgroup.fixed[[i]], xpos.s, just.s,
-           fs.test.effect.subgroup, ff.test.effect.subgroup, col.by)
+           fs.test.effect.subgroup, ff.test.effect.subgroup, fontfamily, col.by)
       ## Test for effect in subgroup (random effects model):
       col.studlab$labels[[n.summaries + 5 * n.by + i]] <-
         tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
-           fs.test.effect.subgroup, ff.test.effect.subgroup, col.by)
+           fs.test.effect.subgroup, ff.test.effect.subgroup, fontfamily, col.by)
     }
   }
   ##
@@ -6031,72 +6035,95 @@ forest.meta <- function(x,
               fs.predict = fs.predict, ff.predict = ff.predict,
               by = by, n.by = n.by, col.by = col.by)
   ##
-  col.effect <- formatcol(labs[["lab.effect"]], effect.format, yS, just.c, fcs)
+  col.effect <- formatcol(labs[["lab.effect"]], effect.format, yS, just.c, fcs, fontfamily)
   ##
-  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just.c, fcs)
+  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just.c, fcs, fontfamily)
   ##
   col.effect.ci <- formatcol(labs[["lab.effect.ci"]], effect.ci.format, yS,
-                             if (revman5) "center" else just.c, fcs)
+                             if (revman5) "center" else just.c, fcs, fontfamily)
   ##
   col.w.fixed  <- formatcol(labs[["lab.w.fixed"]], w.fixed.format, yS,
-                            just.c, fcs)
+                            just.c, fcs, fontfamily)
   col.w.random <- formatcol(labs[["lab.w.random"]], w.random.format, yS,
-                            just.c, fcs)
+                            just.c, fcs, fontfamily)
   ##
-  col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS, just.c, fcs)
-  col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.c, fcs)
+  col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS, just.c, fcs, fontfamily)
+  col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.c, fcs,
+                        fontfamily)
   ##
-  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs)
-  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.c, fcs)
+  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs,
+                       fontfamily)
+  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.c, fcs,
+                       fontfamily)
   ##
-  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just.c, fcs)
-  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just.c, fcs)
+  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just.c, fcs,
+                           fontfamily)
+  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just.c, fcs,
+                           fontfamily)
   ##
-  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just.c, fcs)
-  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just.c, fcs)
+  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just.c, fcs,
+                          fontfamily)
+  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just.c, fcs,
+                          fontfamily)
   ##
-  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just.c, fcs)
-  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just.c, fcs)
+  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just.c, fcs,
+                        fontfamily)
+  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just.c, fcs,
+                        fontfamily)
   ##
-  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just.c, fcs)
+  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just.c, fcs,
+                       fontfamily)
   ##
-  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.c, fcs)
-  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs)
+  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.c, fcs,
+                          fontfamily)
+  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs,
+                          fontfamily)
   ##
   ##
   ##
-  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs)
+  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
+                               fontfamily)
   ##
-  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just.c, fcs)
+  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just.c, fcs,
+                           fontfamily)
   ##
   col.effect.ci.calc <- formatcol(longer.effect.ci, effect.ci.format, yS,
-                                  just.c, fcs)
+                                  just.c, fcs, fontfamily)
   ##
   col.w.fixed.calc  <- formatcol(longer.w.fixed, w.fixed.format, yS,
-                                 just.c, fcs)
+                                 just.c, fcs, fontfamily)
   col.w.random.calc <- formatcol(longer.w.random, w.random.format, yS,
-                                 just.c, fcs)
+                                 just.c, fcs, fontfamily)
   ##
-  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.c, fcs)
-  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.c, fcs)
+  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.c, fcs, fontfamily)
+  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.c, fcs,
+                             fontfamily)
   ##
-  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs)
-  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.c, fcs)
+  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs, fontfamily)
+  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.c, fcs, fontfamily)
   ##
   col.event.e.calc <- formatcol(longer.event.e, Ee.format, yS,
-                                just.c, fcs)
-  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just.c, fcs)
+                                just.c, fcs, fontfamily)
+  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just.c, fcs,
+                                fontfamily)
   ##
-  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just.c, fcs)
-  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just.c, fcs)
+  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just.c, fcs,
+                               fontfamily)
+  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just.c, fcs,
+                               fontfamily)
   ##
-  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just.c, fcs)
-  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just.c, fcs)
+  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just.c, fcs,
+                             fontfamily)
+  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just.c, fcs,
+                             fontfamily)
   ##
-  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just.c, fcs)
+  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just.c, fcs,
+                            fontfamily)
   ##
-  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just.c, fcs)
-  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs)
+  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just.c, fcs,
+                               fontfamily)
+  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs,
+                               fontfamily)
   ##
   ##
   ##
@@ -6266,12 +6293,12 @@ forest.meta <- function(x,
                                    c("", "", "", rep("", length(TE.w)), tmp.r),
                                    yS,
                                    just.addcols.right[i],
-                                   fcs)
+                                   fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", rep("", length(TE.w)), tmp.r),
                                         yS,
                                         just.addcols.right[i],
-                                        fcs)
+                                        fcs, fontfamily)
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -6302,14 +6329,14 @@ forest.meta <- function(x,
                                      rep("", length(TE.w)), tmp.l),
                                    yS,
                                    just.addcols.left[i],
-                                   fcs)
+                                   fcs, fontfamily)
         ##
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "",
                                           rep("", length(TE.w)), tmp.l),
                                         yS,
                                         just.addcols.left[i],
-                                        fcs)
+                                        fcs, fontfamily)
       }
     }
     else {
@@ -6341,12 +6368,12 @@ forest.meta <- function(x,
                                    c("", "", "", tmp.r),
                                    yS,
                                    just.addcols.right[i],
-                                   fcs)
+                                   fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.r),
                                         yS,
                                         just.addcols.right[i],
-                                        fcs)
+                                        fcs, fontfamily)
       }
       for (i in seq(along = leftcols.new)) {
         tname <- paste("col.", leftcols.new[i], sep = "")
@@ -6377,81 +6404,92 @@ forest.meta <- function(x,
                                    c("", "", "", tmp.l),
                                    yS,
                                    just.addcols.left[i],
-                                   fcs)
+                                   fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.l),
                                         yS,
                                         just.addcols.left[i],
-                                        fcs)
+                                        fcs, fontfamily)
       }
     }
   }
   ##
-  col.lab.e <- tgl(lab.e, xpos.c, just.c, fs.head, ff.head)
+  col.lab.e <- tgl(lab.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
-  col.lab.c <- tgl(lab.c, xpos.c, just.c, fs.head, ff.head)
+  col.lab.c <- tgl(lab.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   ##
   ##
   if (newline.studlab)
-    col.add.studlab <- tgl(add.studlab, xpos.s, just.s, fs.head, ff.head)
+    col.add.studlab <- tgl(add.studlab, xpos.s, just.s, fs.head, ff.head,
+                           fontfamily)
   ##
   if (newline.effect)
-    col.add.effect <- tgl(add.effect, xpos.c, just.c, fs.head, ff.head)
+    col.add.effect <- tgl(add.effect, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
   ##
   if (newline.ci)
-    col.add.ci <- tgl(add.ci, xpos.c, just.c, fs.head, ff.head)
+    col.add.ci <- tgl(add.ci, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.effect.ci)
     col.add.effect.ci <- tgl(add.effect.ci,
                              if (revman5) 0.5 else xpos.c,
                              if (revman5) "center" else just.c,
-                             fs.head, ff.head)
+                             fs.head, ff.head, fontfamily)
   ##
   if (newline.w.fixed)
-    col.add.w.fixed <- tgl(add.w.fixed, xpos.c, just.c, fs.head, ff.head)
+    col.add.w.fixed <- tgl(add.w.fixed, xpos.c, just.c, fs.head, ff.head,
+                           fontfamily)
   ##
   if (newline.w.random)
-    col.add.w.random <- tgl(add.w.random, xpos.c, just.c, fs.head, ff.head)
+    col.add.w.random <- tgl(add.w.random, xpos.c, just.c, fs.head, ff.head,
+                            fontfamily)
   ##
   if (newline.TE)
-    col.add.TE <- tgl(add.TE, xpos.c, just.c, fs.head, ff.head)
+    col.add.TE <- tgl(add.TE, xpos.c, just.c, fs.head, ff.head,
+                      fontfamily)
   ##
   if (newline.seTE)
-    col.add.seTE <- tgl(add.seTE, xpos.c, just.c, fs.head, ff.head)
+    col.add.seTE <- tgl(add.seTE, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.n.e)
-    col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head)
+    col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.n.c)
-    col.add.n.c <- tgl(add.n.c, xpos.c, just.c, fs.head, ff.head)
+    col.add.n.c <- tgl(add.n.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.event.e)
-    col.add.event.e <- tgl(add.event.e, xpos.c, just.c, fs.head, ff.head)
+    col.add.event.e <- tgl(add.event.e, xpos.c, just.c, fs.head, ff.head,
+                           fontfamily)
   ##
   if (newline.event.c)
-    col.add.event.c <- tgl(add.event.c, xpos.c, just.c, fs.head, ff.head)
+    col.add.event.c <- tgl(add.event.c, xpos.c, just.c, fs.head, ff.head,
+                           fontfamily)
   ##
   if (newline.mean.e)
-    col.add.mean.e <- tgl(add.mean.e, xpos.c, just.c, fs.head, ff.head)
+    col.add.mean.e <- tgl(add.mean.e, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
   ##
   if (newline.mean.c)
-    col.add.mean.c <- tgl(add.mean.c, xpos.c, just.c, fs.head, ff.head)
+    col.add.mean.c <- tgl(add.mean.c, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
   ##
   if (newline.sd.e)
-    col.add.sd.e <- tgl(add.sd.e, xpos.c, just.c, fs.head, ff.head)
+    col.add.sd.e <- tgl(add.sd.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.sd.c)
-    col.add.sd.c <- tgl(add.sd.c, xpos.c, just.c, fs.head, ff.head)
+    col.add.sd.c <- tgl(add.sd.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.cor)
-    col.add.cor <- tgl(add.cor, xpos.c, just.c, fs.head, ff.head)
+    col.add.cor <- tgl(add.cor, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   if (newline.time.e)
-    col.add.time.e <- tgl(add.time.e, xpos.c, just.c, fs.head, ff.head)
+    col.add.time.e <- tgl(add.time.e, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
   ##
   if (newline.time.c)
-    col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head)
+    col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
   ##
   leftcols  <- paste("col.", leftcols, sep = "")
   rightcols <- paste("col.", rightcols, sep = "")
@@ -6577,11 +6615,11 @@ forest.meta <- function(x,
   ## Summary label at top of forest plot
   ##
   smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
-                rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
+                fontfamily, rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
   ##
   if (newline.smlab)
     smlab2 <- tgl(smlab2, unit(smlab.pos, "native"),
-                  "center", fs.smlab, ff.smlab,
+                  "center", fs.smlab, ff.smlab, fontfamily,
                   rows = 2)
   ##
   ## Left and right label on x-axis:
@@ -6597,21 +6635,21 @@ forest.meta <- function(x,
                  2
     ##
     ll1 <- tgl(ll1, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-               "right", fs.lr, ff.lr, col.label.left,
+               "right", fs.lr, ff.lr, fontfamily, col.label.left,
                rows = row1.lr)
     ##
     if (newline.ll)
       ll2 <- tgl(ll2, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                 "right", fs.lr, ff.lr, col.label.left,
+                 "right", fs.lr, ff.lr, fontfamily, col.label.left,
                  rows = row1.lr + 1)
     ##
     lr1 <- tgl(lr1, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-               "left", fs.lr, ff.lr, col.label.right,
+               "left", fs.lr, ff.lr, fontfamily, col.label.right,
                rows = row1.lr)
     ##
     if (newline.lr)
       lr2 <- tgl(lr2, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                 "left", fs.lr, ff.lr, col.label.right,
+                 "left", fs.lr, ff.lr, fontfamily, col.label.right,
                  rows = row1.lr + 1)
   }
   
@@ -6746,7 +6784,8 @@ forest.meta <- function(x,
           ## Add first line
           ##
           if (clines$newline)
-            add.text(tgl(clines$top, xpos.new, just.new, fs.head, ff.head), j)
+            add.text(tgl(clines$top, xpos.new, just.new, fs.head, ff.head,
+                         fontfamily), j)
         }
     }
     ##
@@ -6764,7 +6803,7 @@ forest.meta <- function(x,
              lower.equi, upper.equi, lty.equi, col.equi, fill.equi)
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
-            fs.axis, ff.axis, lwd,
+            fs.axis, ff.axis, fontfamily, lwd,
             xlim, notmiss.xlim)
   ##
   if (bottom.lr) {
@@ -6791,32 +6830,37 @@ forest.meta <- function(x,
                 unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                 unit(y.bottom.lr, "lines"),
                 "right",
-                fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
+                fs.lr, ff.lr, col.label.left, fontfamily,
+                xscale = col.forest$range)
       ##
       if (newline.ll)
         add.label(ll2, j,
                   unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                   unit(y.bottom.lr - 1, "lines"),
                   "right",
-                  fs.lr, ff.lr, col.label.left, xscale = col.forest$range)
+                  fs.lr, ff.lr, col.label.left, fontfamily,
+                  xscale = col.forest$range)
       ##
       add.label(lr1, j,
                 unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                 unit(y.bottom.lr, "lines"),
                 "left",
-                fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
+                fs.lr, ff.lr, col.label.right, fontfamily,
+                xscale = col.forest$range)
       ##
       if (newline.lr)
         add.label(lr2, j,
                   unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
                   unit(y.bottom.lr - 1, "lines"),
                   "left",
-                  fs.lr, ff.lr, col.label.right, xscale = col.forest$range)
+                  fs.lr, ff.lr, col.label.right, fontfamily,
+                  xscale = col.forest$range)
     }
   }
   ##
   add.xlab(col.forest, j, xlab, xlab.add, newline.xlab,
-           xlab.pos, xlab.ypos, fs.xlab, ff.xlab)
+           xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
+           fontfamily)
   ##
   draw.forest(col.forest, j)
   ##
@@ -6940,7 +6984,7 @@ forest.meta <- function(x,
             ##
             if (clines$newline)
               add.text(tgl(clines$top, xpos.new, just.new,
-                           fs.head, ff.head), j)
+                           fs.head, ff.head, fontfamily), j)
           }
       }
       ##

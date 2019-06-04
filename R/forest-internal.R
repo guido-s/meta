@@ -7,12 +7,14 @@
 
 add.label <- function(x, column,
                       xpos, ypos, just, fs.lr, ff.lr, col,
+                      fontfamily,
                       ...) {
   ##
   pushViewport(viewport(layout.pos.col = column, ...))
   ##
   grid.text(x, x = xpos, y = ypos, just = just,
-            gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col))
+            gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col,
+                      fontfamily = fontfamily))
   ##
   popViewport()
   ##
@@ -36,7 +38,8 @@ add.text <- function(x, column, ...) {
 
 
 add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
-                     xpos, ypos, fs.xlab, ff.xlab) {
+                     xpos, ypos, fs.xlab, ff.xlab,
+                     fontfamily) {
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
   ##
@@ -46,14 +49,16 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
             x = unit(xpos, "native"),
             y = unit(ypos, "lines"),
             just = "center",
-            gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
+            gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
+                      fontfamily = fontfamily))
   ##
   if (newline.xlab)
     grid.text(xlab.add,
               x = unit(xpos, "native"),
               y = unit(ypos - 1, "lines"),
               just = "center",
-              gp = gpar(fontsize = fs.xlab, fontface = ff.xlab))
+              gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
+                        fontfamily = fontfamily))
   ##
   popViewport()
   ##
@@ -62,7 +67,7 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
 
 
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
-                      fs.axis, ff.axis, lwd,
+                      fs.axis, ff.axis, fontfamily, lwd,
                       xlim, notmiss.xlim) {
   ##
   ## Function to draw x-axis
@@ -128,19 +133,23 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
       at <- log(at)
     }
     grid.xaxis(at = at, label = label,
-               gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
+               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                         fontfamily = fontfamily, lwd = lwd))
   }
   else {
     if (is.null(at))
-      grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
+      grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                           fontfamily = fontfamily, lwd = lwd))
     else
       if ((length(label) == 1 && is.logical(label) && label) |
           (length(label) >= 1 & !is.logical(label)))
         grid.xaxis(at = at, label = label,
-                   gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
+                   gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                             fontfamily = fontfamily, lwd = lwd))
     else
       grid.xaxis(at = at,
-                 gp = gpar(fontsize = fs.axis, fontface = ff.axis, lwd = lwd))
+                 gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                           fontfamily = fontfamily, lwd = lwd))
   }
   ##
   popViewport()
@@ -396,7 +405,8 @@ draw.lines <- function(x, column,
 }
 
 
-formatcol <- function(x, y, rows, just = "right", settings) {
+formatcol <- function(x, y, rows, just = "right", settings,
+                      fontfamily) {
   ##
   if (just == "left")
     xpos <- 0
@@ -410,7 +420,8 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                        textGrob, x = xpos, just = just,
                        gp = gpar(
                          fontsize = settings$fs.study,
-                         fontface = settings$ff.study)
+                         fontface = settings$ff.study,
+                         fontfamily = fontfamily)
                        ),
               rows = rows)
   ##
@@ -420,7 +431,8 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                               x = xpos, just = just,
                               gp = gpar(
                                 fontsize = settings$fs.heading,
-                                fontface = settings$ff.heading)
+                                fontface = settings$ff.heading,
+                                fontfamily = fontfamily)
                               )
   ##
   ## Fixed effect estimate:
@@ -429,7 +441,8 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                               x = xpos, just = just,
                               gp = gpar(
                                 fontsize = settings$fs.fixed,
-                                fontface = settings$ff.fixed)
+                                fontface = settings$ff.fixed,
+                                fontfamily = fontfamily)
                               )
   ##
   ## Random effects estimate:
@@ -438,7 +451,8 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                               x = xpos, just = just,
                               gp = gpar(
                                 fontsize = settings$fs.random,
-                                fontface = settings$ff.random)
+                                fontface = settings$ff.random,
+                                fontfamily = fontfamily)
                               )
   ##
   ## Prediction interval:
@@ -447,7 +461,8 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                               x = xpos, just = just,
                               gp = gpar(
                                 fontsize = settings$fs.predict,
-                                fontface = settings$ff.predict)
+                                fontface = settings$ff.predict,
+                                fontfamily = fontfamily)
                               )
   ##
   if (settings$by)
@@ -461,6 +476,7 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                                         gpar(
                                           fontsize = settings$fs.fixed,
                                           fontface = settings$ff.fixed,
+                                          fontfamily = fontfamily,
                                           col = settings$col.by)
                                       )
       ##
@@ -472,6 +488,7 @@ formatcol <- function(x, y, rows, just = "right", settings) {
                                                gpar(
                                                  fontsize = settings$fs.random,
                                                  fontface = settings$ff.random,
+                                                 fontfamily = fontfamily,
                                                  col = settings$col.by)
                                              )
     }
@@ -490,28 +507,30 @@ removeNULL <- function(x, names, varname) {
 }
 
 
-tg <- function(x, xpos, just, fs, ff, col) {
+tg <- function(x, xpos, just, fs, ff, fontfamily, col) {
   if (missing(col))
     res <- textGrob(x,
                     x = xpos, just = just,
-                    gp = gpar(fontsize = fs, fontface = ff))
+                    gp = gpar(fontsize = fs, fontface = ff,
+                              fontfamily = fontfamily))
   else
     res <- textGrob(x,
                     x = xpos, just = just,
                     gp = gpar(fontsize = fs, fontface = ff,
+                              fontfamily = fontfamily,
                               col = col))
   ##
   res
 }
 
 
-tgl <- function(x, xpos, just, fs, ff, rows = 1, col) {
+tgl <- function(x, xpos, just, fs, ff, fontfamily, rows = 1, col) {
   ##
   if (missing(col))
-    res <- list(labels = list(tg(x, xpos, just, fs, ff)),
+    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily)),
                 rows = rows)
   else
-    res <- list(labels = list(tg(x, xpos, just, fs, ff, col)),
+    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily, col)),
                 rows = rows)
   ##
   res

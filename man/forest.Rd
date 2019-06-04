@@ -70,7 +70,7 @@ forest(x, ...)
   label.test.subgroup.fixed, label.test.subgroup.random,
   test.effect.subgroup, test.effect.subgroup.fixed,
   test.effect.subgroup.random, label.test.effect.subgroup.fixed,
-  label.test.effect.subgroup.random, fontsize = 12,
+  label.test.effect.subgroup.random, fontsize = 12, fontfamily = NULL,
   fs.heading = fontsize, fs.fixed, fs.random, fs.predict,
   fs.fixed.labels, fs.random.labels, fs.predict.labels,
   fs.study = fontsize, fs.study.labels = fs.study, fs.hetstat,
@@ -520,6 +520,8 @@ model).}
 
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
+
+\item{fontfamily}{The font family, see \code{\link{gpar}}.}
 
 \item{fs.heading}{The size of text for column headings, see
 \code{\link{gpar}}.}

@@ -504,7 +504,7 @@ summary.meta <- function(object,
     res$H.w             <- ci.H
     res$I2.w            <- ci.I2
     res$Rb.w            <- ci.Rb
-    res$bylab           <- object$bylab
+    res$bylab           <- bylab
     res$tau.common      <- object$tau.common
     res$bylevs          <- object$bylevs
   }

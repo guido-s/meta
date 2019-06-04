@@ -7,6 +7,8 @@
 
   * Equivalence limits can be added to forest plots
 
+  * Font family can be specified in forest plots
+
   * Print Wald-type test of heterogeneity for generalised linear mixed
     models (problem fixed in R package metafor, version 2.1-0)
     
@@ -17,6 +19,16 @@
     - (always) print label on x-axis at the correct vertical position
     - (always) print graph labels on the left and right side of the
       forest plot at the correct vertical position
+
+  * summary.meta():
+    - consider argument 'bylab'
+
+ ** User-visible changes **
+
+  * forest.meta():
+    - new arguments 'lower.equi', 'upper.equi', 'lty.equi',
+      'col.equi', and 'fill.equi' to add equivalence limits
+    - new argument 'fontfamily' to specify the font family
 
 
 *** meta, version 4.9-5, 2019-04-11 ***
