@@ -72,10 +72,7 @@
 #' called - depending on the definition of the outcome in RevMan 5.
 #' 
 #' Note, it is recommended to choose the RevMan 5 settings before
-#' executing \code{metacr}, i.e.,
-#' \itemize{
-#' \item[] settings.meta("revman5")
-#' }
+#' executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
 #' 
 #' @return
 #' An object of class \code{"meta"} and \code{"metabin"},

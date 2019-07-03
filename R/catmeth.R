@@ -26,7 +26,8 @@ catmeth <- function(method,
                     big.mark = "",
                     digits = gs("digits"),
                     digits.tau2 = gs("digits.tau2"),
-                    text.tau2 = gs("text.tau2")
+                    text.tau2 = gs("text.tau2"),
+                    method.miss, IMOR.e, IMOR.c
                     ) {
   
   metabin  <- "metabin"  %in% class
@@ -35,6 +36,7 @@ catmeth <- function(method,
   metaprop <- "metaprop" %in% class
   metarate <- "metarate" %in% class
   trimfill <- "trimfill" %in% class
+  metamiss <- "metamiss" %in% class
   
   if (is.null(allstudies)) allstudies <- FALSE
   if (is.null(doublezeros)) doublezeros <- FALSE
@@ -291,8 +293,32 @@ catmeth <- function(method,
   ##
   if (k.all > 1) {
     cat(paste("\nDetails on meta-analytical method:", method, sep = ""))
+    ##
     if (trimfill)
       cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
+    ##
+    if (metamiss) {
+      if (method.miss == "IMOR")
+        mmiss <- paste0("IMOR.e = ", IMOR.e, ", IMOR.c = ", IMOR.c)
+      else {
+        meths <- c("Gamble-Hollis analysis",
+                   "impute no events (ICA-0)",
+                   "impute events (ICA-1)",
+                   "observed risk in control group (ICA-pc)",
+                   "observed risk in experimental group (ICA-pe)",
+                   "observed group-specific risks (ICA-p)",
+                   "best-case scenario (ICA-b)",
+                   "worst-case scenario (ICA-w)")
+        ##
+        mm <- c("GH", "0", "1", "pc", "pe", "p", "b", "w")
+        ##
+        idx <- charmatch(method.miss, mm)
+        ##
+        mmiss <- meths[idx]
+      }
+      ##
+      cat(paste0("\n- Imputation method: ", mmiss))
+    }
   }
   else
     cat(paste("\nDetails:", method, sep = ""))

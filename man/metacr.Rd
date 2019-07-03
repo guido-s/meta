@@ -110,10 +110,7 @@ functions \code{metabin}, \code{metacont}, and \code{metagen} are
 called - depending on the definition of the outcome in RevMan 5.
 
 Note, it is recommended to choose the RevMan 5 settings before
-executing \code{metacr}, i.e.,
-\itemize{
-\item[] settings.meta("revman5")
-}
+executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
 }
 \examples{
 # Locate export data file "Fleiss93_CR.csv"

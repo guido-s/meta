@@ -374,27 +374,24 @@ generalised linear mixed models, can be utilised in a meta-analysis
 of incidence rate ratios (Stijnen et al., 2010). These methods are
 available (argument \code{method = "GLMM"}) by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally. As a technical note, a warning
-"Cannot invert Hessian for saturated model" is printed using R
-package \bold{metafor}, version 2.0-0. This warning can be safely
-ignored as the inverted Hessian is only used in the calculation of
-a Wald-type test of heterogeneity which is not printed due to the
-estimation problem.
+\bold{metafor} internally.
 
 Three different GLMMs are available for meta-analysis of incidence
 rate ratios using argument \code{model.glmm} (which corresponds to
 argument \code{model} in the \code{\link[metafor]{rma.glmm}}
 function):
-\itemize{
-\item Poisson regression model with fixed study effects (default)
-\item[] (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
-  \bold{M}odel - \bold{F}ixed \bold{S}tudy effects)
-\item Mixed-effects Poisson regression model with random study
-  effects
-\item[] (\code{model.glmm = "UM.RS"}, i.e., \bold{U}nconditional
-  \bold{M}odel - \bold{R}andom \bold{S}tudy effects)
-\item Generalised linear mixed model (conditional Poisson-Normal)
-\item[] (\code{model.glmm = "CM.EL"}, i.e., \bold{C}onditional
+\tabular{cl}{
+1. \tab Poisson regression model with fixed study effects (default)
+ \cr
+ \tab (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
+ \bold{M}odel - \bold{F}ixed \bold{S}tudy effects) \cr
+2. \tab Mixed-effects Poisson regression model with random study
+ effects \cr
+ \tab (\code{model.glmm = "UM.RS"}, i.e., \bold{U}nconditional
+ \bold{M}odel - \bold{R}andom \bold{S}tudy effects) \cr
+3. \tab Generalised linear mixed model (conditional Poisson-Normal)
+ \cr
+ \tab (\code{model.glmm = "CM.EL"}, i.e., \bold{C}onditional
   \bold{M}odel - \bold{E}xact \bold{L}ikelihood)
 }
 

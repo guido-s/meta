@@ -274,10 +274,29 @@ print.meta <- function(x,
   ## (4) Print title and details
   ##
   ##
+  if (inherits(x, "metamiss"))
+    cat("Sensitivity analysis for missing binary data\n\n")
+  ##
   crtitle(x)
   ##
   if (details) {
-    if (inherits(x, "metabin")) {
+    if (inherits(x, "metamiss")) {
+      res <- data.frame(event.e = formatN(x$event.e, digits = 0,
+                                          "NA", big.mark = big.mark),
+                        noevent.e = formatN(x$n.e - x$event.e - x$miss.e,
+                                            digits = 0,
+                                            "NA", big.mark = big.mark),
+                        miss.e = formatN(x$miss.e, digits = 0,
+                                         "NA", big.mark = big.mark),
+                        event.c = formatN(x$event.c, digits = 0,
+                                          "NA", big.mark = big.mark),
+                        noevent.c = formatN(x$n.c - x$event.c - x$miss.c,
+                                            digits = 0,
+                                            "NA", big.mark = big.mark),
+                        miss.c = formatN(x$miss.c, digits = 0,
+                                         "NA", big.mark = big.mark))
+    }
+    else if (inherits(x, "metabin")) {
       res <- data.frame(event.e = formatN(x$event.e, digits = 0,
                                           "NA", big.mark = big.mark),
                         n.e = formatN(x$n.e, digits = 0,
@@ -384,7 +403,7 @@ print.meta <- function(x,
     }
     dimnames(res)[[1]] <- x$studlab
     prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
-    cat("\n\n")
+    cat("\n")
   }
 
 
@@ -543,7 +562,8 @@ print.meta <- function(x,
               model.glmm = x$model.glmm,
               big.mark = big.mark,
               digits = digits, digits.tau2 = digits.tau2,
-              text.tau2 = gs("text.tau2"))
+              text.tau2 = gs("text.tau2"),
+              method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else {
       res <- cbind(formatN(round(TE, digits), digits, "NA", big.mark = big.mark),

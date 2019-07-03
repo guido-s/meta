@@ -136,12 +136,7 @@
 #' meta-analysis of incidence rates (Stijnen et al., 2010). This
 #' method is available (argument \code{method = "GLMM"}) by calling
 #' the \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally. As a technical note, a warning
-#' "Cannot invert Hessian for saturated model" is printed using R
-#' package \bold{metafor}, version 2.0-0. This warning can be safely
-#' ignored as the inverted Hessian is only used in the calculation of
-#' a Wald-type test of heterogeneity which is not printed due to the
-#' estimation problem.
+#' \bold{metafor} internally.
 #' 
 #' If the summary measure is equal to "IR" or "IRLN", a continuity
 #' correction is applied if any study has zero events, i.e., an
