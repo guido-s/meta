@@ -6263,7 +6263,7 @@ forest.meta <- function(x,
           stop("Length of argument 'digits.addcols.right' must be one or same as number of additional columms in argument 'rightcols'.")
       }
       else
-        just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
+        digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
     ##
     if (by) {
       for (i in seq(along = rightcols.new)) {
