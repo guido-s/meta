@@ -25,12 +25,21 @@
   * summary.meta():
     - consider argument 'bylab'
 
+  * metaprop():
+    - allow values 0 and 1 for argument 'null.effect'
+
  ** User-visible changes **
 
   * forest.meta():
     - new arguments 'lower.equi', 'upper.equi', 'lty.equi',
       'col.equi', and 'fill.equi' to add equivalence limits
     - new argument 'fontfamily' to specify the font family
+
+ ** Internal changes **
+
+  * ciAgrestiCoull():
+    - set lower confidence limit to 0 for negative values
+    - set upper confidence limit to 1 for values above 1
 
 
 *** meta, version 4.9-5, 2019-04-11 ***

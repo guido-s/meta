@@ -727,7 +727,7 @@ metaprop <- function(event, n, studlab,
   chklevel(level.predict)
   ##
   if (!anyNA(null.effect) | length(null.effect) != 1)
-    chklevel(null.effect, name = "null.effect")
+    chknumeric(null.effect, min = 0, max = 1, single = TRUE)
   ##
   method.bias <- setchar(method.bias,
                          c("rank", "linreg", "mm", "count", "score", "peters"))
