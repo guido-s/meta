@@ -38,4 +38,4 @@
 #'         sm = "OR", comb.random = FALSE)
 
 
-"Fleiss93"
+NULL

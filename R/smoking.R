@@ -5,16 +5,18 @@
 #' 
 #' @details
 #' Data have been reconstructed based on the famous Smoking and Health
-#' Report to the Surgeon General (Bayne-Jones S et al., 1964).  Data
+#' Report to the Surgeon General (Bayne-Jones S et al., 1964). Data
 #' sets can be used to evaluate the risk of smoking on overall
-#' mortality and lung-cancer deaths, respectively. The person time is
-#' attributed such that the rate ratios are equal to the reported
-#' mortality ratios implicitely assuming that the data have arisen
-#' from a homogeneous age group; more detailed information by age is
-#' not available from the report. Note, the group of "non-smokers"
-#' actually consists of all participants except those who are smokers
-#' of cigarettes only. Information on real non-smokers is not
-#' available from the published Smoking and Health Report.
+#' mortality (dataset \code{smoking}) and lung-cancer deaths (dataset
+#' \code{lungcancer}), respectively.
+#'
+#' The person time is attributed such that the rate ratios are equal
+#' to the reported mortality ratios implicitly assuming that the data
+#' have arisen from a homogeneous age group; more detailed information
+#' by age is not available from the report. Note, the group of
+#' "non-smokers" actually consists of all participants except those
+#' who are smokers of cigarettes only. Information on real non-smokers
+#' is not available from the published Smoking and Health Report.
 #' 
 #' @name smoking
 #' 
@@ -63,4 +65,4 @@
 #' print(m2, digits = 2)
 
 
-"smoking"
+NULL

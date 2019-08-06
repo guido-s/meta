@@ -21,9 +21,6 @@ trials with binary outcome.
 \emph{Statistics in Medicine},
 \bold{20}, 3875--89
 }
-\usage{
-cisapride
-}
 \description{
 Meta-analysis on cisapride in non-ulcer dispepsia.
 

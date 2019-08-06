@@ -71,4 +71,4 @@
 #' res.or
 
 
-"cisapride"
+NULL

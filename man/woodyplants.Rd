@@ -24,9 +24,6 @@
 \source{
 Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
 }
-\usage{
-woodyplants
-}
 \description{
 Meta-analysis on effects of elevated CO_2 on total biomass of woody
 plants

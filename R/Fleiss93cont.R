@@ -43,4 +43,4 @@
 #'          comb.random = FALSE)
 
 
-"Fleiss93cont"
+NULL

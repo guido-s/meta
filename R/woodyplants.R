@@ -65,4 +65,4 @@
 #' summary(m3, prediction = TRUE)
 
 
-"woodyplants"
+NULL

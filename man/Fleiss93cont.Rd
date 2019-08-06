@@ -23,9 +23,6 @@ The statistical basis of meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{2}, 121--45
 }
-\usage{
-Fleiss93cont
-}
 \description{
 Meta-analysis on the Effect of Mental Health Treatment on Medical
 Utilisation.

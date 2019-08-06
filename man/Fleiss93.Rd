@@ -19,9 +19,6 @@ The statistical basis of meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{2}, 121--45
 }
-\usage{
-Fleiss93
-}
 \description{
 Meta-analysis on aspirin in preventing death after myocardial
 infarction.

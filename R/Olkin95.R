@@ -32,4 +32,4 @@
 #' summary(metabin(event.e, n.e, event.c, n.c, data = Olkin95))
 
 
-"Olkin95"
+NULL

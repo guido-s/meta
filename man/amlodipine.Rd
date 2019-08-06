@@ -23,9 +23,6 @@ normally distributed responses.
 \emph{Statistics in Medicine},
 \bold{20}, 1771--82
 }
-\usage{
-amlodipine
-}
 \description{
 Meta-analysis on the effect of amlodipine on work capacity.
 

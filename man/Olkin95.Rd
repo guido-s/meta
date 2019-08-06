@@ -21,9 +21,6 @@ Statistical and theoretical considerations in meta-analysis.
 \emph{Journal of Clinical Epidemiology},
 \bold{48}, 133--46
 }
-\usage{
-Olkin95
-}
 \description{
 Meta-analysis on Thrombolytic Therapy after Acute Myocardial Infarction
 }
