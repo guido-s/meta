@@ -175,6 +175,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              ##
                              Q.w = m.i$Q,
                              df.Q.w = m.i$df.Q,
+                             pval.Q.w = m.i$pval.Q,
                              ##
                              tau.w = m.i$tau,
                              H.w = m.i$H,

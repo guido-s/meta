@@ -194,8 +194,9 @@
 #'   effect.
 #' @param col.label.left The colour for label on left side of null
 #'   effect.
-#' @param hetstat A logical value indicating whether to print results
-#'   for heterogeneity measures at all.
+#' @param hetstat Either a logical value indicating whether to print
+#'   results for heterogeneity measures at all or a character string
+#'   (see Details).
 #' @param overall.hetstat A logical value indicating whether to print
 #'   heterogeneity measures for overall treatment comparisons. This
 #'   argument is useful in a meta-analysis with subgroups if
@@ -692,6 +693,18 @@
 #' graphical presentation of prediction intervals the approach by
 #' Guddat et al. (2012) is used.
 #' 
+#' Argument \code{hetstat} can be a character string to specify where
+#' to print heterogeneity information:
+#' \itemize{
+#' \item row with results for fixed effect model (\code{hetstat =
+#' "fixed"}),
+#' \item row with results for random effects model (\code{hetstat =
+#' "random"}),
+#' \item rows with 'study' information (\code{hetstat = "study"}) -
+#'   only considered for \code{\link{metabind}} objects.
+#' }
+#' Otherwise, information on heterogeneity is printed in dedicated rows.
+#' 
 #' Note, in R package \bold{meta}, version 3.0-0 the following
 #' arguments have been removed from R function forest.meta: byvar,
 #' level, level.comb, level.predict. This functionality is now
@@ -900,6 +913,7 @@ forest.metabind <- function(x,
                             ##
                             overall = FALSE,
                             subgroup = FALSE,
+                            hetstat = if (any(x$is.subgroup)) FALSE else "study",
                             overall.hetstat = FALSE,
                             ##
                             lab.NA = "",
@@ -959,6 +973,7 @@ forest.metabind <- function(x,
   if (!is.na(idx) && length(idx) > 0)
     stop("Argument 'comb.random' cannot be used with metabind objects.")
   
+  x$k.w.orig <- x$k.w
   
   x$k.w <- x$k.all.w <- as.vector(table(x$data$name)[unique(x$data$name)])
   
@@ -1020,28 +1035,6 @@ forest.metabind <- function(x,
   ##
   ## Round and round ...
   ##
-  x$TE <- round(x$TE, digits)
-  x$TE.fixed <- round(x$TE.fixed, digits)
-  x$TE.random <- round(x$TE.random, digits)
-  if (!is.null(x$byvar)) {
-    x$TE.fixed.w <- round(x$TE.fixed.w, digits)
-    x$TE.random.w <- round(x$TE.random.w, digits)
-  }
-  ##
-  x$lower <- round(x$lower, digits)
-  x$lower.fixed <- round(x$lower.fixed, digits)
-  x$lower.random <- round(x$lower.random, digits)
-  x$lower.predict <- round(x$lower.predict, digits)
-  ##
-  x$upper <- round(x$upper, digits)
-  x$upper.fixed <- round(x$upper.fixed, digits)
-  x$upper.random <- round(x$upper.random, digits)
-  x$upper.predict <- round(x$upper.predict, digits)
-  ##
-  x$seTE <- round(x$seTE, digits.se)
-  ##
-  x$zval <- round(x$zval, digits.zval)
-  ##
   if (any(x$is.subgroup)) {
     x$data$Q.b <- round(x$data$Q.b, digits.Q)
     x$data$pval.Q.b <- formatPT(x$data$pval.Q.b,
@@ -1051,8 +1044,6 @@ forest.metabind <- function(x,
                                 lab.NA = lab.NA)
     x$data$pval.Q.b <- rmSpace(x$data$pval.Q.b)
   }
-  ##
-  x$Q <- round(x$Q, digits.Q)
   ##
   x$data$tau2 <- formatPT(x$data$tau2, digits = digits.tau2,
                           big.mark = big.mark,
@@ -1095,14 +1086,14 @@ forest.metabind <- function(x,
                    ")", sep = "")
   
   
-  class(x) <- "meta"
+  class(x) <- c("meta", "is.metabind")
   
   
   forest(x,
          leftcols = leftcols, leftlabs = leftlabs,
          rightcols = rightcols, rightlabs = rightlabs,
-         overall = overall, subgroup = subgroup, overall.hetstat = overall.hetstat,
-         hetstat = FALSE,
+         overall = overall, subgroup = subgroup,
+         hetstat = hetstat, overall.hetstat = overall.hetstat,
          lab.NA = lab.NA, smlab = smlab,
          ##
          digits = digits,
@@ -1228,10 +1219,13 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat = print.I2 | print.tau2 | print.Q | print.pval.Q | print.Rb,
-                        overall.hetstat = overall & hetstat,
+                        hetstat = print.I2 | print.tau2 | print.Q |
+                          print.pval.Q | print.Rb,
+                        overall.hetstat = overall &
+                          (!is.character(hetstat) && hetstat),
                         hetlab = "Heterogeneity: ",
-                        resid.hetstat = overall & hetstat,
+                        resid.hetstat = overall &
+                          (is.character(hetstat) || hetstat),
                         resid.hetlab = "Residual heterogeneity: ",
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
@@ -1382,6 +1376,7 @@ forest.meta <- function(x,
   metainc <- inherits(x, "metainc")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
+  metabind <- inherits(x, "is.metabind")
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   
@@ -1532,7 +1527,19 @@ forest.meta <- function(x,
   else if (text.subgroup.nohet)
     text.subgroup.nohet <- "not applicable"
   chklogical(print.zval)
-  chklogical(hetstat)
+  ##
+  hetstat.pooled <- ""
+  if (is.character(hetstat)) {
+    hetstat.pooled <- setchar(hetstat, c("fixed", "random", "study"))
+    if (!metabind & hetstat.pooled == "study") {
+      warning("Argument 'hetstat = \"study\"' ",
+              "only considered for 'metabind' objects.")
+      hetstat <- print.I2 | print.tau2 | print.Q | print.pval.Q | print.Rb
+    }
+  }
+  else
+    chklogical(hetstat)
+  ##
   chklogical(overall.hetstat)
   chkchar(hetlab)
   chklogical(resid.hetstat)
@@ -2825,7 +2832,7 @@ forest.meta <- function(x,
   ##
   hetstat.overall <- ""
   ##
-  if (overall.hetstat) {
+  if (overall.hetstat || is.character(hetstat)) {
     ##
     hetstat.I2 <-
       paste(hetseparator,
@@ -3893,8 +3900,11 @@ forest.meta <- function(x,
   ##
   ##
   if (by) {
+    k.w.hetstat <- if (metabind) x$k.w.orig else x$k.w
+    ##
     o <- order(factor(x$bylevs, levels = bylevs))
     k.w <- x$k.w[o]
+    k.w.hetstat <- k.w.hetstat[o]
     TE.fixed.w <- x$TE.fixed.w[o]
     lower.fixed.w <- x$lower.fixed.w[o]
     upper.fixed.w <- x$upper.fixed.w[o]
@@ -4018,16 +4028,14 @@ forest.meta <- function(x,
     }
     ##
     hetstat.w <- vector("list", n.by)
-    for (i in 1:n.by)
-      hetstat.w[[i]] <- ""
     ##
-    if (hetstat) {
+    if (is.character(hetstat) || hetstat) {
       ##
       hetstat.I2.w <-
         paste(hetseparator,
               round(100 * I2.w, digits.I2), "%",
               if (print.I2.ci)
-                ifelse(k.w > 2,
+                ifelse(k.w.hetstat > 2,
                        paste(" ",
                              formatCI(paste(round(100 * lowI2.w, digits.I2), "%", sep = ""),
                                       paste(round(100 * uppI2.w, digits.I2), "%", sep = "")),
@@ -4048,11 +4056,11 @@ forest.meta <- function(x,
               round(Q.w, digits.Q),
               if (revman5) ", df",
               if (revman5) hetseparator,
-              if (revman5) k.w - 1,
+              if (revman5) k.w.hetstat - 1,
               sep = "")
       ##
       hetstat.pval.Q.w <-
-        paste(formatPT(pvalQ(Q.w, k.w - 1),
+        paste(formatPT(replaceNULL(x$pval.Q.w, pvalQ(x$Q.w, x$df.Q.w)),
                        lab = TRUE, labval = "",
                        digits = digits.pval.Q,
                        zero = zero.pval,
@@ -4064,7 +4072,7 @@ forest.meta <- function(x,
         paste(hetseparator,
               round(100 * Rb.w, digits.I2), "%",
               if (print.Rb.ci)
-                ifelse(k.w > 2,
+                ifelse(k.w.hetstat > 2,
                        paste(" ",
                              formatCI(paste(round(100 * lowRb.w, digits.I2), "%", sep = ""),
                                       paste(round(100 * uppRb.w, digits.I2), "%", sep = "")),
@@ -4113,7 +4121,7 @@ forest.meta <- function(x,
                                             hi = hetstat.I2.w[i],
                                             hq = hetstat.Q.w[i],
                                             hp = hetstat.pval.Q.w[i],
-                                            df = k.w[i] - 1))
+                                            df = k.w.hetstat[i] - 1))
         else {
           ##
           ## One
@@ -4129,7 +4137,7 @@ forest.meta <- function(x,
           else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w[i] - 1, hq = hetstat.Q.w[i]))
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1, hq = hetstat.Q.w[i]))
           else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(p), hp),
@@ -4174,7 +4182,7 @@ forest.meta <- function(x,
               substitute(paste(hl, tau^2, ht,
                                ", ",
                                chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               ht = hetstat.tau2.w[i], hq = hetstat.Q.w[i]))
           else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
             hetstat.w[[i]] <-
@@ -4195,14 +4203,14 @@ forest.meta <- function(x,
               substitute(paste(hl, chi[df]^2, hq,
                                " (",
                                italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, chi[df]^2, hq,
                                ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hetstat.Rb.w[i]))
           else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
             hetstat.w[[i]] <-
@@ -4220,7 +4228,7 @@ forest.meta <- function(x,
                                italic(I)^2, hi, ", ",
                                tau^2, ht, ", ",
                                chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i]))
           else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
@@ -4238,7 +4246,7 @@ forest.meta <- function(x,
                                italic(I)^2, hi, ", ",
                                chi[df]^2, hq,
                                " (", italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
@@ -4247,7 +4255,7 @@ forest.meta <- function(x,
                                tau^2, ht, ", ",
                                chi[df]^2, hq,
                                " (", italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
@@ -4265,7 +4273,7 @@ forest.meta <- function(x,
                                italic(I)^2, hi, ", ",
                                chi[df]^2, hq, ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i],
                               hq = hetstat.Q.w[i],
                               hetstat.Rb.w[i]))
@@ -4275,7 +4283,7 @@ forest.meta <- function(x,
                                tau^2, ht, ", ",
                                chi[df]^2, hq, ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i],
                               hetstat.Rb.w[i]))
@@ -4305,7 +4313,7 @@ forest.meta <- function(x,
                                " (", italic(p), hp, ")",
                                ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                               hetstat.Rb.w[i]))      
           ##
@@ -4318,7 +4326,7 @@ forest.meta <- function(x,
                                tau^2, ht, ", ",
                                chi[df]^2, hq,
                                " (", italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
@@ -4328,7 +4336,7 @@ forest.meta <- function(x,
                                tau^2, ht, ", ",
                                chi[df]^2, hq, ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hetstat.Rb.w[i]))
           else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
@@ -4349,7 +4357,7 @@ forest.meta <- function(x,
                                " (", italic(p), hp, ")",
                                ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                               hetstat.Rb.w[i]))
@@ -4361,7 +4369,7 @@ forest.meta <- function(x,
                                " (", italic(p), hp, ")",
                                ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                               hetstat.Rb.w[i]))
@@ -4377,12 +4385,13 @@ forest.meta <- function(x,
                                " (", italic(p), hp, ")",
                                ", ",
                                italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w[i] - 1,
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                               hetstat.Rb.w[i]))
         }
-        if (!is.logical(text.subgroup.nohet) & k.w[i] < 2)
+        if (hetstat.pooled != "study" &
+            !is.logical(text.subgroup.nohet) & k.w.hetstat[i] < 2)
           hetstat.w[[i]] <- paste(hetlab, text.subgroup.nohet, sep = "")
       }
     }
@@ -4512,7 +4521,7 @@ forest.meta <- function(x,
                                                                    hetseparator = hetseparator,
                                                                    tt = zvals.effect.w[n.by + i],
                                                                    tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w - 1))
+                                                                   df = k.w.hetstat - 1))
             else if (jama)
               text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
                                                                     italic(t)[df], hetseparator, tt,
@@ -4521,7 +4530,7 @@ forest.meta <- function(x,
                                                                    hetseparator = hetseparator,
                                                                    tt = zvals.effect.w[n.by + i],
                                                                    tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w - 1))
+                                                                   df = k.w.hetstat - 1))
             else
               text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
                                                                     italic(t)[df], hetseparator, tt,
@@ -4530,7 +4539,7 @@ forest.meta <- function(x,
                                                                    hetseparator = hetseparator,
                                                                    tt = zvals.effect.w[n.by + i],
                                                                    tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w - 1))
+                                                                   df = k.w.hetstat - 1))
           }
         }
         else {
@@ -5211,6 +5220,21 @@ forest.meta <- function(x,
     if (length(text.random.w) == 1 & n.by > 1)
       text.random.w <- rep(text.random.w, n.by)
     ##
+    if (hetstat.pooled == "fixed") {
+      text.fixed <- hetstat.overall
+      text.fixed.w <- hetstat.w
+      hetstat <- FALSE
+    }
+    else if (hetstat.pooled == "random") {
+      text.random <- hetstat.overall
+      text.random.w <- hetstat.w
+      hetstat <- FALSE
+    }
+    else if (hetstat.pooled == "study") {
+      studlab <- hetstat.w
+      hetstat <- FALSE
+    }
+    ##
     modlabs <- c(text.fixed, text.random, text.predict,
                  hetstat.overall, hetstat.resid,
                  text.overall.fixed, text.overall.random,
@@ -5285,6 +5309,12 @@ forest.meta <- function(x,
                            rep(NA, 3 * n.by))
   }
   else {
+    ##
+    if (hetstat.pooled == "fixed")
+      text.fixed <- hetstat.overall
+    else if (hetstat.pooled == "random")
+      text.random <- hetstat.overall
+    ##
     modlabs <- c(text.fixed, text.random, text.predict,
                  hetstat.overall, hetstat.resid,
                  text.overall.fixed, text.overall.random,
@@ -5687,7 +5717,7 @@ forest.meta <- function(x,
       ##
       ## Heterogeneity statistics
       ##
-      if (hetstat) {
+      if (is.character(hetstat) || hetstat) {
         yTE.w.hetstat[i] <- j
         j <- j + 1
       }
@@ -5975,7 +6005,7 @@ forest.meta <- function(x,
   col.studlab$labels[[3]] <- tg(text.random, xpos.s, just.s,
                                 fs.random.labels, ff.random.labels, fontfamily)
   ## Prediction interval:
-  col.studlab$labels[[4]] <- tg(text.predict,xpos.s, just.s,
+  col.studlab$labels[[4]] <- tg(text.predict, xpos.s, just.s,
                                 fs.predict.labels, ff.predict.labels,
                                 fontfamily)
   ## Heterogeneity statistics:
@@ -6007,11 +6037,11 @@ forest.meta <- function(x,
            fs.head, ff.head, fontfamily, col.by)
       ## Fixed effect estimates:
       col.studlab$labels[[n.summaries + n.by + i]] <-
-        tg(text.fixed.w[i], xpos.s, just.s,
+        tg(text.fixed.w[[i]], xpos.s, just.s,
            fs.fixed.labels, ff.fixed.labels, fontfamily, col.by)
       ## Random effects estimates:
       col.studlab$labels[[n.summaries + 2 * n.by + i]] <-
-        tg(text.random.w[i], xpos.s, just.s,
+        tg(text.random.w[[i]], xpos.s, just.s,
            fs.random.labels, ff.random.labels, fontfamily, col.by)
       ## Heterogeneity statistics:
       col.studlab$labels[[n.summaries + 3 * n.by + i]] <-

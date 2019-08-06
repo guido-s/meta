@@ -2,7 +2,7 @@
 #' 
 #' @description
 #' Calculation of an overall mean from studies reporting a single mean
-#' using the inverse varinace method for pooling; inverse variance
+#' using the inverse variance method for pooling; inverse variance
 #' weighting is used for pooling.
 #' 
 #' @param n Number of observations.

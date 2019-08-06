@@ -9,8 +9,9 @@
 forest(x, ...)
 
 \method{forest}{metabind}(x, leftcols, leftlabs, rightcols = c("effect",
-  "ci"), rightlabs, overall = FALSE, subgroup = FALSE,
-  overall.hetstat = FALSE, lab.NA = "", digits = gs("digits.forest"),
+  "ci"), rightlabs, overall = FALSE, subgroup = FALSE, hetstat = if
+  (any(x$is.subgroup)) FALSE else "study", overall.hetstat = FALSE,
+  lab.NA = "", digits = gs("digits.forest"),
   digits.se = gs("digits.se"), digits.zval = gs("digits.zval"),
   digits.pval = max(gs("digits.pval") - 2, 2),
   digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
@@ -55,8 +56,9 @@ forest(x, ...)
   col.predict = "red", col.predict.lines = "black",
   col.by = "darkgray", col.label.right = "black",
   col.label.left = "black", hetstat = print.I2 | print.tau2 | print.Q |
-  print.pval.Q | print.Rb, overall.hetstat = overall & hetstat,
-  hetlab = "Heterogeneity: ", resid.hetstat = overall & hetstat,
+  print.pval.Q | print.Rb, overall.hetstat = overall &
+  (!is.character(hetstat) && hetstat), hetlab = "Heterogeneity: ",
+  resid.hetstat = overall & (is.character(hetstat) || hetstat),
   resid.hetlab = "Residual heterogeneity: ", print.I2 = comb.fixed |
   comb.random, print.I2.ci = FALSE, print.tau2 = comb.fixed |
   comb.random, print.Q = FALSE, print.pval.Q = comb.fixed |
@@ -137,6 +139,10 @@ level.}
 should be shown in forest plot. This argument is useful in a
 meta-analysis with subgroups if summaries should not be plotted
 on group level.}
+
+\item{hetstat}{Either a logical value indicating whether to print
+results for heterogeneity measures at all or a character string
+(see Details).}
 
 \item{overall.hetstat}{A logical value indicating whether to print
 heterogeneity measures for overall treatment comparisons. This
@@ -417,9 +423,6 @@ effect.}
 
 \item{col.label.left}{The colour for label on left side of null
 effect.}
-
-\item{hetstat}{A logical value indicating whether to print results
-for heterogeneity measures at all.}
 
 \item{hetlab}{Label printed in front of results for heterogeneity
 measures.}
@@ -995,6 +998,18 @@ et al., 2009) is given in the forest plot if arguments
 \code{prediction} and \code{comb.random} are \code{TRUE}. For
 graphical presentation of prediction intervals the approach by
 Guddat et al. (2012) is used.
+
+Argument \code{hetstat} can be a character string to specify where
+to print heterogeneity information:
+\itemize{
+\item row with results for fixed effect model (\code{hetstat =
+"fixed"}),
+\item row with results for random effects model (\code{hetstat =
+"random"}),
+\item rows with 'study' information (\code{hetstat = "study"}) -
+  only considered for \code{\link{metabind}} objects.
+}
+Otherwise, information on heterogeneity is printed in dedicated rows.
 
 Note, in R package \bold{meta}, version 3.0-0 the following
 arguments have been removed from R function forest.meta: byvar,

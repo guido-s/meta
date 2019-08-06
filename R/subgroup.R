@@ -341,6 +341,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               k.w = k.w,
               k.all.w = k.all.w,
               Q.w = Q.w,
+              pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
               tau.w = tau.w,
               C.w = C.w,
