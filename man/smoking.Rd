@@ -32,8 +32,8 @@ Meta-analyses on the effect of smoking on mortality risk.
 Data have been reconstructed based on the famous Smoking and Health
 Report to the Surgeon General (Bayne-Jones S et al., 1964). Data
 sets can be used to evaluate the risk of smoking on overall
-mortality (dataset smoking) and lung-cancer deaths (dataset
-lungcancer), respectively.
+mortality (dataset \code{smoking}) and lung-cancer deaths (dataset
+\code{lungcancer}), respectively.
 
 The person time is attributed such that the rate ratios are equal
 to the reported mortality ratios implicitly assuming that the data
