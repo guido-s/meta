@@ -21,9 +21,8 @@
 #'   used for pooling of studies. One of \code{"Inverse"} and
 #'   \code{"GLMM"}, can be abbreviated.
 #' @param sm A character string indicating which summary measure
-#'   (\code{"PFT"}, \code{"PAS"}, \code{"PRAW"}, \code{"PLN"}, or
-#'   \code{"PLOGIT"}) is to be used for pooling of studies, see
-#'   Details.
+#'   (\code{"PLOGIT"}, \code{"PAS"}, \code{"PFT"}, \code{"PLN"}, or
+#'   \code{"PRAW"}) is to be used for pooling of studies, see Details.
 #' @param incr A numeric which is added to event number and sample
 #'   size of studies with zero or all events, i.e., studies with an
 #'   event probability of either 0 or 1.
@@ -109,29 +108,27 @@
 #' 
 #' \itemize{
 #' \item Logit transformation (\code{sm = "PLOGIT"}, default)
-#' \item Log transformation (\code{sm = "PLN"})
-#' \item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
 #' \item Arcsine transformation (\code{sm = "PAS"})
+#' \item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
+#' \item Log transformation (\code{sm = "PLN"})
 #' \item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
 #' }
 #'
 #' Classic meta-analysis (Borenstein et al., 2010) utilises the
-#' transformed proportions and corresponding standard errors in the
-#' generic inverse variance method. A distinctive and frequently
+#' (un)transformed proportions and corresponding standard errors in
+#' the generic inverse variance method. A distinctive and frequently
 #' overlooked advantage of binary data is that individual patient data
 #' can be extracted. Accordingly, a generalised linear mixed model
 #' (GLMM) - more specific, a random intercept logistic regression
 #' model - can be utilised for the meta-analysis of proportions
 #' (Stijnen et al., 2010). This method - implicitly using the logit
-#' transformation - is available (argument \code{method = "GLMM"}) by
-#' calling the \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally.
+#' transformation - is the default (argument \code{method = "GLMM"})
+#' by calling the \code{\link[metafor]{rma.glmm}} function from R
+#' package \bold{metafor} internally.
 #'
-#' For the logit transformation, a random intercept logistic
-#' regression model is used by default, i.e., argument \code{method =
-#' "GLMM"}. The classic meta-analysis model based on the inverse
-#' variance method can be used instead by setting argument
-#' \code{method} equal to \code{"Inverse"}.
+#' The classic meta-analysis model with logit transformed proportions
+#' based on the inverse variance method can be used by setting
+#' argument \code{method = "Inverse"}.
 #'
 #' Contradictory recommendations on the use of transformations of
 #' proportions have been published in the literature. For example,
@@ -147,7 +144,8 @@
 #' GLMMs for the meta-analysis of single proportions, however, admit
 #' that individual study weights are not available with this
 #' method. Meta-analysts which require individual study weights should
-#' consider the arcsine or logit transformation.
+#' consider the inverse variance method with the arcsine or logit
+#' transformation.
 #'
 #' In order to prevent misleading conclusions for the Freeman-Tukey
 #' double arcsine transformation, sensitivity analyses using other
@@ -176,7 +174,7 @@
 #' confidence interval is calculated for individual studies for any
 #' summary measure (argument \code{sm}) as only number of events and
 #' observations are used in the calculation disregarding the chosen
-#' summary measure. Results will be presented for transformed
+#' transformation. Results will be presented for transformed
 #' proportions if argument \code{backtransf = FALSE} in the
 #' \code{\link{print.meta}}, \code{\link{print.summary.meta}}, or
 #' \code{\link{forest.meta}} function. In this case, argument
@@ -203,7 +201,7 @@
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{comb.random = FALSE}.
 #' 
-#' If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
+#' If the summary measure is equal to "PLOGIT", "PLN", or "PRAW", a
 #' continuity correction is applied if any study has either zero or
 #' all events, i.e., an event probability of either 0 or 1. By
 #' default, 0.5 is used as continuity correction (argument
@@ -213,13 +211,17 @@
 #' continuity correction is used.
 #' 
 #' Argument \code{byvar} can be used to conduct subgroup analysis for
-#' all methods but GLMMs. Instead use the \code{\link{metareg}}
-#' function for GLMMs which can also be used for continuous
+#' a categorical covariate. The \code{\link{metareg}} function can be
+#' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' 
-#' A prediction interval for the treatment effect of a new study is
-#' calculated (Higgins et al., 2009) if arguments \code{prediction}
-#' and \code{comb.random} are \code{TRUE}.
+#' A prediction interval for the proportion in a new study (Higgins et
+#' al., 2009) is calculated if arguments \code{prediction} and
+#' \code{comb.random} are \code{TRUE}. Note, the definition of
+#' prediction intervals varies in the literature. This function
+#' implements equation (12) of Higgins et al., (2009) which proposed a
+#' \emph{t} distribution with \emph{K-2} degrees of freedom where
+#' \emph{K} corresponds to the number of studies in the meta-analysis.
 #' 
 #' R function \code{\link{update.meta}} can be used to redo the
 #' meta-analysis of an existing metaprop object by only specifying
@@ -229,18 +231,12 @@
 #' used to adjust test statistics and confidence intervals if argument
 #' \code{hakn = TRUE}.
 #' 
-#' The DerSimonian-Laird estimate (1986) is used in the random effects
-#' model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-#' method (1982) to estimate the between-study variance is used if
-#' argument \code{method.tau = "PM"}.  Internally, R function
-#' \code{paulemandel} is called which is based on R function
-#' mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-#' <s.ellison at lgc.co.uk>.
-#' 
-#' If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-#' following methods to estimate the between-study variance
-#' \eqn{\tau^2} (argument \code{method.tau}) are also available:
+#' The following methods to estimate the between-study variance
+#' \eqn{\tau^2} (argument \code{method.tau}) are available for the
+#' inverse variance method:
 #' \itemize{
+#' \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+#' \item Paule-Mandel estimator (\code{method.tau = "PM"})
 #' \item Restricted maximum-likelihood estimator (\code{method.tau =
 #'   "REML"})
 #' \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -249,10 +245,9 @@
 #' \item Hedges estimator (\code{method.tau = "HE"})
 #' \item Empirical Bayes estimator (\code{method.tau = "EB"})
 #' }
-#' For these methods the R function \code{rma.uni} of R package
-#' \bold{metafor} is called internally. See help page of R function
-#' \code{rma.uni} for more details on these methods to estimate
-#' between-study variance.
+#' See \code{\link{metagen}} for more information on these
+#' estimators. Note, the maximum-likelihood method is utilized for
+#' GLMMs.
 #' 
 #' @return
 #' An object of class \code{c("metaprop", "meta")} with corresponding
@@ -867,7 +862,7 @@ metaprop <- function(event, n, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##  
+  ##
   if (by) {
     chkmiss(byvar)
     byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
@@ -916,7 +911,7 @@ metaprop <- function(event, n, studlab,
   ##
   if (!missing.subset) {
     event <- event[subset]
-    n   <- n[subset]
+    n <- n[subset]
     studlab <- studlab[subset]
     ##
     exclude <- exclude[subset]
@@ -963,11 +958,11 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   sel <- switch(sm,
-                PFT = rep(FALSE, length(event)),
+                PLOGIT = event == 0 | (n - event) == 0,
                 PAS = rep(FALSE, length(event)),
-                PRAW =   event == 0 | (n - event) == 0,
+                PFT = rep(FALSE, length(event)),
                 PLN =    event == 0 | (n - event) == 0,
-                PLOGIT = event == 0 | (n - event) == 0)
+                PRAW =   event == 0 | (n - event) == 0)
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
@@ -984,21 +979,21 @@ metaprop <- function(event, n, studlab,
   else
     incr.event <- rep(0, k.all)
   ##  
-  if (sm == "PFT") {
-    TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
-    seTE <- sqrt(1 / (4 * n + 2))
-    transf.null.effect <- asin(sqrt(null.effect))
+  if (sm == "PLOGIT") {
+    TE <- log((event + incr.event) / (n - event + incr.event))
+    seTE <- sqrt(1 / (event + incr.event) +
+                 1 / ((n - event + incr.event)))
+    transf.null.effect <- log(null.effect / (1 - null.effect))
   }
   else if (sm == "PAS") {
     TE <- asin(sqrt(event / n))
     seTE <- sqrt(0.25 * (1 / n))
     transf.null.effect <- asin(sqrt(null.effect))
   }
-  else if (sm == "PRAW") {
-    TE <- event / n
-    seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
-                 (n + 2 * incr.event)^3)
-    transf.null.effect <- null.effect
+  else if (sm == "PFT") {
+    TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
+    seTE <- sqrt(1 / (4 * n + 2))
+    transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
@@ -1009,11 +1004,11 @@ metaprop <- function(event, n, studlab,
                    )
     transf.null.effect <- log(null.effect)
   }
-  else if (sm == "PLOGIT") {
-    TE <- log((event + incr.event) / (n - event + incr.event))
-    seTE <- sqrt(1 / (event + incr.event) +
-                 1 / ((n - event + incr.event)))
-    transf.null.effect <- log(null.effect / (1 - null.effect))
+  else if (sm == "PRAW") {
+    TE <- event / n
+    seTE <- sqrt((event + incr.event) * (n - event + incr.event) /
+                 (n + 2 * incr.event)^3)
+    transf.null.effect <- null.effect
   }
   ##
   ## Calculate confidence intervals
@@ -1060,12 +1055,7 @@ metaprop <- function(event, n, studlab,
   }
   ##  
   if (method.ci == "NAsm") {
-    if (sm == "PLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
-    }
-    ##
-    else if (sm == "PLOGIT") {
+    if (sm == "PLOGIT") {
       lower.study <- logit2p(lower.study)
       upper.study <- logit2p(upper.study)
     }
@@ -1078,6 +1068,11 @@ metaprop <- function(event, n, studlab,
     else if (sm == "PFT") {
       lower.study <- asin2p(lower.study, n, value = "lower", warn = FALSE)
       upper.study <- asin2p(upper.study, n, value = "upper", warn = FALSE)
+    }
+    ##
+    else if (sm == "PLN") {
+      lower.study <- exp(lower.study)
+      upper.study <- exp(upper.study)
     }
     ##
     lower.study[lower.study < 0] <- 0
@@ -1135,7 +1130,7 @@ metaprop <- function(event, n, studlab,
                ##
                control = control)
   ##
-  if (method != "GLMM" & by & tau.common) {
+  if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, TE.tau,
                    level.comb, byvar, control)
@@ -1299,14 +1294,7 @@ metaprop <- function(event, n, studlab,
       res$H.resid <- ci.H.resid$TE
       res$lower.H.resid <- ci.H.resid$lower
       res$upper.H.resid <- ci.H.resid$upper
-    }
-    else {
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
+      ##
       ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
       res$I2.resid <- ci.I2.resid$TE
@@ -1314,9 +1302,28 @@ metaprop <- function(event, n, studlab,
       res$upper.I2.resid <- ci.I2.resid$upper
     }
     else {
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
+      if (is.glmm) {
+        ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
+        ##
+        res$H.resid <- ci.H.resid$TE
+        res$lower.H.resid <- ci.H.resid$lower
+        res$upper.H.resid <- ci.H.resid$upper
+        ##
+        ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
+        ##
+        res$I2.resid <- ci.I2.resid$TE
+        res$lower.I2.resid <- ci.I2.resid$lower
+        res$upper.I2.resid <- ci.I2.resid$upper
+      }
+      else {
+        res$H.resid <- hcc$H.resid
+        res$lower.H.resid <- hcc$lower.H.resid
+        res$upper.H.resid <- hcc$upper.H.resid
+        ##
+        res$I2.resid <- hcc$I2.resid
+        res$lower.I2.resid <- hcc$lower.I2.resid
+        res$upper.I2.resid <- hcc$upper.I2.resid
+      }
     }
     ##
     res$event.e.w <- NULL

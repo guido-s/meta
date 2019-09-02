@@ -438,7 +438,7 @@ meta-analysis with binary outcomes using argument \code{model.glmm}
 }
 
 Details on these four GLMMs as well as additional arguments which
-can be provided using argument '\code{\dots{}}' in \code{metabin}
+can be provided using argument '\code{\dots}' in \code{metabin}
 are described in \code{\link[metafor]{rma.glmm}} where you can also
 find information on the iterative algorithms used for estimation.
 Note, regardless of which value is used for argument
@@ -471,13 +471,17 @@ events is zero in all studies either in the experimental or control
 group.
 
 Argument \code{byvar} can be used to conduct subgroup analysis for
-all methods but GLMMs. Instead use the \code{\link{metareg}}
-function for GLMMs which can also be used for continuous
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
 covariates.
 
-A prediction interval for the treatment effect of a new study is
-calculated (Higgins et al., 2009) if arguments \code{prediction}
-and \code{comb.random} are \code{TRUE}.
+A prediction interval for the proportion in a new study (Higgins et
+al., 2009) is calculated if arguments \code{prediction} and
+\code{comb.random} are \code{TRUE}. Note, the definition of
+prediction intervals varies in the literature. This function
+implements equation (12) of Higgins et al., (2009) which proposed a
+\emph{t} distribution with \emph{K-2} degrees of freedom where
+\emph{K} corresponds to the number of studies in the meta-analysis.
 
 R function \code{\link{update.meta}} can be used to redo the
 meta-analysis of an existing metabin object by only specifying
@@ -489,18 +493,12 @@ used to adjust test statistics and confidence intervals if argument
 Hartung (2003) is implemented, see description of argument
 \code{tdist} in \code{\link[metafor]{rma.glmm}}.
 
-The DerSimonian-Laird estimate (1986) is used in the random effects
-model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-method (1982) to estimate the between-study variance is used if
-argument \code{method.tau = "PM"}. Internally, R function
-\code{paulemandel} is called which is based on R function
-mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-<s.ellison at lgc.co.uk>.
-
-If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are also available:
+The following methods to estimate the between-study variance
+\eqn{\tau^2} (argument \code{method.tau}) are available for the
+inverse variance method:
 \itemize{
+\item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+\item Paule-Mandel estimator (\code{method.tau = "PM"})
 \item Restricted maximum-likelihood estimator (\code{method.tau =
   "REML"})
 \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -509,10 +507,9 @@ following methods to estimate the between-study variance
 \item Hedges estimator (\code{method.tau = "HE"})
 \item Empirical Bayes estimator (\code{method.tau = "EB"})
 }
-For these methods the R function \code{rma.uni} of R package
-\bold{metafor} is called internally. See help page of R function
-\code{rma.uni} for more details on these methods to estimate
-between-study variance.
+See \code{\link{metagen}} for more information on these
+estimators. Note, the maximum-likelihood method is utilized for
+GLMMs.
 }
 \examples{
 # Calculate odds ratio and confidence interval for a single study

@@ -448,9 +448,9 @@ Paule-Mandel estimator in all meta-analyses of the R session:
 \code{settings.meta(method.tau = "PM")}
 
 The DerSimonian-Laird and Paule-Mandel estimators are implemented
-in R package \pkg{meta}. The other estimators are available if R
-package \pkg{metafor} (Viechtbauer 2010) is installed by internally
-calling R function \code{\link[metafor]{rma.uni}}.
+in R package \pkg{meta}. R function \code{\link[metafor]{rma.uni}}
+from R package \pkg{metafor} (Viechtbauer 2010) is called
+internally for the other estimators.
 }
 
 \subsection{Hartung-Knapp method}{

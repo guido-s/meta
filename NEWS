@@ -1,3 +1,24 @@
+*** meta, version 4.9-7, 2019-mm-dd ***
+
+ ** Major changes **
+
+  * Subgroup analysis using argument 'byvar' possible for generalised
+    linear mixed models (GLMMs)
+    
+ ** Bug fixes **
+
+  * metaprop():
+    - no error if argument 'tau.common' is TRUE for GLMM
+
+  * metabin(), metainc(), metarate():
+    - consider argument 'control' in subgroup analysis
+
+ ** User-visible changes **
+
+  * Help pages updated:
+    metabin(), metainc(), metaprop(), and metarate()
+
+
 *** meta, version 4.9-6, 2019-08-06 ***
 
  ** Major changes **

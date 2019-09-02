@@ -302,8 +302,15 @@ linear mixed model (GLMM) are available for pooling. For GLMMs, the
 }
 \details{
 Fixed effect and random effects meta-analysis of single incidence
-rates to calculate an overall rate. The following transformations
-of incidence rates are implemented to calculate an overall rate:
+rates to calculate an overall rate.  Note, you should use R
+function \code{\link{metainc}} to compare incidence rates of
+pairwise comparisons instead of using \code{metarate} for each
+treatment arm separately which will break randomisation in
+randomised controlled trials.
+
+The following transformations of incidence rates are implemented to
+calculate an overall rate:
+
 \itemize{
 \item Log transformation (\code{sm = "IRLN"}, default)
 \item Square root transformation (\code{sm = "IRS"})
@@ -312,10 +319,11 @@ of incidence rates are implemented to calculate an overall rate:
 \item No transformation (\code{sm = "IR"})
 }
 
-Note, you should use R function \code{\link{metainc}} to compare
-incidence rates of pairwise comparisons instead of using
-\code{metarate} for each treatment arm separately which will break
-randomisation in randomised controlled trials.
+A random intercept Poisson regression model can be utilised for the
+meta-analysis of incidence rates (Stijnen et al., 2010). This
+method is available (argument \code{method = "GLMM"}) by calling
+the \code{\link[metafor]{rma.glmm}} function from R package
+\bold{metafor} internally.
 
 Argument \code{irscale} can be used to rescale rates, e.g.
 \code{irscale = 1000} means that rates are expressed as events per
@@ -340,12 +348,6 @@ package \bold{meta} will adequately consider the values for
 \code{\link{print.meta}} will not print results for the random
 effects model if \code{comb.random = FALSE}.
 
-A random intercept Poisson regression model can be utilised for the
-meta-analysis of incidence rates (Stijnen et al., 2010). This
-method is available (argument \code{method = "GLMM"}) by calling
-the \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally.
-
 If the summary measure is equal to "IR" or "IRLN", a continuity
 correction is applied if any study has zero events, i.e., an
 incidence rate of 0. By default, 0.5 is used as continuity
@@ -356,13 +358,17 @@ method. For Freeman-Tukey and square root transformation and GLMMs
 no continuity correction is used.
 
 Argument \code{byvar} can be used to conduct subgroup analysis for
-all methods but GLMMs. Instead use the \code{\link{metareg}}
-function for GLMMs which can also be used for continuous
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
 covariates.
 
-A prediction interval for the treatment effect of a new study is
-calculated (Higgins et al., 2009) if arguments \code{prediction}
-and \code{comb.random} are \code{TRUE}.
+A prediction interval for the proportion in a new study (Higgins et
+al., 2009) is calculated if arguments \code{prediction} and
+\code{comb.random} are \code{TRUE}. Note, the definition of
+prediction intervals varies in the literature. This function
+implements equation (12) of Higgins et al., (2009) which proposed a
+\emph{t} distribution with \emph{K-2} degrees of freedom where
+\emph{K} corresponds to the number of studies in the meta-analysis.
 
 R function \code{\link{update.meta}} can be used to redo the
 meta-analysis of an existing metarate object by only specifying
@@ -372,18 +378,12 @@ For the random effects, the method by Hartung and Knapp (2003) is
 used to adjust test statistics and confidence intervals if argument
 \code{hakn = TRUE}.
 
-The DerSimonian-Laird estimate (1986) is used in the random effects
-model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-method (1982) to estimate the between-study variance is used if
-argument \code{method.tau = "PM"}.  Internally, R function
-\code{paulemandel} is called which is based on R function
-mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-<s.ellison at lgc.co.uk>.
-
-If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are also available:
+The following methods to estimate the between-study variance
+\eqn{\tau^2} (argument \code{method.tau}) are available for the
+inverse variance method:
 \itemize{
+\item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+\item Paule-Mandel estimator (\code{method.tau = "PM"})
 \item Restricted maximum-likelihood estimator (\code{method.tau =
   "REML"})
 \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -392,10 +392,9 @@ following methods to estimate the between-study variance
 \item Hedges estimator (\code{method.tau = "HE"})
 \item Empirical Bayes estimator (\code{method.tau = "EB"})
 }
-For these methods the R function \code{rma.uni} of R package
-\bold{metafor} is called internally. See help page of R function
-\code{rma.uni} for more details on these methods to estimate
-between-study variance.
+See \code{\link{metagen}} for more information on these
+estimators. Note, the maximum-likelihood method is utilized for
+GLMMs.
 }
 \examples{
 # Apply various meta-analysis methods to estimate incidence rates

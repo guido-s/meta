@@ -64,7 +64,7 @@ cell frequency of studies with a zero cell count.}
 cell frequency of all studies irrespective of zero cell counts.}
 
 \item{model.glmm}{A character string indicating which GLMM should
-be used.  One of \code{"UM.FS"}, \code{"UM.RS"}, and
+be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
 \code{"CM.EL"}, see Details.}
 
 \item{level}{The level used to calculate confidence intervals for
@@ -340,8 +340,11 @@ internally.
 \details{
 Treatment estimates and standard errors are calculated for each
 study. The following measures of treatment effect are available:
-\itemize{ \item Incidence Rate Ratio (\code{sm = "IRR"}) \item
-Incidence Rate Difference (\code{sm = "IRD"}) }
+
+\itemize{
+\item Incidence Rate Ratio (\code{sm = "IRR"})
+\item Incidence Rate Difference (\code{sm = "IRD"})
+}
 
 For several arguments defaults settings are utilised (assignments
 using \code{\link{gs}} function). These defaults can be changed
@@ -396,7 +399,7 @@ function):
 }
 
 Details on these three GLMMs as well as additional arguments which
-can be provided using argument '\code{\dots{}}' in \code{metainc}
+can be provided using argument '\code{\dots}' in \code{metainc}
 are described in \code{\link[metafor]{rma.glmm}} where you can also
 find information on the iterative algorithms used for estimation.
 Note, regardless of which value is used for argument
@@ -415,13 +418,17 @@ number of events is zero in all studies either in the experimental
 or control group.
 
 Argument \code{byvar} can be used to conduct subgroup analysis for
-all methods but GLMMs. Instead use the \code{\link{metareg}}
-function for GLMMs which can also be used for continuous
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
 covariates.
 
-A prediction interval for the treatment effect of a new study is
-calculated (Higgins et al., 2009) if arguments \code{prediction}
-and \code{comb.random} are \code{TRUE}.
+A prediction interval for the proportion in a new study (Higgins et
+al., 2009) is calculated if arguments \code{prediction} and
+\code{comb.random} are \code{TRUE}. Note, the definition of
+prediction intervals varies in the literature. This function
+implements equation (12) of Higgins et al., (2009) which proposed a
+\emph{t} distribution with \emph{K-2} degrees of freedom where
+\emph{K} corresponds to the number of studies in the meta-analysis.
 
 R function \code{\link{update.meta}} can be used to redo the
 meta-analysis of an existing metainc object by only specifying
@@ -431,18 +438,12 @@ For the random effects, the method by Hartung and Knapp (2003) is
 used to adjust test statistics and confidence intervals if argument
 \code{hakn = TRUE}.
 
-The DerSimonian-Laird estimate (1986) is used in the random effects
-model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-method (1982) to estimate the between-study variance is used if
-argument \code{method.tau = "PM"}.  Internally, R function
-\code{paulemandel} is called which is based on R function
-mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-<s.ellison at lgc.co.uk>.
-
-If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are also available:
+The following methods to estimate the between-study variance
+\eqn{\tau^2} (argument \code{method.tau}) are available for the
+inverse variance method:
 \itemize{
+\item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+\item Paule-Mandel estimator (\code{method.tau = "PM"})
 \item Restricted maximum-likelihood estimator (\code{method.tau =
   "REML"})
 \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -451,10 +452,9 @@ following methods to estimate the between-study variance
 \item Hedges estimator (\code{method.tau = "HE"})
 \item Empirical Bayes estimator (\code{method.tau = "EB"})
 }
-For these methods the R function \code{rma.uni} of R package
-\bold{metafor} is called internally. See help page of R function
-\code{rma.uni} for more details on these methods to estimate
-between-study variance.
+See \code{\link{metagen}} for more information on these
+estimators. Note, the maximum-likelihood method is utilized for
+GLMMs.
 }
 \examples{
 data(smoking)

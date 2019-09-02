@@ -63,7 +63,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        method.tau = x$method.tau,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
-                       warn = x$warn)
+                       warn = x$warn,
+                       control = x$control)
     ##
     else if (cont)
       meta1 <- metacont(x$n.e[sel], x$mean.e[sel],
@@ -117,7 +118,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        method.tau = x$method.tau,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
-                       warn = x$warn)
+                       warn = x$warn,
+                       control = x$control)
     ##
     else if (mean)
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
@@ -157,7 +159,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         hakn = x$hakn,
                         method.tau = x$method.tau,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
-                        warn = x$warn)
+                        warn = x$warn,
+                        control = x$control)
     ##
     else
       stop("No meta-analysis object used for subgroup analysis.")
@@ -239,9 +242,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   ## GLMM with common tau-squared
   ##
   if (x$method == "GLMM" & !missing(byvar.glmm)) {
+    mod <- as.call(~ byvar.glmm - 1)
+    ##
     if (prop) {
-      mod <- as.call(~ byvar.glmm - 1)
-      ##
       glmm.fixed <- rma.glmm(xi = x$event, ni = x$n,
                              mods = mod,
                              method = "FE", test = ifelse(x$hakn, "t", "z"),
@@ -258,31 +261,81 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                               ...)
     }
     ##
+    else if (rate) {
+      glmm.fixed <- rma.glmm(xi = x$event, ti = x$time,
+                             mods = mod,
+                             method = "FE", test = ifelse(x$hakn, "t", "z"),
+                             level = 100 * x$level.comb,
+                             measure = "IRLN", intercept = FALSE,
+                             control = x$control,
+                             ...)
+      ##
+      glmm.random <- rma.glmm(xi = x$event, ti = x$time,
+                              mods = mod,
+                              method = x$method.tau,
+                              test = ifelse(x$hakn, "t", "z"),
+                              level = 100 * x$level.comb,
+                              measure = "IRLN", intercept = FALSE,
+                              control = x$control,
+                              ...)
+    }
+    ##
+    else if (inc) {
+      glmm.fixed <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
+                             x2i = x$event.c, t2i = x$time.c,
+                             mods = mod,
+                             method = "FE", test = ifelse(x$hakn, "t", "z"),
+                             model = x$model.glmm,
+                             level = 100 * x$level.comb,
+                             measure = "IRR", intercept = FALSE,
+                             control = x$control,
+                             ...)
+      ##
+      glmm.random <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
+                              x2i = x$event.c, t2i = x$time.c,
+                              mods = mod,
+                              method = x$method.tau,
+                              model = x$model.glmm,
+                              test = ifelse(x$hakn, "t", "z"),
+                              level = 100 * x$level.comb,
+                              measure = "IRR", intercept = FALSE,
+                              control = x$control,
+                              ...)
+    }
+    ##
+    else if (bin) {
+      glmm.fixed <- rma.glmm(ai = x$event.e, n1i = x$n.e,
+                             ci = x$event.c, n2i = x$n.c,
+                             mods = mod,
+                             method = "FE", test = ifelse(x$hakn, "t", "z"),
+                             model = x$model.glmm,
+                             level = 100 * x$level.comb,
+                             measure = "OR", intercept = FALSE,
+                             control = x$control,
+                             ...)
+      ##
+      glmm.random <- rma.glmm(ai = x$event.e, n1i = x$n.e,
+                              ci = x$event.c, n2i = x$n.c,
+                              mods = mod,
+                              method = x$method.tau,
+                              model = x$model.glmm,
+                              test = ifelse(x$hakn, "t", "z"),
+                              level = 100 * x$level.comb,
+                              measure = "OR", intercept = FALSE,
+                              control = x$control,
+                              ...)
+    }
+    ##
     TE.fixed.w   <- as.numeric(glmm.fixed$b)
     seTE.fixed.w <- as.numeric(glmm.fixed$se)
-    ##
     TE.random.w   <- as.numeric(glmm.random$b)
     seTE.random.w <- as.numeric(glmm.random$se)
     ##
-    H.w     <- rep_len(sqrt(glmm.random$H2), n.bylevs)
-    H.w.low <- rep_len(NA, n.bylevs)
-    H.w.upp <- rep_len(NA, n.bylevs)
-    ##
-    I2.w     <- rep_len(glmm.random$I2 / 100, n.bylevs)
-    I2.w.low <- rep_len(NA, n.bylevs)
-    I2.w.upp <- rep_len(NA, n.bylevs)
-    ##
     tau.w <- rep_len(sqrt(glmm.random$tau2), n.bylevs)
-    ##
-    C.w <- rep_len(NA, n.bylevs)
-    ##
-    n.harmonic.mean.w <- rep_len(NA, n.bylevs)
-    t.harmonic.mean.w <- rep_len(NA, n.bylevs)
     ##
     Rb.w     <- rep_len(NA, n.bylevs)
     Rb.w.low <- rep_len(NA, n.bylevs)
     Rb.w.upp <- rep_len(NA, n.bylevs)
-
   }
   ##
   ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
@@ -294,17 +347,32 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   ##
   ## Tests for subgroup differences
   ##
-  Q.w.fixed <- sum(Q.w, na.rm = TRUE)
-  df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
-  pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
-  ##
-  Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w)$Q
-  Q.b.random <- metagen(TE.random.w, seTE.random.w)$Q
-  ##
-  df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
-  ##
-  pval.Q.b.fixed  <- pvalQ(Q.b.fixed, df.Q.b)
-  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
+  if (x$method == "GLMM" & !missing(byvar.glmm)) {
+    Q.w.fixed <- glmm.fixed$QE.LRT
+    df.Q.w <- glmm.fixed$k.eff - glmm.fixed$p.eff
+    pval.Q.w.fixed  <- glmm.fixed$QEp.LRT
+    ##
+    Q.b.fixed  <- glmm.fixed$QM
+    Q.b.random <- glmm.random$QM
+    ##
+    df.Q.b <- glmm.fixed$p.eff - 1
+    ##
+    pval.Q.b.fixed  <- glmm.fixed$QMp
+    pval.Q.b.random <- glmm.random$QMp
+  }
+  else {
+    Q.w.fixed <- sum(Q.w, na.rm = TRUE)
+    df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
+    pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
+    ##
+    Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w)$Q
+    Q.b.random <- metagen(TE.random.w, seTE.random.w)$Q
+    ##
+    df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
+    ##
+    pval.Q.b.fixed  <- pvalQ(Q.b.fixed, df.Q.b)
+    pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
+  }
   
   
   res <- list(bylevs = bylevs,

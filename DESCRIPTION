@@ -1,9 +1,9 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 4.9-6
-Date: 2019-08-06
+Version: 4.9-7
+Date: 2019-09-02
 Depends: R (>= 2.9.1)
-Imports: grid, metafor (>= 1.9-9), lme4
+Imports: grid, metafor (>= 2.1-0), lme4
 Suggests: numDeriv, BiasedUrn
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),

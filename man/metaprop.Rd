@@ -40,9 +40,8 @@ used for pooling of studies. One of \code{"Inverse"} and
 \code{"GLMM"}, can be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
-(\code{"PFT"}, \code{"PAS"}, \code{"PRAW"}, \code{"PLN"}, or
-\code{"PLOGIT"}) is to be used for pooling of studies, see
-Details.}
+(\code{"PLOGIT"}, \code{"PAS"}, \code{"PFT"}, \code{"PLN"}, or
+\code{"PRAW"}) is to be used for pooling of studies, see Details.}
 
 \item{incr}{A numeric which is added to event number and sample
 size of studies with zero or all events, i.e., studies with an
@@ -315,29 +314,27 @@ implemented to calculate an overall proportion:
 
 \itemize{
 \item Logit transformation (\code{sm = "PLOGIT"}, default)
-\item Log transformation (\code{sm = "PLN"})
-\item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
 \item Arcsine transformation (\code{sm = "PAS"})
+\item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
+\item Log transformation (\code{sm = "PLN"})
 \item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
 }
 
 Classic meta-analysis (Borenstein et al., 2010) utilises the
-transformed proportions and corresponding standard errors in the
-generic inverse variance method. A distinctive and frequently
+(un)transformed proportions and corresponding standard errors in
+the generic inverse variance method. A distinctive and frequently
 overlooked advantage of binary data is that individual patient data
 can be extracted. Accordingly, a generalised linear mixed model
 (GLMM) - more specific, a random intercept logistic regression
 model - can be utilised for the meta-analysis of proportions
 (Stijnen et al., 2010). This method - implicitly using the logit
-transformation - is available (argument \code{method = "GLMM"}) by
-calling the \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally.
+transformation - is the default (argument \code{method = "GLMM"})
+by calling the \code{\link[metafor]{rma.glmm}} function from R
+package \bold{metafor} internally.
 
-For the logit transformation, a random intercept logistic
-regression model is used by default, i.e., argument \code{method =
-"GLMM"}. The classic meta-analysis model based on the inverse
-variance method can be used instead by setting argument
-\code{method} equal to \code{"Inverse"}.
+The classic meta-analysis model with logit transformed proportions
+based on the inverse variance method can be used by setting
+argument \code{method = "Inverse"}.
 
 Contradictory recommendations on the use of transformations of
 proportions have been published in the literature. For example,
@@ -353,7 +350,8 @@ size. Accordingly, Schwarzer et al. (2019) also recommend to use
 GLMMs for the meta-analysis of single proportions, however, admit
 that individual study weights are not available with this
 method. Meta-analysts which require individual study weights should
-consider the arcsine or logit transformation.
+consider the inverse variance method with the arcsine or logit
+transformation.
 
 In order to prevent misleading conclusions for the Freeman-Tukey
 double arcsine transformation, sensitivity analyses using other
@@ -382,7 +380,7 @@ summary measure, i.e. \code{method.ci = "NAsm"}, the same
 confidence interval is calculated for individual studies for any
 summary measure (argument \code{sm}) as only number of events and
 observations are used in the calculation disregarding the chosen
-summary measure. Results will be presented for transformed
+transformation. Results will be presented for transformed
 proportions if argument \code{backtransf = FALSE} in the
 \code{\link{print.meta}}, \code{\link{print.summary.meta}}, or
 \code{\link{forest.meta}} function. In this case, argument
@@ -409,7 +407,7 @@ package \bold{meta} will adequately consider the values for
 \code{\link{print.meta}} will not print results for the random
 effects model if \code{comb.random = FALSE}.
 
-If the summary measure is equal to "PRAW", "PLN", or "PLOGIT", a
+If the summary measure is equal to "PLOGIT", "PLN", or "PRAW", a
 continuity correction is applied if any study has either zero or
 all events, i.e., an event probability of either 0 or 1. By
 default, 0.5 is used as continuity correction (argument
@@ -419,13 +417,17 @@ meta-analysis based on the inverse variance method. For GLMMs no
 continuity correction is used.
 
 Argument \code{byvar} can be used to conduct subgroup analysis for
-all methods but GLMMs. Instead use the \code{\link{metareg}}
-function for GLMMs which can also be used for continuous
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
 covariates.
 
-A prediction interval for the treatment effect of a new study is
-calculated (Higgins et al., 2009) if arguments \code{prediction}
-and \code{comb.random} are \code{TRUE}.
+A prediction interval for the proportion in a new study (Higgins et
+al., 2009) is calculated if arguments \code{prediction} and
+\code{comb.random} are \code{TRUE}. Note, the definition of
+prediction intervals varies in the literature. This function
+implements equation (12) of Higgins et al., (2009) which proposed a
+\emph{t} distribution with \emph{K-2} degrees of freedom where
+\emph{K} corresponds to the number of studies in the meta-analysis.
 
 R function \code{\link{update.meta}} can be used to redo the
 meta-analysis of an existing metaprop object by only specifying
@@ -435,18 +437,12 @@ For the random effects, the method by Hartung and Knapp (2003) is
 used to adjust test statistics and confidence intervals if argument
 \code{hakn = TRUE}.
 
-The DerSimonian-Laird estimate (1986) is used in the random effects
-model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-method (1982) to estimate the between-study variance is used if
-argument \code{method.tau = "PM"}.  Internally, R function
-\code{paulemandel} is called which is based on R function
-mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-<s.ellison at lgc.co.uk>.
-
-If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are also available:
+The following methods to estimate the between-study variance
+\eqn{\tau^2} (argument \code{method.tau}) are available for the
+inverse variance method:
 \itemize{
+\item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+\item Paule-Mandel estimator (\code{method.tau = "PM"})
 \item Restricted maximum-likelihood estimator (\code{method.tau =
   "REML"})
 \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -455,10 +451,9 @@ following methods to estimate the between-study variance
 \item Hedges estimator (\code{method.tau = "HE"})
 \item Empirical Bayes estimator (\code{method.tau = "EB"})
 }
-For these methods the R function \code{rma.uni} of R package
-\bold{metafor} is called internally. See help page of R function
-\code{rma.uni} for more details on these methods to estimate
-between-study variance.
+See \code{\link{metagen}} for more information on these
+estimators. Note, the maximum-likelihood method is utilized for
+GLMMs.
 }
 \examples{
 # Meta-analysis using generalised linear mixed model

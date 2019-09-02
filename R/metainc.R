@@ -37,7 +37,7 @@
 #' @param addincr A logical indicating if \code{incr} is added to each
 #'   cell frequency of all studies irrespective of zero cell counts.
 #' @param model.glmm A character string indicating which GLMM should
-#'   be used.  One of \code{"UM.FS"}, \code{"UM.RS"}, and
+#'   be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
 #'   \code{"CM.EL"}, see Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
@@ -110,8 +110,11 @@
 #' @details
 #' Treatment estimates and standard errors are calculated for each
 #' study. The following measures of treatment effect are available:
-#' \itemize{ \item Incidence Rate Ratio (\code{sm = "IRR"}) \item
-#' Incidence Rate Difference (\code{sm = "IRD"}) }
+#' 
+#' \itemize{
+#' \item Incidence Rate Ratio (\code{sm = "IRR"})
+#' \item Incidence Rate Difference (\code{sm = "IRD"})
+#' }
 #' 
 #' For several arguments defaults settings are utilised (assignments
 #' using \code{\link{gs}} function). These defaults can be changed
@@ -166,7 +169,7 @@
 #' }
 #'
 #' Details on these three GLMMs as well as additional arguments which
-#' can be provided using argument '\code{\dots{}}' in \code{metainc}
+#' can be provided using argument '\code{\dots}' in \code{metainc}
 #' are described in \code{\link[metafor]{rma.glmm}} where you can also
 #' find information on the iterative algorithms used for estimation.
 #' Note, regardless of which value is used for argument
@@ -185,13 +188,17 @@
 #' or control group.
 #' 
 #' Argument \code{byvar} can be used to conduct subgroup analysis for
-#' all methods but GLMMs. Instead use the \code{\link{metareg}}
-#' function for GLMMs which can also be used for continuous
+#' a categorical covariate. The \code{\link{metareg}} function can be
+#' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' 
-#' A prediction interval for the treatment effect of a new study is
-#' calculated (Higgins et al., 2009) if arguments \code{prediction}
-#' and \code{comb.random} are \code{TRUE}.
+#' A prediction interval for the proportion in a new study (Higgins et
+#' al., 2009) is calculated if arguments \code{prediction} and
+#' \code{comb.random} are \code{TRUE}. Note, the definition of
+#' prediction intervals varies in the literature. This function
+#' implements equation (12) of Higgins et al., (2009) which proposed a
+#' \emph{t} distribution with \emph{K-2} degrees of freedom where
+#' \emph{K} corresponds to the number of studies in the meta-analysis.
 #' 
 #' R function \code{\link{update.meta}} can be used to redo the
 #' meta-analysis of an existing metainc object by only specifying
@@ -201,18 +208,12 @@
 #' used to adjust test statistics and confidence intervals if argument
 #' \code{hakn = TRUE}.
 #' 
-#' The DerSimonian-Laird estimate (1986) is used in the random effects
-#' model if \code{method.tau = "DL"}. The iterative Paule-Mandel
-#' method (1982) to estimate the between-study variance is used if
-#' argument \code{method.tau = "PM"}.  Internally, R function
-#' \code{paulemandel} is called which is based on R function
-#' mpaule.default from R package \bold{metRology} from S.L.R. Ellison
-#' <s.ellison at lgc.co.uk>.
-#' 
-#' If R package \bold{metafor} (Viechtbauer 2010) is installed, the
-#' following methods to estimate the between-study variance
-#' \eqn{\tau^2} (argument \code{method.tau}) are also available:
+#' The following methods to estimate the between-study variance
+#' \eqn{\tau^2} (argument \code{method.tau}) are available for the
+#' inverse variance method:
 #' \itemize{
+#' \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
+#' \item Paule-Mandel estimator (\code{method.tau = "PM"})
 #' \item Restricted maximum-likelihood estimator (\code{method.tau =
 #'   "REML"})
 #' \item Maximum-likelihood estimator (\code{method.tau = "ML"})
@@ -221,10 +222,9 @@
 #' \item Hedges estimator (\code{method.tau = "HE"})
 #' \item Empirical Bayes estimator (\code{method.tau = "EB"})
 #' }
-#' For these methods the R function \code{rma.uni} of R package
-#' \bold{metafor} is called internally. See help page of R function
-#' \code{rma.uni} for more details on these methods to estimate
-#' between-study variance.
+#' See \code{\link{metagen}} for more information on these
+#' estimators. Note, the maximum-likelihood method is utilized for
+#' GLMMs.
 #' 
 #' @return
 #' An object of class \code{c("metainc", "meta")} with corresponding
@@ -590,16 +590,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
+  is.glmm <- method == "GLMM"
   ##
   chklogical(allincr)
   chklogical(addincr)
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL"))
   chklogical(warn)
   ##
-  if (method == "GLMM" & sm != "IRR")
+  if (is.glmm & sm != "IRR")
     stop("Generalised linear mixed models only possible with argument 'sm = \"IRR\"'.")
   ##
-  if (method == "GLMM" & method.tau != "ML")
+  if (is.glmm & method.tau != "ML")
     stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
   
   
@@ -655,11 +656,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
   by <- !is.null(byvar)
-  if (method == "GLMM" & by) {
-    warning("Argument 'byvar' not considered for GLMMs. Use metareg function for subgroup analysis of GLMM meta-analyses.")
-    byvar <- NULL
-    by <- FALSE
-  }
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -693,12 +689,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Additional checks
   ##
-  if (method == "GLMM") {
-    if (tau.common) {
-      if (warn)
-        warning("Argument 'tau.common' not considered for GLMM.")
-      tau.common <- FALSE
-    }
+  if (is.glmm) {
     if (!is.null(TE.tau)) {
       if (warn)
         warning("Argument 'TE.tau' not considered for GLMM.")
@@ -860,7 +851,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   sparse <- any(sel, na.rm = TRUE)
   ##
-  if (method == "GLMM" & sparse)
+  if (is.glmm & sparse)
     if ((!missing(incr) & any(incr != 0)) |
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr)
@@ -949,7 +940,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       return(NULL)
     }
   }
-  else if (method == "GLMM") {
+  else if (is.glmm) {
     glmm.fixed <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
                            x2i = event.c[!exclude], t2i = time.c[!exclude],
                            method = "FE", test = ifelse(hakn, "t", "z"),
@@ -1049,7 +1040,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$pval.fixed <- ci.f$p
   }
   ##
-  if (method == "GLMM") {
+  if (is.glmm) {
     ##
     if (sum(!exclude) > 1)
       glmm.random <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
@@ -1143,10 +1134,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       res$tau.resid <- NA
     }
     else {
-      res <- c(res, subgroup(res, hcc$tau))
-      res$Q.w.random <- hcc$Q
-      res$df.Q.w.random <- hcc$df.Q
-      res$tau.resid <- hcc$tau
+      if (is.glmm) {
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$byvar, bylevs(res$byvar)), ...))
+        res$tau.resid <- NA
+      }
+      else {
+        res <- c(res, subgroup(res, hcc$tau))
+        res$Q.w.random <- hcc$Q
+        res$df.Q.w.random <- hcc$df.Q
+        res$tau.resid <- hcc$tau
+      }
     }
     ##
     if (!tau.common || method.tau == "DL") {
@@ -1155,14 +1153,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       res$H.resid <- ci.H.resid$TE
       res$lower.H.resid <- ci.H.resid$lower
       res$upper.H.resid <- ci.H.resid$upper
-    }
-    else {
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
+      ##
       ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
       res$I2.resid <- ci.I2.resid$TE
@@ -1170,9 +1161,28 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       res$upper.I2.resid <- ci.I2.resid$upper
     }
     else {
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
+      if (is.glmm) {
+        ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
+        ##
+        res$H.resid <- ci.H.resid$TE
+        res$lower.H.resid <- ci.H.resid$lower
+        res$upper.H.resid <- ci.H.resid$upper
+        ##
+        ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
+        ##
+        res$I2.resid <- ci.I2.resid$TE
+        res$lower.I2.resid <- ci.I2.resid$lower
+        res$upper.I2.resid <- ci.I2.resid$upper
+      }
+      else {
+        res$H.resid <- hcc$H.resid
+        res$lower.H.resid <- hcc$lower.H.resid
+        res$upper.H.resid <- hcc$upper.H.resid
+        ##
+        res$I2.resid <- hcc$I2.resid
+        res$lower.I2.resid <- hcc$lower.I2.resid
+        res$upper.I2.resid <- hcc$upper.I2.resid
+      }
     }
     ##
     res$event.w <- NULL
