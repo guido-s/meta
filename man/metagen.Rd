@@ -332,9 +332,10 @@ be used to provide treatment estimates and standard errors
 directly. However, it is possible to derive these quantities from
 other information.
 
-For several arguments defaults settings are utilised (see
-assignments with \code{\link{gs}} under \bold{Usage}). These
-defaults can be changed using \code{\link{settings.meta}}.
+Default settings are utilised for several arguments (assignments
+using \code{\link{gs}} function). These defaults can be changed for
+the current R session using the \code{\link{settings.meta}}
+function.
 
 Furthermore, R function \code{\link{update.meta}} can be used to
 rerun a meta-analysis with different settings.
@@ -458,7 +459,7 @@ internally for the other estimators.
 Hartung and Knapp (2001a,b) proposed an alternative method for
 random effects meta-analysis based on a refined variance estimator
 for the treatment estimate. Simulation studies (Hartung and Knapp,
-2001a,b; IntHout et al., 2014; Langen et al., 2018) show improved
+2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
 coverage probabilities compared to the classic random effects
 method. However, in rare settings with very homogeneous treatment
 estimates, the Hartung-Knapp method can be anti-conservative
@@ -475,6 +476,40 @@ prediction intervals varies in the literature. This function
 implements equation (12) of Higgins et al., (2009) which proposed a
 \emph{t} distribution with \emph{K-2} degrees of freedom where
 \emph{K} corresponds to the number of studies in the meta-analysis.
+}
+
+\subsection{Subgroup analysis}{
+
+Argument \code{byvar} can be used to conduct subgroup analysis for
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
+covariates.
+}
+
+\subsection{Specify the null hypothesis of test for an overall effect}{
+
+Argument \code{null.effect} can be used to specify the (treatment)
+effect under the null hypothesis in a test for an overall
+effect.
+
+By default (\code{null.effect = 0}), the null hypothesis
+corresponds to "no difference" (which is obvious for absolute
+effect measures like the mean difference (\code{sm = "MD"}) or
+standardised mean difference (\code{sm = "SMD"})). For relative
+effect measures, e.g., risk ratio (\code{sm = "RR"}) or odds ratio
+(\code{sm = "OR"}), the null effect is defined on the log scale,
+i.e., \emph{ln}(RR) = 0 or \emph{ln}(OR) = 0 which is equivalent to
+testing RR = 1 or OR = 1.
+
+Use of argument \code{null.effect} is especially useful for summary
+measures without a "natural" null effect, i.e., in situations
+without a second (treatment) group. For example, an overall
+proportion of 50\% could be tested in the meta-analysis of single
+proportions with argument \code{null.effect = 0.5}.
+
+Note, all tests for an overall effect are two-sided with the
+alternative hypothesis that the effect is unequal to
+\code{null.effect}.
 }
 
 \subsection{Presentation of meta-analysis results}{
@@ -608,10 +643,11 @@ standard DerSimonian-Laird method.
 \bold{14}, 25
 
 Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
-Kontopantelis E, et al. (2018):
+Kontopantelis E, et al. (2019):
 A comparison of heterogeneity variance estimators in simulated
 random-effects meta-analyses.
-\emph{Research Synthesis Methods}
+\emph{Research Synthesis Methods},
+\bold{10}, 83--98
 
 Morris CN (1983):
 Parametric empirical Bayes inference: Theory and applications (with

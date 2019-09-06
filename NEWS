@@ -15,8 +15,8 @@
 
  ** User-visible changes **
 
-  * Help pages updated:
-    metabin(), metainc(), metaprop(), and metarate()
+  * Major update of help pages:
+    metabin(), metagen(), metainc(), metaprop(), and metarate()
 
 
 *** meta, version 4.9-6, 2019-08-06 ***

@@ -7,7 +7,7 @@
 #' variance, Peto method, and generalised linear mixed model (GLMM)
 #' are available for pooling. For GLMMs, the
 #' \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} (Viechtbauer 2010) is called internally.
+#' \bold{metafor} (Viechtbauer, 2010) is called internally.
 #' 
 #' @param event.e Number of events in experimental group.
 #' @param n.e Number of observations in experimental group.
@@ -124,7 +124,9 @@
 #' 
 #' @details
 #' Treatment estimates and standard errors are calculated for each
-#' study. The following measures of treatment effect are available:
+#' study. The following measures of treatment effect are available
+#' (Rücker et al., 2009):
+#' 
 #' \itemize{
 #' \item Risk ratio (\code{sm = "RR"})
 #' \item Odds ratio (\code{sm = "OR"})
@@ -132,33 +134,28 @@
 #' \item Arcsine difference (\code{sm = "ASD"})
 #' }
 #' 
-#' For several arguments defaults settings are utilised (assignments
-#' using \code{\link{gs}} function). These defaults can be changed
-#' using the \code{\link{settings.meta}} function.
-#' 
-#' Internally, both fixed effect and random effects models are
-#' calculated regardless of values chosen for arguments
-#' \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
-#' for the random effects model can be extracted from component
-#' \code{TE.random} of an object of class \code{"meta"} even if
-#' argument \code{comb.random = FALSE}. However, all functions in R
-#' package \bold{meta} will adequately consider the values for
-#' \code{comb.fixed} and \code{comb.random}. E.g. function
-#' \code{\link{print.meta}} will not print results for the random
-#' effects model if \code{comb.random = FALSE}.
-#' 
 #' By default, both fixed effect and random effects models are
 #' considered (see arguments \code{comb.fixed} and
 #' \code{comb.random}). If \code{method} is \code{"MH"} (default), the
-#' Mantel-Haenszel method is used to calculate the fixed effect
-#' estimate; if \code{method} is \code{"Inverse"}, inverse variance
-#' weighting is used for pooling; if \code{method} is \code{"Peto"},
-#' the Peto method is used for pooling. For the Peto method, Peto's
-#' log odds ratio, i.e. \code{(O - E) / V} and its standard error
-#' \code{sqrt(1 / V)} with \code{O - E} and \code{V} denoting
-#' "Observed minus Expected" and "V", are utilised in the random
-#' effects model. Accordingly, results of a random effects model using
-#' \code{sm = "Peto"} can be (slightly) different to results from a
+#' Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
+#' 1986) is used to calculate the fixed effect estimate; if
+#' \code{method} is \code{"Inverse"}, inverse variance weighting is
+#' used for pooling (Fleiss, 1993); if \code{method} is \code{"Peto"},
+#' the Peto method is used for pooling (Yussuf et al., 1985).
+#'
+#' While the Mantel-Haenszel and Peto method are defined under the
+#' fixed effect model, random effects variants based on these methods
+#' are also implemented in \code{metabin}. Following RevMan 5, the
+#' Mantel-Haenszel estimator is used in the calculation of the
+#' between-study heterogeneity statistic Q which is used in the
+#' DerSimonian-Laird estimator. Accordlingly, the results for the
+#' random effects meta-analysis using the Mantel-Haenszel or inverse
+#' variance method are typically very similar. For the Peto method,
+#' Peto's log odds ratio, i.e. \code{(O-E) / V} and its standard error
+#' \code{sqrt(1 / V)} with \code{O-E} and \code{V} denoting
+#' "Observed minus Expected" and its variance, are utilised in the
+#' random effects model. Accordingly, results of a random effects
+#' model using \code{sm = "Peto"} can be different to results from a
 #' random effects model using \code{sm = "MH"} or \code{sm =
 #' "Inverse"}.
 #' 
@@ -203,6 +200,21 @@
 #' \code{model.glmm}, results for two different GLMMs are calculated:
 #' fixed effect model (with fixed treatment effect) and random effects
 #' model (with random treatment effects).
+#' 
+#' For several arguments defaults settings are utilised (assignments
+#' using \code{\link{gs}} function). These defaults can be changed
+#' using the \code{\link{settings.meta}} function.
+#' 
+#' Internally, both fixed effect and random effects models are
+#' calculated regardless of values chosen for arguments
+#' \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+#' for the random effects model can be extracted from component
+#' \code{TE.random} of an object of class \code{"meta"} even if
+#' argument \code{comb.random = FALSE}. However, all functions in R
+#' package \bold{meta} will adequately consider the values for
+#' \code{comb.fixed} and \code{comb.random}. E.g. function
+#' \code{\link{print.meta}} will not print results for the random
+#' effects model if \code{comb.random = FALSE}.
 #' 
 #' For studies with a zero cell count, by default, 0.5 is added to all
 #' cell frequencies of these studies; if \code{incr} is \code{"TACC"}
@@ -502,12 +514,18 @@
 #' variate.
 #' \emph{Biometrika},
 #' \bold{73}, 425--35
+#'
+#' Robins J, Breslow N, Greenland S (1986):
+#' Estimators of the Mantel-Haenszel Variance Consistent in Both
+#' Sparse Data and Large-Strata Limiting Models.
+#' \emph{Biometrics},
+#' \bold{42}, 311--23
 #' 
-#' Rücker G, Schwarzer G, Carpenter JR (2008):
-#' Arcsine test for publication bias in meta-analyses with binary
-#' outcomes.
+#' Rücker G, Schwarzer G, Carpenter J, Olkin I (2009):
+#' Why add anything to nothing? The arcsine difference as a measure of
+#' treatment effect in meta-analysis with zero cells.
 #' \emph{Statistics in Medicine},
-#' \bold{27}, 746--63
+#' \bold{28}, 721--38
 #' 
 #' Simmonds MC, Higgins JP (2016):
 #' A general framework for the use of logistic regression models in
@@ -533,9 +551,15 @@
 #' \bold{23}, 1351--75
 #' 
 #' Viechtbauer W (2010):
-#' Conducting Meta-Analyses in R with the Metafor Package.
+#' Conducting meta-analyses in R with the metafor package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#'
+#' Yusuf S, Peto R, Lewis J, Collins R, Sleight P (1985):
+#' Beta blockade during and after myocardial infarction: An overview
+#' of the randomized trials.
+#' \emph{Progress in Cardiovascular Diseases},
+#' \bold{27}, 335--71
 #' 
 #' @examples
 #' # Calculate odds ratio and confidence interval for a single study
