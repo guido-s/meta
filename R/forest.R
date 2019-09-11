@@ -1539,6 +1539,15 @@ forest.meta <- function(x,
   else
     chklogical(hetstat)
   ##
+  if (hetstat.pooled == "fixed") {
+    comb.fixed <- TRUE
+    overall <- TRUE
+  }
+  if (hetstat.pooled == "random") {
+    comb.random <- TRUE
+    overall <- TRUE
+  }
+  ##
   if (missing(overall.hetstat) & is.character(hetstat))
     overall.hetstat <- FALSE
   else
