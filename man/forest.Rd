@@ -56,9 +56,9 @@ forest(x, ...)
   col.predict = "red", col.predict.lines = "black",
   col.by = "darkgray", col.label.right = "black",
   col.label.left = "black", hetstat = print.I2 | print.tau2 | print.Q |
-  print.pval.Q | print.Rb, overall.hetstat = overall &
-  (!is.character(hetstat) && hetstat), hetlab = "Heterogeneity: ",
-  resid.hetstat = overall & (is.character(hetstat) || hetstat),
+  print.pval.Q | print.Rb, overall.hetstat = hetstat,
+  hetlab = "Heterogeneity: ", resid.hetstat = overall &
+  (is.character(hetstat) || hetstat),
   resid.hetlab = "Residual heterogeneity: ", print.I2 = comb.fixed |
   comb.random, print.I2.ci = FALSE, print.tau2 = comb.fixed |
   comb.random, print.Q = FALSE, print.pval.Q = comb.fixed |

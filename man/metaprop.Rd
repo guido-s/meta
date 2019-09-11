@@ -741,8 +741,8 @@ variate.
 Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
 Seriously misleading results using inverse of Freeman-Tukey double
 arcsine transformation in meta-analysis of single proportions.
-\emph{Research Synthesis Methods}, 1--8.
-https://doi.org/10.1002/jrsm.1348
+\emph{Research Synthesis Methods},
+\bold{10}, 476--83
 
 Stijnen T, Hamza TH, Ozdemir P (2010):
 Random effects meta-analysis of event outcome in the framework of

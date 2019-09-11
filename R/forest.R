@@ -1221,8 +1221,7 @@ forest.meta <- function(x,
                         ##
                         hetstat = print.I2 | print.tau2 | print.Q |
                           print.pval.Q | print.Rb,
-                        overall.hetstat = overall &
-                          (!is.character(hetstat) && hetstat),
+                        overall.hetstat = hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat = overall &
                           (is.character(hetstat) || hetstat),
@@ -1540,7 +1539,11 @@ forest.meta <- function(x,
   else
     chklogical(hetstat)
   ##
-  chklogical(overall.hetstat)
+  if (missing(overall.hetstat) & is.character(hetstat))
+    overall.hetstat <- FALSE
+  else
+    chklogical(overall.hetstat)
+  ##
   chkchar(hetlab)
   chklogical(resid.hetstat)
   chkchar(resid.hetlab)
@@ -6629,7 +6632,7 @@ forest.meta <- function(x,
   ##
   ymin.fixed  <- spacing * (ymin.line + prediction + comb.random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
-  ymin.ref    <- spacing * (ymin.line + (!overall & addrow))
+  ymin.ref    <- spacing * (ymin.line + (!(overall | overall.hetstat) & addrow))
   ##
   ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
   ##

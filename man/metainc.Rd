@@ -253,9 +253,6 @@ object is a list containing the following components:
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
   for Hartung-Knapp method in subgroups - if \code{byvar} is not
   missing and \code{hakn = TRUE}.}
-\item{n.harmonic.mean.w}{Harmonic mean of number of observations
-  in subgroups (for back transformation of Freeman-Tukey Double
-  arcsine transformation) - if \code{byvar} is not missing.}
 \item{event.e.w}{Number of events in experimental group in
   subgroups - if \code{byvar} is not missing.}
 \item{time.e.w}{Total person time in subgroups (experimental
