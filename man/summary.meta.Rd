@@ -155,8 +155,7 @@ following elements:
 \item{k}{Number of studies combined in meta-analysis.}
 \item{Q}{Heterogeneity statistic Q.}
 \item{tau}{Square-root of between-study variance.}
-\item{se.tau}{Standard error of square-root of between-study
-  variance.}
+\item{se.tau2}{Standard error of between-study variance.}
 \item{C}{Scaling factor utilised internally to calculate common
   tau-squared across subgroups.}
 \item{H}{Heterogeneity statistic H (a list with elements TE, lower,

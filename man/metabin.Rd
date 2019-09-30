@@ -241,8 +241,7 @@ object is a list containing the following components:
 \item{df.Q.LRT}{Degrees of freedom for likelihood-ratio test}
 \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
 \item{tau}{Square-root of between-study variance.}
-\item{se.tau}{Standard error of square-root of between-study
-  variance.}
+\item{se.tau2}{Standard error of between-study variance.}
 \item{C}{Scaling factor utilised internally to calculate common
   tau-squared across subgroups.}
 \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall
