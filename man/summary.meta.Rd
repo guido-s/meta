@@ -22,10 +22,11 @@
   digits.zval = gs("digits.zval"), digits.pval = max(gs("digits.pval"),
   2), digits.pval.Q = max(gs("digits.pval.Q"), 2),
   digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
-  digits.H = gs("digits.H"), digits.I2 = gs("digits.I2"),
-  scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-  print.I2 = gs("print.I2"), print.H = gs("print.H"),
-  print.Rb = gs("print.Rb"), text.tau2 = gs("text.tau2"),
+  digits.tau = gs("digits.tau"), digits.H = gs("digits.H"),
+  digits.I2 = gs("digits.I2"), scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"), print.I2 = gs("print.I2"),
+  print.H = gs("print.H"), print.Rb = gs("print.Rb"),
+  text.tau2 = gs("text.tau2"), text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"), text.Rb = gs("text.Rb"),
   warn.backtransf = FALSE, ...)
 }
@@ -110,6 +111,9 @@ heterogeneity statistic Q, see \code{print.default}.}
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
 
+\item{digits.tau}{Minimal number of significant digits for
+square root of between-study variance, see \code{print.default}.}
+
 \item{digits.H}{Minimal number of significant digits for H
 statistic, see \code{print.default}.}
 
@@ -133,6 +137,9 @@ statistic Rb should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 tau^2.}
+
+\item{text.tau}{Text printed to identify square root of
+between-study variance.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
 I^2.}

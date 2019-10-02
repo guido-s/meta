@@ -10,9 +10,11 @@
   details = FALSE, ma = TRUE, backtransf = x$backtransf,
   pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
   digits = gs("digits"), digits.se = gs("digits.se"),
-  digits.tau2 = gs("digits.tau2"), digits.I2 = gs("digits.I2"),
-  digits.prop = gs("digits.prop"), digits.weight = gs("digits.weight"),
-  big.mark = gs("big.mark"), warn.backtransf = FALSE, ...)
+  digits.tau2 = gs("digits.tau2"), digits.tau = gs("digits.tau"),
+  digits.I2 = gs("digits.I2"), digits.prop = gs("digits.prop"),
+  digits.weight = gs("digits.weight"), big.mark = gs("big.mark"),
+  text.tau2 = gs("text.tau2"), text.tau = gs("text.tau"),
+  text.I2 = gs("text.I2"), warn.backtransf = FALSE, ...)
 
 cilayout(bracket = "[", separator = "; ")
 }
@@ -66,6 +68,9 @@ deviations and standard errors, see \code{print.default}.}
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
 
+\item{digits.tau}{Minimal number of significant digits for
+square root of between-study variance, see \code{print.default}.}
+
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
 
@@ -76,6 +81,15 @@ proportions, see \code{print.default}.}
 weights, see \code{print.default}.}
 
 \item{big.mark}{A character used as thousands separator.}
+
+\item{text.tau2}{Text printed to identify between-study variance
+tau^2.}
+
+\item{text.tau}{Text printed to identify square root of
+between-study variance.}
+
+\item{text.I2}{Text printed to identify heterogeneity statistic
+I^2.}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
@@ -124,8 +138,9 @@ m1
 print(m1, digits = 2)
 
 \dontrun{
-# Use unicode characters to print tau^2 and I^2 
-print(m1, text.tau2 = "\\u03c4\\u00b2", text.I2 = "I\\u00b2")
+# Use unicode characters to print tau^2, tau, and I^2 
+print(m1,
+      text.tau2 = "\\u03c4\\u00b2", text.tau = "\\u03c4", text.I2 = "I\\u00b2")
 }
 
 }

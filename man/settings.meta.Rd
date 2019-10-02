@@ -57,7 +57,9 @@ RevMan 5 settings, in detail:
   overall effect \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
-\code{digits.tau2} \tab 0 \tab number of digits for tau-squared \cr
+\code{digits.tau2} \tab 2 \tab number of digits for tau-squared \cr
+\code{digits.tau} \tab 4 \tab number of digits for square root of
+  tau-squared \cr
 \code{CIbracket}, \tab "[" \tab \cr
 \code{CIseparator} \tab ", " \tab print confidence intervals as
   "\code{[., .]}"

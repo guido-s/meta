@@ -39,7 +39,7 @@
 #'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
 #'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
 #'   abbreviated.
-#' @param tau.preset Prespecified value for the square-root of the
+#' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
 #'   between-study variance tau-squared.

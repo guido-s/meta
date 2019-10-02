@@ -25,8 +25,8 @@ catmeth <- function(method,
                     null.effect = NA,
                     big.mark = "",
                     digits = gs("digits"),
-                    digits.tau2 = gs("digits.tau2"),
-                    text.tau2 = gs("text.tau2"),
+                    digits.tau = gs("digits.tau"),
+                    text.tau = gs("text.tau"),
                     method.miss, IMOR.e, IMOR.c
                     ) {
   
@@ -213,14 +213,13 @@ catmeth <- function(method,
     lab.method.tau <- ""
   else {
     if (!is.null(tau.preset)) {
-      tau2 <- tau.preset^2
-      tau2 <- formatPT(tau2, lab = TRUE, labval = text.tau2,
-                       digits = digits.tau2,
-                       lab.NA = "NA",
-                       big.mark = big.mark)
+      tau.preset <- formatPT(tau.preset, lab = TRUE, labval = text.tau,
+                             digits = digits.tau,
+                             lab.NA = "NA",
+                             big.mark = big.mark)
       ##
-      lab.method.tau <- paste("\n- Preset between-study variance: ",
-                              tau2, sep = "")
+      lab.method.tau <- paste("\n- Preset square root of between-study variance: ",
+                              tau.preset, sep = "")
       ##
       lab.method.details <- lab.method.tau
     }

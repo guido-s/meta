@@ -40,6 +40,8 @@
 #'   deviations and standard errors, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for
+#'   square root of between-study variance, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
 #' @param digits.prop Minimal number of significant digits for
@@ -47,6 +49,12 @@
 #' @param digits.weight Minimal number of significant digits for
 #'   weights, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
+#' @param text.tau2 Text printed to identify between-study variance
+#'   tau^2.
+#' @param text.tau Text printed to identify square root of
+#'   between-study variance.
+#' @param text.I2 Text printed to identify heterogeneity statistic
+#'   I^2.
 #' @param warn.backtransf A logical indicating whether a warning
 #'   should be printed if backtransformed proportions and rates are
 #'   below 0 and backtransformed proportions are above 1.
@@ -106,8 +114,9 @@
 #' print(m1, digits = 2)
 #' 
 #' \dontrun{
-#' # Use unicode characters to print tau^2 and I^2 
-#' print(m1, text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+#' # Use unicode characters to print tau^2, tau, and I^2 
+#' print(m1,
+#'       text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
 #' @rdname print.meta
@@ -126,13 +135,21 @@ print.meta <- function(x,
                        pscale = x$pscale,
                        irscale = x$irscale,
                        irunit = x$irunit,
+                       ##
                        digits = gs("digits"),
                        digits.se = gs("digits.se"),
                        digits.tau2 = gs("digits.tau2"),
+                       digits.tau = gs("digits.tau"),
                        digits.I2 = gs("digits.I2"),
                        digits.prop = gs("digits.prop"),
                        digits.weight = gs("digits.weight"),
+                       ##
                        big.mark = gs("big.mark"),
+                       ##
+                       text.tau2 = gs("text.tau2"),
+                       text.tau = gs("text.tau"),
+                       text.I2 = gs("text.I2"),
+                       ##
                        warn.backtransf = FALSE,
                        ...
                        ) {
@@ -208,8 +225,17 @@ print.meta <- function(x,
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.se, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
+  chknumeric(digits.tau, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chknumeric(digits.prop, min = 0, single = TRUE)
+  chknumeric(digits.weight, min = 0, single = TRUE)
+  ##
+  chkchar(text.tau2)
+  chkchar(text.tau)
+  chkchar(text.I2)
+  tt2 <- text.tau2
+  tt <- text.tau
+  ti <- text.I2
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -436,6 +462,7 @@ print.meta <- function(x,
             digits = digits,
             backtransf = backtransf, pscale = pscale,
             irscale = irscale, irunit = irunit, big.mark = big.mark,
+            text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
             warn.backtransf = warn.backtransf,
             ...)
   }
@@ -517,9 +544,10 @@ print.meta <- function(x,
       p.value <- formatPT(x$p.value)
       p.value <- ifelse(sel, "", p.value)
       ##
-      tau2 <- x$tau^2
-      tau2 <- formatN(round(tau2, digits.tau2), digits.tau2, "",
+      tau2 <- formatN(round(x$tau^2, digits.tau2), digits.tau2, "",
                       big.mark = big.mark)
+      tau <- formatN(round(x$tau, digits.tau), digits.tau, "",
+                     big.mark = big.mark)
       ##
       res <- cbind(formatN(round(TE, digits), digits, "",
                            big.mark = big.mark),
@@ -529,10 +557,11 @@ print.meta <- function(x,
                                     big.mark = big.mark)),
                    p.value,
                    paste(" ", tau2, sep = ""),
+                   paste(" ", tau, sep = ""),
                    paste(" ", I2, ifelse(I2 == "", "", "%"), sep = ""))
       dimnames(res) <- list(paste(x$studlab, "  ", sep = ""),
                             c(sm.lab, ci.lab, "p-value",
-                              gs("text.tau2"), gs("text.I2")))
+                              text.tau2, text.tau, text.I2))
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
@@ -561,8 +590,7 @@ print.meta <- function(x,
               exact.smd = x$exact.smd,
               model.glmm = x$model.glmm,
               big.mark = big.mark,
-              digits = digits, digits.tau2 = digits.tau2,
-              text.tau2 = gs("text.tau2"),
+              digits = digits, digits.tau = digits.tau, text.tau = text.tau,
               method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else {
@@ -577,7 +605,7 @@ print.meta <- function(x,
                    if (comb.random & !mb)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
-                   if (!is.null(x$byvar)) x$byvar,
+                   if (!is.null(x$byvar)) as.character(x$byvar),
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
@@ -638,8 +666,9 @@ print.meta <- function(x,
             prediction = prediction,
             backtransf = backtransf, pscale = pscale,
             irscale = irscale, irunit = irunit,
-            digits.tau2 = digits.tau2, digits.I2 = digits.I2,
-            big.mark = big.mark,
+            digits.tau2 = digits.tau2, digits.tau = digits.tau,
+            digits.I2 = digits.I2, big.mark = big.mark,
+            text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
             warn.backtransf = warn.backtransf,
             ...)
     }

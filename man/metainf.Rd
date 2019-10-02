@@ -49,7 +49,7 @@ containing the following components:
   intervals.}
 \item{method.tau}{A character string indicating which method is
   used to estimate the between-study variance \eqn{\tau^2}.}
-\item{tau.preset}{Prespecified value for the square-root of the
+\item{tau.preset}{Prespecified value for the square root of the
   between-study variance \eqn{\tau^2}.}
 \item{TE.tau}{Overall treatment effect used to estimate the
   between-study variance \eqn{\tau^2}.}

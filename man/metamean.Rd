@@ -62,7 +62,7 @@ used to estimate the between-study variance \eqn{\tau^2}. Either
 \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
 abbreviated.}
 
-\item{tau.preset}{Prespecified value for the square-root of the
+\item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
 \item{TE.tau}{Overall treatment effect used to estimate the

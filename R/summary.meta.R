@@ -55,6 +55,8 @@
 #'   heterogeneity statistic Q, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for
+#'   square root of between-study variance, see \code{print.default}.
 #' @param digits.H Minimal number of significant digits for H
 #'   statistic, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
@@ -77,6 +79,8 @@
 #'   statistic Rb should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   tau^2.
+#' @param text.tau Text printed to identify square root of
+#'   between-study variance.
 #' @param text.I2 Text printed to identify heterogeneity statistic
 #'   I^2.
 #' @param text.Rb Text printed to identify heterogeneity statistic Rb.
@@ -723,22 +727,28 @@ print.summary.meta <- function(x,
                                irscale = x$irscale,
                                irunit = x$irunit,
                                bylab.nchar = 35,
+                               ##
                                digits = gs("digits"),
                                digits.zval = gs("digits.zval"),
                                digits.pval = max(gs("digits.pval"), 2),
                                digits.pval.Q = max(gs("digits.pval.Q"), 2),
                                digits.Q = gs("digits.Q"),
                                digits.tau2 = gs("digits.tau2"),
+                               digits.tau = gs("digits.tau"),
                                digits.H = gs("digits.H"),
                                digits.I2 = gs("digits.I2"),
+                               ##
                                scientific.pval = gs("scientific.pval"),
                                big.mark = gs("big.mark"),
                                print.I2 = gs("print.I2"),
                                print.H = gs("print.H"),
                                print.Rb = gs("print.Rb"),
+                               ##
                                text.tau2 = gs("text.tau2"),
+                               text.tau = gs("text.tau"),
                                text.I2 = gs("text.I2"),
                                text.Rb = gs("text.Rb"),
+                               ##
                                warn.backtransf = FALSE,
                                ...) {
   
@@ -763,6 +773,7 @@ print.summary.meta <- function(x,
   ##
   chknumeric(digits, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
+  chknumeric(digits.tau, min = 0, single = TRUE)
   chknumeric(digits.zval, min = 0, single = TRUE)
   chknumeric(digits.pval, min = 1, single = TRUE)
   chknumeric(digits.pval.Q, min = 1, single = TRUE)
@@ -779,6 +790,7 @@ print.summary.meta <- function(x,
   chklogical(print.H)
   chklogical(print.Rb)
   chkchar(text.tau2)
+  chkchar(text.tau)
   chkchar(text.I2)
   chkchar(text.Rb)
   chklogical(warn.backtransf)
@@ -1145,7 +1157,8 @@ print.summary.meta <- function(x,
             irunit = irunit,
             null.effect = if (null.given) null.effect else 0,
             big.mark = big.mark,
-            digits = digits, digits.tau2 = digits.tau2,
+            digits = digits, digits.tau = digits.tau,
+            text.tau = text.tau,
             method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
   }
   else if (is.na(k)) {
@@ -1239,12 +1252,17 @@ print.summary.meta <- function(x,
     ##
     cat("\nQuantifying heterogeneity:\n")
     ##
-    cathet(k, 
-           TRUE, text.tau2, x$tau, digits.tau2, big.mark,
-           print.H, H, lowH, uppH, digits.H,
-           print.I2, print.ci.I2, text.I2,
-           I2, lowI2, uppI2, digits.I2,
-           print.Rb, text.Rb, Rb, lowRb, uppRb)
+    cathet(k,
+           x$tau,
+           TRUE, text.tau2, digits.tau2,
+           TRUE, text.tau, digits.tau,
+           I2, lowI2, uppI2,
+           print.I2, print.ci.I2, text.I2, digits.I2,
+           H, lowH, uppH,
+           print.H, digits.H,
+           Rb, lowRb, uppRb,
+           print.Rb, text.Rb,
+           big.mark)
     ##
     ## Print information on residual heterogeneity
     ##
@@ -1275,12 +1293,16 @@ print.summary.meta <- function(x,
         cat("\nQuantifying residual heterogeneity:\n")
         ##
         cathet(k.resid, 
-               x$tau.common, text.tau2, unique(x$tau.w),
-               digits.tau2, big.mark,
-               print.H, H.resid, lowH.resid, uppH.resid, digits.H,
-               print.I2, print.ci.I2, text.I2,
-               I2.resid, lowI2.resid, uppI2.resid, digits.I2,
-               FALSE, text.Rb, NA, NA, NA)
+               unique(x$tau.w),
+               x$tau.common, text.tau2, digits.tau2,
+               x$tau.common, text.tau, digits.tau,
+               I2.resid, lowI2.resid, uppI2.resid,
+               print.I2, print.ci.I2, text.I2, digits.I2,
+               H.resid, lowH.resid, uppH.resid,
+               print.H, digits.H,
+               NA, NA, NA,
+               FALSE, text.Rb,
+               big.mark)
       }
     }
     ##
@@ -1335,6 +1357,11 @@ print.summary.meta <- function(x,
                                          digits = digits.tau2,
                                          big.mark = big.mark,
                                          noblanks = TRUE)),
+                         ifelse(k.w == 1, "--",
+                                formatPT(x$tau.w,
+                                         digits = digits.tau,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE)),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -1352,7 +1379,7 @@ print.summary.meta <- function(x,
           ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
-                                    "Q", text.tau2,
+                                    "Q", text.tau2, text.tau,
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb)
                                   )
@@ -1410,6 +1437,11 @@ print.summary.meta <- function(x,
                                          digits = digits.tau2,
                                          big.mark = big.mark,
                                          noblanks = TRUE)),
+                         ifelse(k.w == 1, "--",
+                                formatPT(x$tau.w,
+                                         digits = digits.tau,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE)),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -1428,7 +1460,7 @@ print.summary.meta <- function(x,
           ##
           dimnames(Tdata) <- list(bylab,
                                   c("  k", sm.lab, x$ci.lab,
-                                    "Q", text.tau2,
+                                    "Q", text.tau2, text.tau,
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb)
                                   )
@@ -1498,7 +1530,8 @@ print.summary.meta <- function(x,
               irunit = irunit,
               null.effect = if (null.given) null.effect else 0,
               big.mark = big.mark,
-              digits = digits, digits.tau2 = digits.tau2,
+              digits = digits, digits.tau = digits.tau,
+              text.tau = text.tau,
               method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
   }
   

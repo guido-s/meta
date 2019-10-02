@@ -1074,6 +1074,8 @@ forest.metabind <- function(x,
   x$data$I2 <- rmSpace(x$data$I2)
   x$data$lower.I2 <- rmSpace(x$data$lower.I2)
   x$data$upper.I2 <- rmSpace(x$data$upper.I2)
+  ##
+  x$data$k <- as.character(x$data$k)
   
   
   if (missing(smlab))

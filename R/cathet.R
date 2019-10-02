@@ -1,10 +1,14 @@
 cathet <- function(k,
-                   print.tau, text.tau2, tau, digits.tau2, big.mark,
-                   print.H, H, lowH, uppH, digits.H,
-                   print.I2, print.ci.I2, text.I2,
-                   I2, lowI2, uppI2, digits.I2,
-                   print.Rb, text.Rb, Rb, lowRb, uppRb
-                   ) {
+                   tau,
+                   print.tau2, text.tau2, digits.tau2,
+                   print.tau, text.tau, digits.tau,
+                   I2, lowI2, uppI2, 
+                   print.I2, print.ci.I2, text.I2, digits.I2,
+                   H, lowH, uppH,
+                   print.H, digits.H,
+                   Rb, lowRb, uppRb,
+                   print.Rb, text.Rb,
+                   big.mark) {
   
   
   pasteCI <- function(lower, upper, digits, big.mark, char = "")
@@ -15,28 +19,25 @@ cathet <- function(k,
   
   cat(
     paste0(
-      if (print.tau)
+      if (print.tau2)
         formatPT(tau^2,
                  lab = TRUE, labval = text.tau2,
                  digits = digits.tau2,
                  lab.NA = "NA",
                  big.mark = big.mark),
       ##
-      if (print.H)
-        paste0(if (print.tau)
+      if (print.tau)
+        paste0(if (print.tau2)
                  "; ",
-               "H = ",
-               if (is.na(H))
-                 "NA"
-               else
-                 formatN(H, digits.H, "NA", big.mark = big.mark),
-               if (k > 2 & !(is.na(lowH) | is.na(uppH)))
-                 pasteCI(lowH, uppH, digits.H, big.mark)
-               ),
+               formatPT(tau,
+                        lab = TRUE, labval = text.tau,
+                        digits = digits.tau,
+                        lab.NA = "NA",
+                        big.mark = big.mark)),
       ##
       if (print.I2)
-        paste0(if (print.tau | print.H)
-                 "; ",
+        paste0(if (print.tau2 | print.tau)
+                 ";\n",
                text.I2, " = ",
                if (is.na(I2))
                  "NA"
@@ -46,9 +47,23 @@ cathet <- function(k,
                  pasteCI(lowI2, uppI2, digits.I2, big.mark, "%")
                ),
       ##
-      if (print.Rb)
-        paste0(if (print.tau | print.H | print.I2)
+      if (print.H)
+        paste0(if (print.tau2 | print.tau | print.I2)
                  "; ",
+               if ((print.tau2 | print.tau) & !print.I2)
+                 "\n",
+               "H = ",
+               if (is.na(H))
+                 "NA"
+               else
+                 formatN(H, digits.H, "NA", big.mark = big.mark),
+               if (k > 2 & !(is.na(lowH) | is.na(uppH)))
+                 pasteCI(lowH, uppH, digits.H, big.mark)
+               ),
+      ##
+      if (print.Rb)
+        paste0(if (print.tau2 | print.tau | print.I2 | print.H)
+                 ";\n",
                text.Rb, " = ",
                if (is.na(Rb))
                  "NA"
@@ -58,7 +73,7 @@ cathet <- function(k,
                  pasteCI(lowRb, uppRb, digits.I2, big.mark, "%")
                ),
       ##
-      if (print.tau | print.H | print.I2 | print.Rb)
+      if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
         "\n"
     )
   )

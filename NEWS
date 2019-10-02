@@ -1,3 +1,16 @@
+*** meta, version 4.9-8, 2019-mm-dd ***
+
+ ** User-visible changes **
+
+  * Print square root of between-study variance in outputs
+
+  * Number of studies printed without digits for R objectes created
+    with metabind()
+
+  * In subgroup analyses, print the group labels instead of levels if
+    grouping variable is a factor
+
+
 *** meta, version 4.9-7, 2019-09-27 ***
 
  ** Major changes **

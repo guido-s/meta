@@ -112,12 +112,12 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "layout",
               "test.overall", "test.subgroup", "test.effect.subgroup",
               "digits", "digits.se", "digits.zval",
-              "digits.Q", "digits.tau2", "digits.H", "digits.I2",
+              "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
               "digits.pval", "digits.pval.Q", "digits.forest",
               "scientific.pval", "big.mark",
               "print.I2", "print.H", "print.Rb",
-              "text.tau2", "text.I2", "text.Rb"
+              "text.tau2", "text.tau", "text.I2", "text.Rb"
               )
 ##
 setOption("argslist", argslist)
@@ -148,6 +148,7 @@ setOption("digits.se", 4)
 setOption("digits.zval", 2)
 setOption("digits.Q", 2)
 setOption("digits.tau2", 4)
+setOption("digits.tau", 4)
 setOption("digits.H", 2)
 setOption("digits.I2", 1)
 setOption("digits.prop", 4)
@@ -160,6 +161,7 @@ setOption("print.I2", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
 setOption("text.tau2", "tau^2")
+setOption("text.tau", "tau")
 setOption("text.I2", "I^2")
 setOption("text.Rb", "Rb")
 ##

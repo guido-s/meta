@@ -50,7 +50,9 @@
 #'   overall effect \cr
 #' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
 #'   \cr
-#' \code{digits.tau2} \tab 0 \tab number of digits for tau-squared \cr
+#' \code{digits.tau2} \tab 2 \tab number of digits for tau-squared \cr
+#' \code{digits.tau} \tab 4 \tab number of digits for square root of
+#'   tau-squared \cr
 #' \code{CIbracket}, \tab "[" \tab \cr
 #' \code{CIseparator} \tab ", " \tab print confidence intervals as
 #'   "\code{[., .]}"
@@ -353,6 +355,7 @@ settings.meta <- function(...) {
     catarg("digits.zval    ")
     catarg("digits.Q       ")
     catarg("digits.tau2    ")
+    catarg("digits.tau     ")
     catarg("digits.H       ")
     catarg("digits.I2      ")
     catarg("digits.prop    ")
@@ -365,6 +368,7 @@ settings.meta <- function(...) {
     catarg("print.H        ")
     catarg("print.Rb       ")
     catarg("text.tau2      ")
+    catarg("text.tau       ")
     catarg("text.I2        ")
     catarg("text.Rb        ")
     ##
@@ -447,6 +451,7 @@ settings.meta <- function(...) {
     setOption("digits.zval", 2)
     setOption("digits.Q", 2)
     setOption("digits.tau2", 4)
+    setOption("digits.tau", 4)
     setOption("digits.H", 2)
     setOption("digits.I2", 1)
     setOption("digits.prop", 4)
@@ -459,6 +464,7 @@ settings.meta <- function(...) {
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
     setOption("text.tau2", "tau^2")
+    setOption("text.tau", "tau")
     setOption("text.I2", "I^2")
     setOption("text.Rb", "Rb")
     ##
@@ -508,13 +514,13 @@ settings.meta <- function(...) {
                                "MH.exact", "RR.cochrane",
                                "layout", "test.overall",
                                "test.subgroup", "test.effect.subgroup",
-                               "digits.I2", "digits.tau2",
+                               "digits.I2", "digits.tau2", "digits.tau",
                                "CIbracket", "CIseparator"),
                       new = list(FALSE, "DL", FALSE,
                                  FALSE, TRUE,
                                  "RevMan5", TRUE,
                                  TRUE, TRUE,
-                                 0, 2,
+                                 0, 2, 4,
                                  "[", ", "),
                       setting = "RevMan 5 settings")
     }
@@ -578,6 +584,7 @@ settings.meta <- function(...) {
     iddigits.zval <- argid(names, "digits.zval")
     iddigits.Q <- argid(names, "digits.Q") 
     iddigits.tau2 <- argid(names, "digits.tau2")
+    iddigits.tau <- argid(names, "digits.tau")
     iddigits.H <- argid(names, "digits.H") 
     iddigits.I2 <- argid(names, "digits.I2")
     iddigits.prop <- argid(names, "digits.prop")
@@ -590,6 +597,7 @@ settings.meta <- function(...) {
     idprint.H <- argid(names, "print.H")
     idprint.Rb <- argid(names, "print.Rb")
     idtext.tau2 <- argid(names, "text.tau2")
+    idtext.tau <- argid(names, "text.tau")
     idtext.I2 <- argid(names, "text.I2")
     idtext.Rb <- argid(names, "text.Rb")
     ##
@@ -762,6 +770,11 @@ settings.meta <- function(...) {
       chknumeric(digits.tau2, min = 0, single = TRUE)
       setOption("digits.tau2", digits.tau2)
     }
+    if (!is.na(iddigits.tau)) {
+      digits.tau <- args[[iddigits.tau]]
+      chknumeric(digits.tau, min = 0, single = TRUE)
+      setOption("digits.tau", digits.tau)
+    }
     if (!is.na(iddigits.H)) {
       digits.H <- args[[iddigits.H]]
       chknumeric(digits.H, min = 0, single = TRUE)
@@ -825,6 +838,13 @@ settings.meta <- function(...) {
         stop("Argument 'text.tau2' must be a character string.")
       ##
       setOption("text.tau2", text.tau2)
+    }
+    if (!is.na(idtext.tau)) {
+      text.tau <- args[[idtext.tau]]
+      if (length(text.tau) != 1)
+        stop("Argument 'text.tau' must be a character string.")
+      ##
+      setOption("text.tau", text.tau)
     }
     if (!is.na(idtext.I2)) {
       text.I2 <- args[[idtext.I2]]
