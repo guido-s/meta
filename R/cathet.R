@@ -37,7 +37,7 @@ cathet <- function(k,
       ##
       if (print.I2)
         paste0(if (print.tau2 | print.tau)
-                 ";\n",
+                 "; ",
                text.I2, " = ",
                if (is.na(I2))
                  "NA"
@@ -50,8 +50,6 @@ cathet <- function(k,
       if (print.H)
         paste0(if (print.tau2 | print.tau | print.I2)
                  "; ",
-               if ((print.tau2 | print.tau) & !print.I2)
-                 "\n",
                "H = ",
                if (is.na(H))
                  "NA"

@@ -65,8 +65,9 @@
 #'   \code{\link{text}}.
 #' @param pos.studlab Position of study labels, see argument
 #'   \code{pos} in \code{\link{text}}.
-#' @param ref.triangle A logical indicating whether reference value
-#'   (null effect) should be printed.
+#' @param ref.triangle A logical indicating whether approximate
+#'   confidence limits should be printed around reference value (null
+#'   effect).
 #' @param lty.ref Line type (reference value).
 #' @param lwd.ref The line width for the reference value and
 #'   corresponding confidence intervals (if \code{ref.triangle} is
@@ -86,8 +87,13 @@
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
 #' graphics window. If \code{comb.fixed} is TRUE, the pooled estimate
-#' of the fixed effect model is plotted. If \code{level} is not NULL,
-#' the corresponding confidence limits are drawn.
+#' of the fixed effect model is plotted as a vertical line. Similarly,
+#' if \code{comb.random} is TRUE, the pooled estimate of the random
+#' effects model is plotted. If \code{level} is not NULL, the
+#' corresponding approximate confidence limits are drawn around the
+#' fixed effect estimate (if \code{comb.fixed} is TRUE) or the random
+#' effects estimate (if \code{comb.random} is TRUE and
+#' \code{comb.fixed} is FALSE).
 #' 
 #' In the funnel plot, if \code{yaxis} is \code{"se"}, the standard
 #' error of the treatment estimates is plotted on the y-axis which is
@@ -294,7 +300,7 @@ funnel.meta <- function(x,
                         ##
                         ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
-                        level = x$level,
+                        level = if (comb.fixed | comb.random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                         ##
                         ref.triangle = FALSE,
@@ -408,26 +414,41 @@ funnel.meta <- function(x,
   ##
   seTE.max <- max(seTE, na.rm = TRUE)
   ##
+  if (is.relative.effect(sm))
+    ref <- log(ref)
+  ##
   if (!is.null(level)) {
     ##
     seTE.seq <- seq(seTE.min, seTE.max, length.out = 500)
     ##
-    ciTE <- ci(TE.fixed, seTE.seq, level)
-    ciTE.ref <- ci(0, seTE.seq, level)
+    if (comb.random & !comb.fixed)
+      ciTE <- ci(TE.random, seTE.seq, level)
+    else
+      ciTE <- ci(TE.fixed, seTE.seq, level)
     ##
-    if (comb.fixed | !ref.triangle)
-      TE.xlim <- c(min(c(TE, ciTE$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
+    ciTE.ref <- ci(ref, seTE.seq, level)
     ##
-    if (ref.triangle)
+    if ((comb.fixed | comb.random) & ref.triangle)
+      TE.xlim <- c(min(c(TE, ciTE$lower, ciTE.ref$lower),
+                       na.rm = TRUE) / 1.025,
+                   1.025 * max(c(TE, ciTE$upper, ciTE.ref$upper),
+                               na.rm = TRUE))
+    ##
+    else if (ref.triangle)
       TE.xlim <- c(min(c(TE, ciTE.ref$lower), na.rm = TRUE) / 1.025,
                    1.025 * max(c(TE, ciTE.ref$upper), na.rm = TRUE))
+    ##
+    else
+      TE.xlim <- c(min(c(TE, ciTE$lower), na.rm = TRUE) / 1.025,
+                   1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
   }
   ##
   if (backtransf & is.relative.effect(sm)) {
     TE <- exp(TE)
     TE.fixed <- exp(TE.fixed)
     TE.random <- exp(TE.random)
+    ref <- exp(ref)
+    ##
     if (!is.null(level)) {
       ciTE$lower <- exp(ciTE$lower)
       ciTE$upper <- exp(ciTE$upper)
@@ -511,9 +532,6 @@ funnel.meta <- function(x,
       stop("arguments 'contour.levels' and 'col.contour' must be of the same length")
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out = 500)
-    ##
-    if (is.relative.effect(sm))
-      ref <- log(ref)
     ##
     j <- 0
     ##
@@ -631,27 +649,31 @@ funnel.meta <- function(x,
   ## Add approximate confidence intervals
   ##
   if (!is.null(level)) {
-    if (comb.fixed | !ref.triangle) {
+    if (comb.fixed | comb.random | !ref.triangle) {
       tlow <- ciTE$lower
       tupp <- ciTE$upper
       ##
+      lty.lines <- if (comb.random & !comb.fixed) lty.random else lty.fixed
+      lwd.lines <- if (comb.random & !comb.fixed) lwd.random else lwd.fixed
+      col.lines <- if (comb.random & !comb.fixed) col.random else col.fixed
+      ##
       if (yaxis == "se") {
-        points(tlow, seTE.seq, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
-        points(tupp, seTE.seq, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
+        points(tlow, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
+        points(tupp, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
       }
       else if (yaxis == "invvar") {
-        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
-        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
+        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
+        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
       }
       else if (yaxis == "invse") {
-        points(tlow, 1 / seTE.seq, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
-        points(tupp, 1 / seTE.seq, type = "l", lty = lty.fixed, lwd = lwd.fixed,
-               col = col.fixed)
+        points(tlow, 1 / seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
+        points(tupp, 1 / seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
       }
     }
     ##
