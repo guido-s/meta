@@ -72,21 +72,22 @@ forest(x, ...)
   label.test.subgroup.fixed, label.test.subgroup.random,
   test.effect.subgroup, test.effect.subgroup.fixed,
   test.effect.subgroup.random, label.test.effect.subgroup.fixed,
-  label.test.effect.subgroup.random, fontsize = 12, fontfamily = NULL,
-  fs.heading = fontsize, fs.fixed, fs.random, fs.predict,
-  fs.fixed.labels, fs.random.labels, fs.predict.labels,
-  fs.study = fontsize, fs.study.labels = fs.study, fs.hetstat,
-  fs.test.overall, fs.test.subgroup, fs.test.effect.subgroup,
-  fs.axis = fontsize, fs.smlab = fontsize, fs.xlab = fontsize,
-  fs.lr = fontsize, ff.heading = "bold", ff.fixed, ff.random,
-  ff.predict, ff.fixed.labels, ff.random.labels, ff.predict.labels,
-  ff.study = "plain", ff.study.labels = ff.study, ff.hetstat,
-  ff.test.overall, ff.test.subgroup, ff.test.effect.subgroup,
-  ff.axis = "plain", ff.smlab = "bold", ff.xlab = "plain",
-  ff.lr = "plain", squaresize = 0.8/spacing, plotwidth = if (layout
-  != "JAMA") "6cm" else "8cm", colgap = "2mm", colgap.left = colgap,
-  colgap.right = colgap, colgap.studlab = colgap.left,
-  colgap.forest = colgap, colgap.forest.left = colgap.forest,
+  label.test.effect.subgroup.random, text.addline1, text.addline2,
+  fontsize = 12, fontfamily = NULL, fs.heading = fontsize, fs.fixed,
+  fs.random, fs.predict, fs.fixed.labels, fs.random.labels,
+  fs.predict.labels, fs.study = fontsize, fs.study.labels = fs.study,
+  fs.hetstat, fs.test.overall, fs.test.subgroup, fs.test.effect.subgroup,
+  fs.addline, fs.axis = fontsize, fs.smlab = fontsize,
+  fs.xlab = fontsize, fs.lr = fontsize, ff.heading = "bold",
+  ff.fixed, ff.random, ff.predict, ff.fixed.labels, ff.random.labels,
+  ff.predict.labels, ff.study = "plain", ff.study.labels = ff.study,
+  ff.hetstat, ff.test.overall, ff.test.subgroup, ff.test.effect.subgroup,
+  ff.addline, ff.axis = "plain", ff.smlab = "bold",
+  ff.xlab = "plain", ff.lr = "plain", squaresize = 0.8/spacing,
+  plotwidth = if (layout != "JAMA") "6cm" else "8cm", colgap = "2mm",
+  colgap.left = colgap, colgap.right = colgap,
+  colgap.studlab = colgap.left, colgap.forest = colgap,
+  colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest, calcwidth.pooled = TRUE,
   calcwidth.fixed = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled, calcwidth.predict = FALSE,
@@ -521,6 +522,12 @@ model).}
 results of test for effect in subgroups (based on random effects
 model).}
 
+\item{text.addline1}{Text for first additional line (below
+meta-analysis results).}
+
+\item{text.addline2}{Text for second additional line (below
+meta-analysis results).}
+
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
 
@@ -564,6 +571,9 @@ differences, see \code{\link{gpar}}.}
 
 \item{fs.test.effect.subgroup}{The size of text of test of effect
 in subgroups, see \code{\link{gpar}}.}
+
+\item{fs.addline}{The size of text for additional lines, see
+\code{\link{gpar}}.}
 
 \item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
 
@@ -614,6 +624,9 @@ differences, see \code{\link{gpar}}.}
 
 \item{ff.test.effect.subgroup}{The fontface of text for test of
 effect in subgroups, see \code{\link{gpar}}.}
+
+\item{ff.addline}{The fontface of text for additional lines, see
+\code{\link{gpar}}.}
 
 \item{ff.axis}{The fontface of text on x-axis, see
 \code{\link{gpar}}.}
@@ -810,7 +823,7 @@ prediction interval). By default the following text is printed:
 }
 
 If confidence interval levels are different for individual studies,
-meta-analysis, and prediciton interval (arguments \code{level},
+meta-analysis, and prediction interval (arguments \code{level},
 \code{level.comb}, \code{level.predict} in meta-analysis functions,
 e.g., \code{\link{metabin}}), additional information is printed,
 e.g., " (99\%-CI)" for a 99\% confidence interval in the
@@ -1097,20 +1110,22 @@ forest(m1,
        lab.e.attach.to.col = "event.e",
        lab.c.attach.to.col = "event.c")
 
-# Specify column labels only for newly created variables 'year' and
-# 'author' (which are part of dataset Olkin95)
+# Specify column labels only for variables 'year' and 'author'
+# (and define digits for additional variables)
 #
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-                  "author", "year"),
-       leftlabs = c("Author", "Year of Publ"))
+                    "author", "year"),
+       leftlabs = c("Author", "Year of Publ"),
+       digits.addcols = c(NA, 0))
 
 # Center text in all columns
 #
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-                  "author", "year"),
-       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+                    "author", "year"),
+       leftlabs = c("Author", "Year of Publ"),
+       digits.addcols = c(NA, 0), hetstat = FALSE,
        just = "center", just.addcols = "center", just.studlab = "center")
 
 # Same result
@@ -1118,7 +1133,8 @@ forest(m1,
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
                   "author", "year"),
-       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+       leftlabs = c("Author", "Year of Publ"),
+       digits.addcols = c(NA, 0), hetstat = FALSE,
        just = "c", just.addcols = "c", just.studlab = "c")
 
 # Change some fontsizes and fontfaces

@@ -271,6 +271,10 @@
 #' @param label.test.effect.subgroup.random Label printed in front of
 #'   results of test for effect in subgroups (based on random effects
 #'   model).
+#' @param text.addline1 Text for first additional line (below
+#'   meta-analysis results).
+#' @param text.addline2 Text for second additional line (below
+#'   meta-analysis results).
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
@@ -300,6 +304,8 @@
 #'   differences, see \code{\link{gpar}}.
 #' @param fs.test.effect.subgroup The size of text of test of effect
 #'   in subgroups, see \code{\link{gpar}}.
+#' @param fs.addline The size of text for additional lines, see
+#'   \code{\link{gpar}}.
 #' @param fs.axis The size of text on x-axis, see \code{\link{gpar}}.
 #' @param fs.smlab The size of text of label for summary measure, see
 #'   \code{\link{gpar}}.
@@ -333,6 +339,8 @@
 #'   differences, see \code{\link{gpar}}.
 #' @param ff.test.effect.subgroup The fontface of text for test of
 #'   effect in subgroups, see \code{\link{gpar}}.
+#' @param ff.addline The fontface of text for additional lines, see
+#'   \code{\link{gpar}}.
 #' @param ff.axis The fontface of text on x-axis, see
 #'   \code{\link{gpar}}.
 #' @param ff.smlab The fontface of text of label for summary measure,
@@ -504,7 +512,7 @@
 #' }
 #'
 #' If confidence interval levels are different for individual studies,
-#' meta-analysis, and prediciton interval (arguments \code{level},
+#' meta-analysis, and prediction interval (arguments \code{level},
 #' \code{level.comb}, \code{level.predict} in meta-analysis functions,
 #' e.g., \code{\link{metabin}}), additional information is printed,
 #' e.g., " (99\%-CI)" for a 99\% confidence interval in the
@@ -811,20 +819,22 @@
 #'        lab.e.attach.to.col = "event.e",
 #'        lab.c.attach.to.col = "event.c")
 #' 
-#' # Specify column labels only for newly created variables 'year' and
-#' # 'author' (which are part of dataset Olkin95)
+#' # Specify column labels only for variables 'year' and 'author'
+#' # (and define digits for additional variables)
 #' #
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"))
+#'                     "author", "year"),
+#'        leftlabs = c("Author", "Year of Publ"),
+#'        digits.addcols = c(NA, 0))
 #' 
 #' # Center text in all columns
 #' #
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'                     "author", "year"),
+#'        leftlabs = c("Author", "Year of Publ"),
+#'        digits.addcols = c(NA, 0), hetstat = FALSE,
 #'        just = "center", just.addcols = "center", just.studlab = "center")
 #' 
 #' # Same result
@@ -832,7 +842,8 @@
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'        leftlabs = c("Author", "Year of Publ"),
+#'        digits.addcols = c(NA, 0), hetstat = FALSE,
 #'        just = "c", just.addcols = "c", just.studlab = "c")
 #' 
 #' # Change some fontsizes and fontfaces
@@ -1258,6 +1269,9 @@ forest.meta <- function(x,
                         label.test.effect.subgroup.fixed,
                         label.test.effect.subgroup.random,
                         ##
+                        text.addline1,
+                        text.addline2,
+                        ##
                         fontsize = 12,
                         fontfamily = NULL,
                         fs.heading = fontsize,
@@ -1273,6 +1287,7 @@ forest.meta <- function(x,
                         fs.test.overall,
                         fs.test.subgroup,
                         fs.test.effect.subgroup,
+                        fs.addline,
                         fs.axis = fontsize,
                         fs.smlab = fontsize,
                         fs.xlab = fontsize,
@@ -1291,6 +1306,7 @@ forest.meta <- function(x,
                         ff.test.overall,
                         ff.test.subgroup,
                         ff.test.effect.subgroup,
+                        ff.addline,
                         ff.axis = "plain",
                         ff.smlab = "bold",
                         ff.xlab = "plain",
@@ -1595,6 +1611,8 @@ forest.meta <- function(x,
     chknumeric(fs.test.subgroup, single = TRUE)
   if (!missing(fs.test.effect.subgroup))
     chknumeric(fs.test.effect.subgroup, single = TRUE)
+  if (!missing(fs.addline))
+    chknumeric(fs.addline, single = TRUE)
   chknumeric(fs.axis, single = TRUE)
   chknumeric(fs.smlab, single = TRUE)
   chknumeric(fs.xlab, single = TRUE)
@@ -1618,6 +1636,17 @@ forest.meta <- function(x,
   weight.study <- setchar(weight.study, c("same", "fixed", "random"))
   ##
   chknumeric(spacing, single = TRUE)
+  ##
+  missing.text.addline1 <- missing(text.addline1)
+  if (!missing.text.addline1)
+    chkchar(text.addline1)
+  else
+    text.addline1 <- ""
+  missing.text.addline2 <- missing(text.addline2)
+  if (!missing.text.addline2)
+    chkchar(text.addline2)
+  else
+    text.addline2 <- ""
   ##
   ## Check and set additional empty rows in forest plot
   ##
@@ -1811,6 +1840,8 @@ forest.meta <- function(x,
       ff.test.subgroup <- ff.hetstat
     if (missing(ff.test.effect.subgroup))
       ff.test.effect.subgroup <- ff.hetstat
+    if (missing(ff.addline))
+      ff.addline <- ff.hetstat
     ##
     if (missing(fs.hetstat))
       fs.hetstat <- fontsize - 1
@@ -1820,6 +1851,8 @@ forest.meta <- function(x,
       fs.test.subgroup <- fs.hetstat
     if (missing(fs.test.effect.subgroup))
       fs.test.effect.subgroup <- fs.hetstat
+    if (missing(fs.addline))
+      fs.addline <- fs.hetstat
   }
   else if (jama) {
     if (missing(ff.hetstat))
@@ -1830,6 +1863,8 @@ forest.meta <- function(x,
       ff.test.subgroup <- ff.hetstat
     if (missing(ff.test.effect.subgroup))
       ff.test.effect.subgroup <- ff.hetstat
+    if (missing(ff.addline))
+      ff.addline <- ff.hetstat
     ##
     if (missing(fs.hetstat))
       fs.hetstat <- fontsize - 1
@@ -1839,6 +1874,8 @@ forest.meta <- function(x,
       fs.test.subgroup <- fs.hetstat
     if (missing(fs.test.effect.subgroup))
       fs.test.effect.subgroup <- fs.hetstat
+    if (missing(fs.addline))
+      fs.addline <- fs.hetstat
   }
   else {
     if (missing(ff.hetstat))
@@ -1849,6 +1886,8 @@ forest.meta <- function(x,
       ff.test.subgroup <- ff.hetstat
     if (missing(ff.test.effect.subgroup))
       ff.test.effect.subgroup <- ff.hetstat
+    if (missing(ff.addline))
+      ff.addline <- ff.hetstat
     ##
     if (missing(fs.hetstat))
       fs.hetstat <- fontsize - 1
@@ -1858,6 +1897,8 @@ forest.meta <- function(x,
       fs.test.subgroup <- fs.hetstat
     if (missing(fs.test.effect.subgroup))
       fs.test.effect.subgroup <- fs.hetstat
+    if (missing(fs.addline))
+      fs.addline <- fs.hetstat
   }
   
   
@@ -5253,6 +5294,7 @@ forest.meta <- function(x,
                  hetstat.overall, hetstat.resid,
                  text.overall.fixed, text.overall.random,
                  text.subgroup.fixed, text.subgroup.random,
+                 text.addline1, text.addline2,
                  bylab, text.fixed.w, text.random.w, hetstat.w,
                  unlist(text.effect.subgroup.fixed),
                  unlist(text.effect.subgroup.random),
@@ -5332,7 +5374,9 @@ forest.meta <- function(x,
     modlabs <- c(text.fixed, text.random, text.predict,
                  hetstat.overall, hetstat.resid,
                  text.overall.fixed, text.overall.random,
-                 text.subgroup.fixed, text.subgroup.random, studlab)
+                 text.subgroup.fixed, text.subgroup.random,
+                 text.addline1, text.addline2,
+                 studlab)
     ##
     TEs    <- c(TE.fixed, TE.random, NA, TE)
     lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE)
@@ -5895,6 +5939,8 @@ forest.meta <- function(x,
   yOverall.random <- NA
   ySubgroup.fixed  <- NA
   ySubgroup.random <- NA
+  yText.addline1 <- NA
+  yText.addline2 <- NA
   ##
   if (fixed.random & overall) {
     yTE.fixed  <- yNext
@@ -5949,8 +5995,18 @@ forest.meta <- function(x,
     yNext           <- yNext + 1
   }
   ##
-  if (test.subgroup.random)
+  if (test.subgroup.random) {
     ySubgroup.random <- yNext
+    yNext            <- yNext + 1
+  }
+  ##
+  if (!missing.text.addline1) {
+    yText.addline1 <- yNext
+    yNext      <- yNext + 1
+  }
+  ##
+  if (!missing.text.addline2)
+    yText.addline2 <- yNext
   ##
   if (!comb.fixed & !pooled.totals) text.fixed <- ""
   if (!comb.random) text.random <- ""
@@ -5968,11 +6024,14 @@ forest.meta <- function(x,
   yOverall.random <- yHead + yOverall.random + addrow
   ySubgroup.fixed  <- yHead + ySubgroup.fixed + addrow
   ySubgroup.random <- yHead + ySubgroup.random + addrow
+  yText.addline1 <- yHead + yText.addline1 + addrow
+  yText.addline2 <- yHead + yText.addline2 + addrow
   ##
   yStats <- c(yHetstat,
               yResidHetstat,
               yOverall.fixed, yOverall.random,
-              ySubgroup.fixed, ySubgroup.random)
+              ySubgroup.fixed, ySubgroup.random,
+              yText.addline1, yText.addline2)
   ##
   if (by) {
     yBylab <- yHead + yBylab + addrow
@@ -6040,8 +6099,14 @@ forest.meta <- function(x,
   ## Test for subgroup differences (random effects model):
   col.studlab$labels[[10]] <- tg(text.subgroup.random, xpos.s, just.s,
                                  fs.test.subgroup, ff.test.subgroup, fontfamily)
+  ## First additional line:
+  col.studlab$labels[[11]] <- tg(text.addline1, xpos.s, just.s,
+                                 fs.addline, ff.addline, fontfamily)
+  ## Second additional line:
+  col.studlab$labels[[12]] <- tg(text.addline2, xpos.s, just.s,
+                                 fs.addline, ff.addline, fontfamily)
   ##
-  n.summaries <- 10
+  n.summaries <- 12
   ##
   if (by) {
     for (i in 1:n.by) {
@@ -6636,10 +6701,15 @@ forest.meta <- function(x,
   }
   ##
   ymin.line <- overall.hetstat + test.overall.fixed + test.overall.random +
-    resid.hetstat + test.subgroup.fixed + test.subgroup.random
+    resid.hetstat + test.subgroup.fixed + test.subgroup.random +
+    (1 - missing.text.addline1) + (1 - missing.text.addline2)
   ##
   ymin.line <- ymin.line + (overall & ymin.line == 0 &
                             !(!addrow.overall | !addrow))
+  if (hetstat %in% c("fixed", "random") &
+      (!missing.text.addline1 | !missing.text.addline2)) {
+    ymin.line <- ymin.line + 1
+  }
   ##
   ymin.fixed  <- spacing * (ymin.line + prediction + comb.random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
