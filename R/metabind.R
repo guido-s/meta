@@ -545,6 +545,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   res$Q <- makeunique(res$Q)
   res$df.Q <- makeunique(res$df.Q, 0)
+  res$pval.Q <- makeunique(res$pval.Q, 0)
   res$tau <- makeunique(res$tau)
   res$se.tau <- makeunique(res$se.tau)
   ##
