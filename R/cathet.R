@@ -55,7 +55,7 @@ cathet <- function(k,
                  "NA"
                else
                  formatN(H, digits.H, "NA", big.mark = big.mark),
-               if (k > 2 & !(is.na(lowH) | is.na(uppH)))
+               if (!(is.na(lowH) | is.na(uppH)))
                  pasteCI(lowH, uppH, digits.H, big.mark)
                ),
       ##
@@ -67,7 +67,7 @@ cathet <- function(k,
                  "NA"
                else
                  paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%"),
-               if (k > 2 & !(is.na(lowRb) | is.na(uppRb)))
+               if (!(is.na(lowRb) | is.na(uppRb)))
                  pasteCI(lowRb, uppRb, digits.I2, big.mark, "%")
                ),
       ##
