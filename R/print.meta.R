@@ -439,32 +439,14 @@ print.meta <- function(x,
   ##
   ##
   if (k.all == 1 & !inherits(x, "metaprop")) {
-    if (inherits(x, "metabin") & x$method == "MH")
-      print(summary(metabin(x$event.e, x$n.e,
-                            x$event.c, x$n.c,
-                            sm = sm,
-                            method = "Inverse",
-                            studlab = x$studlab,
-                            incr = x$incr,
-                            allincr = x$allincr,
-                            doublezeros = x$doublezeros,
-                            MH.exact = x$MH.exact,
-                            warn = FALSE, level.comb = level.comb)),
-            header = FALSE,
-            digits = digits,
-            backtransf = backtransf, pscale = pscale,
-            irscale = irscale, irunit = irunit, big.mark = big.mark,
-            warn.backtransf = warn.backtransf,
-            ...)
-    else
-      print(summary(x),
-            header = FALSE,
-            digits = digits,
-            backtransf = backtransf, pscale = pscale,
-            irscale = irscale, irunit = irunit, big.mark = big.mark,
-            text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
-            warn.backtransf = warn.backtransf,
-            ...)
+    print(summary(x),
+          header = FALSE,
+          digits = digits,
+          backtransf = backtransf, pscale = pscale,
+          irscale = irscale, irunit = irunit, big.mark = big.mark,
+          text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
+          warn.backtransf = warn.backtransf,
+          ...)
   }
   else {
     TE <- x$TE

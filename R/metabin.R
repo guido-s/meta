@@ -1006,9 +1006,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     comb.fixed  <- FALSE
     comb.random <- FALSE
     prediction  <- FALSE
-    ##
-    if (method == "MH")
-      method <- "Inverse"
   }
   ##
   ## Check variable values
@@ -1278,14 +1275,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
-  ##
-  if (sum(!is.na(TE)) == 1 & k.all > 1 & method == "MH") {
-    if (warn)
-      warning("For a single study, inverse variance method used ",
-              "instead of Mantel-Haenszel method.",
-              call. = FALSE)
-    method <- "Inverse"
-  }
   ##
   if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" & MH.exact == FALSE)
     MH.exact <- TRUE

@@ -10,6 +10,11 @@
   * In subgroup analyses, print the group labels instead of levels if
     the grouping variable is a factor
 
+  * For Mantel-Haenszel (MH) method, report results as MH (instead of
+    inverse variance, IV) method for meta-analysis of binary outcome
+    with a single study (results are identical for MH and IV method in
+    this situation)
+
   * funnel.meta():
     - print funnel around random effects estimate if only random
       effects estimate is shown (instead of fixed effect estimate)
