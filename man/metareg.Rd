@@ -4,27 +4,36 @@
 \alias{metareg}
 \title{Meta-regression}
 \usage{
-metareg(x, formula, method.tau = x$method.tau, hakn = x$hakn,
-  level.comb = x$level.comb, intercept = TRUE, ...)
+metareg(
+  x,
+  formula,
+  method.tau = x$method.tau,
+  hakn = x$hakn,
+  level.comb = x$level.comb,
+  intercept = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
 \item{formula}{Either a character string or a formula object.}
 
-\item{method.tau}{A character string indicating which method is used to
-estimate the between-study variance tau-squared. Either \code{"FE"},
-\code{"DL"}, \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+\item{method.tau}{A character string indicating which method is
+used to estimate the between-study variance tau-squared. Either
+\code{"FE"}, \code{"DL"}, \code{"REML"}, \code{"ML"},
+\code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
+abbreviated.}
 
-\item{hakn}{A logical indicating whether the method by Hartung and Knapp
-should be used to adjust test statistics and confidence intervals.}
+\item{hakn}{A logical indicating whether the method by Hartung and
+Knapp should be used to adjust test statistics and confidence
+intervals.}
 
-\item{level.comb}{The level used to calculate confidence intervals for
-parameter estimates in the meta-regression model.}
+\item{level.comb}{The level used to calculate confidence intervals
+for parameter estimates in the meta-regression model.}
 
-\item{intercept}{A logical indicating whether an intercept should be
-included in the meta-regression model.}
+\item{intercept}{A logical indicating whether an intercept should
+be included in the meta-regression model.}
 
 \item{\dots}{Additional arguments passed to R function
 \code{\link[metafor]{rma.uni}}.}
@@ -53,18 +62,19 @@ package \bold{metafor} (Viechtbauer 2010).
 \details{
 This R function is a wrapper function for R function
 \code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
-(Viechtbauer 2010), i.e., function \code{metareg} can only be used
-if R package \bold{metafor} is installed.
+(Viechtbauer 2010).
 
-Note, results are not back-transformed in printouts of meta-analyses using
-summary measures with transformations, e.g., log risk ratios are printed
-instead of the risk ratio if argument \code{sm = "RR"} and logit transformed
-proportions are printed if argument \code{sm = "PLOGIT"}.
+Note, results are not back-transformed in printouts of
+meta-analyses using summary measures with transformations, e.g.,
+log risk ratios are printed instead of the risk ratio if argument
+\code{sm = "RR"} and logit transformed proportions are printed if
+argument \code{sm = "PLOGIT"}.
 
-Argument '\dots{}' can be used to pass additional arguments to R function
-\code{\link[metafor]{rma.uni}}. For example, argument \code{control} to
-provide a list of control values for the iterative estimation algorithm. See
-help page of R function \code{\link[metafor]{rma.uni}} for more details.
+Argument '\dots{}' can be used to pass additional arguments to R
+function \code{\link[metafor]{rma.uni}}. For example, argument
+\code{control} to provide a list of control values for the
+iterative estimation algorithm. See help page of R function
+\code{\link[metafor]{rma.uni}} for more details.
 }
 \examples{
 data(Fleiss93cont)

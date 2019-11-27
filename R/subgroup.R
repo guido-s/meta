@@ -34,7 +34,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 30, nrow = n.bylevs)
+  res.w <- matrix(NA, ncol = 29, nrow = n.bylevs)
   j <- 0
   ##
   for (i in bylevs) {
@@ -57,7 +57,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        addincr = x$addincr,
                        allstudies = x$allstudies,
                        MH.exact = x$MH.exact,
-                       RR.cochrane = x$RR.cochrane,
+                       RR.Cochrane = x$RR.Cochrane,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
                        method.tau = x$method.tau,
@@ -180,22 +180,21 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    meta1$lower.I2,                            # 12
                    meta1$upper.I2,                            # 13
                    meta1$tau,                                 # 14
-                   meta1$C,                                   # 15
-                   1 / mean(1 / x$n[sel]),                    # 16
-                   sum(x$w.fixed[sel]),                       # 17
-                   sum(x$w.random[sel]),                      # 18
-                   if (bin.inc) sumNA(meta1$event.e) else NA, # 19
-                   if (bin.cont.gen) sumNA(meta1$n.e) else NA,# 20
-                   if (bin.inc) sumNA(meta1$event.c) else NA, # 21
-                   if (bin.cont.gen) sumNA(meta1$n.c) else NA,# 22
-                   if (prop) sumNA(meta1$event) else NA,      # 23
-                   if (cor.prop.mean) sumNA(meta1$n) else NA, # 24
-                   if (inc) sumNA(meta1$time.e) else NA,      # 25
-                   if (inc) sumNA(meta1$time.c) else NA,      # 26
-                   1 / mean(1 / x$time[sel]),                 # 27
-                   meta1$Rb,                                  # 28
-                   meta1$lower.Rb,                            # 29
-                   meta1$upper.Rb                             # 30
+                   1 / mean(1 / x$n[sel]),                    # 15
+                   sum(x$w.fixed[sel]),                       # 16
+                   sum(x$w.random[sel]),                      # 17
+                   if (bin.inc) sumNA(meta1$event.e) else NA, # 18
+                   if (bin.cont.gen) sumNA(meta1$n.e) else NA,# 19
+                   if (bin.inc) sumNA(meta1$event.c) else NA, # 20
+                   if (bin.cont.gen) sumNA(meta1$n.c) else NA,# 21
+                   if (prop) sumNA(meta1$event) else NA,      # 22
+                   if (cor.prop.mean) sumNA(meta1$n) else NA, # 23
+                   if (inc) sumNA(meta1$time.e) else NA,      # 24
+                   if (inc) sumNA(meta1$time.c) else NA,      # 25
+                   1 / mean(1 / x$time[sel]),                 # 26
+                   meta1$Rb,                                  # 27
+                   meta1$lower.Rb,                            # 28
+                   meta1$upper.Rb                             # 29
                    )
   }
   ##
@@ -217,27 +216,25 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   ##
   tau.w <- res.w[, 14]
   ##
-  C.w <- res.w[, 15]
+  n.harmonic.mean.w <- res.w[, 15]
   ##
-  n.harmonic.mean.w <- res.w[, 16]
+  w.fixed.w  <- res.w[, 16]
+  w.random.w <- res.w[, 17]
   ##
-  w.fixed.w  <- res.w[, 17]
-  w.random.w <- res.w[, 18]
+  event.e.w <- res.w[, 18]
+  n.e.w     <- res.w[, 19]
+  event.c.w <- res.w[, 20]
+  n.c.w     <- res.w[, 21]
+  event.w   <- res.w[, 22]
+  n.w       <- res.w[, 23]
   ##
-  event.e.w <- res.w[, 19]
-  n.e.w     <- res.w[, 20]
-  event.c.w <- res.w[, 21]
-  n.c.w     <- res.w[, 22]
-  event.w   <- res.w[, 23]
-  n.w       <- res.w[, 24]
+  time.e.w <- res.w[, 24]
+  time.c.w <- res.w[, 25]
+  t.harmonic.mean.w <- res.w[, 26]
   ##
-  time.e.w <- res.w[, 25]
-  time.c.w <- res.w[, 26]
-  t.harmonic.mean.w <- res.w[, 27]
-  ##
-  Rb.w     <- res.w[, 28]
-  Rb.w.low <- res.w[, 29]
-  Rb.w.upp <- res.w[, 30]
+  Rb.w     <- res.w[, 27]
+  Rb.w.low <- res.w[, 28]
+  Rb.w.upp <- res.w[, 29]
   ##
   ## GLMM with common tau-squared
   ##
@@ -412,7 +409,6 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
               tau.w = tau.w,
-              C.w = C.w,
               ##
               H.w = H.w,
               lower.H.w = H.w.low,

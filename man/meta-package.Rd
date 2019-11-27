@@ -11,7 +11,9 @@ standard methods for meta-analysis and supporting Schwarzer et
 al. (2015), \url{http://meta-analysis-with-r.org/}.
 }
 \details{
-R package \bold{meta} (Schwarzer, 2007) provides the following
+R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
+provides the following
+
 statistical methods for meta-analysis.
 \enumerate{
 \item Fixed effect and random effects model:
@@ -30,25 +32,32 @@ statistical methods for meta-analysis.
  \item Forest plot (\code{\link{forest}})
  \item Funnel plot (\code{\link{funnel}})
  \item Galbraith plot / radial plot (\code{\link{radial}})
- \item L'Abbe plot for meta-analysis with binary outcome data (\code{\link{labbe}})
- \item Baujat plot to explore heterogeneity in meta-analysis (\code{\link{baujat}})
- \item Bubble plot to display the result of a meta-regression (\code{\link{bubble}})
+ \item L'Abbe plot for meta-analysis with binary outcome data
+  (\code{\link{labbe}})
+ \item Baujat plot to explore heterogeneity in meta-analysis
+  (\code{\link{baujat}})
+ \item Bubble plot to display the result of a meta-regression
+  (\code{\link{bubble}})
 }
 \item Statistical tests for funnel plot asymmetry
  (\code{\link{metabias}}) and trim-and-fill method
  (\code{\link{trimfill}}) to evaluate bias in meta-analysis
-\item Import data from 'RevMan 5' (\code{\link{read.rm5}}); see
-  also \code{\link{metacr}} to conduct meta-analysis for a single
-  comparison and outcome from a Cochrane review
-\item Prediction interval, Hartung-Knapp and Paule-Mandel method
-  for random effects model (see arguments \code{prediction},
-  \code{hakn}, and \code{method.tau}, respectively, in
-  meta-analysis functions listed under \emph{1. Fixed effect and
-  random effects model})
 \item Cumulative meta-analysis (\code{\link{metacum}}) and
   leave-one-out meta-analysis (\code{\link{metainf}})
-\item Meta-regression (\code{\link{metareg}}); if R package
-\bold{metafor} is installed
+\item Meta-regression (\code{\link{metareg}})
+\item Import data from Review Manager 5 (\code{\link{read.rm5}});
+  see also \code{\link{metacr}} to conduct meta-analysis for a
+  single comparison and outcome from a Cochrane review
+\item Prediction interval for the treatment effect of a new study
+ (Higgins et al., 2009); see argument \code{prediction} in
+ meta-analysis functions, e.g., \code{\link{metagen}}
+\item Hartung-Knapp method for random effects meta-analysis
+ (Hartung & Knapp, 2001a,b); see argument \code{hakn} in
+ meta-analysis functions, e.g., \code{\link{metagen}}
+\item Various estimators for the between-study variance
+ \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
+ see argument \code{method.tau} in meta-analysis functions, e.g.,
+ \code{\link{metagen}}
 \item Generalised linear mixed models (\code{\link{metabin}},
   \code{\link{metainc}}, \code{\link{metaprop}}, and
   \code{\link{metarate}})
@@ -95,8 +104,8 @@ meta-analysis generated after execution of this command:
 Type \code{help(package = "meta")} for a listing of R functions and
 datasets available in \bold{meta}.
 
-Schwarzer (2007) is the preferred citation in publications for
-\bold{meta}.  Type \code{citation("meta")} for a BibTeX entry of
+Balduzzi et al. (2019) is the preferred citation in publications
+for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of
 this publication.
 
 To report problems and bugs
@@ -110,7 +119,37 @@ To report problems and bugs
 The development version of \bold{meta} is available on GitHub
 \url{https://github.com/guido-s/meta}.
 }
+\note{
+R package \bold{meta} imports R functions from \bold{metafor}
+(Viechtbauer, 2010) to
+\itemize{
+\item estimate the between-study variance \eqn{\tau^2},
+\item conduct meta-regression,
+\item estimate generalised linear mixed models.
+}
+}
 \references{
+Balduzzi S, Rücker G, Schwarzer G (2019):
+How to perform a meta-analysis with R: a practical tutorial.
+\emph{Evidence-Based Mental Health}.
+
+Hartung J, Knapp G (2001a):
+On tests of the overall treatment effect in meta-analysis with
+normally distributed responses.
+\emph{Statistics in Medicine},
+\bold{20}, 1771--82
+
+Hartung J, Knapp G (2001b):
+A refined method for the meta-analysis of controlled clinical
+trials with binary outcome.
+\emph{Statistics in Medicine},
+\bold{20}, 3875--89
+
+Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
+A re-evaluation of random-effects meta-analysis.
+\emph{Journal of the Royal Statistical Society: Series A},
+\bold{172}, 137--59
+
 Schwarzer G (2007):
 meta: An R package for meta-analysis.
 \emph{R News},
@@ -119,6 +158,18 @@ meta: An R package for meta-analysis.
 Schwarzer G, Carpenter JR and Rücker G (2015):
 \emph{Meta-Analysis with R (Use-R!)}.
 Springer International Publishing, Switzerland
+
+Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
+et al. (2016):
+Methods to estimate the between-study variance and its uncertainty
+in meta-analysis.
+\emph{Research Synthesis Methods},
+\bold{7}, 55--79 
+
+Viechtbauer W (2010):
+Conducting Meta-Analyses in R with the metafor Package.
+\emph{Journal of Statistical Software},
+\bold{36}, 1--48
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

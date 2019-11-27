@@ -4,8 +4,16 @@
 \alias{or2smd}
 \title{Conversion from log odds ratio to standardised mean difference}
 \usage{
-or2smd(lnOR, selnOR, studlab, data = NULL, subset = NULL,
-  exclude = NULL, method = "HH", ...)
+or2smd(
+  lnOR,
+  selnOR,
+  studlab,
+  data = NULL,
+  subset = NULL,
+  exclude = NULL,
+  method = "HH",
+  ...
+)
 }
 \arguments{
 \item{lnOR}{Log odds ratio(s) or meta-analysis object.}

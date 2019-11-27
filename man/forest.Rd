@@ -8,107 +8,241 @@
 \usage{
 forest(x, ...)
 
-\method{forest}{metabind}(x, leftcols, leftlabs, rightcols = c("effect",
-  "ci"), rightlabs, overall = FALSE, subgroup = FALSE, hetstat = if
-  (any(x$is.subgroup)) FALSE else "study", overall.hetstat = FALSE,
-  lab.NA = "", digits = gs("digits.forest"),
-  digits.se = gs("digits.se"), digits.zval = gs("digits.zval"),
+\method{forest}{metabind}(
+  x,
+  leftcols,
+  leftlabs,
+  rightcols = c("effect", "ci"),
+  rightlabs,
+  overall = FALSE,
+  subgroup = FALSE,
+  hetstat = if (any(x$is.subgroup)) FALSE else "study",
+  overall.hetstat = FALSE,
+  lab.NA = "",
+  digits = gs("digits.forest"),
+  digits.se = gs("digits.se"),
+  digits.zval = gs("digits.zval"),
   digits.pval = max(gs("digits.pval") - 2, 2),
   digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-  digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
+  digits.Q = gs("digits.Q"),
+  digits.tau2 = gs("digits.tau2"),
+  digits.tau = gs("digits.tau"),
   digits.I2 = max(gs("digits.I2") - 1, 0),
-  scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-  smlab, ...)
+  scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"),
+  smlab,
+  ...
+)
 
-\method{forest}{meta}(x, sortvar, studlab = TRUE,
-  layout = gs("layout"), comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, overall = comb.fixed | comb.random,
-  text.fixed = NULL, text.random = NULL, lty.fixed = 2,
-  lty.random = 3, col.fixed = "black", col.random = "black",
-  prediction = x$prediction, text.predict = NULL, subgroup = TRUE,
-  print.subgroup.labels = TRUE, bylab = x$bylab,
-  print.byvar = x$print.byvar, byseparator = x$byseparator,
-  text.fixed.w = text.fixed, text.random.w = text.random,
-  bysort = FALSE, pooled.totals = comb.fixed | comb.random,
-  pooled.events = FALSE, pooled.times = FALSE, study.results = TRUE,
-  xlab = "", xlab.pos, smlab = NULL, smlab.pos, xlim = "symmetric",
-  allstudies = TRUE, weight.study, weight.subgroup, pscale = x$pscale,
-  irscale = x$irscale, irunit = x$irunit, ref = ifelse(backtransf &
-  is.relative.effect(x$sm), 1, 0), lower.equi = NA, upper.equi = NA,
-  lty.equi = 1, col.equi = "blue", fill.equi = "transparent",
-  leftcols = NULL, rightcols = NULL, leftlabs = NULL,
-  rightlabs = NULL, lab.e = x$label.e, lab.c = x$label.c,
-  lab.e.attach.to.col = NULL, lab.c.attach.to.col = NULL,
-  label.right = x$label.right, label.left = x$label.left,
-  bottom.lr = TRUE, lab.NA = ".", lab.NA.effect = "",
-  lab.NA.weight = "--", lwd = 1, at = NULL, label = TRUE,
-  type.study = "square", type.fixed = "diamond",
-  type.random = type.fixed, type.subgroup = ifelse(study.results,
-  "diamond", "square"), type.subgroup.fixed = type.subgroup,
-  type.subgroup.random = type.subgroup, col.study = "black",
-  col.square = "gray", col.square.lines = col.square,
-  col.inside = "white", col.diamond = "gray",
-  col.diamond.fixed = col.diamond, col.diamond.random = col.diamond,
+\method{forest}{meta}(
+  x,
+  sortvar,
+  studlab = TRUE,
+  layout = gs("layout"),
+  comb.fixed = x$comb.fixed,
+  comb.random = x$comb.random,
+  overall = comb.fixed | comb.random,
+  text.fixed = NULL,
+  text.random = NULL,
+  lty.fixed = 2,
+  lty.random = 3,
+  col.fixed = "black",
+  col.random = "black",
+  prediction = x$prediction,
+  text.predict = NULL,
+  subgroup = TRUE,
+  print.subgroup.labels = TRUE,
+  bylab = x$bylab,
+  print.byvar = x$print.byvar,
+  byseparator = x$byseparator,
+  text.fixed.w = text.fixed,
+  text.random.w = text.random,
+  bysort = FALSE,
+  pooled.totals = comb.fixed | comb.random,
+  pooled.events = FALSE,
+  pooled.times = FALSE,
+  study.results = TRUE,
+  xlab = "",
+  xlab.pos,
+  smlab = NULL,
+  smlab.pos,
+  xlim = "symmetric",
+  allstudies = TRUE,
+  weight.study,
+  weight.subgroup,
+  pscale = x$pscale,
+  irscale = x$irscale,
+  irunit = x$irunit,
+  ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+  lower.equi = NA,
+  upper.equi = NA,
+  lty.equi = 1,
+  col.equi = "blue",
+  fill.equi = "transparent",
+  leftcols = NULL,
+  rightcols = NULL,
+  leftlabs = NULL,
+  rightlabs = NULL,
+  lab.e = x$label.e,
+  lab.c = x$label.c,
+  lab.e.attach.to.col = NULL,
+  lab.c.attach.to.col = NULL,
+  label.right = x$label.right,
+  label.left = x$label.left,
+  bottom.lr = TRUE,
+  lab.NA = ".",
+  lab.NA.effect = "",
+  lab.NA.weight = "--",
+  lwd = 1,
+  at = NULL,
+  label = TRUE,
+  type.study = "square",
+  type.fixed = "diamond",
+  type.random = type.fixed,
+  type.subgroup = ifelse(study.results, "diamond", "square"),
+  type.subgroup.fixed = type.subgroup,
+  type.subgroup.random = type.subgroup,
+  col.study = "black",
+  col.square = "gray",
+  col.square.lines = col.square,
+  col.inside = "white",
+  col.diamond = "gray",
+  col.diamond.fixed = col.diamond,
+  col.diamond.random = col.diamond,
   col.diamond.lines = "black",
   col.diamond.lines.fixed = col.diamond.lines,
   col.diamond.lines.random = col.diamond.lines,
-  col.inside.fixed = col.inside, col.inside.random = col.inside,
-  col.predict = "red", col.predict.lines = "black",
-  col.by = "darkgray", col.label.right = "black",
-  col.label.left = "black", hetstat = print.I2 | print.tau2 | print.Q |
-  print.pval.Q | print.Rb, overall.hetstat = hetstat,
-  hetlab = "Heterogeneity: ", resid.hetstat = overall &
-  (is.character(hetstat) || hetstat),
-  resid.hetlab = "Residual heterogeneity: ", print.I2 = comb.fixed |
-  comb.random, print.I2.ci = FALSE, print.tau2 = comb.fixed |
-  comb.random, print.Q = FALSE, print.pval.Q = comb.fixed |
-  comb.random, print.Rb = FALSE, print.Rb.ci = FALSE,
+  col.inside.fixed = col.inside,
+  col.inside.random = col.inside,
+  col.predict = "red",
+  col.predict.lines = "black",
+  col.by = "darkgray",
+  col.label.right = "black",
+  col.label.left = "black",
+  hetstat = print.I2 | print.tau2 | print.tau | print.Q | print.pval.Q | print.Rb,
+  overall.hetstat = hetstat,
+  hetlab = "Heterogeneity: ",
+  resid.hetstat = overall & (is.character(hetstat) || hetstat) & !LRT,
+  resid.hetlab = "Residual heterogeneity: ",
+  print.I2 = comb.fixed | comb.random,
+  print.I2.ci = FALSE,
+  print.tau2 = comb.fixed | comb.random,
+  print.tau = FALSE,
+  print.Q = FALSE,
+  print.pval.Q = comb.fixed | comb.random,
+  print.Rb = FALSE,
+  print.Rb.ci = FALSE,
   text.subgroup.nohet = "not applicable",
-  test.overall = gs("test.overall"), test.overall.fixed = comb.fixed &
-  overall & test.overall, test.overall.random = comb.random & overall &
-  test.overall, label.test.overall.fixed, label.test.overall.random,
-  print.zval = TRUE, test.subgroup, test.subgroup.fixed,
-  test.subgroup.random, print.Q.subgroup = TRUE,
-  label.test.subgroup.fixed, label.test.subgroup.random,
-  test.effect.subgroup, test.effect.subgroup.fixed,
-  test.effect.subgroup.random, label.test.effect.subgroup.fixed,
-  label.test.effect.subgroup.random, text.addline1, text.addline2,
-  fontsize = 12, fontfamily = NULL, fs.heading = fontsize, fs.fixed,
-  fs.random, fs.predict, fs.fixed.labels, fs.random.labels,
-  fs.predict.labels, fs.study = fontsize, fs.study.labels = fs.study,
-  fs.hetstat, fs.test.overall, fs.test.subgroup, fs.test.effect.subgroup,
-  fs.addline, fs.axis = fontsize, fs.smlab = fontsize,
-  fs.xlab = fontsize, fs.lr = fontsize, ff.heading = "bold",
-  ff.fixed, ff.random, ff.predict, ff.fixed.labels, ff.random.labels,
-  ff.predict.labels, ff.study = "plain", ff.study.labels = ff.study,
-  ff.hetstat, ff.test.overall, ff.test.subgroup, ff.test.effect.subgroup,
-  ff.addline, ff.axis = "plain", ff.smlab = "bold",
-  ff.xlab = "plain", ff.lr = "plain", squaresize = 0.8/spacing,
-  plotwidth = if (layout != "JAMA") "6cm" else "8cm", colgap = "2mm",
-  colgap.left = colgap, colgap.right = colgap,
-  colgap.studlab = colgap.left, colgap.forest = colgap,
+  LRT = FALSE,
+  test.overall = gs("test.overall"),
+  test.overall.fixed = comb.fixed & overall & test.overall,
+  test.overall.random = comb.random & overall & test.overall,
+  label.test.overall.fixed,
+  label.test.overall.random,
+  print.zval = TRUE,
+  test.subgroup,
+  test.subgroup.fixed,
+  test.subgroup.random,
+  print.Q.subgroup = TRUE,
+  label.test.subgroup.fixed,
+  label.test.subgroup.random,
+  test.effect.subgroup,
+  test.effect.subgroup.fixed,
+  test.effect.subgroup.random,
+  label.test.effect.subgroup.fixed,
+  label.test.effect.subgroup.random,
+  text.addline1,
+  text.addline2,
+  fontsize = 12,
+  fontfamily = NULL,
+  fs.heading = fontsize,
+  fs.fixed,
+  fs.random,
+  fs.predict,
+  fs.fixed.labels,
+  fs.random.labels,
+  fs.predict.labels,
+  fs.study = fontsize,
+  fs.study.labels = fs.study,
+  fs.hetstat,
+  fs.test.overall,
+  fs.test.subgroup,
+  fs.test.effect.subgroup,
+  fs.addline,
+  fs.axis = fontsize,
+  fs.smlab = fontsize,
+  fs.xlab = fontsize,
+  fs.lr = fontsize,
+  ff.heading = "bold",
+  ff.fixed,
+  ff.random,
+  ff.predict,
+  ff.fixed.labels,
+  ff.random.labels,
+  ff.predict.labels,
+  ff.study = "plain",
+  ff.study.labels = ff.study,
+  ff.hetstat,
+  ff.test.overall,
+  ff.test.subgroup,
+  ff.test.effect.subgroup,
+  ff.addline,
+  ff.axis = "plain",
+  ff.smlab = "bold",
+  ff.xlab = "plain",
+  ff.lr = "plain",
+  squaresize = 0.8/spacing,
+  plotwidth = if (layout == "JAMA") "8cm" else "6cm",
+  colgap = "2mm",
+  colgap.left = colgap,
+  colgap.right = colgap,
+  colgap.studlab = colgap.left,
+  colgap.forest = colgap,
   colgap.forest.left = colgap.forest,
-  colgap.forest.right = colgap.forest, calcwidth.pooled = TRUE,
+  colgap.forest.right = colgap.forest,
+  calcwidth.pooled = TRUE,
   calcwidth.fixed = calcwidth.pooled,
-  calcwidth.random = calcwidth.pooled, calcwidth.predict = FALSE,
-  calcwidth.hetstat = FALSE, calcwidth.tests = FALSE,
-  calcwidth.subgroup = FALSE, just = if (layout != "JAMA") "right" else
-  "left", just.studlab = "left", just.addcols = "center",
-  just.addcols.left = just.addcols, just.addcols.right = just.addcols,
-  spacing = 1, addrow, addrow.overall, addrow.subgroups, new = TRUE,
-  backtransf = x$backtransf, digits = gs("digits.forest"),
-  digits.se = gs("digits.se"), digits.zval = gs("digits.zval"),
+  calcwidth.random = calcwidth.pooled,
+  calcwidth.predict = FALSE,
+  calcwidth.hetstat = FALSE,
+  calcwidth.tests = FALSE,
+  calcwidth.subgroup = FALSE,
+  just = if (layout == "JAMA") "left" else "right",
+  just.studlab = "left",
+  just.addcols = "center",
+  just.addcols.left = just.addcols,
+  just.addcols.right = just.addcols,
+  spacing = 1,
+  addrow,
+  addrow.overall,
+  addrow.subgroups,
+  new = TRUE,
+  backtransf = x$backtransf,
+  digits = gs("digits.forest"),
+  digits.se = gs("digits.se"),
+  digits.zval = gs("digits.zval"),
   digits.pval = max(gs("digits.pval") - 2, 2),
   digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-  digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
+  digits.Q = gs("digits.Q"),
+  digits.tau2 = gs("digits.tau2"),
+  digits.tau = gs("digits.tau"),
   digits.I2 = max(gs("digits.I2") - 1, 0),
-  digits.weight = gs("digits.weight"), digits.mean = digits,
-  digits.sd = digits.se, digits.cor = digits, digits.time = digits,
-  digits.addcols = digits, digits.addcols.right = digits.addcols,
+  digits.weight = gs("digits.weight"),
+  digits.mean = digits,
+  digits.sd = digits.se,
+  digits.cor = digits,
+  digits.time = digits,
+  digits.addcols = digits,
+  digits.addcols.right = digits.addcols,
   digits.addcols.left = digits.addcols,
-  scientific.pval = gs("scientific.pval"), big.mark = gs("big.mark"),
-  zero.pval = if (layout != "JAMA") TRUE else FALSE, col.i = col.study,
-  weight = weight.study, ...)
+  scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"),
+  zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
+  JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+  col.i = col.study,
+  weight = weight.study,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta} or \code{metabind}.}
@@ -173,6 +307,9 @@ heterogeneity statistic Q, see \code{print.default}.}
 
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
+
+\item{digits.tau}{Minimal number of significant digits for square
+root of between-study variance, see \code{print.default}.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
 statistic, see \code{print.default}.}
@@ -442,7 +579,11 @@ value of the I-squared statistic.}
 confidence interval of the I-squared statistic.}
 
 \item{print.tau2}{A logical value indicating whether to print the
-value of the between-study variance tau-squared.}
+value of the between-study variance \eqn{tau^2}.}
+
+\item{print.tau}{A logical value indicating whether to print
+\eqn{tau}, the square root of the between-study variance
+\eqn{tau^2}.}
 
 \item{print.Q}{A logical value indicating whether to print the
 value of the heterogeneity statistic Q.}
@@ -461,6 +602,10 @@ which is printed to indicate subgroups with less than two studies
 contributing to meta-analysis (and thus without
 heterogeneity). If FALSE, heterogeneity statistics are printed
 (with NAs).}
+
+\item{LRT}{A logical value indicating whether to report
+Likelihood-Ratio or Wald-type test of heterogeneity for
+generalized linear mixed models.}
 
 \item{test.overall}{A logical value indicating whether to print
 results of test for overall effect.}
@@ -774,6 +919,10 @@ forest plot.}
 \item{zero.pval}{A logical specifying whether p-values should be
 printed with a leading zero.}
 
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
+
 \item{col.i}{Deprecated argument (replaced by \code{col.study}).}
 
 \item{weight}{Deprecated argument (replaced by
@@ -974,6 +1123,9 @@ are taken into account:
 \item Between-study variance \eqn{\tau^2} is not printed
 \item Empty rows are omitted (\code{addrow})
 \item Label "Source" is printed instead of "Study" (\code{leftlabs})
+\item P-values are printed without leading zeros (\code{zero.pval})
+\item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
+  0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 }
 
 The following changes are conducted if argument
@@ -1091,12 +1243,12 @@ forest(m1, rightcols = FALSE)
 #
 forest(m1, comb.random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 
-# Just give effect estimate and 95\% confidence interval on right
+# Just give effect estimate and 95% confidence interval on right
 # side of forest plot (in one column)
 #
 forest(m1, rightcols = c("effect.ci"))
 
-# Just give effect estimate and 95\% confidence interval on right
+# Just give effect estimate and 95% confidence interval on right
 # side of forest plot
 #
 forest(m1, rightcols = c("effect", "ci"))

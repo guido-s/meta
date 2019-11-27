@@ -9,11 +9,24 @@
 \usage{
 metabias(x, ...)
 
-\method{metabias}{default}(x, seTE, method.bias = "linreg",
-  plotit = FALSE, correct = FALSE, k.min = 10, ...)
+\method{metabias}{default}(
+  x,
+  seTE,
+  method.bias = "linreg",
+  plotit = FALSE,
+  correct = FALSE,
+  k.min = 10,
+  ...
+)
 
-\method{metabias}{meta}(x, method.bias = x$method.bias, plotit = FALSE,
-  correct = FALSE, k.min = 10, ...)
+\method{metabias}{meta}(
+  x,
+  method.bias = x$method.bias,
+  plotit = FALSE,
+  correct = FALSE,
+  k.min = 10,
+  ...
+)
 
 \method{print}{metabias}(x, ...)
 }

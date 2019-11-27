@@ -51,7 +51,8 @@ RevMan 5 settings, in detail:
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
-\code{RR.cochrane} \tab TRUE \tab calculation of risk ratios \cr
+\code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
+\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
 \code{test.overall} \tab TRUE \tab print information on test of
   overall effect \cr
@@ -75,7 +76,11 @@ JAMA settings:
   \cr
 \code{CIbracket}, \tab "(" \tab \cr
 \code{CIseparator} \tab "-" \tab print confidence intervals as
-  "\code{(.-.)}"
+  "\code{(.-.)}" \cr
+\code{zero.pval}, \tab TRUE \tab print p-values with leading zero
+\cr
+\code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
+  (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01)
 }
 
 A list of all arguments with current settings is printed using the

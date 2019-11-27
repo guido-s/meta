@@ -383,8 +383,6 @@
 #' \item{pval.Q}{P-value of heterogeneity test.}
 #' \item{tau}{Square-root of between-study variance.}
 #' \item{se.tau2}{Standard error of between-study variance.}
-#' \item{C}{Scaling factor utilised internally to
-#'   calculate common tau-squared across subgroups.}
 #' \item{method}{Pooling method: \code{"Inverse"}.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
@@ -451,10 +449,8 @@
 #'   subgroups heterogeneity statistic Q (based on random effects
 #'   model) - if \code{byvar} is not missing.}
 #' \item{tau.w}{Square-root of between-study variance within subgroups
-#'   - if \code{byvar} is not missing.}  \item{C.w}{Scaling factor
-#'   utilised internally to calculate common tau-squared across
-#'   subgroups - if \code{byvar} is not missing.}
-#'   \item{H.w}{Heterogeneity statistic H within subgroups - if
+#'   - if \code{byvar} is not missing.}
+#' \item{H.w}{Heterogeneity statistic H within subgroups - if
 #'   \code{byvar} is not missing.}
 #' \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
 #'   heterogeneity statistic H within subgroups - if \code{byvar} is
@@ -1409,8 +1405,6 @@ metagen <- function(TE, seTE, studlab,
     if (hakn)
       df.hakn <- NA
     ##
-    Cval <- NA
-    ##
     hc <- list(H = NA, lower.H = NA, upper.H = NA,
                I2 = NA, lower.I2 = NA, upper.I2 = NA)
   }
@@ -1441,7 +1435,6 @@ metagen <- function(TE, seTE, studlab,
     ##
     Q    <- hc$Q
     df.Q <- hc$df.Q
-    Cval <- hc$Cval
     ##
     ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
     ##
@@ -1560,7 +1553,6 @@ metagen <- function(TE, seTE, studlab,
               ##
               k = k, Q = Q, df.Q = df.Q, pval.Q = pvalQ(Q, df.Q),
               tau = sqrt(tau2), se.tau2 = se.tau2,
-              C = Cval,
               ##
               H = hc$H,
               lower.H = hc$lower.H,

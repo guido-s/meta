@@ -231,7 +231,7 @@ metacum <- function(x, pooled, sortvar) {
                    method = x$method, sm = x$sm,
                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
-                   RR.cochrane = x$RR.cochrane,
+                   RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##

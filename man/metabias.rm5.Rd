@@ -4,9 +4,16 @@
 \alias{metabias.rm5}
 \title{Cochrane review: Test for funnel plot asymmetry}
 \usage{
-\method{metabias}{rm5}(x, comp.no, outcome.no, method.bias = "linreg",
-  method.bias.binary = method.bias, method.bias.or = "score",
-  k.min = 10, ...)
+\method{metabias}{rm5}(
+  x,
+  comp.no,
+  outcome.no,
+  method.bias = "linreg",
+  method.bias.binary = method.bias,
+  method.bias.or = "score",
+  k.min = 10,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{rm5}.}

@@ -6,8 +6,7 @@
 \alias{Fleiss93_CR}
 \title{Import RevMan 5 data files (.csv)}
 \usage{
-read.rm5(file, sep = ",", quote = "\\"", title,
-  numbers.in.labels = TRUE)
+read.rm5(file, sep = ",", quote = "\\"", title, numbers.in.labels = TRUE)
 
 \method{print}{rm5}(x, ...)
 }
@@ -114,10 +113,6 @@ A data frame containing the following components:
 \item{label.c}{Label for control group.}
 \item{label.left}{Graph label on left side of forest plot.}
 \item{label.right}{Graph label on right side of forest plot.}
-\item{RR.cochrane}{A logical indicating if 2*\code{incr} instead of
-  1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-  calculation of the risk ratio (i.e., \code{sm = "RR"}) for
-  studies with a zero cell. This is used in RevMan 5.}
 \item{complab}{Comparison label.}
 }
 \description{

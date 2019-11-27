@@ -9,14 +9,19 @@
 \usage{
 nnt(x, ...)
 
-\method{nnt}{meta}(x, p.c, comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, ...)
+\method{nnt}{meta}(x, p.c, comb.fixed = x$comb.fixed, comb.random = x$comb.random, ...)
 
 \method{nnt}{default}(x, p.c, sm, lower, upper, ...)
 
-\method{print}{nnt.meta}(x, comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, digits = gs("digits"),
-  digits.prop = gs("digits.prop"), big.mark = gs("big.mark"), ...)
+\method{print}{nnt.meta}(
+  x,
+  comb.fixed = x$comb.fixed,
+  comb.random = x$comb.random,
+  digits = gs("digits"),
+  digits.prop = gs("digits.prop"),
+  big.mark = gs("big.mark"),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, or estimated treatment

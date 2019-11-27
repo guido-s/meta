@@ -299,7 +299,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.cochrane = TRUE, warn = warn,
+                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
                       keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
@@ -318,7 +318,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.cochrane = TRUE, warn = warn,
+                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
                       keepdata = keepdata)
     }
     ##
@@ -422,7 +422,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.cochrane = TRUE, warn = warn,
+                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
                       keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
@@ -438,7 +438,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.cochrane = TRUE, warn = warn,
+                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
                       keepdata = keepdata)
     }
     ##

@@ -8,17 +8,38 @@
 \usage{
 radial(x, ...)
 
-\method{radial}{default}(x, y, xlim = NULL, ylim = NULL,
+\method{radial}{default}(
+  x,
+  y,
+  xlim = NULL,
+  ylim = NULL,
   xlab = "Inverse of standard error",
-  ylab = "Standardised treatment effect (z-score)", comb.fixed = TRUE,
-  axes = TRUE, pch = 1, text = NULL, cex = 1, col = NULL,
-  level = NULL, ...)
+  ylab = "Standardised treatment effect (z-score)",
+  comb.fixed = TRUE,
+  axes = TRUE,
+  pch = 1,
+  text = NULL,
+  cex = 1,
+  col = NULL,
+  level = NULL,
+  ...
+)
 
-\method{radial}{meta}(x, xlim = NULL, ylim = NULL,
+\method{radial}{meta}(
+  x,
+  xlim = NULL,
+  ylim = NULL,
   xlab = "Inverse of standard error",
-  ylab = "Standardised treatment effect (z-score)", comb.fixed = TRUE,
-  axes = TRUE, pch = 1, text = NULL, cex = 1, col = NULL,
-  level = NULL, ...)
+  ylab = "Standardised treatment effect (z-score)",
+  comb.fixed = TRUE,
+  axes = TRUE,
+  pch = 1,
+  text = NULL,
+  cex = 1,
+  col = NULL,
+  level = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, or estimated treatment

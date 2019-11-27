@@ -4,19 +4,46 @@
 \alias{metaprop}
 \title{Meta-analysis of single proportions}
 \usage{
-metaprop(event, n, studlab, data = NULL, subset = NULL,
-  exclude = NULL, method, sm = gs("smprop"), incr = gs("incr"),
-  allincr = gs("allincr"), addincr = gs("addincr"),
-  method.ci = gs("method.ci"), level = gs("level"),
-  level.comb = gs("level.comb"), comb.fixed = gs("comb.fixed"),
-  comb.random = gs("comb.random"), hakn = gs("hakn"), method.tau,
-  tau.preset = NULL, TE.tau = NULL, tau.common = gs("tau.common"),
-  prediction = gs("prediction"), level.predict = gs("level.predict"),
-  null.effect = NA, method.bias = gs("method.bias"),
-  backtransf = gs("backtransf"), pscale = 1, title = gs("title"),
-  complab = gs("complab"), outclab = "", byvar, bylab,
-  print.byvar = gs("print.byvar"), byseparator = gs("byseparator"),
-  keepdata = gs("keepdata"), warn = gs("warn"), control = NULL, ...)
+metaprop(
+  event,
+  n,
+  studlab,
+  data = NULL,
+  subset = NULL,
+  exclude = NULL,
+  method,
+  sm = gs("smprop"),
+  incr = gs("incr"),
+  allincr = gs("allincr"),
+  addincr = gs("addincr"),
+  method.ci = gs("method.ci"),
+  level = gs("level"),
+  level.comb = gs("level.comb"),
+  comb.fixed = gs("comb.fixed"),
+  comb.random = gs("comb.random"),
+  hakn = gs("hakn"),
+  method.tau,
+  tau.preset = NULL,
+  TE.tau = NULL,
+  tau.common = gs("tau.common"),
+  prediction = gs("prediction"),
+  level.predict = gs("level.predict"),
+  null.effect = NA,
+  method.bias = gs("method.bias"),
+  backtransf = gs("backtransf"),
+  pscale = 1,
+  title = gs("title"),
+  complab = gs("complab"),
+  outclab = "",
+  byvar,
+  bylab,
+  print.byvar = gs("print.byvar"),
+  byseparator = gs("byseparator"),
+  keepdata = gs("keepdata"),
+  warn = gs("warn"),
+  control = NULL,
+  ...
+)
 }
 \arguments{
 \item{event}{Number of events.}
@@ -194,8 +221,6 @@ object is a list containing the following components:
 \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
 \item{tau}{Square-root of between-study variance.}
 \item{se.tau2}{Standard error of between-study variance.}
-\item{C}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups.}
 \item{method}{A character string indicating method used for
   pooling: \code{"Inverse"}}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
@@ -265,8 +290,6 @@ object is a list containing the following components:
   not missing.}
 \item{tau.w}{Square-root of between-study variance within subgroups
   - if \code{byvar} is not missing.}
-\item{C.w}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups - if \code{byvar} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups - if
   \code{byvar} is not missing.}
 \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
@@ -419,8 +442,7 @@ on the summary measure.
 \subsection{Estimation of between-study variance}{
 
 The following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are available for the
-inverse variance method:
+\eqn{\tau^2} are available for the inverse variance method:
 \itemize{
 \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
 \item Paule-Mandel estimator (\code{method.tau = "PM"})

@@ -4,12 +4,30 @@
 \alias{metacr}
 \title{Meta-analysis of outcome data from Cochrane review}
 \usage{
-metacr(x, comp.no = 1, outcome.no = 1, method, sm,
-  level = gs("level"), level.comb = gs("level.comb"), comb.fixed,
-  comb.random, hakn = FALSE, method.tau = "DL", tau.common = FALSE,
-  prediction = gs("prediction"), level.predict = gs("level.predict"),
-  swap.events, logscale, backtransf = gs("backtransf"), title, complab,
-  outclab, keepdata = gs("keepdata"), warn = FALSE)
+metacr(
+  x,
+  comp.no = 1,
+  outcome.no = 1,
+  method,
+  sm,
+  level = gs("level"),
+  level.comb = gs("level.comb"),
+  comb.fixed,
+  comb.random,
+  hakn = FALSE,
+  method.tau = "DL",
+  tau.common = FALSE,
+  prediction = gs("prediction"),
+  level.predict = gs("level.predict"),
+  swap.events,
+  logscale,
+  backtransf = gs("backtransf"),
+  title,
+  complab,
+  outclab,
+  keepdata = gs("keepdata"),
+  warn = FALSE
+)
 }
 \arguments{
 \item{x}{An object of class \code{rm5} created by R function

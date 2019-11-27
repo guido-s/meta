@@ -214,7 +214,10 @@
 #' @param print.I2.ci A logical value indicating whether to print the
 #'   confidence interval of the I-squared statistic.
 #' @param print.tau2 A logical value indicating whether to print the
-#'   value of the between-study variance tau-squared.
+#'   value of the between-study variance \eqn{tau^2}.
+#' @param print.tau A logical value indicating whether to print
+#'   \eqn{tau}, the square root of the between-study variance
+#'   \eqn{tau^2}.
 #' @param print.Q A logical value indicating whether to print the
 #'   value of the heterogeneity statistic Q.
 #' @param print.pval.Q A logical value indicating whether to print the
@@ -228,6 +231,9 @@
 #'   contributing to meta-analysis (and thus without
 #'   heterogeneity). If FALSE, heterogeneity statistics are printed
 #'   (with NAs).
+#' @param LRT A logical value indicating whether to report
+#'   Likelihood-Ratio or Wald-type test of heterogeneity for
+#'   generalized linear mixed models.
 #' @param test.overall A logical value indicating whether to print
 #'   results of test for overall effect.
 #' @param test.overall.fixed A logical value indicating whether to
@@ -434,6 +440,8 @@
 #'   t-statistic for test of overall effect, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for square
+#'   root of between-study variance, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect, see \code{print.default}.
 #' @param digits.pval.Q Minimal number of significant digits for
@@ -467,6 +475,9 @@
 #' @param big.mark A character used as thousands separator.
 #' @param zero.pval A logical specifying whether p-values should be
 #'   printed with a leading zero.
+#' @param JAMA.pval A logical specifying whether p-values for test of
+#'   overall effect should be printed according to JAMA reporting
+#'   standards.
 #' @param col.i Deprecated argument (replaced by \code{col.study}).
 #' @param weight Deprecated argument (replaced by
 #'   \code{weight.study}).
@@ -663,6 +674,9 @@
 #' \item Between-study variance \eqn{\tau^2} is not printed
 #' \item Empty rows are omitted (\code{addrow})
 #' \item Label "Source" is printed instead of "Study" (\code{leftlabs})
+#' \item P-values are printed without leading zeros (\code{zero.pval})
+#' \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
+#'   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 #' }
 #'
 #' The following changes are conducted if argument
@@ -936,6 +950,7 @@ forest.metabind <- function(x,
                             digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
                             digits.Q = gs("digits.Q"),
                             digits.tau2 = gs("digits.tau2"),
+                            digits.tau = gs("digits.tau"),
                             digits.I2 = max(gs("digits.I2") - 1, 0),
                             ##
                             scientific.pval = gs("scientific.pval"),
@@ -965,6 +980,7 @@ forest.metabind <- function(x,
   chknumeric(digits.pval.Q, min = 1, single = TRUE)
   chknumeric(digits.Q, min = 0, single = TRUE)
   chknumeric(digits.tau2, min = 0, single = TRUE)
+  chknumeric(digits.tau, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   ##
   chklogical(scientific.pval)
@@ -1013,6 +1029,7 @@ forest.metabind <- function(x,
     leftlabs[leftcols == "k"] <- "Number of\nStudies"
     leftlabs[leftcols == "Q.b"] <- "Q.b"
     leftlabs[leftcols == "tau2"] <- "Between-study\nvariance"
+    leftlabs[leftcols == "tau"] <- "Between-study\nSD"
     leftlabs[leftcols == "pval.Q.b"] <- "Interaction\nP-value"
     leftlabs[leftcols == "I2"] <- "I2"
   }
@@ -1023,6 +1040,7 @@ forest.metabind <- function(x,
     rightlabs[rightcols == "k"] <- "Number of\nStudies"
     rightlabs[rightcols == "Q.b"] <- "Q.b"
     rightlabs[rightcols == "tau2"] <- "Between-study\nvariance"
+    rightlabs[rightcols == "tau"] <- "Between-study\nSD"
     rightlabs[rightcols == "pval.Q.b"] <- "Interaction\nP-value"
     rightlabs[rightcols == "I2"] <- "I2"
   }
@@ -1060,6 +1078,10 @@ forest.metabind <- function(x,
                           big.mark = big.mark,
                           lab = FALSE, lab.NA = lab.NA)
   ##
+  x$data$tau <- formatPT(x$data$tau, digits = digits.tau,
+                         big.mark = big.mark,
+                         lab = FALSE, lab.NA = lab.NA)
+  ##
   I2.na <- is.na(x$data$I2)
   x$data$I2 <- formatN(round(100 * x$data$I2, digits.I2),
                        digits.I2, "")
@@ -1081,6 +1103,7 @@ forest.metabind <- function(x,
                            sep = "")
   ##
   x$data$tau2 <- rmSpace(x$data$tau2)
+  x$data$tau <- rmSpace(x$data$tau)
   ##
   x$data$I2 <- rmSpace(x$data$I2)
   x$data$lower.I2 <- rmSpace(x$data$lower.I2)
@@ -1116,6 +1139,7 @@ forest.metabind <- function(x,
          digits.pval.Q = digits.pval.Q,
          digits.Q = digits.Q,
          digits.tau2 = digits.tau2,
+         digits.tau = digits.tau,
          digits.I2 = digits.I2,
          ##
          scientific.pval = scientific.pval,
@@ -1232,21 +1256,24 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat = print.I2 | print.tau2 | print.Q |
-                          print.pval.Q | print.Rb,
+                        hetstat = print.I2 | print.tau2 | print.tau |
+                          print.Q | print.pval.Q | print.Rb,
                         overall.hetstat = hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat = overall &
-                          (is.character(hetstat) || hetstat),
+                          (is.character(hetstat) || hetstat) & !LRT,
                         resid.hetlab = "Residual heterogeneity: ",
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
                         print.tau2 = comb.fixed | comb.random,
+                        print.tau = FALSE,
                         print.Q = FALSE,
                         print.pval.Q = comb.fixed | comb.random,
                         print.Rb = FALSE,
                         print.Rb.ci = FALSE,
                         text.subgroup.nohet = "not applicable",
+                        ##
+                        LRT = FALSE,
                         ##
                         test.overall = gs("test.overall"),
                         test.overall.fixed = comb.fixed & overall & test.overall,
@@ -1314,7 +1341,7 @@ forest.meta <- function(x,
                         ##
                         squaresize = 0.8 / spacing,
                         ##
-                        plotwidth = if (layout != "JAMA") "6cm" else "8cm",
+                        plotwidth = if (layout == "JAMA") "8cm" else "6cm",
                         colgap = "2mm",
                         colgap.left = colgap,
                         colgap.right = colgap,
@@ -1331,7 +1358,7 @@ forest.meta <- function(x,
                         calcwidth.tests  = FALSE,
                         calcwidth.subgroup = FALSE,
                         ##
-                        just = if (layout != "JAMA") "right" else "left",
+                        just = if (layout == "JAMA") "left" else "right",
                         just.studlab = "left",
                         just.addcols = "center",
                         just.addcols.left = just.addcols,
@@ -1352,6 +1379,7 @@ forest.meta <- function(x,
                         digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
                         digits.Q = gs("digits.Q"),
                         digits.tau2 = gs("digits.tau2"),
+                        digits.tau = gs("digits.tau"),
                         digits.I2 = max(gs("digits.I2") - 1, 0),
                         digits.weight = gs("digits.weight"),
                         ##
@@ -1366,7 +1394,8 @@ forest.meta <- function(x,
                         ##
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
-                        zero.pval = if (layout != "JAMA") TRUE else FALSE,
+                        zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
+                        JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
                         ##
                         col.i = col.study,
                         weight = weight.study,
@@ -1421,7 +1450,8 @@ forest.meta <- function(x,
             "created with metacum() or metainf().")
   sort <- !is.null(sortvar) & !metainf.metacum
   if (sort && (length(sortvar) != K.all))
-    stop("Number of studies in object 'x' and argument 'sortvar' have different length.")
+    stop("Number of studies in object 'x' and argument 'sortvar' ",
+         "have different length.")
   if (!sort)
     sortvar <- 1:K.all
   ##
@@ -1435,7 +1465,8 @@ forest.meta <- function(x,
     else studlab <- x$studlab
   ##
   if (length(studlab) != (K.all - 2 * (metainf.metacum & !missing.studlab)))
-    stop("Number of studies in object 'x' and argument 'studlab' have different length.")
+    stop("Number of studies in object 'x' and argument 'studlab' have ",
+         "different length.")
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
@@ -1485,7 +1516,8 @@ forest.meta <- function(x,
   ##
   layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$byvar)) {
-    warning("Argument 'layout' set to \"meta\" (default) as no subgroup analysis was conducted.")
+    warning("Argument 'layout' set to \"meta\" (default) as ",
+            "no subgroup analysis was conducted.")
     layout <- "meta"
   }
   if (layout == "subgroup") {
@@ -1534,7 +1566,13 @@ forest.meta <- function(x,
   chkcolor(col.predict.lines)
   chklogical(print.I2)
   chklogical(print.I2.ci)
+  ##
   chklogical(print.tau2)
+  chklogical(print.tau)
+  print.tau2.tau <- print.tau2 | print.tau
+  if (print.tau2 & print.tau)
+    print.tau2 <- FALSE
+  ##
   chklogical(print.Q)
   chklogical(print.pval.Q)
   chklogical(print.Rb)
@@ -1551,7 +1589,7 @@ forest.meta <- function(x,
     if (!metabind & hetstat.pooled == "study") {
       warning("Argument 'hetstat = \"study\"' ",
               "only considered for 'metabind' objects.")
-      hetstat <- print.I2 | print.tau2 | print.Q | print.pval.Q | print.Rb
+      hetstat <- print.I2 | print.tau2.tau | print.Q | print.pval.Q | print.Rb
     }
   }
   else
@@ -1574,6 +1612,12 @@ forest.meta <- function(x,
   chkchar(hetlab)
   chklogical(resid.hetstat)
   chkchar(resid.hetlab)
+  chklogical(LRT)
+  if (LRT & x$method != "GLMM") {
+    warning("Likelihood-Ratio test of heterogeneity only ",
+            "available for generalized linear mixed models.")
+    LRT <- FALSE
+  }
   chklogical(test.overall.fixed)
   chklogical(test.overall.random)
   if (!missing(test.subgroup.fixed))
@@ -1687,6 +1731,7 @@ forest.meta <- function(x,
     chknumeric(digits.addcols.left, min = 0)
   chklogical(scientific.pval)
   chklogical(zero.pval)
+  chklogical(JAMA.pval)
   ##
   cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
   addargs <- names(list(...))
@@ -1702,9 +1747,11 @@ forest.meta <- function(x,
   ##
   if (!missing(col.i))
     if (!missing(col.study))
-      warning("Deprecated argument 'col.i' ignored as argument 'col.study' is also provided.")
+      warning("Deprecated argument 'col.i' ignored as ",
+              "argument 'col.study' is also provided.")
     else {
-      warning("Deprecated argument 'col.i' has been replaced by argument 'col.study'.")
+      warning("Deprecated argument 'col.i' has been replaced by ",
+              "argument 'col.study'.")
       col.study <- col.i
     }
   ##
@@ -1712,9 +1759,11 @@ forest.meta <- function(x,
   ##
   if (!missing(weight))
     if (!missing(weight.study))
-      warning("Deprecated argument 'weight' ignored as argument 'weight.study' is also provided.")
+      warning("Deprecated argument 'weight' ignored as ",
+              "argument 'weight.study' is also provided.")
     else {
-      warning("Deprecated argument 'weight' has been replaced by argument 'weight.study'.")
+      warning("Deprecated argument 'weight' has been replaced ",
+              "by argument 'weight.study'.")
       weight.study <- weight
     }
   ##
@@ -1731,39 +1780,50 @@ forest.meta <- function(x,
   if (length(additional.arguments) > 0) {
     if ("labels" %in% additional.arguments)
       if (!missing(label))
-        warning("Argument 'labels' ignored as both arguments 'label' and 'labels' are provided.")
+        warning("Argument 'labels' ignored as both arguments ",
+                "'label' and 'labels' are provided.")
       else
         label <- args[["labels"]]
     ##
     if (!is.na(charmatch("col.i.i", additional.arguments)))
       if (!missing(col.inside))
-        warning("Deprecated argument 'col.i.inside.square' ignored as argument 'col.inside' is also provided.")
+        warning("Deprecated argument 'col.i.inside.square' ignored as ",
+                "argument 'col.inside' is also provided.")
       else {
-        warning("Deprecated argument 'col.i.inside.square' has been replaced by argument 'col.inside'.")
+        warning("Deprecated argument 'col.i.inside.square' has been ",
+                "replaced by argument 'col.inside'.")
         col.inside <- args[[charmatch("col.i.i", additional.arguments)]]
       }
     ##
     if (!is.na(charmatch("col.diamond.f", additional.arguments)))
       if (!missing(col.diamond.lines.fixed))
-        warning("Deprecated argument 'col.diamond.fixed.lines' ignored as argument 'col.diamond.lines.fixed' is also provided.")
+        warning("Deprecated argument 'col.diamond.fixed.lines' ignored as ",
+                "argument 'col.diamond.lines.fixed' is also provided.")
       else {
-        warning("Deprecated argument 'col.diamond.fixed.lines' has been replaced by argument 'col.diamond.lines.fixed'.")
-        col.diamond.lines.fixed <- args[[charmatch("col.diamond.f", additional.arguments)]]
+        warning("Deprecated argument 'col.diamond.fixed.lines' has been ",
+                "replaced by argument 'col.diamond.lines.fixed'.")
+        col.diamond.lines.fixed <- args[[charmatch("col.diamond.f",
+                                                   additional.arguments)]]
       }
     ##
     if (!is.na(charmatch("col.diamond.r", additional.arguments)))
       if (!missing(col.diamond.lines.random))
-        warning("Deprecated argument 'col.diamond.random.lines' ignored as argument 'col.diamond.lines.random' is also provided.")
+        warning("Deprecated argument 'col.diamond.random.lines' ignored as ",
+                "argument 'col.diamond.lines.random' is also provided.")
       else {
-        warning("Deprecated argument 'col.diamond.random.lines' has been replaced by argument 'col.diamond.lines.random'.")
-        col.diamond.lines.random <- args[[charmatch("col.diamond.r", additional.arguments)]]
+        warning("Deprecated argument 'col.diamond.random.lines' has been ",
+                "replaced by argument 'col.diamond.lines.random'.")
+        col.diamond.lines.random <- args[[charmatch("col.diamond.r",
+                                                    additional.arguments)]]
       }
     ##
     if (!is.na(charmatch("adds", additional.arguments)))
       if (!missing(addrow))
-        warning("Deprecated argument 'addspace' ignored as argument 'addrow' is also provided.")
+        warning("Deprecated argument 'addspace' ignored as ",
+                "argument 'addrow' is also provided.")
       else {
-        warning("Deprecated argument 'addspace' has been replaced by argument 'addrow'.")
+        warning("Deprecated argument 'addspace' has been replaced by ",
+                "argument 'addrow'.")
         addrow <- args[[charmatch("adds", additional.arguments)]]
       }
     ##
@@ -1939,7 +1999,8 @@ forest.meta <- function(x,
   ##
   if (layout == "subgroup") {
     if (!missing(study.results) & study.results)
-      warning("Argument 'study.results' set to FALSE as argument 'layout' is \"subgroup\".")
+      warning("Argument 'study.results' set to FALSE as ",
+              "argument 'layout' is \"subgroup\".")
     study.results <- FALSE
   }
   ##
@@ -2674,7 +2735,8 @@ forest.meta <- function(x,
   if (length(type.study) == 1)
     type.study <- rep(type.study, k.all)
   else if (length(type.study) != k.all)
-    stop("Argument 'type.study' must be a single character or of same length as number of studies.")
+    stop("Argument 'type.study' must be a single character or of ",
+         "same length as number of studies.")
   ##
   if (!by)
     byvar <- rep(1, k.all)
@@ -2853,10 +2915,15 @@ forest.meta <- function(x,
     lowTE.predict <- x$lower.predict
     uppTE.predict <- x$upper.predict
     ##
-    Q    <- x$Q
+    if (LRT)
+      Q <- x$Q.LRT
+    else
+      Q <- x$Q
     df.Q <- x$df.Q
     pval.Q <- replaceNULL(x$pval.Q, pvalQ(Q, df.Q))
+    ##
     tau2 <- x$tau^2
+    tau <- x$tau
     ##
     I2 <- x$I2
     lowI2 <- x$lower.I2
@@ -2878,6 +2945,7 @@ forest.meta <- function(x,
       pval.Q.resid <- replaceNULL(x$pval.Q.w.fixed,
                                   pvalQ(x$Q.w.fixed, x$df.Q.w))
       tau2.resid <- x$tau.resid^2
+      tau.resid <- x$tau.resid
       ##
       I2.resid <- x$I2.resid
       lowI2.resid <- x$lower.I2.resid
@@ -2908,6 +2976,10 @@ forest.meta <- function(x,
       formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
                lab = TRUE, labval = "", lab.NA = "NA")
     ##
+    hetstat.tau <-
+      formatPT(tau, digits = digits.tau, big.mark = big.mark,
+               lab = TRUE, labval = "", lab.NA = "NA")
+    ##
     hetstat.Q <-
       paste(hetseparator,
             formatN(round(Q, digits.Q), digits.Q, "NA", big.mark = big.mark),
@@ -2920,7 +2992,7 @@ forest.meta <- function(x,
       formatPT(pval.Q,
                lab = TRUE, labval = "",
                digits = digits.pval.Q,
-               zero = zero.pval,
+               zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
     ##
@@ -2979,93 +3051,132 @@ forest.meta <- function(x,
       ##
       ## One
       ##
-      if (print.I2 & !print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
+      if (print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(I)^2, hi),
                      list(hl = hetlab, hi = hetstat.I2))
-      else if (!print.I2 & print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl, tau^2, ht),
-                     list(hl = hetlab, ht = hetstat.tau2))
-      else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
+      else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
+               !print.Rb)
+        if (print.tau2)
+          hetstat.overall <- substitute(paste(hl, tau^2, ht),
+                                        list(hl = hetlab, ht = hetstat.tau2))
+        else
+          hetstat.overall <- substitute(paste(hl, tau, ht),
+                                        list(hl = hetlab, ht = hetstat.tau))
+      else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
+               !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq),
                      list(hl = hetlab, df = df.Q, hq = hetstat.Q))
-      else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
+      else if (!print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
+               !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(p), hp),
                      list(hl = hetlab, hp = hetstat.pval.Q))
-      else if (!print.I2 & !print.tau2 & !print.Q & !print.pval.Q & print.Rb)
+      else if (!print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q &
+               print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(R)[italic(b)], hb),
                      list(hl = hetlab, hb = hetstat.Rb))
       ##
       ## Two
       ##
-      else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl, italic(I)^2, hi,
-                           ", ",
-                           tau^2, ht),
-                     list(hl = hetlab,
-                          hi = hetstat.I2, ht = hetstat.tau2))
-      else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
+      else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl, italic(I)^2, hi,
+                             ", ",
+                             tau^2, ht),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau2))
+        else
+          hetstat.overall <-
+            substitute(paste(hl, italic(I)^2, hi,
+                             ", ",
+                             tau, ht),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau))
+      else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            chi[df]^2, hq),
                      list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2, hq = hetstat.Q))
-      else if (print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
+      else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            italic(p), hp),
                      list(hl = hetlab,
                           hi = hetstat.I2, hp = hetstat.pval.Q))
-      else if (print.I2 & !print.tau2 & !print.Q & !print.pval.Q & print.Rb)
+      else if (print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = hetlab,
                           hi = hetstat.I2, hb = hetstat.Rb))
-      else if (!print.I2 & print.tau2 & print.Q & !print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           chi[df]^2, hq),
-                     list(hl = hetlab, df = df.Q,
-                          ht = hetstat.tau2, hq = hetstat.Q))
-      else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           italic(p), hp),
-                     list(hl = hetlab,
-                          ht = hetstat.tau2, hp = hetstat.pval.Q))
-      else if (!print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab,
-                          ht = hetstat.tau2, hb = hetstat.Rb))
-      else if (!print.I2 & !print.tau2 & print.Q & print.pval.Q & !print.Rb)
+      else if (!print.I2 & print.tau2.tau & print.Q & !print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             chi[df]^2, hq),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau2, hq = hetstat.Q))
+        else
+          hetstat.overall <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             chi[df]^2, hq),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau, hq = hetstat.Q))
+      else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             italic(p), hp),
+                       list(hl = hetlab,
+                            ht = hetstat.tau2, hp = hetstat.pval.Q))
+        else
+          hetstat.overall <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             italic(p), hp),
+                       list(hl = hetlab,
+                            ht = hetstat.tau, hp = hetstat.pval.Q))
+      else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            ht = hetstat.tau2, hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            ht = hetstat.tau, hb = hetstat.Rb))
+      else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq,
                            " (",
                            italic(p), hp, ")"),
                      list(hl = hetlab, df = df.Q,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
-      else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
+      else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq,
                            ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = hetlab, df = df.Q,
                           hq = hetstat.Q, hb = hetstat.Rb))
-      else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
+      else if (!print.I2 & !print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(p), hp,
                            ", ",
@@ -3075,25 +3186,46 @@ forest.meta <- function(x,
       ##
       ## Three
       ##
-      else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq),
-                     list(hl = hetlab, df = df.Q,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hq = hetstat.Q))
-      else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           italic(p), hp),
-                     list(hl = hetlab,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hp = hetstat.pval.Q))
-      else if (print.I2 & !print.tau2 & print.Q & print.pval.Q & !print.Rb)
+      else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hq = hetstat.Q))
+      else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hq = hetstat.Q))
+      else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(p), hp),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hp = hetstat.pval.Q))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             italic(p), hp),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hp = hetstat.pval.Q))
+
+      else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3102,25 +3234,46 @@ forest.meta <- function(x,
                      list(hl = hetlab, df = df.Q,
                           hi = hetstat.I2,
                           hq = hetstat.Q, hp = hetstat.pval.Q))
-      else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")"),
-                     list(hl = hetlab, df = df.Q,
-                          ht = hetstat.tau2,
-                          hq = hetstat.Q, hp = hetstat.pval.Q))
-      else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hb = hetstat.Rb))
-      else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
+      else if (!print.I2 & print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau2,
+                            hq = hetstat.Q, hp = hetstat.pval.Q))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau,
+                            hq = hetstat.Q, hp = hetstat.pval.Q))
+          
+      else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hb = hetstat.Rb))          
+      else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3130,17 +3283,28 @@ forest.meta <- function(x,
                           hi = hetstat.I2,
                           hq = hetstat.Q,
                           hb = hetstat.Rb))
-      else if (!print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df.Q,
-                          ht = hetstat.tau2,
-                          hq = hetstat.Q,
-                          hb = hetstat.Rb))
-      else if (print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
+      else if (!print.I2 & print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau2,
+                            hq = hetstat.Q,
+                            hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau,
+                            hq = hetstat.Q,
+                            hb = hetstat.Rb))          
+      else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3149,17 +3313,28 @@ forest.meta <- function(x,
                      list(hl = hetlab,
                           hi = hetstat.I2, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))
-      else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           italic(p), hp, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab,
-                          ht = hetstat.tau2,
-                          hp = hetstat.pval.Q,
-                          hb = hetstat.Rb))
-      else if (!print.I2 & !print.tau2 & print.Q & print.pval.Q & print.Rb)
+      else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            ht = hetstat.tau2,
+                            hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            ht = hetstat.tau,
+                            hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
+      else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
                            chi[df]^2, hq,
@@ -3172,37 +3347,70 @@ forest.meta <- function(x,
       ##
       ## Four
       ##
-      if (print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")"),
-                     list(hl = hetlab, df = df.Q,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hq = hetstat.Q, hp = hetstat.pval.Q))
-      else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df.Q,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hq = hetstat.Q, hb = hetstat.Rb))
-      else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           italic(p), hp, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hp = hetstat.pval.Q, hb = hetstat.Rb))
-      else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
+      if (print.I2 & print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hq = hetstat.Q, hp = hetstat.pval.Q))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hq = hetstat.Q, hp = hetstat.pval.Q))          
+      else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hq = hetstat.Q, hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hq = hetstat.Q, hb = hetstat.Rb))
+      else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hp = hetstat.pval.Q, hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hp = hetstat.pval.Q, hb = hetstat.Rb))
+      else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3211,37 +3419,64 @@ forest.meta <- function(x,
                            ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = hetlab, df = df.Q,
-                          ht = hetstat.tau2,
+                          hi = hetstat.I2,
                           hq = hetstat.Q, hp = hetstat.pval.Q,
                           hb = hetstat.Rb))
-      else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")",
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df.Q,
-                          ht = hetstat.tau2,
-                          hq = hetstat.Q, hp = hetstat.pval.Q,
-                          hb = hetstat.Rb))
+      else if (!print.I2 & print.tau2.tau & print.Q & print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau2,
+                            hq = hetstat.Q, hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            ht = hetstat.tau,
+                            hq = hetstat.Q, hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
       ##
       ## Five
       ##
-      else if (print.I2 & print.tau2 & print.Q & print.pval.Q & print.Rb)
-        hetstat.overall <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")",
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = hetlab, df = df.Q,
-                          hi = hetstat.I2, ht = hetstat.tau2,
-                          hq = hetstat.Q, hp = hetstat.pval.Q,
-                          hb = hetstat.Rb))
+      else if (print.I2 & print.tau2.tau & print.Q & print.pval.Q & print.Rb)
+        if (print.tau2)
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau2,
+                            hq = hetstat.Q, hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
+        else
+          hetstat.overall <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = hetlab, df = df.Q,
+                            hi = hetstat.I2, ht = hetstat.tau,
+                            hq = hetstat.Q, hp = hetstat.pval.Q,
+                            hb = hetstat.Rb))
     }
   }
   ##
@@ -3250,9 +3485,9 @@ forest.meta <- function(x,
   hetstat.resid <- ""
   ##
   if (by && (length(tau2.resid) == 0 || is.na(tau2.resid)))
-    print.tau2.resid <- FALSE
+    print.tau2.tau.resid <- FALSE
   else
-    print.tau2.resid <- print.tau2
+    print.tau2.tau.resid <- print.tau2.tau
   ##
   if (resid.hetstat) {
     ##
@@ -3274,6 +3509,9 @@ forest.meta <- function(x,
     hetstat.tau2.resid <-
       formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
                lab = TRUE, labval = "", lab.NA = "NA")
+    hetstat.tau.resid <-
+      formatPT(tau.resid, digits = digits.tau, big.mark = big.mark,
+               lab = TRUE, labval = "", lab.NA = "NA")
     ##
     hetstat.Q.resid <-
       paste(hetseparator,
@@ -3287,7 +3525,7 @@ forest.meta <- function(x,
       formatPT(pval.Q.resid,
                lab = TRUE, labval = "",
                digits = digits.pval.Q,
-               zero = zero.pval,
+               zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
     ##
@@ -3300,6 +3538,8 @@ forest.meta <- function(x,
       hetstat.I2.resid <- gsub("  ", " ", hetstat.I2.resid)
     while(grepl("  ", hetstat.tau2.resid))
       hetstat.tau2.resid <- gsub("  ", " ", hetstat.tau2.resid)
+    while(grepl("  ", hetstat.tau.resid))
+      hetstat.tau.resid <- gsub("  ", " ", hetstat.tau.resid)
     while(grepl("  ", hetstat.Q.resid))
       hetstat.Q.resid <- gsub("  ", " ", hetstat.Q.resid)
     while(grepl("  ", hetstat.pval.Q.resid))
@@ -3337,93 +3577,145 @@ forest.meta <- function(x,
       ##
       ## One
       ##
-      if (print.I2 & !print.tau2.resid & !print.Q & !print.pval.Q & !print.Rb.resid)
+      if (print.I2 & !print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(I)^2, hi),
                      list(hl = resid.hetlab, hi = hetstat.I2.resid))
-      else if (!print.I2 & print.tau2.resid & !print.Q & !print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl, tau^2, ht),
-                     list(hl = resid.hetlab, ht = hetstat.tau2.resid))
-      else if (!print.I2 & !print.tau2.resid & print.Q & !print.pval.Q & !print.Rb.resid)
+      else if (!print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl, tau^2, ht),
+                       list(hl = resid.hetlab, ht = hetstat.tau2.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl, tau, ht),
+                       list(hl = resid.hetlab, ht = hetstat.tau.resid))
+      else if (!print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, chi[df]^2, hq),
                      list(hl = resid.hetlab, df = df.Q.resid, hq = hetstat.Q.resid))
-      else if (!print.I2 & !print.tau2.resid & !print.Q & print.pval.Q & !print.Rb.resid)
+      else if (!print.I2 & !print.tau2.tau.resid & !print.Q & print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(p), hp),
                      list(hl = resid.hetlab, hp = hetstat.pval.Q.resid))
-      else if (!print.I2 & !print.tau2.resid & !print.Q & !print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & !print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(R)[italic(b)], hb),
                      list(hl = resid.hetlab, hb = hetstat.Rb.resid))
       ##
       ## Two
       ##
-      else if (print.I2 & print.tau2.resid & !print.Q & !print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl, italic(I)^2, hi,
-                           ", ",
-                           tau^2, ht),
-                     list(hl = resid.hetlab,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid))
-      else if (print.I2 & !print.tau2.resid & print.Q & !print.pval.Q & !print.Rb.resid)
+      else if (print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl, italic(I)^2, hi,
+                             ", ",
+                             tau^2, ht),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl, italic(I)^2, hi,
+                             ", ",
+                             tau, ht),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid))
+      else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            chi[df]^2, hq),
                      list(hl = resid.hetlab, df = df.Q.resid,
                           hi = hetstat.I2.resid, hq = hetstat.Q.resid))
-      else if (print.I2 & !print.tau2.resid & !print.Q & print.pval.Q & !print.Rb.resid)
+      else if (print.I2 & !print.tau2.tau.resid & !print.Q & print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            italic(p), hp),
                      list(hl = resid.hetlab,
                           hi = hetstat.I2.resid, hp = hetstat.pval.Q.resid))
-      else if (print.I2 & !print.tau2.resid & !print.Q & !print.pval.Q & print.Rb.resid)
+      else if (print.I2 & !print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(I)^2, hi,
                            ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = resid.hetlab,
                           hi = hetstat.I2.resid, hb = hetstat.Rb.resid))
-      else if (!print.I2 & print.tau2.resid & print.Q & !print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           chi[df]^2, hq),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          ht = hetstat.tau2.resid, hq = hetstat.Q.resid))
-      else if (!print.I2 & print.tau2.resid & !print.Q & print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           italic(p), hp),
-                     list(hl = resid.hetlab,
-                          ht = hetstat.tau2.resid, hp = hetstat.pval.Q.resid))
-      else if (!print.I2 & print.tau2.resid & !print.Q & !print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl, tau^2, ht,
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab,
-                          ht = hetstat.tau2.resid, hb = hetstat.Rb.resid))
-      else if (!print.I2 & !print.tau2.resid & print.Q & print.pval.Q & !print.Rb.resid)
+      else if (!print.I2 & print.tau2.tau.resid & print.Q & !print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             chi[df]^2, hq),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau2.resid, hq = hetstat.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             chi[df]^2, hq),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau.resid, hq = hetstat.Q.resid))
+      else if (!print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             italic(p), hp),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau2.resid, hp = hetstat.pval.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             italic(p), hp),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau.resid, hp = hetstat.pval.Q.resid))
+      else if (!print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl, tau^2, ht,
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau2.resid, hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl, tau, ht,
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau.resid, hb = hetstat.Rb.resid))
+      else if (!print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, chi[df]^2, hq,
                            " (",
                            italic(p), hp, ")"),
                      list(hl = resid.hetlab, df = df.Q.resid,
                           hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-      else if (!print.I2 & !print.tau2.resid & print.Q & !print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, chi[df]^2, hq,
                            ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = resid.hetlab, df = df.Q.resid,
                           hq = hetstat.Q.resid, hb = hetstat.Rb.resid))
-      else if (!print.I2 & !print.tau2.resid & !print.Q & print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & !print.tau2.tau.resid & !print.Q & print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl, italic(p), hp,
                            ", ",
@@ -3433,25 +3725,48 @@ forest.meta <- function(x,
       ##
       ## Three
       ##
-      else if (print.I2 & print.tau2.resid & print.Q & !print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid))
-      else if (print.I2 & print.tau2.resid & !print.Q & print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           italic(p), hp),
-                     list(hl = resid.hetlab,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hp = hetstat.pval.Q.resid))
-      else if (print.I2 & !print.tau2.resid & print.Q & print.pval.Q & !print.Rb.resid)
+      else if (print.I2 & print.tau2.tau.resid & print.Q & !print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid))
+      else if (print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(p), hp),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hp = hetstat.pval.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             italic(p), hp),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hp = hetstat.pval.Q.resid))
+      else if (print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
+               !print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3460,25 +3775,48 @@ forest.meta <- function(x,
                      list(hl = resid.hetlab, df = df.Q.resid,
                           hi = hetstat.I2.resid,
                           hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-      else if (!print.I2 & print.tau2.resid & print.Q & print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")"),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-      else if (print.I2 & print.tau2.resid & !print.Q & !print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hb = hetstat.Rb.resid))
-      else if (print.I2 & !print.tau2.resid & print.Q & !print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & print.tau2.tau.resid & print.Q & print.pval.Q &
+               !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
+      else if (print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hb = hetstat.Rb.resid))
+      else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3488,17 +3826,30 @@ forest.meta <- function(x,
                           hi = hetstat.I2.resid,
                           hq = hetstat.Q.resid,
                           hb = hetstat.Rb.resid))
-      else if (!print.I2 & print.tau2.resid & print.Q & !print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid,
-                          hb = hetstat.Rb.resid))
-      else if (print.I2 & !print.tau2.resid & !print.Q & print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & print.tau2.tau.resid & print.Q & !print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid,
+                            hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid,
+                            hb = hetstat.Rb.resid))          
+      else if (print.I2 & !print.tau2.tau.resid & !print.Q & print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3507,17 +3858,30 @@ forest.meta <- function(x,
                      list(hl = resid.hetlab,
                           hi = hetstat.I2.resid, hp = hetstat.pval.Q.resid,
                           hb = hetstat.Rb.resid))
-      else if (!print.I2 & print.tau2.resid & !print.Q & print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           italic(p), hp, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab,
-                          ht = hetstat.tau2.resid,
-                          hp = hetstat.pval.Q.resid,
-                          hb = hetstat.Rb.resid))
-      else if (!print.I2 & !print.tau2.resid & print.Q & print.pval.Q & print.Rb.resid)
+      else if (!print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau2.resid,
+                            hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            ht = hetstat.tau.resid,
+                            hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))          
+      else if (!print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl,
                            chi[df]^2, hq,
@@ -3530,37 +3894,73 @@ forest.meta <- function(x,
       ##
       ## Four
       ##
-      if (print.I2 & print.tau2.resid & print.Q & print.pval.Q & !print.Rb.resid)
-        hetstat.resid <-
+      if (print.I2 & print.tau2.tau.resid & print.Q & print.pval.Q &
+          !print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")"),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))          
+      else if (print.I2 & print.tau2.tau.resid & print.Q & !print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid, hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid, hb = hetstat.Rb.resid))          
+      else if (print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             italic(p), hp, ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hp = hetstat.pval.Q.resid, hb = hetstat.Rb.resid))
+        else
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")"),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-      else if (print.I2 & print.tau2.resid & print.Q & !print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid, hb = hetstat.Rb.resid))
-      else if (print.I2 & print.tau2.resid & !print.Q & print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
+                           tau, ht, ", ",
                            italic(p), hp, ", ",
                            italic(R)[italic(b)], hb),
                      list(hl = resid.hetlab,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
                           hp = hetstat.pval.Q.resid, hb = hetstat.Rb.resid))
-      else if (print.I2 & !print.tau2.resid & print.Q & !print.pval.Q & print.Rb.resid)
+      else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
+               print.Rb.resid)
         hetstat.resid <-
           substitute(paste(hl,
                            italic(I)^2, hi, ", ",
@@ -3572,34 +3972,63 @@ forest.meta <- function(x,
                           ht = hetstat.tau2.resid,
                           hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
                           hb = hetstat.Rb.resid))
-      else if (!print.I2 & print.tau2.resid & print.Q & print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")",
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
-                          hb = hetstat.Rb.resid))
+      else if (!print.I2 & print.tau2.tau.resid & print.Q & print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))          
       ##
       ## Five
       ##
-      else if (print.I2 & print.tau2.resid & print.Q & print.pval.Q & print.Rb.resid)
-        hetstat.resid <-
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau^2, ht, ", ",
-                           chi[df]^2, hq,
-                           " (", italic(p), hp, ")",
-                           ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab, df = df.Q.resid,
-                          hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
-                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
-                          hb = hetstat.Rb.resid))
+      else if (print.I2 & print.tau2.tau.resid & print.Q & print.pval.Q &
+               print.Rb.resid)
+        if (print.tau2)
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau^2, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))
+        else
+          hetstat.resid <-
+            substitute(paste(hl,
+                             italic(I)^2, hi, ", ",
+                             tau, ht, ", ",
+                             chi[df]^2, hq,
+                             " (", italic(p), hp, ")",
+                             ", ",
+                             italic(R)[italic(b)], hb),
+                       list(hl = resid.hetlab, df = df.Q.resid,
+                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                            hb = hetstat.Rb.resid))          
     }
   }
   ##
@@ -3669,7 +4098,7 @@ forest.meta <- function(x,
     pvals.overall <- formatPT(c(x$pval.fixed, x$pval.random),
                               lab = TRUE, labval = "",
                               digits = digits.pval,
-                              zero = zero.pval,
+                              zero = zero.pval, JAMA = JAMA.pval,
                               scientific = scientific.pval,
                               lab.NA = "NA")
     zvals.overall <- formatN(round(c(x$zval.fixed, x$zval.random),
@@ -3833,7 +4262,7 @@ forest.meta <- function(x,
     paste(formatPT(pval.Q.bs,
                    lab = TRUE, labval = "",
                    digits = digits.pval.Q,
-                   zero = zero.pval,
+                   zero = zero.pval, JAMA = JAMA.pval,
                    scientific = scientific.pval,
                    lab.NA = "NA"),
           sep = "")
@@ -4106,6 +4535,14 @@ forest.meta <- function(x,
                               big.mark = big.mark, lab.NA = "NA"))),
               sep = "")
       ##
+      hetstat.tau.w <-
+        paste(hetseparator,
+              ifelse(is.na(tau.w), "NA",
+              ifelse(tau.w == 0, "0",
+                     formatPT(tau.w, digits = digits.tau,
+                              big.mark = big.mark, lab.NA = "NA"))),
+              sep = "")
+      ##
       hetstat.Q.w <-
         paste(hetseparator,
               round(Q.w, digits.Q),
@@ -4118,7 +4555,7 @@ forest.meta <- function(x,
         paste(formatPT(replaceNULL(x$pval.Q.w, pvalQ(x$Q.w, x$df.Q.w)),
                        lab = TRUE, labval = "",
                        digits = digits.pval.Q,
-                       zero = zero.pval,
+                       zero = zero.pval, JAMA = JAMA.pval,
                        scientific = scientific.pval,
                        lab.NA = "NA"),
               sep = "")
@@ -4143,6 +4580,8 @@ forest.meta <- function(x,
         hetstat.I2.w <- gsub("  ", " ", hetstat.I2.w)
       while(any(grepl("  ", hetstat.tau2.w)))
         hetstat.tau2.w <- gsub("  ", " ", hetstat.tau2.w)
+      while(any(grepl("  ", hetstat.tau.w)))
+        hetstat.tau.w <- gsub("  ", " ", hetstat.tau.w)
       while(any(grepl("  ", hetstat.Q.w)))
         hetstat.Q.w <- gsub("  ", " ", hetstat.Q.w)
       while(any(grepl("  ", hetstat.pval.Q.w)))
@@ -4181,121 +4620,198 @@ forest.meta <- function(x,
           ##
           ## One
           ##
-          if (print.I2 & !print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
+          if (print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q & !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(I)^2, hi),
                          list(hl = hetlab, hi = hetstat.I2.w[i]))
-          else if (!print.I2 & print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl, tau^2, ht),
-                         list(hl = hetlab, ht = hetstat.tau2.w[i]))
-          else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
+          else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau^2, ht),
+                           list(hl = hetlab, ht = hetstat.tau2.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau, ht),
+                           list(hl = hetlab, ht = hetstat.tau.w[i]))              
+          else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1, hq = hetstat.Q.w[i]))
-          else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              hq = hetstat.Q.w[i]))
+          else if (!print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(p), hp),
                          list(hl = hetlab, hp = hetstat.pval.Q.w[i]))
-          else if (!print.I2 & !print.tau2 & !print.Q & !print.pval.Q & print.Rb)
+          else if (!print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(R)[italic(b)], hb),
-                         list(hl = hetlab, hetstat.Rb.w[i]))
+                         list(hl = hetlab, hb = hetstat.Rb.w[i]))
           ##
           ## Two
           ##
-          else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl, italic(I)^2, hi,
-                               ", ",
-                               tau^2, ht),
-                         list(hl = hetlab,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i]))
-          else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & !print.Rb)
+          else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl, italic(I)^2, hi,
+                                 ", ",
+                                 tau^2, ht),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl, italic(I)^2, hi,
+                                 ", ",
+                                 tau, ht),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i]))              
+          else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(I)^2, hi,
                                ", ",
                                chi[df]^2, hq),
                          list(hl = hetlab,
                               hi = hetstat.I2.w[i], hq = hetstat.Q.w[i]))
-          else if (print.I2 & !print.tau2 & !print.Q & print.pval.Q & !print.Rb)
+          else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(I)^2, hi,
                                ", ",
                                italic(p), hp),
                          list(hl = hetlab,
                               hi = hetstat.I2.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (print.I2 & !print.tau2 & !print.Q & !print.pval.Q & print.Rb)
+          else if (print.I2 & !print.tau2.tau & !print.Q & !print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(I)^2, hi,
                                ", ",
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab,
-                              hi = hetstat.I2.w[i], hetstat.Rb.w[i]))
-          else if (!print.I2 & print.tau2 & print.Q & !print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl, tau^2, ht,
-                               ", ",
-                               chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              ht = hetstat.tau2.w[i], hq = hetstat.Q.w[i]))
-          else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl, tau^2, ht,
-                               ", ",
-                               italic(p), hp),
-                         list(hl = hetlab,
-                              ht = hetstat.tau2.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (!print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl, tau^2, ht,
-                               ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab,
-                              ht = hetstat.tau2.w[i], hetstat.Rb.w[i]))
-          else if (!print.I2 & !print.tau2 & print.Q & print.pval.Q & !print.Rb)
+                              hi = hetstat.I2.w[i], hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & print.tau2.tau & print.Q & !print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau^2, ht,
+                                 ", ",
+                                 chi[df]^2, hq),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau2.w[i], hq = hetstat.Q.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau, ht,
+                                 ", ",
+                                 chi[df]^2, hq),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau.w[i], hq = hetstat.Q.w[i]))              
+          else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau^2, ht,
+                                 ", ",
+                                 italic(p), hp),
+                           list(hl = hetlab,
+                                ht = hetstat.tau2.w[i],
+                                hp = hetstat.pval.Q.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau, ht,
+                                 ", ",
+                                 italic(p), hp),
+                           list(hl = hetlab,
+                                ht = hetstat.tau.w[i],
+                                hp = hetstat.pval.Q.w[i]))             
+          else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau^2, ht,
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                ht = hetstat.tau2.w[i], hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl, tau, ht,
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                ht = hetstat.tau.w[i], hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, chi[df]^2, hq,
                                " (",
                                italic(p), hp, ")"),
                          list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (!print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
+          else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, chi[df]^2, hq,
                                ", ",
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              hq = hetstat.Q.w[i], hetstat.Rb.w[i]))
-          else if (!print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
+                              hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl, italic(p), hp,
                                ", ",
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab,
-                              hp = hetstat.pval.Q.w[i], hetstat.Rb.w[i]))
+                              hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
           ##
           ## Three
           ##
-          else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i]))
-          else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               italic(p), hp),
-                         list(hl = hetlab,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hp = hetstat.pval.Q.w[i]))
-          else if (print.I2 & !print.tau2 & print.Q & print.pval.Q & !print.Rb)
+          else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i]))              
+          else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 italic(p), hp),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hp = hetstat.pval.Q.w[i]))
+            else   
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 italic(p), hp),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hp = hetstat.pval.Q.w[i]))
+          else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
+                   !print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl,
                                italic(I)^2, hi, ", ",
@@ -4304,25 +4820,48 @@ forest.meta <- function(x,
                          list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i],
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq,
-                               " (", italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (print.I2 & print.tau2 & !print.Q & !print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hetstat.Rb.w[i]))
-          else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
+          else if (!print.I2 & print.tau2.tau & print.Q & print.pval.Q &
+                   !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")"),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")"),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+          else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hb = hetstat.Rb.w[i]))
+          else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl,
                                italic(I)^2, hi, ", ",
@@ -4331,18 +4870,31 @@ forest.meta <- function(x,
                          list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hi = hetstat.I2.w[i],
                               hq = hetstat.Q.w[i],
-                              hetstat.Rb.w[i]))
-          else if (!print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq, ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i],
-                              hetstat.Rb.w[i]))
-          else if (print.I2 & !print.tau2 & !print.Q & print.pval.Q & print.Rb)
+                              hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & print.tau2.tau & print.Q & !print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+          else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl,
                                italic(I)^2, hi, ", ",
@@ -4350,18 +4902,31 @@ forest.meta <- function(x,
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab,
                               hi = hetstat.I2.w[i], hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))
-          else if (!print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               tau^2, ht, ", ",
-                               italic(p), hp, ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab,
-                              ht = hetstat.tau2.w[i],
-                              hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))
-          else if (!print.I2 & !print.tau2 & print.Q & print.pval.Q & print.Rb)
+                              hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau^2, ht, ", ",
+                                 italic(p), hp, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                ht = hetstat.tau2.w[i],
+                                hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+            else              
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau, ht, ", ",
+                                 italic(p), hp, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                ht = hetstat.tau.w[i],
+                                hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl,
                                chi[df]^2, hq,
@@ -4370,80 +4935,145 @@ forest.meta <- function(x,
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab, df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))      
+                              hb = hetstat.Rb.w[i]))      
           ##
           ## Four
           ##
-          if (print.I2 & print.tau2 & print.Q & print.pval.Q & !print.Rb)
+          if (print.I2 & print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")"),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")"),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+          else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
+          else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 italic(p), hp, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 italic(p), hp, ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
+          else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
+                   print.Rb)
             hetstat.w[[i]] <-
               substitute(paste(hl,
                                italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
                                chi[df]^2, hq,
-                               " (", italic(p), hp, ")"),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-          else if (print.I2 & print.tau2 & print.Q & !print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq, ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i], hetstat.Rb.w[i]))
-          else if (print.I2 & print.tau2 & !print.Q & print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               italic(p), hp, ", ",
+                               " (", italic(p), hp, ")",
+                               ", ",
                                italic(R)[italic(b)], hb),
                          list(hl = hetlab,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hp = hetstat.pval.Q.w[i], hetstat.Rb.w[i]))
-          else if (print.I2 & !print.tau2 & print.Q & !print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               chi[df]^2, hq,
-                               " (", italic(p), hp, ")",
-                               ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              ht = hetstat.tau2.w[i],
+                              hi = hetstat.I2.w[i], df = k.w.hetstat[i] - 1,
                               hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))
-          else if (!print.I2 & print.tau2 & print.Q & print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq,
-                               " (", italic(p), hp, ")",
-                               ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))
+                              hb = hetstat.Rb.w[i]))
+          else if (!print.I2 & print.tau2.tau & print.Q & print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")",
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")",
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
           ##
           ## Five
           ##
-          else if (print.I2 & print.tau2 & print.Q & print.pval.Q & print.Rb)
-            hetstat.w[[i]] <-
-              substitute(paste(hl,
-                               italic(I)^2, hi, ", ",
-                               tau^2, ht, ", ",
-                               chi[df]^2, hq,
-                               " (", italic(p), hp, ")",
-                               ", ",
-                               italic(R)[italic(b)], hb),
-                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                              hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
-                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                              hetstat.Rb.w[i]))
+          else if (print.I2 & print.tau2.tau & print.Q & print.pval.Q &
+                   print.Rb)
+            if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau^2, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")",
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
+            else
+              hetstat.w[[i]] <-
+                substitute(paste(hl,
+                                 italic(I)^2, hi, ", ",
+                                 tau, ht, ", ",
+                                 chi[df]^2, hq,
+                                 " (", italic(p), hp, ")",
+                                 ", ",
+                                 italic(R)[italic(b)], hb),
+                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                                hb = hetstat.Rb.w[i]))
         }
         if (hetstat.pooled != "study" &
             !is.logical(text.subgroup.nohet) & k.w.hetstat[i] < 2)
@@ -4454,8 +5084,10 @@ forest.meta <- function(x,
     TE.w <- c(TE.fixed.w, TE.random.w, rep(NA, 3 * n.by))
     lowTE.w <- c(lower.fixed.w, lower.random.w, rep(NA, 3 * n.by))
     uppTE.w <- c(upper.fixed.w, upper.random.w, rep(NA, 3 * n.by))
-    n.harmonic.mean.w <- c(n.harmonic.mean.w, n.harmonic.mean.w, rep(NA, 3 * n.by))
-    t.harmonic.mean.w <- c(t.harmonic.mean.w, t.harmonic.mean.w, rep(NA, 3 * n.by))
+    n.harmonic.mean.w <- c(n.harmonic.mean.w, n.harmonic.mean.w,
+                           rep(NA, 3 * n.by))
+    t.harmonic.mean.w <- c(t.harmonic.mean.w, t.harmonic.mean.w,
+                           rep(NA, 3 * n.by))
     weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, 3 * n.by))
     ##
     test.fixed.w <- ""
@@ -4466,7 +5098,7 @@ forest.meta <- function(x,
       pvals.effect.w <- formatPT(c(x$pval.fixed.w, x$pval.random.w),
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
-                                 zero = zero.pval,
+                                 zero = zero.pval, JAMA = JAMA.pval,
                                  scientific = scientific.pval,
                                  lab.NA = "NA")
       zvals.effect.w <- formatN(round(c(x$zval.fixed.w, x$zval.random.w),
@@ -4488,46 +5120,52 @@ forest.meta <- function(x,
       for (i in 1:n.by) {
         if (print.zval) {
           if (revman5)
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 Z, hetseparator, tt,
-                                                                 " (P", tp, ")"),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                hetseparator = hetseparator,
-                                                                tt = zvals.effect.w[i],
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               Z, hetseparator, tt,
+                               " (P", tp, ")"),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              hetseparator = hetseparator,
+                              tt = zvals.effect.w[i],
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (jama)
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 italic(z), hetseparator, tt,
-                                                                 " (", italic(P), tp, ")"),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                hetseparator = hetseparator,
-                                                                tt = zvals.effect.w[i],
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               italic(z), hetseparator, tt,
+                               " (", italic(P), tp, ")"),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              hetseparator = hetseparator,
+                              tt = zvals.effect.w[i],
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 italic(z), hetseparator, tt,
-                                                                 " (", italic(p), tp, ")"),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                hetseparator = hetseparator,
-                                                                tt = zvals.effect.w[i],
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               italic(z), hetseparator, tt,
+                               " (", italic(p), tp, ")"),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              hetseparator = hetseparator,
+                              tt = zvals.effect.w[i],
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
         }
         else {
           if (revman5)
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 " P", tp),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               " P", tp),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (jama)
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 " ", italic(P), tp),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               " ", italic(P), tp),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else
-            text.effect.subgroup.fixed[[i]]  <- substitute(paste(tl,
-                                                                 " ", italic(p), tp),
-                                                           list(tl = label.test.effect.subgroup.fixed,
-                                                                tp = rmSpace(pvals.effect.w[i], end = TRUE)))
+            text.effect.subgroup.fixed[[i]] <-
+              substitute(paste(tl,
+                               " ", italic(p), tp),
+                         list(tl = label.test.effect.subgroup.fixed,
+                              tp = rmSpace(pvals.effect.w[i], end = TRUE)))
         }
       }
     }
@@ -4543,76 +5181,94 @@ forest.meta <- function(x,
         if (print.zval) {
           if (!x$hakn) {
             if (revman5)
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    Z, hetseparator, tt,
-                                                                    " (P", tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 Z, hetseparator, tt,
+                                 " (P", tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE)))
             else if (jama)
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    italic(z), hetseparator, tt,
-                                                                    " (", italic(P), tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 italic(z), hetseparator, tt,
+                                 " (", italic(P), tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE)))
             else
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    italic(z), hetseparator, tt,
-                                                                    " (", italic(p), tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 italic(z), hetseparator, tt,
+                                 " (", italic(p), tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE)))
           }
           else {
             if (revman5)
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    t[df], hetseparator, tt,
-                                                                    " (P", tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w.hetstat - 1))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 t[df], hetseparator, tt,
+                                 " (P", tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE),
+                                df = k.w.hetstat - 1))
             else if (jama)
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    italic(t)[df], hetseparator, tt,
-                                                                    " (", italic(P), tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w.hetstat - 1))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 italic(t)[df], hetseparator, tt,
+                                 " (", italic(P), tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE),
+                                df = k.w.hetstat - 1))
             else
-              text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                    italic(t)[df], hetseparator, tt,
-                                                                    " (", italic(p), tp, ")"),
-                                                              list(tl = label.test.effect.subgroup.random,
-                                                                   hetseparator = hetseparator,
-                                                                   tt = zvals.effect.w[n.by + i],
-                                                                   tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE),
-                                                                   df = k.w.hetstat - 1))
+              text.effect.subgroup.random[[i]] <-
+                substitute(paste(tl,
+                                 italic(t)[df], hetseparator, tt,
+                                 " (", italic(p), tp, ")"),
+                           list(tl = label.test.effect.subgroup.random,
+                                hetseparator = hetseparator,
+                                tt = zvals.effect.w[n.by + i],
+                                tp = rmSpace(pvals.effect.w[n.by + i],
+                                             end = TRUE),
+                                df = k.w.hetstat - 1))
           }
         }
         else {
           if (revman5)
-            text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                  " P", tp),
-                                                            list(tl = label.test.effect.subgroup.random,
-                                                                 tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+            text.effect.subgroup.random[[i]] <-
+              substitute(paste(tl,
+                               " P", tp),
+                         list(tl = label.test.effect.subgroup.random,
+                              tp = rmSpace(pvals.effect.w[n.by + i],
+                                           end = TRUE)))
           else if (jama)
-            text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                  " ", italic(P)),
-                                                            list(tl = label.test.effect.subgroup.random,
-                                                                 tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+            text.effect.subgroup.random[[i]] <-
+              substitute(paste(tl,
+                               " ", italic(P)),
+                         list(tl = label.test.effect.subgroup.random,
+                              tp = rmSpace(pvals.effect.w[n.by + i],
+                                           end = TRUE)))
           else
-            text.effect.subgroup.random[[i]]  <- substitute(paste(tl,
-                                                                  " ", italic(p), tp),
-                                                            list(tl = label.test.effect.subgroup.random,
-                                                                 tp = rmSpace(pvals.effect.w[n.by + i], end = TRUE)))
+            text.effect.subgroup.random[[i]] <-
+              substitute(paste(tl,
+                               " ", italic(p), tp),
+                         list(tl = label.test.effect.subgroup.random,
+                              tp = rmSpace(pvals.effect.w[n.by + i],
+                                           end = TRUE)))
         }
       }
     }
@@ -6343,7 +6999,8 @@ forest.meta <- function(x,
     if (length(leftcols.new) > 0)
       if (length(just.addcols.left) != 1) {
         if (length(just.addcols.left) != length(leftcols.new))
-          stop("Length of argument 'just.addcols.left' must be one or same as number of additional columms in argument 'leftcols'.")
+          stop("Length of argument 'just.addcols.left' must be one or ",
+               "same as number of additional columms in argument 'leftcols'.")
       }
       else
         just.addcols.left <- rep(just.addcols.left, length(leftcols.new))
@@ -6351,7 +7008,8 @@ forest.meta <- function(x,
     if (length(rightcols.new) > 0)
       if (length(just.addcols.right) != 1) {
         if (length(just.addcols.right) != length(rightcols.new))
-          stop("Length of argument 'just.addcols.right' must be one or same as number of additional columms in argument 'rightcols'.")
+          stop("Length of argument 'just.addcols.right' must be one or ",
+               "same as number of additional columms in argument 'rightcols'.")
       }
       else
         just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
@@ -6361,7 +7019,8 @@ forest.meta <- function(x,
     if (length(leftcols.new) > 0)
       if (length(digits.addcols.left) != 1) {
         if (length(digits.addcols.left) != length(leftcols.new))
-          stop("Length of argument 'digits.addcols.left' must be one or same as number of additional columms in argument 'leftcols'.")
+          stop("Length of argument 'digits.addcols.left' must be one or ",
+               "same as number of additional columms in argument 'leftcols'.")
       }
       else
         digits.addcols.left <- rep(digits.addcols.left, length(leftcols.new))
@@ -6369,7 +7028,8 @@ forest.meta <- function(x,
     if (length(rightcols.new) > 0)
       if (length(digits.addcols.right) != 1) {
         if (length(digits.addcols.right) != length(rightcols.new))
-          stop("Length of argument 'digits.addcols.right' must be one or same as number of additional columms in argument 'rightcols'.")
+          stop("Length of argument 'digits.addcols.right' must be one or ",
+               "same as number of additional columms in argument 'rightcols'.")
       }
       else
         digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))

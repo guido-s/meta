@@ -4,8 +4,12 @@
 \alias{weights.meta}
 \title{Calculate absolute and percentage weights for meta-analysis}
 \usage{
-\method{weights}{meta}(object, comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random, ...)
+\method{weights}{meta}(
+  object,
+  comb.fixed = object$comb.fixed,
+  comb.random = object$comb.random,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}

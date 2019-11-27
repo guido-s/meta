@@ -209,8 +209,7 @@
 #' \code{hakn = TRUE}.
 #' 
 #' The following methods to estimate the between-study variance
-#' \eqn{\tau^2} (argument \code{method.tau}) are available for the
-#' inverse variance method:
+#' \eqn{\tau^2} are available for the inverse variance method:
 #' \itemize{
 #' \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
 #' \item Paule-Mandel estimator (\code{method.tau = "PM"})
@@ -278,8 +277,6 @@
 #' \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
 #' \item{tau}{Square-root of between-study variance.}
 #' \item{se.tau2}{Standard error of between-study variance.}
-#' \item{C}{Scaling factor utilised internally to calculate common
-#'   tau-squared across subgroups.}
 #' \item{sparse}{Logical flag indicating if any study included in
 #'   meta-analysis has any zero cell frequencies.}
 #' \item{incr.event}{Increment added to number of events.}
@@ -357,8 +354,6 @@
 #'   not missing.}
 #' \item{tau.w}{Square-root of between-study variance within subgroups
 #'   - if \code{byvar} is not missing.}
-#' \item{C.w}{Scaling factor utilised internally to calculate common
-#'   tau-squared across subgroups - if \code{byvar} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
 #'   \code{byvar} is not missing.}
 #' \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for

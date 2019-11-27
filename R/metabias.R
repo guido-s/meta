@@ -364,7 +364,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       m <- metabin(event.e, n.e, event.c, n.c, sm = x$sm, method = "Inverse",
                    incr = x$incr, allincr = x$allincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
-                   RR.cochrane = x$RR.cochrane)
+                   RR.Cochrane = x$RR.Cochrane)
       TE <- m$TE
       seTE <- m$seTE
     }

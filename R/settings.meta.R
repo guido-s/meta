@@ -44,7 +44,8 @@
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
 #'   subgroups \cr
 #' \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
-#' \code{RR.cochrane} \tab TRUE \tab calculation of risk ratios \cr
+#' \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
+#' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 #' \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
 #' \code{test.overall} \tab TRUE \tab print information on test of
 #'   overall effect \cr
@@ -68,7 +69,11 @@
 #'   \cr
 #' \code{CIbracket}, \tab "(" \tab \cr
 #' \code{CIseparator} \tab "-" \tab print confidence intervals as
-#'   "\code{(.-.)}"
+#'   "\code{(.-.)}" \cr
+#' \code{zero.pval}, \tab TRUE \tab print p-values with leading zero
+#' \cr
+#' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
+#'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01)
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
@@ -364,6 +369,8 @@ settings.meta <- function(...) {
     catarg("digits.pval.Q  ")
     catarg("scientific.pval")
     catarg("big.mark       ")
+    catarg("zero.pval      ")
+    catarg("JAMA.pval      ")
     catarg("print.I2       ")
     catarg("print.H        ")
     catarg("print.Rb       ")
@@ -397,7 +404,8 @@ settings.meta <- function(...) {
     catarg("method     ")
     catarg("allstudies ")
     catarg("MH.exact   ")
-    catarg("RR.cochrane")
+    catarg("RR.Cochrane")
+    catarg("Q.Cochrane ")
     catarg("model.glmm ")
     catarg("print.CMH  ")
     ##
@@ -460,6 +468,8 @@ settings.meta <- function(...) {
     setOption("digits.pval.Q", 4)
     setOption("scientific.pval", FALSE)
     setOption("big.mark", "")
+    setOption("zero.pval", TRUE)
+    setOption("JAMA.pval", FALSE)
     setOption("print.I2", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
@@ -474,7 +484,8 @@ settings.meta <- function(...) {
     setOption("addincr", FALSE)
     setOption("allstudies", FALSE)
     setOption("MH.exact", FALSE)
-    setOption("RR.cochrane", FALSE)
+    setOption("RR.Cochrane", FALSE)
+    setOption("Q.Cochrane", TRUE)
     setOption("model.glmm", "UM.FS")
     setOption("print.CMH", FALSE)
     ##
@@ -511,13 +522,13 @@ settings.meta <- function(...) {
     ##
     if (setting == "RevMan5") {
       specificSetting(args = c("hakn", "method.tau", "tau.common",
-                               "MH.exact", "RR.cochrane",
+                               "MH.exact", "RR.Cochrane", "Q.Cochrane",
                                "layout", "test.overall",
                                "test.subgroup", "test.effect.subgroup",
                                "digits.I2", "digits.tau2", "digits.tau",
                                "CIbracket", "CIseparator"),
                       new = list(FALSE, "DL", FALSE,
-                                 FALSE, TRUE,
+                                 FALSE, TRUE, TRUE,
                                  "RevMan5", TRUE,
                                  TRUE, TRUE,
                                  0, 2, 4,
@@ -528,25 +539,31 @@ settings.meta <- function(...) {
     else if (setting == "JAMA") {
       specificSetting(args = c("layout", "test.overall",
                                "test.subgroup", "test.effect.subgroup",
-                               "digits.I2",
-                               "CIbracket", "CIseparator"),
+                               "digits.I2", "digits.pval",
+                               "CIbracket", "CIseparator",
+                               "zero.pval", "JAMA.pval"),
                       new = list("JAMA", TRUE,
                                  FALSE, FALSE,
-                                 0,
-                                 "(", "-"),
+                                 0, 3,
+                                 "(", "-",
+                                 FALSE, TRUE),
                       setting = "JAMA settings")
     }
     ##
     else if (setting == "IQWiG4.2") {
-      specificSetting(args = c("hakn", "method.tau", "RR.cochrane"),
-                      new = list(TRUE, "PM", FALSE),
+      specificSetting(args = c("hakn", "method.tau", "RR.Cochrane",
+                               "Q.Cochrane"),
+                      new = list(TRUE, "PM", FALSE,
+                                 FALSE),
                       setting = "IQWiG 4.2 settings")
     }
     ##
     else if (setting == "meta4") {
-      specificSetting(args = c("hakn", "method.tau", "RR.cochrane",
+      specificSetting(args = c("hakn", "method.tau",
+                               "RR.Cochrane", "Q.Cochrane",
                                "CIbracket", "CIseparator"),
-                      new = list(FALSE, "DL", FALSE,
+                      new = list(FALSE, "DL",
+                                 FALSE, TRUE,
                                  "[", "; "),
                       setting = "settings from R package meta (version 4.y-z and older)")
     }
@@ -593,6 +610,8 @@ settings.meta <- function(...) {
     iddigits.pval.Q <- argid(names, "digits.pval.Q")
     idscientific.pval <- argid(names, "scientific.pval")
     idbig.mark <- argid(names, "big.mark")
+    idzero.pval <- argid(names, "zero.pval")
+    idJAMA.pval <- argid(names, "JAMA.pval")
     idprint.I2 <- argid(names, "print.I2")
     idprint.H <- argid(names, "print.H")
     idprint.Rb <- argid(names, "print.Rb")
@@ -608,7 +627,8 @@ settings.meta <- function(...) {
     idaddincr <- argid(names, "addincr")
     idallstudies <- argid(names, "allstudies")
     idMH.exact <- argid(names, "MH.exact")
-    idRR.cochrane <- argid(names, "RR.cochrane")
+    idRR.Cochrane <- argid(names, "RR.Cochrane")
+    idQ.Cochrane <- argid(names, "Q.Cochrane")
     idmodel.glmm <- argid(names, "model.glmm")
     idprint.CMH <- argid(names, "print.CMH")
     ##
@@ -817,6 +837,16 @@ settings.meta <- function(...) {
       ##
       setOption("big.mark", big.mark)
     }
+    if (!is.na(idzero.pval)) {
+      zero.pval <- args[[idzero.pval]]
+      chklogical(zero.pval)
+      setOption("zero.pval", zero.pval)
+    }
+    if (!is.na(idJAMA.pval)) {
+      JAMA.pval <- args[[idJAMA.pval]]
+      chklogical(JAMA.pval)
+      setOption("JAMA.pval", JAMA.pval)
+    }
     if (!is.na(idprint.I2)) {
       print.I2 <- args[[idprint.I2]]
       chklogical(print.I2)
@@ -906,10 +936,15 @@ settings.meta <- function(...) {
       chklogical(MH.exact)
       setOption("MH.exact", MH.exact)
     }
-    if (!is.na(idRR.cochrane)) {
-      RR.cochrane <- args[[idRR.cochrane]]
-      chklogical(RR.cochrane)
-      setOption("RR.cochrane", RR.cochrane)
+    if (!is.na(idRR.Cochrane)) {
+      RR.Cochrane <- args[[idRR.Cochrane]]
+      chklogical(RR.Cochrane)
+      setOption("RR.Cochrane", RR.Cochrane)
+    }
+    if (!is.na(idQ.Cochrane)) {
+      Q.Cochrane <- args[[idQ.Cochrane]]
+      chklogical(Q.Cochrane)
+      setOption("Q.Cochrane", Q.Cochrane)
     }
     if (!is.na(idprint.CMH)) {
       print.CMH <- args[[idprint.CMH]]

@@ -2,17 +2,14 @@ citHeader("To cite package 'meta' in publications use:")
 
 citEntry(
   entry   = "Article",
-  title   = "meta: {A}n {R} package for meta-analysis",
-  author  = personList(as.person("Guido Schwarzer")),
-  journal = "R News",
-  year    = "2007",
-  volume  = "7",
-  number  = "3",
-  pages   = "40--45",
+  title   = "How to perform a meta-analysis with {R}: a practical tutorial",
+  author  = personList(as.person("Sara Balduzzi"), as.person("Gerta Rücker"), as.person("Guido Schwarzer")),
+  journal = "Evidence-Based Mental Health",
+  year    = "2019",
 
-  textVersion = paste("Guido Schwarzer (2007),",
-                      "meta: An R package for meta-analysis,",
-                      "R News, 7(3), 40-45.")
+  textVersion = paste("Balduzzi S, Rücker G, Schwarzer G (2019),",
+                      "How to perform a meta-analysis with R: a practical tutorial,",
+                      "Evidence-Based Mental Health.")
 )
 
-citFooter("URL https://cran.r-project.org/doc/Rnews/Rnews_2007-3.pdf")
+citFooter("DOI: 10.1136/ebmental-2019-300117")

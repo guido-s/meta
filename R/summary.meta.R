@@ -55,8 +55,8 @@
 #'   heterogeneity statistic Q, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for
-#'   square root of between-study variance, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for square
+#'   root of between-study variance, see \code{print.default}.
 #' @param digits.H Minimal number of significant digits for H
 #'   statistic, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
@@ -65,6 +65,11 @@
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
 #' @param big.mark A character used as thousands separator.
+#' @param zero.pval A logical specifying whether p-values should be
+#'   printed with a leading zero.
+#' @param JAMA.pval A logical specifying whether p-values for test of
+#'   overall effect should be printed according to JAMA reporting
+#'   standards.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I^2 should be printed.
 #' @param warn A logical indicating whether the use of
@@ -153,8 +158,6 @@
 #' \item{Q}{Heterogeneity statistic Q.}
 #' \item{tau}{Square-root of between-study variance.}
 #' \item{se.tau2}{Standard error of between-study variance.}
-#' \item{C}{Scaling factor utilised internally to calculate common
-#'   tau-squared across subgroups.}
 #' \item{H}{Heterogeneity statistic H (a list with elements TE, lower,
 #'   upper).}
 #' \item{I2}{Heterogeneity statistic I2 (a list with elements TE,
@@ -196,8 +199,6 @@
 #'   on random effects model) - if \code{byvar} is not missing.}
 #' \item{tau.w}{Square-root of between-study variance within subgroups
 #'   - if \code{byvar} is not missing.}
-#' \item{C.w}{Scaling factor utilised internally to calculate common
-#'   tau-squared across subgroups.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups (a list with
 #'   elements TE, lower, upper) - if \code{byvar} is not missing.}
 #' \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list
@@ -454,7 +455,6 @@ summary.meta <- function(object,
   res$df.hakn    <- object$df.hakn
   res$method.tau <- object$method.tau
   res$TE.tau     <- object$TE.tau
-  res$C          <- object$C
   ##
   ## Add results from subgroup analysis
   ##
@@ -503,7 +503,6 @@ summary.meta <- function(object,
     res$pval.Q.b.fixed  <- object$pval.Q.b.fixed
     res$pval.Q.b.random <- object$pval.Q.b.random
     res$tau.w           <- object$tau.w
-    res$C.w             <- object$C.w
     res$H.w             <- ci.H
     res$I2.w            <- ci.I2
     res$Rb.w            <- ci.Rb
@@ -740,6 +739,8 @@ print.summary.meta <- function(x,
                                ##
                                scientific.pval = gs("scientific.pval"),
                                big.mark = gs("big.mark"),
+                               zero.pval = gs("zero.pval"),
+                               JAMA.pval = gs("JAMA.pval"),
                                print.I2 = gs("print.I2"),
                                print.H = gs("print.H"),
                                print.Rb = gs("print.Rb"),
@@ -781,6 +782,8 @@ print.summary.meta <- function(x,
   chknumeric(digits.H, min = 0, single = TRUE)
   chknumeric(digits.I2, min = 0, single = TRUE)
   chklogical(scientific.pval)
+  chklogical(zero.pval)
+  chklogical(JAMA.pval)
   ##
   if (is.untransformed(x$sm))
     backtransf <- TRUE
@@ -1132,7 +1135,8 @@ print.summary.meta <- function(x,
                                   big.mark = big.mark)),
                  formatN(zTE.fixed, digits.zval, big.mark = big.mark),
                  formatPT(pTE.fixed, digits = digits.pval,
-                          scientific = scientific.pval))
+                          scientific = scientific.pval,
+                          zero = zero.pval, JAMA = JAMA.pval))
     dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p-value"))
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
@@ -1212,7 +1216,8 @@ print.summary.meta <- function(x,
                               if (comb.random) pTE.random,
                               if (prediction) NA),
                             digits = digits.pval,
-                            scientific = scientific.pval))
+                            scientific = scientific.pval,
+                            zero = zero.pval, JAMA = JAMA.pval))
       if (prediction)
         res[dim(res)[1], c(1,3:4)] <- ""
       if (!is.null(x$hakn) && x$hakn) {
@@ -1238,7 +1243,8 @@ print.summary.meta <- function(x,
                        df.Q.CMH,
                        formatPT(pval.Q.CMH,
                                 digits = digits.pval.Q,
-                                scientific = scientific.pval))
+                                scientific = scientific.pval,
+                                zero = zero.pval, JAMA = JAMA.pval))
         dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         ##
         cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
@@ -1316,7 +1322,8 @@ print.summary.meta <- function(x,
                          format(df.Q, big.mark = big.mark),
                          formatPT(pval.Q,
                                   digits = digits.pval.Q,
-                                  scientific = scientific.pval))
+                                  scientific = scientific.pval,
+                                  zero = zero.pval, JAMA = JAMA.pval))
           dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
         }
         else {
@@ -1325,7 +1332,8 @@ print.summary.meta <- function(x,
                          format(c(df.Q, df.Q.LRT), big.mark = big.mark),
                          formatPT(c(pval.Q, pval.Q.LRT),
                                   digits = digits.pval.Q,
-                                  scientific = scientific.pval),
+                                  scientific = scientific.pval,
+                                  zero = zero.pval, JAMA = JAMA.pval),
                          c("Wald-type", "Likelihood-Ratio"))
           dimnames(Qdata) <- list(rep("", 2),
                                   c("Q", "d.f.", "p-value", "Test"))
@@ -1397,7 +1405,8 @@ print.summary.meta <- function(x,
                              format(df.Q.b, big.mark = big.mark),
                              formatPT(pval.Q.b.fixed,
                                       digits = digits.pval.Q,
-                                      scientific = scientific.pval))
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list("Between groups  ",
                                       c("Q", "d.f.", "p-value"))
               prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
@@ -1411,7 +1420,8 @@ print.summary.meta <- function(x,
                              format(dfs, big.mark = big.mark),
                              formatPT(pvals,
                                       digits = digits.pval.Q,
-                                      scientific = scientific.pval))
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                       c("Q", "d.f.", "p-value"))
               prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
@@ -1464,10 +1474,12 @@ print.summary.meta <- function(x,
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb)
                                   )
+          ##
           if (inherits(x, "metabind"))
             cat("\nResults for meta-analyses (random effects model):\n")
           else
             cat("\nResults for subgroups (random effects model):\n")
+          ##
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
           if (!inherits(x, "metabind")) {
@@ -1478,7 +1490,8 @@ print.summary.meta <- function(x,
                              format(df.Q.b, big.mark = big.mark),
                              formatPT(pval.Q.b.random,
                                       digits = digits.pval.Q,
-                                      scientific = scientific.pval))
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list("Between groups  ",
                                       c("Q", "d.f.", "p-value"))
             }
@@ -1491,7 +1504,8 @@ print.summary.meta <- function(x,
                              format(dfs, big.mark = big.mark),
                              formatPT(pvals,
                                       digits = digits.pval.Q,
-                                      scientific = scientific.pval))
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                       c("Q", "d.f.", "p-value"))
             }

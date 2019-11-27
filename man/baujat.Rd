@@ -7,13 +7,30 @@
 \usage{
 baujat(x, ...)
 
-\method{baujat}{meta}(x, yscale = 1, xlim, ylim,
+\method{baujat}{meta}(
+  x,
+  yscale = 1,
+  xlim,
+  ylim,
   xlab = "Contribution to overall heterogeneity",
-  ylab = "Influence on overall result", pch = 21, cex = 1,
-  col = "black", bg = "darkgray", studlab = TRUE,
-  cex.studlab = 0.8, xmin = 0, ymin = 0, pos = 2, offset = 0.5,
-  grid = TRUE, col.grid = "lightgray", lty.grid = "dotted",
-  lwd.grid = par("lwd"), pty = "s", ...)
+  ylab = "Influence on overall result",
+  pch = 21,
+  cex = 1,
+  col = "black",
+  bg = "darkgray",
+  studlab = TRUE,
+  cex.studlab = 0.8,
+  xmin = 0,
+  ymin = 0,
+  pos = 2,
+  offset = 0.5,
+  grid = TRUE,
+  col.grid = "lightgray",
+  lty.grid = "dotted",
+  lwd.grid = par("lwd"),
+  pty = "s",
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}

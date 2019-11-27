@@ -81,7 +81,7 @@ paulemandel <- function(TE, seTE,
   
   res <- list(TE.random = TE.random, seTE.random = seTE.random,
               w.random = w.random.all, tau = sqrt(tau2),
-              n.iter = n.iter, converged = converged, tol=tol * variance.TE)
+              n.iter = n.iter, converged = converged, tol = tol * variance.TE)
   
   res
 }

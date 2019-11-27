@@ -106,7 +106,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
-              "RR.cochrane", "model.glmm", "print.CMH",
+              "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
               "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
               "label.e", "label.c", "label.left", "label.right",
               "layout",
@@ -115,7 +115,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
               "digits.pval", "digits.pval.Q", "digits.forest",
-              "scientific.pval", "big.mark",
+              "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
               "print.I2", "print.H", "print.Rb",
               "text.tau2", "text.tau", "text.I2", "text.Rb"
               )
@@ -157,6 +157,8 @@ setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
+setOption("zero.pval", TRUE)
+setOption("JAMA.pval", FALSE)
 setOption("print.I2", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
@@ -186,7 +188,8 @@ setOption("addincr", FALSE)
 setOption("method", "MH")
 setOption("allstudies", FALSE)
 setOption("MH.exact", FALSE)
-setOption("RR.cochrane", FALSE)
+setOption("RR.Cochrane", FALSE)
+setOption("Q.Cochrane", TRUE)
 setOption("model.glmm", "UM.FS")
 setOption("print.CMH", FALSE)
 ##

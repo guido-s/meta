@@ -4,8 +4,7 @@
 \alias{as.data.frame.meta}
 \title{Additional functions for objects of class meta}
 \usage{
-\method{as.data.frame}{meta}(x, row.names = NULL, optional = FALSE,
-  ...)
+\method{as.data.frame}{meta}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}

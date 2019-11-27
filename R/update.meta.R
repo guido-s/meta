@@ -33,12 +33,15 @@
 #'   added to all cell frequencies for studies with a zero cell count
 #'   to calculate the pooled estimate based on the Mantel-Haenszel
 #'   method.
-#' @param RR.cochrane A logical indicating if 2*\code{incr} instead of
+#' @param RR.Cochrane A logical indicating if 2*\code{incr} instead of
 #'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-#'   calculation of the risk ratio (i.e., \code{sm = "RR"}) for
-#'   studies with a zero cell. This is used in RevMan 5, the Cochrane
-#'   Collaboration's program for preparing and maintaining Cochrane
-#'   reviews.
+#'   calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
+#'   with a zero cell. This is used in RevMan 5, the program for
+#'   preparing and maintaining Cochrane reviews.
+#' @param Q.Cochrane A logical indicating if the Mantel-Haenszel
+#'   estimate is used in the calculation of the heterogeneity
+#'   statistic Q which is implemented in RevMan 5, the program for
+#'   preparing and maintaining Cochrane reviews.
 #' @param model.glmm A character string indicating which GLMM model
 #'   should be used.
 #' @param level The level used to calculate confidence intervals for
@@ -219,7 +222,8 @@ update.meta <- function(object,
                         addincr = object$addincr,
                         allstudies = object$allstudies,
                         MH.exact = object$MH.exact,
-                        RR.cochrane = object$RR.cochrane,
+                        RR.Cochrane = object$RR.Cochrane,
+                        Q.Cochrane = object$Q.Cochrane,
                         model.glmm = object$model.glmm,
                         level = object$level,
                         level.comb = object$level.comb,
@@ -311,6 +315,10 @@ update.meta <- function(object,
   comb.fixed <- replacemiss(comb.fixed)
   comb.random <- replacemiss(comb.random)
   ##
+  if (metabin) {
+    RR.Cochrane <- replacemiss(RR.Cochrane, object$RR.cochrane)
+    Q.Cochrane <- replacemiss(Q.Cochrane, TRUE)
+  }
   model.glmm <- replacemiss(model.glmm)
   ##
   level <- replacemiss(level)
@@ -597,8 +605,8 @@ update.meta <- function(object,
                  sm = ifelse(method == "GLMM", "OR", sm),
                  incr = incr,
                  allincr = allincr, addincr = addincr, allstudies = allstudies,
-                 MH.exact = MH.exact, RR.cochrane = RR.cochrane,
-                 model.glmm = model.glmm,
+                 MH.exact = MH.exact, RR.Cochrane = RR.Cochrane,
+                 Q.Cochrane = Q.Cochrane, model.glmm = model.glmm,
                  ##
                  level = level, level.comb = level.comb,
                  comb.fixed = comb.fixed, comb.random = comb.random,

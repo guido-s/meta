@@ -4,34 +4,67 @@
 \alias{update.meta}
 \title{Update a meta-analysis object}
 \usage{
-\method{update}{meta}(object, data = object$data,
-  subset = object$subset, studlab = object$data$.studlab,
-  exclude = object$data$.exclude, method = object$method,
-  sm = object$sm, incr, allincr = object$allincr,
-  addincr = object$addincr, allstudies = object$allstudies,
-  MH.exact = object$MH.exact, RR.cochrane = object$RR.cochrane,
-  model.glmm = object$model.glmm, level = object$level,
-  level.comb = object$level.comb, comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random, hakn = object$hakn,
-  method.tau = object$method.tau, tau.preset = object$tau.preset,
-  TE.tau = object$TE.tau, tau.common = object$tau.common,
-  prediction = object$prediction, level.predict = object$level.predict,
-  null.effect = object$null.effect, method.bias = object$method.bias,
-  backtransf = object$backtransf, pscale = object$pscale,
-  irscale = object$irscale, irunit = object$irunit,
-  title = object$title, complab = object$complab,
-  outclab = object$outclab, label.e = object$label.e,
-  label.c = object$label.c, label.left = object$label.left,
-  label.right = object$label.right, n.e = object$n.e,
-  n.c = object$n.c, pooledvar = object$pooledvar,
-  method.smd = object$method.smd, sd.glass = object$sd.glass,
-  exact.smd = object$exact.smd, method.ci = object$method.ci,
-  byvar = object$byvar, bylab = object$bylab,
-  print.byvar = object$print.byvar, byseparator = object$byseparator,
-  print.CMH = object$print.CMH, keepdata = TRUE, left = object$left,
-  ma.fixed = object$ma.fixed, type = object$type,
-  n.iter.max = object$n.iter.max, warn = object$warn,
-  control = object$control, ...)
+\method{update}{meta}(
+  object,
+  data = object$data,
+  subset = object$subset,
+  studlab = object$data$.studlab,
+  exclude = object$data$.exclude,
+  method = object$method,
+  sm = object$sm,
+  incr,
+  allincr = object$allincr,
+  addincr = object$addincr,
+  allstudies = object$allstudies,
+  MH.exact = object$MH.exact,
+  RR.Cochrane = object$RR.Cochrane,
+  Q.Cochrane = object$Q.Cochrane,
+  model.glmm = object$model.glmm,
+  level = object$level,
+  level.comb = object$level.comb,
+  comb.fixed = object$comb.fixed,
+  comb.random = object$comb.random,
+  hakn = object$hakn,
+  method.tau = object$method.tau,
+  tau.preset = object$tau.preset,
+  TE.tau = object$TE.tau,
+  tau.common = object$tau.common,
+  prediction = object$prediction,
+  level.predict = object$level.predict,
+  null.effect = object$null.effect,
+  method.bias = object$method.bias,
+  backtransf = object$backtransf,
+  pscale = object$pscale,
+  irscale = object$irscale,
+  irunit = object$irunit,
+  title = object$title,
+  complab = object$complab,
+  outclab = object$outclab,
+  label.e = object$label.e,
+  label.c = object$label.c,
+  label.left = object$label.left,
+  label.right = object$label.right,
+  n.e = object$n.e,
+  n.c = object$n.c,
+  pooledvar = object$pooledvar,
+  method.smd = object$method.smd,
+  sd.glass = object$sd.glass,
+  exact.smd = object$exact.smd,
+  method.ci = object$method.ci,
+  byvar = object$byvar,
+  bylab = object$bylab,
+  print.byvar = object$print.byvar,
+  byseparator = object$byseparator,
+  print.CMH = object$print.CMH,
+  keepdata = TRUE,
+  left = object$left,
+  ma.fixed = object$ma.fixed,
+  type = object$type,
+  n.iter.max = object$n.iter.max,
+  warn = object$warn,
+  control = object$control,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}
@@ -76,12 +109,16 @@ added to all cell frequencies for studies with a zero cell count
 to calculate the pooled estimate based on the Mantel-Haenszel
 method.}
 
-\item{RR.cochrane}{A logical indicating if 2*\code{incr} instead of
+\item{RR.Cochrane}{A logical indicating if 2*\code{incr} instead of
 1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-calculation of the risk ratio (i.e., \code{sm = "RR"}) for
-studies with a zero cell. This is used in RevMan 5, the Cochrane
-Collaboration's program for preparing and maintaining Cochrane
-reviews.}
+calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
+with a zero cell. This is used in RevMan 5, the program for
+preparing and maintaining Cochrane reviews.}
+
+\item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
+estimate is used in the calculation of the heterogeneity
+statistic Q which is implemented in RevMan 5, the program for
+preparing and maintaining Cochrane reviews.}
 
 \item{model.glmm}{A character string indicating which GLMM model
 should be used.}

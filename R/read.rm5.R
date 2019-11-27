@@ -141,10 +141,6 @@
 #' \item{label.c}{Label for control group.}
 #' \item{label.left}{Graph label on left side of forest plot.}
 #' \item{label.right}{Graph label on right side of forest plot.}
-#' \item{RR.cochrane}{A logical indicating if 2*\code{incr} instead of
-#'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-#'   calculation of the risk ratio (i.e., \code{sm = "RR"}) for
-#'   studies with a zero cell. This is used in RevMan 5.}
 #' \item{complab}{Comparison label.}
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}

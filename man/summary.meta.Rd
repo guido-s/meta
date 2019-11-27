@@ -5,30 +5,61 @@
 \alias{print.summary.meta}
 \title{Summary of meta-analysis results}
 \usage{
-\method{summary}{meta}(object, comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random, prediction = object$prediction,
-  backtransf = object$backtransf, pscale = object$pscale,
-  irscale = object$irscale, irunit = object$irunit,
-  bylab = object$bylab, print.byvar = object$print.byvar,
-  byseparator = object$byseparator, bystud = FALSE,
-  print.CMH = object$print.CMH, warn = object$warn, ...)
+\method{summary}{meta}(
+  object,
+  comb.fixed = object$comb.fixed,
+  comb.random = object$comb.random,
+  prediction = object$prediction,
+  backtransf = object$backtransf,
+  pscale = object$pscale,
+  irscale = object$irscale,
+  irunit = object$irunit,
+  bylab = object$bylab,
+  print.byvar = object$print.byvar,
+  byseparator = object$byseparator,
+  bystud = FALSE,
+  print.CMH = object$print.CMH,
+  warn = object$warn,
+  ...
+)
 
-\method{print}{summary.meta}(x, comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, prediction = x$prediction,
-  print.byvar = x$print.byvar, byseparator = x$byseparator,
-  print.CMH = x$print.CMH, header = TRUE, backtransf = x$backtransf,
-  pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
-  bylab.nchar = 35, digits = gs("digits"),
-  digits.zval = gs("digits.zval"), digits.pval = max(gs("digits.pval"),
-  2), digits.pval.Q = max(gs("digits.pval.Q"), 2),
-  digits.Q = gs("digits.Q"), digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"), digits.H = gs("digits.H"),
-  digits.I2 = gs("digits.I2"), scientific.pval = gs("scientific.pval"),
-  big.mark = gs("big.mark"), print.I2 = gs("print.I2"),
-  print.H = gs("print.H"), print.Rb = gs("print.Rb"),
-  text.tau2 = gs("text.tau2"), text.tau = gs("text.tau"),
-  text.I2 = gs("text.I2"), text.Rb = gs("text.Rb"),
-  warn.backtransf = FALSE, ...)
+\method{print}{summary.meta}(
+  x,
+  comb.fixed = x$comb.fixed,
+  comb.random = x$comb.random,
+  prediction = x$prediction,
+  print.byvar = x$print.byvar,
+  byseparator = x$byseparator,
+  print.CMH = x$print.CMH,
+  header = TRUE,
+  backtransf = x$backtransf,
+  pscale = x$pscale,
+  irscale = x$irscale,
+  irunit = x$irunit,
+  bylab.nchar = 35,
+  digits = gs("digits"),
+  digits.zval = gs("digits.zval"),
+  digits.pval = max(gs("digits.pval"), 2),
+  digits.pval.Q = max(gs("digits.pval.Q"), 2),
+  digits.Q = gs("digits.Q"),
+  digits.tau2 = gs("digits.tau2"),
+  digits.tau = gs("digits.tau"),
+  digits.H = gs("digits.H"),
+  digits.I2 = gs("digits.I2"),
+  scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"),
+  zero.pval = gs("zero.pval"),
+  JAMA.pval = gs("JAMA.pval"),
+  print.I2 = gs("print.I2"),
+  print.H = gs("print.H"),
+  print.Rb = gs("print.Rb"),
+  text.tau2 = gs("text.tau2"),
+  text.tau = gs("text.tau"),
+  text.I2 = gs("text.I2"),
+  text.Rb = gs("text.Rb"),
+  warn.backtransf = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}
@@ -111,8 +142,8 @@ heterogeneity statistic Q, see \code{print.default}.}
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
 
-\item{digits.tau}{Minimal number of significant digits for
-square root of between-study variance, see \code{print.default}.}
+\item{digits.tau}{Minimal number of significant digits for square
+root of between-study variance, see \code{print.default}.}
 
 \item{digits.H}{Minimal number of significant digits for H
 statistic, see \code{print.default}.}
@@ -125,6 +156,13 @@ be printed in scientific notation, e.g., 1.2345e-01 instead of
 0.12345.}
 
 \item{big.mark}{A character used as thousands separator.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
+
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
 
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I^2 should be printed.}
@@ -163,8 +201,6 @@ following elements:
 \item{Q}{Heterogeneity statistic Q.}
 \item{tau}{Square-root of between-study variance.}
 \item{se.tau2}{Standard error of between-study variance.}
-\item{C}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups.}
 \item{H}{Heterogeneity statistic H (a list with elements TE, lower,
   upper).}
 \item{I2}{Heterogeneity statistic I2 (a list with elements TE,
@@ -206,8 +242,6 @@ following elements:
   on random effects model) - if \code{byvar} is not missing.}
 \item{tau.w}{Square-root of between-study variance within subgroups
   - if \code{byvar} is not missing.}
-\item{C.w}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups.}
 \item{H.w}{Heterogeneity statistic H within subgroups (a list with
   elements TE, lower, upper) - if \code{byvar} is not missing.}
 \item{I2.w}{Heterogeneity statistic I2 within subgroups (a list
@@ -303,7 +337,7 @@ forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
 
 \dontrun{
 # Use unicode characters to print tau^2 and I^2
-print(summary(m1), text.tau2 = "\\u03c4\\u00b2", text.I2 = "I\\u00b2")
+print(summary(m1), text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
 }
 
 }

@@ -5,16 +5,32 @@
 \alias{cilayout}
 \title{Print meta-analysis results}
 \usage{
-\method{print}{meta}(x, sortvar, comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random, prediction = x$prediction,
-  details = FALSE, ma = TRUE, backtransf = x$backtransf,
-  pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
-  digits = gs("digits"), digits.se = gs("digits.se"),
-  digits.tau2 = gs("digits.tau2"), digits.tau = gs("digits.tau"),
-  digits.I2 = gs("digits.I2"), digits.prop = gs("digits.prop"),
-  digits.weight = gs("digits.weight"), big.mark = gs("big.mark"),
-  text.tau2 = gs("text.tau2"), text.tau = gs("text.tau"),
-  text.I2 = gs("text.I2"), warn.backtransf = FALSE, ...)
+\method{print}{meta}(
+  x,
+  sortvar,
+  comb.fixed = x$comb.fixed,
+  comb.random = x$comb.random,
+  prediction = x$prediction,
+  details = FALSE,
+  ma = TRUE,
+  backtransf = x$backtransf,
+  pscale = x$pscale,
+  irscale = x$irscale,
+  irunit = x$irunit,
+  digits = gs("digits"),
+  digits.se = gs("digits.se"),
+  digits.tau2 = gs("digits.tau2"),
+  digits.tau = gs("digits.tau"),
+  digits.I2 = gs("digits.I2"),
+  digits.prop = gs("digits.prop"),
+  digits.weight = gs("digits.weight"),
+  big.mark = gs("big.mark"),
+  text.tau2 = gs("text.tau2"),
+  text.tau = gs("text.tau"),
+  text.I2 = gs("text.I2"),
+  warn.backtransf = FALSE,
+  ...
+)
 
 cilayout(bracket = "[", separator = "; ")
 }
@@ -140,7 +156,7 @@ print(m1, digits = 2)
 \dontrun{
 # Use unicode characters to print tau^2, tau, and I^2 
 print(m1,
-      text.tau2 = "\\u03c4\\u00b2", text.tau = "\\u03c4", text.I2 = "I\\u00b2")
+      text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 }
 
 }

@@ -4,22 +4,60 @@
 \alias{metagen}
 \title{Generic inverse variance meta-analysis}
 \usage{
-metagen(TE, seTE, studlab, data = NULL, subset = NULL,
-  exclude = NULL, sm = "", level = gs("level"),
-  level.comb = gs("level.comb"), comb.fixed = gs("comb.fixed"),
-  comb.random = gs("comb.random"), hakn = gs("hakn"),
-  method.tau = gs("method.tau"), tau.preset = NULL, TE.tau = NULL,
-  tau.common = gs("tau.common"), prediction = gs("prediction"),
-  level.predict = gs("level.predict"), null.effect = 0,
-  method.bias = gs("method.bias"), n.e = NULL, n.c = NULL, pval, df,
-  lower, upper, level.ci = 0.95, median, q1, q3, min, max, approx.TE,
-  approx.seTE, backtransf = gs("backtransf"), pscale = 1,
-  irscale = 1, irunit = "person-years", title = gs("title"),
-  complab = gs("complab"), outclab = "", label.e = gs("label.e"),
-  label.c = gs("label.c"), label.left = gs("label.left"),
-  label.right = gs("label.right"), byvar, bylab,
-  print.byvar = gs("print.byvar"), byseparator = gs("byseparator"),
-  keepdata = gs("keepdata"), warn = gs("warn"), control = NULL)
+metagen(
+  TE,
+  seTE,
+  studlab,
+  data = NULL,
+  subset = NULL,
+  exclude = NULL,
+  sm = "",
+  level = gs("level"),
+  level.comb = gs("level.comb"),
+  comb.fixed = gs("comb.fixed"),
+  comb.random = gs("comb.random"),
+  hakn = gs("hakn"),
+  method.tau = gs("method.tau"),
+  tau.preset = NULL,
+  TE.tau = NULL,
+  tau.common = gs("tau.common"),
+  prediction = gs("prediction"),
+  level.predict = gs("level.predict"),
+  null.effect = 0,
+  method.bias = gs("method.bias"),
+  n.e = NULL,
+  n.c = NULL,
+  pval,
+  df,
+  lower,
+  upper,
+  level.ci = 0.95,
+  median,
+  q1,
+  q3,
+  min,
+  max,
+  approx.TE,
+  approx.seTE,
+  backtransf = gs("backtransf"),
+  pscale = 1,
+  irscale = 1,
+  irunit = "person-years",
+  title = gs("title"),
+  complab = gs("complab"),
+  outclab = "",
+  label.e = gs("label.e"),
+  label.c = gs("label.c"),
+  label.left = gs("label.left"),
+  label.right = gs("label.right"),
+  byvar,
+  bylab,
+  print.byvar = gs("print.byvar"),
+  byseparator = gs("byseparator"),
+  keepdata = gs("keepdata"),
+  warn = gs("warn"),
+  control = NULL
+)
 }
 \arguments{
 \item{TE}{Estimate of treatment effect, e.g., log hazard ratio or
@@ -227,8 +265,6 @@ object is a list containing the following components:
 \item{pval.Q}{P-value of heterogeneity test.}
 \item{tau}{Square-root of between-study variance.}
 \item{se.tau2}{Standard error of between-study variance.}
-\item{C}{Scaling factor utilised internally to
-  calculate common tau-squared across subgroups.}
 \item{method}{Pooling method: \code{"Inverse"}.}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn = TRUE}).}
@@ -295,10 +331,8 @@ object is a list containing the following components:
   subgroups heterogeneity statistic Q (based on random effects
   model) - if \code{byvar} is not missing.}
 \item{tau.w}{Square-root of between-study variance within subgroups
-  - if \code{byvar} is not missing.}  \item{C.w}{Scaling factor
-  utilised internally to calculate common tau-squared across
-  subgroups - if \code{byvar} is not missing.}
-  \item{H.w}{Heterogeneity statistic H within subgroups - if
+  - if \code{byvar} is not missing.}
+\item{H.w}{Heterogeneity statistic H within subgroups - if
   \code{byvar} is not missing.}
 \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
   heterogeneity statistic H within subgroups - if \code{byvar} is

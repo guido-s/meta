@@ -7,11 +7,30 @@
 \usage{
 bubble(x, ...)
 
-\method{bubble}{metareg}(x, xlim, ylim, xlab, ylab, cex, min.cex = 0.5,
-  max.cex = 5, pch = 21, col = "black", bg = "darkgray", lty = 1,
-  lwd = 1, col.line = "black", studlab = FALSE, cex.studlab = 0.8,
-  pos = 2, offset = 0.5, regline = TRUE, axes = TRUE, box = TRUE,
-  ...)
+\method{bubble}{metareg}(
+  x,
+  xlim,
+  ylim,
+  xlab,
+  ylab,
+  cex,
+  min.cex = 0.5,
+  max.cex = 5,
+  pch = 21,
+  col = "black",
+  bg = "darkgray",
+  lty = 1,
+  lwd = 1,
+  col.line = "black",
+  studlab = FALSE,
+  cex.studlab = 0.8,
+  pos = 2,
+  offset = 0.5,
+  regline = TRUE,
+  axes = TRUE,
+  box = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{metareg}.}

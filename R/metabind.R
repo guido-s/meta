@@ -304,7 +304,6 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             tau = m.i$tau,
                             se.tau2 = replace.NULL(m.i$se.tau2),
                             ##
-                            C = m.i$H,
                             H = m.i$H,
                             lower.H = m.i$lower.H,
                             upper.H = m.i$upper.H,
@@ -547,9 +546,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$df.Q <- makeunique(res$df.Q, 0)
   res$pval.Q <- makeunique(res$pval.Q, 0)
   res$tau <- makeunique(res$tau)
-  res$se.tau <- makeunique(res$se.tau)
-  ##
-  res$C <- makeunique(res$C)
+  res$se.tau2 <- makeunique(res$se.tau2)
   ##
   res$H <- makeunique(res$H)
   res$lower.H <- makeunique(res$lower.H)

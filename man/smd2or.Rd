@@ -4,8 +4,17 @@
 \alias{smd2or}
 \title{Conversion from standardised mean difference to log odds ratio}
 \usage{
-smd2or(smd, se.smd, studlab, data = NULL, subset = NULL,
-  exclude = NULL, method = "HH", backtransf = gs("backtransf"), ...)
+smd2or(
+  smd,
+  se.smd,
+  studlab,
+  data = NULL,
+  subset = NULL,
+  exclude = NULL,
+  method = "HH",
+  backtransf = gs("backtransf"),
+  ...
+)
 }
 \arguments{
 \item{smd}{Standardised mean difference(s) (SMD) or meta-analysis

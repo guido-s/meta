@@ -8,21 +8,52 @@
 \usage{
 trimfill(x, ...)
 
-\method{trimfill}{default}(x, seTE, left = NULL, ma.fixed = TRUE,
-  type = "L", n.iter.max = 50, sm = "", studlab = NULL,
-  level = 0.95, level.comb = level, comb.fixed = FALSE,
-  comb.random = TRUE, hakn = FALSE, method.tau = "DL",
-  prediction = FALSE, level.predict = level, backtransf = TRUE,
-  pscale = 1, irscale = 1, irunit = "person-years", silent = TRUE,
-  ...)
+\method{trimfill}{default}(
+  x,
+  seTE,
+  left = NULL,
+  ma.fixed = TRUE,
+  type = "L",
+  n.iter.max = 50,
+  sm = "",
+  studlab = NULL,
+  level = 0.95,
+  level.comb = level,
+  comb.fixed = FALSE,
+  comb.random = TRUE,
+  hakn = FALSE,
+  method.tau = "DL",
+  prediction = FALSE,
+  level.predict = level,
+  backtransf = TRUE,
+  pscale = 1,
+  irscale = 1,
+  irunit = "person-years",
+  silent = TRUE,
+  ...
+)
 
-\method{trimfill}{meta}(x, left = NULL, ma.fixed = TRUE, type = "L",
-  n.iter.max = 50, level = x$level, level.comb = x$level.comb,
-  comb.fixed = FALSE, comb.random = TRUE, hakn = x$hakn,
-  method.tau = x$method.tau, prediction = x$prediction,
-  level.predict = x$level.predict, backtransf = x$backtransf,
-  pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
-  silent = TRUE, ...)
+\method{trimfill}{meta}(
+  x,
+  left = NULL,
+  ma.fixed = TRUE,
+  type = "L",
+  n.iter.max = 50,
+  level = x$level,
+  level.comb = x$level.comb,
+  comb.fixed = FALSE,
+  comb.random = TRUE,
+  hakn = x$hakn,
+  method.tau = x$method.tau,
+  prediction = x$prediction,
+  level.predict = x$level.predict,
+  backtransf = x$backtransf,
+  pscale = x$pscale,
+  irscale = x$irscale,
+  irunit = x$irunit,
+  silent = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, or estimated treatment

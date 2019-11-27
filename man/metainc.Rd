@@ -4,23 +4,55 @@
 \alias{metainc}
 \title{Meta-analysis of incidence rates}
 \usage{
-metainc(event.e, time.e, event.c, time.c, studlab, data = NULL,
-  subset = NULL, exclude = NULL, method = "MH", sm = gs("sminc"),
-  incr = gs("incr"), allincr = gs("allincr"),
-  addincr = gs("addincr"), model.glmm = "UM.FS", level = gs("level"),
-  level.comb = gs("level.comb"), comb.fixed = gs("comb.fixed"),
-  comb.random = gs("comb.random"), hakn = gs("hakn"),
-  method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch =
-  NA)), "ML", gs("method.tau")), tau.preset = NULL, TE.tau = NULL,
-  tau.common = gs("tau.common"), prediction = gs("prediction"),
-  level.predict = gs("level.predict"), method.bias = gs("method.bias"),
-  n.e = NULL, n.c = NULL, backtransf = gs("backtransf"),
-  irscale = 1, irunit = "person-years", title = gs("title"),
-  complab = gs("complab"), outclab = "", label.e = gs("label.e"),
-  label.c = gs("label.c"), label.left = gs("label.left"),
-  label.right = gs("label.right"), byvar, bylab,
-  print.byvar = gs("print.byvar"), byseparator = gs("byseparator"),
-  keepdata = gs("keepdata"), warn = gs("warn"), control = NULL, ...)
+metainc(
+  event.e,
+  time.e,
+  event.c,
+  time.c,
+  studlab,
+  data = NULL,
+  subset = NULL,
+  exclude = NULL,
+  method = "MH",
+  sm = gs("sminc"),
+  incr = gs("incr"),
+  allincr = gs("allincr"),
+  addincr = gs("addincr"),
+  model.glmm = "UM.FS",
+  level = gs("level"),
+  level.comb = gs("level.comb"),
+  comb.fixed = gs("comb.fixed"),
+  comb.random = gs("comb.random"),
+  hakn = gs("hakn"),
+  method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
+    gs("method.tau")),
+  tau.preset = NULL,
+  TE.tau = NULL,
+  tau.common = gs("tau.common"),
+  prediction = gs("prediction"),
+  level.predict = gs("level.predict"),
+  method.bias = gs("method.bias"),
+  n.e = NULL,
+  n.c = NULL,
+  backtransf = gs("backtransf"),
+  irscale = 1,
+  irunit = "person-years",
+  title = gs("title"),
+  complab = gs("complab"),
+  outclab = "",
+  label.e = gs("label.e"),
+  label.c = gs("label.c"),
+  label.left = gs("label.left"),
+  label.right = gs("label.right"),
+  byvar,
+  bylab,
+  print.byvar = gs("print.byvar"),
+  byseparator = gs("byseparator"),
+  keepdata = gs("keepdata"),
+  warn = gs("warn"),
+  control = NULL,
+  ...
+)
 }
 \arguments{
 \item{event.e}{Number of events in experimental group.}
@@ -218,8 +250,6 @@ object is a list containing the following components:
 \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
 \item{tau}{Square-root of between-study variance.}
 \item{se.tau2}{Standard error of between-study variance.}
-\item{C}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups.}
 \item{sparse}{Logical flag indicating if any study included in
   meta-analysis has any zero cell frequencies.}
 \item{incr.event}{Increment added to number of events.}
@@ -297,8 +327,6 @@ object is a list containing the following components:
   not missing.}
 \item{tau.w}{Square-root of between-study variance within subgroups
   - if \code{byvar} is not missing.}
-\item{C.w}{Scaling factor utilised internally to calculate common
-  tau-squared across subgroups - if \code{byvar} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups - if
   \code{byvar} is not missing.}
 \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
@@ -435,8 +463,7 @@ used to adjust test statistics and confidence intervals if argument
 \code{hakn = TRUE}.
 
 The following methods to estimate the between-study variance
-\eqn{\tau^2} (argument \code{method.tau}) are available for the
-inverse variance method:
+\eqn{\tau^2} are available for the inverse variance method:
 \itemize{
 \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
 \item Paule-Mandel estimator (\code{method.tau = "PM"})

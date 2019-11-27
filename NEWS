@@ -1,25 +1,61 @@
 *** meta, version 4.9-8, 2019-mm-dd ***
 
- ** User-visible changes **
+ ** Major changes **
 
   * Print square root of between-study variance in outputs
 
-  * Number of studies printed without digits in forest plots for R
-    objects created with metabind()
-
   * In subgroup analyses, print the group labels instead of levels if
     the grouping variable is a factor
+
+  * P-values can be printed according to JAMA reporting standards
 
   * For Mantel-Haenszel (MH) method, report results as MH (instead of
     inverse variance, IV) method for meta-analysis of binary outcome
     with a single study (results are identical for MH and IV method in
     this situation)
 
+  * Number of studies printed without digits in forest plots for R
+    objects created with metabind()
+
+  * Square root of between-study variance can be printed in forest
+    plots instead of between-study variance
+
   * funnel.meta():
     - print funnel around random effects estimate if only random
       effects estimate is shown (instead of fixed effect estimate)
     - by (new) default, only show funnel if either fixed effect or
       random effects meta-analysis was conducted
+
+  * Change preferred citation of R package meta from Schwarzer (2007)
+    to Balduzzi et al. (2019), DOI: 10.1136/ebmental-2019-300117
+
+  * Use R package metafor to estimate between-study variance for
+    DerSimonian-Laird and Paule-Mandel method (which has been already
+    used for all other methods to estimate the between-study variance)
+
+ ** User-visible changes **
+
+  * print.summary.meta(), forest.meta():
+    - new argument 'JAMA.pval' to print p-values according to JAMA
+      reporting standards
+
+  * print.summary.meta():
+    - new argument 'zero.pval' to remove leading zeros from p-values
+
+  * Command 'settings.meta("JAMA")' will change the settings for
+    arguments 'zero.pval' and 'JAMA.pval'
+
+  * Help page with description of R package updated
+
+  * Major update of help pages:
+    metacont(), metacor(), and metamean()
+
+ ** Internal changes **
+
+  * formatPT():
+    - new argument 'JAMA'
+
+  * List elements 'C' and 'C.w' removed from meta-analysis objects
 
 
 *** meta, version 4.9-7, 2019-09-27 ***
