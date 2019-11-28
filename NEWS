@@ -2,7 +2,11 @@
 
  ** Major changes **
 
-  * Print square root of between-study variance in outputs
+  * Confidence intervals for the between-study variance tau2 and its
+    square root tau are calculated
+
+  * Print tau as well as confidence intervals for tau2 and tau in
+    outputs
 
   * In subgroup analyses, print the group labels instead of levels if
     the grouping variable is a factor
@@ -41,6 +45,12 @@
 
   * print.summary.meta():
     - new argument 'zero.pval' to remove leading zeros from p-values
+    - print information on estimation of between-study variance even
+      if only results for fixed effect model is shown
+    - print information if Mantel-Haenszel estimate is used to
+      calculate Q and tau2 (implemented similar to RevMan 5)
+    - global setting for 'text.tau2' as defined in settings.meta() is
+      considered in details of meta-analytical method
 
   * Command 'settings.meta("JAMA")' will change the settings for
     arguments 'zero.pval' and 'JAMA.pval'
@@ -56,6 +66,9 @@
     - new argument 'JAMA'
 
   * List elements 'C' and 'C.w' removed from meta-analysis objects
+
+  * Import confint.rma.uni() from metafor to calculate confidence
+    intervals for tau and tau2
 
 
 *** meta, version 4.9-7, 2019-09-27 ***

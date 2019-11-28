@@ -22,7 +22,7 @@ metabin(
   allstudies = gs("allstudies"),
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
-  Q.Cochrane = gs("Q.Cochrane"),
+  Q.Cochrane = gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
   model.glmm = "UM.FS",
   level = gs("level"),
   level.comb = gs("level.comb"),

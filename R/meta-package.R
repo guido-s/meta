@@ -190,7 +190,7 @@
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion
 #'
-#' @importFrom metafor rma.uni rma.glmm predict.rma
+#' @importFrom metafor rma.uni rma.glmm predict.rma confint.rma.uni
 
 
 NULL

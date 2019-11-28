@@ -3,7 +3,7 @@ Title: General Package for Meta-Analysis
 Version: 4.9-8
 Date: 2019-11-27
 Depends: R (>= 2.9.1)
-Imports: grid, metafor (>= 2.1-0), lme4
+Imports: grid, metafor (>= 2.1-0), lme4, CompQuadForm
 Suggests: BiasedUrn
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),

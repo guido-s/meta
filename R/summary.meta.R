@@ -256,8 +256,9 @@
 #' forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
 #' 
 #' \dontrun{
-#' # Use unicode characters to print tau^2 and I^2
-#' print(summary(m1), text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+#' # Use unicode characters to print tau^2, tau, and I^2
+#' print(summary(m1),
+#'       text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
 #' @rdname summary.meta
@@ -401,11 +402,20 @@ summary.meta <- function(object,
   else if (metarate)
     ci.r$harmonic.mean <- mean(1 / object$time)
   ##
-  ci.H <- list(TE = object$H, lower = object$lower.H, upper = object$upper.H)
+  ci.tau2 <- list(TE = object$tau2,
+                  lower = object$lower.tau2, upper = object$upper.tau2)
   ##
-  ci.I2 <- list(TE = object$I2, lower = object$lower.I2, upper = object$upper.I2)
+  ci.tau <- list(TE = object$tau,
+                 lower = object$lower.tau, upper = object$upper.tau)
   ##
-  ci.Rb <- list(TE = object$Rb, lower = object$lower.Rb, upper = object$upper.Rb)
+  ci.H <- list(TE = object$H,
+               lower = object$lower.H, upper = object$upper.H)
+  ##
+  ci.I2 <- list(TE = object$I2,
+                lower = object$lower.I2, upper = object$upper.I2)
+  ##
+  ci.Rb <- list(TE = object$Rb,
+                lower = object$lower.Rb, upper = object$upper.Rb)
   ##
   ci.H.resid <- list(TE = object$H.resid,
                      lower = object$lower.H.resid,
@@ -435,11 +445,25 @@ summary.meta <- function(object,
   res <- list(study = ci.study,
               fixed = ci.f, random = ci.r,
               predict = ci.p,
-              k = object$k, Q = object$Q, df.Q = object$df.Q,
-              Q.LRT = object$Q.LRT,
-              tau = object$tau, H = ci.H, I2 = ci.I2, Rb = ci.Rb,
-              H.resid = ci.H.resid, I2.resid = ci.I2.resid,
+              k = object$k,
+              Q = object$Q, df.Q = object$df.Q, Q.LRT = object$Q.LRT,
+              ##
+              tau = ci.tau,
+              tau2 = ci.tau2,
+              ##
+              method.tau = object$method.tau,
+              method.tau.ci = object$method.tau.ci,
+              sign.tau.ci = list(lower = object$sign.lower.tau,
+                                 upper = object$sign.upper.tau),
+              ##
+              TE.tau = object$TE.tau,
               tau.preset = object$tau.preset,
+              ##
+              hakn = object$hakn,
+              df.hakn = object$df.hakn,
+              ##
+              H = ci.H, I2 = ci.I2, Rb = ci.Rb,
+              H.resid = ci.H.resid, I2.resid = ci.I2.resid,
               k.all = length(object$TE),
               Q.CMH = object$Q.CMH,
               k.MH = object$k.MH,
@@ -450,12 +474,6 @@ summary.meta <- function(object,
               comb.random = comb.random,
               prediction = prediction)
   ##  
-  res$se.tau2    <- object$se.tau2
-  res$hakn       <- object$hakn
-  res$df.hakn    <- object$df.hakn
-  res$method.tau <- object$method.tau
-  res$TE.tau     <- object$TE.tau
-  ##
   ## Add results from subgroup analysis
   ##
   if (length(object$byvar) > 0) {
@@ -485,9 +503,12 @@ summary.meta <- function(object,
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ##
-    ci.H <- list(TE = object$H.w, lower = object$lower.H.w, upper = object$upper.H.w)
-    ci.I2 <- list(TE = object$I2.w, lower = object$lower.I2.w, upper = object$upper.I2.w)
-    ci.Rb <- list(TE = object$Rb.w, lower = object$lower.Rb.w, upper = object$upper.Rb.w)
+    ci.H <- list(TE = object$H.w,
+                 lower = object$lower.H.w, upper = object$upper.H.w)
+    ci.I2 <- list(TE = object$I2.w,
+                  lower = object$lower.I2.w, upper = object$upper.I2.w)
+    ci.Rb <- list(TE = object$Rb.w,
+                  lower = object$lower.Rb.w, upper = object$upper.Rb.w)
     ## 
     res$within.fixed    <- ci.fixed.w
     res$within.random   <- ci.random.w
@@ -520,7 +541,10 @@ summary.meta <- function(object,
     res$addincr     <- object$addincr
     res$allstudies  <- object$allstudies
     res$doublezeros <- object$doublezeros
+    ##
     res$MH.exact    <- object$MH.exact
+    res$RR.Cochrane <- object$RR.Cochrane
+    res$Q.Cochrane  <- object$Q.Cochrane
     ##
     res$model.glmm   <- object$model.glmm
     res$.glmm.fixed  <- object$.glmm.fixed
@@ -855,6 +879,7 @@ print.summary.meta <- function(x,
   sm <- x$sm
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
+  metabin <- inherits(x, "metabin")
   null.given <- (inherits(x, c("metacor", "metagen", "metamean",
                                "metaprop", "metarate")) |
                  is.prop(sm) | is.rate(sm) | is.cor(sm) | is.mean(sm))
@@ -1092,13 +1117,13 @@ print.summary.meta <- function(x,
     I2 <- round(100 * x$I2$TE, digits.I2)
     lowI2 <- round(100 * x$I2$lower, digits.I2)
     uppI2 <- round(100 * x$I2$upper, digits.I2)
-    print.ci.I2 <- ((Q > k & k >= 2) | (Q <= k & k > 2)) &
+    print.I2.ci <- ((Q > k & k >= 2) | (Q <= k & k > 2)) &
       !(is.na(lowI2) | is.na(uppI2))
-    if (is.na(print.ci.I2))
-      print.ci.I2 <- FALSE
+    if (is.na(print.I2.ci))
+      print.I2.ci <- FALSE
   }
   else
-    print.ci.I2 <- FALSE
+    print.I2.ci <- FALSE
   ##
   if (print.Rb) {
     Rb <- round(100 * x$Rb$TE, digits.I2)
@@ -1237,7 +1262,7 @@ print.summary.meta <- function(x,
                             c(sm.lab, x$ci.lab, zlab, "p-value"))
       prmatrix(res, quote = FALSE, right = TRUE, ...)
       ##
-      if (inherits(x, "metabin") && print.CMH) {
+      if (metabin && print.CMH) {
         Qdata <- cbind(formatN(round(Q.CMH, digits.Q), digits.Q, "NA",
                                big.mark = big.mark),
                        df.Q.CMH,
@@ -1259,11 +1284,13 @@ print.summary.meta <- function(x,
     cat("\nQuantifying heterogeneity:\n")
     ##
     cathet(k,
-           x$tau,
+           x$tau2$TE, x$tau2$lower, x$tau2$upper,
            TRUE, text.tau2, digits.tau2,
+           x$tau$TE, x$tau$lower, x$tau$upper,
            TRUE, text.tau, digits.tau,
+           x$sign.tau.ci$lower, x$sign.tau.ci$upper,
            I2, lowI2, uppI2,
-           print.I2, print.ci.I2, text.I2, digits.I2,
+           print.I2, print.I2.ci, text.I2, digits.I2,
            H, lowH, uppH,
            print.H, digits.H,
            Rb, lowRb, uppRb,
@@ -1286,24 +1313,26 @@ print.summary.meta <- function(x,
         I2.resid <- round(100 * x$I2.resid$TE, digits.I2)
         lowI2.resid <- round(100 * x$I2.resid$lower, digits.I2)
         uppI2.resid <- round(100 * x$I2.resid$upper, digits.I2)
-        print.ci.I2 <-
+        print.I2.ci <-
           ((Q.resid  > k.resid & k.resid >= 2) |
            (Q.resid <= k.resid & k.resid > 2)) &
           !(is.na(lowI2.resid) | is.na(uppI2.resid))
         ##
-        if (is.na(print.ci.I2))
-          print.ci.I2 <- FALSE
+        if (is.na(print.I2.ci))
+          print.I2.ci <- FALSE
       }
       ##
       if (!is.na(I2.resid)) {
         cat("\nQuantifying residual heterogeneity:\n")
         ##
         cathet(k.resid, 
-               unique(x$tau.w),
+               unique(x$tau.w)^2, NA, NA,
                x$tau.common, text.tau2, digits.tau2,
+               unique(x$tau.w), NA, NA,
                x$tau.common, text.tau, digits.tau,
+               "", "",
                I2.resid, lowI2.resid, uppI2.resid,
-               print.I2, print.ci.I2, text.I2, digits.I2,
+               print.I2, print.I2.ci, text.I2, digits.I2,
                H.resid, lowH.resid, uppH.resid,
                print.H, digits.H,
                NA, NA, NA,
@@ -1520,7 +1549,7 @@ print.summary.meta <- function(x,
     if (comb.fixed | comb.random | prediction)
       catmeth(class = class(x),
               method = x$method,
-              method.tau = if (comb.random) x$method.tau else "",
+              method.tau = x$method.tau,
               sm = sm,
               k.all = k.all,
               hakn = !is.null(x$hakn) && (x$hakn & comb.random),
@@ -1532,7 +1561,9 @@ print.summary.meta <- function(x,
               addincr = ifelse(bip, x$addincr, FALSE),
               allstudies = x$allstudies,
               doublezeros = x$doublezeros,
-              MH.exact = ifelse(inherits(x, "metabin"), x$MH.exact, FALSE),
+              MH.exact = ifelse(metabin, x$MH.exact, FALSE),
+              RR.Cochrane = ifelse(metabin, x$RR.Cochrane, FALSE),
+              Q.Cochrane = ifelse(metabin, x$Q.Cochrane, TRUE),
               method.ci = x$method.ci,
               pooledvar = x$pooledvar,
               method.smd = x$method.smd,

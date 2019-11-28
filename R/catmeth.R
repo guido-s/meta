@@ -13,6 +13,8 @@ catmeth <- function(method,
                     allstudies = FALSE,
                     doublezeros = FALSE,
                     MH.exact = FALSE,
+                    RR.Cochrane = FALSE,
+                    Q.Cochrane = TRUE,
                     method.ci = NULL,
                     pooledvar = FALSE,
                     method.smd,
@@ -224,21 +226,32 @@ catmeth <- function(method,
       lab.method.details <- lab.method.tau
     }
     else {
-      i.lab.method.tau <- charmatch(method.tau,
-                                    c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"),
-                                    nomatch = NA)
+      i.lab.method.tau <-
+        charmatch(method.tau,
+                  c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"),
+                  nomatch = NA)
       ##
-      lab.method.tau <- c("\n- DerSimonian-Laird estimator for tau^2",
-                          "\n- Paule-Mandel estimator for tau^2",
-                          "\n- Restricted maximum-likelihood estimator for tau^2",
-                          "\n- Maximum-likelihood estimator for tau^2",
-                          "\n- Hunter-Schmidt estimator for tau^2",
-                          "\n- Sidik-Jonkman estimator for tau^2",
-                          "\n- Hedges estimator for tau^2",
-                          "\n- Empirical Bayes estimator for tau^2")[i.lab.method.tau]
+      lab.method.tau <-
+        c("\n- DerSimonian-Laird estimator for",
+          "\n- Paule-Mandel estimator for",
+          "\n- Restricted maximum-likelihood estimator for",
+          "\n- Maximum-likelihood estimator for",
+          "\n- Hunter-Schmidt estimator for",
+          "\n- Sidik-Jonkman estimator for",
+          "\n- Hedges estimator for",
+          "\n- Empirical Bayes estimator for")[i.lab.method.tau]
+      lab.method.tau <- paste(lab.method.tau, gs("text.tau2"))
       ##
       if (tau.common)
-        lab.method.tau <- paste(lab.method.tau, " (assuming common tau^2 in subgroups)", sep = "")
+        lab.method.tau <- paste0(lab.method.tau,
+                                 " (assuming common ", gs("text.tau2"),
+                                 " in subgroups)")
+      ##
+      if (metabin & Q.Cochrane)
+        lab.method.tau <-
+          paste0(lab.method.tau,
+                 "\n- Mantel-Haenszel estimator used in ",
+                 "calculation of Q and ", gs("text.tau2"), " (like RevMan 5)")
       ##
       if (hakn)
         lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"

@@ -686,13 +686,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
-                      ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"),
+                      ifelse(!is.na(charmatch(tolower(method),
+                                              c("peto", "glmm"),
                                               nomatch = NA)),
                              "OR", gs("smbin")),
                     incr = gs("incr"), allincr = gs("allincr"),
                     addincr = gs("addincr"), allstudies = gs("allstudies"),
                     MH.exact = gs("MH.exact"), RR.Cochrane = gs("RR.Cochrane"),
-                    Q.Cochrane = gs("Q.Cochrane"),
+                    Q.Cochrane =
+                      gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
                     model.glmm = "UM.FS",
                     ##
                     level = gs("level"), level.comb = gs("level.comb"),
@@ -782,6 +784,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(MH.exact)
   chklogical(RR.Cochrane)
   chklogical(Q.Cochrane)
+  if (Q.Cochrane & (method != "MH" | method.tau != "DL")) {
+    warning("Argument 'Q.Cochrane' only considered for ",
+            "Mantel-Haenszel method in combination with ",
+            "DerSimonian-Laird estimator.")
+    Q.Cochrane <- FALSE
+  }
   ##
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
   if (is.glmm & model.glmm == "CM.EL")
@@ -789,8 +797,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chklogical(print.CMH)
   ##
-  if (sm == "ASD")
+  if (sm == "ASD") {
     method <- "Inverse"
+    if (!missing(Q.Cochrane) && Q.Cochrane)
+      warning("Argument 'Q.Cochrane' only considered for ",
+              "Mantel-Haenszel method in combination with ",
+              "DerSimonian-Laird estimator.")
+    Q.Cochrane <- FALSE
+  }
   ##
   if (method == "Peto" & sm != "OR")
     stop("Peto's method only possible with argument 'sm = \"OR\"'")
@@ -1404,8 +1418,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                hakn = hakn,
                method.tau = method.tau,
                tau.preset = tau.preset,
-               TE.tau =
-                 if (method == "Inverse" | !Q.Cochrane) TE.tau else TE.fixed,
+               TE.tau = if (Q.Cochrane) TE.fixed else TE.tau,
                tau.common = FALSE,
                ##
                prediction = prediction,
@@ -1426,7 +1439,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau,
-                   if (method == "Inverse" | !Q.Cochrane) TE.tau else TE.fixed,
+                   if (Q.Cochrane & method == "MH") TE.fixed else TE.tau,
                    level.comb, byvar, control)
   }
   

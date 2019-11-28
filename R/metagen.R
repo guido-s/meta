@@ -1400,13 +1400,16 @@ metagen <- function(TE, seTE, studlab,
     ##
     Q <- NA
     df.Q <- NA
-    se.tau2 <- NA
+    se.tau2 <- tau <- NA
+    lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
+    sign.lower.tau <- sign.upper.tau <- NULL
     ##
     if (hakn)
       df.hakn <- NA
     ##
     hc <- list(H = NA, lower.H = NA, upper.H = NA,
-               I2 = NA, lower.I2 = NA, upper.I2 = NA)
+               I2 = NA, lower.I2 = NA, upper.I2 = NA,
+               method.tau.ci = NULL)
   }
   else {
     ## At least two studies to perform Hartung-Knapp method
@@ -1424,13 +1427,25 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (is.null(tau.preset)) {
       if (k > 1)
-        tau2 <- hc$tau^2
+        tau2 <- hc$tau2
       tau2.calc <- if (is.na(tau2)) 0 else tau2
       se.tau2 <- hc$se.tau2
+      lower.tau2 <- hc$lower.tau2
+      upper.tau2 <- hc$upper.tau2
+      ##
+      tau <- hc$tau
+      lower.tau <- hc$lower.tau
+      upper.tau <- hc$upper.tau
+      ##
+      sign.lower.tau <- hc$sign.lower.tau
+      sign.upper.tau <- hc$sign.upper.tau
     }
     else {
       tau2 <- tau2.calc <- tau.preset^2
       se.tau2 <- NULL
+      tau <- sqrt(tau2)
+      lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
+      sign.lower.tau <- sign.upper.tau <- NULL
     }
     ##
     Q    <- hc$Q
@@ -1451,37 +1466,13 @@ metagen <- function(TE, seTE, studlab,
     lower.fixed <- ci.f$lower
     upper.fixed <- ci.f$upper
     ##
-    ## Random effects estimate
+    ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
     ##
-    if (method.tau == "PM") {
-      if (Q < k - 1) {
-        TE.random <- TE.fixed
-        seTE.random <- seTE.fixed
-        w.random <- w.fixed
-        ##
-        if (k > 1)
-          tau2 <- 0
-        tau2.calc <- 0
-      }
-      else {
-        pm <- paulemandel(TE[!exclude], seTE[!exclude])
-        TE.random <- pm$TE.random
-        seTE.random <- pm$seTE.random
-        w.random <- pm$w.random
-        ##
-        tau2 <- tau2.calc <- pm$tau^2
-      }
-    }
-    else {
-      ##
-      ## Cooper & Hedges (1994), p. 265, 274-5
-      ##
-      w.random <- 1 / (seTE^2 + tau2.calc)
-      w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
-      ##
-      TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
-      seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
-    }
+    w.random <- 1 / (seTE^2 + tau2.calc)
+    w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
+    ##
+    TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
+    seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
     ##
     ## Hartung-Knapp adjustment
     ##
@@ -1552,7 +1543,11 @@ metagen <- function(TE, seTE, studlab,
               level.predict = level.predict,
               ##
               k = k, Q = Q, df.Q = df.Q, pval.Q = pvalQ(Q, df.Q),
-              tau = sqrt(tau2), se.tau2 = se.tau2,
+              tau2 = tau2, lower.tau2 = lower.tau2, upper.tau2 = upper.tau2,
+              se.tau2 = se.tau2,
+              tau = tau, lower.tau = lower.tau, upper.tau = upper.tau,
+              method.tau.ci = hc$method.tau.ci,
+              sign.lower.tau = sign.lower.tau, sign.upper.tau = sign.upper.tau,
               ##
               H = hc$H,
               lower.H = hc$lower.H,

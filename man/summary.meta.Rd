@@ -336,8 +336,9 @@ summary(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
 forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
 
 \dontrun{
-# Use unicode characters to print tau^2 and I^2
-print(summary(m1), text.tau2 = "\u03c4\u00b2", text.I2 = "I\u00b2")
+# Use unicode characters to print tau^2, tau, and I^2
+print(summary(m1),
+      text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 }
 
 }

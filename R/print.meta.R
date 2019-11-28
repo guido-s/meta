@@ -562,7 +562,7 @@ print.meta <- function(x,
       ## Print information on summary method:
       catmeth(class = class(x),
               method = x$method,
-              method.tau = if (is.random) x$method.tau else "",
+              method.tau = x$method.tau,
               sm = sm,
               k.all = k.all,
               hakn = is.random & x$hakn,

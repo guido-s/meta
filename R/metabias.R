@@ -308,10 +308,12 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   x.name <- deparse(substitute(x))
   ##  
   if (inherits(x, "metacum"))
-    stop("Test for funnel plot asymmetry not meaningful for object of class \"metacum\".")
+    stop("Test for funnel plot asymmetry not meaningful for ",
+         "object of class \"metacum\".")
   ##
   if (inherits(x, "metainf"))
-    stop("Test for funnel plot asymmetry not meaningful for object of class \"metainf\".")
+    stop("Test for funnel plot asymmetry not meaningful for ",
+         "object of class \"metainf\".")
   
   
   ##
@@ -334,16 +336,18 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   tests <- c("rank", "linreg", "mm", "count", "score", "peters")
   method.bias <- setchar(method.bias, tests)
   imeth <- charmatch(method.bias, tests)
-  method <- c(paste("Rank correlation test of funnel plot asymmetry",
-                    ifelse(correct == TRUE, " (with continuity correction)", ""),
-                    sep = ""),
-              "Linear regression test of funnel plot asymmetry",
-              "Linear regression test of funnel plot asymmetry (methods of moment)",
-              paste("Rank correlation test of funnel plot asymmetry (based on counts)",
-                    ifelse(correct == TRUE, " (with continuity correction)", ""),
-                    sep = ""),
-              "Linear regression test of funnel plot asymmetry (efficient score)",
-              "Linear regression test of funnel plot asymmetry (based on sample size)")[imeth]    ##
+  method <-
+    c(paste("Rank correlation test of funnel plot asymmetry",
+            ifelse(correct == TRUE, " (with continuity correction)", ""),
+            sep = ""),
+      "Linear regression test of funnel plot asymmetry",
+      "Linear regression test of funnel plot asymmetry (methods of moment)",
+      paste0("Rank correlation test of funnel plot asymmetry (based on counts)",
+             ifelse(correct == TRUE, " (with continuity correction)", "")),
+      "Linear regression test of funnel plot asymmetry (efficient score)",
+      paste0("Linear regression test of funnel plot asymmetry ",
+             "(based on sample size)"))[imeth]
+  ##
   chklogical(plotit)
   chklogical(correct)
   chknumeric(k.min, 1, single = TRUE)
@@ -359,8 +363,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     event.c <- x$event.c
     ##
     if (x$method == "Peto") {
-      warning(paste("Inverse variance method used for pooling",
-                    "to perform test of funnel plot asymmetry."))
+      warning("Inverse variance method used for pooling ",
+              "to perform test of funnel plot asymmetry.")
       m <- metabin(event.e, n.e, event.c, n.c, sm = x$sm, method = "Inverse",
                    incr = x$incr, allincr = x$allincr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
@@ -425,7 +429,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   else {
     if (method.bias == "rank") {
       if (length(unique(seTE)) == 1)
-        stop("Test for small-study effects not feasible as all studies have same precision")
+        stop("Test for small-study effects not feasible as ",
+             "all studies have same precision")
       ##
       ## Begg und Mazumdar (1994), Biometrics, 50, 1088-1101
       ##
@@ -444,12 +449,13 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       names(res$statistic) <- "z"
       names(res$estimate) <- c("ks", "se.ks")
     }
-    else if (method.bias == "linreg" | method.bias == "mm" | method.bias == "score" |
-             method.bias == "peters") {
+    else if (method.bias == "linreg" | method.bias == "mm" |
+             method.bias == "score" | method.bias == "peters") {
       
       if (method.bias == "linreg") {
         if (length(unique(seTE)) == 1)
-          stop("Test for small-study effects not feasible as all studies have same precision")
+          stop("Test for small-study effects not feasible as ",
+               "all studies have same precision")
         ##
         ## Egger, Smith, Schneider, Minder (1997), BMJ, 315, 629-34
         ##
@@ -458,7 +464,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       }
       else if (method.bias == "mm") {
         if (length(unique(seTE)) == 1)
-          stop("Test for small-study effects not feasible as all studies have same precision")
+          stop("Test for small-study effects not feasible as ",
+               "all studies have same precision")
         ##
         ## Thompson und Sharp (1999), Stat Med, 18, 2693-2708
         ##
@@ -469,10 +476,11 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         y <- TE
         w <- 1 / seTE^2
         ##
-        tau2 <- (Q - (k - 2)) / (sum(w) - (sum(w^2) * sum(w * x^2) -
-                                             2 * sum(w^2 * x) * sum(w * x) +
-                                               sum(w) * sum(w^2 * x^2)) /
-                                                 (sum(w) * sum(w * x^2) - (sum(w * x))^2))
+        tau2 <- (Q - (k - 2)) /
+          (sum(w) - (sum(w^2) * sum(w * x^2) -
+                     2 * sum(w^2 * x) * sum(w * x) +
+                     sum(w) * sum(w^2 * x^2)) /
+           (sum(w) * sum(w * x^2) - (sum(w * x))^2))
         ##
         tau2 <- ifelse(tau2 < 0, 0, tau2)
         ##
@@ -532,8 +540,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           se.bias <- lreg$se.slope
         }
         else {
-          stop(paste("method.bias '", method.bias,
-                     "' only defined for meta-analysis conducted with metabin() or metaprop()", sep = ""))
+          stop("method.bias '", method.bias, "' only defined for ",
+               "meta-analysis conducted with metabin() or metaprop()")
         }
       }
       ##
@@ -558,8 +566,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       ## Schwarzer, Antes, Schumacher (2006), Stat Med
       ##
       if (inherits(x, "metabin")) {
-        TE.MH <- metabin(x$event.e, x$n.e,
-                         x$event.c, x$n.c,
+        TE.MH <- metabin(x$event.e, x$n.e, x$event.c, x$n.c,
                          sm = "OR", method = "MH", warn = FALSE)$TE.fixed
         
         n.. <- n.e + n.c
@@ -576,7 +583,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           n11.v[i] <- obj$var()
         }
         
-        ktau <- kentau((n11 - n11.e) / sqrt(n11.v), 1 / n11.v, correct = correct)
+        ktau <- kentau((n11 - n11.e) / sqrt(n11.v),
+                       1 / n11.v, correct = correct)
         ##
         res <- list(estimate = c(ktau$ks, ktau$se.ks),
                     statistic = ktau$ks / ktau$se.ks,
@@ -585,7 +593,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         names(res$estimate) <- c("ks", "se.ks")
       }
       else {
-        stop(paste("method.bias '", method.bias, "' only defined for meta-analysis with binary outcome data (function 'metabin')", sep = ""))
+        stop("method.bias '", method.bias, "' only defined for ",
+             "meta-analysis with binary outcome data (function 'metabin')")
       }
     }
     

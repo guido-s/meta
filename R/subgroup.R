@@ -58,6 +58,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        allstudies = x$allstudies,
                        MH.exact = x$MH.exact,
                        RR.Cochrane = x$RR.Cochrane,
+                       Q.Cochrane = x$Q.Cochrane,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
                        method.tau = x$method.tau,

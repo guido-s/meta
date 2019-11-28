@@ -24,8 +24,31 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     Q <- mf1$QE
     df.Q <- mf1$k - mf1$p
     ##
+    if (method.tau == "DL") {
+      ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE, weights = 1 / seTE^2,
+                                     method = "GENQ",
+                                     mods = ~ byvar,control = control))
+      method.tau.ci <- "GENQfixed"
+    }
+    else {
+      ci1 <- confint.rma.uni(mf1)
+      method.tau.ci <- "QP"
+    }
+    ##
+    Q <- mf1$QE
+    df.Q <- mf1$k - mf1$p
+    ##
     tau2 <- mf1$tau2
     se.tau2 <- mf1$se.tau2
+    lower.tau2 <- ci1$random["tau^2", "ci.lb"]
+    upper.tau2 <- ci1$random["tau^2", "ci.ub"]
+    ##
+    tau <- sqrt(tau2)
+    lower.tau <- ci1$random["tau", "ci.lb"]
+    upper.tau <- ci1$random["tau", "ci.ub"]
+    ##
+    sign.lower.tau <- ci1$lb.sign
+    sign.upper.tau <- ci1$ub.sign
     ##
     H.resid <- sqrt(mf1$H2)
     lower.H.resid <- upper.H.resid <- NA
@@ -34,7 +57,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     lower.I2.resid <- upper.I2.resid <- NA
   }
   else {
-    if (!(is.null(TE.tau)) & (method.tau == "DL" | method.tau == "PM")) {
+    if (!(is.null(TE.tau)) & method.tau == "DL") {
       w.fixed <- 1 / seTE^2
       w.fixed[is.na(w.fixed)] <- 0
       ##
@@ -48,26 +71,55 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
       else
         tau2 <- (Q - df.Q) / Ccalc(w.fixed)
       ##
-      se.tau2 <- NULL
+      se.tau2 <- lower.tau2 <- upper.tau2 <- NULL
+      tau <- sqrt(tau2)
+      lower.tau <- upper.tau <- NULL
+      ##
+      sign.lower.tau <- sign.upper.tau <- method.tau.ci <- NULL
     }
     else {
-      sel.NA <- is.na(TE) | is.na(seTE)
+      sel <- !(is.na(TE) | is.na(seTE))
       ##
-      if (sum(sel.NA) == length(TE)) {
+      if (all(!sel) || sum(sel) < 2) {
         Q <- NA
         df.Q <- 0
         ##
         tau2 <- NA
-        se.tau2 <- NULL
+        se.tau2 <- lower.tau2 <- upper.tau2 <- NULL
+        tau <- sqrt(tau2)
+        lower.tau <- upper.tau <- NULL
+        ##
+        sign.lower.tau <- sign.upper.tau <- method.tau.ci <- NULL
       }
       else {
-        mf2 <- rma.uni(yi = TE[!sel.NA], sei = seTE[!sel.NA],
+        mf2 <- rma.uni(yi = TE[sel], sei = seTE[sel],
                        method = method.tau, control = control)
+        ##
+        if (method.tau == "DL") {
+          ci2 <- confint.rma.uni(rma.uni(yi = TE[sel], sei = seTE[sel],
+                                         weights = 1 / seTE[sel]^2,
+                                         method = "GENQ", control = control))
+          method.tau.ci <- "GENQfixed"
+        }
+        else {
+          ci2 <- confint.rma.uni(mf2)
+          method.tau.ci <- "QP"
+        }
+        ##
         Q <- mf2$QE
         df.Q <- mf2$k - mf2$p
         ##
         tau2 <- mf2$tau2
         se.tau2 <- mf2$se.tau2
+        lower.tau2 <- ci2$random["tau^2", "ci.lb"]
+        upper.tau2 <- ci2$random["tau^2", "ci.ub"]
+        ##
+        tau <- sqrt(tau2)
+        lower.tau <- ci2$random["tau", "ci.lb"]
+        upper.tau <- ci2$random["tau", "ci.ub"]
+        ##
+        sign.lower.tau <- ci2$lb.sign
+        sign.upper.tau <- ci2$ub.sign
       }
     }
   }
@@ -77,8 +129,19 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
   I2 <- isquared(Q, df.Q, level.hetstats)
   
   
-  res <- list(tau = sqrt(tau2),
+  res <- list(tau2 = tau2,
               se.tau2 = se.tau2,
+              lower.tau2 = lower.tau2,
+              upper.tau2 = upper.tau2,
+              ##
+              tau = tau,
+              lower.tau = lower.tau,
+              upper.tau = upper.tau,
+              ##
+              method.tau.ci = method.tau.ci,
+              sign.lower.tau = sign.lower.tau,
+              sign.upper.tau = sign.upper.tau,
+              ##
               Q = Q,
               df.Q = df.Q,
               ##
