@@ -2,27 +2,31 @@
 
  ** Major changes **
 
+  * Use R package metafor to estimate between-study variance for
+    DerSimonian-Laird and Paule-Mandel method (which has been already
+    used for all other methods to estimate the between-study variance)
+
   * Confidence intervals for the between-study variance tau2 and its
     square root tau are calculated
+
+  * For Mantel-Haenszel (MH) method, report results as MH method
+    (instead of inverse variance, IV) for meta-analysis of binary
+    outcome with a single study (results are identical for MH and IV
+    method in this situation)
 
   * Print tau as well as confidence intervals for tau2 and tau in
     outputs
 
-  * In subgroup analyses, print the group labels instead of levels if
-    the grouping variable is a factor
-
-  * P-values can be printed according to JAMA reporting standards
-
-  * For Mantel-Haenszel (MH) method, report results as MH (instead of
-    inverse variance, IV) method for meta-analysis of binary outcome
-    with a single study (results are identical for MH and IV method in
-    this situation)
+  * Square root of between-study variance can be printed in forest
+    plots instead of between-study variance
 
   * Number of studies printed without digits in forest plots for R
     objects created with metabind()
 
-  * Square root of between-study variance can be printed in forest
-    plots instead of between-study variance
+  * P-values can be printed according to JAMA reporting standards
+
+  * In subgroup analyses, print the group labels instead of levels if
+    the grouping variable is a factor
 
   * funnel.meta():
     - print funnel around random effects estimate if only random
@@ -32,10 +36,6 @@
 
   * Change preferred citation of R package meta from Schwarzer (2007)
     to Balduzzi et al. (2019), DOI: 10.1136/ebmental-2019-300117
-
-  * Use R package metafor to estimate between-study variance for
-    DerSimonian-Laird and Paule-Mandel method (which has been already
-    used for all other methods to estimate the between-study variance)
 
  ** User-visible changes **
 
@@ -51,6 +51,12 @@
       calculate Q and tau2 (implemented similar to RevMan 5)
     - global setting for 'text.tau2' as defined in settings.meta() is
       considered in details of meta-analytical method
+
+  * print.meta():
+    - do not print (missing) weights for GLMMs
+
+  * update.meta():
+    - by default, do not print warnings (argument 'warn')
 
   * Command 'settings.meta("JAMA")' will change the settings for
     arguments 'zero.pval' and 'JAMA.pval'

@@ -1,8 +1,8 @@
 cathet <- function(k,
                    tau2, lower.tau2, upper.tau2,
-                   print.tau2, text.tau2, digits.tau2,
+                   print.tau2, print.tau2.ci, text.tau2, digits.tau2,
                    tau, lower.tau, upper.tau,
-                   print.tau, text.tau, digits.tau,
+                   print.tau, print.tau.ci, text.tau, digits.tau,
                    sign.lower.tau, sign.upper.tau,
                    I2, lowI2, uppI2, 
                    print.I2, print.I2.ci, text.I2, digits.I2,
@@ -30,10 +30,6 @@ cathet <- function(k,
     lower.tau <- NA
   if (is.null(upper.tau))
     upper.tau <- NA
-  
-  
-  print.tau2.ci <- print.tau2 & !(is.na(lower.tau2) | is.na(upper.tau2))
-  print.tau.ci <- print.tau & !(is.na(lower.tau) | is.na(upper.tau))
   
   
   cat(

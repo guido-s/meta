@@ -68,8 +68,9 @@
 #' 
 #' This wrapper function can be used to perform meta-analysis for a
 #' single outcome of a Cochrane Intervention review. Internally, R
-#' functions \code{metabin}, \code{metacont}, and \code{metagen} are
-#' called - depending on the definition of the outcome in RevMan 5.
+#' functions \code{\link{metabin}}, \code{\link{metacont}}, and
+#' \code{\link{metagen}} are called - depending on the definition of
+#' the outcome in RevMan 5.
 #' 
 #' Note, it is recommended to choose the RevMan 5 settings before
 #' executing \code{metacr}, i.e., \code{settings.meta("revman5")}.

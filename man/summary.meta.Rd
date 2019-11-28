@@ -165,24 +165,25 @@ overall effect should be printed according to JAMA reporting
 standards.}
 
 \item{print.I2}{A logical specifying whether heterogeneity
-statistic I^2 should be printed.}
+statistic I\eqn{^2} should be printed.}
 
 \item{print.H}{A logical specifying whether heterogeneity statistic
 H should be printed.}
 
 \item{print.Rb}{A logical specifying whether heterogeneity
-statistic Rb should be printed.}
+statistic R\eqn{_b} should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
-tau^2.}
+\eqn{\tau^2}.}
 
-\item{text.tau}{Text printed to identify square root of
-between-study variance.}
+\item{text.tau}{Text printed to identify \eqn{\tau}, the square root
+of the between-study variance \eqn{\tau^2}.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
-I^2.}
+I\eqn{^2}.}
 
-\item{text.Rb}{Text printed to identify heterogeneity statistic Rb.}
+\item{text.Rb}{Text printed to identify heterogeneity statistic
+R\eqn{_b}.}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
@@ -203,9 +204,9 @@ following elements:
 \item{se.tau2}{Standard error of between-study variance.}
 \item{H}{Heterogeneity statistic H (a list with elements TE, lower,
   upper).}
-\item{I2}{Heterogeneity statistic I2 (a list with elements TE,
+\item{I2}{Heterogeneity statistic I\eqn{^2} (a list with elements TE,
   lower, upper), see Higgins & Thompson (2002).}
-\item{Rb}{Heterogeneity statistic Rb (a list with elements TE,
+\item{Rb}{Heterogeneity statistic R\eqn{_b} (a list with elements TE,
   lower, upper), see Crippa et al. (2016).}  # \item{k.all}{Total
   number of studies.}
 \item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall
@@ -244,15 +245,15 @@ following elements:
   - if \code{byvar} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups (a list with
   elements TE, lower, upper) - if \code{byvar} is not missing.}
-\item{I2.w}{Heterogeneity statistic I2 within subgroups (a list
+\item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups (a list
   with elements TE, lower, upper) - if \code{byvar} is not
   missing.}
-\item{Rb.w}{Heterogeneity statistic Rb within subgroups (a list
+\item{Rb.w}{Heterogeneity statistic R\eqn{_b} within subgroups (a list
   with elements TE, lower, upper) - if \code{byvar} is not
   missing.}
 \item{H.resid}{Statistic H for residual heterogeneity (a list with
   elements TE, lower, upper) - if \code{byvar} is not missing.}
-\item{I2.resid}{Statistic I2 for residual heterogeneity (a list
+\item{I2.resid}{Statistic I\eqn{^2} for residual heterogeneity (a list
   with elements TE, lower, upper) - if \code{byvar} is not
   missing.}
 \item{bylevs}{Levels of grouping variable - if \code{byvar} is not

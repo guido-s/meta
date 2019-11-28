@@ -23,23 +23,24 @@ containing the following components:
 \item{TE, seTE}{Estimated treatment effect and standard error of
   pooled estimate in cumulative meta-analyses.}
 \item{lower, upper}{Lower and upper confidence interval limits.}
+\item{zval}{z-value for test of overall effect.}
+\item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing addition of studies.}
-\item{p.value}{P-value for test of overall effect.}
 \item{w}{Sum of weights from fixed effect or random effects model.}
-\item{I2}{Heterogeneity statistic I2.}
-\item{Rb}{Heterogeneity statistic Rb.}
+\item{I2}{Heterogeneity statistic I\eqn{^2}.}
+\item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 \item{tau}{Square-root of between-study variance.}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn = TRUE}).}
-\item{sm}{Summary measure.}  \item{method}{Method used for
-  pooling.}
+\item{sm}{Summary measure.}
+\item{method}{Method used for pooling.}
 \item{k}{Number of studies combined in meta-analysis.}
 \item{pooled}{As defined above.}
 \item{comb.fixed}{A logical indicating whether analysis is based on
   fixed effect model.}
 \item{comb.random}{A logical indicating whether analysis is based
-  on random effects model.}  \item{TE.fixed, seTE.fixed}{Value is
-  \code{NA}.}
+  on random effects model.}
+\item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
 \item{TE.random, seTE.random}{Value is \code{NA}.}
 \item{Q}{Value is \code{NA}.}
 \item{level.comb}{The level used to calculate confidence intervals

@@ -61,7 +61,7 @@
   ma.fixed = object$ma.fixed,
   type = object$type,
   n.iter.max = object$n.iter.max,
-  warn = object$warn,
+  warn = FALSE,
   control = object$control,
   ...
 )
@@ -277,8 +277,8 @@ of missing studies.}
 frequencies).}
 
 \item{control}{An optional list to control the iterative process to
-estimate the between-study variance tau^2. This argument is
-passed on to \code{\link[metafor]{rma.uni}} or
+estimate the between-study variance \eqn{\tau^2}. This argument
+is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
 \item{\dots}{Additional arguments (ignored at the moment).}

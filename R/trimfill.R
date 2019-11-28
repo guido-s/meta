@@ -736,7 +736,12 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               upper.predict = m$upper.predict,
               level.predict = level.predict,
               ##
-              k = m$k, Q = m$Q, df.Q = m$df.Q, tau = m$tau,
+              k = m$k, Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
+              tau2 = m$tau2, lower.tau2 = m$lower.tau2, upper.tau2 = m$upper.tau2,
+              se.tau2 = m$se.tau2,
+              tau = m$tau, lower.tau = m$lower.tau, upper.tau = m$upper.tau,
+              method.tau.ci = m$method.tau.ci,
+              sign.lower.tau = m$sign.lower.tau, sign.upper.tau = m$sign.upper.tau,
               ##
               H = Hres$TE,
               lower.H = Hres$lower,

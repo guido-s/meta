@@ -214,10 +214,10 @@
 #' @param print.I2.ci A logical value indicating whether to print the
 #'   confidence interval of the I-squared statistic.
 #' @param print.tau2 A logical value indicating whether to print the
-#'   value of the between-study variance \eqn{tau^2}.
+#'   value of the between-study variance \eqn{\tau^2}.
 #' @param print.tau A logical value indicating whether to print
-#'   \eqn{tau}, the square root of the between-study variance
-#'   \eqn{tau^2}.
+#'   \eqn{\tau}, the square root of the between-study variance
+#'   \eqn{\tau^2}.
 #' @param print.Q A logical value indicating whether to print the
 #'   value of the heterogeneity statistic Q.
 #' @param print.pval.Q A logical value indicating whether to print the

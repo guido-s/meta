@@ -40,8 +40,8 @@
 #'   deviations and standard errors, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for
-#'   square root of between-study variance, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for square
+#'   root of between-study variance, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
 #' @param digits.prop Minimal number of significant digits for
@@ -50,16 +50,16 @@
 #'   weights, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
 #' @param text.tau2 Text printed to identify between-study variance
-#'   tau^2.
-#' @param text.tau Text printed to identify square root of
-#'   between-study variance.
+#'   \eqn{\tau^2}.
+#' @param text.tau Text printed to identify \eqn{\tau}, the square
+#'   root of the between-study variance \eqn{\tau^2}.
 #' @param text.I2 Text printed to identify heterogeneity statistic
-#'   I^2.
+#'   I\eqn{^2}.
 #' @param warn.backtransf A logical indicating whether a warning
 #'   should be printed if backtransformed proportions and rates are
 #'   below 0 and backtransformed proportions are above 1.
 #' @param \dots Additional arguments (passed on to
-#'   \code{print.summary.meta} called internally).
+#'   \code{\link{print.summary.meta}} called internally).
 #' @param bracket A character with bracket symbol to print lower
 #'   confidence interval: "[", "(", "\{", "".
 #' @param separator A character string with information on separator
@@ -185,7 +185,8 @@ print.meta <- function(x,
   }
   sort <- !is.null(sortvar)
   if (sort && (length(sortvar) != k.all))
-    stop("Number of studies in object 'x' and argument 'sortvar' have different length.")
+    stop("Number of studies in object 'x' and ",
+         "argument 'sortvar' have different length.")
   if (!sort)
     sortvar <- 1:k.all
   ##
@@ -260,7 +261,7 @@ print.meta <- function(x,
   ##
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  mb <- inherits(x, "metabind")
+  mb.glmm <- inherits(x, "metabind") | x$method == "GLMM"
   ##
   prediction <- prediction & x$k >= 3
   if (is.na(prediction))
@@ -522,11 +523,11 @@ print.meta <- function(x,
       ##
       I2 <- formatN(round(100 * x$I2, digits.I2), digits.I2, "")
       ##
-      sel <- is.na(x$p.value)
-      p.value <- formatPT(x$p.value)
-      p.value <- ifelse(sel, "", p.value)
+      sel <- is.na(x$pval)
+      pval <- formatPT(x$pval)
+      pval <- ifelse(sel, "", pval)
       ##
-      tau2 <- formatN(round(x$tau^2, digits.tau2), digits.tau2, "",
+      tau2 <- formatN(round(x$tau2, digits.tau2), digits.tau2, "",
                       big.mark = big.mark)
       tau <- formatN(round(x$tau, digits.tau), digits.tau, "",
                      big.mark = big.mark)
@@ -537,7 +538,7 @@ print.meta <- function(x,
                                     big.mark = big.mark),
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
-                   p.value,
+                   pval,
                    paste(" ", tau2, sep = ""),
                    paste(" ", tau, sep = ""),
                    paste(" ", I2, ifelse(I2 == "", "", "%"), sep = ""))
@@ -572,19 +573,21 @@ print.meta <- function(x,
               exact.smd = x$exact.smd,
               model.glmm = x$model.glmm,
               big.mark = big.mark,
-              digits = digits, digits.tau = digits.tau, text.tau = text.tau,
+              digits = digits, digits.tau = digits.tau,
+              text.tau = text.tau, text.tau2 = text.tau2,
               method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else {
-      res <- cbind(formatN(round(TE, digits), digits, "NA", big.mark = big.mark),
+      res <- cbind(formatN(round(TE, digits), digits, "NA",
+                           big.mark = big.mark),
                    formatCI(formatN(round(lowTE, digits), digits, "NA",
                                     big.mark = big.mark),
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
-                   if (comb.fixed & !mb)
+                   if (comb.fixed & !mb.glmm)
                      formatN(w.fixed.p, digits.weight,
                              big.mark = big.mark),
-                   if (comb.random & !mb)
+                   if (comb.random & !mb.glmm)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
                    if (!is.null(x$byvar)) as.character(x$byvar),
@@ -596,24 +599,33 @@ print.meta <- function(x,
         ##
         if (!is.null(x$method.ci)) {
           if  (x$method.ci == "CP")
-            method.ci.details <- "Clopper-Pearson confidence interval:\n\n"
+            method.ci.details <-
+              "Clopper-Pearson confidence interval:\n\n"
           else if (x$method.ci == "WS")
-            method.ci.details <- "Wilson Score confidence interval:\n\n"
+            method.ci.details <-
+              "Wilson Score confidence interval:\n\n"
           else if (x$method.ci == "WSCC")
-            method.ci.details <- "Wilson Score confidence interval with continuity correction:\n\n"
+            method.ci.details <-
+              "Wilson Score confidence interval with continuity correction:\n\n"
           else if (x$method.ci == "AC")
-            method.ci.details <- "Agresti-Coull confidence interval:\n\n"
+            method.ci.details <-
+              "Agresti-Coull confidence interval:\n\n"
           else if (x$method.ci == "SA")
-            method.ci.details <- "Simple approximation confidence interval:\n\n"
+            method.ci.details <-
+              "Simple approximation confidence interval:\n\n"
           else if (x$method.ci == "SACC")
-            method.ci.details <- "Simple approximation confidence interval with continuity correction:\n\n"
+            method.ci.details <-
+              paste0("Simple approximation confidence interval with ",
+                     "continuity correction:\n\n")
           if (x$method.ci != "NAsm") {
             cat(method.ci.details)
-            dimnames(res) <- list("", c(sm.lab, ci.lab,
-                                        if (comb.fixed & !mb) "%W(fixed)",
-                                        if (comb.random & !mb) "%W(random)",
-                                        if (!is.null(x$byvar)) x$bylab,
-                                        if (!is.null(x$exclude)) "exclude"))
+            dimnames(res) <-
+              list("",
+                   c(sm.lab, ci.lab,
+                     if (comb.fixed & !mb.glmm) "%W(fixed)",
+                     if (comb.random & !mb.glmm) "%W(random)",
+                     if (!is.null(x$byvar)) x$bylab,
+                     if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n\n")
           }
@@ -622,16 +634,17 @@ print.meta <- function(x,
       }
       else {
         dimnames(res) <-
-          list(x$studlab, c(sm.lab, ci.lab,
-                            if (comb.fixed & !mb) "%W(fixed)",
-                            if (comb.random & !mb) "%W(random)",
-                            if (!is.null(x$byvar)) x$bylab,
-                            if (!is.null(x$exclude)) "exclude"))
+          list(x$studlab,
+               c(sm.lab, ci.lab,
+                 if (comb.fixed & !mb.glmm) "%W(fixed)",
+                 if (comb.random & !mb.glmm) "%W(random)",
+                 if (!is.null(x$byvar)) x$bylab,
+                 if (!is.null(x$exclude)) "exclude"))
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
       }
     }
-
-
+    
+    
     ##
     ##
     ## (6) Print result for meta-analysis
@@ -675,7 +688,8 @@ cilayout <- function(bracket = "[", separator = "; ") {
                         nomatch = NA)
   ##
   if (is.na(ibracket) | ibracket == 0)
-    stop("No valid bracket type specified. Admissible values: '[', '(', '{', '\"\"'")
+    stop("No valid bracket type specified. ",
+         "Admissible values: '[', '(', '{', '\"\"'")
   
   bracket <- c("[", "(", "{", "")[ibracket]
   

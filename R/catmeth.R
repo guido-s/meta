@@ -16,6 +16,8 @@ catmeth <- function(method,
                     RR.Cochrane = FALSE,
                     Q.Cochrane = TRUE,
                     method.ci = NULL,
+                    print.tau.ci = FALSE,
+                    method.tau.ci = "",
                     pooledvar = FALSE,
                     method.smd,
                     sd.glass,
@@ -29,6 +31,7 @@ catmeth <- function(method,
                     digits = gs("digits"),
                     digits.tau = gs("digits.tau"),
                     text.tau = gs("text.tau"),
+                    text.tau2 = gs("text.tau2"),
                     method.miss, IMOR.e, IMOR.c
                     ) {
   
@@ -240,18 +243,32 @@ catmeth <- function(method,
           "\n- Sidik-Jonkman estimator for",
           "\n- Hedges estimator for",
           "\n- Empirical Bayes estimator for")[i.lab.method.tau]
-      lab.method.tau <- paste(lab.method.tau, gs("text.tau2"))
+      lab.method.tau <- paste(lab.method.tau, text.tau2)
       ##
       if (tau.common)
         lab.method.tau <- paste0(lab.method.tau,
-                                 " (assuming common ", gs("text.tau2"),
+                                 " (assuming common ", text.tau2,
                                  " in subgroups)")
       ##
       if (metabin & Q.Cochrane)
         lab.method.tau <-
           paste0(lab.method.tau,
                  "\n- Mantel-Haenszel estimator used in ",
-                 "calculation of Q and ", gs("text.tau2"), " (like RevMan 5)")
+                 "calculation of Q and ", text.tau2, " (like RevMan 5)")
+      ##
+      if (print.tau.ci & method.tau.ci %in% c("GENQfixed", "QP")) {
+        i.lab.tau.ci <-
+          charmatch(method.tau.ci, c("GENQfixed", "QP"), nomatch = NA)
+        ##
+        lab.tau.ci <-
+          paste0("\n- ",
+                 c("Generalised Q method with fixed effect weights for \n  ",
+                   "Q-profile method for ")[i.lab.tau.ci],
+                 "confidence interval of ",
+                 text.tau2, " and ", text.tau)
+        ##
+        lab.method.tau <- paste0(lab.method.tau, lab.tau.ci)
+      }
       ##
       if (hakn)
         lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"

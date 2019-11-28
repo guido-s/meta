@@ -84,8 +84,8 @@ deviations and standard errors, see \code{print.default}.}
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
 
-\item{digits.tau}{Minimal number of significant digits for
-square root of between-study variance, see \code{print.default}.}
+\item{digits.tau}{Minimal number of significant digits for square
+root of between-study variance, see \code{print.default}.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
@@ -99,20 +99,20 @@ weights, see \code{print.default}.}
 \item{big.mark}{A character used as thousands separator.}
 
 \item{text.tau2}{Text printed to identify between-study variance
-tau^2.}
+\eqn{\tau^2}.}
 
-\item{text.tau}{Text printed to identify square root of
-between-study variance.}
+\item{text.tau}{Text printed to identify \eqn{\tau}, the square
+root of the between-study variance \eqn{\tau^2}.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
-I^2.}
+I\eqn{^2}.}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
 below 0 and backtransformed proportions are above 1.}
 
 \item{\dots}{Additional arguments (passed on to
-\code{print.summary.meta} called internally).}
+\code{\link{print.summary.meta}} called internally).}
 
 \item{bracket}{A character with bracket symbol to print lower
 confidence interval: "[", "(", "\{", "".}

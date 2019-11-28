@@ -127,7 +127,7 @@
 #'   below for details).}
 #' \item{pval.Q}{P-value of heterogeneity statistic Q in respective
 #'   meta-analysis (see below for details).}
-#' \item{I2}{Heterogeneity statistic I2 in respective meta-analysis
+#' \item{I2}{Heterogeneity statistic I\eqn{^2} in respective meta-analysis
 #'   (see below for details).}
 #' \item{tau2}{Between-study variance (moment estimator of
 #'   DerSimonian-Laird) in respective meta-analysis.}
@@ -135,7 +135,7 @@
 #'   meta-analysis (see below for details).}
 #' \item{pval.Q.w}{P-value of heterogeneity statistic Q within groups
 #'   in respective meta-analysis (see below for details).}
-#' \item{I2.w}{Heterogeneity statistic I2 within groups in respective
+#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within groups in respective
 #'   meta-analysis (see below for details).}
 #' \item{label.e}{Label for experimental group.}
 #' \item{label.c}{Label for control group.}

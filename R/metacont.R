@@ -93,8 +93,8 @@
 #'   (e.g., if studies are excluded from meta-analysis due to zero
 #'   standard deviations).
 #' @param control An optional list to control the iterative process to
-#'   estimate the between-study variance tau^2. This argument is
-#'   passed on to \code{\link[metafor]{rma.uni}}.
+#'   estimate the between-study variance \eqn{\tau^2}. This argument
+#'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' 
 #' @details
 #' Calculation of fixed and random effects estimates for meta-analyses
@@ -228,8 +228,9 @@
 #' }
 #' 
 #' @note
-#' The function \code{metagen} is called internally to calculate
-#' individual and overall treatment estimates and standard errors.
+#' The function \code{\link{metagen}} is called internally to
+#' calculate individual and overall treatment estimates and standard
+#' errors.
 #' 
 #' @return
 #' An object of class \code{c("metacont", "meta")} with corresponding
@@ -278,8 +279,22 @@
 #' \item{Q}{Heterogeneity statistic Q.}
 #' \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 #' \item{pval.Q}{P-value of heterogeneity test.}
-#' \item{tau}{Square-root of between-study variance.}
-#' \item{se.tau2}{Standard error of between-study variance.}
+#' \item{tau2}{Between-study variance \eqn{\tau^2}.}
+#' \item{se.tau2}{Standard error of \eqn{\tau^2}.}
+#' \item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau^2}.}
+#' \item{tau}{Square-root of between-study variance \eqn{\tau}.}
+#' \item{lower.tau, upper.tau}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau}.}
+#' \item{H}{Heterogeneity statistic H.}
+#' \item{lower.H, upper.H}{Lower and upper confidence limit for
+#'  heterogeneity statistic H.}
+#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
+#' \item{lower.I2, upper.I2}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2}.}
+#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
+#' \item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
+#'   heterogeneity statistic R\eqn{_b}.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
 #' \item{method}{Pooling method: \code{"Inverse"}.}
@@ -347,13 +362,13 @@
 #'   - if \code{byvar} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
 #'   \code{byvar} is not missing.}
-#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
+#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
 #'   heterogeneity statistic H within subgroups - if \code{byvar} is
 #'   not missing.}
-#' \item{I2.w}{Heterogeneity statistic I2 within subgroups - if
+#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
 #'   \code{byvar} is not missing.}
 #' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic I2 within subgroups - if \code{byvar} is
+#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
 #'   not missing.}
 #' \item{keepdata}{As defined above.}
 #' \item{data}{Original data (set) used in function call (if

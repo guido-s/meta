@@ -221,8 +221,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            df.Q = m.i$df.Q.w,
                            pval.Q = pvalQ(m.i$Q.w, m.i$df.Q.w),
                            ##
-                           tau = m.i$tau.w,
                            tau2 = m.i$tau.w^2,
+                           tau = m.i$tau.w,
                            H = m.i$H.w,
                            lower.H = m.i$lower.H.w,
                            upper.H = m.i$upper.H.w,
@@ -547,6 +547,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$pval.Q <- makeunique(res$pval.Q, 0)
   res$tau <- makeunique(res$tau)
   res$se.tau2 <- makeunique(res$se.tau2)
+  res$lower.tau <- res$upper.tau <- NA
+  res$lower.tau2 <- res$upper.tau2 <- NA
+  res$method.tau.ci <- ""
   ##
   res$H <- makeunique(res$H)
   res$lower.H <- makeunique(res$lower.H)

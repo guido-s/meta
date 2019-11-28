@@ -23,6 +23,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     ##
     Q <- mf1$QE
     df.Q <- mf1$k - mf1$p
+    pval.Q <- pvalQ(Q, df.Q)
     ##
     if (method.tau == "DL") {
       ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE, weights = 1 / seTE^2,
@@ -37,6 +38,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     ##
     Q <- mf1$QE
     df.Q <- mf1$k - mf1$p
+    pval.Q <- pvalQ(Q, df.Q)
     ##
     tau2 <- mf1$tau2
     se.tau2 <- mf1$se.tau2
@@ -58,11 +60,15 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
   }
   else {
     if (!(is.null(TE.tau)) & method.tau == "DL") {
+      ##
+      ## Mantel-Haenszel estimator to calculate Q and tau (like RevMan 5)
+      ##
       w.fixed <- 1 / seTE^2
       w.fixed[is.na(w.fixed)] <- 0
       ##
       Q <- sum(w.fixed * (TE - TE.tau)^2, na.rm = TRUE)
       df.Q <- sum(!is.na(seTE)) - 1
+      pval.Q <- pvalQ(Q, df.Q)
       ##
       if (df.Q == 0)
         tau2 <- NA
@@ -71,25 +77,30 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
       else
         tau2 <- (Q - df.Q) / Ccalc(w.fixed)
       ##
-      se.tau2 <- lower.tau2 <- upper.tau2 <- NULL
+      se.tau2 <- lower.tau2 <- upper.tau2 <- NA
       tau <- sqrt(tau2)
-      lower.tau <- upper.tau <- NULL
+      lower.tau <- upper.tau <- NA
       ##
-      sign.lower.tau <- sign.upper.tau <- method.tau.ci <- NULL
+      sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
     }
     else {
       sel <- !(is.na(TE) | is.na(seTE))
       ##
       if (all(!sel) || sum(sel) < 2) {
-        Q <- NA
+        if (all(!sel))
+          Q <- NA
+        else
+          Q <- 0
+        ##
         df.Q <- 0
+        pval.Q <- pvalQ(Q, df.Q)
         ##
         tau2 <- NA
-        se.tau2 <- lower.tau2 <- upper.tau2 <- NULL
+        se.tau2 <- lower.tau2 <- upper.tau2 <- NA
         tau <- sqrt(tau2)
-        lower.tau <- upper.tau <- NULL
+        lower.tau <- upper.tau <- NA
         ##
-        sign.lower.tau <- sign.upper.tau <- method.tau.ci <- NULL
+        sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
       }
       else {
         mf2 <- rma.uni(yi = TE[sel], sei = seTE[sel],
@@ -108,6 +119,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
         ##
         Q <- mf2$QE
         df.Q <- mf2$k - mf2$p
+        pval.Q <- pvalQ(Q, df.Q)
         ##
         tau2 <- mf2$tau2
         se.tau2 <- mf2$se.tau2
@@ -144,6 +156,7 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
               ##
               Q = Q,
               df.Q = df.Q,
+              pval.Q = pval.Q,
               ##
               H = H$TE,
               lower.H = H$lower,
@@ -153,13 +166,13 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
               lower.I2 = I2$lower,
               upper.I2 = I2$upper,
               ##
-              H.resid = if (by) H.resid else NULL,
-              lower.H.resid = if (by) lower.H.resid else NULL,
-              upper.H.resid = if (by) upper.H.resid else NULL,
+              H.resid = if (by) H.resid else NA,
+              lower.H.resid = if (by) lower.H.resid else NA,
+              upper.H.resid = if (by) upper.H.resid else NA,
               ##
-              I2.resid = if (by) I2.resid else NULL,
-              lower.I2.resid = if (by) lower.I2.resid else NULL,
-              upper.I2.resid = if (by) upper.I2.resid else NULL
+              I2.resid = if (by) I2.resid else NA,
+              lower.I2.resid = if (by) lower.I2.resid else NA,
+              upper.I2.resid = if (by) upper.I2.resid else NA
               )
   ##
   res

@@ -30,11 +30,12 @@
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   pooled estimate in influence analysis.}
 #' \item{lower, upper}{Lower and upper confidence interval limits.}
+#' \item{zval}{z-value for test of overall effect.}
+#' \item{pval}{P-value for test of overall effect.}
 #' \item{studlab}{Study label describing omission of studies.}
-#' \item{p.value}{P-value for test of overall effect.}
 #' \item{w}{Sum of weights from fixed effect or random effects model.}
-#' \item{I2}{Heterogeneity statistic I2.}
-#' \item{Rb}{Heterogeneity statistic Rb.}
+#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
+#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 #' \item{tau}{Square-root of between-study variance.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
@@ -210,7 +211,8 @@ metainf <- function(x, pooled, sortvar) {
   ## (4) Do sensitivity analysis
   ##
   ##
-  res.i <- matrix(NA, ncol = 12, nrow = k.all)
+  res.i <- matrix(NA, ncol = 21, nrow = k.all)
+  add.i <- matrix(NA, ncol = 3, nrow = k.all)
   ##
   for (i in 1:k.all) {
     sel <- -i
@@ -267,8 +269,7 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    exclude = exclude[sel],
                    ##
-                   sm = x$sm,
-                   null.effect = x$null.effect,
+                   sm = x$sm, null.effect = x$null.effect,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -285,8 +286,7 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    exclude = exclude[sel],
                    ##
-                   sm = x$sm,
-                   null.effect = x$null.effect,
+                   sm = x$sm, null.effect = x$null.effect,
                    ##
                    level.comb = x$level.comb,
                    ##
@@ -305,8 +305,7 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    exclude = exclude[sel],
                    ##
-                   method = x$method,
-                   sm = x$sm,
+                   method = x$method, sm = x$sm,
                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
@@ -326,8 +325,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    sm = x$sm,
-                    null.effect = x$null.effect,
+                    sm = x$sm, null.effect = x$null.effect,
                     ##
                     level.comb = x$level.comb,
                     ##
@@ -345,9 +343,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    method = x$method,
-                    sm = x$sm,
-                    null.effect = x$null.effect,
+                    method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     method.ci = x$method.ci,
@@ -368,9 +364,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    method = x$method,
-                    sm = x$sm,
-                    null.effect = x$null.effect,
+                    method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     ##
@@ -388,36 +382,59 @@ metainf <- function(x, pooled, sortvar) {
     sel.pft <- inherits(x, "metaprop") & x$sm == "PFT"
     sel.irft <- inherits(x, "metarate") & x$sm == "IRFT"
     ##
+    add.i[i, ] <- c(m$method.tau.ci,  # 1
+                    m$sign.lower.tau, # 2
+                    m$sign.upper.tau  # 3
+                    )
+    ##
     if (pooled == "fixed") {
-      res.i[i,] <- c(m$TE.fixed,                                    #  1
-                     m$seTE.fixed,                                  #  2
-                     m$lower.fixed,                                 #  3
-                     m$upper.fixed,                                 #  4
-                     m$pval.fixed,                                  #  5
-                     m$I2,                                          #  6
-                     m$tau,                                         #  7
-                     sum(m$w.fixed, na.rm = TRUE),                  #  8
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,     #  9
-                     NA,                                            # 10
-                     if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 11
-                     m$Rb                                           # 12
-                     )
+      res.i[i, ] <- c(m$TE.fixed,                                    #  1
+                      m$seTE.fixed,                                  #  2
+                      m$lower.fixed,                                 #  3
+                      m$upper.fixed,                                 #  4
+                      m$zval.fixed,                                  #  5
+                      m$pval.fixed,                                  #  6
+                      m$tau2,                                        #  7
+                      m$lower.tau2,                                  #  8
+                      m$upper.tau2,                                  #  9
+                      m$se.tau2,                                     # 10
+                      m$tau,                                         # 11
+                      m$lower.tau,                                   # 12
+                      m$upper.tau,                                   # 13
+                      m$I2,                                          # 14
+                      m$lower.I2,                                    # 15
+                      m$upper.I2,                                    # 16
+                      sum(m$w.fixed, na.rm = TRUE),                  # 17
+                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 18
+                      NA,                                            # 19
+                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      m$Rb                                           # 21
+                      )
     }
     ##
     else if (pooled == "random") {
-      res.i[i,] <- c(m$TE.random,                                   #  1
-                     m$seTE.random,                                 #  2
-                     m$lower.random,                                #  3
-                     m$upper.random,                                #  4
-                     m$pval.random,                                 #  5
-                     m$I2,                                          #  6
-                     m$tau,                                         #  7
-                     sum(m$w.random, na.rm = TRUE),                 #  8
-                     if (sel.pft) 1 / mean(1 / n[sel]) else NA,     #  9
-                     if (x$hakn) m$df.hakn else NA,                 # 10
-                     if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 11
-                     m$Rb                                           # 12
-                     )
+      res.i[i, ] <- c(m$TE.random,                                   #  1
+                      m$seTE.random,                                 #  2
+                      m$lower.random,                                #  3
+                      m$upper.random,                                #  4
+                      m$zval.random,                                 #  5
+                      m$pval.random,                                 #  6
+                      m$tau2,                                        #  7
+                      m$lower.tau2,                                  #  8
+                      m$upper.tau2,                                  #  9
+                      m$se.tau2,                                     # 10
+                      m$tau,                                         # 11
+                      m$lower.tau,                                   # 12
+                      m$upper.tau,                                   # 13
+                      m$I2,                                          # 14
+                      m$lower.I2,                                    # 15
+                      m$upper.I2,                                    # 16
+                      sum(m$w.random, na.rm = TRUE),                 # 17
+                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 18
+                      if (x$hakn) m$df.hakn else NA,                 # 19
+                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      m$Rb                                           # 21
+                      )
     }
   }
   ##
@@ -425,21 +442,39 @@ metainf <- function(x, pooled, sortvar) {
   seTE.i <- res.i[, 2]
   lower.i <- res.i[, 3]
   upper.i <- res.i[, 4]
-  pval.i <- res.i[, 5]
-  I2.i <- res.i[, 6]
-  tau.i <- res.i[, 7]
-  weight.i <- res.i[, 8]
-  n.harmonic.mean.i <- res.i[, 9]
+  zval.i <- res.i[, 5]
+  pval.i <- res.i[, 6]
+  ##
+  tau2.i <- res.i[, 7]
+  lower.tau2.i <- res.i[, 8]
+  upper.tau2.i <- res.i[, 9]
+  se.tau2.i <- res.i[, 10]
+  ##
+  tau.i <- res.i[, 11]
+  lower.tau.i <- res.i[, 12]
+  upper.tau.i <- res.i[, 13]
+  ##
+  I2.i <- res.i[, 14]
+  lower.I2.i <- res.i[, 15]
+  upper.I2.i <- res.i[, 16]
+  ##
+  weight.i <- res.i[, 17]
+  n.harmonic.mean.i <- res.i[, 18]
   if (pooled == "random" & x$hakn)
-    df.hakn.i <- res.i[, 10]
-  t.harmonic.mean.i <- res.i[, 11]
-  Rb.i <- res.i[, 12]
+    df.hakn.i <- res.i[, 19]
+  t.harmonic.mean.i <- res.i[, 20]
+  Rb.i <- res.i[, 21]
+  ##
+  method.tau.ci <- unique(add.i[, 1])
+  sign.lower.tau.i <- add.i[, 2]
+  sign.upper.tau.i <- add.i[, 3]
   ##  
   if (pooled == "fixed") {
     TE.s <- x$TE.fixed
     seTE.s <- x$seTE.fixed
-    TE.s.lower <- x$lower.fixed
-    TE.s.upper <- x$upper.fixed
+    lower.TE.s <- x$lower.fixed
+    upper.TE.s <- x$upper.fixed
+    zval.s <- x$zval.fixed
     pval.s <- x$pval.fixed
     w.s <- sum(x$w.fixed, na.rm = TRUE)
   }
@@ -447,8 +482,9 @@ metainf <- function(x, pooled, sortvar) {
   else if (pooled == "random") {
     TE.s <- x$TE.random
     seTE.s <- x$seTE.random
-    TE.s.lower <- x$lower.random
-    TE.s.upper <- x$upper.random
+    lower.TE.s <- x$lower.random
+    upper.TE.s <- x$upper.random
+    zval.s <- x$zval.random
     pval.s <- x$pval.random
     w.s <- sum(x$w.random, na.rm = TRUE)
   }
@@ -461,21 +497,42 @@ metainf <- function(x, pooled, sortvar) {
   ##
   res <- list(TE = c(TE.i, NA, TE.s),
               seTE = c(seTE.i, NA, seTE.s),
-              lower = c(lower.i, NA, TE.s.lower),
-              upper = c(upper.i, NA, TE.s.upper),
+              lower = c(lower.i, NA, lower.TE.s),
+              upper = c(upper.i, NA, upper.TE.s),
+              zval = c(zval.i, NA, zval.s),
+              pval = c(pval.i, NA, pval.s),
               studlab = studlab,
-              p.value = c(pval.i, NA, pval.s),
-              w = c(weight.i, NA, w.s),
-              I2 = c(I2.i, NA, x$I2),
-              Rb = c(Rb.i, NA, x$Rb),
+              ##
+              tau2 = c(tau2.i, NA, x$tau2),
+              lower.tau2 = c(lower.tau2.i, NA, x$lower.tau2),
+              upper.tau2 = c(upper.tau2.i, NA, x$upper.tau2),
+              se.tau2 = c(se.tau2.i, NA, x$se.tau2),
+              ##
               tau = c(tau.i, NA, x$tau),
+              lower.tau = c(lower.tau.i, NA, x$lower.tau),
+              upper.tau = c(upper.tau.i, NA, x$upper.tau),
+              ##
+              method.tau.ci = method.tau.ci,
+              sign.lower.tau.i = c(sign.lower.tau.i, NA, x$sign.lower.tau),
+              sign.upper.tau.i = c(sign.upper.tau.i, NA, x$sign.upper.tau),
+              ##
+              I2 = c(I2.i, NA, x$I2),
+              lower.I2 = c(lower.I2.i, NA, x$lower.I2),
+              upper.I2 = c(upper.I2.i, NA, x$upper.I2),
+              ##
+              Rb = c(Rb.i, NA, x$Rb),
+              ##
+              w = c(weight.i, NA, w.s),
               df.hakn = if (pooled == "random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
+              ##
               sm = x$sm, method = x$method, k = x$k,
               pooled = pooled,
               comb.fixed = ifelse(pooled == "fixed", TRUE, FALSE),
               comb.random = ifelse(pooled == "random", TRUE, FALSE),
               TE.fixed = NA, seTE.fixed = NA,
               TE.random = NA, seTE.random = NA,
+              null.effect = x$null.effect,
+              ##
               Q = NA,
               level.comb = x$level.comb,
               hakn = x$hakn,

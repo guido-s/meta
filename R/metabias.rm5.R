@@ -36,7 +36,7 @@
 #' Cochrane review can be imported to R using the function
 #' \code{read.rm5}.
 #' 
-#' The R function \code{metacr} is called internally.
+#' The R function \code{\link{metacr}} is called internally.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 

@@ -162,8 +162,8 @@ should be kept in meta object.}
 warning.}
 
 \item{control}{An optional list to control the iterative process to
-estimate the between-study variance tau^2. This argument is
-passed on to \code{\link[metafor]{rma.uni}} or
+estimate the between-study variance \eqn{\tau^2}. This argument
+is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
 \item{\dots}{Additional arguments passed on to
@@ -217,8 +217,22 @@ object is a list containing the following components:
   (only if \code{method = "GLMM"}).}
 \item{df.Q.LRT}{Degrees of freedom for likelihood-ratio test}
 \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
-\item{tau}{Square-root of between-study variance.}
-\item{se.tau2}{Standard error of between-study variance.}
+\item{tau2}{Between-study variance \eqn{\tau^2}.}
+\item{se.tau2}{Standard error of \eqn{\tau^2}.}
+\item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
+  interval for \eqn{\tau^2}.}
+\item{tau}{Square-root of between-study variance \eqn{\tau}.}
+\item{lower.tau, upper.tau}{Lower and upper limit of confidence
+  interval for \eqn{\tau}.}
+\item{H}{Heterogeneity statistic H.}
+\item{lower.H, upper.H}{Lower and upper confidence limit for
+ heterogeneity statistic H.}
+\item{I2}{Heterogeneity statistic I\eqn{^2}.}
+\item{lower.I2, upper.I2}{Lower and upper confidence limit for
+  heterogeneity statistic I\eqn{^2}.}
+\item{Rb}{Heterogeneity statistic R\eqn{_b}.}
+\item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
+  heterogeneity statistic R\eqn{_b}.}
 \item{method}{A character string indicating method used for
   pooling: \code{"Inverse"}}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
@@ -290,13 +304,13 @@ object is a list containing the following components:
   - if \code{byvar} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups - if
   \code{byvar} is not missing.}
-\item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
+\item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
   heterogeneity statistic H within subgroups - if \code{byvar} is
   not missing.}
-\item{I2.w}{Heterogeneity statistic I2 within subgroups - if
+\item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
   \code{byvar} is not missing.}
-\item{lower.I2.w, upper.I2.w}{Lower and upper confidence limti for
-  heterogeneity statistic I2 within subgroups - if \code{byvar} is
+\item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
+  heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
   not missing.}
 \item{incr.event}{Increment added to number of events.}
 \item{keepdata}{As defined above.}

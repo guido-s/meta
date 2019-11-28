@@ -35,7 +35,7 @@ In RevMan 5, subgroup analyses can be defined and data from a
 Cochrane review can be imported to R using the function
 \code{read.rm5}.
 
-The R function \code{metacr} is called internally.
+The R function \code{\link{metacr}} is called internally.
 }
 \examples{
 # Locate export data file "Fleiss93_CR.csv"

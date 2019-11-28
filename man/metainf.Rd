@@ -23,11 +23,12 @@ containing the following components:
 \item{TE, seTE}{Estimated treatment effect and standard error of
   pooled estimate in influence analysis.}
 \item{lower, upper}{Lower and upper confidence interval limits.}
+\item{zval}{z-value for test of overall effect.}
+\item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing omission of studies.}
-\item{p.value}{P-value for test of overall effect.}
 \item{w}{Sum of weights from fixed effect or random effects model.}
-\item{I2}{Heterogeneity statistic I2.}
-\item{Rb}{Heterogeneity statistic Rb.}
+\item{I2}{Heterogeneity statistic I\eqn{^2}.}
+\item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 \item{tau}{Square-root of between-study variance.}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn = TRUE}).}

@@ -101,8 +101,8 @@
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
 #' @param control An optional list to control the iterative process to
-#'   estimate the between-study variance tau^2. This argument is
-#'   passed on to \code{\link[metafor]{rma.uni}} or
+#'   estimate the between-study variance \eqn{\tau^2}. This argument
+#'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.glmm}}, respectively.
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function.
@@ -275,8 +275,22 @@
 #'   (only if \code{method = "GLMM"}).}
 #' \item{df.Q.LRT}{Degrees of freedom for likelihood-ratio test}
 #' \item{pval.Q.LRT}{P-value of likelihood-ratio test.}
-#' \item{tau}{Square-root of between-study variance.}
-#' \item{se.tau2}{Standard error of between-study variance.}
+#' \item{tau2}{Between-study variance \eqn{\tau^2}.}
+#' \item{se.tau2}{Standard error of \eqn{\tau^2}.}
+#' \item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau^2}.}
+#' \item{tau}{Square-root of between-study variance \eqn{\tau}.}
+#' \item{lower.tau, upper.tau}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau}.}
+#' \item{H}{Heterogeneity statistic H.}
+#' \item{lower.H, upper.H}{Lower and upper confidence limit for
+#'  heterogeneity statistic H.}
+#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
+#' \item{lower.I2, upper.I2}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2}.}
+#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
+#' \item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
+#'   heterogeneity statistic R\eqn{_b}.}
 #' \item{sparse}{Logical flag indicating if any study included in
 #'   meta-analysis has any zero cell frequencies.}
 #' \item{incr.event}{Increment added to number of events.}
@@ -356,13 +370,13 @@
 #'   - if \code{byvar} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
 #'   \code{byvar} is not missing.}
-#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
+#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
 #'   heterogeneity statistic H within subgroups - if \code{byvar} is
 #'   not missing.}
-#' \item{I2.w}{Heterogeneity statistic I2 within subgroups - if
+#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
 #'   \code{byvar} is not missing.}
-#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limti for
-#'   heterogeneity statistic I2 within subgroups - if \code{byvar} is
+#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
 #'   not missing.}
 #' \item{keepdata}{As defined above.}
 #' \item{data}{Original data (set) used in function call (if
@@ -1063,7 +1077,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$zval.random <- ci.r$z
     res$pval.random <- ci.r$p
     ##
-    res$se.tau2 <- NA
     ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
     res$seTE.predict <- NA
     res$lower.predict <- ci.p$cr.lb
@@ -1083,8 +1096,23 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$df.Q.LRT   <- res$df.Q
     res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
-    if (k > 1)
+    if (k > 1) {
       res$tau <- sqrt(glmm.random$tau2)
+      res$tau2 <- glmm.random$tau2
+      res$se.tau2 <- glmm.random$se.tau2
+    }
+    else
+      res$se.tau2 <- NA
+    ##
+    res$lower.tau2 <- NA
+    res$upper.tau2 <- NA
+    ##
+    res$lower.tau <- NA
+    res$upper.tau <- NA
+    ##
+    res$method.tau.ci <- ""
+    res$sign.lower.tau <- ""
+    res$sign.upper.tau <- ""
     ##
     res$H <- sqrt(glmm.random$H2)
     res$lower.H <- NA
@@ -1093,6 +1121,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$I2 <- glmm.random$I2 / 100
     res$lower.I2 <- NA
     res$upper.I2 <- NA
+    ##
+    res$Rb <- NA
+    res$lower.Rb <- NA
+    res$upper.Rb <- NA
     ##
     res$.glmm.fixed  <- glmm.fixed
     res$.glmm.random <- glmm.random

@@ -112,8 +112,8 @@
 #'   (e.g., if studies are excluded from meta-analysis due to zero
 #'   standard errors).
 #' @param control An optional list to control the iterative process to
-#'   estimate the between-study variance tau^2. This argument is
-#'   passed on to \code{\link[metafor]{rma.uni}}.
+#'   estimate the between-study variance \eqn{\tau^2}. This argument
+#'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' 
 #' @details
 #' This function provides the \emph{generic inverse variance method}
@@ -381,8 +381,23 @@
 #' \item{Q}{Heterogeneity statistic.}
 #' \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 #' \item{pval.Q}{P-value of heterogeneity test.}
-#' \item{tau}{Square-root of between-study variance.}
-#' \item{se.tau2}{Standard error of between-study variance.}
+#' \item{tau2}{Between-study variance \eqn{\tau^2}.}
+#' \item{se.tau2}{Standard error of \eqn{\tau^2}.}
+#' \item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau^2}.}
+#' \item{tau}{Square-root of between-study variance \eqn{\tau}.}
+#' \item{lower.tau, upper.tau}{Lower and upper limit of confidence
+#'   interval for \eqn{\tau}.}
+#' \item{H}{Heterogeneity statistic H.}
+#' \item{lower.H, upper.H}{Lower and upper confidence limit for
+#'  heterogeneity statistic H.}
+#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
+#' \item{lower.I2, upper.I2}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2}.}
+#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
+#' \item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
+#'   heterogeneity statistic R\eqn{_b}.}
+#' \item{approx.TE, approx.seTE}{As defined above.}
 #' \item{method}{Pooling method: \code{"Inverse"}.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
@@ -452,12 +467,13 @@
 #'   - if \code{byvar} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
 #'   \code{byvar} is not missing.}
-#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limti for
+#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
 #'   heterogeneity statistic H within subgroups - if \code{byvar} is
-#'   not missing.}  \item{I2.w}{Heterogeneity statistic I2 within
-#'   subgroups - if \code{byvar} is not missing.}
-#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limti for
-#'   heterogeneity statistic I2 within subgroups - if \code{byvar} is
+#'   not missing.}
+#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
+#'   \code{byvar} is not missing.}
+#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
 #'   not missing.}
 #' \item{keepdata}{As defined above.}
 #' \item{data}{Original data (set) used in function call (if
@@ -1379,8 +1395,6 @@ metagen <- function(TE, seTE, studlab,
   ##
   k <- sum(!is.na(seTE[!exclude]))
   ##
-  tau2 <- NA
-  ##
   if (k == 0) {
     TE.fixed <- NA
     seTE.fixed <- NA
@@ -1398,18 +1412,17 @@ metagen <- function(TE, seTE, studlab,
     upper.random <- NA
     w.random <- rep(0, k.all)
     ##
-    Q <- NA
-    df.Q <- NA
-    se.tau2 <- tau <- NA
-    lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
-    sign.lower.tau <- sign.upper.tau <- NULL
-    ##
     if (hakn)
       df.hakn <- NA
     ##
-    hc <- list(H = NA, lower.H = NA, upper.H = NA,
+    hc <- list(tau2 = NA, se.tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
+               tau = NA, lower.tau = NA, upper.tau = NA,
+               method.tau.ci = "", sign.lower.tau = "", sign.upper.tau = "",
+               Q = NA, df.Q = NA, pval.Q = NA,
+               H = NA, lower.H = NA, upper.H = NA,
                I2 = NA, lower.I2 = NA, upper.I2 = NA,
-               method.tau.ci = NULL)
+               H.resid = NA, lower.H.resid = NA, upper.H.resid = NA,
+               I2.resid = NA, lower.I2.resid = NA, upper.I2.resid = NA)
   }
   else {
     ## At least two studies to perform Hartung-Knapp method
@@ -1425,31 +1438,19 @@ metagen <- function(TE, seTE, studlab,
                      level.comb, byvar, control)
     }
     ##
-    if (is.null(tau.preset)) {
-      if (k > 1)
-        tau2 <- hc$tau2
-      tau2.calc <- if (is.na(tau2)) 0 else tau2
-      se.tau2 <- hc$se.tau2
-      lower.tau2 <- hc$lower.tau2
-      upper.tau2 <- hc$upper.tau2
-      ##
-      tau <- hc$tau
-      lower.tau <- hc$lower.tau
-      upper.tau <- hc$upper.tau
-      ##
-      sign.lower.tau <- hc$sign.lower.tau
-      sign.upper.tau <- hc$sign.upper.tau
-    }
+    if (is.null(tau.preset))
+      tau2.calc <- if (is.na(hc$tau2)) 0 else hc$tau2
     else {
-      tau2 <- tau2.calc <- tau.preset^2
-      se.tau2 <- NULL
-      tau <- sqrt(tau2)
-      lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
-      sign.lower.tau <- sign.upper.tau <- NULL
+      tau2.calc <- tau.preset^2
+      ##
+      hc$tau2 <- tau.preset^2
+      hc$se.tau2 <- hc$lower.tau2 <- hc$upper.tau2 <- NA
+      hc$tau <- tau.preset
+      hc$lower.tau <- hc$upper.tau <- NA
+      hc$method.tau.ci <- ""
+      hc$sign.lower.tau <- ""
+      hc$sign.upper.tau <- ""
     }
-    ##
-    Q    <- hc$Q
-    df.Q <- hc$df.Q
     ##
     ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
     ##
@@ -1513,7 +1514,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Calculate Rb
   ##
-  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random, tau2.calc, Q, df.Q, level.comb)
+  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random,
+              tau2.calc, hc$Q, hc$df.Q, level.comb)
   
   
   ##
@@ -1542,24 +1544,19 @@ metagen <- function(TE, seTE, studlab,
               lower.predict = p.lower, upper.predict = p.upper,
               level.predict = level.predict,
               ##
-              k = k, Q = Q, df.Q = df.Q, pval.Q = pvalQ(Q, df.Q),
-              tau2 = tau2, lower.tau2 = lower.tau2, upper.tau2 = upper.tau2,
-              se.tau2 = se.tau2,
-              tau = tau, lower.tau = lower.tau, upper.tau = upper.tau,
+              k = k, Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
+              tau2 = hc$tau2, se.tau2 = hc$se.tau2,
+              lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
+              tau = hc$tau, lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
               method.tau.ci = hc$method.tau.ci,
-              sign.lower.tau = sign.lower.tau, sign.upper.tau = sign.upper.tau,
+              sign.lower.tau = hc$sign.lower.tau,
+              sign.upper.tau = hc$sign.upper.tau,
               ##
-              H = hc$H,
-              lower.H = hc$lower.H,
-              upper.H = hc$upper.H,
+              H = hc$H, lower.H = hc$lower.H, upper.H = hc$upper.H,
               ##
-              I2 = hc$I2,
-              lower.I2 = hc$lower.I2,
-              upper.I2 = hc$upper.I2,
+              I2 = hc$I2, lower.I2 = hc$lower.I2, upper.I2 = hc$upper.I2,
               ##
-              Rb = Rbres$TE,
-              lower.Rb = Rbres$lower,
-              upper.Rb = Rbres$upper,
+              Rb = Rbres$TE, lower.Rb = Rbres$lower, upper.Rb = Rbres$upper,
               ##
               approx.TE = approx.TE,
               approx.seTE = approx.seTE,
