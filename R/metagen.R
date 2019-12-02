@@ -62,10 +62,14 @@
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
 #' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}. Either
-#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-#'   abbreviated.
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+#'   \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -240,11 +244,24 @@
 #' 2016). Accordingly, the following R command can be used to use the
 #' Paule-Mandel estimator in all meta-analyses of the R session:
 #' \code{settings.meta(method.tau = "PM")}
-#' 
-#' The DerSimonian-Laird and Paule-Mandel estimators are implemented
-#' in R package \pkg{meta}. R function \code{\link[metafor]{rma.uni}}
-#' from R package \pkg{metafor} (Viechtbauer 2010) is called
-#' internally for the other estimators.
+#' }
+#'
+#' \subsection{Confidence interval for the between-study variance}{
+#'
+#' The following methods to calculate a confidence interval for
+#' \eqn{\tau^2} and \eqn{\tau} are available.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr 
+#' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
+#' }
+#'
+#' These methods have been recommended by Veroniki et al. (2016). By
+#' default, the Jackson method is used for the DerSimonian-Laird
+#' estimator of \eqn{\tau^2} and the Q-profile method for all other
+#' estimators of \eqn{\tau^2}.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -337,6 +354,12 @@
 #' arguments can be set for the whole R session using
 #' \code{\link{settings.meta}}.
 #' }
+#'
+#' @note
+#' R function \code{\link[metafor]{rma.uni}} from R package
+#' \pkg{metafor} (Viechtbauer 2010) is called internally to estimate
+#' the between-study variance \eqn{\tau^2}.
+#' 
 #' 
 #' @return
 #' An object of class \code{c("metagen", "meta")} with corresponding
@@ -345,8 +368,8 @@
 #' \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
 #' \item{sm, level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
-#' \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{As
-#'   defined above.}
+#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
 #'   above.}
@@ -491,6 +514,12 @@
 #'   \code{\link{settings.meta}}
 #' 
 #' @references
+#' Biggerstaff BJ, Jackson D (2008):
+#' The exact distribution of Cochran’s heterogeneity statistic in
+#' one-way random effects meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{27}, 6093--110
+#'
 #' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 #' A basic introduction to fixed-effect and random-effects models for
 #' meta-analysis.
@@ -539,6 +568,13 @@
 #' \emph{BMC Medical Research Methodology},
 #' \bold{14}, 25
 #'
+#' Jackson D (2013):
+#' Confidence intervals for the between-study variance in random
+#' effects meta-analysis using generalised Cochran heterogeneity
+#' statistics.
+#' \emph{Research Synthesis Methods},
+#' \bold{4}, 220--229
+#' 
 #' Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
 #' Kontopantelis E, et al. (2019):
 #' A comparison of heterogeneity variance estimators in simulated
@@ -577,6 +613,12 @@
 #' random-effects model.
 #' \emph{Journal of Educational and Behavioral Statistics},
 #' \bold{30}, 261--93
+#' 
+#' Viechtbauer W (2007):
+#' Confidence intervals for the amount of heterogeneity in
+#' meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{26}, 37--52
 #' 
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the metafor Package.
@@ -657,6 +699,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     hakn = gs("hakn"),
                     method.tau = gs("method.tau"),
+                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -705,8 +748,8 @@ metagen <- function(TE, seTE, studlab,
   chklogical(comb.random)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau,
-                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -739,17 +782,6 @@ metagen <- function(TE, seTE, studlab,
   ##
   fun <- "metagen"
   chklogical(warn)
-  ##
-  if (tau.common & method.tau == "PM") {
-    warning("Argument 'method.tau' set to \"DL\" as argument tau.common = TRUE.")
-    method.tau <- "DL"
-  }
-  ##
-  if (!is.null(tau.preset) & method.tau == "PM") {
-    warning("Argument 'tau.preset' not considered as",
-            "argument method.tau = \"PM\".")
-    tau.preset <- NULL
-  }
   
   
   ##
@@ -1429,13 +1461,15 @@ metagen <- function(TE, seTE, studlab,
     if (k == 1 & hakn)
       hakn <- FALSE
     ## Estimate tau-squared
-    hc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau,
-                  level.comb, control = control)
+    hc <- hetcalc(TE[!exclude], seTE[!exclude],
+                  method.tau, method.tau.ci,
+                  TE.tau, level.comb, control = control)
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
-      hcc <- hetcalc(TE[!exclude], seTE[!exclude], method.tau, TE.tau,
-                     level.comb, byvar, control)
+      hcc <- hetcalc(TE[!exclude], seTE[!exclude],
+                     method.tau, method.tau.ci,
+                     TE.tau, level.comb, byvar, control)
     }
     ##
     if (is.null(tau.preset))
@@ -1568,7 +1602,7 @@ metagen <- function(TE, seTE, studlab,
               comb.random = comb.random,
               hakn = hakn,
               df.hakn = if (hakn) df.hakn else NULL,
-              method.tau = method.tau,
+              method.tau = method.tau, method.tau.ci = method.tau.ci,
               tau.preset = tau.preset,
               TE.tau = if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
               tau.common = tau.common,

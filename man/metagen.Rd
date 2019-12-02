@@ -18,6 +18,7 @@ metagen(
   comb.random = gs("comb.random"),
   hakn = gs("hakn"),
   method.tau = gs("method.tau"),
+  method.tau.ci = if (method.tau == "DL") "J" else "QP",
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -98,10 +99,15 @@ Knapp should be used to adjust test statistics and confidence
 intervals.}
 
 \item{method.tau}{A character string indicating which method is
-used to estimate the between-study variance \eqn{\tau^2}. Either
-\code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-\code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-abbreviated.}
+used to estimate the between-study variance \eqn{\tau^2} and its
+square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+
+\item{method.tau.ci}{A character string indicating which method is
+used to estimate the confidence interval of \eqn{\tau^2} and
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+\code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -227,8 +233,8 @@ object is a list containing the following components:
 \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
 \item{sm, level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
-\item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{As
-  defined above.}
+\item{hakn, method.tau, method.tau.ci,}{As defined above.}
+\item{tau.preset, TE.tau, method.bias,}{As defined above.}
 \item{tau.common, title, complab, outclab,}{As defined above.}
 \item{label.e, label.c, label.left, label.right,}{As defined
   above.}
@@ -496,11 +502,24 @@ estimators have been recommended (Veroniki et al.,
 2016). Accordingly, the following R command can be used to use the
 Paule-Mandel estimator in all meta-analyses of the R session:
 \code{settings.meta(method.tau = "PM")}
+}
 
-The DerSimonian-Laird and Paule-Mandel estimators are implemented
-in R package \pkg{meta}. R function \code{\link[metafor]{rma.uni}}
-from R package \pkg{metafor} (Viechtbauer 2010) is called
-internally for the other estimators.
+\subsection{Confidence interval for the between-study variance}{
+
+The following methods to calculate a confidence interval for
+\eqn{\tau^2} and \eqn{\tau} are available.
+\tabular{ll}{
+\bold{Argument}\tab \bold{Method} \cr 
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
+}
+
+These methods have been recommended by Veroniki et al. (2016). By
+default, the Jackson method is used for the DerSimonian-Laird
+estimator of \eqn{\tau^2} and the Q-profile method for all other
+estimators of \eqn{\tau^2}.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -594,6 +613,11 @@ arguments can be set for the whole R session using
 \code{\link{settings.meta}}.
 }
 }
+\note{
+R function \code{\link[metafor]{rma.uni}} from R package
+\pkg{metafor} (Viechtbauer 2010) is called internally to estimate
+the between-study variance \eqn{\tau^2}.
+}
 \examples{
 data(Fleiss93)
 m1 <- metabin(event.e, n.e, event.c, n.c,
@@ -643,6 +667,12 @@ metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
 
 }
 \references{
+Biggerstaff BJ, Jackson D (2008):
+The exact distribution of Cochran’s heterogeneity statistic in
+one-way random effects meta-analysis.
+\emph{Statistics in Medicine},
+\bold{27}, 6093--110
+
 Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 A basic introduction to fixed-effect and random-effects models for
 meta-analysis.
@@ -691,6 +721,13 @@ standard DerSimonian-Laird method.
 \emph{BMC Medical Research Methodology},
 \bold{14}, 25
 
+Jackson D (2013):
+Confidence intervals for the between-study variance in random
+effects meta-analysis using generalised Cochran heterogeneity
+statistics.
+\emph{Research Synthesis Methods},
+\bold{4}, 220--229
+
 Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
 Kontopantelis E, et al. (2019):
 A comparison of heterogeneity variance estimators in simulated
@@ -729,6 +766,12 @@ Bias and efficiency of meta-analytic variance estimators in the
 random-effects model.
 \emph{Journal of Educational and Behavioral Statistics},
 \bold{30}, 261--93
+
+Viechtbauer W (2007):
+Confidence intervals for the amount of heterogeneity in
+meta-analysis.
+\emph{Statistics in Medicine},
+\bold{26}, 37--52
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the metafor Package.

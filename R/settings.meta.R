@@ -184,6 +184,7 @@ settings.meta <- function(...) {
   res$sm4bin <- res$sm4cont <- res$sm4cor <- res$sm4inc <-
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
   res$ci4prop <- NULL
+  res$meth4tau <- res$meth4tau.ci <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   
@@ -686,8 +687,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(idmethod.tau)) {
       method.tau <- args[[idmethod.tau]]
-      method.tau <- setchar(method.tau,
-                            c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+      method.tau <- setchar(method.tau, .settings$meth4tau)
       setOption("method.tau", method.tau)
     }
     if (!is.na(idtau.common)) {

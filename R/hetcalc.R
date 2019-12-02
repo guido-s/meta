@@ -1,5 +1,5 @@
-hetcalc <- function(TE, seTE, method.tau, TE.tau,
-                    level.hetstats, byvar, control) {
+hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
+                    TE.tau, level.hetstats, byvar, control) {
   
   
   Ccalc <- function(x) {
@@ -25,16 +25,16 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     df.Q <- mf1$k - mf1$p
     pval.Q <- pvalQ(Q, df.Q)
     ##
-    if (method.tau == "DL") {
+    if (method.tau.ci == "BJ")
       ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE, weights = 1 / seTE^2,
                                      method = "GENQ",
-                                     mods = ~ byvar,control = control))
-      method.tau.ci <- "GENQfixed"
-    }
-    else {
+                                     mods = ~ byvar, control = control))
+    else if (method.tau.ci == "J")
+      ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE, weights = 1 / seTE,
+                                     method = "GENQ",
+                                     mods = ~ byvar, control = control))
+    else if (method.tau.ci == "QP")
       ci1 <- confint.rma.uni(mf1)
-      method.tau.ci <- "QP"
-    }
     ##
     Q <- mf1$QE
     df.Q <- mf1$k - mf1$p
@@ -42,15 +42,22 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
     ##
     tau2 <- mf1$tau2
     se.tau2 <- mf1$se.tau2
-    lower.tau2 <- ci1$random["tau^2", "ci.lb"]
-    upper.tau2 <- ci1$random["tau^2", "ci.ub"]
-    ##
     tau <- sqrt(tau2)
-    lower.tau <- ci1$random["tau", "ci.lb"]
-    upper.tau <- ci1$random["tau", "ci.ub"]
     ##
-    sign.lower.tau <- ci1$lb.sign
-    sign.upper.tau <- ci1$ub.sign
+    if (method.tau.ci %in% c("QP", "BJ", "J")) {
+      lower.tau2 <- ci1$random["tau^2", "ci.lb"]
+      upper.tau2 <- ci1$random["tau^2", "ci.ub"]
+      ##
+      lower.tau <- ci1$random["tau", "ci.lb"]
+      upper.tau <- ci1$random["tau", "ci.ub"]
+      ##
+      sign.lower.tau <- ci1$lb.sign
+      sign.upper.tau <- ci1$ub.sign
+    }
+    else {
+      lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
+      sign.lower.tau <- sign.upper.tau <- "" 
+    }
     ##
     H.resid <- sqrt(mf1$H2)
     lower.H.resid <- upper.H.resid <- NA
@@ -106,16 +113,19 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
         mf2 <- rma.uni(yi = TE[sel], sei = seTE[sel],
                        method = method.tau, control = control)
         ##
-        if (method.tau == "DL") {
+        if (sum(sel) < 3)
+          method.tau.ci <- ""
+        ##
+        if (method.tau.ci == "BJ")
           ci2 <- confint.rma.uni(rma.uni(yi = TE[sel], sei = seTE[sel],
                                          weights = 1 / seTE[sel]^2,
                                          method = "GENQ", control = control))
-          method.tau.ci <- "GENQfixed"
-        }
-        else {
+        else if (method.tau.ci == "J")
+          ci2 <- confint.rma.uni(rma.uni(yi = TE[sel], sei = seTE[sel],
+                                         weights = 1 / seTE[sel],
+                                         method = "GENQ", control = control))
+        else if (method.tau.ci == "QP")
           ci2 <- confint.rma.uni(mf2)
-          method.tau.ci <- "QP"
-        }
         ##
         Q <- mf2$QE
         df.Q <- mf2$k - mf2$p
@@ -123,15 +133,22 @@ hetcalc <- function(TE, seTE, method.tau, TE.tau,
         ##
         tau2 <- mf2$tau2
         se.tau2 <- mf2$se.tau2
-        lower.tau2 <- ci2$random["tau^2", "ci.lb"]
-        upper.tau2 <- ci2$random["tau^2", "ci.ub"]
-        ##
         tau <- sqrt(tau2)
-        lower.tau <- ci2$random["tau", "ci.lb"]
-        upper.tau <- ci2$random["tau", "ci.ub"]
         ##
-        sign.lower.tau <- ci2$lb.sign
-        sign.upper.tau <- ci2$ub.sign
+        if (method.tau.ci %in% c("QP", "BJ", "J")) {
+          lower.tau2 <- ci2$random["tau^2", "ci.lb"]
+          upper.tau2 <- ci2$random["tau^2", "ci.ub"]
+          ##
+          lower.tau <- ci2$random["tau", "ci.lb"]
+          upper.tau <- ci2$random["tau", "ci.ub"]
+          ##
+          sign.lower.tau <- ci2$lb.sign
+          sign.upper.tau <- ci2$ub.sign
+        }
+        else {
+          lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
+          sign.lower.tau <- sign.upper.tau <- "" 
+        }
       }
     }
   }

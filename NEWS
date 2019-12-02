@@ -68,10 +68,14 @@
 
  ** Internal changes **
 
+  * function paulemandel() removed from package as R package metafor
+    is used to estimate the between-study variance
+
   * formatPT():
     - new argument 'JAMA'
 
-  * List elements 'C' and 'C.w' removed from meta-analysis objects
+  * List elements 'C' and 'C.w' (scaling factor to estimate common
+    between-study variance) removed from meta-analysis objects
 
   * Import confint.rma.uni() from metafor to calculate confidence
     intervals for tau and tau2

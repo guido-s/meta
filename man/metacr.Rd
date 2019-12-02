@@ -16,6 +16,7 @@ metacr(
   comb.random,
   hakn = FALSE,
   method.tau = "DL",
+  method.tau.ci = if (method.tau == "DL") "J" else "QP",
   tau.common = FALSE,
   prediction = gs("prediction"),
   level.predict = gs("level.predict"),
@@ -63,10 +64,15 @@ Knapp should be used to adjust test statistics and confidence
 intervals.}
 
 \item{method.tau}{A character string indicating which method is
-used to estimate the between-study variance \eqn{\tau^2}. Either
-\code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-\code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-abbreviated.}
+used to estimate the between-study variance \eqn{\tau^2} and its
+square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+
+\item{method.tau.ci}{A character string indicating which method is
+used to estimate the confidence interval of \eqn{\tau^2} and
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+\code{""}, can be abbreviated.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}

@@ -33,10 +33,14 @@
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
 #' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}. Either
-#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-#'   abbreviated.
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+#'   \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall effect used to estimate the between-study
@@ -108,6 +112,20 @@
 #' estimators.
 #' }
 #' 
+#' \subsection{Confidence interval for the between-study variance}{
+#'
+#' The following methods to calculate a confidence interval for
+#' \eqn{\tau^2} and \eqn{\tau} are available.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr 
+#' \code{method.tau.ci = "J"}\tab Method by Jackson \cr
+#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
+#' }
+#' See \code{\link{metagen}} for more information on these methods.
+#' }
+#' 
 #' \subsection{Hartung-Knapp method}{
 #' 
 #' Hartung and Knapp (2001) and Knapp and Hartung (2003) proposed an
@@ -167,8 +185,8 @@
 #' \item{cor, n, studlab, exclude,}{As defined above.}
 #' \item{sm, level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
-#' \item{hakn, method.tau, tau.preset, TE.tau, null.effect,}{As
-#'   defined above.}
+#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 #' \item{method.bias, tau.common, title, complab, outclab,}{As defined
 #'   above.}
 #' \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
@@ -406,6 +424,7 @@ metacor <- function(cor, n, studlab,
                     ##
                     hakn = gs("hakn"),
                     method.tau = gs("method.tau"),
+                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -441,8 +460,8 @@ metacor <- function(cor, n, studlab,
   chklogical(comb.random)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau,
-                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -657,7 +676,7 @@ metacor <- function(cor, n, studlab,
                comb.random = comb.random,
                ##
                hakn = hakn,
-               method.tau = method.tau,
+               method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
@@ -679,8 +698,8 @@ metacor <- function(cor, n, studlab,
   ##
   if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau, TE.tau,
-                   level.comb, byvar, control)
+    hcc <- hetcalc(TE, seTE, method.tau, "",
+                   TE.tau, level.comb, byvar, control)
   }
   
   

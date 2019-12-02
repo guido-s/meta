@@ -73,10 +73,14 @@
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
 #' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}. Either
-#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-#'   abbreviated.
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+#'   \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -267,7 +271,7 @@
 #' \code{tdist} in \code{\link[metafor]{rma.glmm}}.
 #' 
 #' The following methods to estimate the between-study variance
-#' \eqn{\tau^2} are available for the inverse variance method:
+#' \eqn{\tau^2} are available:
 #' \itemize{
 #' \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
 #' \item Paule-Mandel estimator (\code{method.tau = "PM"})
@@ -279,9 +283,21 @@
 #' \item Hedges estimator (\code{method.tau = "HE"})
 #' \item Empirical Bayes estimator (\code{method.tau = "EB"})
 #' }
-#' See \code{\link{metagen}} for more information on these
-#' estimators. Note, the maximum-likelihood method is utilized for
-#' GLMMs.
+#' Confidence intervals for \eqn{\tau^2} and \eqn{\tau} are also
+#' available:
+#' \itemize{
+#' \item Jackson method (\code{method.tau.ci = "J"})
+#' \item Biggerstaff and Jackson method (\code{method.tau = "BJ"})
+#' \item Q-profile method (\code{method.tau.ci = "QP"})
+#' }
+#' See \code{\link{metagen}} for more information on these estimators
+#' and confidence intervals. For GLMMs, the maximum-likelihood method
+#' is utilized and no confidence intervals for \eqn{\tau^2} and
+#' \eqn{\tau} are calculated. For the Mantel-Haenszel method, no
+#' confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
+#' for the DerSimonian-Laird method if argument \code{Q.Cochrane} is
+#' \code{TRUE} (this is the random effects method implemented in
+#' RevMan 5 for the Mantel-Haenszel method).
 #' 
 #' @return
 #' An object of class \code{c("metabin", "meta")} with corresponding
@@ -295,8 +311,8 @@
 #'   defined above.}
 #' \item{warn, level, level.comb, comb.fixed, comb.random,}{As defined
 #'   above.}
-#' \item{hakn, method.tau, tau.preset, TE.tau, method.bias,}{As
-#'   defined above.}
+#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
 #'   above.}
@@ -720,6 +736,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
                                               nomatch = NA)),
                              "ML", gs("method.tau")),
+                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -762,8 +779,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(comb.random)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau,
-                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -1430,7 +1447,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                comb.random = comb.random,
                ##
                hakn = hakn,
-               method.tau = method.tau,
+               method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = if (Q.Cochrane) TE.fixed else TE.tau,
                tau.common = FALSE,
@@ -1452,7 +1469,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau,
+    hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (Q.Cochrane & method == "MH") TE.fixed else TE.tau,
                    level.comb, byvar, control)
   }

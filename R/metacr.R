@@ -27,10 +27,14 @@
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
 #' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}. Either
-#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-#'   abbreviated.
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+#'   \code{""}, can be abbreviated.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param prediction A logical indicating whether a prediction
@@ -133,6 +137,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    hakn = FALSE,
                    method.tau = "DL",
+                   method.tau.ci = if (method.tau == "DL") "J" else "QP",
                    tau.common = FALSE,
                    ##
                    prediction = gs("prediction"),
@@ -160,8 +165,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklevel(level.comb)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau,
-                        c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
+  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -288,7 +293,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
                       comb.fixed = comb.fixed, comb.random = comb.random,
-                      method.tau = method.tau, hakn = hakn,
+                      hakn = hakn,
+                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
                       level = level, level.comb = level.comb,
                       prediction = prediction, level.predict = level.predict,
@@ -300,14 +306,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
-                      keepdata = keepdata)
+                      RR.Cochrane = TRUE,
+                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      warn = warn, keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
                       comb.fixed = comb.fixed, comb.random = comb.random,
-                      method.tau = method.tau, hakn = hakn,
+                      hakn = hakn,
+                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
                       level = level, level.comb = level.comb,
                       prediction = prediction, level.predict = level.predict,
@@ -319,8 +327,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
-                      keepdata = keepdata)
+                      RR.Cochrane = TRUE,
+                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      warn = warn, keepdata = keepdata)
     }
     ##
     if (type == "C")
@@ -329,7 +338,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
                      comb.fixed = comb.fixed, comb.random = comb.random,
-                     method.tau = method.tau, hakn = hakn,
+                     hakn = hakn,
+                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
                      level = level, level.comb = level.comb,
                      prediction = prediction, level.predict = level.predict,
@@ -347,7 +357,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,
@@ -366,7 +377,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,
@@ -387,7 +399,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,
@@ -414,7 +427,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
                       comb.fixed = comb.fixed, comb.random = comb.random,
-                      method.tau = method.tau, hakn = hakn,
+                      hakn = hakn,
+                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
                       level = level, level.comb = level.comb,
                       prediction = prediction, level.predict = level.predict,
@@ -423,14 +437,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
-                      keepdata = keepdata)
+                      RR.Cochrane = TRUE,
+                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      warn = warn, keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
                       comb.fixed = comb.fixed, comb.random = comb.random,
-                      method.tau = method.tau, hakn = hakn,
+                      hakn = hakn,
+                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
                       level = level, level.comb = level.comb,
                       prediction = prediction, level.predict = level.predict,
@@ -439,8 +455,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      RR.Cochrane = TRUE, Q.Cochrane = TRUE, warn = warn,
-                      keepdata = keepdata)
+                      RR.Cochrane = TRUE,
+                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      warn = warn, keepdata = keepdata)
     }
     ##
     if (type == "C")
@@ -449,7 +466,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
                      comb.fixed = comb.fixed, comb.random = comb.random,
-                     method.tau = method.tau, hakn = hakn,
+                     hakn = hakn,
+                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
                      level = level, level.comb = level.comb,
                      prediction = prediction, level.predict = level.predict,
@@ -464,7 +482,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,
@@ -480,7 +499,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,
@@ -498,7 +518,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    method.tau = method.tau, hakn = hakn,
+                    hakn = hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
                     level = level, level.comb = level.comb,
                     prediction = prediction, level.predict = level.predict,

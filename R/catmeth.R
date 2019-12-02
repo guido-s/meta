@@ -230,20 +230,18 @@ catmeth <- function(method,
     }
     else {
       i.lab.method.tau <-
-        charmatch(method.tau,
-                  c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"),
-                  nomatch = NA)
+        charmatch(method.tau, .settings$meth4tau, nomatch = NA)
       ##
       lab.method.tau <-
-        c("\n- DerSimonian-Laird estimator for",
-          "\n- Paule-Mandel estimator for",
-          "\n- Restricted maximum-likelihood estimator for",
-          "\n- Maximum-likelihood estimator for",
-          "\n- Hunter-Schmidt estimator for",
-          "\n- Sidik-Jonkman estimator for",
-          "\n- Hedges estimator for",
-          "\n- Empirical Bayes estimator for")[i.lab.method.tau]
-      lab.method.tau <- paste(lab.method.tau, text.tau2)
+        c("\n- DerSimonian-Laird estimator",
+          "\n- Paule-Mandel estimator",
+          "\n- Restricted maximum-likelihood estimator",
+          "\n- Maximum-likelihood estimator",
+          "\n- Hunter-Schmidt estimator",
+          "\n- Sidik-Jonkman estimator",
+          "\n- Hedges estimator",
+          "\n- Empirical Bayes estimator")[i.lab.method.tau]
+      lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
       ##
       if (tau.common)
         lab.method.tau <- paste0(lab.method.tau,
@@ -256,16 +254,17 @@ catmeth <- function(method,
                  "\n- Mantel-Haenszel estimator used in ",
                  "calculation of Q and ", text.tau2, " (like RevMan 5)")
       ##
-      if (print.tau.ci & method.tau.ci %in% c("GENQfixed", "QP")) {
+      if (print.tau.ci & method.tau.ci %in% c("QP", "BJ", "J")) {
         i.lab.tau.ci <-
-          charmatch(method.tau.ci, c("GENQfixed", "QP"), nomatch = NA)
+          charmatch(method.tau.ci, c("QP", "BJ", "J"), nomatch = NA)
         ##
         lab.tau.ci <-
-          paste0("\n- ",
-                 c("Generalised Q method with fixed effect weights for \n  ",
-                   "Q-profile method for ")[i.lab.tau.ci],
-                 "confidence interval of ",
-                 text.tau2, " and ", text.tau)
+          paste("\n-",
+                 c("Q-profile method",
+                   "Biggerstaff and Jackson method",
+                   "Jackson method")[i.lab.tau.ci],
+                 "for confidence interval of",
+                 text.tau2, "and", text.tau)
         ##
         lab.method.tau <- paste0(lab.method.tau, lab.tau.ci)
       }

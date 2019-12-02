@@ -41,10 +41,14 @@
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
 #' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}. Either
-#'   \code{"DL"}, \code{"PM"}, \code{"REML"}, \code{"ML"},
-#'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
-#'   abbreviated.
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
+#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
+#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
+#'   \code{""}, can be abbreviated.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param level.predict The level used to calculate prediction
@@ -107,8 +111,8 @@
 #' \item{studlab, sm, left, ma.fixed, type, n.iter.max}{As defined
 #'   above.}
 #' \item{level, level.comb, level.predict}{As defined above.}
-#' \item{comb.fixed, comb.random, prediction, hakn, method.tau}{As
-#'   defined above.}
+#' \item{comb.fixed, comb.random, prediction}{As defined above.}
+#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   individual studies.}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
@@ -242,6 +246,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                              comb.fixed = FALSE, comb.random = TRUE,
                              hakn = FALSE,
                              method.tau = "DL",
+                             method.tau.ci = if (method.tau == "DL") "J" else "QP",
                              prediction = FALSE, level.predict = level,
                              backtransf = TRUE, pscale = 1,
                              irscale = 1, irunit = "person-years",
@@ -288,7 +293,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = TRUE,
                   hakn = hakn,
-                  method.tau = method.tau,
+                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                   prediction = prediction, level.predict = level.predict,
                   backtransf = backtransf, pscale = pscale,
                   irscale = irscale, irunit = irunit,
@@ -314,7 +319,9 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           comb.fixed = FALSE, comb.random = TRUE,
                           hakn = x$hakn,
                           method.tau = x$method.tau,
-                          prediction = x$prediction, level.predict = x$level.predict,
+                          method.tau.ci = x$method.tau.ci,
+                          prediction = x$prediction,
+                          level.predict = x$level.predict,
                           backtransf = x$backtransf, pscale = x$pscale,
                           irscale = x$irscale, irunit = x$irunit,
                           silent = TRUE, ...) {
@@ -663,13 +670,15 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   if (!left)
     m <- metagen(-TE, seTE, studlab = studlab,
                  level = level, level.comb = level.comb,
-                 hakn = hakn, method.tau = method.tau,
+                 hakn = hakn,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
                  prediction = prediction, level.predict = level.predict,
                  null.effect = transf.null.effect)
   else
     m <- metagen(TE, seTE, studlab = studlab,
                  level = level, level.comb = level.comb,
-                 hakn = hakn, method.tau = method.tau,
+                 hakn = hakn,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
                  prediction = prediction, level.predict = level.predict,
                  null.effect = transf.null.effect)
   
@@ -737,11 +746,13 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               level.predict = level.predict,
               ##
               k = m$k, Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
-              tau2 = m$tau2, lower.tau2 = m$lower.tau2, upper.tau2 = m$upper.tau2,
+              tau2 = m$tau2,
+              lower.tau2 = m$lower.tau2, upper.tau2 = m$upper.tau2,
               se.tau2 = m$se.tau2,
               tau = m$tau, lower.tau = m$lower.tau, upper.tau = m$upper.tau,
               method.tau.ci = m$method.tau.ci,
-              sign.lower.tau = m$sign.lower.tau, sign.upper.tau = m$sign.upper.tau,
+              sign.lower.tau = m$sign.lower.tau,
+              sign.upper.tau = m$sign.upper.tau,
               ##
               H = Hres$TE,
               lower.H = Hres$lower,
