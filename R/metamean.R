@@ -134,10 +134,11 @@
 #' \bold{Argument}\tab \bold{Method} \cr 
 #' \code{method.tau.ci = "J"}\tab Method by Jackson \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-#' \code{method.tau.ci = "QP"}\tab Q-Profile method \cr
-#' \code{method.tau.ci = ""}\tab No confidence interval
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method
 #' }
-#' See \code{\link{metagen}} for more information on these methods.
+#' See \code{\link{metagen}} for more information on these methods. No
+#' confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
+#' if \code{method.tau.ci = ""}.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{

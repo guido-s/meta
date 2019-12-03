@@ -569,7 +569,7 @@ Confidence intervals for \eqn{\tau^2} and \eqn{\tau} are also
 available:
 \itemize{
 \item Jackson method (\code{method.tau.ci = "J"})
-\item Biggerstaff and Jackson method (\code{method.tau = "BJ"})
+\item Biggerstaff and Jackson method (\code{method.tau.ci = "BJ"})
 \item Q-profile method (\code{method.tau.ci = "QP"})
 }
 See \code{\link{metagen}} for more information on these estimators
@@ -579,7 +579,9 @@ is utilized and no confidence intervals for \eqn{\tau^2} and
 confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
 for the DerSimonian-Laird method if argument \code{Q.Cochrane} is
 \code{TRUE} (this is the random effects method implemented in
-RevMan 5 for the Mantel-Haenszel method).
+RevMan 5 for the Mantel-Haenszel method). In general, no confidence
+intervals for \eqn{\tau^2} and \eqn{\tau} are calculated if
+\code{method.tau.ci = ""}.
 }
 \examples{
 # Calculate odds ratio and confidence interval for a single study

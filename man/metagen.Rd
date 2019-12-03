@@ -512,14 +512,14 @@ The following methods to calculate a confidence interval for
 \bold{Argument}\tab \bold{Method} \cr 
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-\code{method.tau.ci = ""}\tab No confidence interval
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007)
 }
-
 These methods have been recommended by Veroniki et al. (2016). By
 default, the Jackson method is used for the DerSimonian-Laird
 estimator of \eqn{\tau^2} and the Q-profile method for all other
-estimators of \eqn{\tau^2}.
+estimators of \eqn{\tau^2}. No confidence intervals for
+\eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
+""}.
 }
 
 \subsection{Hartung-Knapp method}{

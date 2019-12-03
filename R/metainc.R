@@ -229,13 +229,15 @@
 #' available:
 #' \itemize{
 #' \item Jackson method (\code{method.tau.ci = "J"})
-#' \item Biggerstaff and Jackson method (\code{method.tau = "BJ"})
+#' \item Biggerstaff and Jackson method (\code{method.tau.ci = "BJ"})
 #' \item Q-profile method (\code{method.tau.ci = "QP"})
 #' }
 #' See \code{\link{metagen}} for more information on these estimators
 #' and confidence intervals. For GLMMs, the maximum-likelihood method
 #' is utilized and no confidence intervals for \eqn{\tau^2} and
-#' \eqn{\tau} are calculated.
+#' \eqn{\tau} are calculated. In general, no confidence intervals for
+#' \eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
+#' ""}.
 #' 
 #' @return
 #' An object of class \code{c("metainc", "meta")} with corresponding
