@@ -13,15 +13,6 @@ cathet <- function(k,
                    big.mark) {
   
   
-  pasteCI <- function(lower, upper, digits, big.mark, char = "",
-                      sign.lower = "", sign.upper = "")
-    paste0(" ",
-           formatCI(paste0(sign.lower,
-                           formatN(lower, digits, big.mark = big.mark), char),
-                    paste0(sign.upper,
-                           formatN(upper, digits, big.mark = big.mark), char)))
-  
-  
   if (is.null(lower.tau2))
     lower.tau2 <- NA
   if (is.null(upper.tau2))
@@ -43,8 +34,7 @@ cathet <- function(k,
                         big.mark = big.mark),
                if (print.tau2.ci)
                  pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
-                         sign.lower = sign.lower.tau,
-                         sign.upper = sign.upper.tau)),
+                         sign.lower.tau, sign.upper.tau)),
       ##
       if (print.tau)
         paste0(if (print.tau2)
@@ -56,8 +46,7 @@ cathet <- function(k,
                         big.mark = big.mark),
                if (print.tau.ci)
                  pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
-                         sign.lower = sign.lower.tau,
-                         sign.upper = sign.upper.tau)),
+                         sign.lower.tau, sign.upper.tau)),
       ##
       if (print.I2)
         paste0(if (print.tau2 | print.tau)
@@ -72,7 +61,7 @@ cathet <- function(k,
                else
                  paste0(formatN(I2, digits.I2), "%"),
                if (print.I2.ci)
-                 pasteCI(lowI2, uppI2, digits.I2, big.mark, "%")
+                 pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%")
                ),
       ##
       if (print.H)
@@ -96,7 +85,7 @@ cathet <- function(k,
                else
                  paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%"),
                if (!(is.na(lowRb) | is.na(uppRb)))
-                 pasteCI(lowRb, uppRb, digits.I2, big.mark, "%")
+                 pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%")
                ),
       ##
       if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)

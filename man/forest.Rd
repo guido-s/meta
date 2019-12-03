@@ -127,7 +127,9 @@ forest(x, ...)
   print.I2 = comb.fixed | comb.random,
   print.I2.ci = FALSE,
   print.tau2 = comb.fixed | comb.random,
+  print.tau2.ci = FALSE,
   print.tau = FALSE,
+  print.tau.ci = FALSE,
   print.Q = FALSE,
   print.pval.Q = comb.fixed | comb.random,
   print.Rb = FALSE,
@@ -581,9 +583,15 @@ confidence interval of the I-squared statistic.}
 \item{print.tau2}{A logical value indicating whether to print the
 value of the between-study variance \eqn{\tau^2}.}
 
+\item{print.tau2.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau^2}.}
+
 \item{print.tau}{A logical value indicating whether to print
 \eqn{\tau}, the square root of the between-study variance
 \eqn{\tau^2}.}
+
+\item{print.tau.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau}.}
 
 \item{print.Q}{A logical value indicating whether to print the
 value of the heterogeneity statistic Q.}

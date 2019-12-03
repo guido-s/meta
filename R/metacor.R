@@ -748,17 +748,26 @@ metacor <- function(cor, n, studlab,
     ##
     if (!tau.common) {
       res <- c(res, subgroup(res))
-      res$tau.resid <- NA
+      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
+      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
     }
     else if (!is.null(tau.preset)) {
       res <- c(res, subgroup(res, tau.preset))
-      res$tau.resid <- NA
+      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
+      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
     }
     else {
       res <- c(res, subgroup(res, hcc$tau))
       res$Q.w.random <- hcc$Q
       res$df.Q.w.random <- hcc$df.Q
+      res$tau2.resid <- hcc$tau2
+      res$lower.tau2.resid <- hcc$lower.tau2
+      res$upper.tau2.resid <- hcc$upper.tau2
       res$tau.resid <- hcc$tau
+      res$lower.tau.resid <- hcc$lower.tau
+      res$upper.tau.resid <- hcc$upper.tau
+      res$sign.lower.tau.resid <- hcc$sign.lower.tau
+      res$sign.upper.tau.resid <- hcc$sign.upper.tau
     }
     ##
     if (!tau.common || method.tau == "DL") {

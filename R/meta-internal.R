@@ -79,6 +79,18 @@ setVar <- function(var = NULL, arg = NULL) {
 }
 
 
+pasteCI <- function(lower, upper, digits, big.mark,
+                    sign.lower = "", sign.upper = "", text.NA = "NA",
+                    unit = "")
+  paste0(" ",
+         formatCI(paste0(sign.lower,
+                         formatN(lower, digits, big.mark = big.mark,
+                                 text.NA = text.NA), unit),
+                  paste0(sign.upper,
+                         formatN(upper, digits, big.mark = big.mark,
+                                 text.NA = text.NA), unit)))
+
+
 .settings <- list()
 ##
 ## Set defaults (for internal options)

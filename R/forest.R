@@ -215,9 +215,13 @@
 #'   confidence interval of the I-squared statistic.
 #' @param print.tau2 A logical value indicating whether to print the
 #'   value of the between-study variance \eqn{\tau^2}.
+#' @param print.tau2.ci A logical value indicating whether to print
+#'   the confidence interval of \eqn{\tau^2}.
 #' @param print.tau A logical value indicating whether to print
 #'   \eqn{\tau}, the square root of the between-study variance
 #'   \eqn{\tau^2}.
+#' @param print.tau.ci A logical value indicating whether to print
+#'   the confidence interval of \eqn{\tau}.
 #' @param print.Q A logical value indicating whether to print the
 #'   value of the heterogeneity statistic Q.
 #' @param print.pval.Q A logical value indicating whether to print the
@@ -1266,7 +1270,9 @@ forest.meta <- function(x,
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
                         print.tau2 = comb.fixed | comb.random,
+                        print.tau2.ci = FALSE,
                         print.tau = FALSE,
+                        print.tau.ci = FALSE,
                         print.Q = FALSE,
                         print.pval.Q = comb.fixed | comb.random,
                         print.Rb = FALSE,
@@ -1568,10 +1574,14 @@ forest.meta <- function(x,
   chklogical(print.I2.ci)
   ##
   chklogical(print.tau2)
+  chklogical(print.tau2.ci)
   chklogical(print.tau)
+  chklogical(print.tau.ci)
   print.tau2.tau <- print.tau2 | print.tau
   if (print.tau2 & print.tau)
     print.tau2 <- FALSE
+  if (print.tau2.ci & print.tau.ci)
+    print.tau2.ci <- FALSE
   ##
   chklogical(print.Q)
   chklogical(print.pval.Q)
@@ -2880,6 +2890,13 @@ forest.meta <- function(x,
     pval.Q <- NA
     I2   <- NA
     tau2 <- NA
+    lower.tau2 <- NA
+    upper.tau2 <- NA
+    tau <- NA
+    lower.tau <- NA
+    upper.tau <- NA
+    sign.lower.tau <- ""
+    sign.upper.tau <- ""
     lowI2 <- NA
     uppI2 <- NA
     Rb   <- NA
@@ -2922,8 +2939,22 @@ forest.meta <- function(x,
     df.Q <- x$df.Q
     pval.Q <- replaceNULL(x$pval.Q, pvalQ(Q, df.Q))
     ##
-    tau2 <- x$tau^2
+    tau2 <- x$tau2
+    lower.tau2 <- x$lower.tau2
+    upper.tau2 <- x$upper.tau2
+    if (is.null(tau2)) {
+      tau2 <- x$tau^2
+      lower.tau2 <- upper.tau2 <- NA
+    }
     tau <- x$tau
+    lower.tau <- x$lower.tau
+    upper.tau <- x$upper.tau
+    sign.lower.tau <- x$sign.lower.tau
+    sign.upper.tau <- x$sign.lower.tau
+    if (is.null(lower.tau)) {
+      lower.tau <- upper.tau <- NA
+      sign.lower.tau <- sign.upper.tau <- ""
+    }
     ##
     I2 <- x$I2
     lowI2 <- x$lower.I2
@@ -2944,8 +2975,23 @@ forest.meta <- function(x,
       df.Q.resid <- x$df.Q.w
       pval.Q.resid <- replaceNULL(x$pval.Q.w.fixed,
                                   pvalQ(x$Q.w.fixed, x$df.Q.w))
-      tau2.resid <- x$tau.resid^2
+      ##
+      tau2.resid <- x$tau2.resid
+      lower.tau2.resid <- x$lower.tau2.resid
+      upper.tau2.resid <- x$upper.tau2.resid
+      if (is.null(tau2.resid)) {
+        tau2.resid <- x$tau.resid^2
+        lower.tau2.resid <- upper.tau2.resid <- NA
+      }
       tau.resid <- x$tau.resid
+      lower.tau.resid <- x$lower.tau.resid
+      upper.tau.resid <- x$upper.tau.resid
+      sign.lower.tau.resid <- x$sign.lower.tau.resid
+      sign.upper.tau.resid <- x$sign.lower.tau.resid
+      if (is.null(lower.tau.resid)) {
+        lower.tau.resid <- upper.tau.resid <- NA
+        sign.lower.tau.resid <- sign.upper.tau.resid <- ""
+      }
       ##
       I2.resid <- x$I2.resid
       lowI2.resid <- x$lower.I2.resid
@@ -2958,35 +3004,36 @@ forest.meta <- function(x,
   if (overall.hetstat || is.character(hetstat)) {
     ##
     hetstat.I2 <-
-      paste(hetseparator,
-            formatN(round(100 * I2, digits.I2),
-                    digits.I2, "NA"), "%",
-            if (print.I2.ci & !(is.na(lowI2) | is.na(uppI2)))
-              paste(" ",
-                    formatCI(paste(formatN(round(100 * lowI2, digits.I2),
-                                           digits.I2, lab.NA),
-                                   "%", sep = ""),
-                             paste(formatN(round(100 * uppI2, digits.I2),
-                                           digits.I2, lab.NA),
-                                   "%", sep = "")),
-                    sep = ""),
-            sep = "")
+      paste0(hetseparator,
+             formatN(round(100 * I2, digits.I2),
+                     digits.I2, "NA"), "%",
+             if (print.I2.ci & !(is.na(lowI2) | is.na(uppI2)))
+               paste0(" ",
+                      formatCI(paste0(formatN(round(100 * lowI2, digits.I2),
+                                             digits.I2, lab.NA), "%"),
+                               paste0(formatN(round(100 * uppI2, digits.I2),
+                                              digits.I2, lab.NA), "%"))))
     ##
     hetstat.tau2 <-
-      formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
-               lab = TRUE, labval = "", lab.NA = "NA")
+      paste0(formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
+                      lab = TRUE, labval = "", lab.NA = "NA"),
+             if (print.tau2.ci & !(is.na(lower.tau2) | is.na(upper.tau2)))
+               pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
+                       sign.lower.tau, sign.upper.tau, lab.NA))
     ##
     hetstat.tau <-
-      formatPT(tau, digits = digits.tau, big.mark = big.mark,
-               lab = TRUE, labval = "", lab.NA = "NA")
+      paste0(formatPT(tau, digits = digits.tau, big.mark = big.mark,
+                      lab = TRUE, labval = "", lab.NA = "NA"),
+             if (print.tau.ci & !(is.na(lower.tau) | is.na(upper.tau)))
+               pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
+                       sign.lower.tau, sign.upper.tau, lab.NA))
     ##
     hetstat.Q <-
-      paste(hetseparator,
-            formatN(round(Q, digits.Q), digits.Q, "NA", big.mark = big.mark),
-            if (revman5) ", df",
-            if (revman5) hetseparator,
-            if (revman5) df.Q,
-            sep = "")
+      paste0(hetseparator,
+             formatN(round(Q, digits.Q), digits.Q, "NA", big.mark = big.mark),
+             if (revman5) ", df",
+             if (revman5) hetseparator,
+             if (revman5) df.Q)
     ##
     hetstat.pval.Q <-
       formatPT(pval.Q,
@@ -3507,11 +3554,21 @@ forest.meta <- function(x,
             sep = "")
     ##
     hetstat.tau2.resid <-
-      formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
-               lab = TRUE, labval = "", lab.NA = "NA")
+      paste0(formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
+                      lab = TRUE, labval = "", lab.NA = "NA"),
+             if (print.tau2.ci &
+                 !(is.na(lower.tau2.resid) | is.na(upper.tau2.resid)))
+               pasteCI(lower.tau2.resid, upper.tau2.resid, digits.tau2,
+                       big.mark,
+                       sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
     hetstat.tau.resid <-
-      formatPT(tau.resid, digits = digits.tau, big.mark = big.mark,
-               lab = TRUE, labval = "", lab.NA = "NA")
+      paste0(formatPT(tau.resid, digits = digits.tau, big.mark = big.mark,
+                      lab = TRUE, labval = "", lab.NA = "NA"),
+             if (print.tau.ci &
+                 !(is.na(lower.tau.resid) | is.na(upper.tau.resid)))
+               pasteCI(lower.tau.resid, upper.tau.resid, digits.tau,
+                       big.mark,
+                       sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
     ##
     hetstat.Q.resid <-
       paste(hetseparator,
@@ -4404,7 +4461,16 @@ forest.meta <- function(x,
     Rb.w       <- x$Rb.w[o]
     lowRb.w    <- x$lower.Rb.w[o]
     uppRb.w    <- x$upper.Rb.w[o]
-    tau.w      <- x$tau.w[o]
+    ##
+    tau2.w <- x$tau2.w[o]
+    lower.tau2.w <- x$lower.tau2.w[o]
+    upper.tau2.w <- x$upper.tau2.w[o]
+    tau.w <- x$tau.w[o]
+    lower.tau.w <- x$lower.tau.w[o]
+    upper.tau.w <- x$upper.tau.w[o]
+    sign.lower.tau.w <- x$sign.lower.tau.w[o]
+    sign.upper.tau.w <- x$sign.upper.tau.w[o]
+    ##
     w.fixed.w  <- x$w.fixed.w[o]
     w.random.w <- x$w.random.w[o]
     e.e.w <- if (metaprop | metarate) x$event.w[o] else x$event.e.w[o]
@@ -4437,7 +4503,16 @@ forest.meta <- function(x,
     Rb.w       <- Rb.w[sel]
     lowRb.w    <- lowRb.w[sel]
     uppRb.w    <- uppRb.w[sel]
-    tau.w      <- tau.w[sel]
+    ##
+    tau2.w <- tau2.w[sel]
+    lower.tau2.w <- lower.tau2.w[sel]
+    upper.tau2.w <- upper.tau2.w[sel]
+    tau.w <- tau.w[sel]
+    lower.tau.w <- lower.tau.w[sel]
+    upper.tau.w <- upper.tau.w[sel]
+    sign.lower.tau.w <- sign.lower.tau.w[sel]
+    sign.upper.tau.w <- sign.upper.tau.w[sel]
+    ##
     w.fixed.w  <- w.fixed.w[sel]
     w.random.w <- w.random.w[sel]
     e.e.w <- e.e.w[sel]
@@ -4528,20 +4603,29 @@ forest.meta <- function(x,
               sep = "")
       ##
       hetstat.tau2.w <-
-        paste(hetseparator,
-              ifelse(is.na(tau.w), "NA",
-              ifelse(tau.w == 0, "0",
-                     formatPT(tau.w^2, digits = digits.tau2,
-                              big.mark = big.mark, lab.NA = "NA"))),
-              sep = "")
+        paste0(hetseparator,
+               ifelse(is.na(tau.w), "NA",
+               ifelse(tau2.w == 0, "0",
+                      formatPT(tau2.w, digits = digits.tau2,
+                               big.mark = big.mark, lab.NA = "NA"))),
+               if (print.tau2.ci)
+                 ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
+                        pasteCI(lower.tau2.w, upper.tau2.w,
+                                digits.tau2, big.mark,
+                                sign.lower.tau, sign.upper.tau, lab.NA),
+                        ""))
       ##
       hetstat.tau.w <-
-        paste(hetseparator,
-              ifelse(is.na(tau.w), "NA",
-              ifelse(tau.w == 0, "0",
-                     formatPT(tau.w, digits = digits.tau,
-                              big.mark = big.mark, lab.NA = "NA"))),
-              sep = "")
+        paste0(hetseparator,
+               ifelse(is.na(tau.w), "NA",
+               ifelse(tau.w == 0, "0",
+                      formatPT(tau.w, digits = digits.tau,
+                               big.mark = big.mark, lab.NA = "NA"))),
+               if (print.tau.ci)
+                 ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
+                        pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
+                                sign.lower.tau, sign.upper.tau, lab.NA),
+                        ""))
       ##
       hetstat.Q.w <-
         paste(hetseparator,

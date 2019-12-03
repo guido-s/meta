@@ -506,7 +506,8 @@ update.meta <- function(object,
   }
   ##
   if (is.null(object$data)) {
-    warning("Necessary data not available. Please, recreate meta-analysis object without option 'keepdata = FALSE'.")
+    warning("Necessary data not available. Please, recreate ",
+            "meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
   ##
@@ -535,6 +536,8 @@ update.meta <- function(object,
       byvar.name <- "byvar"
     ##
     bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+    ##
+    data$.byvar <- byvar
   }
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],

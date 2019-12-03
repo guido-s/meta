@@ -57,6 +57,8 @@
 
   * update.meta():
     - by default, do not print warnings (argument 'warn')
+    - add information on variable defining subgroups (argument
+      'byvar') to meta-analysis dataset
 
   * Command 'settings.meta("JAMA")' will change the settings for
     arguments 'zero.pval' and 'JAMA.pval'
