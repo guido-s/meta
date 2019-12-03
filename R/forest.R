@@ -3008,11 +3008,10 @@ forest.meta <- function(x,
              formatN(round(100 * I2, digits.I2),
                      digits.I2, "NA"), "%",
              if (print.I2.ci & !(is.na(lowI2) | is.na(uppI2)))
-               paste0(" ",
-                      formatCI(paste0(formatN(round(100 * lowI2, digits.I2),
-                                             digits.I2, lab.NA), "%"),
-                               paste0(formatN(round(100 * uppI2, digits.I2),
-                                              digits.I2, lab.NA), "%"))))
+               pasteCI(100 * lowI2, 100 * uppI2,
+                       digits.I2, big.mark,
+                       sign.lower.tau, sign.upper.tau, lab.NA,
+                       "%"))
     ##
     hetstat.tau2 <-
       paste0(formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
@@ -3044,16 +3043,15 @@ forest.meta <- function(x,
                lab.NA = "NA")
     ##
     hetstat.Rb <-
-      paste(hetseparator,
-            formatN(round(100 * Rb, digits.I2),
-                    digits.I2, "NA", big.mark = big.mark),
-            "%",
-            if (print.Rb.ci & !(is.na(lowRb) | is.na(uppRb)))
-              paste(" ",
-                    formatCI(paste(round(100 * lowRb, digits.I2), "%", sep = ""),
-                             paste(round(100 * uppRb, digits.I2), "%", sep = "")),
-                    sep = ""),
-            sep = "")
+      paste0(hetseparator,
+             formatN(round(100 * Rb, digits.I2),
+                     digits.I2, "NA", big.mark = big.mark),
+             "%",
+             if (print.Rb.ci & !(is.na(lowRb) | is.na(uppRb)))
+               pasteCI(100 * lowRb, 100 * uppRb,
+                       digits.I2, big.mark,
+                       sign.lower.tau, sign.upper.tau, lab.NA,
+                       "%"))
     ##
     ## Remove superfluous spaces
     ##
@@ -3539,19 +3537,14 @@ forest.meta <- function(x,
   if (resid.hetstat) {
     ##
     hetstat.I2.resid <-
-      paste(hetseparator,
-            formatN(round(100 * I2.resid, digits.I2),
-                    digits.I2, "NA"), "%",
-            if (print.I2.ci & !(is.na(lowI2.resid) | is.na(uppI2.resid)))
-              paste(" ",
-                    formatCI(paste(formatN(round(100 * lowI2.resid, digits.I2),
-                                           digits.I2, lab.NA),
-                                   "%", sep = ""),
-                             paste(formatN(round(100 * uppI2.resid, digits.I2),
-                                           digits.I2, lab.NA),
-                                   "%", sep = "")),
-                    sep = ""),
-            sep = "")
+      paste0(hetseparator,
+             formatN(round(100 * I2.resid, digits.I2),
+                     digits.I2, "NA"), "%",
+             if (print.I2.ci & !(is.na(lowI2.resid) | is.na(uppI2.resid)))
+               pasteCI(100 * lowI2.resid, 100 * uppI2.resid,
+                       digits.I2, big.mark,
+                       sign.lower.tau.resid, sign.upper.tau.resid, lab.NA,
+                       "%"))
     ##
     hetstat.tau2.resid <-
       paste0(formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
@@ -4591,16 +4584,15 @@ forest.meta <- function(x,
     if (is.character(hetstat) || hetstat) {
       ##
       hetstat.I2.w <-
-        paste(hetseparator,
-              round(100 * I2.w, digits.I2), "%",
-              if (print.I2.ci)
-                ifelse(!(is.na(lowI2.w) | is.na(uppI2.w)),
-                       paste(" ",
-                             formatCI(paste(round(100 * lowI2.w, digits.I2), "%", sep = ""),
-                                      paste(round(100 * uppI2.w, digits.I2), "%", sep = "")),
-                             sep = ""),
-                       ""),
-              sep = "")
+        paste0(hetseparator,
+               round(100 * I2.w, digits.I2), "%",
+               if (print.I2.ci)
+                 ifelse(!(is.na(lowI2.w) | is.na(uppI2.w)),
+                        pasteCI(100 * lowI2.w, 100 * uppI2.w,
+                                digits.I2, big.mark,
+                                sign.lower.tau.w, sign.upper.tau.w, lab.NA,
+                                "%"),
+                        ""))
       ##
       hetstat.tau2.w <-
         paste0(hetseparator,
@@ -4612,7 +4604,7 @@ forest.meta <- function(x,
                  ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
                         pasteCI(lower.tau2.w, upper.tau2.w,
                                 digits.tau2, big.mark,
-                                sign.lower.tau, sign.upper.tau, lab.NA),
+                                sign.lower.tau.w, sign.upper.tau.w, lab.NA),
                         ""))
       ##
       hetstat.tau.w <-
@@ -4624,7 +4616,7 @@ forest.meta <- function(x,
                if (print.tau.ci)
                  ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
                         pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
-                                sign.lower.tau, sign.upper.tau, lab.NA),
+                                sign.lower.tau.w, sign.upper.tau.w, lab.NA),
                         ""))
       ##
       hetstat.Q.w <-
@@ -4645,16 +4637,15 @@ forest.meta <- function(x,
               sep = "")
       ##
       hetstat.Rb.w <-
-        paste(hetseparator,
-              round(100 * Rb.w, digits.I2), "%",
-              if (print.Rb.ci)
-                ifelse(!(is.na(lowRb.w) | is.na(uppRb.w)),
-                       paste(" ",
-                             formatCI(paste(round(100 * lowRb.w, digits.I2), "%", sep = ""),
-                                      paste(round(100 * uppRb.w, digits.I2), "%", sep = "")),
-                             sep = ""),
-                       ""),
-              sep = "")
+        paste0(hetseparator,
+               round(100 * Rb.w, digits.I2), "%",
+               if (print.Rb.ci)
+                 ifelse(!(is.na(lowRb.w) | is.na(uppRb.w)),
+                        pasteCI(100 * lowRb.w, 100 * uppRb.w,
+                                digits.I2, big.mark,
+                                sign.lower.tau.w, sign.upper.tau.w, lab.NA,
+                                "%"),
+                        ""))
       ##
       ## Remove superfluous spaces
       ##

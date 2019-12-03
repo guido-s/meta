@@ -82,6 +82,8 @@
   * Import confint.rma.uni() from metafor to calculate confidence
     intervals for tau and tau2
 
+  * new internal function pasteCI() to print formatted CIs
+
 
 *** meta, version 4.9-7, 2019-09-27 ***
 

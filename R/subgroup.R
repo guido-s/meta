@@ -35,6 +35,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   
   
   res.w <- matrix(NA, ncol = 34, nrow = n.bylevs)
+  add.w <- matrix(NA, ncol =  2, nrow = n.bylevs)
   j <- 0
   ##
   for (i in bylevs) {
@@ -202,6 +203,10 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    meta1$lower.Rb,                            # 33
                    meta1$upper.Rb                             # 34
                    )
+    ##
+    add.w[j, ] <- c(meta1$sign.lower.tau, # 1
+                    meta1$sign.upper.tau  # 2
+                    )
   }
   ##
   TE.fixed.w    <- res.w[, 1]
@@ -226,6 +231,9 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   tau.w <- res.w[, 17]
   lower.tau.w <- res.w[, 18]
   upper.tau.w <- res.w[, 19]
+  ##
+  sign.lower.tau.w <- add.w[, 1]
+  sign.upper.tau.w <- add.w[, 2]
   ##
   n.harmonic.mean.w <- res.w[, 20]
   ##
@@ -343,6 +351,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
     tau.w <- rep_len(sqrt(glmm.random$tau2), n.bylevs)
     lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
+    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
     ##
     Rb.w     <- rep_len(NA, n.bylevs)
     Rb.w.low <- rep_len(NA, n.bylevs)
@@ -428,6 +437,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
               tau.w = tau.w,
               lower.tau.w = lower.tau.w,
               upper.tau.w = upper.tau.w,
+              sign.lower.tau.w = sign.lower.tau.w,
+              sign.upper.tau.w = sign.upper.tau.w,
               ##
               H.w = H.w,
               lower.H.w = H.w.low,
