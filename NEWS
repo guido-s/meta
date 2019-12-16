@@ -1,24 +1,25 @@
-*** meta, version 4.9-8, 2019-mm-dd ***
+*** meta, version 4.9-8, 2019-12-16 ***
 
  ** Major changes **
 
-  * Use R package metafor to estimate between-study variance for
-    DerSimonian-Laird and Paule-Mandel method (which has been already
-    used for all other methods to estimate the between-study variance)
-
   * Confidence intervals for the between-study variance tau2 and its
     square root tau are calculated
-
-  * For Mantel-Haenszel (MH) method, report results as MH method
-    (instead of inverse variance, IV) for meta-analysis of binary
-    outcome with a single study (results are identical for MH and IV
-    method in this situation)
 
   * Print tau as well as confidence intervals for tau2 and tau in
     outputs
 
   * Square root of between-study variance can be printed in forest
-    plots instead of between-study variance
+    plots instead of between-study variance tau2; in addition, the
+    confidence interval for tau2 or tau can be printed
+
+  * Use R package metafor to estimate between-study variance tau2 for
+    DerSimonian-Laird and Paule-Mandel method (which has been already
+    used for all other methods to estimate tau2)
+
+  * For Mantel-Haenszel (MH) method, report results as MH method
+    (instead of inverse variance, IV) for meta-analysis of binary
+    outcome with a single study (results are identical for MH and IV
+    method in this situation)
 
   * Number of studies printed without digits in forest plots for R
     objects created with metabind()
@@ -28,11 +29,10 @@
   * In subgroup analyses, print the group labels instead of levels if
     the grouping variable is a factor
 
-  * funnel.meta():
-    - print funnel around random effects estimate if only random
-      effects estimate is shown (instead of fixed effect estimate)
-    - by (new) default, only show funnel if either fixed effect or
-      random effects meta-analysis was conducted
+  * In funnel plot, print funnel around random effects (instead of
+    fixed effect) estimate if only random effects meta-analysis is
+    conducted; only show funnel if either fixed effect or random
+    effects meta-analysis was conducted
 
   * Change preferred citation of R package meta from Schwarzer (2007)
     to Balduzzi et al. (2019), DOI: 10.1136/ebmental-2019-300117
@@ -65,7 +65,7 @@
 
   * Help page with description of R package updated
 
-  * Major update of help pages:
+  * Major update of other help pages:
     metacont(), metacor(), and metamean()
 
  ** Internal changes **
@@ -80,9 +80,11 @@
     between-study variance) removed from meta-analysis objects
 
   * Import confint.rma.uni() from metafor to calculate confidence
-    intervals for tau and tau2
+    intervals for tau2 and tau
 
   * new internal function pasteCI() to print formatted CIs
+
+  * new internal function is.wholenumber() to check for whole numbers
 
 
 *** meta, version 4.9-7, 2019-09-27 ***

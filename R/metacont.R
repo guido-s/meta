@@ -838,7 +838,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     var.pooled <- ((n.e - 1) * sd.e^2 + (n.c - 1) * sd.c^2) / (N - 2)
   ##
   if (any(npn.n) & warn)
-    warning("Studies with non-positive values for n.e and / or n.c get no weight in meta-analysis.")
+    warning("Note, studies with non-positive values for n.e and / or n.c get no weight in meta-analysis.")
   ##
   if (sm == "MD") {
     TE <- ifelse(npn.n, NA, mean.e - mean.c)
@@ -915,7 +915,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     npn.mean <- npn(mean.e) | npn(mean.c)
     ##
     if (any(npn.mean) & warn)
-      warning("Studies with negative or zero means get no weight in meta-analysis.")
+      warning("Note, studies with negative or zero means get no weight in meta-analysis.")
 
     TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / mean.c))
     ##
@@ -934,7 +934,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   sel <- sd.e <= 0 | sd.c <= 0
   ##
   if (any(sel, na.rm = TRUE) & warn)
-    warning("Studies with non-positive values for sd.e or sd.c get no weight in meta-analysis.")
+    warning("Note, studies with non-positive values for sd.e or sd.c get no weight in meta-analysis.")
   ##
   seTE[sel] <- NA
   ##

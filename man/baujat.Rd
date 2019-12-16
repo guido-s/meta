@@ -117,6 +117,7 @@ m1 <- metabin(event.e, n.e, event.c, n.c, data = Olkin95,
 # Generate Baujat plot
 baujat(m1)
 
+\dontrun{
 # Do not print study labels if the x-value is smaller than 4 and
 # the y-value is smaller than 1
 baujat(m1, yscale = 10, xmin = 4, ymin = 1)
@@ -132,6 +133,7 @@ b1 <- baujat(m1)
 # Calculate overall heterogeneity statistic
 sum(b1$x)
 m1$Q
+}
 
 }
 \references{

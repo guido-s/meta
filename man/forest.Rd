@@ -1251,12 +1251,12 @@ forest(m1, rightcols = FALSE)
 #
 forest(m1, comb.random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 
-# Just give effect estimate and 95% confidence interval on right
+# Just give effect estimate and 95\% confidence interval on right
 # side of forest plot (in one column)
 #
 forest(m1, rightcols = c("effect.ci"))
 
-# Just give effect estimate and 95% confidence interval on right
+# Just give effect estimate and 95\% confidence interval on right
 # side of forest plot
 #
 forest(m1, rightcols = c("effect", "ci"))
@@ -1276,16 +1276,14 @@ forest(m1,
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
                     "author", "year"),
-       leftlabs = c("Author", "Year of Publ"),
-       digits.addcols = c(NA, 0))
+       leftlabs = c("Author", "Year of Publ"))
 
 # Center text in all columns
 #
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
                     "author", "year"),
-       leftlabs = c("Author", "Year of Publ"),
-       digits.addcols = c(NA, 0), hetstat = FALSE,
+       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
        just = "center", just.addcols = "center", just.studlab = "center")
 
 # Same result
@@ -1293,8 +1291,7 @@ forest(m1,
 forest(m1,
        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
                   "author", "year"),
-       leftlabs = c("Author", "Year of Publ"),
-       digits.addcols = c(NA, 0), hetstat = FALSE,
+       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
        just = "c", just.addcols = "c", just.studlab = "c")
 
 # Change some fontsizes and fontfaces

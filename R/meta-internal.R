@@ -91,6 +91,16 @@ pasteCI <- function(lower, upper, digits, big.mark,
                                  text.NA = text.NA), unit)))
 
 
+is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
+  if (is.numeric(x))
+    res <- abs(x - round(x)) < tol
+  else
+    res <- NA
+  ##
+  res
+}
+
+
 .settings <- list()
 ##
 ## Set defaults (for internal options)

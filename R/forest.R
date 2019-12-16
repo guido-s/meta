@@ -843,16 +843,14 @@
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"),
-#'        digits.addcols = c(NA, 0))
+#'        leftlabs = c("Author", "Year of Publ"))
 #' 
 #' # Center text in all columns
 #' #
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"),
-#'        digits.addcols = c(NA, 0), hetstat = FALSE,
+#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
 #'        just = "center", just.addcols = "center", just.studlab = "center")
 #' 
 #' # Same result
@@ -860,8 +858,7 @@
 #' forest(m1,
 #'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"),
-#'        digits.addcols = c(NA, 0), hetstat = FALSE,
+#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
 #'        just = "c", just.addcols = "c", just.studlab = "c")
 #' 
 #' # Change some fontsizes and fontfaces
@@ -1731,8 +1728,13 @@ forest.meta <- function(x,
     chknumeric(digits.sd, min = 0, single = TRUE)
   if (!missing(digits.cor))
     chknumeric(digits.cor, min = 0, single = TRUE)
-  if (!missing(digits.time))
+  missing.digits.time <- missing(digits.time)
+  if (!missing.digits.time)
     chknumeric(digits.time, min = 0, single = TRUE)
+  missing.addcols.left <-
+    missing(digits.addcols) & missing(digits.addcols.left)
+  missing.addcols.right <-
+    missing(digits.addcols) & missing(digits.addcols.right)
   if (!missing(digits.addcols))
     chknumeric(digits.addcols, min = 0)
   if (!missing(digits.addcols.right))
@@ -6276,18 +6278,19 @@ forest.meta <- function(x,
   Ec.format <- ifelse(is.na(Ec), lab.NA, format(Ec, scientific = FALSE,
                                                 big.mark = big.mark))
   ##
-  if (is.null(digits.time)) {
+  if (all(is.wholenumber(Te), na.rm = TRUE) & missing.digits.time)
     Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific = FALSE,
                                                   big.mark = big.mark))
+  else
+    Te.format <- formatN(round(Te, digits.time), digits.time, lab.NA,
+                         big.mark = big.mark)
+  ##
+  if (all(is.wholenumber(Tc), na.rm = TRUE) & missing.digits.time)
     Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific = FALSE,
                                                   big.mark = big.mark))
-  }
-  else {
-    Te.format <- formatN(round(Te, digits.mean), digits.mean, lab.NA,
+  else
+    Tc.format <- formatN(round(Tc, digits.time), digits.time, lab.NA,
                          big.mark = big.mark)
-    Tc.format <- formatN(round(Tc, digits.mean), digits.mean, lab.NA,
-                         big.mark = big.mark)
-  }
   ##
   ## Print nothing in line with prediction interval
   ##
@@ -7116,11 +7119,19 @@ forest.meta <- function(x,
           tmp.r <- dataset1[[rightcols.new[i]]]
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset2[[rightcols.new[i]]]
-        if (is.factor(tmp.r))
-          tmp.r <- as.character(tmp.r)
-        else if (is.numeric(tmp.r))
-          tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                           text.NA = "", big.mark = big.mark)
+        ##
+        if (!is.character(tmp.l)) {
+          if (is.factor(tmp.r))
+            tmp.r <- as.character(tmp.r)
+          else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
+            tmp.r <- ifelse(is.na(tmp.r), lab.NA,
+                            format(tmp.r, scientific = FALSE,
+                                   big.mark = big.mark))
+          else if (is.numeric(tmp.r))
+            tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                             text.NA = "", big.mark = big.mark)
+        }
+        ##
         tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
         ##
         ## Check for "\n" in label of new column
@@ -7150,11 +7161,19 @@ forest.meta <- function(x,
           tmp.l <- dataset1[[leftcols.new[i]]]        
         else if (length(dataset2[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset2[[leftcols.new[i]]]
-        if (is.factor(tmp.l))
-          tmp.l <- as.character(tmp.l)
-        else if (is.numeric(tmp.l))
-          tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                           text.NA = "", big.mark = big.mark)
+        ##
+        if (!is.character(tmp.l)) {
+          if (is.factor(tmp.l))
+            tmp.l <- as.character(tmp.l)
+          else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
+            tmp.l <- ifelse(is.na(tmp.l), lab.NA,
+                            format(tmp.l, scientific = FALSE,
+                                   big.mark = big.mark))
+          else if (is.numeric(tmp.l))
+            tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                             text.NA = "", big.mark = big.mark)
+        }
+        ##
         tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
         ##
         ## Check for "\n" in label of new column
@@ -7190,11 +7209,19 @@ forest.meta <- function(x,
           tmp.r <- dataset1[[rightcols.new[i]]]
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset2[[rightcols.new[i]]]
-        if (is.factor(tmp.r))
-          tmp.r <- as.character(tmp.r)
-        else if (is.numeric(tmp.r))
-          tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                           text.NA = "", big.mark = big.mark)
+        ##
+        if (!is.character(tmp.l)) {
+          if (is.factor(tmp.r))
+            tmp.r <- as.character(tmp.r)
+          else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
+            tmp.r <- ifelse(is.na(tmp.r), lab.NA,
+                            format(tmp.r, scientific = FALSE,
+                                   big.mark = big.mark))
+          else if (is.numeric(tmp.r))
+            tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                             text.NA = "", big.mark = big.mark)
+        }
+        ##
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
         ##
         ## Check for "\n" in label of new column
@@ -7225,11 +7252,18 @@ forest.meta <- function(x,
           tmp.l <- dataset1[[leftcols.new[i]]]        
         else if (length(dataset2[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset2[[leftcols.new[i]]]
-        if (is.factor(tmp.l))
-          tmp.l <- as.character(tmp.l)
-        else if (is.numeric(tmp.l))
-          tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                           text.NA = "", big.mark = big.mark)
+        ##
+        if (!is.character(tmp.l)) {
+          if (is.factor(tmp.l))
+            tmp.l <- as.character(tmp.l)
+          else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
+            tmp.l <- ifelse(is.na(tmp.l), lab.NA,
+                            format(tmp.l, scientific = FALSE,
+                                   big.mark = big.mark))
+          else if (is.numeric(tmp.l))
+            tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                             text.NA = "", big.mark = big.mark)
+        }
         ##
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
         ##
