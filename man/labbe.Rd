@@ -40,6 +40,7 @@ labbe(x, ...)
   weight,
   studlab = FALSE,
   cex.studlab = 0.8,
+  pos.studlab = 2,
   label.e = NULL,
   label.c = NULL,
   ...
@@ -76,6 +77,7 @@ labbe(x, ...)
   weight,
   studlab = FALSE,
   cex.studlab = 0.8,
+  pos.studlab = 2,
   label.e = x$label.e,
   label.c = x$label.c,
   ...
@@ -168,6 +170,9 @@ printed in the graph. A vector with study labels can also be
 provided (must be of same length as \code{x$event.e} then).}
 
 \item{cex.studlab}{Size of study labels.}
+
+\item{pos.studlab}{Position of study labels, see argument
+\code{pos} in \code{\link{text}}.}
 
 \item{label.e}{Label for experimental group.}
 
