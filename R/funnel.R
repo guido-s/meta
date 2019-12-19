@@ -204,7 +204,8 @@ funnel.default <- function(x, y,
                            log = "", yaxis = "se", sm = "",
                            contour.levels = NULL, col.contour,
                            ##
-                           ref = ifelse(backtransf & is.relative.effect(sm), 1, 0),
+                           ref = ifelse(backtransf & is.relative.effect(sm),
+                                        1, 0),
                            ##
                            level = NULL,
                            studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
@@ -257,12 +258,14 @@ funnel.default <- function(x, y,
                 col.fixed = col.fixed, col.random = col.random,
                 ##
                 log = log, yaxis = yaxis,
-                contour.levels = contour.levels, if (!missing(col.contour)) col.contour = col.contour,
+                contour.levels = contour.levels,
+                if (!missing(col.contour)) col.contour = col.contour,
                 ##
                 ref = ref,
                 ##
                 level = level,
-                studlab = studlab, cex.studlab = cex.studlab, pos.studlab = pos.studlab,
+                studlab = studlab, cex.studlab = cex.studlab,
+                pos.studlab = pos.studlab,
                 ##
                 backtransf = backtransf,
                 ...)
@@ -288,7 +291,8 @@ funnel.meta <- function(x,
                         comb.fixed = x$comb.fixed, comb.random = x$comb.random,
                         ##
                         axes = TRUE,
-                        pch = if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
+                        pch = if (!inherits(x, "trimfill"))
+                                21 else ifelse(x$trimfill, 1, 21),
                         text = NULL, cex = 1,
                         lty.fixed = 2, lty.random = 9,
                         lwd = 1, lwd.fixed = lwd, lwd.random = lwd,
@@ -298,7 +302,8 @@ funnel.meta <- function(x,
                         log = "", yaxis = "se",
                         contour.levels = NULL, col.contour,
                         ##
-                        ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+                        ref = ifelse(backtransf & is.relative.effect(x$sm),
+                                     1, 0),
                         ##
                         level = if (comb.fixed | comb.random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
@@ -508,7 +513,7 @@ funnel.meta <- function(x,
   if (is.null(ylim) & yaxis == "se") ylim <- c(max(weight, na.rm = TRUE), 0)
   if (is.null(ylim)              ) ylim <- range(weight, na.rm = TRUE)
   
-
+  
   ##
   ##
   ## (5) Produce funnel plot
@@ -529,7 +534,8 @@ funnel.meta <- function(x,
         col.contour <- gray(seq(0.5, 0.9, len = length(contour.levels)))
     ##
     if (length(contour.levels) != length(col.contour))
-      stop("arguments 'contour.levels' and 'col.contour' must be of the same length")
+      stop("Arguments 'contour.levels' and 'col.contour' must be of ",
+           "the same length.")
     ##
     seTE.cont <- seq(seTE.max, seTE.min, length.out = 500)
     ##
@@ -638,13 +644,16 @@ funnel.meta <- function(x,
   ## Add results for meta-analysis
   ##
   if (comb.fixed)
-    lines(c(TE.fixed, TE.fixed), range(ylim), lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
+    lines(c(TE.fixed, TE.fixed), range(ylim),
+          lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
   ##
   if (comb.random)
-    lines(c(TE.random, TE.random), range(ylim), lty = lty.random, lwd = lwd.random, col = col.random)
+    lines(c(TE.random, TE.random), range(ylim),
+          lty = lty.random, lwd = lwd.random, col = col.random)
   ##
   if (ref.triangle)
-    lines(c(ref, ref), range(ylim), lty = lty.ref, lwd = lwd.ref, col = col.ref)
+    lines(c(ref, ref), range(ylim),
+          lty = lty.ref, lwd = lwd.ref, col = col.ref)
   ##
   ## Add approximate confidence intervals
   ##
@@ -664,15 +673,19 @@ funnel.meta <- function(x,
                col = col.lines)
       }
       else if (yaxis == "invvar") {
-        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.lines, lwd = lwd.lines,
+        points(tlow, 1 / seTE.seq^2, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
-        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.lines, lwd = lwd.lines,
+        points(tupp, 1 / seTE.seq^2, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
       }
       else if (yaxis == "invse") {
-        points(tlow, 1 / seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+        points(tlow, 1 / seTE.seq, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
-        points(tupp, 1 / seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
+        points(tupp, 1 / seTE.seq, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
       }
     }
@@ -705,7 +718,7 @@ funnel.meta <- function(x,
   ## Add study labels
   ##
   if (!is.logical(studlab) && length(studlab) > 0)
-    text(TE, weight, labels = studlab, pos = pos.studlab, cex = cex.studlab)  
+    text(TE, weight, labels = studlab, pos = pos.studlab, cex = cex.studlab) 
   
   
   ##

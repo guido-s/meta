@@ -1,3 +1,23 @@
+*** meta, version 4.9-9, 2019-12-19 ***
+
+ ** Bug fixes **
+
+  * forest.meta():
+    - printing an additional column on the right side of the forest
+      plot does not result in an error (bug was introduced in meta,
+      version 4.9-8)
+
+ ** User-visible changes **
+
+  * labbe():
+    - new argument 'pos.studlab'
+    - argument checks implemented
+
+  * baujat(), bubble():
+    - argument 'pos' renamed to 'pos.studlab'
+    - argument checks implemented
+
+
 *** meta, version 4.9-8, 2019-12-16 ***
 
  ** Major changes **

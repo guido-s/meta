@@ -20,10 +20,10 @@ baujat(x, ...)
   bg = "darkgray",
   studlab = TRUE,
   cex.studlab = 0.8,
+  pos.studlab = 2,
+  offset = 0.5,
   xmin = 0,
   ymin = 0,
-  pos = 2,
-  offset = 0.5,
   grid = TRUE,
   col.grid = "lightgray",
   lty.grid = "dotted",
@@ -63,16 +63,16 @@ provided (must be of same length as \code{x$TE} then).}
 
 \item{cex.studlab}{The magnification for study labels.}
 
+\item{pos.studlab}{Position of study labels, see argument
+\code{pos} in \code{\link{text}}.}
+
+\item{offset}{Offset for study labels (see \code{\link{text}}).}
+
 \item{xmin}{A numeric specifying minimal value to print study
 labels (on x-axis).}
 
 \item{ymin}{A numeric specifying minimal value to print study
 labels (on y-axis).}
-
-\item{pos}{A position specifier for study labels (see
-\code{\link{text}}).}
-
-\item{offset}{Offset for study labels (see \code{\link{text}}).}
 
 \item{grid}{A logical indicating whether a grid is printed in the
 plot.}

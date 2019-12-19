@@ -20,13 +20,13 @@
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$TE} then).
 #' @param cex.studlab The magnification for study labels.
+#' @param pos.studlab Position of study labels, see argument
+#'   \code{pos} in \code{\link{text}}.
+#' @param offset Offset for study labels (see \code{\link{text}}).
 #' @param xmin A numeric specifying minimal value to print study
 #'   labels (on x-axis).
 #' @param ymin A numeric specifying minimal value to print study
 #'   labels (on y-axis).
-#' @param pos A position specifier for study labels (see
-#'   \code{\link{text}}).
-#' @param offset Offset for study labels (see \code{\link{text}}).
 #' @param grid A logical indicating whether a grid is printed in the
 #'   plot.
 #' @param col.grid Colour for grid lines.
@@ -120,10 +120,14 @@ baujat.meta <- function(x,
                         ylab = "Influence on overall result",
                         pch = 21, cex = 1, col = "black", bg = "darkgray",
                         studlab = TRUE, cex.studlab = 0.8,
-                        xmin = 0, ymin = 0, pos = 2, offset = 0.5,
-                        grid = TRUE, col.grid = "lightgray", lty.grid = "dotted", lwd.grid = par("lwd"),
+                        pos.studlab = 2, offset = 0.5,
+                        xmin = 0, ymin = 0,
+                        grid = TRUE, col.grid = "lightgray",
+                        lty.grid = "dotted", lwd.grid = par("lwd"),
                         pty = "s",
                         ...) {
+  
+  
   ##
   ##
   ## (1) Check for meta object and upgrade older meta objects
@@ -141,6 +145,22 @@ baujat.meta <- function(x,
   x <- updateversion(x)
   
   
+  ##
+  ##
+  ## (2) Check arguments
+  ##
+  ##
+  chknumeric(yscale)
+  chknumeric(cex)
+  chknumeric(cex.studlab)
+  pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
+  chknumeric(offset)
+  chknumeric(xmin)
+  chknumeric(ymin)
+  chklogical(grid)
+  chknumeric(lwd.grid)
+  
+  
   oldpar <- par(pty = pty)
   on.exit(par(oldpar))
   
@@ -149,7 +169,7 @@ baujat.meta <- function(x,
   seTE <- x$seTE
   TE.fixed <- metagen(TE, seTE, exclude = x$exclude)$TE.fixed
   k <- x$k
-
+  ##
   if (is.logical(studlab)) {
     if (studlab)
       studlab <- x$studlab
@@ -159,7 +179,8 @@ baujat.meta <- function(x,
   else {
     studlab <- as.character(studlab)
     if (length(studlab) != length(TE))
-      stop("Length of argument 'studlab' must be the same as number of studies in meta-analysis.")
+      stop("Length of argument 'studlab' must be the same as ",
+           "number of studies in meta-analysis.")
   }
   
   
@@ -204,7 +225,8 @@ baujat.meta <- function(x,
   ##
   points(xs, ys, pch = pch, cex = cex, col = col, bg = bg)
   ##  
-  text(xs, ys, labels = studlab, cex = cex.studlab, pos = pos, offset = offset)
+  text(xs, ys, labels = studlab, cex = cex.studlab,
+       pos = pos.studlab, offset = offset)
   
   
   res <- data.frame(x = xs, y = ys)

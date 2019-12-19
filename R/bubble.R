@@ -25,8 +25,8 @@
 #'   provided (must be of same length as the numer of studies in the
 #'   meta-analysis then).
 #' @param cex.studlab The magnification for study labels.
-#' @param pos A position specifier for study labels (see
-#'   \code{\link{text}}).
+#' @param pos.studlab Position of study labels, see argument
+#'   \code{pos} in \code{\link{text}}.
 #' @param offset Offset for study labels (see \code{\link{text}}).
 #' @param regline A logical indicating whether a regression line
 #'   should be added to the bubble plot.
@@ -44,13 +44,13 @@
 #' treatment effect (Thompson & Higgins, 2002).
 #' 
 #' Argument \code{cex} specifies the plotting size for each individual
-#' study.  If this argument is missing the weights from the
+#' study. If this argument is missing the weights from the
 #' meta-regression model will be used (which typically is a random
-#' effects model). Use \code{weight="fixed"} in order to utilise
-#' weights from a fixed effect model to define the size of the plotted
-#' symbols (even for a random effects meta-regression). If a vector
-#' with individual study weights is provided, the length of this
-#' vector must be of the same length as the number of studies.
+#' effects model). Use \code{cex="fixed"} in order to utilise weights
+#' from a fixed effect model to define the size of the plotted symbols
+#' (even for a random effects meta-regression). If a vector with
+#' individual study weights is provided, the length of this vector
+#' must be of the same length as the number of studies.
 #' 
 #' Arguments \code{min.cex} and \code{max.cex} can be used to define
 #' the size of the smallest and largest plotting symbol. The plotting
@@ -128,7 +128,7 @@ bubble.metareg <- function(x,
                            pch = 21, col = "black", bg = "darkgray",
                            lty = 1, lwd = 1, col.line = "black",
                            studlab = FALSE, cex.studlab = 0.8,
-                           pos = 2, offset = 0.5,
+                           pos.studlab = 2, offset = 0.5,
                            regline = TRUE,
                            axes = TRUE, box = TRUE, ...) {
 
@@ -139,8 +139,25 @@ bubble.metareg <- function(x,
   ##
   ##
   chkclass(x, "metareg")
-
-
+  
+  
+  ##
+  ##
+  ## (2) Check other arguments
+  ##
+  ##
+  chknumeric(min.cex)
+  chknumeric(max.cex)
+  chknumeric(lty)
+  chknumeric(lwd)
+  chknumeric(cex.studlab)
+  pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
+  chknumeric(offset)
+  chklogical(regline)
+  chklogical(axes)
+  chklogical(box)
+  
+  
   m0 <- x$.meta$x
   method.tau0 <- x$.meta$method.tau
   ##
@@ -162,7 +179,8 @@ bubble.metareg <- function(x,
   else {
     studlab <- as.character(studlab)
     if (length(studlab) != length(TE))
-      stop("Length of argument 'studlab' must be the same as number of studies in meta-analysis.")
+      stop("Length of argument 'studlab' must be the same as ",
+           "number of studies in meta-analysis.")
   }
 
 
@@ -185,9 +203,9 @@ bubble.metareg <- function(x,
     covar.name <- x$.meta$x$bylab
   ##
   if (length(covar.names.without.intrcpt) > 1) {
-    warning(paste("Only first covariate in meta-regression ",
-                  "('", covar.name, "') considered in bubble plot. No regression line plotted.",
-                  sep = "")
+    warning(paste0("Only first covariate in meta-regression ",
+                   "('", covar.name, "') considered in bubble plot. ",
+                   "No regression line plotted.")
             )
     regline <- FALSE
     if (missing(xlab))
@@ -243,10 +261,23 @@ bubble.metareg <- function(x,
     ylab <- paste("Treatment effect (",
                   tolower(xlab(sm, backtransf = FALSE)),
                   ")", sep = "")
-
-
+  
+  
   missing.cex <- missing(cex)
-  fixed.cex   <- !missing.cex && (length(cex) == 1 & all(cex == "fixed"))
+  ##
+  if (!missing.cex && is.character(cex)) {
+    cex.type <- setchar(cex, c("fixed", "random"),
+                        "must be numeric or equal to \"fixed\" or \"random\"")
+    if (length(unique(cex.type)) != 1)
+      stop("Argument 'cex' must be numeric or equal to ",
+           "\"fixed\" or \"random\".")
+    fixed.cex <- all(cex.type == "fixed")
+    random.cex <- all(cex.type == "random")
+  }
+  else {
+    fixed.cex <- FALSE
+    random.cex <- FALSE
+  }
   ##
   if (missing.cex)
     if (method.tau0 == "FE")
@@ -255,9 +286,12 @@ bubble.metareg <- function(x,
       cex <- m1$w.random
   else if (fixed.cex)
     cex <- m1$w.fixed
+  else if (random.cex)
+    cex <- m1$w.random
   ##
   if (length(cex) != length(TE))
-    stop("Length of argument 'cex' must be the same as number of studies in meta-analysis.")
+    stop("Length of argument 'cex' must be the same as ",
+         "number of studies in meta-analysis.")
   ##
   if (missing.cex | fixed.cex) {
     cexs <- max.cex*(cex / max(cex))
@@ -268,7 +302,9 @@ bubble.metareg <- function(x,
 
 
   ##
+  ##
   ## Generate bubble plot
+  ##
   ##
   if (is.factor(covar)) {
     for (i in 2:length(levs)) {
@@ -304,7 +340,7 @@ bubble.metareg <- function(x,
         axis(2, ...)
       ##
       text(xs.i, ys.i, labels = studlab.i, cex = cex.studlab,
-           pos = pos, offset = offset)
+           pos = pos.studlab, offset = offset)
       ##
       if (box)
         box()
@@ -335,7 +371,7 @@ bubble.metareg <- function(x,
       axis(2, ...)
     ##
     text(xs, ys, labels = studlab, cex = cex.studlab,
-         pos = pos, offset = offset)
+         pos = pos.studlab, offset = offset)
     ##
     if (box)
       box()

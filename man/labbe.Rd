@@ -241,8 +241,7 @@ mycols <- c("blue", "yellow", "green", "red",
             "green", "yellow", "blue")
 labbe(m1, sm = "OR",
       comb.random = FALSE,
-      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2,
-                       1, 2, 5, 10)),
+      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
       col.fixed = mycols, lwd.fixed = 2)
 
 # L'Abbe plot on log odds scale with coloured lines for various
@@ -250,8 +249,7 @@ labbe(m1, sm = "OR",
 #
 labbe(m1, sm = "OR",
       comb.random = FALSE,
-      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2,
-                       1, 2, 5, 10)),
+      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
       col.fixed = mycols, lwd.fixed = 2,
       backtransf = FALSE)
 

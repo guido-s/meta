@@ -7120,7 +7120,7 @@ forest.meta <- function(x,
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset2[[rightcols.new[i]]]
         ##
-        if (!is.character(tmp.l)) {
+        if (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
@@ -7210,7 +7210,7 @@ forest.meta <- function(x,
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset2[[rightcols.new[i]]]
         ##
-        if (!is.character(tmp.l)) {
+        if (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
