@@ -58,6 +58,8 @@
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$event.e} then).
 #' @param cex.studlab Size of study labels.
+#' @param pos.studlab Position of study labels, see argument
+#'   \code{pos} in \code{\link{text}}.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
 #' @param \dots Graphical arguments as in \code{par} may also be
@@ -192,7 +194,7 @@ labbe.default <- function(x, y,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
                           sm = "", weight,
-                          studlab = FALSE, cex.studlab = 0.8,
+                          studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = NULL, label.c = NULL,
                           ...) {
   
@@ -432,7 +434,7 @@ labbe.default <- function(x, y,
   ## Add study labels
   ##
   if (!is.logical(studlab) && length(studlab) > 0)
-    text(xpos, ypos, labels = studlab, pos = 2, cex = cex.studlab)
+    text(xpos, ypos, labels = studlab, pos = pos.studlab, cex = cex.studlab)
   
   
   invisible(NULL)
@@ -465,7 +467,7 @@ labbe.metabin <- function(x,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
                           sm = x$sm, weight,
-                          studlab = FALSE, cex.studlab = 0.8,
+                          studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = x$label.e, label.c = x$label.c,
                           ...) {
   
@@ -769,7 +771,7 @@ labbe.metabin <- function(x,
   ## Add study labels
   ##
   if (!is.logical(studlab) && length(studlab) > 0)
-    text(xpos, ypos, labels = studlab, pos = 2, cex = cex.studlab)
+    text(xpos, ypos, labels = studlab, pos = pos.studlab, cex = cex.studlab)
   
   
   invisible(NULL)
