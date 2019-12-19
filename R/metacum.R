@@ -203,8 +203,7 @@ metacum <- function(x, pooled, sortvar) {
   studlab <- x$studlab[o]
   slab <- character(k.all)
   for (i in 1:k.all)
-    slab[i] <- paste("Adding ", studlab[i],
-                     " (k=", ncum[i], ")", sep = "")
+    slab[i] <- paste0("Adding ", studlab[i], " (k=", ncum[i], ")")
   slab <- c(slab, "Pooled estimate")
   studlab <- c(rev(rev(slab)[-1]), " ", rev(slab)[1])
   

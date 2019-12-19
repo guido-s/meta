@@ -7,7 +7,8 @@ p.ci <- function(lower, upper, rmspace = TRUE,
                  ...
                  ) {
   
-  warning("Use of function p.ci() from R package meta is deprecated; use instead formatCI().")
+  warning("Use of function p.ci() from R package meta is deprecated; ",
+          "use instead formatCI().")
   
   ## Change layout of CIs
   ##
@@ -16,7 +17,8 @@ p.ci <- function(lower, upper, rmspace = TRUE,
   if (is.na(ibracktype) | ibracktype == 0) {
     warning("No valid bracket type specified globally for R package meta: ",
             .settings$CIbracket,
-            "\n  Using default bracket type: '['. See help page on R command 'cilayout' for further information.")
+            "\n  Using default bracket type: '['. See help page on ",
+            "R command 'cilayout' for further information.")
     bracktype <- "["
   }
   else
@@ -54,11 +56,11 @@ p.ci <- function(lower, upper, rmspace = TRUE,
   }
   ##
   res <- ifelse(lower != "NA" & upper != "NA",
-                paste(bracket.left,
-                      format(lower, justify = justify.lower),
-                      separator,
-                      format(upper, justify = justify.upper),
-                      bracket.right, sep = ""),
+                paste0(bracket.left,
+                       format(lower, justify = justify.lower),
+                       separator,
+                       format(upper, justify = justify.upper),
+                       bracket.right),
                 "")
   ##
   res

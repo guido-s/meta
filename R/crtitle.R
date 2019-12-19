@@ -4,22 +4,19 @@ crtitle <- function(x) {
   if (!is.null(x$title))
     if (x$title != "")
       if (nchar(x$title) <= tl)
-        cat("Review:     ", x$title, "\n", sep = "")
+        cat(paste0("Review:     ", x$title, "\n"))
       else
-        cat("Review:     ", substring(x$title, 1, tl - 4),
-            " ...\n", sep = "")
+        cat(paste0("Review:     ", substring(x$title, 1, tl - 4), " ...\n"))
   if (!is.null(x$complab))
     if (x$complab != "")
       if (nchar(x$complab) <= tl)
-        cat("Comparison: ", x$complab, "\n", sep = "")
+        cat(paste0("Comparison: ", x$complab, "\n"))
       else
-        cat("Comparison: ", substring(x$complab, 1, tl - 4),
-            " ...\n", sep = "")
+        cat(paste0("Comparison: ", substring(x$complab, 1, tl - 4), " ...\n"))
   if (!is.null(x$outclab))
     if (x$outclab != "")
       if (nchar(x$outclab) <= tl)
-        cat("Outcome:    ", x$outclab, "\n\n", sep = "")
+        cat(paste0("Outcome:    ", x$outclab, "\n\n"))
       else
-        cat("Outcome:    ", substring(x$outclab, 1, tl - 4),
-            " ...\n\n", sep = "")
+        cat(paste0("Outcome:    ", substring(x$outclab, 1, tl - 4), " ...\n\n"))
 }

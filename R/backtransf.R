@@ -36,10 +36,14 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     ##
     if (warn & any(sel0 | sel1, na.rm = TRUE))
       warning("Negative value for ",
-              if (length(x) > 1) "at least one ",
-              if (value == "lower") "lower confidence limit of raw proportions.\n  Lower confidence limit set to 0.",
-              if (value == "upper") "upper confidence limit of raw proportions.\n  Upper confidence limit set to 1.",
-              sep = "")
+              if (length(x) > 1)
+                "at least one ",
+              if (value == "lower")
+                paste0("lower confidence limit of raw proportions.",
+                       "\n  Lower confidence limit set to 0."),
+              if (value == "upper")
+                paste0("upper confidence limit of raw proportions.",
+                       "\n  Upper confidence limit set to 1."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
     else if (any(sel1, na.rm = TRUE) & value == "upper")
@@ -52,10 +56,14 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     ##
     if (warn & any(sel0 | sel1, na.rm = TRUE))
       warning("Negative value for ",
-              if (length(x) > 1) "at least one ",
-              if (value == "lower") "lower confidence limit using log transformation for proportions.\n  Lower confidence limit set to 0.",
-              if (value == "upper") "upper confidence limit using log transformation for proportions.\n  Upper confidence limit set to 1.",
-              sep = "")
+              if (length(x) > 1)
+                "at least one ",
+              if (value == "lower")
+                paste0("lower confidence limit using log transformation for ",
+                       "proportions.\n  Lower confidence limit set to 0."),
+              if (value == "upper")
+                paste0("upper confidence limit using log transformation for ",
+                       "proportions.\n  Upper confidence limit set to 1."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
     else if (any(sel1, na.rm = TRUE) & value == "upper")
@@ -67,9 +75,11 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     ##
     if (warn & any(sel0, na.rm = TRUE))
       warning("Negative value for ",
-              if (length(x) > 1) "at least one ",
-              if (value == "lower") "lower confidence limit of incidence rates.\n  Lower confidence limit set to 0.",
-              sep = "")
+              if (length(x) > 1)
+                "at least one ",
+              if (value == "lower")
+                paste0("lower confidence limit of incidence rates.",
+                       "\n  Lower confidence limit set to 0."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
   }

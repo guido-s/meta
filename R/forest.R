@@ -1093,15 +1093,9 @@ forest.metabind <- function(x,
                                    digits.I2),
                              digits.I2, "")
   ##
-  x$data$I2 <- paste(x$data$I2,
-                     ifelse(I2.na, "", "%"),
-                     sep = "")
-  x$data$lower.I2 <- paste(x$data$lower.I2,
-                           ifelse(I2.na, "", "%"),
-                           sep = "")
-  x$data$upper.I2 <- paste(x$data$upper.I2,
-                           ifelse(I2.na, "", "%"),
-                           sep = "")
+  x$data$I2 <- paste0(x$data$I2, ifelse(I2.na, "", "%"))
+  x$data$lower.I2 <- paste0(x$data$lower.I2, ifelse(I2.na, "", "%"))
+  x$data$upper.I2 <- paste0(x$data$upper.I2, ifelse(I2.na, "", "%"))
   ##
   x$data$tau2 <- rmSpace(x$data$tau2)
   x$data$tau <- rmSpace(x$data$tau)
@@ -1114,13 +1108,13 @@ forest.metabind <- function(x,
   
   
   if (missing(smlab))
-    smlab <- paste(if (x$comb.fixed)
-                     "Fixed Effect Model"
-                   else
-                     "Random Effects Model",
-                   "\n(",
-                   xlab(x$sm, x$backtransf),
-                   ")", sep = "")
+    smlab <- paste0(if (x$comb.fixed)
+                      "Fixed Effect Model"
+                    else
+                      "Random Effects Model",
+                    "\n(",
+                    xlab(x$sm, x$backtransf),
+                    ")")
   
   
   class(x) <- c("meta", "is.metabind")
@@ -1745,7 +1739,7 @@ forest.meta <- function(x,
   chklogical(zero.pval)
   chklogical(JAMA.pval)
   ##
-  cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
+  cl <- paste0("update.meta() or ", class(x)[1], "()")
   addargs <- names(list(...))
   ##
   fun <- "forest.meta"
@@ -2019,13 +2013,13 @@ forest.meta <- function(x,
   if (is.null(text.fixed)) {
     if (study.results & (x$level != x$level.comb | revman5)) {
       if (revman5.jama)
-        text.fixed <- paste("Total (",
-                            if (fixed.random)
-                              "fixed effect, ",
-                            round(x$level.comb * 100), "% CI)", sep = "")
+        text.fixed <- paste0("Total (",
+                             if (fixed.random)
+                               "fixed effect, ",
+                             round(x$level.comb * 100), "% CI)")
       else
-        text.fixed <- paste("Fixed effect model (",
-                            round(x$level.comb * 100), "%-CI)", sep = "")
+        text.fixed <- paste0("Fixed effect model (",
+                             round(x$level.comb * 100), "%-CI)")
     }
     else {
       if (revman5.jama) {
@@ -2040,13 +2034,13 @@ forest.meta <- function(x,
   if (is.null(text.random)) {
     if (study.results & (x$level != x$level.comb | revman5)) {
       if (revman5.jama)
-        text.random <- paste("Total (",
-                             if (fixed.random)
-                               "random effects, ",
-                             round(x$level.comb * 100), "% CI)", sep = "")
+        text.random <- paste0("Total (",
+                              if (fixed.random)
+                                "random effects, ",
+                              round(x$level.comb * 100), "% CI)")
       else
-        text.random <- paste("Random effects model (",
-                             round(x$level.comb * 100), "%-CI)", sep = "")
+        text.random <- paste0("Random effects model (",
+                              round(x$level.comb * 100), "%-CI)")
     }
     else {
       if (revman5.jama) {
@@ -2061,8 +2055,8 @@ forest.meta <- function(x,
   if (is.null(text.predict))
     if (!(length(x$level.predict) == 0) &&
         (study.results & (x$level != x$level.predict | x$level.comb != x$level.predict)))
-      text.predict <- paste("Prediction interval (",
-                            round(x$level.predict * 100), "%-PI)", sep = "")
+      text.predict <- paste0("Prediction interval (",
+                             round(x$level.predict * 100), "%-PI)")
     else
       text.predict <- "Prediction interval"
   ##
@@ -2213,36 +2207,42 @@ forest.meta <- function(x,
   ##
   if (missing(label.test.overall.fixed))
     label.test.overall.fixed <-
-      paste("Test for overall effect",
-            if (fixed.random) " (fixed effect)",
-            ": ", sep = "")
+      paste0("Test for overall effect",
+             if (fixed.random) " (fixed effect)",
+             ": ")
   if (missing(label.test.overall.random))
     label.test.overall.random <-
-      paste("Test for overall effect",
-            if (fixed.random) " (random effects)",
-            ": ", sep = "")
+      paste0("Test for overall effect",
+             if (fixed.random) " (random effects)",
+             ": ")
   ##
   if (missing(label.test.subgroup.fixed))
     label.test.subgroup.fixed <-
-      paste("Test for subgroup differences",
-            if (fixed.random) " (fixed effect)",
-            ": ", sep = "")
+      paste0("Test for subgroup differences",
+             if (fixed.random) " (fixed effect)",
+             ": ")
   if (missing(label.test.subgroup.random))
     label.test.subgroup.random <-
-      paste("Test for subgroup differences",
-            if (fixed.random) " (random effects)",
-            ": ", sep = "")
+      paste0("Test for subgroup differences",
+             if (fixed.random) " (random effects)",
+             ": ")
   ##
   if (missing(label.test.effect.subgroup.fixed))
     label.test.effect.subgroup.fixed <-
-      paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
-            if (fixed.random) " (fixed effect)",
-            ": ", sep = "")
+      paste0(if (revman5.jama)
+               "Test for overall effect"
+             else
+               "Test for effect in subgroup",
+             if (fixed.random) " (fixed effect)",
+             ": ")
   if (missing(label.test.effect.subgroup.random))
     label.test.effect.subgroup.random <-
-      paste(if (revman5.jama) "Test for overall effect" else "Test for effect in subgroup",
-            if (fixed.random) " (random effects)",
-            ": ", sep = "")
+      paste0(if (revman5.jama)
+               "Test for overall effect"
+             else
+               "Test for effect in subgroup",
+             if (fixed.random) " (random effects)",
+             ": ")
   ##
   fs.head <- fs.heading
   ff.head <- ff.heading
@@ -2296,7 +2296,7 @@ forest.meta <- function(x,
   }
   else 
     if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep = "")
+      sm.lab <- paste0("log", sm)
   ##
   colnames <- c("studlab", "TE", "seTE",
                 "n.e", "n.c",
@@ -2320,15 +2320,15 @@ forest.meta <- function(x,
     cisep <- "-"
   ##
   if (study.results)
-    ci.lab <- paste(100 * level, "%", cisep, "CI", sep = "")
+    ci.lab <- paste0(100 * level, "%", cisep, "CI")
   else
-    ci.lab <- paste(100 * level.comb, "%", cisep, "CI", sep = "")
+    ci.lab <- paste0(100 * level.comb, "%", cisep, "CI")
   ##
   if (jama) {
     if (missing(ff.lr))
       ff.lr <- "bold"
     if (xlab == "")
-      xlab <- paste(smlab, " (", ci.lab, ")", sep = "")
+      xlab <- paste0(smlab, " (", ci.lab, ")")
     if (miss.col.square)
       col.square <- rep("darkblue", K.all)
     if (miss.col.square.lines)
@@ -2377,18 +2377,16 @@ forest.meta <- function(x,
         lab.model <- ""
       ##
       if (smlab.null)
-        smlab <- paste(smlab, "\n", lab.method, ", ",
-                       lab.model,
-                       ci.lab, sep = "")
+        smlab <- paste0(smlab, "\n", lab.method, ", ", lab.model, ci.lab)
     }
   }
   ##
   if (jama | gs("CIbracket") == "(")
-    ci.lab.bracket <- paste("(", ci.lab, ")", sep = "")
+    ci.lab.bracket <- paste0("(", ci.lab, ")")
   else if (gs("CIbracket") == "[")
-    ci.lab.bracket <- paste("[", ci.lab, "]", sep = "")
+    ci.lab.bracket <- paste0("[", ci.lab, "]")
   else if (gs("CIbracket") == "{")
-    ci.lab.bracket <- paste("{", ci.lab, "}", sep = "")
+    ci.lab.bracket <- paste0("{", ci.lab, "}")
   else if (gs("CIbracket") == "")
     ci.lab.bracket <- ci.lab
   ##
@@ -3566,12 +3564,12 @@ forest.meta <- function(x,
                        sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
     ##
     hetstat.Q.resid <-
-      paste(hetseparator,
-            formatN(round(Q.resid, digits.Q), digits.Q, "NA", big.mark = big.mark),
-            if (revman5) ", df",
-            if (revman5) hetseparator,
-            if (revman5) df.Q.resid,
-            sep = "")
+      paste0(hetseparator,
+             formatN(round(Q.resid, digits.Q), digits.Q, "NA",
+                     big.mark = big.mark),
+             if (revman5) ", df",
+             if (revman5) hetseparator,
+             if (revman5) df.Q.resid)
     ##
     hetstat.pval.Q.resid <-
       formatPT(pval.Q.resid,
@@ -4301,23 +4299,21 @@ forest.meta <- function(x,
   }
   ##
   hetstat.Q.bs <-
-    paste(hetseparator,
-          gsub(" ", "", formatN(round(Q.bs, digits.Q), digits.Q, "NA",
-                                big.mark = big.mark)),
-          if (!jama) ", df",
-          if (!jama) hetseparator,
-          if (!jama) df.Q.b,
-          sep = "")
+    paste0(hetseparator,
+           gsub(" ", "", formatN(round(Q.bs, digits.Q), digits.Q, "NA",
+                                 big.mark = big.mark)),
+           if (!jama) ", df",
+           if (!jama) hetseparator,
+           if (!jama) df.Q.b)
   hetstat.Q.bs <- rmSpace(hetstat.Q.bs, end = TRUE)
   ##
   hetstat.pval.Q.bs <-
-    paste(formatPT(pval.Q.bs,
-                   lab = TRUE, labval = "",
-                   digits = digits.pval.Q,
-                   zero = zero.pval, JAMA = JAMA.pval,
-                   scientific = scientific.pval,
-                   lab.NA = "NA"),
-          sep = "")
+    paste0(formatPT(pval.Q.bs,
+                    lab = TRUE, labval = "",
+                    digits = digits.pval.Q,
+                    zero = zero.pval, JAMA = JAMA.pval,
+                    scientific = scientific.pval,
+                    lab.NA = "NA"))
   ##
   ## Remove superfluous spaces
   ##
@@ -4622,21 +4618,17 @@ forest.meta <- function(x,
                         ""))
       ##
       hetstat.Q.w <-
-        paste(hetseparator,
-              round(Q.w, digits.Q),
-              if (revman5) ", df",
-              if (revman5) hetseparator,
-              if (revman5) k.w.hetstat - 1,
-              sep = "")
+        paste0(hetseparator, round(Q.w, digits.Q),
+               if (revman5)
+                 paste0(", df",  hetseparator, k.w.hetstat - 1))
       ##
       hetstat.pval.Q.w <-
-        paste(formatPT(replaceNULL(x$pval.Q.w, pvalQ(x$Q.w, x$df.Q.w)),
-                       lab = TRUE, labval = "",
-                       digits = digits.pval.Q,
-                       zero = zero.pval, JAMA = JAMA.pval,
-                       scientific = scientific.pval,
-                       lab.NA = "NA"),
-              sep = "")
+        paste0(formatPT(replaceNULL(x$pval.Q.w, pvalQ(x$Q.w, x$df.Q.w)),
+                        lab = TRUE, labval = "",
+                        digits = digits.pval.Q,
+                        zero = zero.pval, JAMA = JAMA.pval,
+                        scientific = scientific.pval,
+                        lab.NA = "NA"))
       ##
       hetstat.Rb.w <-
         paste0(hetseparator,
@@ -5154,7 +5146,7 @@ forest.meta <- function(x,
         }
         if (hetstat.pooled != "study" &
             !is.logical(text.subgroup.nohet) & k.w.hetstat[i] < 2)
-          hetstat.w[[i]] <- paste(hetlab, text.subgroup.nohet, sep = "")
+          hetstat.w[[i]] <- paste0(hetlab, text.subgroup.nohet)
       }
     }
     ##
@@ -5553,17 +5545,17 @@ forest.meta <- function(x,
     for (i in seq(along = leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(j))
-        labs[[paste("lab.", leftcols[i], sep = "")]] <- labnames[j]
+        labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
     }
   }
   else if (length(leftcols) == length(leftlabs)) {
     for (i in seq(along = leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(leftlabs[i]))
-        labs[[paste("lab.", leftcols[i], sep = "")]] <- leftlabs[i]
+        labs[[paste0("lab.", leftcols[i])]] <- leftlabs[i]
       else
         if (!is.na(j))
-          labs[[paste("lab.", leftcols[i], sep = "")]] <- labnames[j]
+          labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
     }
   }
   ##
@@ -5571,17 +5563,17 @@ forest.meta <- function(x,
     for (i in seq(along = rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))
-        labs[[paste("lab.", rightcols[i], sep = "")]] <- labnames[j]
+        labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
     }
   }
   else if (length(rightcols) == length(rightlabs)) {
     for (i in seq(along = rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(rightlabs[i]))
-        labs[[paste("lab.", rightcols[i], sep = "")]] <- rightlabs[i]
+        labs[[paste0("lab.", rightcols[i])]] <- rightlabs[i]
       else
         if (!is.na(j))
-          labs[[paste("lab.", rightcols[i], sep = "")]] <- labnames[j]
+          labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
     }
   }
   ##
@@ -6189,8 +6181,8 @@ forest.meta <- function(x,
   ##
   ## Weights of fixed and random effects model
   ##
-  w.fixed.format  <- paste(w.fixeds.text, if (w.fixed.percent) "%", sep = "")
-  w.random.format <- paste(w.randoms.text, if (w.random.percent) "%", sep = "")
+  w.fixed.format  <- paste0(w.fixeds.text, if (w.fixed.percent) "%")
+  w.random.format <- paste0(w.randoms.text, if (w.random.percent) "%")
   ##
   w.fixed.format[w.fixed.format == "%"] <- ""
   w.random.format[w.random.format == "%"] <- ""
@@ -7114,7 +7106,7 @@ forest.meta <- function(x,
     ##
     if (by) {
       for (i in seq(along = rightcols.new)) {
-        tname <- paste("col.", rightcols.new[i], sep = "")
+        tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
@@ -7156,7 +7148,7 @@ forest.meta <- function(x,
                                         fcs, fontfamily)
       }
       for (i in seq(along = leftcols.new)) {
-        tname <- paste("col.", leftcols.new[i], sep = "")
+        tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
         else if (length(dataset2[[leftcols.new[i]]]) != 0)
@@ -7204,7 +7196,7 @@ forest.meta <- function(x,
     }
     else {
       for (i in seq(along = rightcols.new)) {
-        tname <- paste("col.", rightcols.new[i], sep = "")
+        tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
         else if (length(dataset2[[rightcols.new[i]]]) != 0)
@@ -7247,7 +7239,7 @@ forest.meta <- function(x,
                                         fcs, fontfamily)
       }
       for (i in seq(along = leftcols.new)) {
-        tname <- paste("col.", leftcols.new[i], sep = "")
+        tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
         else if (length(dataset2[[leftcols.new[i]]]) != 0)
@@ -7369,8 +7361,8 @@ forest.meta <- function(x,
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
   ##
-  leftcols  <- paste("col.", leftcols, sep = "")
-  rightcols <- paste("col.", rightcols, sep = "")
+  leftcols  <- paste0("col.", leftcols)
+  rightcols <- paste0("col.", rightcols)
   
   
   ##
@@ -7560,7 +7552,7 @@ forest.meta <- function(x,
     ##
     if (!is.na(yHeadadd)) {
       if (!is.null(lab.e.attach.to.col)) {
-        if (leftcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
+        if (leftcols[i] == paste0("col.", lab.e.attach.to.col))
           add.text(col.lab.e, j)
       }
       else if (metabin) {
@@ -7583,7 +7575,7 @@ forest.meta <- function(x,
       }
       ##
       if (!is.null(lab.c.attach.to.col)) {
-        if (leftcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
+        if (leftcols[i] == paste0("col.", lab.c.attach.to.col))
           add.text(col.lab.c, j)
       }
       else if (metabin) {
@@ -7648,8 +7640,8 @@ forest.meta <- function(x,
       ##
       if (newcols)
         if (length(leftcols.new) > 0 &
-            leftcols[i] %in% paste("col.", leftcols.new, sep = "")) {
-          sel <- paste("col.", leftcols.new, sep = "") == leftcols[i]
+            leftcols[i] %in% paste0("col.", leftcols.new)) {
+          sel <- paste0("col.", leftcols.new) == leftcols[i]
           ##
           ## Check for "\n" in label of new column
           ##
@@ -7759,48 +7751,54 @@ forest.meta <- function(x,
       ##
       if (!is.na(yHeadadd)) {
         if (!is.null(lab.e.attach.to.col)) {
-          if (rightcols[i] == paste("col.", lab.e.attach.to.col, sep = ""))
+          if (rightcols[i] == paste0("col.", lab.e.attach.to.col))
             add.text(col.lab.e, j)
         }
         else if (metabin) {
           if (rightcols[i] == "col.n.e" & just.c == "right")
             add.text(col.lab.e, j)
-          else if (rightcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.event.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.e, j)
         }
         else if (metacont) {
           if (rightcols[i] == "col.sd.e" & just.c == "right")
             add.text(col.lab.e, j)
-          else if (rightcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.mean.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.e, j)
         }
         else if (metainc) {
           if (rightcols[i] == "col.time.e" & just.c == "right")
             add.text(col.lab.e, j)
-          else if (rightcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.event.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.e, j)
         }
         ##
         if (!is.null(lab.c.attach.to.col)) {
-          if (rightcols[i] == paste("col.", lab.c.attach.to.col, sep = ""))
+          if (rightcols[i] == paste0("col.", lab.c.attach.to.col))
             add.text(col.lab.c, j)
         }
         else if (metabin) {
           if (rightcols[i] == "col.n.c" & just.c == "right")
             add.text(col.lab.c, j)
-          else if (rightcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.event.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.c, j)
         }
         else if (metacont) {
           if (rightcols[i] == "col.sd.c" & just.c == "right")
             add.text(col.lab.c, j)
-          else if (rightcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.mean.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.c, j)
         }
         else if (metainc) {
           if (rightcols[i] == "col.time.c" & just.c == "right")
             add.text(col.lab.c, j)
-          else if (rightcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          else if (rightcols[i] == "col.event.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.lab.c, j)
         }
         ##
@@ -7847,8 +7845,8 @@ forest.meta <- function(x,
         ##
         if (newcols)
           if (length(rightcols.new) > 0 &
-              rightcols[i] %in% paste("col.", rightcols.new, sep = "")) {
-            sel <- paste("col.", rightcols.new, sep = "") == rightcols[i]
+              rightcols[i] %in% paste0("col.", rightcols.new)) {
+            sel <- paste0("col.", rightcols.new) == rightcols[i]
             ##
             ## Check for "\n" in label of new column
             ##

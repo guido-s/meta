@@ -52,11 +52,11 @@ formatCI <- function(lower, upper, rmspace = TRUE,
   }
   ##
   res <- ifelse(lower != "NA" & upper != "NA",
-                paste(bracket.left,
-                      format(lower, justify = justify.lower),
-                      separator,
-                      format(upper, justify = justify.upper),
-                      bracket.right, sep = ""),
+                paste0(bracket.left,
+                       format(lower, justify = justify.lower),
+                       separator,
+                       format(upper, justify = justify.upper),
+                       bracket.right),
                 "")
   ##
   res

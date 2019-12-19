@@ -10,9 +10,8 @@ xlab <- function(sm, backtransf,
   
   
   if (sm == "SMD")
-    res <- paste(if (revman5) "Std. Mean" else "Standardised Mean",
-                 newline,
-                 "Difference", sep = "")
+    res <- paste0(if (revman5) "Std. Mean" else "Standardised Mean",
+                  newline, "Difference")
   ##
   else if (sm == "WMD" | sm == "MD")
     res <- "Mean Difference"
@@ -24,24 +23,20 @@ xlab <- function(sm, backtransf,
     if (pscale == 1)
       res <- "Risk Difference"
     else
-      res <- paste("Risk Difference\n(events per ",
-                   format(pscale, scientific = FALSE, big.mark = big.mark),
-                   " obs.)",
-                   sep = "")
+      res <- paste0("Risk Difference\n(events per ",
+                    format(pscale, scientific = FALSE, big.mark = big.mark),
+                    " obs.)")
   ##
   else if (sm == "ASD")
-    res <- paste("Arcus Sinus", newline,
-                 "Difference", sep = "")
+    res <- paste0("Arcus Sinus", newline, "Difference")
   ##
   else if (sm == "IRD")
     if (irscale == 1)
-      res <- paste("Incidence Rate", newline,
-                   "Difference", sep = "")
+      res <- paste0("Incidence Rate", newline, "Difference")
     else
-      res <- paste("Incidence Rate Diff.\n(events per ",
-                   format(irscale, scientific = FALSE, big.mark = big.mark),
-                   newline,
-                   irunit, sep = "")
+      res <- paste0("Incidence Rate Diff.\n(events per ",
+                    format(irscale, scientific = FALSE, big.mark = big.mark),
+                    newline, irunit)
   ##
   else if (sm == "IR")
     res <- "Incidence Rate"
@@ -66,27 +61,24 @@ xlab <- function(sm, backtransf,
       res <- "Hazard Ratio"
     ##
     else if (sm == "IRR")
-      res <- paste("Incidence Rate", newline,
-                   "Ratio", sep = "")
+      res <- paste0("Incidence Rate", newline, "Ratio")
     ##
     else if (is.prop(sm)) {
       if (pscale == 1)
         res <- ""
       else
-        res <- paste("Events per ",
-                     format(pscale, scientific = FALSE, big.mark = big.mark),
-                     newline,
-                     "observations", sep = "")
+        res <- paste0("Events per ",
+                      format(pscale, scientific = FALSE, big.mark = big.mark),
+                      newline, "observations")
     }
     ##
     else if (is.rate(sm)) {
       if (irscale == 1)
         res <- "Incidence Rate"
       else
-        res <- paste("Events per ",
-                     format(irscale, scientific = FALSE, big.mark = big.mark),
-                     newline,
-                     irunit, sep = "")
+        res <- paste0("Events per ",
+                      format(irscale, scientific = FALSE, big.mark = big.mark),
+                      newline, irunit)
     }
     ##
     else if (sm == "MLN")
@@ -100,55 +92,45 @@ xlab <- function(sm, backtransf,
       res <- "Log Risk Ratio"
     ##
     else if (sm == "ROM")
-      res <- paste("Log Ratio of", newline,
-                   "Means", sep = "")
+      res <- paste0("Log Ratio of", newline, "Means")
     ##
     else if (sm == "HR")
-      res <- paste("Log Hazard", newline,
-                   "Ratio", sep = "")
+      res <- paste0("Log Hazard", newline, "Ratio")
     ##
     else if (sm == "IRR")
-      res <- paste("Log Incidence Rate", newline,
-                   "Ratio", sep = "")
+      res <- paste0("Log Incidence Rate", newline, "Ratio")
     ##
     else if (sm == "ZCOR")
-      res <- paste("Fisher's z transformed", newline,
-                   "correlation", sep = "")
+      res <- paste0("Fisher's z transformed", newline, "correlation")
     ##
     else if (sm == "PFT")
-      res <- paste("Freeman-Tukey Double Arcsine", newline,
-                   "Transformed Proportion", sep = "")
+      res <- paste0("Freeman-Tukey Double Arcsine", newline,
+                    "Transformed Proportion")
     ##
     else if (sm == "PAS")
-      res <- paste("Arcsine Transformed", newline,
-                   "Proportion", sep = "")
+      res <- paste0("Arcsine Transformed", newline, "Proportion")
     ##
     else if (sm == "PLN")
-      res <- paste("Log Transformed", newline,
-                   "Proportion", sep = "")
+      res <- paste0("Log Transformed", newline, "Proportion")
     ##
     else if (sm == "PLOGIT")
-      res <- paste("Logit Transformed", newline,
-                   "Proportion", sep = "")
+      res <- paste0("Logit Transformed", newline, "Proportion")
     ##
     else if (sm == "PRAW")
-      res <- paste("Untransformed", newline,
-                   "Proportion", sep = "")
+      res <- paste0("Untransformed", newline, "Proportion")
     ##
     else if (sm == "IR")
       res <- "Incidence Rate"
     ##
     else if (sm == "IRLN")
-      res <- paste("Log Incidence", newline,
-                   "Rate", sep = "")
+      res <- paste0("Log Incidence", newline, "Rate")
     ##
     else if (sm == "IRS")
-      res <- paste("Square Root of", newline,
-                   "Incidence Rate", sep = "")
+      res <- paste0("Square Root of", newline, "Incidence Rate")
     ##
     else if (sm == "IRFT")
-      res <- paste("Freeman-Tukey Double Arcsine", newline,
-                   "Transformed Rate", sep = "")
+      res <- paste0("Freeman-Tukey Double Arcsine", newline,
+                   "Transformed Rate")
     ##
     else if (sm == "MLN")
       res <- "Log Mean"

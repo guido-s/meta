@@ -116,30 +116,33 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       name[i] <- replace.NULL(args[[i]]$bylab)
     ##
     if (all(is.na(name)))
-      name <- paste("meta", n.i, sep = "")
+      name <- paste0("meta", n.i)
     else if (anyNA(name))
-      name[is.na(name)] <- paste("meta", n.i[is.na(name)], sep = "")
+      name[is.na(name)] <- paste0("meta", n.i[is.na(name)])
     ##
     if (length(unique(name)) != length(name)) {
-      warning1 <- paste("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
-                        "' as argument 'name' is missing and information from ",
-                        "meta-analysis objects is not unique.", sep = "")
+      warning1 <-
+        paste0("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
+               "' as argument 'name' is missing and information ",
+               "from meta-analysis objects is not unique.")
       print.warning1 <- TRUE
       ##
-      name <- paste("meta", n.i, sep = "")
+      name <- paste0("meta", n.i)
     }
   }
   else {
     if (length(name) != length(is.subgroup))
-      stop("Number of meta-analyses and names provided in argument 'name' differ.",
+      stop("Number of meta-analyses and names provided in ",
+           "argument 'name' differ.",
            call. = FALSE)
     ##
     if (length(unique(name)) != length(name)) {
-      warning2 <- paste("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
-                        "' as values of argument 'name' are not all disparate.")
+      warning2 <-
+        paste0("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
+               "' as values of argument 'name' are not all disparate.")
       print.warning2 <- FALSE
       ##
-      name <- paste("meta", n.i, sep = "")
+      name <- paste0("meta", n.i)
     }
   }
 
@@ -382,9 +385,10 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       pooled <- "random"
     else {
       if (any(meth$comb.fixed)) {
-        warning3 <- paste("Note, results from random effects model extracted. ",
-                          "Use argument pooled = \"fixed\" for results of ",
-                          "fixed effect model.", sep = "")
+        warning3 <-
+          paste("Note, results from random effects model extracted.",
+                "Use argument pooled = \"fixed\" for results of",
+                "fixed effect model.")
         print.warning3 <- TRUE
       }
       pooled <- "random"
@@ -489,12 +493,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                     length(unique(x)))
   ##
   if (any(n.meth != 1))
-    stop(paste("All meta-analyses must use the same basic settings ",
-               "which differ for the following argument",
-               if (sum(n.meth != 1) > 1) "s",
-               ": ",
-               paste(paste("'", names(meth)[n.meth != 1], "'", sep = ""),
-                     collapse = " - "), sep = ""))
+    stop("All meta-analyses must use the same basic settings ",
+         "which differ for the following argument",
+         if (sum(n.meth != 1) > 1) "s",
+         ": ",
+         paste0(paste0("'", names(meth)[n.meth != 1], "'"),
+                collapse = " - "))
 
 
   if (length(unique(study$byvar)) == 1) {
@@ -502,7 +506,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     res$byvar <- NULL
   }
   else
-    res <- c(as.list(study), as.list(meth[1, ]), as.list(overall), as.list(subgroup))
+    res <- c(as.list(study), as.list(meth[1, ]),
+             as.list(overall), as.list(subgroup))
   ##
   ##
   res$data <- data

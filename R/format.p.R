@@ -2,7 +2,8 @@ format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "") {
   
-  warning("Use of function format.p() from R package meta is deprecated; use instead formatPT().")
+  warning("Use of function format.p() from R package meta is deprecated; ",
+          "use instead formatPT().")
   
   if (is.null(x))
     return("")
@@ -19,10 +20,10 @@ format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                     ifelse(x == 0,
                            paste(labval, "= 0"),
                     ifelse(x < 1 / 10^digits,
-                           paste(labval, " < 0", outdec,
-                                 paste(rep("0",
-                                           n.zeros), collapse = ""),
-                                 "1", sep = ""),
+                           paste0(labval, " < 0", outdec,
+                                  paste(rep("0",
+                                            n.zeros), collapse = ""),
+                                  "1"),
                            paste(paste(labval, "="),
                                  formatC(round(x, digits),
                                          decimal.mark = outdec,
@@ -39,13 +40,13 @@ format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                     ifelse(x == 0,
                            0,
                     ifelse(x < 1 / 10^digits,
-                           paste("< 0", outdec,
-                                 paste(rep("0", n.zeros), collapse = ""),
-                                 "1", sep = ""),
+                           paste0("< 0", outdec,
+                                  paste(rep("0", n.zeros), collapse = ""),
+                                  "1"),
                            formatC(round(x, digits),
-                                              decimal.mark = outdec,
-                                              big.mark = big.mark,
-                                              format = "f", digits = digits)
+                                   decimal.mark = outdec,
+                                   big.mark = big.mark,
+                                   format = "f", digits = digits)
                            )
                     )
                     ),

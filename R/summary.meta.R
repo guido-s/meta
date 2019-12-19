@@ -342,7 +342,7 @@ summary.meta <- function(object,
     chklogical(print.CMH)
   chklogical(warn)
   ##
-  cl <- paste("update.meta() or ", class(object)[1], "()", sep = "")
+  cl <- paste0("update.meta() or ", class(object)[1], "()")
   addargs <- names(list(...))
   ##
   fun <- "summary.meta"
@@ -435,7 +435,7 @@ summary.meta <- function(object,
                level = object$level.predict,
                df = object$k - 2)
   ##  
-  ci.lab <- paste(round(100 * object$level.comb, 1), "%-CI", sep = "")
+  ci.lab <- paste0(round(100 * object$level.comb, 1), "%-CI")
   
   
   ##
@@ -862,7 +862,7 @@ print.summary.meta <- function(x,
   ##
   ## Additional arguments / checks for metacont objects
   ##
-  cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
+  cl <- paste0("update.meta() or ", class(x)[1], "()")
   addargs <- names(list(...))
   ##
   fun <- "print.summary.meta"
@@ -927,7 +927,7 @@ print.summary.meta <- function(x,
   }
   else
     if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep = "")
+      sm.lab <- paste0("log", sm)
   ##
   if (length(x$tau.common) == 0)
     x$tau.common <- FALSE
@@ -937,7 +937,7 @@ print.summary.meta <- function(x,
   ##
   if (by)
     bylevs <- ifelse(nchar(x$bylevs) > bylab.nchar,
-                     paste(substring(x$bylevs, 1, bylab.nchar - 4), " ...", sep = ""),
+                     paste0(substring(x$bylevs, 1, bylab.nchar - 4), " ..."),
                      x$bylevs)
   
   
@@ -1207,19 +1207,19 @@ print.summary.meta <- function(x,
             (inherits(x, c("metabin", "metainc")) &
              comb.fixed & sm %in% c("RD", "IRD") &
              (!is.null(x$k.MH) == 1 && k != x$k.MH)))
-          cat(paste("Number of studies combined:   k.MH = ", x$k.MH,
-                    " (fixed effect), k = ", format(k, big.mark = big.mark),
-                    " (random effects)\n\n", sep = ""))
+          cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
+                     " (fixed effect), k = ", format(k, big.mark = big.mark),
+                     " (random effects)\n\n"))
         else
-          cat(paste("Number of studies combined: k = ",
-                    format(k, big.mark = big.mark), "\n\n", sep = ""))
+          cat(paste0("Number of studies combined: k = ",
+                     format(k, big.mark = big.mark), "\n\n"))
       }
       else
-        cat(paste("Number of studies combined: k = ",
-                  format(k, big.mark = big.mark),
-                  " (with ",
-                  format(x$k0, big.mark = big.mark),
-                  " added studies)\n\n", sep = ""))
+        cat(paste0("Number of studies combined: k = ",
+                   format(k, big.mark = big.mark),
+                   " (with ",
+                   format(x$k0, big.mark = big.mark),
+                   " added studies)\n\n"))
       ##
       res <- cbind(formatN(c(if (comb.fixed) TE.fixed,
                              if (comb.random) TE.random,
@@ -1278,7 +1278,7 @@ print.summary.meta <- function(x,
       }
     }
     else
-      cat(paste("Number of studies: k = ", k, "\n", sep = ""))
+      cat(paste0("Number of studies: k = ", k, "\n"))
     ##
     ## Print information on heterogeneity
     ##
@@ -1408,13 +1408,11 @@ print.summary.meta <- function(x,
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
-                                  paste(formatN(I2.w, digits.I2),
-                                        "%", sep = "")),
+                                  paste0(formatN(I2.w, digits.I2), "%")),
                          if (print.Rb)
                            ifelse(is.na(Rb.w),
                                   "--",
-                                  paste(formatN(Rb.w, digits.I2),
-                                        "%", sep = ""))
+                                  paste0(formatN(Rb.w, digits.I2), "%"))
                          )
           ##
           bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
@@ -1490,14 +1488,12 @@ print.summary.meta <- function(x,
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
-                                  paste(formatN(I2.w, digits.I2),
-                                        "%", sep = "")),
+                                  paste0(formatN(I2.w, digits.I2), "%")),
                          if (print.Rb)
                            ifelse(is.na(Rb.w),
                                   "--",
-                                  paste(formatN(Rb.w, digits.I2,
-                                                big.mark = big.mark),
-                                        "%", sep = ""))
+                                  paste0(formatN(Rb.w, digits.I2,
+                                                 big.mark = big.mark), "%"))
                          )
           ##
           bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,

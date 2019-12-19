@@ -197,9 +197,9 @@ settings.meta <- function(...) {
       cat("- ")
     ##
     if (is.character(.settings[[x]]))
-      cat(xname, ' = "', .settings[[x]], '"', end, '\n', sep = "")
+      cat(paste0(xname, ' = "', .settings[[x]], '"', end, '\n'))
     else
-      cat(xname, ' = ', .settings[[x]], end, "\n", sep = "")
+      cat(paste0(xname, ' = ', .settings[[x]], end, "\n"))
     invisible(NULL)
   }
   
@@ -209,8 +209,8 @@ settings.meta <- function(...) {
     ischar <- as.vector(unlist(lapply(new, is.character)))
     new <- as.vector(unlist(new))
     ##
-    label.old <- ifelse(ischar, paste("\"", old, "\"", sep = ""), old)
-    label.new <- ifelse(ischar, paste("\"", new, "\"", sep = ""), new)
+    label.old <- ifelse(ischar, paste0("\"", old, "\""), old)
+    label.new <- ifelse(ischar, paste0("\"", new, "\""), new)
     ##
     sel <- new != old
     if (any(sel)) {
@@ -229,7 +229,7 @@ settings.meta <- function(...) {
       names(tdata) <- c("--------", "", "---------",
                         "", "--------------")
       ##
-      cat(paste("\n** Use ", setting, " (R package meta) **\n\n", sep = ""))
+      cat(paste0("\n** Use ", setting, " (R package meta) **\n\n"))
       prmatrix(tdata, quote = FALSE, right = FALSE,
                rowlab = rep_len("", 2 + sum(sel)))
       ##
@@ -246,8 +246,8 @@ settings.meta <- function(...) {
     }
     else {
       if (substring(setting, 1, 1) == "s")
-        setting <- paste("S", substring(setting, 2), sep = "")
-      cat(paste("\n** ", setting, " already in used (R package meta). **\n\n", sep = ""))
+        setting <- paste0("S", substring(setting, 2))
+      cat(paste0("\n** ", setting, " already in used (R package meta). **\n\n"))
     }
   }
   
@@ -333,10 +333,11 @@ settings.meta <- function(...) {
   
   
   if (print.settings) {
-    cat(paste("\n** Settings for meta-analysis method (R package meta, version ",
-              utils::packageDescription("meta")$Version, ") **\n\n", sep = ""))
+    cat(paste0("\n** Settings for meta-analysis method (R package meta, ",
+               "version ", utils::packageDescription("meta")$Version,
+               ") **\n\n"))
     ##
-    cat("* General settings *\n", sep = "")
+    cat(paste0("* General settings *\n"))
     catarg("level          ")
     catarg("level.comb     ")
     catarg("comb.fixed     ")

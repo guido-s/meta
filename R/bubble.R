@@ -209,8 +209,8 @@ bubble.metareg <- function(x,
             )
     regline <- FALSE
     if (missing(xlab))
-      xlab <- paste("Covariate ", covar.name,
-                    " (meta-regression: ", charform, ")", sep = "")
+      xlab <- paste0("Covariate ", covar.name,
+                     " (meta-regression: ", charform, ")")
   }
   else
     if (missing(xlab))
@@ -258,9 +258,8 @@ bubble.metareg <- function(x,
     ylim <- range(ys)
   ##
   if (missing(ylab))
-    ylab <- paste("Treatment effect (",
-                  tolower(xlab(sm, backtransf = FALSE)),
-                  ")", sep = "")
+    ylab <- paste0("Treatment effect (",
+                   tolower(xlab(sm, backtransf = FALSE)), ")")
   
   
   missing.cex <- missing(cex)

@@ -75,140 +75,165 @@ catmeth <- function(method,
   ##
   if (metaprop && !is.null(method.ci)) {
     if  (method.ci == "CP")
-      method.ci.details <- "\n- Clopper-Pearson confidence interval for individual studies"
+      method.ci.details <-
+        "\n- Clopper-Pearson confidence interval for individual studies"
     else if (method.ci == "WS")
-      method.ci.details <- "\n- Wilson Score confidence interval for individual studies"
+      method.ci.details <-
+        "\n- Wilson Score confidence interval for individual studies"
     else if (method.ci == "WSCC")
-      method.ci.details <- "\n- Wilson Score confidence interval with continuity correction for individual studies"
+      method.ci.details <-
+        paste0("\n- Wilson Score confidence interval with ",
+               "continuity correction for individual studies")
     else if (method.ci == "AC")
-      method.ci.details <- "\n- Agresti-Coull confidence interval for individual studies"
+      method.ci.details <-
+        "\n- Agresti-Coull confidence interval for individual studies"
     else if (method.ci == "SA")
-      method.ci.details <- "\n- Simple approximation confidence interval for individual studies"
+      method.ci.details <-
+        "\n- Simple approximation confidence interval for individual studies"
     else if (method.ci == "SACC")
-      method.ci.details <- "\n- Simple approximation confidence interval with continuity correction for individual studies"
+      method.ci.details <-
+        paste0("\n- Simple approximation confidence interval with ",
+               "continuity correction for individual studies")
     else if (method.ci == "NAsm")
-      method.ci.details <- "\n- Normal approximation confidence interval for individual studies"
+      method.ci.details <-
+        "\n- Normal approximation confidence interval for individual studies"
     ##
-    sm.details <- paste(sm.details, method.ci.details, sep = "")
+    sm.details <- paste0(sm.details, method.ci.details)
   }
   ##
   if (metacont && sm == "SMD" && !is.null(method.smd)) {
-    if  (method.smd == "Hedges")
+    if (method.smd == "Hedges")
       if (exact.smd)
-        method.details <- "\n- Hedges' g (bias corrected standardised mean difference; using exact formulae)"
+        method.details <-
+          paste0("\n- Hedges' g (bias corrected standardised mean difference; ",
+                 "using exact formulae)")
       else
-        method.details <- "\n- Hedges' g (bias corrected standardised mean difference)"
-    else if  (method.smd == "Cohen")
+        method.details <-
+          "\n- Hedges' g (bias corrected standardised mean difference)"
+    else if (method.smd == "Cohen")
       if (exact.smd)
-        method.details <- "\n- Cohen's d (standardised mean difference; using exact formulae)"
+        method.details <-
+          "\n- Cohen's d (standardised mean difference; using exact formulae)"
       else
-        method.details <- "\n- Cohen's d (standardised mean difference)"
+        method.details <-
+          "\n- Cohen's d (standardised mean difference)"
     else if  (method.smd == "Glass") {
       if (!is.null(sd.glass) && sd.glass == "control")
-        method.details <- "\n- Glass' delta (standardised mean difference; based on control group)"
+        method.details <-
+          paste0("\n- Glass' delta (standardised mean difference; ",
+                 "based on control group)")
       else if (!is.null(sd.glass) && sd.glass == "experimental")
-        method.details <- "\n- Glass' delta (standardised mean difference; based on experimental group)"
+        method.details <-
+          paste0("\n- Glass' delta (standardised mean difference; ",
+                 "based on experimental group)")
     }
     ##
-    sm.details <- paste(sm.details, method.details, sep = "")
+    sm.details <- paste0(sm.details, method.details)
   }
   ##
   if (metabin | metainc | metaprop | metarate) {
     if (!(sm == "ASD" | method == "Peto")) {
       if (addincr) {
         if (all(incr == "TACC"))
-          sm.details <- paste(sm.details,
-                              "\n- Treatment arm continuity correction in all studies",
-                              if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                              sep = "")
+          sm.details <-
+            paste0(sm.details,
+                   "\n- Treatment arm continuity correction in all studies",
+                   if (method == "GLMM")
+                     "\n  (only used to calculate individual study results)")
         else if (all(incr != 0))
-          sm.details <- paste(sm.details,
-                              "\n- Continuity correction",
-                              if (length(unique(incr)) == 1)
-                                paste(" of ", round(incr, 4), sep = ""),
-                              " in all studies",
-                              if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                              sep = "")
+          sm.details <-
+            paste0(sm.details,
+                   "\n- Continuity correction",
+                   if (length(unique(incr)) == 1)
+                     paste0(" of ", round(incr, 4)),
+                   " in all studies",
+                   if (method == "GLMM")
+                     "\n  (only used to calculate individual study results)")
       }
       else if (sparse) {
         if (allincr == FALSE) {
           if (all(incr == "TACC"))
-            sm.details <- paste(sm.details,
-                                "\n- Treatment arm continuity correction in studies with zero cell frequencies",
-                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                                sep = "")
+            sm.details <-
+              paste0(sm.details,
+                     paste0("\n- Treatment arm continuity correction in ",
+                            "studies with zero cell frequencies"),
+                     if (method == "GLMM")
+                       "\n  (only used to calculate individual study results)")
           else if (any(incr != 0))
-            sm.details <- paste(sm.details,
-                                "\n- Continuity correction",
-                                if (length(unique(incr)) == 1)
-                                  paste(" of ", round(incr, 4), sep = ""),
-                                " in studies with zero cell frequencies",
-                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                                sep = "")
+            sm.details <-
+              paste0(sm.details,
+                     "\n- Continuity correction",
+                     if (length(unique(incr)) == 1)
+                       paste0(" of ", round(incr, 4)),
+                     " in studies with zero cell frequencies",
+                     if (method == "GLMM")
+                       "\n  (only used to calculate individual study results)")
         }
         else {
           if (all(incr == "TACC"))
-            sm.details <- paste(sm.details,
-                                "\n- Treatment arm continuity correction in all studies",
-                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                               sep = "")
+            sm.details <-
+              paste0(sm.details,
+                     "\n- Treatment arm continuity correction in all studies",
+                     if (method == "GLMM")
+                       "\n  (only used to calculate individual study results)")
           else if (any(incr != 0))
-            sm.details <- paste(sm.details,
-                                "\n- Continuity correction",
-                                if (length(unique(incr)) == 1)
-                                  paste(" of ", round(incr, 4), sep = ""),
-                                " in all studies",
-                                if (method == "GLMM") "\n  (only used to calculate individual study results)",
-                                sep = "")
+            sm.details <-
+              paste0(sm.details,
+                     "\n- Continuity correction",
+                     if (length(unique(incr)) == 1)
+                       paste0(" of ", round(incr, 4)),
+                     " in all studies",
+                     if (method == "GLMM")
+                       "\n  (only used to calculate individual study results)")
         }
         ##
         if (allstudies & doublezeros)
-          sm.details <- paste(sm.details,
-                              "\n- Studies with double zeros included in meta-analysis")
+          sm.details <-
+            paste(sm.details,
+                  "\n- Studies with double zeros included in meta-analysis")
       }
     }
   }
   
   
   if (pscale != 1)
-    sm.details <- paste(sm.details,
-                        "\n- Events per ",
-                        format(pscale, scientific = FALSE,
-                               big.mark = big.mark),
-                        " observations", sep = "")
+    sm.details <- paste0(sm.details,
+                         "\n- Events per ",
+                         format(pscale, scientific = FALSE,
+                                big.mark = big.mark),
+                         " observations")
   ##
   if (irscale != 1)
-    sm.details <- paste(sm.details,
+    sm.details <- paste0(sm.details,
                         "\n- Events per ",
                         format(irscale, scientific = FALSE,
                                big.mark = big.mark),
-                        " ", irunit, sep = "")
+                        " ", irunit)
 
   if (!is.na(null.effect) && null.effect != 0) {
     if (pscale != 1)
-      sm.details <- paste(sm.details,
-                          "\n- Null hypothesis: effect is equal to ",
-                          format(round(null.effect * pscale, digits),
-                                 scientific = FALSE, big.mark = big.mark),
-                          " events per ",
-                          format(pscale, scientific = FALSE,
-                                 big.mark = big.mark),
-                          " observations", sep = "")
+      sm.details <- paste0(sm.details,
+                           "\n- Null hypothesis: effect is equal to ",
+                           format(round(null.effect * pscale, digits),
+                                  scientific = FALSE, big.mark = big.mark),
+                           " events per ",
+                           format(pscale, scientific = FALSE,
+                                  big.mark = big.mark),
+                           " observations")
     else if (irscale != 1)
-      sm.details <- paste(sm.details,
-                          "\n- Null hypothesis: effect is equal to ",
-                          format(round(null.effect * irscale, digits),
-                                 scientific = FALSE, big.mark = big.mark),
-                          " events per ",
-                          format(irscale, scientific = FALSE,
-                                 big.mark = big.mark),
-                          " ", irunit, sep = "")
+      sm.details <- paste0(sm.details,
+                           "\n- Null hypothesis: effect is equal to ",
+                           format(round(null.effect * irscale, digits),
+                                  scientific = FALSE, big.mark = big.mark),
+                           " events per ",
+                           format(irscale, scientific = FALSE,
+                                  big.mark = big.mark),
+                           " ", irunit)
     else
-      sm.details <- paste(sm.details,
-                          "\n- Null hypothesis: effect is equal to ",
-                          format(null.effect, scientific = FALSE,
-                                 big.mark = big.mark),
-                          sep = "")
+      sm.details <- paste0(sm.details,
+                           "\n- Null hypothesis: effect is equal to ",
+                           format(null.effect, scientific = FALSE,
+                                  big.mark = big.mark))
   }
   
   
@@ -223,8 +248,8 @@ catmeth <- function(method,
                              lab.NA = "NA",
                              big.mark = big.mark)
       ##
-      lab.method.tau <- paste("\n- Preset square root of between-study variance: ",
-                              tau.preset, sep = "")
+      lab.method.tau <-
+        paste0("\n- Preset square root of between-study variance: ", tau.preset)
       ##
       lab.method.details <- lab.method.tau
     }
@@ -274,7 +299,7 @@ catmeth <- function(method,
       else
         lab.hakn <- ""
       ##      
-      lab.method.details <- paste(lab.method.tau, lab.hakn, sep = "")
+      lab.method.details <- paste0(lab.method.tau, lab.hakn)
     }
   }
   ##
@@ -284,12 +309,13 @@ catmeth <- function(method,
   ##
   if ((metabin|metainc) & imeth == 1 & (sparse | addincr))
     if (MH.exact | metainc)
-      lab.method.details <- paste(" (without continuity correction)",
-                                  lab.method.details, sep = "")
+      lab.method.details <- paste0(" (without continuity correction)",
+                                   lab.method.details)
   ##
   if (metacont && !is.null(pooledvar) && pooledvar)
-    lab.method.details <- paste(" (with pooled variance for individual studies)",
-                                lab.method.details, sep = "")
+    lab.method.details <-
+      paste0(" (with pooled variance for individual studies)",
+             lab.method.details)
   ##
   method <- c("\n- Mantel-Haenszel method",
               "\n- Peto method",
@@ -317,10 +343,10 @@ catmeth <- function(method,
       method <- "\n- Random intercept Poisson regression model"
   }
   ##
-  method <- paste(method, lab.method.details, sep = "")
+  method <- paste0(method, lab.method.details)
   ##
   if (k.all > 1) {
-    cat(paste("\nDetails on meta-analytical method:", method, sep = ""))
+    cat(paste0("\nDetails on meta-analytical method:", method))
     ##
     if (trimfill)
       cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
@@ -349,12 +375,10 @@ catmeth <- function(method,
     }
   }
   else
-    cat(paste("\nDetails:", method, sep = ""))
+    cat(paste0("\nDetails:", method))
   ##
   if (sm.details != "")
-    cat(sm.details,
-        "\n",
-        sep = "")
+    cat(paste0(sm.details, "\n"))
   else
     cat("\n")
   

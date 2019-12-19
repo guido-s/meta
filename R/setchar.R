@@ -32,13 +32,12 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       }
       else {
         if (nval == 1)
-          vlist <- paste('"', val, '"', sep = "")
+          vlist <- paste0('"', val, '"')
         else if (nval == 2)
-          vlist <- paste('"', val, '"', collapse = " or ", sep = "")
+          vlist <- paste0('"', val, '"', collapse = " or ")
         else
-          vlist <- paste(paste('"', val[-nval],
-                               '"', collapse = ", ", sep = ""),
-                         ', or ', '"', val[nval], '"', sep = "")
+          vlist <- paste0(paste0('"', val[-nval], '"', collapse = ", "),
+                          ', or ', '"', val[nval], '"')
       }
       ##
       if (stop.at.error)

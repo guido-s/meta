@@ -205,8 +205,12 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   ##
   ## Check number of fields in input data file
   ##
-  if (length(unique(count.fields(file, sep = sep, quote = quote, comment.char = ""))) != 1)
-    stop("Input file has different number of elements. Probably your export data file contains field 'Risk of bias tables'. Please create a new export data file in RevMan 5 without this field.")
+  if (length(unique(count.fields(file, sep = sep, quote = quote,
+                                 comment.char = ""))) != 1)
+    stop("Input file has different number of elements. ",
+         "Probably your export data file contains the field ",
+         "'Risk of bias tables'. Please create a new export data file in ",
+         "RevMan 5 without this field.")
   ##
   tdata <- read.table(file, header = TRUE,
                       sep = sep, quote = quote,
@@ -220,7 +224,8 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   ##
   nam[grep("Comparison.Number$", nam)] <- "Comparison.Number"
   ##
-  if (!all(c("Comparison.Number", "Outcome.Number", "Subgroup.Number") %in% nam))
+  if (!all(c("Comparison.Number", "Outcome.Number",
+             "Subgroup.Number") %in% nam))
     stop("Mandatory fields 'Comparison Number', 'Outcome Number',",
          " and 'Subgroup Number' not included in export file ",
          deparse(substitute(file)),
@@ -242,8 +247,10 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   ## Variable 'Test.for.subgroup.differences' not included in data frame 
   ##
   nam[nam == "Swap.event.and.non.event"] <- "swap.events"
-  nam[nam == "Entered.data.are.on.log.scale..Generic.Inverse.Variance.only."] <- "logscale"
-  nam[nam == "Enter.number.of.participants..Generic.Inverse.Variance..for.display.only."] <- "enter.n"
+  nam[nam == "Entered.data.are.on.log.scale..Generic.Inverse.Variance.only."] <-
+    "logscale"
+  nam[nam == "Enter.number.of.participants..Generic.Inverse.Variance..for.display.only."] <-
+    "enter.n"
   ##
   nam[nam == "Events.1"] <- "event.e"
   nam[nam == "Mean.1"] <- "mean.e"
@@ -505,12 +512,12 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   res2$label.right <- nachar(as.character(res2$label.right))
   ##
   if (numbers.in.labels & length(res2$comp.no) > 0) {
-    res2$complab <- paste(res2$comp.no, " ", res2$complab, sep = "")
-    res2$outclab <- paste(res2$comp.no, ".", res2$outcome.no, " ",
-                          res2$outclab, sep = "")
+    res2$complab <- paste0(res2$comp.no, " ", res2$complab)
+    res2$outclab <- paste0(res2$comp.no, ".", res2$outcome.no, " ",
+                           res2$outclab)
     if (is.data.frame(res$group))
-      res2$grplab <- paste(res2$comp.no, ".", res2$outcome.no, ".",
-                           res2$group.no, " ", res2$grplab, sep = "")
+      res2$grplab <- paste0(res2$comp.no, ".", res2$outcome.no, ".",
+                            res2$group.no, " ", res2$grplab)
   }
   ##
   res2 <- res2[order(res2$comp.no,
@@ -525,10 +532,11 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
         sel2 <- res2$comp.no == i & res2$outcome.no == j
         if (unique(res2$sm[sel2]) == "OTHER")
           warning("Summary measure unclear for outcome '",
-                  ##paste(unique(res2$comp.no[sel2]), ".",
-                  ##      unique(res2$outcome.no[sel2]), sep = ""),
+                  ##paste0(unique(res2$comp.no[sel2]), ".",
+                  ##       unique(res2$outcome.no[sel2])),
                   unique(res2$outclab[sel2]),
-                  "'. Please use argument 'sm' in function metacr to choose adequate summary measure.")
+                  "'. Please use argument 'sm' in function metacr ",
+                  "to choose adequate summary measure.")
       }
     }
   }
@@ -537,14 +545,20 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   ##res2$TE[res2$sm == "HR"] <- log(res2$TE[res2$sm == "HR"])
   ##res2$sm[res2$sm == "log HR"] <- "HR"
 
-  iswap.events <- charmatch(tolower(as.character(res2$swap.events)), c("yes", "no"), nomatch = NA)
-  res2$swap.events <- ifelse(iswap.events == 1, TRUE, ifelse(iswap.events == 2, FALSE, NA))
+  iswap.events <- charmatch(tolower(as.character(res2$swap.events)),
+                            c("yes", "no"), nomatch = NA)
+  res2$swap.events <- ifelse(iswap.events == 1, TRUE,
+                      ifelse(iswap.events == 2, FALSE, NA))
   ##
-  ienter.n <- charmatch(tolower(as.character(res2$enter.n)), c("yes", "no"), nomatch = NA)
-  res2$enter.n <- ifelse(ienter.n == 1, TRUE, ifelse(ienter.n == 2, FALSE, NA))
+  ienter.n <- charmatch(tolower(as.character(res2$enter.n)),
+                        c("yes", "no"), nomatch = NA)
+  res2$enter.n <- ifelse(ienter.n == 1, TRUE,
+                  ifelse(ienter.n == 2, FALSE, NA))
   ##
-  ilogscale <- charmatch(tolower(as.character(res2$logscale)), c("no", "yes"), nomatch = NA)
-  res2$logscale <- ifelse(ilogscale == 1, TRUE, ifelse(ilogscale == 2, FALSE, NA))
+  ilogscale <- charmatch(tolower(as.character(res2$logscale)),
+                         c("no", "yes"), nomatch = NA)
+  res2$logscale <- ifelse(ilogscale == 1, TRUE,
+                   ifelse(ilogscale == 2, FALSE, NA))
   
   attr(res2, "version") <- packageDescription("meta")$Version
   

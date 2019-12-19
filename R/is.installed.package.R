@@ -9,7 +9,7 @@ is.installed.package <- function(pkg, func, argument, value,
   if (stop & (!pkginstalled) | oldpkg) {
     
     if (oldpkg) {
-      oldmsg <- paste("Library '", pkg, "' is too old. ", sep = "")
+      oldmsg <- paste0("Library '", pkg, "' is too old. ")
       oldinst <- "re"
     }
     else {
@@ -18,41 +18,32 @@ is.installed.package <- function(pkg, func, argument, value,
     }
     
     if (chksettings)
-      warning(paste(oldmsg,
-                    "Argument '", argument, "' not changed.",
-                    "\n  ",
-                    "Please ", oldinst,
-                    "install library '", pkg,
-                    "' in order to use argument '", argument, " = \"", value, "\"",
-                    "'\n  ",
-                    "(R command: 'install.packages(\"", pkg, "\")').",
-                    sep = ""))
+      warning(oldmsg,
+              "Argument '", argument, "' not changed.\n  ",
+              "Please ", oldinst, "install library '", pkg,
+              "' in order to use argument '", argument, " = \"",
+              value, "\"'\n  ",
+              "(R command: 'install.packages(\"", pkg, "\")').")
     else
       if (missing(func))
-        stop(paste(oldmsg,
-                   "Please ", oldinst,
-                   "install library '", pkg,
-                   "'\n       ",
-                   "(R command: 'install.packages(\"", pkg, "\")').",
-                   sep = ""),
+        stop(oldmsg,
+             "Please ", oldinst, "install library '", pkg,
+             "'\n       ",
+             "(R command: 'install.packages(\"", pkg, "\")').",
              call. = FALSE)
       else
-        stop(paste(oldmsg,
-                   "Please ", oldinst,
-                   "install library '", pkg,
-                   "' before using function '", func,
-                   if (missing(argument))
-                     "'."
-                   else
-                     paste("' with argument '", argument,
-                           ifelse(missing(value), "'.",
-                                  paste(" ", value, "'.", sep = "")),
-                           sep = ""),
-                   "\n       ",
-                   "(R command: 'install.packages(\"", pkg, "\")').",
-                   sep = ""),
+        stop(oldmsg,
+             "Please ", oldinst, "install library '", pkg,
+             "' before using function '", func,
+             if (missing(argument))
+               "'."
+             else
+               paste0("' with argument '", argument,
+                      ifelse(missing(value), "'.",
+                             paste0(" ", value, "'."))),
+             "\n       ",
+             "(R command: 'install.packages(\"", pkg, "\")').",
              call. = FALSE)
-    
   }
   
   invisible(pkginstalled)

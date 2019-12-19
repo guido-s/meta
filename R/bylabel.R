@@ -4,9 +4,8 @@ bylabel <- function(bylab, bylevs, print.byvar, byseparator,
     if (length(bylab) == 0 || bylab == "")
       res <- format(bylevs, big.mark = big.mark)
     else
-      res <- paste(bylab, byseparator,
-                   format(bylevs, big.mark = big.mark),
-                   sep = "")
+      res <- paste0(bylab, byseparator,
+                    format(bylevs, big.mark = big.mark))
   }
   else
     res <- format(bylevs, big.mark = big.mark)

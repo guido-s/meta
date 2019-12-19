@@ -240,7 +240,7 @@ print.meta <- function(x,
   ##
   ## Additional arguments / checks for metacont objects
   ##
-  cl <- paste("update.meta() or ", class(x)[1], "()", sep = "")
+  cl <- paste0("update.meta() or ", class(x)[1], "()")
   addargs <- names(list(...))
   ##
   fun <- "print.meta"
@@ -267,7 +267,7 @@ print.meta <- function(x,
   if (is.na(prediction))
     prediction <- FALSE
   ##
-  ci.lab <- paste(round(100 * level, 1), "%-CI", sep = "")
+  ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
   sm <- x$sm
   ##
@@ -293,7 +293,7 @@ print.meta <- function(x,
   }
   else
     if (is.relative.effect(sm))
-      sm.lab <- paste("log", sm, sep = "")
+      sm.lab <- paste0("log", sm)
 
 
   ##
@@ -539,10 +539,10 @@ print.meta <- function(x,
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
                    pval,
-                   paste(" ", tau2, sep = ""),
-                   paste(" ", tau, sep = ""),
-                   paste(" ", I2, ifelse(I2 == "", "", "%"), sep = ""))
-      dimnames(res) <- list(paste(x$studlab, "  ", sep = ""),
+                   paste0(" ", tau2),
+                   paste0(" ", tau),
+                   paste0(" ", I2, ifelse(I2 == "", "", "%")))
+      dimnames(res) <- list(paste0(x$studlab, "  "),
                             c(sm.lab, ci.lab, "p-value",
                               text.tau2, text.tau, text.I2))
       ##

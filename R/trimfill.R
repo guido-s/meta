@@ -563,11 +563,11 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
       trim1 <- estimate.missing(TE, TE.sum, type)
       ##
       if (!silent) {
-        cat("n.iter = ", n.iter, "\n", sep = "")
+        cat(paste0("n.iter = ", n.iter, "\n"))
         if (type == "L")
-          cat("L0 = ", round(trim1$res0, 2), "\n\n", sep = "")
+          cat(paste0("L0 = ", round(trim1$res0, 2), "\n\n"))
         if (type == "R")
-          cat("R0 = ", round(trim1$res0 + 0.5, 2), "\n\n", sep = "")
+          cat(paste0("R0 = ", round(trim1$res0 + 0.5, 2), "\n\n"))
       }
       ##
       k0 <- trim1$res0.plus

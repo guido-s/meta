@@ -191,6 +191,10 @@
 #'   getFromNamespace packageDescription packageVersion
 #'
 #' @importFrom metafor rma.uni rma.glmm predict.rma confint.rma.uni
+#'
+#' @importFrom lme4 glmer
+#'
+#' @importFrom CompQuadForm farebrother
 
 
 NULL

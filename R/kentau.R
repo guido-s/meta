@@ -47,9 +47,8 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   ##
   if (as.logical(correct) &
       any(c(length(unique(x)), length(unique(y))) == 2))
-    warning(paste("Continuity corrected statistic may be inappropriate,\n",
-                  "see Kendall, Gibbons (1990), Rank Correlation Methods, ",
-                  "p.67.\n ", sep = ""))
+    warning("Continuity corrected statistic may be inappropriate,\n",
+            "see Kendall, Gibbons (1990), Rank Correlation Methods, p.67.")
   ##
   statistic <- (ks - sign(ks) * as.logical(correct)) / se.ks
   p.value <- 2 * pnorm(abs(statistic), lower.tail = FALSE)

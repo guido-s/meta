@@ -337,9 +337,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   method.bias <- setchar(method.bias, tests)
   imeth <- charmatch(method.bias, tests)
   method <-
-    c(paste("Rank correlation test of funnel plot asymmetry",
-            ifelse(correct == TRUE, " (with continuity correction)", ""),
-            sep = ""),
+    c(paste0("Rank correlation test of funnel plot asymmetry",
+             ifelse(correct == TRUE, " (with continuity correction)", "")),
       "Linear regression test of funnel plot asymmetry",
       "Linear regression test of funnel plot asymmetry (methods of moment)",
       paste0("Rank correlation test of funnel plot asymmetry (based on counts)",
