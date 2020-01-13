@@ -29,8 +29,8 @@
 #' @param col A vector with colour of plotting symbols.
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
-#' @param col.fixed Color of line representing fixed effect estimate.
-#' @param col.random Color of line representing random effects
+#' @param col.fixed Colour of line representing fixed effect estimate.
+#' @param col.random Colour of line representing random effects
 #'   estimate.
 #' @param lwd The line width for confidence intervals (if \code{level}
 #'   is not \code{NULL}).
@@ -72,7 +72,7 @@
 #' @param lwd.ref The line width for the reference value and
 #'   corresponding confidence intervals (if \code{ref.triangle} is
 #'   TRUE and \code{level} is not \code{NULL}).
-#' @param col.ref Color of line representing reference value.
+#' @param col.ref Colour of line representing reference value.
 #' @param lty.ref.triangle Line type (confidence intervals of
 #'   reference value).
 #' @param backtransf A logical indicating whether results for relative

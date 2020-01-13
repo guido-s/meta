@@ -180,7 +180,7 @@
 #'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob
 #'   popViewport pushViewport viewport unit unit.c convertX
 #'
-#' @importFrom grDevices gray
+#' @importFrom grDevices gray gray.colors
 #'
 #' @importFrom graphics abline axis lines par plot points polygon text
 #' 

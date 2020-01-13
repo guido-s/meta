@@ -143,16 +143,16 @@ used if \code{pch} in \code{21:25}).}
 
 \item{lty.random}{Line type(s) for random effects estimate(s).}
 
-\item{col.fixed}{Color of line(s) for fixed effect estimate(s).}
+\item{col.fixed}{Colour of line(s) for fixed effect estimate(s).}
 
-\item{col.random}{Color of line(s) for random effects estimate(s).}
+\item{col.random}{Colour of line(s) for random effects estimate(s).}
 
 \item{nulleffect}{A logical indicating whether line for null effect
 should be added to the plot..}
 
 \item{lwd.nulleffect}{Width of line for null effect.}
 
-\item{col.nulleffect}{Color of line for null effect.}
+\item{col.nulleffect}{Colour of line for null effect.}
 
 \item{sm}{A character string indicating underlying summary measure,
 i.e., \code{"RD"}, \code{"RR"}, \code{"OR"}, or \code{"ASD"}.}

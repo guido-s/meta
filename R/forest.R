@@ -651,7 +651,7 @@
 #'   \code{test.subgroup})
 #' \item Diamonds representing meta-analysis results are printed in
 #'   black (\code{diamond.fixed}, \code{diamond.random})
-#' \item Color of squares depends on the meta-analysis object
+#' \item Colour of squares depends on the meta-analysis object
 #'   (\code{col.square}, \code{col.square.lines})
 #' \item Information on effect measure and meta-analysis method is
 #'   printed above the forest plot (\code{smlab})

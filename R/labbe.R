@@ -39,12 +39,12 @@
 #'   (if \code{comb.random} is not \code{NULL} or \code{FALSE}).
 #' @param lty.fixed Line type(s) for fixed effect estimate(s).
 #' @param lty.random Line type(s) for random effects estimate(s).
-#' @param col.fixed Color of line(s) for fixed effect estimate(s).
-#' @param col.random Color of line(s) for random effects estimate(s).
+#' @param col.fixed Colour of line(s) for fixed effect estimate(s).
+#' @param col.random Colour of line(s) for random effects estimate(s).
 #' @param nulleffect A logical indicating whether line for null effect
 #'   should be added to the plot..
 #' @param lwd.nulleffect Width of line for null effect.
-#' @param col.nulleffect Color of line for null effect.
+#' @param col.nulleffect Colour of line for null effect.
 #' @param sm A character string indicating underlying summary measure,
 #'   i.e., \code{"RD"}, \code{"RR"}, \code{"OR"}, or \code{"ASD"}.
 #' @param weight Either a numeric vector specifying relative sizes of
