@@ -7,10 +7,10 @@
 drapery(
   x,
   type = "pvalue",
-  layout = "equal",
-  lty.study = 2,
+  layout = "grayscale",
+  lty.study = 1,
   lwd.study = 1,
-  col.study = "black",
+  col.study = "darkgray",
   comb.fixed = x$comb.fixed,
   comb.random = x$comb.random,
   lty.fixed = 1,
@@ -21,8 +21,11 @@ drapery(
   col.random = "red",
   prediction = comb.random,
   col.predict = "lightblue",
-  alpha = c(0.01, 0.05, 0.1),
-  col.alpha = "darkgray",
+  alpha = if (type == "pvalue") c(0.01, 0.05, 0.1) else c(0.001, 0.01, 0.05, 0.1),
+  lty.alpha = 2,
+  lwd.alpha = 1,
+  col.alpha = "black",
+  cex.alpha = 0.7,
   col.null.effect = "black",
   legend = TRUE,
   pos.legend = "topleft",
@@ -35,6 +38,7 @@ drapery(
   ylim,
   lwd.max = 2.5,
   lwd.study.weight = if (comb.random) "random" else "fixed",
+  n.grid = if (type == "pvalue") 1000 else 10000,
   ...
 )
 }
@@ -46,7 +50,7 @@ drapery(
 abbreviated.}
 
 \item{layout}{A character string for the line layout of individual
-studies: \code{"equal"}, \code{"grayscale"}, or
+studies: \code{"grayscale"}, \code{"equal"}, or
 \code{"linewidth"} (see Details), can be abbreviated.}
 
 \item{lty.study}{Line type for individual studies.}
@@ -81,7 +85,14 @@ region.}
 \item{alpha}{Horizonal lines are printed for the specified alpha
 values.}
 
+\item{lty.alpha}{Line type of horizonal lines for alpha values.}
+
+\item{lwd.alpha}{Line width for individual studies.}
+
 \item{col.alpha}{Colour of horizonal lines for alpha values.}
+
+\item{cex.alpha}{The magnification for the text of the alpha
+values.}
 
 \item{col.null.effect}{Colour of vertical line indicating null
 effect.}
@@ -118,6 +129,9 @@ fixed effect (\code{"fixed"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
 
+\item{n.grid}{The number of grid points to calculate the p-value or
+critical value functions.}
+
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
 }
@@ -141,9 +155,9 @@ shown using argument \code{type = "cvalue"}.
 Argument \code{layout} determines how curves for individual studies
 are presented:
 \itemize{
-\item equal lines (\code{layout = "equal"})
 \item darker gray tones with increasing precision (\code{layout = "grayscale"})
 \item thicker lines with increasing precision (\code{layout = "linewidth"})
+\item equal lines (\code{layout = "equal"})
 }
 }
 \examples{

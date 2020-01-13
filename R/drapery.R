@@ -11,7 +11,7 @@
 #'   (\code{"pvalue"}) or critical values (\code{"cvalue"}), can be
 #'   abbreviated.
 #' @param layout A character string for the line layout of individual
-#'   studies: \code{"equal"}, \code{"grayscale"}, or
+#'   studies: \code{"grayscale"}, \code{"equal"}, or
 #'   \code{"linewidth"} (see Details), can be abbreviated.
 #' @param lty.study Line type for individual studies.
 #' @param lwd.study Line width for individual studies.
@@ -31,7 +31,11 @@
 #' @param col.predict Colour of prediction region
 #' @param alpha Horizonal lines are printed for the specified alpha
 #'   values.
+#' @param lty.alpha Line type of horizonal lines for alpha values.
+#' @param lwd.alpha Line width for individual studies.
 #' @param col.alpha Colour of horizonal lines for alpha values.
+#' @param cex.alpha The magnification for the text of the alpha
+#'   values.
 #' @param col.null.effect Colour of vertical line indicating null
 #'   effect.
 #' @param legend A logical indicating whether a legend should be
@@ -55,6 +59,8 @@
 #'   fixed effect (\code{"fixed"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
+#' @param n.grid The number of grid points to calculate the p-value or
+#'   critical value functions.
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #' 
@@ -74,9 +80,9 @@
 #' Argument \code{layout} determines how curves for individual studies
 #' are presented:
 #' \itemize{
-#' \item equal lines (\code{layout = "equal"})
 #' \item darker gray tones with increasing precision (\code{layout = "grayscale"})
 #' \item thicker lines with increasing precision (\code{layout = "linewidth"})
+#' \item equal lines (\code{layout = "equal"})
 #' }
 #' 
 #' @author Gerta Rücker \email{sc@@imbi.uni-freiburg.de}, Guido
@@ -108,9 +114,9 @@
 #' @export drapery
 
 
-drapery <- function(x, type = "pvalue", layout = "equal",
+drapery <- function(x, type = "pvalue", layout = "grayscale",
                     ##
-                    lty.study = 2, lwd.study = 1, col.study = "black",
+                    lty.study = 1, lwd.study = 1, col.study = "darkgray",
                     ##
                     comb.fixed = x$comb.fixed, comb.random = x$comb.random,
                     lty.fixed = 1, lwd.fixed = max(3, lwd.study),
@@ -120,8 +126,10 @@ drapery <- function(x, type = "pvalue", layout = "equal",
                     ##
                     prediction = comb.random, col.predict = "lightblue",
                     ##
-                    alpha = c(0.01, 0.05, 0.1),
-                    col.alpha = "darkgray",
+                    alpha = if (type == "pvalue") c(0.01, 0.05, 0.1)
+                                else c(0.001, 0.01, 0.05, 0.1),
+                    lty.alpha = 2, lwd.alpha = 1, col.alpha = "black",
+                    cex.alpha = 0.7,
                     col.null.effect = "black",
                     ##
                     legend = TRUE, pos.legend = "topleft",
@@ -134,13 +142,14 @@ drapery <- function(x, type = "pvalue", layout = "equal",
                     xlim, ylim,
                     lwd.max = 2.5,
                     lwd.study.weight = if (comb.random) "random" else "fixed",
+                    n.grid = if (type == "pvalue") 1000 else 10000,
                     ...) {
   
   
   pvf <- function(x, TE, seTE)
     2 * pnorm(abs(TE - x) / seTE, lower.tail = FALSE)
   
-
+  
   ##
   ##
   ## (1) Check arguments
@@ -149,7 +158,7 @@ drapery <- function(x, type = "pvalue", layout = "equal",
   chkclass(x, "meta")
   ##
   type <- setchar(type, c("pvalue", "cvalue"))
-  layout <- setchar(layout, c("equal", "grayscale", "linewidth"))
+  layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
   ##
   chknumeric(lty.study, min = 0, zero = TRUE, single = TRUE)
   chknumeric(lwd.study, min = 0, zero = TRUE, single = TRUE)
@@ -160,6 +169,9 @@ drapery <- function(x, type = "pvalue", layout = "equal",
   ##
   if (!all(is.na(alpha)))
     chklevel(alpha, single = FALSE)
+  chknumeric(lty.alpha, min = 0, zero = TRUE, single = TRUE)
+  chknumeric(lwd.alpha, min = 0, zero = TRUE, single = TRUE)
+  chknumeric(cex.alpha, min = 0, zero = TRUE, single = TRUE)
   ##
   chklogical(legend)
   bty <- setchar(bty, c("o", "n"))
@@ -175,6 +187,8 @@ drapery <- function(x, type = "pvalue", layout = "equal",
   ##
   chknumeric(lwd.max, min = 0, zero = TRUE, single = TRUE)
   lwd.study.weight <- setchar(lwd.study.weight, c("random", "fixed"))
+  ##
+  chknumeric(n.grid, min = 0, zero = TRUE, single = TRUE)
   
   
   ##
@@ -197,7 +211,7 @@ drapery <- function(x, type = "pvalue", layout = "equal",
     mx <- max(xlim)
   }
   ##
-  grid <- sort(c(seq(mn, mx, length.out = 1000), x$TE, x$TE.fixed, x$TE.random))
+  grid <- sort(c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.fixed, x$TE.random))
   ##
   if (x.backtransf) {
     mn <- exp(mn)
@@ -211,7 +225,7 @@ drapery <- function(x, type = "pvalue", layout = "equal",
   }
   ##
   if (missing(ylim))
-    ylim <- if (type == "pvalue") c(0, 1) else c(-3, 0)
+    ylim <- if (type == "pvalue") c(0, 1) else c(qnorm(0.0005), 0)
   ##
   o <- order(x$seTE)
   TE <- x$TE[o]
@@ -286,12 +300,7 @@ drapery <- function(x, type = "pvalue", layout = "equal",
     }
   }
   ##
-  ## Add p-value lines and null effect line
-  ##
-  for (alpha.i in y.alpha)
-    abline(h = alpha.i, col = col.alpha)
-  ##
-  abline(v = null.effect, col = col.null.effect)
+  ## Add studies
   ##
   for (i in k:1) {
     y.i <- pvf(grid, TE[i], seTE[i])
@@ -314,12 +323,21 @@ drapery <- function(x, type = "pvalue", layout = "equal",
     lines(x.grid[sel.random], y.random[sel.random],
           lty = lty.random, lwd = lwd.random, col = col.random)
   ##
+  ## Add null effect line
+  ##
+  abline(v = null.effect, col = col.null.effect)
+  ##
+  ## Add p-value lines
+  ##
+  for (alpha.i in y.alpha)
+    abline(h = alpha.i, lty = lty.alpha, lwd = lwd.alpha, col = col.alpha)
+  ##
   ## Add text for alpha levels
   ##
   for (i in seq(along = y.alpha))
     text(mn, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
          paste("p =", alpha[i]),
-         cex = 0.7, col = col.alpha, adj = c(0, 0))
+         cex = cex.alpha, col = col.alpha, adj = c(0, 0))
   ##
   ## Add legend
   ##
