@@ -773,7 +773,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ##
   chknull(sm)
-  sm <- setchar(sm, .settings$sm4bin)
+  sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
+                  "PBIT", "OR2D", "OR2DN", "OR2DL",
+                  "MPRD", "MPRR", "MPOR", "MPORC", "MPPETO")
+  sm <- setchar(sm, c(.settings$sm4bin, sm.metafor))
   ##
   chklevel(level)
   chklevel(level.comb)
@@ -809,6 +812,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+  if (sm %in% sm.metafor)
+    method <- "Inverse"
   is.glmm <- method == "GLMM"
   ##
   chklogical(allincr)
@@ -1099,7 +1104,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Include non-informative studies?
   ## (i.e. studies with either zero or all events in both groups)
   ##
-  if (sm == "RD" | sm == "ASD")
+  if (sm == "RD" | sm == "ASD" | sm %in% sm.metafor)
     incl <- rep(1, k.all)
   else {
     allevents <- event.c == n.c & event.e == n.e
@@ -1334,8 +1339,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
-
-
+  else if (sm %in% sm.metafor) {
+    ##
+    ## Ruecker et al. (2009)
+    ##
+    tmp <- escalc(measure = sm,
+                  ai = n11 + incr.e, bi = n12 + incr.e,
+                  ci = n21 + incr.c, di = n22 + incr.c,
+                  add = 0)
+    TE <- tmp$yi
+    seTE <- sqrt(tmp$vi)
+  }
+  
+  
   ##
   ##
   ## (8) Do meta-analysis

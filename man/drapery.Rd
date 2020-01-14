@@ -6,7 +6,7 @@
 \usage{
 drapery(
   x,
-  type = "pvalue",
+  type = "cvalue",
   layout = "grayscale",
   lty.study = 1,
   lwd.study = 1,
@@ -21,7 +21,7 @@ drapery(
   col.random = "red",
   prediction = comb.random,
   col.predict = "lightblue",
-  alpha = if (type == "pvalue") c(0.01, 0.05, 0.1) else c(0.001, 0.01, 0.05, 0.1),
+  alpha = if (type == "cvalue") c(0.001, 0.01, 0.05, 0.1) else c(0.01, 0.05, 0.1),
   lty.alpha = 2,
   lwd.alpha = 1,
   col.alpha = "black",
@@ -33,20 +33,21 @@ drapery(
   bty = "o",
   backtransf = x$backtransf,
   xlab,
-  ylab = if (type == "pvalue") "P-value" else "Critical value",
+  ylab = if (type == "cvalue") "Critical value" else "P-value",
   xlim,
   ylim,
   lwd.max = 2.5,
   lwd.study.weight = if (comb.random) "random" else "fixed",
-  n.grid = if (type == "pvalue") 1000 else 10000,
+  n.grid = if (type == "cvalue") 10000 else 1000,
+  mar = c(5.1, 4.1, 4.1, 4.1),
   ...
 )
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{type}{A character string indicating whether to plot p-values
-(\code{"pvalue"}) or critical values (\code{"cvalue"}), can be
+\item{type}{A character string indicating whether to plot critical
+values (\code{"cvalue"}) or p-values (\code{"pvalue"}), can be
 abbreviated.}
 
 \item{layout}{A character string for the line layout of individual
@@ -118,7 +119,8 @@ x-axis.}
 
 \item{xlim}{The x limits (min, max) of the plot.}
 
-\item{ylim}{The y limits (min, max) of the plot.}
+\item{ylim}{The y limits (min, max) of the plot (ignored if
+\code{type = "pvalue"}).}
 
 \item{lwd.max}{The maximum line width (only considered if argument
 \code{layout} is equal to \code{"linewidth"}).}
@@ -132,31 +134,37 @@ argument \code{layout} is equal to \code{"linewidth"}).}
 \item{n.grid}{The number of grid points to calculate the p-value or
 critical value functions.}
 
+\item{mar}{Physical plot margin, see \code{\link{par}}.}
+
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
 }
 \description{
-Draw a drapery plot with p-value curves for individual studies and
-meta-analysis estimates.
+Draw a drapery plot with (scaled) p-value curves for individual
+studies and meta-analysis estimates.
 }
 \details{
-The concept of a p-value function also called confidence curve goes
-back to Birnbaum (1961). A drapery plot is showing p-value
-functions for individual studies as well as meta-analysis estimates
-is drawn in the active graphics window. Furthermore, a prediction
-region for a single future study is shown as a shaded area. In
-contrast to a forest plot, a drapery plot does not provide
-information for a single confidence level however any confidence
-level.
+The concept of a p-value function, also called confidence curve,
+goes back to Birnbaum (1961). A drapery plot, showing p-value
+functions (or a scaled version based on the corresponding test
+statistics) for individual studies as well as meta-analysis
+estimates, is drawn in the active graphics window. Furthermore, a
+prediction region for a single future study is shown as a shaded
+area. In contrast to a forest plot, a drapery plot does not provide
+information for a single confidence level however for any
+confidence level.
 
-Instead of p-value functions, curves with critical values can be
-shown using argument \code{type = "cvalue"}.
+Argument \code{type} can be used to either show p-value functions
+(Birnbaum, 1961) or a scaled version (Infanger, 2019) with critical
+values (default).
 
 Argument \code{layout} determines how curves for individual studies
 are presented:
 \itemize{
-\item darker gray tones with increasing precision (\code{layout = "grayscale"})
-\item thicker lines with increasing precision (\code{layout = "linewidth"})
+\item darker gray tones with increasing precision (\code{layout =
+  "grayscale"})
+\item thicker lines with increasing precision (\code{layout =
+  "linewidth"})
 \item equal lines (\code{layout = "equal"})
 }
 }
@@ -177,6 +185,12 @@ Confidence Curves: An Omnibus Technique for Estimation and Testing
 Statistical Hypotheses.
 \emph{Journal of the American Statistical Association},
 \bold{56}, 246--9
+
+Infanger D and Schmidt-Trucksäss A (2019):
+P value functions: An underused method to present research results
+and to promote quantitative reasoning
+\emph{Statistics in Medicine},
+\bold{38}, 4189--97
 }
 \seealso{
 \code{\link{forest}}, \code{\link{radial}}
