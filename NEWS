@@ -1,8 +1,28 @@
-*** meta, version 4.10-0, 2020-mm-dd ***
+*** meta, version 4.10-0, 2020-01-29 ***
 
  ** Major changes **
 
-  * New function to generate a drapery plot
+  * New function drapery() to generate a drapery plot
+    (based on p-value curves)
+  
+ ** Bug fixes **
+
+  * funnel.meta():
+    - print contours in contour-enhanced funnel plots at correct
+      position for relative effect measures (bug was introduced in
+      meta, version 4.9-8)
+
+ ** User-visible changes **
+
+  * update.meta():
+    - do not print a warning concerning argument 'Q.Cochrane' if
+      argument sm = "ASD" for meta-analysis objects created with
+      metabin()
+
+  * print.summary.meta():
+    - do not print z- and p-values if test for an overall effect was
+      not conducted (see argument 'null.effect' in metamean(),
+      metaprop(), and metarate())
 
 
 *** meta, version 4.9-9, 2019-12-19 ***

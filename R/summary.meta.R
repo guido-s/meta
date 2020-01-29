@@ -567,8 +567,6 @@ summary.meta <- function(object,
     res$cor <- object$cor
     res$n   <- object$n
     ##
-    res$null.effect <- object$null.effect
-    ##
     class(res) <- c(class(res), "metacor")
   }
   ##
@@ -576,13 +574,10 @@ summary.meta <- function(object,
     res$n.e <- object$n.e
     res$n.c <- object$n.c
     ##
-    res$null.effect <- object$null.effect
-    ##
     class(res)  <- c(class(res), "metagen")
   }
   ##
   if (inherits(object, "metainc")) {
-    class(res)  <- c(class(res), "metainc")
     res$sparse  <- object$sparse
     res$incr    <- object$incr
     res$allincr <- object$allincr
@@ -591,14 +586,14 @@ summary.meta <- function(object,
     res$model.glmm   <- object$model.glmm
     res$.glmm.fixed  <- object$.glmm.fixed
     res$.glmm.random <- object$.glmm.random
+    ##
+    class(res)  <- c(class(res), "metainc")
   }
   ##
   if (inherits(object, "metamean")) {
     res$n    <- object$n
     res$mean <- object$mean
     res$sd   <- object$sd
-    ##
-    res$null.effect <- object$null.effect
     ##
     class(res)  <- c(class(res), "metamean")
   }
@@ -612,8 +607,6 @@ summary.meta <- function(object,
     res$allincr <- object$allincr
     res$addincr <- object$addincr
     ##
-    res$null.effect <- object$null.effect
-    ##
     res$method.ci <- object$method.ci
     ##
     res$model.glmm   <- object$model.glmm
@@ -626,8 +619,6 @@ summary.meta <- function(object,
   if (is.prop(object$sm)) {
     res$event <- object$event
     res$n     <- object$n
-    ##
-    res$null.effect <- object$null.effect    
   }
   ##
   if (metarate) {
@@ -639,8 +630,6 @@ summary.meta <- function(object,
     res$allincr <- object$allincr
     res$addincr <- object$addincr
     ##
-    res$null.effect <- object$null.effect
-    ##
     res$model.glmm   <- object$model.glmm
     res$.glmm.fixed  <- object$.glmm.fixed
     res$.glmm.random <- object$.glmm.random
@@ -651,8 +640,6 @@ summary.meta <- function(object,
   if (is.rate(object$sm)) {
     res$event     <- object$event
     res$time      <- object$time
-    ##
-    res$null.effect <- object$null.effect    
   }
   ##
   if (inherits(object, "trimfill")) {
@@ -663,8 +650,6 @@ summary.meta <- function(object,
   }
   ##
   if (inherits(object, "metabind")) {
-    res$null.effect <- object$null.effect    
-    ##
     class(res) <- c(class(res), "metabind")
   }
   ##
@@ -712,6 +697,8 @@ summary.meta <- function(object,
   ##
   res$data   <- object$data
   res$subset <- object$subset
+  ##
+  res$null.effect <- object$null.effect
   ##
   res$backtransf <- backtransf
   res$pscale <- pscale
@@ -881,11 +868,9 @@ print.summary.meta <- function(x,
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
   metabin <- inherits(x, "metabin")
-  null.given <- (inherits(x, c("metacor", "metagen", "metamean",
-                               "metaprop", "metarate")) |
-                 is.prop(sm) | is.rate(sm) | is.cor(sm) | is.mean(sm))
   ##
   null.effect <- x$null.effect
+  null.given <- !is.null(null.effect) && !is.na(null.effect)
   ##
   if (null.given & !backtransf) {
     ##
@@ -1009,38 +994,52 @@ print.summary.meta <- function(x,
       harmonic.mean <- 1 / mean(1 / x$n)
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
-                              harmonic.mean, warn = comb.fixed & warn.backtransf)
+                              harmonic.mean,
+                              warn = comb.fixed & warn.backtransf)
     lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
-                              harmonic.mean, warn = comb.fixed & warn.backtransf)
+                              harmonic.mean,
+                              warn = comb.fixed & warn.backtransf)
     uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
-                              harmonic.mean, warn = comb.fixed & warn.backtransf)
+                              harmonic.mean,
+                              warn = comb.fixed & warn.backtransf)
     ##
     TE.random <- backtransf(TE.random, sm, "mean",
-                            harmonic.mean, warn = comb.random & warn.backtransf)
+                            harmonic.mean,
+                            warn = comb.random & warn.backtransf)
     lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                               harmonic.mean, warn = comb.random & warn.backtransf)
+                               harmonic.mean,
+                               warn = comb.random & warn.backtransf)
     uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                               harmonic.mean, warn = comb.random & warn.backtransf)
+                               harmonic.mean,
+                               warn = comb.random & warn.backtransf)
     ##
     lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                harmonic.mean, warn = prediction & warn.backtransf)
+                                harmonic.mean,
+                                warn = prediction & warn.backtransf)
     uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                harmonic.mean, warn = prediction & warn.backtransf)
+                                harmonic.mean,
+                                warn = prediction & warn.backtransf)
     ##
     if (by) {
       TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
-                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.fixed & warn.backtransf)
       lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
-                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.fixed & warn.backtransf)
       uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
-                                   harmonic.mean.w, warn = comb.fixed & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.fixed & warn.backtransf)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
-                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.random & warn.backtransf)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.random & warn.backtransf)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   harmonic.mean.w, warn = comb.random & warn.backtransf)
+                                   harmonic.mean.w,
+                                   warn = comb.random & warn.backtransf)
     }
   }
   ##
@@ -1159,11 +1158,16 @@ print.summary.meta <- function(x,
                                   big.mark = big.mark),
                           formatN(uppTE.fixed, digits, "NA",
                                   big.mark = big.mark)),
-                 formatN(zTE.fixed, digits.zval, big.mark = big.mark),
-                 formatPT(pTE.fixed, digits = digits.pval,
-                          scientific = scientific.pval,
-                          zero = zero.pval, JAMA = JAMA.pval))
-    dimnames(res) <- list("", c(sm.lab, x$ci.lab, "z", "p-value"))
+                 if (null.given)
+                   formatN(zTE.fixed, digits.zval, big.mark = big.mark),
+                 if (null.given)
+                   formatPT(pTE.fixed, digits = digits.pval,
+                            scientific = scientific.pval,
+                            zero = zero.pval, JAMA = JAMA.pval))
+    dimnames(res) <- list("",
+                          c(sm.lab, x$ci.lab,
+                            if (null.given) "z",
+                            if (null.given) "p-value"))
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
     catmeth(class = class(x),
@@ -1234,18 +1238,23 @@ print.summary.meta <- function(x,
                                       if (comb.random) uppTE.random,
                                       if (prediction) uppTE.predict),
                                     digits, "NA", big.mark = big.mark)),
-                   formatN(c(if (comb.fixed) zTE.fixed,
-                             if (comb.random) zTE.random,
-                             if (prediction) NA),
-                           digits = digits.zval, big.mark = big.mark),
-                   formatPT(c(if (comb.fixed) pTE.fixed,
-                              if (comb.random) pTE.random,
-                              if (prediction) NA),
-                            digits = digits.pval,
-                            scientific = scientific.pval,
-                            zero = zero.pval, JAMA = JAMA.pval))
-      if (prediction)
-        res[dim(res)[1], c(1,3:4)] <- ""
+                   if (null.given)
+                     formatN(c(if (comb.fixed) zTE.fixed,
+                               if (comb.random) zTE.random,
+                               if (prediction) NA),
+                             digits = digits.zval, big.mark = big.mark),
+                   if (null.given)
+                     formatPT(c(if (comb.fixed) pTE.fixed,
+                                if (comb.random) pTE.random,
+                                if (prediction) NA),
+                              digits = digits.pval,
+                              scientific = scientific.pval,
+                              zero = zero.pval, JAMA = JAMA.pval))
+      if (prediction) {
+        res[dim(res)[1], 1] <- ""
+        if (null.given)
+          res[dim(res)[1], 3:4] <- ""
+      }
       if (!is.null(x$hakn) && x$hakn) {
         if (comb.fixed & comb.random)
           zlab <- "z|t"
@@ -1260,7 +1269,9 @@ print.summary.meta <- function(x,
       dimnames(res) <- list(c(if (comb.fixed) "Fixed effect model",
                               if (comb.random) "Random effects model",
                               if (prediction) "Prediction interval"),  
-                            c(sm.lab, x$ci.lab, zlab, "p-value"))
+                            c(sm.lab, x$ci.lab,
+                              if (null.given) zlab,
+                              if (null.given) "p-value"))
       prmatrix(res, quote = FALSE, right = TRUE, ...)
       ##
       if (metabin && print.CMH) {

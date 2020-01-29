@@ -776,7 +776,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
                   "PBIT", "OR2D", "OR2DN", "OR2DL",
                   "MPRD", "MPRR", "MPOR", "MPORC", "MPPETO")
-  sm <- setchar(sm, c(.settings$sm4bin, sm.metafor))
+  ## sm <- setchar(sm, c(.settings$sm4bin, sm.metafor))
+  sm <- setchar(sm, .settings$sm4bin)
+  metafor <- sm %in% sm.metafor
   ##
   chklevel(level)
   chklevel(level.comb)
@@ -812,7 +814,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
-  if (sm %in% sm.metafor)
+  if (metafor)
     method <- "Inverse"
   is.glmm <- method == "GLMM"
   ##
@@ -917,6 +919,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   else
     incr <- setchar(incr, "TACC",
                     "should be numeric or the character string \"TACC\"")
+  ##
+  if (metafor) {
+    if (length(incr) > 1) {
+      if (!missing(incr))
+        warning("Increment of 0.5 used for effect measure '", sm, "'")
+      incr <- 0.5
+    }
+    else if (incr == "TACC") {
+      if (!missing(incr))
+        warning("Increment of 0.5 used for effect measure '", sm, "'")
+      incr <- 0.5
+    }
+  }
   ##
   ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
@@ -1104,7 +1119,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Include non-informative studies?
   ## (i.e. studies with either zero or all events in both groups)
   ##
-  if (sm == "RD" | sm == "ASD" | sm %in% sm.metafor)
+  if (sm == "RD" | sm == "ASD" | metafor)
     incl <- rep(1, k.all)
   else {
     allevents <- event.c == n.c & event.e == n.e
@@ -1339,14 +1354,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
-  else if (sm %in% sm.metafor) {
+  else if (metafor) {
     ##
-    ## Ruecker et al. (2009)
+    ## Other effect measures calculated in R package metafor
+    ##
+    if (addincr)
+      to <- "all"
+    else if (allincr)
+      to <- "if0all"
+    else
+      to <- "only0"
     ##
     tmp <- escalc(measure = sm,
-                  ai = n11 + incr.e, bi = n12 + incr.e,
-                  ci = n21 + incr.c, di = n22 + incr.c,
-                  add = 0)
+                  ai = n11, bi = n12, ci = n21, di = n22,
+                  add = incr, to = to, drop00 = !allstudies)
     TE <- tmp$yi
     seTE <- sqrt(tmp$vi)
   }
