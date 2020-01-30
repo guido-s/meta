@@ -24,6 +24,8 @@
   level.comb = object$level.comb,
   comb.fixed = object$comb.fixed,
   comb.random = object$comb.random,
+  overall = object$overall,
+  overall.hetstat = object$overall.hetstat,
   hakn = object$hakn,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
@@ -135,6 +137,16 @@ meta-analysis should be conducted.}
 
 \item{comb.random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
+
+\item{overall}{A logical indicating whether overall summaries
+should be reported. This argument is useful in a meta-analysis
+with subgroups if overall results should not be reported.}
+
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
 
 \item{hakn}{A logical indicating whether the method by Hartung and
 Knapp should be used to adjust test statistics and confidence

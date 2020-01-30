@@ -11,6 +11,14 @@
 #'   meta-analysis should be conducted.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
+#' @param overall A logical indicating whether overall summaries
+#'   should be reported. This argument is useful in a meta-analysis
+#'   with subgroups if overall results should not be reported.
+#' @param overall.hetstat A logical value indicating whether to print
+#'   heterogeneity measures for overall treatment comparisons. This
+#'   argument is useful in a meta-analysis with subgroups if
+#'   heterogeneity statistics should only be printed on subgroup
+#'   level.
 #' @param bylab A character string with a label for the grouping
 #'   variable.
 #' @param print.byvar A logical indicating whether the name of the
@@ -84,8 +92,8 @@
 #'   statistic R\eqn{_b} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
-#' @param text.tau Text printed to identify \eqn{\tau}, the square root
-#'   of the between-study variance \eqn{\tau^2}.
+#' @param text.tau Text printed to identify \eqn{\tau}, the square
+#'   root of the between-study variance \eqn{\tau^2}.
 #' @param text.I2 Text printed to identify heterogeneity statistic
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
@@ -271,14 +279,19 @@ summary.meta <- function(object,
                          comb.fixed = object$comb.fixed,
                          comb.random = object$comb.random,
                          prediction = object$prediction,
+                         overall = object$overall,
+                         overall.hetstat = object$overall.hetstat,
+                         ##
                          backtransf = object$backtransf,
                          pscale = object$pscale,
                          irscale = object$irscale,
                          irunit = object$irunit,
+                         ##
                          bylab = object$bylab,
                          print.byvar = object$print.byvar,
                          byseparator = object$byseparator,
                          bystud = FALSE,
+                         ##
                          print.CMH = object$print.CMH,
                          warn = object$warn,
                          ...) {
@@ -317,6 +330,10 @@ summary.meta <- function(object,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
+  overall <- replaceNULL(overall, comb.fixed | comb.random)
+  chklogical(overall)
+  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
+  chklogical(overall.hetstat)
   ##
   chklogical(backtransf)
   ##
@@ -473,7 +490,9 @@ summary.meta <- function(object,
               ci.lab = ci.lab,
               comb.fixed = comb.fixed,
               comb.random = comb.random,
-              prediction = prediction)
+              prediction = prediction,
+              overall = overall,
+              overall.hetstat = overall.hetstat)
   ##  
   ## Add results from subgroup analysis
   ##
@@ -729,10 +748,15 @@ print.summary.meta <- function(x,
                                comb.fixed = x$comb.fixed,
                                comb.random = x$comb.random,
                                prediction = x$prediction,
+                               overall = x$overall,
+                               overall.hetstat = x$overall.hetstat,
+                               ##
                                print.byvar = x$print.byvar,
                                byseparator = x$byseparator,
+                               ##
                                print.CMH = x$print.CMH,
                                header = TRUE,
+                               ##
                                backtransf = x$backtransf,
                                pscale = x$pscale,
                                irscale = x$irscale,
@@ -838,6 +862,11 @@ print.summary.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
+  replaceNULL(overall, TRUE)
+  chklogical(overall)
+  replaceNULL(overall.hetstat, TRUE)
+  chklogical(overall.hetstat)
+  ##
   if (by) {
     chklogical(print.byvar)
     chkchar(byseparator)
@@ -855,6 +884,10 @@ print.summary.meta <- function(x,
   fun <- "print.summary.meta"
   ##
   warnarg("logscale", addargs, fun, otherarg = "backtransf")
+  ##
+  method.ci <- ""
+  if (any(addargs == ".print.method.ci.") && list(...)[[".print.method.ci."]])
+    method.ci <- x$method.ci
   
   
   ##
@@ -868,6 +901,7 @@ print.summary.meta <- function(x,
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
   metabin <- inherits(x, "metabin")
+  metaprop <- inherits(x, "metaprop")
   ##
   null.effect <- x$null.effect
   null.given <- !is.null(null.effect) && !is.na(null.effect)
@@ -995,51 +1029,51 @@ print.summary.meta <- function(x,
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
                               harmonic.mean,
-                              warn = comb.fixed & warn.backtransf)
+                              warn = overall & comb.fixed & warn.backtransf)
     lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
                               harmonic.mean,
-                              warn = comb.fixed & warn.backtransf)
+                              warn = overall & comb.fixed & warn.backtransf)
     uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
                               harmonic.mean,
-                              warn = comb.fixed & warn.backtransf)
+                              warn = overall & comb.fixed & warn.backtransf)
     ##
     TE.random <- backtransf(TE.random, sm, "mean",
                             harmonic.mean,
-                            warn = comb.random & warn.backtransf)
+                            warn = overall & comb.random & warn.backtransf)
     lowTE.random <- backtransf(lowTE.random, sm, "lower",
                                harmonic.mean,
-                               warn = comb.random & warn.backtransf)
+                               warn = overall & comb.random & warn.backtransf)
     uppTE.random <- backtransf(uppTE.random, sm, "upper",
                                harmonic.mean,
-                               warn = comb.random & warn.backtransf)
+                               warn = overall & comb.random & warn.backtransf)
     ##
     lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
                                 harmonic.mean,
-                                warn = prediction & warn.backtransf)
+                                warn = overall & prediction & warn.backtransf)
     uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
                                 harmonic.mean,
-                                warn = prediction & warn.backtransf)
+                                warn = overall & prediction & warn.backtransf)
     ##
     if (by) {
       TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
                                    harmonic.mean.w,
-                                   warn = comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed & warn.backtransf)
       lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
                                    harmonic.mean.w,
-                                   warn = comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed & warn.backtransf)
       uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
                                    harmonic.mean.w,
-                                   warn = comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed & warn.backtransf)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
                                    harmonic.mean.w,
-                                   warn = comb.random & warn.backtransf)
+                                   warn = overall & comb.random & warn.backtransf)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
                                    harmonic.mean.w,
-                                   warn = comb.random & warn.backtransf)
+                                   warn = overall & comb.random & warn.backtransf)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
                                    harmonic.mean.w,
-                                   warn = comb.random & warn.backtransf)
+                                   warn = overall & comb.random & warn.backtransf)
     }
   }
   ##
@@ -1171,7 +1205,10 @@ print.summary.meta <- function(x,
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
     catmeth(class = class(x),
-            method = x$method,
+            method =
+              if (!metaprop | (overall & (comb.fixed | comb.random)) |
+                  overall.hetstat | by)
+                x$method else "NoMA",
             sm = sm,
             k.all = k.all,
             sparse = ifelse(bip, x$sparse, FALSE),
@@ -1180,7 +1217,7 @@ print.summary.meta <- function(x,
             addincr = ifelse(bip, x$addincr, FALSE),
             allstudies = x$allstudies,
             doublezeros = x$doublezeros,
-            method.ci = x$method.ci,
+            method.ci = method.ci,
             pooledvar = x$pooledvar,
             method.smd = x$method.smd,
             sd.glass = x$sd.glass,
@@ -1205,7 +1242,7 @@ print.summary.meta <- function(x,
     ## Print results for meta-analysis with more than one study
     ##
     ##
-    if (comb.fixed | comb.random | prediction) {
+    if (overall & (comb.fixed | comb.random | prediction)) {
       if (!inherits(x, "trimfill")) {
         if (x$method == "MH" &&
             (inherits(x, c("metabin", "metainc")) &
@@ -1293,266 +1330,273 @@ print.summary.meta <- function(x,
     ##
     ## Print information on heterogeneity
     ##
-    cat("\nQuantifying heterogeneity:\n")
-    ##
-    print.tau2 <- TRUE
-    print.tau2.ci <- print.tau2 & !(is.na(x$tau2$lower) | is.na(x$tau2$upper))
-    print.tau <- TRUE
-    print.tau.ci <- print.tau & !(is.na(x$tau$lower) | is.na(x$tau$upper))
-    ##
-    cathet(k,
-           x$tau2$TE, x$tau2$lower, x$tau2$upper,
-           print.tau2, print.tau2.ci, text.tau2, digits.tau2,
-           x$tau$TE, x$tau$lower, x$tau$upper,
-           print.tau, print.tau.ci, text.tau, digits.tau,
-           x$sign.tau.ci$lower, x$sign.tau.ci$upper,
-           I2, lowI2, uppI2,
-           print.I2, print.I2.ci, text.I2, digits.I2,
-           H, lowH, uppH,
-           print.H, digits.H,
-           Rb, lowRb, uppRb,
-           print.Rb, text.Rb,
-           big.mark)
-    ##
-    ## Print information on residual heterogeneity
-    ##
-    if (by & !inherits(x, "metabind")) {
+    if (overall.hetstat) {
+      cat("\nQuantifying heterogeneity:\n")
       ##
-      Q.resid <- x$Q.w.fixed
-      k.resid <- x$df.Q.w + 1
+      print.tau2 <- TRUE
+      print.tau2.ci <- print.tau2 & !(is.na(x$tau2$lower) | is.na(x$tau2$upper))
+      print.tau <- TRUE
+      print.tau.ci <- print.tau & !(is.na(x$tau$lower) | is.na(x$tau$upper))
       ##
-      if (print.H) {
-        H.resid <- round(x$H.resid$TE, digits.H)
-        lowH.resid <- round(x$H.resid$lower, digits.H)
-        uppH.resid <- round(x$H.resid$upper, digits.H)
-      }
-      if (print.I2) {
-        I2.resid <- round(100 * x$I2.resid$TE, digits.I2)
-        lowI2.resid <- round(100 * x$I2.resid$lower, digits.I2)
-        uppI2.resid <- round(100 * x$I2.resid$upper, digits.I2)
-        print.I2.ci <-
-          ((Q.resid  > k.resid & k.resid >= 2) |
-           (Q.resid <= k.resid & k.resid > 2)) &
-          !(is.na(lowI2.resid) | is.na(uppI2.resid))
+      cathet(k,
+             x$tau2$TE, x$tau2$lower, x$tau2$upper,
+             print.tau2, print.tau2.ci, text.tau2, digits.tau2,
+             x$tau$TE, x$tau$lower, x$tau$upper,
+             print.tau, print.tau.ci, text.tau, digits.tau,
+             x$sign.tau.ci$lower, x$sign.tau.ci$upper,
+             I2, lowI2, uppI2,
+             print.I2, print.I2.ci, text.I2, digits.I2,
+             H, lowH, uppH,
+             print.H, digits.H,
+             Rb, lowRb, uppRb,
+             print.Rb, text.Rb,
+             big.mark)
+      ##
+      ## Print information on residual heterogeneity
+      ##
+      if (by & !inherits(x, "metabind")) {
         ##
-        if (is.na(print.I2.ci))
-          print.I2.ci <- FALSE
+        Q.resid <- x$Q.w.fixed
+        k.resid <- x$df.Q.w + 1
+        ##
+        if (print.H) {
+          H.resid <- round(x$H.resid$TE, digits.H)
+          lowH.resid <- round(x$H.resid$lower, digits.H)
+          uppH.resid <- round(x$H.resid$upper, digits.H)
+        }
+        if (print.I2) {
+          I2.resid <- round(100 * x$I2.resid$TE, digits.I2)
+          lowI2.resid <- round(100 * x$I2.resid$lower, digits.I2)
+          uppI2.resid <- round(100 * x$I2.resid$upper, digits.I2)
+          print.I2.ci <-
+            ((Q.resid  > k.resid & k.resid >= 2) |
+             (Q.resid <= k.resid & k.resid > 2)) &
+            !(is.na(lowI2.resid) | is.na(uppI2.resid))
+          ##
+          if (is.na(print.I2.ci))
+            print.I2.ci <- FALSE
+        }
+        ##
+        if (!is.na(I2.resid)) {
+          cat("\nQuantifying residual heterogeneity:\n")
+          ##
+          cathet(k.resid, 
+                 unique(x$tau.w)^2, NA, NA,
+                 x$tau.common, FALSE, text.tau2, digits.tau2,
+                 unique(x$tau.w), NA, NA,
+                 x$tau.common, FALSE, text.tau, digits.tau,
+                 "", "",
+                 I2.resid, lowI2.resid, uppI2.resid,
+                 print.I2, print.I2.ci, text.I2, digits.I2,
+                 H.resid, lowH.resid, uppH.resid,
+                 print.H, digits.H,
+                 NA, NA, NA,
+                 FALSE, text.Rb,
+                 big.mark)
+        }
       }
       ##
-      if (!is.na(I2.resid)) {
-        cat("\nQuantifying residual heterogeneity:\n")
-        ##
-        cathet(k.resid, 
-               unique(x$tau.w)^2, NA, NA,
-               x$tau.common, FALSE, text.tau2, digits.tau2,
-               unique(x$tau.w), NA, NA,
-               x$tau.common, FALSE, text.tau, digits.tau,
-               "", "",
-               I2.resid, lowI2.resid, uppI2.resid,
-               print.I2, print.I2.ci, text.I2, digits.I2,
-               H.resid, lowH.resid, uppH.resid,
-               print.H, digits.H,
-               NA, NA, NA,
-               FALSE, text.Rb,
-               big.mark)
+      ## Test of heterogeneity
+      ##
+      if (comb.fixed | comb.random) {
+        if (k > 1) {
+          if (x$method != "GLMM") {
+            Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
+                                   big.mark = big.mark),
+                           format(df.Q, big.mark = big.mark),
+                           formatPT(pval.Q,
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval))
+            dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+          }
+          else {
+            Qdata <- cbind(formatN(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA",
+                                   big.mark = big.mark),
+                           format(c(df.Q, df.Q.LRT), big.mark = big.mark),
+                           formatPT(c(pval.Q, pval.Q.LRT),
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval),
+                           c("Wald-type", "Likelihood-Ratio"))
+            dimnames(Qdata) <- list(rep("", 2),
+                                    c("Q", "d.f.", "p-value", "Test"))
+          }
+          ##
+          cat("\nTest of heterogeneity:\n")
+          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+        }
       }
     }
+    else {
+      print.tau2 <- FALSE
+      print.tau2.ci <- FALSE
+      print.tau <- FALSE
+      print.tau.ci <- FALSE
+    }
     ##
-    ## Test of heterogeneity
+    ## Print information for subgroup analysis
     ##
-    if (comb.fixed | comb.random) {
-      if (k > 1) {
-        if (x$method != "GLMM") {
-          Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
-                                 big.mark = big.mark),
-                         format(df.Q, big.mark = big.mark),
-                         formatPT(pval.Q,
-                                  digits = digits.pval.Q,
-                                  scientific = scientific.pval,
-                                  zero = zero.pval, JAMA = JAMA.pval))
-          dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
-        }
-        else {
-          Qdata <- cbind(formatN(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA",
-                                 big.mark = big.mark),
-                         format(c(df.Q, df.Q.LRT), big.mark = big.mark),
-                         formatPT(c(pval.Q, pval.Q.LRT),
-                                  digits = digits.pval.Q,
-                                  scientific = scientific.pval,
-                                  zero = zero.pval, JAMA = JAMA.pval),
-                         c("Wald-type", "Likelihood-Ratio"))
-          dimnames(Qdata) <- list(rep("", 2),
-                                  c("Q", "d.f.", "p-value", "Test"))
-        }
+    if (by) {
+      if (comb.fixed) {
         ##
-        cat("\nTest of heterogeneity:\n")
-        prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
-      }
-      ##
-      if (by) {
+        ## Subgroup analysis based on fixed effect model
         ##
-        ## Print information for subgroup analysis
+        Tdata <- cbind(format(k.w, big.mark = big.mark),
+                       formatN(TE.fixed.w, digits, "NA",
+                               big.mark = big.mark),
+                       formatCI(formatN(lowTE.fixed.w, digits, "NA",
+                                        big.mark = big.mark),
+                                formatN(uppTE.fixed.w, digits, "NA",
+                                        big.mark = big.mark)),
+                       formatN(round(Q.w, digits.Q), digits.Q,
+                               big.mark = big.mark),
+                       ifelse(k.w == 1, "--",
+                              formatPT(x$tau.w^2,
+                                       digits = digits.tau2,
+                                       big.mark = big.mark,
+                                       noblanks = TRUE)),
+                       ifelse(k.w == 1, "--",
+                              formatPT(x$tau.w,
+                                       digits = digits.tau,
+                                       big.mark = big.mark,
+                                       noblanks = TRUE)),
+                       if (print.I2)
+                         ifelse(is.na(I2.w),
+                                "--",
+                                paste0(formatN(I2.w, digits.I2), "%")),
+                       if (print.Rb)
+                         ifelse(is.na(Rb.w),
+                                "--",
+                                paste0(formatN(Rb.w, digits.I2), "%"))
+                       )
         ##
-        if (comb.fixed) {
-          ##
-          ## Subgroup analysis based on fixed effect model
-          ##
-          Tdata <- cbind(format(k.w, big.mark = big.mark),
-                         formatN(TE.fixed.w, digits, "NA",
-                                 big.mark = big.mark),
-                         formatCI(formatN(lowTE.fixed.w, digits, "NA",
-                                          big.mark = big.mark),
-                                  formatN(uppTE.fixed.w, digits, "NA",
-                                          big.mark = big.mark)),
-                         formatN(round(Q.w, digits.Q), digits.Q,
-                                 big.mark = big.mark),
-                         ifelse(k.w == 1, "--",
-                                formatPT(x$tau.w^2,
-                                         digits = digits.tau2,
-                                         big.mark = big.mark,
-                                         noblanks = TRUE)),
-                         ifelse(k.w == 1, "--",
-                                formatPT(x$tau.w,
-                                         digits = digits.tau,
-                                         big.mark = big.mark,
-                                         noblanks = TRUE)),
-                         if (print.I2)
-                           ifelse(is.na(I2.w),
-                                  "--",
-                                  paste0(formatN(I2.w, digits.I2), "%")),
-                         if (print.Rb)
-                           ifelse(is.na(Rb.w),
-                                  "--",
-                                  paste0(formatN(Rb.w, digits.I2), "%"))
-                         )
-          ##
-          bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
-                           big.mark = big.mark)
-          ##
-          dimnames(Tdata) <- list(bylab,
-                                  c("  k", sm.lab, x$ci.lab,
-                                    "Q", text.tau2, text.tau,
-                                    if (print.I2) text.I2,
-                                    if (print.Rb) text.Rb)
-                                  )
-          if (inherits(x, "metabind"))
-            cat("\nResults for meta-analyses (fixed effect model):\n")
-          else
-            cat("\nResults for subgroups (fixed effect model):\n")
-          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
-          ##
-          if (!inherits(x, "metabind")) {
-            cat("\nTest for subgroup differences (fixed effect model):\n")
-            if (x$method == "MH") {
-              Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                             format(df.Q.b, big.mark = big.mark),
-                             formatPT(pval.Q.b.fixed,
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list("Between groups  ",
-                                      c("Q", "d.f.", "p-value"))
-              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
-            }
-            else {
-              Qs  <- c(Q.b.fixed, Q.w.fixed)
-              dfs <- c(df.Q.b, df.Q.w)
-              pvals <- c(pval.Q.b.fixed, pval.Q.w.fixed)
-              Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                             format(dfs, big.mark = big.mark),
-                             formatPT(pvals,
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                      c("Q", "d.f.", "p-value"))
-              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
-            }
-          }
-        }
+        bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
+                         big.mark = big.mark)
         ##
-        if (comb.random) {
-          ##
-          ## Subgroup analysis based on random effects model
-          ##
-          Tdata <- cbind(format(k.w, big.mark = big.mark),
-                         formatN(TE.random.w, digits, "NA",
-                                 big.mark = big.mark),
-                         formatCI(formatN(lowTE.random.w, digits, "NA",
-                                          big.mark = big.mark),
-                                  formatN(uppTE.random.w, digits, "NA",
-                                          big.mark = big.mark)),
-                         formatN(round(Q.w, digits.Q), digits.Q,
-                                 big.mark = big.mark),
-                         ifelse(k.w == 1, "--",
-                                formatPT(x$tau.w^2,
-                                         digits = digits.tau2,
-                                         big.mark = big.mark,
-                                         noblanks = TRUE)),
-                         ifelse(k.w == 1, "--",
-                                formatPT(x$tau.w,
-                                         digits = digits.tau,
-                                         big.mark = big.mark,
-                                         noblanks = TRUE)),
-                         if (print.I2)
-                           ifelse(is.na(I2.w),
-                                  "--",
-                                  paste0(formatN(I2.w, digits.I2), "%")),
-                         if (print.Rb)
-                           ifelse(is.na(Rb.w),
-                                  "--",
-                                  paste0(formatN(Rb.w, digits.I2,
-                                                 big.mark = big.mark), "%"))
-                         )
-          ##
-          bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
-                           big.mark = big.mark)
-          ##
-          dimnames(Tdata) <- list(bylab,
-                                  c("  k", sm.lab, x$ci.lab,
-                                    "Q", text.tau2, text.tau,
-                                    if (print.I2) text.I2,
-                                    if (print.Rb) text.Rb)
-                                  )
-          ##
-          if (inherits(x, "metabind"))
-            cat("\nResults for meta-analyses (random effects model):\n")
-          else
-            cat("\nResults for subgroups (random effects model):\n")
-          ##
-          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
-          ##
-          if (!inherits(x, "metabind")) {
-            cat("\nTest for subgroup differences (random effects model):\n")
-            if (is.na(Q.w.random)) {
-              Qdata <- cbind(formatN(round(Q.b.random, digits.Q), digits.Q,
-                                     "NA", big.mark = big.mark),
-                             format(df.Q.b, big.mark = big.mark),
-                             formatPT(pval.Q.b.random,
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list("Between groups  ",
-                                      c("Q", "d.f.", "p-value"))
-            }
-            else {
-              Qs  <- c(Q.b.random, Q.w.random)
-              dfs <- c(df.Q.b, df.Q.w)
-              pvals <- c(pval.Q.b.random, pval.Q.w.random)
-              Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                             format(dfs, big.mark = big.mark),
-                             formatPT(pvals,
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                      c("Q", "d.f.", "p-value"))
-            }
+        dimnames(Tdata) <- list(bylab,
+                                c("  k", sm.lab, x$ci.lab,
+                                  "Q", text.tau2, text.tau,
+                                  if (print.I2) text.I2,
+                                  if (print.Rb) text.Rb)
+                                )
+        if (inherits(x, "metabind"))
+          cat("\nResults for meta-analyses (fixed effect model):\n")
+        else
+          cat("\nResults for subgroups (fixed effect model):\n")
+        prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
+        ##
+        if (!inherits(x, "metabind")) {
+          cat("\nTest for subgroup differences (fixed effect model):\n")
+          if (x$method == "MH") {
+            Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
+                                   big.mark = big.mark),
+                           format(df.Q.b, big.mark = big.mark),
+                           formatPT(pval.Q.b.fixed,
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval))
+            dimnames(Qdata) <- list("Between groups  ",
+                                    c("Q", "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
+          else {
+            Qs  <- c(Q.b.fixed, Q.w.fixed)
+            dfs <- c(df.Q.b, df.Q.w)
+            pvals <- c(pval.Q.b.fixed, pval.Q.w.fixed)
+            Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
+                                   big.mark = big.mark),
+                           format(dfs, big.mark = big.mark),
+                           formatPT(pvals,
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval))
+            dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                    c("Q", "d.f.", "p-value"))
+            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          }
+        }
+      }
+      ##
+      if (comb.random) {
+        ##
+        ## Subgroup analysis based on random effects model
+        ##
+        Tdata <- cbind(format(k.w, big.mark = big.mark),
+                       formatN(TE.random.w, digits, "NA",
+                               big.mark = big.mark),
+                       formatCI(formatN(lowTE.random.w, digits, "NA",
+                                        big.mark = big.mark),
+                                formatN(uppTE.random.w, digits, "NA",
+                                        big.mark = big.mark)),
+                       formatN(round(Q.w, digits.Q), digits.Q,
+                               big.mark = big.mark),
+                       ifelse(k.w == 1, "--",
+                              formatPT(x$tau.w^2,
+                                       digits = digits.tau2,
+                                       big.mark = big.mark,
+                                       noblanks = TRUE)),
+                       ifelse(k.w == 1, "--",
+                              formatPT(x$tau.w,
+                                       digits = digits.tau,
+                                       big.mark = big.mark,
+                                       noblanks = TRUE)),
+                       if (print.I2)
+                         ifelse(is.na(I2.w),
+                                "--",
+                                paste0(formatN(I2.w, digits.I2), "%")),
+                       if (print.Rb)
+                         ifelse(is.na(Rb.w),
+                                "--",
+                                paste0(formatN(Rb.w, digits.I2,
+                                               big.mark = big.mark), "%"))
+                       )
+        ##
+        bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
+                         big.mark = big.mark)
+        ##
+        dimnames(Tdata) <- list(bylab,
+                                c("  k", sm.lab, x$ci.lab,
+                                  "Q", text.tau2, text.tau,
+                                  if (print.I2) text.I2,
+                                  if (print.Rb) text.Rb)
+                                )
+        ##
+        if (inherits(x, "metabind"))
+          cat("\nResults for meta-analyses (random effects model):\n")
+        else
+          cat("\nResults for subgroups (random effects model):\n")
+        ##
+        prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
+        ##
+        if (!inherits(x, "metabind")) {
+          cat("\nTest for subgroup differences (random effects model):\n")
+          if (is.na(Q.w.random)) {
+            Qdata <- cbind(formatN(round(Q.b.random, digits.Q), digits.Q,
+                                   "NA", big.mark = big.mark),
+                           format(df.Q.b, big.mark = big.mark),
+                           formatPT(pval.Q.b.random,
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval))
+            dimnames(Qdata) <- list("Between groups  ",
+                                    c("Q", "d.f.", "p-value"))
+          }
+          else {
+            Qs  <- c(Q.b.random, Q.w.random)
+            dfs <- c(df.Q.b, df.Q.w)
+            pvals <- c(pval.Q.b.random, pval.Q.w.random)
+            Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
+                                   big.mark = big.mark),
+                           format(dfs, big.mark = big.mark),
+                           formatPT(pvals,
+                                    digits = digits.pval.Q,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval))
+            dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                    c("Q", "d.f.", "p-value"))
+          }
+          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
         }
       }
     }
@@ -1561,9 +1605,17 @@ print.summary.meta <- function(x,
     ##
     if (comb.fixed | comb.random | prediction)
       catmeth(class = class(x),
-              method = x$method,
-              method.tau = x$method.tau,
-              sm = sm,
+              method =
+                if ((overall & (comb.fixed | comb.random)) |
+                    overall.hetstat | by)
+                  x$method else "NoMA",
+              method.tau =
+                if ((overall & comb.random) | overall.hetstat | by)
+                  x$method.tau else NULL,
+              sm =
+                if ((overall & (comb.fixed | comb.random)) |
+                    overall.hetstat | by)
+                  sm else "",
               k.all = k.all,
               hakn = !is.null(x$hakn) && (x$hakn & comb.random),
               tau.common = by & x$tau.common,
@@ -1577,7 +1629,7 @@ print.summary.meta <- function(x,
               MH.exact = ifelse(metabin, x$MH.exact, FALSE),
               RR.Cochrane = ifelse(metabin, x$RR.Cochrane, FALSE),
               Q.Cochrane = ifelse(metabin, x$Q.Cochrane, TRUE),
-              method.ci = x$method.ci,
+              method.ci = method.ci,
               print.tau.ci = print.tau2.ci | print.tau.ci,
               method.tau.ci = x$method.tau.ci,
               pooledvar = x$pooledvar,

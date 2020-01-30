@@ -18,6 +18,14 @@
 #'   individual studies should be printed.
 #' @param ma A logical indicating whether the summary results of the
 #'   meta-analysis should be printed.
+#' @param overall A logical indicating whether overall summaries
+#'   should be reported. This argument is useful in a meta-analysis
+#'   with subgroups if overall results should not be reported.
+#' @param overall.hetstat A logical value indicating whether to print
+#'   heterogeneity measures for overall treatment comparisons. This
+#'   argument is useful in a meta-analysis with subgroups if
+#'   heterogeneity statistics should only be printed on subgroup
+#'   level.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf = TRUE}, results
 #'   for \code{sm = "OR"} are printed as odds ratios rather than log
@@ -131,6 +139,9 @@ print.meta <- function(x,
                        comb.random = x$comb.random,
                        prediction = x$prediction,
                        details = FALSE, ma = TRUE,
+                       overall = x$overall,
+                       overall.hetstat = x$overall.hetstat,
+                       ##
                        backtransf = x$backtransf,
                        pscale = x$pscale,
                        irscale = x$irscale,
@@ -195,6 +206,10 @@ print.meta <- function(x,
   chklogical(prediction)
   chklogical(details)
   chklogical(ma)
+  overall <- replaceNULL(overall, TRUE)
+  chklogical(overall)
+  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
+  chklogical(overall.hetstat)
   ##
   if (is.untransformed(x$sm))
     backtransf <- TRUE
@@ -455,6 +470,8 @@ print.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
+    by <- !is.null(x$bylab)
+    ##
     if (inherits(x, "metaprop") & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
@@ -552,7 +569,7 @@ print.meta <- function(x,
         else
           cat("\nInfluential analysis (Random effects model)\n")
       }
-      if (inherits(x, "metacum")) {
+      else if (inherits(x, "metacum")) {
         if (!is.random)
           cat("\nCumulative meta-analysis (Fixed effect model)\n")
         else
@@ -578,19 +595,22 @@ print.meta <- function(x,
               method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else {
+      show.w.fixed  <- (overall | by) & comb.fixed  & !mb.glmm
+      show.w.random <- (overall | by) & comb.random & !mb.glmm
+      ##
       res <- cbind(formatN(round(TE, digits), digits, "NA",
                            big.mark = big.mark),
                    formatCI(formatN(round(lowTE, digits), digits, "NA",
                                     big.mark = big.mark),
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
-                   if (comb.fixed & !mb.glmm)
+                   if (show.w.fixed)
                      formatN(w.fixed.p, digits.weight,
                              big.mark = big.mark),
-                   if (comb.random & !mb.glmm)
+                   if (show.w.random)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
-                   if (!is.null(x$byvar)) as.character(x$byvar),
+                   if (by) as.character(x$byvar),
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
@@ -598,7 +618,7 @@ print.meta <- function(x,
       if (k.all == 1) {
         ##
         if (!is.null(x$method.ci)) {
-          if  (x$method.ci == "CP")
+          if (x$method.ci == "CP")
             method.ci.details <-
               "Clopper-Pearson confidence interval:\n\n"
           else if (x$method.ci == "WS")
@@ -622,12 +642,12 @@ print.meta <- function(x,
             dimnames(res) <-
               list("",
                    c(sm.lab, ci.lab,
-                     if (comb.fixed & !mb.glmm) "%W(fixed)",
-                     if (comb.random & !mb.glmm) "%W(random)",
-                     if (!is.null(x$byvar)) x$bylab,
+                     if (show.w.fixed) "%W(fixed)",
+                     if (show.w.random) "%W(random)",
+                     if (by) x$bylab,
                      if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
-            cat("\n\n")
+            cat("\n")
           }
         }
         cat("Normal approximation confidence interval:\n")
@@ -636,9 +656,9 @@ print.meta <- function(x,
         dimnames(res) <-
           list(x$studlab,
                c(sm.lab, ci.lab,
-                 if (comb.fixed & !mb.glmm) "%W(fixed)",
-                 if (comb.random & !mb.glmm) "%W(random)",
-                 if (!is.null(x$byvar)) x$bylab,
+                 if (show.w.fixed) "%W(fixed)",
+                 if (show.w.random) "%W(random)",
+                 if (by) x$bylab,
                  if (!is.null(x$exclude)) "exclude"))
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
       }
@@ -659,12 +679,14 @@ print.meta <- function(x,
             digits = digits,
             comb.fixed = comb.fixed, comb.random = comb.random,
             prediction = prediction,
+            overall = overall, overall.hetstat = overall.hetstat,
             backtransf = backtransf, pscale = pscale,
             irscale = irscale, irunit = irunit,
             digits.tau2 = digits.tau2, digits.tau = digits.tau,
             digits.I2 = digits.I2, big.mark = big.mark,
             text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
             warn.backtransf = warn.backtransf,
+            .print.method.ci. = TRUE & k.all > 1,
             ...)
     }
   }

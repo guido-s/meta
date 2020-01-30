@@ -13,6 +13,8 @@
   prediction = x$prediction,
   details = FALSE,
   ma = TRUE,
+  overall = x$overall,
+  overall.hetstat = x$overall.hetstat,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -54,6 +56,16 @@ individual studies should be printed.}
 
 \item{ma}{A logical indicating whether the summary results of the
 meta-analysis should be printed.}
+
+\item{overall}{A logical indicating whether overall summaries
+should be reported. This argument is useful in a meta-analysis
+with subgroups if overall results should not be reported.}
+
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf = TRUE}, results

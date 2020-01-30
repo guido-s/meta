@@ -43,6 +43,14 @@
 #'   meta-analysis should be conducted.
 #' @param comb.random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
+#' @param overall A logical indicating whether overall summaries
+#'   should be reported. This argument is useful in a meta-analysis
+#'   with subgroups if overall results should not be reported.
+#' @param overall.hetstat A logical value indicating whether to print
+#'   heterogeneity measures for overall treatment comparisons. This
+#'   argument is useful in a meta-analysis with subgroups if
+#'   heterogeneity statistics should only be printed on subgroup
+#'   level.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param level.predict The level used to calculate prediction
@@ -328,6 +336,7 @@
 #' \item{sm, incr, allincr, addincr, method.ci,}{As defined above.}
 #' \item{level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
+#' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{tau.preset, TE.tau, null.hypothesis,}{As defined above.}
 #' \item{method.bias, tau.common, title, complab, outclab,}{As defined
@@ -763,6 +772,8 @@ metaprop <- function(event, n, studlab,
                      level = gs("level"), level.comb = gs("level.comb"),
                      comb.fixed = gs("comb.fixed"),
                      comb.random = gs("comb.random"),
+                     overall = comb.fixed | comb.random,
+                     overall.hetstat = comb.fixed | comb.random,
                      ##
                      hakn = gs("hakn"),
                      method.tau,
@@ -811,6 +822,8 @@ metaprop <- function(event, n, studlab,
   chklevel(level.comb)
   chklogical(comb.fixed)
   chklogical(comb.random)
+  chklogical(overall)
+  chklogical(overall.hetstat)
   ##
   chklogical(hakn)
   if (missing(method.tau))
@@ -1039,6 +1052,8 @@ metaprop <- function(event, n, studlab,
     comb.fixed  <- FALSE
     comb.random <- FALSE
     prediction  <- FALSE
+    overall <- FALSE
+    overall.hetstat <- FALSE
   }
   ##
   ## Check variable values
@@ -1211,6 +1226,8 @@ metaprop <- function(event, n, studlab,
                level.comb = level.comb,
                comb.fixed = comb.fixed,
                comb.random = comb.random,
+               overall = overall,
+               overall.hetstat = overall.hetstat,
                ##
                hakn = hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,

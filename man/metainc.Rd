@@ -23,6 +23,8 @@ metainc(
   level.comb = gs("level.comb"),
   comb.fixed = gs("comb.fixed"),
   comb.random = gs("comb.random"),
+  overall = comb.fixed | comb.random,
+  overall.hetstat = comb.fixed | comb.random,
   hakn = gs("hakn"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
@@ -111,6 +113,16 @@ meta-analysis should be conducted.}
 
 \item{comb.random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
+
+\item{overall}{A logical indicating whether overall summaries
+should be reported. This argument is useful in a meta-analysis
+with subgroups if overall results should not be reported.}
+
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
 
 \item{hakn}{A logical indicating whether the method by Hartung and
 Knapp should be used to adjust test statistics and confidence
@@ -214,6 +226,7 @@ object is a list containing the following components:
   defined above.}
 \item{level, level.comb, comb.fixed, comb.random,}{As defined
   above.}
+\item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 \item{tau.common, title, complab, outclab,}{As defined above.}

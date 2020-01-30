@@ -1163,7 +1163,7 @@ forest.meta <- function(x,
                         ##
                         comb.fixed = x$comb.fixed,
                         comb.random = x$comb.random,
-                        overall = comb.fixed | comb.random,
+                        overall = x$overall,
                         text.fixed = NULL,
                         text.random = NULL,
                         lty.fixed = 2, lty.random = 3,
@@ -1253,7 +1253,7 @@ forest.meta <- function(x,
                         ##
                         hetstat = print.I2 | print.tau2 | print.tau |
                           print.Q | print.pval.Q | print.Rb,
-                        overall.hetstat = hetstat,
+                        overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat = overall &
                           (is.character(hetstat) || hetstat) & !LRT,
@@ -1466,6 +1466,7 @@ forest.meta <- function(x,
          "different length.")
   ##
   chklogical(comb.fixed)
+  overall <- replaceNULL(overall, comb.fixed | comb.random)
   chklogical(comb.random)
   chklogical(overall)
   ##
@@ -1607,8 +1608,10 @@ forest.meta <- function(x,
   ##
   if (missing(overall.hetstat) & is.character(hetstat))
     overall.hetstat <- FALSE
-  else
+  else {
+    overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
     chklogical(overall.hetstat)
+  }
   ##
   chkchar(hetlab)
   chklogical(resid.hetstat)
@@ -2001,7 +2004,60 @@ forest.meta <- function(x,
   ## (4) Some assignments and additional checks
   ##
   ##
-  fixed.random <- comb.fixed & comb.random
+  prediction <- prediction & x$k >= 3
+  ##
+  level <- x$level
+  level.comb <- x$level.comb
+  level.predict <- x$level.predict
+  ##
+  chklevel(level)
+  chklevel(level.comb)
+  if (prediction)
+    chklevel(level.predict)
+  ##
+  byvar <- x$byvar
+  by <- !is.null(byvar)
+  ##
+  if (!by) {
+    test.subgroup.fixed  <- FALSE
+    test.subgroup.random <- FALSE
+    test.effect.subgroup.fixed <- FALSE
+    test.effect.subgroup.random <- FALSE
+  }
+  else {
+    if (!missing(test.subgroup)) {
+      if (missing(test.subgroup.fixed))
+        test.subgroup.fixed <- comb.fixed & test.subgroup
+      ##
+      if (missing(test.subgroup.random))
+        test.subgroup.random <- comb.random & test.subgroup
+    }
+    else {
+      if (missing(test.subgroup.fixed))
+        test.subgroup.fixed <- comb.fixed & gs("test.subgroup")
+      ##
+      if (missing(test.subgroup.random))
+        test.subgroup.random <- comb.random & gs("test.subgroup")
+    }
+    ##
+    if (!missing(test.effect.subgroup)) {
+      if (missing(test.effect.subgroup.fixed))
+        test.effect.subgroup.fixed <- comb.fixed & test.effect.subgroup
+      ##
+      if (missing(test.effect.subgroup.random))
+        test.effect.subgroup.random <- comb.random & test.effect.subgroup
+    }
+    else {
+      if (missing(test.effect.subgroup.fixed))
+        test.effect.subgroup.fixed <- comb.fixed & gs("test.effect.subgroup")
+      ##
+      if (missing(test.effect.subgroup.random))
+        test.effect.subgroup.random <- comb.random & gs("test.effect.subgroup")
+    }
+  }
+  ##
+  fixed.random <- (comb.fixed | test.subgroup.fixed | test.effect.subgroup.fixed) &
+    (comb.random | test.subgroup.random | test.effect.subgroup.random)
   ##
   if (layout == "subgroup") {
     if (!missing(study.results) & study.results)
@@ -2090,18 +2146,6 @@ forest.meta <- function(x,
       test.overall.random <- FALSE
   }
   ##
-  prediction <- prediction & x$k >= 3
-  ##
-  byvar <- x$byvar
-  level <- x$level
-  level.comb <- x$level.comb
-  level.predict <- x$level.predict
-  ##
-  chklevel(level)
-  chklevel(level.comb)
-  if (prediction)
-    chklevel(level.predict)
-  ##
   if (is.logical(leftcols)) {
     if (!leftcols) {
       text.fixed <- ""
@@ -2186,7 +2230,6 @@ forest.meta <- function(x,
     smlab <- ""
   }
   ##
-  by <- !is.null(byvar)
   if (!by) {
     addrow.subgroups <- FALSE
     if (!missing(resid.hetstat) && resid.hetstat)
@@ -2996,6 +3039,11 @@ forest.meta <- function(x,
       I2.resid <- x$I2.resid
       lowI2.resid <- x$lower.I2.resid
       uppI2.resid <- x$upper.I2.resid
+    }
+    else {
+      Q.b.fixed  <- NA
+      Q.b.random <- NA
+      df.Q.b     <- NA
     }
   }
   ##
@@ -4079,65 +4127,6 @@ forest.meta <- function(x,
                             hi = hetstat.I2.resid, ht = hetstat.tau.resid,
                             hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
                             hb = hetstat.Rb.resid))          
-    }
-  }
-  ##
-  ## Text of test for subgroup differences
-  ##
-  if (!by) {
-    test.subgroup.fixed  <- FALSE
-    test.subgroup.random <- FALSE
-    test.effect.subgroup.fixed <- FALSE
-    test.effect.subgroup.random <- FALSE
-    Q.b.fixed  <- NA
-    Q.b.random <- NA
-    df.Q.b     <- NA
-  }
-  else {
-    if (!missing(test.subgroup)) {
-      if (missing(test.subgroup.fixed))
-        test.subgroup.fixed <- comb.fixed & test.subgroup
-      else
-        test.subgroup.fixed <- comb.fixed & test.subgroup.fixed
-      ##
-      if (missing(test.subgroup.random))
-        test.subgroup.random <- comb.random & test.subgroup
-      else
-        test.subgroup.random <- comb.random & test.subgroup.random
-    }
-    else {
-      if (missing(test.subgroup.fixed))
-        test.subgroup.fixed <- comb.fixed & gs("test.subgroup")
-      else
-        test.subgroup.fixed <- comb.fixed & test.subgroup.fixed
-      ##
-      if (missing(test.subgroup.random))
-        test.subgroup.random <- comb.random & gs("test.subgroup")
-      else
-        test.subgroup.random <- comb.random & test.subgroup.random
-    }
-    ##
-    if (!missing(test.effect.subgroup)) {
-      if (missing(test.effect.subgroup.fixed))
-        test.effect.subgroup.fixed <- comb.fixed & test.effect.subgroup
-      else
-        test.effect.subgroup.fixed <- comb.fixed & test.effect.subgroup.fixed
-      ##
-      if (missing(test.effect.subgroup.random))
-        test.effect.subgroup.random <- comb.random & test.effect.subgroup
-      else
-        test.effect.subgroup.random <- comb.random & test.effect.subgroup.random
-    }
-    else {
-      if (missing(test.effect.subgroup.fixed))
-        test.effect.subgroup.fixed <- comb.fixed & gs("test.effect.subgroup")
-      else
-        test.effect.subgroup.fixed <- comb.fixed & test.effect.subgroup.fixed
-      ##
-      if (missing(test.effect.subgroup.random))
-        test.effect.subgroup.random <- comb.random & gs("test.effect.subgroup")
-      else
-        test.effect.subgroup.random <- comb.random & test.effect.subgroup.random
     }
   }
   ##
@@ -6668,7 +6657,7 @@ forest.meta <- function(x,
   yText.addline1 <- NA
   yText.addline2 <- NA
   ##
-  if (fixed.random & overall) {
+  if (comb.fixed & comb.random & overall) {
     yTE.fixed  <- yNext
     yTE.random <- yNext + 1
     yNext      <- yNext + 2

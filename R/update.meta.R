@@ -52,6 +52,14 @@
 #'   meta-analysis should be conducted.
 #' @param comb.random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
+#' @param overall A logical indicating whether overall summaries
+#'   should be reported. This argument is useful in a meta-analysis
+#'   with subgroups if overall results should not be reported.
+#' @param overall.hetstat A logical value indicating whether to print
+#'   heterogeneity measures for overall treatment comparisons. This
+#'   argument is useful in a meta-analysis with subgroups if
+#'   heterogeneity statistics should only be printed on subgroup
+#'   level.
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
@@ -234,6 +242,8 @@ update.meta <- function(object,
                         level.comb = object$level.comb,
                         comb.fixed = object$comb.fixed,
                         comb.random = object$comb.random,
+                        overall = object$overall,
+                        overall.hetstat = object$overall.hetstat,
                         hakn = object$hakn,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
@@ -320,6 +330,8 @@ update.meta <- function(object,
   ##
   comb.fixed <- replacemiss(comb.fixed)
   comb.random <- replacemiss(comb.random)
+  overall <- replaceNULL(overall, comb.fixed | comb.random)
+  overall.hetstat <- replaceNULL(overall.hetstat, comb.fixed | comb.random)
   ##
   RR.Cochrane <- replacemiss(RR.Cochrane, object$RR.cochrane)
   Q.Cochrane <- replacemiss(Q.Cochrane, TRUE)
@@ -621,6 +633,7 @@ update.meta <- function(object,
                  ##
                  level = level, level.comb = level.comb,
                  comb.fixed = comb.fixed, comb.random = comb.random,
+                 overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn,
                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
@@ -666,6 +679,7 @@ update.meta <- function(object,
                   ##
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
+                  overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
@@ -701,6 +715,7 @@ update.meta <- function(object,
                  ##
                  level = level, level.comb = level.comb,
                  comb.fixed = comb.fixed, comb.random = comb.random,
+                 overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
@@ -748,6 +763,7 @@ update.meta <- function(object,
                  ##
                  level = level, level.comb = level.comb,
                  comb.fixed = comb.fixed, comb.random = comb.random,
+                 overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
@@ -812,6 +828,7 @@ update.meta <- function(object,
                  ##
                  level = level, level.comb = level.comb,
                  comb.fixed = comb.fixed, comb.random = comb.random,
+                 overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn,
                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
@@ -860,6 +877,7 @@ update.meta <- function(object,
                   ##
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
+                  overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
@@ -899,6 +917,7 @@ update.meta <- function(object,
                   ##
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
+                  overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn,
                   method.tau = ifelse(method == "GLMM", "ML", method.tau),
@@ -938,6 +957,7 @@ update.meta <- function(object,
                   ##
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
+                  overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn,
                   method.tau = ifelse(method == "GLMM", "ML", method.tau),

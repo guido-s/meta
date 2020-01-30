@@ -1,3 +1,20 @@
+*** meta, version 4.11-0, 2020-mm-dd ***
+
+ ** Major changes **
+
+  * New arguments 'overall' and 'overall.hetstat' in meta-analysis
+    functions to control printing of overall meta-analysis results
+    (useful to only show subgroup results)
+  
+ ** User-visible changes **
+
+  * forest.meta():
+    - possible to print results for test of an overall effect or
+      subgroup differences even if meta-analysis results are not shown
+    - new defaults for arguments 'overall' and 'overall.hetstat'
+      (which are now considered from meta-analysis objects)
+
+
 *** meta, version 4.10-0, 2020-01-29 ***
 
  ** Major changes **

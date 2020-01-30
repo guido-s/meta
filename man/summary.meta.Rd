@@ -10,6 +10,8 @@
   comb.fixed = object$comb.fixed,
   comb.random = object$comb.random,
   prediction = object$prediction,
+  overall = object$overall,
+  overall.hetstat = object$overall.hetstat,
   backtransf = object$backtransf,
   pscale = object$pscale,
   irscale = object$irscale,
@@ -28,6 +30,8 @@
   comb.fixed = x$comb.fixed,
   comb.random = x$comb.random,
   prediction = x$prediction,
+  overall = x$overall,
+  overall.hetstat = x$overall.hetstat,
   print.byvar = x$print.byvar,
   byseparator = x$byseparator,
   print.CMH = x$print.CMH,
@@ -72,6 +76,16 @@ meta-analysis should be conducted.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
+
+\item{overall}{A logical indicating whether overall summaries
+should be reported. This argument is useful in a meta-analysis
+with subgroups if overall results should not be reported.}
+
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results
@@ -176,8 +190,8 @@ statistic R\eqn{_b} should be printed.}
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}
 
-\item{text.tau}{Text printed to identify \eqn{\tau}, the square root
-of the between-study variance \eqn{\tau^2}.}
+\item{text.tau}{Text printed to identify \eqn{\tau}, the square
+root of the between-study variance \eqn{\tau^2}.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
 I\eqn{^2}.}

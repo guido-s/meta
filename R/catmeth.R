@@ -74,7 +74,7 @@ catmeth <- function(method,
     sm.details <- ""
   ##
   if (metaprop && !is.null(method.ci)) {
-    if  (method.ci == "CP")
+    if (method.ci == "CP")
       method.ci.details <-
         "\n- Clopper-Pearson confidence interval for individual studies"
     else if (method.ci == "WS")
@@ -97,6 +97,8 @@ catmeth <- function(method,
     else if (method.ci == "NAsm")
       method.ci.details <-
         "\n- Normal approximation confidence interval for individual studies"
+    else
+      method.ci.details <- ""
     ##
     sm.details <- paste0(sm.details, method.ci.details)
   }
@@ -304,7 +306,7 @@ catmeth <- function(method,
   }
   ##
   imeth <- charmatch(method,
-                     c("MH", "Peto", "Inverse", "Cochran", "GLMM"),
+                     c("MH", "Peto", "Inverse", "Cochran", "GLMM", "NoMA"),
                      nomatch = NA)
   ##
   if ((metabin|metainc) & imeth == 1 & (sparse | addincr))
@@ -321,7 +323,8 @@ catmeth <- function(method,
               "\n- Peto method",
               "\n- Inverse variance method",
               "\n- Cochran method",
-              "GLMM")[imeth]
+              "GLMM",
+              "")[imeth]
   ##
   if (method == "GLMM") {
     
@@ -346,7 +349,8 @@ catmeth <- function(method,
   method <- paste0(method, lab.method.details)
   ##
   if (k.all > 1) {
-    cat(paste0("\nDetails on meta-analytical method:", method))
+    if (method != "")
+      cat(paste0("\nDetails on meta-analytical method:", method))
     ##
     if (trimfill)
       cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
@@ -374,13 +378,18 @@ catmeth <- function(method,
       cat(paste0("\n- Imputation method: ", mmiss))
     }
   }
-  else
-    cat(paste0("\nDetails:", method))
+  else {
+    if (method != "" | sm.details != "")
+      cat("\nDetails:")
+    if (method != "")
+      cat(method)
+  }
   ##
   if (sm.details != "")
     cat(paste0(sm.details, "\n"))
-  else
+  else if (method != "")
     cat("\n")
+  
   
   invisible(NULL)
 }
