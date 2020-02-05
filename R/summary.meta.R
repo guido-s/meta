@@ -1057,23 +1057,29 @@ print.summary.meta <- function(x,
     if (by) {
       TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
                                    harmonic.mean.w,
-                                   warn = overall & comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed &
+                                     warn.backtransf)
       lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
                                    harmonic.mean.w,
-                                   warn = overall & comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed &
+                                     warn.backtransf)
       uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
                                    harmonic.mean.w,
-                                   warn = overall & comb.fixed & warn.backtransf)
+                                   warn = overall & comb.fixed &
+                                     warn.backtransf)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
                                    harmonic.mean.w,
-                                   warn = overall & comb.random & warn.backtransf)
+                                   warn = overall & comb.random &
+                                     warn.backtransf)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
                                    harmonic.mean.w,
-                                   warn = overall & comb.random & warn.backtransf)
+                                   warn = overall & comb.random &
+                                     warn.backtransf)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
                                    harmonic.mean.w,
-                                   warn = overall & comb.random & warn.backtransf)
+                                   warn = overall & comb.random &
+                                     warn.backtransf)
     }
   }
   ##
@@ -1334,7 +1340,8 @@ print.summary.meta <- function(x,
       cat("\nQuantifying heterogeneity:\n")
       ##
       print.tau2 <- TRUE
-      print.tau2.ci <- print.tau2 & !(is.na(x$tau2$lower) | is.na(x$tau2$upper))
+      print.tau2.ci <-
+        print.tau2 & !(is.na(x$tau2$lower) | is.na(x$tau2$upper))
       print.tau <- TRUE
       print.tau.ci <- print.tau & !(is.na(x$tau$lower) | is.na(x$tau$upper))
       ##
@@ -1451,16 +1458,6 @@ print.summary.meta <- function(x,
                                         big.mark = big.mark)),
                        formatN(round(Q.w, digits.Q), digits.Q,
                                big.mark = big.mark),
-                       ifelse(k.w == 1, "--",
-                              formatPT(x$tau.w^2,
-                                       digits = digits.tau2,
-                                       big.mark = big.mark,
-                                       noblanks = TRUE)),
-                       ifelse(k.w == 1, "--",
-                              formatPT(x$tau.w,
-                                       digits = digits.tau,
-                                       big.mark = big.mark,
-                                       noblanks = TRUE)),
                        if (print.I2)
                          ifelse(is.na(I2.w),
                                 "--",
@@ -1468,7 +1465,19 @@ print.summary.meta <- function(x,
                        if (print.Rb)
                          ifelse(is.na(Rb.w),
                                 "--",
-                                paste0(formatN(Rb.w, digits.I2), "%"))
+                                paste0(formatN(Rb.w, digits.I2), "%")),
+                       if (!comb.random)
+                         ifelse(k.w == 1, "--",
+                                formatPT(x$tau.w^2,
+                                         digits = digits.tau2,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE)),
+                       if (!comb.random)
+                         ifelse(k.w == 1, "--",
+                                formatPT(x$tau.w,
+                                         digits = digits.tau,
+                                         big.mark = big.mark,
+                                         noblanks = TRUE))
                        )
         ##
         bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
@@ -1476,9 +1485,11 @@ print.summary.meta <- function(x,
         ##
         dimnames(Tdata) <- list(bylab,
                                 c("  k", sm.lab, x$ci.lab,
-                                  "Q", text.tau2, text.tau,
+                                  "Q",
                                   if (print.I2) text.I2,
-                                  if (print.Rb) text.Rb)
+                                  if (print.Rb) text.Rb,
+                                  if (!comb.random) text.tau2,
+                                  if (!comb.random) text.tau)
                                 )
         if (inherits(x, "metabind"))
           cat("\nResults for meta-analyses (fixed effect model):\n")
@@ -1529,8 +1540,6 @@ print.summary.meta <- function(x,
                                         big.mark = big.mark),
                                 formatN(uppTE.random.w, digits, "NA",
                                         big.mark = big.mark)),
-                       formatN(round(Q.w, digits.Q), digits.Q,
-                               big.mark = big.mark),
                        ifelse(k.w == 1, "--",
                               formatPT(x$tau.w^2,
                                        digits = digits.tau2,
@@ -1541,11 +1550,14 @@ print.summary.meta <- function(x,
                                        digits = digits.tau,
                                        big.mark = big.mark,
                                        noblanks = TRUE)),
-                       if (print.I2)
+                       if (!comb.fixed)
+                         formatN(round(Q.w, digits.Q), digits.Q,
+                                 big.mark = big.mark),
+                       if (!comb.fixed & print.I2)
                          ifelse(is.na(I2.w),
                                 "--",
                                 paste0(formatN(I2.w, digits.I2), "%")),
-                       if (print.Rb)
+                       if (!comb.fixed & print.Rb)
                          ifelse(is.na(Rb.w),
                                 "--",
                                 paste0(formatN(Rb.w, digits.I2,
@@ -1557,9 +1569,10 @@ print.summary.meta <- function(x,
         ##
         dimnames(Tdata) <- list(bylab,
                                 c("  k", sm.lab, x$ci.lab,
-                                  "Q", text.tau2, text.tau,
-                                  if (print.I2) text.I2,
-                                  if (print.Rb) text.Rb)
+                                  text.tau2, text.tau,
+                                  if (!comb.fixed) "Q",
+                                  if (!comb.fixed & print.I2) text.I2,
+                                  if (!comb.fixed & print.Rb) text.Rb)
                                 )
         ##
         if (inherits(x, "metabind"))

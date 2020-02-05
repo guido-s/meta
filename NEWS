@@ -14,6 +14,12 @@
     - new defaults for arguments 'overall' and 'overall.hetstat'
       (which are now considered from meta-analysis objects)
 
+  * print.summary.meta():
+    - for meta-analysis with subgroups, print information on Q and I^2
+      with fixed effect results and information on tau and tau^2 with
+      random effects results (previously, information on Q, I^2, tau,
+      and tau^2 was reported twice)
+
 
 *** meta, version 4.10-0, 2020-01-29 ***
 

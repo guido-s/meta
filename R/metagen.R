@@ -42,7 +42,8 @@
 #'   interval for a new study.
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
-#' @param n.e Number of observations in experimental group.
+#' @param n.e Number of observations in experimental group (or total
+#'   sample size in study).
 #' @param n.c Number of observations in control group.
 #' @param pval P-value (used to estimate the standard error).
 #' @param df Degrees of freedom (used in test or to construct
@@ -86,7 +87,7 @@
 #'   be the same across subgroups.
 #' @param method.bias A character string indicating which test is to
 #'   be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-#'   can be abbreviated.  See function \code{\link{metabias}}
+#'   can be abbreviated.  See function \code{\link{metabias}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE} (default), results for \code{sm = "OR"} are printed as odds
@@ -651,10 +652,15 @@
 #' m1 <- metabin(event.e, n.e, event.c, n.c,
 #'               data = Fleiss93, sm = "RR", method = "I")
 #' m1
-#' # Identical results by using the generic inverse variance method
-#' metagen(m1$TE, m1$seTE, sm = "RR")
-#' #
-#' forest(metagen(m1$TE, m1$seTE, sm = "RR"))
+#' 
+#' # Identical results using the generic inverse variance method with
+#' # log risk ratio and its standard error:
+#' # Note, argument 'n.e' in metagen() is used to provide the total
+#' # sample size which is calculated from the group sample sizes n.e
+#' # and n.c in meta-analysis m1.
+#' m1.gen <- metagen(TE, seTE, n.e = n.e + n.c, data = m1, sm = "RR")
+#' m1.gen
+#' forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
 #'
 #' 
 #' # Meta-analysis with prespecified between-study variance

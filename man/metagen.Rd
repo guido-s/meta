@@ -141,9 +141,10 @@ null hypothesis.}
 
 \item{method.bias}{A character string indicating which test is to
 be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-can be abbreviated.  See function \code{\link{metabias}}}
+can be abbreviated.  See function \code{\link{metabias}}.}
 
-\item{n.e}{Number of observations in experimental group.}
+\item{n.e}{Number of observations in experimental group (or total
+sample size in study).}
 
 \item{n.c}{Number of observations in control group.}
 
@@ -636,10 +637,15 @@ data(Fleiss93)
 m1 <- metabin(event.e, n.e, event.c, n.c,
               data = Fleiss93, sm = "RR", method = "I")
 m1
-# Identical results by using the generic inverse variance method
-metagen(m1$TE, m1$seTE, sm = "RR")
-#
-forest(metagen(m1$TE, m1$seTE, sm = "RR"))
+
+# Identical results using the generic inverse variance method with
+# log risk ratio and its standard error:
+# Note, argument 'n.e' in metagen() is used to provide the total
+# sample size which is calculated from the group sample sizes n.e
+# and n.c in meta-analysis m1.
+m1.gen <- metagen(TE, seTE, n.e = n.e + n.c, data = m1, sm = "RR")
+m1.gen
+forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
 
 
 # Meta-analysis with prespecified between-study variance
