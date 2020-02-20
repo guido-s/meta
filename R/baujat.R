@@ -167,7 +167,8 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  TE.fixed <- metagen(TE, seTE, exclude = x$exclude)$TE.fixed
+  TE.fixed <- metagen(TE, seTE, exclude = x$exclude,
+                      method.tau.ci = "")$TE.fixed
   k <- x$k
   ##
   if (is.logical(studlab)) {

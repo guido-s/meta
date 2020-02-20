@@ -268,7 +268,7 @@ metabias.default <- function(x, seTE,
   ## (2) Do meta-analysis
   ##
   ##
-  m <- metagen(x, seTE)
+  m <- metagen(x, seTE, method.tau.ci = "")
   
   
   ##

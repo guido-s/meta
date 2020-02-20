@@ -235,7 +235,7 @@ funnel.default <- function(x, y,
   ## (2) Do meta-analysis
   ##
   ##
-  m <- metagen(TE, seTE, sm = sm)
+  m <- metagen(TE, seTE, sm = sm, method.tau.ci = "")
   
   
   ##

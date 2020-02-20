@@ -114,7 +114,7 @@ radial.default <- function(x, y,
   ## (2) Do meta-analysis
   ##
   ##
-  m <- metagen(x, y)
+  m <- metagen(x, y, method.tau.ci = "")
   
   
   ##

@@ -403,9 +403,9 @@ summary.meta <- function(object,
                p = object$pval.fixed,
                level = object$level.comb)
   if (metaprop)
-    ci.f$harmonic.mean <- mean(1 / object$n)
+    ci.f$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
-    ci.f$harmonic.mean <- mean(1 / object$time)
+    ci.f$harmonic.mean <- 1 / mean(1 / object$time)
   ##
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
@@ -416,9 +416,9 @@ summary.meta <- function(object,
                level = object$level.comb,
                df = if (!is.null(object$df.hakn)) object$df.hakn else NA)
   if (metaprop)
-    ci.r$harmonic.mean <- mean(1 / object$n)
+    ci.r$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
-    ci.r$harmonic.mean <- mean(1 / object$time)
+    ci.r$harmonic.mean <- 1 / mean(1 / object$time)
   ##
   ci.tau2 <- list(TE = object$tau2,
                   lower = object$lower.tau2, upper = object$upper.tau2)

@@ -280,7 +280,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ## (2) Do meta-analysis
   ##
   ##
-  m <- metagen(x, seTE, studlab = studlab, sm = sm)
+  m <- metagen(x, seTE, studlab = studlab, sm = sm, method.tau.ci = "")
   
   
   ##

@@ -376,8 +376,10 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       meth <- rbind(meth, meth.i)
     }
   }
-
-
+  
+  
+  ## Unify some settings
+  ##
   if (missing(pooled)) {
     if (all(meth$comb.fixed) & all(!meth$comb.random))
       pooled <- "fixed"
@@ -403,8 +405,44 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     meth$comb.fixed <- FALSE
     meth$comb.random <- TRUE
   }
-
-
+  ##  
+  if (missing(backtransf)) {
+    if (any(meth$backtransf))
+      meth$backtransf <- TRUE
+  }
+  else
+    meth$backtransf <- backtransf
+  ##
+  if (any(meth$warn))
+    meth$warn <- TRUE
+  ##
+  if (any(meth$prediction))
+    meth$prediction <- TRUE
+  ##  
+  ## Only consider argument 'tau.common' from subgroup meta-analyses
+  ##
+  if (any(is.subgroup) & any(!is.subgroup)) {
+    tau.common.uniq <- unique(meth$tau.common[is.subgroup])
+    if (length(tau.common.uniq) == 1)
+      meth$tau.common[!is.subgroup] <- tau.common.uniq
+  }
+  
+  
+  ## Check whether settings are unique
+  ##
+  n.meth <- apply(meth, 2,
+                  function(x)
+                    length(unique(x)))
+  ##
+  if (any(n.meth != 1))
+    stop("All meta-analyses must use the same basic settings ",
+         "which differ for the following argument",
+         if (sum(n.meth != 1) > 1) "s",
+         ": ",
+         paste0(paste0("'", names(meth)[n.meth != 1], "'"),
+                collapse = " - "))
+  
+  
   for (i in n.i) {
     m.i <- args[[i]]
     ##
@@ -469,38 +507,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     else
       study <- rbind(study, study.i)
   }
-
-
-  if (missing(backtransf)) {
-    if (any(meth$backtransf))
-      meth$backtransf <- TRUE
-  }
-  else
-    meth$backtransf <- backtransf
-
-
-  ## Only consider argument 'tau.common' from subgroup meta-analyses
-  ##
-  if (any(is.subgroup) & any(!is.subgroup)) {
-    tau.common.uniq <- unique(meth$tau.common[is.subgroup])
-    if (length(tau.common.uniq) == 1)
-      meth$tau.common[!is.subgroup] <- tau.common.uniq
-  }
-
-
-  n.meth <- apply(meth, 2,
-                  function(x)
-                    length(unique(x)))
-  ##
-  if (any(n.meth != 1))
-    stop("All meta-analyses must use the same basic settings ",
-         "which differ for the following argument",
-         if (sum(n.meth != 1) > 1) "s",
-         ": ",
-         paste0(paste0("'", names(meth)[n.meth != 1], "'"),
-                collapse = " - "))
-
-
+  
+  
   if (length(unique(study$byvar)) == 1) {
     res <- c(as.list(study), as.list(meth[1, ]), as.list(overall))
     res$byvar <- NULL
