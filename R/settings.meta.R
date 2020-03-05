@@ -184,7 +184,7 @@ settings.meta <- function(...) {
   res$sm4bin <- res$sm4cont <- res$sm4cor <- res$sm4inc <-
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
   res$ci4prop <- NULL
-  res$meth4tau <- res$meth4tau.ci <- NULL
+  res$meth4bin <- res$meth4tau <- res$meth4tau.ci <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   
@@ -901,7 +901,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(idmethod)) {
       method <- args[[idmethod]]
-      method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+      method <- setchar(method, .settings$meth4bin)
       setOption("method", method)
     }
     if (!is.na(idmodel.glmm)) {

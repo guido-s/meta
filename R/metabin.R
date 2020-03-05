@@ -4,8 +4,8 @@
 #' Calculation of fixed effect and random effects estimates (risk
 #' ratio, odds ratio, risk difference, or arcsine difference) for
 #' meta-analyses with binary outcome data. Mantel-Haenszel, inverse
-#' variance, Peto method, and generalised linear mixed model (GLMM)
-#' are available for pooling. For GLMMs, the
+#' variance, Peto method, generalised linear mixed model (GLMM), and
+#' sample size method are available for pooling. For GLMMs, the
 #' \code{\link[metafor]{rma.glmm}} function from R package
 #' \bold{metafor} (Viechtbauer, 2010) is called internally.
 #' 
@@ -23,7 +23,8 @@
 #'   plots.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
-#'   \code{"MH"}, \code{"Peto"}, or \code{"GLMM"}, can be abbreviated.
+#'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
+#'   be abbreviated.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"ASD"}) is to be
 #'   used for pooling of studies, see Details.
@@ -131,8 +132,8 @@
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
 #' @param control An optional list to control the iterative process to
-#'   estimate the between-study variance \eqn{\tau^2}. This argument is
-#'   passed on to \code{\link[metafor]{rma.uni}} or
+#'   estimate the between-study variance \eqn{\tau^2}. This argument
+#'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.glmm}}, respectively.
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function.
@@ -156,7 +157,9 @@
 #' 1986) is used to calculate the fixed effect estimate; if
 #' \code{method} is \code{"Inverse"}, inverse variance weighting is
 #' used for pooling (Fleiss, 1993); if \code{method} is \code{"Peto"},
-#' the Peto method is used for pooling (Yussuf et al., 1985).
+#' the Peto method is used for pooling (Yussuf et al., 1985); if
+#' \code{method} is \code{"SSW"}, the sample size method is used for
+#' pooling (Bakbergenuly et al., 2020).
 #'
 #' While the Mantel-Haenszel and Peto method are defined under the
 #' fixed effect model, random effects variants based on these methods
@@ -493,6 +496,12 @@
 #'   \code{\link{metareg}}, \code{\link{print.meta}}
 #' 
 #' @references
+#' Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
+#' Methods for estimating between-study variance and overall
+#' effect in meta-analysis of odds-ratios.
+#' \emph{Research Synthesis Methods},
+#' DOI: 10.1002/jrsm.1404
+#' 
 #' Cooper H & Hedges LV (1994):
 #' \emph{The Handbook of Research Synthesis}.
 #' Newbury Park, CA: Russell Sage Foundation
@@ -728,7 +737,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
                       ifelse(!is.na(charmatch(tolower(method),
-                                              c("peto", "glmm"),
+                                              c("peto", "glmm", "ssw"),
                                               nomatch = NA)),
                              "OR", gs("smbin")),
                     incr = gs("incr"), allincr = gs("allincr"),
@@ -799,7 +808,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau <- setchar(method.tau, c(.settings$meth4tau, "KD"))
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
@@ -826,7 +835,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     pscale <- 1
   }
   ##
-  method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+  method <- setchar(method, .settings$meth4bin)
   if (metafor)
     method <- "Inverse"
   is.glmm <- method == "GLMM"
@@ -859,14 +868,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     Q.Cochrane <- FALSE
   }
   ##
-  if (method == "Peto" & sm != "OR")
-    stop("Peto's method only possible with argument 'sm = \"OR\"'")
-  ##
-  if (is.glmm & sm != "OR")
-    stop("Generalised linear mixed models only possible with argument 'sm = \"OR\"'.")
+  if (sm != "OR") {
+    if (method == "Peto")
+      stop("Peto's method only possible with argument 'sm = \"OR\"'")
+    else if (method == "SSW")
+      stop("Sample size weighting only available with argument 'sm = \"OR\"'")
+    else if (is.glmm)
+      stop("Generalised linear mixed models only possible with ",
+           "argument 'sm = \"OR\"'.")
+  }
   ##
   if (is.glmm & method.tau != "ML")
-    stop("Generalised linear mixed models only possible with argument 'method.tau = \"ML\"'.")
+    stop("Generalised linear mixed models only possible with ",
+         "argument 'method.tau = \"ML\"'.")
   ##
   ## Check for deprecated arguments in '...'
   ##
@@ -1310,10 +1324,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   Q.CMH <- (sum((n11 - n1. * n.1 / n..)[!exclude], na.rm = TRUE)^2 /
               sum((n1. * n2. * n.1 * n.2 / n..^3)[!exclude], na.rm = TRUE))
   ##
+  p.e <- (n11 + incr.e) / (n1. + 2 * incr.e)
+  p.c <- (n21 + incr.c) / (n2. + 2 * incr.c)
+  ##
   ## Estimation of treatment effects in individual studies
   ##
   if (sm == "OR") {
-    if (method %in% c("MH", "Inverse", "GLMM")) {
+    if (method %in% c("MH", "Inverse", "GLMM", "SSW")) {
       ##
       ## Cooper & Hedges (1994), p. 251-2
       ##
@@ -1490,6 +1507,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     w.fixed <- rep(NA, length(event.e))
   }
+  else if (method == "SSW") {
+    w.fixed <- n.e * n.c / (n.e + n.c)
+    w.fixed[exclude] <- 0
+    TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
+    seTE.fixed <- sqrt(sum(w.fixed^2 * seTE^2, na.rm = TRUE) /
+                       sum(w.fixed, na.rm = TRUE)^2)
+    ##
+    w.fixed[is.na(w.fixed)] <- 0
+  }
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
@@ -1522,6 +1548,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                warn = warn,
                ##
                control = control)
+  ##
+  if (method == "SSW") {
+    w.random <- n.e * n.c / (n.e + n.c)
+    w.random[exclude] <- 0
+    TE.random <- weighted.mean(TE, w.random, na.rm = TRUE)
+    seTE.random <- sqrt(sum(w.random^2 * (seTE^2 + m$tau^2), na.rm = TRUE) /
+                        sum(w.random, na.rm = TRUE)^2)
+    ##
+    w.random[is.na(w.random)] <- 0
+  }
   ##
   if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
@@ -1568,7 +1604,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   res$call <- match.call()
   ##
-  if (method %in% c("MH", "Peto", "GLMM")) {
+  if (method %in% c("MH", "Peto", "GLMM", "SSW")) {
     ##
     ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
     ##
@@ -1665,6 +1701,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$.glmm.fixed  <- glmm.fixed
     res$.glmm.random <- glmm.random
     res$version.metafor <- packageDescription("metafor")$Version
+  }
+  else if (method == "SSW") {
+    if (hakn)
+      ci.r <- ci(TE.random, seTE.random, level = level.comb, df = m$k - 1)
+    else
+      ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ##
+    res$TE.random <- TE.random
+    res$seTE.random <- seTE.random
+    res$w.random <- w.random
+    res$lower.random <- ci.r$lower
+    res$upper.random <- ci.r$upper
+    res$zval.random <- ci.r$z
+    res$pval.random <- ci.r$p      
   }
   ##
   if (keepdata) {

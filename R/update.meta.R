@@ -599,10 +599,11 @@ update.meta <- function(object,
   ##
   if (metabin) {
     sm <- setchar(sm, .settings$sm4bin)
-    method <- setchar(method, c("Inverse", "MH", "Peto", "GLMM"))
+    method <- setchar(method, .settings$meth4bin)
     if (sm == "ASD") {
       if (!missing.incr)
-        warning("Note, no continuity correction considered for arcsine difference (sm = \"ASD\").")
+        warning("Note, no continuity correction considered for ",
+                "arcsine difference (sm = \"ASD\").")
       incr <- 0
       object$data$.incr <- 0
     }

@@ -14,8 +14,8 @@ metabin(
   subset = NULL,
   exclude = NULL,
   method = ifelse(tau.common, "Inverse", gs("method")),
-  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm"), nomatch = NA)), "OR",
-    gs("smbin")),
+  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch =
+    NA)), "OR", gs("smbin")),
   incr = gs("incr"),
   allincr = gs("allincr"),
   addincr = gs("addincr"),
@@ -83,7 +83,8 @@ plots.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"},
-\code{"MH"}, \code{"Peto"}, or \code{"GLMM"}, can be abbreviated.}
+\code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
+be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"ASD"}) is to be
@@ -232,8 +233,8 @@ should be kept in meta object.}
 frequencies).}
 
 \item{control}{An optional list to control the iterative process to
-estimate the between-study variance \eqn{\tau^2}. This argument is
-passed on to \code{\link[metafor]{rma.uni}} or
+estimate the between-study variance \eqn{\tau^2}. This argument
+is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
 \item{\dots}{Additional arguments passed on to
@@ -419,8 +420,8 @@ object is a list containing the following components:
 Calculation of fixed effect and random effects estimates (risk
 ratio, odds ratio, risk difference, or arcsine difference) for
 meta-analyses with binary outcome data. Mantel-Haenszel, inverse
-variance, Peto method, and generalised linear mixed model (GLMM)
-are available for pooling. For GLMMs, the
+variance, Peto method, generalised linear mixed model (GLMM), and
+sample size method are available for pooling. For GLMMs, the
 \code{\link[metafor]{rma.glmm}} function from R package
 \bold{metafor} (Viechtbauer, 2010) is called internally.
 }
@@ -443,7 +444,9 @@ Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
 1986) is used to calculate the fixed effect estimate; if
 \code{method} is \code{"Inverse"}, inverse variance weighting is
 used for pooling (Fleiss, 1993); if \code{method} is \code{"Peto"},
-the Peto method is used for pooling (Yussuf et al., 1985).
+the Peto method is used for pooling (Yussuf et al., 1985); if
+\code{method} is \code{"SSW"}, the sample size method is used for
+pooling (Bakbergenuly et al., 2020).
 
 While the Mantel-Haenszel and Peto method are defined under the
 fixed effect model, random effects variants based on these methods
@@ -720,6 +723,12 @@ summary(update(m10, model.glmm = "CM.AL"))
 
 }
 \references{
+Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
+Methods for estimating between-study variance and overall
+effect in meta-analysis of odds-ratios.
+\emph{Research Synthesis Methods},
+DOI: 10.1002/jrsm.1404
+
 Cooper H & Hedges LV (1994):
 \emph{The Handbook of Research Synthesis}.
 Newbury Park, CA: Russell Sage Foundation

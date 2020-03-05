@@ -306,7 +306,7 @@ catmeth <- function(method,
   }
   ##
   imeth <- charmatch(method,
-                     c("MH", "Peto", "Inverse", "Cochran", "GLMM", "NoMA"),
+                     c("MH", "Peto", "Inverse", "Cochran", "SSW", "GLMM", "NoMA"),
                      nomatch = NA)
   ##
   if ((metabin|metainc) & imeth == 1 & (sparse | addincr))
@@ -323,6 +323,7 @@ catmeth <- function(method,
               "\n- Peto method",
               "\n- Inverse variance method",
               "\n- Cochran method",
+              "\n- Sample size method",
               "GLMM",
               "")[imeth]
   ##

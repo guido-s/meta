@@ -1,3 +1,11 @@
+*** meta, version 4.12-0, 2020-mm-dd ***
+
+ ** Major changes **
+
+  * Sample size method for meta-analysis of binary data with the odds
+    ratio as summary measure implemented (Bakbergenuly et al., 2020)
+
+
 *** meta, version 4.11-0, 2020-02-20 ***
 
  ** Major changes **
