@@ -1105,7 +1105,7 @@ metaprop <- function(event, n, studlab,
   }
   else if (sm == "PAS") {
     TE <- asin(sqrt(event / n))
-    seTE <- sqrt(0.25 * (1 / n))
+    seTE <- sqrt(1 / (4 * n))
     transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PFT") {
