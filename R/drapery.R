@@ -7,9 +7,9 @@
 #' @aliases drapery
 #' 
 #' @param x An object of class \code{meta}.
-#' @param type A character string indicating whether to plot critical
-#'   values (\code{"cvalue"}) or p-values (\code{"pvalue"}), can be
-#'   abbreviated.
+#' @param type A character string indicating whether to plot test
+#'   statistics (\code{"zvalue"}) or p-values (\code{"pvalue"}), can
+#'   be abbreviated.
 #' @param layout A character string for the line layout of individual
 #'   studies: \code{"grayscale"}, \code{"equal"}, or
 #'   \code{"linewidth"} (see Details), can be abbreviated.
@@ -61,7 +61,7 @@
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
 #' @param n.grid The number of grid points to calculate the p-value or
-#'   critical value functions.
+#'   test statistic functions.
 #' @param mar Physical plot margin, see \code{\link{par}}.
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
@@ -78,8 +78,8 @@
 #' confidence level.
 #'
 #' Argument \code{type} can be used to either show p-value functions
-#' (Birnbaum, 1961) or a scaled version (Infanger, 2019) with critical
-#' values (default).
+#' (Birnbaum, 1961) or a scaled version (Infanger, 2019) with test
+#' statistics (default).
 #' 
 #' Argument \code{layout} determines how curves for individual studies
 #' are presented:
@@ -126,7 +126,7 @@
 #' @export drapery
 
 
-drapery <- function(x, type = "cvalue", layout = "grayscale",
+drapery <- function(x, type = "zvalue", layout = "grayscale",
                     ##
                     lty.study = 1, lwd.study = 1, col.study = "darkgray",
                     ##
@@ -138,7 +138,7 @@ drapery <- function(x, type = "cvalue", layout = "grayscale",
                     ##
                     prediction = comb.random, col.predict = "lightblue",
                     ##
-                    alpha = if (type == "cvalue") c(0.001, 0.01, 0.05, 0.1)
+                    alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1)
                                 else c(0.01, 0.05, 0.1),
                     lty.alpha = 2, lwd.alpha = 1, col.alpha = "black",
                     cex.alpha = 0.7,
@@ -150,11 +150,11 @@ drapery <- function(x, type = "cvalue", layout = "grayscale",
                     backtransf = x$backtransf,
                     xlab,
                     ylab =
-                      if (type == "cvalue") "Critical value" else "P-value",
+                      if (type == "zvalue") "Test statistic" else "P-value",
                     xlim, ylim,
                     lwd.max = 2.5,
                     lwd.study.weight = if (comb.random) "random" else "fixed",
-                    n.grid = if (type == "cvalue") 10000 else 1000,
+                    n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
                     ...) {
   
@@ -174,7 +174,7 @@ drapery <- function(x, type = "cvalue", layout = "grayscale",
   ##
   chkclass(x, "meta")
   ##
-  type <- setchar(type, c("cvalue", "pvalue"))
+  type <- setchar(type, c("zvalue", "pvalue"))
   layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
   ##
   chknumeric(lty.study, min = 0, zero = TRUE, single = TRUE)
@@ -284,7 +284,7 @@ drapery <- function(x, type = "cvalue", layout = "grayscale",
   y.predict <- pvf(grid, TE.random, t.quantile / qnorm(0.975) * seTE.predict)
   y.alpha <- alpha
   ##
-  if (type == "cvalue") {
+  if (type == "zvalue") {
     y.1 <- qnorm(y.1 / 2)
     y.fixed <- qnorm(y.fixed / 2)
     y.random <- qnorm(y.random / 2)
@@ -327,7 +327,7 @@ drapery <- function(x, type = "cvalue", layout = "grayscale",
   ##
   for (i in k:1) {
     y.i <- pvf(grid, TE[i], seTE[i])
-    if (type == "cvalue")
+    if (type == "zvalue")
       y.i <- qnorm(y.i / 2)
     sel.i <- y.i >= min(ylim)
     lines(x.grid[sel.i], y.i[sel.i],

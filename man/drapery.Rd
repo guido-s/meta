@@ -6,7 +6,7 @@
 \usage{
 drapery(
   x,
-  type = "cvalue",
+  type = "zvalue",
   layout = "grayscale",
   lty.study = 1,
   lwd.study = 1,
@@ -21,7 +21,7 @@ drapery(
   col.random = "red",
   prediction = comb.random,
   col.predict = "lightblue",
-  alpha = if (type == "cvalue") c(0.001, 0.01, 0.05, 0.1) else c(0.01, 0.05, 0.1),
+  alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1) else c(0.01, 0.05, 0.1),
   lty.alpha = 2,
   lwd.alpha = 1,
   col.alpha = "black",
@@ -33,12 +33,12 @@ drapery(
   bty = "o",
   backtransf = x$backtransf,
   xlab,
-  ylab = if (type == "cvalue") "Critical value" else "P-value",
+  ylab = if (type == "zvalue") "Test statistic" else "P-value",
   xlim,
   ylim,
   lwd.max = 2.5,
   lwd.study.weight = if (comb.random) "random" else "fixed",
-  n.grid = if (type == "cvalue") 10000 else 1000,
+  n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
   ...
 )
@@ -46,9 +46,9 @@ drapery(
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{type}{A character string indicating whether to plot critical
-values (\code{"cvalue"}) or p-values (\code{"pvalue"}), can be
-abbreviated.}
+\item{type}{A character string indicating whether to plot test
+statistics (\code{"zvalue"}) or p-values (\code{"pvalue"}), can
+be abbreviated.}
 
 \item{layout}{A character string for the line layout of individual
 studies: \code{"grayscale"}, \code{"equal"}, or
@@ -132,7 +132,7 @@ fixed effect (\code{"fixed"}) or random effects model
 argument \code{layout} is equal to \code{"linewidth"}).}
 
 \item{n.grid}{The number of grid points to calculate the p-value or
-critical value functions.}
+test statistic functions.}
 
 \item{mar}{Physical plot margin, see \code{\link{par}}.}
 
@@ -155,8 +155,8 @@ information for a single confidence level however for any
 confidence level.
 
 Argument \code{type} can be used to either show p-value functions
-(Birnbaum, 1961) or a scaled version (Infanger, 2019) with critical
-values (default).
+(Birnbaum, 1961) or a scaled version (Infanger, 2019) with test
+statistics (default).
 
 Argument \code{layout} determines how curves for individual studies
 are presented:
