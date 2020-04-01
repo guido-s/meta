@@ -4,7 +4,8 @@
 \name{Fleiss93cont}
 \alias{Fleiss93cont}
 \title{Mental Health Treatment}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{study}}\tab study label \cr
 \bold{\emph{year}}\tab year of publication \cr
@@ -16,7 +17,8 @@
 \bold{\emph{n.c}}\tab number of observations in control group \cr
 \bold{\emph{mean.c}}\tab estimated mean in control group \cr
 \bold{\emph{sd.c}}\tab standard deviation in control group
-}}
+}
+}
 \source{
 Fleiss JL (1993):
 The statistical basis of meta-analysis.

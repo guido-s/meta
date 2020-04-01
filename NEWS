@@ -8,9 +8,15 @@
  ** User-visible changes **
 
   * drapery():
+    - study IDs or study labels can be printed at the top of the
+      drapery plot to identify individual studies
     - possible value for argument 'type' renamed from "cvalue" to
       "zvalue" as drapery plots show test statistics, not critical
       values
+
+  * funnel.meta(), funnel.default():
+    - argument 'log' is considered for relative summary measures,
+      e.g., odds or risk ratio
 
 
 *** meta, version 4.11-0, 2020-02-20 ***

@@ -4,7 +4,8 @@
 \name{woodyplants}
 \alias{woodyplants}
 \title{Elevated CO_2 and total biomass of woody plants}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{obsno}}\tab observation number \cr
 \bold{\emph{papno}}\tab database paper number \cr
@@ -20,7 +21,8 @@
   (ambient CO_2-level) \cr
 \bold{\emph{mean.amb}}\tab estimated mean in control group \cr
 \bold{\emph{sd.amb}}\tab standard deviation in control group
-}}
+}
+}
 \source{
 Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
 }

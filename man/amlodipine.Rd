@@ -4,7 +4,8 @@
 \name{amlodipine}
 \alias{amlodipine}
 \title{Amlodipine for Work Capacity}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{study}}\tab study label \cr
 \bold{\emph{n.amlo}}\tab number of observations in amlodipine group
@@ -15,7 +16,8 @@
   \cr
 \bold{\emph{mean.plac}}\tab estimated mean in placebo group \cr
 \bold{\emph{var.plac}}\tab variance in placebo group
-}}
+}
+}
 \source{
 Hartung J & Knapp G (2001):
 On tests of the overall treatment effect in meta-analysis with

@@ -41,15 +41,14 @@
 #' @param log A character string which contains \code{"x"} if the
 #'   x-axis is to be logarithmic, \code{"y"} if the y-axis is to be
 #'   logarithmic and \code{"xy"} or \code{"yx"} if both axes are to be
-#'   logarithmic (applies only to function \code{funnel}).
+#'   logarithmic.
 #' @param yaxis A character string indicating which type of weights
 #'   are to be used. Either \code{"se"}, \code{"invvar"},
-#'   \code{"invse"}, or \code{"size"} (applies only to function
-#'   \code{funnel}).
+#'   \code{"invse"}, or \code{"size"}.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"} (applies
-#'   only to function \code{funnel}).
+#'   only to function \code{funnel.default}).
 #' @param contour.levels A numeric vector specifying contour levels to
 #'   produce contour-enhanced funnel plot.
 #' @param col.contour Colour of contours.
@@ -201,7 +200,7 @@ funnel.default <- function(x, y,
                            col = "black", bg = "darkgray",
                            col.fixed = "black", col.random = "black",
                            ##
-                           log = "", yaxis = "se", sm = "",
+                           log, yaxis = "se", sm = "",
                            contour.levels = NULL, col.contour,
                            ##
                            ref = ifelse(is.relative.effect(sm), 1, 0),
@@ -226,6 +225,8 @@ funnel.default <- function(x, y,
   chknumeric(seTE)
   chknull(sm)
   ##
+  chklogical(backtransf)
+  ##
   fun <- "funnel"
   chklength(seTE, k.All, fun)
   
@@ -242,6 +243,12 @@ funnel.default <- function(x, y,
   ##
   ## (3) Produce funnel plot
   ##
+  ##
+  if (missing(log))
+    if (backtransf & is.relative.effect(sm))
+      log <- "x"
+    else
+      log <- ""
   ##
   res <- funnel(m,
                 xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
@@ -298,7 +305,7 @@ funnel.meta <- function(x,
                         col = "black", bg = "darkgray",
                         col.fixed = "black", col.random = "black",
                         ##
-                        log = "", yaxis = "se",
+                        log, yaxis = "se",
                         contour.levels = NULL, col.contour,
                         ##
                         ref = ifelse(is.relative.effect(x$sm), 1, 0),
@@ -409,6 +416,12 @@ funnel.meta <- function(x,
   TE.fixed <- x$TE.fixed
   TE.random <- x$TE.random
   sm <- x$sm
+  ##
+  if (missing(log))
+    if (backtransf & is.relative.effect(sm))
+      log <- "x"
+    else
+      log <- ""
   ##  
   if (yaxis == "se")
     seTE.min <- 0
@@ -463,8 +476,6 @@ funnel.meta <- function(x,
       ##
       TE.xlim <- exp(TE.xlim)
     }
-    ##
-    if (log == "") log <- "x"
   }
   ##
   ## y-value: weight

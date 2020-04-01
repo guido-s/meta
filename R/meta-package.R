@@ -188,7 +188,7 @@
 #'   qnorm qt runif update var weighted.mean weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion
+#'   getFromNamespace packageDescription packageVersion tail
 #'
 #' @importFrom metafor rma.uni rma.glmm predict.rma confint.rma.uni escalc
 #'

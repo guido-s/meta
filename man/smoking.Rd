@@ -5,7 +5,8 @@
 \alias{smoking}
 \alias{lungcancer}
 \title{Smoking example}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{study}}\tab study label \cr
 \bold{\emph{participants}}\tab total number of participants \cr
@@ -16,7 +17,8 @@
   group \cr
 \bold{\emph{py.nonsmokers}}\tab person years at risk in
   non-smokers' group
-}}
+}
+}
 \source{
 Bayne-Jones S et al. (1964):
 Smoking and Health: Report of the Advisory Committee to the Surgeon

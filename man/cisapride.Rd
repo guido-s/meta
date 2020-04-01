@@ -4,7 +4,8 @@
 \name{cisapride}
 \alias{cisapride}
 \title{Cisapride in Non-Ulcer Dispepsia}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{study}}\tab study label \cr
 \bold{\emph{event.cisa}}\tab number of events in cisapride group
@@ -13,7 +14,8 @@
   \cr
 \bold{\emph{event.plac}}\tab number of events in placebo group \cr
 \bold{\emph{n.plac}}\tab number of observations in placebo group
-}}
+}
+}
 \source{
 Hartung J & Knapp G (2001):
 A refined method for the meta-analysis of controlled clinical

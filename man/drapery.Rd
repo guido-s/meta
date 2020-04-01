@@ -8,9 +8,13 @@ drapery(
   x,
   type = "zvalue",
   layout = "grayscale",
+  study.results = TRUE,
   lty.study = 1,
   lwd.study = 1,
   col.study = "darkgray",
+  labels,
+  cex.labels = 0.7,
+  srt.labels,
   comb.fixed = x$comb.fixed,
   comb.random = x$comb.random,
   lty.fixed = 1,
@@ -40,6 +44,7 @@ drapery(
   lwd.study.weight = if (comb.random) "random" else "fixed",
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
+  details,
   ...
 )
 }
@@ -54,11 +59,23 @@ be abbreviated.}
 studies: \code{"grayscale"}, \code{"equal"}, or
 \code{"linewidth"} (see Details), can be abbreviated.}
 
+\item{study.results}{A logical indicating whether results for
+individual studies should be shown in the figure (useful to only
+plot subgroup results).}
+
 \item{lty.study}{Line type for individual studies.}
 
 \item{lwd.study}{Line width for individual studies.}
 
 \item{col.study}{Colour of lines for individual studies.}
+
+\item{labels}{Study labels shown at the top of the drapery plot;
+either \code{""}, \code{"id"}, or \code{"studlab"} (see Details).}
+
+\item{cex.labels}{The magnification for study labels.}
+
+\item{srt.labels}{A logical indicating whether to rotate study
+labels or a single number specifying the angle to rotate labels}
 
 \item{comb.fixed}{A logical indicating whether to show result for
 the fixed effect model.}
@@ -136,6 +153,9 @@ test statistic functions.}
 
 \item{mar}{Physical plot margin, see \code{\link{par}}.}
 
+\item{details}{A logical indicating whether to print details on
+study IDs and study labels.}
+
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
 }
@@ -167,6 +187,20 @@ are presented:
   "linewidth"})
 \item equal lines (\code{layout = "equal"})
 }
+
+Argument \code{labels} determines how curves of individual studies
+are labelled:
+\itemize{
+\item number of the study in the (unsorted) forest plot / printout
+  of a meta-analysis (\code{labels = "id"}) (default)
+\item study labels provided by argument \code{studlab} in
+  meta-analysis functions (\code{labels = "studlab"})
+\item no study labels (\code{labels = ""})
+}
+
+If \code{labels = "studlab"}, labels are rotated by -45 degrees for
+studies with a treatment estimate below the fixed effect estimate
+and otherwise by 45 degrees.
 }
 \examples{
 data("lungcancer")

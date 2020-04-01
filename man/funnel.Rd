@@ -30,7 +30,7 @@ funnel(x, ...)
   bg = "darkgray",
   col.fixed = "black",
   col.random = "black",
-  log = "",
+  log,
   yaxis = "se",
   sm = "",
   contour.levels = NULL,
@@ -65,7 +65,7 @@ funnel(x, ...)
   bg = "darkgray",
   col.fixed = "black",
   col.random = "black",
-  log = "",
+  log,
   yaxis = "se",
   contour.levels = NULL,
   col.contour,
@@ -142,17 +142,16 @@ estimate.}
 \item{log}{A character string which contains \code{"x"} if the
 x-axis is to be logarithmic, \code{"y"} if the y-axis is to be
 logarithmic and \code{"xy"} or \code{"yx"} if both axes are to be
-logarithmic (applies only to function \code{funnel}).}
+logarithmic.}
 
 \item{yaxis}{A character string indicating which type of weights
 are to be used. Either \code{"se"}, \code{"invvar"},
-\code{"invse"}, or \code{"size"} (applies only to function
-\code{funnel}).}
+\code{"invse"}, or \code{"size"}.}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"} (applies
-only to function \code{funnel}).}
+only to function \code{funnel.default}).}
 
 \item{contour.levels}{A numeric vector specifying contour levels to
 produce contour-enhanced funnel plot.}

@@ -4,7 +4,8 @@
 \name{Fleiss93}
 \alias{Fleiss93}
 \title{Aspirin after Myocardial Infarction}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{study}}\tab study label \cr
 \bold{\emph{year}}\tab year of publication \cr
@@ -12,7 +13,8 @@
 \bold{\emph{n.e}}\tab number of observations in aspirin group \cr
 \bold{\emph{event.c}}\tab number of deaths in placebo group \cr
 \bold{\emph{n.c}}\tab number of observations in placebo group
-}}
+}
+}
 \source{
 Fleiss JL (1993):
 The statistical basis of meta-analysis.

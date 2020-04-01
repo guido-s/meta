@@ -4,7 +4,8 @@
 \name{Olkin95}
 \alias{Olkin95}
 \title{Thrombolytic Therapy after Acute Myocardial Infarction}
-\format{A data frame with the following columns:
+\format{
+A data frame with the following columns:
 \tabular{rl}{
 \bold{\emph{author}}\tab first author \cr
 \bold{\emph{year}}\tab year of publication \cr
@@ -14,7 +15,8 @@
   \cr
 \bold{\emph{event.c}}\tab number of events in control group \cr
 \bold{\emph{n.c}}\tab number of observations in control group
-}}
+}
+}
 \source{
 Olkin I (1995):
 Statistical and theoretical considerations in meta-analysis.
