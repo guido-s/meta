@@ -69,13 +69,14 @@ plot subgroup results).}
 
 \item{col.study}{Colour of lines for individual studies.}
 
-\item{labels}{Study labels shown at the top of the drapery plot;
-either \code{""}, \code{"id"}, or \code{"studlab"} (see Details).}
+\item{labels}{A character string indicating whether study labels
+should be shown at the top of the drapery plot; either \code{""},
+\code{"id"}, or \code{"studlab"}; see Details.}
 
 \item{cex.labels}{The magnification for study labels.}
 
-\item{srt.labels}{A logical indicating whether to rotate study
-labels or a single number specifying the angle to rotate labels}
+\item{srt.labels}{A single numeric (between 0 and 90) specifying
+the angle to rotate study labels; see Details.}
 
 \item{comb.fixed}{A logical indicating whether to show result for
 the fixed effect model.}
@@ -192,11 +193,21 @@ Argument \code{labels} determines how curves of individual studies
 are labelled:
 \itemize{
 \item number of the study in the (unsorted) forest plot / printout
-  of a meta-analysis (\code{labels = "id"}) (default)
+  of a meta-analysis (\code{labels = "id"})
 \item study labels provided by argument \code{studlab} in
   meta-analysis functions (\code{labels = "studlab"})
 \item no study labels (\code{labels = ""})
 }
+By default, study labels are used (\code{labels = "studlab"}) if no
+label has more than three characters; otherwise IDs are used
+(\code{labels = "id"}). A list with IDs and study labels is printed
+in the console if IDs are used in the drapery plot. This printout
+can be suppressed with argument \code{details = FALSE}.
+
+Argument \code{srt.labels} can be used to change the rotation of
+IDs or study labels. By default, study labels are rotated by +/- 45
+degrees if at least one study label has more than three characters;
+otherwise labels are not rotated.
 
 If \code{labels = "studlab"}, labels are rotated by -45 degrees for
 studies with a treatment estimate below the fixed effect estimate

@@ -19,11 +19,12 @@
 #' @param lty.study Line type for individual studies.
 #' @param lwd.study Line width for individual studies.
 #' @param col.study Colour of lines for individual studies.
-#' @param labels Study labels shown at the top of the drapery plot;
-#'   either \code{""}, \code{"id"}, or \code{"studlab"} (see Details).
+#' @param labels A character string indicating whether study labels
+#'   should be shown at the top of the drapery plot; either \code{""},
+#'   \code{"id"}, or \code{"studlab"}; see Details.
 #' @param cex.labels The magnification for study labels.
-#' @param srt.labels A logical indicating whether to rotate study
-#'   labels or a single number specifying the angle to rotate labels
+#' @param srt.labels A single numeric (between 0 and 90) specifying
+#'   the angle to rotate study labels; see Details.
 #' @param comb.fixed A logical indicating whether to show result for
 #'   the fixed effect model.
 #' @param comb.random A logical indicating whether to show result for
@@ -105,12 +106,22 @@
 #' are labelled:
 #' \itemize{
 #' \item number of the study in the (unsorted) forest plot / printout
-#'   of a meta-analysis (\code{labels = "id"}) (default)
+#'   of a meta-analysis (\code{labels = "id"})
 #' \item study labels provided by argument \code{studlab} in
 #'   meta-analysis functions (\code{labels = "studlab"})
 #' \item no study labels (\code{labels = ""})
 #' }
+#' By default, study labels are used (\code{labels = "studlab"}) if no
+#' label has more than three characters; otherwise IDs are used
+#' (\code{labels = "id"}). A list with IDs and study labels is printed
+#' in the console if IDs are used in the drapery plot. This printout
+#' can be suppressed with argument \code{details = FALSE}.
 #'
+#' Argument \code{srt.labels} can be used to change the rotation of
+#' IDs or study labels. By default, study labels are rotated by +/- 45
+#' degrees if at least one study label has more than three characters;
+#' otherwise labels are not rotated.
+#' 
 #' If \code{labels = "studlab"}, labels are rotated by -45 degrees for
 #' studies with a treatment estimate below the fixed effect estimate
 #' and otherwise by 45 degrees.
@@ -208,37 +219,25 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   chknumeric(lty.study, min = 0, zero = TRUE, single = TRUE)
   chknumeric(lwd.study, min = 0, zero = TRUE, single = TRUE)
   ##
-  missing.srt.labels <- missing(srt.labels)
-  if (missing.srt.labels)
-    srt.labels <- FALSE
-  else {
-    if (is.numeric(srt.labels))
-      chknumeric(srt.labels, single = TRUE)
-    else
-      chklogical(srt.labels)
-  }
-  ##
   if (missing(labels)) {
     if (max(nchar(x$studlab)) < 4)
       labels <- "studlab"
     else
       labels <- "id"
   }
-  else {
-    if (is.logical(labels))
-      if (labels)
-        labels <- "id"
-      else
-        labels <- ""
-    else
-      labels <- setchar(labels, c("", "id", "studlab"))
-    ##
-    if (labels == "studlab" & missing.srt.labels)
-      if (!(max(nchar(x$studlab)) < 4))
-        srt.labels <- TRUE
-  }
+  else
+    labels <- setchar(labels, c("", "id", "studlab"))
   ##
   chknumeric(cex.labels, min = 0, zero = TRUE, single = TRUE)
+  ##
+  if (missing(srt.labels)) {
+    if (labels == "studlab" & max(nchar(x$studlab)) > 3)
+      srt.labels <- 45
+    else
+      srt.labels <- 0
+  }
+  else
+    chknumeric(srt.labels, min = 0, max = 90, single = TRUE)
   ##
   chknumeric(lwd.study, min = 0, zero = TRUE, single = TRUE)
   ##
@@ -446,29 +445,19 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       lines(x.grid[sel.i], y.i[sel.i],
             lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
       ##
-      if (labels == "id")
-        text(if (x.backtransf) exp(TE[i]) else TE[i],
-             ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
-             labels = seq.TE[i],
-             cex = cex.labels,
-             adj = c(0.5, 0))
-      ##
-      if (labels == "studlab") {
-        if (srt.labels) {
-          if (is.logical(srt.labels))
-            srt.i <- if (TE[i] < TE.fixed) 45 else -45
-          else
-            srt.i <- if (TE[i] < TE.fixed) srt.labels else -srt.labels
-          adj.i <- if (TE[i] < TE.fixed) c(1, 0) else c(0, 0)
-        }
-        else {
+      if (labels != "") {
+        if (srt.labels == 0) {
           srt.i <- 0
           adj.i <- c(0.5, 0)
+        }
+        else {
+          srt.i <- if (TE[i] < TE.fixed) srt.labels else -srt.labels
+          adj.i <- if (TE[i] < TE.fixed) c(1, 0) else c(0, 0)
         }
         ##
         text(if (x.backtransf) exp(TE[i]) else TE[i],
              ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
-             labels = studlab[i],
+             labels = if (labels == "id") seq.TE[i] else studlab[i],
              cex = cex.labels, srt = srt.i, adj = adj.i)
       }
     }
