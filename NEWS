@@ -10,6 +10,8 @@
   * drapery():
     - study IDs or study labels can be printed at the top of the
       drapery plot to identify individual studies
+    - more flexible plots, e.g., colours can be specified for
+      individual studies based on p-value of treatment effect
     - possible value for argument 'type' renamed from "cvalue" to
       "zvalue" as drapery plots show test statistics, not critical
       values

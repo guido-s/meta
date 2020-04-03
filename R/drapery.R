@@ -19,10 +19,14 @@
 #' @param lty.study Line type for individual studies.
 #' @param lwd.study Line width for individual studies.
 #' @param col.study Colour of lines for individual studies.
-#' @param labels A character string indicating whether study labels
-#'   should be shown at the top of the drapery plot; either \code{""},
-#'   \code{"id"}, or \code{"studlab"}; see Details.
+#' @param labels A logical or character string indicating whether
+#'   study labels should be shown at the top of the drapery plot;
+#'   either \code{FALSE}, \code{"id"}, or \code{"studlab"}; see
+#'   Details.
+#' @param col.labels Colour of study labels.
 #' @param cex.labels The magnification for study labels.
+#' @param subset.labels A vector specifying which study labels should
+#'   be shown in the drapery plot.
 #' @param srt.labels A single numeric (between 0 and 90) specifying
 #'   the angle to rotate study labels; see Details.
 #' @param comb.fixed A logical indicating whether to show result for
@@ -69,6 +73,7 @@
 #'   fixed effect (\code{"fixed"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
+#' @param at Points at which tick-marks are to be drawn on the x-axis.
 #' @param n.grid The number of grid points to calculate the p-value or
 #'   test statistic functions.
 #' @param mar Physical plot margin, see \code{\link{par}}.
@@ -109,7 +114,7 @@
 #'   of a meta-analysis (\code{labels = "id"})
 #' \item study labels provided by argument \code{studlab} in
 #'   meta-analysis functions (\code{labels = "studlab"})
-#' \item no study labels (\code{labels = ""})
+#' \item no study labels (\code{labels = FALSE})
 #' }
 #' By default, study labels are used (\code{labels = "studlab"}) if no
 #' label has more than three characters; otherwise IDs are used
@@ -157,6 +162,21 @@
 #' #
 #' drapery(m1, xlim = c(0.5, 50))
 #' 
+#' \dontrun{
+#' data(Fleiss93)
+#' m2 <- metabin(event.e, n.e, event.c, n.c,
+#'          data = Fleiss93, studlab = paste(study, year),
+#'          sm = "OR", comb.random = FALSE)
+#' 
+#' # For studies with a significant effect (p < 0.05), show
+#' # study labels and print labels and lines in red
+#' #
+#' drapery(m2,
+#'         labels = "studlab", subset.labels = pval < 0.05,
+#'         srt.labels = 0, col.labels = "red",
+#'         col.study = ifelse(pval < 0.05, "red", "darkgray"))
+#' }
+#' 
 #' @rdname drapery
 #' @export drapery
 
@@ -165,7 +185,9 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     ##
                     study.results = TRUE,
                     lty.study = 1, lwd.study = 1, col.study = "darkgray",
-                    labels, cex.labels = 0.7, srt.labels,
+                    ##
+                    labels, col.labels = "black", cex.labels = 0.7,
+                    subset.labels, srt.labels,
                     ##
                     comb.fixed = x$comb.fixed, comb.random = x$comb.random,
                     lty.fixed = 1, lwd.fixed = max(3, lwd.study),
@@ -191,6 +213,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     xlim, ylim,
                     lwd.max = 2.5,
                     lwd.study.weight = if (comb.random) "random" else "fixed",
+                    at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
                     details,
@@ -207,28 +230,179 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   
   ##
   ##
-  ## (1) Check arguments
+  ## (1) Check and set arguments
   ##
   ##
   chkclass(x, "meta")
+  seq.TE <- seq(along = x$TE)
+  k.all <- length(seq.TE)
+  ##
+  mf <- match.call()
+  fun <- "drapery"
   ##
   type <- setchar(type, c("zvalue", "pvalue"))
   layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
   ##
   chklogical(study.results)
-  chknumeric(lty.study, min = 0, zero = TRUE, single = TRUE)
-  chknumeric(lwd.study, min = 0, zero = TRUE, single = TRUE)
   ##
-  if (missing(labels)) {
+  ## Argument lty.study
+  ##
+  if (!missing(lty.study)) {
+    error <-
+      try(lty.study <- eval(mf[[match("lty.study", names(mf))]],
+                            x,
+                            enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    ##
+    if (class(error) == "try-error") {
+      lty.study <- eval(mf[[match("lty.study", names(mf))]],
+                        x$data, enclos = NULL)
+    }
+  }
+  ##
+  chknumeric(lty.study, min = 0, zero = TRUE)
+  ##
+  if (length(lty.study) > 1)
+    chklength(lty.study, k.all, fun)
+  else
+    lty.study <- rep(lty.study, k.all)
+  ##
+  ## Argument lwd.study
+  ##
+  missing.lwd.study <- missing(lwd.study)
+  ##
+  if (!missing(lwd.study)) {
+    error <-
+      try(lwd.study <- eval(mf[[match("lwd.study", names(mf))]],
+                            x,
+                            enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    ##
+    if (class(error) == "try-error") {
+      lwd.study <- eval(mf[[match("lwd.study", names(mf))]],
+                      x$data, enclos = NULL)
+    }
+  }
+  ##
+  chknumeric(lwd.study, min = 0, zero = TRUE)
+  ##
+  if (length(lwd.study) > 1)
+    chklength(lwd.study, k.all, fun)
+  else
+    lwd.study <- rep(lwd.study, k.all)
+  ##
+  ## Argument col.study
+  ##
+  missing.col.study <- missing(col.study)
+  ##
+  if (!missing.col.study) {
+    error <-
+      try(col.study <- eval(mf[[match("col.study", names(mf))]],
+                            x,
+                            enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    ##
+    if (class(error) == "try-error") {
+      col.study <- eval(mf[[match("col.study", names(mf))]],
+                        x$data, enclos = NULL)
+    }
+  }
+  ##
+  if (length(col.study) > 1)
+    chklength(col.study, k.all, fun)
+  else
+    col.study <- rep(col.study, k.all)
+  ##
+  ## Argument labels
+  ##
+  if (missing(labels) || (is.logical(labels) && labels)) {
     if (max(nchar(x$studlab)) < 4)
       labels <- "studlab"
     else
       labels <- "id"
   }
-  else
-    labels <- setchar(labels, c("", "id", "studlab"))
+  else {
+    if (is.logical(labels) && !labels)
+      labels <- ""
+    else
+      labels <- setchar(labels, c("", "id", "studlab"))
+  }
   ##
-  chknumeric(cex.labels, min = 0, zero = TRUE, single = TRUE)
+  ## Argument col.labels
+  ##
+  if (!missing(col.labels)) {
+    error <-
+      try(col.labels <- eval(mf[[match("col.labels", names(mf))]],
+                             x,
+                             enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    ##
+    if (class(error) == "try-error") {
+      col.labels <- eval(mf[[match("col.labels", names(mf))]],
+                         x$data, enclos = NULL)
+    }
+  }
+  ##
+  if (length(col.labels) > 1)
+    chklength(col.labels, k.all, fun)
+  else
+    col.labels <- rep(col.labels, k.all)
+  ##
+  ## Argument cex.labels
+  ##
+  if (!missing(cex.labels)) {
+    error <-
+      try(cex.labels <- eval(mf[[match("cex.labels", names(mf))]],
+                             x,
+                             enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    ##
+    if (class(error) == "try-error") {
+      cex.labels <- eval(mf[[match("cex.labels", names(mf))]],
+                         x$data, enclos = NULL)
+    }
+  }
+  ##
+  chknumeric(cex.labels, min = 0, zero = TRUE)
+  ##
+  if (length(cex.labels) > 1)
+    chklength(cex.labels, k.all, fun)
+  else
+    cex.labels <- rep(cex.labels, k.all)
+  ##
+  ## Argument subset.labels
+  ##
+  if (missing(subset.labels))
+    subset.labels <- rep(TRUE, k.all)
+  else {
+    error <-
+      try(subset.labels <- eval(mf[[match("subset.labels", names(mf))]],
+                                x,
+                                enclos = sys.frame(sys.parent())),
+          silent = TRUE)
+    if (class(error) == "try-error") {
+      subset.labels <- eval(mf[[match("subset.labels", names(mf))]],
+                            x$data, enclos = NULL)
+    }
+    ##
+    chklength(subset.labels, k.all, fun)
+    ##
+    if (is.numeric(subset.labels)) {
+      if (any(!(subset.labels %in% (seq.TE))))
+        stop("Numerical input for argument 'subset.labels' ",
+             "must contain integers between 1 and ",
+             k.all, ".",
+             call. = FALSE)
+      sel.labels <- rep(FALSE, k.all)
+      sel.labels[subset.labels] <- TRUE
+    }
+    else if (!is.logical(subset.labels))
+      stop("Argument 'subset.labels' must be a logical or ",
+           "numeric vector.",
+           call. = FALSE)
+  }
+  ##
+  ## Argument srt.labels
   ##
   if (missing(srt.labels)) {
     if (labels == "studlab" & max(nchar(x$studlab)) > 3)
@@ -239,7 +413,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   else
     chknumeric(srt.labels, min = 0, max = 90, single = TRUE)
   ##
-  chknumeric(lwd.study, min = 0, zero = TRUE, single = TRUE)
+  ## Other arguments
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
@@ -274,6 +448,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     details <- labels == "id" & study.results
   if (details & !study.results)
     details <- FALSE
+  ##
+  ## Additional check
   ##
   if (!any(c(study.results, comb.fixed, comb.random, prediction))) {
     warning("Nothing selected to show in drapery plot.")
@@ -330,18 +506,24 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   }
   ##
   if (study.results) {
-    seq.TE <- seq(along = x$TE)
-    ##
     o <- order(x$seTE)
+    ##
     TE <- x$TE[o]
     seTE <- x$seTE[o]
     w.fixed <- x$w.fixed[o]
     w.random <- x$w.random[o]
     seq.TE <- seq.TE[o]
     studlab <- x$studlab[o]
+    ##
+    lty.study <- lty.study[o]
+    lwd.study <- lwd.study[o]
+    col.study <- col.study[o]
+    ##
+    col.labels <- col.labels[o]
+    cex.labels <- cex.labels[o]
+    subset.labels <- subset.labels[o]
   }
   ##
-  k <- x$k
   TE.fixed <- x$TE.fixed
   seTE.fixed <- x$seTE.fixed
   TE.random <- x$TE.random
@@ -350,14 +532,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   t.quantile <- (x$upper.predict - x$lower.predict) / seTE.predict / 2
   ##
   if (study.results) {
-    lty.study <- rep(lty.study, k)
-    lwd.study <- rep(lwd.study, k)
-    col.study <- rep(col.study, k)
+    if (layout == "grayscale" & missing.col.study)
+      col.study <- gray.colors(k.all)
     ##
-    if (layout == "grayscale")
-      col.study <- gray.colors(k)
-    ##
-    else if (layout == "linewidth") {
+    else if (layout == "linewidth" & missing.lwd.study) {
       if (lwd.study.weight == "fixed")
         lwd.study <- lwd.max * w.fixed / max(w.fixed)
       else
@@ -407,7 +585,11 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   plot(x.grid, y.fixed,
        xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-       type = "n", las = 1, if (x.backtransf) log = "x" else log = "", ...)
+       type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
+       axes = FALSE, ...)
+  axis(1, at = at)
+  axis(2)
+  box()
   ##
   ## Add prediction region
   ##
@@ -437,7 +619,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ## Add studies
   ##
   if (study.results) {
-    for (i in k:1) {
+    for (i in k.all:1) {
       y.i <- pvf(grid, TE[i], seTE[i])
       if (type == "zvalue")
         y.i <- qnorm(y.i / 2)
@@ -445,20 +627,23 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       lines(x.grid[sel.i], y.i[sel.i],
             lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
       ##
-      if (labels != "") {
-        if (srt.labels == 0) {
-          srt.i <- 0
-          adj.i <- c(0.5, 0)
+      if (subset.labels[i]) {
+        if (labels != "") {
+          if (srt.labels == 0) {
+            srt.i <- 0
+            adj.i <- c(0.5, 0)
+          }
+          else {
+            srt.i <- if (TE[i] < TE.fixed) srt.labels else -srt.labels
+            adj.i <- if (TE[i] < TE.fixed) c(1, 0) else c(0, 0)
+          }
+          ##
+          text(if (x.backtransf) exp(TE[i]) else TE[i],
+               ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
+               labels = if (labels == "id") seq.TE[i] else studlab[i],
+               col = col.labels[i], cex = cex.labels[i],
+               srt = srt.i, adj = adj.i)
         }
-        else {
-          srt.i <- if (TE[i] < TE.fixed) srt.labels else -srt.labels
-          adj.i <- if (TE[i] < TE.fixed) c(1, 0) else c(0, 0)
-        }
-        ##
-        text(if (x.backtransf) exp(TE[i]) else TE[i],
-             ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
-             labels = if (labels == "id") seq.TE[i] else studlab[i],
-             cex = cex.labels, srt = srt.i, adj = adj.i)
       }
     }
   }

@@ -182,7 +182,7 @@
 #'
 #' @importFrom grDevices gray gray.colors
 #'
-#' @importFrom graphics abline axis mtext lines par plot points polygon text
+#' @importFrom graphics abline axis box mtext lines par plot points polygon text
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm pt
 #'   qnorm qt runif update var weighted.mean weights

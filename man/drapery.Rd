@@ -13,7 +13,9 @@ drapery(
   lwd.study = 1,
   col.study = "darkgray",
   labels,
+  col.labels = "black",
   cex.labels = 0.7,
+  subset.labels,
   srt.labels,
   comb.fixed = x$comb.fixed,
   comb.random = x$comb.random,
@@ -42,6 +44,7 @@ drapery(
   ylim,
   lwd.max = 2.5,
   lwd.study.weight = if (comb.random) "random" else "fixed",
+  at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
   details,
@@ -69,11 +72,17 @@ plot subgroup results).}
 
 \item{col.study}{Colour of lines for individual studies.}
 
-\item{labels}{A character string indicating whether study labels
-should be shown at the top of the drapery plot; either \code{""},
-\code{"id"}, or \code{"studlab"}; see Details.}
+\item{labels}{A logical or character string indicating whether
+study labels should be shown at the top of the drapery plot;
+either \code{FALSE}, \code{"id"}, or \code{"studlab"}; see
+Details.}
+
+\item{col.labels}{Colour of study labels.}
 
 \item{cex.labels}{The magnification for study labels.}
+
+\item{subset.labels}{A vector specifying which study labels should
+be shown in the drapery plot.}
 
 \item{srt.labels}{A single numeric (between 0 and 90) specifying
 the angle to rotate study labels; see Details.}
@@ -149,6 +158,8 @@ fixed effect (\code{"fixed"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
 
+\item{at}{Points at which tick-marks are to be drawn on the x-axis.}
+
 \item{n.grid}{The number of grid points to calculate the p-value or
 test statistic functions.}
 
@@ -196,7 +207,7 @@ are labelled:
   of a meta-analysis (\code{labels = "id"})
 \item study labels provided by argument \code{studlab} in
   meta-analysis functions (\code{labels = "studlab"})
-\item no study labels (\code{labels = ""})
+\item no study labels (\code{labels = FALSE})
 }
 By default, study labels are used (\code{labels = "studlab"}) if no
 label has more than three characters; otherwise IDs are used
@@ -222,6 +233,21 @@ m1 <- metainc(d.smokers, py.smokers,
 # Drapery plot
 #
 drapery(m1, xlim = c(0.5, 50))
+
+\dontrun{
+data(Fleiss93)
+m2 <- metabin(event.e, n.e, event.c, n.c,
+         data = Fleiss93, studlab = paste(study, year),
+         sm = "OR", comb.random = FALSE)
+
+# For studies with a significant effect (p < 0.05), show
+# study labels and print labels and lines in red
+#
+drapery(m2,
+        labels = "studlab", subset.labels = pval < 0.05,
+        srt.labels = 0, col.labels = "red",
+        col.study = ifelse(pval < 0.05, "red", "darkgray"))
+}
 
 }
 \references{
