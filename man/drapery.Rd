@@ -23,7 +23,7 @@ drapery(
   lwd.fixed = max(3, lwd.study),
   col.fixed = "blue",
   lty.random = 1,
-  lwd.random = max(3, lwd.study),
+  lwd.random = lwd.fixed,
   col.random = "red",
   prediction = comb.random,
   col.predict = "lightblue",
@@ -47,7 +47,7 @@ drapery(
   at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
-  details,
+  plot = TRUE,
   ...
 )
 }
@@ -63,8 +63,7 @@ studies: \code{"grayscale"}, \code{"equal"}, or
 \code{"linewidth"} (see Details), can be abbreviated.}
 
 \item{study.results}{A logical indicating whether results for
-individual studies should be shown in the figure (useful to only
-plot subgroup results).}
+individual studies should be shown in the figure.}
 
 \item{lty.study}{Line type for individual studies.}
 
@@ -84,8 +83,8 @@ Details.}
 \item{subset.labels}{A vector specifying which study labels should
 be shown in the drapery plot.}
 
-\item{srt.labels}{A single numeric (between 0 and 90) specifying
-the angle to rotate study labels; see Details.}
+\item{srt.labels}{A numerical vector or single numeric (between 0
+and 90) specifying the angle to rotate study labels; see Details.}
 
 \item{comb.fixed}{A logical indicating whether to show result for
 the fixed effect model.}
@@ -165,8 +164,7 @@ test statistic functions.}
 
 \item{mar}{Physical plot margin, see \code{\link{par}}.}
 
-\item{details}{A logical indicating whether to print details on
-study IDs and study labels.}
+\item{plot}{A logical indicating whether to generate a figure.}
 
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
@@ -211,9 +209,9 @@ are labelled:
 }
 By default, study labels are used (\code{labels = "studlab"}) if no
 label has more than three characters; otherwise IDs are used
-(\code{labels = "id"}). A list with IDs and study labels is printed
-in the console if IDs are used in the drapery plot. This printout
-can be suppressed with argument \code{details = FALSE}.
+(\code{labels = "id"}). The connection between IDs and study labels
+(among other information) is part of a data frame which is
+invisibly returned (if argument \code{ study.results = TRUE}).
 
 Argument \code{srt.labels} can be used to change the rotation of
 IDs or study labels. By default, study labels are rotated by +/- 45
@@ -239,6 +237,11 @@ data(Fleiss93)
 m2 <- metabin(event.e, n.e, event.c, n.c,
          data = Fleiss93, studlab = paste(study, year),
          sm = "OR", comb.random = FALSE)
+
+# Produce drapery plot and print data frame with connection between
+# IDs and study labels
+#
+(drapery(m2))
 
 # For studies with a significant effect (p < 0.05), show
 # study labels and print labels and lines in red

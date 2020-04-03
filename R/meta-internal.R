@@ -100,6 +100,32 @@ is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
 }
 
 
+catchvar <- function(varname, x, mf) {
+  res <- NULL
+  error <-
+    try(res <- eval(mf[[match(varname, names(mf))]],
+                    x,
+                    enclos = sys.frame(sys.parent())),
+        silent = TRUE)
+  ##
+  if (class(error) == "try-error") {
+    res <- eval(mf[[match(varname, names(mf))]],
+                x$data, enclos = NULL)
+  }
+  ##
+  res
+}
+
+
+augment <- function(x, len, fun) {
+  if (length(x) > 1)
+    chklength(x, len, fun)
+  else
+    x <- rep(x, len)
+  x
+}
+
+
 .settings <- list()
 ##
 ## Set defaults (for internal options)

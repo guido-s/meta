@@ -14,8 +14,7 @@
 #'   studies: \code{"grayscale"}, \code{"equal"}, or
 #'   \code{"linewidth"} (see Details), can be abbreviated.
 #' @param study.results A logical indicating whether results for
-#'   individual studies should be shown in the figure (useful to only
-#'   plot subgroup results).
+#'   individual studies should be shown in the figure.
 #' @param lty.study Line type for individual studies.
 #' @param lwd.study Line width for individual studies.
 #' @param col.study Colour of lines for individual studies.
@@ -27,8 +26,8 @@
 #' @param cex.labels The magnification for study labels.
 #' @param subset.labels A vector specifying which study labels should
 #'   be shown in the drapery plot.
-#' @param srt.labels A single numeric (between 0 and 90) specifying
-#'   the angle to rotate study labels; see Details.
+#' @param srt.labels A numerical vector or single numeric (between 0
+#'   and 90) specifying the angle to rotate study labels; see Details.
 #' @param comb.fixed A logical indicating whether to show result for
 #'   the fixed effect model.
 #' @param comb.random A logical indicating whether to show result for
@@ -77,8 +76,7 @@
 #' @param n.grid The number of grid points to calculate the p-value or
 #'   test statistic functions.
 #' @param mar Physical plot margin, see \code{\link{par}}.
-#' @param details A logical indicating whether to print details on
-#'   study IDs and study labels.
+#' @param plot A logical indicating whether to generate a figure.
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #' 
@@ -118,9 +116,9 @@
 #' }
 #' By default, study labels are used (\code{labels = "studlab"}) if no
 #' label has more than three characters; otherwise IDs are used
-#' (\code{labels = "id"}). A list with IDs and study labels is printed
-#' in the console if IDs are used in the drapery plot. This printout
-#' can be suppressed with argument \code{details = FALSE}.
+#' (\code{labels = "id"}). The connection between IDs and study labels
+#' (among other information) is part of a data frame which is
+#' invisibly returned (if argument \code{ study.results = TRUE}).
 #'
 #' Argument \code{srt.labels} can be used to change the rotation of
 #' IDs or study labels. By default, study labels are rotated by +/- 45
@@ -167,6 +165,11 @@
 #' m2 <- metabin(event.e, n.e, event.c, n.c,
 #'          data = Fleiss93, studlab = paste(study, year),
 #'          sm = "OR", comb.random = FALSE)
+#'
+#' # Produce drapery plot and print data frame with connection between
+#' # IDs and study labels
+#' #
+#' (drapery(m2))
 #' 
 #' # For studies with a significant effect (p < 0.05), show
 #' # study labels and print labels and lines in red
@@ -192,13 +195,13 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     comb.fixed = x$comb.fixed, comb.random = x$comb.random,
                     lty.fixed = 1, lwd.fixed = max(3, lwd.study),
                     col.fixed = "blue",
-                    lty.random = 1, lwd.random = max(3, lwd.study),
+                    lty.random = 1, lwd.random = lwd.fixed,
                     col.random = "red",
                     ##
                     prediction = comb.random, col.predict = "lightblue",
                     ##
                     alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1)
-                                else c(0.01, 0.05, 0.1),
+                            else c(0.01, 0.05, 0.1),
                     lty.alpha = 2, lwd.alpha = 1, col.alpha = "black",
                     cex.alpha = 0.7,
                     col.null.effect = "black",
@@ -216,7 +219,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
-                    details,
+                    plot = TRUE,
                     ...) {
   
   
@@ -224,8 +227,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     2 * pnorm(abs(TE - x) / seTE, lower.tail = FALSE)
   
   
-  oldpar <- par(mar = mar)
-  on.exit(par(oldpar))
+  if (plot) {
+    oldpar <- par(mar = mar)
+    on.exit(par(oldpar))
+  }
   
   
   ##
@@ -248,70 +253,28 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ## Argument lty.study
   ##
   if (!missing(lty.study)) {
-    error <-
-      try(lty.study <- eval(mf[[match("lty.study", names(mf))]],
-                            x,
-                            enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    ##
-    if (class(error) == "try-error") {
-      lty.study <- eval(mf[[match("lty.study", names(mf))]],
-                        x$data, enclos = NULL)
-    }
+    lty.study <- catchvar("lty.study", x, mf)
+    chknumeric(lty.study, min = 0, zero = TRUE)
   }
-  ##
-  chknumeric(lty.study, min = 0, zero = TRUE)
-  ##
-  if (length(lty.study) > 1)
-    chklength(lty.study, k.all, fun)
-  else
-    lty.study <- rep(lty.study, k.all)
+  lty.study <- augment(lty.study, k.all, fun)
   ##
   ## Argument lwd.study
   ##
   missing.lwd.study <- missing(lwd.study)
   ##
-  if (!missing(lwd.study)) {
-    error <-
-      try(lwd.study <- eval(mf[[match("lwd.study", names(mf))]],
-                            x,
-                            enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    ##
-    if (class(error) == "try-error") {
-      lwd.study <- eval(mf[[match("lwd.study", names(mf))]],
-                      x$data, enclos = NULL)
-    }
+  if (!missing.lwd.study) {
+    lwd.study <- catchvar("lwd.study", x, mf)
+    chknumeric(lwd.study, min = 0, zero = TRUE)
   }
-  ##
-  chknumeric(lwd.study, min = 0, zero = TRUE)
-  ##
-  if (length(lwd.study) > 1)
-    chklength(lwd.study, k.all, fun)
-  else
-    lwd.study <- rep(lwd.study, k.all)
+  lwd.study <- augment(lwd.study, k.all, fun)
   ##
   ## Argument col.study
   ##
   missing.col.study <- missing(col.study)
   ##
-  if (!missing.col.study) {
-    error <-
-      try(col.study <- eval(mf[[match("col.study", names(mf))]],
-                            x,
-                            enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    ##
-    if (class(error) == "try-error") {
-      col.study <- eval(mf[[match("col.study", names(mf))]],
-                        x$data, enclos = NULL)
-    }
-  }
-  ##
-  if (length(col.study) > 1)
-    chklength(col.study, k.all, fun)
-  else
-    col.study <- rep(col.study, k.all)
+  if (!missing.col.study)
+    col.study <- catchvar("col.study", x, mf)
+  col.study <- augment(col.study, k.all, fun)
   ##
   ## Argument labels
   ##
@@ -330,65 +293,28 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ## Argument col.labels
   ##
-  if (!missing(col.labels)) {
-    error <-
-      try(col.labels <- eval(mf[[match("col.labels", names(mf))]],
-                             x,
-                             enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    ##
-    if (class(error) == "try-error") {
-      col.labels <- eval(mf[[match("col.labels", names(mf))]],
-                         x$data, enclos = NULL)
-    }
-  }
-  ##
-  if (length(col.labels) > 1)
-    chklength(col.labels, k.all, fun)
-  else
-    col.labels <- rep(col.labels, k.all)
+  if (!missing(col.labels))
+    col.labels <- catchvar("col.labels", x, mf)
+  col.labels <- augment(col.labels, k.all, fun)
   ##
   ## Argument cex.labels
   ##
   if (!missing(cex.labels)) {
-    error <-
-      try(cex.labels <- eval(mf[[match("cex.labels", names(mf))]],
-                             x,
-                             enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    ##
-    if (class(error) == "try-error") {
-      cex.labels <- eval(mf[[match("cex.labels", names(mf))]],
-                         x$data, enclos = NULL)
-    }
+    cex.labels <- catchvar("cex.labels", x, mf)
+    chknumeric(cex.labels, min = 0, zero = TRUE)
   }
-  ##
-  chknumeric(cex.labels, min = 0, zero = TRUE)
-  ##
-  if (length(cex.labels) > 1)
-    chklength(cex.labels, k.all, fun)
-  else
-    cex.labels <- rep(cex.labels, k.all)
+  cex.labels <- augment(cex.labels, k.all, fun)
   ##
   ## Argument subset.labels
   ##
   if (missing(subset.labels))
     subset.labels <- rep(TRUE, k.all)
   else {
-    error <-
-      try(subset.labels <- eval(mf[[match("subset.labels", names(mf))]],
-                                x,
-                                enclos = sys.frame(sys.parent())),
-          silent = TRUE)
-    if (class(error) == "try-error") {
-      subset.labels <- eval(mf[[match("subset.labels", names(mf))]],
-                            x$data, enclos = NULL)
-    }
-    ##
+    subset.labels <- catchvar("subset.labels", x, mf)
     chklength(subset.labels, k.all, fun)
     ##
     if (is.numeric(subset.labels)) {
-      if (any(!(subset.labels %in% (seq.TE))))
+      if (any(!(subset.labels %in% seq.TE)))
         stop("Numerical input for argument 'subset.labels' ",
              "must contain integers between 1 and ",
              k.all, ".",
@@ -406,12 +332,15 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   if (missing(srt.labels)) {
     if (labels == "studlab" & max(nchar(x$studlab)) > 3)
-      srt.labels <- 45
+      srt.labels <- ifelse(x$TE < x$TE.fixed, 45, -45)
     else
-      srt.labels <- 0
+      srt.labels <- rep(0, k.all)
   }
-  else
-    chknumeric(srt.labels, min = 0, max = 90, single = TRUE)
+  else {
+    srt.labels <- catchvar("srt.labels", x, mf)
+    chknumeric(srt.labels, min = -90, max = 90)
+  }
+  srt.labels <- augment(srt.labels, k.all, fun)
   ##
   ## Other arguments
   ##
@@ -441,13 +370,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   lwd.study.weight <- setchar(lwd.study.weight, c("random", "fixed"))
   ##
   chknumeric(n.grid, min = 0, zero = TRUE, single = TRUE)
-  ##
-  if (!missing(details))
-    chklogical(details)
-  else
-    details <- labels == "id" & study.results
-  if (details & !study.results)
-    details <- FALSE
+  chklogical(plot)
   ##
   ## Additional check
   ##
@@ -488,10 +411,18 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     mx <- max(xlim)
   }
   ##
-  grid <- sort(c(seq(mn, mx, length.out = n.grid),
-                 x$TE,
-                 if (comb.fixed) x$TE.fixed,
-                 if (comb.random) x$TE.random))
+  grid <- c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.fixed, x$TE.random)
+  ##
+  if (type == "zvalue")
+    grid <- c(grid,
+              x$TE + ylim[1] * x$seTE,
+              x$TE - ylim[1] * x$seTE,              
+              x$TE.fixed + ylim[1] * x$seTE.fixed,
+              x$TE.fixed - ylim[1] * x$seTE.fixed,
+              x$TE.random + ylim[1] * x$seTE.random,
+              x$TE.random - ylim[1] * x$seTE.random)
+  ##
+  grid <- sort(grid)
   ##
   if (x.backtransf) {
     mn <- exp(mn)
@@ -505,24 +436,27 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     null.effect <- x$null.effect
   }
   ##
-  if (study.results) {
-    o <- order(x$seTE)
-    ##
-    TE <- x$TE[o]
-    seTE <- x$seTE[o]
-    w.fixed <- x$w.fixed[o]
-    w.random <- x$w.random[o]
-    seq.TE <- seq.TE[o]
-    studlab <- x$studlab[o]
-    ##
-    lty.study <- lty.study[o]
-    lwd.study <- lwd.study[o]
-    col.study <- col.study[o]
-    ##
-    col.labels <- col.labels[o]
-    cex.labels <- cex.labels[o]
-    subset.labels <- subset.labels[o]
-  }
+  o <- order(x$seTE)
+  ##
+  TE <- x$TE[o]
+  seTE <- x$seTE[o]
+  lower <- x$lower[o]
+  upper <- x$upper[o]
+  pval <- x$pval[o]
+  zval <- x$zval[o]
+  w.fixed <- x$w.fixed[o]
+  w.random <- x$w.random[o]
+  seq.TE <- seq.TE[o]
+  studlab <- x$studlab[o]
+  ##
+  lty.study <- lty.study[o]
+  lwd.study <- lwd.study[o]
+  col.study <- col.study[o]
+  ##
+  col.labels <- col.labels[o]
+  cex.labels <- cex.labels[o]
+  subset.labels <- subset.labels[o]
+  srt.labels <- srt.labels[o]
   ##
   TE.fixed <- x$TE.fixed
   seTE.fixed <- x$seTE.fixed
@@ -531,16 +465,14 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   seTE.predict <- x$seTE.predict
   t.quantile <- (x$upper.predict - x$lower.predict) / seTE.predict / 2
   ##
-  if (study.results) {
-    if (layout == "grayscale" & missing.col.study)
-      col.study <- gray.colors(k.all)
-    ##
-    else if (layout == "linewidth" & missing.lwd.study) {
-      if (lwd.study.weight == "fixed")
-        lwd.study <- lwd.max * w.fixed / max(w.fixed)
-      else
-        lwd.study <- lwd.max * w.random / max(w.random)
-    }
+  if (layout == "grayscale" & missing.col.study)
+    col.study <- gray.colors(k.all)
+  ##
+  else if (layout == "linewidth" & missing.lwd.study) {
+    if (lwd.study.weight == "fixed")
+      lwd.study <- lwd.max * w.fixed / max(w.fixed)
+    else
+      lwd.study <- lwd.max * w.random / max(w.random)
   }
   ##  
   y.fixed <- pvf(grid, TE.fixed, seTE.fixed)
@@ -583,154 +515,160 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ## (3) Generate drapery plot
   ##
   ##
-  plot(x.grid, y.fixed,
-       xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-       type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-       axes = FALSE, ...)
-  axis(1, at = at)
-  axis(2)
-  box()
-  ##
-  ## Add prediction region
-  ##
-  if (prediction) {
-    polygon(x.grid[sel.predict], y.predict[sel.predict],
-            col = col.predict, border = NA)
+  if (plot) {
+    plot(x.grid, y.fixed,
+         xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
+         type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
+         axes = FALSE, ...)
+    axis(1, at = at)
+    axis(2)
+    box()
     ##
-    polygon(c(min(x.grid[sel.predict]),
-              max(x.grid[sel.predict]),
-              max(x.grid[sel.predict])),
-            c(min(y.predict[sel.predict]),
-              min(y.predict[sel.predict]),
-              tail(y.predict[sel.predict], n = 1)),
-            col = col.predict, border = NA)
+    ## Add prediction region
     ##
-    if (all(y.predict > min(ylim))) {
-      x.min <- min(x.grid)
-      x.max <- max(x.grid)
-      y.min <- min(ylim)
-      y.max <- min(y.predict)
-      polygon(c(x.min, x.min, x.max, x.max),
-              c(y.min, y.max, y.max, y.min),
+    if (prediction) {
+      polygon(x.grid[sel.predict], y.predict[sel.predict],
               col = col.predict, border = NA)
-    }
-  }
-  ##
-  ## Add studies
-  ##
-  if (study.results) {
-    for (i in k.all:1) {
-      y.i <- pvf(grid, TE[i], seTE[i])
-      if (type == "zvalue")
-        y.i <- qnorm(y.i / 2)
-      sel.i <- y.i >= min(ylim)
-      lines(x.grid[sel.i], y.i[sel.i],
-            lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
       ##
-      if (subset.labels[i]) {
-        if (labels != "") {
-          if (srt.labels == 0) {
-            srt.i <- 0
-            adj.i <- c(0.5, 0)
+      polygon(c(min(x.grid[sel.predict]),
+                max(x.grid[sel.predict]),
+                max(x.grid[sel.predict])),
+              c(min(y.predict[sel.predict]),
+                min(y.predict[sel.predict]),
+                tail(y.predict[sel.predict], n = 1)),
+              col = col.predict, border = NA)
+      ##
+      if (all(y.predict > min(ylim))) {
+        x.min <- min(x.grid)
+        x.max <- max(x.grid)
+        y.min <- min(ylim)
+        y.max <- min(y.predict)
+        polygon(c(x.min, x.min, x.max, x.max),
+                c(y.min, y.max, y.max, y.min),
+                col = col.predict, border = NA)
+      }
+    }
+    ##
+    ## Add studies
+    ##
+    if (study.results) {
+      for (i in k.all:1) {
+        y.i <- pvf(grid, TE[i], seTE[i])
+        if (type == "zvalue")
+          y.i <- qnorm(y.i / 2)
+        sel.i <- y.i >= min(ylim)
+        lines(x.grid[sel.i], y.i[sel.i],
+              lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
+        ##
+        if (subset.labels[i]) {
+          if (labels != "") {
+            if (srt.labels[i] == 0)
+              adj.i <- c(0.5, 0)
+            else
+              adj.i <- if (srt.labels[i] > 0) c(1, 0) else c(0, 0)
+            ##
+            text(if (x.backtransf) exp(TE[i]) else TE[i],
+                 ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
+                 labels = if (labels == "id") seq.TE[i] else studlab[i],
+                 col = col.labels[i], cex = cex.labels[i],
+                 srt = srt.labels[i], adj = adj.i)
           }
-          else {
-            srt.i <- if (TE[i] < TE.fixed) srt.labels else -srt.labels
-            adj.i <- if (TE[i] < TE.fixed) c(1, 0) else c(0, 0)
-          }
-          ##
-          text(if (x.backtransf) exp(TE[i]) else TE[i],
-               ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
-               labels = if (labels == "id") seq.TE[i] else studlab[i],
-               col = col.labels[i], cex = cex.labels[i],
-               srt = srt.i, adj = adj.i)
         }
       }
     }
-  }
-  ##
-  ## Add fixed effect lines
-  ##
-  if (comb.fixed)
-    lines(x.grid[sel.fixed], y.fixed[sel.fixed],
-          lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
-  ##
-  ## Add random effects lines
-  ##
-  if (comb.random)
-    lines(x.grid[sel.random], y.random[sel.random],
-          lty = lty.random, lwd = lwd.random, col = col.random)
-  ##
-  ## Add null effect line
-  ##
-  abline(v = null.effect, col = col.null.effect)
-  ##
-  ## Add p-value lines
-  ##
-  for (alpha.i in y.alpha)
-    abline(h = alpha.i, lty = lty.alpha, lwd = lwd.alpha, col = col.alpha)
-  ##
-  ## Add text for alpha levels
-  ##
-  for (i in seq(along = y.alpha))
-    text(mn, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-         paste("p =", alpha[i]),
-         cex = cex.alpha, col = col.alpha, adj = c(0, 0))
-  ##
-  ## Add text for confidence levels
-  ##
-  for (i in seq(along = y.alpha))
-    text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-         paste0(100 * (1 - alpha[i]), "%-CI"),
-         cex = cex.alpha, col = col.alpha, adj = c(1, 0))
-  ##
-  ## Add legend
-  ##
-  if (legend & any(c(comb.fixed, comb.random, prediction)))
-    legend(pos.legend,
-           col = c(if (comb.fixed) col.fixed,
-                   if (comb.random) col.random,
-                   if (prediction) col.predict),
-           lwd = c(if (comb.fixed) lwd.fixed,
-                   if (comb.random) lwd.random,
-                   if (prediction) lwd.random),
-           bty = bty, bg = bg,
-           c(if (comb.fixed) "Fixed effect model",
-             if (comb.random)"Random effects model",
-             if (prediction) "Range of prediction"))
-  ##
-  ## Add y-axis on right side
-  ##
-  if (type == "pvalue") {
-    par(new = TRUE)
-    plot(x.grid, y.fixed,
-         xlab = xlab, ylab = ylab,
-         xlim = xlim, ylim = rev(ylim),
-         type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-         axes = FALSE,
-         ...)
-    axis(4, las = 1)
-  }
-  else {
-    axis(4, las = 1,
-         at = qnorm(c(0.001, 0.01, 0.05) / 2),
-         labels = 1 - c(0.001, 0.01, 0.05))
-    axis(4, las = 1,
-         at = qnorm(seq(0.2, 1, by = 0.2) / 2),
-         labels = format(seq(0.8, 0, by = -0.2)))
-  }
-  ##
-  mtext("Confidence level", 4, line = 3)
-  
-  
-  if (details) {
-    tmat <- data.frame(ID = seq.TE, studlab = studlab)
-    tmat <- tmat[order(tmat$ID), , drop = FALSE]
     ##
-    cat("Connection between study IDs and study labels:\n")
-    prmatrix(tmat, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(tmat)))
+    ## Add fixed effect lines
+    ##
+    if (comb.fixed)
+      lines(x.grid[sel.fixed], y.fixed[sel.fixed],
+            lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
+    ##
+    ## Add random effects lines
+    ##
+    if (comb.random)
+      lines(x.grid[sel.random], y.random[sel.random],
+            lty = lty.random, lwd = lwd.random, col = col.random)
+    ##
+    ## Add null effect line
+    ##
+    abline(v = null.effect, col = col.null.effect)
+    ##
+    ## Add p-value lines
+    ##
+    for (alpha.i in y.alpha)
+      abline(h = alpha.i, lty = lty.alpha, lwd = lwd.alpha, col = col.alpha)
+    ##
+    ## Add text for alpha levels
+    ##
+    for (i in seq(along = y.alpha))
+      text(mn, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
+           paste("p =", alpha[i]),
+           cex = cex.alpha, col = col.alpha, adj = c(0, 0))
+    ##
+    ## Add text for confidence levels
+    ##
+    for (i in seq(along = y.alpha))
+      text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
+           paste0(100 * (1 - alpha[i]), "%-CI"),
+           cex = cex.alpha, col = col.alpha, adj = c(1, 0))
+    ##
+    ## Add legend
+    ##
+    if (legend & any(c(comb.fixed, comb.random, prediction)))
+      legend(pos.legend,
+             col = c(if (comb.fixed) col.fixed,
+                     if (comb.random) col.random,
+                     if (prediction) col.predict),
+             lwd = c(if (comb.fixed) lwd.fixed,
+                     if (comb.random) lwd.random,
+                     if (prediction) lwd.random),
+             bty = bty, bg = bg,
+             c(if (comb.fixed) "Fixed effect model",
+               if (comb.random)"Random effects model",
+               if (prediction) "Range of prediction"))
+    ##
+    ## Add y-axis on right side
+    ##
+    if (type == "pvalue") {
+      par(new = TRUE)
+      plot(x.grid, y.fixed,
+           xlab = xlab, ylab = ylab,
+           xlim = xlim, ylim = rev(ylim),
+           type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
+           axes = FALSE,
+           ...)
+      axis(4, las = 1)
+    }
+    else {
+      axis(4, las = 1,
+           at = qnorm(c(0.001, 0.01, 0.05) / 2),
+           labels = 1 - c(0.001, 0.01, 0.05))
+      axis(4, las = 1,
+           at = qnorm(seq(0.2, 1, by = 0.2) / 2),
+           labels = format(seq(0.8, 0, by = -0.2)))
+    }
+    ##
+    mtext("Confidence level", 4, line = 3)
   }
   
   
-  invisible(NULL)
+  if (study.results) {
+    res <- data.frame(ID = seq.TE, studlab = studlab,
+                      lty.study, lwd.study, col.study,
+                      col.labels, cex.labels,
+                      subset.labels, srt.labels,
+                      TE, seTE, lower, upper, zval, pval,
+                      w.fixed, w.random,
+                      stringsAsFactors = FALSE)
+    ##
+    res <- res[order(res$ID), , drop = FALSE]
+    ##
+    attr(res, "xlim") <- xlim
+    attr(res, "ylim") <- ylim
+  }
+  else
+    res <- NULL
+  
+  
+  invisible(res)
 }
