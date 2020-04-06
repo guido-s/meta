@@ -77,6 +77,8 @@
 #' \itemize{
 #' \item \code{settings.meta("revman5")}
 #' \item \code{settings.meta("jama")}
+#' \item \code{settings.meta("iqwig5")}
+#' \item \code{settings.meta("iqwig6")}
 #' }
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
@@ -85,7 +87,11 @@
 #' command can be used to generate forest plots following instructions
 #' for authors of the \emph{Journal of the American Medical
 #' Association}
-#' (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}).
+#' (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}). The
+#' other two commands implement the recommendations of the Institute
+#' for Quality and Efficiency in Health Care, Germany (IQWiG)
+#' accordinging to General Methods 5 and 6, respectively
+#' (\url{https://www.iqwig.de/en/methods/methods-paper.3020.html}).
 #' 
 #' In addition, \code{\link{settings.meta}} can be used to change
 #' individual settings. For example, the following R command specifies

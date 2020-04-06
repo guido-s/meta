@@ -23,17 +23,26 @@
 #' \code{\link{forest.meta}}.
 #' 
 #' The function can be used to either change individual settings (see
-#' Examples) or use one of the following general settings: %%
-#' \itemize{ \item \code{settings.meta("revman5")} \item
-#' \code{settings.meta("jama")} } The first command can be used to
-#' reproduce meta-analyses from Cochrane reviews conducted with
-#' \emph{Review Manager 5} (RevMan 5,
+#' Examples) or use one of the following general settings:
+#' \itemize{
+#' \item \code{settings.meta("revman5")}
+#' \item \code{settings.meta("jama")}
+#' \item \code{settings.meta("iqwig5")}
+#' \item \code{settings.meta("iqwig6")}
+#' }
+#'
+#' The first command can be used to reproduce meta-analyses from
+#' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
 #' \url{http://community.cochrane.org/tools/review-production-tools/revman-5})
 #' and specifies to use a RevMan 5 layout in forest plots. The second
 #' command can be used to generate forest plots following instructions
 #' for authors of the \emph{Journal of the American Medical
 #' Association}
-#' (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}).
+#' (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}). The
+#' other two commands implement the recommendations of the Institute
+#' for Quality and Efficiency in Health Care, Germany (IQWiG)
+#' accordinging to General Methods 5 and 6, respectively
+#' (\url{https://www.iqwig.de/en/methods/methods-paper.3020.html}).
 #' 
 #' RevMan 5 settings, in detail:
 #' \tabular{lll}{
@@ -74,6 +83,27 @@
 #' \cr
 #' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
 #'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01)
+#' }
+#' 
+#' IQWiG, General Methods 5 settings:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
+#' \code{prediction} \tab TRUE \tab Prediction interval \cr
+#' \code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
+#' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
+#' }
+#' 
+#' IQWiG, General Methods 6 settings:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
+#' \code{adhoc.hakn} \tab TRUE \tab \emph{ad hoc} variance correction \cr
+#' \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
+#'   between-study variance \cr
+#' \code{prediction} \tab TRUE \tab Prediction interval \cr
+#' \code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
+#' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
@@ -252,7 +282,7 @@ settings.meta <- function(...) {
   }
   
   
-  settings <- c("RevMan5", "JAMA", "IQWiG4.2", "meta4")
+  settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6", "meta4")
   layouts <- c(settings[1:2], "meta")
   
   
@@ -343,6 +373,7 @@ settings.meta <- function(...) {
     catarg("comb.fixed     ")
     catarg("comb.random    ")
     catarg("hakn           ")
+    catarg("adhoc.hakn     ")
     catarg("method.tau     ")
     catarg("tau.common     ")
     catarg("prediction     ")
@@ -442,6 +473,7 @@ settings.meta <- function(...) {
     setOption("comb.fixed", TRUE)
     setOption("comb.random", TRUE)
     setOption("hakn", FALSE)
+    setOption("adhoc.hakn", FALSE)
     setOption("method.tau", "DL")
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
@@ -520,7 +552,7 @@ settings.meta <- function(...) {
   else if (specific.settings) {
     ##
     ## Remember:
-    ## settings <- c("RevMan5", "JAMA", "IQWiG4.2", "meta4")
+    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6", "meta4")
     ##
     if (setting == "RevMan5") {
       specificSetting(args = c("hakn", "method.tau", "tau.common",
@@ -552,12 +584,20 @@ settings.meta <- function(...) {
                       setting = "JAMA settings")
     }
     ##
-    else if (setting == "IQWiG4.2") {
-      specificSetting(args = c("hakn", "method.tau", "RR.Cochrane",
-                               "Q.Cochrane"),
-                      new = list(TRUE, "PM", FALSE,
-                                 FALSE),
-                      setting = "IQWiG 4.2 settings")
+    else if (setting == "IQWiG5") {
+      specificSetting(args = c("hakn", "prediction",
+                               "RR.Cochrane", "Q.Cochrane"),
+                      new = list(TRUE, TRUE,
+                                 FALSE, FALSE),
+                      setting = "IQWiG 5 settings")
+    }
+    ##
+    else if (setting == "IQWiG6") {
+      specificSetting(args = c("hakn", "adhoc.hakn", "method.tau",
+                               "prediction", "RR.Cochrane", "Q.Cochrane"),
+                      new = list(TRUE, TRUE, "PM",
+                                 TRUE, FALSE, FALSE),
+                      setting = "IQWiG 6 settings")
     }
     ##
     else if (setting == "meta4") {
@@ -584,6 +624,7 @@ settings.meta <- function(...) {
     idcomb.fixed <- argid(names, "comb.fixed")
     idcomb.random <- argid(names, "comb.random")
     idhakn <- argid(names, "hakn")
+    idadhoc.hakn <- argid(names, "adhoc.hakn")
     idmethod.tau <- argid(names, "method.tau")
     idtau.common <- argid(names, "tau.common")
     idprediction <- argid(names, "prediction")
@@ -685,6 +726,11 @@ settings.meta <- function(...) {
       hakn <- args[[idhakn]]
       chklogical(hakn)
       setOption("hakn", hakn)
+    }
+    if (!is.na(idadhoc.hakn)) {
+      adhoc.hakn <- args[[idadhoc.hakn]]
+      chklogical(adhoc.hakn)
+      setOption("adhoc.hakn", adhoc.hakn)
     }
     if (!is.na(idmethod.tau)) {
       method.tau <- args[[idmethod.tau]]

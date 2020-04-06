@@ -54,6 +54,9 @@
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
+#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
+#'   variance correction should be applied in the case of an
+#'   arbitrarily small Hartung-Knapp variance estimate.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -201,9 +204,11 @@
 #' 2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
 #' coverage probabilities compared to the classic random effects
 #' method. However, in rare settings with very homogeneous treatment
-#' estimates, the Hartung-Knapp method can be anti-conservative
-#' (Wiksten et al., 2016). The Hartung-Knapp method is used if
-#' argument \code{hakn = TRUE}.
+#' estimates, the Hartung-Knapp variance estimate can be arbitrarily
+#' small resulting in a very narrow confidence interval (Knapp and
+#' Hartung, 2003; Wiksten et al., 2016). In such cases, an \emph{ad
+#' hoc} variance correction has been proposed (Knapp and Hartung,
+#' 2003) which is used if argument \code{adhoc.hakn = TRUE}.
 #' }
 #' 
 #' \subsection{Prediction interval}{
@@ -271,7 +276,7 @@
 #' \item{level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
-#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{tau.preset, TE.tau, null.hypothesis,}{As defined above.}
 #' \item{method.bias, tau.common, title, complab, outclab,}{As defined
 #'   above.}
@@ -533,7 +538,7 @@ metarate <- function(event, time, studlab,
                      overall = comb.fixed | comb.random,
                      overall.hetstat = comb.fixed | comb.random,
                      ##
-                     hakn = gs("hakn"),
+                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau,
                      method.tau.ci = if (method.tau == "DL") "J" else "QP",
                      tau.preset = NULL, TE.tau = NULL,
@@ -578,6 +583,7 @@ metarate <- function(event, time, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
+  chklogical(adhoc.hakn)
   if (missing(method.tau))
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau, .settings$meth4tau)
@@ -914,7 +920,7 @@ metarate <- function(event, time, studlab,
                overall = overall,
                overall.hetstat = overall.hetstat,
                ##
-               hakn = hakn,
+               hakn = hakn, adhoc.hakn = adhoc.hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = TE.tau,

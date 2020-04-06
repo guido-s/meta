@@ -183,21 +183,18 @@
 #' \item{ci.lab}{Label for confidence interval.}
 #' \item{hakn}{A logical indicating whether method by Hartung and
 #'   Knapp was used.}
-#' 
+#' \item{adhoc.hakn}{A logical indicating whether \emph{ad hoc}
+#'   variance correction should be used for Hartung-Knapp method.}
 #' \item{method.tau}{A character string indicating which method is
 #'   used to estimate the between-study variance tau-squared.}
-#' 
 #' \item{tau.common}{A logical indicating whether tau-squared is
 #'   assumed to be the same across subgroups.}
-#' 
 #' \item{within.fixed}{Result for fixed effect model within groups (a
 #'   list with elements TE, seTE, lower, upper, z, p, level, df,
 #'   harmonic.mean) - if \code{byvar} is not missing.}
-#' 
 #' \item{within.random}{Result for random effects model within groups
 #'   (a list with elements TE, seTE, lower, upper, z, p, level, df,
 #'   harmonic.mean) - if \code{byvar} is not missing.}
-#' 
 #' \item{k.w}{Number of studies combined within groups - if
 #'   \code{byvar} is not missing.}
 #' \item{Q.w}{Heterogeneity statistic Q within groups - if
@@ -477,8 +474,9 @@ summary.meta <- function(object,
               TE.tau = object$TE.tau,
               tau.preset = object$tau.preset,
               ##
-              hakn = object$hakn,
+              hakn = object$hakn, adhoc.hakn = object$adhoc.hakn,
               df.hakn = object$df.hakn,
+              seTE.random.hakn.orig = object$seTE.random.hakn.orig,
               ##
               H = ci.H, I2 = ci.I2, Rb = ci.Rb,
               H.resid = ci.H.resid, I2.resid = ci.I2.resid,
@@ -1631,6 +1629,8 @@ print.summary.meta <- function(x,
                   sm else "",
               k.all = k.all,
               hakn = !is.null(x$hakn) && (x$hakn & comb.random),
+              adhoc.hakn = !is.null(x$adhoc.hakn) &&
+                (!is.null(x$seTE.random.hakn.orig) & x$adhoc.hakn),
               tau.common = by & x$tau.common,
               tau.preset = x$tau.preset,
               sparse = ifelse(bip, x$sparse, FALSE),

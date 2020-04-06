@@ -232,21 +232,18 @@ following elements:
 \item{ci.lab}{Label for confidence interval.}
 \item{hakn}{A logical indicating whether method by Hartung and
   Knapp was used.}
-
+\item{adhoc.hakn}{A logical indicating whether \emph{ad hoc}
+  variance correction should be used for Hartung-Knapp method.}
 \item{method.tau}{A character string indicating which method is
   used to estimate the between-study variance tau-squared.}
-
 \item{tau.common}{A logical indicating whether tau-squared is
   assumed to be the same across subgroups.}
-
 \item{within.fixed}{Result for fixed effect model within groups (a
   list with elements TE, seTE, lower, upper, z, p, level, df,
   harmonic.mean) - if \code{byvar} is not missing.}
-
 \item{within.random}{Result for random effects model within groups
   (a list with elements TE, seTE, lower, upper, z, p, level, df,
   harmonic.mean) - if \code{byvar} is not missing.}
-
 \item{k.w}{Number of studies combined within groups - if
   \code{byvar} is not missing.}
 \item{Q.w}{Heterogeneity statistic Q within groups - if

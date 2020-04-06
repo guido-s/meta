@@ -149,7 +149,7 @@ setOption("meth4tau.ci", c("QP", "BJ", "J", ""))
 ## List of arguments that can be changed by user
 ##
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
-              "hakn", "method.tau", "tau.common",
+              "hakn", "adhoc.hakn", "method.tau", "tau.common",
               "prediction", "level.predict",
               "method.bias", "title", "complab", "CIbracket", "CIseparator",
               "print.byvar", "byseparator", "keepdata", "warn",
@@ -180,6 +180,7 @@ setOption("level.comb", 0.95)
 setOption("comb.fixed", TRUE)
 setOption("comb.random", TRUE)
 setOption("hakn", FALSE)
+setOption("adhoc.hakn", FALSE)
 setOption("method.tau", "DL")
 setOption("tau.common", FALSE)
 setOption("prediction", FALSE)

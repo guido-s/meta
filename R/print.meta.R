@@ -592,7 +592,8 @@ print.meta <- function(x,
               big.mark = big.mark,
               digits = digits, digits.tau = digits.tau,
               text.tau = text.tau, text.tau2 = text.tau2,
-              method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
+              method.miss = x$method.miss,
+              IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else {
       show.w.fixed  <- (overall | by) & comb.fixed  & !mb.glmm

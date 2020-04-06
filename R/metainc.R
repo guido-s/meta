@@ -62,6 +62,9 @@
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
+#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
+#'   variance correction should be applied in the case of an
+#'   arbitrarily small Hartung-Knapp variance estimate.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -216,9 +219,14 @@
 #' meta-analysis of an existing metainc object by only specifying
 #' arguments which should be changed.
 #' 
-#' For the random effects, the method by Hartung and Knapp (2003) is
+#' For the random effects, the method by Knapp and Hartung (2003) is
 #' used to adjust test statistics and confidence intervals if argument
-#' \code{hakn = TRUE}.
+#' \code{hakn = TRUE}. In rare settings with very homogeneous
+#' treatment estimates, the Hartung-Knapp variance estimate can be
+#' arbitrarily small resulting in a very narrow confidence interval
+#' (Knapp and Hartung, 2003; Wiksten et al., 2016). In such cases, an
+#' \emph{ad hoc} variance correction has been proposed (Knapp and
+#' Hartung, 2003) which is used if argument \code{adhoc.hakn = TRUE}.
 #' 
 #' The following methods to estimate the between-study variance
 #' \eqn{\tau^2} are available:
@@ -258,7 +266,7 @@
 #' \item{level, level.comb, comb.fixed, comb.random,}{As defined
 #'   above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
-#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
@@ -439,12 +447,6 @@
 #' \emph{Biometrics},
 #' \bold{41}, 55--68
 #' 
-#' Hartung J & Knapp G (2001):
-#' A refined method for the meta-analysis of controlled clinical
-#' trials with binary outcome.
-#' \emph{Statistics in Medicine},
-#' \bold{20}, 3875--89
-#' 
 #' Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
 #' A re-evaluation of random-effects meta-analysis.
 #' \emph{Journal of the Royal Statistical Society: Series A},
@@ -472,6 +474,12 @@
 #' Conducting Meta-Analyses in R with the Metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#' 
+#' Wiksten A, Rücker G, Schwarzer G (2016):
+#' Hartung-Knapp method is not always conservative compared with
+#' fixed-effect meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{35}, 2503--15
 #' 
 #' @examples
 #' data(smoking)
@@ -545,7 +553,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     overall = comb.fixed | comb.random,
                     overall.hetstat = comb.fixed | comb.random,
                     ##
-                    hakn = gs("hakn"),
+                    hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau =
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
                                               nomatch = NA)),
@@ -596,6 +604,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
+  chklogical(adhoc.hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
@@ -1001,7 +1010,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                overall = overall,
                overall.hetstat = overall.hetstat,
                ##
-               hakn = hakn,
+               hakn = hakn, adhoc.hakn = adhoc.hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = if (method == "Inverse") TE.tau else TE.fixed,

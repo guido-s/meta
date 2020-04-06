@@ -27,6 +27,7 @@
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
   hakn = object$hakn,
+  adhoc.hakn = object$adhoc.hakn,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
   tau.preset = object$tau.preset,
@@ -151,6 +152,10 @@ level.}
 \item{hakn}{A logical indicating whether the method by Hartung and
 Knapp should be used to adjust test statistics and confidence
 intervals.}
+
+\item{adhoc.hakn}{A logical indicating whether an \emph{ad hoc}
+variance correction should be applied in the case of an
+arbitrarily small Hartung Knapp variance estimate.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its

@@ -63,6 +63,9 @@
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
+#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
+#'   variance correction should be applied in the case of an
+#'   arbitrarily small Hartung Knapp variance estimate.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -245,6 +248,7 @@ update.meta <- function(object,
                         overall = object$overall,
                         overall.hetstat = object$overall.hetstat,
                         hakn = object$hakn,
+                        adhoc.hakn = object$adhoc.hakn,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
                         tau.preset = object$tau.preset,
@@ -344,6 +348,7 @@ update.meta <- function(object,
   level.comb <- replacemiss(level.comb)
   ##
   hakn <- replacemiss(hakn)
+  adhoc.hakn <- replacemiss(adhoc.hakn)
   method.tau <- replacemiss(method.tau)
   method.tau.ci <- replacemiss(method.tau.ci)
   tau.preset <- replacemiss(tau.preset, NULL)
@@ -418,7 +423,7 @@ update.meta <- function(object,
                     type = type, n.iter.max = n.iter.max,
                     level = level, level.comb = level.comb,
                     comb.fixed = comb.fixed, comb.random = comb.random,
-                    hakn = hakn,
+                    hakn = hakn, adhoc.hakn = adhoc.hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     prediction = prediction, level.predict = level.predict,
                     silent = TRUE,
@@ -636,7 +641,7 @@ update.meta <- function(object,
                  comb.fixed = comb.fixed, comb.random = comb.random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn,
+                 hakn = hakn, adhoc.hakn = adhoc.hakn,
                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -682,7 +687,7 @@ update.meta <- function(object,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn,
+                  hakn = hakn, adhoc.hakn = adhoc.hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -718,7 +723,7 @@ update.meta <- function(object,
                  comb.fixed = comb.fixed, comb.random = comb.random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn,
+                 hakn = hakn, adhoc.hakn = adhoc.hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -766,7 +771,7 @@ update.meta <- function(object,
                  comb.fixed = comb.fixed, comb.random = comb.random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn,
+                 hakn = hakn, adhoc.hakn = adhoc.hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -831,7 +836,7 @@ update.meta <- function(object,
                  comb.fixed = comb.fixed, comb.random = comb.random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn,
+                 hakn = hakn, adhoc.hakn = adhoc.hakn,
                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -880,7 +885,7 @@ update.meta <- function(object,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn,
+                  hakn = hakn, adhoc.hakn = adhoc.hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -920,7 +925,7 @@ update.meta <- function(object,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn,
+                  hakn = hakn, adhoc.hakn = adhoc.hakn,
                   method.tau = ifelse(method == "GLMM", "ML", method.tau),
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -960,7 +965,7 @@ update.meta <- function(object,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn,
+                  hakn = hakn, adhoc.hakn = adhoc.hakn,
                   method.tau = ifelse(method == "GLMM", "ML", method.tau),
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,

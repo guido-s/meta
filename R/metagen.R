@@ -70,6 +70,9 @@
 #' @param hakn A logical indicating whether method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
+#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
+#'   variance correction should be applied in the case of an
+#'   arbitrarily small Hartung-Knapp variance estimate.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -281,9 +284,11 @@
 #' 2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
 #' coverage probabilities compared to the classic random effects
 #' method. However, in rare settings with very homogeneous treatment
-#' estimates, the Hartung-Knapp method can be anti-conservative
-#' (Wiksten et al., 2016). The Hartung-Knapp method is used if
-#' argument \code{hakn = TRUE}.
+#' estimates, the Hartung-Knapp variance estimate can be arbitrarily
+#' small resulting in a very narrow confidence interval (Knapp and
+#' Hartung, 2003; Wiksten et al., 2016). In such cases, an \emph{ad
+#' hoc} variance correction has been proposed (Knapp and Hartung,
+#' 2003) which is used if argument \code{adhoc.hakn = TRUE}.
 #' }
 #' 
 #' \subsection{Prediction interval}{
@@ -378,7 +383,7 @@
 #' \item{sm, level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
-#' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
+#' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
@@ -585,6 +590,12 @@
 #' \emph{Research Synthesis Methods},
 #' \bold{4}, 220--229
 #' 
+#' Knapp G & Hartung J (2003):
+#' Improved tests for a random effects meta-regression with a single
+#' covariate.
+#' \emph{Statistics in Medicine},
+#' \bold{22}, 2693--710
+#' 
 #' Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
 #' Kontopantelis E, et al. (2019):
 #' A comparison of heterogeneity variance estimators in simulated
@@ -714,7 +725,7 @@ metagen <- function(TE, seTE, studlab,
                     overall = comb.fixed | comb.random,
                     overall.hetstat = comb.fixed | comb.random,
                     ##
-                    hakn = gs("hakn"),
+                    hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau = gs("method.tau"),
                     method.tau.ci = if (method.tau == "DL") "J" else "QP",
                     tau.preset = NULL, TE.tau = NULL,
@@ -767,6 +778,7 @@ metagen <- function(TE, seTE, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
+  chklogical(adhoc.hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
@@ -1448,6 +1460,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   k <- sum(!is.na(seTE[!exclude]))
   ##
+  seTE.random.hakn.orig <- NULL
+  ##
   if (k == 0) {
     TE.fixed <- NA
     seTE.fixed <- NA
@@ -1464,7 +1478,6 @@ metagen <- function(TE, seTE, studlab,
     lower.random <- NA
     upper.random <- NA
     w.random <- rep(0, k.all)
-    ##
     if (hakn)
       df.hakn <- NA
     ##
@@ -1533,8 +1546,16 @@ metagen <- function(TE, seTE, studlab,
     ## Hartung-Knapp adjustment
     ##
     if (hakn) {
-      seTE.random <- sqrt(1 / (k - 1) * sum(w.random * (TE - TE.random)^2 /
-                                              sum(w.random), na.rm = TRUE))
+      q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
+      ##
+      seTE.random <- sqrt(q / sum(w.random))
+      ##
+      if (adhoc.hakn) {
+        if (q < 1)
+          seTE.random.hakn.orig <- seTE.random
+        seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+      }
+      ##
       df.hakn <- k - 1
       ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn,
                  null.effect = null.effect)
@@ -1623,8 +1644,9 @@ metagen <- function(TE, seTE, studlab,
               comb.random = comb.random,
               overall = overall,
               overall.hetstat = overall.hetstat,
-              hakn = hakn,
+              hakn = hakn, adhoc.hakn = adhoc.hakn,
               df.hakn = if (hakn) df.hakn else NULL,
+              seTE.random.hakn.orig = seTE.random.hakn.orig,
               method.tau = method.tau, method.tau.ci = method.tau.ci,
               tau.preset = tau.preset,
               TE.tau = if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
