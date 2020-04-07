@@ -97,8 +97,6 @@ IQWiG, General Methods 5 settings:
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 \code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
 \code{prediction} \tab TRUE \tab Prediction interval \cr
-\code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
-\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 }
 
 IQWiG, General Methods 6 settings:
@@ -109,8 +107,6 @@ IQWiG, General Methods 6 settings:
 \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
   between-study variance \cr
 \code{prediction} \tab TRUE \tab Prediction interval \cr
-\code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
-\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 }
 
 A list of all arguments with current settings is printed using the

@@ -90,8 +90,6 @@
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
 #' \code{prediction} \tab TRUE \tab Prediction interval \cr
-#' \code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
-#' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 #' }
 #' 
 #' IQWiG, General Methods 6 settings:
@@ -102,8 +100,6 @@
 #' \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
 #'   between-study variance \cr
 #' \code{prediction} \tab TRUE \tab Prediction interval \cr
-#' \code{RR.Cochrane} \tab FALSE \tab calculation of risk ratios \cr
-#' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
@@ -585,18 +581,15 @@ settings.meta <- function(...) {
     }
     ##
     else if (setting == "IQWiG5") {
-      specificSetting(args = c("hakn", "prediction",
-                               "RR.Cochrane", "Q.Cochrane"),
-                      new = list(TRUE, TRUE,
-                                 FALSE, FALSE),
+      specificSetting(args = c("hakn", "prediction"),
+                      new = list(TRUE, TRUE),
                       setting = "IQWiG 5 settings")
     }
     ##
     else if (setting == "IQWiG6") {
-      specificSetting(args = c("hakn", "adhoc.hakn", "method.tau",
-                               "prediction", "RR.Cochrane", "Q.Cochrane"),
-                      new = list(TRUE, TRUE, "PM",
-                                 TRUE, FALSE, FALSE),
+      specificSetting(args = c("hakn", "adhoc.hakn",
+                               "method.tau", "prediction"),
+                      new = list(TRUE, TRUE, "PM", TRUE),
                       setting = "IQWiG 6 settings")
     }
     ##
