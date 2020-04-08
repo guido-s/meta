@@ -183,8 +183,9 @@
 #' \item{ci.lab}{Label for confidence interval.}
 #' \item{hakn}{A logical indicating whether method by Hartung and
 #'   Knapp was used.}
-#' \item{adhoc.hakn}{A logical indicating whether \emph{ad hoc}
-#'   variance correction should be used for Hartung-Knapp method.}
+#' \item{adhoc.hakn}{A character string indicating whether \emph{ad
+#'   hoc} variance correction should be used for Hartung-Knapp
+#'   method.}
 #' \item{method.tau}{A character string indicating which method is
 #'   used to estimate the between-study variance tau-squared.}
 #' \item{tau.common}{A logical indicating whether tau-squared is
@@ -1630,7 +1631,7 @@ print.summary.meta <- function(x,
               k.all = k.all,
               hakn = !is.null(x$hakn) && (x$hakn & comb.random),
               adhoc.hakn = !is.null(x$adhoc.hakn) &&
-                (!is.null(x$seTE.random.hakn.orig) & x$adhoc.hakn),
+                (!is.null(x$seTE.random.hakn.orig) & x$adhoc.hakn != ""),
               tau.common = by & x$tau.common,
               tau.preset = x$tau.preset,
               sparse = ifelse(bip, x$sparse, FALSE),

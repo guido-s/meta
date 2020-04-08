@@ -92,9 +92,9 @@ level.}
 Knapp should be used to adjust test statistics and confidence
 intervals.}
 
-\item{adhoc.hakn}{A logical indicating whether an \emph{ad hoc}
-variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate.}
+\item{adhoc.hakn}{A character string indicating whether an \emph{ad
+hoc} variance correction should be applied in the case of an
+arbitrarily small Hartung-Knapp variance estimate, see Details.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -379,12 +379,26 @@ effects meta-analysis based on a refined variance estimator for the
 treatment estimate. Simulation studies (Hartung and Knapp, 2001;
 IntHout et al., 2014; Langan et al., 2019) show improved coverage
 probabilities compared to the classic random effects
-method. However, in rare settings with very homogeneous treatment
-estimates, the Hartung-Knapp variance estimate can be arbitrarily
-small resulting in a very narrow confidence interval (Knapp and
-Hartung, 2003; Wiksten et al., 2016). In such cases, an \emph{ad
-hoc} variance correction has been proposed (Knapp and Hartung,
-2003) which is used if argument \code{adhoc.hakn = TRUE}.
+method.
+
+In rare settings with very homogeneous treatment estimates, the
+Hartung-Knapp variance estimate can be arbitrarily small resulting
+in a very narrow confidence interval (Knapp and Hartung, 2003;
+Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
+correction has been proposed by utilising the variance estimate
+from the classic random effects model (Knapp and Hartung,
+2003). Argument \code{adhoc.hakn} can be used to choose the
+\emph{ad hoc} method:
+\tabular{ll}{
+\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
+\code{adhoc.hakn = ""}\tab not used \cr
+\code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
+ standard error \cr
+ \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+\code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
+ narrower than CI from \cr
+ \tab classic random effects model with DL estimator (IQWiG, 2020)
+}
 }
 
 \subsection{Prediction interval}{
@@ -469,6 +483,10 @@ meta-analysis is straightforward and considerably outperforms the
 standard DerSimonian-Laird method.
 \emph{BMC Medical Research Methodology},
 \bold{14}, 25
+
+IQWiG (2020):
+General Methods: Draft of Version 6.0.
+\url{https://www.iqwig.de/en/methods/methods-paper.3020.html}
 
 Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
 Kontopantelis E, et al. (2019):

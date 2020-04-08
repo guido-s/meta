@@ -145,6 +145,7 @@ setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
 setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", ""))
+setOption("adhoc4hakn", c("", "se", "ci"))
 ##
 ## List of arguments that can be changed by user
 ##
@@ -180,7 +181,7 @@ setOption("level.comb", 0.95)
 setOption("comb.fixed", TRUE)
 setOption("comb.random", TRUE)
 setOption("hakn", FALSE)
-setOption("adhoc.hakn", FALSE)
+setOption("adhoc.hakn", "")
 setOption("method.tau", "DL")
 setOption("tau.common", FALSE)
 setOption("prediction", FALSE)

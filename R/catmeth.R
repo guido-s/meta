@@ -301,7 +301,7 @@ catmeth <- function(method,
         lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"
         if (adhoc.hakn)
           lab.hakn <- paste0(lab.hakn,
-                             "\n  (with ad hoc correction for variance)")
+                             "\n  (with ad hoc variance correction)")
       }
       else
         lab.hakn <- ""

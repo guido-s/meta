@@ -53,6 +53,9 @@
 #' \item{hakn}{A logical indicating whether the method by Hartung and
 #'   Knapp is used to adjust test statistics and confidence
 #'   intervals.}
+#' \item{adhoc.hakn}{A character string indicating whether \emph{ad
+#'   hoc} variance correction should be used for Hartung-Knapp
+#'   method.}
 #' \item{method.tau}{A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2}.}
 #' \item{tau.preset}{Prespecified value for the square root of the
@@ -238,7 +241,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    level.comb = x$level.comb,
                    ##
-                   hakn = x$hakn,
+                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
@@ -257,7 +260,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     level.comb = x$level.comb,
                     ##
-                    hakn = x$hakn,
+                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
@@ -275,7 +278,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    level.comb = x$level.comb,
                    ##
-                   hakn = x$hakn,
+                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
@@ -292,7 +295,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    level.comb = x$level.comb,
                    ##
-                   hakn = x$hakn,
+                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
@@ -314,7 +317,8 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    level.comb = x$level.comb,
                    ##
-                   hakn = x$hakn, method.tau = x$method.tau,
+                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
+                   method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    keepdata = FALSE,
@@ -331,7 +335,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     level.comb = x$level.comb,
                     ##
-                    hakn = x$hakn,
+                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
@@ -352,7 +356,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     level.comb = x$level.comb,
                     ##
-                    hakn = x$hakn,
+                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
@@ -372,7 +376,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     level.comb = x$level.comb,
                     ##
-                    hakn = x$hakn,
+                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
@@ -537,7 +541,7 @@ metacum <- function(x, pooled, sortvar) {
               ##
               Q = NA,
               level.comb = x$level.comb,
-              hakn = x$hakn,
+              hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
               method.tau = x$method.tau,
               tau.preset = x$tau.preset,
               TE.tau = x$TE.tau,

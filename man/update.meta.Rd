@@ -153,9 +153,9 @@ level.}
 Knapp should be used to adjust test statistics and confidence
 intervals.}
 
-\item{adhoc.hakn}{A logical indicating whether an \emph{ad hoc}
-variance correction should be applied in the case of an
-arbitrarily small Hartung Knapp variance estimate.}
+\item{adhoc.hakn}{A character string indicating whether an \emph{ad
+hoc} variance correction should be applied in the case of an
+arbitrarily small Hartung-Knapp variance estimate, see Details.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its

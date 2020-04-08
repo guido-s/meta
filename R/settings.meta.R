@@ -211,6 +211,7 @@ settings.meta <- function(...) {
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
   res$ci4prop <- NULL
   res$meth4bin <- res$meth4tau <- res$meth4tau.ci <- NULL
+  res$adhoc4hakn <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   
@@ -469,7 +470,7 @@ settings.meta <- function(...) {
     setOption("comb.fixed", TRUE)
     setOption("comb.random", TRUE)
     setOption("hakn", FALSE)
-    setOption("adhoc.hakn", FALSE)
+    setOption("adhoc.hakn", "")
     setOption("method.tau", "DL")
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
@@ -589,7 +590,7 @@ settings.meta <- function(...) {
     else if (setting == "IQWiG6") {
       specificSetting(args = c("hakn", "adhoc.hakn",
                                "method.tau", "prediction"),
-                      new = list(TRUE, TRUE, "PM", TRUE),
+                      new = list(TRUE, "ci", "PM", TRUE),
                       setting = "IQWiG 6 settings")
     }
     ##
@@ -722,7 +723,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(idadhoc.hakn)) {
       adhoc.hakn <- args[[idadhoc.hakn]]
-      chklogical(adhoc.hakn)
+      adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
       setOption("adhoc.hakn", adhoc.hakn)
     }
     if (!is.na(idmethod.tau)) {

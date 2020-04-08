@@ -232,8 +232,9 @@ following elements:
 \item{ci.lab}{Label for confidence interval.}
 \item{hakn}{A logical indicating whether method by Hartung and
   Knapp was used.}
-\item{adhoc.hakn}{A logical indicating whether \emph{ad hoc}
-  variance correction should be used for Hartung-Knapp method.}
+\item{adhoc.hakn}{A character string indicating whether \emph{ad
+  hoc} variance correction should be used for Hartung-Knapp
+  method.}
 \item{method.tau}{A character string indicating which method is
   used to estimate the between-study variance tau-squared.}
 \item{tau.common}{A logical indicating whether tau-squared is

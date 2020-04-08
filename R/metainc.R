@@ -62,9 +62,9 @@
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
-#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
-#'   variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate.
+#' @param adhoc.hakn A character string indicating whether an \emph{ad
+#'   hoc} variance correction should be applied in the case of an
+#'   arbitrarily small Hartung-Knapp variance estimate, see Details.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -225,8 +225,20 @@
 #' treatment estimates, the Hartung-Knapp variance estimate can be
 #' arbitrarily small resulting in a very narrow confidence interval
 #' (Knapp and Hartung, 2003; Wiksten et al., 2016). In such cases, an
-#' \emph{ad hoc} variance correction has been proposed (Knapp and
-#' Hartung, 2003) which is used if argument \code{adhoc.hakn = TRUE}.
+#' \emph{ad hoc} variance correction has been proposed by utilising
+#' the variance estimate from the classic random effects model (Knapp
+#' and Hartung, 2003). Argument \code{adhoc.hakn} can be used to
+#' choose the \emph{ad hoc} method:
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
+#' \code{adhoc.hakn = ""}\tab not used \cr
+#' \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
+#'  standard error \cr
+#'  \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+#' \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
+#'  narrower than CI from \cr
+#'  \tab classic random effects model with DL estimator (IQWiG, 2020)
+#' }
 #' 
 #' The following methods to estimate the between-study variance
 #' \eqn{\tau^2} are available:
@@ -604,7 +616,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
-  chklogical(adhoc.hakn)
+  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
@@ -1118,14 +1130,21 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$zval.random <- ci.r$z
     res$pval.random <- ci.r$p
     ##
-    ci.p <- predict.rma(glmm.random, level = 100 * level.predict)
-    res$seTE.predict <- NA
-    res$lower.predict <- ci.p$cr.lb
-    res$upper.predict <- ci.p$cr.ub
-    if (is.null(res$lower.predict))
+    ## Prediction interval
+    ##
+    if (k >= 3) {
+      tau2.calc <- if (is.na(glmm.random$tau2)) 0 else glmm.random$tau2
+      seTE.predict <- sqrt(seTE.random^2 + tau2.calc)
+      ci.p <- ci(TE.random, seTE.predict, level.predict, k - 2)
+      res$seTE.predict <- seTE.predict
+      res$lower.predict <- ci.p$lower
+      res$upper.predict <- ci.p$upper
+    }
+    else {
+      res$seTE.predict <- NA
       res$lower.predict <- NA
-    if (is.null(res$upper.predict))
       res$upper.predict <- NA
+    }
     ##
     res$model.glmm <- model.glmm
     ##

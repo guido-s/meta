@@ -70,9 +70,11 @@
 #' @param hakn A logical indicating whether method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
-#' @param adhoc.hakn A logical indicating whether an \emph{ad hoc}
-#'   variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate.
+#' @param adhoc.hakn A character string indicating whether an \emph{ad
+#'   hoc} variance correction should be applied in the case of an
+#'   arbitrarily small Hartung-Knapp variance estimate. Either
+#'   \code{""}, \code{"se"}, or \code{"ci"} (see Details), can be
+#'   abbreviated.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -284,11 +286,23 @@
 #' 2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
 #' coverage probabilities compared to the classic random effects
 #' method. However, in rare settings with very homogeneous treatment
-#' estimates, the Hartung-Knapp variance estimate can be arbitrarily
-#' small resulting in a very narrow confidence interval (Knapp and
-#' Hartung, 2003; Wiksten et al., 2016). In such cases, an \emph{ad
-#' hoc} variance correction has been proposed (Knapp and Hartung,
-#' 2003) which is used if argument \code{adhoc.hakn = TRUE}.
+#' estimates, the Hartung-Knapp (HK) variance estimate can be
+#' arbitrarily small resulting in a very narrow confidence interval
+#' (Knapp and Hartung, 2003; Wiksten et al., 2016). In such cases, an
+#' \emph{ad hoc} variance correction has been proposed by utilising
+#' the variance estimate from the classic random effects model (Knapp
+#' and Hartung, 2003). Argument \code{adhoc.hakn} can be used to
+#' choose the \emph{ad hoc} method:
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
+#' \code{adhoc.hakn = ""}\tab not used \cr
+#' \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
+#'  standard error \cr
+#'  \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+#' \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
+#'  narrower than CI from \cr
+#'  \tab classic random effects model with DL estimator (IQWiG, 2020)
+#' }
 #' }
 #' 
 #' \subsection{Prediction interval}{
@@ -582,6 +596,10 @@
 #' standard DerSimonian-Laird method.
 #' \emph{BMC Medical Research Methodology},
 #' \bold{14}, 25
+#' 
+#' IQWiG (2020):
+#' General Methods: Draft of Version 6.0.
+#' \url{https://www.iqwig.de/en/methods/methods-paper.3020.html}
 #'
 #' Jackson D (2013):
 #' Confidence intervals for the between-study variance in random
@@ -778,7 +796,7 @@ metagen <- function(TE, seTE, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
-  chklogical(adhoc.hakn)
+  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
@@ -1546,17 +1564,38 @@ metagen <- function(TE, seTE, studlab,
     ## Hartung-Knapp adjustment
     ##
     if (hakn) {
+      df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
       ##
       seTE.random <- sqrt(q / sum(w.random))
       ##
-      if (adhoc.hakn) {
+      if (adhoc.hakn == "se") {
+        ##
+        ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003)
+        ##
         if (q < 1)
           seTE.random.hakn.orig <- seTE.random
         seTE.random <- sqrt(max(q, 1) /  sum(w.random))
       }
+      else if (adhoc.hakn == "ci") {
+        ##
+        ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
+        ##
+        ci.hk <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn)
+        ##
+        m.dl <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "",
+                        hakn = FALSE)
+        ci.dl <- ci(m.dl$TE.random, m.dl$seTE.random, level = level.comb)
+        ##
+        width.hk <- ci.hk$upper - ci.hk$lower
+        width.dl <- ci.dl$upper - ci.dl$lower
+        ##
+        if (width.hk < width.dl) {
+          seTE.random.hakn.orig <- seTE.random
+          seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+        }
+      }
       ##
-      df.hakn <- k - 1
       ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn,
                  null.effect = null.effect)
     }
