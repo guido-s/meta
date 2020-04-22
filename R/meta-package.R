@@ -89,7 +89,7 @@
 #' Association}
 #' (\url{http://jamanetwork.com/journals/jama/pages/instructions-for-authors}). The
 #' other two commands implement the recommendations of the Institute
-#' for Quality and Efficiency in Health Care, Germany (IQWiG)
+#' for Quality and Efficiency in Health Care (IQWiG), Germany
 #' accordinging to General Methods 5 and 6, respectively
 #' (\url{https://www.iqwig.de/en/methods/methods-paper.3020.html}).
 #' 

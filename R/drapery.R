@@ -41,13 +41,17 @@
 #' @param prediction A logical indicating whether to show prediction
 #'   region.
 #' @param col.predict Colour of prediction region
+#' @param sign Significance level used to highlight significant
+#'   values in curves.
+#' @param lty.sign Line type for significant values.
+#' @param lwd.sign Line width for significant values.
+#' @param col.sign Line colour for significant values.
 #' @param alpha Horizonal lines are printed for the specified alpha
 #'   values.
 #' @param lty.alpha Line type of horizonal lines for alpha values.
-#' @param lwd.alpha Line width for individual studies.
+#' @param lwd.alpha Line width of horizonal lines for alpha values.
 #' @param col.alpha Colour of horizonal lines for alpha values.
 #' @param cex.alpha The magnification for the text of the alpha
-#'   values.
 #' @param col.null.effect Colour of vertical line indicating null
 #'   effect.
 #' @param legend A logical indicating whether a legend should be
@@ -198,6 +202,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     lty.random = 1, lwd.random = lwd.fixed,
                     col.random = "red",
                     ##
+                    sign = NULL,
+                    lty.sign = 1, lwd.sign = 1, col.sign = "black",
                     prediction = comb.random, col.predict = "lightblue",
                     ##
                     alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1)
@@ -347,6 +353,15 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
+  ##
+  if (!is.null(sign)) {
+    chklevel(sign, single = FALSE)
+    if (type == "zvalue")
+      sign <- qnorm(sign / 2)
+    ##
+    chknumeric(lty.sign, min = 0, zero = TRUE, single = TRUE)
+    chknumeric(lwd.sign, min = 0, zero = TRUE, single = TRUE)
+  }
   ##
   if (!all(is.na(alpha)))
     chklevel(alpha, single = FALSE)
@@ -559,6 +574,20 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
         sel.i <- y.i >= min(ylim)
         lines(x.grid[sel.i], y.i[sel.i],
               lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
+        ##
+        if (!is.null(sign)) {
+          sel.sign.i <- sel.i & y.i < sign
+          seq.i <- seq(along = y.i)[sel.sign.i]
+          sel.seq.i.u <- seq.i[c(FALSE, diff(seq.i) != 1)]
+          sel.seq.i.l <- seq.i[c(diff(seq.i) != 1, FALSE)]
+          sel.sign.i.l <- sel.sign.i & seq(along = sel.sign.i) <= sel.seq.i.l
+          sel.sign.i.u <- sel.sign.i & seq(along = sel.sign.i) >= sel.seq.i.u
+          ##
+          lines(x.grid[sel.sign.i.l], y.i[sel.sign.i.l],
+                lty = lty.sign, lwd = lwd.sign, col = col.sign)
+          lines(x.grid[sel.sign.i.u], y.i[sel.sign.i.u],
+                lty = lty.sign, lwd = lwd.sign, col = col.sign)
+        }
         ##
         if (subset.labels[i]) {
           if (labels != "") {

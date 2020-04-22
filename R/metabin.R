@@ -1618,7 +1618,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               Q.CMH = Q.CMH, df.Q.CMH = 1, pval.Q.CMH = pvalQ(Q.CMH, 1),
               print.CMH = print.CMH,
               incr.e = incr.e, incr.c = incr.c,
-              k.MH = if (method == "MH") sum(w.fixed > 0) else NA)
+              k.MH = if (method == "MH") sum(w.fixed > 0) else NA,
+              k.all = k.all)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

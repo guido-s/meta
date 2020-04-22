@@ -25,6 +25,10 @@ drapery(
   lty.random = 1,
   lwd.random = lwd.fixed,
   col.random = "red",
+  sign = NULL,
+  lty.sign = 1,
+  lwd.sign = 1,
+  col.sign = "black",
   prediction = comb.random,
   col.predict = "lightblue",
   alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1) else c(0.01, 0.05, 0.1),
@@ -104,6 +108,15 @@ the random effects model.}
 
 \item{col.random}{Colour of lines for random effects meta-analysis.}
 
+\item{sign}{Significance level used to highlight significant
+values in curves.}
+
+\item{lty.sign}{Line type for significant values.}
+
+\item{lwd.sign}{Line width for significant values.}
+
+\item{col.sign}{Line colour for significant values.}
+
 \item{prediction}{A logical indicating whether to show prediction
 region.}
 
@@ -114,12 +127,11 @@ values.}
 
 \item{lty.alpha}{Line type of horizonal lines for alpha values.}
 
-\item{lwd.alpha}{Line width for individual studies.}
+\item{lwd.alpha}{Line width of horizonal lines for alpha values.}
 
 \item{col.alpha}{Colour of horizonal lines for alpha values.}
 
-\item{cex.alpha}{The magnification for the text of the alpha
-values.}
+\item{cex.alpha}{The magnification for the text of the alpha}
 
 \item{col.null.effect}{Colour of vertical line indicating null
 effect.}

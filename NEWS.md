@@ -1,6 +1,6 @@
-# meta, version 4.12-0 (2020-mm-dd)
+## meta, version 4.12-0 (2020-mm-dd)
 
-## Major changes
+### Major changes
 
 * Sample size method for meta-analysis of binary data with the odds
   ratio as summary measure implemented ([Bakbergenuly et al.,
@@ -19,7 +19,7 @@
 * Do not use predict.rma() from **metafor** package to calculate
   prediction intervals for generalized linear mixed models
   
-## User-visible changes
+### User-visible changes
 
 * drapery():
   - study IDs or study labels can be printed at the top of the drapery
@@ -33,16 +33,19 @@
 * funnel.meta(), funnel.default():
   - argument 'log' is considered for relative summary measures, e.g.,
     odds or risk ratio
-      
+
+* metaprop():
+  - can be used with non-integer number of events and sample sizes
+  
 * settings.meta():
   - new possible general settings: "iqwig5" and "iqwig6", respectively
 
 * Use Markdown for NEWS
 
 
-# meta, version 4.11-0 (2020-02-20)
+## meta, version 4.11-0 (2020-02-20)
 
-## Major changes
+### Major changes
 
 * New arguments 'overall' and 'overall.hetstat' in meta-analysis
   functions to control printing of overall meta-analysis results
@@ -52,7 +55,7 @@
   residual heterogeneity in meta-analysis with subgroups (instead of
   likelihood-ratio Q statistic)
   
-## Bug fixes
+### Bug fixes
 
 * For GLMMs with subgroups, conduct the correct test for subgroup
   differences (bug was introduced in **meta**, version 4.9-7)
@@ -65,7 +68,7 @@
   - do not produce an error if argument 'warn' or 'prediction' is not
     unique in meta-analyses
   
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - possible to print results for test of an overall effect or
@@ -79,28 +82,28 @@
     random effects results (previously, information on Q, I^2, tau,
     and tau^2 was reported twice)
 
-## Internal changes
+### Internal changes
 
 * do not calculate confidence limits for tau2 and tau in intermediate
   calculations of other quantities (i.e., use argument method.tau.ci =
   "")
 
 
-# meta, version 4.10-0 (2020-01-29)
+## meta, version 4.10-0 (2020-01-29)
 
-## Major changes
+### Major changes
 
 * New function drapery() to generate a drapery plot (based on p-value
   curves)
   
-## Bug fixes
+### Bug fixes
 
 * funnel.meta():
   - print contours in contour-enhanced funnel plots at correct
     position for relative effect measures (bug was introduced in
     **meta**, version 4.9-8)
 
-## User-visible changes
+### User-visible changes
 
 * update.meta():
   - do not print a warning concerning argument 'Q.Cochrane' if
@@ -113,16 +116,16 @@
     and metarate())
 
 
-# meta, version 4.9-9 (2019-12-19)
+## meta, version 4.9-9 (2019-12-19)
 
-## Bug fixes
+### Bug fixes
 
 * forest.meta():
   - printing an additional column on the right side of the forest plot
     does not result in an error (bug was introduced in **meta**,
     version 4.9-8)
 
-## User-visible changes
+### User-visible changes
 
 * labbe():
   - new argument 'pos.studlab'
@@ -133,9 +136,9 @@
   - argument checks implemented
 
 
-# meta, version 4.9-8 (2019-12-16)
+## meta, version 4.9-8 (2019-12-16)
 
-## Major changes
+### Major changes
 
 * Confidence intervals for the between-study variance tau2 and its
   square root tau are calculated
@@ -174,7 +177,7 @@
 * New preferred citation of R package **meta**: [Balduzzi et
   al. (2019)](https:www.doi.org/10.1136/ebmental-2019-300117)
 
-## User-visible changes
+### User-visible changes
 
 * print.summary.meta(), forest.meta():
   - new argument 'JAMA.pval' to print p-values according to JAMA
@@ -205,7 +208,7 @@
 * Major update of other help pages:
   - metacont(), metacor(), and metamean()
 
-## Internal changes
+### Internal changes
 
 * Function paulemandel() removed as R package **metafor** is used to
   estimate the between-study variance
@@ -224,14 +227,14 @@
 * New internal function is.wholenumber() to check for whole numbers
 
 
-# meta, version 4.9-7 (2019-09-27)
+## meta, version 4.9-7 (2019-09-27)
 
-## Major changes
+### Major changes
 
 * Subgroup analysis using argument 'byvar' possible for generalised
   linear mixed models (GLMMs)
     
-## Bug fixes
+### Bug fixes
 
 * metaprop():
   - no error if argument 'tau.common' is TRUE for GLMM
@@ -239,15 +242,15 @@
 * metabin(), metainc(), metarate():
   - consider argument 'control' in subgroup analysis
 
-## User-visible changes
+### User-visible changes
 
 * Major update of help pages:
   - metabin(), metagen(), metainc(), metaprop(), and metarate()
 
 
-# meta, version 4.9-6 (2019-08-06)
+## meta, version 4.9-6 (2019-08-06)
 
-## Major changes
+### Major changes
 
 * New functions to calculate the number needed to treat from the
   results of a meta-analysis
@@ -259,7 +262,7 @@
 * Print Wald-type test of heterogeneity for generalised linear mixed
   models (problem fixed in R package **metafor**, version 2.1-0)
     
-## Bug fixes
+### Bug fixes
 
 * forest.meta():
   - (always) print correct length for reference line
@@ -275,7 +278,7 @@
 * metaprop():
   - allow values 0 and 1 for argument 'null.effect'
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - new arguments 'lower.equi', 'upper.equi', 'lty.equi', 'col.e' and
@@ -285,7 +288,7 @@
 * forest.metabind():
   - information on heterogeneity printed for each meta-analysis
 
-## Internal changes
+### Internal changes
 
 * ciAgrestiCoull():
   - set lower confidence limit to 0 for negative values
@@ -295,9 +298,9 @@
   internal function subgroup())
 
 
-# meta, version 4.9-5 (2019-04-11)
+## meta, version 4.9-5 (2019-04-11)
 
-## Major changes
+### Major changes
 
 * For the generic inverse variance method, treatment estimates and
   standard errors of individual studies can be derived from
@@ -323,7 +326,7 @@
  
 * Use **roxygen2** for development of R package **meta**
 
-## User-visible changes
+### User-visible changes
 
 * metagen():
   - new arguments 'pval', 'df', 'lower', 'upper', 'level.ci',
@@ -346,7 +349,7 @@
 
 * Major update of help pages of metagen() and metaprop()
 
-## Bug fixes
+### Bug fixes
 
 * metacum(), metainf():
   - consider argument 'method' for meta-analysis objects created with
@@ -359,7 +362,7 @@
 * subgroup():
   - return subgroup sample sizes for objects created with metagen()
 
-## Internal changes
+### Internal changes
 
 * New internal functions TE.seTE.ci(), TE.seTE.iqr(),
   TE.seTE.iqr.range(), TE.seTE.range(), and seTE.ci.pval() to
@@ -375,37 +378,37 @@
     meta-analysis object
 
 
-# meta, version 4.9-4 (2019-01-02)
+## meta, version 4.9-4 (2019-01-02)
 
-## Major changes
+### Major changes
 
 * Information on residual heterogeneity in meta-analyses with
   subgroups shown in printouts and forest plots
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - new arguments 'resid.hetstat' and 'resid.hetlab' to control
     printing of information on residual heterogeneity in meta-analyses
     with subgroups
 
-## Bug fixes
+### Bug fixes
 
 * forest.meta():
   - works in meta-analyses with subgroups if argument 'allstudies' is
     FALSE
 
 
-# meta, version 4.9-3 (2018-11-29)
+## meta, version 4.9-3 (2018-11-29)
 
-## Major changes
+### Major changes
 
 * New argument 'control' in meta-analysis functions which is passed on
   to R function rma.uni() or rma.glmm() from R package **metafor** to
   control the iterative process to estimate the between-study variance
   tau^2
 
-## User-visible changes
+### User-visible changes
 
 * metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), update.meta():
@@ -414,14 +417,14 @@
 * forest.meta():
   - new argument 'calcwidth.subgroup'
 
-## Bug fixes
+### Bug fixes
 
 * bubble.metareg():
   - ignore missing values in covariate to calculate limits on x-axis
   - works if data set used to create meta-analysis object is a tibble
     instead of a data frame
 
-## Internal changes
+### Internal changes
 
 * metabind():
   - argument 'tau.common' only considered for subgroup analyses
@@ -434,27 +437,27 @@
   - argument 'control' from meta-analysis objects considered
 
 
-# meta, version 4.9-2 (2018-06-06)
+## meta, version 4.9-2 (2018-06-06)
 
-## Major changes
+### Major changes
 
 * All p-values of Q statistics are list elements of meta-analysis
   objects
 
-## Bug fixes
+### Bug fixes
 
 * metareg():
   - consider argument 'intercept = FALSE' if argument 'formula' has
     been provided
     
-## Internal changes
+### Internal changes
 
 * New internal function replaceNULL()
 
 
-# meta, version 4.9-1 (2018-03-21)
+## meta, version 4.9-1 (2018-03-21)
 
-## Major changes
+### Major changes
 
 * Subgroup results consider the exclusion of individual studies (bug
   fix)
@@ -462,7 +465,7 @@
 * For generalized linear mixed models, between-study variance set to
   NA if only a single study is considered in meta-analysis
 
-## Bug fixes
+### Bug fixes
 
 * metamean():
   - use of argument 'byvar' for subgroup analyses possible
@@ -476,7 +479,7 @@
 * Internal function bylevs():
   - drop unused levels if subgroup variable is a factor variable
 
-## User-visible changes
+### User-visible changes
 
 * print.summary.meta():
   - print information on Generalized Linear Mixed Model (GLMM) for
@@ -503,7 +506,7 @@
 * print.meta():
   - new argument 'irunit'
 
-## Internal changes
+### Internal changes
 
 * metaprop():
   - for random effects model, rma.glmm() from package **metafor** is
@@ -530,9 +533,9 @@
   measures without (back-)transformation
 
 
-# meta, version 4.9-0 (2017-12-06)
+## meta, version 4.9-0 (2017-12-06)
 
-## Major changes
+### Major changes
 
 * New function metamean() to conduct meta-analysis of single means
 
@@ -559,7 +562,7 @@
 * P-values equal to 0 are actually printed as "0" instead of "<
   0.0001"
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta(), print.meta(), print.summary.meta():
   - new argument 'big.mark' to specify character printed as thousands
@@ -585,7 +588,7 @@
 
 * Help page with overview of R functions in R package **meta** updated
 
-## Internal changes
+### Internal changes
 
 * New internal functions:
   - is.log.effect() to check for treatment effects combined on log
@@ -617,15 +620,15 @@
   - new argument 'big.mark' (see above)
 
 
-# meta, version 4.8-4 (2017-08-11)
+## meta, version 4.8-4 (2017-08-11)
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - new arguments 'col.fixed' and 'col.random' to change colour of
     fixed effect and random effects lines
 
-## Bug fixes
+### Bug fixes
 
 * bubble.metareg():
   - works if covariate in metareg() is not part of dataset used to
@@ -649,7 +652,7 @@
     fixed effect and random effects model for metacor(), metaprop(),
     and metarate() objects
 
-## Internal changes
+### Internal changes
 
 * New internal functions is.cor(), is.prop(), and is.rate() to check
   whether summary measure refers to meta-analysis of correlations,
@@ -661,16 +664,16 @@
     to conduct analysis
 
 
-# meta, version 4.8-3 (2017-07-21)
+## meta, version 4.8-3 (2017-07-21)
 
-## Major changes
+### Major changes
 
 * Similar to RevMan 5, individual studies can be excluded from
   meta-analysis, however, will be shown in printouts and forest plots
 
 * In forest plots, line spacing can be determined by the user.
 
-## User-visible changes
+### User-visible changes
 
 * metabin(), metacor(), metacont(), metagen(), metainc(), metaprop(),
   metarate():
@@ -690,7 +693,7 @@
   - argument 'null.effect' considered internally for objects generated
     with metacor(), metagen(), metaprop(), and metarate()
 
-## Internal changes
+### Internal changes
  
 * baujat.meta(), metabias.meta(), metacum(), metainf(), forest.meta(),
   funnel.meta(), metareg(), print.meta(), radial.meta(),
@@ -698,9 +701,9 @@
   - changes to deal with excluded studies
 
 
-# meta, version 4.8-2 (2017-05-24)
+## meta, version 4.8-2 (2017-05-24)
 
-## Major changes
+### Major changes
  
 * Calculate confidence interval for I-squared in a meta-analysis with
   two studies if the heterogeneity statistic Q is larger than 2
@@ -710,7 +713,7 @@
 * In forest plots, printing of z-values can be disabled and labels for
   tests can be changed by user
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - new argument 'print.zval' to print (default) or not print z-value
@@ -749,7 +752,7 @@
   forest.meta() as CRAN only allows a run time below 10 seconds for
   examples provided on a help page
       
-## Internal changes
+### Internal changes
 
 * new internal function pvalQ() to calculate p-value from
   heterogeneity tests
@@ -776,9 +779,9 @@
   - use internal function pvalQ() instead of dedicated R code
 
 
-# meta, version 4.8-1 (2017-03-17)
+## meta, version 4.8-1 (2017-03-17)
 
-## User-visible changes
+### User-visible changes
 
 * metacum(), metainf():
   - bug fix for meta-analysis objects without continuity correction,
@@ -790,14 +793,14 @@
     internally)
 
 
-# meta, version 4.8-0 (2017-03-12)
+## meta, version 4.8-0 (2017-03-12)
 
-## Major changes
+### Major changes
  
 * Continuity correction can be specified for each individual study in
   meta-analysis with proportions or incidence rates
 
-## User-visible changes
+### User-visible changes
 
 * metabin(), metainc(), metaprop(), metarate():
   - argument 'incr' can be of same length as number of studies in
@@ -826,7 +829,7 @@
   - bug fix such that argument 'incr' is considered for incidence rate
     difference (sm = "IRD")
 
-## Internal changes
+### Internal changes
 
 * act on NOTE in 'R CMD check ... --as-cran' with R version, 3.4.0,
   i.e. register and declare native C routine kenscore
@@ -854,9 +857,9 @@
     R object is below 3.2
 
 
-# meta, version 4.7-1 (2017-02-13)
+## meta, version 4.7-1 (2017-02-13)
 
-## Major changes
+### Major changes
 
 * Null hypothesis for test of an overall effect can be specified for
   metacor(), metagen(), metaprop(), and metarate(); for all other
@@ -874,7 +877,7 @@
   are not printed if argument overall is FALSE and have to be
   explicitely requested using argument leftcols or rightcols)
   
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - print line with heterogeneity statistics directly below individual
@@ -912,7 +915,7 @@
   - new arguments print.I2, print.H, print.Rb, text.tau2, text.I2,
     text.Rb to modify printing of heterogeneity measures
 
-## Internal changes
+### Internal changes
     
 * summary.meta():
   - bug fix: list element 'ircale' renamed to 'irscale'
@@ -920,9 +923,9 @@
     **meta**, version 1.1-4
 
 
-# meta, version 4.7-0 (2016-12-16)
+## meta, version 4.7-0 (2016-12-16)
 
-## Major changes
+### Major changes
 
 * Forest plots:
   - forest plots with RevMan 5 and JAMA layout
@@ -941,7 +944,7 @@
 * Version of suggested R package **metafor** must be at least 1.9-9
   (due to change in arguments of rma.uni() and rma.glmm())
   
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - argument layout:
@@ -1036,7 +1039,7 @@
 * Several help pages updated, especially
   - forest.meta(), settings.meta(), meta-package
 
-## Internal changes
+### Internal changes
     
 * metabin(), metainc(), metaprop(), metarate(), metareg():
   - use argument test instead of knha and tdist for calls of rma.uni()
@@ -1058,9 +1061,9 @@
   - set defaults for new arguments: smrate, layout
 
 
-# meta, version 4.6-0 (2016-10-12)
+## meta, version 4.6-0 (2016-10-12)
 
-## Major changes
+### Major changes
 
 * New function metarate() to conduct meta-analysis of single incidence
   rates
@@ -1085,7 +1088,7 @@
   above 1 (only for proportions); note, respective values are set
   to 0 or 1
 
-## User-visible changes
+### User-visible changes
     
 * Help page with brief overview of **meta** package added
     
@@ -1134,7 +1137,7 @@
     print.summary.meta(), summary.meta(), trimfill.default(),
     trimfill.meta(), update.meta()
 
-## Internal changes
+### Internal changes
 
 * New function asin2ir() to backtransform arcsine transformed
   incidence rates
@@ -1154,9 +1157,9 @@
     objects with sm = "IRFT")
 
 
-# meta, version 4.5-0 (2016-08-17)
+## meta, version 4.5-0 (2016-08-17)
 
-## Major changes
+### Major changes
 
 * New features in forest plots:
   - printing of columns on left side of forest plot can be omitted
@@ -1181,7 +1184,7 @@
     proportions; before this update, the pscale argument was only
     available in forest.meta()
 
-## User-visible changes
+### User-visible changes
 
 * forest.meta():
   - argument ref considered for metaprop objects
@@ -1242,7 +1245,7 @@
     print.meta(), print.summary.meta(), summary.meta(),
     trimfill.meta(), trimfill.default(), update.meta()
 
-## Internal changes
+### Internal changes
 
 * New function bylabel() to print subgroup labels
 
@@ -1278,18 +1281,18 @@
   - bug fix such that use of argument method.tau works as expected
 
 
-# meta, version 4.4-1 (2016-06-20)
+## meta, version 4.4-1 (2016-06-20)
 
-## User-visible changes
+### User-visible changes
 
 * metareg(), update.meta():
   - bug fix such that use of these functions with metaprop objects
       using argument method = "GLMM" does not result in an error
 
 
-# meta, version 4.4-0 (2016-05-13)
+## meta, version 4.4-0 (2016-05-13)
 
-## Major changes
+### Major changes
 
 * Generalised linear mixed models (GLMMs) implemented by internal call
   of rma.glmm() from R package **metafor** by Wolfgang Viechtbauer
@@ -1304,7 +1307,7 @@
 * New arguments to change number of digits in printouts and forest
     plots
 
-## User-visible changes
+### User-visible changes
 
 * metabin(), metainc(), metaprop():
   - extension for meta-analysis based on GLMM; see method argument
@@ -1363,7 +1366,7 @@
     metabin(), metainc(), metaprop(), metareg(), forest(),
     print.meta(), print.summary.meta(), settings.meta(), update.meta()
 
-## Internal changes
+### Internal changes
 
 * New function:
   - format.NA() to print other text than "NA" for missing values
@@ -1402,7 +1405,7 @@
       func, argument, value, chksettings
 
 
-# meta, version 4.3-2 (2015-12-02)
+## meta, version 4.3-2 (2015-12-02)
 
 * Function metacont:
   - bug fix such that correct treatment estimates for individual studies
@@ -1414,7 +1417,7 @@
   number of observations
 
 
-# meta, version 4.3-1 (2015-11-13)
+## meta, version 4.3-1 (2015-11-13)
 
 * Function forest.meta:
   - new arguments 'digits.se', 'digits.tau2', 'digits.pval',
@@ -1444,7 +1447,7 @@ chkmiss, chknull, chknumeric, setchar:
 * Help page of R function forest.meta updated
 
 
-# meta, version 4.3-0 (2015-07-02)
+## meta, version 4.3-0 (2015-07-02)
 
 * Functions metabin, metainc, and metaprop:
   - missing values are allowed in numbers of events or patients
@@ -1484,7 +1487,7 @@ chkmiss, chknull, chknumeric, setchar:
   - link to RevMan webpage updated
 
 
-# meta, version 4.2-0 (2015-05-08)
+## meta, version 4.2-0 (2015-05-08)
 
 * Copyright changed (new names for Institute and Medical Center)
 
@@ -1519,7 +1522,7 @@ chkmiss, chknull, chknumeric, setchar:
   - updated RevMan 5 reference
 
 
-# meta, version 4.1-0 (2015-02-04)
+## meta, version 4.1-0 (2015-02-04)
 
 * Title of R package changed
 
@@ -1566,7 +1569,7 @@ chkmiss, chknull, chknumeric, setchar:
 * Help pages of metacont and update.meta functions updated
 
 
-# meta, version 4.0-3 (2015-01-06)
+## meta, version 4.0-3 (2015-01-06)
 
 * Function metabin:
   - bug fix such that printing an R object created using the
@@ -1574,7 +1577,7 @@ chkmiss, chknull, chknumeric, setchar:
   study has zero events in both groups
 
 
-# meta, version 4.0-2 (2014-12-06)
+## meta, version 4.0-2 (2014-12-06)
 
 * Function metabin:
   - bug fix such that use of Peto method does not result in an error
@@ -1589,16 +1592,16 @@ chkmiss, chknull, chknumeric, setchar:
   argument tau.preset is not NULL
 
 
-# meta, version 4.0-1 (2014-11-19)
+## meta, version 4.0-1 (2014-11-19)
 
 * Function forest.meta:
   - bug fix such that function can be used with subgroups and additional
   columns (arguments leftcols and rightcols)
 
 
-# meta, version 4.0-0 (2014-11-19)
+## meta, version 4.0-0 (2014-11-19)
 
-## Major revision
+### Major revision
 
 This update has been declared as major revision as R code to conduct
 subgroup analyses has been moved from R functions summary.meta and
@@ -1616,7 +1619,7 @@ Option 3.
 Furthermore, several checks of function arguments have been implented
 in version 4.0-0 of meta.
 
-## Details
+### Details
 
 * Function addvar has been removed from R package **meta** (remaining
   functionality provided by forest.meta function)
@@ -1666,7 +1669,7 @@ in version 4.0-0 of meta.
 * Several help pages updated.
 
 
-# meta, version 3.8-0 (2014-09-12)
+## meta, version 3.8-0 (2014-09-12)
 
 * Functions forest.meta, funnel.default, funnel.meta, metabin, metacor,
 metacr, metagen, metainc, metaprop, print.meta, print.summary.meta,
@@ -1705,7 +1708,7 @@ summary.meta, trimfill.default, trimfill.meta:
   - updated to reflect changes in version 3.8-0
 
 
-# meta, version 3.7-1 (2014-07-29)
+## meta, version 3.7-1 (2014-07-29)
 
 * Function forest.meta:
   - bug fix such that lower and upper confidence interval limits will be
@@ -1719,7 +1722,7 @@ summary.meta, trimfill.default, trimfill.meta:
   - examples using argument 'sortvar' added
 
 
-# meta, version 3.7-0 (2014-07-11)
+## meta, version 3.7-0 (2014-07-11)
 
 * Function metaprop:
   - new argument 'method.ci' to implement various methods to calculate
@@ -1790,7 +1793,7 @@ trimfill.default, trimfill.meta:
   the between-study variance
 
 
-# meta, version 3.6.0 (2013-05-27)
+## meta, version 3.6.0 (2013-05-27)
 
 * New functions:
   - baujat and baujat.meta
@@ -1826,7 +1829,7 @@ trimfill.default, trimfill.meta:
   - trimfill and trimfill.meta
 
 
-# meta, version 3.5-1 (2014-05-14)
+## meta, version 3.5-1 (2014-05-14)
 
 * Function metabin:
   - Inverse variance method used instead of Mantel-Haenszel method if
@@ -1852,7 +1855,7 @@ trimfill.default, trimfill.meta:
 * Some help pages (slightly) updated.
 
 
-# meta, version 3.5-0 (2014-04-19)
+## meta, version 3.5-0 (2014-04-19)
 
 * New R function settings.meta to define and print default settings
   for meta-analyses in R package **meta**
@@ -1881,7 +1884,7 @@ trimfill.default, trimfill.meta:
 * Several help pages updated.
 
 
-# meta, version 3.2-1 (2014-03-26)
+## meta, version 3.2-1 (2014-03-26)
 
 * Function forest.meta:
   - bug fix such that correct confidence limits for individual studies
@@ -1890,7 +1893,7 @@ trimfill.default, trimfill.meta:
   3.0-0 of meta)
 
 
-# meta, version 3.2-0 (2014-03-12)
+## meta, version 3.2-0 (2014-03-12)
 
 * Functions metabin, metacont, metacor, metagen, metainc, metaprop:
   - heterogeneity statistics I-squared and H added to R object
@@ -1943,7 +1946,7 @@ trimfill.default, trimfill.meta:
 * Some help pages updated
 
 
-# meta, version 3.1-2 (2013-12-01)
+## meta, version 3.1-2 (2013-12-01)
 
 * Function forest.meta:
   - bug fix such that forest plot with subgroups will not result in an
@@ -1951,14 +1954,14 @@ trimfill.default, trimfill.meta:
     bug has been introduced in version 3.1-1 of **meta**)
 
 
-# meta, version 3.1-1 (2013-11-19)
+## meta, version 3.1-1 (2013-11-19)
 
 * Function forest.meta:
   - bug fix such that random effects estimate will be printed for
     subgroups for metaprop objects using summary measure "PFT"
 
 
-# meta, version 3.1-0 (2013-11-11)
+## meta, version 3.1-0 (2013-11-11)
 
 * New R function metainc (meta-analysis of incidence rates)
 
@@ -2003,9 +2006,9 @@ print.summary.meta, update.meta, catmeth, xlab:
 * New datasets smoking and lungcancer (example datasets for R function metainc)
 
 
-# meta, version 3.0-1 (2013-09-17)
+## meta, version 3.0-1 (2013-09-17)
 
-## Major revision
+### Major revision
 
 This update has been declared as major revision as the user interface
 has been changed by dropping arguments for the following functions:
@@ -2017,7 +2020,7 @@ has been changed by dropping arguments for the following functions:
 This functionality is now provided by R function update.meta - see
 help page of R function update.meta for further details.
 
-## Details
+### Details
 
 * New function update.meta
   - update an existing meta-analysis object which was created with R
@@ -2093,7 +2096,7 @@ help page of R function update.meta for further details.
 * Several help pages updated.
 
 
-# meta, version 2.5-1 (2013-08-09)
+## meta, version 2.5-1 (2013-08-09)
 
 * Function forest.meta:
   - new argument just.studlab to change justification of study labels
@@ -2109,7 +2112,7 @@ help page of R function update.meta for further details.
     **meta**)
 
 
-# meta, version 2.5-0 (2013-07-25)
+## meta, version 2.5-0 (2013-07-25)
 
 * Function metacr:
   - new arguments prediction and level.predict (prediction interval
@@ -2140,7 +2143,7 @@ help page of R function update.meta for further details.
 * Several help pages updated
 
 
-# meta, version 2.4-1 (2013-06-20)
+## meta, version 2.4-1 (2013-06-20)
 
 * Function metaprop:
   - bug fix such that call of forest.meta function with metaprop object
@@ -2172,7 +2175,7 @@ help page of R function update.meta for further details.
   - example to generate forest plot added
 
 
-# meta, version 2.4-0 (2013-06-17)
+## meta, version 2.4-0 (2013-06-17)
 
 * Functions metagen, metabin, metacont, metaprop, metacor:
   - new arguments prediction and level.predict
@@ -2214,7 +2217,7 @@ help page of R function update.meta for further details.
   subgroups (argument tau.common)
 
 
-# meta, version 2.3-0 (2013-05-12)
+## meta, version 2.3-0 (2013-05-12)
 
 * Function forest.meta:
   - modified such that fixed effect and random effects estimates and
@@ -2227,7 +2230,7 @@ help page of R function update.meta for further details.
     zero events in both groups
 
 
-# meta, version 2.2-1 (2013-03-20)
+## meta, version 2.2-1 (2013-03-20)
 
 * Function forest.meta:
   - new argument lab.NA (default: lab.NA=".") to label NAs (in older
@@ -2244,7 +2247,7 @@ help page of R function update.meta for further details.
   NAs were provided in the first function argument
 
 
-# meta, version 2.2-0 (2013-03-12)
+## meta, version 2.2-0 (2013-03-12)
 
 * Function metabin:
   - modified so that studies with all events in both groups will be
@@ -2264,7 +2267,7 @@ help page of R function update.meta for further details.
   range
 
 
-# meta, version 2.1-4 (2012-11-29)
+## meta, version 2.1-4 (2012-11-29)
 
 * Functions forest.meta, metacum, metainf and print.meta:
   - modified so that backtransformation of Freeman-Tukey Double arcsine
@@ -2280,7 +2283,7 @@ help page of R function update.meta for further details.
   - new argument n.harmonic.mean documented
 
 
-# meta, version 2.1-3 (2012-11-20)
+## meta, version 2.1-3 (2012-11-20)
 
 * Function forest.meta:
   - modified so that the function works for an object of class
@@ -2289,7 +2292,7 @@ help page of R function update.meta for further details.
   'Error in if (col$range[1] <= TE.fixed & TE.fixed <= col$range[2]) ...'
 
 
-# meta, version 2.1-2 (2012-10-25)
+## meta, version 2.1-2 (2012-10-25)
 
 * Functions forest.meta, metacum, metainf, summary.meta:
   - modified so that the function works if argument 'method.tau' is
@@ -2302,7 +2305,7 @@ help page of R function update.meta for further details.
   meta-analysis object as default
 
 
-# meta, version 2.1-1 (2012-08-12)
+## meta, version 2.1-1 (2012-08-12)
 
 * Function summary.meta:
   - list element 'k0' added to returned object for trim-and-fill method
@@ -2311,7 +2314,7 @@ help page of R function update.meta for further details.
   - print number of added studies for trim-and-fill method
 
 
-# meta, version 2.1-0 (2012-05-18)
+## meta, version 2.1-0 (2012-05-18)
 
 * Functions trimfill.meta and trimfill.default:
   - arguments hakn and method.tau added
@@ -2345,7 +2348,7 @@ help page of R function update.meta for further details.
   - changed default for argument pch documented
 
 
-# meta, version 2.0-4 (2012-05-03)
+## meta, version 2.0-4 (2012-05-03)
 
 * Function metaprop:
   - modified so that variance estimate for log- and logit-transformation
@@ -2356,7 +2359,7 @@ pages:
   - metabin, metaprop
 
 
-# meta, version 2.0-2 (2012-04-17)
+## meta, version 2.0-2 (2012-04-17)
 
 * Function metaprop:
   - modified so that a warning is printed if any sample size (argument
@@ -2364,22 +2367,22 @@ pages:
   transformation, i.e. sm="PFT"
 
 
-# meta, version 2.0-1 (2012-04-04)
+## meta, version 2.0-1 (2012-04-04)
 
 * Functions metabin, metacont, metacor, metagen, metaprop:
   - modified so that these functions can be used with arguments subset
   and byvar of different length
 
 
-# meta, version 2.0-0 (2012-03-20)
+## meta, version 2.0-0 (2012-03-20)
 
-## Major revision
+### Major revision
 
 R package **meta** linked to R package **metafor** to provide
 additional statistical methods, e.g. meta-regression and other
 estimates for tau-squared (REML, ...)
 
-## Details
+### Details
 
 * New functions:
   - metareg              (meta-regression)
@@ -2516,7 +2519,7 @@ estimates for tau-squared (REML, ...)
 * Some new help pages added
 
 
-# meta, version 1.6-1 (2010-10-28)
+## meta, version 1.6-1 (2010-10-28)
 
 * Function forest.meta:
   - modified so that the number of events is printed in the
@@ -2550,7 +2553,7 @@ estimates for tau-squared (REML, ...)
   - read.mtv, read.rm5, metacr
 
 
-# meta, version 1.6-0 (2010-06-21)
+## meta, version 1.6-0 (2010-06-21)
 
 * Function forest.meta:
   - for subgroup analyses (i.e. groups defined by argument 'byvar'),
@@ -2605,7 +2608,7 @@ estimates for tau-squared (REML, ...)
   - forest.meta, metabin, print.summary.meta, summary.meta
 
 
-# meta, version 1.5-0 (2010-05-07)
+## meta, version 1.5-0 (2010-05-07)
 
 * Version jump to 1.5-0 as several changes have been implemented.
 
@@ -2673,7 +2676,7 @@ estimates for tau-squared (REML, ...)
 * Use file NEWS instead of ChangeLog to document changes
 
 
-# meta, version 1.1-8 (2010-01-12)
+## meta, version 1.1-8 (2010-01-12)
 
 * Functions summary.meta, print.summary.meta:
   - modified so that a test for subgroup differences is not calculated
@@ -2681,28 +2684,28 @@ estimates for tau-squared (REML, ...)
     binary data
 
 
-# meta, version 1.1-7 (2010-01-11)
+## meta, version 1.1-7 (2010-01-11)
 
 * Functions metabin, metacont, metagen, metaprop:
   - modified so that a sensible default value is used for argument bylab
    if argument byvar is not missing
 
 
-# meta, version 1.1-6 (2010-01-11)
+## meta, version 1.1-6 (2010-01-11)
 
 * Function forest:
   - modified so that additional columns are printed in the correct order
    if argument sort or order is used
 
 
-# meta, version 1.1-5 (2009-12-21)
+## meta, version 1.1-5 (2009-12-21)
 
 * Function forest (incl. help page):
   - new argument digits specifying minimal number of significant digits
    for treatment estimate and its confidence interval
 
 
-# meta, version 1.1-4 (2009-11-04)
+## meta, version 1.1-4 (2009-11-04)
 
 * Function summary.meta:
   - modified so that results for subgroups (if byvar != NULL)
@@ -2727,13 +2730,13 @@ estimates for tau-squared (REML, ...)
   - new example with meta-analysis of survival data
 
 
-# meta, version 1.1-3 (2009-10-30)
+## meta, version 1.1-3 (2009-10-30)
 
 * New functions trimfill, trimfill.default and trimfill.meta:
   - generic method for trim-and-fill method
 
 
-# meta, version 1.1-2 (2009-10-09)
+## meta, version 1.1-2 (2009-10-09)
 
 * New functions labbe, labbe.default, labbe.metabin:
   - produce L'Abbe plots
@@ -2771,7 +2774,7 @@ estimates for tau-squared (REML, ...)
    metabin, metacont, metagen
 
 
-# meta, version 1.0-6 (2009-08-31)
+## meta, version 1.0-6 (2009-08-31)
 
 *  First major version released on CRAN (no ChangeLog available)
 

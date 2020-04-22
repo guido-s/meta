@@ -1092,6 +1092,25 @@ metaprop <- function(event, n, studlab,
   ##
   event <- int2num(event)
   n     <- int2num(n)
+  ##
+  ## Check for whole numbers
+  ##
+  if (method.ci != "NAsm") {
+    if (any(!is.wholenumber(event), na.rm = TRUE)) {
+      warning("Normal approximation confidence interval ",
+              "(argument method.ci = \"NAsm\") used as\n",
+              "at least one number of events contains a non-integer value.",
+              call. = FALSE)
+      method.ci <- "NAsm"
+    }
+    else if (any(!is.wholenumber(n), na.rm = TRUE)) {
+      warning("Normal approximation confidence interval ",
+              "(argument method.ci = \"NAsm\") used as\n",
+              "at least one sample size contains a non-integer value.",
+              call. = FALSE)
+      method.ci <- "NAsm"
+    }
+  }
   
   
   ##

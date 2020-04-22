@@ -82,7 +82,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
-                        warn = x$warn)
+                        warn = x$warn,
+                        control = x$control)
     ##
     else if (cor)
       meta1 <- metacor(x$cor[sel], x$n[sel],
@@ -93,7 +94,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        hakn = x$hakn,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
-                       tau.preset = tau.preset, TE.tau = x$TE.tau)
+                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       control = x$control)
     ##
     else if (gen)
       meta1 <- metagen(x$TE[sel], x$seTE[sel],
@@ -138,7 +140,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
-                        warn = x$warn)
+                        warn = x$warn,
+                        control = x$control)
     ##
     else if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
@@ -154,7 +157,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
-                        warn = x$warn)
+                        warn = x$warn,
+                        control = x$control)
     ##
     else if (rate)
       meta1 <- metarate(x$event[sel], x$time[sel],
@@ -285,20 +289,21 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       ##
       ## Test for subgroup differences
       ##
-      oldopts <- options(warn = -1)
-      glmm.fixed.Q <- rma.glmm(xi = x$event, ni = x$n,
-                               mods = mod.Q,
-                               method = "FE", test = ifelse(x$hakn, "t", "z"),
-                               level = 100 * x$level.comb,
-                               measure = "PLO", ...)
+      glmm.fixed.Q <-
+        suppressWarnings(rma.glmm(xi = x$event, ni = x$n,
+                                  mods = mod.Q,
+                                  method = "FE",
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "PLO", ...))
       ##
-      glmm.random.Q <- rma.glmm(xi = x$event, ni = x$n,
-                                mods = mod.Q,
-                                method = x$method.tau,
-                                test = ifelse(x$hakn, "t", "z"),
-                                level = 100 * x$level.comb,
-                                measure = "PLO", ...)
-      options(oldopts)
+      glmm.random.Q <-
+        suppressWarnings(rma.glmm(xi = x$event, ni = x$n,
+                                  mods = mod.Q,
+                                  method = x$method.tau,
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "PLO", ...))
     }
     ##
     else if (rate) {
@@ -317,20 +322,21 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       ##
       ## Test for subgroup differences
       ##
-      oldopts <- options(warn = -1)
-      glmm.fixed.Q <- rma.glmm(xi = x$event, ti = x$time,
-                               mods = mod.Q,
-                               method = "FE", test = ifelse(x$hakn, "t", "z"),
-                               level = 100 * x$level.comb,
-                               measure = "IRLN", control = x$control, ...)
+      glmm.fixed.Q <-
+        suppressWarnings(rma.glmm(xi = x$event, ti = x$time,
+                                  mods = mod.Q,
+                                  method = "FE",
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "IRLN", control = x$control, ...))
       ##
-      glmm.random.Q <- rma.glmm(xi = x$event, ti = x$time,
-                                mods = mod.Q,
-                                method = x$method.tau,
-                                test = ifelse(x$hakn, "t", "z"),
-                                level = 100 * x$level.comb,
-                                measure = "IRLN", control = x$control, ...)
-      options(oldopts)
+      glmm.random.Q <-
+        suppressWarnings(rma.glmm(xi = x$event, ti = x$time,
+                                  mods = mod.Q,
+                                  method = x$method.tau,
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "IRLN", control = x$control, ...))
     }
     ##
     else if (inc) {
@@ -353,24 +359,25 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       ##
       ## Test for subgroup differences
       ##
-      oldopts <- options(warn = -1)
-      glmm.fixed.Q <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                               x2i = x$event.c, t2i = x$time.c,
-                               mods = mod.Q,
-                               method = "FE", test = ifelse(x$hakn, "t", "z"),
-                               model = x$model.glmm,
-                               level = 100 * x$level.comb,
-                               measure = "IRR", control = x$control, ...)
+      glmm.fixed.Q <-
+        suppressWarnings(rma.glmm(x1i = x$event.e, t1i = x$time.e,
+                                  x2i = x$event.c, t2i = x$time.c,
+                                  mods = mod.Q,
+                                  method = "FE",
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  model = x$model.glmm,
+                                  level = 100 * x$level.comb,
+                                  measure = "IRR", control = x$control, ...))
       ##
-      glmm.random.Q <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                                x2i = x$event.c, t2i = x$time.c,
-                                mods = mod.Q,
-                                method = x$method.tau,
-                                model = x$model.glmm,
-                                test = ifelse(x$hakn, "t", "z"),
-                                level = 100 * x$level.comb,
-                                measure = "IRR", control = x$control, ...)
-      options(oldopts)
+      glmm.random.Q <-
+        suppressWarnings(rma.glmm(x1i = x$event.e, t1i = x$time.e,
+                                  x2i = x$event.c, t2i = x$time.c,
+                                  mods = mod.Q,
+                                  method = x$method.tau,
+                                  model = x$model.glmm,
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "IRR", control = x$control, ...))
     }
     ##
     else if (bin) {
@@ -393,24 +400,25 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       ##
       ## Test for subgroup differences
       ##
-      oldopts <- options(warn = -1)
-      glmm.fixed.Q <- rma.glmm(ai = x$event.e, n1i = x$n.e,
-                               ci = x$event.c, n2i = x$n.c,
-                               mods = mod.Q,
-                               method = "FE", test = ifelse(x$hakn, "t", "z"),
-                               model = x$model.glmm,
-                               level = 100 * x$level.comb,
-                               measure = "OR", control = x$control, ...)
+      glmm.fixed.Q <-
+        suppressWarnings(rma.glmm(ai = x$event.e, n1i = x$n.e,
+                                  ci = x$event.c, n2i = x$n.c,
+                                  mods = mod.Q,
+                                  method = "FE",
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  model = x$model.glmm,
+                                  level = 100 * x$level.comb,
+                                  measure = "OR", control = x$control, ...))
       ##
-      glmm.random.Q <- rma.glmm(ai = x$event.e, n1i = x$n.e,
-                                ci = x$event.c, n2i = x$n.c,
-                                mods = mod.Q,
-                                method = x$method.tau,
-                                model = x$model.glmm,
-                                test = ifelse(x$hakn, "t", "z"),
-                                level = 100 * x$level.comb,
-                                measure = "OR", control = x$control, ...)
-      options(oldopts)
+      glmm.random.Q <-
+        suppressWarnings(rma.glmm(ai = x$event.e, n1i = x$n.e,
+                                  ci = x$event.c, n2i = x$n.c,
+                                  mods = mod.Q,
+                                  method = x$method.tau,
+                                  model = x$model.glmm,
+                                  test = ifelse(x$hakn, "t", "z"),
+                                  level = 100 * x$level.comb,
+                                  measure = "OR", control = x$control, ...))
     }
     ##
     TE.fixed.w   <- as.numeric(glmm.fixed$b)
@@ -456,8 +464,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
     pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
     ##
-    Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w)$Q
-    Q.b.random <- metagen(TE.random.w, seTE.random.w)$Q
+    Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w, method.tau = "DL")$Q
+    Q.b.random <- metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
     ##
     df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
     ##

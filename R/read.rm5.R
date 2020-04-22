@@ -353,11 +353,9 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   tdata$TE <- as.numeric(gsub(",", "", tdata$TE))
   ## No warning concerning infinite values for
   ## seTE, lower and upper CI bound
-  oldopts <- options(warn = -1)
-  tdata$seTE <- as.numeric(gsub(",", "", tdata$seTE))
-  tdata$lower <- as.numeric(gsub(",", "", tdata$lower))
-  tdata$upper <- as.numeric(gsub(",", "", tdata$upper))
-  options(oldopts)
+  tdata$seTE <- suppressWarnings(as.numeric(gsub(",", "", tdata$seTE)))
+  tdata$lower <- suppressWarnings(as.numeric(gsub(",", "", tdata$lower)))
+  tdata$upper <- suppressWarnings(as.numeric(gsub(",", "", tdata$upper)))
   ##
   tdata$weight <- as.numeric(gsub(",", "", tdata$weight))
   tdata$Q <- as.numeric(gsub(",", "", tdata$Q))
