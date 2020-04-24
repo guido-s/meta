@@ -37,6 +37,10 @@
 * metaprop():
   - can be used with non-integer number of events and sample sizes
   
+* metabias.meta(), metabias.default():
+  - third component of list element 'estimate' renamed from "slope" to
+    "intercept" for linear regression tests
+  
 * settings.meta():
   - new possible general settings: "iqwig5" and "iqwig6", respectively
 
