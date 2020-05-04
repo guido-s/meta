@@ -31,6 +31,7 @@ forest(x, ...)
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
   smlab,
+  calcwidth.pooled = overall,
   ...
 )
 
@@ -324,6 +325,10 @@ be printed in scientific notation, e.g., 1.2345e-01 instead of
 
 \item{smlab}{A label for the summary measurex (printed at top of
 figure).}
+
+\item{calcwidth.pooled}{A logical indicating whether text for fixed
+effect and random effects model should be considered to calculate
+width of the column with study labels.}
 
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
@@ -827,10 +832,6 @@ the left side of forest plot and the forest plot.}
 \item{colgap.forest.right}{Either a character string or a
 \code{\link[grid]{unit}} object specifying gap between column on
 the right side of forest plot and the forest plot.}
-
-\item{calcwidth.pooled}{A logical indicating whether text for fixed
-effect and random effects model should be considered to calculate
-width of the column with study labels.}
 
 \item{calcwidth.fixed}{A logical indicating whether text given in
 arguments \code{text.fixed} and \code{text.fixed.w} should be

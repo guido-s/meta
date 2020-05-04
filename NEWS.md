@@ -1,4 +1,4 @@
-## meta, version 4.12-0 (2020-mm-dd)
+## meta, version 4.12-0 (2020-05-04)
 
 ### Major changes
 

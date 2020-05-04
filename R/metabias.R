@@ -496,6 +496,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
               (n.e - event.e + n.c - event.c)
             V <- n.e * n.c * (event.e + event.c) /  
               ((n.e + n.c) * (n.e - event.e + n.c - event.c))
+            V <- (n.e + n.c) / 4 *
+              (event.e + event.c) / (n.e - event.e + n.c - event.c)
           }
           else {
             if (x$sm != "OR")

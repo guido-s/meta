@@ -958,6 +958,7 @@ forest.metabind <- function(x,
                             big.mark = gs("big.mark"),
                             ##
                             smlab,
+                            calcwidth.pooled = overall,
                             ...) {
   
   
@@ -985,6 +986,7 @@ forest.metabind <- function(x,
   chknumeric(digits.I2, min = 0, single = TRUE)
   ##
   chklogical(scientific.pval)
+  chklogical(calcwidth.pooled)
   ##
   addargs <- names(list(...))
   ##
@@ -1112,9 +1114,8 @@ forest.metabind <- function(x,
                       "Fixed Effect Model"
                     else
                       "Random Effects Model",
-                    "\n(",
-                    xlab(x$sm, x$backtransf),
-                    ")")
+                    if (x$sm != "")
+                      paste0("\n(", xlab(x$sm, x$backtransf), ")"))
   
   
   class(x) <- c("meta", "is.metabind")
@@ -1125,6 +1126,7 @@ forest.metabind <- function(x,
          rightcols = rightcols, rightlabs = rightlabs,
          overall = overall, subgroup = subgroup,
          hetstat = hetstat, overall.hetstat = overall.hetstat,
+         calcwidth.pooled = calcwidth.pooled,
          lab.NA = lab.NA, smlab = smlab,
          ##
          digits = digits,
