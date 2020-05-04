@@ -4,11 +4,11 @@
 
 * Sample size method for meta-analysis of binary data with the odds
   ratio as summary measure implemented ([Bakbergenuly et al.,
-  2020](https:www.doi.org/10.1002/jrsm.1404))
+  2020](https://www.doi.org/10.1002/jrsm.1404))
 
 * Ad hoc variance correction for Hartung-Knapp method in the case of
   very homogeneous study results implemented ([Knapp and Hartung,
-  2003](https:www.doi.org/10.1002/sim.1482); [IQWiG, General Methods:
+  2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General Methods:
   Draft of Version
   6.0](https://www.iqwig.de/en/methods/methods-paper.3020.html))
 
@@ -179,7 +179,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https:www.doi.org/10.1136/ebmental-2019-300117)
+  al. (2019)](https://www.doi.org/10.1136/ebmental-2019-300117)
 
 ### User-visible changes
 
