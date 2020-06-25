@@ -225,70 +225,6 @@
 #' metabias(m2, k.min = 5)
 #' 
 #' @rdname metabias
-#' @export metabias
-
-
-metabias <- function(x, ...) 
-  UseMethod("metabias")
-
-
-
-
-
-#' @rdname metabias
-#' @method metabias default
-#' @export
-#' @export metabias.default
-
-
-metabias.default <- function(x, seTE,
-                             method.bias = "linreg",
-                             plotit = FALSE, correct = FALSE,
-                             k.min = 10, ...) {
-  
-  
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
-  k.All <- length(x)
-  ##
-  chknumeric(x)
-  chknumeric(seTE)
-  ##
-  fun <- "metabias"
-  chklength(seTE, k.All, fun)
-  ##
-  method.bias <- setchar(method.bias, c("rank", "linreg", "mm"))
-  
-  
-  ##
-  ##
-  ## (2) Do meta-analysis
-  ##
-  ##
-  m <- metagen(x, seTE, method.tau.ci = "")
-  
-  
-  ##
-  ##
-  ## (3) Conduct test for funnel plot asymmetry
-  ##
-  ##
-  res <- metabias(m, method.bias = method.bias,
-                  plotit = plotit, correct = correct,
-                  k.min = k.min, ...)
-  
-  
-  res
-}
-
-
-
-
-
-#' @rdname metabias
 #' @method metabias meta
 #' @export
 #' @export metabias.meta
@@ -696,4 +632,68 @@ print.metabias <- function(x, ...) {
   }
   
   invisible(NULL)
+}
+
+
+
+
+
+#' @rdname metabias
+#' @export metabias
+
+
+metabias <- function(x, ...) 
+  UseMethod("metabias")
+
+
+
+
+
+#' @rdname metabias
+#' @method metabias default
+#' @export
+#' @export metabias.default
+
+
+metabias.default <- function(x, seTE,
+                             method.bias = "linreg",
+                             plotit = FALSE, correct = FALSE,
+                             k.min = 10, ...) {
+  
+  
+  ##
+  ##
+  ## (1) Check arguments
+  ##
+  ##
+  k.All <- length(x)
+  ##
+  chknumeric(x)
+  chknumeric(seTE)
+  ##
+  fun <- "metabias"
+  chklength(seTE, k.All, fun)
+  ##
+  method.bias <- setchar(method.bias, c("rank", "linreg", "mm"))
+  
+  
+  ##
+  ##
+  ## (2) Do meta-analysis
+  ##
+  ##
+  m <- metagen(x, seTE, method.tau.ci = "")
+  
+  
+  ##
+  ##
+  ## (3) Conduct test for funnel plot asymmetry
+  ##
+  ##
+  res <- metabias(m, method.bias = method.bias,
+                  plotit = plotit, correct = correct,
+                  k.min = k.min, ...)
+  
+  
+  res
 }

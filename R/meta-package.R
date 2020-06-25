@@ -24,19 +24,20 @@
 #' }
 #' \item Several plots for meta-analysis:
 #' \itemize{
-#'  \item Forest plot (\code{\link{forest}})
-#'  \item Funnel plot (\code{\link{funnel}})
-#'  \item Galbraith plot / radial plot (\code{\link{radial}})
+#'  \item Forest plot (\code{\link{forest.meta}}, \code{\link{forest.metabind}})
+#'  \item Funnel plot (\code{\link{funnel.meta}})
+#'  \item Galbraith plot / radial plot (\code{\link{radial.meta}})
 #'  \item L'Abbe plot for meta-analysis with binary outcome data
-#'   (\code{\link{labbe}})
+#'   (\code{\link{labbe.metabin}}, \code{\link{labbe.default}})
 #'  \item Baujat plot to explore heterogeneity in meta-analysis
-#'   (\code{\link{baujat}})
+#'   (\code{\link{baujat.meta}})
 #'  \item Bubble plot to display the result of a meta-regression
-#'   (\code{\link{bubble}})
+#'   (\code{\link{bubble.metareg}})
 #' }
 #' \item Statistical tests for funnel plot asymmetry
-#'  (\code{\link{metabias}}) and trim-and-fill method
-#'  (\code{\link{trimfill}}) to evaluate bias in meta-analysis
+#'  (\code{\link{metabias.meta}}, \code{\link{metabias.rm5}}) and
+#'  trim-and-fill method (\code{\link{trimfill.meta}},
+#'  \code{\link{trimfill.default}}) to evaluate bias in meta-analysis
 #' \item Cumulative meta-analysis (\code{\link{metacum}}) and
 #'   leave-one-out meta-analysis (\code{\link{metainf}})
 #' \item Meta-regression (\code{\link{metareg}})
@@ -196,7 +197,8 @@
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion tail
 #'
-#' @importFrom metafor rma.uni rma.glmm predict.rma confint.rma.uni escalc
+#' @importFrom metafor forest funnel baujat labbe radial trimfill
+#'   rma.uni rma.glmm predict.rma confint.rma.uni escalc
 #'
 #' @importFrom lme4 glmer
 #'

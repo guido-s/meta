@@ -1,9 +1,9 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 4.12-0
-Date: 2020-05-04
-Depends: R (>= 2.9.1)
-Imports: grid, metafor (>= 2.1-0), lme4, CompQuadForm
+Version: 4.13-0
+Date: 2020-06-25
+Depends: R (>= 2.9.1), metafor (>= 2.1-0)
+Imports: grid, lme4, CompQuadForm
 Suggests: BiasedUrn
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),

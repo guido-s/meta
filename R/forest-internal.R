@@ -221,20 +221,19 @@ draw.ci.square <- function(TE, lower, upper,
     ##
     ## Draw lines in colour "col.inside" if totally inside rect
     ##
-    if (!is.na(size)) {
-      TElineCol <- if (size > 0 &&
-                       (convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
-                                 "native", valueOnly = TRUE) > upper) &&
-                       (convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
-                                 "native", valueOnly = TRUE) < lower))
-                     col.inside
-                   else
-                     col
-    }
+    TElineCol <- col
+    ##
+    if ((!is.na(size) & !is.na(lower) & !is.na(upper)))
+      if (size > 0 &&
+          (convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
+                    "native", valueOnly = TRUE) > upper) &&
+          (convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
+                    "native", valueOnly = TRUE) < lower))
+        TElineCol <- col.inside
   }
   ##
   if (!is.na(TE) && (TE >= min & TE <= max)) {
-    if (!is.na(size) && size > 0) {
+    if (!is.na(size) && size > 0 && !is.na(lower) && !is.na(upper)) {
       grid.rect(x = unit(TE, "native"),
                 width = unit(size, "snpc"),
                 height = unit(size, "snpc"),
@@ -253,14 +252,15 @@ draw.ci.square <- function(TE, lower, upper,
     ## Draw lines in colour "col.inside" if totally inside rect
     ##
     if (!is.na(size)) {
-      lineCol <- if (size > 0 &&
-                     (convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
-                               "native", valueOnly = TRUE) > upper) &&
-                     (convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
-                               "native", valueOnly = TRUE) < lower))
-                   col.inside
-                 else
-                   col
+      lineCol <- col
+      ##
+      if (!is.na(lower) & !is.na(upper))
+        if (size > 0 &&
+            (convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
+                      "native", valueOnly = TRUE) > upper) &&
+            (convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
+                      "native", valueOnly = TRUE) < lower))
+          lineCol <- col.inside
       ##
       ## Draw arrow if exceed col range
       ## convertX() used to convert between coordinate systems

@@ -4,9 +4,9 @@
 #' Draws a forest plot in the active graphics window (using grid
 #' graphics system).
 #' 
-#' @aliases forest forest.meta forest.metabind
+#' @aliases forest forest.meta
 #' 
-#' @param x An object of class \code{meta} or \code{metabind}.
+#' @param x An object of class \code{meta}.
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
 #' @param studlab A logical indicating whether study labels should be
@@ -489,10 +489,13 @@
 #' 
 #' @details
 #' A forest plot, also called confidence interval plot, is drawn in
-#' the active graphics window. The \code{forest} function is based on
-#' the grid graphics system. In order to print the forest plot, (i)
-#' resize the graphics window, (ii) either use
-#' \code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}.
+#' the active graphics window. The forest functions in R package
+#' \bold{meta} are based on the grid graphics system. In order to
+#' print the forest plot, resize the graphics window and either use
+#' \code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
+#' possibility is to create a file using \code{\link{pdf}},
+#' \code{\link{png}}, or \code{\link{svg}} and to specify the width and
+#' height of the graphic (see Examples).
 #' 
 #' By default, treatment estimates and confidence intervals are
 #' plotted in the following way:
@@ -725,9 +728,7 @@
 #' \item row with results for fixed effect model (\code{hetstat =
 #' "fixed"}),
 #' \item row with results for random effects model (\code{hetstat =
-#' "random"}),
-#' \item rows with 'study' information (\code{hetstat = "study"}) -
-#'   only considered for \code{\link{metabind}} objects.
+#' "random"}).
 #' }
 #' Otherwise, information on heterogeneity is printed in dedicated rows.
 #' 
@@ -742,7 +743,7 @@
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{metagen}}, \code{\link{metabind}},
+#'   \code{\link{metagen}}, \code{\link{forest.metabind}},
 #'   \code{\link{settings.meta}}
 #' 
 #' @references
@@ -786,6 +787,12 @@
 #' 
 #' 
 #' \dontrun{
+#' # Create a PDF file forest-m1.pdf with the forest plot
+#' #
+#' pdf("forest-m1.pdf", width = 10, height = 3)
+#' forest(m1)
+#' dev.off()
+#' 
 #' # Sort studies by decreasing treatment effect within year subgroups
 #' #
 #' m2 <- update(m1, byvar = ifelse(year < 1987,
@@ -913,245 +920,7 @@
 #' #
 #' forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
 #' }
-#' 
-#' @rdname forest
-#' @export forest
-
-
-forest <- function(x, ...) 
-  UseMethod("forest")
-
-
-
-
-
-#' @rdname forest
-#' @method forest metabind
-#' @export
-#' @export forest.metabind
-
-
-forest.metabind <- function(x,
-                            leftcols,
-                            leftlabs,
-                            rightcols = c("effect", "ci"),
-                            rightlabs,
-                            ##
-                            overall = FALSE,
-                            subgroup = FALSE,
-                            hetstat = if (any(x$is.subgroup)) FALSE else "study",
-                            overall.hetstat = FALSE,
-                            ##
-                            lab.NA = "",
-                            ##
-                            digits = gs("digits.forest"),
-                            digits.se = gs("digits.se"),
-                            digits.zval = gs("digits.zval"),
-                            digits.pval = max(gs("digits.pval") - 2, 2),
-                            digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-                            digits.Q = gs("digits.Q"),
-                            digits.tau2 = gs("digits.tau2"),
-                            digits.tau = gs("digits.tau"),
-                            digits.I2 = max(gs("digits.I2") - 1, 0),
-                            ##
-                            scientific.pval = gs("scientific.pval"),
-                            big.mark = gs("big.mark"),
-                            ##
-                            smlab,
-                            calcwidth.pooled = overall,
-                            ...) {
-  
-  
-  ##
-  ##
-  ## (1) Check and set arguments
-  ##
-  ##
-  chkclass(x, "metabind")
-  ##
-  chklogical(overall)
-  chklogical(subgroup)
-  chklogical(overall.hetstat)
-  ##
-  chkchar(lab.NA)
-  ##
-  chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.se, min = 0, single = TRUE)
-  chknumeric(digits.zval, min = 0, single = TRUE)
-  chknumeric(digits.pval, min = 1, single = TRUE)
-  chknumeric(digits.pval.Q, min = 1, single = TRUE)
-  chknumeric(digits.Q, min = 0, single = TRUE)
-  chknumeric(digits.tau2, min = 0, single = TRUE)
-  chknumeric(digits.tau, min = 0, single = TRUE)
-  chknumeric(digits.I2, min = 0, single = TRUE)
-  ##
-  chklogical(scientific.pval)
-  chklogical(calcwidth.pooled)
-  ##
-  addargs <- names(list(...))
-  ##
-  idx <- charmatch(tolower(addargs), "hetstat", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
-    if (list(...)[["hetstat"]])
-      stop("Argument 'hetstat' must be FALSE for metabind objects.")
-  ##
-  idx <- charmatch(tolower(addargs), "comb.fixed", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
-    stop("Argument 'comb.fixed' cannot be used with metabind objects.")
-  ##
-  idx <- charmatch(tolower(addargs), "comb.random", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
-    stop("Argument 'comb.random' cannot be used with metabind objects.")
-  
-  x$k.w.orig <- x$k.w
-  
-  x$k.w <- x$k.all.w <- as.vector(table(x$data$name)[unique(x$data$name)])
-  
-  
-  missing.leftcols <- missing(leftcols)
-  ##
-  if (missing.leftcols) {
-    leftcols <- c("studlab", "k")
-    if (any(x$is.subgroup))
-      leftcols <- c(leftcols, "pval.Q.b")
-  }
-  ##
-  if (!is.logical(rightcols)) {
-    if ("pval.Q.b" %in% rightcols & "pval.Q.b" %in% leftcols)
-      leftcols <- leftcols[leftcols != "pval.Q.b"]
-    ##
-    if ("k" %in% rightcols & "k" %in% leftcols)
-      leftcols <- leftcols[leftcols != "k"]
-  }
-  ##
-  label.studlab <- ifelse(any(x$is.subgroup), "Subgroup", "Meta-Analysis")
-  ##
-  if (missing(leftlabs)) {
-    leftlabs <- rep(NA, length(leftcols))
-    leftlabs[leftcols == "studlab"] <- label.studlab
-    leftlabs[leftcols == "k"] <- "Number of\nStudies"
-    leftlabs[leftcols == "Q.b"] <- "Q.b"
-    leftlabs[leftcols == "tau2"] <- "Between-study\nvariance"
-    leftlabs[leftcols == "tau"] <- "Between-study\nSD"
-    leftlabs[leftcols == "pval.Q.b"] <- "Interaction\nP-value"
-    leftlabs[leftcols == "I2"] <- "I2"
-  }
-  ##
-  if (missing(rightlabs)) {
-    rightlabs <- rep(NA, length(rightcols))
-    rightlabs[rightcols == "studlab"] <- label.studlab
-    rightlabs[rightcols == "k"] <- "Number of\nStudies"
-    rightlabs[rightcols == "Q.b"] <- "Q.b"
-    rightlabs[rightcols == "tau2"] <- "Between-study\nvariance"
-    rightlabs[rightcols == "tau"] <- "Between-study\nSD"
-    rightlabs[rightcols == "pval.Q.b"] <- "Interaction\nP-value"
-    rightlabs[rightcols == "I2"] <- "I2"
-  }
-
-
-  ##
-  ## Set test for interaction
-  ##
-  if (any(x$is.subgroup)) {
-    if (x$comb.fixed) {
-      x$data$Q.b <- x$data$Q.b.fixed
-      x$data$pval.Q.b <- x$data$pval.Q.b.fixed
-    }
-    else {
-      x$data$Q.b <- x$data$Q.b.random
-      x$data$pval.Q.b <- x$data$pval.Q.b.random
-    }
-  }
-  
-  
-  ##
-  ## Round and round ...
-  ##
-  if (any(x$is.subgroup)) {
-    x$data$Q.b <- round(x$data$Q.b, digits.Q)
-    x$data$pval.Q.b <- formatPT(x$data$pval.Q.b,
-                                lab = FALSE,
-                                digits = digits.pval.Q,
-                                scientific = scientific.pval,
-                                lab.NA = lab.NA)
-    x$data$pval.Q.b <- rmSpace(x$data$pval.Q.b)
-  }
-  ##
-  x$data$tau2 <- formatPT(x$data$tau2, digits = digits.tau2,
-                          big.mark = big.mark,
-                          lab = FALSE, lab.NA = lab.NA)
-  ##
-  x$data$tau <- formatPT(x$data$tau, digits = digits.tau,
-                         big.mark = big.mark,
-                         lab = FALSE, lab.NA = lab.NA)
-  ##
-  I2.na <- is.na(x$data$I2)
-  x$data$I2 <- formatN(round(100 * x$data$I2, digits.I2),
-                       digits.I2, "")
-  x$data$lower.I2 <- formatN(round(100 * x$data$lower.I2,
-                                   digits.I2),
-                             digits.I2, "")
-  x$data$upper.I2 <- formatN(round(100 * x$data$upper.I2,
-                                   digits.I2),
-                             digits.I2, "")
-  ##
-  x$data$I2 <- paste0(x$data$I2, ifelse(I2.na, "", "%"))
-  x$data$lower.I2 <- paste0(x$data$lower.I2, ifelse(I2.na, "", "%"))
-  x$data$upper.I2 <- paste0(x$data$upper.I2, ifelse(I2.na, "", "%"))
-  ##
-  x$data$tau2 <- rmSpace(x$data$tau2)
-  x$data$tau <- rmSpace(x$data$tau)
-  ##
-  x$data$I2 <- rmSpace(x$data$I2)
-  x$data$lower.I2 <- rmSpace(x$data$lower.I2)
-  x$data$upper.I2 <- rmSpace(x$data$upper.I2)
-  ##
-  x$data$k <- as.character(x$data$k)
-  
-  
-  if (missing(smlab))
-    smlab <- paste0(if (x$comb.fixed)
-                      "Fixed Effect Model"
-                    else
-                      "Random Effects Model",
-                    if (x$sm != "")
-                      paste0("\n(", xlab(x$sm, x$backtransf), ")"))
-  
-  
-  class(x) <- c("meta", "is.metabind")
-  
-  
-  forest(x,
-         leftcols = leftcols, leftlabs = leftlabs,
-         rightcols = rightcols, rightlabs = rightlabs,
-         overall = overall, subgroup = subgroup,
-         hetstat = hetstat, overall.hetstat = overall.hetstat,
-         calcwidth.pooled = calcwidth.pooled,
-         lab.NA = lab.NA, smlab = smlab,
-         ##
-         digits = digits,
-         digits.se = digits.se,
-         digits.zval = digits.zval,
-         digits.pval = digits.pval,
-         digits.pval.Q = digits.pval.Q,
-         digits.Q = digits.Q,
-         digits.tau2 = digits.tau2,
-         digits.tau = digits.tau,
-         digits.I2 = digits.I2,
-         ##
-         scientific.pval = scientific.pval,
-         big.mark = big.mark,
-         ...)
-  
-  
-  invisible(NULL)
-}
-
-
-
-
-
-#' @rdname forest
+#'
 #' @method forest meta
 #' @export
 #' @export forest.meta
@@ -1349,7 +1118,9 @@ forest.meta <- function(x,
                         colgap.forest.left = colgap.forest,
                         colgap.forest.right = colgap.forest,
                         ##
-                        calcwidth.pooled = TRUE,
+                        calcwidth.pooled =
+                          (comb.fixed | comb.random) &
+                          (overall | !is.null(x$byvar)),
                         calcwidth.fixed = calcwidth.pooled,
                         calcwidth.random = calcwidth.pooled,
                         calcwidth.predict = FALSE,

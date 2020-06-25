@@ -104,18 +104,7 @@
 #' #
 #' bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70), regline = FALSE)
 #' 
-#' @rdname bubble
-#' @export bubble
-
-
-bubble <- function(x, ...) 
-  UseMethod("bubble")
-
-
-
-
-
-#' @rdname bubble
+#' @rdname bubble.metareg
 #' @method bubble metareg
 #' @export
 #' @export bubble.metareg
@@ -379,3 +368,14 @@ bubble.metareg <- function(x,
 
   invisible(NULL)
 }
+
+
+
+
+
+#' @rdname bubble.metareg
+#' @export bubble
+
+
+bubble <- function(x, ...) 
+  UseMethod("bubble")

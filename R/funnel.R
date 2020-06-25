@@ -5,11 +5,9 @@
 #' in meta-analysis. A contour-enhanced funnel plot can also be
 #' produced to assess causes of funnel plot asymmetry.
 #' 
-#' @aliases funnel funnel.default funnel.meta
+#' @aliases funnel funnel.meta
 #' 
-#' @param x An object of class \code{meta}, or estimated treatment
-#'   effect in individual studies.
-#' @param y Standard error of estimated treatment effect.
+#' @param x An object of class \code{meta}.
 #' @param xlim The x limits (min,max) of the plot.
 #' @param ylim The y limits (min,max) of the plot.
 #' @param xlab A label for the x-axis.
@@ -45,10 +43,6 @@
 #' @param yaxis A character string indicating which type of weights
 #'   are to be used. Either \code{"se"}, \code{"invvar"},
 #'   \code{"invse"}, or \code{"size"}.
-#' @param sm A character string indicating underlying summary measure,
-#'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
-#'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"} (applies
-#'   only to function \code{funnel.default}).
 #' @param contour.levels A numeric vector specifying contour levels to
 #'   produce contour-enhanced funnel plot.
 #' @param col.contour Colour of contours.
@@ -168,123 +162,7 @@
 #'        fill = c("darkgreen", "green", "lightgreen"))
 #' 
 #' par(oldpar)
-#' 
-#' @rdname funnel
-#' @export funnel
-
-
-funnel <- function(x, ...) 
-  UseMethod("funnel")
-
-
-
-
-
-#' @rdname funnel
-#' @method funnel default
-#' @export
-#' @export funnel.default
-
-
-funnel.default <- function(x, y,
-                           ##
-                           xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
-                           ##
-                           comb.fixed = FALSE, comb.random = FALSE,
-                           ##
-                           axes = TRUE,
-                           pch = 21, text = NULL, cex = 1,
-                           ##
-                           lty.fixed = 2, lty.random = 9,
-                           lwd = 1, lwd.fixed = lwd, lwd.random = lwd,
-                           col = "black", bg = "darkgray",
-                           col.fixed = "black", col.random = "black",
-                           ##
-                           log, yaxis = "se", sm = "",
-                           contour.levels = NULL, col.contour,
-                           ##
-                           ref = ifelse(is.relative.effect(sm), 1, 0),
-                           ##
-                           level = NULL,
-                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
-                           ##
-                           backtransf = TRUE,
-                           ...) {
-  
-  
-  ##
-  ##
-  ## (1) Check essential arguments
-  ##
-  ##
-  TE <- x
-  k.All <- length(TE)
-  seTE <- y
-  ##
-  chknumeric(TE)
-  chknumeric(seTE)
-  chknull(sm)
-  ##
-  chklogical(backtransf)
-  ##
-  fun <- "funnel"
-  chklength(seTE, k.All, fun)
-  
-  
-  ##
-  ##
-  ## (2) Do meta-analysis
-  ##
-  ##
-  m <- metagen(TE, seTE, sm = sm, method.tau.ci = "")
-  
-  
-  ##
-  ##
-  ## (3) Produce funnel plot
-  ##
-  ##
-  if (missing(log))
-    if (backtransf & is.relative.effect(sm))
-      log <- "x"
-    else
-      log <- ""
-  ##
-  res <- funnel(m,
-                xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
-                ##
-                comb.fixed = comb.fixed, comb.random = comb.random,
-                ##
-                axes = axes,
-                pch = pch, text = text, cex = cex,
-                ##
-                lty.fixed = lty.fixed, lty.random = lty.random,
-                lwd = lwd, lwd.fixed = lwd.fixed, lwd.random = lwd.random,
-                col = col, bg = bg,
-                col.fixed = col.fixed, col.random = col.random,
-                ##
-                log = log, yaxis = yaxis,
-                contour.levels = contour.levels,
-                if (!missing(col.contour)) col.contour = col.contour,
-                ##
-                ref = ref,
-                ##
-                level = level,
-                studlab = studlab, cex.studlab = cex.studlab,
-                pos.studlab = pos.studlab,
-                ##
-                backtransf = backtransf,
-                ...)
-  
-  
-  invisible(res)
-}
-
-
-
-
-
-#' @rdname funnel
+#'
 #' @method funnel meta
 #' @export
 #' @export funnel.meta

@@ -161,29 +161,19 @@
 #'       backtransf = FALSE)
 #' 
 #' @rdname labbe
-#' @export labbe
-
-
-labbe <- function(x, ...) 
-  UseMethod("labbe")
-
-
-
-
-
-#' @rdname labbe
-#' @method labbe default
+#' @method labbe metabin
 #' @export
-#' @export labbe.default
+#' @export labbe.metabin
 
 
-labbe.default <- function(x, y,
+labbe.metabin <- function(x,
                           xlim, ylim,
                           xlab = NULL, ylab = NULL,
-                          TE.fixed = NULL, TE.random = NULL,
-                          comb.fixed = !is.null(TE.fixed),
-                          comb.random = !is.null(TE.random),
-                          backtransf = TRUE,
+                          TE.fixed = x$TE.fixed,
+                          TE.random = x$TE.random,
+                          comb.fixed = x$comb.fixed,
+                          comb.random = x$comb.random,
+                          backtransf = x$backtransf,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
                           col = "black", bg = "lightgray",
@@ -192,21 +182,25 @@ labbe.default <- function(x, y,
                           col.fixed = col, col.random = col,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
-                          sm = "", weight,
+                          sm = x$sm, weight,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
-                          label.e = NULL, label.c = NULL,
+                          label.e = x$label.e, label.c = x$label.c,
                           ...) {
+  
   
   ##
   ##
-  ## (1) Check arguments
+  ## (1) Check for meta object and upgrade older meta objects
   ##
   ##
-  xpos <- x
-  ypos <- y
+  chkclass(x, "metabin")
+  x <- updateversion(x)
+  
+  
   ##
-  if(length(xpos) != length(ypos))
-    stop("arguments 'x' and 'y' must be of same length")
+  ##
+  ## (2) Check other arguments
+  ##
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
@@ -227,6 +221,43 @@ labbe.default <- function(x, y,
   
   
   if (!backtransf) {
+    xpos <- (x$event.c + x$incr.c) / (x$n.c + 2 * x$incr.c)
+    ypos <- (x$event.e + x$incr.e) / (x$n.e + 2 * x$incr.e)
+  }
+  else {
+    xpos <- x$event.c / x$n.c
+    ypos <- x$event.e / x$n.e
+  }
+  ##
+  if(length(xpos) != length(ypos))
+    stop("event rates must be of same length")
+  
+  
+  if (sm != x$sm) {
+    m <- update(x, sm = sm)
+    if (missing(TE.fixed))
+      TE.fixed <- m$TE.fixed
+    if (missing(TE.random))
+      TE.random <- m$TE.random
+    w.fixed <- m$w.fixed
+    w.random <- m$w.random
+  }
+  else {
+    w.fixed <- x$w.fixed
+    w.random <- x$w.random
+  }
+  ##
+  ## Exclude studies from meta-analysis
+  ##
+  if (!is.null(x$exclude)) {
+    xpos <- xpos[!x$exclude]
+    ypos <- ypos[!x$exclude]
+    w.fixed <- w.fixed[!x$exclude]
+    w.random <- w.random[!x$exclude]
+  }
+  
+  
+  if (!backtransf) {
     if (sm == "OR") {
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
@@ -242,19 +273,42 @@ labbe.default <- function(x, y,
   }
   
   
-  if (!missing(weight))
-    cex.i <- 4 * cex * sqrt(weight) / sqrt(max(weight))
-  else
-    cex.i <- rep(cex, length(xpos))
+  if (missing(weight))
+    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
+  ##
+  iweight <- charmatch(tolower(weight),
+                       c("same", "fixed", "random"), nomatch = NA)
+  ##
+  if(is.na(iweight))
+    stop("weight should be \"same\", \"fixed\", or \"random\"")
+  ##
+  weight <- c("same", "fixed", "random")[iweight]
+  ##
+  if (weight == "fixed")
+    cex.i <- 4 * cex * sqrt(w.fixed) / sqrt(max(w.fixed))
+  else if (weight == "random")
+    cex.i <- 4 * cex * sqrt(w.random) / sqrt(max(w.random))
+  else if (weight == "same")
+    cex.i <- cex
   ##
   if (min(cex.i) < 0.5)
     cex.i <- cex.i + (0.5 - min(cex.i))
   
   
-  if (backtransf)
-    minval <- 0
-  else
+  if (is.logical(studlab) && studlab)
+    studlab <- x$studlab
+  
+  
+  if (length(comb.fixed) == 0)
+    comb.fixed <- TRUE
+  if (length(comb.random) == 0)
+    comb.random <- TRUE
+  
+  
+  if (!backtransf)
     minval <- min(c(xpos, ypos), na.rm = TRUE)
+  else
+    minval <- 0
   ##
   if (missing(xlim) & missing(ylim)) {
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))
@@ -465,19 +519,18 @@ labbe.default <- function(x, y,
 
 
 #' @rdname labbe
-#' @method labbe metabin
+#' @method labbe default
 #' @export
-#' @export labbe.metabin
+#' @export labbe.default
 
 
-labbe.metabin <- function(x,
+labbe.default <- function(x, y,
                           xlim, ylim,
                           xlab = NULL, ylab = NULL,
-                          TE.fixed = x$TE.fixed,
-                          TE.random = x$TE.random,
-                          comb.fixed = x$comb.fixed,
-                          comb.random = x$comb.random,
-                          backtransf = x$backtransf,
+                          TE.fixed = NULL, TE.random = NULL,
+                          comb.fixed = !is.null(TE.fixed),
+                          comb.random = !is.null(TE.random),
+                          backtransf = TRUE,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
                           col = "black", bg = "lightgray",
@@ -486,25 +539,21 @@ labbe.metabin <- function(x,
                           col.fixed = col, col.random = col,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
-                          sm = x$sm, weight,
+                          sm = "", weight,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
-                          label.e = x$label.e, label.c = x$label.c,
+                          label.e = NULL, label.c = NULL,
                           ...) {
   
-  
   ##
   ##
-  ## (1) Check for meta object and upgrade older meta objects
+  ## (1) Check arguments
   ##
   ##
-  chkclass(x, "metabin")
-  x <- updateversion(x)
-  
-  
+  xpos <- x
+  ypos <- y
   ##
-  ##
-  ## (2) Check other arguments
-  ##
+  if(length(xpos) != length(ypos))
+    stop("arguments 'x' and 'y' must be of same length")
   ##
   chklogical(comb.fixed)
   chklogical(comb.random)
@@ -525,43 +574,6 @@ labbe.metabin <- function(x,
   
   
   if (!backtransf) {
-    xpos <- (x$event.c + x$incr.c) / (x$n.c + 2 * x$incr.c)
-    ypos <- (x$event.e + x$incr.e) / (x$n.e + 2 * x$incr.e)
-  }
-  else {
-    xpos <- x$event.c / x$n.c
-    ypos <- x$event.e / x$n.e
-  }
-  ##
-  if(length(xpos) != length(ypos))
-    stop("event rates must be of same length")
-  
-  
-  if (sm != x$sm) {
-    m <- update(x, sm = sm)
-    if (missing(TE.fixed))
-      TE.fixed <- m$TE.fixed
-    if (missing(TE.random))
-      TE.random <- m$TE.random
-    w.fixed <- m$w.fixed
-    w.random <- m$w.random
-  }
-  else {
-    w.fixed <- x$w.fixed
-    w.random <- x$w.random
-  }
-  ##
-  ## Exclude studies from meta-analysis
-  ##
-  if (!is.null(x$exclude)) {
-    xpos <- xpos[!x$exclude]
-    ypos <- ypos[!x$exclude]
-    w.fixed <- w.fixed[!x$exclude]
-    w.random <- w.random[!x$exclude]
-  }
-  
-  
-  if (!backtransf) {
     if (sm == "OR") {
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
@@ -577,42 +589,19 @@ labbe.metabin <- function(x,
   }
   
   
-  if (missing(weight))
-    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
-  ##
-  iweight <- charmatch(tolower(weight),
-                       c("same", "fixed", "random"), nomatch = NA)
-  ##
-  if(is.na(iweight))
-    stop("weight should be \"same\", \"fixed\", or \"random\"")
-  ##
-  weight <- c("same", "fixed", "random")[iweight]
-  ##
-  if (weight == "fixed")
-    cex.i <- 4 * cex * sqrt(w.fixed) / sqrt(max(w.fixed))
-  else if (weight == "random")
-    cex.i <- 4 * cex * sqrt(w.random) / sqrt(max(w.random))
-  else if (weight == "same")
-    cex.i <- cex
+  if (!missing(weight))
+    cex.i <- 4 * cex * sqrt(weight) / sqrt(max(weight))
+  else
+    cex.i <- rep(cex, length(xpos))
   ##
   if (min(cex.i) < 0.5)
     cex.i <- cex.i + (0.5 - min(cex.i))
   
   
-  if (is.logical(studlab) && studlab)
-    studlab <- x$studlab
-  
-  
-  if (length(comb.fixed) == 0)
-    comb.fixed <- TRUE
-  if (length(comb.random) == 0)
-    comb.random <- TRUE
-  
-  
-  if (!backtransf)
-    minval <- min(c(xpos, ypos), na.rm = TRUE)
-  else
+  if (backtransf)
     minval <- 0
+  else
+    minval <- min(c(xpos, ypos), na.rm = TRUE)
   ##
   if (missing(xlim) & missing(ylim)) {
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))

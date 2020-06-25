@@ -96,18 +96,6 @@
 #' m1$Q
 #' }
 #' 
-#' @rdname baujat
-#' @export baujat
-
-
-baujat <- function(x, ...) 
-  UseMethod("baujat")
-
-
-
-
-
-#' @rdname baujat
 #' @method baujat meta
 #' @export
 #' @export baujat.meta
