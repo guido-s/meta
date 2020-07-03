@@ -147,8 +147,7 @@ transformed in funnel plots. If \code{backtransf=TRUE}, results
 for \code{sm="OR"} are printed as odds ratios rather than log
 odds ratios, for example.}
 
-\item{\dots}{Graphical arguments as in \code{par} may also be
-passed as arguments.}
+\item{\dots}{Additional graphical arguments (ignored at the moment).}
 }
 \description{
 Draw a funnel plot which can be used to assess small study effects
@@ -192,9 +191,6 @@ oldpar <- par(mfrow = c(2, 2))
 # Standard funnel plot
 #
 funnel(m1)
-# Same result as code above:
-funnel(m1$TE, m1$seTE, sm = "RR",
-       comb.fixed = TRUE, level = 0.95)
 
 # Funnel plot with confidence intervals, fixed effect estimate and
 # contours

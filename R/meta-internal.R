@@ -1,5 +1,5 @@
 .onAttach <- function(libname, pkgname) {
-  msg <- paste0("\nLoading 'meta' package (version ",
+  msg <- paste0("Loading 'meta' package (version ",
                 utils::packageDescription("meta")$Version,
                 ").",
                 "\nType 'help(meta)' for a brief overview.")

@@ -74,8 +74,7 @@
 #'   transformed in funnel plots. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
 #'   odds ratios, for example.
-#' @param \dots Graphical arguments as in \code{par} may also be
-#'   passed as arguments.
+#' @param \dots Additional graphical arguments (ignored at the moment).
 #' 
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
@@ -139,9 +138,6 @@
 #' # Standard funnel plot
 #' #
 #' funnel(m1)
-#' # Same result as code above:
-#' funnel(m1$TE, m1$seTE, sm = "RR",
-#'        comb.fixed = TRUE, level = 0.95)
 #' 
 #' # Funnel plot with confidence intervals, fixed effect estimate and
 #' # contours
@@ -410,7 +406,7 @@ funnel.meta <- function(x,
   ##
   plot(TE, weight, type = "n",
        xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
-       axes = axes, log = log, ...)
+       axes = axes, log = log)
   ##
   ## Add contour shades (enhanced funnel plots)
   ##

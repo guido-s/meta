@@ -197,12 +197,14 @@
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion tail
 #'
-#' @importFrom metafor forest funnel baujat labbe radial trimfill
+#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill
 #'   rma.uni rma.glmm predict.rma confint.rma.uni escalc
 #'
 #' @importFrom lme4 glmer
 #'
 #' @importFrom CompQuadForm farebrother
+#'
+#' @export forest funnel baujat labbe radial trimfill
 
 
 NULL

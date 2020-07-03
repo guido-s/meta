@@ -1,4 +1,4 @@
-## meta, version 4.13-0 (2020-06-25)
+## meta, version 4.13-0 (2020-07-02)
 
 ### Major changes
 
@@ -8,7 +8,8 @@
   from another R package which can result in errors if R packages
   **meta** and **metafor** are both loaded)
 
-* R package **metafor** moved from Imports to Depends
+* R function funnel.default() removed from **meta** (conflicts with
+  **metafor**)
 
 
 ## meta, version 4.12-0 (2020-05-04)
