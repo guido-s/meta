@@ -2556,7 +2556,7 @@ forest.meta <- function(x,
   if (allstudies)
     n.stud <- k.all # all studies
   else
-    n.stud <- x$k   # number of studies combined in meta-analysis
+    n.stud <- sum(!is.na(x$TE)) # number of studies with treatment estimates
   ##
   if (length(type.study) == 1)
     type.study <- rep(type.study, k.all)
@@ -2571,12 +2571,9 @@ forest.meta <- function(x,
     stop("Missing values in 'byvar'")
   ##
   if (allstudies)
-    sel <- 1:length(x$TE)
+    sel <- 1:k.all
   else
     sel <- !is.na(x$TE)
-  ##
-  if (n.stud != sum(sel > 0))
-    warning("n.stud != sum(sel)")
   ##
   x$n.e <- x$n.e[sel]
   x$n.c <- x$n.c[sel]

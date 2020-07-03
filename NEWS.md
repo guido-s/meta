@@ -1,3 +1,12 @@
+## meta, version 4.13-1 (2020-mm-dd)
+
+### Bug fixes
+
+* forest.meta():
+  - show all studies with estimable treatment effects if argument
+    'allstudies' is FALSE
+
+
 ## meta, version 4.13-0 (2020-07-02)
 
 ### Major changes
