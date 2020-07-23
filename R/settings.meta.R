@@ -96,7 +96,7 @@
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
-#' \code{adhoc.hakn} \tab TRUE \tab \emph{ad hoc} variance correction \cr
+#' \code{adhoc.hakn} \tab "ci" \tab \emph{ad hoc} variance correction \cr
 #' \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
 #'   between-study variance \cr
 #' \code{prediction} \tab TRUE \tab Prediction interval \cr

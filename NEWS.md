@@ -6,6 +6,9 @@
   - show all studies with estimable treatment effects if argument
     'allstudies' is FALSE
 
+* metabind():
+  - works with meta-analysis objects created with metacor()
+
 
 ## meta, version 4.13-0 (2020-07-02)
 

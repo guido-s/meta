@@ -357,7 +357,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          ##
                          print.byvar = FALSE,
                          byseparator = "",
-                         warn = m.i$warn,
+                         warn = replace.NULL(m.i$warn, FALSE),
                          ##
                          backtransf = m.i$backtransf,
                          pscale = m.i$pscale,

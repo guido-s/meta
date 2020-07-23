@@ -1454,6 +1454,17 @@ metagen <- function(TE, seTE, studlab,
       }
     }
   }
+  ##
+  if (keepdata) {
+    if (is.null(data$.subset)) {
+      data$.TE <- TE
+      data$.seTE <- seTE
+    }
+    else {
+      data$.TE[data$.subset] <- TE
+      data$.seTE[data$.subset] <- seTE
+    }
+  }
   
   
   ##
