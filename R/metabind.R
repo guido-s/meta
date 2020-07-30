@@ -560,7 +560,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   res$Q <- makeunique(res$Q)
   res$df.Q <- makeunique(res$df.Q, 0)
-  res$pval.Q <- makeunique(res$pval.Q, 0)
+  res$pval.Q <- makeunique(makeunique(res$pval.Q, pvalQ(res$Q, res$df.Q)))
   res$tau2 <- makeunique(res$tau2)
   res$se.tau2 <- makeunique(res$se.tau2)
   res$tau <- makeunique(res$tau)
@@ -585,11 +585,15 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$df.Q.w <- makeunique(res$df.Q.w, 0)
   ##
   res$Q.b.fixed <- makeunique(res$Q.b.fixed)
-  res$pval.Q.b.fixed <- makeunique(res$pval.Q.b.fixed)
-  ##
   res$Q.b.random <- makeunique(res$Q.b.random)
+  ##
   res$df.Q.b <- makeunique(res$df.Q.b, 0)
-  res$pval.Q.b.random <- makeunique(res$pval.Q.b.random)
+  res$pval.Q.b.fixed <-
+    makeunique(makeunique(res$pval.Q.b.fixed,
+                          pvalQ(res$Q.b.fixed, res$df.Q.b)))
+  res$pval.Q.b.random <-
+    makeunique(makeunique(res$pval.Q.b.random,
+                          pvalQ(res$Q.b.random, res$df.Q.b)))
 
 
   res$is.subgroup <- is.subgroup

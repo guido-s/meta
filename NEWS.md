@@ -8,6 +8,8 @@
 
 * metabind():
   - works with meta-analysis objects created with metacor()
+  - calculate correct p-value for heterogeneity test if input are
+    subgroup analyses of the same dataset
 
 
 ## meta, version 4.13-0 (2020-07-02)
