@@ -223,8 +223,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            k = m.i$k.w,
                            k.all = m.i$k.all.w,
                            Q = m.i$Q.w,
-                           df.Q = m.i$df.Q.w,
-                           pval.Q = pvalQ(m.i$Q.w, m.i$df.Q.w),
+                           df.Q = m.i$k.w - 1,
+                           pval.Q = pvalQ(m.i$Q.w, m.i$k.w - 1),
                            ##
                            tau2 = m.i$tau.w^2,
                            tau = m.i$tau.w,
