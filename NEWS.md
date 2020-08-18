@@ -13,6 +13,9 @@
   - calculate correct p-value for within-subgroup heterogeneity test
     if input are subgroup analyses of the same dataset
 
+* metacum():
+  - works with Hartung-Knapp method
+
 
 ## meta, version 4.13-0 (2020-07-02)
 
