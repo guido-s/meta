@@ -4,21 +4,29 @@
 \alias{read.rm5}
 \alias{print.rm5}
 \alias{Fleiss93_CR}
-\title{Import RevMan 5 data files (.csv)}
+\title{Import RevMan 5 analysis data}
 \usage{
-read.rm5(file, sep = ",", quote = "\\"", title, numbers.in.labels = TRUE)
+read.rm5(
+  file,
+  sep = ",",
+  quote = "\\"",
+  title,
+  numbers.in.labels = TRUE,
+  debug = 0
+)
 
 \method{print}{rm5}(x, ...)
 }
 \arguments{
 \item{file}{The name of a file to read data values from.}
 
-\item{sep}{The field separator character. Values on each line of
-the file are separated by this character. The comma is the
-default field separator character in RevMan 5.}
+\item{sep}{The field separator character (only considered for
+CSV-files). Values on each line of the file are separated by this
+character. The comma is the default field separator character in
+RevMan 5.}
 
-\item{quote}{The set of quoting characters. In RevMan 5 a "\"" is
-the default quoting character.}
+\item{quote}{The set of quoting characters (only considered for
+CSV-files). In RevMan 5 a "\"" is the default quoting character.}
 
 \item{title}{Title of Cochrane review.}
 
@@ -26,6 +34,9 @@ the default quoting character.}
 number and outcome number should be printed at the beginning of
 the comparison (argument \code{complab}) and outcome label
 (argument \code{outclab}); this is the default in RevMan 5.}
+
+\item{debug}{An integer between 0 and 3 indicating whether to print
+debug messages (only considered for RM5-files).}
 
 \item{x}{An object of class \code{rm5}}
 
@@ -116,21 +127,40 @@ A data frame containing the following components:
 \item{complab}{Comparison label.}
 }
 \description{
-Reads data file from Cochrane Intervention review created with
+Reads analysis data from Cochrane intervention review created with
 RevMan 5 and creates a data frame from it.
 }
 \details{
-Review Manager 5 (RevMan 5) is the current software used for
-preparing and maintaining Cochrane Reviews
+Review Manager 5 (RevMan 5) was the software used for preparing and
+maintaining Cochrane reviews
 (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}).
-RevMan 5 includes the ability to write Systematic reviews of
-interventions, Diagnostic test accuracy reviews, Methodology
-reviews and Overviews of reviews.
+RevMan 5 includes the ability to write systematic reviews of
+interventions, diagnostic test accuracy reviews, methodology
+reviews and overviews of reviews.
 
-This function provides the ability to read a data file from a
-Cochrane Intervention review created with RevMan 5; a data frame is
-created from it. Cochrane Intervention reviews are based on the
-comparison of two interventions.
+This function provides the ability to read the analysis data from a
+Cochrane intervention review created with RevMan 5; a data frame is
+created from it. Cochrane intervention reviews are based on
+comparisons of two interventions.
+
+By default in RevMan 5, the name of the exported CSV data file is
+the title of the Cochrane review. Furthermore, the title is part of
+the RM5-file. Argument \code{title} can be used to overwrite the
+title of the Cochrane review.
+
+\subsection{Import RM5-file}{
+
+A RM5-file (which is in a specific XML format) can be used directly
+to import the analysis dataset.
+
+If the import fails, use argument \code{debug = 2} for more details.
+}
+
+\subsection{Import CSV-file}{
+
+In the past, the following (rather complicated) procedure based on
+a CSV-file generated within RevMan 5 was necessary - which is only
+described here for backward compatibility.
 
 In order to generate a data analysis file in RevMan 5 use the
 following Menu points: \code{"File"} - \code{"Export"} -
@@ -148,15 +178,7 @@ meta-analysis in R for the RevMan 5 data type
 Wizard. If the last field "Risk of bias tables" is selected the
 import in R fails with an error message
 "line X did not have Y elements".
-
-By default in RevMan 5, the name of the exported data file is the
-title of the Cochrane Review. Accordingly, information on the title
-is extracted from the name of the exported data file (argument:
-\code{file}) if argument \code{title} is missing (default).
-
-Each respective meta-analysis for arguments \code{event.e.pooled}
--- \code{df.pooled} is defined by values for \code{"comp.no"} and
-\code{"outcome.no"}, and \code{"grp.no"}.
+}
 }
 \examples{
 # Locate export data file "Fleiss93_CR.csv"

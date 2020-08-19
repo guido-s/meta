@@ -644,8 +644,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  method.bias <- setchar(method.bias,
-                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(keepdata)
   ##

@@ -258,7 +258,7 @@ labbe.metabin <- function(x,
   
   
   if (!backtransf) {
-    if (sm == "OR") {
+    if (sm %in% c("OR", "DOR")) {
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
     }
@@ -328,7 +328,7 @@ labbe.metabin <- function(x,
     if (length(label.c) > 0) {
       xlab <- paste0("Event rate (", label.c, ")")
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           xlab <- paste0("ln (odds) ", label.c)
         else if (sm == "RR")
           xlab <- paste0("ln (event rate) ", label.c)
@@ -338,7 +338,7 @@ labbe.metabin <- function(x,
     else {
       xlab <- "Event rate (Control)"
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           xlab <- "ln (odds) Control"
         else if (sm == "RR")
           xlab <- "ln (event rate) Control"
@@ -351,7 +351,7 @@ labbe.metabin <- function(x,
     if (length(label.e) > 0) {
       ylab <- paste0("Event rate (", label.e, ")")
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           ylab <- paste0("ln (odds) ", label.e)
         else if (sm == "RR")
           ylab <- paste0("ln (event rate) ", label.e)
@@ -361,7 +361,7 @@ labbe.metabin <- function(x,
     else {
       ylab <- "Event rate (Experimental)"
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           ylab <- "ln (odds) Experimental"
         else if (sm == "RR")
           ylab <- "ln (event rate) Experimental"
@@ -440,7 +440,7 @@ labbe.metabin <- function(x,
                    lty.fixed[i], lwd.fixed[i], col.fixed[i])
         }
       }
-      else if (sm == "OR") {
+      else if (sm %in% c("OR", "DOR")) {
         for (i in 1:length(TE.fixed)) {
           y.line <- exp(TE.fixed[i]) * (x.line / (1 - x.line)) /
             (1 + exp(TE.fixed[i]) * x.line / (1 - x.line))
@@ -485,7 +485,7 @@ labbe.metabin <- function(x,
                    lty.random[i], lwd.random[i], col.random[i])
         }
       }
-      else if (sm == "OR") {
+      else if (sm %in% c("OR", "DOR")) {
         for (i in 1:length(TE.random)) {
           y.line <- exp(TE.random[i]) * (x.line / (1 - x.line)) /
             (1 + exp(TE.random[i]) * x.line / (1 - x.line))
@@ -574,7 +574,7 @@ labbe.default <- function(x, y,
   
   
   if (!backtransf) {
-    if (sm == "OR") {
+    if (sm %in% c("OR", "DOR")) {
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
     }
@@ -621,7 +621,7 @@ labbe.default <- function(x, y,
     if (length(label.c) > 0) {
       xlab <- paste0("Event rate (", label.c, ")")
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           xlab <- paste0("ln (odds) ", label.c)
         else if (sm == "RR")
           xlab <- paste0("ln (event rate) ", label.c)
@@ -631,7 +631,7 @@ labbe.default <- function(x, y,
     else {
       xlab <- "Event rate (Control)"
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           xlab <- "ln (odds) Control"
         else if (sm == "RR")
           xlab <- "ln (event rate) Control"
@@ -644,7 +644,7 @@ labbe.default <- function(x, y,
     if (length(label.e) > 0) {
       ylab <- paste0("Event rate (", label.e, ")")
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           ylab <- paste0("ln (odds) ", label.e)
         else if (sm == "RR")
           ylab <- paste0("ln (event rate) ", label.e)
@@ -654,7 +654,7 @@ labbe.default <- function(x, y,
     else {
       ylab <- "Event rate (Experimental)"
       if (!backtransf)
-        if (sm == "OR")
+        if (sm %in% c("OR", "DOR"))
           ylab <- "ln (odds) Experimental"
         else if (sm == "RR")
           ylab <- "ln (event rate) Experimental"
@@ -733,7 +733,7 @@ labbe.default <- function(x, y,
                    lty.fixed[i], lwd.fixed[i], col.fixed[i])
         }
       }
-      else if (sm == "OR") {
+      else if (sm %in% c("OR", "DOR")) {
         for (i in 1:length(TE.fixed)) {
           y.line <- exp(TE.fixed[i]) * (x.line / (1 - x.line)) /
             (1 + exp(TE.fixed[i]) * x.line / (1 - x.line))
@@ -778,7 +778,7 @@ labbe.default <- function(x, y,
                    lty.random[i], lwd.random[i], col.random[i])
         }
       }
-      else if (sm == "OR") {
+      else if (sm %in% c("OR", "DOR")) {
         for (i in 1:length(TE.random)) {
           y.line <- exp(TE.random[i]) * (x.line / (1 - x.line)) /
             (1 + exp(TE.random[i]) * x.line / (1 - x.line))

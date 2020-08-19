@@ -506,8 +506,7 @@ metacor <- function(cor, n, studlab,
   ##
   chknumeric(null.effect, single = TRUE)
   ##
-  method.bias <- setchar(method.bias,
-                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(backtransf)
   chklogical(keepdata)

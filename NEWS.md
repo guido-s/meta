@@ -1,4 +1,10 @@
-## meta, version 4.13-1 (2020-mm-dd)
+## meta, version 4.14-0 (2020-mm-dd)
+
+### Major changes
+
+* RevMan 5 analysis datasets can be imported directly using the RM5-file
+
+* R package **xml2** added to Imports (RM5-files are in XML-format)
 
 ### Bug fixes
 
@@ -15,6 +21,19 @@
 
 * metacum():
   - works with Hartung-Knapp method
+
+### User-visible changes
+
+* read.rm5():
+  - direct import of RM5-file possible
+  - new argument 'debug' for debug messages while importing RM5-files directly
+
+### Internal changes
+
+* Internal R function read.rm5() for CSV-files renamed to read.rm5.csv()
+
+* New auxiliary functions to import RevMan 5 analysis datasets:
+  - extract_outcomes(), oct2txt(), read.rm5.rm5()
 
 
 ## meta, version 4.13-0 (2020-07-02)

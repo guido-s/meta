@@ -40,7 +40,8 @@ metabin(
   tau.common = gs("tau.common"),
   prediction = gs("prediction"),
   level.predict = gs("level.predict"),
-  method.bias = ifelse(sm == "OR", "score", gs("method.bias")),
+  method.bias = ifelse(sm == "OR", "score", ifelse(sm == "DOR", "deeks",
+    gs("method.bias"))),
   backtransf = gs("backtransf"),
   pscale = 1,
   title = gs("title"),
@@ -88,8 +89,8 @@ used for pooling of studies. One of \code{"Inverse"},
 be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
-(\code{"RR"}, \code{"OR"}, \code{"RD"}, or \code{"ASD"}) is to be
-used for pooling of studies, see Details.}
+(\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"}, or
+\code{"DOR"}) is to be used for pooling of studies, see Details.}
 
 \item{incr}{Could be either a numerical value which is added to
 each cell frequency for studies with a zero cell count or the
@@ -106,8 +107,8 @@ cell frequency of all studies irrespective of zero cell counts.}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
-(applies only if \code{sm} is equal to \code{"RR"} or
-\code{"OR"}).}
+(applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
+or \code{"DOR"}).}
 
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
 added to all cell frequencies for studies with a zero cell count
@@ -192,10 +193,11 @@ funnel plot asymmetry is to be used. Either \code{"rank"},
 \code{\link{metabias}.}}
 
 \item{backtransf}{A logical indicating whether results for odds
-ratio (\code{sm="OR"}) and risk ratio (\code{sm="RR"}) should be
-back transformed in printouts and plots. If TRUE (default),
-results will be presented as odds ratios and risk ratios;
-otherwise log odds ratios and log risk ratios will be shown.}
+ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or
+diagnostic odds ratio (\code{sm="DOR"}) should be back
+transformed in printouts and plots. If TRUE (default), results
+will be presented as odds ratios and risk ratios; otherwise log
+odds ratios and log risk ratios will be shown.}
 
 \item{pscale}{A numeric defining a scaling factor for printing of
 risk differences.}
@@ -440,7 +442,11 @@ study. The following measures of treatment effect are available
 \item Odds ratio (\code{sm = "OR"})
 \item Risk difference (\code{sm = "RD"})
 \item Arcsine difference (\code{sm = "ASD"})
+\item Diagnostic Odds ratio (\code{sm = "DOR"})
 }
+
+Note, mathematically, odds ratios and diagnostic odds ratios are
+identical, however, the labels in printouts and figures differ.
 
 By default, both fixed effect and random effects models are
 considered (see arguments \code{comb.fixed} and

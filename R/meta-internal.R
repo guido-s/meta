@@ -130,9 +130,7 @@ augment <- function(x, len, fun) {
 ##
 ## Set defaults (for internal options)
 ##
-setOption("metafor", "1.9.9")
-##
-setOption("sm4bin", c("OR", "RD", "RR", "ASD"))
+setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR"))
 setOption("sm4cont", c("MD", "SMD", "ROM"))
 setOption("sm4cor", c("ZCOR", "COR"))
 setOption("sm4inc", c("IRR", "IRD"))
@@ -146,6 +144,8 @@ setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", ""))
 setOption("adhoc4hakn", c("", "se", "ci"))
+setOption("meth4bias", c("rank", "linreg", "mm", "count", "score",
+                         "peters", "deeks"))
 ##
 ## List of arguments that can be changed by user
 ##

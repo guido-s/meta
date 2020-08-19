@@ -51,6 +51,9 @@ xlab <- function(sm, backtransf,
     else if (sm == "RR")
       res <- "Risk Ratio"
     ##
+    else if (sm == "DOR")
+      res <- "Diagnostic Odds Ratio"
+    ##
     else if (sm == "ROM")
       res <- "Ratio of Means"
     ##
@@ -90,6 +93,9 @@ xlab <- function(sm, backtransf,
     ##
     else if (sm == "RR")
       res <- "Log Risk Ratio"
+    ##
+    else if (sm == "DOR")
+      res <- "Log Diagnostic Odds Ratio"
     ##
     else if (sm == "ROM")
       res <- paste0("Log Ratio of", newline, "Means")

@@ -624,8 +624,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  method.bias <- setchar(method.bias,
-                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(backtransf)
   ##

@@ -36,12 +36,12 @@ effect in individual studies.}
 
 \item{method.bias}{A character string indicating which test is to
 be used.  Either \code{"rank"}, \code{"linreg"}, \code{"mm"},
-\code{"count"}, \code{"score"}, or \code{"peters"}, can be
-abbreviated.}
+\code{"count"}, \code{"score"}, \code{"peters"}, or
+\code{"deeks"}, can be abbreviated.}
 
 \item{plotit}{A logical indicating whether a plot should be
 produced for method.bias \code{"rank"}, \code{"linreg"},
-\code{"mm"}, or \code{"score"}.}
+\code{"mm"}, \code{"score"}, or \code{"deeks"}.}
 
 \item{correct}{A logical indicating whether a continuity corrected
 statistic is used for rank correlation methods \code{"rank"} and
@@ -142,6 +142,12 @@ distribution. By default (if \code{correct} is FALSE), no
 continuity correction is utilised (Kendall & Gibbons, 1990).
 
 If argument \code{method.bias} is \code{"score"}, the test
+statistic is based on a weighted linear regression utilising
+efficient score and score variance (Harbord et al., 2006,
+2009). The test statistic follows a t distribution with
+\code{number of studies - 2} degrees of freedom.
+
+If argument \code{method.bias} is \code{"deeks"}, the test
 statistic is based on a weighted linear regression utilising
 efficient score and score variance (Harbord et al., 2006,
 2009). The test statistic follows a t distribution with

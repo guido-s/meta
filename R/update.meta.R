@@ -339,7 +339,8 @@ update.meta <- function(object,
   ##
   RR.Cochrane <- replacemiss(RR.Cochrane, object$RR.cochrane)
   Q.Cochrane <- replacemiss(Q.Cochrane, TRUE)
-  if (Q.Cochrane & (!(sm %in% c("OR", "RR", "RD")) | method.tau != "DL"))
+  if (Q.Cochrane &
+      (!(sm %in% c("OR", "RR", "RD", "DOR")) | method.tau != "DL"))
     Q.Cochrane <- FALSE
   ##
   model.glmm <- replacemiss(model.glmm)

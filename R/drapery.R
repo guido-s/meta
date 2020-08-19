@@ -408,7 +408,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       ylim <- c(0, 1)
     }
   ##
-  x.backtransf <- x$sm %in% c("RR", "OR", "HR", "IRR", "ROM") & backtransf
+  x.backtransf <- is.relative.effect(x$sm) & backtransf
   ##
   missing.xlim <- missing(xlim)
   ##

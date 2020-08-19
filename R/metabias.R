@@ -12,11 +12,11 @@
 #'   if \code{x} not of class \code{meta}).
 #' @param method.bias A character string indicating which test is to
 #'   be used.  Either \code{"rank"}, \code{"linreg"}, \code{"mm"},
-#'   \code{"count"}, \code{"score"}, or \code{"peters"}, can be
-#'   abbreviated.
+#'   \code{"count"}, \code{"score"}, \code{"peters"}, or
+#'   \code{"deeks"}, can be abbreviated.
 #' @param plotit A logical indicating whether a plot should be
 #'   produced for method.bias \code{"rank"}, \code{"linreg"},
-#'   \code{"mm"}, or \code{"score"}.
+#'   \code{"mm"}, \code{"score"}, or \code{"deeks"}.
 #' @param correct A logical indicating whether a continuity corrected
 #'   statistic is used for rank correlation methods \code{"rank"} and
 #'   \code{"count"}.
@@ -78,6 +78,12 @@
 #' continuity correction is utilised (Kendall & Gibbons, 1990).
 #' 
 #' If argument \code{method.bias} is \code{"score"}, the test
+#' statistic is based on a weighted linear regression utilising
+#' efficient score and score variance (Harbord et al., 2006,
+#' 2009). The test statistic follows a t distribution with
+#' \code{number of studies - 2} degrees of freedom.
+#' 
+#' If argument \code{method.bias} is \code{"deeks"}, the test
 #' statistic is based on a weighted linear regression utilising
 #' efficient score and score variance (Harbord et al., 2006,
 #' 2009). The test statistic follows a t distribution with
@@ -269,9 +275,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     else
       method.bias <- "linreg"
   ##
-  tests <- c("rank", "linreg", "mm", "count", "score", "peters")
-  method.bias <- setchar(method.bias, tests)
-  imeth <- charmatch(method.bias, tests)
+  method.bias <- setchar(method.bias, .settings$meth4bias)
+  imeth <- charmatch(method.bias, .settings$meth4bias)
   method <-
     c(paste0("Rank correlation test of funnel plot asymmetry",
              ifelse(correct == TRUE, " (with continuity correction)", "")),
@@ -281,7 +286,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
              ifelse(correct == TRUE, " (with continuity correction)", "")),
       "Linear regression test of funnel plot asymmetry (efficient score)",
       paste0("Linear regression test of funnel plot asymmetry ",
-             "(based on sample size)"))[imeth]
+             "(based on sample size)"),
+      "Deek's funnel plot test for diagnostic odds ratios")[imeth]
   ##
   chklogical(plotit)
   chklogical(correct)
@@ -385,7 +391,8 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       names(res$estimate) <- c("ks", "se.ks")
     }
     else if (method.bias == "linreg" | method.bias == "mm" |
-             method.bias == "score" | method.bias == "peters") {
+             method.bias == "score" | method.bias == "peters" |
+             method.bias == "deeks") {
       
       if (method.bias == "linreg") {
         if (length(unique(seTE)) == 1)
@@ -479,6 +486,21 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         else {
           stop("method.bias '", method.bias, "' only defined for ",
                "meta-analysis conducted with metabin() or metaprop()")
+        }
+      }
+      else if (method.bias == "deeks") {
+        ##
+        ## Deeks et al. (2005), J Clin Epid
+        ##
+        if (inherits(x, "metabin")) {
+          ESS <- 4 * n.e * n.c / (n.e + n.c)
+          ##
+          lreg <- linregcore(1 / sqrt(ESS), TE, ESS)
+          se.bias <- lreg$se.slope
+        }
+        else {
+          stop("method.bias '", method.bias, "' only defined for ",
+               "meta-analysis conducted with metabin()")
         }
       }
       ##

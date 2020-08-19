@@ -862,8 +862,7 @@ metaprop <- function(event, n, studlab,
   if (!anyNA(null.effect) | length(null.effect) != 1)
     chknumeric(null.effect, min = 0, max = 1, single = TRUE)
   ##
-  method.bias <- setchar(method.bias,
-                         c("rank", "linreg", "mm", "count", "score", "peters"))
+  method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(backtransf)
   ##

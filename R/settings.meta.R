@@ -211,7 +211,7 @@ settings.meta <- function(...) {
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
   res$ci4prop <- NULL
   res$meth4bin <- res$meth4tau <- res$meth4tau.ci <- NULL
-  res$adhoc4hakn <- NULL
+  res$adhoc4hakn <- res$meth4bias <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   
@@ -748,8 +748,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(idmethod.bias)) {
       method.bias <- args[[idmethod.bias]]
-      method.bias <- setchar(method.bias,
-                             c("rank", "linreg", "mm", "count", "score", "peters"))
+      method.bias <- setchar(method.bias, .settings$meth4bias)
       setOption("method.bias", method.bias)
     }
     if (!is.na(idtitle)) {
