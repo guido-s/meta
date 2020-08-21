@@ -135,6 +135,11 @@ extract_outcomes <- function(txt, outcome.type, res,
           ##
           group.no <- as.numeric(xml_attr(xml.jk, "NO"))
           grplab <- xml_text(xml_find_all(xml.jk, "//NAME"))
+          ##
+          Q.w <- as.numeric(xml_attr(xml.jk, "NO"))
+          pval.Q.w <- as.numeric(xml_attr(xml.jk, "P_CHI2"))
+          I2.w <- as.numeric(xml_attr(xml.jk, "I2"))
+          ##
           if (debug) {
             print(group.no)
             print(grplab)
@@ -222,7 +227,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                          Z.pooled = Z.pooled, pval.TE.pooled = pval.TE.pooled,
                          Q = Q, pval.Q = pval.Q,
                          I2 = I2, tau2 = tau2,
-                         Q.w = NA, pval.Q.w = NA, I2.w = NA,
+                         Q.w = Q.w, pval.Q.w = pval.Q.w, I2.w = I2.w,
                          swap.events = swap.events, logscale = logscale,
                          label.e = label.e, label.c = label.c,
                          label.left = label.left,
@@ -326,7 +331,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                        Z.pooled = Z.pooled, pval.TE.pooled = pval.TE.pooled,
                        Q = Q, pval.Q = pval.Q,
                        I2 = I2, tau2 = tau2,
-                       Q.w = NA, pval.Q.w = NA, I2.w = NA,
+                       Q.w = Q.w, pval.Q.w = pval.Q.w, I2.w = I2.w,
                        swap.events = swap.events, logscale = logscale,
                        label.e = label.e, label.c = label.c,
                        label.left = label.left,
