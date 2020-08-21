@@ -47,7 +47,7 @@
 #' A RM5-file (which is in a specific XML format) can be used directly
 #' to import the analysis dataset.
 #'
-#' If the import fails, use argument \code{debug = 2} for more details.
+#' If the import fails, use argument \code{debug = 3} for more details.
 #' }
 #'
 #' \subsection{Import CSV-file}{
@@ -234,6 +234,9 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   }
   else
     stop("Argument 'file' must refer to a RM5- or CSV-file.", call. = FALSE)
+  ##
+  if (!is.null(res))
+    attr(res, "filename") <- file
   ##
   res
 }

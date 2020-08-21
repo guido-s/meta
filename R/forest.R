@@ -2373,9 +2373,20 @@ forest.meta <- function(x,
         }
       }
       ##
-      if (metagen & study.results)
+      if (metagen & study.results) {
         leftcols <- c(leftcols,
                       "TE", "seTE")
+        if (!is.null(x$n.e)) {
+          leftcols <- c(leftcols, "n.e")
+          if (is.null(lab.e.attach.to.col))
+            lab.e.attach.to.col <- "n.e"
+        }
+        if (!is.null(x$n.c)) {
+          leftcols <- c(leftcols, "n.c")
+          if (is.null(lab.c.attach.to.col))
+            lab.c.attach.to.col <- "n.c"
+        }
+      }
       ##
       if (metaprop) {
         if (study.results)

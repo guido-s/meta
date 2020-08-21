@@ -24,9 +24,18 @@
 
 ### User-visible changes
 
+* forest():
+  - by default, show number of participants in forest plot if this
+    information is available for meta-analysis objects created with
+    metabin()
+
 * read.rm5():
   - direct import of RM5-file possible
   - new argument 'debug' for debug messages while importing RM5-files directly
+
+* metacr():
+  - overall results not shown if this was specified in the Cochrane
+    review (only applies to imported RM5-files)
 
 ### Internal changes
 

@@ -153,7 +153,7 @@ title of the Cochrane review.
 A RM5-file (which is in a specific XML format) can be used directly
 to import the analysis dataset.
 
-If the import fails, use argument \code{debug = 2} for more details.
+If the import fails, use argument \code{debug = 3} for more details.
 }
 
 \subsection{Import CSV-file}{

@@ -22,10 +22,14 @@ extract_outcomes <- function(txt, outcome.type, res,
       cat(paste0("* ", outcome.type, "_OUTCOME *\n"))
     for (j in seq(along = sel1)) {
       txt.j <- txt[sel1[j]:sel2[j]]
-      sel.data.j <- c(grep(paste0("^<", outcome.type, "_DATA"), txt.j),
-                      grep(paste0("^<", outcome.type, "_SUBGROUP"), txt.j))
+      sel.data.j <- c(grep(paste0("^<", outcome.type, "_DATA"), txt.j) - 1,
+                      grep(paste0("^<", outcome.type, "_SUBGROUP"), txt.j) - 1)
+      if (outcome.type %in% c("IV", "IPD"))
+        sel.data.j <- c(sel.data.j, grep("</EFFECT_MEASURE>", txt.j))
+      else
+        sel.data.j <- c(sel.data.j, grep("</GRAPH_LABEL_2>", txt.j))
       if (length(sel.data.j) > 0)
-        sel.j <- c(1:(max(c(6, min(sel.data.j) - 1))), length(txt.j))
+        sel.j <- c(1:(max(c(6, min(sel.data.j)))), length(txt.j))
       else
         sel.j <- c(1:6, length(txt.j))
       ##
@@ -35,6 +39,12 @@ extract_outcomes <- function(txt, outcome.type, res,
       ##
       outcome.no <- as.numeric(xml_attr(xml.j, "NO"))
       outclab <- xml_text(xml_find_all(xml.j, "//NAME"))
+      ##
+      overall <- xml_attr(xml.j, "TOTALS") == "YES"
+      test.subgroup <- xml_attr(xml.j, "SUBGROUP_TEST") == "YES"
+      ##
+      k.all <- as.numeric(xml_attr(xml.j, "DF"))
+      ##
       type <- switch(outcome.type,
                      DICH = "D",
                      CONT = "C",
@@ -60,6 +70,8 @@ extract_outcomes <- function(txt, outcome.type, res,
         sm[sm == "Std. Mean Difference"] <- "SMD"
         sm[sm == "Hazard Ratio"] <- "HR"
       }
+      ##
+      logscale <- xml_attr(xml.j, "LOG_DATA") == "NO"
       ##
       random <- xml_attr(xml.j, "RANDOM")
       if (is.na(random) & outcome.type == "IPD")
@@ -192,10 +204,12 @@ extract_outcomes <- function(txt, outcome.type, res,
                          weight = weight, order = order,
                          level = level,
                          grplab = grplab,
+                         overall = overall,
+                         test.subgroup = test.subgroup,
                          type = type, method = method, sm = sm, model = model,
                          comb.fixed = comb.fixed, comb.random = comb.random,
                          outclab = outclab,
-                         k = NA,
+                         k = NA, k.all = k.all,
                          event.e.pooled = event.e.pooled,
                          n.e.pooled = n.e.pooled,
                          event.c.pooled = event.c.pooled,
@@ -209,12 +223,12 @@ extract_outcomes <- function(txt, outcome.type, res,
                          Q = Q, pval.Q = pval.Q,
                          I2 = I2, tau2 = tau2,
                          Q.w = NA, pval.Q.w = NA, I2.w = NA,
-                         swap.events = swap.events,
-                         enter.n = NA, logscale = NA,
+                         swap.events = swap.events, logscale = logscale,
                          label.e = label.e, label.c = label.c,
                          label.left = label.left,
                          label.right = label.right,
                          complab = complab)
+            res.new$k <- nrow(res.new)
             ##
             if (debug == 2)
               print(res.new)
@@ -295,10 +309,12 @@ extract_outcomes <- function(txt, outcome.type, res,
                        weight = weight, order = order,
                        level = level,
                        grplab = grplab,
+                       overall = overall,
+                       test.subgroup = test.subgroup,
                        type = type, method = method, sm = sm, model = model,
                        comb.fixed = comb.fixed, comb.random = comb.random,
                        outclab = outclab,
-                       k = NA,
+                       k = NA, k.all = k.all,
                        event.e.pooled = event.e.pooled,
                        n.e.pooled = n.e.pooled,
                        event.c.pooled = event.c.pooled,
@@ -312,12 +328,12 @@ extract_outcomes <- function(txt, outcome.type, res,
                        Q = Q, pval.Q = pval.Q,
                        I2 = I2, tau2 = tau2,
                        Q.w = NA, pval.Q.w = NA, I2.w = NA,
-                       swap.events = swap.events,
-                       enter.n = NA, logscale = NA,
+                       swap.events = swap.events, logscale = logscale,
                        label.e = label.e, label.c = label.c,
                        label.left = label.left,
                        label.right = label.right,
                        complab = complab)
+          res.new$k <- nrow(res.new)
           if (debug == 2)
             print(res.new)
           ##
@@ -921,10 +937,12 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                     TE = NA, seTE = NA, lower.TE = NA, upper.TE = NA,
                     weight = NA, order = NA, level = NA,
                     grplab = "",
+                    overall = NA,
+                    test.subgroup = NA,
                     type = "", method = "", sm = "", model = "",
                     comb.fixed = NA, comb.random = NA,
                     outclab = "",
-                    k = NA,
+                    k = NA, k.all = NA,
                     event.e.pooled = NA, n.e.pooled = NA,
                     event.c.pooled = NA, n.c.pooled = NA,
                     TE.pooled = NA, lower.pooled = NA, upper.pooled = NA,
@@ -934,7 +952,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                     Q = NA, pval.Q = NA,
                     I2 = NA, tau2 = NA,
                     Q.w = NA, pval.Q.w = NA, I2.w = NA,
-                    swap.events = NA, enter.n = NA, logscale = NA,
+                    swap.events = NA, logscale = NA,
                     label.e = "", label.c = "",
                     label.left = "", label.right = "",
                     complab = "")
@@ -1044,7 +1062,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
       if (debug == 2)
         print(dim(res))
       names.res <- names(res)
-      res.study <- data.frame(id, studlab, year = as.numeric(year))
+      res.study <- data.frame(id, studlab, year)
       res <- merge(res, res.study, by = "id",
                    all.x = TRUE)
       ##
@@ -1070,6 +1088,8 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
         paste0(res$comp.no, ".", res$outcome.no, ".",
                res$group.no, " ", res$grplab)[sel.grp]
   }
+  ##
+  res$test.subgroup[is.na(res$group.no)] <- FALSE
   ##
   row.names(res) <- 1:nrow(res)
   ##
