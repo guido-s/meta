@@ -43,7 +43,7 @@ extract_outcomes <- function(txt, outcome.type, res,
       overall <- xml_attr(xml.j, "TOTALS") == "YES"
       test.subgroup <- xml_attr(xml.j, "SUBGROUP_TEST") == "YES"
       ##
-      k.all <- as.numeric(xml_attr(xml.j, "DF"))
+      n.studies <- as.numeric(xml_attr(xml.j, "DF")) + 1
       ##
       type <- switch(outcome.type,
                      DICH = "D",
@@ -209,7 +209,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                          type = type, method = method, sm = sm, model = model,
                          comb.fixed = comb.fixed, comb.random = comb.random,
                          outclab = outclab,
-                         k = NA, k.all = k.all,
+                         k = n.studies,
                          event.e.pooled = event.e.pooled,
                          n.e.pooled = n.e.pooled,
                          event.c.pooled = event.c.pooled,
@@ -228,7 +228,6 @@ extract_outcomes <- function(txt, outcome.type, res,
                          label.left = label.left,
                          label.right = label.right,
                          complab = complab)
-            res.new$k <- nrow(res.new)
             ##
             if (debug == 2)
               print(res.new)
@@ -314,7 +313,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                        type = type, method = method, sm = sm, model = model,
                        comb.fixed = comb.fixed, comb.random = comb.random,
                        outclab = outclab,
-                       k = NA, k.all = k.all,
+                       k = n.studies,
                        event.e.pooled = event.e.pooled,
                        n.e.pooled = n.e.pooled,
                        event.c.pooled = event.c.pooled,
@@ -333,7 +332,6 @@ extract_outcomes <- function(txt, outcome.type, res,
                        label.left = label.left,
                        label.right = label.right,
                        complab = complab)
-          res.new$k <- nrow(res.new)
           if (debug == 2)
             print(res.new)
           ##
@@ -942,7 +940,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                     type = "", method = "", sm = "", model = "",
                     comb.fixed = NA, comb.random = NA,
                     outclab = "",
-                    k = NA, k.all = NA,
+                    k = NA,
                     event.e.pooled = NA, n.e.pooled = NA,
                     event.c.pooled = NA, n.c.pooled = NA,
                     TE.pooled = NA, lower.pooled = NA, upper.pooled = NA,
