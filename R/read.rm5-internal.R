@@ -244,7 +244,7 @@ extract_outcomes <- function(txt, outcome.type, res,
         group.no <- NA
         grplab <- ""
         Q.w <- NA
-        pval.Q <- NA
+        pval.Q.w <- NA
         I2.w <- NA
         ##
         ## Data
