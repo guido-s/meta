@@ -257,9 +257,10 @@ standard error.}
 
 \item{method.ci}{A character string indicating which method is used
 to calculate confidence intervals for individual studies. Either
-\code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
-\code{"SA"},, \code{"SACC"}, or \code{"NAsm"}, can be
-abbreviated. See function \code{\link{metaprop}}.}
+\code{"z"}, \code{"t"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
+\code{"SA"}, \code{"SACC"}, or \code{"NAsm"}, can be
+abbreviated. See functions \code{\link{metacont}} and
+\code{\link{metaprop}}.}
 
 \item{byvar}{An optional vector containing grouping information
 (must be of same length as \code{event.e}).}

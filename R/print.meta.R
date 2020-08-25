@@ -638,6 +638,9 @@ print.meta <- function(x,
             method.ci.details <-
               paste0("Simple approximation confidence interval with ",
                      "continuity correction:\n\n")
+          else if (x$method.ci == "t")
+            method.ci.details <-
+              "Confidence interval based on t-distribution:\n\n"
           if (x$method.ci != "NAsm") {
             cat(method.ci.details)
             dimnames(res) <-

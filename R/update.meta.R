@@ -140,9 +140,10 @@
 #'   standard error.
 #' @param method.ci A character string indicating which method is used
 #'   to calculate confidence intervals for individual studies. Either
-#'   \code{"CP"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
-#'   \code{"SA"},, \code{"SACC"}, or \code{"NAsm"}, can be
-#'   abbreviated. See function \code{\link{metaprop}}.
+#'   \code{"z"}, \code{"t"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
+#'   \code{"SA"}, \code{"SACC"}, or \code{"NAsm"}, can be
+#'   abbreviated. See functions \code{\link{metacont}} and
+#'   \code{\link{metaprop}}.
 #' @param byvar An optional vector containing grouping information
 #'   (must be of same length as \code{event.e}).
 #' @param bylab A character string with a label for the grouping
@@ -684,6 +685,8 @@ update.meta <- function(object,
                   sm = sm, pooledvar = pooledvar,
                   method.smd = method.smd, sd.glass = sd.glass, exact.smd = exact.smd,
                   ##
+                  method.ci = ifelse(is.null(method.ci), gs("method.ci.cont"),
+                                     method.ci),
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,
@@ -920,8 +923,9 @@ update.meta <- function(object,
                   sm = ifelse(method == "GLMM", "PLOGIT", sm),
                   incr = incr,
                   allincr = allincr, addincr = addincr,
-                  method.ci = ifelse(is.null(method.ci), "CP", method.ci),
                   ##
+                  method.ci = ifelse(is.null(method.ci), gs("method.ci.prop"),
+                                     method.ci),
                   level = level, level.comb = level.comb,
                   comb.fixed = comb.fixed, comb.random = comb.random,
                   overall = overall, overall.hetstat = overall.hetstat,

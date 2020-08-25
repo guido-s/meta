@@ -6,6 +6,10 @@
 
 * R package **xml2** added to Imports (RM5-files are in XML-format)
 
+* Confidence intervals for individual studies can be based on quantile
+  of t-distribution (only implemented for mean differences at the
+  moment)
+
 ### Bug fixes
 
 * forest.meta():
@@ -24,11 +28,6 @@
 
 ### User-visible changes
 
-* forest():
-  - by default, show number of participants in forest plot if this
-    information is available for meta-analysis objects created with
-    metabin()
-
 * read.rm5():
   - direct import of RM5-file possible
   - new argument 'debug' for debug messages while importing RM5-files directly
@@ -36,6 +35,17 @@
 * metacr():
   - overall results not shown if this was specified in the Cochrane
     review (only applies to imported RM5-files)
+
+* metacont(), metagen():
+  - new argument 'method.ci' to choose method for confidence intervals
+    of individual studies (only applies to mean differences at the moment)
+  
+* forest():
+  - by default, show number of participants in forest plot if this
+    information is available for meta-analysis objects created with
+    metabin()
+  - automatically format p-values for individual studies if added to
+    forest plot using argument 'leftcols' or 'rightcols'
 
 ### Internal changes
 

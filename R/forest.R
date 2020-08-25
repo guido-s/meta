@@ -2277,6 +2277,8 @@ forest.meta <- function(x,
         j <- match(rightcols.new[i], colnames)
         if (!is.na(j))
           rightlabs.new[i] <- labnames[j]
+        else if (rightcols.new[i] == "pval")
+          rightlabs.new[i] <- "P-value"
       }
       ##
       if (missing(rightlabs))
@@ -2302,6 +2304,8 @@ forest.meta <- function(x,
         j <- match(leftcols.new[i], colnames)
         if (!is.na(j))
           leftlabs.new[i] <- labnames[j]
+        else if (leftcols.new[i] == "pval")
+          leftlabs.new[i] <- "P-value"
       }
       ##
       if (missing(leftlabs))
@@ -6889,9 +6893,14 @@ forest.meta <- function(x,
             tmp.r <- ifelse(is.na(tmp.r), lab.NA,
                             format(tmp.r, scientific = FALSE,
                                    big.mark = big.mark))
-          else if (is.numeric(tmp.r))
-            tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                             text.NA = "", big.mark = big.mark)
+          else if (is.numeric(tmp.r)) {
+            if (rightcols.new[i] == "pval")
+              tmp.r <- formatPT(tmp.r, digits = digits.pval,
+                                big.mark = big.mark)
+            else
+              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                               text.NA = "", big.mark = big.mark)
+          }
         }
         ##
         tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
@@ -6909,7 +6918,8 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(lab.new,
                                    c("", "", "", rep("", length(TE.w)), tmp.r),
                                    yS,
-                                   just.addcols.right[i],
+                                   if (rightcols.new[i] == "pval") just
+                                   else just.addcols.right[i],
                                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", rep("", length(TE.w)), tmp.r),
@@ -6931,9 +6941,14 @@ forest.meta <- function(x,
             tmp.l <- ifelse(is.na(tmp.l), lab.NA,
                             format(tmp.l, scientific = FALSE,
                                    big.mark = big.mark))
-          else if (is.numeric(tmp.l))
-            tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                             text.NA = "", big.mark = big.mark)
+          else if (is.numeric(tmp.l)) {
+            if (leftcols.new[i] == "pval")
+              tmp.l <- formatPT(tmp.l, digits = digits.pval,
+                                big.mark = big.mark)
+            else
+              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                               text.NA = "", big.mark = big.mark)
+          }
         }
         ##
         tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
@@ -6953,7 +6968,8 @@ forest.meta <- function(x,
                                    c("", "", "",
                                      rep("", length(TE.w)), tmp.l),
                                    yS,
-                                   just.addcols.left[i],
+                                   if (leftcols.new[i] == "pval") just
+                                   else just.addcols.left[i],
                                    fcs, fontfamily)
         ##
         cols.calc[[tname]] <- formatcol(longer.new,
@@ -6979,9 +6995,18 @@ forest.meta <- function(x,
             tmp.r <- ifelse(is.na(tmp.r), lab.NA,
                             format(tmp.r, scientific = FALSE,
                                    big.mark = big.mark))
-          else if (is.numeric(tmp.r))
-            tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                             text.NA = "", big.mark = big.mark)
+          else if (is.numeric(tmp.r)) {
+            if (rightcols.new[i] == "pval")
+              tmp.r <- formatPT(tmp.r, digits = digits.pval,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                zero = zero.pval, JAMA = JAMA.pval,
+                                scientific = scientific.pval,
+                                lab.NA = "NA")
+            else
+              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
+                               text.NA = "", big.mark = big.mark)
+          }
         }
         ##
         tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
@@ -7000,7 +7025,8 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(lab.new,
                                    c("", "", "", tmp.r),
                                    yS,
-                                   just.addcols.right[i],
+                                   if (rightcols.new[i] == "pval") just
+                                   else just.addcols.right[i],
                                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.r),
@@ -7022,9 +7048,18 @@ forest.meta <- function(x,
             tmp.l <- ifelse(is.na(tmp.l), lab.NA,
                             format(tmp.l, scientific = FALSE,
                                    big.mark = big.mark))
-          else if (is.numeric(tmp.l))
-            tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                             text.NA = "", big.mark = big.mark)
+          else if (is.numeric(tmp.l)) {
+            if (leftcols.new[i] == "pval")
+              tmp.l <- formatPT(tmp.l, digits = digits.pval,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                zero = zero.pval, JAMA = JAMA.pval,
+                                scientific = scientific.pval,
+                                lab.NA = "NA")
+            else
+              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
+                               text.NA = "", big.mark = big.mark)
+          }
         }
         ##
         tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
@@ -7043,7 +7078,8 @@ forest.meta <- function(x,
         cols[[tname]] <- formatcol(lab.new,
                                    c("", "", "", tmp.l),
                                    yS,
-                                   just.addcols.left[i],
+                                   if (leftcols.new[i] == "pval") just
+                                   else just.addcols.left[i],
                                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.l),

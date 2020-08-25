@@ -20,6 +20,9 @@
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
+#' @param method.ci A character string indicating which method is used
+#'   to calculate confidence intervals for individual studies, see
+#'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
 #' @param level.comb The level used to calculate confidence intervals
@@ -233,6 +236,22 @@
 #' }
 #' }
 #'
+#' \subsection{Confidence intervals for individual studies}{
+#' 
+#' For the mean difference (argument \code{sm = "MD"}), the confidence
+#' interval for individual studies can be based on the
+#' \itemize{
+#' \item standard normal distribution (\code{method.ci = "z"}), or
+#' \item t-distribution (\code{method.ci = "t"}).
+#' }
+#'
+#' By default, the first method is used if argument \code{df} is
+#' missing and the second method otherwise.
+#' 
+#' Note, this choice does not affect the results of the fixed effect
+#' and random effects meta-analysis.
+#' }
+#' 
 #' \subsection{Estimation of between-study variance}{
 #' 
 #' The following methods are available to estimate the between-study
@@ -394,7 +413,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-#' \item{sm, level, level.comb,}{As defined above.}
+#' \item{sm, method.ci, level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -737,6 +756,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     sm = "",
                     ##
+                    method.ci = if (missing(df)) "z" else "t",
                     level = gs("level"), level.comb = gs("level.comb"),
                     comb.fixed = gs("comb.fixed"),
                     comb.random = gs("comb.random"),
@@ -788,6 +808,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   chknull(sm)
+  ##
+  method.ci <- setchar(method.ci, .settings$ci4cont)
+  ##
   chklevel(level)
   chklevel(level.comb)
   chklogical(comb.fixed)
@@ -1621,7 +1644,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Individual study results
   ##
-  ci.study <- ci(TE, seTE, level = level, null.effect = null.effect)
+  ci.study <- ci(TE, seTE, level = level,
+                 df = if (method.ci == "t") df else NULL,
+                 null.effect = null.effect)
   ##
   ## Prediction interval
   ##

@@ -16,7 +16,7 @@ metaprop(
   incr = gs("incr"),
   allincr = gs("allincr"),
   addincr = gs("addincr"),
-  method.ci = gs("method.ci"),
+  method.ci = gs("method.ci.prop"),
   level = gs("level"),
   level.comb = gs("level.comb"),
   comb.fixed = gs("comb.fixed"),

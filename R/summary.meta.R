@@ -578,6 +578,8 @@ summary.meta <- function(object,
     res$sd.glass   <- object$sd.glass
     res$exact.smd  <- object$exact.smd
     ##
+    res$method.ci <- object$method.ci
+    ##
     class(res) <- c(class(res), "metacont")
   }
   ##

@@ -74,7 +74,7 @@ catmeth <- function(method,
   else
     sm.details <- ""
   ##
-  if (metaprop && !is.null(method.ci)) {
+  if (!is.null(method.ci)) {
     if (method.ci == "CP")
       method.ci.details <-
         "\n- Clopper-Pearson confidence interval for individual studies"
@@ -98,6 +98,9 @@ catmeth <- function(method,
     else if (method.ci == "NAsm")
       method.ci.details <-
         "\n- Normal approximation confidence interval for individual studies"
+    else if (method.ci == "t")
+      method.ci.details <-
+        "\n- Confidence interval for individual studies based on t-distribution"
     else
       method.ci.details <- ""
     ##

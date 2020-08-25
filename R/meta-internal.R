@@ -138,6 +138,7 @@ setOption("sm4mean", c("MRAW", "MLN"))
 setOption("sm4prop", c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
 setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
 ##
+setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
 ##
 setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
@@ -159,7 +160,8 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "incr", "allincr", "addincr",
               "method", "allstudies", "MH.exact",
               "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
-              "pooledvar", "method.smd", "sd.glass", "exact.smd", "method.ci",
+              "pooledvar", "method.smd", "sd.glass", "exact.smd",
+              "method.ci.cont", "method.ci.prop",
               "label.e", "label.c", "label.left", "label.right",
               "layout",
               "test.overall", "test.subgroup", "test.effect.subgroup",
@@ -252,10 +254,11 @@ setOption("pooledvar", FALSE)
 setOption("method.smd", "Hedges")
 setOption("sd.glass", "control")
 setOption("exact.smd", FALSE)
+setOption("method.ci.cont", "z")
 ##
 ## Additional setting for R function metaprop
 ##
-setOption("method.ci", "CP")
+setOption("method.ci.prop", "CP")
 ##
 ## Settings for R functions comparing two treatments
 ##

@@ -20,6 +20,7 @@ metacont(
   method.smd = gs("method.smd"),
   sd.glass = gs("sd.glass"),
   exact.smd = gs("exact.smd"),
+  method.ci = gs("method.ci.cont"),
   level = gs("level"),
   level.comb = gs("level.comb"),
   comb.fixed = gs("comb.fixed"),
@@ -102,6 +103,10 @@ abbreviated.}
 \item{exact.smd}{A logical indicating whether exact formulae should
 be used in estimation of the standardised mean difference and its
 standard error (see Details).}
+
+\item{method.ci}{A character string indicating which method is used
+to calculate confidence intervals for individual studies, see
+Details.}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
@@ -212,7 +217,8 @@ object is a list containing the following components:
 
 \item{n.e, mean.e, sd.e,}{As defined above.}
 \item{n.c, mean.c, sd.c,}{As defined above.}
-\item{studlab, exclude, sm, level, level.comb,}{As defined above.}
+\item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{pooledvar, method.smd, sd.glass,}{As defined above.}
@@ -422,6 +428,19 @@ Calculations are conducted on the log scale and list elements
 \code{TE}, \code{TE.fixed}, and \code{TE.random} contain the
 logarithm of the ratio of means. In printouts and plots these
 values are back transformed if argument \code{backtransf = TRUE}.
+}
+
+\subsection{Confidence intervals for individual studies}{
+
+For the mean difference (argument \code{sm = "MD"}), the confidence
+interval for individual studies can be based on the
+\itemize{
+\item standard normal distribution (\code{method.ci = "z"}, default), or
+\item t-distribution (\code{method.ci = "t"}).
+}
+
+Note, this choice does not affect the results of the fixed effect
+and random effects meta-analysis.
 }
 
 \subsection{Estimation of between-study variance}{

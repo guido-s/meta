@@ -12,6 +12,7 @@ metagen(
   subset = NULL,
   exclude = NULL,
   sm = "",
+  method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
   level.comb = gs("level.comb"),
   comb.fixed = gs("comb.fixed"),
@@ -84,6 +85,10 @@ plots.}
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.}
+
+\item{method.ci}{A character string indicating which method is used
+to calculate confidence intervals for individual studies, see
+Details.}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
@@ -251,7 +256,7 @@ An object of class \code{c("metagen", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-\item{sm, level, level.comb,}{As defined above.}
+\item{sm, method.ci, level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -496,6 +501,22 @@ used to overwrite this default for each individual study:
 \item median and interquartile range (\code{"iqr"});
 \item median and range (\code{"range"}).
 }
+}
+
+\subsection{Confidence intervals for individual studies}{
+
+For the mean difference (argument \code{sm = "MD"}), the confidence
+interval for individual studies can be based on the
+\itemize{
+\item standard normal distribution (\code{method.ci = "z"}), or
+\item t-distribution (\code{method.ci = "t"}).
+}
+
+By default, the first method is used if argument \code{df} is
+missing and the second method otherwise.
+
+Note, this choice does not affect the results of the fixed effect
+and random effects meta-analysis.
 }
 
 \subsection{Estimation of between-study variance}{

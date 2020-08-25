@@ -19,6 +19,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param method.ci A character string indicating which method is used
+#'   to calculate confidence intervals for individual studies, see
+#'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
 #' @param level.comb The level used to calculate confidence intervals
@@ -177,6 +180,19 @@
 #' values are back transformed if argument \code{backtransf = TRUE}.
 #' }
 #' 
+#' \subsection{Confidence intervals for individual studies}{
+#' 
+#' For the mean difference (argument \code{sm = "MD"}), the confidence
+#' interval for individual studies can be based on the
+#' \itemize{
+#' \item standard normal distribution (\code{method.ci = "z"}, default), or
+#' \item t-distribution (\code{method.ci = "t"}).
+#' }
+#' 
+#' Note, this choice does not affect the results of the fixed effect
+#' and random effects meta-analysis.
+#' }
+#' 
 #' \subsection{Estimation of between-study variance}{
 #' 
 #' The following methods to estimate the between-study variance
@@ -285,7 +301,8 @@
 #'
 #' \item{n.e, mean.e, sd.e,}{As defined above.}
 #' \item{n.c, mean.c, sd.c,}{As defined above.}
-#' \item{studlab, exclude, sm, level, level.comb,}{As defined above.}
+#' \item{studlab, exclude, sm, method.ci,}{As defined above.}
+#' \item{level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{pooledvar, method.smd, sd.glass,}{As defined above.}
@@ -588,6 +605,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      sd.glass = gs("sd.glass"),
                      exact.smd = gs("exact.smd"),
                      ##
+                     method.ci = gs("method.ci.cont"),
                      level = gs("level"), level.comb = gs("level.comb"),
                      comb.fixed = gs("comb.fixed"),
                      comb.random = gs("comb.random"),
@@ -652,6 +670,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   fun <- "metacont"
   sm <- setchar(sm, .settings$sm4cont)
+  if (sm != "MD")
+    method.ci <- "z"
+  method.ci <- setchar(method.ci, .settings$ci4cont)
   chklogical(pooledvar)
   method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
   sd.glass <- setchar(sd.glass, c("control", "experimental"))
@@ -889,6 +910,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      sqrt(sd.e^2 / n.e + sd.c^2 / n.c))
     ##
     seTE[is.na(TE)] <- NA
+    ##
+    if (method.ci == "t")
+      ci.study <- ci(TE, seTE, df = n.e + n.c - 2)
   }
   else if (sm == "SMD") {
     J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
@@ -1033,7 +1057,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
               n.c = n.c, mean.c = mean.c, sd.c = sd.c,
               pooledvar = pooledvar,
               method.smd = method.smd, sd.glass = sd.glass,
-              exact.smd = exact.smd)
+              exact.smd = exact.smd, method.ci = method.ci)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)
@@ -1051,6 +1075,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
+  }
+  ##
+  if (method.ci == "t") {
+    res$lower <- ci.study$lower
+    res$upper <- ci.study$upper
+    res$zval <- ci.study$z
+    res$pval <- ci.study$p
+    res$df <- ci.study$df
   }
   ##
   class(res) <- c(fun, "meta")

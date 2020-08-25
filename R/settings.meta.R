@@ -209,7 +209,7 @@ settings.meta <- function(...) {
   res$metafor <- NULL
   res$sm4bin <- res$sm4cont <- res$sm4cor <- res$sm4inc <-
     res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
-  res$ci4prop <- NULL
+  res$ci4cont <- res$ci4prop <- NULL
   res$meth4bin <- res$meth4tau <- res$meth4tau.ci <- NULL
   res$adhoc4hakn <- res$meth4bias <- NULL
   res$argslist <- NULL
@@ -444,9 +444,10 @@ settings.meta <- function(...) {
     catarg("method.smd")
     catarg("sd.glass  ")
     catarg("exact.smd ")
+    catarg("method.ci.cont")
     ##
     cat("\n* Additional setting for metaprop() *\n")
-    catarg("method.ci")
+    catarg("method.ci.prop")
     ##
     cat("\n* Settings for R functions comparing two treatments *\n")
     catarg("label.e    ")
@@ -532,8 +533,9 @@ settings.meta <- function(...) {
     setOption("method.smd", "Hedges")
     setOption("sd.glass", "control")
     setOption("exact.smd", FALSE)
+    setOption("method.ci.cont", "z")
     ##
-    setOption("method.ci", "CP")
+    setOption("method.ci.prop", "CP")
     ##
     setOption("label.e", "Experimental")
     setOption("label.c", "Control")
@@ -680,8 +682,9 @@ settings.meta <- function(...) {
     idmethod.smd <- argid(names, "method.smd")
     idsd.glass <- argid(names, "sd.glass")
     idexact.smd <- argid(names, "exact.smd")
+    idmethod.ci.cont <- argid(names, "method.ci.cont")
     ##
-    idmethod.ci <- argid(names, "method.ci")
+    idmethod.ci.prop <- argid(names, "method.ci.prop")
     ##
     idlabel.e <- argid(names, "label.e")
     idlabel.c <- argid(names, "label.c")
@@ -1031,6 +1034,12 @@ settings.meta <- function(...) {
       setOption("exact.smd", exact.smd)
     }
     ##
+    if (!is.na(idmethod.ci.cont)) {
+      method.ci.cont <- args[[idmethod.ci.cont]]
+      method.ci.cont <- setchar(method.ci.cont, .settings$ci4cont)
+      setOption("method.ci.cont", method.ci.cont)
+    }
+    ##
     ## R function metainc
     ##
     if (!is.na(idsminc)) {
@@ -1055,10 +1064,10 @@ settings.meta <- function(...) {
       setOption("smprop", smprop)
     }
     ##
-    if (!is.na(idmethod.ci)) {
-      method.ci <- args[[idmethod.ci]]
-      method.ci <- setchar(method.ci, .settings$ci4prop)
-      setOption("method.ci", method.ci)
+    if (!is.na(idmethod.ci.prop)) {
+      method.ci.prop <- args[[idmethod.ci.prop]]
+      method.ci.prop <- setchar(method.ci.prop, .settings$ci4prop)
+      setOption("method.ci.prop", method.ci.prop)
     }
     ##
     ## R function metarate
