@@ -28,7 +28,7 @@
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   pooled estimate in cumulative meta-analyses.}
 #' \item{lower, upper}{Lower and upper confidence interval limits.}
-#' \item{zval}{z-value for test of overall effect.}
+#' \item{statistic}{Statistic for test of overall effect.}
 #' \item{pval}{P-value for test of overall effect.}
 #' \item{studlab}{Study label describing addition of studies.}
 #' \item{w}{Sum of weights from fixed effect or random effects model.}
@@ -79,9 +79,9 @@
 #' Newbury Park, CA: Russell Sage Foundation
 #'
 #' @examples
-#' data(Fleiss93)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Fleiss93, studlab = study,
+#' data(Fleiss1993bin)
+#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#'               data = Fleiss1993bin, studlab = study,
 #'               sm = "RR", method = "I")
 #' m1
 #' metacum(m1)
@@ -93,13 +93,13 @@
 #' metacum(m1, sortvar = study)
 #' metacum(m1, sortvar = 7:1)
 #' 
-#' m2 <- update(m1, title = "Fleiss93 meta-analysis",
+#' m2 <- update(m1, title = "Fleiss1993bin meta-analysis",
 #'              backtransf = FALSE)
 #' metacum(m2)
 #' 
-#' data(Fleiss93cont)
-#' m3 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "SMD")
+#' data(Fleiss1993cont)
+#' m3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "SMD")
 #' metacum(m3)
 #' 
 #' @export metacum
@@ -398,7 +398,7 @@ metacum <- function(x, pooled, sortvar) {
                       m$seTE.fixed,                                  #  2
                       m$lower.fixed,                                 #  3
                       m$upper.fixed,                                 #  4
-                      m$zval.fixed,                                  #  5
+                      m$statistic.fixed,                             #  5
                       m$pval.fixed,                                  #  6
                       m$tau2,                                        #  7
                       m$lower.tau2,                                  #  8
@@ -423,7 +423,7 @@ metacum <- function(x, pooled, sortvar) {
                       m$seTE.random,                                 #  2
                       m$lower.random,                                #  3
                       m$upper.random,                                #  4
-                      m$zval.random,                                 #  5
+                      m$statistic.random,                            #  5
                       m$pval.random,                                 #  6
                       m$tau2,                                        #  7
                       m$lower.tau2,                                  #  8
@@ -448,7 +448,7 @@ metacum <- function(x, pooled, sortvar) {
   seTE.i <- res.i[, 2]
   lower.i <- res.i[, 3]
   upper.i <- res.i[, 4]
-  zval.i <- res.i[, 5]
+  statistic.i <- res.i[, 5]
   pval.i <- res.i[, 6]
   ##
   tau2.i <- res.i[, 7]
@@ -480,7 +480,7 @@ metacum <- function(x, pooled, sortvar) {
     seTE.s <- x$seTE.fixed
     lower.TE.s <- x$lower.fixed
     upper.TE.s <- x$upper.fixed
-    zval.s <- x$zval.fixed
+    statistic.s <- x$statistic.fixed
     pval.s <- x$pval.fixed
     w.s <- sum(x$w.fixed, na.rm = TRUE)
   }
@@ -490,7 +490,7 @@ metacum <- function(x, pooled, sortvar) {
     seTE.s <- x$seTE.random
     lower.TE.s <- x$lower.random
     upper.TE.s <- x$upper.random
-    zval.s <- x$zval.random
+    statistic.s <- x$statistic.random
     pval.s <- x$pval.random
     w.s <- sum(x$w.random, na.rm = TRUE)
   }
@@ -505,7 +505,7 @@ metacum <- function(x, pooled, sortvar) {
               seTE = c(seTE.i, NA, seTE.s),
               lower = c(lower.i, NA, lower.TE.s),
               upper = c(upper.i, NA, upper.TE.s),
-              zval = c(zval.i, NA, zval.s),
+              statistic = c(statistic.i, NA, statistic.s),
               pval = c(pval.i, NA, pval.s),
               studlab = studlab,
               ##

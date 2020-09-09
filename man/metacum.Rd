@@ -23,7 +23,7 @@ containing the following components:
 \item{TE, seTE}{Estimated treatment effect and standard error of
   pooled estimate in cumulative meta-analyses.}
 \item{lower, upper}{Lower and upper confidence interval limits.}
-\item{zval}{z-value for test of overall effect.}
+\item{statistic}{Statistic for test of overall effect.}
 \item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing addition of studies.}
 \item{w}{Sum of weights from fixed effect or random effects model.}
@@ -78,9 +78,9 @@ Information from object \code{x} is utilised if argument
 \code{x$comb.fixed} is \code{FALSE}.
 }
 \examples{
-data(Fleiss93)
-m1 <- metabin(event.e, n.e, event.c, n.c,
-              data = Fleiss93, studlab = study,
+data(Fleiss1993bin)
+m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+              data = Fleiss1993bin, studlab = study,
               sm = "RR", method = "I")
 m1
 metacum(m1)
@@ -92,13 +92,13 @@ forest(metacum(m1, pooled = "random"))
 metacum(m1, sortvar = study)
 metacum(m1, sortvar = 7:1)
 
-m2 <- update(m1, title = "Fleiss93 meta-analysis",
+m2 <- update(m1, title = "Fleiss1993bin meta-analysis",
              backtransf = FALSE)
 metacum(m2)
 
-data(Fleiss93cont)
-m3 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-               data = Fleiss93cont, sm = "SMD")
+data(Fleiss1993cont)
+m3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD")
 metacum(m3)
 
 }

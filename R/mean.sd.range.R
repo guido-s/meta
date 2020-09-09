@@ -1,10 +1,4 @@
-TE.seTE.range <- function(n, median, min, max) {
-  
-  
-  ##
-  ## Estimate mean and its standard error from median and range using
-  ## method by Wan et al. (2014), BMC Med Res Methodol 14 (1): 135
-  ##
+mean.sd.range <- function(n, median, min, max, method.mean = "Luo") {
   
   
   ##
@@ -39,20 +33,41 @@ TE.seTE.range <- function(n, median, min, max) {
   
   
   ##
-  ## Equation (2)
+  ## Estimation of mean
   ##
-  TE <- (min + 2 * median + max) / 4 +
-    ifelse(is.na(n), 0, (min - 2 * median + max) / (4 * n))
+  if (tolower(method.mean) == "luo") {
+    ## Luo et al. (2018), equation (15)
+    mean <-
+      4 / (4 + n^0.75) * (min + max) / 2 +
+      n^0.75 / (4 + n^0.75) * median
+  }
+  else if (tolower(method.mean) == "wan") {
+    ## Wan et al. (2014), equation (2)
+    mean <- (min + 2 * median + max) / 4 +
+      ifelse(is.na(n), 0, (min - 2 * median + max) / (4 * n))
+  }
+  else
+    mean <- NA
+  
+  
   ##
-  ## Equations (7) and (9)
+  ## Estimation of standard deviation
+  ## Wan et al. (2014), equations (7) and (9)
   ##
-  seTE <- (max - min) /
+  sd <- (max - min) /
     ifelse(n > 50, 2 * qnorm((n - 0.375) / (n + 0.25)),
            .settings$Wan2014.Table1[n])
   
   
-  res <- list(TE = TE, seTE = seTE,
-              median = median, min = min, max = max, n = n)
+  ##
+  ## Calculation of standard error
+  ##
+  se <- sd / sqrt(n)
+  
+  
+  res <- list(mean = mean, sd = sd, se = se,
+              median = median, min = min, max = max, n = n,
+              method.mean = method.mean)
   ##
   res
 }

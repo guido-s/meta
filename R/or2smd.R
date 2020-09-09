@@ -83,9 +83,9 @@
 #'
 #' # Use dataset from Fleiss (1993)
 #' #
-#' data(Fleiss93)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Fleiss93,
+#' data(Fleiss1993bin)
+#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#'               data = Fleiss1993bin,
 #'               studlab = paste(study, year),
 #'               sm = "OR", comb.random = FALSE)
 #' or2smd(m1)

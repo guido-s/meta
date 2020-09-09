@@ -3,7 +3,7 @@
 \name{read.rm5}
 \alias{read.rm5}
 \alias{print.rm5}
-\alias{Fleiss93_CR}
+\alias{Fleiss1993_CR}
 \title{Import RevMan 5 analysis data}
 \usage{
 read.rm5(
@@ -181,19 +181,19 @@ import in R fails with an error message
 }
 }
 \examples{
-# Locate export data file "Fleiss93_CR.csv"
+# Locate export data file "Fleiss1993_CR.csv"
 # in sub-directory of package "meta"
 #
-filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
-Fleiss93_CR <- read.rm5(filename)
+filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
+Fleiss1993_CR <- read.rm5(filename)
 
-# Same result as R command example(Fleiss93):
+# Same result as R command example(Fleiss1993bin):
 #
-metacr(Fleiss93_CR)
+metacr(Fleiss1993_CR)
 
-# Same result as R command example(Fleiss93cont):
+# Same result as R command example(Fleiss1993cont):
 #
-metacr(Fleiss93_CR, 1, 2)
+metacr(Fleiss1993_CR, 1, 2)
 
 }
 \references{

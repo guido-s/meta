@@ -52,20 +52,20 @@
 #' @keywords htest
 #' 
 #' @examples
-#' # Locate export data file "Fleiss93_CR.csv" in sub-directory of
+#' # Locate export data file "Fleiss1993_CR.csv" in sub-directory of
 #' # package "meta"
 #' #
-#' filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
-#' Fleiss93_CR <- read.rm5(filename)
+#' filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
+#' Fleiss1993_CR <- read.rm5(filename)
 #' 
 #' # Print results for all tests of small-study effects
 #' #
-#' metabias(Fleiss93_CR, k.min = 5)
+#' metabias(Fleiss1993_CR, k.min = 5)
 #' 
 #' # Print result of test of small-study effects for second outcome in
 #' # first comparison
 #' #
-#' metabias(Fleiss93_CR, comp.no = 1, outcome.no = 2, k.min = 5)
+#' metabias(Fleiss1993_CR, comp.no = 1, outcome.no = 2, k.min = 5)
 #' 
 #' @export
 #' @export metabias.rm5

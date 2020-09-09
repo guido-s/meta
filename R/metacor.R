@@ -504,7 +504,7 @@ metacor <- function(cor, n, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  chknumeric(null.effect, single = TRUE)
+  chknumeric(null.effect, length = 1)
   ##
   method.bias <- setchar(method.bias, .settings$meth4bias)
   ##

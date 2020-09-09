@@ -253,9 +253,9 @@
 #' \bold{21}, 1539--58
 #' 
 #' @examples
-#' data(Fleiss93cont)
-#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "SMD",
+#' data(Fleiss1993cont)
+#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "SMD",
 #'                studlab = paste(study, year))
 #' summary(m1)
 #' 
@@ -335,8 +335,8 @@ summary.meta <- function(object,
   ##
   chklogical(backtransf)
   ##
-  chknumeric(pscale, single = TRUE)
-  chknumeric(irscale, single = TRUE)
+  chknumeric(pscale, length = 1)
+  chknumeric(irscale, length = 1)
   ##
   if (!backtransf & pscale != 1 & !is.untransformed(object$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
@@ -373,14 +373,18 @@ summary.meta <- function(object,
   ## (3) Results for individual studies
   ##
   ##
+  object$df <- replaceNULL(object$df, NA)
+  method.ci <- replaceNULL(object$method.ci, "")
+  object$statistic <- replaceNULL(object$statistic, object$zval)
+  ##
   ci.study <- list(TE = object$TE,
                    seTE = object$seTE,
                    lower = object$lower,
                    upper = object$upper,
-                   z = object$zval,
+                   statistic = object$statistic,
                    p = object$pval,
                    level = object$level,
-                   df = NA)
+                   df = object$df)
   ##
   if (metaprop) {
     ci.study$event <- object$event
@@ -397,7 +401,7 @@ summary.meta <- function(object,
                seTE = object$seTE.fixed,
                lower = object$lower.fixed,
                upper = object$upper.fixed,
-               z = object$zval.fixed,
+               statistic = object$statistic.fixed,
                p = object$pval.fixed,
                level = object$level.comb)
   if (metaprop)
@@ -409,7 +413,7 @@ summary.meta <- function(object,
                seTE = object$seTE.random,
                lower = object$lower.random,
                upper = object$upper.random,
-               z = object$zval.random,
+               statistic = object$statistic.random,
                p = object$pval.random,
                level = object$level.comb,
                df = if (!is.null(object$df.hakn)) object$df.hakn else NA)
@@ -501,7 +505,7 @@ summary.meta <- function(object,
                        seTE = object$seTE.fixed.w,
                        lower = object$lower.fixed.w,
                        upper = object$upper.fixed.w,
-                       z = object$zval.fixed.w,
+                       statistic = object$statistic.fixed.w,
                        p = object$pval.fixed.w,
                        level = object$level.comb,
                        harmonic.mean = object$n.harmonic.mean.w)
@@ -513,7 +517,7 @@ summary.meta <- function(object,
                         seTE = object$seTE.random.w,
                         lower = object$lower.random.w,
                         upper = object$upper.random.w,
-                        z = object$zval.random.w,
+                        statistic = object$statistic.random.w,
                         p = object$pval.random.w,
                         level = object$level.comb,
                         df = object$df.hakn.w,
@@ -809,15 +813,15 @@ print.summary.meta <- function(x,
   ## (2) Check and set other arguments
   ##
   ##
-  chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.tau2, min = 0, single = TRUE)
-  chknumeric(digits.tau, min = 0, single = TRUE)
-  chknumeric(digits.zval, min = 0, single = TRUE)
-  chknumeric(digits.pval, min = 1, single = TRUE)
-  chknumeric(digits.pval.Q, min = 1, single = TRUE)
-  chknumeric(digits.Q, min = 0, single = TRUE)
-  chknumeric(digits.H, min = 0, single = TRUE)
-  chknumeric(digits.I2, min = 0, single = TRUE)
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.tau2, min = 0, length = 1)
+  chknumeric(digits.tau, min = 0, length = 1)
+  chknumeric(digits.zval, min = 0, length = 1)
+  chknumeric(digits.pval, min = 1, length = 1)
+  chknumeric(digits.pval.Q, min = 1, length = 1)
+  chknumeric(digits.Q, min = 0, length = 1)
+  chknumeric(digits.H, min = 0, length = 1)
+  chknumeric(digits.I2, min = 0, length = 1)
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
@@ -840,7 +844,7 @@ print.summary.meta <- function(x,
   if (!is.prop & x$sm != "RD")
     pscale <- 1
   if (!is.null(pscale))
-    chknumeric(pscale, single = TRUE)
+    chknumeric(pscale, length = 1)
   else
     pscale <- 1
   if (!backtransf & pscale != 1 & !is.untransformed(x$sm)) {
@@ -850,7 +854,7 @@ print.summary.meta <- function(x,
   if (!is.rate & x$sm != "IRD")
     irscale <- 1
   if (!is.null(irscale))
-    chknumeric(irscale, single = TRUE)
+    chknumeric(irscale, length = 1)
   else
     irscale <- 1
   if (!backtransf & irscale != 1 & !is.untransformed(x$sm)) {
@@ -1121,13 +1125,13 @@ print.summary.meta <- function(x,
   lowTE.fixed <- round(lowTE.fixed, digits)
   uppTE.fixed <- round(uppTE.fixed, digits)
   pTE.fixed <- x$fixed$p
-  zTE.fixed <- round(x$fixed$z, digits.zval)
+  sTE.fixed <- round(x$fixed$statistic, digits.zval)
   ##
   TE.random    <- round(TE.random, digits)
   lowTE.random <- round(lowTE.random, digits)
   uppTE.random <- round(uppTE.random, digits)
   pTE.random <- x$random$p
-  zTE.random <- round(x$random$z, digits.zval)
+  sTE.random <- round(x$random$statistic, digits.zval)
   ##
   lowTE.predict <- round(lowTE.predict, digits)
   uppTE.predict <- round(uppTE.predict, digits)
@@ -1200,7 +1204,7 @@ print.summary.meta <- function(x,
                           formatN(uppTE.fixed, digits, "NA",
                                   big.mark = big.mark)),
                  if (null.given)
-                   formatN(zTE.fixed, digits.zval, big.mark = big.mark),
+                   formatN(sTE.fixed, digits.zval, big.mark = big.mark),
                  if (null.given)
                    formatPT(pTE.fixed, digits = digits.pval,
                             scientific = scientific.pval,
@@ -1283,8 +1287,8 @@ print.summary.meta <- function(x,
                                       if (prediction) uppTE.predict),
                                     digits, "NA", big.mark = big.mark)),
                    if (null.given)
-                     formatN(c(if (comb.fixed) zTE.fixed,
-                               if (comb.random) zTE.random,
+                     formatN(c(if (comb.fixed) sTE.fixed,
+                               if (comb.random) sTE.random,
                                if (prediction) NA),
                              digits = digits.zval, big.mark = big.mark),
                    if (null.given)

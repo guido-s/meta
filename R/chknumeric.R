@@ -1,5 +1,7 @@
-chknumeric <- function(x, min, max, zero = FALSE, single = FALSE,
-                       name = NULL) {
+chknumeric <- function(x, min, max, zero = FALSE, length = 0,
+                       name = NULL, single = FALSE) {
+  if (!missing(single) && single)
+    length <- 1
   ##
   ## Check numeric variable
   ##
@@ -14,8 +16,8 @@ chknumeric <- function(x, min, max, zero = FALSE, single = FALSE,
     stop("Non-numeric value for argument '", name, "'.",
          call. = FALSE)
   ##
-  if (single & length(x) != 1)
-    stop("Argument '", name, "' must be a numeric of length 1.",
+  if (length && length(x) != length)
+    stop("Argument '", name, "' must be a numeric of length ", length, ".",
          call. = FALSE)
   ##
   if (!missing(min) & missing(max)) {

@@ -611,13 +611,13 @@ metarate <- function(event, time, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  chknumeric(null.effect, single = TRUE)
+  chknumeric(null.effect, length = 1)
   ##
   method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(backtransf)
   ##
-  chknumeric(irscale, single = TRUE)
+  chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
@@ -1003,8 +1003,8 @@ metarate <- function(event, time, studlab,
     res$w.fixed <- w.fixed
     res$lower.fixed <- ci.f$lower
     res$upper.fixed <- ci.f$upper
-    res$zval.fixed <- ci.f$z
-    res$pval.fixed <- ci.f$p
+    res$statistic.fixed <- ci.f$statistic
+    res$pval.fixed <- ci.f$statistic
     ##
     if (sum(!exclude) > 1)
       glmm.random <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
@@ -1032,7 +1032,7 @@ metarate <- function(event, time, studlab,
     res$seTE.random <- seTE.random
     res$lower.random <- ci.r$lower
     res$upper.random <- ci.r$upper
-    res$zval.random <- ci.r$z
+    res$statistic.random <- ci.r$statistic
     res$pval.random <- ci.r$p
     ##
     ## Prediction interval

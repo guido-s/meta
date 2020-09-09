@@ -117,8 +117,8 @@
 #'   individual studies.}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
 #'   individual studies.}
-#' \item{zval, pval}{z-value and p-value for test of treatment effect
-#'   for individual studies.}
+#' \item{statistic, pval}{Statistic and p-value for test of treatment
+#'   effect for individual studies.}
 #' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
 #'   random effects model).} 
 #' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
@@ -206,8 +206,8 @@
 #' \bold{63}, 282--8
 #' 
 #' @examples
-#' data(Fleiss93)
-#' m1 <- metabin(event.e, n.e, event.c, n.c, data = Fleiss93, sm = "OR")
+#' data(Fleiss1993bin)
+#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
 #' tf1 <- trimfill(m1)
 #' summary(tf1)
 #' funnel(tf1)
@@ -273,14 +273,14 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   sm <- x$sm
   if (!is.prop(sm))
     pscale <- 1
-  chknumeric(pscale, single = TRUE)
+  chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   if (!is.rate(sm))
     irscale <- 1
-  chknumeric(irscale, single = TRUE)
+  chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
@@ -643,17 +643,17 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   res <- list(studlab = m.all$studlab,
               TE = m.all$TE, seTE = m.all$seTE,
               lower = m.all$lower, upper = m.all$upper,
-              zval = m.all$zval, pval = m.all$pval,
+              statistic = m.all$statistic, pval = m.all$pval,
               w.fixed = m.all$w.fixed, w.random = m.all$w.random,
               exclude = exclude.na,
               ##
               TE.fixed = m$TE.fixed, seTE.fixed = m$seTE.fixed,
               lower.fixed = m$lower.fixed, upper.fixed = m$upper.fixed,
-              zval.fixed = m$zval.fixed, pval.fixed = m$pval.fixed,
+              statistic.fixed = m$statistic.fixed, pval.fixed = m$pval.fixed,
               ##
               TE.random = m$TE.random, seTE.random = m$seTE.random,
               lower.random = m$lower.random, upper.random = m$upper.random,
-              zval.random = m$zval.random, pval.random = m$pval.random,
+              statistic.random = m$statistic.random, pval.random = m$pval.random,
               ##
               seTE.predict = m$seTE.predict,
               lower.predict = m$lower.predict,

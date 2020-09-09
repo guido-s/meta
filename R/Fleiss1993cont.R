@@ -6,7 +6,8 @@
 #' 
 #' Data example in Fleiss (1993) for meta-analysis with continuous outcomes.
 #' 
-#' @name Fleiss93cont
+#' @name Fleiss1993cont
+#' @aliases Fleiss93cont
 #' 
 #' @docType data
 #' 
@@ -14,17 +15,19 @@
 #' \tabular{rl}{
 #' \bold{\emph{study}}\tab study label \cr
 #' \bold{\emph{year}}\tab year of publication \cr
-#' \bold{\emph{n.e}}\tab number of observations in psychotherapy group
+#' \bold{\emph{n.psyc}}\tab number of observations in psychotherapy
+#'   group \cr
+#' \bold{\emph{mean.psyc}}\tab estimated mean in psychotherapy group
 #'   \cr
-#' \bold{\emph{mean.e}}\tab estimated mean in psychotherapy group \cr
-#' \bold{\emph{sd.e}}\tab standard deviation in psychotherapy group
+#' \bold{\emph{sd.psyc}}\tab standard deviation in psychotherapy group
 #'   \cr
-#' \bold{\emph{n.c}}\tab number of observations in control group \cr
-#' \bold{\emph{mean.c}}\tab estimated mean in control group \cr
-#' \bold{\emph{sd.c}}\tab standard deviation in control group
+#' \bold{\emph{n.cont}}\tab number of observations in control group
+#'   \cr
+#' \bold{\emph{mean.cont}}\tab estimated mean in control group \cr
+#' \bold{\emph{sd.cont}}\tab standard deviation in control group
 #' }
 #' 
-#' @seealso \code{\link{Fleiss93}}
+#' @seealso \code{\link{Fleiss1993bin}}
 #' 
 #' @source
 #' Fleiss JL (1993):
@@ -35,10 +38,9 @@
 #' @keywords datasets
 #'
 #' @examples
-#' data(Fleiss93cont)
-#' metacont(n.e, mean.e, sd.e,
-#'          n.c, mean.c, sd.c,
-#'          data = Fleiss93cont,
+#' data(Fleiss1993cont)
+#' metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'          data = Fleiss1993cont,
 #'          studlab = paste(study, year),
 #'          comb.random = FALSE)
 

@@ -1,26 +1,35 @@
-chkchar <- function(x, single = TRUE, name = NULL, nchar = NULL) {
+chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
+  if (!missing(single) && single)
+    length <- 1
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (single) {
-    if (length(x) != 1 || !is.character(x))
-      stop("Argument '", name, "' must be a character string.")
-    ##
+  if (length && length(x) != length)
+    stop("Argument '", name, "' must be a character vector of length ",
+         length, ".",
+         call. = FALSE)
+  ##
+  if (length == 1) {
     if (!is.null(nchar) && nchar(x) != nchar)
       if (nchar == 1)
-        stop("Argument '", name, "' must be a single character.")
+        stop("Argument '", name, "' must be a single character.",
+             call. = FALSE)
       else
         stop("Argument '", name, "' must be a character string of length ",
-             nchar, ".")
+             nchar, ".",
+             call. = FALSE)
   }
-  else if (!is.character(x))
+  ##
+  if (!is.character(x))
     stop("Argument '", name, "' must be a character vector.")
   else {
     if (!is.null(nchar) & any(nchar(x) != nchar))
       if (nchar == 1)
-        stop("Argument '", name, "' must be a vector of single characters.")
+        stop("Argument '", name, "' must be a vector of single characters.",
+             call. = FALSE)
       else
         stop("Argument '", name, "' must be a character vector where ",
-             "each element has ", nchar, " characters.")
+             "each element has ", nchar, " characters.",
+             call. = FALSE)
   }
 }

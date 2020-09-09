@@ -447,7 +447,6 @@
 #' General of the United States.
 #' U-23 Department of Health, Education, and Welfare.
 #' Public Health Service Publication No. 1103.
-#' \url{http://profiles.nlm.nih.gov/ps/retrieve/ResourceMetadata/NNBBMQ}
 #' 
 #' DerSimonian R & Laird N (1986):
 #' Meta-analysis in clinical trials.
@@ -628,7 +627,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   chklogical(backtransf)
   ##
-  chknumeric(irscale, single = TRUE)
+  chknumeric(irscale, length = 1)
   chkchar(irunit)
   ##
   chklogical(keepdata)
@@ -1093,7 +1092,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$w.fixed <- w.fixed
     res$lower.fixed <- ci.f$lower
     res$upper.fixed <- ci.f$upper
-    res$zval.fixed <- ci.f$z
+    res$statistic.fixed <- ci.f$statistic
     res$pval.fixed <- ci.f$p
   }
   ##
@@ -1126,7 +1125,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$seTE.random <- seTE.random
     res$lower.random <- ci.r$lower
     res$upper.random <- ci.r$upper
-    res$zval.random <- ci.r$z
+    res$statistic.random <- ci.r$statistic
     res$pval.random <- ci.r$p
     ##
     ## Prediction interval

@@ -15,6 +15,22 @@ metacont(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  median.e,
+  q1.e,
+  q3.e,
+  min.e,
+  max.e,
+  median.c,
+  q1.c,
+  q3.c,
+  min.c,
+  max.c,
+  method.mean = "Luo",
+  method.sd = "Shi",
+  approx.mean.e,
+  approx.mean.c = approx.mean.e,
+  approx.sd.e,
+  approx.sd.c = approx.sd.e,
   sm = gs("smcont"),
   pooledvar = gs("pooledvar"),
   method.smd = gs("method.smd"),
@@ -78,6 +94,56 @@ be used.}
 \item{exclude}{An optional vector specifying studies to exclude
 from meta-analysis, however, to include in printouts and forest
 plots.}
+
+\item{median.e}{Median in experimental group (used to estimate the
+mean and standard deviation).}
+
+\item{q1.e}{First quartile in experimental group (used to estimate
+the mean and standard deviation).}
+
+\item{q3.e}{Third quartile in experimental group (used to estimate
+the mean and standard deviation).}
+
+\item{min.e}{Minimum in experimental group (used to estimate the
+mean and standard deviation).}
+
+\item{max.e}{Maximum in experimental group (used to estimate the
+mean and standard deviation).}
+
+\item{median.c}{Median in control group (used to estimate the mean
+and standard deviation).}
+
+\item{q1.c}{First quartile in control group (used to estimate the
+mean and standard deviation).}
+
+\item{q3.c}{Third quartile in control group (used to estimate the
+mean and standard deviation).}
+
+\item{min.c}{Minimum in control group (used to estimate the mean
+and standard deviation).}
+
+\item{max.c}{Maximum in control group (used to estimate the mean
+and standard deviation).}
+
+\item{method.mean}{A character string indicating which method to
+use to approximate the mean from the median and other statistics
+(see Details).}
+
+\item{method.sd}{A character string indicating which method to use
+to approximate the standard deviation from sample size, median,
+interquartile range and range (see Details).}
+
+\item{approx.mean.e}{Approximation method to estimate means in
+experimental group (see Details).}
+
+\item{approx.mean.c}{Approximation method to estimate means in
+control group (see Details).}
+
+\item{approx.sd.e}{Approximation method to estimate standard
+deviations in experimental group (see Details).}
+
+\item{approx.sd.c}{Approximation method to estimate standard
+deviations in control group (see Details).}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"MD"}, \code{"SMD"}, or \code{"ROM"}) is to be used for
@@ -218,6 +284,10 @@ object is a list containing the following components:
 \item{n.e, mean.e, sd.e,}{As defined above.}
 \item{n.c, mean.c, sd.c,}{As defined above.}
 \item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
+\item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
+\item{method.mean, method.sd,}{As defined above.}
+\item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As defined above.}
 \item{level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
@@ -227,29 +297,27 @@ object is a list containing the following components:
 \item{tau.common, title, complab, outclab,}{As defined above.}
 \item{label.e, label.c, label.left, label.right,}{As defined
   above.}
-
 \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
 \item{TE, seTE}{Estimated treatment effect and standard error of
   individual studies.}
 \item{lower, upper}{Lower and upper confidence interval limits for
   individual studies.}
-\item{zval, pval}{z-value and p-value for test of treatment effect
-  for individual studies.}
+\item{statistic, pval}{Statistic and p-value for test of treatment
+  effect for individual studies.}
 \item{w.fixed, w.random}{Weight of individual studies (in fixed and
   random effects model).}
 \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
   standard error (fixed effect model).}
 \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
   limits (fixed effect model).}
-\item{zval.fixed, pval.fixed}{z-value and p-value for test of
+\item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
   overall treatment effect (fixed effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect
   and standard error (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
   interval limits (random effects model).}
-\item{zval.random, pval.random}{z-value or t-value and
-  corresponding p-value for test of overall treatment effect
-  (random effects model).}
+\item{statistic.random, pval.random}{Statistic and p-value for test
+  of overall treatment effect (random effects model).}
 \item{prediction, level.predict}{As defined above.}
 \item{seTE.predict}{Standard error utilised for prediction
   interval.}
@@ -286,8 +354,8 @@ object is a list containing the following components:
 \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
   interval limits in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
-\item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
-  treatment effect in subgroups (fixed effect model) - if
+\item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
+  test of treatment effect in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
   standard error in subgroups (random effects model) - if
@@ -295,9 +363,9 @@ object is a list containing the following components:
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
   \code{byvar} is not missing.}
-\item{zval.random.w, pval.random.w}{z-value or t-value and
-  corresponding p-value for test of treatment effect in subgroups
-  (random effects model) - if \code{byvar} is not missing.}
+\item{statistic.random.w, pval.random.w}{Statistics and p-values
+  for test of treatment effect in subgroups (random effects model)
+  - if \code{byvar} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
   random effects model) - if \code{byvar} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
@@ -430,6 +498,95 @@ logarithm of the ratio of means. In printouts and plots these
 values are back transformed if argument \code{backtransf = TRUE}.
 }
 
+\subsection{Approximate means from sample sizes, medians and other statistics}{
+
+Missing means in the experimental group (analogously for the
+control group) can be derived from
+\enumerate{
+\item sample size, median, interquartile range and range (arguments
+  \code{n.e}, \code{median.e}, \code{q1.e}, \code{q3.e},
+  \code{min.e}, and \code{max.e}),
+\item sample size, median and interquartile range (arguments
+  \code{n.e}, \code{median.e}, \code{q1.e}, and \code{q3.e}), or
+\item sample size, median and range (arguments \code{n.e},
+  \code{median.e}, \code{min.e}, and \code{max.e}).
+}
+
+By default, methods described in Luo et al. (2018) are utilized
+(argument \code{method.mean = "Luo"}):
+\itemize{
+\item equation (15) if sample size, median, interquartile range and 
+  range are available,
+\item equation (11) if sample size, median and interquartile range
+  are available,
+\item equation (7) if sample size, median and range are available.
+}
+
+Instead the methods described in Wan et al. (2014) are used if
+argument \code{method.mean = "Wan"}):
+\itemize{
+\item equation (10) if sample size, median, interquartile range and 
+  range are available,
+\item equation (14) if sample size, median and interquartile range
+  are available,
+\item equation (2) if sample size, median and range are available.
+}
+
+By default, missing means are replaced successively using
+interquartile ranges and ranges (if available), interquartile
+ranges (if available) and finally ranges. Arguments
+\code{approx.mean.e} and \code{approx.mean.c} can be used to
+overwrite this behaviour for each individual study and treatment
+arm:
+\itemize{
+\item use means directly (entry \code{""} in argument
+  \code{approx.mean.e} or \code{approx.mean.c});
+\item median, interquartile range and range (\code{"iqr.range"});
+\item median and interquartile range (\code{"iqr"});
+\item median and range (\code{"range"}).
+}
+}
+
+\subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
+
+Missing standard deviations in the experimental group (analogously
+for the control group) can be derived from
+\enumerate{
+\item sample size, median, interquartile range and range (arguments
+  \code{n.e}, \code{median.e}, \code{q1.e}, \code{q3.e},
+  \code{min.e}, and \code{max.e}),
+\item sample size, median and interquartile range (arguments
+  \code{n.e}, \code{median.e}, \code{q1.e} and \code{q3.e}), or
+\item sample size, median and range (arguments \code{n.e},
+  \code{median.e}, \code{min.e} and \code{max.e}).
+}
+
+Wan et al. (2014) describe methods to estimate the standard
+deviation from the sample size, median and additional
+statistics. Shi et al. (2020) provide an improved estimate of the
+standard deviation if the interquartile range and range are
+available in addition to the sample size and median. Accordingly,
+equation (11) in Shi et al. (2020) is the default (argument
+\code{method.sd = "Shi"}), if the median, interquartile range and
+range are provided. The method by Wan et al. (2014) is used if
+argument \code{method.sd = "Wan"} and, depending on the sample
+size, either equation (12) or (13) is used. If only the
+interquartile range or range is available, equations (15) / (16)
+and (7) / (9) in Wan et al. (2014) are used, respectively.
+
+By default, missing standard deviations are replaced successively
+using these method, i.e., interquartile ranges and ranges are used
+before interquartile ranges before ranges. Arguments
+\code{approx.sd.e} and \code{approx.sd.c} can be used to overwrite
+this default for each individual study and treatment arms:
+\itemize{
+\item sample size, median, interquartile range and range
+  (\code{"iqr.range"});
+\item sample size, median and interquartile range (\code{"iqr"});
+\item sample size, median and range (\code{"range"}).
+}
+}
+
 \subsection{Confidence intervals for individual studies}{
 
 For the mean difference (argument \code{sm = "MD"}), the confidence
@@ -545,12 +702,12 @@ calculate individual and overall treatment estimates and standard
 errors.
 }
 \examples{
-data(Fleiss93cont)
+data(Fleiss1993cont)
 
 # Meta-analysis with Hedges' g as effect measure
 #
-m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-               data = Fleiss93cont, sm = "SMD")
+m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD")
 m1
 forest(m1)
 
@@ -667,6 +824,12 @@ random-effects meta-analyses.
 \emph{Research Synthesis Methods},
 \bold{10}, 83--98
 
+Luo D, Wan X, Liu J, Tong T (2018):
+Optimally estimating the sample mean from the sample size, median,
+mid-range, and/or mid-quartile range.
+\emph{Statistical Methods in Medical Research},
+\bold{27}, 1785--805
+
 \emph{Review Manager (RevMan)}
 [Computer program]. Version 5.3.
 Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
@@ -675,6 +838,12 @@ Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
+
+Wan X, Wang W, Liu J, Tong T (2014):
+Estimating the sample mean and standard deviation from the sample
+size, median, range and/or interquartile range.
+\emph{BMC Medical Research Methodology},
+\bold{14}, 135
 
 White IR, Thomas J (2005):
 Standardized mean differences in individually-randomized and

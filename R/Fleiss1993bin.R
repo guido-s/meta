@@ -7,7 +7,8 @@
 #' Data example in Fleiss (1993) for meta-analysis with binary
 #' outcomes.
 #' 
-#' @name Fleiss93
+#' @name Fleiss1993bin
+#' @aliases Fleiss93
 #' 
 #' @docType data
 #' 
@@ -16,10 +17,10 @@
 #' \tabular{rl}{
 #' \bold{\emph{study}}\tab study label \cr
 #' \bold{\emph{year}}\tab year of publication \cr
-#' \bold{\emph{event.e}}\tab number of deaths in aspirin group \cr
-#' \bold{\emph{n.e}}\tab number of observations in aspirin group \cr
-#' \bold{\emph{event.c}}\tab number of deaths in placebo group \cr
-#' \bold{\emph{n.c}}\tab number of observations in placebo group
+#' \bold{\emph{d.asp}}\tab number of deaths in aspirin group \cr
+#' \bold{\emph{n.asp}}\tab number of observations in aspirin group \cr
+#' \bold{\emph{d.plac}}\tab number of deaths in placebo group \cr
+#' \bold{\emph{n.plac}}\tab number of observations in placebo group
 #' }
 #' 
 #' @source
@@ -31,9 +32,9 @@
 #' @keywords datasets
 #' 
 #' @examples
-#' data(Fleiss93)
-#' metabin(event.e, n.e, event.c, n.c,
-#'         data = Fleiss93,
+#' data(Fleiss1993bin)
+#' metabin(d.asp, n.asp, d.plac, n.plac,
+#'         data = Fleiss1993bin,
 #'         studlab = paste(study, year),
 #'         sm = "OR", comb.random = FALSE)
 

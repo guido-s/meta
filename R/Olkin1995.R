@@ -3,7 +3,8 @@
 #' @description
 #' Meta-analysis on Thrombolytic Therapy after Acute Myocardial Infarction
 #' 
-#' @name Olkin95
+#' @name Olkin1995
+#' @aliases Olkin95
 #' 
 #' @docType data
 #' 
@@ -11,12 +12,12 @@
 #' \tabular{rl}{
 #' \bold{\emph{author}}\tab first author \cr
 #' \bold{\emph{year}}\tab year of publication \cr
-#' \bold{\emph{event.e}}\tab number of events in experimental group
+#' \bold{\emph{ev.exp}}\tab number of events in experimental group
 #'   \cr
-#' \bold{\emph{n.e}}\tab number of observations in experimental group
+#' \bold{\emph{n.exp}}\tab number of observations in experimental group
 #'   \cr
-#' \bold{\emph{event.c}}\tab number of events in control group \cr
-#' \bold{\emph{n.c}}\tab number of observations in control group
+#' \bold{\emph{ev.cont}}\tab number of events in control group \cr
+#' \bold{\emph{n.cont}}\tab number of observations in control group
 #' }
 #' 
 #' @source
@@ -28,8 +29,8 @@
 #' @keywords datasets
 #' 
 #' @examples
-#' data(Olkin95)
-#' summary(metabin(event.e, n.e, event.c, n.c, data = Olkin95))
+#' data(Olkin1995)
+#' summary(metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995))
 
 
 NULL

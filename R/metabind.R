@@ -32,15 +32,15 @@
 #' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}}
 #' 
 #' @examples
-#' data(Fleiss93cont)
+#' data(Fleiss1993cont)
 #' 
 #' # Add some (fictitious) grouping variables:
 #' #
-#' Fleiss93cont$age <- c(55, 65, 55, 65, 55)
-#' Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
+#' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
+#' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "MD")
+#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "MD")
 #'
 #' # Conduct two subgroup analyses
 #' #
@@ -95,6 +95,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     if (!inherits(args[[i]], "meta"))
       stop("All elements of argument '...' must be of class 'meta'.",
            call. = FALSE)
+    else
+      args[[i]] <- update(args[[i]])
     ##
     if (!is.null(args[[i]]$byvar))
       is.subgroup[i] <- TRUE
@@ -154,7 +156,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              seTE.fixed.w = m.i$seTE.fixed,
                              lower.fixed.w = m.i$lower.fixed,
                              upper.fixed.w = m.i$upper.fixed,
-                             zval.fixed.w = m.i$zval.fixed,
+                             statistic.fixed.w = m.i$statistic.fixed,
                              pval.fixed.w = m.i$pval.fixed,
                              w.fixed.w = 0, # sum(m.i$w.fixed),
                              ##
@@ -162,7 +164,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              seTE.random.w = m.i$seTE.random,
                              lower.random.w = m.i$lower.random,
                              upper.random.w = m.i$upper.random,
-                             zval.random.w = m.i$zval.random,
+                             statistic.random.w = m.i$statistic.random,
                              pval.random.w = m.i$pval.random,
                              df.hakn.w = replace.NULL(m.i$df.hakn),
                              w.random.w = 0, # sum(m.i$w.random),
@@ -286,14 +288,14 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             seTE.fixed = m.i$seTE.fixed,
                             lower.fixed = m.i$lower.fixed,
                             upper.fixed = m.i$upper.fixed,
-                            zval.fixed = m.i$zval.fixed,
+                            statistic.fixed = m.i$statistic.fixed,
                             pval.fixed = m.i$pval.fixed,
                             ##
                             TE.random = m.i$TE.random,
                             seTE.random = m.i$seTE.random,
                             lower.random = m.i$lower.random,
                             upper.random = m.i$upper.random,
-                            zval.random = m.i$zval.random,
+                            statistic.random = m.i$statistic.random,
                             pval.random = m.i$pval.random,
                             df.hakn = replace.NULL(m.i$df.hakn),
                             ##
@@ -461,7 +463,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
         study.i$seTE <- m.i$seTE.fixed.w
         study.i$lower <- m.i$lower.fixed.w
         study.i$upper <- m.i$upper.fixed.w
-        study.i$zval <- m.i$zval.fixed.w
+        study.i$statistic <- m.i$statistic.fixed.w
         study.i$pval <- m.i$pval.fixed.w
         study.i$w.fixed <- m.i$w.fixed.w
         study.i$w.random <- 0
@@ -471,7 +473,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
         study.i$seTE <- m.i$seTE.random.w
         study.i$lower <- m.i$lower.random.w
         study.i$upper <- m.i$upper.random.w
-        study.i$zval <- m.i$zval.random.w
+        study.i$statistic <- m.i$statistic.random.w
         study.i$pval <- m.i$pval.random.w
         study.i$w.fixed <- 0
         study.i$w.random <- m.i$w.random.w
@@ -486,7 +488,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
         study.i$seTE <- m.i$seTE.fixed
         study.i$lower <- m.i$lower.fixed
         study.i$upper <- m.i$upper.fixed
-        study.i$zval <- m.i$zval.fixed
+        study.i$statistic <- m.i$statistic.fixed
         study.i$pval <- m.i$pval.fixed
         study.i$w.fixed <- 1
         study.i$w.random <- 0
@@ -496,7 +498,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
         study.i$seTE <- m.i$seTE.random
         study.i$lower <- m.i$lower.random
         study.i$upper <- m.i$upper.random
-        study.i$zval <- m.i$zval.random
+        study.i$statistic <- m.i$statistic.random
         study.i$pval <- m.i$pval.random
         study.i$w.fixed <- 0
         study.i$w.random <- 1
@@ -540,14 +542,14 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$seTE.fixed <- makeunique(res$seTE.fixed)
   res$lower.fixed <- makeunique(res$lower.fixed)
   res$upper.fixed <- makeunique(res$upper.fixed)
-  res$zval.fixed <- makeunique(res$zval.fixed)
+  res$statistic.fixed <- makeunique(res$statistic.fixed)
   res$pval.fixed <- makeunique(res$pval.fixed)
   ##
   res$TE.random <- makeunique(res$TE.random)
   res$seTE.random <- makeunique(res$seTE.random)
   res$lower.random <- makeunique(res$lower.random)
   res$upper.random <- makeunique(res$upper.random)
-  res$zval.random <- makeunique(res$zval.random)
+  res$statistic.random <- makeunique(res$statistic.random)
   res$pval.random <- makeunique(res$pval.random)
   res$df.hakn <- makeunique(res$df.hakn)
   ##

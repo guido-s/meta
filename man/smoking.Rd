@@ -25,7 +25,6 @@ Smoking and Health: Report of the Advisory Committee to the Surgeon
 General of the United States.
 U-23 Department of Health, Education, and Welfare.
 Public Health Service Publication No. 1103.
-\url{http://profiles.nlm.nih.gov/ps/retrieve/ResourceMetadata/NNBBMQ}
 }
 \description{
 Meta-analyses on the effect of smoking on mortality risk.

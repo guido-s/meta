@@ -26,16 +26,17 @@ information on individual studies, e.g., estimated treatment effect
 and its standard error.
 }
 \examples{
-data(Fleiss93cont)
+data(Fleiss1993cont)
 #
 # Generate additional variable with grouping information
 #
-Fleiss93cont$group <- c(1, 2, 1, 1, 2)
+Fleiss1993cont$group <- c(1, 2, 1, 1, 2)
 #
 # Do meta-analysis without grouping information
 #
-m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, study,
-               data = Fleiss93cont, sm = "SMD")
+m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD",
+               studlab = paste(study, year))
 #
 # Update meta-analysis object and do subgroup analyses
 #
@@ -43,8 +44,9 @@ summary(update(m1, byvar = group))
 
 # Same result using metacont function directly
 #
-m2 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, study,
-               data = Fleiss93cont, sm = "SMD", byvar = group)
+m2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD",
+               studlab = paste(study, year), byvar = group)
 summary(m2)
 
 # Compare printout of the following two commands

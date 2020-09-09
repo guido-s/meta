@@ -65,8 +65,8 @@
 #' nnt(0.73, p.c = 0.3, sm = "OR")
 #'
 #' # Use Mantel-Haenszel odds ratio to calculate NNTs
-#' data(Olkin95)
-#' m1 <- metabin(event.e, n.e, event.c, n.c, data = Olkin95,
+#' data(Olkin1995)
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
 #'               comb.random = FALSE)
 #' nnt(m1, comb.random = TRUE)
 #' 
@@ -338,8 +338,8 @@ print.nnt.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   ##
-  chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.prop, min = 0, single = TRUE)
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.prop, min = 0, length = 1)
 
 
   if (comb.fixed) {

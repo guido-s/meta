@@ -127,9 +127,9 @@
 #' @keywords hplot
 #' 
 #' @examples
-#' data(Olkin95)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = c(41, 47, 51, 59),
+#' data(Olkin1995)
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = c(41, 47, 51, 59),
 #'               studlab = paste(author, year),
 #'               sm = "RR", method = "I")
 #' 
@@ -230,7 +230,7 @@ funnel.meta <- function(x,
   chknumeric(lwd.random)
   yaxis <- setchar(yaxis, c("se", "size", "invvar", "invse", "ess"))
   if (!is.null(contour.levels))
-    chklevel(contour.levels, single = FALSE, ci = FALSE)
+    chklevel(contour.levels, length = 0, ci = FALSE)
   chknumeric(ref)
   if (!is.null(level))
     chklevel(level)

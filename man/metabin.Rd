@@ -642,24 +642,24 @@ metabin(0, 10, 0, 10, sm = "OR", allstudies = TRUE)
 # Use subset of Olkin (1995) to conduct meta-analysis based on
 # inverse variance method (with risk ratio as summary measure)
 #
-data(Olkin95)
-m1 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = c(41, 47, 51, 59),
+data(Olkin1995)
+m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = c(41, 47, 51, 59),
               method = "Inverse")
 summary(m1)
 
 # Use different subset of Olkin (1995)
 #
-m2 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = year < 1970,
+m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = year < 1970,
               method = "Inverse", studlab = author)
 summary(m2)
 forest(m2)
 
 # Meta-analysis with odds ratio as summary measure
 #
-m3 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = year < 1970,
+m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = year < 1970,
               sm = "OR", method = "Inverse", studlab = author)
 # Same meta-analysis result using 'update.meta' function
 m3 <- update(m2, sm = "OR")
@@ -687,8 +687,8 @@ if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
 # Logistic regression model with (k = 4) fixed study effects
 # (default: model.glmm = "UM.FS")
 #
-m6 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = year < 1970,
+m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = year < 1970,
               method = "GLMM")
 # Same results:
 m6 <- update(m2, method = "GLMM")
@@ -721,8 +721,8 @@ summary(m9)
 # Logistic regression model with (k = 70) fixed study effects
 # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #
-m10 <- metabin(event.e, n.e, event.c, n.c,
-               data = Olkin95, method = "GLMM")
+m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+               data = Olkin1995, method = "GLMM")
 summary(m10)
 
 # Mixed-effects logistic regression model with random study effects

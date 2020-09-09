@@ -18,7 +18,7 @@ TE.seTE.ci <- function(lower, upper, level = 0.95,
   if (any(lower >= upper, na.rm = TRUE))
     stop("Lower limit must be smaller than upper limit.", call. = FALSE)
   ##
-  chklevel(level, single = FALSE)
+  chklevel(level, length = 0)
   
   
   ##

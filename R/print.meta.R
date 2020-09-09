@@ -113,9 +113,9 @@
 #' @keywords print
 #' 
 #' @examples
-#' data(Fleiss93cont)
-#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "SMD",
+#' data(Fleiss1993cont)
+#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "SMD",
 #'                studlab = paste(study, year))
 #' m1
 #' 
@@ -218,7 +218,7 @@ print.meta <- function(x,
   chklogical(warn.backtransf)
   ##
   if (!is.null(pscale))
-    chknumeric(pscale, single = TRUE)
+    chknumeric(pscale, length = 1)
   else
     pscale <- 1
   if (!backtransf & pscale != 1 & !is.untransformed(x$sm)) {
@@ -228,7 +228,7 @@ print.meta <- function(x,
   if (!is.rate(x$sm) & x$sm != "IRD")
     irscale <- 1
   if (!is.null(irscale))
-    chknumeric(irscale, single = TRUE)
+    chknumeric(irscale, length = 1)
   else
     irscale <- 1
   if (!backtransf & irscale != 1 & !is.untransformed(x$sm)) {
@@ -238,13 +238,13 @@ print.meta <- function(x,
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
-  chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.se, min = 0, single = TRUE)
-  chknumeric(digits.tau2, min = 0, single = TRUE)
-  chknumeric(digits.tau, min = 0, single = TRUE)
-  chknumeric(digits.I2, min = 0, single = TRUE)
-  chknumeric(digits.prop, min = 0, single = TRUE)
-  chknumeric(digits.weight, min = 0, single = TRUE)
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.tau2, min = 0, length = 1)
+  chknumeric(digits.tau, min = 0, length = 1)
+  chknumeric(digits.I2, min = 0, length = 1)
+  chknumeric(digits.prop, min = 0, length = 1)
+  chknumeric(digits.weight, min = 0, length = 1)
   ##
   chkchar(text.tau2)
   chkchar(text.tau)

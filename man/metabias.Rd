@@ -169,9 +169,9 @@ No test for funnel plot asymmetry is conducted in meta-analyses
 with subgroups.
 }
 \examples{
-data(Olkin95)
-m1 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = 1:10,
+data(Olkin1995)
+m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = 1:10,
               sm = "RR", method = "I")
 
 metabias(m1)

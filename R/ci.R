@@ -19,7 +19,7 @@
 #' \item{seTE}{Standard error of treatment estimate}
 #' \item{lower}{Lower confidence limits}
 #' \item{upper}{Upper confidence limits}
-#' \item{z}{Test statistic (either z-score or t-score)}
+#' \item{statistic}{Test statistic (either z-score or t-score)}
 #' \item{p}{P-value of test with null hypothesis \code{TE=0}}
 #' \item{level}{The confidence level required}
 #' \item{df}{Degrees of freedom (t-distribution)}
@@ -49,27 +49,27 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
   if (is.null(df)) {
     lower  <- TE - qnorm(1 - alpha / 2) * seTE
     upper  <- TE + qnorm(1 - alpha / 2) * seTE
-    zscore <- (TE - null.effect) / seTE
-    pval   <- 2 * pnorm(abs(zscore), lower.tail = FALSE)
+    statistic <- (TE - null.effect) / seTE
+    pval   <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
     df <- NA
   }
   else {
     df[df == 0] <- NA
     ##
-    zscore <- (TE - null.effect) / seTE
+    statistic <- (TE - null.effect) / seTE
     ##
     if (length(df) == 1) {
       if (is.na(df)) {
         lower <- TE - qnorm(1 - alpha / 2) * seTE
         upper <- TE + qnorm(1 - alpha / 2) * seTE
         ##
-        pval <- 2 * pnorm(abs(zscore), lower.tail = FALSE)
+        pval <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
       }
       else {
         lower <- TE - qt(1 - alpha / 2, df = df) * seTE
         upper <- TE + qt(1 - alpha / 2, df = df) * seTE
         ##
-        pval <- 2 * pt(abs(zscore), df = df, lower.tail = FALSE)
+        pval <- 2 * pt(abs(statistic), df = df, lower.tail = FALSE)
       }
     }
     else {
@@ -81,8 +81,8 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
                       TE + qnorm(1 - alpha / 2) * seTE)
       ##        
       pval <- ifelse(!is.na(df),
-                     2 * pt(abs(zscore), df = df, lower.tail = FALSE),
-                     2 * pnorm(abs(zscore), lower.tail = FALSE))
+                     2 * pt(abs(statistic), df = df, lower.tail = FALSE),
+                     2 * pnorm(abs(statistic), lower.tail = FALSE))
     }
     ##
     df[is.na(df)] <- 0
@@ -90,6 +90,7 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
 
   list(TE = TE, seTE = seTE,
        lower = lower, upper = upper,
-       z = zscore, p = pval, level = level,
-       df = df, null.effect = null.effect)
+       statistic = statistic, p = pval, level = level,
+       df = df, null.effect = null.effect,
+       z = statistic)
 }

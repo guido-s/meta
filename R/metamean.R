@@ -16,6 +16,29 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param median Median (used to estimate the mean and standard
+#'   deviation).
+#' @param q1 First quartile (used to estimate the mean and standard
+#'   deviation).
+#' @param q3 Third quartile (used to estimate the mean and standard
+#'   deviation).
+#' @param min Minimum (used to estimate the mean and standard
+#'   deviation).
+#' @param max Maximum (used to estimate the mean and standard
+#'   deviation).
+#' @param method.mean A character string indicating which method to
+#'   use to approximate the mean from the median and other statistics
+#'   (see Details).
+#' @param method.sd A character string indicating which method to use
+#'   to approximate the standard deviation from sample size, median,
+#'   interquartile range and range (see Details).
+#' @param approx.mean Approximation method to estimate means (see
+#'   Details).
+#' @param approx.sd Approximation method to estimate standard
+#'   deviations (see Details).
+#' @param method.ci A character string indicating which method is used
+#'   to calculate confidence intervals for individual studies, see
+#'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
 #' @param level.comb The level used to calculate confidence intervals
@@ -117,6 +140,102 @@
 #' 
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
+#' 
+#' \subsection{Approximate means from sample sizes, medians and other statistics}{
+#' 
+#' Missing means can be derived from
+#' \enumerate{
+#' \item sample size, median, interquartile range and range (arguments
+#'   \code{n}, \code{median}, \code{q1}, \code{q3}, \code{min}, and
+#'   \code{max}),
+#' \item sample size, median and interquartile range (arguments
+#'   \code{n}, \code{median}, \code{q1}, and \code{q3}), or
+#' \item sample size, median and range (arguments \code{n},
+#'   \code{median}, \code{min}, and \code{max}).
+#' }
+#' 
+#' By default, methods described in Luo et al. (2018) are utilized
+#' (argument \code{method.mean = "Luo"}):
+#' \itemize{
+#' \item equation (15) if sample size, median, interquartile range and 
+#'   range are available,
+#' \item equation (11) if sample size, median and interquartile range
+#'   are available,
+#' \item equation (7) if sample size, median and range are available.
+#' }
+#' 
+#' Instead the methods described in Wan et al. (2014) are used if
+#' argument \code{method.mean = "Wan"}):
+#' \itemize{
+#' \item equation (10) if sample size, median, interquartile range and 
+#'   range are available,
+#' \item equation (14) if sample size, median and interquartile range
+#'   are available,
+#' \item equation (2) if sample size, median and range are available.
+#' }
+#'
+#' By default, missing means are replaced successively using
+#' interquartile ranges and ranges (if available), interquartile
+#' ranges (if available) and finally ranges. Argument
+#' \code{approx.mean} can be used to overwrite this behaviour for each
+#' individual study and treatment arm:
+#' \itemize{
+#' \item use means directly (entry \code{""} in argument
+#'   \code{approx.mean});
+#' \item median, interquartile range and range (\code{"iqr.range"});
+#' \item median and interquartile range (\code{"iqr"});
+#' \item median and range (\code{"range"}).
+#' }
+#' }
+#'
+#' \subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
+#' 
+#' Missing standard deviations can be derived from
+#' \enumerate{
+#' \item sample size, median, interquartile range and range (arguments
+#'   \code{n}, \code{median}, \code{q1}, \code{q3}, \code{min}, and
+#'   \code{max}),
+#' \item sample size, median and interquartile range (arguments
+#'   \code{n}, \code{median}, \code{q1} and \code{q3}), or
+#' \item sample size, median and range (arguments \code{n},
+#'   \code{median}, \code{min} and \code{max}).
+#' }
+#' 
+#' Wan et al. (2014) describe methods to estimate the standard
+#' deviation from the sample size, median and additional
+#' statistics. Shi et al. (2020) provide an improved estimate of the
+#' standard deviation if the interquartile range and range are
+#' available in addition to the sample size and median. Accordingly,
+#' equation (11) in Shi et al. (2020) is the default (argument
+#' \code{method.sd = "Shi"}), if the median, interquartile range and
+#' range are provided. The method by Wan et al. (2014) is used if
+#' argument \code{method.sd = "Wan"} and, depending on the sample
+#' size, either equation (12) or (13) is used. If only the
+#' interquartile range or range is available, equations (15) / (16)
+#' and (7) / (9) in Wan et al. (2014) are used, respectively.
+#'
+#' By default, missing standard deviations are replaced successively
+#' using these method, i.e., interquartile ranges and ranges are used
+#' before interquartile ranges before ranges. Argument
+#' \code{approx.sd} can be used to overwrite this default for each
+#' individual study and treatment arms:
+#' \itemize{
+#' \item sample size, median, interquartile range and range
+#'   (\code{"iqr.range"});
+#' \item sample size, median and interquartile range (\code{"iqr"});
+#' \item sample size, median and range (\code{"range"}).
+#' }
+#' }
+#' 
+#' \subsection{Confidence intervals for individual studies}{
+#' 
+#' For untransformed means (argument \code{sm = "MRAW"}), the
+#' confidence interval for individual studies can be based on the
+#' \itemize{
+#' \item standard normal distribution (\code{method.ci = "z"}, default), or
+#' \item t-distribution (\code{method.ci = "t"}).
+#' }
+#' }
 #' 
 #' \subsection{Estimation of between-study variance}{
 #' 
@@ -225,7 +344,11 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{n, mean, sd,}{As defined above.}
-#' \item{studlab, exclude, sm, level, level.comb,}{As defined above.}
+#' \item{studlab, exclude, sm, method.ci,}{As defined above.}
+#' \item{median, q1, q3, min, max,}{As defined above.}
+#' \item{method.mean, method.sd,}{As defined above.}
+#' \item{approx.mean, approx.sd,}{As defined above.}
+#' \item{level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -237,23 +360,22 @@
 #'   error of individual studies.}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
 #'   individual studies.}
-#' \item{zval, pval}{z-value and p-value for test of overall effect
-#'   for individual studies.}
+#' \item{statistic, pval}{Statistic and p-value for test of treatment
+#'   effect for individual studies.}
 #' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
 #'   random effects model).}
 #' \item{TE.fixed, seTE.fixed}{Estimated overall effect (mean or log
 #'   mean) and standard error (fixed effect model).}
 #' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
 #'   limits (fixed effect model).}
-#' \item{zval.fixed, pval.fixed}{z-value and p-value for test of
-#'   overall effect (fixed effect model).}
+#' \item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+#'   overall treatment effect (fixed effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall effect (mean or log
 #'   mean) and standard error (random effects model).}
 #' \item{lower.random, upper.random}{Lower and upper confidence
 #'   interval limits (random effects model).}
-#' \item{zval.random, pval.random}{z-value or t-value and
-#'   corresponding p-value for test of overall effect (random effects
-#'   model).}
+#' \item{statistic.random, pval.random}{Statistic and p-value for test
+#'   of overall treatment effect (random effects model).}
 #' \item{prediction, level.predict}{As defined above.}
 #' \item{seTE.predict}{Standard error utilised for prediction
 #'   interval.}
@@ -288,8 +410,8 @@
 #' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
 #'   interval limits in subgroups (fixed effect model) - if
 #'   \code{byvar} is not missing.}
-#' \item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
-#'   treatment effect in subgroups (fixed effect model) - if
+#' \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
+#'   test of treatment effect in subgroups (fixed effect model) - if
 #'   \code{byvar} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated effect and standard
 #'   error in subgroups (random effects model) - if \code{byvar} is
@@ -297,9 +419,9 @@
 #' \item{lower.random.w, upper.random.w}{Lower and upper confidence
 #'   interval limits in subgroups (random effects model) - if
 #'   \code{byvar} is not missing.}
-#' \item{zval.random.w, pval.random.w}{z-value or t-value and
-#'   corresponding p-value for test of effect in subgroups (random
-#'   effects model) - if \code{byvar} is not missing.}
+#' \item{statistic.random.w, pval.random.w}{Statistics and p-values
+#'   for test of treatment effect in subgroups (random effects model)
+#'   - if \code{byvar} is not missing.}
 #' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
 #'   random effects model) - if \code{byvar} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of effect for
@@ -438,8 +560,13 @@ metamean <- function(n, mean, sd, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      ##
+                     median, q1, q3, min, max,
+                     method.mean = "Luo", method.sd = "Shi",
+                     approx.mean, approx.sd,
+                     ##
                      sm = gs("smmean"),
                      ##
+                     method.ci = gs("method.ci.cont"),
                      level = gs("level"), level.comb = gs("level.comb"),
                      comb.fixed = gs("comb.fixed"),
                      comb.random = gs("comb.random"),
@@ -495,7 +622,7 @@ metamean <- function(n, mean, sd, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  chknumeric(null.effect, single = TRUE)
+  chknumeric(null.effect, length = 1)
   ##
   method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
@@ -505,6 +632,13 @@ metamean <- function(n, mean, sd, studlab,
   ##
   fun <- "metamean"
   sm <- setchar(sm, .settings$sm4mean)
+  if (sm != "MRAW")
+    method.ci <- "z"
+  method.ci <- setchar(method.ci, .settings$ci4cont)
+  ##
+  method.mean <- setchar(method.mean, c("Luo", "Wan"))
+  method.sd <- setchar(method.sd, c("Shi", "Wan"))
+  ##
   chklogical(warn)
   
   
@@ -522,6 +656,26 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Catch 'n', 'mean', and 'sd' from data:
   ##
+  missing.mean <- missing(mean)
+  missing.sd <- missing(sd)
+  ##
+  missing.median <- missing(median)
+  missing.q1 <- missing(q1)
+  missing.q3 <- missing(q3)
+  missing.min <- missing(min)
+  missing.max <- missing(max)
+  ##
+  if (missing.mean & missing.median)
+    stop("Provide either argument 'mean' or 'median'.",
+         call. = FALSE)
+  ##
+  if (missing.sd &
+      !((!missing.q1 & !missing.q3) |
+        (!missing.min & !missing.max)))
+    stop("Provide either argument 'sd' and ",
+         "arguments 'q1' & 'q3' or 'min & 'max'.",
+         call. = FALSE)
+  ##
   n <- eval(mf[[match("n", names(mf))]],
             data, enclos = sys.frame(sys.parent()))
   chknull(n)
@@ -529,11 +683,17 @@ metamean <- function(n, mean, sd, studlab,
   ##
   mean <- eval(mf[[match("mean", names(mf))]],
                data, enclos = sys.frame(sys.parent()))
-  chknull(mean)
+  if (!missing.mean)
+    chknull(mean)
+  else
+    mean <- rep(NA, k.All)
   ##
   sd <- eval(mf[[match("sd", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
-  chknull(sd)
+  if (!missing.sd)
+    chknull(sd)
+  else
+    sd <- rep(NA, k.All)
   ##
   ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
@@ -552,6 +712,32 @@ metamean <- function(n, mean, sd, studlab,
   exclude <- eval(mf[[match("exclude", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   missing.exclude <- is.null(exclude)
+  ##
+  ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
+  ## 'approx.sd', from data:
+  ##
+  median <- eval(mf[[match("median", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  ##
+  q1 <- eval(mf[[match("q1", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
+  ##
+  q3 <- eval(mf[[match("q3", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
+  ##
+  min <- eval(mf[[match("min", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  max <- eval(mf[[match("max", names(mf))]],
+              data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.approx.mean <- missing(approx.mean)
+  approx.mean <- eval(mf[[match("approx.mean", names(mf))]],
+                      data, enclos = sys.frame(sys.parent()))
+  ##
+  missing.approx.sd <- missing(approx.sd)
+  approx.sd <- eval(mf[[match("approx.sd", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
   
   
   ##
@@ -562,6 +748,35 @@ metamean <- function(n, mean, sd, studlab,
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
+  ##
+  if (!missing.median)
+    chklength(median, k.All, fun)
+  if (!missing.q1)
+    chklength(q1, k.All, fun)
+  if (!missing.q3)
+    chklength(q3, k.All, fun)
+  if (!missing.min)
+    chklength(min, k.All, fun)
+  if (!missing.max)
+    chklength(max, k.All, fun)
+  ##
+  if (!missing.approx.mean) {
+    if (length(approx.mean) == 1)
+      rep_len(approx.mean, k.All)
+    else
+      chklength(approx.mean, k.All, fun)
+    ##
+    approx.mean <- setchar(approx.mean, c("", "iqr.range", "iqr", "range"))
+  }
+  ##
+  if (!missing.approx.sd) {
+    if (length(approx.sd) == 1)
+      rep_len(approx.sd, k.All)
+    else
+      chklength(approx.sd, k.All, fun)
+    ##
+    approx.sd <- setchar(approx.sd, c("", "iqr.range", "iqr", "range"))
+  }
   ##
   if (by)
     chklength(byvar, k.All, fun)
@@ -623,6 +838,21 @@ metamean <- function(n, mean, sd, studlab,
     data$.sd <- sd
     data$.studlab <- studlab
     ##
+    if (!missing.median)
+      data$.median <- median
+    if (!missing.q1)
+      data$.q1 <- q1
+    if (!missing.q3)
+      data$.q3 <- q3
+    if (!missing.min)
+      data$.min <- min
+    if (!missing.max)
+      data$.max <- max
+    if (!missing.approx.mean)
+      data$.approx.mean <- approx.mean
+    if (!missing.approx.sd)
+      data$.approx.sd <- approx.sd
+    ##
     if (by)
       data$.byvar <- byvar
     ##
@@ -653,6 +883,21 @@ metamean <- function(n, mean, sd, studlab,
     ##
     exclude <- exclude[subset]
     ##
+    if (!missing.median)
+      median <- median[subset]
+    if (!missing.q1)
+      q1 <- q1[subset]
+    if (!missing.q3)
+      q3 <- q3[subset]
+    if (!missing.min)
+      min <- min[subset]
+    if (!missing.max)
+      max <- max[subset]
+    if (!missing.approx.mean)
+      approx.mean <- approx.mean[subset]
+    if (!missing.approx.sd)
+      approx.sd <- approx.sd[subset]
+    ##
     if (by)
       byvar <- byvar[subset]
   }
@@ -680,16 +925,182 @@ metamean <- function(n, mean, sd, studlab,
   chknumeric(mean)
   chknumeric(sd)
   ##
+  if (!missing.median)
+    chknumeric(median)
+  if (!missing.q1)
+    chknumeric(q1)
+  if (!missing.q3)
+    chknumeric(q3)
+  if (!missing.min)
+    chknumeric(min)
+  if (!missing.max)
+    chknumeric(max)
+  ##
   ## Recode integer as numeric:
   ##
   n    <- int2num(n)
   mean <- int2num(mean)
   sd   <- int2num(sd)
+  ##
+  if (!missing.median)
+    median <- int2num(median)
+  if (!missing.q1)
+    q1 <- int2num(q1)
+  if (!missing.q3)
+    q3 <- int2num(q3)
+  if (!missing.min)
+    min <- int2num(min)
+  if (!missing.max)
+    max <- int2num(max)
   
   
   ##
   ##
-  ## (7) Calculate results for individual studies
+  ## (7) Calculate means from other information
+  ##
+  ##
+  if (missing.approx.mean) {
+    approx.mean <- rep_len("", length(n))
+    ##
+    ## (a) Use IQR and range
+    ##
+    sel.NA <- is.na(mean)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !missing.min & !missing.max) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+        !is.na(min) & !is.na(max)
+      approx.mean[j] <- "iqr.range"
+      ##
+      mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+    }
+    ##
+    ## (b) Use IQR
+    ##
+    sel.NA <- is.na(mean)
+    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+      approx.mean[j] <- "iqr"
+      mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+                               method.mean)$mean
+    }
+    ##
+    ## (c) Use range
+    ##
+    sel.NA <- is.na(mean)
+    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+      approx.mean[j] <- "range"
+      mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+                                 method.mean)$mean
+    }
+  }
+  else {
+    j <- 0
+    for (i in approx.mean) {
+      j <- j + 1
+      ##
+      if (i == "iqr.range")
+        mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+      else if (i == "iqr")
+        mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+                                 method.mean)$mean
+      else if (i == "range")
+        mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (8) Calculate standard deviation from other information
+  ##
+  ##
+  if (missing.median) {
+    median.sd <- mean
+    missing.median <- FALSE
+    export.median <- FALSE
+  }
+  else {
+    median.sd <- median
+    median.sd[is.na(median.sd)] <- mean[is.na(median.sd)]
+    export.median <- TRUE
+  }
+  ##
+  if (missing.approx.sd) {
+    approx.sd <- rep_len("", length(n))
+    ##
+    ## (a) Use IQR and range
+    ##
+    sel.NA <- is.na(sd)
+    if (any(sel.NA) & !missing.median &
+        !missing.q1 & !missing.q3 &
+        !missing.min & !missing.max) {
+      j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3) &
+        !is.na(min) & !is.na(max)
+      approx.sd[j] <- "iqr.range"
+      ##
+      sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+                                   min[j], max[j],
+                                   method.sd = method.sd)$sd
+    }
+    ##
+    ## (b) Use IQR
+    ##
+    sel.NA <- is.na(sd)
+    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+      j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3)
+      approx.sd[j] <- "iqr"
+      sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+    }
+    ##
+    ## (c) Use range
+    ##
+    sel.NA <- is.na(sd)
+    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+      j <- sel.NA & !is.na(median.sd) & !is.na(min) & !is.na(max)
+      approx.sd[j] <- "range"
+      sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+    }
+  }
+  else {
+    j <- 0
+    for (i in approx.sd) {
+      j <- j + 1
+      ##
+      if (i == "iqr.range")
+        sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+                                     min[j], max[j],
+                                     method.sd = method.sd)$sd
+      else if (i == "iqr")
+        sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+      else if (i == "range")
+        sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+    }
+  }
+  ##
+  if (keepdata) {
+    if (!isCol(data, ".subset")) {
+      data$.sd <- sd
+      data$.mean <- mean
+      data$.approx.sd <- approx.sd
+      data$.approx.mean <- approx.mean
+    }
+    else {
+      data$.sd[data$.subset] <- sd
+      data$.mean[data$.subset] <- mean
+      data$.approx.sd[data$.subset] <- approx.sd
+      data$.approx.mean[data$.subset] <- approx.mean
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (9) Calculate results for individual studies
   ##
   ##
   npn.n <- npn(n)
@@ -703,6 +1114,9 @@ metamean <- function(n, mean, sd, studlab,
     seTE <- ifelse(npn.n, NA, sqrt(sd^2 / n))
     ##
     seTE[is.na(TE)] <- NA
+    ##
+    if (method.ci == "t")
+      ci.study <- ci(TE, seTE, df = n - 1)
     ##
     transf.null.effect <- null.effect
   }
@@ -734,7 +1148,7 @@ metamean <- function(n, mean, sd, studlab,
   
   ##
   ##
-  ## (8) Do meta-analysis
+  ## (10) Do meta-analysis
   ##
   ##
   m <- metagen(TE, seTE, studlab,
@@ -778,10 +1192,24 @@ metamean <- function(n, mean, sd, studlab,
   
   ##
   ##
-  ## (9) Generate R object
+  ## (11) Generate R object
   ##
   ##
-  res <- list(n = n, mean = mean, sd = sd)
+  res <- list(n = n, mean = mean, sd = sd, method.ci = method.ci)
+  ##
+  if (export.median)
+    res$median <- median
+  if (!missing.q1)
+    res$q1 <- q1
+  if (!missing.q3)
+    res$q3 <- q3
+  if (!missing.min)
+    res$min <- min
+  if (!missing.max)
+    res$max <- max
+  ##
+  res$approx.sd <- approx.sd
+  res$approx.mean <- approx.mean
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)
@@ -798,12 +1226,33 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Add data
   ##
+  res$method.mean <- method.mean
+  res$method.sd <- method.sd
   res$call <- match.call()
   ##
   if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
+  }
+  ##
+  if (method.ci == "t") {
+    res$lower <- ci.study$lower
+    res$upper <- ci.study$upper
+    res$statistic <- ci.study$statistic
+    res$pval <- ci.study$p
+    res$df <- ci.study$df
+  }
+  else if (!is.null(res$df) && all(is.na(res$df)))
+    res$df <- NULL
+  ##
+  if (all(res$approx.mean == "")) {
+    res$approx.mean <- NULL
+    res$data$.approx.mean <- NULL
+  }
+  if (all(res$approx.sd == "")) {
+    res$approx.sd <- NULL
+    res$data$.approx.sd <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

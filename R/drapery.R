@@ -165,9 +165,9 @@
 #' drapery(m1, xlim = c(0.5, 50))
 #' 
 #' \dontrun{
-#' data(Fleiss93)
-#' m2 <- metabin(event.e, n.e, event.c, n.c,
-#'          data = Fleiss93, studlab = paste(study, year),
+#' data(Fleiss1993bin)
+#' m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#'          data = Fleiss1993bin, studlab = paste(study, year),
 #'          sm = "OR", comb.random = FALSE)
 #'
 #' # Produce drapery plot and print data frame with connection between
@@ -355,19 +355,19 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   chklogical(prediction)
   ##
   if (!is.null(sign)) {
-    chklevel(sign, single = FALSE)
+    chklevel(sign, length = 0)
     if (type == "zvalue")
       sign <- qnorm(sign / 2)
     ##
-    chknumeric(lty.sign, min = 0, zero = TRUE, single = TRUE)
-    chknumeric(lwd.sign, min = 0, zero = TRUE, single = TRUE)
+    chknumeric(lty.sign, min = 0, zero = TRUE, length = 1)
+    chknumeric(lwd.sign, min = 0, zero = TRUE, length = 1)
   }
   ##
   if (!all(is.na(alpha)))
-    chklevel(alpha, single = FALSE)
-  chknumeric(lty.alpha, min = 0, zero = TRUE, single = TRUE)
-  chknumeric(lwd.alpha, min = 0, zero = TRUE, single = TRUE)
-  chknumeric(cex.alpha, min = 0, zero = TRUE, single = TRUE)
+    chklevel(alpha, length = 0)
+  chknumeric(lty.alpha, min = 0, zero = TRUE, length = 1)
+  chknumeric(lwd.alpha, min = 0, zero = TRUE, length = 1)
+  chknumeric(cex.alpha, min = 0, zero = TRUE, length = 1)
   ##
   chklogical(legend)
   bty <- setchar(bty, c("o", "n"))
@@ -381,10 +381,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     chkchar(xlab)
   chkchar(ylab)
   ##
-  chknumeric(lwd.max, min = 0, zero = TRUE, single = TRUE)
+  chknumeric(lwd.max, min = 0, zero = TRUE, length = 1)
   lwd.study.weight <- setchar(lwd.study.weight, c("random", "fixed"))
   ##
-  chknumeric(n.grid, min = 0, zero = TRUE, single = TRUE)
+  chknumeric(n.grid, min = 0, zero = TRUE, length = 1)
   chklogical(plot)
   ##
   ## Additional check
@@ -458,7 +458,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   lower <- x$lower[o]
   upper <- x$upper[o]
   pval <- x$pval[o]
-  zval <- x$zval[o]
+  statistic <- x$statistic[o]
   w.fixed <- x$w.fixed[o]
   w.random <- x$w.random[o]
   seq.TE <- seq.TE[o]
@@ -686,7 +686,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                       lty.study, lwd.study, col.study,
                       col.labels, cex.labels,
                       subset.labels, srt.labels,
-                      TE, seTE, lower, upper, zval, pval,
+                      TE, seTE, lower, upper, statistic, pval,
                       w.fixed, w.random,
                       stringsAsFactors = FALSE)
     ##

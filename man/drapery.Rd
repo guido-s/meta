@@ -245,9 +245,9 @@ m1 <- metainc(d.smokers, py.smokers,
 drapery(m1, xlim = c(0.5, 50))
 
 \dontrun{
-data(Fleiss93)
-m2 <- metabin(event.e, n.e, event.c, n.c,
-         data = Fleiss93, studlab = paste(study, year),
+data(Fleiss1993bin)
+m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
+         data = Fleiss1993bin, studlab = paste(study, year),
          sm = "OR", comb.random = FALSE)
 
 # Produce drapery plot and print data frame with connection between

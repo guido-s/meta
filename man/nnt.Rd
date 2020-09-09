@@ -87,8 +87,8 @@ nnt(0.92, p.c = 0.3, sm = "RR")
 nnt(0.73, p.c = 0.3, sm = "OR")
 
 # Use Mantel-Haenszel odds ratio to calculate NNTs
-data(Olkin95)
-m1 <- metabin(event.e, n.e, event.c, n.c, data = Olkin95,
+data(Olkin1995)
+m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
               comb.random = FALSE)
 nnt(m1, comb.random = TRUE)
 

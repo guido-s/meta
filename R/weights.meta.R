@@ -34,11 +34,12 @@
 #'   \code{\link{metagen}}
 #' 
 #' @examples
-#' data(Fleiss93cont)
+#' data(Fleiss1993cont)
 #' # Do meta-analysis (fixed effect and random effects model)
 #' #
-#' meta1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, study,
-#'                   data = Fleiss93cont, sm = "SMD")
+#' meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                   data = Fleiss1993cont, sm = "SMD",
+#'                   studlab = paste(study, year))
 #' 
 #' # Print weights for fixed effect and random effects meta-analysis
 #' #

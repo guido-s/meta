@@ -35,19 +35,19 @@
 #' The Cochrane Library: http://www.cochrane-handbook.org
 #' 
 #' @examples
-#' # Locate export data file "Fleiss93_CR.csv"
+#' # Locate export data file "Fleiss1993_CR.csv"
 #' # in sub-directory of package "meta"
 #' #
-#' filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
-#' Fleiss93_CR <- read.rm5(filename)
+#' filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
+#' Fleiss1993_CR <- read.rm5(filename)
 #' 
 #' # Print summary results for all meta-analysis
 #' #
-#' summary(Fleiss93_CR)
+#' summary(Fleiss1993_CR)
 #' 
 #' # Print summary results only for second outcome of first comparison
 #' #
-#' summary(Fleiss93_CR, comp.no = 1, outcome.no = 2)
+#' summary(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 #' 
 #' @rdname summary.rm5
 #' @export

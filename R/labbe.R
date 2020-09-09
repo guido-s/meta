@@ -117,9 +117,9 @@
 #' @keywords hplot
 #' 
 #' @examples
-#' data(Olkin95)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95,
+#' data(Olkin1995)
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995,
 #'               studlab = paste(author, year),
 #'               sm = "RR", method = "I")
 #' 

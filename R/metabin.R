@@ -655,24 +655,24 @@
 #' # Use subset of Olkin (1995) to conduct meta-analysis based on
 #' # inverse variance method (with risk ratio as summary measure)
 #' #
-#' data(Olkin95)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = c(41, 47, 51, 59),
+#' data(Olkin1995)
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = c(41, 47, 51, 59),
 #'               method = "Inverse")
 #' summary(m1)
 #' 
 #' # Use different subset of Olkin (1995)
 #' #
-#' m2 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = year < 1970,
+#' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = year < 1970,
 #'               method = "Inverse", studlab = author)
 #' summary(m2)
 #' forest(m2)
 #' 
 #' # Meta-analysis with odds ratio as summary measure
 #' #
-#' m3 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = year < 1970,
+#' m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = year < 1970,
 #'               sm = "OR", method = "Inverse", studlab = author)
 #' # Same meta-analysis result using 'update.meta' function
 #' m3 <- update(m2, sm = "OR")
@@ -700,8 +700,8 @@
 #' # Logistic regression model with (k = 4) fixed study effects
 #' # (default: model.glmm = "UM.FS")
 #' #
-#' m6 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = year < 1970,
+#' m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = year < 1970,
 #'               method = "GLMM")
 #' # Same results:
 #' m6 <- update(m2, method = "GLMM")
@@ -734,8 +734,8 @@
 #' # Logistic regression model with (k = 70) fixed study effects
 #' # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #' #
-#' m10 <- metabin(event.e, n.e, event.c, n.c,
-#'                data = Olkin95, method = "GLMM")
+#' m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'                data = Olkin1995, method = "GLMM")
 #' summary(m10)
 #' 
 #' # Mixed-effects logistic regression model with random study effects
@@ -860,7 +860,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chklogical(backtransf)
   ##
-  chknumeric(pscale, single = TRUE)
+  chknumeric(pscale, length = 1)
   ##
   chklogical(keepdata)
   ##
@@ -1656,7 +1656,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$w.fixed <- w.fixed
     res$lower.fixed <- ci.f$lower
     res$upper.fixed <- ci.f$upper
-    res$zval.fixed <- ci.f$z
+    res$statistic.fixed <- ci.f$statistic
     res$pval.fixed <- ci.f$p
   }
   ##
@@ -1689,7 +1689,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$seTE.random <- seTE.random
     res$lower.random <- ci.r$lower
     res$upper.random <- ci.r$upper
-    res$zval.random <- ci.r$z
+    res$statistic.random <- ci.r$statistic
     res$pval.random <- ci.r$p
     ##
     ## Prediction interval
@@ -1763,7 +1763,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$w.random <- w.random
     res$lower.random <- ci.r$lower
     res$upper.random <- ci.r$upper
-    res$zval.random <- ci.r$z
+    res$statistic.random <- ci.r$statistic
     res$pval.random <- ci.r$p      
   }
   ##

@@ -197,9 +197,9 @@
 #' @keywords htest
 #' 
 #' @examples
-#' data(Olkin95)
-#' m1 <- metabin(event.e, n.e, event.c, n.c,
-#'               data = Olkin95, subset = 1:10,
+#' data(Olkin1995)
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, subset = 1:10,
 #'               sm = "RR", method = "I")
 #' 
 #' metabias(m1)
@@ -291,7 +291,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   chklogical(plotit)
   chklogical(correct)
-  chknumeric(k.min, 1, single = TRUE)
+  chknumeric(k.min, 1, length = 1)
   
   
   TE <- x$TE

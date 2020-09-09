@@ -141,7 +141,8 @@
 #' @references
 #' Balduzzi S, Rücker G, Schwarzer G (2019):
 #' How to perform a meta-analysis with R: a practical tutorial.
-#' \emph{Evidence-Based Mental Health}.
+#' \emph{Evidence-Based Mental Health},
+#' \bold{22}, 153--160.
 #' 
 #' Hartung J, Knapp G (2001a):
 #' On tests of the overall treatment effect in meta-analysis with

@@ -157,8 +157,8 @@ object is a list containing the following components:
   individual studies.}
 \item{lower, upper}{Lower and upper confidence interval limits for
   individual studies.}
-\item{zval, pval}{z-value and p-value for test of treatment effect
-  for individual studies.}
+\item{statistic, pval}{Statistic and p-value for test of treatment
+  effect for individual studies.}
 \item{w.fixed, w.random}{Weight of individual studies (in fixed and
   random effects model).} 
 \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
@@ -252,8 +252,8 @@ practice. The Copas selection model is available in R package
 The function \code{\link{metagen}} is called internally.
 }
 \examples{
-data(Fleiss93)
-m1 <- metabin(event.e, n.e, event.c, n.c, data = Fleiss93, sm = "OR")
+data(Fleiss1993bin)
+m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
 tf1 <- trimfill(m1)
 summary(tf1)
 funnel(tf1)

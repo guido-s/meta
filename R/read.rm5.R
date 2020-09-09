@@ -4,7 +4,7 @@
 #' Reads analysis data from Cochrane intervention review created with
 #' RevMan 5 and creates a data frame from it.
 #' 
-#' @aliases read.rm5 print.rm5 Fleiss93_CR
+#' @aliases read.rm5 print.rm5 Fleiss1993_CR
 #' 
 #' @param file The name of a file to read data values from.
 #' @param sep The field separator character (only considered for
@@ -171,19 +171,19 @@
 #' @keywords datagen
 #' 
 #' @examples
-#' # Locate export data file "Fleiss93_CR.csv"
+#' # Locate export data file "Fleiss1993_CR.csv"
 #' # in sub-directory of package "meta"
 #' #
-#' filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
-#' Fleiss93_CR <- read.rm5(filename)
+#' filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
+#' Fleiss1993_CR <- read.rm5(filename)
 #' 
-#' # Same result as R command example(Fleiss93):
+#' # Same result as R command example(Fleiss1993bin):
 #' #
-#' metacr(Fleiss93_CR)
+#' metacr(Fleiss1993_CR)
 #' 
-#' # Same result as R command example(Fleiss93cont):
+#' # Same result as R command example(Fleiss1993cont):
 #' #
-#' metacr(Fleiss93_CR, 1, 2)
+#' metacr(Fleiss1993_CR, 1, 2)
 #'
 #' @importFrom xml2 as_xml_document xml_attr xml_find_all xml_text
 #' 
@@ -198,13 +198,13 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   if (missing(file))
     stop("File name must be provided", call. = FALSE)
   ##
-  chkchar(file, single = TRUE)
+  chkchar(file, length = 1)
   ##
-  chkchar(sep, single = TRUE)
-  chkchar(quote, single = TRUE)
+  chkchar(sep, length = 1)
+  chkchar(quote, length = 1)
   missing.title <- missing(title)
   if (!missing.title)
-    chkchar(title, single = TRUE)
+    chkchar(title, length = 1)
   chklogical(numbers.in.labels)
   ##
   chknumeric(debug)

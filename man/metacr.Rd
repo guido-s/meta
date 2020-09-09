@@ -138,29 +138,29 @@ Note, it is recommended to choose the RevMan 5 settings before
 executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
 }
 \examples{
-# Locate export data file "Fleiss93_CR.csv"
+# Locate export data file "Fleiss1993_CR.csv"
 # in sub-directory of package "meta"
 #
-filename <- system.file("extdata", "Fleiss93_CR.csv", package = "meta")
+filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
 #
-Fleiss93_CR <- read.rm5(filename)
+Fleiss1993_CR <- read.rm5(filename)
 
 # Choose RevMan 5 settings and store old settings
 #
 oldset <- settings.meta("revman5")
 
-# Same result as R command example(Fleiss93)
+# Same result as R command example(Fleiss1993bin)
 #
-metacr(Fleiss93_CR)
+metacr(Fleiss1993_CR)
 
-# Same result as R command example(Fleiss93cont)
+# Same result as R command example(Fleiss1993cont)
 #
-metacr(Fleiss93_CR, 1, 2)
-forest(metacr(Fleiss93_CR, 1, 2))
+metacr(Fleiss1993_CR, 1, 2)
+forest(metacr(Fleiss1993_CR, 1, 2))
 
 # Change summary measure to RR
 #
-m1 <- metacr(Fleiss93_CR)
+m1 <- metacr(Fleiss1993_CR)
 update(m1, sm="RR")
 
 # Use old settings

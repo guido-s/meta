@@ -1,11 +1,4 @@
-TE.seTE.iqr <- function(n, median, q1, q3) {
-  
-  
-  ##
-  ## Estimate mean and its standard error from median and
-  ## interquartile range using method by Wan et al. (2014), BMC Med
-  ## Res Methodol 14 (1): 135
-  ##
+mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   
   
   ##
@@ -37,19 +30,40 @@ TE.seTE.iqr <- function(n, median, q1, q3) {
   
   
   ##
-  ## Equation (14)
+  ## Estimation of mean
   ##
-  TE <- (q1 + median + q3) / 3
+  if (tolower(method.mean) == "luo") {
+    ## Luo et al. (2018), equation (15)
+    mean <-
+      (0.7 + 0.39 / n) * (q1 + q3) / 2 +
+      (0.3 - 0.39 / n) * median
+  }
+  else if (tolower(method.mean) == "wan") {
+    ## Wan et al. (2014), equation (14)
+    mean <- (q1 + median + q3) / 3
+  }
+  else
+    mean <- NA
+  
+  
   ##
-  ## Equations (15) and (16)
+  ## Estimation of standard deviation
+  ## Wan et al. (2014), equations (15) and (16)
   ##
-  seTE <- (q3 - q1) /
+  sd <- (q3 - q1) /
     ifelse(n > 50, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
            .settings$Wan2014.Table2[n])
   
   
-  res <- list(TE = TE, seTE = seTE,
-              median = median, q1 = q1, q3 = q3, n = n)
+  ##
+  ## Calculation of standard error
+  ##
+  se <- sd / sqrt(n)
+  
+  
+  res <- list(mean = mean, sd = sd, se = se,
+              median = median, q1 = q1, q3 = q3, n = n,
+              method.mean = method.mean)
   ##
   res
 }

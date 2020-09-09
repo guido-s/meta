@@ -70,10 +70,11 @@
 #' @keywords hplot
 #' 
 #' @examples
-#' data(Olkin95)
+#' data(Olkin1995)
 #' 
-#' m1 <- metabin(event.e, n.e, event.c, n.c, data = Olkin95,
-#'               studlab = author, sm = "OR", method = "I")
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'               data = Olkin1995, sm = "OR", method = "I",
+#'               studlab = paste(author, year))
 #' 
 #' # Generate Baujat plot
 #' baujat(m1)

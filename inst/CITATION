@@ -6,10 +6,12 @@ citEntry(
   author  = personList(as.person("Sara Balduzzi"), as.person("Gerta Rücker"), as.person("Guido Schwarzer")),
   journal = "Evidence-Based Mental Health",
   year    = "2019",
+  number  = "22",
+  pages    = "153--160",
 
   textVersion = paste("Balduzzi S, Rücker G, Schwarzer G (2019),",
                       "How to perform a meta-analysis with R: a practical tutorial,",
-                      "Evidence-Based Mental Health.")
+                      "Evidence-Based Mental Health; 22: 153-160.")
 )
 
 citFooter("DOI: 10.1136/ebmental-2019-300117")

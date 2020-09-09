@@ -69,13 +69,13 @@
 #' @keywords models regression
 #' 
 #' @examples
-#' data(Fleiss93cont)
+#' data(Fleiss1993cont)
 #' # Add some (fictitious) grouping variables:
-#' Fleiss93cont$age <- c(55, 65, 55, 65, 55)
-#' Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
+#' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
+#' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "MD")
+#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "MD")
 #' \dontrun{
 #' # Warnings due to wrong ordering of arguments (order has changed
 #' # with version 3.0-0 of R package meta)

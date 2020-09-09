@@ -88,9 +88,10 @@ data.frame(lnOR = round(mb$TE, 4), varlnOR = round(mb$seTE^2, 4))
 
 # Use dataset from Fleiss (1993)
 #
-data(Fleiss93cont)
-m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, study,
-               data = Fleiss93cont, sm = "SMD")
+data(Fleiss1993cont)
+m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD",
+               studlab = paste(study, year))
 smd2or(m1)
 
 }

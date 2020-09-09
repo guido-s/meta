@@ -860,13 +860,13 @@ metaprop <- function(event, n, studlab,
   chklevel(level.predict)
   ##
   if (!anyNA(null.effect) | length(null.effect) != 1)
-    chknumeric(null.effect, min = 0, max = 1, single = TRUE)
+    chknumeric(null.effect, min = 0, max = 1, length = 1)
   ##
   method.bias <- setchar(method.bias, .settings$meth4bias)
   ##
   chklogical(backtransf)
   ##
-  chknumeric(pscale, single = TRUE)
+  chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
@@ -1338,7 +1338,7 @@ metaprop <- function(event, n, studlab,
     res$w.fixed <- w.fixed
     res$lower.fixed <- ci.f$lower
     res$upper.fixed <- ci.f$upper
-    res$zval.fixed <- ci.f$z
+    res$statistic.fixed <- ci.f$statistic
     res$pval.fixed <- ci.f$p
     ##
     if (sum(!exclude) > 1)
@@ -1367,7 +1367,7 @@ metaprop <- function(event, n, studlab,
     res$seTE.random <- seTE.random
     res$lower.random <- ci.r$lower
     res$upper.random <- ci.r$upper
-    res$zval.random <- ci.r$z
+    res$statistic.random <- ci.r$statistic
     res$pval.random <- ci.r$p
     ##
     ## Prediction interval

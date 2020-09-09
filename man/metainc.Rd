@@ -603,7 +603,6 @@ Smoking and Health: Report of the Advisory Committee to the Surgeon
 General of the United States.
 U-23 Department of Health, Education, and Welfare.
 Public Health Service Publication No. 1103.
-\url{http://profiles.nlm.nih.gov/ps/retrieve/ResourceMetadata/NNBBMQ}
 
 DerSimonian R & Laird N (1986):
 Meta-analysis in clinical trials.

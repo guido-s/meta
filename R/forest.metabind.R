@@ -110,15 +110,15 @@
 #' @keywords hplot
 #' 
 #' @examples
-#' data(Fleiss93cont)
+#' data(Fleiss1993cont)
 #' 
 #' # Add some (fictitious) grouping variables:
 #' #
-#' Fleiss93cont$age <- c(55, 65, 55, 65, 55)
-#' Fleiss93cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
+#' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
+#' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-#'                data = Fleiss93cont, sm = "MD")
+#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#'                data = Fleiss1993cont, sm = "MD")
 #'
 #' # Conduct two subgroup analyses
 #' #
@@ -181,15 +181,15 @@ forest.metabind <- function(x,
   ##
   chkchar(lab.NA)
   ##
-  chknumeric(digits, min = 0, single = TRUE)
-  chknumeric(digits.se, min = 0, single = TRUE)
-  chknumeric(digits.zval, min = 0, single = TRUE)
-  chknumeric(digits.pval, min = 1, single = TRUE)
-  chknumeric(digits.pval.Q, min = 1, single = TRUE)
-  chknumeric(digits.Q, min = 0, single = TRUE)
-  chknumeric(digits.tau2, min = 0, single = TRUE)
-  chknumeric(digits.tau, min = 0, single = TRUE)
-  chknumeric(digits.I2, min = 0, single = TRUE)
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.zval, min = 0, length = 1)
+  chknumeric(digits.pval, min = 1, length = 1)
+  chknumeric(digits.pval.Q, min = 1, length = 1)
+  chknumeric(digits.Q, min = 0, length = 1)
+  chknumeric(digits.tau2, min = 0, length = 1)
+  chknumeric(digits.tau, min = 0, length = 1)
+  chknumeric(digits.I2, min = 0, length = 1)
   ##
   chklogical(scientific.pval)
   chklogical(calcwidth.pooled)

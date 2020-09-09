@@ -330,9 +330,10 @@ This function can also be used for objects of class 'trimfill',
 'metacum', and 'metainf'.
 }
 \examples{
-data(Fleiss93cont)
-m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-               data = Fleiss93cont, sm = "SMD", studlab = study)
+data(Fleiss1993cont)
+m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD",
+               studlab = paste(study, year))
 m1
 
 # Change summary measure (from 'SMD' to 'MD')

@@ -810,62 +810,62 @@ settings.meta <- function(...) {
     }
     if (!is.na(iddigits)) {
       digits <- args[[iddigits]]
-      chknumeric(digits, min = 0, single = TRUE)
+      chknumeric(digits, min = 0, length = 1)
       setOption("digits", digits)
     }
     if (!is.na(iddigits.se)) {
       digits.se <- args[[iddigits.se]]
-      chknumeric(digits.se, min = 0, single = TRUE)
+      chknumeric(digits.se, min = 0, length = 1)
       setOption("digits.se", digits.se)
     }
     if (!is.na(iddigits.zval)) {
       digits.zval <- args[[iddigits.zval]]
-      chknumeric(digits.zval, min = 0, single = TRUE)
+      chknumeric(digits.zval, min = 0, length = 1)
       setOption("digits.zval", digits.zval)
     }
     if (!is.na(iddigits.Q)) {
       digits.Q <- args[[iddigits.Q]]
-      chknumeric(digits.Q, min = 0, single = TRUE)
+      chknumeric(digits.Q, min = 0, length = 1)
       setOption("digits.Q", digits.Q)
     }
     if (!is.na(iddigits.tau2)) {
       digits.tau2 <- args[[iddigits.tau2]]
-      chknumeric(digits.tau2, min = 0, single = TRUE)
+      chknumeric(digits.tau2, min = 0, length = 1)
       setOption("digits.tau2", digits.tau2)
     }
     if (!is.na(iddigits.tau)) {
       digits.tau <- args[[iddigits.tau]]
-      chknumeric(digits.tau, min = 0, single = TRUE)
+      chknumeric(digits.tau, min = 0, length = 1)
       setOption("digits.tau", digits.tau)
     }
     if (!is.na(iddigits.H)) {
       digits.H <- args[[iddigits.H]]
-      chknumeric(digits.H, min = 0, single = TRUE)
+      chknumeric(digits.H, min = 0, length = 1)
       setOption("digits.H", digits.H)
     }
     if (!is.na(iddigits.I2)) {
       digits.I2 <- args[[iddigits.I2]]
-      chknumeric(digits.I2, min = 0, single = TRUE)
+      chknumeric(digits.I2, min = 0, length = 1)
       setOption("digits.I2", digits.I2)
     }
     if (!is.na(iddigits.prop)) {
       digits.prop <- args[[iddigits.prop]]
-      chknumeric(digits.prop, min = 0, single = TRUE)
+      chknumeric(digits.prop, min = 0, length = 1)
       setOption("digits.prop", digits.prop)
     }
     if (!is.na(iddigits.weight)) {
       digits.weight <- args[[iddigits.weight]]
-      chknumeric(digits.weight, min = 0, single = TRUE)
+      chknumeric(digits.weight, min = 0, length = 1)
       setOption("digits.weight", digits.weight)
     }
     if (!is.na(iddigits.pval)) {
       digits.pval <- args[[iddigits.pval]]
-      chknumeric(digits.pval, min = 0, single = TRUE)
+      chknumeric(digits.pval, min = 0, length = 1)
       setOption("digits.pval", digits.pval)
     }
     if (!is.na(iddigits.pval.Q)) {
       digits.pval.Q <- args[[iddigits.pval.Q]]
-      chknumeric(digits.pval.Q, min = 0, single = TRUE)
+      chknumeric(digits.pval.Q, min = 0, length = 1)
       setOption("digits.pval.Q", digits.pval.Q)
     }
     if (!is.na(idscientific.pval)) {
@@ -1133,7 +1133,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(iddigits.forest)) {
       digits.forest <- args[[iddigits.forest]]
-      chknumeric(digits.forest, min = 0, single = TRUE)
+      chknumeric(digits.forest, min = 0, length = 1)
       setOption("digits.forest", digits.forest)
     }
   }

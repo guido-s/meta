@@ -1,4 +1,6 @@
-chklevel <- function(x, single = TRUE, ci = TRUE, name = NULL) {
+chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
+  if (!missing(single) && single)
+    length <- 1
   ##
   ## Check for levels of confidence interval / contour level
   ##
@@ -10,15 +12,15 @@ chklevel <- function(x, single = TRUE, ci = TRUE, name = NULL) {
     "contour levels (range: 0-1)"
   ##
   if (!is.numeric(x))
-    if (single)
-      stop("Argument '", name, "' must be a numeric of length 1.",
-           call. = FALSE)
+    if (length && length(x) != length)
+    stop("Argument '", name, "' must be a numeric of length ", length, ".",
+         call. = FALSE)
     else
       stop("Argument '", name, "' must be numeric.",
            call. = FALSE)
   ##
-  if (single & length(x) != 1)
-    stop("Argument '", name, "' must be a numeric of length 1.",
+  if (length && length(x) != length)
+    stop("Argument '", name, "' must be a numeric of length ", length, ".",
          call. = FALSE)
   ##
   if (any(x <= 0, na.rm = TRUE) | any(x >= 1, na.rm = TRUE))

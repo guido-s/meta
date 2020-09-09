@@ -89,32 +89,32 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
       x1.25 <- c(0.8  , 1, 1.25)
       x1    <- c(0.9  , 1, 1.1)
       ##
-      tval.min <- min(exp(x$range[1]), 1)
-      tval.max <- max(exp(x$range[2]), 1)
+      min.x <- min(exp(x$range[1]), 1)
+      max.x <- max(exp(x$range[2]), 1)
       ##
-      if (all(x1000 >= tval.min) &
-          all(x1000 <= tval.max))
+      if (all(x1000 >= min.x) &
+          all(x1000 <= max.x))
         label <- x1000
-      else if (all(x100 >= tval.min) &
-               all(x100 <= tval.max))
+      else if (all(x100 >= min.x) &
+               all(x100 <= max.x))
         label <- x100
-      else if (all(x10 >= tval.min) &
-               all(x10 <= tval.max))
+      else if (all(x10 >= min.x) &
+               all(x10 <= max.x))
         label <- x10
-      else if (all(x5 >= tval.min) &
-               all(x5 <= tval.max))
+      else if (all(x5 >= min.x) &
+               all(x5 <= max.x))
         label <- x5
-      else if (all(x2 >= tval.min) &
-               all(x2 <= tval.max))
+      else if (all(x2 >= min.x) &
+               all(x2 <= max.x))
         label <- x2
-      else if (all(x1.5 >= tval.min) &
-               all(x1.5 <= tval.max))
+      else if (all(x1.5 >= min.x) &
+               all(x1.5 <= max.x))
         label <- x1.5
-      else if (all(x1.25 >= tval.min) &
-               all(x1.25 <= tval.max))
+      else if (all(x1.25 >= min.x) &
+               all(x1.25 <= max.x))
         label <- x1.25
-      else if (all(x1 >= tval.min) &
-               all(x1 <= tval.max))
+      else if (all(x1 >= min.x) &
+               all(x1 <= max.x))
         label <- x1
       else
         label <- 1

@@ -85,9 +85,9 @@ the pooled estimate of the fixed effect model is plotted. If
 drawn.
 }
 \examples{
-data(Olkin95)
-m1 <- metabin(event.e, n.e, event.c, n.c,
-              data = Olkin95, subset = c(41, 47, 51, 59),
+data(Olkin1995)
+m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+              data = Olkin1995, subset = c(41, 47, 51, 59),
               studlab = paste(author, year),
               sm = "RR", method = "I")
 

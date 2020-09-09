@@ -157,9 +157,9 @@ can be used to specify the time unit used in individual studies
 and forest plots if argument \code{irscale} is not equal to 1.
 }
 \examples{
-data(Fleiss93cont)
-m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-               data = Fleiss93cont, sm = "SMD",
+data(Fleiss1993cont)
+m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+               data = Fleiss1993cont, sm = "SMD",
                studlab = paste(study, year))
 m1
 

@@ -12,7 +12,17 @@ metamean(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  median,
+  q1,
+  q3,
+  min,
+  max,
+  method.mean = "Luo",
+  method.sd = "Shi",
+  approx.mean,
+  approx.sd,
   sm = gs("smmean"),
+  method.ci = gs("method.ci.cont"),
   level = gs("level"),
   level.comb = gs("level.comb"),
   comb.fixed = gs("comb.fixed"),
@@ -62,9 +72,42 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
+\item{median}{Median (used to estimate the mean and standard
+deviation).}
+
+\item{q1}{First quartile (used to estimate the mean and standard
+deviation).}
+
+\item{q3}{Third quartile (used to estimate the mean and standard
+deviation).}
+
+\item{min}{Minimum (used to estimate the mean and standard
+deviation).}
+
+\item{max}{Maximum (used to estimate the mean and standard
+deviation).}
+
+\item{method.mean}{A character string indicating which method to
+use to approximate the mean from the median and other statistics
+(see Details).}
+
+\item{method.sd}{A character string indicating which method to use
+to approximate the standard deviation from sample size, median,
+interquartile range and range (see Details).}
+
+\item{approx.mean}{Approximation method to estimate means (see
+Details).}
+
+\item{approx.sd}{Approximation method to estimate standard
+deviations (see Details).}
+
 \item{sm}{A character string indicating which summary measure
 (\code{"MRAW"} or \code{"MLN"}) is to be used for pooling of
 studies.}
+
+\item{method.ci}{A character string indicating which method is used
+to calculate confidence intervals for individual studies, see
+Details.}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
@@ -168,7 +211,11 @@ An object of class \code{c("metamean", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{n, mean, sd,}{As defined above.}
-\item{studlab, exclude, sm, level, level.comb,}{As defined above.}
+\item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{median, q1, q3, min, max,}{As defined above.}
+\item{method.mean, method.sd,}{As defined above.}
+\item{approx.mean, approx.sd,}{As defined above.}
+\item{level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -180,23 +227,22 @@ object is a list containing the following components:
   error of individual studies.}
 \item{lower, upper}{Lower and upper confidence interval limits for
   individual studies.}
-\item{zval, pval}{z-value and p-value for test of overall effect
-  for individual studies.}
+\item{statistic, pval}{Statistic and p-value for test of treatment
+  effect for individual studies.}
 \item{w.fixed, w.random}{Weight of individual studies (in fixed and
   random effects model).}
 \item{TE.fixed, seTE.fixed}{Estimated overall effect (mean or log
   mean) and standard error (fixed effect model).}
 \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
   limits (fixed effect model).}
-\item{zval.fixed, pval.fixed}{z-value and p-value for test of
-  overall effect (fixed effect model).}
+\item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+  overall treatment effect (fixed effect model).}
 \item{TE.random, seTE.random}{Estimated overall effect (mean or log
   mean) and standard error (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
   interval limits (random effects model).}
-\item{zval.random, pval.random}{z-value or t-value and
-  corresponding p-value for test of overall effect (random effects
-  model).}
+\item{statistic.random, pval.random}{Statistic and p-value for test
+  of overall treatment effect (random effects model).}
 \item{prediction, level.predict}{As defined above.}
 \item{seTE.predict}{Standard error utilised for prediction
   interval.}
@@ -231,8 +277,8 @@ object is a list containing the following components:
 \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
   interval limits in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
-\item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
-  treatment effect in subgroups (fixed effect model) - if
+\item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
+  test of treatment effect in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated effect and standard
   error in subgroups (random effects model) - if \code{byvar} is
@@ -240,9 +286,9 @@ object is a list containing the following components:
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
   \code{byvar} is not missing.}
-\item{zval.random.w, pval.random.w}{z-value or t-value and
-  corresponding p-value for test of effect in subgroups (random
-  effects model) - if \code{byvar} is not missing.}
+\item{statistic.random.w, pval.random.w}{Statistics and p-values
+  for test of treatment effect in subgroups (random effects model)
+  - if \code{byvar} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
   random effects model) - if \code{byvar} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of effect for
@@ -337,6 +383,102 @@ function.
 
 Furthermore, R function \code{\link{update.meta}} can be used to
 rerun a meta-analysis with different settings.
+
+\subsection{Approximate means from sample sizes, medians and other statistics}{
+
+Missing means can be derived from
+\enumerate{
+\item sample size, median, interquartile range and range (arguments
+  \code{n}, \code{median}, \code{q1}, \code{q3}, \code{min}, and
+  \code{max}),
+\item sample size, median and interquartile range (arguments
+  \code{n}, \code{median}, \code{q1}, and \code{q3}), or
+\item sample size, median and range (arguments \code{n},
+  \code{median}, \code{min}, and \code{max}).
+}
+
+By default, methods described in Luo et al. (2018) are utilized
+(argument \code{method.mean = "Luo"}):
+\itemize{
+\item equation (15) if sample size, median, interquartile range and 
+  range are available,
+\item equation (11) if sample size, median and interquartile range
+  are available,
+\item equation (7) if sample size, median and range are available.
+}
+
+Instead the methods described in Wan et al. (2014) are used if
+argument \code{method.mean = "Wan"}):
+\itemize{
+\item equation (10) if sample size, median, interquartile range and 
+  range are available,
+\item equation (14) if sample size, median and interquartile range
+  are available,
+\item equation (2) if sample size, median and range are available.
+}
+
+By default, missing means are replaced successively using
+interquartile ranges and ranges (if available), interquartile
+ranges (if available) and finally ranges. Argument
+\code{approx.mean} can be used to overwrite this behaviour for each
+individual study and treatment arm:
+\itemize{
+\item use means directly (entry \code{""} in argument
+  \code{approx.mean});
+\item median, interquartile range and range (\code{"iqr.range"});
+\item median and interquartile range (\code{"iqr"});
+\item median and range (\code{"range"}).
+}
+}
+
+\subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
+
+Missing standard deviations can be derived from
+\enumerate{
+\item sample size, median, interquartile range and range (arguments
+  \code{n}, \code{median}, \code{q1}, \code{q3}, \code{min}, and
+  \code{max}),
+\item sample size, median and interquartile range (arguments
+  \code{n}, \code{median}, \code{q1} and \code{q3}), or
+\item sample size, median and range (arguments \code{n},
+  \code{median}, \code{min} and \code{max}).
+}
+
+Wan et al. (2014) describe methods to estimate the standard
+deviation from the sample size, median and additional
+statistics. Shi et al. (2020) provide an improved estimate of the
+standard deviation if the interquartile range and range are
+available in addition to the sample size and median. Accordingly,
+equation (11) in Shi et al. (2020) is the default (argument
+\code{method.sd = "Shi"}), if the median, interquartile range and
+range are provided. The method by Wan et al. (2014) is used if
+argument \code{method.sd = "Wan"} and, depending on the sample
+size, either equation (12) or (13) is used. If only the
+interquartile range or range is available, equations (15) / (16)
+and (7) / (9) in Wan et al. (2014) are used, respectively.
+
+By default, missing standard deviations are replaced successively
+using these method, i.e., interquartile ranges and ranges are used
+before interquartile ranges before ranges. Argument
+\code{approx.sd} can be used to overwrite this default for each
+individual study and treatment arms:
+\itemize{
+\item sample size, median, interquartile range and range
+  (\code{"iqr.range"});
+\item sample size, median and interquartile range (\code{"iqr"});
+\item sample size, median and range (\code{"range"}).
+}
+}
+
+\subsection{Confidence intervals for individual studies}{
+
+For untransformed means (argument \code{sm = "MRAW"}), the
+confidence interval for individual studies can be based on the
+\itemize{
+\item standard normal distribution (\code{method.ci = "z"}, default), or
+\item t-distribution (\code{method.ci = "t"}).
+}
+}
 
 \subsection{Estimation of between-study variance}{
 
