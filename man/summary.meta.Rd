@@ -42,7 +42,7 @@
   irunit = x$irunit,
   bylab.nchar = 35,
   digits = gs("digits"),
-  digits.zval = gs("digits.zval"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
   digits.pval.Q = max(gs("digits.pval.Q"), 2),
   digits.Q = gs("digits.Q"),
@@ -61,6 +61,7 @@
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
   text.Rb = gs("text.Rb"),
+  digits.zval = digits.stat,
   warn.backtransf = FALSE,
   ...
 )
@@ -141,8 +142,8 @@ print from label for the grouping variable.}
 \item{digits}{Minimal number of significant digits, see
 \code{print.default}.}
 
-\item{digits.zval}{Minimal number of significant digits for z- or
-t-value, see \code{print.default}.}
+\item{digits.stat}{Minimal number of significant digits for z- or
+t-value of test for overall effect, see \code{print.default}.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
 of overall treatment effect, see \code{print.default}.}
@@ -198,6 +199,8 @@ I\eqn{^2}.}
 
 \item{text.Rb}{Text printed to identify heterogeneity statistic
 R\eqn{_b}.}
+
+\item{digits.zval}{Deprecated argument (replaced by \code{digits.stat}).}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
@@ -297,7 +300,7 @@ e.g., \code{\link{metabin}}, \code{\link{metacont}},
 
 Review Manager 5 (RevMan 5) is the current software used for
 preparing and maintaining Cochrane Reviews
-(\url{http://community.cochrane.org/tools/review-production-tools/revman-5}).
+(\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 In RevMan 5, subgroup analyses can be defined and data from a
 Cochrane review can be imported to Rusing the function \code{read.rm5}. If a
 meta-analysis is then conducted using function \code{metacr}, information on

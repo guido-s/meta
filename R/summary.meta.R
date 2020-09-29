@@ -53,8 +53,8 @@
 #'   printed.
 #' @param digits Minimal number of significant digits, see
 #'   \code{print.default}.
-#' @param digits.zval Minimal number of significant digits for z- or
-#'   t-value, see \code{print.default}.
+#' @param digits.stat Minimal number of significant digits for z- or
+#'   t-value of test for overall effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect, see \code{print.default}.
 #' @param digits.pval.Q Minimal number of significant digits for
@@ -98,6 +98,7 @@
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
 #'   R\eqn{_b}.
+#' @param digits.zval Deprecated argument (replaced by \code{digits.stat}).
 #' @param \dots Additional arguments (ignored).
 #'
 #' @details
@@ -113,7 +114,7 @@
 #' 
 #' Review Manager 5 (RevMan 5) is the current software used for
 #' preparing and maintaining Cochrane Reviews
-#' (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}).
+#' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 #' In RevMan 5, subgroup analyses can be defined and data from a
 #' Cochrane review can be imported to Rusing the function \code{read.rm5}. If a
 #' meta-analysis is then conducted using function \code{metacr}, information on
@@ -769,7 +770,7 @@ print.summary.meta <- function(x,
                                bylab.nchar = 35,
                                ##
                                digits = gs("digits"),
-                               digits.zval = gs("digits.zval"),
+                               digits.stat = gs("digits.stat"),
                                digits.pval = max(gs("digits.pval"), 2),
                                digits.pval.Q = max(gs("digits.pval.Q"), 2),
                                digits.Q = gs("digits.Q"),
@@ -790,6 +791,8 @@ print.summary.meta <- function(x,
                                text.tau = gs("text.tau"),
                                text.I2 = gs("text.I2"),
                                text.Rb = gs("text.Rb"),
+                               ##
+                               digits.zval = digits.stat,
                                ##
                                warn.backtransf = FALSE,
                                ...) {
@@ -816,7 +819,7 @@ print.summary.meta <- function(x,
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
-  chknumeric(digits.zval, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.pval.Q, min = 1, length = 1)
   chknumeric(digits.Q, min = 0, length = 1)
@@ -893,6 +896,19 @@ print.summary.meta <- function(x,
   method.ci <- ""
   if (any(addargs == ".print.method.ci.") && list(...)[[".print.method.ci."]])
     method.ci <- x$method.ci
+  ##
+  ## Check for deprecated argument 'digits.zval'
+  ##
+  if (!missing(digits.zval))
+    if (!missing(digits.stat))
+      warning("Deprecated argument 'digits.zval' ignored as ",
+              "argument 'digits.stat' is also provided.")
+    else {
+      warning("Deprecated argument 'digits.zval' has been replaced by ",
+              "argument 'digits.stat'.")
+      digits.stat <- digits.zval
+      chknumeric(digits.stat, min = 0, length = 1)
+    }
   
   
   ##
@@ -1125,13 +1141,13 @@ print.summary.meta <- function(x,
   lowTE.fixed <- round(lowTE.fixed, digits)
   uppTE.fixed <- round(uppTE.fixed, digits)
   pTE.fixed <- x$fixed$p
-  sTE.fixed <- round(x$fixed$statistic, digits.zval)
+  sTE.fixed <- round(x$fixed$statistic, digits.stat)
   ##
   TE.random    <- round(TE.random, digits)
   lowTE.random <- round(lowTE.random, digits)
   uppTE.random <- round(uppTE.random, digits)
   pTE.random <- x$random$p
-  sTE.random <- round(x$random$statistic, digits.zval)
+  sTE.random <- round(x$random$statistic, digits.stat)
   ##
   lowTE.predict <- round(lowTE.predict, digits)
   uppTE.predict <- round(uppTE.predict, digits)
@@ -1204,7 +1220,7 @@ print.summary.meta <- function(x,
                           formatN(uppTE.fixed, digits, "NA",
                                   big.mark = big.mark)),
                  if (null.given)
-                   formatN(sTE.fixed, digits.zval, big.mark = big.mark),
+                   formatN(sTE.fixed, digits.stat, big.mark = big.mark),
                  if (null.given)
                    formatPT(pTE.fixed, digits = digits.pval,
                             scientific = scientific.pval,
@@ -1290,7 +1306,7 @@ print.summary.meta <- function(x,
                      formatN(c(if (comb.fixed) sTE.fixed,
                                if (comb.random) sTE.random,
                                if (prediction) NA),
-                             digits = digits.zval, big.mark = big.mark),
+                             digits = digits.stat, big.mark = big.mark),
                    if (null.given)
                      formatPT(c(if (comb.fixed) pTE.fixed,
                                 if (comb.random) pTE.random,

@@ -63,13 +63,17 @@ metabin(
 )
 }
 \arguments{
-\item{event.e}{Number of events in experimental group.}
+\item{event.e}{Number of events in experimental group or true
+positives in diagnostic study.}
 
-\item{n.e}{Number of observations in experimental group.}
+\item{n.e}{Number of observations in experimental group or number
+of ill participants in diagnostic study.}
 
-\item{event.c}{Number of events in control group.}
+\item{event.c}{Number of events in control group or false positives
+in diagnostic study.}
 
-\item{n.c}{Number of observations in control group.}
+\item{n.c}{Number of observations in control group or number of
+healthy participants in diagnostic study.}
 
 \item{studlab}{An optional vector with study labels.}
 
@@ -425,17 +429,20 @@ object is a list containing the following components:
 }
 \description{
 Calculation of fixed effect and random effects estimates (risk
-ratio, odds ratio, risk difference, or arcsine difference) for
-meta-analyses with binary outcome data. Mantel-Haenszel, inverse
-variance, Peto method, generalised linear mixed model (GLMM), and
-sample size method are available for pooling. For GLMMs, the
-\code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} (Viechtbauer, 2010) is called internally.
+ratio, odds ratio, risk difference, arcsine difference, or
+diagnostic odds ratio) for meta-analyses with binary outcome
+data. Mantel-Haenszel, inverse variance, Peto method, generalised
+linear mixed model (GLMM), and sample size method are available for
+pooling. For GLMMs, the \code{\link[metafor]{rma.glmm}} function
+from R package \bold{metafor} (Viechtbauer, 2010) is called
+internally.
 }
 \details{
-Treatment estimates and standard errors are calculated for each
-study. The following measures of treatment effect are available
-(Rücker et al., 2009):
+Calculation of fixed and random effects estimates for meta-analyses
+with binary outcome data.
+
+The following measures of treatment effect are available (Rücker et
+al., 2009):
 
 \itemize{
 \item Risk ratio (\code{sm = "RR"})
@@ -447,6 +454,16 @@ study. The following measures of treatment effect are available
 
 Note, mathematically, odds ratios and diagnostic odds ratios are
 identical, however, the labels in printouts and figures differ.
+
+Default settings are utilised for several arguments (assignments
+using \code{\link{gs}} function). These defaults can be changed for
+the current R session using the \code{\link{settings.meta}}
+function.
+
+Furthermore, R function \code{\link{update.meta}} can be used to
+rerun a meta-analysis with different settings.
+
+\subsection{Meta-analysis method}{
 
 By default, both fixed effect and random effects models are
 considered (see arguments \code{comb.fixed} and
@@ -516,21 +533,9 @@ Note, regardless of which value is used for argument
 \code{model.glmm}, results for two different GLMMs are calculated:
 fixed effect model (with fixed treatment effect) and random effects
 model (with random treatment effects).
+}
 
-For several arguments defaults settings are utilised (assignments
-using \code{\link{gs}} function). These defaults can be changed
-using the \code{\link{settings.meta}} function.
-
-Internally, both fixed effect and random effects models are
-calculated regardless of values chosen for arguments
-\code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
-for the random effects model can be extracted from component
-\code{TE.random} of an object of class \code{"meta"} even if
-argument \code{comb.random = FALSE}. However, all functions in R
-package \bold{meta} will adequately consider the values for
-\code{comb.fixed} and \code{comb.random}. E.g. function
-\code{\link{print.meta}} will not print results for the random
-effects model if \code{comb.random = FALSE}.
+\subsection{Continuity correction}{
 
 For studies with a zero cell count, by default, 0.5 is added to all
 cell frequencies of these studies; if \code{incr} is \code{"TACC"}
@@ -555,51 +560,12 @@ Mantel-Haenszel estimate and he advocates the exact method
 Mantel-Haenszel method or GLMM are not defined if the number of
 events is zero in all studies either in the experimental or control
 group.
-
-Argument \code{byvar} can be used to conduct subgroup analysis for
-a categorical covariate. The \code{\link{metareg}} function can be
-used instead for more than one categorical covariate or continuous
-covariates.
-
-A prediction interval for the proportion in a new study (Higgins et
-al., 2009) is calculated if arguments \code{prediction} and
-\code{comb.random} are \code{TRUE}. Note, the definition of
-prediction intervals varies in the literature. This function
-implements equation (12) of Higgins et al., (2009) which proposed a
-\emph{t} distribution with \emph{K-2} degrees of freedom where
-\emph{K} corresponds to the number of studies in the meta-analysis.
-
-R function \code{\link{update.meta}} can be used to redo the
-meta-analysis of an existing metabin object by only specifying
-arguments which should be changed.
-
-For the random effects, the method by Hartung and Knapp (2001) is
-used to adjust test statistics and confidence intervals if argument
-\code{hakn = TRUE}. In rare settings with very homogeneous
-treatment estimates, the Hartung-Knapp variance estimate can be
-arbitrarily small resulting in a very narrow confidence interval
-(Knapp and Hartung, 2003; Wiksten et al., 2016). In such cases, an
-\emph{ad hoc} variance correction has been proposed by utilising
-the variance estimate from the classic random effects model (Knapp
-and Hartung, 2003). Argument \code{adhoc.hakn} can be used to
-choose the \emph{ad hoc} method:
-\tabular{ll}{
-\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
-\code{adhoc.hakn = ""}\tab not used \cr
-\code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
- standard error \cr
- \tab from classic random effects model (Knapp and Hartung, 2003) \cr
-\code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
- narrower than CI from \cr
- \tab classic random effects model with DL estimator (IQWiG, 2020)
 }
 
-For GLMMs, a method similar to Knapp and Hartung (2003) is
-implemented, see description of argument \code{tdist} in
-\code{\link[metafor]{rma.glmm}}.
+\subsection{Estimation of between-study variance}{
 
 The following methods to estimate the between-study variance
-\eqn{\tau^2} are available:
+\eqn{\tau^2} are available for the inverse variance method:
 \itemize{
 \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
 \item Paule-Mandel estimator (\code{method.tau = "PM"})
@@ -611,23 +577,103 @@ The following methods to estimate the between-study variance
 \item Hedges estimator (\code{method.tau = "HE"})
 \item Empirical Bayes estimator (\code{method.tau = "EB"})
 }
-Confidence intervals for \eqn{\tau^2} and \eqn{\tau} are also
-available:
-\itemize{
-\item Jackson method (\code{method.tau.ci = "J"})
-\item Biggerstaff and Jackson method (\code{method.tau.ci = "BJ"})
-\item Q-profile method (\code{method.tau.ci = "QP"})
+See \code{\link{metagen}} for more information on these
+estimators. Note, the maximum-likelihood method is utilized for
+GLMMs.
 }
-See \code{\link{metagen}} for more information on these estimators
-and confidence intervals. For GLMMs, the maximum-likelihood method
-is utilized and no confidence intervals for \eqn{\tau^2} and
-\eqn{\tau} are calculated. For the Mantel-Haenszel method, no
-confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-for the DerSimonian-Laird method if argument \code{Q.Cochrane} is
-\code{TRUE} (this is the random effects method implemented in
-RevMan 5 for the Mantel-Haenszel method). In general, no confidence
-intervals for \eqn{\tau^2} and \eqn{\tau} are calculated if
-\code{method.tau.ci = ""}.
+
+\subsection{Confidence interval for the between-study variance}{
+
+The following methods to calculate a confidence interval for
+\eqn{\tau^2} and \eqn{\tau} are available.
+\tabular{ll}{
+\bold{Argument}\tab \bold{Method} \cr 
+\code{method.tau.ci = "J"}\tab Method by Jackson \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method
+}
+See \code{\link{metagen}} for more information on these
+methods. For GLMMs, no confidence intervals for \eqn{\tau^2} and
+\eqn{\tau} are calculated. Likewise, no confidence intervals for
+\eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
+""}. 
+}
+
+\subsection{Hartung-Knapp method}{
+
+Hartung and Knapp (2001a,b) proposed an alternative method for
+random effects meta-analysis based on a refined variance estimator
+for the treatment estimate. Simulation studies (Hartung and Knapp,
+2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
+coverage probabilities compared to the classic random effects
+method.
+
+In rare settings with very homogeneous treatment estimates, the
+Hartung-Knapp variance estimate can be arbitrarily small resulting
+in a very narrow confidence interval (Knapp and Hartung, 2003;
+Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
+correction has been proposed by utilising the variance estimate
+from the classic random effects model (Knapp and Hartung,
+2003). Argument \code{adhoc.hakn} can be used to choose the
+\emph{ad hoc} method:
+\tabular{ll}{
+\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
+\code{adhoc.hakn = ""}\tab not used \cr
+\code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
+ standard error \cr
+ \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+\code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
+ narrower than CI from \cr
+ \tab classic random effects model with DL estimator (IQWiG, 2020)
+}
+}
+
+\subsection{Prediction interval}{
+
+A prediction interval for the proportion in a new study (Higgins et
+al., 2009) is calculated if arguments \code{prediction} and
+\code{comb.random} are \code{TRUE}. Note, the definition of
+prediction intervals varies in the literature. This function
+implements equation (12) of Higgins et al., (2009) which proposed a
+\emph{t} distribution with \emph{K-2} degrees of freedom where
+\emph{K} corresponds to the number of studies in the meta-analysis.
+
+For GLMMs, a method similar to Knapp and Hartung (2003) is
+implemented, see description of argument \code{tdist} in
+\code{\link[metafor]{rma.glmm}}.
+}
+
+\subsection{Subgroup analysis}{
+
+Argument \code{byvar} can be used to conduct subgroup analysis for
+a categorical covariate. The \code{\link{metareg}} function can be
+used instead for more than one categorical covariate or continuous
+covariates.
+}
+
+\subsection{Exclusion of studies from meta-analysis}{
+
+Arguments \code{subset} and \code{exclude} can be used to exclude
+studies from the meta-analysis. Studies are removed completely from
+the meta-analysis using argument \code{subset}, while excluded
+studies are shown in printouts and forest plots using argument
+\code{exclude} (see Examples in \code{\link{metagen}}).
+Meta-analysis results are the same for both arguments.
+}
+
+\subsection{Presentation of meta-analysis results}{
+
+Internally, both fixed effect and random effects models are
+calculated regardless of values choosen for arguments
+\code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+for the random effects model can be extracted from component
+\code{TE.random} of an object of class \code{"meta"} even if
+argument \code{comb.random = FALSE}. However, all functions in R
+package \bold{meta} will adequately consider the values for
+\code{comb.fixed} and \code{comb.random}. E.g. function
+\code{\link{print.meta}} will not print results for the random
+effects model if \code{comb.random = FALSE}.
+}
 }
 \examples{
 # Calculate odds ratio and confidence interval for a single study

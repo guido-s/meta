@@ -12,6 +12,10 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
   
   
   by <- !missing(byvar)
+  ##
+  sel <- !is.infinite(TE) & !is.infinite(seTE)
+  TE <- TE[sel]
+  seTE <- seTE[sel]
   
   
   if (by) {

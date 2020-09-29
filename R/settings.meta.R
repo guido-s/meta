@@ -33,7 +33,7 @@
 #'
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-#' \url{http://community.cochrane.org/tools/review-production-tools/revman-5})
+#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
 #' and specifies to use a RevMan 5 layout in forest plots. The second
 #' command can be used to generate forest plots following instructions
 #' for authors of the \emph{Journal of the American Medical
@@ -214,6 +214,7 @@ settings.meta <- function(...) {
   res$adhoc4hakn <- res$meth4bias <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
+  ## res$digits.zval <- NULL
   
   
   catarg <- function(x, newline = TRUE, end = "") {
@@ -387,7 +388,7 @@ settings.meta <- function(...) {
     catarg("backtransf     ")
     catarg("digits         ")
     catarg("digits.se      ")
-    catarg("digits.zval    ")
+    catarg("digits.stat    ")
     catarg("digits.Q       ")
     catarg("digits.tau2    ")
     catarg("digits.tau     ")
@@ -488,7 +489,7 @@ settings.meta <- function(...) {
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
-    setOption("digits.zval", 2)
+    setOption("digits.stat", 2)
     setOption("digits.Q", 2)
     setOption("digits.tau2", 4)
     setOption("digits.tau", 4)
@@ -637,7 +638,7 @@ settings.meta <- function(...) {
     idbacktransf <- argid(names, "backtransf")
     iddigits <- argid(names, "digits")
     iddigits.se <- argid(names, "digits.se")
-    iddigits.zval <- argid(names, "digits.zval")
+    iddigits.stat <- argid(names, "digits.stat")
     iddigits.Q <- argid(names, "digits.Q") 
     iddigits.tau2 <- argid(names, "digits.tau2")
     iddigits.tau <- argid(names, "digits.tau")
@@ -818,10 +819,14 @@ settings.meta <- function(...) {
       chknumeric(digits.se, min = 0, length = 1)
       setOption("digits.se", digits.se)
     }
-    if (!is.na(iddigits.zval)) {
-      digits.zval <- args[[iddigits.zval]]
-      chknumeric(digits.zval, min = 0, length = 1)
-      setOption("digits.zval", digits.zval)
+    if (!is.na(argid(names, "digits.zval"))) {
+      warning("Argument 'digits.zval' is deprecated; ",
+              "use instead argument 'digits.stat'.", call. = FALSE)
+    }
+    if (!is.na(iddigits.stat)) {
+      digits.stat <- args[[iddigits.stat]]
+      chknumeric(digits.stat, min = 0, length = 1)
+      setOption("digits.stat", digits.stat)
     }
     if (!is.na(iddigits.Q)) {
       digits.Q <- args[[iddigits.Q]]

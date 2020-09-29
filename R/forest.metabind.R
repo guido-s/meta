@@ -40,7 +40,7 @@
 #'   effects, see \code{print.default}.
 #' @param digits.se Minimal number of significant digits for standard
 #'   errors, see \code{print.default}.
-#' @param digits.zval Minimal number of significant digits for z- or
+#' @param digits.stat Minimal number of significant digits for z- or
 #'   t-statistic for test of overall effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect, see \code{print.default}.
@@ -152,7 +152,7 @@ forest.metabind <- function(x,
                             ##
                             digits = gs("digits.forest"),
                             digits.se = gs("digits.se"),
-                            digits.zval = gs("digits.zval"),
+                            digits.stat = gs("digits.stat"),
                             digits.pval = max(gs("digits.pval") - 2, 2),
                             digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
                             digits.Q = gs("digits.Q"),
@@ -183,7 +183,7 @@ forest.metabind <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
-  chknumeric(digits.zval, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.pval.Q, min = 1, length = 1)
   chknumeric(digits.Q, min = 0, length = 1)
@@ -208,6 +208,30 @@ forest.metabind <- function(x,
   idx <- charmatch(tolower(addargs), "comb.random", nomatch = NA)
   if (!is.na(idx) && length(idx) > 0)
     stop("Argument 'comb.random' cannot be used with metabind objects.")
+  ##
+  ## Check for deprecated arguments in '...'
+  ##
+  args  <- list(...)
+  ## Check whether first argument is a list. In this case only use
+  ## this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  ##
+  additional.arguments <- names(args)
+  ##
+  if (length(additional.arguments) > 0) {
+    if (!is.na(charmatch("digits.z", additional.arguments)))
+      if (!missing(digits.stat))
+        warning("Deprecated argument 'digits.zval' ignored as ",
+                "argument 'digits.stat' is also provided.")
+      else {
+        warning("Deprecated argument 'digits.zval' has been ",
+                "replaced by argument 'digits.stat'.")
+        digits.stat <- args[[charmatch("digits.z", additional.arguments)]]
+        chknumeric(digits.stat, min = 0, length = 1)
+      }
+  }
+  
   
   x$k.w.orig <- x$k.w
   
@@ -337,7 +361,7 @@ forest.metabind <- function(x,
          ##
          digits = digits,
          digits.se = digits.se,
-         digits.zval = digits.zval,
+         digits.stat = digits.stat,
          digits.pval = digits.pval,
          digits.pval.Q = digits.pval.Q,
          digits.Q = digits.Q,

@@ -112,7 +112,7 @@
   test.overall.random = comb.random & overall & test.overall,
   label.test.overall.fixed,
   label.test.overall.random,
-  print.zval = TRUE,
+  print.stat = TRUE,
   test.subgroup,
   test.subgroup.fixed,
   test.subgroup.random,
@@ -193,7 +193,7 @@
   backtransf = x$backtransf,
   digits = gs("digits.forest"),
   digits.se = gs("digits.se"),
-  digits.zval = gs("digits.zval"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval") - 2, 2),
   digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
   digits.Q = gs("digits.Q"),
@@ -214,6 +214,8 @@
   JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
   col.i = col.study,
   weight = weight.study,
+  digits.zval = digits.stat,
+  print.zval = print.stat,
   ...
 )
 }
@@ -568,8 +570,8 @@ of test for overall effect (based on fixed effect model).}
 \item{label.test.overall.random}{Label printed in front of results
 of test for overall effect (based on random effects model).}
 
-\item{print.zval}{A logical value indicating whether z-value for
-test of treatment effect should be printed.}
+\item{print.stat}{A logical value indicating whether z- or t-value
+for test of treatment effect should be printed.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
@@ -839,7 +841,7 @@ effects, see \code{print.default}.}
 \item{digits.se}{Minimal number of significant digits for standard
 errors, see \code{print.default}.}
 
-\item{digits.zval}{Minimal number of significant digits for z- or
+\item{digits.stat}{Minimal number of significant digits for z- or
 t-statistic for test of overall effect, see \code{print.default}.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
@@ -904,6 +906,10 @@ standards.}
 
 \item{weight}{Deprecated argument (replaced by
 \code{weight.study}).}
+
+\item{digits.zval}{Deprecated argument (replaced by \code{digits.stat}).}
+
+\item{print.zval}{Deprecated argument (replaced by \code{print.stat}).}
 
 \item{\dots}{Additional graphical arguments.}
 }
@@ -1068,7 +1074,7 @@ which should use default labels (see Examples).
 If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), the layout for forest plots used for
 Cochrane reviews (which are generated with Review Manager 5,
-\url{http://community.cochrane.org/tools/review-production-tools/revman-5})
+\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
 is reproduced:
 \enumerate{
 \item All columns are printed on the left side of the forest plot
@@ -1179,7 +1185,6 @@ forest(m1)
 }
 
 # Layout of forest plot similar to Review Manager 5
-# (see http://community.cochrane.org/tools/review-production-tools/revman-5)
 #
 # Furthermore, add labels on both sides of forest plot and
 # prediction interval

@@ -1,3 +1,45 @@
+## meta, version 4.15-0 (2020-09-29)
+
+### Major changes
+
+* Deeks' linear regression test for funnel plot asymmetry of funnel
+  plots of diagnostic test accuracy studies implemented ([Deeks et.,
+  2005](https://doi.org/10.1016/j.jclinepi.2005.01.016))
+
+* *Effective sample size* ([Deeks et.,
+  2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) can be used
+  on y-axis of funnel plot
+  
+* Discard infinite estimates and standard errors from calculation of
+  heterogeneity measures
+
+* Diagnostic odds ratio (sm = "DOR") added as new effect measure in
+  metabin() and metagen()
+
+### Bug fixes
+
+* read.rm5():
+  - set list element 'sm' equal to "OR" for Peto odds ratio (import of
+    RM5-file)
+
+### User-visible changes
+
+* forest.meta(), forest.metabind():
+  - arguments 'digits.zval' and 'print.zval' renamed to 'digits.stat'
+    and 'print.stat'
+
+* print.summary.meta(), settings.meta():
+  - argument 'digits.zval' renamed to 'digits.stat'
+  
+* metacr():
+  - do not print a warning for inverse variance meta-analysis with
+    binary outcome
+
+* Help page for tests of funnel plot asymmetry updated
+
+* Help pages for metabin() and metainc() updated
+
+
 ## meta, version 4.14-0 (2020-09-09)
 
 ### Major changes
@@ -128,6 +170,7 @@
     for a specific vector length instead whether it is a single value)
 	(argument 'single' is still available for backward compatibility,
      however, will be removed in a future update)
+
 
 ## meta, version 4.13-0 (2020-07-02)
 

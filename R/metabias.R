@@ -27,12 +27,12 @@
 #' @details
 #' Functions to conduct rank correlation or linear regression tests
 #' for funnel plot asymmetry.
-#' 
-#' Following recommendations by Sterne et al. (2011), by default, a
-#' test for funnel plot asymmetry is only conducted if the number of
-#' studies is ten or larger (argument \code{k.min = 10}). This
-#' behaviour can be changed by setting a smaller value for argument
-#' \code{k.min}. Note, the minimum number of studies is three.
+#'
+#' \subsection{Classic generic tests}{
+#' The following tests are generic tests for funnel plot asymmetry
+#' which only require estimates of the treatment effect and
+#' corresponding standard errors. Accordingly, these are the only tests
+#' provided by R function \code{metabias.default}.
 #' 
 #' If argument \code{method.bias} is \code{"rank"}, the test statistic
 #' is based on the rank correlation between standardised treatment
@@ -54,36 +54,16 @@
 #' additive between-study variance component (method 3a in Thompson,
 #' Sharp, 1999). The test statistic follows a t distribution with
 #' \code{number of studies - 2} degrees of freedom.
+#' }
 #' 
-#' If argument \code{method.bias} is \code{"peters"}, the test
-#' statistic is based on a weighted linear regression of the treatment
-#' effect on the inverse of the total sample size using the variance
-#' of the average event rate as weights (Peters et al., 2006). The
-#' test statistic follows a t distribution with \code{number of
-#' studies - 2} degrees of freedom. This test is available for
-#' meta-analyses comparing two binary outcomes or combining single
-#' proportions, i.e.  generated with functions \code{metabin} and
-#' \code{metaprop}.
-#' 
+#' \subsection{Tests for meta-analysis with binary outcomes}{
 #' The following tests for funnel plot asymmetry are only available
 #' for meta-analyses comparing two binary outcomes, i.e. meta-analyses
-#' generated with the \code{metabin} function.
-#' 
-#' If argument \code{method.bias} is \code{"count"}, the test
-#' statistic is based on the rank correlation between a standardised
-#' cell frequency and the inverse of the variance of the cell
-#' frequency; Kendall's tau is used as correlation measure (Schwarzer
-#' et al., 2007). The test statistic follows a standard normal
-#' distribution. By default (if \code{correct} is FALSE), no
-#' continuity correction is utilised (Kendall & Gibbons, 1990).
+#' generated with the \code{metabin} function. The only exception is
+#' the test by Peters et al. (2006) which can also be used in a
+#' meta-analysis of single proportions generated with \code{metaprop}.
 #' 
 #' If argument \code{method.bias} is \code{"score"}, the test
-#' statistic is based on a weighted linear regression utilising
-#' efficient score and score variance (Harbord et al., 2006,
-#' 2009). The test statistic follows a t distribution with
-#' \code{number of studies - 2} degrees of freedom.
-#' 
-#' If argument \code{method.bias} is \code{"deeks"}, the test
 #' statistic is based on a weighted linear regression utilising
 #' efficient score and score variance (Harbord et al., 2006,
 #' 2009). The test statistic follows a t distribution with
@@ -96,13 +76,46 @@
 #' can be calculated by setting \code{method.bias} to \code{"rank"},
 #' \code{"linreg"} and \code{"mm"}, respectively.
 #' 
+#' If argument \code{method.bias} is \code{"peters"}, the test
+#' statistic is based on a weighted linear regression of the treatment
+#' effect on the inverse of the total sample size using the variance
+#' of the average event rate as weights (Peters et al., 2006). The
+#' test statistic follows a t distribution with \code{number of
+#' studies - 2} degrees of freedom.
+#' 
+#' If argument \code{method.bias} is \code{"count"}, the test
+#' statistic is based on the rank correlation between a standardised
+#' cell frequency and the inverse of the variance of the cell
+#' frequency; Kendall's tau is used as correlation measure (Schwarzer
+#' et al., 2007). The test statistic follows a standard normal
+#' distribution. By default (if \code{correct} is FALSE), no
+#' continuity correction is utilised (Kendall & Gibbons, 1990).
+#' 
+#' Finally, for meta-analysis of diagnostic test accuracy studies, if
+#' argument \code{method.bias} is \code{"deeks"}, the test statistic
+#' is based on a weighted linear regression of the log diagnostic odds
+#' ratio on the inverse of the squared effective sample size using the
+#' effective sample size as weights (Deeks et al., 2005). The test
+#' statistic follows a t distribution with \code{number of studies -
+#' 2} degrees of freedom.
+#' }
+#' 
+#' \subsection{Recommendations and default settings}{
+#' Following recommendations by Sterne et al. (2011), by default, a
+#' test for funnel plot asymmetry is only conducted if the number of
+#' studies is ten or larger (argument \code{k.min = 10}). This
+#' behaviour can be changed by setting a smaller value for argument
+#' \code{k.min}. Note, the minimum number of studies is three.
+#' 
 #' If argument \code{method.bias} is missing, the Harbord test
-#' (\code{method.bias = "score"}) is used for the odds ratio as effect
-#' measure and the Egger test (\code{method.bias = "linreg"}) for
-#' other effect measures (Sterne et al., 2011).
+#' (\code{method.bias = "score"}) is used in meta-analysis of binary
+#' outcomes for the odds ratio as effect measure and the Egger test
+#' (\code{method.bias = "linreg"}) in all other settings (Sterne
+#' et al., 2011).
 #' 
 #' No test for funnel plot asymmetry is conducted in meta-analyses
 #' with subgroups.
+#' }
 #' @return
 #' A list with class \code{htest} containing the following components
 #' if a test for funnel plot asymmetry is conducted:
@@ -144,6 +157,13 @@
 #' publication bias.
 #' \emph{Biometrics},
 #' \bold{50}, 1088--101
+#'
+#' Deeks JJ, Macaskill P, Irwig L (2005):
+#' The performance of tests of publication bias and other sample size
+#' effects in systematic reviews of diagnostic test accuracy was
+#' assessed.
+#' \emph{Journal of Clinical Epidemiology},
+#' \bold{58}:882--93
 #' 
 #' Egger M, Smith GD, Schneider M & Minder C (1997):
 #' Bias in meta-analysis detected by a simple, graphical test.
@@ -287,7 +307,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       "Linear regression test of funnel plot asymmetry (efficient score)",
       paste0("Linear regression test of funnel plot asymmetry ",
              "(based on sample size)"),
-      "Deek's funnel plot test for diagnostic odds ratios")[imeth]
+      "Deeks' funnel plot test for diagnostic odds ratios")[imeth]
   ##
   chklogical(plotit)
   chklogical(correct)
@@ -503,7 +523,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
                "meta-analysis conducted with metabin()")
         }
       }
-      ##
       ##
       bias <- lreg$slope
       df <- lreg$df

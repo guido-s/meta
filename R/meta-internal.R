@@ -165,7 +165,7 @@ argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "label.e", "label.c", "label.left", "label.right",
               "layout",
               "test.overall", "test.subgroup", "test.effect.subgroup",
-              "digits", "digits.se", "digits.zval",
+              "digits", "digits.se", "digits.zval", "digits.stat",
               "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
               "digits.prop", "digits.weight",
               "digits.pval", "digits.pval.Q", "digits.forest",
@@ -201,6 +201,7 @@ setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
 setOption("digits.zval", 2)
+setOption("digits.stat", 2)
 setOption("digits.Q", 2)
 setOption("digits.tau2", 4)
 setOption("digits.tau", 4)

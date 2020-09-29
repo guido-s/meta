@@ -250,8 +250,8 @@
 #'   of test for overall effect (based on fixed effect model).
 #' @param label.test.overall.random Label printed in front of results
 #'   of test for overall effect (based on random effects model).
-#' @param print.zval A logical value indicating whether z-value for
-#'   test of treatment effect should be printed.
+#' @param print.stat A logical value indicating whether z- or t-value
+#'   for test of treatment effect should be printed.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
 #' @param test.subgroup.fixed A logical value indicating whether to
@@ -440,7 +440,7 @@
 #'   effects, see \code{print.default}.
 #' @param digits.se Minimal number of significant digits for standard
 #'   errors, see \code{print.default}.
-#' @param digits.zval Minimal number of significant digits for z- or
+#' @param digits.stat Minimal number of significant digits for z- or
 #'   t-statistic for test of overall effect, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
@@ -485,6 +485,8 @@
 #' @param col.i Deprecated argument (replaced by \code{col.study}).
 #' @param weight Deprecated argument (replaced by
 #'   \code{weight.study}).
+#' @param digits.zval Deprecated argument (replaced by \code{digits.stat}).
+#' @param print.zval Deprecated argument (replaced by \code{print.stat}).
 #' @param \dots Additional graphical arguments.
 #' 
 #' @details
@@ -644,7 +646,7 @@
 #' If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 #' \code{rightcols} are \code{NULL}), the layout for forest plots used for
 #' Cochrane reviews (which are generated with Review Manager 5,
-#' \url{http://community.cochrane.org/tools/review-production-tools/revman-5})
+#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
 #' is reproduced:
 #' \enumerate{
 #' \item All columns are printed on the left side of the forest plot
@@ -775,7 +777,6 @@
 #' }
 #' 
 #' # Layout of forest plot similar to Review Manager 5
-#' # (see http://community.cochrane.org/tools/review-production-tools/revman-5)
 #' #
 #' # Furthermore, add labels on both sides of forest plot and
 #' # prediction interval
@@ -1049,7 +1050,7 @@ forest.meta <- function(x,
                         label.test.overall.fixed,
                         label.test.overall.random,
                         ##
-                        print.zval = TRUE,
+                        print.stat = TRUE,
                         ##
                         test.subgroup,
                         test.subgroup.fixed,
@@ -1144,7 +1145,7 @@ forest.meta <- function(x,
                         backtransf = x$backtransf,
                         digits = gs("digits.forest"),
                         digits.se = gs("digits.se"),
-                        digits.zval = gs("digits.zval"),
+                        digits.stat = gs("digits.stat"),
                         digits.pval = max(gs("digits.pval") - 2, 2),
                         digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
                         digits.Q = gs("digits.Q"),
@@ -1169,6 +1170,8 @@ forest.meta <- function(x,
                         ##
                         col.i = col.study,
                         weight = weight.study,
+                        digits.zval = digits.stat,
+                        print.zval = print.stat,
                         ...) {
   
   
@@ -1356,7 +1359,7 @@ forest.meta <- function(x,
     chkchar(text.subgroup.nohet)
   else if (text.subgroup.nohet)
     text.subgroup.nohet <- "not applicable"
-  chklogical(print.zval)
+  chklogical(print.stat)
   ##
   hetstat.pooled <- ""
   if (is.character(hetstat)) {
@@ -1486,7 +1489,7 @@ forest.meta <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
-  chknumeric(digits.zval, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.pval.Q, min = 1, length = 1)
   chknumeric(digits.Q, min = 0, length = 1)
@@ -1547,6 +1550,33 @@ forest.meta <- function(x,
       warning("Deprecated argument 'weight' has been replaced ",
               "by argument 'weight.study'.")
       weight.study <- weight
+      weight.study <- setchar(weight.study, c("same", "fixed", "random"))
+    }
+  ##
+  ## Check for deprecated argument 'digits.zval'
+  ##
+  if (!missing(digits.zval))
+    if (!missing(digits.stat))
+      warning("Deprecated argument 'digits.zval' ignored as ",
+              "argument 'digits.stat' is also provided.")
+    else {
+      warning("Deprecated argument 'digits.zval' has been replaced by ",
+              "argument 'digits.stat'.")
+      digits.stat <- digits.zval
+      chknumeric(digits.stat, min = 0, length = 1)
+    }
+  ##
+  ## Check for deprecated argument 'print.zval'
+  ##
+  if (!missing(print.zval))
+    if (!missing(print.stat))
+      warning("Deprecated argument 'print.zval' ignored as ",
+              "argument 'print.stat' is also provided.")
+    else {
+      warning("Deprecated argument 'print.zval' has been replaced by ",
+              "argument 'print.stat'.")
+      print.stat <- print.zval
+      chklogical(print.stat)
     }
   ##
   ## Check for other deprecated arguments in '...'
@@ -3926,8 +3956,8 @@ forest.meta <- function(x,
                               scientific = scientific.pval,
                               lab.NA = "NA")
     statistics.overall <- formatN(round(c(x$statistic.fixed, x$statistic.random),
-                                        digits = digits.zval),
-                                  digits.zval, "NA", big.mark = big.mark)
+                                        digits = digits.stat),
+                                  digits.stat, "NA", big.mark = big.mark)
     ##
     ## Remove superfluous spaces
     ##
@@ -3940,7 +3970,7 @@ forest.meta <- function(x,
   }
   ##
   if (test.overall.fixed) {
-    if (print.zval) {
+    if (print.stat) {
       if (revman5)
         text.overall.fixed  <- substitute(paste(tl,
                                                 Z, hetseparator, tt,
@@ -3985,7 +4015,7 @@ forest.meta <- function(x,
     text.overall.fixed <- ""
   ##
   if (test.overall.random) {
-    if (print.zval) {
+    if (print.stat) {
       if (!x$hakn) {
         if (revman5)
           text.overall.random  <- substitute(paste(tl,
@@ -4945,8 +4975,8 @@ forest.meta <- function(x,
                                  scientific = scientific.pval,
                                  lab.NA = "NA")
       statistics.effect.w <- formatN(round(c(x$statistic.fixed.w, x$statistic.random.w),
-                                           digits = digits.zval),
-                                     digits.zval, "NA", big.mark = big.mark)
+                                           digits = digits.stat),
+                                     digits.stat, "NA", big.mark = big.mark)
       ##
       ## Remove superfluous spaces
       ##
@@ -4961,7 +4991,7 @@ forest.meta <- function(x,
     if (test.effect.subgroup.fixed) {
       text.effect.subgroup.fixed <- vector("list", n.by)
       for (i in 1:n.by) {
-        if (print.zval) {
+        if (print.stat) {
           if (revman5)
             text.effect.subgroup.fixed[[i]] <-
               substitute(paste(tl,
@@ -5021,7 +5051,7 @@ forest.meta <- function(x,
     if (test.effect.subgroup.random) {
       text.effect.subgroup.random <- vector("list", n.by)
       for (i in 1:n.by) {
-        if (print.zval) {
+        if (print.stat) {
           if (!x$hakn) {
             if (revman5)
               text.effect.subgroup.random[[i]] <-

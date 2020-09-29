@@ -68,7 +68,7 @@
 #' meta-analysis is conducted. Review Manager 5 (RevMan 5) is the
 #' current software used for preparing and maintaining Cochrane
 #' Reviews
-#' (\url{http://community.cochrane.org/tools/review-production-tools/revman-5}).
+#' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 #' 
 #' This wrapper function can be used to perform meta-analysis for a
 #' single outcome of a Cochrane Intervention review. Internally, R
@@ -215,6 +215,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   if (is.na(overall))
     overall <- TRUE
   type <- unique(x$type[sel])
+  test.subgroup <- unique(x$test.subgroup[sel])
   ##
   if (missing(sm))
     sm <- unique(x$sm[sel])
@@ -249,17 +250,29 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   ##
   if (!all(is.na(x$logscale[sel]))) {
-    if (!unique(x$logscale[sel]))
+    if (!unique(x$logscale[sel])) {
       x$TE[sel] <- log(x$TE[sel])
+      logscale <- FALSE
+    }
+    else
+      logscale <- TRUE
   }
   else {
     if (!missing(logscale)) {
       if (!logscale)
         x$TE[sel] <- log(x$TE[sel])
     }
-    else
-      if ((type == "I" & method != "Peto") & is.relative.effect(sm))
-        warning("Assuming that values for 'TE' are on log scale. Please use argument 'logscale = FALSE' if values are on natural scale.")
+    else {
+      if ((type == "I" & method != "Peto") & is.relative.effect(sm)) {
+        warning("Assuming that values for 'TE' are on log scale. ",
+                "Please use argument 'logscale = FALSE' if ",
+                "values are on natural scale.",
+                call. = FALSE)
+        logscale <- TRUE
+      }
+      else
+        logscale <- NA
+    }
   }
   
   
@@ -272,8 +285,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     n.c <- n.e <- sd.c <- sd.e <- seTE <- studlab <- NULL
   ##
   dropnames <- c("comp.no", "outcome.no", "group.no",
-                 "lower.TE", "upper.TE", "weight",
-                 "overall",
+                 "overall", "test.subgroup",
                  "type", "method", "sm", "model", "comb.fixed", "comb.random",
                  "outclab", "k", "event.e.pooled", "n.e.pooled", "event.c.pooled",
                  "n.c.pooled", "TE.pooled", "lower.pooled", "upper.pooled",
@@ -283,6 +295,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                  "label.left", "label.right", "complab", "sel")
   ##
   varnames <- names(x)[!(names(x) %in% dropnames)]
+  ##
+  Q.Cochrane <- if (method == "MH" & method.tau == "DL") TRUE else FALSE
   ##
   if (length(unique(x$group.no[sel])) > 1) {
     if (type == "D") {
@@ -312,7 +326,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
                       RR.Cochrane = TRUE,
-                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
@@ -334,7 +348,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
                       RR.Cochrane = TRUE,
-                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
     }
     ##
@@ -449,7 +463,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
                       RR.Cochrane = TRUE,
-                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
       else
         m1 <- metabin(event.e, n.e, event.c, n.c,
@@ -468,7 +482,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
                       RR.Cochrane = TRUE,
-                      Q.Cochrane = if (method.tau == "DL") TRUE else FALSE,
+                      Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
     }
     ##
@@ -552,8 +566,18 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     warning('Meta-analysis not possible for sm = "OTHER".')
     res <- NULL
   }
-  else
+  else {
     res <- m1
+    attr(res, "comp.no") <- comp.no
+    attr(res, "outcome.no") <- outcome.no
+    attr(res, "type") <- type
+    attr(res, "test.subgroup") <- test.subgroup
+    if (type == "D")
+      attr(res, "swap.events") <- swap.events
+    attr(res, "logscale") <- logscale
+    if (!is.null(x$enter.n))
+      attr(res, "enter.n") <- x$enter.n
+  }
   
   
   res

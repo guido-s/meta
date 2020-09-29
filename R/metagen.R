@@ -13,10 +13,10 @@
 #' @param data An optional data frame containing the study
 #'   information.
 #' @param subset An optional vector specifying a subset of studies to
-#'   be used.
+#'   be used (see Details).
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
-#'   plots.
+#'   plots (see Details).
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -403,6 +403,16 @@
 #' \code{null.effect}.
 #' }
 #' 
+#' \subsection{Exclusion of studies from meta-analysis}{
+#'
+#' Arguments \code{subset} and \code{exclude} can be used to exclude
+#' studies from the meta-analysis. Studies are removed completely from
+#' the meta-analysis using argument \code{subset}, while excluded
+#' studies are shown in printouts and forest plots using argument
+#' \code{exclude} (see Examples).
+#' Meta-analysis results are the same for both arguments.
+#' }
+#' 
 #' \subsection{Presentation of meta-analysis results}{
 #' 
 #' Internally, both fixed effect and random effects models are
@@ -741,7 +751,7 @@
 #' 
 #' @examples
 #' data(Fleiss1993bin)
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, study,
 #'               data = Fleiss1993bin, sm = "RR", method = "I")
 #' m1
 #' 
@@ -750,7 +760,7 @@
 #' # Note, argument 'n.e' in metagen() is used to provide the total
 #' # sample size which is calculated from the group sample sizes n.e
 #' # and n.c in meta-analysis m1.
-#' m1.gen <- metagen(TE, seTE, n.e = n.e + n.c, data = m1, sm = "RR")
+#' m1.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = m1, sm = "RR")
 #' m1.gen
 #' forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
 #'
@@ -790,6 +800,40 @@
 #' #
 #' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
 #'         studlab = study, sm = "HR")
+#'
+#' 
+#' # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
+#' # show them in printouts and forest plots
+#' #
+#' metabin(d.asp, n.asp, d.plac, n.plac, study,
+#'         data = Fleiss1993bin, sm = "RR", method = "I",
+#'         exclude = study %in% c("MRC-1", "MRC-2"))
+#' #
+#' # Exclude MRC-1 and MRC-2 studies completely from meta-analysis
+#' #
+#' metabin(d.asp, n.asp, d.plac, n.plac, study,
+#'         data = Fleiss1993bin, sm = "RR", method = "I",
+#'         subset = !(study %in% c("MRC-1", "MRC-2")))
+#'
+#' 
+#' # Exclude studies with total sample size above 1500
+#' #
+#' metabin(d.asp, n.asp, d.plac, n.plac, study,
+#'         data = Fleiss1993bin, sm = "RR", method = "I",
+#'         exclude = (n.asp + n.plac) > 1500)
+#'
+#' # Exclude studies containing "MRC" in study name
+#' #
+#' metabin(d.asp, n.asp, d.plac, n.plac, study,
+#'         data = Fleiss1993bin, sm = "RR", method = "I",
+#'         exclude = grep("MRC", study))
+#'
+#' # Use both arguments 'subset' and 'exclude'
+#' #
+#' metabin(d.asp, n.asp, d.plac, n.plac, study,
+#'         data = Fleiss1993bin, sm = "RR", method = "I",
+#'         subset = (n.asp + n.plac) > 1500,
+#'         exclude = grep("MRC", study))
 #' 
 #' @export metagen
 

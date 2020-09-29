@@ -17,7 +17,7 @@
   lab.NA = "",
   digits = gs("digits.forest"),
   digits.se = gs("digits.se"),
-  digits.zval = gs("digits.zval"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval") - 2, 2),
   digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
   digits.Q = gs("digits.Q"),
@@ -78,7 +78,7 @@ effects, see \code{print.default}.}
 \item{digits.se}{Minimal number of significant digits for standard
 errors, see \code{print.default}.}
 
-\item{digits.zval}{Minimal number of significant digits for z- or
+\item{digits.stat}{Minimal number of significant digits for z- or
 t-statistic for test of overall effect, see \code{print.default}.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value

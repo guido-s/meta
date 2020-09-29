@@ -56,19 +56,22 @@ extract_outcomes <- function(txt, outcome.type, res,
         method <- "Peto"
       else if (is.na(method))
         method <- "Inverse"
+      else if (method == "IV")
+        method <- "Inverse"
       ##
       sm <- xml_attr(xml.j, "EFFECT_MEASURE")
       if (is.na(sm)) {
         sm <- xml_text(xml_find_all(xml.j, "//EFFECT_MEASURE"))
-        sm[sm == "Odds Ratio"] <- "OR"
-        sm[sm == "Peto Odds Ratio"] <- "OR"
-        sm[sm == "Odds Ratio (Non-event)"] <- "OR"
-        sm[sm == "Risk Ratio"] <- "RR"
-        sm[sm == "Risk Difference"] <- "RD"
-        sm[sm == "Mean Difference"] <- "MD"
-        sm[sm == "Standardized Mean Difference"] <- "SMD"
-        sm[sm == "Std. Mean Difference"] <- "SMD"
-        sm[sm == "Hazard Ratio"] <- "HR"
+        sm[tolower(sm) == "odds ratio"] <- "OR"
+        sm[tolower(sm) == "peto odds ratio"] <- "OR"
+        sm[tolower(sm) == "peto_or"] <- "OR"
+        sm[tolower(sm) == "odds ratio (non-event)"] <- "OR"
+        sm[tolower(sm) == "risk ratio"] <- "RR"
+        sm[tolower(sm) == "risk difference"] <- "RD"
+        sm[tolower(sm) == "mean difference"] <- "MD"
+        sm[tolower(sm) == "standardized mean difference"] <- "SMD"
+        sm[tolower(sm) == "std. mean difference"] <- "SMD"
+        sm[tolower(sm) == "hazard ratio"] <- "HR"
       }
       ##
       logscale <- xml_attr(xml.j, "LOG_DATA") == "NO"
@@ -1095,7 +1098,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                res$group.no, " ", res$grplab)[sel.grp]
   }
   ##
-  res$test.subgroup[is.na(res$group.no)] <- FALSE
+  res$test.subgroup[is.na(res$group.no)] <- NA
   ##
   row.names(res) <- 1:nrow(res)
   ##

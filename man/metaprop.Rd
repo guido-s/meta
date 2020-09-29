@@ -579,6 +579,16 @@ alternative hypothesis that the effect is unequal to
 \code{null.effect}.
 }
 
+\subsection{Exclusion of studies from meta-analysis}{
+
+Arguments \code{subset} and \code{exclude} can be used to exclude
+studies from the meta-analysis. Studies are removed completely from
+the meta-analysis using argument \code{subset}, while excluded
+studies are shown in printouts and forest plots using argument
+\code{exclude} (see Examples in \code{\link{metagen}}).
+Meta-analysis results are the same for both arguments.
+}
+
 \subsection{Presentation of meta-analysis results}{
 
 Internally, both fixed effect and random effects models are
