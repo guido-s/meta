@@ -1,3 +1,11 @@
+## meta, version 4.15-1 (2020-09-30)
+
+### Bug fixes
+
+* metacr():
+  - set summary measure to "OR" for Peto odds ratio
+
+
 ## meta, version 4.15-0 (2020-09-29)
 
 ### Major changes
@@ -15,12 +23,6 @@
 
 * Diagnostic odds ratio (sm = "DOR") added as new effect measure in
   metabin() and metagen()
-
-### Bug fixes
-
-* read.rm5():
-  - set list element 'sm' equal to "OR" for Peto odds ratio (import of
-    RM5-file)
 
 ### User-visible changes
 

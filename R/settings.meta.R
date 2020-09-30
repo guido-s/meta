@@ -214,7 +214,7 @@ settings.meta <- function(...) {
   res$adhoc4hakn <- res$meth4bias <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
-  ## res$digits.zval <- NULL
+  res$digits.zval <- NULL
   
   
   catarg <- function(x, newline = TRUE, end = "") {

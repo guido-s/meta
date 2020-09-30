@@ -159,8 +159,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chkclass(x, "rm5")
   ##
-  if (!missing(sm))
-    chknull(sm)
+  if (is.numeric(comp.no))
+    chknumeric(comp.no, length = 1)
+  else
+    chkchar(comp.no, length = 1)
+  ##
+  if (is.numeric(outcome.no))
+    chknumeric(outcome.no, length = 1)
+  else
+    chkchar(outcome.no, length = 1)
+  ##
   chklevel(level)
   chklevel(level.comb)
   ##
@@ -217,13 +225,17 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   type <- unique(x$type[sel])
   test.subgroup <- unique(x$test.subgroup[sel])
   ##
-  if (missing(sm))
-    sm <- unique(x$sm[sel])
-  ##
   if (missing(method))
     method <- unique(x$method[sel])
   else
     method <- setchar(method, c("Inverse", "MH", "Peto"))
+  chkchar(method, length = 1)
+  ##
+  if (missing(sm))
+    sm <- unique(x$sm[sel])
+  chkchar(sm, length = 1)
+  if (sm == "PETO_OR")
+    sm <- "OR"
   ##
   if (missing(comb.fixed))
     comb.fixed  <- unique(x$comb.fixed[sel])
