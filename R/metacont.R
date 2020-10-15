@@ -1785,6 +1785,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## Add data
   ##
+  res$n.e.pooled <- sum(res$n.e, na.rm = TRUE)
+  res$n.c.pooled <- sum(res$n.c, na.rm = TRUE)
+  ##
   res$method.mean <- method.mean
   res$method.sd <- method.sd
   res$call <- match.call()

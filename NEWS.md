@@ -1,3 +1,13 @@
+## meta, version 4.15-2 (2020-mm-dd)
+
+### Major changes
+
+* For funnel plot of a diagnostic test accuracy meta-analysis, use
+  *effective sample size* ([Deeks et.,
+  2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
+  the y-axis
+
+
 ## meta, version 4.15-1 (2020-09-30)
 
 ### Bug fixes

@@ -543,6 +543,8 @@ settings.meta <- function(...) {
     setOption("label.left", "")
     setOption("label.right", "")
     ##
+    ## Forest plots
+    ##
     setOption("layout", "meta")
     setOption("test.overall", FALSE)
     setOption("test.subgroup", FALSE)

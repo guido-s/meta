@@ -27,7 +27,7 @@
   col.fixed = "black",
   col.random = "black",
   log,
-  yaxis = "se",
+  yaxis,
   contour.levels = NULL,
   col.contour,
   ref = ifelse(is.relative.effect(x$sm), 1, 0),
@@ -101,7 +101,7 @@ logarithmic.}
 
 \item{yaxis}{A character string indicating which type of weights
 are to be used. Either \code{"se"}, \code{"invvar"},
-\code{"invse"}, or \code{"size"}.}
+\code{"invse"}, code{"size"}, or code{"ess"}.}
 
 \item{contour.levels}{A numeric vector specifying contour levels to
 produce contour-enhanced funnel plot.}
@@ -165,19 +165,23 @@ fixed effect estimate (if \code{comb.fixed} is TRUE) or the random
 effects estimate (if \code{comb.random} is TRUE and
 \code{comb.fixed} is FALSE).
 
-In the funnel plot, if \code{yaxis} is \code{"se"}, the standard
-error of the treatment estimates is plotted on the y-axis which is
-likely to be the best choice (Sterne & Egger, 2001). Other possible
-choices for \code{yaxis} are \code{"invvar"} (inverse of the
-variance), \code{"invse"} (inverse of the standard error), and
-\code{"size"} (study size).
+In the funnel plot, the standard error of the treatment estimates
+is plotted on the y-axis by default (\code{yaxis = "se"}) which is
+likely to be the best choice (Sterne & Egger, 2001). Only exception
+is meta-analysis of diagnostic test accuracy studies (Deeks et al.,
+2005) where the inverse of the square root of the \emph{effective
+study size} is used (\code{yaxis = "ess"}). Other possible choices
+for \code{yaxis} are \code{"invvar"} (inverse of the variance),
+\code{"invse"} (inverse of the standard error), and \code{"size"}
+(study size).
 
-For \code{yaxis!="size"}, contour-enhanced funnel plots can be
-produced (Peters et al., 2008) by specifying the contour levels
-(argument \code{contour.levels}). By default (argument
-\code{col.contour} missing), suitable gray levels will be used to
-distinguish the contours. Different colours can be chosen by
-argument \code{col.contour}.
+If argument \code{yaxis} is not equal to \code{"size"} or
+\code{"ess"}, contour-enhanced funnel plots can be produced (Peters
+et al., 2008) by specifying the contour levels (argument
+\code{contour.levels}). By default (argument \code{col.contour}
+missing), suitable gray levels will be used to distinguish the
+contours. Different colours can be chosen by argument
+\code{col.contour}.
 }
 \examples{
 data(Olkin1995)
@@ -214,6 +218,13 @@ par(oldpar)
 
 }
 \references{
+Deeks JJ, Macaskill P, Irwig L (2005):
+The performance of tests of publication bias and other sample size
+effects in systematic reviews of diagnostic test accuracy was
+assessed.
+\emph{Journal of Clinical Epidemiology},
+\bold{58}:882--93
+
 Light RJ & Pillemer DB (1984):
 \emph{Summing Up. The Science of Reviewing Research}.
 Cambridge: Harvard University Press

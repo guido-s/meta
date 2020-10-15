@@ -6005,12 +6005,35 @@ forest.meta <- function(x,
   ##
   ## Number of patients, events, and person times
   ##
-  sum.n.e <- sum(x$n.e, na.rm = TRUE)
-  sum.n.c <- sum(x$n.c, na.rm = TRUE)
-  sum.e.e <- sum(x$event.e, na.rm = TRUE)
-  sum.e.c <- sum(x$event.c, na.rm = TRUE)
-  sum.t.e <- sum(x$time.e, na.rm = TRUE)
-  sum.t.c <- sum(x$time.c, na.rm = TRUE)
+  if (!is.null(x$n.e.pooled))
+    sum.n.e <- x$n.e.pooled
+  else
+    sum.n.e <- sum(x$n.e, na.rm = TRUE)
+  ##
+  if (!is.null(x$n.c.pooled))
+    sum.n.c <- x$n.c.pooled
+  else
+    sum.n.c <- sum(x$n.c, na.rm = TRUE)
+  ##
+  if (!is.null(x$event.e.pooled))
+    sum.e.e <- x$event.e.pooled
+  else
+    sum.e.e <- sum(x$event.e, na.rm = TRUE)
+  ##
+  if (!is.null(x$event.c.pooled))
+    sum.e.c <- x$event.c.pooled
+  else
+    sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  ##
+  if (!is.null(x$time.e.pooled))
+    sum.t.e <- x$time.e.pooled
+  else
+    sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  ##
+  if (!is.null(x$time.c.pooled))
+    sum.t.c <- x$time.c.pooled
+  else
+    sum.t.c <- sum(x$time.c, na.rm = TRUE)
   ##
   if (by) {
     if (pooled.totals) {
