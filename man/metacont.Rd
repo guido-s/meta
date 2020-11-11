@@ -15,6 +15,7 @@ metacont(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  id = NULL,
   median.e,
   q1.e,
   q3.e,
@@ -46,7 +47,7 @@ metacont(
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
-  method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  method.tau.ci = NULL,
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -94,6 +95,10 @@ be used.}
 \item{exclude}{An optional vector specifying studies to exclude
 from meta-analysis, however, to include in printouts and forest
 plots.}
+
+\item{id}{An optional vector specifying which estimates come from
+the same study resulting in the use of a three-level
+meta-analysis model.}
 
 \item{median.e}{Median in experimental group (used to estimate the
 mean and standard deviation).}

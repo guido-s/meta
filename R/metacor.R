@@ -242,14 +242,14 @@
 #'   (fixed effect model).}
 #' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
 #'   limits (fixed effect model).}
-#' \item{zval.fixed, pval.fixed}{z-value and p-value for test of
+#' \item{statistic.fixed, pval.fixed}{z-value and p-value for test of
 #'   overall effect (fixed effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall effect (Fisher's z
 #'   transformation of correlation or correlation) and standard error
 #'   (random effects model).}
 #' \item{lower.random, upper.random}{Lower and upper confidence
 #'   interval limits (random effects model).}
-#' \item{zval.random, pval.random}{z-value or t-value and
+#' \item{statistic.random, pval.random}{z-value or t-value and
 #'   corresponding p-value for test of overall effect (random effects
 #'   model).}
 #' \item{prediction, level.predict}{As defined above.}
@@ -288,16 +288,16 @@
 #' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
 #'   interval limits in subgroups (fixed effect model) - if
 #'   \code{byvar} is not missing.}
-#' \item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
-#'   effect in subgroups (fixed effect model) - if \code{byvar} is not
-#'   missing.}
+#' \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
+#'   of effect in subgroups (fixed effect model) - if \code{byvar} is
+#'   not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated effect and standard
 #'   error in subgroups (random effects model) - if \code{byvar} is
 #'   not missing.}
 #' \item{lower.random.w, upper.random.w}{Lower and upper confidence
 #'   interval limits in subgroups (random effects model) - if
 #'   \code{byvar} is not missing.}
-#' \item{zval.random.w, pval.random.w}{z-value or t-value and
+#' \item{statistic.random.w, pval.random.w}{z-value or t-value and
 #'   corresponding p-value for test of effect in subgroups (random
 #'   effects model) - if \code{byvar} is not missing.}
 #' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
@@ -795,51 +795,40 @@ metacor <- function(cor, n, studlab,
     res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
-    if (!tau.common) {
+    if (!tau.common)
       res <- c(res, subgroup(res))
-      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
-      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-    }
-    else if (!is.null(tau.preset)) {
+    else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
+    else
+      res <- c(res, subgroup(res, hcc$tau.resid))
+    ##
+    if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
       res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-    }
-    else {
-      res <- c(res, subgroup(res, hcc$tau))
-      res$Q.w.random <- hcc$Q
-      res$df.Q.w.random <- hcc$df.Q
-      res$tau2.resid <- hcc$tau2
-      res$lower.tau2.resid <- hcc$lower.tau2
-      res$upper.tau2.resid <- hcc$upper.tau2
-      res$tau.resid <- hcc$tau
-      res$lower.tau.resid <- hcc$lower.tau
-      res$upper.tau.resid <- hcc$upper.tau
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$H.resid <- ci.H.resid$TE
-      res$lower.H.resid <- ci.H.resid$lower
-      res$upper.H.resid <- ci.H.resid$upper
+      res$Q.resid <- res$df.Q.resid <- res$pval.Q.resid <- NA
+      res$H.resid <- res$lower.H.resid <- res$upper.H.resid <- NA
+      res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
     }
     else {
+      res$tau2.resid <- hcc$tau2.resid
+      res$lower.tau2.resid <- hcc$lower.tau2.resid
+      res$upper.tau2.resid <- hcc$upper.tau2.resid
+      ##
+      res$tau.resid <- hcc$tau.resid
+      res$lower.tau.resid <- hcc$lower.tau.resid
+      res$upper.tau.resid <- hcc$upper.tau.resid
+      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
+      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
+      ##
+      res$Q.w.random <- hcc$Q.resid
+      res$df.Q.w.random <- hcc$df.Q.resid
+      res$pval.Q.w.random <- hcc$pval.Q.resid
+      ##
       res$H.resid <- hcc$H.resid
       res$lower.H.resid <- hcc$lower.H.resid
       res$upper.H.resid <- hcc$upper.H.resid
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$I2.resid <- ci.I2.resid$TE
-      res$lower.I2.resid <- ci.I2.resid$lower
-      res$upper.I2.resid <- ci.I2.resid$upper
-    }
-    else {
       res$I2.resid <- hcc$I2.resid
       res$lower.I2.resid <- hcc$lower.I2.resid
       res$upper.I2.resid <- hcc$upper.I2.resid

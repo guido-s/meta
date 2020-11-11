@@ -5,7 +5,8 @@
 #' for example, useful to generate a forest plot with results of
 #' subgroup analyses.
 #' 
-#' @param ... Any number of meta-analysis objects (see Details).
+#' @param ... Any number of meta-analysis objects or a single list
+#'   with meta-analyses.
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
 #' @param pooled A character string indicating whether results of a
@@ -79,16 +80,39 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
 
   args <- list(...)
   ##
-  if (length(args) == 1 & inherits(args[[1]], "meta.rm5")) {
-    args <- args[[1]]
-    if (missing(name))
-      name <- unlist(lapply(args, "[[" , "outclab"))
-  }
-  ##
   n.meta <- length(args)
   n.i <- seq_len(n.meta)
-
-
+  ##
+  if (length(args) == 1) {
+    if (inherits(args[[1]], "meta.rm5")) {
+      args <- args[[1]]
+      if (missing(name))
+        name <- unlist(lapply(args, "[[" , "outclab"))
+    }
+    else if (!is.list(args[[1]]))
+      stop("All elements of argument '...' must be of ",
+           "class 'meta'.",
+           call. = FALSE)
+    ##
+    if (!inherits(args[[1]], "meta")) {
+      n.meta <- length(args[[1]])
+      n.i <- seq_len(n.meta)
+      ##
+      args2 <- list()
+      for (i in n.i)
+        args2[[i]] <- args[[1]][[i]]
+    }
+    args <- args2
+  }
+  ##  
+  for (i in n.i) {
+    if (!inherits(args[[i]], "meta"))
+      stop("All elements of argument '...' must be of ",
+           "class 'meta'.",
+           call. = FALSE)
+  }
+  
+  
   is.subgroup <- rep(FALSE, n.meta)
   ##
   for (i in n.i) {

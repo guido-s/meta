@@ -19,6 +19,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param id An optional vector specifying which estimates come from
+#'   the same study resulting in the use of a three-level
+#'   meta-analysis model.
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
 #' @param q1.e First quartile in experimental group (used to estimate
@@ -743,7 +746,7 @@
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL,
+                     data = NULL, subset = NULL, exclude = NULL, id = NULL,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -767,7 +770,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau = gs("method.tau"),
-                     method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                     method.tau.ci = NULL,
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
@@ -809,7 +812,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  ##
+  missing.id <- missing(id)
+  if (is.null(method.tau.ci))
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else if (!missing.id)
+      method.tau.ci <- "PL"
+    else
+      method.tau.ci <- "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  ##
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -848,7 +861,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', and 'sd.c' from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and 'id'
+  ## from data:
   ##
   missing.mean.e <- missing(mean.e)
   missing.sd.e <- missing(sd.e)
@@ -866,6 +880,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   missing.q3.c <- missing(q3.c)
   missing.min.c <- missing(min.c)
   missing.max.c <- missing(max.c)
+  ##
+  if (!missing.id & is.null(id))
+    missing.id <- TRUE
   ##
   if (missing.mean.e & missing.median.e)
     stop("Provide either argument 'mean.e' or 'median.e'.",
@@ -925,6 +942,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     chknull(sd.c)
   else
     sd.c <- rep(NA, k.All)
+  ##
+  id <- eval(mf[[match("id", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
   ##
   ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
   ##
@@ -1013,6 +1033,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklength(mean.c, k.All, arg)
   chklength(sd.c, k.All, arg)
   chklength(studlab, k.All, arg)
+  if (!missing.id)
+    chklength(id, k.All, arg)
   ##
   if (!missing.median.e)
     chklength(median.e, k.All, arg)
@@ -1175,6 +1197,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (!missing.exclude)
       data$.exclude <- exclude
+    ##
+    if (!missing.id)
+      data$.id <- id
   }
   
   
@@ -1191,6 +1216,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
+    ##
+    if (!missing.id)
+      id <- id[subset]
     ##
     exclude <- exclude[subset]
     ##
@@ -1667,7 +1695,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (any(npn.mean) & warn)
       warning("Note, studies with negative or zero means get no weight in meta-analysis.")
-
+    
     TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / mean.c))
     ##
     if (pooledvar)
@@ -1691,6 +1719,32 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   if (sm == "SMD")
     TE[sel] <- NA
+  ##
+  ## No multi-level meta-analysis conducted if variable 'id' contains
+  ## different values for each estimate
+  ##
+  multi.level <- FALSE
+  ##
+  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
+  if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
+    multi.level <- TRUE
+  ##
+  if (multi.level) {
+    if (!(method.tau %in% c("REML", "ML"))) {
+      if (!missing(method.tau))
+        warning("For multi-level model, argument 'method.tau' set to \"REML\".",
+                call. = FALSE)
+      method.tau <- "REML"
+    }
+    ##
+    if (by & !tau.common) {
+      if (!missing(tau.common))
+        warning("For multi-level model, argument 'tau.common' set to ",
+                "\"TRUE\".",
+                call. = FALSE)
+      tau.common <- TRUE
+    }
+  }
   
   
   ##
@@ -1700,6 +1754,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
+               id = id,
                ##
                sm = sm,
                level = level,
@@ -1836,51 +1891,40 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$byseparator <- byseparator
     res$tau.common <- tau.common
     ##
-    if (!tau.common) {
+    if (!tau.common)
       res <- c(res, subgroup(res))
-      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
-      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-    }
-    else if (!is.null(tau.preset)) {
+    else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
+    else
+      res <- c(res, subgroup(res, hcc$tau.resid))
+    ##
+    if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
       res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-    }
-    else {
-      res <- c(res, subgroup(res, hcc$tau))
-      res$Q.w.random <- hcc$Q
-      res$df.Q.w.random <- hcc$df.Q
-      res$tau2.resid <- hcc$tau2
-      res$lower.tau2.resid <- hcc$lower.tau2
-      res$upper.tau2.resid <- hcc$upper.tau2
-      res$tau.resid <- hcc$tau
-      res$lower.tau.resid <- hcc$lower.tau
-      res$upper.tau.resid <- hcc$upper.tau
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$H.resid <- ci.H.resid$TE
-      res$lower.H.resid <- ci.H.resid$lower
-      res$upper.H.resid <- ci.H.resid$upper
+      res$Q.resid <- res$df.Q.resid <- res$pval.Q.resid <- NA
+      res$H.resid <- res$lower.H.resid <- res$upper.H.resid <- NA
+      res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
     }
     else {
+      res$tau2.resid <- hcc$tau2.resid
+      res$lower.tau2.resid <- hcc$lower.tau2.resid
+      res$upper.tau2.resid <- hcc$upper.tau2.resid
+      ##
+      res$tau.resid <- hcc$tau.resid
+      res$lower.tau.resid <- hcc$lower.tau.resid
+      res$upper.tau.resid <- hcc$upper.tau.resid
+      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
+      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
+      ##
+      res$Q.w.random <- hcc$Q.resid
+      res$df.Q.w.random <- hcc$df.Q.resid
+      res$pval.Q.w.random <- hcc$pval.Q.resid
+      ##
       res$H.resid <- hcc$H.resid
       res$lower.H.resid <- hcc$lower.H.resid
       res$upper.H.resid <- hcc$upper.H.resid
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$I2.resid <- ci.I2.resid$TE
-      res$lower.I2.resid <- ci.I2.resid$lower
-      res$upper.I2.resid <- ci.I2.resid$upper
-    }
-    else {
       res$I2.resid <- hcc$I2.resid
       res$lower.I2.resid <- hcc$lower.I2.resid
       res$upper.I2.resid <- hcc$upper.I2.resid

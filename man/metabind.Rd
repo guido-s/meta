@@ -7,7 +7,8 @@
 metabind(..., name, pooled, backtransf, outclab)
 }
 \arguments{
-\item{...}{Any number of meta-analysis objects (see Details).}
+\item{...}{Any number of meta-analysis objects or a single list
+with meta-analyses.}
 
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}

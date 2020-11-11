@@ -17,6 +17,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots (see Details).
+#' @param id An optional vector specifying which estimates come from
+#'   the same study resulting in the use of a three-level
+#'   meta-analysis model.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -91,8 +94,8 @@
 #'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+#'   \code{"PL"}, or \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -321,7 +324,8 @@
 #' \bold{Argument}\tab \bold{Method} \cr 
 #' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007)
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for multi-level models
 #' }
 #' These methods have been recommended by Veroniki et al. (2016). By
 #' default, the Jackson method is used for the DerSimonian-Laird
@@ -457,7 +461,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-#' \item{sm, method.ci, level, level.comb,}{As defined above.}
+#' \item{id, sm, method.ci, level, level.comb,}{As defined above.}
 #' \item{comb.fixed, comb.random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -840,7 +844,7 @@
 
 metagen <- function(TE, seTE, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL,
+                    data = NULL, subset = NULL, exclude = NULL, id = NULL,
                     ##
                     sm = "",
                     ##
@@ -853,7 +857,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau = gs("method.tau"),
-                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                    method.tau.ci = NULL,
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -914,7 +918,17 @@ metagen <- function(TE, seTE, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  ##
+  missing.id <- missing(id)
+  if (is.null(method.tau.ci))
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else if (!missing.id)
+      method.tau.ci <- "PL"
+    else
+      method.tau.ci <- "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  ##
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -960,14 +974,17 @@ metagen <- function(TE, seTE, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', and 'n.c'
-  ## from data:
+  ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
+  ## 'id' from data:
   ##
   missing.TE <- missing(TE)
   missing.seTE <- missing(seTE)
   missing.median <- missing(median)
   missing.lower <- missing(lower)
   missing.upper <- missing(upper)
+  ##
+  if (!missing.id & is.null(id))
+    missing.id <- TRUE
   ##
   if (missing.TE & missing.median & (missing.lower | missing.upper))
     stop("Treatment estimates missing. ",
@@ -989,6 +1006,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   upper <- eval(mf[[match("upper", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
+  ##
+  id <- eval(mf[[match("id", names(mf))]],
+             data, enclos = sys.frame(sys.parent()))
   ##
   k.All <- if (!missing.TE)
              length(TE)
@@ -1102,6 +1122,8 @@ metagen <- function(TE, seTE, studlab,
     chklength(n.e, k.All, arg)
   if (!is.null(n.c))
     chklength(n.c, k.All, arg)
+  if (!missing.id)
+    chklength(id, k.All, arg)
   if (by) {
     chklogical(print.byvar)
     chkchar(byseparator)
@@ -1215,6 +1237,9 @@ metagen <- function(TE, seTE, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
+    if (!missing.id)
+      data$.id <- id
+    ##
     if (!missing.pval)
       data$.pval <- pval
     if (!missing.df)
@@ -1262,6 +1287,9 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(n.c))
       n.c <- n.c[subset]
     ##
+    if (!missing.id)
+      id <- id[subset]
+    ##
     if (!missing.pval)
       pval <- pval[subset]
     if (!missing.df)
@@ -1308,6 +1336,32 @@ metagen <- function(TE, seTE, studlab,
   ##
   chknumeric(TE)
   chknumeric(seTE, 0)
+  ##
+  ## No multi-level meta-analysis conducted if variable 'id' contains
+  ## different values for each estimate
+  ##
+  multi.level <- FALSE
+  ##
+  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
+  if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
+    multi.level <- TRUE
+  ##
+  if (multi.level) {
+    if (!(method.tau %in% c("REML", "ML"))) {
+      if (!missing(method.tau))
+        warning("For multi-level model, argument 'method.tau' set to \"REML\".",
+                call. = FALSE)
+      method.tau <- "REML"
+    }
+    ##
+    if (by & !tau.common) {
+      if (!missing(tau.common))
+        warning("For multi-level model, argument 'tau.common' set to ",
+                "\"TRUE\".",
+                call. = FALSE)
+      tau.common <- TRUE
+    }
+  }
   
   
   ##
@@ -1642,9 +1696,12 @@ metagen <- function(TE, seTE, studlab,
     hc <- list(tau2 = NA, se.tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
                tau = NA, lower.tau = NA, upper.tau = NA,
                method.tau.ci = "", sign.lower.tau = "", sign.upper.tau = "",
+               ##
                Q = NA, df.Q = NA, pval.Q = NA,
                H = NA, lower.H = NA, upper.H = NA,
                I2 = NA, lower.I2 = NA, upper.I2 = NA,
+               ##
+               Q.resid = NA, df.Q.resid = NA, pval.Q.resid = NA,
                H.resid = NA, lower.H.resid = NA, upper.H.resid = NA,
                I2.resid = NA, lower.I2.resid = NA, upper.I2.resid = NA)
   }
@@ -1652,54 +1709,107 @@ metagen <- function(TE, seTE, studlab,
     ## At least two studies to perform Hartung-Knapp method
     if (k == 1 & hakn)
       hakn <- FALSE
+    ##
     ## Estimate tau-squared
+    ##
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci,
-                  TE.tau, level.comb, control = control)
+                  TE.tau, level.comb,
+                  control = control, id = id)
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
       hcc <- hetcalc(TE[!exclude], seTE[!exclude],
                      method.tau, method.tau.ci,
-                     TE.tau, level.comb, byvar, control)
+                     TE.tau, level.comb,
+                     byvar = byvar,
+                     control = control, id = id)
     }
     ##
-    if (is.null(tau.preset))
-      tau2.calc <- if (is.na(hc$tau2)) 0 else hc$tau2
-    else {
-      tau2.calc <- tau.preset^2
+    ## Different calculations for multi-level models
+    ##
+    if (!multi.level) {
       ##
-      hc$tau2 <- tau.preset^2
-      hc$se.tau2 <- hc$lower.tau2 <- hc$upper.tau2 <- NA
-      hc$tau <- tau.preset
-      hc$lower.tau <- hc$upper.tau <- NA
-      hc$method.tau.ci <- ""
-      hc$sign.lower.tau <- ""
-      hc$sign.upper.tau <- ""
+      ## Classic meta-analysis
+      ##
+      if (is.null(tau.preset))
+        tau2.calc <- if (is.na(hc$tau2)) 0 else hc$tau2
+      else {
+        tau2.calc <- tau.preset^2
+        ##
+        hc$tau2 <- tau.preset^2
+        hc$se.tau2 <- hc$lower.tau2 <- hc$upper.tau2 <- NA
+        hc$tau <- tau.preset
+        hc$lower.tau <- hc$upper.tau <- NA
+        hc$method.tau.ci <- ""
+        hc$sign.lower.tau <- ""
+        hc$sign.upper.tau <- ""
+      }
+      ##
+      ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
+      ##
+      w.fixed <- 1 / seTE^2
+      w.fixed[is.na(w.fixed) | is.na(TE) | exclude] <- 0
+      ##
+      TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
+      seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
+      ##
+      ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
+                 null.effect = null.effect)
+      statistic.fixed <- ci.f$statistic
+      pval.fixed <- ci.f$p
+      lower.fixed <- ci.f$lower
+      upper.fixed <- ci.f$upper
+      ##
+      ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
+      ##
+      w.random <- 1 / (seTE^2 + tau2.calc)
+      w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
+      ##
+      TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
+      seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
     }
-    ##
-    ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
-    ##
-    w.fixed <- 1 / seTE^2
-    w.fixed[is.na(w.fixed) | is.na(TE) | exclude] <- 0
-    ##
-    TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-    seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
-    ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb,
-               null.effect = null.effect)
-    statistic.fixed <- ci.f$statistic
-    pval.fixed <- ci.f$p
-    lower.fixed <- ci.f$lower
-    upper.fixed <- ci.f$upper
-    ##
-    ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
-    ##
-    w.random <- 1 / (seTE^2 + tau2.calc)
-    w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
-    ##
-    TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
-    seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
+    else {
+      ##
+      ## Multi-level meta-analysis
+      ##
+      id.TE <- seq_along(TE)
+      ##
+      ## No fixed effect method for multi-level model
+      ##
+      if (comb.fixed) {
+        if (!missing(comb.fixed))
+          warning("Fixed effect model not calculated for multi-level model.",
+                  call. = FALSE)
+        comb.fixed <- FALSE
+      }
+      ##
+      w.fixed <- rep_len(NA, length(seTE))
+      ##
+      TE.fixed <- seTE.fixed <- lower.fixed <- upper.fixed <-
+        statistic.fixed <- pval.fixed <- NA
+      ##
+      ## Conduct multi-level meta-analysis
+      ##
+      if (by & !tau.common) {
+        if (!missing(tau.common))
+          warning("Argument 'tau.common' set to TRUE for multi-level model.",
+                  call. = FALSE)
+        tau.common <- TRUE
+      }
+      ##
+      m4 <- rma.mv(TE, seTE^2,
+                   method = method.tau,
+                   random = ~ 1 | id / id.TE,
+                   control = control)
+      ##
+      w.random <- rep_len(NA, length(w.fixed))
+      ##
+      TE.random <- m4$b
+      seTE.random <- m4$se
+      ##
+      tau2.calc <- sum(m4$tau2)
+    }
     ##
     ## Hartung-Knapp adjustment
     ##
@@ -1789,6 +1899,7 @@ metagen <- function(TE, seTE, studlab,
               pval = ci.study$p,
               df = if (method.ci == "t") df else rep_len(NA, length(TE)),
               w.fixed = w.fixed, w.random = w.random,
+              id = id,
               ##
               TE.fixed = TE.fixed, seTE.fixed = seTE.fixed,
               lower.fixed = lower.fixed, upper.fixed = upper.fixed,
@@ -1834,9 +1945,10 @@ metagen <- function(TE, seTE, studlab,
               hakn = hakn, adhoc.hakn = adhoc.hakn,
               df.hakn = if (hakn) df.hakn else NA,
               seTE.random.hakn.orig = seTE.random.hakn.orig,
-              method.tau = method.tau, method.tau.ci = method.tau.ci,
+              method.tau = method.tau, method.tau.ci = hc$method.tau.ci,
               tau.preset = tau.preset,
-              TE.tau = if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
+              TE.tau =
+                if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
               tau.common = tau.common,
               prediction = prediction,
               method.bias = method.bias,
@@ -1868,51 +1980,43 @@ metagen <- function(TE, seTE, studlab,
     res$byvar <- byvar
     res$bylab <- bylab
     ##
-    if (!tau.common) {
+    if (!tau.common)
       res <- c(res, subgroup(res))
-      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
-      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-    }
-    else if (!is.null(tau.preset)) {
+    else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
+    else
+      res <- c(res, subgroup(res, hcc$tau.resid))
+    ##
+    if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
       res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
+      ##
+      res$Q.resid <- res$df.Q.resid <- res$pval.Q.resid <- NA
+      res$H.resid <- res$lower.H.resid <- res$upper.H.resid <- NA
+      res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
     }
     else {
-      res <- c(res, subgroup(res, hcc$tau))
-      res$Q.w.random <- hcc$Q
-      res$df.Q.w.random <- hcc$df.Q
-      res$tau2.resid <- hcc$tau2
-      res$lower.tau2.resid <- hcc$lower.tau2
-      res$upper.tau2.resid <- hcc$upper.tau2
-      res$tau.resid <- hcc$tau
-      res$lower.tau.resid <- hcc$lower.tau
-      res$upper.tau.resid <- hcc$upper.tau
+      res$Q.w.random <- hcc$Q.resid
+      res$df.Q.w.random <- hcc$df.Q.resid
+      ##
+      res$tau2.resid <- hcc$tau2.resid
+      res$lower.tau2.resid <- hcc$lower.tau2.resid
+      res$upper.tau2.resid <- hcc$upper.tau2.resid
+      ##
+      res$tau.resid <- hcc$tau.resid
+      res$lower.tau.resid <- hcc$lower.tau.resid
+      res$upper.tau.resid <- hcc$upper.tau.resid
       res$sign.lower.tau.resid <- hcc$sign.lower.tau
       res$sign.upper.tau.resid <- hcc$sign.upper.tau
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.H.resid <- calcH(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$H.resid <- ci.H.resid$TE
-      res$lower.H.resid <- ci.H.resid$lower
-      res$upper.H.resid <- ci.H.resid$upper
-    }
-    else {
+      res$Q.resid <- hcc$Q.resid
+      res$df.Q.resid <- hcc$df.Q.resid
+      res$pval.Q.resid <- hcc$pval.Q.resid
+      ##
       res$H.resid <- hcc$H.resid
       res$lower.H.resid <- hcc$lower.H.resid
       res$upper.H.resid <- hcc$upper.H.resid
-    }
-    ##
-    if (!tau.common || method.tau == "DL") {
-      ci.I2.resid <- isquared(res$Q.w.fixed, res$df.Q.w, level.comb)
       ##
-      res$I2.resid <- ci.I2.resid$TE
-      res$lower.I2.resid <- ci.I2.resid$lower
-      res$upper.I2.resid <- ci.I2.resid$upper
-    }
-    else {
       res$I2.resid <- hcc$I2.resid
       res$lower.I2.resid <- hcc$lower.I2.resid
       res$upper.I2.resid <- hcc$upper.I2.resid

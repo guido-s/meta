@@ -250,13 +250,13 @@ object is a list containing the following components:
   standard error (fixed effect model).}
 \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
   limits (fixed effect model).}
-\item{zval.fixed, pval.fixed}{z-value and p-value for test of
+\item{statistic.fixed, pval.fixed}{z-value and p-value for test of
   overall treatment effect (fixed effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect
   and standard error (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
   interval limits (random effects model).}
-\item{zval.random, pval.random}{z-value or t-value and
+\item{statistic.random, pval.random}{z-value or t-value and
   corresponding p-value for test of overall treatment effect
   (random effects model).}
 \item{prediction, level.predict}{As defined above.}
@@ -303,7 +303,7 @@ object is a list containing the following components:
 \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
   interval limits in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
-\item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
+\item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test of
   treatment effect in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
@@ -312,7 +312,7 @@ object is a list containing the following components:
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
   \code{byvar} is not missing.}
-\item{zval.random.w, pval.random.w}{z-value or t-value and
+\item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of treatment effect in subgroups
   (random effects model) - if \code{byvar} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and

@@ -11,6 +11,7 @@ metagen(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  id = NULL,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -22,7 +23,7 @@ metagen(
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
-  method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  method.tau.ci = NULL,
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -84,6 +85,10 @@ be used (see Details).}
 from meta-analysis, however, to include in printouts and forest
 plots (see Details).}
 
+\item{id}{An optional vector specifying which estimates come from
+the same study resulting in the use of a three-level
+meta-analysis model.}
+
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.}
@@ -132,8 +137,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -266,7 +271,7 @@ An object of class \code{c("metagen", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-\item{sm, method.ci, level, level.comb,}{As defined above.}
+\item{id, sm, method.ci, level, level.comb,}{As defined above.}
 \item{comb.fixed, comb.random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -591,7 +596,8 @@ The following methods to calculate a confidence interval for
 \bold{Argument}\tab \bold{Method} \cr 
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007)
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for multi-level models
 }
 These methods have been recommended by Veroniki et al. (2016). By
 default, the Jackson method is used for the DerSimonian-Laird

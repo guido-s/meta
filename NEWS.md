@@ -1,11 +1,37 @@
-## meta, version 4.15-2 (2020-mm-dd)
+## meta, version 4.16-0 (2020-mm-dd)
 
 ### Major changes
+
+* Three-level meta-analysis models can be fitted
+
+* Measures I2 and H for residual heterogeneity are based on Q
+  statistic for residual heterogeneity (instead of taken directly from
+  **metafor** package)
 
 * For funnel plot of a diagnostic test accuracy meta-analysis, use
   *effective sample size* ([Deeks et.,
   2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
   the y-axis
+
+### Bug fixes
+
+* metabin():
+  - Mantel-Haenszel method of risk differences did not use continuity
+    correction in case of studies with a zero cell count (argument
+    MH.exact = FALSE)
+
+### User-visible changes
+
+* metacont(), metagen(), update.meta():
+  - new argument 'id' to specify which estimates belong to the same
+    study (or laboratory) in order to use three-level model
+
+* metabind():
+  - argument '...' can be a single list of network meta-analysis objects
+
+### Internal changes
+
+* Calculate measures of residual heterogeneity in hetcalc()
 
 
 ## meta, version 4.15-1 (2020-09-30)

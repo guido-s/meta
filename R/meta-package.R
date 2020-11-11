@@ -142,7 +142,7 @@
 #' Balduzzi S, Rücker G, Schwarzer G (2019):
 #' How to perform a meta-analysis with R: a practical tutorial.
 #' \emph{Evidence-Based Mental Health},
-#' \bold{22}, 153--160.
+#' \bold{22}, 153--160
 #' 
 #' Hartung J, Knapp G (2001a):
 #' On tests of the overall treatment effect in meta-analysis with
@@ -196,10 +196,10 @@
 #'   qnorm qt runif update var weighted.mean weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion tail
+#'   getFromNamespace packageDescription packageVersion head tail
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill
-#'   rma.uni rma.glmm predict.rma confint.rma.uni escalc
+#'   rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc
 #'
 #' @importFrom lme4 glmer
 #'

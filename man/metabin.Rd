@@ -283,17 +283,17 @@ object is a list containing the following components:
   (fixed effect model).}
 \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
   limits (fixed effect model).}
-\item{zval.fixed, pval.fixed}{z-value and p-value for test of
+\item{statistic.fixed, pval.fixed}{z-value and p-value for test of
   overall treatment effect (fixed effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect,
   e.g., log risk ratio or risk difference, and standard error
   (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
   interval limits (random effects model).}
-\item{zval.random, pval.random}{z-value or t-value and
+\item{statistic.random, pval.random}{z-value or t-value and
   corresponding p-value for test of overall treatment effect
-  (random effects model).}
-\item{prediction, level.predict}{As defined above.}
+  (random effects model).}  \item{prediction, level.predict}{As
+  defined above.}
 \item{seTE.predict}{Standard error utilised for prediction
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
@@ -344,8 +344,9 @@ object is a list containing the following components:
   \code{byvar} is not missing.}  \item{lower.fixed.w,
   upper.fixed.w}{Lower and upper confidence interval limits in
   subgroups (fixed effect model) - if \code{byvar} is not missing.}
-\item{zval.fixed.w, pval.fixed.w}{z-value and p-value for test of
-  treatment effect in subgroups (fixed effect model) - if
+
+\item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
+  of treatment effect in subgroups (fixed effect model) - if
   \code{byvar} is not missing.}  \item{TE.random.w,
   seTE.random.w}{Estimated treatment effect and standard error in
   subgroups (random effects model) - if \code{byvar} is not
@@ -353,79 +354,68 @@ object is a list containing the following components:
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
   \code{byvar} is not missing.}
-\item{zval.random.w, pval.random.w}{z-value or t-value and
+\item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of treatment effect in subgroups
   (random effects model) - if \code{byvar} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
   random effects model) - if \code{byvar} is not missing.}
-\item{df.hakn.w}{Degrees of freedom for test of treatment effect
+  \item{df.hakn.w}{Degrees of freedom for test of treatment effect
   for Hartung-Knapp method in subgroups - if \code{byvar} is not
-  missing and \code{hakn = TRUE}.}
-\item{event.e.w}{Number of events in experimental group in
+  missing and \code{hakn = TRUE}.}  \item{event.e.w}{Number of
+  events in experimental group in subgroups - if \code{byvar} is
+  not missing.}  \item{n.e.w}{Number of observations in
+  experimental group in subgroups - if \code{byvar} is not
+  missing.}  \item{event.c.w}{Number of events in control group in
+  subgroups - if \code{byvar} is not missing.}  \item{n.c.w}{Number
+  of observations in control group in subgroups - if \code{byvar}
+  is not missing.}  \item{k.w}{Number of studies combined within
   subgroups - if \code{byvar} is not missing.}
-\item{n.e.w}{Number of observations in experimental group in
+  \item{k.all.w}{Number of all studies in subgroups - if
+  \code{byvar} is not missing.}  \item{Q.w.fixed}{Overall within
+  subgroups heterogeneity statistic Q (based on fixed effect model)
+  - if \code{byvar} is not missing.}  \item{Q.w.random}{Overall
+  within subgroups heterogeneity statistic Q (based on random
+  effects model) - if \code{byvar} is not missing (only calculated
+  if argument \code{tau.common} is TRUE).}  \item{df.Q.w}{Degrees
+  of freedom for test of overall within subgroups heterogeneity -
+  if \code{byvar} is not missing.}  \item{pval.Q.w.fixed}{P-value
+  of within subgroups heterogeneity statistic Q (based on fixed
+  effect model) - if \code{byvar} is not missing.}
+  \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
+  statistic Q (based on random effects model) - if \code{byvar} is
+  not missing.}  \item{Q.b.fixed}{Overall between subgroups
+  heterogeneity statistic Q (based on fixed effect model) - if
+  \code{byvar} is not missing.}  \item{Q.b.random}{Overall between
+  subgroups heterogeneity statistic Q (based on random effects
+  model) - if \code{byvar} is not missing.}  \item{df.Q.b}{Degrees
+  of freedom for test of overall between subgroups heterogeneity -
+  if \code{byvar} is not missing.}  \item{pval.Q.b.fixed}{P-value
+  of between subgroups heterogeneity statistic Q (based on fixed
+  effect model) - if \code{byvar} is not missing.}
+  \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
+  statistic Q (based on random effects model) - if \code{byvar} is
+  not missing.}  \item{tau.w}{Square-root of between-study variance
+  within subgroups - if \code{byvar} is not missing.}
+  \item{H.w}{Heterogeneity statistic H within subgroups - if
+  \code{byvar} is not missing.}  \item{lower.H.w, upper.H.w}{Lower
+  and upper confidence limit for heterogeneity statistic H within
   subgroups - if \code{byvar} is not missing.}
-\item{event.c.w}{Number of events in control group in subgroups -
-  if \code{byvar} is not missing.}
-\item{n.c.w}{Number of observations in control group in subgroups -
-  if \code{byvar} is not missing.}
-\item{k.w}{Number of studies combined within subgroups - if
-  \code{byvar} is not missing.}
-\item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
-  is not missing.}
-\item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{byvar} is not missing.}
-\item{Q.w.random}{Overall within subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
-  missing (only calculated if argument \code{tau.common} is TRUE).}
-\item{df.Q.w}{Degrees of freedom for test of overall within
-  subgroups heterogeneity - if \code{byvar} is not missing.}
-\item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
-  not missing.}
-\item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
-  not missing.}
-\item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{byvar} is not
-  missing.}
-\item{Q.b.random}{Overall between subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
-  missing.}
-\item{df.Q.b}{Degrees of freedom for test of overall between
-  subgroups heterogeneity - if \code{byvar} is not missing.}
-\item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
-  not missing.}
-\item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
-  not missing.}
-\item{tau.w}{Square-root of between-study variance within subgroups
-  - if \code{byvar} is not missing.}
-\item{H.w}{Heterogeneity statistic H within subgroups - if
-  \code{byvar} is not missing.}
-\item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-  heterogeneity statistic H within subgroups - if \code{byvar} is
-  not missing.}
-\item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-  \code{byvar} is not missing.}
-\item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-  heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
-  not missing.}
-\item{keepdata}{As defined above.}
-\item{data}{Original data (set) used in function call (if
-  \code{keepdata = TRUE}).}
-\item{subset}{Information on subset of original data used in
-  meta-analysis (if \code{keepdata = TRUE}).}
-\item{.glmm.fixed}{GLMM object generated by call of
+  \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups -
+  if \code{byvar} is not missing.}  \item{lower.I2.w,
+  upper.I2.w}{Lower and upper confidence limit for heterogeneity
+  statistic I\eqn{^2} within subgroups - if \code{byvar} is not
+  missing.}  \item{keepdata}{As defined above.}
+  \item{data}{Original data (set) used in function call (if
+  \code{keepdata = TRUE}).}  \item{subset}{Information on subset of
+  original data used in meta-analysis (if \code{keepdata = TRUE}).}
+  \item{.glmm.fixed}{GLMM object generated by call of
   \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
-\item{.glmm.random}{GLMM object generated by call of
+  \item{.glmm.random}{GLMM object generated by call of
   \code{\link[metafor]{rma.glmm}} function (random effects model).}
-\item{call}{Function call.}
-\item{version}{Version of R package \bold{meta} used to create
-  object.}
-\item{version.metafor}{Version of R package \bold{metafor} used for
-  GLMMs.}
+  \item{call}{Function call.}  \item{version}{Version of R package
+  \bold{meta} used to create object.}
+  \item{version.metafor}{Version of R package \bold{metafor} used
+  for GLMMs.}
 }
 \description{
 Calculation of fixed effect and random effects estimates (risk

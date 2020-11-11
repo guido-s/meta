@@ -10,6 +10,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param id An optional vector specifying which estimates come from
+#'   the same study resulting in the use of a three-level
+#'   meta-analysis model.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies; see \code{\link{metabin}} and
 #'   \code{\link{metainc}} function for admissible values.
@@ -233,6 +236,7 @@ update.meta <- function(object,
                         subset = object$subset,
                         studlab = object$data$.studlab,
                         exclude = object$data$.exclude,
+                        id = object$data$.id,
                         method = object$method,
                         sm = object$sm,
                         incr,
@@ -680,6 +684,7 @@ update.meta <- function(object,
                   ##
                   studlab = studlab,
                   exclude = exclude,
+                  id = id,
                   ##
                   data = data, subset = subset,
                   ##
@@ -767,6 +772,7 @@ update.meta <- function(object,
                  ##
                  studlab = studlab,
                  exclude = exclude,
+                 id = id,
                  ##
                  data = data.m, subset = subset,
                  ##

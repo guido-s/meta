@@ -102,6 +102,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       id = if (!is.null(x$id)) x$id[sel] else NULL,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
                        method.tau = x$method.tau,

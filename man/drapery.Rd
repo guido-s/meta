@@ -43,7 +43,7 @@ drapery(
   bty = "o",
   backtransf = x$backtransf,
   xlab,
-  ylab = if (type == "zvalue") "Test statistic" else "P-value",
+  ylab,
   xlim,
   ylim,
   lwd.max = 2.5,
@@ -108,8 +108,8 @@ the random effects model.}
 
 \item{col.random}{Colour of lines for random effects meta-analysis.}
 
-\item{sign}{Significance level used to highlight significant
-values in curves.}
+\item{sign}{Significance level used to highlight significant values
+in curves.}
 
 \item{lty.sign}{Line type for significant values.}
 
@@ -139,7 +139,8 @@ effect.}
 \item{legend}{A logical indicating whether a legend should be
 printed.}
 
-\item{pos.legend}{Position of legend (see \code{\link{legend}}).}
+\item{pos.legend}{A character string with position of legend (see
+\code{\link{legend}}).}
 
 \item{bg}{Background colour of legend (see \code{\link{legend}}).}
 

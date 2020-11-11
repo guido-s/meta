@@ -10,6 +10,7 @@
   subset = object$subset,
   studlab = object$data$.studlab,
   exclude = object$data$.exclude,
+  id = object$data$.id,
   method = object$method,
   sm = object$sm,
   incr,
@@ -82,6 +83,10 @@
 \item{exclude}{An optional vector specifying studies to exclude
 from meta-analysis, however, to include in printouts and forest
 plots.}
+
+\item{id}{An optional vector specifying which estimates come from
+the same study resulting in the use of a three-level
+meta-analysis model.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies; see \code{\link{metabin}} and

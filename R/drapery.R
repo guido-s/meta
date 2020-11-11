@@ -41,8 +41,8 @@
 #' @param prediction A logical indicating whether to show prediction
 #'   region.
 #' @param col.predict Colour of prediction region
-#' @param sign Significance level used to highlight significant
-#'   values in curves.
+#' @param sign Significance level used to highlight significant values
+#'   in curves.
 #' @param lty.sign Line type for significant values.
 #' @param lwd.sign Line width for significant values.
 #' @param col.sign Line colour for significant values.
@@ -56,7 +56,8 @@
 #'   effect.
 #' @param legend A logical indicating whether a legend should be
 #'   printed.
-#' @param pos.legend Position of legend (see \code{\link{legend}}).
+#' @param pos.legend A character string with position of legend (see
+#'   \code{\link{legend}}).
 #' @param bg Background colour of legend (see \code{\link{legend}}).
 #' @param bty Type of the box around the legend; either \code{"o"} or
 #'   \code{"n"} (see \code{\link{legend}}).
@@ -216,9 +217,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     bg = "white", bty = "o",
                     ##
                     backtransf = x$backtransf,
-                    xlab,
-                    ylab =
-                      if (type == "zvalue") "Test statistic" else "P-value",
+                    xlab, ylab,
                     xlim, ylim,
                     lwd.max = 2.5,
                     lwd.study.weight = if (comb.random) "random" else "fixed",
@@ -251,7 +250,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   mf <- match.call()
   fun <- "drapery"
   ##
-  type <- setchar(type, c("zvalue", "pvalue"))
+  types <- c("zvalue", "pvalue", "surprisal")
+  type <- setchar(type, types)
   layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
   ##
   chklogical(study.results)
@@ -378,8 +378,14 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     xlab <- xlab(x$sm, backtransf = backtransf)
   }
   else
-    chkchar(xlab)
-  chkchar(ylab)
+    chkchar(xlab, length = 1)
+  ##
+  if (missing(ylab))
+    ylab <- c("Test statistic",
+              "P-value",
+              "Binary S-value / surprisal")[charmatch(type, types)]
+  else
+    chkchar(ylab, length = 1)
   ##
   chknumeric(lwd.max, min = 0, zero = TRUE, length = 1)
   lwd.study.weight <- setchar(lwd.study.weight, c("random", "fixed"))
@@ -401,7 +407,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ##
   if (missing(ylim))
-    ylim <- if (type == "pvalue") c(0, 1) else c(qnorm(0.0005), 0)
+    ylim <-
+      if (type == "pvalue") c(0, 1)
+      else if (type == "pvalue") c(qnorm(0.0005), 0)
+      else c(0, 12)
   else
     if (type == "pvalue") {
       warning("Argument 'ylim' ignored for p-value function plot." )
@@ -501,6 +510,12 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     y.predict <- qnorm(y.predict / 2)
     y.alpha <- qnorm(y.alpha / 2)
   }
+  else if (type == "surprisal") {
+    y.fixed <- -log(y.fixed)
+    y.random <- -log(y.random)
+    y.predict <- -log(y.predict)
+    y.alpha <- -log(y.alpha)
+  }
   ##
   sel.fixed <- y.fixed >= min(ylim)
   sel.random <- y.random >= min(ylim)
@@ -545,15 +560,24 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       polygon(x.grid[sel.predict], y.predict[sel.predict],
               col = col.predict, border = NA)
       ##
-      polygon(c(min(x.grid[sel.predict]),
-                max(x.grid[sel.predict]),
-                max(x.grid[sel.predict])),
-              c(min(y.predict[sel.predict]),
-                min(y.predict[sel.predict]),
-                tail(y.predict[sel.predict], n = 1)),
-              col = col.predict, border = NA)
+      if (type != "surprisal")
+        polygon(c(min(x.grid[sel.predict]),
+                  max(x.grid[sel.predict]),
+                  max(x.grid[sel.predict])),
+                c(min(y.predict[sel.predict]),
+                  min(y.predict[sel.predict]),
+                  tail(y.predict[sel.predict], n = 1)),
+                col = col.predict, border = NA)
+      else
+        polygon(c(max(x.grid[sel.predict]),
+                  min(x.grid[sel.predict]),
+                  min(x.grid[sel.predict])),
+                c(max(y.predict[sel.predict]),
+                  max(y.predict[sel.predict]),
+                  head(y.predict[sel.predict], n = 1)),
+                col = col.predict, border = NA)
       ##
-      if (all(y.predict > min(ylim))) {
+      if (all(y.predict > min(ylim)) & type != "surprisal") {
         x.min <- min(x.grid)
         x.max <- max(x.grid)
         y.min <- min(ylim)
@@ -571,6 +595,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
         y.i <- pvf(grid, TE[i], seTE[i])
         if (type == "zvalue")
           y.i <- qnorm(y.i / 2)
+        else if (type == "surprisal")
+          y.i <- -log(y.i)
         sel.i <- y.i >= min(ylim)
         lines(x.grid[sel.i], y.i[sel.i],
               lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
