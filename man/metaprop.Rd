@@ -538,10 +538,16 @@ from the classic random effects model (Knapp and Hartung,
 \code{adhoc.hakn = ""}\tab not used \cr
 \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
  standard error \cr
- \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+ \tab from classic random effects model \cr
+ \tab (Knapp and Hartung, 2003) \cr
 \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
  narrower than CI from \cr
- \tab classic random effects model with DL estimator (IQWiG, 2020)
+ \tab classic random effects model with DL estimator \cr
+ \tab (IQWiG, 2020) \cr
+\code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
+ larger than the ratio of \cr
+ \tab the standard normal and t-quantile \cr
+ \tab (van Aert and Jackson, 2019)
 }
 }
 
@@ -761,6 +767,12 @@ print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
 
 }
 \references{
+van Aert RCM, Jackson D (2019):
+A new justification of the Hartung-Knapp method for random-effects
+meta-analysis based on weighted least squares regression.
+\emph{Research Synthesis Methods},
+\bold{10}, 515--27.
+
 Agresti A & Coull BA (1998):
 Approximate is better than "exact" for interval estimation of
 binomial proportions.

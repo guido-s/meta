@@ -630,9 +630,12 @@ The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
 \bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+ three-level meta-analysis model \cr
+\tab (Van den Noortgate et al., 2013)
 }
 See \code{\link{metagen}} for more information on these methods. No
 confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
@@ -661,10 +664,16 @@ from the classic random effects model (Knapp and Hartung,
 \code{adhoc.hakn = ""}\tab not used \cr
 \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
  standard error \cr
- \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+ \tab from classic random effects model \cr
+ \tab (Knapp and Hartung, 2003) \cr
 \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
  narrower than CI from \cr
- \tab classic random effects model with DL estimator (IQWiG, 2020)
+ \tab classic random effects model with DL estimator \cr
+ \tab (IQWiG, 2020) \cr
+\code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
+ larger than the ratio of \cr
+ \tab the standard normal and t-quantile \cr
+ \tab (van Aert and Jackson, 2019)
 }
 }
 
@@ -763,6 +772,12 @@ summary(m3, backtransf = FALSE)
 
 }
 \references{
+van Aert RCM, Jackson D (2019):
+A new justification of the Hartung-Knapp method for random-effects
+meta-analysis based on weighted least squares regression.
+\emph{Research Synthesis Methods},
+\bold{10}, 515--27.
+
 Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
 \emph{Introduction to Meta-Analysis}.
 Chichester: Wiley
@@ -845,9 +860,13 @@ mid-range, and/or mid-quartile range.
 \emph{Statistical Methods in Medical Research},
 \bold{27}, 1785--805
 
-\emph{Review Manager (RevMan)}
-[Computer program]. Version 5.3.
-Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+\emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
+The Cochrane Collaboration, 2020
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.

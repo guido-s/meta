@@ -126,8 +126,8 @@ intervals.}
 \item{adhoc.hakn}{A character string indicating whether an \emph{ad
 hoc} variance correction should be applied in the case of an
 arbitrarily small Hartung-Knapp variance estimate. Either
-\code{""}, \code{"se"}, or \code{"ci"} (see Details), can be
-abbreviated.}
+\code{""}, \code{"se"}, \code{"ci"}, or \code{"Hstar"} (see
+Details), can be abbreviated.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -597,12 +597,16 @@ The following methods to calculate a confidence interval for
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for multi-level models
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+ three-level meta-analysis model \cr
+\tab (Van den Noortgate et al., 2013)
 }
-These methods have been recommended by Veroniki et al. (2016). By
-default, the Jackson method is used for the DerSimonian-Laird
-estimator of \eqn{\tau^2} and the Q-profile method for all other
-estimators of \eqn{\tau^2}. No confidence intervals for
+The first three methods have been recommended by Veroniki et
+al. (2016). By default, the Jackson method is used for the
+DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
+method for all other estimators of \eqn{\tau^2}. The
+Profile-Likelihood method is the only method available for the
+three-level meta-analysis model. No confidence intervals for
 \eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
 ""}.
 }
@@ -627,10 +631,16 @@ choose the \emph{ad hoc} method:
 \code{adhoc.hakn = ""}\tab not used \cr
 \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
  standard error \cr
- \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+ \tab from classic random effects model \cr
+ \tab (Knapp and Hartung, 2003) \cr
 \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
  narrower than CI from \cr
- \tab classic random effects model with DL estimator (IQWiG, 2020)
+ \tab classic random effects model with DL estimator \cr
+ \tab (IQWiG, 2020) \cr
+\code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
+ larger than the ratio of \cr
+ \tab the standard normal and t-quantile \cr
+ \tab (van Aert and Jackson, 2019)
 }
 }
 
@@ -815,6 +825,12 @@ metabin(d.asp, n.asp, d.plac, n.plac, study,
 
 }
 \references{
+van Aert RCM, Jackson D (2019):
+A new justification of the Hartung-Knapp method for random-effects
+meta-analysis based on weighted least squares regression.
+\emph{Research Synthesis Methods},
+\bold{10}, 515--27.
+
 Biggerstaff BJ, Jackson D (2008):
 The exact distribution of Cochran’s heterogeneity statistic in
 one-way random effects meta-analysis.
@@ -910,8 +926,8 @@ Consensus values and weighting factors.
 \emph{Journal of Research of the National Bureau of Standards},
 \bold{87}, 377--85
 
-\emph{Review Manager (RevMan)} [Computer program]. Version 5.3.
-Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+\emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
+The Cochrane Collaboration, 2020
 
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the
@@ -946,6 +962,11 @@ Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the metafor Package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
 
 Wan X, Wang W, Liu J, Tong T (2014):
 Estimating the sample mean and standard deviation from the sample

@@ -67,8 +67,7 @@ metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
 
 }
 \references{
-\emph{Review Manager (RevMan)}
-[Computer program]. Version 4.2.
+\emph{Review Manager (RevMan)} [Computer program]. Version 4.2.
 Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2003
 }
 \seealso{

@@ -2,7 +2,9 @@
 
 ### Major changes
 
-* Three-level meta-analysis models can be fitted
+* Three-level meta-analysis models can be fitted ([Van den Noortgate
+  et., 2013](https://doi.org/10.3758/s13428-012-0261-6)) by calling
+  rma.mv() from R package **metafor** internally
 
 * Measures I2 and H for residual heterogeneity are based on Q
   statistic for residual heterogeneity (instead of taken directly from
@@ -12,6 +14,10 @@
   *effective sample size* ([Deeks et.,
   2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
   the y-axis
+
+* Additional *ad hoc* variance correction for Hartung-Knapp method in
+  the case of very homogeneous study results implemented ([van Aert
+  and Jackson, 2019](https://doi.org/10.1002/jrsm.1356))
 
 ### Bug fixes
 
@@ -232,10 +238,10 @@
   ratio as summary measure implemented ([Bakbergenuly et al.,
   2020](https://www.doi.org/10.1002/jrsm.1404))
 
-* Ad hoc variance correction for Hartung-Knapp method in the case of
+* *Ad hoc* variance correction for Hartung-Knapp method in the case of
   very homogeneous study results implemented ([Knapp and Hartung,
-  2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General Methods:
-  Draft of Version
+  2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General
+  Methods: Draft of Version
   6.0](https://www.iqwig.de/en/methods/methods-paper.3020.html))
 
 * Default settings according to recommendations in [General Methods of

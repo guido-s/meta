@@ -45,8 +45,7 @@
 #'   \code{\link{metagen}}
 #' 
 #' @references
-#' \emph{Review Manager (RevMan)}
-#' [Computer program]. Version 4.2.
+#' \emph{Review Manager (RevMan)} [Computer program]. Version 4.2.
 #' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2003
 #' 
 #' @keywords datagen

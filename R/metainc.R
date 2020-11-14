@@ -261,10 +261,16 @@
 #' \code{adhoc.hakn = ""}\tab not used \cr
 #' \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
 #'  standard error \cr
-#'  \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+#'  \tab from classic random effects model \cr
+#'  \tab (Knapp and Hartung, 2003) \cr
 #' \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
 #'  narrower than CI from \cr
-#'  \tab classic random effects model with DL estimator (IQWiG, 2020)
+#'  \tab classic random effects model with DL estimator \cr
+#'  \tab (IQWiG, 2020) \cr
+#' \code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
+#'  larger than the ratio of \cr
+#'  \tab the standard normal and t-quantile \cr
+#'  \tab (van Aert and Jackson, 2019)
 #' }
 #' }
 #' 
@@ -490,6 +496,12 @@
 #'   \code{\link{print.meta}}
 #' 
 #' @references
+#' van Aert RCM, Jackson D (2019):
+#' A new justification of the Hartung-Knapp method for random-effects
+#' meta-analysis based on weighted least squares regression.
+#' \emph{Research Synthesis Methods},
+#' \bold{10}, 515--27.
+#' 
 #' Bayne-Jones S et al. (1964):
 #' Smoking and Health: Report of the Advisory Committee to the Surgeon
 #' General of the United States.
@@ -1244,16 +1256,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       n.by <- length(unique(byvar[!exclude]))
       if (n.by > 1)
         byvar.glmm <- factor(byvar[!exclude], bylevs(byvar[!exclude]))
-      else
-        byvar.glmm <- NULL
       ##
       glmm.random.by <-
         try(suppressWarnings(rma.glmm(x1i = event.e[!exclude],
                                       t1i = time.e[!exclude],
                                       x2i = event.c[!exclude],
                                       t2i = time.c[!exclude],
-                                      if (!is.null(byvar.glmm))
-                                        mods = ~ byvar.glmm,
+                                      mods =
+                                        if (n.by > 1) ~ byvar.glmm else NULL,
                                       method = method.tau,
                               test = ifelse(hakn, "t", "z"),
                               level = 100 * level.comb,
@@ -1271,8 +1281,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                                       t1i = time.e[!exclude],
                                       x2i = event.c[!exclude],
                                       t2i = time.c[!exclude],
-                                      if (!is.null(byvar.glmm))
-                                        mods = ~ byvar.glmm,
+                                      mods =
+                                        if (n.by > 1) ~ byvar.glmm else NULL,
                                       method = "FE",
                                       test = ifelse(hakn, "t", "z"),
                                       level = 100 * level.comb,

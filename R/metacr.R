@@ -91,9 +91,8 @@
 #'   \code{\link{settings.meta}}
 #' 
 #' @references
-#' \emph{Review Manager (RevMan)}
-#' [Computer program]. Version 5.3.
-#' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+#' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
+#' The Cochrane Collaboration, 2020
 #' 
 #' @examples
 #' # Locate export data file "Fleiss1993_CR.csv"

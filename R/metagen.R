@@ -85,8 +85,8 @@
 #' @param adhoc.hakn A character string indicating whether an \emph{ad
 #'   hoc} variance correction should be applied in the case of an
 #'   arbitrarily small Hartung-Knapp variance estimate. Either
-#'   \code{""}, \code{"se"}, or \code{"ci"} (see Details), can be
-#'   abbreviated.
+#'   \code{""}, \code{"se"}, \code{"ci"}, or \code{"Hstar"} (see
+#'   Details), can be abbreviated.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
@@ -325,12 +325,16 @@
 #' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 #' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for multi-level models
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+#'  three-level meta-analysis model \cr
+#' \tab (Van den Noortgate et al., 2013)
 #' }
-#' These methods have been recommended by Veroniki et al. (2016). By
-#' default, the Jackson method is used for the DerSimonian-Laird
-#' estimator of \eqn{\tau^2} and the Q-profile method for all other
-#' estimators of \eqn{\tau^2}. No confidence intervals for
+#' The first three methods have been recommended by Veroniki et
+#' al. (2016). By default, the Jackson method is used for the
+#' DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
+#' method for all other estimators of \eqn{\tau^2}. The
+#' Profile-Likelihood method is the only method available for the
+#' three-level meta-analysis model. No confidence intervals for
 #' \eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
 #' ""}.
 #' }
@@ -355,10 +359,16 @@
 #' \code{adhoc.hakn = ""}\tab not used \cr
 #' \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
 #'  standard error \cr
-#'  \tab from classic random effects model (Knapp and Hartung, 2003) \cr
+#'  \tab from classic random effects model \cr
+#'  \tab (Knapp and Hartung, 2003) \cr
 #' \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
 #'  narrower than CI from \cr
-#'  \tab classic random effects model with DL estimator (IQWiG, 2020)
+#'  \tab classic random effects model with DL estimator \cr
+#'  \tab (IQWiG, 2020) \cr
+#' \code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
+#'  larger than the ratio of \cr
+#'  \tab the standard normal and t-quantile \cr
+#'  \tab (van Aert and Jackson, 2019)
 #' }
 #' }
 #' 
@@ -609,6 +619,12 @@
 #'   \code{\link{settings.meta}}
 #' 
 #' @references
+#' van Aert RCM, Jackson D (2019):
+#' A new justification of the Hartung-Knapp method for random-effects
+#' meta-analysis based on weighted least squares regression.
+#' \emph{Research Synthesis Methods},
+#' \bold{10}, 515--27.
+#' 
 #' Biggerstaff BJ, Jackson D (2008):
 #' The exact distribution of Cochran’s heterogeneity statistic in
 #' one-way random effects meta-analysis.
@@ -704,8 +720,8 @@
 #' \emph{Journal of Research of the National Bureau of Standards},
 #' \bold{87}, 377--85
 #' 
-#' \emph{Review Manager (RevMan)} [Computer program]. Version 5.3.
-#' Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+#' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
+#' The Cochrane Collaboration, 2020
 #'
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
@@ -740,6 +756,11 @@
 #' Conducting Meta-Analyses in R with the metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#'
+#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+#' Three-level meta-analysis of dependent effect sizes.
+#' \emph{Behavior Research Methods},
+#' \bold{45}, 576--94
 #'
 #' Wan X, Wang W, Liu J, Tong T (2014):
 #' Estimating the sample mean and standard deviation from the sample
@@ -1337,7 +1358,7 @@ metagen <- function(TE, seTE, studlab,
   chknumeric(TE)
   chknumeric(seTE, 0)
   ##
-  ## No multi-level meta-analysis conducted if variable 'id' contains
+  ## No three-level meta-analysis conducted if variable 'id' contains
   ## different values for each estimate
   ##
   multi.level <- FALSE
@@ -1349,14 +1370,14 @@ metagen <- function(TE, seTE, studlab,
   if (multi.level) {
     if (!(method.tau %in% c("REML", "ML"))) {
       if (!missing(method.tau))
-        warning("For multi-level model, argument 'method.tau' set to \"REML\".",
+        warning("For three-level model, argument 'method.tau' set to \"REML\".",
                 call. = FALSE)
       method.tau <- "REML"
     }
     ##
     if (by & !tau.common) {
       if (!missing(tau.common))
-        warning("For multi-level model, argument 'tau.common' set to ",
+        warning("For three-level model, argument 'tau.common' set to ",
                 "\"TRUE\".",
                 call. = FALSE)
       tau.common <- TRUE
@@ -1726,7 +1747,7 @@ metagen <- function(TE, seTE, studlab,
                      control = control, id = id)
     }
     ##
-    ## Different calculations for multi-level models
+    ## Different calculations for three-level models
     ##
     if (!multi.level) {
       ##
@@ -1771,15 +1792,15 @@ metagen <- function(TE, seTE, studlab,
     }
     else {
       ##
-      ## Multi-level meta-analysis
+      ## Three-level meta-analysis
       ##
       id.TE <- seq_along(TE)
       ##
-      ## No fixed effect method for multi-level model
+      ## No fixed effect method for three-level model
       ##
       if (comb.fixed) {
         if (!missing(comb.fixed))
-          warning("Fixed effect model not calculated for multi-level model.",
+          warning("Fixed effect model not calculated for three-level model.",
                   call. = FALSE)
         comb.fixed <- FALSE
       }
@@ -1789,11 +1810,11 @@ metagen <- function(TE, seTE, studlab,
       TE.fixed <- seTE.fixed <- lower.fixed <- upper.fixed <-
         statistic.fixed <- pval.fixed <- NA
       ##
-      ## Conduct multi-level meta-analysis
+      ## Conduct three-level meta-analysis
       ##
       if (by & !tau.common) {
         if (!missing(tau.common))
-          warning("Argument 'tau.common' set to TRUE for multi-level model.",
+          warning("Argument 'tau.common' set to TRUE for three-level model.",
                   call. = FALSE)
         tau.common <- TRUE
       }
@@ -1814,6 +1835,7 @@ metagen <- function(TE, seTE, studlab,
     ## Hartung-Knapp adjustment
     ##
     if (hakn) {
+      alpha <- (1 - level.comb) / 2
       df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
       ##
@@ -1823,9 +1845,10 @@ metagen <- function(TE, seTE, studlab,
         ##
         ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003)
         ##
-        if (q < 1)
+        if (q < 1) {
           seTE.random.hakn.orig <- seTE.random
-        seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+          seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+        }
       }
       else if (adhoc.hakn == "ci") {
         ##
@@ -1841,6 +1864,16 @@ metagen <- function(TE, seTE, studlab,
         width.dl <- ci.dl$upper - ci.dl$lower
         ##
         if (width.hk < width.dl) {
+          seTE.random.hakn.orig <- seTE.random
+          seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+        }
+      }
+      else if (adhoc.hakn == "Hstar") {
+        ##
+        ## Variance correction if Hstar > z_alpha / t_alpha_df.hakn
+        ## (van Aert and Jackson, 2019)
+        ##
+        if (q > qnorm(alpha) / qt(alpha, df = df.hakn)) {
           seTE.random.hakn.orig <- seTE.random
           seTE.random <- sqrt(max(q, 1) /  sum(w.random))
         }

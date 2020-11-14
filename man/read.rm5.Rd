@@ -197,9 +197,8 @@ metacr(Fleiss1993_CR, 1, 2)
 
 }
 \references{
-\emph{Review Manager (RevMan)}
-[Computer program]. Version 5.3.
-Copenhagen: The Nordic Cochrane Centre, The Cochrane Collaboration, 2014
+\emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
+The Cochrane Collaboration, 2020
 }
 \seealso{
 \code{\link{summary.rm5}}, \code{\link{metabias.rm5}},
