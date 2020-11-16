@@ -595,7 +595,7 @@ settings.meta <- function(...) {
     else if (setting == "IQWiG6") {
       specificSetting(args = c("hakn", "adhoc.hakn",
                                "method.tau", "prediction"),
-                      new = list(TRUE, "ci", "PM", TRUE),
+                      new = list(TRUE, "iqwig6", "PM", TRUE),
                       setting = "IQWiG 6 settings")
     }
     ##

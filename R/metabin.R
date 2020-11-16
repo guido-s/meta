@@ -321,26 +321,32 @@
 #' In rare settings with very homogeneous treatment estimates, the
 #' Hartung-Knapp variance estimate can be arbitrarily small resulting
 #' in a very narrow confidence interval (Knapp and Hartung, 2003;
-#' Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
-#' correction has been proposed by utilising the variance estimate
-#' from the classic random effects model (Knapp and Hartung,
-#' 2003). Argument \code{adhoc.hakn} can be used to choose the
-#' \emph{ad hoc} method:
+#' Wiksten et al., 2016). In such cases, an
+#' \emph{ad hoc} variance correction has been proposed by utilising
+#' the variance estimate from the classic random effects model with
+#' the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
+#' alternative approach is to use the wider confidence interval of
+#' classic fixed or random effects meta-analysis and the HK method
+#' (Wiksten et al., 2016; Jackson et al., 2017).
+#'
+#' Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
+#' method:
 #' \tabular{ll}{
-#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr 
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
 #' \code{adhoc.hakn = ""}\tab not used \cr
-#' \code{adhoc.hakn = "se"}\tab used if HK standard error is smaller than
-#'  standard error \cr
-#'  \tab from classic random effects model \cr
-#'  \tab (Knapp and Hartung, 2003) \cr
-#' \code{adhoc.hakn = "ci"}\tab used if HK confidence interval is
-#'  narrower than CI from \cr
-#'  \tab classic random effects model with DL estimator \cr
-#'  \tab (IQWiG, 2020) \cr
-#' \code{adhoc.hakn = "Hstar"}\tab used if heterogeneity statistic H* is
-#'  larger than the ratio of \cr
-#'  \tab the standard normal and t-quantile \cr
-#'  \tab (van Aert and Jackson, 2019)
+#' \code{adhoc.hakn = "se"}\tab use variance correction if HK standard
+#'  error is smaller \cr
+#'  \tab than standard error from classic random effects
+#'  \cr
+#'  \tab meta-analysis (Knapp and Hartung, 2003) \cr
+#' \code{adhoc.hakn = "iqwig6"}\tab use variance correction if HK
+#'  confidence interval \cr
+#'  \tab is narrower than CI from classic random effects model \cr
+#'  \tab with DerSimonian-Laird estimator (IQWiG, 2020) \cr
+#' \code{adhoc.hakn = "ci"}\tab use wider confidence interval of
+#'  classic random effects \cr
+#'  \tab and HK meta-analysis \cr
+#'  \tab (Hybrid method 2 in Jackson et al., 2017)
 #' }
 #' }
 #' 
@@ -565,12 +571,6 @@
 #'   \code{\link{metareg}}, \code{\link{print.meta}}
 #' 
 #' @references
-#' van Aert RCM, Jackson D (2019):
-#' A new justification of the Hartung-Knapp method for random-effects
-#' meta-analysis based on weighted least squares regression.
-#' \emph{Research Synthesis Methods},
-#' \bold{10}, 515--27.
-#' 
 #' Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
 #' Methods for estimating between-study variance and overall
 #' effect in meta-analysis of odds-ratios.
@@ -614,7 +614,7 @@
 #' \bold{172}, 137--59
 #' 
 #' IQWiG (2020):
-#' General Methods: Draft of Version 6.0.
+#' General Methods: Version 6.0.
 #' \url{https://www.iqwig.de/en/methods/methods-paper.3020.html}
 #' 
 #' Knapp G & Hartung J (2003):

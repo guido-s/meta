@@ -15,9 +15,10 @@
   2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
   the y-axis
 
-* Additional *ad hoc* variance correction for Hartung-Knapp method in
-  the case of very homogeneous study results implemented ([van Aert
-  and Jackson, 2019](https://doi.org/10.1002/jrsm.1356))
+* Additional *ad hoc* method implemented if confidence interval of
+  Hartung-Knapp method is smaller than classic random effects
+  meta-analysis ([Hybrid method 2 in Jackson et al.,
+  2017](https://doi.org/10.1002/sim.7411))
 
 ### Bug fixes
 
@@ -34,6 +35,13 @@
 
 * metabind():
   - argument '...' can be a single list of network meta-analysis objects
+  
+* In meta-analysis functions:
+  - argument 'adhoc.hakn = "iqwig6"' instead of 'adhoc.hakn = "ci"'
+    uses the ad hoc method for Hartung-Knapp method described in
+    General Methods 6.0 (IQWiG, 2020)
+  - argument 'adhoc.hakn = "ci"' uses the ad hoc method described in
+    Jackson et al. (2017)
 
 ### Internal changes
 
