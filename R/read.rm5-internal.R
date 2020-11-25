@@ -1102,6 +1102,19 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ##
   row.names(res) <- 1:nrow(res)
   ##
+  res$id <- as.character(res$id)
+  res$studlab <- as.character(res$studlab)
+  res$year <- as.character(res$year)
+  res$grplab <- as.character(res$grplab)
+  res$type <- as.character(res$type)
+  res$method <- as.character(res$method)
+  res$sm <- as.character(res$sm)
+  res$model <- as.character(res$model)
+  res$label.e <- as.character(res$label.e)
+  res$label.c <- as.character(res$label.c)
+  res$label.left <- as.character(res$label.left)
+  res$label.right <- as.character(res$label.right)
+  ##
   ## sel.rel <- meta:::is.relative.effect(res$sm)
   ## res$TE[sel.rel] <- log(res$TE[sel.rel])
   ## res$lower.TE[sel.rel] <- log(res$lower.TE[sel.rel])

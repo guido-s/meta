@@ -27,6 +27,11 @@
     correction in case of studies with a zero cell count (argument
     MH.exact = FALSE)
 
+* read.rm5():
+  - list elements 'method' and 'sm' had been encoded as a factor
+    instead of character under R-versions below 4.0 which resulted in
+    an error using metacr()
+
 ### User-visible changes
 
 * metacont(), metagen(), update.meta():
