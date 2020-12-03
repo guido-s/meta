@@ -248,10 +248,12 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   ##
   ##
   chkclass(x, "meta")
+  ##
   if (inherits(x, "metacum"))
     stop("This function is not usable for an object of class \"metacum\"")
   if (inherits(x, "metainf"))
     stop("This function is not usable for an object of class \"metainf\"")
+  ##
   x <- updateversion(x)
   
   

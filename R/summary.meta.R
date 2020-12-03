@@ -315,6 +315,7 @@ summary.meta <- function(object,
   ##
   if (length(warn) == 0)
     warn <- gs("warn")
+  ##
   object <- updateversion(object)
   ##
   metaprop <- inherits(object, "metaprop")

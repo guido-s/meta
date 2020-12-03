@@ -357,7 +357,7 @@ update.meta <- function(object,
   hakn <- replacemiss(hakn)
   adhoc.hakn <- replacemiss(adhoc.hakn)
   method.tau <- replacemiss(method.tau)
-  method.tau.ci <- replacemiss(method.tau.ci)
+  method.tau.ci <- replacemiss(method.tau.ci, "")
   tau.preset <- replacemiss(tau.preset, NULL)
   TE.tau <- replacemiss(TE.tau, NULL)
   null.effect <- replacemiss(null.effect, NA)

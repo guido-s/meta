@@ -640,13 +640,13 @@ funnel.meta <- function(x,
   
   ##
   ##
-  ## (6) Return contour levels (if not NULL)
+  ## (6) Return some information on funnel plot
   ##
+  ##
+  res <- list(xlim = xlim, ylim = ylim)
   ##
   if (!is.null(contour.levels) & yaxis != "size")
-    res <- list(col.contour = col.contour)
-  else
-    res <- NULL
+    res$col.contour <- col.contour
   
   
   invisible(res)
