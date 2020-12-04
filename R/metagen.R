@@ -1018,9 +1018,6 @@ metagen <- function(TE, seTE, studlab,
   missing.lower <- missing(lower)
   missing.upper <- missing(upper)
   ##
-  if (!missing.id & is.null(id))
-    missing.id <- TRUE
-  ##
   if (missing.TE & missing.median & (missing.lower | missing.upper))
     stop("Treatment estimates missing. ",
          "Provide either argument 'TE' or 'median', ",
@@ -1044,6 +1041,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   id <- eval(mf[[match("id", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
+  ##
+  if (!missing.id & is.null(id))
+    missing.id <- TRUE
   ##
   k.All <- if (!missing.TE)
              length(TE)

@@ -48,6 +48,11 @@
   - argument 'adhoc.hakn = "ci"' uses the ad hoc method described in
     Jackson et al. (2017)
 
+* forest.meta():
+  - column heading "Mean" instead of "MLN" for meta-analysis object
+    created with metamean() with arguments 'sm = "MLN"' and
+    'backtransf = TRUE'
+
 ### Internal changes
 
 * Calculate measures of residual heterogeneity in hetcalc()

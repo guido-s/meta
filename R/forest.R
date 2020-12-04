@@ -2139,6 +2139,8 @@ forest.meta <- function(x,
     }
     else if (sm == "proportion")
       sm.lab <- "Proportion"
+    else if (sm == "MLN")
+      sm.lab <- "Mean"
   }
   else 
     if (is.relative.effect(sm))
