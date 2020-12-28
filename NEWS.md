@@ -75,6 +75,10 @@
     variance tau2
   - argument 'method.tau.ci' can be specified as a global setting
 
+* print.meta(), print.summary.meta():
+  - do not print information on continuity correction for exact
+    Mantel-Haenszel method with single study
+
 * metareg() can be used in loops to provide argument 'formula'
 
 * New auxiliary function JAMAlabels() to create study labels in JAMA

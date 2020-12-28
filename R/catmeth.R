@@ -138,15 +138,16 @@ catmeth <- function(method,
   }
   ##
   if (metabin | metainc | metaprop | metarate) {
+    txtCC <- !(method == "MH" & MH.exact & k.all == 1)
     if (!(sm == "ASD" | method == "Peto")) {
       if (addincr) {
-        if (all(incr == "TACC"))
+        if (all(incr == "TACC") && txtCC)
           sm.details <-
             paste0(sm.details,
                    "\n- Treatment arm continuity correction in all studies",
                    if (method == "GLMM")
                      "\n  (only used to calculate individual study results)")
-        else if (all(incr != 0))
+        else if (all(incr != 0) && txtCC)
           sm.details <-
             paste0(sm.details,
                    "\n- Continuity correction",
@@ -158,14 +159,14 @@ catmeth <- function(method,
       }
       else if (sparse) {
         if (allincr == FALSE) {
-          if (all(incr == "TACC"))
+          if (all(incr == "TACC") && txtCC)
             sm.details <-
               paste0(sm.details,
                      paste0("\n- Treatment arm continuity correction in ",
                             "studies with zero cell frequencies"),
                      if (method == "GLMM")
                        "\n  (only used to calculate individual study results)")
-          else if (any(incr != 0))
+          else if (any(incr != 0) && txtCC)
             sm.details <-
               paste0(sm.details,
                      "\n- Continuity correction",
@@ -176,13 +177,15 @@ catmeth <- function(method,
                        "\n  (only used to calculate individual study results)")
         }
         else {
-          if (all(incr == "TACC"))
-            sm.details <-
-              paste0(sm.details,
-                     "\n- Treatment arm continuity correction in all studies",
-                     if (method == "GLMM")
-                       "\n  (only used to calculate individual study results)")
-          else if (any(incr != 0))
+          if (all(incr == "TACC")) {
+            if (txtCC)
+              sm.details <-
+                paste0(sm.details,
+                       "\n- Treatment arm continuity correction in all studies",
+                       if (method == "GLMM")
+                         "\n  (only used to calculate individual study results)")
+          }
+          else if (any(incr != 0) && txtCC)
             sm.details <-
               paste0(sm.details,
                      "\n- Continuity correction",
