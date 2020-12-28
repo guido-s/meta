@@ -586,7 +586,7 @@ metarate <- function(event, time, studlab,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau,
-                     method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                     method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
@@ -633,6 +633,8 @@ metarate <- function(event, time, studlab,
   if (missing(method.tau))
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  if (is.null(method.tau.ci))
+    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
@@ -658,7 +660,7 @@ metarate <- function(event, time, studlab,
   ##
   fun <- "metarate"
   ##
-  method <- setchar(method, c("Inverse", "GLMM"))
+  method <- setchar(method, .settings$meth4rate)
   is.glmm <- method == "GLMM"
   ##
   chklogical(allincr)
@@ -941,6 +943,9 @@ metarate <- function(event, time, studlab,
   ##
   k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
   ##
+  if (k == 1 & hakn)
+    hakn <- FALSE
+  ##
   if (is.glmm & k > 0) {
     glmm.fixed <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
                            method = "FE", test = ifelse(hakn, "t", "z"),
@@ -1035,7 +1040,9 @@ metarate <- function(event, time, studlab,
     res$pval.fixed <- ci.f$statistic
     res$zval.fixed <- ci.f$statistic
     ##
-    if (sum(!exclude) > 1)
+    if (sum(!exclude) > 1 &
+        sum(event[!exclude], na.rm = TRUE) > 0 &
+        any(event[!exclude] != time[!exclude]))
       glmm.random <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
                               method = method.tau,
                               test = ifelse(hakn, "t", "z"),
@@ -1045,6 +1052,7 @@ metarate <- function(event, time, studlab,
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
+      ## or zero events (or number of events equal to time at risk)
       ##
       glmm.random <- glmm.fixed
     }
@@ -1053,7 +1061,7 @@ metarate <- function(event, time, studlab,
     seTE.random <- as.numeric(glmm.random$se)
     ##
     ci.r <- ci(TE.random, seTE.random, level = level.comb,
-               null.effect = transf.null.effect)
+               null.effect = transf.null.effect, df = if (hakn) k - 1)
     ##
     res$w.random <- rep(NA, length(event))
     ##

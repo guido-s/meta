@@ -843,7 +843,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
                                               nomatch = NA)),
                              "ML", gs("method.tau")),
-                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                    method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -897,6 +897,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, c(.settings$meth4tau, "KD"))
+  if (is.null(method.tau.ci))
+    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
@@ -1502,6 +1504,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
   ##
+  if (k == 1 & hakn)
+    hakn <- FALSE
+  ##
   if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" & MH.exact == FALSE)
     MH.exact <- TRUE
   ##
@@ -1584,13 +1589,24 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.fixed[is.na(w.fixed)] <- 0
   }
   else if (is.glmm) {
-    glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                           ci = event.c[!exclude], n2i = n.c[!exclude],
-                           method = "FE", test = ifelse(hakn, "t", "z"),
-                           level = 100 * level.comb,
-                           measure = "OR", model = model.glmm,
-                           control = control,
-                           ...)
+    zero.all <-
+      (sum(event.e[!exclude], na.rm = TRUE) == 0 &
+       sum(event.c[!exclude], na.rm = TRUE) == 0) |
+      (!any(event.e[!exclude] != n.e[!exclude]) |
+       !any(event.c[!exclude] != n.c[!exclude]))
+    ##
+    if (!zero.all)
+      glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
+                             ci = event.c[!exclude], n2i = n.c[!exclude],
+                             method = "FE", test = ifelse(hakn, "t", "z"),
+                             level = 100 * level.comb,
+                             measure = "OR", model = model.glmm,
+                             control = control,
+                             ...)
+    else
+      glmm.fixed <- list(b = NA, se = NA,
+                         QE.Wld = NA, QE.df = NA, QE.LRT = NA,
+                         tau2 = NA, se.tau2 = NA)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1711,18 +1727,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (is.glmm) {
     ##
-    if (sum(!exclude) > 1)
+    if (sum(!exclude) > 1 & !zero.all)
       glmm.random <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
                               ci = event.c[!exclude], n2i = n.c[!exclude],
                               method = method.tau,
                               test = ifelse(hakn, "t", "z"),
                               level = 100 * level.comb,
-                              measure = "OR", model = model.glmm,
+                                measure = "OR", model = model.glmm,
                               control = control,
                               ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
+      ## or zero or all events in all studies
       ##
       glmm.random <- glmm.fixed
     }
@@ -1730,7 +1747,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)
     ##
-    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ci.r <- ci(TE.random, seTE.random, level = level.comb,
+               df = if (hakn) k - 1)
     ##
     res$w.random <- rep(NA, length(event.e))
     ##

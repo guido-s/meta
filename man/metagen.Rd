@@ -23,7 +23,7 @@ metagen(
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
-  method.tau.ci = NULL,
+  method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -264,7 +264,8 @@ standard errors).}
 
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
-is passed on to \code{\link[metafor]{rma.uni}}.}
+is passed on to \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}}.}
 }
 \value{
 An object of class \code{c("metagen", "meta")} with corresponding

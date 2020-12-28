@@ -27,10 +27,20 @@
     correction in case of studies with a zero cell count (argument
     MH.exact = FALSE)
 
+* metabin(), metainc(), metaprop(), metarate():
+  - for GLMMs, confidence limits for classic random effects
+    meta-analysis were calculated instead of confidence limits for
+    Hartung-Knapp if argument 'hakn = TRUE'
+
+* metabin(), metainc(), metaprop(), metarate():
+  - works for GLMMs with zero events or number of events equal to
+    number of patients in all studies
+
 * read.rm5():
   - list elements 'method' and 'sm' had been encoded as a factor
     instead of character under R-versions below 4.0 which resulted in
     an error using metacr()
+   
 
 ### User-visible changes
 
@@ -52,6 +62,23 @@
   - column heading "Mean" instead of "MLN" for meta-analysis object
     created with metamean() with arguments 'sm = "MLN"' and
     'backtransf = TRUE'
+  - alternative study labels (argument 'studlab') tried to catch from
+    meta-analysis object
+
+* metainc():
+  - square root transformed incidence rate difference added as new
+    summary measure (sm = "IRSD")
+
+* settings.meta():
+  - new general setting "geneexpr" to print scientific p-values and
+    not calculate confidence interval for between-study heterogeneity
+    variance tau2
+  - argument 'method.tau.ci' can be specified as a global setting
+
+* metareg() can be used in loops to provide argument 'formula'
+
+* New auxiliary function JAMAlabels() to create study labels in JAMA
+  layout
 
 ### Internal changes
 

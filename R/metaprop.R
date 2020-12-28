@@ -828,7 +828,7 @@ metaprop <- function(event, n, studlab,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau,
-                     method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                     method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
@@ -863,7 +863,7 @@ metaprop <- function(event, n, studlab,
   if (missing(method))
     method <- if (sm == "PLOGIT") "GLMM" else "Inverse"
   else
-    method <- setchar(method, c("Inverse", "GLMM"))
+    method <- setchar(method, .settings$meth4prop)
   is.glmm <- method == "GLMM"
   ##
   chknull(sm)
@@ -881,6 +881,8 @@ metaprop <- function(event, n, studlab,
   if (missing(method.tau))
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  if (is.null(method.tau.ci))
+    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
@@ -1275,6 +1277,9 @@ metaprop <- function(event, n, studlab,
   ##
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
   ##
+  if (k == 1 & hakn)
+    hakn <- FALSE
+  ##
   if (is.glmm & k > 0) {
     glmm.fixed <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
                            method = "FE", test = ifelse(hakn, "t", "z"),
@@ -1370,16 +1375,19 @@ metaprop <- function(event, n, studlab,
     res$pval.fixed <- ci.f$p
     res$zval.fixed <- ci.f$statistic
     ##
-    if (sum(!exclude) > 1)
+    if (sum(!exclude) > 1 &
+        sum(event[!exclude], na.rm = TRUE) > 0 &
+        any(event[!exclude] != n[!exclude]))
       glmm.random <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
                               method = method.tau,
                               test = ifelse(hakn, "t", "z"),
                               level = 100 * level.comb,
-                              measure = "PLO", control = control,
+                                measure = "PLO", control = control,
                               ...)
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
+      ## or zero or all events
       ##
       glmm.random <- glmm.fixed
     }
@@ -1388,7 +1396,7 @@ metaprop <- function(event, n, studlab,
     seTE.random <- as.numeric(glmm.random$se)
     ##
     ci.r <- ci(TE.random, seTE.random, level = level.comb,
-               null.effect = transf.null.effect)
+               null.effect = transf.null.effect, df = if (hakn) k - 1)
     ##
     res$w.random <- rep(NA, length(event))
     ##
@@ -1471,9 +1479,9 @@ metaprop <- function(event, n, studlab,
                                         if (n.by > 1) ~ byvar.glmm else NULL,
                                       method = method.tau,
                                       test = ifelse(hakn, "t", "z"),
-                                    level = 100 * level.comb,
-                                    measure = "PLO", control = control,
-                                    ...)),
+                                      level = 100 * level.comb,
+                                      measure = "PLO", control = control,
+                                      ...)),
             silent = TRUE)
       ##
       if ("try-error" %in% class(glmm.random.by))

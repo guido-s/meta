@@ -233,10 +233,8 @@
 
 update.meta <- function(object, 
                         data = object$data,
-                        subset = object$subset,
-                        studlab = object$data$.studlab,
-                        exclude = object$data$.exclude,
-                        id = object$data$.id,
+                        subset, studlab, exclude, id,
+                        ##
                         method = object$method,
                         sm = object$sm,
                         incr,
@@ -283,7 +281,7 @@ update.meta <- function(object,
                         sd.glass = object$sd.glass,
                         exact.smd = object$exact.smd,
                         method.ci = object$method.ci,
-                        byvar = object$byvar,
+                        byvar,
                         bylab = object$bylab,
                         print.byvar = object$print.byvar,
                         byseparator = object$byseparator,
@@ -535,24 +533,84 @@ update.meta <- function(object,
     return(invisible(NULL))
   }
   ##
-  missing.subset  <- missing(subset)
-  missing.incr    <- missing(incr)
-  missing.byvar   <- missing(byvar)
-  missing.studlab <- missing(studlab)
-  missing.exclude <- missing(exclude)
-  ##
   mf <- match.call()
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  ## Catch argument 'subset'
   ##
-  incr <- eval(mf[[match("incr", names(mf))]],
+  missing.subset  <- missing(subset)
+  ##
+  if (!missing.subset)
+    subset <- eval(mf[[match("subset", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+  else {
+    if (!is.null(object$subset))
+      subset <- object$subset
+    else if (isCol(object$data, ".subset"))
+      subset <- object$data$.subset
+    else
+      subset <- NULL
+  }
+  ##
+  ## Catch argument 'studlab'
+  ##
+  missing.studlab <- missing(studlab)
+  ##
+  if (!missing.studlab)
+    studlab <- eval(mf[[match("studlab", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+  else if (isCol(object$data, ".studlab"))
+    studlab <- object$data$.studlab
+  else
+    studlab <- NULL
+  ##
+  ## Catch argument 'exclude'
+  ##
+  missing.exclude <- missing(exclude)
+  ##
+  if (!missing.exclude)
+    exclude <- eval(mf[[match("exclude", names(mf))]],
+                    data, enclos = sys.frame(sys.parent()))
+  else if (isCol(object$data, ".exclude"))
+    exclude <- object$data$.exclude
+  else
+    exclude <- NULL
+  ##
+  ## Catch argument 'id'
+  ##
+  missing.id <- missing(id)
+  ##
+  if (!missing.id)
+    id <- eval(mf[[match("id", names(mf))]],
                data, enclos = sys.frame(sys.parent()))
+  else {
+    if (isCol(object$data, ".id"))
+      id <- object$data$.id
+    else
+      id <- NULL
+  }
   ##
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  ## Catch argument 'incr'
+  ##
+  missing.incr <- missing(incr)
+  ##
+  if (!missing.incr)
+    incr <- eval(mf[[match("incr", names(mf))]],
+                 data, enclos = sys.frame(sys.parent()))
+  else {
+    if (isCol(object$data, ".incr"))
+      incr <- object$data$.incr
+    else
+      incr <- gs("incr")
+  }
+  ##
+  ## Catch argument 'byvar'
+  ##
+  missing.byvar <- missing(byvar)
   ##
   if (!missing.byvar) {
+    byvar <- eval(mf[[match("byvar", names(mf))]],
+                  data, enclos = sys.frame(sys.parent()))
+    ##
     byvar.name <- as.character(mf[[match("byvar", names(mf))]])
     if (length(byvar.name) > 1 & byvar.name[1] == "$")
       byvar.name <- byvar.name[length(byvar.name)]
@@ -563,45 +621,12 @@ update.meta <- function(object,
     ##
     data$.byvar <- byvar
   }
-  ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-  ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-  ##
-  if (missing.subset) {
-    if (!is.null(object$subset))
-      subset <- object$subset
-    else if (isCol(object$data, ".subset"))
-      subset <- object$data$.subset
-  }
-  ##
-  if (missing.incr) {
-    if (isCol(object$data, ".incr"))
-      incr <- object$data$.incr
-    else
-      incr <- gs("incr")
-  }
-  ##
-  if (missing.byvar & isCol(object$data, ".byvar"))
+  else if (isCol(object$data, ".byvar"))
     byvar <- object$data$.byvar
+  else
+    byvar <- NULL
   ##
-  if (missing.studlab & isCol(object$data, ".studlab"))
-    studlab <- object$data$.studlab
-  ##
-  if (missing.exclude & isCol(object$data, ".exclude"))
-    exclude <- object$data$.exclude
-  ##
-  if (method == "GLMM")
-    if (metabin & !missing(sm) & sm != "OR")
-      warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
-    else if (metainc & !missing(sm) & sm != "IRR")
-      warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
-    else if (metaprop & !missing(sm) & sm != "PLOGIT")
-      warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
-    else if (metarate & !missing(sm) & sm != "IRLN")
-      warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")
+  missing.sm <- missing(sm)
   
   
   ##
@@ -612,8 +637,12 @@ update.meta <- function(object,
   if (metabin) {
     sm <- setchar(sm, .settings$sm4bin)
     method <- setchar(method, .settings$meth4bin)
+    ##
+    if (method == "GLMM" & !missing.sm & sm != "OR")
+      warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
+    ##
     if (sm == "ASD") {
-      if (!missing.incr)
+      if (!missing.incr && any(incr != 0))
         warning("Note, no continuity correction considered for ",
                 "arcsine difference (sm = \"ASD\").")
       incr <- 0
@@ -621,7 +650,7 @@ update.meta <- function(object,
     }
     ##
     if (method == "Peto") {
-      if (!missing.incr)
+      if (!missing.incr && any(incr != 0))
         warning("Note, no continuity correction considered for method = \"Peto\".")
       incr <- 0
       object$data$.incr <- 0
@@ -814,6 +843,12 @@ update.meta <- function(object,
   }
   ##
   if (metainc) {
+    sm <- setchar(sm, .settings$sm4inc)
+    method <- setchar(method, .settings$meth4inc)
+    ##
+    if (method == "GLMM" & !missing.sm & sm != "IRR")
+      warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
+    ##
     data.m <- data
     add.e <- FALSE
     add.c <- FALSE
@@ -920,7 +955,13 @@ update.meta <- function(object,
                   ##
                   control = control)
   ##
-  if (metaprop)
+  if (metaprop) {
+    sm <- setchar(sm, .settings$sm4prop)
+    method <- setchar(method, .settings$meth4prop)
+    ##
+    if (method == "GLMM" & !missing.sm & sm != "PLOGIT")
+      warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
+    ##
     m <- metaprop(event = object$data$.event,
                   n = object$data$.n,
                   ##
@@ -961,8 +1002,15 @@ update.meta <- function(object,
                   ##
                   control = control,
                   ...)
+  }
   ##
-  if (metarate)
+  if (metarate) {
+    sm <- setchar(sm, .settings$sm4rate)
+    method <- setchar(method, .settings$meth4rate)
+    ##
+    if (method == "GLMM" & !missing.sm & sm != "IRLN")
+      warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")
+    ##
     m <- metarate(event = object$data$.event,
                   time = object$data$.time,
                   ##
@@ -1001,6 +1049,7 @@ update.meta <- function(object,
                   ##
                   control = control,
                   ...)
+  }
   ##  
   m$call.object <- object$call
   m$call <- match.call()

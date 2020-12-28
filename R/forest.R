@@ -1230,12 +1230,28 @@ forest.meta <- function(x,
   ##
   slab <- TRUE
   missing.studlab <- missing(studlab)
-  if (length(studlab) == 1 & is.logical(studlab))
+  ##
+  if (!missing.studlab) {
+    error <- try(studlab <- eval(mf[[match("studlab", names(mf))]],
+                                 as.data.frame(x, stringsAsFactors = FALSE),
+                                 enclos = sys.frame(sys.parent())),
+                 silent = TRUE)
+    if (class(error) == "try-error") {
+      xd <- x$data
+      studlab <- eval(mf[[match("studlab", names(mf))]],
+                      xd, enclos = NULL)
+      if (isCol(x$data, ".subset"))
+        studlab <- studlab[x$data$.subset]
+    }
+  }
+  ##
+  if (length(studlab) == 1 & is.logical(studlab)) {
     if (studlab == FALSE) {
       studlab <- rep("", K.all)
       slab <- FALSE
     }
     else studlab <- x$studlab
+  }
   ##
   if (length(studlab) != (K.all - 2 * (metainf.metacum & !missing.studlab)))
     stop("Number of studies in object 'x' and argument 'studlab' have ",

@@ -220,7 +220,17 @@ metareg <- function(x, formula, method.tau = x$method.tau,
     }
   }
   else {
-    formula.text <- deparse(substitute(formula))
+    is.char <- try(is.character(formula) || is.numeric(formula), silent = TRUE)
+    ##
+    if (class(is.char) == "try-error")
+      formula.text <- deparse(substitute(formula))
+    else {
+      if (is.char & length(formula) != 1)
+        stop("Alphanumeric argument 'formula' must be of length 1.",
+             call. = FALSE)
+      formula.text <- deparse(formula)
+    }
+    ##
     formula.text <- gsub("~", "", formula.text)
     formula.text <- gsub("\\\"", "", formula.text)
     formula.text <- gsub("\\\'", "", formula.text)

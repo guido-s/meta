@@ -16,7 +16,7 @@ metacr(
   comb.random,
   hakn = FALSE,
   method.tau = "DL",
-  method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  method.tau.ci = gs("method.tau.ci"),
   tau.common = FALSE,
   prediction = gs("prediction"),
   level.predict = gs("level.predict"),

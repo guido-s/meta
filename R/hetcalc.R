@@ -136,22 +136,28 @@ hetcalc <- function(TE, seTE,
       byvar <- as.factor(byvar)
     ##
     if (is.null(id)) {
-      mf1 <- try(rma.uni(yi = TE, sei = seTE,
-                         method = method.tau,
-                         mods = ~ byvar, control = control),
-                 silent = TRUE)
-      ##
-      if ("try-error" %in% class(mf1))
-        if (grepl(paste0("Number of parameters to be estimated is ",
-                         "larger than the number of observations"),
-                  mf1)) {
-          useFE <- TRUE
-          mf1 <- rma.uni(yi = TE, sei = seTE,
-                         method = "FE",
-                         mods = ~ byvar, control = control)
-        }
-        else
-          stop(mf1)
+      if (length(unique(byvar)) == 1)
+        mf1 <- rma.uni(yi = TE, sei = seTE,
+                       method = method.tau,
+                       control = control)
+      else {
+        mf1 <- try(rma.uni(yi = TE, sei = seTE,
+                           method = method.tau,
+                           mods = ~ byvar, control = control),
+                   silent = TRUE)
+        ##
+        if ("try-error" %in% class(mf1))
+          if (grepl(paste0("Number of parameters to be estimated is ",
+                           "larger than the number of observations"),
+                    mf1)) {
+            useFE <- TRUE
+            mf1 <- rma.uni(yi = TE, sei = seTE,
+                           method = "FE",
+                           mods = ~ byvar, control = control)
+          }
+          else
+            stop(mf1)
+      }
       ##
       tau2.resid <- mf1$tau2
       se.tau2.resid <- mf1$se.tau2
@@ -159,24 +165,31 @@ hetcalc <- function(TE, seTE,
     else {
       id.TE <- seq_along(TE)
       ##
-      mf1 <- try(rma.mv(TE, seTE^2,
-                        method = method.tau,
-                        random = ~ 1 | id / id.TE,
-                        mods = ~ byvar, control = control),
-                 silent = TRUE)
-      ##
-      if ("try-error" %in% class(mf1))
-        if (grepl(paste0("Number of parameters to be estimated is ",
-                         "larger than the number of observations"),
-                  mf1)) {
-          useFE <- TRUE
-          mf1 <- rma.mv(TE, seTE^2,
-                        method = "FE",
-                        random = ~ 1 | id / id.TE,
-                        mods = ~ byvar, control = control)
-        }
-        else
-          stop(mf1)
+      if (length(unique(byvar)) == 1)
+        mf1 <- rma.mv(TE, seTE^2,
+                      method = method.tau,
+                      random = ~ 1 | id / id.TE,
+                      control = control)
+      else {
+        mf1 <- try(rma.mv(TE, seTE^2,
+                          method = method.tau,
+                          random = ~ 1 | id / id.TE,
+                          mods = ~ byvar, control = control),
+                   silent = TRUE)
+        ##
+        if ("try-error" %in% class(mf1))
+          if (grepl(paste0("Number of parameters to be estimated is ",
+                           "larger than the number of observations"),
+                    mf1)) {
+            useFE <- TRUE
+            mf1 <- rma.mv(TE, seTE^2,
+                          method = "FE",
+                          random = ~ 1 | id / id.TE,
+                          mods = ~ byvar, control = control)
+          }
+          else
+            stop(mf1)
+      }
       ##
       tau2.resid <- sum(mf1$sigma2)
       se.tau2.resid <- NA

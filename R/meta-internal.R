@@ -133,7 +133,7 @@ augment <- function(x, len, fun) {
 setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR"))
 setOption("sm4cont", c("MD", "SMD", "ROM"))
 setOption("sm4cor", c("ZCOR", "COR"))
-setOption("sm4inc", c("IRR", "IRD"))
+setOption("sm4inc", c("IRR", "IRD", "IRSD"))
 setOption("sm4mean", c("MRAW", "MLN"))
 setOption("sm4prop", c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
 setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
@@ -142,16 +142,21 @@ setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
 ##
 setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
+setOption("meth4inc", c("Inverse", "MH", "Cochran", "GLMM"))
+setOption("meth4prop", c("Inverse", "GLMM"))
+setOption("meth4rate", c("Inverse", "GLMM"))
+##
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
+##
 setOption("meth4bias", c("rank", "linreg", "mm", "count", "score",
                          "peters", "deeks"))
 ##
 ## List of arguments that can be changed by user
 ##
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
-              "hakn", "adhoc.hakn", "method.tau", "tau.common",
+              "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
               "prediction", "level.predict",
               "method.bias", "title", "complab", "CIbracket", "CIseparator",
               "print.byvar", "byseparator", "keepdata", "warn",
@@ -185,6 +190,7 @@ setOption("comb.random", TRUE)
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")
 setOption("method.tau", "DL")
+setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)

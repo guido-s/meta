@@ -26,8 +26,8 @@
 #'   \code{"Inverse"}, \code{"Cochran"}, or \code{"GLMM"} can be
 #'   abbreviated.
 #' @param sm A character string indicating which summary measure
-#'   (\code{"IRR"} or \code{"IRD"}) is to be used for pooling of
-#'   studies, see Details.
+#'   (\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
+#'   pooling of studies, see Details.
 #' @param incr A numerical value which is added to each cell frequency
 #'   for studies with a zero cell count, see Details.
 #' @param allincr A logical indicating if \code{incr} is added to each
@@ -88,7 +88,7 @@
 #' @param n.c Number of observations in control group (optional).
 #' @param backtransf A logical indicating whether results for
 #'   incidence rate ratio (\code{sm = "IRR"}) should be back
-#'   transformed in printouts and plots.  If TRUE (default), results
+#'   transformed in printouts and plots. If TRUE (default), results
 #'   will be presented as incidence rate ratios; otherwise log
 #'   incidence rate ratios will be shown.
 #' @param irscale A numeric defining a scaling factor for printing of
@@ -130,6 +130,8 @@
 #' \itemize{
 #' \item Incidence Rate Ratio (\code{sm = "IRR"})
 #' \item Incidence Rate Difference (\code{sm = "IRD"})
+#' \item Square root transformed Incidence Rate Difference (\code{sm =
+#'   "IRSD"})
 #' }
 #' 
 #' Default settings are utilised for several arguments (assignments
@@ -616,7 +618,7 @@
 metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
-                    method = "MH",
+                    method = if (sm == "IRSD") "Inverse" else "MH",
                     ##
                     sm = gs("sminc"),
                     ##
@@ -635,7 +637,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
                                               nomatch = NA)),
                              "ML", gs("method.tau")),
-                    method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                    method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
@@ -646,7 +648,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     n.e = NULL, n.c = NULL,
                     ##
-                    backtransf = gs("backtransf"),
+                    backtransf = if (sm == "IRSD") FALSE else gs("backtransf"),
                     irscale = 1, irunit = "person-years",
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
@@ -671,7 +673,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   chknull(sm)
-  sm <- setchar(sm, c("IRR", "IRD"))
+  sm <- setchar(sm, .settings$sm4inc)
   ##
   chklevel(level)
   chklevel(level.comb)
@@ -683,6 +685,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  if (is.null(method.tau.ci))
+    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##
@@ -707,7 +711,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     irscale <- 1
   }
   ##
-  method <- setchar(method, c("Inverse", "MH", "Cochran", "GLMM"))
+  method <- setchar(method, .settings$meth4inc)
   is.glmm <- method == "GLMM"
   ##
   chklogical(allincr)
@@ -965,7 +969,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   sel <- switch(sm,
                 IRD = event.e == 0 | event.c == 0,
-                IRR = event.e == 0 | event.c == 0)
+                IRR = event.e == 0 | event.c == 0,
+                IRSD = event.e == 0 | event.c == 0)
   ##
   ## Sparse computation
   ##
@@ -997,6 +1002,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     TE <- event.e / time.e - event.c / time.c
     seTE <- sqrt((event.e + incr.event) / time.e^2 + (event.c + incr.event) / time.c^2)
   }
+  else if (sm == "IRSD") {
+    TE <- sqrt(event.e / time.e) - sqrt(event.c / time.c)
+    seTE <- sqrt(0.25 / time.e + 0.25 / time.c)
+  }
   
   
   ##
@@ -1006,6 +1015,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(time.e[!exclude]) & !is.na(time.c[!exclude]))
+  ##
+  if (k == 1 & hakn)
+    hakn <- FALSE
   ##
   if (method == "MH") {
     ##
@@ -1061,13 +1073,24 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
   }
   else if (is.glmm) {
-    glmm.fixed <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                           x2i = event.c[!exclude], t2i = time.c[!exclude],
-                           method = "FE", test = ifelse(hakn, "t", "z"),
-                           level = 100 * level.comb,
-                           measure = "IRR", model = model.glmm,
-                           control = control,
-                           ...)
+    zero.all <-
+      (sum(event.e[!exclude], na.rm = TRUE) == 0 &
+       sum(event.c[!exclude], na.rm = TRUE) == 0) |
+      (!any(event.e[!exclude] != time.e[!exclude]) |
+       !any(event.c[!exclude] != time.c[!exclude]))
+    ##
+    if (!zero.all)
+      glmm.fixed <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                             x2i = event.c[!exclude], t2i = time.c[!exclude],
+                             method = "FE", test = ifelse(hakn, "t", "z"),
+                             level = 100 * level.comb,
+                             measure = "IRR", model = model.glmm,
+                             control = control,
+                             ...)
+    else
+      glmm.fixed <- list(b = NA, se = NA,
+                         QE.Wld = NA, QE.df = NA, QE.LRT = NA,
+                         tau2 = NA, se.tau2 = NA)
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1165,7 +1188,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (is.glmm) {
     ##
-    if (sum(!exclude) > 1)
+    if (sum(!exclude) > 1 & !zero.all)
       glmm.random <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
                               x2i = event.c[!exclude], t2i = time.c[!exclude],
                               method = method.tau,
@@ -1177,6 +1200,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
+      ## or zero events
       ##
       glmm.random <- glmm.fixed
     }
@@ -1184,7 +1208,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)
     ##
-    ci.r <- ci(TE.random, seTE.random, level = level.comb)
+    ci.r <- ci(TE.random, seTE.random, level = level.comb,
+               df = if (hakn) k - 1)
     ##
     res$w.random <- rep(NA, length(event.e))
     ##

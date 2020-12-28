@@ -136,7 +136,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    hakn = FALSE,
                    method.tau = "DL",
-                   method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                   method.tau.ci = gs("method.tau.ci"),
                    tau.common = FALSE,
                    ##
                    prediction = gs("prediction"),
@@ -173,6 +173,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chklogical(hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
+  if (is.null(method.tau.ci))
+    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
   chklogical(tau.common)
   ##

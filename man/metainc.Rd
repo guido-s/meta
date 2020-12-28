@@ -13,7 +13,7 @@ metainc(
   data = NULL,
   subset = NULL,
   exclude = NULL,
-  method = "MH",
+  method = if (sm == "IRSD") "Inverse" else "MH",
   sm = gs("sminc"),
   incr = gs("incr"),
   allincr = gs("allincr"),
@@ -29,7 +29,7 @@ metainc(
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
-  method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -38,7 +38,7 @@ metainc(
   method.bias = gs("method.bias"),
   n.e = NULL,
   n.c = NULL,
-  backtransf = gs("backtransf"),
+  backtransf = if (sm == "IRSD") FALSE else gs("backtransf"),
   irscale = 1,
   irunit = "person-years",
   title = gs("title"),
@@ -85,8 +85,8 @@ used for pooling of studies. One of \code{"MH"},
 abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
-(\code{"IRR"} or \code{"IRD"}) is to be used for pooling of
-studies, see Details.}
+(\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
+pooling of studies, see Details.}
 
 \item{incr}{A numerical value which is added to each cell frequency
 for studies with a zero cell count, see Details.}
@@ -170,7 +170,7 @@ funnel plot asymmetry is to be used. Either \code{"linreg"} or
 
 \item{backtransf}{A logical indicating whether results for
 incidence rate ratio (\code{sm = "IRR"}) should be back
-transformed in printouts and plots.  If TRUE (default), results
+transformed in printouts and plots. If TRUE (default), results
 will be presented as incidence rate ratios; otherwise log
 incidence rate ratios will be shown.}
 
@@ -407,6 +407,8 @@ The following measures of treatment effect are available:
 \itemize{
 \item Incidence Rate Ratio (\code{sm = "IRR"})
 \item Incidence Rate Difference (\code{sm = "IRD"})
+\item Square root transformed Incidence Rate Difference (\code{sm =
+  "IRSD"})
 }
 
 Default settings are utilised for several arguments (assignments

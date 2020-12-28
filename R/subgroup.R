@@ -76,6 +76,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         x$sd.c[sel],
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        id = if (!is.null(x$id)) x$id[sel] else NULL,
                         sm = x$sm, pooledvar = x$pooledvar,
                         level = x$level, level.comb = x$level.comb,
                         hakn = x$hakn,
@@ -422,10 +423,18 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                                   measure = "OR", control = x$control, ...))
     }
     ##
-    TE.fixed.w   <- as.numeric(glmm.fixed$b)
-    seTE.fixed.w <- as.numeric(glmm.fixed$se)
-    TE.random.w   <- as.numeric(glmm.random$b)
-    seTE.random.w <- as.numeric(glmm.random$se)
+    if (length(TE.fixed.w) != length(as.numeric(glmm.fixed$b))) {
+      TE.fixed.w[!is.na(TE.fixed.w)] <- as.numeric(glmm.fixed$b)
+      seTE.fixed.w[!is.na(seTE.fixed.w)] <- as.numeric(glmm.fixed$se)
+      TE.random.w[!is.na(TE.random.w)] <- as.numeric(glmm.random$b)
+      seTE.random.w[!is.na(seTE.random.w)] <- as.numeric(glmm.random$se)
+    }
+    else {
+      TE.fixed.w   <- as.numeric(glmm.fixed$b)
+      seTE.fixed.w <- as.numeric(glmm.fixed$se)
+      TE.random.w   <- as.numeric(glmm.random$b)
+      seTE.random.w <- as.numeric(glmm.random$se)
+    }
     ##
     tau2.w <- rep_len(glmm.random$tau2, n.bylevs)
     lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)

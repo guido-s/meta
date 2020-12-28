@@ -795,7 +795,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau = gs("method.tau"),
-                     method.tau.ci = NULL,
+                     method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##

@@ -32,7 +32,7 @@ metamean(
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
-  method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
