@@ -112,6 +112,16 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
+#' @param text.fixed A character string used in printouts and forest
+#'   plot to label the pooled fixed effect estimate.
+#' @param text.random A character string used in printouts and forest
+#'   plot to label the pooled random effects estimate.
+#' @param text.predict A character string used in printouts and forest
+#'   plot to label the prediction interval.
+#' @param text.w.fixed A character string used to label weights of
+#'   fixed effect model.
+#' @param text.w.random A character string used to label weights of
+#'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
@@ -267,6 +277,13 @@ update.meta <- function(object,
                         pscale = object$pscale,
                         irscale = object$irscale,
                         irunit = object$irunit,
+                        ##
+                        text.fixed = object$text.fixed,
+                        text.random = object$text.random,
+                        text.predict = object$text.predict,
+                        text.w.fixed = object$text.w.fixed,
+                        text.w.random = object$text.w.random,
+                        ##
                         title = object$title,
                         complab = object$complab,
                         outclab = object$outclab,
@@ -343,8 +360,9 @@ update.meta <- function(object,
   ##
   RR.Cochrane <- replacemiss(RR.Cochrane, object$RR.cochrane)
   Q.Cochrane <- replacemiss(Q.Cochrane, TRUE)
-  if (Q.Cochrane &
-      (!(sm %in% c("OR", "RR", "RD", "DOR")) | method.tau != "DL"))
+  if (method != "MH" |
+      method.tau != "DL" |
+      !(sm %in% c("OR", "RR", "RD", "DOR")))
     Q.Cochrane <- FALSE
   ##
   model.glmm <- replacemiss(model.glmm)
@@ -688,6 +706,11 @@ update.meta <- function(object,
                  method.bias = method.bias,
                  ##
                  backtransf = backtransf, pscale = pscale,
+                 ##
+                 text.fixed = text.fixed, text.random = text.random,
+                 text.predict = text.predict,
+                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
@@ -735,6 +758,10 @@ update.meta <- function(object,
                   ##
                   method.bias = method.bias,
                   ##
+                  text.fixed = text.fixed, text.random = text.random,
+                  text.predict = text.predict,
+                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  ##
                   title = title, complab = complab, outclab = outclab,
                   label.e = label.e, label.c = label.c,
                   label.right = label.right, label.left = label.left,
@@ -774,6 +801,11 @@ update.meta <- function(object,
                  method.bias = method.bias,
                  ##
                  backtransf = backtransf,
+                 ##
+                 text.fixed = text.fixed, text.random = text.random,
+                 text.predict = text.predict,
+                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 ##
                  title = title, complab = complab, outclab = outclab,
                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                  byseparator = byseparator,
@@ -823,6 +855,11 @@ update.meta <- function(object,
                  n.e = n.e, n.c = n.c,
                  ##
                  backtransf = backtransf,
+                 ##
+                 text.fixed = text.fixed, text.random = text.random,
+                 text.predict = text.predict,
+                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
@@ -895,6 +932,11 @@ update.meta <- function(object,
                  n.e = n.e, n.c = n.c,
                  ##
                  backtransf = backtransf, irscale = irscale, irunit = irunit,
+                 ##
+                 text.fixed = text.fixed, text.random = text.random,
+                 text.predict = text.predict,
+                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
@@ -945,6 +987,11 @@ update.meta <- function(object,
                   method.bias = method.bias,
                   ##
                   backtransf = backtransf,
+                  ##
+                  text.fixed = text.fixed, text.random = text.random,
+                  text.predict = text.predict,
+                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  ##
                   title = title, complab = complab, outclab = outclab,
                   ##
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
@@ -993,6 +1040,11 @@ update.meta <- function(object,
                   method.bias = method.bias,
                   ##
                   backtransf = backtransf, pscale = pscale,
+                  ##
+                  text.fixed = text.fixed, text.random = text.random,
+                  text.predict = text.predict,
+                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  ##
                   title = title, complab = complab, outclab = outclab,
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   byseparator = byseparator,
@@ -1040,6 +1092,11 @@ update.meta <- function(object,
                   method.bias = method.bias,
                   ##
                   backtransf = backtransf, irscale = irscale, irunit = irunit,
+                  ##
+                  text.fixed = text.fixed, text.random = text.random,
+                  text.predict = text.predict,
+                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  ##
                   title = title, complab = complab, outclab = outclab,
                   byvar = byvar, bylab = bylab, print.byvar = print.byvar,
                   byseparator = byseparator,

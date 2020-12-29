@@ -89,6 +89,16 @@
 #'   confidence intervals.
 #' @param pscale A numeric defining a scaling factor for printing of
 #'   single event probabilities.
+#' @param text.fixed A character string used in printouts and forest
+#'   plot to label the pooled fixed effect estimate.
+#' @param text.random A character string used in printouts and forest
+#'   plot to label the pooled random effects estimate.
+#' @param text.predict A character string used in printouts and forest
+#'   plot to label the prediction interval.
+#' @param text.w.fixed A character string used to label weights of
+#'   fixed effect model.
+#' @param text.w.random A character string used to label weights of
+#'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
@@ -841,6 +851,13 @@ metaprop <- function(event, n, studlab,
                      ##
                      backtransf = gs("backtransf"),
                      pscale = 1,
+                     ##
+                     text.fixed = gs("text.fixed"),
+                     text.random = gs("text.random"),
+                     text.predict = gs("text.predict"),
+                     text.w.fixed = gs("text.w.fixed"),
+                     text.w.random = gs("test.w.random"),
+                     ##
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
                      ##
@@ -901,6 +918,17 @@ metaprop <- function(event, n, studlab,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
+  ##
+  if (!is.null(text.fixed))
+    chkchar(text.fixed, length = 1)
+  if (!is.null(text.random))
+    chkchar(text.random, length = 1)
+  if (!is.null(text.predict))
+    chkchar(text.predict, length = 1)
+  if (!is.null(text.w.fixed))
+    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.random))
+    chkchar(text.w.random, length = 1)
   ##
   chklogical(keepdata)
   ##
@@ -1318,6 +1346,11 @@ metaprop <- function(event, n, studlab,
                method.bias = method.bias,
                ##
                backtransf = backtransf,
+               ##
+               text.fixed = text.fixed, text.random = text.random,
+               text.predict = text.predict,
+               text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+               ##
                title = title, complab = complab, outclab = outclab,
                ##
                keepdata = FALSE,

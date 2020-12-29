@@ -42,6 +42,11 @@
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
+  text.fixed = object$text.fixed,
+  text.random = object$text.random,
+  text.predict = object$text.predict,
+  text.w.fixed = object$text.w.fixed,
+  text.w.random = object$text.w.random,
   title = object$title,
   complab = object$complab,
   outclab = object$outclab,
@@ -217,6 +222,21 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
+
+\item{text.fixed}{A character string used in printouts and forest
+plot to label the pooled fixed effect estimate.}
+
+\item{text.random}{A character string used in printouts and forest
+plot to label the pooled random effects estimate.}
+
+\item{text.predict}{A character string used in printouts and forest
+plot to label the prediction interval.}
+
+\item{text.w.fixed}{A character string used to label weights of
+fixed effect model.}
+
+\item{text.w.random}{A character string used to label weights of
+random effects model.}
 
 \item{title}{Title of meta-analysis / systematic review.}
 

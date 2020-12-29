@@ -36,6 +36,11 @@ metaprop(
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
   pscale = 1,
+  text.fixed = gs("text.fixed"),
+  text.random = gs("text.random"),
+  text.predict = gs("text.predict"),
+  text.w.fixed = gs("text.w.fixed"),
+  text.w.random = gs("test.w.random"),
   title = gs("title"),
   complab = gs("complab"),
   outclab = "",
@@ -162,6 +167,21 @@ confidence intervals.}
 
 \item{pscale}{A numeric defining a scaling factor for printing of
 single event probabilities.}
+
+\item{text.fixed}{A character string used in printouts and forest
+plot to label the pooled fixed effect estimate.}
+
+\item{text.random}{A character string used in printouts and forest
+plot to label the pooled random effects estimate.}
+
+\item{text.predict}{A character string used in printouts and forest
+plot to label the prediction interval.}
+
+\item{text.w.fixed}{A character string used to label weights of
+fixed effect model.}
+
+\item{text.w.random}{A character string used to label weights of
+random effects model.}
 
 \item{title}{Title of meta-analysis / systematic review.}
 

@@ -397,6 +397,11 @@ settings.meta <- function(...) {
     catarg("prediction     ")
     catarg("level.predict  ")
     catarg("method.bias    ")
+    catarg("text.fixed     ")
+    catarg("text.random    ")
+    catarg("text.predict   ")
+    catarg("text.w.fixed   ")
+    catarg("text.w.random  ")
     catarg("title          ")
     catarg("complab        ")
     catarg("CIbracket      ")
@@ -499,6 +504,11 @@ settings.meta <- function(...) {
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
     setOption("method.bias", "linreg")
+    setOption("text.fixed", "Fixed effect model")
+    setOption("text.random", "Random effects model")
+    setOption("text.predict", "Prediction interval")
+    setOption("text.w.fixed", "fixed")
+    setOption("text.w.random", "random")
     setOption("title", "")
     setOption("complab", "")
     setOption("CIbracket", "[")
@@ -657,6 +667,11 @@ settings.meta <- function(...) {
     idprediction <- argid(names, "prediction")
     idlevel.predict <- argid(names, "level.predict")
     idmethod.bias <- argid(names, "method.bias")
+    idtext.fixed <- argid(names, "text.fixed")
+    idtext.random <- argid(names, "text.random")
+    idtext.predict <- argid(names, "text.predict")
+    idtext.w.fixed <- argid(names, "text.w.fixed")
+    idtext.w.random <- argid(names, "text.w.random")
     idtitle <- argid(names, "title")
     idcomplab <- argid(names, "complab")
     idCIbracket <- argid(names, "CIbracket")
@@ -789,6 +804,41 @@ settings.meta <- function(...) {
       method.bias <- args[[idmethod.bias]]
       method.bias <- setchar(method.bias, .settings$meth4bias)
       setOption("method.bias", method.bias)
+    }
+    if (!is.na(idtext.fixed)) {
+      text.fixed <- args[[idtext.fixed]]
+      if (length(text.fixed) != 1)
+        stop("Argument 'text.fixed' must be a character string.")
+      ##
+      setOption("text.fixed", text.fixed)
+    }
+    if (!is.na(idtext.random)) {
+      text.random <- args[[idtext.random]]
+      if (length(text.random) != 1)
+        stop("Argument 'text.random' must be a character string.")
+      ##
+      setOption("text.random", text.random)
+    }
+    if (!is.na(idtext.predict)) {
+      text.predict <- args[[idtext.predict]]
+      if (length(text.predict) != 1)
+        stop("Argument 'text.predict' must be a character string.")
+      ##
+      setOption("text.predict", text.predict)
+    }
+    if (!is.na(idtext.w.fixed)) {
+      text.w.fixed <- args[[idtext.w.fixed]]
+      if (length(text.w.fixed) != 1)
+        stop("Argument 'text.w.fixed' must be a character string.")
+      ##
+      setOption("text.w.fixed", text.w.fixed)
+    }
+    if (!is.na(idtext.w.random)) {
+      text.w.random <- args[[idtext.w.random]]
+      if (length(text.w.random) != 1)
+        stop("Argument 'text.w.random' must be a character string.")
+      ##
+      setOption("text.w.random", text.w.random)
     }
     if (!is.na(idtitle)) {
       title <- args[[idtitle]]

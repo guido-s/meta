@@ -309,8 +309,18 @@ print.meta <- function(x,
   else
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
-
-
+  ##
+  if (is.null(x$text.w.fixed))
+    text.w.fixed <- "%W(fixed)"
+  else
+    text.w.fixed <- paste0("%W(", x$text.w.fixed, ")")
+  ##
+  if (is.null(x$text.w.random))
+    text.w.random <- "%W(random)"
+  else
+    text.w.random <- paste0("%W(", x$text.w.random, ")")
+  
+  
   ##
   ##
   ## (4) Print title and details
@@ -646,8 +656,8 @@ print.meta <- function(x,
             dimnames(res) <-
               list("",
                    c(sm.lab, ci.lab,
-                     if (show.w.fixed) "%W(fixed)",
-                     if (show.w.random) "%W(random)",
+                     if (show.w.fixed) text.w.fixed,
+                     if (show.w.random) text.w.random,
                      if (by) x$bylab,
                      if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
@@ -660,8 +670,8 @@ print.meta <- function(x,
         dimnames(res) <-
           list(x$studlab,
                c(sm.lab, ci.lab,
-                 if (show.w.fixed) "%W(fixed)",
-                 if (show.w.random) "%W(random)",
+                 if (show.w.fixed) text.w.fixed,
+                 if (show.w.random) text.w.random,
                  if (by) x$bylab,
                  if (!is.null(x$exclude)) "exclude"))
         prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)

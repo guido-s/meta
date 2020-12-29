@@ -158,7 +158,10 @@ setOption("meth4bias", c("rank", "linreg", "mm", "count", "score",
 argslist <- c("level", "level.comb", "comb.fixed", "comb.random",
               "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
               "prediction", "level.predict",
-              "method.bias", "title", "complab", "CIbracket", "CIseparator",
+              "method.bias",
+              "text.fixed", "text.random", "text.predict",
+              "text.w.fixed", "text.w.random",
+              "title", "complab", "CIbracket", "CIseparator",
               "print.byvar", "byseparator", "keepdata", "warn",
               "backtransf",
               "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
@@ -195,6 +198,11 @@ setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
 setOption("method.bias", "linreg")
+setOption("text.fixed", "Fixed effect model")
+setOption("text.random", "Random effects model")
+setOption("text.predict", "Prediction interval")
+setOption("text.w.fixed", "fixed")
+setOption("text.w.random", "random")
 setOption("title", "")
 setOption("complab", "")
 setOption("CIbracket", "[")

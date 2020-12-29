@@ -552,6 +552,11 @@ metacum <- function(x, pooled, sortvar) {
               backtransf = x$backtransf,
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
+              ##
+              text.fixed = x$text.fixed, text.random = x$text.random,
+              text.predict = x$text.predict,
+              text.w.fixed = x$text.w.fixed, text.w.random = x$text.w.random,
+              ##
               title = x$title, complab = x$complab,
               outclab = x$outclab,
               ##

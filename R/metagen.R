@@ -121,6 +121,16 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
+#' @param text.fixed A character string used in printouts and forest
+#'   plot to label the pooled fixed effect estimate.
+#' @param text.random A character string used in printouts and forest
+#'   plot to label the pooled random effects estimate.
+#' @param text.predict A character string used in printouts and forest
+#'   plot to label the prediction interval.
+#' @param text.w.fixed A character string used to label weights of
+#'   fixed effect model.
+#' @param text.w.random A character string used to label weights of
+#'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
@@ -916,6 +926,13 @@ metagen <- function(TE, seTE, studlab,
                     backtransf = gs("backtransf"),
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
+                    ##
+                    text.fixed = gs("text.fixed"),
+                    text.random = gs("text.random"),
+                    text.predict = gs("text.predict"),
+                    text.w.fixed = gs("text.w.fixed"),
+                    text.w.random = gs("test.w.random"),
+                    ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     label.e = gs("label.e"), label.c = gs("label.c"),
@@ -989,6 +1006,17 @@ metagen <- function(TE, seTE, studlab,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  ##
+  if (!is.null(text.fixed))
+    chkchar(text.fixed, length = 1)
+  if (!is.null(text.random))
+    chkchar(text.random, length = 1)
+  if (!is.null(text.predict))
+    chkchar(text.predict, length = 1)
+  if (!is.null(text.w.fixed))
+    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.random))
+    chkchar(text.w.random, length = 1)
   ##
   chklogical(keepdata)
   ##
@@ -2005,6 +2033,11 @@ metagen <- function(TE, seTE, studlab,
               method.bias = method.bias,
               n.e = n.e,
               n.c = n.c,
+              ##
+              text.fixed = text.fixed, text.random = text.random,
+              text.predict = text.predict,
+              text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+              ##
               title = title, complab = complab, outclab = outclab,
               label.e = label.e,
               label.c = label.c,

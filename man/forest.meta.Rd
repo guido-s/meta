@@ -13,14 +13,16 @@
   comb.fixed = x$comb.fixed,
   comb.random = x$comb.random,
   overall = x$overall,
-  text.fixed = NULL,
-  text.random = NULL,
+  text.fixed = x$text.fixed,
+  text.random = x$text.random,
   lty.fixed = 2,
   lty.random = 3,
   col.fixed = "black",
   col.random = "black",
+  text.w.fixed = x$text.w.fixed,
+  text.w.random = x$text.w.random,
   prediction = x$prediction,
-  text.predict = NULL,
+  text.predict = x$text.predict,
   subgroup = TRUE,
   print.subgroup.labels = TRUE,
   bylab = x$bylab,
@@ -256,6 +258,12 @@ pooled random effects estimate.}
 \item{col.fixed}{Line colour (pooled fixed effect estimate).}
 
 \item{col.random}{Line colour (pooled random effects estimate).}
+
+\item{text.w.fixed}{A character string used to label weights of
+fixed effect model.}
+
+\item{text.w.random}{A character string used to label weights of
+random effects model.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}

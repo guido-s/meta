@@ -30,6 +30,10 @@
 #' @param lty.random Line type (pooled random effects estimate).
 #' @param col.fixed Line colour (pooled fixed effect estimate).
 #' @param col.random Line colour (pooled random effects estimate).
+#' @param text.w.fixed A character string used to label weights of
+#'   fixed effect model.
+#' @param text.w.random A character string used to label weights of
+#'   random effects model.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param text.predict A character string used in the plot to label
@@ -936,13 +940,15 @@ forest.meta <- function(x,
                         comb.fixed = x$comb.fixed,
                         comb.random = x$comb.random,
                         overall = x$overall,
-                        text.fixed = NULL,
-                        text.random = NULL,
+                        text.fixed = x$text.fixed,
+                        text.random = x$text.random,
                         lty.fixed = 2, lty.random = 3,
                         col.fixed = "black", col.random = "black",
+                        text.w.fixed = x$text.w.fixed,
+                        text.w.random = x$text.w.random,
                         ##
                         prediction = x$prediction,
-                        text.predict = NULL,
+                        text.predict = x$text.predict,
                         ##
                         subgroup = TRUE,
                         print.subgroup.labels = TRUE,
@@ -1885,13 +1891,17 @@ forest.meta <- function(x,
     study.results <- FALSE
   }
   ##
-  if (is.null(text.fixed)) {
+  missing.text.fixed <- missing(text.fixed)
+  if (missing.text.fixed | is.null(text.fixed)) {
     if (study.results & (x$level != x$level.comb | revman5)) {
       if (revman5.jama)
         text.fixed <- paste0("Total (",
                              if (fixed.random)
                                "fixed effect, ",
                              round(x$level.comb * 100), "% CI)")
+      else if (!is.null(text.fixed))
+        text.fixed <- paste0(text.fixed, " (",
+                             round(x$level.comb * 100), "%-CI)")
       else
         text.fixed <- paste0("Fixed effect model (",
                              round(x$level.comb * 100), "%-CI)")
@@ -1902,17 +1912,22 @@ forest.meta <- function(x,
         if (fixed.random)
           text.fixed <- paste(text.fixed, "(fixed effect)")
       }
-      else
+      else if (is.null(text.fixed))
         text.fixed <- "Fixed effect model"
     }
   }
-  if (is.null(text.random)) {
+  ##
+  missing.text.random <- missing(text.random)
+  if (missing.text.random | is.null(text.random)) {
     if (study.results & (x$level != x$level.comb | revman5)) {
       if (revman5.jama)
         text.random <- paste0("Total (",
                               if (fixed.random)
                                 "random effects, ",
                               round(x$level.comb * 100), "% CI)")
+      else if (!is.null(text.random))
+        text.random <- paste0(text.random, " (",
+                              round(x$level.comb * 100), "%-CI)")
       else
         text.random <- paste0("Random effects model (",
                               round(x$level.comb * 100), "%-CI)")
@@ -1923,17 +1938,20 @@ forest.meta <- function(x,
         if (fixed.random)
           text.random <- paste(text.random, "(random effects)")
       }
-      else
+      else if (is.null(text.random))
         text.random <- "Random effects model"
     }
   }
-  if (is.null(text.predict))
+  ##
+  missing.text.predict <- missing(text.predict)
+  if (missing.text.predict | is.null(text.predict)) {
+    if (is.null(text.predict))
+      text.predict <- "Prediction interval"
     if (!(length(x$level.predict) == 0) &&
         (study.results & (x$level != x$level.predict | x$level.comb != x$level.predict)))
-      text.predict <- paste0("Prediction interval (",
+      text.predict <- paste0(text.predict, " (",
                              round(x$level.predict * 100), "%-PI)")
-    else
-      text.predict <- "Prediction interval"
+  }
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
@@ -2254,6 +2272,22 @@ forest.meta <- function(x,
   else if (gs("CIbracket") == "")
     ci.lab.bracket <- ci.lab
   ##
+  if (!fixed.random) {
+    text.w.fixed <- "Weight"
+    text.w.random <- "Weight"
+  }
+  else {
+    if (is.null(text.w.fixed))
+      text.w.fixed <- paste0("Weight\n(", gs("text.w.fixed"), ")")
+    else
+      text.w.fixed <- paste0("Weight\n(", text.w.fixed, ")")
+    ##
+    if (is.null(text.w.random))
+      text.w.random <- paste0("Weight\n(", gs("text.w.random"), ")")
+    else
+      text.w.random <- paste0("Weight\n(", text.w.random, ")")
+  }
+  ##
   labnames <- c(lab.studlab,
                 "TE", if (revman5) "SE" else "seTE",
                 "Total", "Total", "Events", "Events",
@@ -2263,8 +2297,8 @@ forest.meta <- function(x,
                 sm.lab,
                 ci.lab,
                 if (revman5 & smlab.null) smlab else paste(sm.lab, ci.lab.bracket),
-                if (fixed.random) "Weight\n(fixed)" else "Weight",
-                if (fixed.random) "Weight\n(random)" else "Weight")
+                text.w.fixed,
+                text.w.random)
   ##
   ## If any of the following list elements is NULL, these 'special'
   ## variable names are searched for in original data set (i.e., list

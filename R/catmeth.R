@@ -264,7 +264,7 @@ catmeth <- function(method,
     }
     else {
       i.lab.method.tau <-
-        charmatch(method.tau, .settings$meth4tau, nomatch = NA)
+        charmatch(method.tau, c(.settings$meth4tau, ""), nomatch = NA)
       ##
       lab.method.tau <-
         c("\n- DerSimonian-Laird estimator",
@@ -274,15 +274,17 @@ catmeth <- function(method,
           "\n- Hunter-Schmidt estimator",
           "\n- Sidik-Jonkman estimator",
           "\n- Hedges estimator",
-          "\n- Empirical Bayes estimator")[i.lab.method.tau]
-      lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
+          "\n- Empirical Bayes estimator",
+          "")[i.lab.method.tau]
+      if (lab.method.tau != "")
+        lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
       ##
-      if (tau.common)
+      if (lab.method.tau != "" & tau.common)
         lab.method.tau <- paste0(lab.method.tau,
                                  " (assuming common ", text.tau2,
                                  " in subgroups)")
       ##
-      if (metabin & Q.Cochrane)
+      if (lab.method.tau != "" & metabin & Q.Cochrane)
         lab.method.tau <-
           paste0(lab.method.tau,
                  "\n- Mantel-Haenszel estimator used in ",
@@ -316,9 +318,11 @@ catmeth <- function(method,
     }
   }
   ##
-  imeth <- charmatch(method,
-                     c("MH", "Peto", "Inverse", "Cochran", "SSW", "GLMM", "NoMA"),
-                     nomatch = NA)
+  imeth <-
+    charmatch(method,
+              c("MH", "Peto", "Inverse", "Cochran", "SSW", "GLMM",
+                "NoMA", ""),
+              nomatch = NA)
   ##
   if ((metabin|metainc) & imeth == 1 & (sparse | addincr))
     if (MH.exact | metainc)
@@ -336,6 +340,7 @@ catmeth <- function(method,
               "\n- Cochran method",
               "\n- Sample size method",
               "GLMM",
+              "",
               "")[imeth]
   ##
   if (method == "GLMM") {

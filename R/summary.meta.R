@@ -497,7 +497,10 @@ summary.meta <- function(object,
               comb.random = comb.random,
               prediction = prediction,
               overall = overall,
-              overall.hetstat = overall.hetstat)
+              overall.hetstat = overall.hetstat,
+              text.fixed = object$text.fixed,
+              text.random = object$text.random,
+              text.predict = object$text.predict)
   ##  
   ## Add results from subgroup analysis
   ##
@@ -980,6 +983,30 @@ print.summary.meta <- function(x,
     bylevs <- ifelse(nchar(x$bylevs) > bylab.nchar,
                      paste0(substring(x$bylevs, 1, bylab.nchar - 4), " ..."),
                      x$bylevs)
+  ##
+  if (is.null(x$text.fixed))
+    text.fixed <- gs("text.fixed")
+  else
+    text.fixed <- x$text.fixed
+  ##
+  if (is.null(x$text.random))
+    text.random <- gs("text.random")
+  else
+    text.random <- x$text.random
+  ##
+  if (is.null(x$text.predict))
+    text.predict <- gs("text.predict")
+  else
+    text.predict <- x$text.predict
+  ##
+  if (substring(text.fixed, 1, 5) %in% c("Fixed", "Commo", "Rando")) {
+    text.fixed.br <- tolower(text.fixed)
+    text.random.br <- tolower(text.random)
+  }
+  else {
+    text.fixed.br <- text.fixed
+    text.random.br <- text.random
+  }
   
   
   ##
@@ -1278,8 +1305,9 @@ print.summary.meta <- function(x,
              comb.fixed & sm %in% c("RD", "IRD") &
              (!is.null(x$k.MH) == 1 && k != x$k.MH)))
           cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
-                     " (fixed effect), k = ", format(k, big.mark = big.mark),
-                     " (random effects)\n\n"))
+                     " (", text.fixed.br, "), k = ",
+                     format(k, big.mark = big.mark),
+                     " (", text.random.br, ")\n\n"))
         else
           cat(paste0("Number of studies combined: k = ",
                      format(k, big.mark = big.mark), "\n\n"))
@@ -1332,9 +1360,9 @@ print.summary.meta <- function(x,
       else
         zlab <- "z"
       ##
-      dimnames(res) <- list(c(if (comb.fixed) "Fixed effect model",
-                              if (comb.random) "Random effects model",
-                              if (prediction) "Prediction interval"),  
+      dimnames(res) <- list(c(if (comb.fixed) text.fixed,
+                              if (comb.random) text.random,
+                              if (prediction) text.predict),
                             c(sm.lab, x$ci.lab,
                               if (null.given) zlab,
                               if (null.given) "p-value"))
@@ -1515,13 +1543,14 @@ print.summary.meta <- function(x,
                                   if (!comb.random) text.tau)
                                 )
         if (inherits(x, "metabind"))
-          cat("\nResults for meta-analyses (fixed effect model):\n")
+          cat(paste0("\nResults for meta-analyses (", text.fixed.br, "):\n"))
         else
-          cat("\nResults for subgroups (fixed effect model):\n")
+          cat(paste0("\nResults for subgroups (", text.fixed.br, "):\n"))
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
         if (!inherits(x, "metabind")) {
-          cat("\nTest for subgroup differences (fixed effect model):\n")
+          cat(paste0("\nTest for subgroup differences (",
+                     text.fixed.br, "):\n"))
           if (x$method == "MH") {
             Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
@@ -1599,14 +1628,15 @@ print.summary.meta <- function(x,
                                 )
         ##
         if (inherits(x, "metabind"))
-          cat("\nResults for meta-analyses (random effects model):\n")
+          cat(paste0("\nResults for meta-analyses (", text.random.br, "):\n"))
         else
-          cat("\nResults for subgroups (random effects model):\n")
+          cat(paste0("\nResults for subgroups (", text.random.br, "):\n"))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
         if (!inherits(x, "metabind")) {
-          cat("\nTest for subgroup differences (random effects model):\n")
+          cat(paste0("\nTest for subgroup differences (",
+                     text.random.br, "):\n"))
           if (is.na(Q.w.random)) {
             Qdata <- cbind(formatN(round(Q.b.random, digits.Q), digits.Q,
                                    "NA", big.mark = big.mark),

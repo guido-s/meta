@@ -10,15 +10,17 @@
   statistic for residual heterogeneity (instead of taken directly from
   **metafor** package)
 
-* For funnel plot of a diagnostic test accuracy meta-analysis, use
-  *effective sample size* ([Deeks et.,
-  2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
-  the y-axis
+* New function metamerge() to merge two meta-analysis objects
 
 * Additional *ad hoc* method implemented if confidence interval of
   Hartung-Knapp method is smaller than classic random effects
   meta-analysis ([Hybrid method 2 in Jackson et al.,
   2017](https://doi.org/10.1002/sim.7411))
+
+* For funnel plot of a diagnostic test accuracy meta-analysis, use
+  *effective sample size* ([Deeks et.,
+  2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
+  the y-axis
 
 ### Bug fixes
 
@@ -69,11 +71,17 @@
   - square root transformed incidence rate difference added as new
     summary measure (sm = "IRSD")
 
+* New arguments 'text.fixed', 'text.random', 'text.predict',
+  'text.w.fixed' and 'text.w,random' in meta-analysis functions
+
 * settings.meta():
   - new general setting "geneexpr" to print scientific p-values and
     not calculate confidence interval for between-study heterogeneity
     variance tau2
   - argument 'method.tau.ci' can be specified as a global setting
+  - text for fixed effect and random effects model as well as
+    prediction interval can be specified (arguments 'text.fixed',
+    'text.random', 'text.predict', 'text.w.fixed', 'text.w.randon')
 
 * print.meta(), print.summary.meta():
   - do not print information on continuity correction for exact
