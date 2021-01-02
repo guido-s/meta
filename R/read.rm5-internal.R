@@ -9,8 +9,8 @@ extract_outcomes <- function(txt, outcome.type, res,
                              comp.no, complab,
                              debug = 0) {
   ##
-  pattern1 <- paste0("^<", outcome.type, "_OUTCOME")
-  pattern2 <- paste0("^</", outcome.type, "_OUTCOME")
+  pattern1 <- paste0("<", outcome.type, "_OUTCOME")
+  pattern2 <- paste0("</", outcome.type, "_OUTCOME")
   sel1 <- grep(pattern1, txt)
   sel2 <- grep(pattern2, txt) 
   ##
@@ -22,8 +22,8 @@ extract_outcomes <- function(txt, outcome.type, res,
       cat(paste0("* ", outcome.type, "_OUTCOME *\n"))
     for (j in seq(along = sel1)) {
       txt.j <- txt[sel1[j]:sel2[j]]
-      sel.data.j <- c(grep(paste0("^<", outcome.type, "_DATA"), txt.j) - 1,
-                      grep(paste0("^<", outcome.type, "_SUBGROUP"), txt.j) - 1)
+      sel.data.j <- c(grep(paste0("<", outcome.type, "_DATA"), txt.j) - 1,
+                      grep(paste0("<", outcome.type, "_SUBGROUP"), txt.j) - 1)
       if (outcome.type %in% c("IV", "IPD"))
         sel.data.j <- c(sel.data.j, grep("</EFFECT_MEASURE>", txt.j))
       else
@@ -114,8 +114,8 @@ extract_outcomes <- function(txt, outcome.type, res,
       ##
       ## Subgroups
       ##
-      sel.subgroup1 <- grep(paste0("^<", outcome.type, "_SUBGROUP"), txt.j)
-      sel.subgroup2 <- grep(paste0("^</", outcome.type, "_SUBGROUP"), txt.j)
+      sel.subgroup1 <- grep(paste0("<", outcome.type, "_SUBGROUP"), txt.j)
+      sel.subgroup2 <- grep(paste0("</", outcome.type, "_SUBGROUP"), txt.j)
       ##
       if (length(sel.subgroup1 > 0) | length(sel.subgroup2) > 0) {
         if (length(sel.subgroup1) != length(sel.subgroup2))
@@ -125,7 +125,7 @@ extract_outcomes <- function(txt, outcome.type, res,
           cat(paste0("* ", outcome.type, "_SUBGROUP *\n"))
         for (k in seq(along = sel.subgroup1)) {
           txt.jk <- txt.j[sel.subgroup1[k]:sel.subgroup2[k]]
-          sel.data.jk <- c(grep(paste0("^<", outcome.type, "_DATA"), txt.jk) - 1,
+          sel.data.jk <- c(grep(paste0("<", outcome.type, "_DATA"), txt.jk) - 1,
                            grep("</NAME>", txt.jk))
           if (length(sel.data.jk) > 0)
             sel.jk <- unique(c(1:(max(c(2, min(sel.data.jk)))), length(txt.jk)))
@@ -150,7 +150,10 @@ extract_outcomes <- function(txt, outcome.type, res,
           ##
           ## Data
           ##
-          sel.data1 <- grep(paste0("^<", outcome.type, "_DATA"), txt.jk)
+          sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.jk)
+          sel.data2 <- grep("/>", txt.jk)
+          if (length(sel.data1) != length(sel.data2))
+            stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
           ##
           event.e <- n.e <- event.c <- n.c <-
             mean.e <- sd.e <- mean.c <- sd.c <-
@@ -166,13 +169,13 @@ extract_outcomes <- function(txt, outcome.type, res,
             if (debug)
               cat(paste0("* ", outcome.type, "_DATA *\n"))
             for (l in seq(along = sel.data1)) {
-              txt.jkl <- txt.jk[sel.data1[l]]
-              if (substring(txt.jkl,
-                            nchar(txt.jkl) - 1,
-                            nchar(txt.jkl)) == '">')
-                txt.jkl <- paste(substring(txt.jkl,
-                                           1, nchar(txt.jkl) - 1),
-                                 "/>", collapse= "")
+              txt.jkl <- paste(txt.jk[sel.data1[l]:sel.data2[l]], collapse = "")
+              # if (substring(txt.jkl,
+              #               nchar(txt.jkl) - 1,
+              #               nchar(txt.jkl)) == '">')
+              #   txt.jkl <- paste(substring(txt.jkl,
+              #                              1, nchar(txt.jkl) - 1),
+              #                    "/>", collapse= "")
               xml.jkl <- as_xml_document(txt.jkl)
               ##
               id[l] <- xml_attr(xml.jkl, "STUDY_ID")
@@ -252,7 +255,10 @@ extract_outcomes <- function(txt, outcome.type, res,
         ##
         ## Data
         ##
-        sel.data1 <- grep(paste0("^<", outcome.type, "_DATA"), txt.j)
+        sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.j)
+        sel.data2 <- grep("/>", txt.j)
+        if (length(sel.data1) != length(sel.data2))
+          stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
         ##
         event.e <- n.e <- event.c <- n.c <-
           mean.e <- sd.e <- mean.c <- sd.c <-
@@ -273,13 +279,13 @@ extract_outcomes <- function(txt, outcome.type, res,
           }
           ##
           for (k in seq(along = sel.data1)) {
-            txt.jk <- txt.j[sel.data1[k]]
-            if (substring(txt.jk,
-                          nchar(txt.jk) - 1,
-                          nchar(txt.jk)) == '">')
-              txt.jk <- paste(substring(txt.jk,
-                                        1, nchar(txt.jk) - 1),
-                              "/>", collapse= "")
+            txt.jk <- paste(txt.j[sel.data1[k]:sel.data2[k]], collapse = "")
+            # if (substring(txt.jk,
+            #               nchar(txt.jk) - 1,
+            #               nchar(txt.jk)) == '">')
+            #   txt.jk <- paste(substring(txt.jk,
+            #                             1, nchar(txt.jk) - 1),
+            #                   "/>", collapse= "")
             xml.jk <- as_xml_document(txt.jk)
             ##
             id[k] <- xml_attr(xml.jk, "STUDY_ID")
@@ -908,8 +914,8 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ##
   ## Determine whether study data are available
   ##
-  sel.data1 <- grepl("^<ANALYSES_AND_DATA", rdata)
-  sel.data2 <- grepl("^</ANALYSES_AND_DATA", rdata)
+  sel.data1 <- grepl("<ANALYSES_AND_DATA", rdata)
+  sel.data2 <- grepl("</ANALYSES_AND_DATA", rdata)
   ##
   if (!any(sel.data2)) {
     warning("Cochrane review does not contain any study data.",
@@ -917,8 +923,8 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
     return(NULL)
   }
   ##
-  sel.data1 <- grep("^<ANALYSES_AND_DATA", rdata)
-  sel.data2 <- grep("^</ANALYSES_AND_DATA", rdata)
+  sel.data1 <- grep("<ANALYSES_AND_DATA", rdata)
+  sel.data2 <- grep("</ANALYSES_AND_DATA", rdata)
   
   
   ##
@@ -926,10 +932,10 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ##
   txt <- rdata[(sel.data1 + 1):(sel.data2 - 1)]
   ##
-  sel.data1 <- grepl("^<DICH_DATA", txt)
-  sel.data2 <- grepl("^<CONT_DATA", txt)
-  sel.data3 <- grepl("^<IV_DATA", txt)
-  sel.data4 <- grepl("^<IPD_DATA", txt)
+  sel.data1 <- grepl("<DICH_DATA", txt)
+  sel.data2 <- grepl("<CONT_DATA", txt)
+  sel.data3 <- grepl("<IV_DATA", txt)
+  sel.data4 <- grepl("<IPD_DATA", txt)
   ##
   if (!any(sel.data1 | sel.data2 | sel.data3 | sel.data4)) {
     warning("Cochrane review does not contain any usable study data.",
@@ -972,8 +978,8 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ## Comparisons
   ##
   ##
-  sel.comp1 <- grep("^<COMPARISON", txt)
-  sel.comp2 <- grep("^</COMPARISON", txt)
+  sel.comp1 <- grep("<COMPARISON", txt)
+  sel.comp2 <- grep("</COMPARISON", txt)
   ##
   if (length(sel.comp1) != length(sel.comp2))
     stop("Malformed XML file (tag: COMPARISON)")
@@ -1027,22 +1033,22 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ##
   ## Determine whether information on included studies are available
   ##
-  sel.incl1 <- grepl("^<INCLUDED_STUDIES ", rdata) |
-    grepl("^<INCLUDED_STUDIES>", rdata)
-  sel.incl2 <- grepl("^</INCLUDED_STUDIES>", rdata)
+  sel.incl1 <- grepl("<INCLUDED_STUDIES ", rdata) |
+    grepl("<INCLUDED_STUDIES>", rdata)
+  sel.incl2 <- grepl("</INCLUDED_STUDIES>", rdata)
   ##
   if (any(sel.incl2)) {
     ##
     ## Extract study information (as vector of character strings)
     ##
-    sel.incl1 <- c(grep("^<INCLUDED_STUDIES ", rdata),
-                   grep("^<INCLUDED_STUDIES>", rdata))
-    sel.incl2 <- grep("^</INCLUDED_STUDIES>", rdata)
+    sel.incl1 <- c(grep("<INCLUDED_STUDIES ", rdata),
+                   grep("<INCLUDED_STUDIES>", rdata))
+    sel.incl2 <- grep("</INCLUDED_STUDIES>", rdata)
     ##
     study <- rdata[(sel.incl1 + 1):(sel.incl2 - 1)]
     ##
-    sel.study1 <- grep("^<STUDY", study)
-    sel.study2 <- grep("^</STUDY", study)
+    sel.study1 <- grep("<STUDY", study)
+    sel.study2 <- grep("</STUDY", study)
     ##
     id <- studlab <- year <- rep("", length(sel.study1))
     ##
