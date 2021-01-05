@@ -160,7 +160,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    text.random = gs("text.random"),
                    text.predict = gs("text.predict"),
                    text.w.fixed = gs("text.w.fixed"),
-                   text.w.random = gs("test.w.random"),
+                   text.w.random = gs("text.w.random"),
                    ##
                    title, complab, outclab,
                    ##

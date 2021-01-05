@@ -38,6 +38,10 @@
   - works for GLMMs with zero events or number of events equal to
     number of patients in all studies
 
+* forest.meta():
+  - print results for test of subgroup effect in correct order if
+    argument bysort = TRUE
+
 * read.rm5():
   - list elements 'method' and 'sm' had been encoded as a factor
     instead of character under R-versions below 4.0 which resulted in
@@ -65,7 +69,9 @@
     created with metamean() with arguments 'sm = "MLN"' and
     'backtransf = TRUE'
   - alternative study labels (argument 'studlab') tried to catch from
-    meta-analysis object
+    meta-analysis object	
+  - do not print statistic for residual heterogeneity if argument
+    'tau.common = FALSE' was used to conduct subgroup meta-analysis
 
 * metainc():
   - square root transformed incidence rate difference added as new

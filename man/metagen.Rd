@@ -27,6 +27,7 @@ metagen(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  detail.tau = "",
   prediction = gs("prediction"),
   level.predict = gs("level.predict"),
   null.effect = 0,
@@ -55,7 +56,7 @@ metagen(
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
   text.w.fixed = gs("text.w.fixed"),
-  text.w.random = gs("test.w.random"),
+  text.w.random = gs("text.w.random"),
   title = gs("title"),
   complab = gs("complab"),
   outclab = "",
@@ -153,6 +154,8 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{detail.tau}{Detail on between-study variance estimate.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}

@@ -108,10 +108,11 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   
   
   chkclass(meta1, "meta")
-  chkclass(meta2, c("meta", "limitmeta", "copas"))
+  chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
   ##
-  is.limit <- inherits(meta2, "limitmeta")
   is.copas <- inherits(meta2, "copas")
+  is.limit <- inherits(meta2, "limitmeta")
+  is.robu <- inherits(meta2, "robu")
   ##
   if (!missing(pooled1))
     pooled1 <- setchar(pooled1, c("fixed", "random"))
@@ -121,7 +122,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   if (!missing(pooled2))
     pooled2 <- setchar(pooled2, c("fixed", "random"))
   else {
-    if (is.limit | is.copas)
+    if (is.copas | is.limit | is.robu)
       pooled2 <- "random"
     else
       pooled2 <- ifelse(meta2$comb.random, "random", "fixed")
@@ -129,8 +130,26 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   if (!missing(backtransf))
     chklogical(backtransf)
-  else
-    backtransf <- meta1$backtransf | meta2$backtransf
+  else {
+    if (!is.null(meta1$backtransf) & !is.null(meta2$backtransf))
+      backtransf <- meta1$backtransf | meta2$backtransf
+    else if (!is.null(meta1$backtransf))
+      backtransf <- meta1$backtransf
+    else if (!is.null(meta2$backtransf))
+      backtransf <- meta2$backtransf
+    else
+      backtransf <- FALSE
+  }
+  ##
+  if (is.copas)
+    meta2$detail.tau <- "copas"
+  else if (is.limit)
+    meta2$detail.tau <- "limit"
+  else if (is.robu)
+    meta2$detail.tau <- "RVE"
+  ##
+  if (is.null(meta1$detail.tau))
+    meta1$detail.tau <- ""
   
   
   ##
@@ -208,7 +227,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   ## Merge results of second meta-analysis with first meta-analysis
   ##
-  if (is.limit | is.copas) {
+  if (is.copas | is.limit) {
     if (!missing(text.pooled2))
       res$text.random <- text.pooled2
     else
@@ -229,6 +248,26 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$pval.random <- meta2$pval.adjust
     ##
     res$w.random <- rep(0, length(res$w.random))
+  }
+  else if (is.robu) {
+    if (!missing(text.pooled2))
+      res$text.random <- text.pooled2
+    else
+      res$text.random <- "RVE model"
+    ##
+    if (!missing(text.w.pooled2))
+      res$text.w.random <- text.w.pooled2
+    else
+      res$text.w.random <- "RVE"
+    ##
+    res$TE.random <- meta2$reg_table$b.r[1]
+    res$seTE.random <- meta2$reg_table$SE[1]
+    res$lower.random <- meta2$reg_table$CI.L[1]
+    res$upper.random <- meta2$reg_table$CI.U[1]
+    res$statistic.random <- meta2$reg_table$t[1]
+    res$pval.random <- meta2$reg_table$prob[1]
+    ##
+    res$w.random <- meta2$data.full$r.weights
   }
   else if (pooled2 == "fixed") {
     if (!missing(text.pooled2))
@@ -318,6 +357,31 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$pval.Q.b.random <- meta2$pval.Q.b.random
     }
   }
+  
+  
+  ##
+  ## Additional settings
+  ##
+  if (is.copas | is.limit | is.robu)
+    meta2$method <- "Inverse"
+  ##
+  if (!is.null(meta2$method))
+    res$method <- if (meta1$method == meta2$method) meta1$method else ""
+  else
+    res$method <- meta1$method
+  ##
+  if (is.copas)
+    meta2$method.tau <- "ML"
+  else if (is.limit)
+    meta2$method.tau <- meta1$method.tau
+  else if (is.robu)
+    meta2$method.tau <- "DL"
+  ##
+  if (is.null(meta2$method.tau))
+    meta2$method.tau <- ""
+  ##
+  if (is.null(meta2$method.tau.ci))
+    meta2$method.tau.ci <- ""
   ##
   if (!is.null(meta2$hakn))
     res$hakn <-
@@ -327,34 +391,15 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$hakn <-
       (pooled1 == "random" & meta1$hakn)
   ##
-  if (is.limit | is.copas)
-    meta2$method <- "Inverse"
-  if (!is.null(meta2$method))
-    res$method <- if (meta1$method == meta2$method) meta1$method else ""
-  else
-    res$method <- meta1$method
-  ##
   if (!is.null(meta1$Q.Cochrane) & !is.null(meta2$Q.Cochrane))
     res$Q.Cochrane <-
       if (meta1$Q.Cochrane == meta2$Q.Cochrane) meta1$Q.Cochrane else FALSE
   ##
-  if (is.copas)
-    meta2$method.tau <- "ML"
-  if (is.limit)
-    meta2$method.tau <- meta1$method.tau
-  if (is.null(meta2$method.tau))
-    meta2$method.tau <- ""
-  res$method.tau <-
-    if (meta1$method.tau == meta2$method.tau) meta1$method.tau else ""
-  ##
-  if (is.null(meta2$method.tau.ci))
-    meta2$method.tau.ci <- ""
-  res$method.tau.ci <-
-    if (meta1$method.tau.ci == meta2$method.tau.ci) meta1$method.tau.ci else ""
-  ##
   if (pooled1 == "fixed" & pooled2 == "fixed") {
     res$overall.hetstat <- FALSE
+    ##
     res$method.tau <- ""
+    res$method.tau.ci <- ""
     res$tau <- NA
     res$lower.tau <- NA
     res$upper.tau <- NA
@@ -366,11 +411,96 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   if (pooled1 == "fixed" & pooled2 == "random") {
     res$method.tau <- meta2$method.tau
-    res$method.tau.ci <- meta2$method.tau.ci
+    res$method.tau.ci <- meta2$method.tau.ci    
+    ##
+    if (is.limit) {
+      res$tau <- meta2$tau
+      res$lower.tau <- NA
+      res$upper.tau <- NA
+      res$tau2 <- meta2$tau^2
+      res$lower.tau2 <- NA
+      res$upper.tau2 <- NA
+      res$se.tau <- NA
+    }
+    else if (is.copas) {
+      res$tau <- meta2$tau.adjust
+      res$lower.tau <- NA
+      res$upper.tau <- NA
+      res$tau2 <- meta2$tau.adjust^2
+      res$lower.tau2 <- NA
+      res$upper.tau2 <- NA
+      res$se.tau <- NA
+    }
+    else if (is.robu) {
+      res$tau <- sqrt(meta2$mod_info$tau.sq)
+      res$lower.tau <- NA
+      res$upper.tau <- NA
+      res$tau2 <- meta2$mod_info$tau.sq
+      res$lower.tau2 <- NA
+      res$upper.tau2 <- NA
+      res$se.tau <- NA
+    }
+    else {
+      res$tau <- meta2$tau
+      res$lower.tau <- meta2$lower.tau
+      res$upper.tau <- meta2$upper.tau
+      res$tau2 <- meta2$tau2
+      res$lower.tau2 <- meta2$lower.tau2
+      res$upper.tau2 <- meta2$upper.tau2
+      res$se.tau <- meta2$se.tau
+    }
   }
   ##
   if (pooled1 == "random" & pooled2 == "random") {
-    if (!is.null(meta2$method.tau))
+    if (is.limit) {
+      res$tau <- c(res$tau, meta2$tau)
+      res$lower.tau <- c(res$lower.tau, NA)
+      res$upper.tau <- c(res$upper.tau, NA)
+      res$tau2 <- c(res$tau2, meta2$tau^2)
+      res$lower.tau2 <- c(res$lower.tau2, NA)
+      res$upper.tau2 <- c(res$upper.tau2, NA)
+      res$se.tau <- c(res$se.tau, NA)
+      ##
+      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+    }
+    else if (is.copas) {
+      res$tau <- c(res$tau, meta2$tau.adjust)
+      res$lower.tau <- c(res$lower.tau, NA)
+      res$upper.tau <- c(res$upper.tau, NA)
+      res$tau2 <- c(res$tau, meta2$tau.adjust^2)
+      res$lower.tau2 <- c(res$lower.tau2, NA)
+      res$upper.tau2 <- c(res$upper.tau2, NA)
+      res$se.tau <- c(res$se.tau, NA)
+      ##
+      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+    }
+    else if (is.robu) {
+      res$tau <- c(res$tau, sqrt(meta2$mod_info$tau.sq))
+      res$lower.tau <- c(res$lower.tau, NA)
+      res$upper.tau <- c(res$upper.tau, NA)
+      res$tau2 <- c(res$tau2, meta2$mod_info$tau.sq)
+      res$lower.tau2 <- c(res$lower.tau2, NA)
+      res$upper.tau2 <- c(res$upper.tau2, NA)
+      res$se.tau <- c(res$se.tau, NA)
+      ##
+      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+    }
+    else if (
+           any(meta1$tau != meta2$tau) |
+           any(meta1$lower.tau != meta2$.lower.tau)) {
+      res$tau <- c(res$tau, meta2$tau)
+      res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
+      res$upper.tau <- c(res$upper.tau, meta2$upper.tau)
+      res$tau2 <- c(res$tau2, meta2$tau2)
+      res$lower.tau2 <- c(res$lower.tau2, meta2$lower.tau2)
+      res$upper.tau2 <- c(res$upper.tau2, meta2$upper.tau2)
+      res$se.tau <- c(res$se.tau, meta2$se.tau)
+      ##
+      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+    }
+    ##
+    ##if (!is.null(meta2$method.tau))
+    if (FALSE)
       if (meta1$method.tau != meta2$method.tau)
         warning("Between-study variance estimate from first meta-analysis ",
                 "shown in printouts.", call. = FALSE)

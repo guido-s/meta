@@ -973,7 +973,8 @@ forest.meta <- function(x,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         ##
-                        ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+                        ref =
+                          ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
                         lower.equi = NA, upper.equi = NA,
                         lty.equi = 1, col.equi = "blue",
@@ -1002,7 +1003,8 @@ forest.meta <- function(x,
                         type.study = "square",
                         type.fixed = "diamond",
                         type.random = type.fixed,
-                        type.subgroup = ifelse(study.results, "diamond", "square"),
+                        type.subgroup =
+                          ifelse(study.results, "diamond", "square"),
                         type.subgroup.fixed = type.subgroup,
                         type.subgroup.random = type.subgroup,
                         ##
@@ -1033,8 +1035,7 @@ forest.meta <- function(x,
                           print.Q | print.pval.Q | print.Rb,
                         overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
-                        resid.hetstat = overall &
-                          (is.character(hetstat) || hetstat) & !LRT,
+                        resid.hetstat,
                         resid.hetlab = "Residual heterogeneity: ",
                         print.I2 = comb.fixed | comb.random,
                         print.I2.ci = FALSE,
@@ -1051,8 +1052,10 @@ forest.meta <- function(x,
                         LRT = FALSE,
                         ##
                         test.overall = gs("test.overall"),
-                        test.overall.fixed = comb.fixed & overall & test.overall,
-                        test.overall.random = comb.random & overall & test.overall,
+                        test.overall.fixed =
+                          comb.fixed & overall & test.overall,
+                        test.overall.random =
+                          comb.random & overall & test.overall,
                         label.test.overall.fixed,
                         label.test.overall.random,
                         ##
@@ -1171,8 +1174,10 @@ forest.meta <- function(x,
                         ##
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
-                        zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
-                        JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+                        zero.pval =
+                          if (layout == "JAMA") FALSE else gs("zero.pval"),
+                        JAMA.pval =
+                          if (layout == "JAMA") TRUE else gs("JAMA.pval"),
                         ##
                         col.i = col.study,
                         weight = weight.study,
@@ -1411,15 +1416,25 @@ forest.meta <- function(x,
     chklogical(overall.hetstat)
   }
   ##
-  chkchar(hetlab)
-  chklogical(resid.hetstat)
-  chkchar(resid.hetlab)
   chklogical(LRT)
   if (LRT & x$method != "GLMM") {
     warning("Likelihood-Ratio test of heterogeneity only ",
             "available for generalized linear mixed models.")
     LRT <- FALSE
   }
+  ##
+  chkchar(hetlab)
+  if (!missing(resid.hetstat))
+    chklogical(resid.hetstat)
+  else {
+    if (overall && (is.character(hetstat) || hetstat) && !LRT &&
+        !is.null(x$tau.common) && x$tau.common)
+      resid.hetstat <- TRUE
+    else
+      resid.hetstat <- FALSE
+  }
+  chkchar(resid.hetlab)
+  ##
   chklogical(test.overall.fixed)
   chklogical(test.overall.random)
   if (!missing(test.subgroup.fixed))
@@ -2712,7 +2727,8 @@ forest.meta <- function(x,
   ##
   col.inside <- col.inside[sel]
   ##
-  if (!is.null(x$exclude))
+  null.exclude <- is.null(x$exclude)
+  if (!null.exclude)
     exclude <- x$exclude[sel]
   ##
   if (sort | by) {
@@ -2764,7 +2780,7 @@ forest.meta <- function(x,
     ##
     col.inside <- col.inside[o]
     ##
-    if (!is.null(x$exclude))
+    if (!null.exclude)
       exclude <- exclude[o]
     ##
     if (newcols) {
@@ -2852,15 +2868,31 @@ forest.meta <- function(x,
     tau2 <- x$tau2
     lower.tau2 <- x$lower.tau2
     upper.tau2 <- x$upper.tau2
+    ##
     if (is.null(tau2)) {
       tau2 <- x$tau^2
       lower.tau2 <- upper.tau2 <- NA
     }
+    ##
+    if (length(tau2) > 1) {
+      tau2 <- sum(tau2)
+      lower.tau2 <- NA
+      upper.tau2 <- NA
+    }
+    ##
     tau <- x$tau
     lower.tau <- x$lower.tau
     upper.tau <- x$upper.tau
+    ##
+    if (length(tau) > 1) {
+      tau <- sqrt(sum(tau^2))
+      lower.tau <- NA
+      upper.tau <- NA
+    }
+    ##
     sign.lower.tau <- x$sign.lower.tau
     sign.upper.tau <- x$sign.lower.tau
+    ##
     if (is.null(lower.tau)) {
       lower.tau <- upper.tau <- NA
       sign.lower.tau <- sign.upper.tau <- ""
@@ -2875,16 +2907,17 @@ forest.meta <- function(x,
     uppRb <- x$upper.Rb
     ##
     if (by) {
-      Q.b.fixed  <- x$Q.b.fixed
+      Q.b.fixed <- x$Q.b.fixed
       Q.b.random <- x$Q.b.random
-      df.Q.b     <- x$df.Q.b
-      pval.Q.b.fixed <- replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
-      pval.Q.b.random <- replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
+      df.Q.b <- x$df.Q.b
+      pval.Q.b.fixed <-
+        replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
+      pval.Q.b.random <-
+        replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
       ##
-      Q.resid    <- x$Q.w.fixed
-      df.Q.resid <- x$df.Q.w
-      pval.Q.resid <- replaceNULL(x$pval.Q.w.fixed,
-                                  pvalQ(x$Q.w.fixed, x$df.Q.w))
+      Q.resid <- x$Q.resid
+      df.Q.resid <- x$df.Q.resid
+      pval.Q.resid <- x$pval.Q.resid
       ##
       tau2.resid <- x$tau2.resid
       lower.tau2.resid <- x$lower.tau2.resid
@@ -4293,21 +4326,26 @@ forest.meta <- function(x,
     o <- order(factor(x$bylevs, levels = bylevs))
     k.w <- x$k.w[o]
     k.w.hetstat <- k.w.hetstat[o]
+    ##
     TE.fixed.w <- x$TE.fixed.w[o]
     lower.fixed.w <- x$lower.fixed.w[o]
     upper.fixed.w <- x$upper.fixed.w[o]
+    statistic.fixed.w <- x$statistic.fixed.w[o]
     pval.fixed.w <- x$pval.fixed.w[o]
+    ##
     TE.random.w <- x$TE.random.w[o]
     lower.random.w <- x$lower.random.w[o]
     upper.random.w <- x$upper.random.w[o]
+    statistic.random.w <- x$statistic.random.w[o]
     pval.random.w <- x$pval.random.w[o]
-    Q.w        <- x$Q.w[o]
-    I2.w       <- x$I2.w[o]
-    lowI2.w    <- x$lower.I2.w[o]
-    uppI2.w    <- x$upper.I2.w[o]
-    Rb.w       <- x$Rb.w[o]
-    lowRb.w    <- x$lower.Rb.w[o]
-    uppRb.w    <- x$upper.Rb.w[o]
+    ##
+    Q.w     <- x$Q.w[o]
+    I2.w    <- x$I2.w[o]
+    lowI2.w <- x$lower.I2.w[o]
+    uppI2.w <- x$upper.I2.w[o]
+    Rb.w    <- x$Rb.w[o]
+    lowRb.w <- x$lower.Rb.w[o]
+    uppRb.w <- x$upper.Rb.w[o]
     ##
     tau2.w <- x$tau2.w[o]
     lower.tau2.w <- x$lower.tau2.w[o]
@@ -4338,18 +4376,21 @@ forest.meta <- function(x,
     TE.fixed.w <- TE.fixed.w[sel]
     lower.fixed.w <- lower.fixed.w[sel]
     upper.fixed.w <- upper.fixed.w[sel]
+    statistic.fixed.w <- statistic.fixed.w[sel]
     pval.fixed.w <- pval.fixed.w[sel]
+    ##
     TE.random.w <- TE.random.w[sel]
     lower.random.w <- lower.random.w[sel]
     upper.random.w <- upper.random.w[sel]
+    statistic.random.w <- statistic.random.w[sel]
     pval.random.w <- pval.random.w[sel]
-    Q.w        <- Q.w[sel]
-    I2.w       <- I2.w[sel]
-    lowI2.w    <- lowI2.w[sel]
-    uppI2.w    <- uppI2.w[sel]
-    Rb.w       <- Rb.w[sel]
-    lowRb.w    <- lowRb.w[sel]
-    uppRb.w    <- uppRb.w[sel]
+    Q.w     <- Q.w[sel]
+    I2.w    <- I2.w[sel]
+    lowI2.w <- lowI2.w[sel]
+    uppI2.w <- uppI2.w[sel]
+    Rb.w    <- Rb.w[sel]
+    lowRb.w <- lowRb.w[sel]
+    uppRb.w <- uppRb.w[sel]
     ##
     tau2.w <- tau2.w[sel]
     lower.tau2.w <- lower.tau2.w[sel]
@@ -5020,13 +5061,14 @@ forest.meta <- function(x,
     ## Label of test for effect in subgroups
     ##
     if (test.effect.subgroup.fixed | test.effect.subgroup.random) {
-      pvals.effect.w <- formatPT(c(x$pval.fixed.w, x$pval.random.w),
+      pvals.effect.w <- formatPT(c(pval.fixed.w, pval.random.w),
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
                                  zero = zero.pval, JAMA = JAMA.pval,
                                  scientific = scientific.pval,
                                  lab.NA = "NA")
-      statistics.effect.w <- formatN(round(c(x$statistic.fixed.w, x$statistic.random.w),
+      statistics.effect.w <- formatN(round(c(statistic.fixed.w,
+                                             statistic.random.w),
                                            digits = digits.stat),
                                      digits.stat, "NA", big.mark = big.mark)
       ##
@@ -5342,7 +5384,7 @@ forest.meta <- function(x,
   lowTE.exclude <- lowTE
   uppTE.exclude <- uppTE
   ##
-  if (!is.null(x$exclude)) {
+  if (!null.exclude) {
     TE.exclude[exclude] <- NA
     lowTE.exclude[exclude] <- NA
     uppTE.exclude[exclude] <- NA

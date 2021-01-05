@@ -871,7 +871,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
                     text.w.fixed = gs("text.w.fixed"),
-                    text.w.random = gs("test.w.random"),
+                    text.w.random = gs("text.w.random"),
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
