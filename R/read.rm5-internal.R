@@ -151,7 +151,10 @@ extract_outcomes <- function(txt, outcome.type, res,
           ## Data
           ##
           sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.jk)
-          sel.data2 <- grep("/>", txt.jk)
+          if (any(grepl("<FOOTNOTE>", txt.jk)))
+            sel.data2 <- grep(paste0("</", outcome.type, "_DATA"), txt.jk)
+          else
+            sel.data2 <- grep("/>", txt.jk)
           if (length(sel.data1) != length(sel.data2))
             stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
           ##
@@ -256,7 +259,10 @@ extract_outcomes <- function(txt, outcome.type, res,
         ## Data
         ##
         sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.j)
-        sel.data2 <- grep("/>", txt.j)
+        if (any(grepl("<FOOTNOTE>", txt.j))) 
+          sel.data2 <- grep(paste0("</", outcome.type, "_DATA"), txt.j)
+        else
+          sel.data2 <- grep("/>", txt.j)
         if (length(sel.data1) != length(sel.data2))
           stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
         ##
