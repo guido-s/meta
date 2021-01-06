@@ -27,7 +27,7 @@ List with components
 \item{lower}{Lower confidence limits}
 \item{upper}{Upper confidence limits}
 \item{statistic}{Test statistic (either z-score or t-score)}
-\item{p}{P-value of test with null hypothesis \code{TE=0}}
+\item{p}{P-value of text.with null hypothesis \code{TE=0}}
 \item{level}{The confidence level required}
 \item{df}{Degrees of freedom (t-distribution)}
 }

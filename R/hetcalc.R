@@ -93,7 +93,7 @@ hetcalc <- function(TE, seTE,
                       random = ~ 1 | id / id.TE,
                       control = control)
         ##
-        tau2 <- sum(mf0$sigma2)
+        tau2 <- mf0$sigma2
         se.tau2 <- NA
       }
       ##
@@ -191,7 +191,7 @@ hetcalc <- function(TE, seTE,
             stop(mf1)
       }
       ##
-      tau2.resid <- sum(mf1$sigma2)
+      tau2.resid <- mf1$sigma2
       se.tau2.resid <- NA
     }
     ##

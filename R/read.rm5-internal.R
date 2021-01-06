@@ -15,11 +15,13 @@ extract_outcomes <- function(txt, outcome.type, res,
   sel2 <- grep(pattern2, txt) 
   ##
   if (length(sel1) > 0 | length(sel2) > 0) {
+    ##
+    if (debug)
+      cat(paste0("\n*** ", outcome.type, "_OUTCOME ***\n"))
+    ##
     if (length(sel1) != length(sel2))
       stop("Malformed XML file (tag: ", outcome.type, "_OUTCOME)")
     ##
-    if (debug)
-      cat(paste0("* ", outcome.type, "_OUTCOME *\n"))
     for (j in seq(along = sel1)) {
       txt.j <- txt[sel1[j]:sel2[j]]
       sel.data.j <- c(grep(paste0("<", outcome.type, "_DATA"), txt.j) - 1,
@@ -33,12 +35,18 @@ extract_outcomes <- function(txt, outcome.type, res,
       else
         sel.j <- c(1:6, length(txt.j))
       ##
-      if (debug == 3)
-        print(txt.j[sel.j])
       xml.j <- as_xml_document(paste(txt.j[sel.j], collapse = " "))
       ##
       outcome.no <- as.numeric(xml_attr(xml.j, "NO"))
       outclab <- xml_text(xml_find_all(xml.j, "//NAME"))
+      ##
+      if (debug) {
+        cat(paste0("Outcome.no: ", outcome.no, "\n"))
+        cat(paste0("outclab: ", outclab, "\n"))
+        ##
+        if (debug == 3)
+          print(txt.j[sel.j])
+      }
       ##
       overall <- xml_attr(xml.j, "TOTALS") == "YES"
       test.subgroup <- xml_attr(xml.j, "SUBGROUP_TEST") == "YES"
@@ -109,20 +117,18 @@ extract_outcomes <- function(txt, outcome.type, res,
       label.left <- xml_text(xml_find_all(xml.j, "//GRAPH_LABEL_1"))
       label.right <- xml_text(xml_find_all(xml.j, "//GRAPH_LABEL_2"))
       ##
-      if (debug)
-        print(outcome.no)
-      ##
       ## Subgroups
       ##
       sel.subgroup1 <- grep(paste0("<", outcome.type, "_SUBGROUP"), txt.j)
       sel.subgroup2 <- grep(paste0("</", outcome.type, "_SUBGROUP"), txt.j)
       ##
       if (length(sel.subgroup1 > 0) | length(sel.subgroup2) > 0) {
+        if (debug)
+          cat(paste0("\n** ", outcome.type, "_SUBGROUP **\n"))
+        ##
         if (length(sel.subgroup1) != length(sel.subgroup2))
           stop("Malformed XML file (tag: ", outcome.type, "_SUBGROUP)")
         ##
-        if (debug)
-          cat(paste0("* ", outcome.type, "_SUBGROUP *\n"))
         for (k in seq(along = sel.subgroup1)) {
           txt.jk <- txt.j[sel.subgroup1[k]:sel.subgroup2[k]]
           sel.data.jk <- c(grep(paste0("<", outcome.type, "_DATA"), txt.jk) - 1,
@@ -132,31 +138,46 @@ extract_outcomes <- function(txt, outcome.type, res,
           else
             sel.jk <- unique(c(1:2, length(txt.jk)))
           ##
-          if (debug == 3)
-            print(txt.jk[sel.jk])
           xml.jk <- as_xml_document(paste(txt.jk[sel.jk], collapse = " "))
           ##
           group.no <- as.numeric(xml_attr(xml.jk, "NO"))
           grplab <- xml_text(xml_find_all(xml.jk, "//NAME"))
           ##
+          if (debug) {
+            cat(paste0("Group.no: ", group.no, "\n"))
+            cat(paste0("grplab: ", grplab, "\n"))
+            ##
+            if (debug == 3)
+              print(txt.jk[sel.jk])
+          }
+          ##
           Q.w <- as.numeric(xml_attr(xml.jk, "NO"))
           pval.Q.w <- as.numeric(xml_attr(xml.jk, "P_CHI2"))
           I2.w <- as.numeric(xml_attr(xml.jk, "I2"))
           ##
-          if (debug) {
-            print(group.no)
-            print(grplab)
-          }
-          ##
           ## Data
           ##
           sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.jk)
-          if (any(grepl("<FOOTNOTE>", txt.jk)))
-            sel.data2 <- grep(paste0("</", outcome.type, "_DATA"), txt.jk)
-          else
-            sel.data2 <- grep("/>", txt.jk)
-          if (length(sel.data1) != length(sel.data2))
+          ##
+          sel1.data2 <- grepl("/>", txt.jk)
+          sel2.data2 <- grepl(paste0("</", outcome.type, "_DATA"), txt.jk)
+          sel3.data2 <-
+            !(grepl("<GROUP_LABEL", txt.jk) |
+              grepl("<GRAPH_LABEL", txt.jk) |
+              grepl("<EFFECT_MEASURE", txt.jk))
+          sel.data2 <-
+            seq_along(txt.jk)[(sel1.data2 | sel2.data2) & sel3.data2]
+          ##
+          if (length(sel.data1) != length(sel.data2)) {
+            if (debug == 3) {
+              print(txt.jk)
+              cat(paste0("sel.data1: ", sel.data1, "\n"))
+              cat(paste0("sel.data2: ", sel.data2, "\n"))
+              ##
+              print(data.frame(sel1.data2, sel2.data2, sel3.data2))
+            }
             stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
+          }
           ##
           event.e <- n.e <- event.c <- n.c <-
             mean.e <- sd.e <- mean.c <- sd.c <-
@@ -168,17 +189,15 @@ extract_outcomes <- function(txt, outcome.type, res,
           id <- rep("", length(sel.data1))
           ##
           if (length(sel.data1) > 0) {
-            ##
             if (debug)
-              cat(paste0("* ", outcome.type, "_DATA *\n"))
+              cat(paste0("\n* ", outcome.type, "_DATA *\n"))
             for (l in seq(along = sel.data1)) {
-              txt.jkl <- paste(txt.jk[sel.data1[l]:sel.data2[l]], collapse = "")
-              # if (substring(txt.jkl,
-              #               nchar(txt.jkl) - 1,
-              #               nchar(txt.jkl)) == '">')
-              #   txt.jkl <- paste(substring(txt.jkl,
-              #                              1, nchar(txt.jkl) - 1),
-              #                    "/>", collapse= "")
+              txt.jkl <- paste(txt.jk[sel.data1[l]:sel.data2[l]],
+                               collapse = "")
+              ##
+              if (debug == 3)
+                print(txt.jk[sel.data1[l]:sel.data2[l]])
+              ##
               xml.jkl <- as_xml_document(txt.jkl)
               ##
               id[l] <- xml_attr(xml.jkl, "STUDY_ID")
@@ -243,8 +262,10 @@ extract_outcomes <- function(txt, outcome.type, res,
                          label.right = label.right,
                          complab = complab)
             ##
-            if (debug == 2)
+            if (debug >= 2) {
+              cat("\n* New data: *\n")
               print(res.new)
+            }
             res <- rbind(res, res.new)
           }
         }
@@ -259,12 +280,26 @@ extract_outcomes <- function(txt, outcome.type, res,
         ## Data
         ##
         sel.data1 <- grep(paste0("<", outcome.type, "_DATA"), txt.j)
-        if (any(grepl("<FOOTNOTE>", txt.j))) 
-          sel.data2 <- grep(paste0("</", outcome.type, "_DATA"), txt.j)
-        else
-          sel.data2 <- grep("/>", txt.j)
-        if (length(sel.data1) != length(sel.data2))
+        ##
+        sel1.data2 <- grepl("/>", txt.j)
+        sel2.data2 <- grepl(paste0("</", outcome.type, "_DATA"), txt.j)
+        sel3.data2 <-
+          !(grepl("<GROUP_LABEL", txt.j) |
+            grepl("<GRAPH_LABEL", txt.j) |
+            grepl("<EFFECT_MEASURE", txt.j))
+        sel.data2 <-
+          seq_along(txt.j)[(sel1.data2 | sel2.data2) & sel3.data2]
+        ##
+        if (length(sel.data1) != length(sel.data2)) {
+          if (debug == 3) {
+            print(txt.j)
+            cat(paste0("sel.data1: ", sel.data1, "\n"))
+            cat(paste0("sel.data2: ", sel.data2, "\n"))
+            ##
+            print(data.frame(sel1.data2, sel2.data2, sel3.data2))
+          }
           stop("Malformed XML file (tag: ", outcome.type, "_DATA)")
+        }
         ##
         event.e <- n.e <- event.c <- n.c <-
           mean.e <- sd.e <- mean.c <- sd.c <-
@@ -275,23 +310,18 @@ extract_outcomes <- function(txt, outcome.type, res,
         ##
         id <- rep("", length(sel.data1))
         ##
-        if (debug)
-          print(sel.data1)
         if (length(sel.data1) > 0) {
-          ##
           if (debug) {
-            cat(paste0("* ", outcome.type, "_DATA *\n"))
+            cat(paste0("\n* ", outcome.type, "_DATA *\n"))
             print(sel.data1)
           }
           ##
           for (k in seq(along = sel.data1)) {
             txt.jk <- paste(txt.j[sel.data1[k]:sel.data2[k]], collapse = "")
-            # if (substring(txt.jk,
-            #               nchar(txt.jk) - 1,
-            #               nchar(txt.jk)) == '">')
-            #   txt.jk <- paste(substring(txt.jk,
-            #                             1, nchar(txt.jk) - 1),
-            #                   "/>", collapse= "")
+            ##
+            if (debug == 3)
+              print(txt.j[sel.data1[k]:sel.data2[k]])
+            ##
             xml.jk <- as_xml_document(txt.jk)
             ##
             id[k] <- xml_attr(xml.jk, "STUDY_ID")
@@ -355,8 +385,11 @@ extract_outcomes <- function(txt, outcome.type, res,
                        label.left = label.left,
                        label.right = label.right,
                        complab = complab)
-          if (debug == 2)
+          ##
+          if (debug >= 2) {
+            cat("\n* New data: *\n")
             print(res.new)
+          }
           ##
           res <- rbind(res, res.new)        
         }
@@ -908,13 +941,16 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   if (missing(title)) {
     sel1 <- grep("<TITLE", rdata)
     sel2 <- grep("</TITLE", rdata)
-    title <- rdata[unique(c(sel1[1], sel2[1]))]
-    if (debug == 3)
-      print(title)
-    title <- xml_text(as_xml_document(paste(title, collapse = " ")))
+    title.orig <- rdata[unique(c(sel1[1], sel2[1]))]
+    title <- xml_text(as_xml_document(paste(title.orig, collapse = " ")))
   }
-  if (debug)
-    print(title)
+  if (debug) {
+    cat("\n***** TITLE *****\n")
+    cat(paste0("Title: ", title, "\n"))
+    ##
+    if (debug == 3)
+      print(title.orig)
+  }
   
   
   ##
@@ -997,16 +1033,20 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
       sel.i <- c(1:(max(c(2, min(sel.data.i)))), length(txt.i))
     else
       sel.i <- c(1:2, length(txt.i))
-    if (debug == 3)
-      print(txt.i[sel.i])
+    ##
     xml.i <- as_xml_document(paste(txt.i[sel.i], collapse = " "))
     ##
-    if (debug)
-      cat("* COMPARISON *\n")
     comp.no <- as.numeric(xml_attr(xml.i, "NO"))
     complab <- xml_text(xml_find_all(xml.i, "//NAME"))
-    if (debug)
-      print(comp.no)
+    ##
+    if (debug) {
+      cat("\n**** COMPARISON ****\n")
+      cat(paste0("Comp.no: ", comp.no, "\n"))
+      cat(paste0("complab: ", complab, "\n"))
+      ##
+      if (debug == 3)
+        print(txt.i[sel.i])
+    }
     ##
     ## Binary outcomes
     ##
@@ -1060,28 +1100,29 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
     ##
     if ((length(sel.study1) > 0 | length(sel.study2) > 0) &&
         (length(sel.study1) == length(sel.study2))) {
-      ##
       if (debug)
-        cat(paste0("* STUDY *\n"))
+        cat(paste0("\n* STUDY *\n"))
       for (s in seq(along = sel.study1)) {
         study.s <- study[sel.study1[s]:sel.study2[s]]
-        ##
-        if (debug == 3)
-          print(study.s)
         xml.s <- as_xml_document(paste(study.s, collapse = " "))
         ##
         id[s] <- xml_attr(xml.s, "ID")
         studlab[s] <- xml_attr(xml.s, "NAME")
         year[s] <- xml_attr(xml.s, "YEAR")
-        if (debug == 3) {
+        ##
+        if (debug >= 2) {
+          cat("- id:\n")
           print(id)
+          cat("- studlab:\n")
           print(studlab)
+          cat("- year:\n")
           print(year)
+          ##
+          if (debug == 3)
+            print(study.s)
         }
       }
       ##
-      if (debug == 2)
-        print(dim(res))
       names.res <- names(res)
       res.study <- data.frame(id, studlab, year)
       res <- merge(res, res.study, by = "id",
@@ -1091,8 +1132,6 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                      names.res[5:length(names.res)])
       ##
       res <- res[, names.res]
-      if (debug == 2)
-        print(dim(res))
     }
   }
   

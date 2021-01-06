@@ -128,7 +128,7 @@
 #' \item{p.value}{The p-value for the test.}
 #' \item{alternative}{A character string describing the alternative
 #'   hypothesis.}
-#' \item{method}{A character string indicating what type of test was
+#' \item{method}{A character string indicating what type of text.was
 #'   used.}
 #' \item{data.name}{A character string giving the names of the data.}
 #'   \item{title}{Title of Cochrane review.}

@@ -95,7 +95,7 @@
   hetstat = print.I2 | print.tau2 | print.tau | print.Q | print.pval.Q | print.Rb,
   overall.hetstat = x$overall.hetstat,
   hetlab = "Heterogeneity: ",
-  resid.hetstat = overall & (is.character(hetstat) || hetstat) & !LRT,
+  resid.hetstat,
   resid.hetlab = "Residual heterogeneity: ",
   print.I2 = comb.fixed | comb.random,
   print.I2.ci = FALSE,

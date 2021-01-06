@@ -439,6 +439,14 @@ summary.meta <- function(object,
   ci.Rb <- list(TE = object$Rb,
                 lower = object$lower.Rb, upper = object$upper.Rb)
   ##
+  ci.tau2.resid <- list(TE = object$tau2.resid,
+                        lower = object$lower.tau2.resid,
+                        upper = object$upper.tau2.resid)
+  ##
+  ci.tau.resid <- list(TE = object$tau.resid,
+                       lower = object$lower.tau.resid,
+                       upper = object$upper.tau.resid)
+  ##
   ci.H.resid <- list(TE = object$H.resid,
                      lower = object$lower.H.resid,
                      upper = object$upper.H.resid)
@@ -468,10 +476,14 @@ summary.meta <- function(object,
               fixed = ci.f, random = ci.r,
               predict = ci.p,
               k = object$k,
+              k.study = object$k.study,
               Q = object$Q, df.Q = object$df.Q, Q.LRT = object$Q.LRT,
               ##
               tau = ci.tau,
               tau2 = ci.tau2,
+              ##
+              tau.resid = ci.tau.resid,
+              tau2.resid = ci.tau2.resid,
               ##
               method.tau = object$method.tau,
               method.tau.ci = object$method.tau.ci,
@@ -480,6 +492,7 @@ summary.meta <- function(object,
               ##
               TE.tau = object$TE.tau,
               tau.preset = object$tau.preset,
+              detail.tau = object$detail.tau,
               ##
               hakn = object$hakn, adhoc.hakn = object$adhoc.hakn,
               df.hakn = object$df.hakn,
@@ -922,6 +935,7 @@ print.summary.meta <- function(x,
   ##
   k.all <- length(x$study$TE)
   k <- x$k
+  k.study <- ifelse(is.null(x$k.study), k, x$k.study)
   sm <- x$sm
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
@@ -1286,7 +1300,9 @@ print.summary.meta <- function(x,
             big.mark = big.mark,
             digits = digits, digits.tau = digits.tau,
             text.tau = text.tau, text.tau2 = text.tau2,
-            method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
+            method.miss = x$method.miss,
+            IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
+            threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
   }
   else if (is.na(k)) {
     ## Do nothing
@@ -1308,9 +1324,17 @@ print.summary.meta <- function(x,
                      " (", text.fixed.br, "), k = ",
                      format(k, big.mark = big.mark),
                      " (", text.random.br, ")\n\n"))
-        else
-          cat(paste0("Number of studies combined: k = ",
-                     format(k, big.mark = big.mark), "\n\n"))
+        else {
+          if (k.study != k) {
+            cat(paste0("Number of studies combined: n = ",
+                       format(x$k.study, big.mark = big.mark), "\n"))
+            cat(paste0("Number of estimates combined: k = ",
+                       format(k, big.mark = big.mark), "\n\n"))
+          }
+          else
+            cat(paste0("Number of studies combined: k = ",
+                       format(k, big.mark = big.mark), "\n\n"))
+        }
       }
       else
         cat(paste0("Number of studies combined: k = ",
@@ -1392,9 +1416,10 @@ print.summary.meta <- function(x,
       ##
       print.tau2 <- TRUE
       print.tau2.ci <-
-        print.tau2 & !(is.na(x$tau2$lower) | is.na(x$tau2$upper))
+        print.tau2 & all(!(is.na(x$tau2$lower) | is.na(x$tau2$upper)))
       print.tau <- TRUE
-      print.tau.ci <- print.tau & !(is.na(x$tau$lower) | is.na(x$tau$upper))
+      print.tau.ci <-
+        print.tau & all(!(is.na(x$tau$lower) | is.na(x$tau$upper)))
       ##
       cathet(k,
              x$tau2$TE, x$tau2$lower, x$tau2$upper,
@@ -1408,7 +1433,8 @@ print.summary.meta <- function(x,
              print.H, digits.H,
              Rb, lowRb, uppRb,
              print.Rb, text.Rb,
-             big.mark)
+             big.mark,
+             if (is.null(x$detail.tau)) "" else x$detail.tau)
       ##
       ## Print information on residual heterogeneity
       ##
@@ -1439,10 +1465,10 @@ print.summary.meta <- function(x,
           cat("\nQuantifying residual heterogeneity:\n")
           ##
           cathet(k.resid, 
-                 unique(x$tau.w)^2, NA, NA,
-                 x$tau.common, FALSE, text.tau2, digits.tau2,
-                 unique(x$tau.w), NA, NA,
-                 x$tau.common, FALSE, text.tau, digits.tau,
+                 x$tau2.resid$TE, x$tau2.resid$lower, x$tau2.resid$upper,
+                 x$tau.common, print.tau2.ci, text.tau2, digits.tau2,
+                 x$tau.resid$TE, x$tau.resid$lower, x$tau.resid$upper,
+                 x$tau.common, print.tau.ci, text.tau, digits.tau,
                  "", "",
                  I2.resid, lowI2.resid, uppI2.resid,
                  print.I2, print.I2.ci, text.I2, digits.I2,
@@ -1450,7 +1476,8 @@ print.summary.meta <- function(x,
                  print.H, digits.H,
                  NA, NA, NA,
                  FALSE, text.Rb,
-                 big.mark)
+                 big.mark,
+                 if (is.null(x$detail.tau)) "" else x$detail.tau)
         }
       }
       ##
@@ -1712,7 +1739,9 @@ print.summary.meta <- function(x,
               big.mark = big.mark,
               digits = digits, digits.tau = digits.tau,
               text.tau = text.tau, text.tau2 = text.tau2,
-              method.miss = x$method.miss, IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
+              method.miss = x$method.miss,
+              IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
+              threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
   }
   
   

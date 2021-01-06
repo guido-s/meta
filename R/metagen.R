@@ -102,6 +102,7 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.bias A character string indicating which test is to
 #'   be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
 #'   can be abbreviated.  See function \code{\link{metabias}}.
@@ -906,6 +907,7 @@ metagen <- function(TE, seTE, studlab,
                     method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
+                    detail.tau = "",
                     ##
                     prediction = gs("prediction"),
                     level.predict = gs("level.predict"),
@@ -931,7 +933,7 @@ metagen <- function(TE, seTE, studlab,
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
                     text.w.fixed = gs("text.w.fixed"),
-                    text.w.random = gs("test.w.random"),
+                    text.w.random = gs("text.w.random"),
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
@@ -970,6 +972,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
+  missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, .settings$meth4tau)
   ##
   missing.id <- missing(id)
@@ -1412,7 +1415,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (multi.level) {
     if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing(method.tau))
+      if (!missing.method.tau)
         warning("For three-level model, argument 'method.tau' set to \"REML\".",
                 call. = FALSE)
       method.tau <- "REML"
@@ -1727,6 +1730,8 @@ metagen <- function(TE, seTE, studlab,
       warning("Zero values in seTE replaced by NAs.")
     seTE[!is.na(seTE) & seTE == 0] <- NA
   }
+  ##
+  tau2.calc <- NA
   
   
   ##
@@ -1735,6 +1740,13 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   k <- sum(!is.na(seTE[!exclude]))
+  ##
+  if (!missing.id) {
+    id.incl <- id[!exclude]
+    k.study <- length(unique(id.incl[!is.na(seTE[!exclude])]))
+  }
+  else
+    k.study <- k
   ##
   seTE.random.hakn.orig <- NULL
   ##
@@ -1827,7 +1839,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
       ##
-      w.random <- 1 / (seTE^2 + tau2.calc)
+      w.random <- 1 / (seTE^2 + sum(tau2.calc, na.rm = TRUE))
       w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
       ##
       TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
@@ -1958,16 +1970,22 @@ metagen <- function(TE, seTE, studlab,
     p.upper <- NA
   }
   ##
-  ## Calculate Rb
+  ## Calculate Rb (but not for three-level model)
   ##
-  Rbres <- Rb(seTE[!is.na(seTE)], seTE.random,
-              tau2.calc, hc$Q, hc$df.Q, level.comb)
+  if (length(tau2.calc) == 1)
+    Rbres <- Rb(seTE[!is.na(seTE)], seTE.random,
+                tau2.calc, hc$Q, hc$df.Q, level.comb)
+  else
+    Rbres <- list(TE = NA, lower = NA, upper = NA)
   
   
   ##
   ##
   ## (11) Generate R object
   ##
+  ##
+  if (missing(detail.tau) && k != k.study)
+    detail.tau <- c("level 2", "level 1")
   ##
   res <- list(studlab = studlab,
               ##
@@ -1996,7 +2014,8 @@ metagen <- function(TE, seTE, studlab,
               lower.predict = p.lower, upper.predict = p.upper,
               level.predict = level.predict,
               ##
-              k = k, Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
+              k = k, k.study = k.study,
+              Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
               tau2 = hc$tau2, se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
               tau = hc$tau, lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
@@ -2029,6 +2048,7 @@ metagen <- function(TE, seTE, studlab,
               TE.tau =
                 if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
               tau.common = tau.common,
+              detail.tau = detail.tau,
               prediction = prediction,
               method.bias = method.bias,
               n.e = n.e,
