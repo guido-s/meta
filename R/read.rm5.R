@@ -201,12 +201,15 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   ##
   chkchar(sep, length = 1)
   chkchar(quote, length = 1)
+  ##
   missing.title <- missing(title)
   if (!missing.title)
     chkchar(title, length = 1)
+  ##
   chklogical(numbers.in.labels)
   ##
-  chknumeric(debug)
+  if (!is.logical(debug))
+    chknumeric(debug)
   if (!(debug %in% 0:3))
     stop("Argument 'debug' must be 0, 1, 2, or 3.", call. = FALSE)
   
