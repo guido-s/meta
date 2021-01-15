@@ -1,10 +1,10 @@
-#' Combine meta-analysis objects
+#' Combine and summarize meta-analysis objects
 #' 
 #' @description
 #' This function can be used to combine meta-analysis objects and is,
-#' for example, useful to generate a forest plot with results of
-#' subgroup analyses or to summarize results of various meta-analysis
-#' methods.
+#' for example, useful to summarize results of various meta-analysis
+#' methods or to generate a forest plot with results of several
+#' subgroup analyses.
 #' 
 #' @param ... Any number of meta-analysis objects or a single list
 #'   with meta-analyses.
@@ -20,9 +20,15 @@
 #' @param outclab Outcome label for all meta-analyis objects.
 #' 
 #' @details
-#' This function can be used to combine meta-analysis objects and is,
-#' for example, useful to generate a forest plot with results of
-#' subgroup analyses.
+#' This function can be used to combine any number of meta-analysis
+#' objects which is useful, for example, to summarize results of
+#' various meta-analysis methods or to generate a forest plot with
+#' results of several subgroup analyses (see Examples).
+#'
+#' Individual study results are not retained with
+#' \code{metabind}. This is possible using R function
+#' \code{\link{metamerge}} which, however, can only be used to combine
+#' results of two meta-analyses.
 #' 
 #' @return
 #' An object of class \code{c("metabind", "meta")} with corresponding
@@ -56,6 +62,33 @@
 #' mb1 <- metabind(mu1, mu2)
 #' mb1
 #' forest(mb1)
+#'
+#' # Use various estimation methods for between-study heterogeneity
+#' # variance
+#' #
+#' m1.pm <- update(m1, method.tau = "PM")
+#' m1.reml <- update(m1, method.tau = "REML")
+#' m1.ml <- update(m1, method.tau = "ML")
+#' m1.hs <- update(m1, method.tau = "HS")
+#' m1.sj <- update(m1, method.tau = "SJ")
+#' m1.he <- update(m1, method.tau = "HE")
+#' m1.eb <- update(m1, method.tau = "EB")
+#'
+#' # Combine meta-analyses and show results
+#' #
+#' taus <- c("DerSimonian-Laird estimator",
+#'           "Paule-Mandel estimator",
+#'           "Restricted maximum-likelihood estimator",
+#'           "Maximum-likelihood estimator",
+#'           "Hunter-Schmidt estimator",
+#'           "Sidik-Jonkman estimator",
+#'           "Hedges estimator",
+#'           "Empirical Bayes estimator")
+#' #
+#' m1.taus <- metabind(m1, m1.pm, m1.reml, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
+#'                     name = taus, pooled = "random")
+#' m1.taus
+#' forest(m1.taus, print.I2 = FALSE, print.pval.Q = FALSE)
 #' 
 #' @export metabind
 
@@ -210,7 +243,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              ##
                              tau2.w = m.i$tau2,
                              se.tau2.w = m.i$se.tau2,
+                             lower.tau2.w = m.i$lower.tau2,
+                             upper.tau2.w = m.i$upper.tau2,
                              tau.w = m.i$tau,
+                             lower.tau.w = m.i$lower.tau,
+                             upper.tau.w = m.i$upper.tau,
                              H.w = m.i$H,
                              lower.H.w = m.i$lower.H,
                              upper.H.w = m.i$upper.H,
@@ -255,7 +292,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            pval.Q = pvalQ(m.i$Q.w, m.i$k.w - 1),
                            ##
                            tau2 = m.i$tau.w^2,
+                           lower.tau2 = m.i$lower.tau2.w,
+                           upper.tau2 = m.i$upper.tau2.w,
                            tau = m.i$tau.w,
+                           lower.tau = m.i$lower.tau.w,
+                           upper.tau = m.i$upper.tau.w,
                            H = m.i$H.w,
                            lower.H = m.i$lower.H.w,
                            upper.H = m.i$upper.H.w,
@@ -289,7 +330,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            pval.Q = pvalQ(m.i$Q, m.i$df.Q),
                            ##
                            tau = m.i$tau,
+                           lower.tau = m.i$lower.tau,
+                           upper.tau = m.i$upper.tau,
                            tau2 = m.i$tau^2,
+                           lower.tau2 = m.i$lower.tau2,
+                           upper.tau2 = m.i$upper.tau2,
                            H = m.i$H,
                            lower.H = m.i$lower.H,
                            upper.H = m.i$upper.H,
@@ -335,8 +380,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             Q = m.i$Q,
                             df.Q = m.i$df.Q,
                             tau2 = m.i$tau2,
+                            lower.tau2 = m.i$lower.tau2,
+                            upper.tau2 = m.i$upper.tau2,
                             se.tau2 = replace.NULL(m.i$se.tau2),
                             tau = m.i$tau,
+                            lower.tau = m.i$lower.tau,
+                            upper.tau = m.i$upper.tau,
                             ##
                             H = m.i$H,
                             lower.H = m.i$lower.H,
@@ -509,16 +558,18 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   
   ## Check whether settings are unique
   ##
-  n.meth <- apply(meth, 2,
+  meth2 <- meth
+  meth2$level <- NULL
+  n.meth <- apply(meth2, 2,
                   function(x)
                     length(unique(x)))
   ##
   if (any(n.meth != 1))
-    stop("All meta-analyses must use the same basic settings ",
-         "which differ for the following argument",
+    stop("Setting for the following argument",
          if (sum(n.meth != 1) > 1) "s",
+         " must be the same for all meta-analyses",
          ": ",
-         paste0(paste0("'", names(meth)[n.meth != 1], "'"),
+         paste0(paste0("'", names(meth2)[n.meth != 1], "'"),
                 collapse = " - "))
   
   

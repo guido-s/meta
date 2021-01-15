@@ -197,16 +197,16 @@ forest.metabind <- function(x,
   addargs <- names(list(...))
   ##
   idx <- charmatch(tolower(addargs), "hetstat", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
+  if (any(!is.na(idx)) && length(idx) > 0)
     if (list(...)[["hetstat"]])
       stop("Argument 'hetstat' must be FALSE for metabind objects.")
   ##
   idx <- charmatch(tolower(addargs), "comb.fixed", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
+  if (any(!is.na(idx)) && length(idx) > 0)
     stop("Argument 'comb.fixed' cannot be used with metabind objects.")
   ##
   idx <- charmatch(tolower(addargs), "comb.random", nomatch = NA)
-  if (!is.na(idx) && length(idx) > 0)
+  if (any(!is.na(idx)) && length(idx) > 0)
     stop("Argument 'comb.random' cannot be used with metabind objects.")
   ##
   ## Check for deprecated arguments in '...'
