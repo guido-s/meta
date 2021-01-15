@@ -2,7 +2,7 @@
 % Please edit documentation in R/metamerge.R
 \name{metamerge}
 \alias{metamerge}
-\title{Merge two meta-analysis objects}
+\title{Merge pooled results of two meta-analyses}
 \usage{
 metamerge(
   meta1,
@@ -13,13 +13,15 @@ metamerge(
   text.pooled2,
   text.w.pooled1,
   text.w.pooled2,
+  detail.tau1,
+  detail.tau2,
   backtransf
 )
 }
 \arguments{
-\item{meta1}{First meta-analysis object.}
+\item{meta1}{First meta-analysis object (of class \code{"meta"}).}
 
-\item{meta2}{Second meta-analysis object.}
+\item{meta2}{Second meta-analysis object (see Details).}
 
 \item{pooled1}{A character string indicating whether results of
 fixed effect or random effects model should be considered for
@@ -43,70 +45,165 @@ the first meta-analysis.}
 \item{text.w.pooled2}{A character string used to label weights of
 the second meta-analysis.}
 
+\item{detail.tau1}{A character string used to label estimate of
+between-study variance of the first meta-analysis.}
+
+\item{detail.tau2}{A character string used to label estimate of
+between-study variance of the second meta-analysis.}
+
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
 \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
 printed as odds ratios rather than log odds ratios, for example.}
 }
 \value{
-An object of class \code{"meta"} with corresponding \code{print},
-\code{summary}, and \code{forest} functions. See
-\code{\link{metagen}} for more information on list elements.
+An object of class \code{"meta"} and \code{"metamerge"} with
+corresponding \code{print}, \code{summary}, and \code{forest}
+functions. The following list elements have a different meaning:
+\item{TE, seTE, studlab}{Treatment estimate, standard error, and
+  study labels (first meta-analyis).}
+\item{lower, upper}{Lower and upper confidence interval limits for
+  individual studies (first meta-analysis).}
+\item{statistic, pval}{Statistic and p-value for test of treatment
+  effect for individual studies (first meta-analysis.}
+\item{w.fixed}{Weight of individual studies (first meta-analysis).}
+\item{w.random}{Weight of individual studies (second
+  meta-analysis).}
+\item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
+  standard error (first meta-analysis).}
+\item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+  limits (first meta-analysis).}
+\item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+  overall treatment effect (first meta-analysis).}
+\item{TE.random, seTE.random}{Estimated overall treatment effect and
+  standard error (second meta-analysis).}
+\item{lower.random, upper.random}{Lower and upper confidence interval
+  limits (second meta-analysis).}
+\item{statistic.random, pval.random}{Statistic and p-value for test of
+  overall treatment effect (second meta-analysis).}
+\item{lower.predict, upper.predict}{Lower and upper limits of
+  prediction interval (related to first meta-analysis).}
+\item{k}{Number of studies combined in first meta-analysis.}
+\item{Q}{Heterogeneity statistic (first meta-analysis).}
+\item{df.Q}{Degrees of freedom for heterogeneity statistic (first
+  meta-analysis).}
+\item{pval.Q}{P-value of heterogeneity test (first meta-analysis).}
+\item{tau2}{Between-study variance(s) \eqn{\tau^2} (first and
+  second meta-analysis).}
+\item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
+  interval(s) for \eqn{\tau^2} (first and second meta-analysis).}
+\item{tau}{Square-root of between-study variance(s) \eqn{\tau}
+  (first and second meta-analysis).}
+\item{lower.tau, upper.tau}{Lower and upper limit of confidence
+  interval(s) for \eqn{\tau} (first and second meta-analysis).}
+\item{text.fixed}{Label for the first meta-analysis.}
+\item{text.random}{Label for the second meta-analysis.}
+
+See \code{\link{metagen}} for information on other list
+elements.
 }
 \description{
-This function can be used to merge two meta-analysis objects.
+This function can be used to merge pooled results of two
+meta-analyses into a single meta-analysis object. This is, for
+example, useful to produce a forest plot of a random-effects
+meta-analysis with and without using the Hartung-Knapp method.
 }
 \details{
-This function can be used to merge two meta-analysis objects and
-is, for example, useful to print or plot results for the classic
-random effects meta-analysis and the Hartung-Knapp method.
+In R package \bold{meta}, objects of class \code{"meta"} contain
+results of both a fixed effect and random effects
+meta-analysis. This function enables the user to keep the results
+of one of these models and to add results from a second
+meta-analysis or a sensitivity analysis.
+
+Applications of this function include printing and plotting results
+of the fixed effect or random effects meta-analysis and the
+\itemize{
+\item Hartung-Knapp method (see argument \code{hakn} in
+  \code{\link{metagen}}),
+\item trim-and-fill method (\code{\link{trimfill}}),
+\item limit meta-analyis (\code{\link[metasens]{limitmeta}} from R
+  package \bold{metasens}),
+\item Copas selection model (\code{\link[metasens]{copas}} from R
+  package \bold{metasens}),
+\item robust variance meta-analysis model
+  (\code{\link[robumeta]{robu}} from R package \bold{robumeta}).
+}
+
+The first argument must be an object created by a meta-analysis
+function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. The
+second meta-analysis could also be an object created with
+\code{\link{trimfill}}, \code{\link[metasens]{limitmeta}},
+\code{\link[metasens]{copas}}, or \code{\link[robumeta]{robu}}.
+
+The created meta-analysis object only contains the study results
+from the first meta-analysis which are shown in printouts and
+forest plots. This only makes a difference for meta-analysis
+methods where individual study results differ, e.g.,
+Mantel-Haenszel and Peto method for binary outcomes (see
+\code{\link{metabin}}).
+
+R function \code{\link{metabind}} can be used to print and plot the
+results of more than two meta-analyses, however, without showing
+individual study results.
 }
 \examples{
 data(Fleiss1993cont)
-
+#
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
                data = Fleiss1993cont, sm = "MD",
                comb.fixed = FALSE,
                text.random = "Classic random effects",
                text.w.random = "RE")
-
+#
 # Use Hartung-Knapp method
 #
 m2 <- update(m1, hakn = TRUE,
              text.random = "Hartung-Knapp method",
              text.w.random = "HK")
-
+#
 # Merge results of the two meta-analyses
 #
 m12 <- metamerge(m1, m2)
 m12
 forest(m12, rightcols = c("effect", "ci", "w.fixed"))
 
-
-data(Fleiss1993bin)
-
-# Mantel-Haenszel method
+# Show results for DerSimonian-Laird and REML estimate of
+# between-study variance
 #
-m3 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-              studlab = paste(study, year),
-              sm = "OR", comb.random = FALSE,
-              text.fixed = "MH method", text.w.fixed = "MH")
-
-# Peto method
-#
-m4 <- update(m3, method = "Peto", text.fixed = "Peto method",
-             text.w.fixed = "Peto")
-
-# Merge results (show individual results for MH method)
+m3 <- update(m1,
+             text.random = "Random effects moded (DL)",
+             text.w.random = "DL")
+m4 <- update(m1, method.tau = "REML",
+             text.random = "Random effects moded (REML)",
+             text.w.random = "REML")
 #
 m34 <- metamerge(m3, m4)
 m34
-forest(m34, digits = 4)
 
+data(Fleiss1993bin)
+#
+# Mantel-Haenszel method
+#
+m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+              studlab = paste(study, year),
+              sm = "OR", comb.random = FALSE,
+              text.fixed = "MH method", text.w.fixed = "MH")
+#
+# Peto method
+#
+m6 <- update(m5, method = "Peto", text.fixed = "Peto method",
+             text.w.fixed = "Peto")
+#
+# Merge results (show individual results for MH method)
+#
+m56 <- metamerge(m5, m6)
+m56
+forest(m56, digits = 4)
+#
 # Merge results (show individual results for Peto method)
 #
-m43 <- metamerge(m4, m3)
-m43
+m65 <- metamerge(m6, m5)
+m65
 
 }
 \seealso{

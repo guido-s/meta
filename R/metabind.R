@@ -3,7 +3,8 @@
 #' @description
 #' This function can be used to combine meta-analysis objects and is,
 #' for example, useful to generate a forest plot with results of
-#' subgroup analyses.
+#' subgroup analyses or to summarize results of various meta-analysis
+#' methods.
 #' 
 #' @param ... Any number of meta-analysis objects or a single list
 #'   with meta-analyses.
@@ -30,7 +31,8 @@
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}}
+#' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}},
+#'   \code{\link{metamerge}}
 #' 
 #' @examples
 #' data(Fleiss1993cont)
@@ -455,6 +457,54 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     if (length(tau.common.uniq) == 1)
       meth$tau.common[!is.subgroup] <- tau.common.uniq
   }
+  ##
+  show.studies <- TRUE
+  overall.hetstat <- TRUE
+  ##
+  if (length(unique(meth$method)) != 1) {
+    meth$method <- ""
+    show.studies <- FALSE
+    overall.hetstat <- FALSE
+  }
+  ##
+  if (length(unique(meth$method.tau)) != 1) {
+    meth$method.tau <- ""
+    show.studies <- FALSE
+    overall.hetstat <- FALSE
+  }
+  ##
+  if (length(unique(meth$method.bias)) != 1)
+    meth$method.bias <- ""
+  ##
+  if (length(unique(meth$title)) != 1)
+    meth$title <- ""
+  ##
+  if (length(unique(meth$complab)) != 1)
+    meth$complab <- ""
+  ##
+  if (length(unique(meth$outclab)) != 1)
+    meth$outclab <- ""
+  ##
+  if (length(unique(meth$label.e)) != 1)
+    meth$label.e <- ""
+  ##
+  if (length(unique(meth$label.c)) != 1)
+    meth$label.c <- ""
+  ##
+  if (length(unique(meth$label.left)) != 1)
+    meth$label.left <- ""
+  ##
+  if (length(unique(meth$label.right)) != 1)
+    meth$label.right <- ""
+  ##
+  if (length(unique(meth$pscale)) != 1)
+    meth$pscale <- min(meth$pscale)
+  ##
+  if (length(unique(meth$irscale)) != 1)
+    meth$irscale <- min(meth$irscale)
+  ##
+  if (length(unique(meth$irunit)) != 1)
+    meth$irunit <- NA
   
   
   ## Check whether settings are unique
@@ -620,8 +670,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$pval.Q.b.random <-
     makeunique(makeunique(res$pval.Q.b.random,
                           pvalQ(res$Q.b.random, res$df.Q.b)))
-
-
+  ##
+  res$show.studies <- show.studies
+  res$overall.hetstat <- overall.hetstat
+  
+  
   res$is.subgroup <- is.subgroup
 
 

@@ -976,6 +976,8 @@ metagen <- function(TE, seTE, studlab,
   method.tau <- setchar(method.tau, .settings$meth4tau)
   ##
   missing.id <- missing(id)
+  ##
+  missing.method.tau.ci <- missing(method.tau.ci)
   if (is.null(method.tau.ci))
     if (method.tau == "DL")
       method.tau.ci <- "J"
@@ -1412,6 +1414,13 @@ metagen <- function(TE, seTE, studlab,
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
     multi.level <- TRUE
+  ##
+  if (!multi.level & method.tau.ci == "PL") {
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else
+      method.tau.ci <- "QP"
+  }
   ##
   if (multi.level) {
     if (!(method.tau %in% c("REML", "ML"))) {

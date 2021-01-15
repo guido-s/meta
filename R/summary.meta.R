@@ -692,6 +692,7 @@ summary.meta <- function(object,
   }
   ##
   if (inherits(object, "metabind")) {
+    res$show.studies <- object$show.studies
     class(res) <- c(class(res), "metabind")
   }
   ##
@@ -1214,6 +1215,10 @@ print.summary.meta <- function(x,
     H <- round(x$H$TE, digits.H)
     lowH <- round(x$H$lower, digits.H)
     uppH <- round(x$H$upper, digits.H)
+    if (all(!is.na(lowH) & !is.na(uppH)) && all(lowH == uppH)) {
+      lowH <- NA
+      uppH <- NA
+    }
   }
   ##
   if (print.I2) {
@@ -1224,6 +1229,8 @@ print.summary.meta <- function(x,
       !(is.na(lowI2) | is.na(uppI2))
     if (is.na(print.I2.ci))
       print.I2.ci <- FALSE
+    if (print.I2.ci && all(lowI2 == uppI2))
+      print.I2.ci <- FALSE
   }
   else
     print.I2.ci <- FALSE
@@ -1232,6 +1239,10 @@ print.summary.meta <- function(x,
     Rb <- round(100 * x$Rb$TE, digits.I2)
     lowRb <- round(100 * x$Rb$lower, digits.I2)
     uppRb <- round(100 * x$Rb$upper, digits.I2)
+    if (all(!is.na(lowRb) & !is.na(uppRb)) && all(lowRb == uppRb)) {
+      lowRb <- NA
+      uppRb <- NA
+    }
   }
   
   
@@ -1417,9 +1428,17 @@ print.summary.meta <- function(x,
       print.tau2 <- TRUE
       print.tau2.ci <-
         print.tau2 & all(!(is.na(x$tau2$lower) | is.na(x$tau2$upper)))
+      if (print.tau2.ci &&
+          (all(x$tau2$lower == 0) & all(x$tau2$upper == 0)))
+        print.tau2.ci <- FALSE
+      ##
       print.tau <- TRUE
       print.tau.ci <-
         print.tau & all(!(is.na(x$tau$lower) | is.na(x$tau$upper)))
+      if (print.tau.ci &&
+          (all(x$tau$lower == 0) & all(x$tau$upper == 0)))
+        print.tau.ci <- FALSE
+      ##
       ##
       cathet(k,
              x$tau2$TE, x$tau2$lower, x$tau2$upper,

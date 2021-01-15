@@ -457,8 +457,8 @@ print.meta <- function(x,
     prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
     cat("\n")
   }
-
-
+  
+  
   ##
   ##
   ## (5) Print results for individual studies
@@ -605,7 +605,7 @@ print.meta <- function(x,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
-    else {
+    else if (!(inherits(x, "metabind") && !x$show.studies)) {
       show.w.fixed  <- (overall | by) & comb.fixed  & !mb.glmm
       show.w.random <- (overall | by) & comb.random & !mb.glmm
       ##

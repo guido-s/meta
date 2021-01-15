@@ -7,9 +7,7 @@
 #' 
 #' @details
 #' R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
-#' provides the following
-#' 
-#' statistical methods for meta-analysis.
+#' provides the following statistical methods for meta-analysis.
 #' \enumerate{
 #' \item Fixed effect and random effects model:
 #' \itemize{

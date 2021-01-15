@@ -1,16 +1,15 @@
-## meta, version 4.16-0 (2020-mm-dd)
+## meta, version 4.16-0 (2021-mm-dd)
 
 ### Major changes
 
-* Three-level meta-analysis models can be fitted ([Van den Noortgate
-  et., 2013](https://doi.org/10.3758/s13428-012-0261-6)) by calling
+* Three-level meta-analysis models can be fitted for generic and
+  continuous outcomes ([Van den Noortgate et.,
+  2013](https://doi.org/10.3758/s13428-012-0261-6)) by calling
   rma.mv() from R package **metafor** internally
 
 * Measures I2 and H for residual heterogeneity are based on Q
   statistic for residual heterogeneity (instead of taken directly from
   **metafor** package)
-
-* New function metamerge() to merge two meta-analysis objects
 
 * Additional *ad hoc* method implemented if confidence interval of
   Hartung-Knapp method is smaller than classic random effects
@@ -21,6 +20,9 @@
   *effective sample size* ([Deeks et.,
   2005](https://doi.org/10.1016/j.jclinepi.2005.01.016)) by default on
   the y-axis
+
+* New function metamerge() to merge pooled results of two
+  meta-analyses into a single meta-analysis object
 
 ### Bug fixes
 
@@ -50,12 +52,16 @@
 
 ### User-visible changes
 
+* Do not print empty confidence intervals for heterogeneity statistics
+
 * metacont(), metagen(), update.meta():
   - new argument 'id' to specify which estimates belong to the same
     study (or laboratory) in order to use three-level model
 
 * metabind():
-  - argument '...' can be a single list of network meta-analysis objects
+  - argument '...' can be a single list of meta-analysis objects
+  - meta-analyses can use different methods, e.g., different
+    estimators of the between-study variance
   
 * In meta-analysis functions:
   - argument 'adhoc.hakn = "iqwig6"' instead of 'adhoc.hakn = "ci"'

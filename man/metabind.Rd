@@ -32,7 +32,8 @@ An object of class \code{c("metabind", "meta")} with corresponding
 \description{
 This function can be used to combine meta-analysis objects and is,
 for example, useful to generate a forest plot with results of
-subgroup analyses.
+subgroup analyses or to summarize results of various meta-analysis
+methods.
 }
 \details{
 This function can be used to combine meta-analysis objects and is,
@@ -64,7 +65,8 @@ forest(mb1)
 
 }
 \seealso{
-\code{\link{metagen}}, \code{\link{forest.metabind}}
+\code{\link{metagen}}, \code{\link{forest.metabind}},
+  \code{\link{metamerge}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

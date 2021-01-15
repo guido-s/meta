@@ -22,6 +22,11 @@ cathet <- function(k,
     lower.tau <- NA
   if (is.null(upper.tau))
     upper.tau <- NA
+  ##
+  if (all(is.na(lower.tau2)) && all(is.na(upper.tau2)))
+    print.tau2.ci <- FALSE
+  if (all(is.na(lower.tau)) && all(is.na(upper.tau)))
+    print.tau.ci <- FALSE
   
   
   stau <- length(tau) == 1
@@ -32,7 +37,6 @@ cathet <- function(k,
   }
   ##
   detail.tau <- ifelse(detail.tau != "", paste0(" (", detail.tau, ")"), "")
-  
   
   
   cat(
