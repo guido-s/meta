@@ -50,7 +50,7 @@ Association}
 next commands implement the recommendations of the Institute for
 Quality and Efficiency in Health Care, Germany (IQWiG) accordinging
 to General Methods 5 and 6, respectively
-(\url{https://www.iqwig.de/en/methods/methods-paper.3020.html}). The
+(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}). The
 last setting can be used to print p-values in scientific notation
 and to suppress the calculation of confidence intervals for the
 between-study variance.
