@@ -1,4 +1,4 @@
-## meta, version 4.16-0 (2021-mm-dd)
+## meta, version 4.16-0 (2021-01-15)
 
 ### Major changes
 
@@ -63,19 +63,19 @@
   - meta-analyses can use different methods, e.g., different
     estimators of the between-study variance
   
-* In meta-analysis functions:
+* All meta-analysis functions:
   - argument 'adhoc.hakn = "iqwig6"' instead of 'adhoc.hakn = "ci"'
-    uses the ad hoc method for Hartung-Knapp method described in
+    uses the *ad hoc* method for Hartung-Knapp method described in
     General Methods 6.0 (IQWiG, 2020)
-  - argument 'adhoc.hakn = "ci"' uses the ad hoc method described in
+  - argument 'adhoc.hakn = "ci"' uses the *ad hoc* method described in
     Jackson et al. (2017)
 
 * forest.meta():
   - column heading "Mean" instead of "MLN" for meta-analysis object
     created with metamean() with arguments 'sm = "MLN"' and
     'backtransf = TRUE'
-  - alternative study labels (argument 'studlab') tried to catch from
-    meta-analysis object	
+  - study labels specified by argument 'studlab' tried to catch from
+    meta-analysis object
   - do not print statistic for residual heterogeneity if argument
     'tau.common = FALSE' was used to conduct subgroup meta-analysis
 
