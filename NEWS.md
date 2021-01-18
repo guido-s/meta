@@ -311,11 +311,11 @@
   very homogeneous study results implemented ([Knapp and Hartung,
   2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General
   Methods: Draft of Version
-  6.0](https://www.iqwig.de/en/about-us/methods/methods-paper))
+  6.0](https://www.iqwig.de/en/about-us/methods/methods-paper/))
 
 * Default settings according to recommendations in [General Methods of
   the Institute for Quality and Efficiency in Health Care (IQWIG),
-  Germany](https://www.iqwig.de/en/about-us/methods/methods-paper)
+  Germany](https://www.iqwig.de/en/about-us/methods/methods-paper/)
   
 * Do not use predict.rma() from **metafor** package to calculate
   prediction intervals for generalized linear mixed models

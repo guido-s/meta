@@ -701,7 +701,7 @@
 #' 
 #' IQWiG (2020):
 #' General Methods: Version 6.0.
-#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper}
+#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
 #'
 #' Jackson D (2013):
 #' Confidence intervals for the between-study variance in random
