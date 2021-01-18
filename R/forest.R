@@ -671,7 +671,7 @@
 #' If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 #' \code{rightcols} are \code{NULL}), instructions for authors of the
 #' \emph{Journal of the American Medical Association}, see
-#' \url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors},
+#' \url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/},
 #' are taken into account:
 #' \enumerate{
 #' \item Graph labels on right and left side are printed in bold font

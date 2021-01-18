@@ -24,7 +24,7 @@ A data frame with the following columns:
 }
 }
 \source{
-Website \url{http://www.esapubs.org/archive/ecol/E080/008}
+Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
 }
 \description{
 Meta-analysis on effects of elevated CO_2 on total biomass of woody

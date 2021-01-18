@@ -8,7 +8,7 @@
 \description{
 R package \bold{meta} is a user-friendly general package providing
 standard methods for meta-analysis and supporting Schwarzer et
-al. (2015), \url{http://meta-analysis-with-r.org}.
+al. (2015), \url{http://meta-analysis-with-r.org/}.
 }
 \details{
 R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -97,7 +97,7 @@ Association}
 next two commands implement the recommendations of the Institute
 for Quality and Efficiency in Health Care (IQWiG), Germany
 accordinging to General Methods 5 and 6, respectively
-(\url{https://www.iqwig.de/en/about-us/methods/methods-paper}). The
+(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}). The
 last setting can be used to print p-values in scientific notation
 and to suppress the calculation of confidence intervals for the
 between-study variance.

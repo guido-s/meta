@@ -1254,7 +1254,7 @@
 * forest.meta():
   - argument layout:
       - new layouts: "JAMA" to produce forest plots with [JAMA
-        style](https://jamanetwork.com/journals/jama/pages/instructions-for-authors)
+        style](https://jamanetwork.com/journals/jama/pages/instructions-for-authors/)
       - RevMan 5 layout extended
   - arguments can be specified without using grid::unit(): plotwidth,
     colgap, colgap.left, colgap.right, colgap.studlab, colgap.forest,

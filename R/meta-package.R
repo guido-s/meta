@@ -88,7 +88,7 @@
 #' command can be used to generate forest plots following instructions
 #' for authors of the \emph{Journal of the American Medical
 #' Association}
-#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors}). The
+#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). The
 #' next two commands implement the recommendations of the Institute
 #' for Quality and Efficiency in Health Care (IQWiG), Germany
 #' accordinging to General Methods 5 and 6, respectively
