@@ -625,7 +625,7 @@
 #' 
 #' IQWiG (2020):
 #' General Methods: Version 6.0.
-#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper}
 #' 
 #' Knapp G & Hartung J (2003):
 #' Improved tests for a random effects meta-regression with a single

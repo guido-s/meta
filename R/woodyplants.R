@@ -39,7 +39,7 @@
 #' \bold{80}, 1150--6
 #' 
 #' @source
-#' Website \url{http://www.esapubs.org/archive/ecol/E080/008/}
+#' Website \url{http://www.esapubs.org/archive/ecol/E080/008}
 #' 
 #' @keywords datasets
 #' 

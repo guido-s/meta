@@ -1,4 +1,4 @@
-## meta, version 4.16-0 (2021-01-15)
+## meta, version 4.16-0 (2021-01-18)
 
 ### Major changes
 
@@ -311,11 +311,11 @@
   very homogeneous study results implemented ([Knapp and Hartung,
   2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General
   Methods: Draft of Version
-  6.0](https://www.iqwig.de/en/about-us/methods/methods-paper/))
+  6.0](https://www.iqwig.de/en/about-us/methods/methods-paper))
 
 * Default settings according to recommendations in [General Methods of
   the Institute for Quality and Efficiency in Health Care (IQWIG),
-  Germany](https://www.iqwig.de/en/about-us/methods/methods-paper/)
+  Germany](https://www.iqwig.de/en/about-us/methods/methods-paper)
   
 * Do not use predict.rma() from **metafor** package to calculate
   prediction intervals for generalized linear mixed models
@@ -1254,7 +1254,7 @@
 * forest.meta():
   - argument layout:
       - new layouts: "JAMA" to produce forest plots with [JAMA
-        style](http://jamanetwork.com/journals/jama/pages/instructions-for-authors)
+        style](https://jamanetwork.com/journals/jama/pages/instructions-for-authors)
       - RevMan 5 layout extended
   - arguments can be specified without using grid::unit(): plotwidth,
     colgap, colgap.left, colgap.right, colgap.studlab, colgap.forest,

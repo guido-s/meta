@@ -859,7 +859,7 @@ standard DerSimonian-Laird method.
 
 IQWiG (2020):
 General Methods: Version 6.0.
-\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+\url{https://www.iqwig.de/en/about-us/methods/methods-paper}
 
 Jackson D, Law M, Rücker G, Schwarzer G (2017): 
 The Hartung-Knapp modification for random-effects meta-analysis: A
