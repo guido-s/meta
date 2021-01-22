@@ -1,3 +1,13 @@
+## meta, version 4.16-1 (2021-01-19)
+
+### Bug fixes
+
+* For argument 'adhoc.hakn = "ci"', use correct query to determine
+  whether confidence interval of Hartung-Knapp method is smaller than
+  classic random effects meta-analysis ([Hybrid method 2 in Jackson et
+  al., 2017](https://doi.org/10.1002/sim.7411))
+
+
 ## meta, version 4.16-0 (2021-01-18)
 
 ### Major changes

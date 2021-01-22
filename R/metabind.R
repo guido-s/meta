@@ -516,6 +516,10 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     overall.hetstat <- FALSE
   }
   ##
+  if (length(unique(meth$hakn)) != 1) {
+    meth$hakn <- FALSE
+  }
+  ##
   if (length(unique(meth$method.tau)) != 1) {
     meth$method.tau <- ""
     show.studies <- FALSE

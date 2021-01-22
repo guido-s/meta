@@ -1921,7 +1921,7 @@ metagen <- function(TE, seTE, studlab,
         ## smaller
         ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
         ##
-        if (q > qnorm(alpha) / qt(alpha, df = df.hakn)) {
+        if (q < qnorm(alpha) / qt(alpha, df = df.hakn)) {
           seTE.random.hakn.orig <- seTE.random
           seTE.random <- sqrt(1 /  sum(w.random))
           df.hakn <- NULL
