@@ -1180,11 +1180,15 @@ metagen <- function(TE, seTE, studlab,
   ## Additional checks
   ##
   if (!by & tau.common) {
-    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    warning("Value for argument 'tau.common' set to FALSE as ",
+            "argument 'byvar' is missing.",
+            call. = FALSE)
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
-    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    warning("Argument 'tau.common' set to TRUE as ",
+            "argument tau.preset is not NULL.",
+            call. = FALSE)
     tau.common <- TRUE
   }
   if (!is.null(n.e))
@@ -1262,12 +1266,6 @@ metagen <- function(TE, seTE, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
   
   
   ##
@@ -1437,6 +1435,12 @@ metagen <- function(TE, seTE, studlab,
                 call. = FALSE)
       tau.common <- TRUE
     }
+  }
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
   }
   
   

@@ -409,7 +409,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   if (missing(ylim))
     ylim <-
       if (type == "pvalue") c(0, 1)
-      else if (type == "pvalue") c(qnorm(0.0005), 0)
+      else if (type == "zvalue") c(qnorm(0.0005), 0)
       else c(0, 12)
   else
     if (type == "pvalue") {
@@ -616,14 +616,23 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
         }
         ##
         if (subset.labels[i]) {
+          if (type != "surprisal") {
+            yval <- ylim[2] + 0.005 * abs(ylim[1] - ylim[2])
+            y.adj <- 0
+          }
+          else {
+            yval <- ylim[1] - 0.005 * abs(ylim[1] - ylim[2])
+            y.adj <- 1
+          }
+          ##
           if (labels != "") {
             if (srt.labels[i] == 0)
-              adj.i <- c(0.5, 0)
+              adj.i <- c(0.5, y.adj)
             else
-              adj.i <- if (srt.labels[i] > 0) c(1, 0) else c(0, 0)
+              adj.i <- if (srt.labels[i] > 0) c(1, y.adj) else c(0, y.adj)
             ##
             text(if (x.backtransf) exp(TE[i]) else TE[i],
-                 ylim[2] + 0.005 * abs(ylim[1] - ylim[2]),
+                 yval,
                  labels = if (labels == "id") seq.TE[i] else studlab[i],
                  col = col.labels[i], cex = cex.labels[i],
                  srt = srt.labels[i], adj = adj.i)
@@ -650,22 +659,25 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     ##
     ## Add p-value lines
     ##
-    for (alpha.i in y.alpha)
-      abline(h = alpha.i, lty = lty.alpha, lwd = lwd.alpha, col = col.alpha)
+    if (type != "surprisal")
+      for (alpha.i in y.alpha)
+        abline(h = alpha.i, lty = lty.alpha, lwd = lwd.alpha, col = col.alpha)
     ##
     ## Add text for alpha levels
     ##
-    for (i in seq(along = y.alpha))
-      text(mn, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-           paste("p =", alpha[i]),
-           cex = cex.alpha, col = col.alpha, adj = c(0, 0))
+    if (type != "surprisal")
+      for (i in seq(along = y.alpha))
+        text(mn, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
+             paste("p =", alpha[i]),
+             cex = cex.alpha, col = col.alpha, adj = c(0, 0))
     ##
     ## Add text for confidence levels
     ##
-    for (i in seq(along = y.alpha))
-      text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-           paste0(100 * (1 - alpha[i]), "%-CI"),
-           cex = cex.alpha, col = col.alpha, adj = c(1, 0))
+    if (type != "surprisal")
+      for (i in seq(along = y.alpha))
+        text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
+             paste0(100 * (1 - alpha[i]), "%-CI"),
+             cex = cex.alpha, col = col.alpha, adj = c(1, 0))
     ##
     ## Add legend
     ##
@@ -694,7 +706,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
            ...)
       axis(4, las = 1)
     }
-    else {
+    else if (type == "zvalue") {
       axis(4, las = 1,
            at = qnorm(c(0.001, 0.01, 0.05) / 2),
            labels = 1 - c(0.001, 0.01, 0.05))
@@ -703,7 +715,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
            labels = format(seq(0.8, 0, by = -0.2)))
     }
     ##
-    mtext("Confidence level", 4, line = 3)
+    if (type %in% c("pvalue", "zvalue"))
+      mtext("Confidence level", 4, line = 3)
   }
   
   

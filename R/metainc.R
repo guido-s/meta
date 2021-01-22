@@ -883,12 +883,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
   
   
   ##
@@ -988,6 +982,12 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   time.e  <- int2num(time.e)
   event.c <- int2num(event.c)
   time.c  <- int2num(time.c)
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
   
   
   ##

@@ -662,12 +662,6 @@ metacor <- function(cor, n, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
   
   
   ##
@@ -739,6 +733,12 @@ metacor <- function(cor, n, studlab,
   ##
   chknumeric(cor, -1, 1)
   chknumeric(n, 0, zero = TRUE)
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
   
   
   ##

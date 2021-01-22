@@ -813,12 +813,6 @@ metarate <- function(event, time, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
   
   
   ##
@@ -900,6 +894,12 @@ metarate <- function(event, time, studlab,
   ##
   event <- int2num(event)
   time  <- int2num(time)
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
   
   
   ##

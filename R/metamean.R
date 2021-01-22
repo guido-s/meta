@@ -872,12 +872,6 @@ metamean <- function(n, mean, sd, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
   
   
   ##
@@ -1010,6 +1004,12 @@ metamean <- function(n, mean, sd, studlab,
     min <- int2num(min)
   if (!missing.max)
     max <- int2num(max)
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
   
   
   ##

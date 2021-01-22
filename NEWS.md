@@ -1,3 +1,19 @@
+## meta, version 4.16-2 (2021-mm-dd)
+
+### Bug fixes
+
+* drapery():
+  - use correct limits on y-axis for argument 'type = "zvalue"'
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metagen(), metagen(), metainc(),
+  metamean(), metaprop(), metarate():
+  - studies with missing values for subgroup variable (argument
+    'byvar') can be excluded from meta-analysis using argument
+    'subset'
+
+
 ## meta, version 4.16-1 (2021-01-19)
 
 ### Bug fixes

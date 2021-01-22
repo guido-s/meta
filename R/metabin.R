@@ -1160,14 +1160,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  ##
-  if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-  }
-
-
+  
+  
   ##
   ##
   ## (5) Store complete dataset in list object data
@@ -1255,8 +1249,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.e     <- int2num(n.e)
   event.c <- int2num(event.c)
   n.c     <- int2num(n.c)
-
-
+  ##
+  if (by) {
+    chkmiss(byvar)
+    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
+    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+  }
+  
+  
   ##
   ##
   ## (7) Calculate results for individual studies
