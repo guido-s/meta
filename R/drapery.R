@@ -511,10 +511,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     y.alpha <- qnorm(y.alpha / 2)
   }
   else if (type == "surprisal") {
-    y.fixed <- -log(y.fixed)
-    y.random <- -log(y.random)
-    y.predict <- -log(y.predict)
-    y.alpha <- -log(y.alpha)
+    y.fixed <- -log(y.fixed, base = 2)
+    y.random <- -log(y.random, base = 2)
+    y.predict <- -log(y.predict, base = 2)
+    y.alpha <- -log(y.alpha, base = 2)
   }
   ##
   sel.fixed <- y.fixed >= min(ylim)
@@ -596,7 +596,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
         if (type == "zvalue")
           y.i <- qnorm(y.i / 2)
         else if (type == "surprisal")
-          y.i <- -log(y.i)
+          y.i <- -log(y.i, base = 2)
         sel.i <- y.i >= min(ylim)
         lines(x.grid[sel.i], y.i[sel.i],
               lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
