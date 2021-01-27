@@ -1,4 +1,4 @@
-## meta, version 4.16-2 (2021-mm-dd)
+## meta, version 4.16-2 (2021-01-27)
 
 ### Bug fixes
 
@@ -7,11 +7,25 @@
 
 ### User-visible changes
 
+* funnel.meta():
+  - inverse of square root of sample size can be plotted on y-axis
+    (argument 'yaxis = "invsqrtsize"')
+
+* forest.meta():
+  - consider input for argument 'hetstat' to print heterogeneity
+    statistics for overall results (see argument 'overall.hetstat')
+
 * metabin(), metacont(), metacor(), metagen(), metagen(), metainc(),
   metamean(), metaprop(), metarate():
   - studies with missing values for subgroup variable (argument
     'byvar') can be excluded from meta-analysis using argument
     'subset'
+
+### Internal changes
+
+* funnel.meta():
+  - try to derive sample sizes from list elements 'n.e' or 'n.c' if
+    argument 'size = "size"'
 
 
 ## meta, version 4.16-1 (2021-01-19)

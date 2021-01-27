@@ -537,16 +537,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$method.tau <- meta2$method.tau
     res$method.tau.ci <- meta2$method.tau.ci    
     ##
-    if (is.limit) {
-      res$tau <- meta2$tau
-      res$lower.tau <- NA
-      res$upper.tau <- NA
-      res$tau2 <- meta2$tau^2
-      res$lower.tau2 <- NA
-      res$upper.tau2 <- NA
-      res$se.tau <- NA
-    }
-    else if (is.copas) {
+    if (is.copas) {
       res$tau <- meta2$tau.adjust
       res$lower.tau <- NA
       res$upper.tau <- NA
@@ -576,18 +567,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   }
   ##
   if (pooled1 == "random" & pooled2 == "random") {
-    if (is.limit) {
-      res$tau <- c(res$tau, meta2$tau)
-      res$lower.tau <- c(res$lower.tau, NA)
-      res$upper.tau <- c(res$upper.tau, NA)
-      res$tau2 <- c(res$tau2, meta2$tau^2)
-      res$lower.tau2 <- c(res$lower.tau2, NA)
-      res$upper.tau2 <- c(res$upper.tau2, NA)
-      res$se.tau <- c(res$se.tau, NA)
-      ##
-      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
-    }
-    else if (is.copas) {
+    if (is.copas) {
       if (res$method.tau != "ML" & res$detail.tau == "") {
         res$detail.tau <- res$method.tau
         res$method.tau <- ""
@@ -596,7 +576,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$tau <- c(res$tau, meta2$tau.adjust)
       res$lower.tau <- c(res$lower.tau, NA)
       res$upper.tau <- c(res$upper.tau, NA)
-      res$tau2 <- c(res$tau, meta2$tau.adjust^2)
+      res$tau2 <- c(res$tau2, meta2$tau.adjust^2)
       res$lower.tau2 <- c(res$lower.tau2, NA)
       res$upper.tau2 <- c(res$upper.tau2, NA)
       res$se.tau <- c(res$se.tau, NA)

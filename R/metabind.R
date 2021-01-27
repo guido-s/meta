@@ -145,6 +145,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       stop("All elements of argument '...' must be of ",
            "class 'meta'.",
            call. = FALSE)
+    ##
+    if (inherits(args[[i]], "metabind"))
+      stop("Elements of argument '...' may not be of ",
+           "class 'metabind'.",
+           call. = FALSE)
   }
   
   
@@ -154,14 +159,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     if (!inherits(args[[i]], "meta"))
       stop("All elements of argument '...' must be of class 'meta'.",
            call. = FALSE)
-    else
-      args[[i]] <- update(args[[i]])
     ##
     if (!is.null(args[[i]]$byvar))
       is.subgroup[i] <- TRUE
   }
-
-
+  
+  
   print.warning1 <- FALSE
   print.warning2 <- FALSE
   print.warning3 <- FALSE
@@ -206,10 +209,107 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       name <- paste0("meta", n.i)
     }
   }
-
-
+  
+  
   for (i in n.i) {
     m.i <- args[[i]]
+    ##
+    meth.i <- data.frame(sm = m.i$sm,
+                         method = m.i$method,
+                         level = m.i$level.comb,
+                         level.comb = m.i$level.comb,
+                         level.predict = m.i$level.predict,
+                         comb.fixed = m.i$comb.fixed,
+                         comb.random = m.i$comb.random,
+                         hakn = m.i$hakn,
+                         method.tau = m.i$method.tau,
+                         tau.preset = replace.NULL(m.i$tau.preset),
+                         TE.tau = replace.NULL(m.i$TE.tau),
+                         tau.common = m.i$tau.common,
+                         prediction = m.i$prediction,
+                         method.bias = "",
+                         null.effect = m.i$null.effect,
+                         ##
+                         title = m.i$title,
+                         complab = m.i$complab,
+                         outclab = if (missing(outclab)) m.i$outclab else outclab,
+                         label.e = m.i$label.e,
+                         label.c = m.i$label.c,
+                         label.left = m.i$label.left,
+                         label.right = m.i$label.right,
+                         ##
+                         print.byvar = FALSE,
+                         byseparator = "",
+                         warn = replace.NULL(m.i$warn, FALSE),
+                         ##
+                         backtransf = m.i$backtransf,
+                         pscale = m.i$pscale,
+                         irscale = m.i$irscale,
+                         irunit = replace.NULL(m.i$ir.unit),
+                         ##
+                         stringsAsFactors = FALSE)
+    ##
+    if (i == 1)
+      meth <- meth.i
+    else
+      meth <- rbind(meth, meth.i)
+  }
+  ##
+  ## Unify some settings
+  ##
+  if (missing(pooled)) {
+    if (all(meth$comb.fixed) & all(!meth$comb.random))
+      pooled <- "fixed"
+    else if (all(!meth$comb.fixed) & all(meth$comb.random))
+      pooled <- "random"
+    else {
+      if (any(meth$comb.fixed)) {
+        warning3 <-
+          paste("Note, results from random effects model extracted.",
+                "Use argument pooled = \"fixed\" for results of",
+                "fixed effect model.")
+        print.warning3 <- TRUE
+      }
+      pooled <- "random"
+    }
+  }
+  ##
+  if (pooled == "fixed") {
+    meth$comb.fixed <- TRUE
+    meth$comb.random <- FALSE
+  }
+  else {
+    meth$comb.fixed <- FALSE
+    meth$comb.random <- TRUE
+  }
+  
+  
+  for (i in n.i) {
+    m.i <- args[[i]]
+    ##
+    if (length(m.i$tau) > 1)
+      if (pooled == "random") {
+        m.i$tau <- m.i$tau[2]
+        m.i$tau2 <- m.i$tau2[2]
+        ##
+        if (length(m.i$lower.tau) > 1) {
+          m.i$lower.tau <- m.i$lower.tau[2]
+          m.i$upper.tau <- m.i$upper.tau[2]
+          m.i$lower.tau2 <- m.i$lower.tau2[2]
+          m.i$upper.tau2 <- m.i$upper.tau2[2]
+        }
+      }
+      else {
+        m.i$tau <- m.i$tau[1]
+        m.i$tau2 <- m.i$tau2[1]
+        ##
+        if (length(m.i$lower.tau) > 1) {
+          m.i$lower.tau <- m.i$lower.tau[1]
+          m.i$upper.tau <- m.i$upper.tau[1]
+          m.i$lower.tau2 <- m.i$lower.tau2[1]
+          m.i$upper.tau2 <- m.i$upper.tau2[1]
+        }
+      } 
     ##
     subgroup.i <- data.frame(TE.fixed.w = m.i$TE.fixed,
                              seTE.fixed.w = m.i$seTE.fixed,
@@ -228,8 +328,10 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              df.hakn.w = replace.NULL(m.i$df.hakn),
                              w.random.w = 0, # sum(m.i$w.random),
                              ##
-                             n.harmonic.mean.w = 1 / mean(1 / replace.NULL(m.i$n)),
-                             t.harmonic.mean.w = 1 / mean(1 / replace.NULL(m.i$time)),
+                             n.harmonic.mean.w =
+                               1 / mean(1 / replace.NULL(m.i$n)),
+                             t.harmonic.mean.w =
+                               1 / mean(1 / replace.NULL(m.i$time)),
                              ##
                              n.e.w = sum(replace.NULL(m.i$n.e)),
                              n.c.w = sum(replace.NULL(m.i$n.c)),
@@ -408,84 +510,21 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             ##
                             stringsAsFactors = FALSE)
     ##
-    meth.i <- data.frame(sm = m.i$sm,
-                         method = m.i$method,
-                         level = m.i$level.comb,
-                         level.comb = m.i$level.comb,
-                         level.predict = m.i$level.predict,
-                         comb.fixed = m.i$comb.fixed,
-                         comb.random = m.i$comb.random,
-                         hakn = m.i$hakn,
-                         method.tau = m.i$method.tau,
-                         tau.preset = replace.NULL(m.i$tau.preset),
-                         TE.tau = replace.NULL(m.i$TE.tau),
-                         tau.common = m.i$tau.common,
-                         prediction = m.i$prediction,
-                         method.bias = "",
-                         null.effect = m.i$null.effect,
-                         ##
-                         title = m.i$title,
-                         complab = m.i$complab,
-                         outclab = if (missing(outclab)) m.i$outclab else outclab,
-                         label.e = m.i$label.e,
-                         label.c = m.i$label.c,
-                         label.left = m.i$label.left,
-                         label.right = m.i$label.right,
-                         ##
-                         print.byvar = FALSE,
-                         byseparator = "",
-                         warn = replace.NULL(m.i$warn, FALSE),
-                         ##
-                         backtransf = m.i$backtransf,
-                         pscale = m.i$pscale,
-                         irscale = m.i$irscale,
-                         irunit = replace.NULL(m.i$ir.unit),
-                         ##
-                         stringsAsFactors = FALSE)
-    ##
     if (i == 1) {
       data <- data.i
       overall <- overall.i
       subgroup <- subgroup.i
-      meth <- meth.i
     }
     else {
       data <- rbind(data, data.i)
       overall <- rbind(overall, overall.i)
       subgroup <- rbind(subgroup, subgroup.i)
-      meth <- rbind(meth, meth.i)
     }
   }
   
   
-  ## Unify some settings
+  ## Unify more settings
   ##
-  if (missing(pooled)) {
-    if (all(meth$comb.fixed) & all(!meth$comb.random))
-      pooled <- "fixed"
-    else if (all(!meth$comb.fixed) & all(meth$comb.random))
-      pooled <- "random"
-    else {
-      if (any(meth$comb.fixed)) {
-        warning3 <-
-          paste("Note, results from random effects model extracted.",
-                "Use argument pooled = \"fixed\" for results of",
-                "fixed effect model.")
-        print.warning3 <- TRUE
-      }
-      pooled <- "random"
-    }
-  }
-  ##
-  if (pooled == "fixed") {
-    meth$comb.fixed <- TRUE
-    meth$comb.random <- FALSE
-  }
-  else {
-    meth$comb.fixed <- FALSE
-    meth$comb.random <- TRUE
-  }
-  ##  
   if (missing(backtransf)) {
     if (any(meth$backtransf))
       meth$backtransf <- TRUE

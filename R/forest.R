@@ -1031,20 +1031,20 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat = print.I2 | print.tau2 | print.tau |
-                          print.Q | print.pval.Q | print.Rb,
+                        hetstat =
+                          comb.fixed | comb.random | overall.hetstat,
                         overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat,
                         resid.hetlab = "Residual heterogeneity: ",
-                        print.I2 = comb.fixed | comb.random,
+                        print.I2,
                         print.I2.ci = FALSE,
-                        print.tau2 = comb.fixed | comb.random,
+                        print.tau2,
                         print.tau2.ci = FALSE,
                         print.tau = FALSE,
                         print.tau.ci = FALSE,
                         print.Q = FALSE,
-                        print.pval.Q = comb.fixed | comb.random,
+                        print.pval.Q,
                         print.Rb = FALSE,
                         print.Rb.ci = FALSE,
                         text.subgroup.nohet = "not applicable",
@@ -1365,10 +1365,31 @@ forest.meta <- function(x,
   chkcolor(col.inside.random)
   chkcolor(col.predict)
   chkcolor(col.predict.lines)
-  chklogical(print.I2)
+  ##
+  missing.hetstat <- missing(hetstat)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  ##
+  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
+  chklogical(overall.hetstat)
+  ##
+  if (missing(print.I2))
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print.I2 <- TRUE
+    else
+      print.I2 <- FALSE
+  else
+    chklogical(print.I2)
+  ##
   chklogical(print.I2.ci)
   ##
-  chklogical(print.tau2)
+  if (missing(print.tau2))
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print.tau2 <- TRUE
+    else
+      print.tau2 <- FALSE
+  else
+    chklogical(print.tau2)
+  ##
   chklogical(print.tau2.ci)
   chklogical(print.tau)
   chklogical(print.tau.ci)
@@ -1379,7 +1400,15 @@ forest.meta <- function(x,
     print.tau2.ci <- FALSE
   ##
   chklogical(print.Q)
-  chklogical(print.pval.Q)
+  ##
+  if (missing(print.pval.Q))
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print.pval.Q <- TRUE
+    else
+      print.pval.Q <- FALSE
+  else
+    chklogical(print.pval.Q)
+  ##
   chklogical(print.Rb)
   chklogical(print.Rb.ci)
   if (!is.logical(text.subgroup.nohet))
@@ -1409,12 +1438,15 @@ forest.meta <- function(x,
     overall <- TRUE
   }
   ##
-  if (missing(overall.hetstat) & is.character(hetstat))
-    overall.hetstat <- FALSE
-  else {
-    overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
-    chklogical(overall.hetstat)
+  if (missing.overall.hetstat) {
+    if (!missing.hetstat)
+      if (is.character(hetstat))
+        overall.hetstat <- FALSE
+      else
+        overall.hetstat <- hetstat
   }
+  else
+    chklogical(overall.hetstat)
   ##
   chklogical(LRT)
   if (LRT & x$method != "GLMM") {

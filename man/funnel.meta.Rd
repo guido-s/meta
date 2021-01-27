@@ -101,7 +101,8 @@ logarithmic.}
 
 \item{yaxis}{A character string indicating which type of weights
 are to be used. Either \code{"se"}, \code{"invvar"},
-\code{"invse"}, code{"size"}, or code{"ess"}.}
+\code{"invse"}, code{"size"}, code{"invsqrtsize"}, or
+code{"ess"}.}
 
 \item{contour.levels}{A numeric vector specifying contour levels to
 produce contour-enhanced funnel plot.}
@@ -113,7 +114,7 @@ contour-enhanced funnel plot.}
 
 \item{level}{The confidence level utilised in the plot. For the
 funnel plot, confidence limits are not drawn if
-\code{yaxis="size"}.}
+\code{yaxis="size"} or \code{yaxis="invsqrtsize"}.}
 
 \item{studlab}{A logical indicating whether study labels should be
 printed in the graph. A vector with study labels can also be
@@ -147,7 +148,8 @@ transformed in funnel plots. If \code{backtransf=TRUE}, results
 for \code{sm="OR"} are printed as odds ratios rather than log
 odds ratios, for example.}
 
-\item{\dots}{Additional graphical arguments (ignored at the moment).}
+\item{\dots}{Additional graphical arguments (ignored at the
+moment).}
 }
 \description{
 Draw a funnel plot which can be used to assess small study effects
@@ -172,16 +174,16 @@ is meta-analysis of diagnostic test accuracy studies (Deeks et al.,
 2005) where the inverse of the square root of the \emph{effective
 study size} is used (\code{yaxis = "ess"}). Other possible choices
 for \code{yaxis} are \code{"invvar"} (inverse of the variance),
-\code{"invse"} (inverse of the standard error), and \code{"size"}
-(study size).
+\code{"invse"} (inverse of the standard error), \code{"size"}
+(study size), and \code{"invsqrtsize"} (1 / sqrt(study size)).
 
-If argument \code{yaxis} is not equal to \code{"size"} or
-\code{"ess"}, contour-enhanced funnel plots can be produced (Peters
-et al., 2008) by specifying the contour levels (argument
-\code{contour.levels}). By default (argument \code{col.contour}
-missing), suitable gray levels will be used to distinguish the
-contours. Different colours can be chosen by argument
-\code{col.contour}.
+If argument \code{yaxis} is not equal to \code{"size"},
+\code{"invsqrtsize"} or \code{"ess"}, contour-enhanced funnel plots
+can be produced (Peters et al., 2008) by specifying the contour
+levels (argument \code{contour.levels}). By default (argument
+\code{col.contour} missing), suitable gray levels will be used to
+distinguish the contours. Different colours can be chosen by
+argument \code{col.contour}.
 }
 \examples{
 data(Olkin1995)

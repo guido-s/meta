@@ -42,7 +42,8 @@
 #'   logarithmic.
 #' @param yaxis A character string indicating which type of weights
 #'   are to be used. Either \code{"se"}, \code{"invvar"},
-#'   \code{"invse"}, code{"size"}, or code{"ess"}.
+#'   \code{"invse"}, code{"size"}, code{"invsqrtsize"}, or
+#'   code{"ess"}.
 #' @param contour.levels A numeric vector specifying contour levels to
 #'   produce contour-enhanced funnel plot.
 #' @param col.contour Colour of contours.
@@ -50,7 +51,7 @@
 #'   contour-enhanced funnel plot.
 #' @param level The confidence level utilised in the plot. For the
 #'   funnel plot, confidence limits are not drawn if
-#'   \code{yaxis="size"}.
+#'   \code{yaxis="size"} or \code{yaxis="invsqrtsize"}.
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$TE} then).
@@ -74,7 +75,8 @@
 #'   transformed in funnel plots. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
 #'   odds ratios, for example.
-#' @param \dots Additional graphical arguments (ignored at the moment).
+#' @param \dots Additional graphical arguments (ignored at the
+#'   moment).
 #' 
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
@@ -94,16 +96,16 @@
 #' 2005) where the inverse of the square root of the \emph{effective
 #' study size} is used (\code{yaxis = "ess"}). Other possible choices
 #' for \code{yaxis} are \code{"invvar"} (inverse of the variance),
-#' \code{"invse"} (inverse of the standard error), and \code{"size"}
-#' (study size).
+#' \code{"invse"} (inverse of the standard error), \code{"size"}
+#' (study size), and \code{"invsqrtsize"} (1 / sqrt(study size)).
 #' 
-#' If argument \code{yaxis} is not equal to \code{"size"} or
-#' \code{"ess"}, contour-enhanced funnel plots can be produced (Peters
-#' et al., 2008) by specifying the contour levels (argument
-#' \code{contour.levels}). By default (argument \code{col.contour}
-#' missing), suitable gray levels will be used to distinguish the
-#' contours. Different colours can be chosen by argument
-#' \code{col.contour}.
+#' If argument \code{yaxis} is not equal to \code{"size"},
+#' \code{"invsqrtsize"} or \code{"ess"}, contour-enhanced funnel plots
+#' can be produced (Peters et al., 2008) by specifying the contour
+#' levels (argument \code{contour.levels}). By default (argument
+#' \code{col.contour} missing), suitable gray levels will be used to
+#' distinguish the contours. Different colours can be chosen by
+#' argument \code{col.contour}.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}, Petra
 #'   Graham \email{pgraham@@efs.mq.edu.au}
@@ -245,7 +247,9 @@ funnel.meta <- function(x,
       yaxis <- "ess"
     else
       yaxis <- "se"
-  yaxis <- setchar(yaxis, c("se", "size", "invvar", "invse", "ess"))
+  ##
+  yaxis <- setchar(yaxis, c("se", "invse", "invvar",
+                            "size", "invsqrtsize", "ess"))
   ##
   if (!is.null(contour.levels))
     chklevel(contour.levels, length = 0, ci = FALSE)
@@ -372,10 +376,13 @@ funnel.meta <- function(x,
   ##
   ## y-value: weight
   ##
-  if (yaxis == "invvar") weight <- 1 / seTE^2
-  if (yaxis == "invse")  weight <- 1 / seTE
-  if (yaxis == "se") weight <- seTE
-  if (yaxis == "size")
+  if (yaxis == "se")
+    weight <- seTE
+  else if (yaxis == "invse")
+    weight <- 1 / seTE
+  else if (yaxis == "invvar")
+    weight <- 1 / seTE^2
+  else if (yaxis %in% c("size", "invsqrtsize")) {
     if (inherits(x, "metabin") || inherits(x, "metacont"))
       weight <- floor(x$n.e) + floor(x$n.c)
     else if (length(x$n.e) > 0 & length(x$n.c) > 0)
@@ -384,10 +391,15 @@ funnel.meta <- function(x,
       weight <- floor(x$n)
     else if (length(x$n) > 0)
       weight <- floor(x$n)
+    else if (length(x$n.e) > 0)
+      weight <- floor(x$n.e)
+    else if (length(x$n.c) > 0)
+      weight <- floor(x$n.c)
     else
       stop("No information on sample size available in object '",
            x.name, "'.")
-  if (yaxis == "ess") {
+  }
+  else if (yaxis == "ess") {
     if (inherits(x, "metabin") || inherits(x, "metacont"))
       weight <- 4 * floor(x$n.e) * floor(x$n.c) /
         (floor(x$n.e) + floor(x$n.c))
@@ -397,8 +409,10 @@ funnel.meta <- function(x,
     else
       stop("No information on sample size available in object '",
            x.name, "'.")
-    weight <- 1 / sqrt(weight)
   }
+  ##
+  if (yaxis %in% c("invsqrtsize", "ess"))
+    weight <- 1 / sqrt(weight)
   ##
   ## x-axis: labels / xlim
   ##
@@ -420,13 +434,20 @@ funnel.meta <- function(x,
   ##
   ## y-axis: labels / ylim
   ##
-  if (yaxis == "se"     & is.null(ylab)) ylab <- "Standard Error"
-  if (yaxis == "size"   & is.null(ylab)) ylab <- "Study Size"
-  if (yaxis == "invvar" & is.null(ylab)) ylab <- "Inverse of Variance"
-  if (yaxis == "invse"  & is.null(ylab)) ylab <- "Inverse of Standard Error"
-  if (yaxis == "ess"    & is.null(ylab)) ylab <- "1 / root(Effective Study Size)"
+  if (yaxis == "se" & is.null(ylab))
+    ylab <- "Standard Error"
+  else if (yaxis == "invse" & is.null(ylab))
+    ylab <- "Inverse of Standard Error"
+  else if (yaxis == "invvar" & is.null(ylab))
+    ylab <- "Inverse of Variance"
+  else if (yaxis == "size" & is.null(ylab))
+    ylab <- "Study Size"
+  else if (yaxis == "invsqrtsize" & is.null(ylab))
+    ylab <- "1 / root(Study Size)"
+  else if (yaxis == "ess" & is.null(ylab))
+    ylab <- "1 / root(Effective Study Size)"
   ##
-  if (is.null(ylim) & yaxis %in% c("se", "ess"))
+  if (is.null(ylim) & yaxis %in% c("se", "invsqrtsize", "ess"))
     ylim <- c(max(weight, na.rm = TRUE), 0)
   if (is.null(ylim)) ylim <- range(weight, na.rm = TRUE)
   
@@ -442,7 +463,8 @@ funnel.meta <- function(x,
   ##
   ## Add contour shades (enhanced funnel plots)
   ##
-  if (!is.null(contour.levels) & yaxis != "size") {
+  if (!is.null(contour.levels) &
+      !(yaxis %in% c("size", "invsqrtsize", "ess"))) {
     ##
     if (missing(col.contour))
       if (length(contour.levels) < 2)
@@ -589,19 +611,19 @@ funnel.meta <- function(x,
         points(tupp, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
       }
-      else if (yaxis == "invvar") {
-        points(tlow, 1 / seTE.seq^2, type = "l",
-               lty = lty.lines, lwd = lwd.lines,
-               col = col.lines)
-        points(tupp, 1 / seTE.seq^2, type = "l",
-               lty = lty.lines, lwd = lwd.lines,
-               col = col.lines)
-      }
       else if (yaxis == "invse") {
         points(tlow, 1 / seTE.seq, type = "l",
                lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
         points(tupp, 1 / seTE.seq, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
+      }
+      else if (yaxis == "invvar") {
+        points(tlow, 1 / seTE.seq^2, type = "l",
+               lty = lty.lines, lwd = lwd.lines,
+               col = col.lines)
+        points(tupp, 1 / seTE.seq^2, type = "l",
                lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
       }
@@ -617,16 +639,16 @@ funnel.meta <- function(x,
         points(tupp, seTE.seq, type = "l", lty = lty.ref.triangle,
                lwd = lwd.ref, col = col.ref)
       }
-      else if (yaxis == "invvar") {
-        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
-               lwd = lwd.ref, col = col.ref)
-        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
-               lwd = lwd.ref, col = col.ref)
-      }
       else if (yaxis == "invse") {
         points(tlow, 1 / seTE.seq, type = "l", lty = lty.ref.triangle,
                lwd = lwd.ref, col = col.ref)
         points(tupp, 1 / seTE.seq, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
+      }
+      else if (yaxis == "invvar") {
+        points(tlow, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
+               lwd = lwd.ref, col = col.ref)
+        points(tupp, 1 / seTE.seq^2, type = "l", lty = lty.ref.triangle,
                lwd = lwd.ref, col = col.ref)
       }
     }
@@ -645,7 +667,8 @@ funnel.meta <- function(x,
   ##
   res <- list(xlim = xlim, ylim = ylim)
   ##
-  if (!is.null(contour.levels) & yaxis != "size")
+  if (!is.null(contour.levels) &
+      !(yaxis %in% c("size", "invsqrtsize", "ess")))
     res$col.contour <- col.contour
   
   
