@@ -25,7 +25,7 @@
 
 * funnel.meta():
   - try to derive sample sizes from list elements 'n.e' or 'n.c' if
-    argument 'size = "size"'
+    argument 'yaxis = "size"'
 
 
 ## meta, version 4.16-1 (2021-01-19)

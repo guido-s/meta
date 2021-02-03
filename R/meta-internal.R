@@ -151,7 +151,7 @@ setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
 ##
 setOption("meth4bias", c("rank", "linreg", "mm", "count", "score",
-                         "peters", "deeks"))
+                         "peters", "deeks", "pustejovsky"))
 ##
 ## List of arguments that can be changed by user
 ##

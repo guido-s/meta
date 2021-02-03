@@ -575,15 +575,15 @@ print.meta <- function(x,
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
-          cat("\nInfluential analysis (Fixed effect model)\n")
+          cat("Influential analysis (Fixed effect model)\n")
         else
-          cat("\nInfluential analysis (Random effects model)\n")
+          cat("Influential analysis (Random effects model)\n")
       }
       else if (inherits(x, "metacum")) {
         if (!is.random)
-          cat("\nCumulative meta-analysis (Fixed effect model)\n")
+          cat("Cumulative meta-analysis (Fixed effect model)\n")
         else
-          cat("\nCumulative meta-analysis (Random effects model)\n")
+          cat("Cumulative meta-analysis (Random effects model)\n")
       }
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")

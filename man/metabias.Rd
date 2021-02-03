@@ -16,7 +16,17 @@
   ...
 )
 
-\method{print}{metabias}(x, ...)
+\method{print}{metabias}(
+  x,
+  digits.stat = max(gs("digits.stat"), 4),
+  digits.se = gs("digits.se"),
+  digits.pval = max(gs("digits.pval"), 2),
+  scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"),
+  zero.pval = gs("zero.pval"),
+  JAMA.pval = gs("JAMA.pval"),
+  ...
+)
 
 metabias(x, ...)
 
@@ -36,8 +46,8 @@ effect in individual studies.}
 
 \item{method.bias}{A character string indicating which test is to
 be used.  Either \code{"rank"}, \code{"linreg"}, \code{"mm"},
-\code{"count"}, \code{"score"}, \code{"peters"}, or
-\code{"deeks"}, can be abbreviated.}
+\code{"count"}, \code{"score"}, \code{"peters"},
+\code{"pustejovsky"}, or \code{"deeks"}, can be abbreviated.}
 
 \item{plotit}{A logical indicating whether a plot should be
 produced for method.bias \code{"rank"}, \code{"linreg"},
@@ -52,12 +62,36 @@ plot asymmetry.}
 
 \item{\dots}{Additional arguments (ignored at the moment).}
 
+\item{digits.stat}{Minimal number of significant digits for z- or
+t-value of test for test of funnel plot asymmetry, see
+\code{print.default}.}
+
+\item{digits.se}{Minimal number of significant digits for standard
+errors, see \code{print.default}.}
+
+\item{digits.pval}{Minimal number of significant digits for p-value
+of test for test of funnel plot asymmetry, see
+\code{print.default}.}
+
+\item{scientific.pval}{A logical specifying whether p-values should
+be printed in scientific notation, e.g., 1.2345e-01 instead of
+0.12345.}
+
+\item{big.mark}{A character used as thousands separator.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
+
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
+
 \item{seTE}{Standard error of estimated treatment effect (mandatory
 if \code{x} not of class \code{meta}).}
 }
 \value{
-A list with class \code{htest} containing the following components
-if a test for funnel plot asymmetry is conducted:
+A list with class \code{metabias} containing the following
+components if a test for funnel plot asymmetry is conducted:
 \item{estimate}{The estimated degree of funnel plot asymmetry, with
   name \code{"ks"} or \code{"bias"} corresponding to the method
   employed, i.e., rank correlation or regression method.}
@@ -69,7 +103,6 @@ if a test for funnel plot asymmetry is conducted:
   hypothesis.}
 \item{method}{A character string indicating what type of text.was
   used.}
-\item{data.name}{A character string giving the names of the data.}
   \item{title}{Title of Cochrane review.}
 \item{complab}{Comparison label.}
 \item{outclab}{Outcome label.}
@@ -164,6 +197,16 @@ statistic follows a t distribution with \code{number of studies -
 2} degrees of freedom.
 }
 
+\subsection{Test for the standardised mean difference}{
+If argument \code{method.bias} is \code{"pustejovsky"}, the test
+statistic is based on a weighted linear regression of the treatment
+effect on the square root of the sum of the inverse group sample
+sizes using the treatment effect variance as weights (Pustejovsky &
+Rodgers, 2019). The test statistic follows a t distribution with
+\code{number of studies - 2} degrees of freedom.
+}
+
+
 \subsection{Recommendations and default settings}{
 Following recommendations by Sterne et al. (2011), by default, a
 test for funnel plot asymmetry is only conducted if the number of
@@ -256,6 +299,11 @@ meta-analysis.
 \emph{Journal of the American Medical Association},
 \bold{295}, 676--80
 
+Pustejovsky JE, Rodgers MA (2019):
+Testing for funnel plot asymmetry of standardized mean differences.
+\emph{Research Synthesis Methods},
+\bold{10}, 57--71
+
 Rücker G, Schwarzer G, Carpenter JR (2008):
 Arcsine test for publication bias in meta-analyses with binary
 outcomes.
@@ -287,4 +335,3 @@ Explaining heterogeneity in meta-analysis: a comparison of methods,
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
 }
-\keyword{htest}
