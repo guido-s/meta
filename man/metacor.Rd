@@ -127,8 +127,9 @@ interval for a new study.}
 null hypothesis.}
 
 \item{method.bias}{A character string indicating which test is to
-be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-can be abbreviated.  See function \code{\link{metabias}}}
+be used. Either \code{"Begg"}, \code{"Egger"}, or
+\code{"Thompson"}, can be abbreviated. See function
+\code{\link{metabias}}.}
 
 \item{backtransf}{A logical indicating whether results for Fisher's
 z transformed correlations (\code{sm = "ZCOR"}) should be back

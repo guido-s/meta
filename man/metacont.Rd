@@ -241,8 +241,9 @@ interval should be printed.}
 interval for a new study.}
 
 \item{method.bias}{A character string indicating which test is to
-be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-can be abbreviated.  See function \code{\link{metabias}}}
+be used. Either \code{"Begg"}, \code{"Egger"}, \code{"Thompson"},
+or \code{"Pustejovsky"}, can be abbreviated. See function
+\code{\link{metabias}}.}
 
 \item{backtransf}{A logical indicating whether results for ratio of
 means (\code{sm="ROM"}) should be back transformed in printouts

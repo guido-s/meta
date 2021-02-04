@@ -79,8 +79,9 @@
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
-#'   be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-#'   can be abbreviated.  See function \code{\link{metabias}}.
+#'   be used. Either \code{"Begg"}, \code{"Egger"}, or
+#'   \code{"Thompson"}, can be abbreviated. See function
+#'   \code{\link{metabias}}.
 #' @param backtransf A logical indicating whether results for
 #'   transformed proportions (argument \code{sm != "PRAW"}) should be
 #'   back transformed in printouts and plots. If TRUE (default),
@@ -909,7 +910,7 @@ metaprop <- function(event, n, studlab,
   if (!anyNA(null.effect) | length(null.effect) != 1)
     chknumeric(null.effect, min = 0, max = 1, length = 1)
   ##
-  method.bias <- setchar(method.bias, .settings$meth4bias)
+  method.bias <- setmethodbias(method.bias)
   ##
   chklogical(backtransf)
   ##

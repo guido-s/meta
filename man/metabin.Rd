@@ -40,7 +40,7 @@ metabin(
   tau.common = gs("tau.common"),
   prediction = gs("prediction"),
   level.predict = gs("level.predict"),
-  method.bias = ifelse(sm == "OR", "score", ifelse(sm == "DOR", "deeks",
+  method.bias = ifelse(sm == "OR", "Harbord", ifelse(sm == "DOR", "Deeks",
     gs("method.bias"))),
   backtransf = gs("backtransf"),
   pscale = 1,
@@ -196,10 +196,10 @@ interval should be printed.}
 interval for a new study.}
 
 \item{method.bias}{A character string indicating which test for
-funnel plot asymmetry is to be used. Either \code{"rank"},
-\code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-\code{"peters"}, can be abbreviated. See function
-\code{\link{metabias}.}}
+funnel plot asymmetry is to be used. Either \code{"Begg"},
+\code{"Egger"}, \code{"Thompson"}, \code{"Schwarzer"},
+\code{"Harbord"}, \code{"Peters"}, or \code{"Deeks"}, can be
+abbreviated. See function \code{\link{metabias}.}}
 
 \item{backtransf}{A logical indicating whether results for odds
 ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or

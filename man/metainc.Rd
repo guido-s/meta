@@ -164,10 +164,10 @@ interval should be printed.}
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
 
-\item{method.bias}{A character string indicating which test for
-funnel plot asymmetry is to be used. Either \code{"linreg"} or
-\code{"rank"}, can be abbreviated. See function
-\code{\link{metabias}}}
+\item{method.bias}{A character string indicating which test is to
+be used. Either \code{"Begg"}, \code{"Egger"}, or
+\code{"Thompson"}, can be abbreviated. See function
+\code{\link{metabias}}.}
 
 \item{n.e}{Number of observations in experimental group (optional).}
 

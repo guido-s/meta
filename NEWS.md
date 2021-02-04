@@ -1,3 +1,21 @@
+## meta, version 4.17-0 (2021-mm-dd)
+
+### Major changes
+
+* New layout to print results for tests of funnel plot asymmetry
+
+### User-visible changes
+
+* print.metabias():
+  - new arguments 'digits.stat', 'digits.se', 'digits.pval',
+    'scientific.pval', 'big.mark', 'zero.pval', 'JAMA.pval'
+
+* metabias():
+  - use name of first author to select test for funnel plot asymmetry
+    instead of "rank", "linreg", "mm", "count", and "score" (can be
+    abbreviated; old names are still recognised)
+
+
 ## meta, version 4.16-2 (2021-01-27)
 
 ### Bug fixes

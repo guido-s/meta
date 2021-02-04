@@ -12,7 +12,7 @@
 #' @param left A logical indicating whether studies are supposed to be
 #'   missing on the left or right side of the funnel plot. If NULL,
 #'   the linear regression test for funnel plot symmetry (i.e.,
-#'   function \code{metabias(..., method="linreg")}) is used to
+#'   function \code{metabias(..., method="Egger")}) is used to
 #'   determine whether studies are missing on the left or right side.
 #' @param ma.fixed A logical indicating whether a fixed effect or
 #'   random effects model is used to estimate the number of missing
@@ -404,7 +404,8 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   
   
   if (is.null(left))
-    left <- as.logical(sign(metabias(TE, seTE, method = "linreg", k.min = 3)$estimate[1]) == 1)
+    left <- as.logical(sign(metabias(TE, seTE, method = "Egger",
+                                     k.min = 3)$estimate[1]) == 1)
   ##
   if (!left) TE <- -TE
   ##

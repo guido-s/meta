@@ -62,7 +62,7 @@ effect in individual studies.}
 \item{left}{A logical indicating whether studies are supposed to be
 missing on the left or right side of the funnel plot. If NULL,
 the linear regression test for funnel plot symmetry (i.e.,
-function \code{metabias(..., method="linreg")}) is used to
+function \code{metabias(..., method="Egger")}) is used to
 determine whether studies are missing on the left or right side.}
 
 \item{ma.fixed}{A logical indicating whether a fixed effect or

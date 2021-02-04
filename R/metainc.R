@@ -80,10 +80,10 @@
 #'   between-study variance \eqn{\tau^2}.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
-#' @param method.bias A character string indicating which test for
-#'   funnel plot asymmetry is to be used. Either \code{"linreg"} or
-#'   \code{"rank"}, can be abbreviated. See function
-#'   \code{\link{metabias}}
+#' @param method.bias A character string indicating which test is to
+#'   be used. Either \code{"Begg"}, \code{"Egger"}, or
+#'   \code{"Thompson"}, can be abbreviated. See function
+#'   \code{\link{metabias}}.
 #' @param n.e Number of observations in experimental group (optional).
 #' @param n.c Number of observations in control group (optional).
 #' @param backtransf A logical indicating whether results for
@@ -710,7 +710,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  method.bias <- setchar(method.bias, .settings$meth4bias)
+  method.bias <- setmethodbias(method.bias)
   ##
   chklogical(backtransf)
   ##

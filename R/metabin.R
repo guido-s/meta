@@ -105,10 +105,10 @@
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param method.bias A character string indicating which test for
-#'   funnel plot asymmetry is to be used. Either \code{"rank"},
-#'   \code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-#'   \code{"peters"}, can be abbreviated. See function
-#'   \code{\link{metabias}.}
+#'   funnel plot asymmetry is to be used. Either \code{"Begg"},
+#'   \code{"Egger"}, \code{"Thompson"}, \code{"Schwarzer"},
+#'   \code{"Harbord"}, \code{"Peters"}, or \code{"Deeks"}, can be
+#'   abbreviated. See function \code{\link{metabias}.}
 #' @param backtransf A logical indicating whether results for odds
 #'   ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or
 #'   diagnostic odds ratio (\code{sm="DOR"}) should be back
@@ -860,8 +860,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     prediction = gs("prediction"),
                     level.predict = gs("level.predict"),
                     ##
-                    method.bias = ifelse(sm == "OR", "score",
-                                  ifelse(sm == "DOR", "deeks",
+                    method.bias = ifelse(sm == "OR", "Harbord",
+                                  ifelse(sm == "DOR", "Deeks",
                                          gs("method.bias"))),
                     ##
                     backtransf = gs("backtransf"),
@@ -922,7 +922,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  method.bias <- setchar(method.bias, .settings$meth4bias)
+  method.bias <- setmethodbias(method.bias)
   ##
   chklogical(backtransf)
   ##

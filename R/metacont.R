@@ -101,8 +101,9 @@
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param method.bias A character string indicating which test is to
-#'   be used.  Either \code{"rank"}, \code{"linreg"}, or \code{"mm"},
-#'   can be abbreviated.  See function \code{\link{metabias}}
+#'   be used. Either \code{"Begg"}, \code{"Egger"}, \code{"Thompson"},
+#'   or \code{"Pustejovsky"}, can be abbreviated. See function
+#'   \code{\link{metabias}}.
 #' @param backtransf A logical indicating whether results for ratio of
 #'   means (\code{sm="ROM"}) should be back transformed in printouts
 #'   and plots. If TRUE (default), results will be presented as ratio
@@ -870,7 +871,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  method.bias <- setchar(method.bias, .settings$meth4bias)
+  method.bias <- setmethodbias(method.bias)
   ##
   if (!is.null(text.fixed))
     chkchar(text.fixed, length = 1)

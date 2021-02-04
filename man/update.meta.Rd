@@ -198,10 +198,8 @@ interval for a new study.}
 null hypothesis.}
 
 \item{method.bias}{A character string indicating which test for
-funnel plot asymmetry is to be used. Either \code{"rank"},
-\code{"linreg"}, \code{"mm"}, \code{"count"}, \code{"score"}, or
-\code{"peters"}, can be abbreviated. See function
-\code{\link{metabias}}}
+funnel plot asymmetry is to be used, can be abbreviated. See
+function \code{\link{metabias}.}}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If \code{backtransf =

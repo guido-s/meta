@@ -224,7 +224,7 @@ settings.meta <- function(...) {
   res$ci4cont <- res$ci4prop <- NULL
   res$meth4bin <- res$meth4inc <- res$meth4prop <- res$meth4rate <- NULL
   res$meth4tau <- res$meth4tau.ci <- NULL
-  res$adhoc4hakn <- res$meth4bias <- NULL
+  res$adhoc4hakn <- res$meth4bias <- res$meth4bias.old <- NULL
   res$argslist <- NULL
   res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
   res$digits.zval <- NULL
@@ -503,7 +503,7 @@ settings.meta <- function(...) {
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
-    setOption("method.bias", "linreg")
+    setOption("method.bias", "Egger")
     setOption("text.fixed", "Fixed effect model")
     setOption("text.random", "Random effects model")
     setOption("text.predict", "Prediction interval")

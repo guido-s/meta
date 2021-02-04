@@ -150,8 +150,9 @@ setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
 ##
-setOption("meth4bias", c("rank", "linreg", "mm", "count", "score",
-                         "peters", "deeks", "pustejovsky"))
+setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
+setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
+                         "Harbord", "Peters", "Deeks", "Pustejovsky"))
 ##
 ## List of arguments that can be changed by user
 ##
@@ -197,7 +198,7 @@ setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
-setOption("method.bias", "linreg")
+setOption("method.bias", "Egger")
 setOption("text.fixed", "Fixed effect model")
 setOption("text.random", "Random effects model")
 setOption("text.predict", "Prediction interval")
