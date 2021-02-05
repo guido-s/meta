@@ -21,12 +21,16 @@
   irunit = x$irunit,
   digits = gs("digits"),
   digits.se = gs("digits.se"),
+  digits.pval = max(gs("digits.pval"), 2),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
   digits.I2 = gs("digits.I2"),
   digits.prop = gs("digits.prop"),
   digits.weight = gs("digits.weight"),
+  scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
+  zero.pval = gs("zero.pval"),
+  JAMA.pval = gs("JAMA.pval"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
@@ -93,6 +97,9 @@ calculate rates, e.g. person-years.}
 \item{digits.se}{Minimal number of significant digits for standard
 deviations and standard errors, see \code{print.default}.}
 
+\item{digits.pval}{Minimal number of significant digits for p-value
+of test of treatment effect, see \code{print.default}.}
+
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance, see \code{print.default}.}
 
@@ -108,7 +115,18 @@ proportions, see \code{print.default}.}
 \item{digits.weight}{Minimal number of significant digits for
 weights, see \code{print.default}.}
 
+\item{scientific.pval}{A logical specifying whether p-values should
+be printed in scientific notation, e.g., 1.2345e-01 instead of
+0.12345.}
+
 \item{big.mark}{A character used as thousands separator.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
+
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}

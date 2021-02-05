@@ -18,13 +18,16 @@
 
 \method{print}{metabias}(
   x,
-  digits.stat = max(gs("digits.stat"), 4),
-  digits.se = gs("digits.se"),
+  digits = gs("digits"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
+  digits.se = gs("digits.se"),
+  digits.tau2 = gs("digits.tau2"),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
+  text.tau2 = gs("text.tau2"),
   ...
 )
 
@@ -58,16 +61,22 @@ plot asymmetry.}
 
 \item{\dots}{Additional arguments (ignored at the moment).}
 
+\item{digits}{Minimal number of significant digits for estimates,
+see \code{print.default}.}
+
 \item{digits.stat}{Minimal number of significant digits for z- or
 t-value of test for test of funnel plot asymmetry, see
+\code{print.default}.}
+
+\item{digits.pval}{Minimal number of significant digits for p-value
+of test for test of funnel plot asymmetry, see
 \code{print.default}.}
 
 \item{digits.se}{Minimal number of significant digits for standard
 errors, see \code{print.default}.}
 
-\item{digits.pval}{Minimal number of significant digits for p-value
-of test for test of funnel plot asymmetry, see
-\code{print.default}.}
+\item{digits.tau2}{Minimal number of significant digits for
+residual heterogeneity variance, see \code{print.default}.}
 
 \item{scientific.pval}{A logical specifying whether p-values should
 be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -81,6 +90,9 @@ printed with a leading zero.}
 \item{JAMA.pval}{A logical specifying whether p-values for test of
 overall effect should be printed according to JAMA reporting
 standards.}
+
+\item{text.tau2}{Text printed to identify residual heterogeneity
+variance \eqn{\tau^2}.}
 
 \item{seTE}{Standard error of estimated treatment effect (mandatory
 if \code{x} not of class \code{meta}).}
@@ -144,11 +156,10 @@ statistic follows a t distribution with \code{number of studies -
 
 If argument \code{method.bias} is \code{"Thompson"}, the test
 statistic is based on a weighted linear regression of the treatment
-effect on its standard error using the method of moments estimator
-for the additive between-study variance component (method 3a in
-Thompson, Sharp, 1999). The test statistic follows a t distribution
-with \code{number of studies - 2} degrees of freedom.
-}
+effect on its standard error using an additive between-study
+variance component denoted as methods (3a) - (3d) in Thompson &
+Sharp (1999). The test statistic follows a t distribution with
+\code{number of studies - 2} degrees of freedom.  }
 
 \subsection{Tests for meta-analysis with binary outcomes}{
 The following tests for funnel plot asymmetry are only available

@@ -46,6 +46,8 @@
 #'   \code{print.default}.
 #' @param digits.se Minimal number of significant digits for standard
 #'   deviations and standard errors, see \code{print.default}.
+#' @param digits.pval Minimal number of significant digits for p-value
+#'   of test of treatment effect, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance, see \code{print.default}.
 #' @param digits.tau Minimal number of significant digits for square
@@ -56,7 +58,15 @@
 #'   proportions, see \code{print.default}.
 #' @param digits.weight Minimal number of significant digits for
 #'   weights, see \code{print.default}.
+#' @param scientific.pval A logical specifying whether p-values should
+#'   be printed in scientific notation, e.g., 1.2345e-01 instead of
+#'   0.12345.
 #' @param big.mark A character used as thousands separator.
+#' @param zero.pval A logical specifying whether p-values should be
+#'   printed with a leading zero.
+#' @param JAMA.pval A logical specifying whether p-values for test of
+#'   overall effect should be printed according to JAMA reporting
+#'   standards.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -149,13 +159,17 @@ print.meta <- function(x,
                        ##
                        digits = gs("digits"),
                        digits.se = gs("digits.se"),
+                       digits.pval = max(gs("digits.pval"), 2),
                        digits.tau2 = gs("digits.tau2"),
                        digits.tau = gs("digits.tau"),
                        digits.I2 = gs("digits.I2"),
                        digits.prop = gs("digits.prop"),
                        digits.weight = gs("digits.weight"),
                        ##
+                       scientific.pval = gs("scientific.pval"),
                        big.mark = gs("big.mark"),
+                       zero.pval = gs("zero.pval"),
+                       JAMA.pval = gs("JAMA.pval"),
                        ##
                        text.tau2 = gs("text.tau2"),
                        text.tau = gs("text.tau"),
@@ -240,15 +254,20 @@ print.meta <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.pval, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
   chknumeric(digits.weight, min = 0, length = 1)
   ##
-  chkchar(text.tau2)
-  chkchar(text.tau)
-  chkchar(text.I2)
+  chklogical(scientific.pval)
+  chklogical(zero.pval)
+  chklogical(JAMA.pval)
+  ##
+  chkchar(text.tau2, length = 1)
+  chkchar(text.tau, length = 1)
+  chkchar(text.I2, length = 1)
   tt2 <- text.tau2
   tt <- text.tau
   ti <- text.I2
@@ -550,9 +569,10 @@ print.meta <- function(x,
       ##
       I2 <- formatN(round(100 * x$I2, digits.I2), digits.I2, "")
       ##
-      sel <- is.na(x$pval)
-      pval <- formatPT(x$pval)
-      pval <- ifelse(sel, "", pval)
+      pval <- formatPT(x$pval, digits.pval,
+                       scientific = scientific.pval,
+                       zero = zero.pval, JAMA = JAMA.pval,
+                       lab.NA = "")
       ##
       tau2 <- formatN(round(x$tau2, digits.tau2), digits.tau2, "",
                       big.mark = big.mark)

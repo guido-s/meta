@@ -193,7 +193,8 @@
 #'
 #' @importFrom grDevices gray gray.colors
 #'
-#' @importFrom graphics abline axis box mtext lines par plot points polygon text
+#' @importFrom graphics abline axis box mtext lines par plot points
+#'   polygon text
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm pt
 #'   qnorm qt runif update var weighted.mean weights
@@ -201,8 +202,9 @@
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail
 #'
-#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill
-#'   rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc
+#' @importFrom metafor forest funnel funnel.default baujat labbe
+#'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
+#'   confint.rma.uni confint.rma.mv escalc regtest
 #'
 #' @importFrom lme4 glmer
 #'

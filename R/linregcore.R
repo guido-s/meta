@@ -1,60 +1,36 @@
-linregcore <- function(x, y, w = NULL) {
-  ##
-  ## core function for method.bias linreg and mm
-  ##
-  ##
-  ## Check:
-  ##
-  if(length(x) != length(y))
-    stop("length of argument x and y must be equal")
-  ##
-  if (!is.null(w)) {
-    if(length(x) != length(w))
-      stop("length of argument x and w must be equal")
-  }
-  ##
-  sel <- !is.na(x) & !is.na(y)
-  if (length(x) != sum(sel))
-    warning(paste(length(x) - sum(sel),
-                  "observation(s) dropped due to missing values"))
-  ##
-  x <- x[sel]
-  y <- y[sel]
-  n <- length(x)
-  ##
-  if (is.null(w))
-    w <- rep(1, n)
+linregcore <- function(TE, seTE, covar = NULL,
+                       model = "lm", method.tau = "DL") {
+  
+  if (is.null(covar))
+    predictor <- "sei"
   else
-    w <- w[sel]
+    predictor <- "ni"
+  
+  rma1 <- suppressWarnings(rma.uni(TE, sei = seTE, ni = covar,
+                                   method = method.tau, test = "t"))
   ##
-  W <- diag(w)
+  reg <- suppressWarnings(regtest(rma1,
+                                  ni = covar, predictor = predictor,
+                                  model = model))
+  creg <- suppressWarnings(coef(reg$fit))
   ##
-  if (n > 2) {
-    X <- cbind(rep(1, n), x)
-    XWX <- solve(t(X) %*% W %*% X)
-    ##
-    coefs <- XWX %*% t(X) %*% W %*% y
-    MSE.w <- 1 / (n - 2) * sum(w * (y - X %*% coefs)^2)
-    df <- n - 2
-    se.coefs <- sqrt(MSE.w * diag(XWX))
-    ##
-    intercept <- coefs[1]
-    se.intercept <- se.coefs[1]
-    slope <- coefs[2]
-    se.slope <- se.coefs[2]
-  }
-  else {
-    intercept <- NA
-    se.intercept <- NA
-    slope <- NA
-    se.slope <- NA
-  }
+  if (is.matrix(creg))
+    res <- list(intercept = creg[1, 1],
+                se.intercept = creg[1, 2],
+                slope = creg[2, 1],
+                se.slope = creg[2, 2],
+                df = reg$dfs)
+  else
+    res <- list(intercept = reg$fit$beta[1],
+                se.intercept = reg$fit$se[1],
+                slope = reg$fit$beta[2],
+                se.slope = reg$fit$se[2],
+                df = reg$dfs)
   ##
-  res <- list(intercept = intercept,
-              se.intercept = se.intercept,
-              slope = slope,
-              se.slope = se.slope,
-              df = df,
-              MSE.w = MSE.w)
+  if (model == "rma")
+    res$tau <- sqrt(reg$fit$tau2)
+  else
+    res$tau <- reg$fit$sigma
+  
   res
 }

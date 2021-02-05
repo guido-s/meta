@@ -2,7 +2,23 @@
 
 ### Major changes
 
+* Test of funnel plot asymmetry by ([Pustejovsky & Rodgers
+  (2019)](https://doi.org/10.1002/jrsm.1332) added
+
 * New layout to print results for tests of funnel plot asymmetry
+
+* Use regtest() from R package **metafor** internally for linear
+  regression tests of funnel plot asymmetry
+
+* New dataset Pagliaro1992 for meta-analysis on prevention of first
+  bleeding in cirrhosis [Pagliaro et
+  al. (1992)](https://doi.org/10.7326/0003-4819-117-1-59)
+
+
+### Bug fixes
+
+* update.meta():
+  - do not switch to three-level model if method.tau = "ML"
 
 ### User-visible changes
 
@@ -14,6 +30,12 @@
   - use name of first author to select test for funnel plot asymmetry
     instead of "rank", "linreg", "mm", "count", and "score" (can be
     abbreviated; old names are still recognised)
+
+### Internal changes
+
+* linregcore():
+  - complete rewrite using rma.uni() and regtest() from R package
+    **metafor**
 
 
 ## meta, version 4.16-2 (2021-01-27)
