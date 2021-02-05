@@ -569,7 +569,7 @@ print.meta <- function(x,
       ##
       I2 <- formatN(round(100 * x$I2, digits.I2), digits.I2, "")
       ##
-      pval <- formatPT(x$pval, digits.pval,
+      pval <- formatPT(x$pval, digits = digits.pval,
                        scientific = scientific.pval,
                        zero = zero.pval, JAMA = JAMA.pval,
                        lab.NA = "")
