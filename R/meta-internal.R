@@ -126,6 +126,13 @@ augment <- function(x, len, fun) {
 }
 
 
+stoponly <- function(arg, val, func)
+  stop("Argument ", arg, " =\"", val, "\"",
+               " only defined for meta-analysis conducted with ",
+               func, ".",
+               call. = FALSE)
+
+
 .settings <- list()
 ##
 ## Set defaults (for internal options)
@@ -152,7 +159,8 @@ setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
 ##
 setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
 setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
-                         "Harbord", "Peters", "Deeks", "Pustejovsky"))
+                         "Harbord", "Peters", "Deeks",
+                         "Pustejovsky", "Macaskill"))
 ##
 ## List of arguments that can be changed by user
 ##

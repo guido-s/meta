@@ -103,7 +103,7 @@ components if a test for funnel plot asymmetry is conducted:
 \item{statistic}{Test statistic.}
 \item{df}{The degrees of freedom of the test statistic in
   the case that it follows a t distribution.}
-\item{p.value}{The p-value for the test.}
+\item{pval}{The p-value for the test.}
 \item{estimate}{Estimates used to calculate test statisic.}
 \item{method}{A character string indicating what type of test was
   used.}
@@ -181,12 +181,21 @@ command. The three arcsine tests described in Rücker et al. (2008)
 can be calculated by setting \code{method.bias} to \code{"Begg"},
 \code{"Egger"} and \code{"Thompson"}, respectively.
 
+If argument \code{method.bias} is \code{"Macaskill"}, the test
+statistic is based on a weighted linear regression of the treatment
+effect on the total sample size with weights reciprocal to the
+variance of the average event probability (Macaskill et al., 2001,
+\emph{method FPV}). The test statistic follows a t distribution
+with \code{number of studies - 2} degrees of freedom.
+
 If argument \code{method.bias} is \code{"Peters"}, the test
 statistic is based on a weighted linear regression of the treatment
-effect on the inverse of the total sample size using the variance
-of the average event rate as weights (Peters et al., 2006). The
-test statistic follows a t distribution with \code{number of
-studies - 2} degrees of freedom.
+effect on the inverse of the total sample size with weights
+reciprocal to the variance of the average event probability (Peters
+et al., 2006). The test statistic follows a t distribution with
+\code{number of studies - 2} degrees of freedom. Note, this test is
+a variant of Macaskill et al. (2001), \emph{method FPV}, using the
+inverse sample size as covariate.
 
 If argument \code{method.bias} is \code{"Schwarzer"}, the test
 statistic is based on the rank correlation between a standardised
@@ -249,7 +258,7 @@ metabias(m1, method.bias = "Begg")
 metabias(m1, method.bias = "Begg", correct = TRUE)
 
 metabias(m1, method.bias = "Schwarzer")
-metabias(m1, method.bias = "Egger")$p.value
+metabias(m1, method.bias = "Egger")$pval
 
 # Arcsine test (based on linear regression)
 #
@@ -304,6 +313,12 @@ Updated tests for small-study effects in meta–analyses.
 Kendall M & Gibbons JD (1990):
 \emph{Rank Correlation Methods}.
 London: Edward Arnold
+
+Macaskill P, Walter SD, Irwig L (2001):
+A comparison of methods to detect publication bias in
+meta-analysis.
+\emph{Statistics in Medicine},
+\bold{20}, 641--54
 
 Peters JL, Sutton AJ, Jones DR, Abrams KR & Rushton L (2006):
 Comparison of two methods to detect publication bias in
