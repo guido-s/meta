@@ -31,7 +31,7 @@
 #' 
 #' Review Manager 5 (RevMan 5) is the current software used for
 #' preparing and maintaining Cochrane Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
+#' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman/}).
 #' In RevMan 5, subgroup analyses can be defined and data from a
 #' Cochrane review can be imported to R using the function
 #' \code{read.rm5}.
@@ -47,7 +47,7 @@
 #' Higgins, J.P.T and S. Green (2011):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
 #'   Version 5.1.0 [Updated March 2011]}.
-#' The Cochrane Library: http://www.cochrane-handbook.org
+#' The Cochrane Library: http://www.cochrane-handbook.org/
 #' 
 #' @keywords htest
 #' 

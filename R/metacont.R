@@ -1638,20 +1638,28 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       data$.mean.e <- mean.e
       data$.sd.c <- sd.c
       data$.mean.c <- mean.c
-      data$.approx.sd.e <- approx.sd.e
-      data$.approx.sd.c <- approx.sd.c
-      data$.approx.mean.e <- approx.mean.e
-      data$.approx.mean.c <- approx.mean.c
+      if (!missing.approx.sd.e)
+        data$.approx.sd.e <- approx.sd.e
+      if (!missing.approx.sd.c)
+        data$.approx.sd.c <- approx.sd.c
+      if (!missing.approx.mean.e)
+        data$.approx.mean.e <- approx.mean.e
+      if (!missing.approx.mean.c)
+        data$.approx.mean.c <- approx.mean.c
     }
     else {
       data$.sd.e[data$.subset] <- sd.e
       data$.mean.e[data$.subset] <- mean.e
       data$.sd.c[data$.subset] <- sd.c
       data$.mean.c[data$.subset] <- mean.c
-      data$.approx.sd.e[data$.subset] <- approx.sd.e
-      data$.approx.sd.c[data$.subset] <- approx.sd.c
-      data$.approx.mean.e[data$.subset] <- approx.mean.e
-      data$.approx.mean.c[data$.subset] <- approx.mean.c
+      if (!missing.approx.sd.e)
+        data$.approx.sd.e[data$.subset] <- approx.sd.e
+      if (!missing.approx.sd.c)
+        data$.approx.sd.c[data$.subset] <- approx.sd.c
+      if (!missing.approx.mean.e)
+        data$.approx.mean.e[data$.subset] <- approx.mean.e
+      if (!missing.approx.mean.c)
+        data$.approx.mean.c[data$.subset] <- approx.mean.c
     }
   }
   

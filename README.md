@@ -9,7 +9,7 @@ Official Git repository of R package **meta**
 
 ## Description
 
-User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015), http://meta-analysis-with-r.org/ :
+User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
  - fixed effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
  - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
@@ -51,4 +51,4 @@ bug.report(package = "meta")
 The bug.report function is not supported in RStudio. Please send an
 email to Guido Schwarzer <sc@imbi.uni-freiburg.de> if you use RStudio.
 
-You can also report bugs on GitHub under [Issues](https://github.com/guido-s/meta/issues).
+You can also report bugs on GitHub under [Issues](https://github.com/guido-s/meta/issues/).

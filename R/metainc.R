@@ -766,7 +766,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   mf <- match.call()
   ##
-  ## Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', and 'n.c' from data:
+  ## Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', and 'n.c'
+  ## from data:
   ##
   event.e <- eval(mf[[match("event.e", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
@@ -787,8 +788,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   n.e <- eval(mf[[match("n.e", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
+  null.n.e <- is.null(n.e)
+  ##
   n.c <- eval(mf[[match("n.c", names(mf))]],
               data, enclos = sys.frame(sys.parent()))
+  null.n.c <- is.null(n.c)
   ##
   ## Catch 'incr' from data:
   ##
@@ -832,7 +836,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (by)
     chklength(byvar, k.All, fun)
   ##
-  if (!is.null(n.e))
+  if (!null.n.e)
     chklength(n.e, k.All, fun)
   if (!is.null(n.c))
     chklength(n.c, k.All, fun)
@@ -853,11 +857,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
   }
   if (!by & tau.common) {
-    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    warning("Value for argument 'tau.common' set to FALSE as ",
+            "argument 'byvar' is missing.")
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
-    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    warning("Argument 'tau.common' set to TRUE as ",
+            "argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
   
@@ -919,9 +925,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!is.null(n.e))
+    if (!null.n.e)
       data$.n.e <- n.e
-    if (!is.null(n.e))
+    if (!null.n.e)
       data$.n.c <- n.c
   }  
   
@@ -946,7 +952,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (by)
       byvar <- byvar[subset]
     ##
-    if (!is.null(n.e))
+    if (!null.n.e)
       n.e <- n.e[subset]
     if (!is.null(n.c))
       n.c <- n.c[subset]
@@ -1451,6 +1457,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     res$event.w <- NULL
     res$n.w <- NULL
+    ##
+    if (null.n.e)
+      res$n.e.w <- NULL
+    if (null.n.c)
+      res$n.c.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

@@ -8,7 +8,7 @@
 \description{
 R package \bold{meta} is a user-friendly general package providing
 standard methods for meta-analysis and supporting Schwarzer et
-al. (2015), \url{http://meta-analysis-with-r.org/}.
+al. (2015), \url{https://www.springer.com/gp/book/9783319214153}.
 }
 \details{
 R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -127,7 +127,7 @@ To report problems and bugs
 }
 
 The development version of \bold{meta} is available on GitHub
-\url{https://github.com/guido-s/meta}.
+\url{https://github.com/guido-s/meta/}.
 }
 \note{
 R package \bold{meta} imports R functions from \bold{metafor}

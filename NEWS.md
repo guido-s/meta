@@ -1,3 +1,20 @@
+## meta, version 4.17-1 (2021-mm-dd)
+
+### Bug fixes
+
+* metainc():
+  - update command resulted in an error *Arguments 'event.e' and 'n.e'
+    must have the same length* for meta-analysis with subgroups (due
+    to list elements 'n.e.w' and 'n.c.w' containing missing values
+    instead of being NULL)
+
+### Internal changes
+
+* metacont():
+  - get rid of warnings 'Unknown or uninitialised column' if argument
+    'subset' is used
+
+
 ## meta, version 4.17-0 (2021-02-11)
 
 ### Major changes
