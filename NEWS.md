@@ -2,6 +2,9 @@
 
 ### Bug fixes
 
+* metacont():
+  - use correct variance formula for Glass' delta
+
 * metainc():
   - update command resulted in an error *Arguments 'event.e' and 'n.e'
     must have the same length* for meta-analysis with subgroups (due
