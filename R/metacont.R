@@ -1746,7 +1746,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       TE <- smd
       seTE <- ifelse(npn.n, NA,
-                     sqrt(N / (n.e * n.c) + TE^2 / (2 * n.g - 1)))
+                     sqrt(N / (n.e * n.c) + TE^2 / (2 * (n.g - 1))))
     }
     ##
     seTE[is.na(TE)] <- NA
