@@ -34,7 +34,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 40, nrow = n.bylevs)
+  res.w <- matrix(NA, ncol = 48, nrow = n.bylevs)
   add.w <- matrix(NA, ncol =  2, nrow = n.bylevs)
   j <- 0
   ##
@@ -62,6 +62,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        Q.Cochrane = x$Q.Cochrane,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
+                       adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset,
@@ -80,6 +81,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         sm = x$sm, pooledvar = x$pooledvar,
                         level = x$level, level.comb = x$level.comb,
                         hakn = x$hakn,
+                        adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
@@ -93,9 +95,11 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        exclude = x$exclude[sel],
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
+                       adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       null.effect = x$null.effect,
                        control = x$control)
     ##
     else if (gen)
@@ -106,9 +110,11 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        id = if (!is.null(x$id)) x$id[sel] else NULL,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
+                       adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       null.effect = x$null.effect,
                        n.e = x$n.e[sel], n.c = x$n.c[sel],
                        warn = x$warn,
                        control = x$control)
@@ -125,6 +131,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                        addincr = x$addincr,
                        level = x$level, level.comb = x$level.comb,
                        hakn = x$hakn,
+                       adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset,
@@ -139,9 +146,11 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         exclude = x$exclude[sel],
                         level = x$level, level.comb = x$level.comb,
                         hakn = x$hakn,
+                        adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        null.effect = x$null.effect,
                         warn = x$warn,
                         control = x$control)
     ##
@@ -155,10 +164,12 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         allincr = x$allincr,
                         addincr = x$addincr,
                         hakn = x$hakn,
+                        adhoc.hakn = x$adhoc.hakn,
                         method = x$method,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        null.effect = x$null.effect,
                         warn = x$warn,
                         control = x$control)
     ##
@@ -172,9 +183,11 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                         allincr = x$allincr,
                         addincr = x$addincr,
                         hakn = x$hakn,
+                        adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
                         tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        null.effect = x$null.effect,
                         warn = x$warn,
                         control = x$control)
     ##
@@ -223,7 +236,15 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    1 / mean(1 / x$time[sel]),                 # 37
                    meta1$Rb,                                  # 38
                    meta1$lower.Rb,                            # 39
-                   meta1$upper.Rb                             # 40
+                   meta1$upper.Rb,                            # 40
+                   meta1$lower.fixed,                         # 41
+                   meta1$upper.fixed,                         # 42
+                   meta1$statistic.fixed,                     # 41
+                   meta1$pval.fixed,                          # 42
+                   meta1$lower.random,                        # 45
+                   meta1$upper.random,                        # 46
+                   meta1$statistic.random,                    # 47
+                   meta1$pval.random                          # 48
                    )
     ##
     add.w[j, ] <- c(meta1$sign.lower.tau, # 1
@@ -291,6 +312,16 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   Rb.w     <- res.w[, 38]
   Rb.w.low <- res.w[, 39]
   Rb.w.upp <- res.w[, 40]
+  ##
+  lower.fixed.w <- res.w[, 41]
+  upper.fixed.w <- res.w[, 42]
+  statistic.fixed.w <- res.w[, 43]
+  pval.fixed.w <- res.w[, 44]
+  ##
+  lower.random.w <- res.w[, 45]
+  upper.random.w <- res.w[, 46]
+  statistic.random.w <- res.w[, 47]
+  pval.random.w <- res.w[, 48]
   ##
   ## GLMM with common tau-squared
   ##
@@ -475,14 +506,24 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     Rb.w     <- rep_len(NA, n.bylevs)
     Rb.w.low <- rep_len(NA, n.bylevs)
     Rb.w.upp <- rep_len(NA, n.bylevs)
+    ##
+    ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
+    ##
+    if (!is.null(x$hakn) && x$hakn)
+      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb, df = k.w - 1)
+    else
+      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb)
+    ##
+    lower.fixed.w <- ci.fixed.w$lower
+    upper.fixed.w <- ci.fixed.w$upper
+    statistic.fixed.w <- ci.fixed.w$statistic
+    pval.fixed.w <- ci.fixed.w$p
+    ##
+    lower.random.w <- ci.random.w$lower
+    upper.random.w <- ci.random.w$upper
+    statistic.random.w <- ci.random.w$statistic
+    pval.random.w <- ci.random.w$p
   }
-  ##
-  ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
-  ##
-  if (!is.null(x$hakn) && x$hakn)
-    ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb, df = k.w - 1)
-  else
-    ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb)
   ##
   ## Tests for subgroup differences
   ##
@@ -512,27 +553,49 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     pval.Q.b.fixed  <- pvalQ(Q.b.fixed, df.Q.b)
     pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
   }
+  ##
+  ## Prediction interval
+  ##
+  seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
+  ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, k.w - 2)
+  ##
+  p.lower.w <- ci.p.w$lower
+  p.upper.w <- ci.p.w$upper
+  ##
+  p.lower.w[k.w < 3] <- NA
+  p.upper.w[k.w < 3] <- NA
+  ##
+  ## Degrees of freedom of Hartung-Knapp method
+  ##
+  df.hakn.w <- k.w - 1
+  if (!x$hakn)
+    df.hakn.w[!is.na(df.hakn.w)] <- NA
   
   
   res <- list(bylevs = bylevs,
               ##
-              TE.fixed.w = ci.fixed.w$TE,
-              seTE.fixed.w = ci.fixed.w$seTE,
-              lower.fixed.w = ci.fixed.w$lower,
-              upper.fixed.w = ci.fixed.w$upper,
-              statistic.fixed.w = ci.fixed.w$statistic,
-              zval.fixed.w = ci.fixed.w$statistic,
-              pval.fixed.w = ci.fixed.w$p,
+              TE.fixed.w = TE.fixed.w,
+              seTE.fixed.w = seTE.fixed.w,
+              lower.fixed.w = lower.fixed.w,
+              upper.fixed.w = upper.fixed.w,
+              statistic.fixed.w = statistic.fixed.w,
+              zval.fixed.w = statistic.fixed.w,
+              pval.fixed.w = pval.fixed.w,
               w.fixed.w = w.fixed.w,
               ##
-              TE.random.w = ci.random.w$TE,
-              seTE.random.w = ci.random.w$seTE,
-              lower.random.w = ci.random.w$lower,
-              upper.random.w = ci.random.w$upper,
-              statistic.random.w = ci.random.w$statistic,
-              zval.random.w = ci.random.w$statistic,
-              pval.random.w = ci.random.w$p,
-              df.hakn.w = ci.random.w$df,
+              TE.random.w = TE.random.w,
+              seTE.random.w = seTE.random.w,
+              lower.random.w = lower.random.w,
+              upper.random.w = upper.random.w,
+              statistic.random.w = statistic.random.w,
+              zval.random.w = statistic.random.w,
+              pval.random.w = pval.random.w,
+              w.random.w = w.random.w,
+              ##
+              seTE.predict.w = seTE.predict.w,
+              lower.predict.w = p.lower.w, upper.predict.w = p.upper.w,
+              ##
+              df.hakn.w = df.hakn.w,
               w.random.w = w.random.w,
               ##
               n.harmonic.mean.w = n.harmonic.mean.w,

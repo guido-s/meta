@@ -54,7 +54,7 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
     df <- NA
   }
   else {
-    df[df == 0] <- NA
+    df[df <= 0] <- NA
     ##
     statistic <- (TE - null.effect) / seTE
     ##

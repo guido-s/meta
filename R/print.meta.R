@@ -338,6 +338,8 @@ print.meta <- function(x,
     text.w.random <- "%W(random)"
   else
     text.w.random <- paste0("%W(", x$text.w.random, ")")
+  ##
+  by <- !is.null(x$bylab)
   
   
   ##
@@ -352,126 +354,145 @@ print.meta <- function(x,
   ##
   if (details) {
     if (inherits(x, "metamiss")) {
-      res <- data.frame(event.e = formatN(x$event.e, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        noevent.e = formatN(x$n.e - x$event.e - x$miss.e,
-                                            digits = 0,
-                                            "NA", big.mark = big.mark),
-                        miss.e = formatN(x$miss.e, digits = 0,
-                                         "NA", big.mark = big.mark),
-                        event.c = formatN(x$event.c, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        noevent.c = formatN(x$n.c - x$event.c - x$miss.c,
-                                            digits = 0,
-                                            "NA", big.mark = big.mark),
-                        miss.c = formatN(x$miss.c, digits = 0,
-                                         "NA", big.mark = big.mark))
+      res <- cbind(event.e = formatN(x$event.e, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   noevent.e = formatN(x$n.e - x$event.e - x$miss.e,
+                                       digits = 0,
+                                       "NA", big.mark = big.mark),
+                   miss.e = formatN(x$miss.e, digits = 0,
+                                    "NA", big.mark = big.mark),
+                   event.c = formatN(x$event.c, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   noevent.c = formatN(x$n.c - x$event.c - x$miss.c,
+                                       digits = 0,
+                                       "NA", big.mark = big.mark),
+                   miss.c = formatN(x$miss.c, digits = 0,
+                                    "NA", big.mark = big.mark))
     }
     else if (inherits(x, "metabin")) {
-      res <- data.frame(event.e = formatN(x$event.e, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        n.e = formatN(x$n.e, digits = 0,
-                                      "NA", big.mark = big.mark),
-                        event.c = formatN(x$event.c, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        n.c = formatN(x$n.c, digits = 0,
-                                      "NA", big.mark = big.mark))
+      res <- cbind(event.e = formatN(x$event.e, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   n.e = formatN(x$n.e, digits = 0,
+                                 "NA", big.mark = big.mark),
+                   event.c = formatN(x$event.c, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   n.c = formatN(x$n.c, digits = 0,
+                                 "NA", big.mark = big.mark))
       ##
       if (pscale == 1) {
-        res$p.e <- formatN(round(x$event.e / x$n.e, digits.prop),
-                           digits.prop, big.mark = big.mark)
-        res$p.c <- formatN(round(x$event.c / x$n.c, digits.prop),
-                           digits.prop, big.mark = big.mark)
+        res <- cbind(res,
+                     p.e = formatN(round(x$event.e / x$n.e, digits.prop),
+                                   digits.prop, big.mark = big.mark))
+        res <- cbind(res,
+                     p.c = formatN(round(x$event.c / x$n.c, digits.prop),
+                                   digits.prop, big.mark = big.mark))
       }
       else {
-        res$events.e <- formatN(round(pscale * x$event.e / x$n.e, digits),
-                                digits,
-                                "NA", big.mark = big.mark)
-        res$events.c <- formatN(round(pscale * x$event.c / x$n.c, digits),
-                                digits,
-                                "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     events.e = formatN(round(pscale * x$event.e / x$n.e,
+                                              digits),
+                                        digits, "NA", big.mark = big.mark))
+        res <- cbind(res,
+                     events.c = formatN(round(pscale * x$event.c / x$n.c,
+                                              digits),
+                                        digits, "NA", big.mark = big.mark))
       }
     }
     else if (inherits(x, "metacont")) {
-      res <- data.frame(n.e = formatN(x$n.e, digits = 0,
+      res <- cbind(n.e = formatN(x$n.e, digits = 0,
                                       "NA", big.mark = big.mark),
-                        mean.e = formatN(round(x$mean.e, digits), digits,
-                                         "NA", big.mark = big.mark),
-                        sd.e = formatN(round(x$sd.e, digits.se), digits.se,
-                                       "NA", big.mark = big.mark),
-                        n.c = formatN(x$n.c, digits = 0,
-                                      "NA", big.mark = big.mark),
-                        mean.c = formatN(round(x$mean.c, digits), digits,
-                                         "NA", big.mark = big.mark),
-                        sd.c = formatN(round(x$sd.c, digits.se), digits.se,
-                                       "NA", big.mark = big.mark))
+                   mean.e = formatN(round(x$mean.e, digits), digits,
+                                    "NA", big.mark = big.mark),
+                   sd.e = formatN(round(x$sd.e, digits.se), digits.se,
+                                  "NA", big.mark = big.mark),
+                   n.c = formatN(x$n.c, digits = 0,
+                                 "NA", big.mark = big.mark),
+                   mean.c = formatN(round(x$mean.c, digits), digits,
+                                    "NA", big.mark = big.mark),
+                   sd.c = formatN(round(x$sd.c, digits.se), digits.se,
+                                  "NA", big.mark = big.mark))
     }
     else if (inherits(x, "metacor")) {
-      res <- data.frame(cor = x$cor,
-                        n = formatN(x$n, digits = 0,
-                                    "NA", big.mark = big.mark))
+      res <- cbind(cor = x$cor,
+                   n = formatN(x$n, digits = 0,
+                               "NA", big.mark = big.mark))
     }
     else if (inherits(x, "metagen")) {
-      res <- data.frame(TE = formatN(round(x$TE, digits), digits,
-                                     "NA", big.mark = big.mark),
-                        seTE = formatN(round(x$seTE, digits.se), digits.se,
-                                       "NA", big.mark = big.mark))
+      res <- cbind(TE = formatN(round(x$TE, digits), digits,
+                                "NA", big.mark = big.mark),
+                   seTE = formatN(round(x$seTE, digits.se), digits.se,
+                                  "NA", big.mark = big.mark))
     }
     else if (inherits(x, "metainc")) {
-      res <- data.frame(event.e = formatN(x$event.e, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        time.e = formatN(round(x$time.e, digits), digits,
-                                         "NA", big.mark = big.mark),
-                        event.c = formatN(x$event.c, digits = 0,
-                                          "NA", big.mark = big.mark),
-                        time.c = formatN(round(x$time.c, digits), digits,
-                                         "NA", big.mark = big.mark))
+      res <- cbind(event.e = formatN(x$event.e, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   time.e = formatN(round(x$time.e, digits), digits,
+                                    "NA", big.mark = big.mark),
+                   event.c = formatN(x$event.c, digits = 0,
+                                     "NA", big.mark = big.mark),
+                   time.c = formatN(round(x$time.c, digits), digits,
+                                    "NA", big.mark = big.mark))
       ##
       if (irscale == 1) {
-        res$rate.e <- formatN(round(x$event.e / x$time.e, digits.prop),
-                              big.mark = big.mark)
-        res$rate.c <- formatN(round(x$event.c / x$time.c, digits.prop),
-                              big.mark = big.mark)
+        res <- cbind(res,
+                     rate.e = formatN(round(x$event.e / x$time.e,
+                                            digits.prop),
+                                      big.mark = big.mark))
+        res <- cbind(res,
+                     rate.c = formatN(round(x$event.c / x$time.c,
+                                            digits.prop),
+                                      big.mark = big.mark))
       }
       else {
-        res$events.e <- formatN(round(irscale * x$event.e / x$n.e, digits),
-                                digits,
-                                "NA", big.mark = big.mark)
-        res$events.c <- formatN(round(irscale * x$event.c / x$n.c, digits),
-                                digits,
-                                "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     events.e = formatN(round(irscale * x$event.e / x$n.e,
+                                              digits),
+                                        digits, "NA", big.mark = big.mark))
+        res <- cbind(res,
+                     events.c = formatN(round(irscale * x$event.c / x$n.c,
+                                              digits),
+                                        digits, "NA", big.mark = big.mark))
       }
     }
     else if (inherits(x, "metaprop")) {
-      res <- data.frame(event = formatN(x$event, digits = 0,
-                                        "NA", big.mark = big.mark),
-                        n = formatN(x$n, digits = 0,
-                                    "NA", big.mark = big.mark))
+      res <- cbind(event = formatN(x$event, digits = 0,
+                                   "NA", big.mark = big.mark),
+                   n = formatN(x$n, digits = 0,
+                               "NA", big.mark = big.mark))
       if (pscale == 1)
-        res$p <- formatN(round(x$event / x$n, digits.prop), digits.prop,
-                         "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     p = formatN(round(x$event / x$n, digits.prop),
+                                 digits.prop, "NA", big.mark = big.mark))
       else
-        res$events <- formatN(round(pscale * x$event / x$n, digits), digits,
-                              "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     events = formatN(round(pscale * x$event / x$n, digits),
+                                      digits, "NA", big.mark = big.mark))
     }
     else if (inherits(x, "metarate")) {
-      res <- data.frame(event = formatN(x$event, digits = 0,
-                                        "NA", big.mark = big.mark),
-                        time = formatN(x$time, digits = digits,
-                                       "NA", big.mark = big.mark))
+      res <- cbind(event = formatN(x$event, digits = 0,
+                                   "NA", big.mark = big.mark),
+                   time = formatN(x$time, digits = digits,
+                                  "NA", big.mark = big.mark))
       if (irscale == 1)
-        res$rate <- formatN(round(x$event / x$time, digits.prop), digits.prop,
-                            "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     rate <- formatN(round(x$event / x$time, digits.prop),
+                                     digits.prop, "NA", big.mark = big.mark))
       else
-        res$events <- formatN(round(irscale * x$event / x$time, digits),
-                              digits, "NA", big.mark = big.mark)
+        res <- cbind(res,
+                     events <- formatN(round(irscale * x$event / x$time,
+                                             digits),
+                                       digits, "NA", big.mark = big.mark))
     }
     else {
-      res <- data.frame(TE = formatN(round(x$TE, digits), digits,
-                                     "NA", big.mark = big.mark),
-                        seTE = formatN(round(x$seTE, digits), digits,
-                                       "NA", big.mark = big.mark))
+      res <- cbind(TE = formatN(round(x$TE, digits), digits,
+                                "NA", big.mark = big.mark),
+                   seTE = formatN(round(x$seTE, digits), digits,
+                                  "NA", big.mark = big.mark))
     }
+    ##
+    if (by)
+      res <- cbind(res, byvar = as.character(x$byvar))
+    ##
     dimnames(res)[[1]] <- x$studlab
     prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
     cat("\n")
@@ -498,8 +519,6 @@ print.meta <- function(x,
     seTE <- x$seTE
     lowTE <- x$lower
     uppTE <- x$upper
-    ##
-    by <- !is.null(x$bylab)
     ##
     if (inherits(x, "metaprop") & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)

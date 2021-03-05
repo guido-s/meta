@@ -459,7 +459,7 @@ summary.meta <- function(object,
                seTE = object$seTE.predict,
                lower = object$lower.predict,
                upper = object$upper.predict,
-               z = NA,
+               statistic = NA,
                p = NA,
                level = object$level.predict,
                df = object$k - 2)
@@ -506,6 +506,10 @@ summary.meta <- function(object,
               sm = object$sm, method = object$method,
               call = match.call(),
               ci.lab = ci.lab,
+              ##
+              level.comb = object$level.comb,
+              level.predict = object$level.predict,
+              ##
               comb.fixed = comb.fixed,
               comb.random = comb.random,
               prediction = prediction,
@@ -518,6 +522,8 @@ summary.meta <- function(object,
   ## Add results from subgroup analysis
   ##
   if (length(object$byvar) > 0) {
+    ##
+    n.by <- length(object$bylevs)
     ##
     ci.fixed.w <- list(TE = object$TE.fixed.w,
                        seTE = object$seTE.fixed.w,
@@ -541,6 +547,16 @@ summary.meta <- function(object,
                         df = object$df.hakn.w,
                         harmonic.mean = object$n.harmonic.mean.w)
     ##
+    ci.predict.w <- list(TE = rep(NA, n.by),
+                         seTE = object$seTE.predict.w,
+                         lower = object$lower.predict.w,
+                         upper = object$upper.predict.w,
+                         statistic = rep(NA, n.by),
+                         p = rep(NA, n.by),
+                         level = object$level.predict,
+                         df = object$k.w - 2,
+                         harmonic.mean = object$n.harmonic.mean.w)
+    ##
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ##
@@ -553,6 +569,7 @@ summary.meta <- function(object,
     ## 
     res$within.fixed    <- ci.fixed.w
     res$within.random   <- ci.random.w
+    res$within.predict  <- ci.predict.w
     res$k.w             <- object$k.w
     res$Q.w             <- object$Q.w
     res$Q.w.fixed       <- object$Q.w.fixed
@@ -960,6 +977,14 @@ print.summary.meta <- function(x,
       null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
   ##
+  if (by) {
+    k.w <- x$k.w
+    ##
+    prediction.w <- prediction & k.w >= 3
+    prediction.w[is.na(prediction.w)] <- FALSE
+    prediction.w <- any(prediction.w)
+  }
+  ##
   prediction <- prediction & k >= 3
   if (is.na(prediction))
     prediction <- FALSE
@@ -1062,10 +1087,14 @@ print.summary.meta <- function(x,
     uppTE.fixed.w  <- x$within.fixed$upper
     pval.fixed.w   <- x$within.fixed$p
     harmonic.mean.w <- x$within.fixed$harmonic.mean
+    ##
     TE.random.w    <- x$within.random$TE
     lowTE.random.w <- x$within.random$lower
     uppTE.random.w <- x$within.random$upper
     pval.random.w   <- x$within.random$p
+    ##
+    lowTE.predict.w <- x$within.predict$lower
+    uppTE.predict.w <- x$within.predict$upper
     ##
     Q.b.fixed <- x$Q.b.fixed
     Q.w.fixed <- x$Q.w.fixed
@@ -1073,8 +1102,6 @@ print.summary.meta <- function(x,
     Q.w.random <- x$Q.w.random
     ##
     Q.w <- x$Q.w
-    ##
-    k.w <- x$k.w
     ##
     df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
     df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
@@ -1144,6 +1171,15 @@ print.summary.meta <- function(x,
                                    harmonic.mean.w,
                                    warn = overall & comb.random &
                                      warn.backtransf)
+      ##
+      if (prediction.w) {
+        lowTE.predict.w <- backtransf(lowTE.predict.w, sm, "lower",
+                                      harmonic.mean.w,
+                                      warn = warn.backtransf)
+        uppTE.predict.w <- backtransf(uppTE.predict.w, sm, "upper",
+                                      harmonic.mean.w,
+                                      warn = warn.backtransf)
+      }
     }
   }
   ##
@@ -1175,6 +1211,11 @@ print.summary.meta <- function(x,
       TE.random.w    <- scale * TE.random.w
       lowTE.random.w <- scale * lowTE.random.w
       uppTE.random.w <- scale * uppTE.random.w
+      ##   
+      if (prediction.w) {
+        lowTE.predict.w <- scale * lowTE.predict.w
+        uppTE.predict.w <- scale * uppTE.predict.w
+      }
     }
   }
   ##
@@ -1203,6 +1244,11 @@ print.summary.meta <- function(x,
     TE.random.w    <- round(TE.random.w, digits)
     lowTE.random.w <- round(lowTE.random.w, digits)
     uppTE.random.w <- round(uppTE.random.w, digits)
+    ##
+    if (prediction.w) {
+      lowTE.predict.w <- round(lowTE.predict.w, digits)
+      uppTE.predict.w <- round(uppTE.predict.w, digits)
+    }
     ##
     if (print.I2)
       I2.w <- round(100 * x$I2.w$TE, digits.I2)
@@ -1395,9 +1441,18 @@ print.summary.meta <- function(x,
       else
         zlab <- "z"
       ##
+      if (prediction)
+        if (x$level.comb == x$level.predict)
+          lab.predict <- text.predict
+        else
+          lab.predict <- paste(text.predict,
+                               paste0("(",
+                                      round(100 * x$level.predict, 1),
+                                      "%-PI)"))
+      ##
       dimnames(res) <- list(c(if (comb.fixed) text.fixed,
                               if (comb.random) text.random,
-                              if (prediction) text.predict),
+                              if (prediction) lab.predict),
                             c(sm.lab, x$ci.lab,
                               if (null.given) zlab,
                               if (null.given) "p-value"))
@@ -1711,6 +1766,24 @@ print.summary.meta <- function(x,
           prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
         }
       }
+      ##
+      if (prediction.w & !inherits(x, "metabind")) {
+        ##
+        ## Prediction intervals for subgroups
+        ##
+        Pdata <- cbind(formatCI(formatN(lowTE.predict.w, digits, "NA",
+                                        big.mark = big.mark),
+                                formatN(uppTE.predict.w, digits, "NA",
+                                        big.mark = big.mark)))
+        ##
+        bylab <- bylabel(x$bylab, bylevs, print.byvar, byseparator,
+                         big.mark = big.mark)
+        lab.predict <- paste0(round(100 * x$level.predict, 1), "%-PI")
+        dimnames(Pdata) <- list(bylab, lab.predict)
+        ##
+        cat("\nPrediction intervals for subgroups:\n")
+        prmatrix(Pdata, quote = FALSE, right = TRUE, ...)
+      }      
     }
     ##
     ## Print information on summary method:

@@ -1,4 +1,8 @@
-## meta, version 4.17-1 (2021-mm-dd)
+## meta, version 4.18-0 (2021-03-05)
+
+### Major changes
+
+* Prediction intervals for subgroups implemented
 
 ### Bug fixes
 
@@ -8,14 +12,39 @@
 * metainc():
   - update command resulted in an error *Arguments 'event.e' and 'n.e'
     must have the same length* for meta-analysis with subgroups (due
-    to list elements 'n.e.w' and 'n.c.w' containing missing values
-    instead of being NULL)
+    to list elements 'n.e.w' and 'n.c.w' which were interpreted as
+    'n.e' and 'n.c' containing missing values instead of being NULL)
+
+* print.meta():
+  - use of argument 'details = TRUE' resulted in an error in
+    meta-analyses with duplicated study labels
+
+* Consider argument 'adhoc.hakn' to calculate confidence intervals in
+  random effects subgroup meta-analyses
+
+### User-visible changes
+
+* print.meta():
+  - column with information on subgroups added to details if argument
+    'details = TRUE'
+
+* forest.meta():
+  - new argument text.predict.w' to label the prediction interval in
+    subgroups
+  - arguments 'text.fixed.w' and 'text.random.w' checked for correct
+    length
+
+* *Ad hoc* variance correction for Hartung-Knapp method not available
+  for GLMMs
 
 ### Internal changes
 
 * metacont():
   - get rid of warnings 'Unknown or uninitialised column' if argument
     'subset' is used
+
+* subgroup():
+  - calculate prediction intervals for subgroups
 
 
 ## meta, version 4.17-0 (2021-02-11)

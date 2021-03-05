@@ -779,9 +779,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     res$w.fixed.w <- rep(0, length(res$w.fixed.w))
     res$w.random <- rep(0, length(res$w.random))
     res$w.random.w <- rep(0, length(res$w.random.w))
+    res$lower.predict.w <- rep(NA, length(res$w.random.w))
+    res$upper.predict.w <- rep(NA, length(res$w.random.w))
   }
-
-
+  
+  
   if (is.na(res$tau.preset))
     res$tau.preset <- NULL
 

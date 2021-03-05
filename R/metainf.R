@@ -527,7 +527,9 @@ metainf <- function(x, pooled, sortvar) {
               Rb = c(Rb.i, NA, x$Rb),
               ##
               w = c(weight.i, NA, w.s),
-              df.hakn = if (pooled == "random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
+              df.hakn =
+                if (pooled == "random" & x$hakn)
+                  c(df.hakn.i, NA, x$df.hakn) else NULL,
               ##
               sm = x$sm, method = x$method, k = x$k,
               pooled = pooled,

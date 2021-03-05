@@ -219,13 +219,13 @@
 #' In rare settings with very homogeneous treatment estimates, the
 #' Hartung-Knapp variance estimate can be arbitrarily small resulting
 #' in a very narrow confidence interval (Knapp and Hartung, 2003;
-#' Wiksten et al., 2016). In such cases, an
-#' \emph{ad hoc} variance correction has been proposed by utilising
-#' the variance estimate from the classic random effects model with
-#' the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
-#' alternative approach is to use the wider confidence interval of
-#' classic fixed or random effects meta-analysis and the HK method
-#' (Wiksten et al., 2016; Jackson et al., 2017).
+#' Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
+#' correction has been proposed by utilising the variance estimate
+#' from the classic random effects model with the HK method (Knapp and
+#' Hartung, 2003; IQWiQ, 2020). An alternative approach is to use the
+#' wider confidence interval of classic fixed or random effects
+#' meta-analysis and the HK method (Wiksten et al., 2016; Jackson et
+#' al., 2017).
 #'
 #' Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
 #' method:
@@ -246,6 +246,11 @@
 #'  \tab and HK meta-analysis \cr
 #'  \tab (Hybrid method 2 in Jackson et al., 2017)
 #' }
+#' 
+#' For GLMMs, a method similar to Knapp and Hartung (2003) is
+#' implemented, see description of argument \code{tdist} in
+#' \code{\link[metafor]{rma.glmm}}, and the \emph{ad hoc} variance
+#' correction is not available.
 #' }
 #' 
 #' \subsection{Prediction interval}{
@@ -647,6 +652,7 @@ metarate <- function(event, time, studlab,
   chklogical(overall.hetstat)
   ##
   chklogical(hakn)
+  missing.adhoc.hakn <- missing(adhoc.hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
   if (missing(method.tau))
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
@@ -703,6 +709,14 @@ metarate <- function(event, time, studlab,
   if (is.glmm & method.tau != "ML")
     stop("Generalised linear mixed models only possible with ",
          "argument 'method.tau = \"ML\"'.")
+    ##
+  if (is.glmm & hakn & adhoc.hakn != "") {
+    if (!missing.adhoc.hakn)
+      warning("Ad hoc variance correction for Hartung-Knapp method ",
+              "not available for GLMMs.",
+              call. = FALSE)
+    adhoc.hakn <- ""
+  }
   
   
   ##

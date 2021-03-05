@@ -470,27 +470,42 @@ formatcol <- function(x, y, rows, just = "right", settings,
       ##
       ## Fixed effect estimates:
       ##
-      res$labels[[4 + i]] <- textGrob(y[3 + i],
-                                      x = xpos, just = just,
-                                      gp = 
-                                        gpar(
-                                          fontsize = settings$fs.fixed,
-                                          fontface = settings$ff.fixed,
-                                          fontfamily = fontfamily,
-                                          col = settings$col.by)
-                                      )
+      res$labels[[4 + i]] <-
+        textGrob(y[3 + i],
+                 x = xpos, just = just,
+                 gp = 
+                   gpar(
+                     fontsize = settings$fs.fixed,
+                     fontface = settings$ff.fixed,
+                     fontfamily = fontfamily,
+                     col = settings$col.by)
+                 )
       ##
       ## Random effects estimates:
       ##
-      res$labels[[4 + settings$n.by + i]] <- textGrob(y[3 + settings$n.by + i],
-                                             x = xpos, just = just,
-                                             gp = 
-                                               gpar(
-                                                 fontsize = settings$fs.random,
-                                                 fontface = settings$ff.random,
-                                                 fontfamily = fontfamily,
-                                                 col = settings$col.by)
-                                             )
+      res$labels[[4 + 1 * settings$n.by + i]] <-
+        textGrob(y[3 + 1 * settings$n.by + i],
+                 x = xpos, just = just,
+                 gp = 
+                   gpar(
+                     fontsize = settings$fs.random,
+                     fontface = settings$ff.random,
+                     fontfamily = fontfamily,
+                     col = settings$col.by)
+                 )
+      ##
+      ## Prediction interval:
+      ##
+      res$labels[[4 + 2 * settings$n.by + i]] <-
+        textGrob(y[3 + 2 * settings$n.by + i],
+                 x = xpos, just = just,
+                 gp = 
+                   gpar(
+                     fontsize = settings$fs.predict,
+                     fontface = settings$ff.predict,
+                     fontfamily = fontfamily,
+                     col = settings$col.by)
+                 )
     }
   ##
   res

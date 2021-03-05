@@ -30,6 +30,7 @@
   byseparator = x$byseparator,
   text.fixed.w = text.fixed,
   text.random.w = text.random,
+  text.predict.w = text.predict,
   bysort = FALSE,
   pooled.totals = comb.fixed | comb.random,
   pooled.events = FALSE,
@@ -296,6 +297,10 @@ length as number of subgroups with corresponging labels.}
 effect estimate within subgroups, or a character vector of same
 length as number of subgroups with corresponging labels.}
 
+\item{text.predict.w}{A character string to label the prediction
+interval within subgroups, or a character vector of same length
+as number of subgroups with corresponging labels.}
+
 \item{bysort}{A logical indicating whether groups should be ordered
 alphabetically.}
 
@@ -536,8 +541,8 @@ the confidence interval of \eqn{\tau^2}.}
 \eqn{\tau}, the square root of the between-study variance
 \eqn{\tau^2}.}
 
-\item{print.tau.ci}{A logical value indicating whether to print
-the confidence interval of \eqn{\tau}.}
+\item{print.tau.ci}{A logical value indicating whether to print the
+confidence interval of \eqn{\tau}.}
 
 \item{print.Q}{A logical value indicating whether to print the
 value of the heterogeneity statistic Q.}
@@ -787,8 +792,8 @@ arguments \code{text.random} and \code{text.random.w} should be
 considered to calculate width of the column with study labels.}
 
 \item{calcwidth.predict}{A logical indicating whether text given in
-argument \code{text.predict} should be considered to calculate
-width of the column with study labels.}
+argument \code{text.predict} and \code{text.predict.w} should be
+considered to calculate width of the column with study labels.}
 
 \item{calcwidth.hetstat}{A logical indicating whether text for
 heterogeneity statistics should be considered to calculate width
@@ -915,9 +920,11 @@ standards.}
 \item{weight}{Deprecated argument (replaced by
 \code{weight.study}).}
 
-\item{digits.zval}{Deprecated argument (replaced by \code{digits.stat}).}
+\item{digits.zval}{Deprecated argument (replaced by
+\code{digits.stat}).}
 
-\item{print.zval}{Deprecated argument (replaced by \code{print.stat}).}
+\item{print.zval}{Deprecated argument (replaced by
+\code{print.stat}).}
 
 \item{\dots}{Additional graphical arguments.}
 }
