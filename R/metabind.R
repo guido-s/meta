@@ -136,8 +136,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       args2 <- list()
       for (i in n.i)
         args2[[i]] <- args[[1]][[i]]
+      ##
+      args <- args2
     }
-    args <- args2
   }
   ##  
   for (i in n.i) {

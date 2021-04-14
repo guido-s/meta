@@ -6,6 +6,9 @@
   - bug fix for linear regression tests using **metafor**, version
     2.5-86
 
+* metabind():
+  - bug fix for a single meta-analysis object
+
 
 ## meta, version 4.18-0 (2021-03-05)
 
