@@ -1052,6 +1052,14 @@ side of the forest plot}}:
 \code{\link{metainf}} \tab \code{"studlab"}
 }
 
+Note, \code{"studlab"} \bold{must be provided for study labels} in
+argument \code{rightcols} or \code{leftcols} instead of the
+variable name used in the meta-analysis command. If, for example,
+\code{"id"} is provided in argument \code{leftcols} as this
+variable was used to define study labels in the meta-analysis, this
+variable will be treated as an additional variable, not as study
+labels.
+
 The arguments \code{leftlabs} and \code{rightlabs} can be used to
 specify column headings which are plotted on left and right side of
 the forest plot, respectively. For certain columns predefined
