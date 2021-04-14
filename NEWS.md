@@ -1,3 +1,12 @@
+## meta, version 4.18-1 (2021-mm-dd)
+
+### Bug fixes
+
+* metabias():
+  - bug fix for linear regression tests using **metafor**, version
+    2.5-86
+
+
 ## meta, version 4.18-0 (2021-03-05)
 
 ### Major changes
