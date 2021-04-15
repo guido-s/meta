@@ -25,9 +25,9 @@ calcH <- function(Q, df, level) {
     selogH <- NA
   }
   ##
-  tres <- ci(log(H), selogH, level)
+  tres <- ci(log(max(c(H, 1))), selogH, level)
   ##
-  res <- list(TE = max(exp(tres$TE), 1),
+  res <- list(TE = exp(tres$TE),
               lower = max(exp(tres$lower), 1),
               upper = max(exp(tres$upper), 1))
   

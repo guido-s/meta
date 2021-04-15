@@ -1,6 +1,15 @@
 ## meta, version 4.18-1 (2021-mm-dd)
 
+### Major changes
+
+* Calculate correct upper limit for confidence intervals of I2 and H2
+  in very homogeneous meta-analyses (i.e., if Q < k - 1)
+
 ### Bug fixes
+
+* calcH():
+  - set H = 1 in calculation of confidence interval for H if H < 1
+    (i.e., if Q < k - 1)
 
 * metabias():
   - bug fix for linear regression tests using **metafor**, version
