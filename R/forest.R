@@ -4390,11 +4390,15 @@ forest.meta <- function(x,
     lower.predict.w <- x$lower.predict.w[o]
     upper.predict.w <- x$upper.predict.w[o]
     ##
-    Q.w     <- x$Q.w[o]
-    I2.w    <- x$I2.w[o]
+    Q.w <- x$Q.w[o]
+    df.Q.w <- x$df.Q.w[o]
+    pval.Q.w <- x$pval.Q.w[o]
+    ##
+    I2.w <- x$I2.w[o]
     lowI2.w <- x$lower.I2.w[o]
     uppI2.w <- x$upper.I2.w[o]
-    Rb.w    <- x$Rb.w[o]
+    ##
+    Rb.w <- x$Rb.w[o]
     lowRb.w <- x$lower.Rb.w[o]
     uppRb.w <- x$upper.Rb.w[o]
     ##
@@ -4585,7 +4589,7 @@ forest.meta <- function(x,
                  paste0(", df",  hetseparator, k.w.hetstat - 1))
       ##
       hetstat.pval.Q.w <-
-        paste0(formatPT(replaceNULL(x$pval.Q.w, pvalQ(x$Q.w, x$df.Q.w)),
+        paste0(formatPT(replaceNULL(pval.Q.w, pvalQ(Q.w, df.Q.w)),
                         lab = TRUE, labval = "",
                         digits = digits.pval.Q,
                         zero = zero.pval, JAMA = JAMA.pval,

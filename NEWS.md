@@ -7,6 +7,10 @@
 
 ### Bug fixes
 
+* forest.meta():
+  - correct order of p-values for homogeneity tests within subgroups
+    if argument 'bysort = TRUE'
+
 * calcH():
   - set H = 1 in calculation of confidence interval for H if H < 1
     (i.e., if Q < k - 1)
