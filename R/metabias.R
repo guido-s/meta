@@ -41,7 +41,8 @@
 #'   standards.
 #' @param text.tau2 Text printed to identify residual heterogeneity
 #'   variance \eqn{\tau^2}.
-#' @param \dots Additional arguments (ignored at the moment).
+#' @param \dots Additional arguments passed on to
+#'   \code{\link[metafor]{rma.uni}}.
 #' 
 #' @details
 #' Functions to conduct rank correlation or linear regression tests
@@ -518,13 +519,14 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         ##
         ## Egger, Smith, Schneider, Minder (1997), BMJ, 315, 629-34
         ##
-        lreg <- linregcore(TE, seTE)
+        lreg <- linregcore(TE, seTE, ...)
       }
       else if (method.bias == "Thompson") {
         ##
         ## Thompson und Sharp (1999), Stat Med, 18, 2693-2708
         ##
-        lreg <- linregcore(TE, seTE, model = "rma", method.tau = x$method.tau)
+        lreg <- linregcore(TE, seTE, model = "rma", method.tau = x$method.tau,
+                           ...)
       }
       else if (method.bias == "Harbord") {
         if (inherits(x, "metabin")) {
@@ -555,7 +557,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           TE.score <- Z / V
           seTE.score <- 1 / sqrt(V)
           ##
-          lreg <- linregcore(TE.score, seTE.score)
+          lreg <- linregcore(TE.score, seTE.score, ...)
         }
         else
           stoponly("method.bias", method.bias, "metabin()")
@@ -577,7 +579,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         else
           stop("No information on sample size available.")
         ##
-        lreg <- linregcore(TE, seTE, covar)
+        lreg <- linregcore(TE, seTE, covar, ...)
       }
       else if (method.bias == "Peters") {
         ##
@@ -595,7 +597,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         else
           stoponly("method.bias", method.bias, "metabin() or metaprop()")
         ##
-        lreg <- linregcore(TE, seTE.Peters, covar)
+        lreg <- linregcore(TE, seTE.Peters, covar, ...)
       }
       else if (method.bias == "Deeks") {
         ##
@@ -604,7 +606,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         if (inherits(x, "metabin")) {
           ESS <- 4 * n.e * n.c / (n.e + n.c)
           ##
-          lreg <- linregcore(TE, sqrt(1 / ESS), 1 / sqrt(ESS))
+          lreg <- linregcore(TE, sqrt(1 / ESS), 1 / sqrt(ESS), ...)
         }
         else
           stoponly("method.bias", method.bias, "metabin()")
@@ -620,7 +622,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
           stop("Sample size in control group (n.c) missing.",
                call. = FALSE)
         ##
-        lreg <- linregcore(TE, seTE, sqrt(1 / n.e + 1 / n.c))
+        lreg <- linregcore(TE, seTE, sqrt(1 / n.e + 1 / n.c), ...)
       }
       ##
       res <- list(statistic = lreg$statistic, df = lreg$df, pval = lreg$pval,

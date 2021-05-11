@@ -59,7 +59,8 @@ statistic is used for rank correlation tests.}
 \item{k.min}{Minimum number of studies to perform test for funnel
 plot asymmetry.}
 
-\item{\dots}{Additional arguments (ignored at the moment).}
+\item{\dots}{Additional arguments passed on to
+\code{\link[metafor]{rma.uni}}.}
 
 \item{digits}{Minimal number of significant digits for estimates,
 see \code{print.default}.}

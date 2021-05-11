@@ -1,4 +1,4 @@
-## meta, version 4.18-1 (2021-mm-dd)
+## meta, version 4.18-1 (2021-05-11)
 
 ### Major changes
 
@@ -21,6 +21,15 @@
 
 * metabind():
   - bug fix for a single meta-analysis object
+
+### Internal changes
+
+* metabias.bias():
+  - argument '...' passed on to rma.uni()
+
+* metagen():
+  - set list element 'df.hakn' to NA instead of NULL if condition met
+    for argument 'adhoc.hakn = "ci"'
 
 
 ## meta, version 4.18-0 (2021-03-05)

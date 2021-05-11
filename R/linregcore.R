@@ -1,5 +1,6 @@
 linregcore <- function(TE, seTE, covar = NULL,
-                       model = "lm", method.tau = "DL") {
+                       model = "lm", method.tau = "DL",
+                       ...) {
   
   if (is.null(covar))
     predictor <- "sei"
@@ -7,7 +8,8 @@ linregcore <- function(TE, seTE, covar = NULL,
     predictor <- "ni"
   
   rma1 <- suppressWarnings(rma.uni(TE, sei = seTE, ni = covar,
-                                   method = method.tau, test = "t"))
+                                   method = method.tau, test = "t",
+                                   ...))
   ##
   reg <- suppressWarnings(regtest(rma1, predictor = predictor,
                                   model = model))

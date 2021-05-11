@@ -1929,7 +1929,7 @@ metagen <- function(TE, seTE, studlab,
         if (q < qnorm(alpha) / qt(alpha, df = df.hakn)) {
           seTE.random.hakn.orig <- seTE.random
           seTE.random <- sqrt(1 /  sum(w.random))
-          df.hakn <- NULL
+          df.hakn <- NA
         }
       }
       else if (adhoc.hakn == "iqwig6") {
