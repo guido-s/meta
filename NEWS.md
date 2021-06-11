@@ -1,3 +1,12 @@
+## meta, version 4.18-2 (2021-06-11)
+
+### Bug fixes
+
+* For argument 'adhoc.hakn = "ci"', directly compare width of
+  confidence intervals of Hartung-Knapp method and classic random
+  effects meta-analysis
+
+
 ## meta, version 4.18-1 (2021-05-11)
 
 ### Major changes
