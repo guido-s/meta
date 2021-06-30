@@ -87,10 +87,10 @@ hetcalc <- function(TE, seTE,
         se.tau2 <- mf0$se.tau2
       }
       else {
-        id.TE <- seq_along(TE)
+        idx <- seq_along(TE)
         mf0 <- rma.mv(TE, seTE^2,
                       method = method.tau,
-                      random = ~ 1 | id / id.TE,
+                      random = ~ 1 | id / idx,
                       control = control)
         ##
         tau2 <- mf0$sigma2
@@ -163,17 +163,17 @@ hetcalc <- function(TE, seTE,
       se.tau2.resid <- mf1$se.tau2
     }
     else {
-      id.TE <- seq_along(TE)
+      idx <- seq_along(TE)
       ##
       if (length(unique(byvar)) == 1)
         mf1 <- rma.mv(TE, seTE^2,
                       method = method.tau,
-                      random = ~ 1 | id / id.TE,
+                      random = ~ 1 | id / idx,
                       control = control)
       else {
         mf1 <- try(rma.mv(TE, seTE^2,
                           method = method.tau,
-                          random = ~ 1 | id / id.TE,
+                          random = ~ 1 | id / idx,
                           mods = ~ byvar, control = control),
                    silent = TRUE)
         ##
@@ -184,7 +184,7 @@ hetcalc <- function(TE, seTE,
             useFE <- TRUE
             mf1 <- rma.mv(TE, seTE^2,
                           method = "FE",
-                          random = ~ 1 | id / id.TE,
+                          random = ~ 1 | id / idx,
                           mods = ~ byvar, control = control)
           }
           else

@@ -73,6 +73,11 @@
 #'   root of the between-study variance \eqn{\tau^2}.
 #' @param text.I2 Text printed to identify heterogeneity statistic
 #'   I\eqn{^2}.
+#' @param truncate An optional vector used to truncate the printout of
+#'   results for individual studies (must be a logical vector of same
+#'   length as \code{x$TE} or contain numerical values).
+#' @param text.truncate A character string printed if study results
+#'   were truncated from the printout.
 #' @param warn.backtransf A logical indicating whether a warning
 #'   should be printed if backtransformed proportions and rates are
 #'   below 0 and backtransformed proportions are above 1.
@@ -175,6 +180,8 @@ print.meta <- function(x,
                        text.tau = gs("text.tau"),
                        text.I2 = gs("text.I2"),
                        ##
+                       truncate, text.truncate = "*** Output truncated ***",
+                       ##
                        warn.backtransf = FALSE,
                        ...
                        ) {
@@ -271,6 +278,46 @@ print.meta <- function(x,
   tt2 <- text.tau2
   tt <- text.tau
   ti <- text.I2
+  ##
+  ## Catch 'truncate' from meta-analysis object:
+  ##
+  missing.truncate <- missing(truncate)
+  if (!missing.truncate) {
+    truncate <- eval(mf[[match("truncate", names(mf))]],
+                     x, enclos = sys.frame(sys.parent()))
+    ##
+    if (is.null(truncate))
+      truncate <- eval(mf[[match("truncate", names(mf))]],
+                       x$data, enclos = sys.frame(sys.parent()))
+    ##
+    if (length(truncate) > k.all)
+      stop("Length of argument 'truncate' is too long.",
+           call. = FALSE)
+    else if (length(truncate) < k.all) {
+      if (is.numeric(truncate)) {
+        if (any(is.na(truncate)) | max(truncate) > k.all | min(truncate) < 0)
+          stop("Numeric values in argument 'truncate' must be between 1 and ",
+               k.all, ".",
+               call. = FALSE)
+        truncate2 <- rep(FALSE, k.all)
+        truncate2[truncate] <- TRUE
+        truncate <- truncate2
+      }
+      else if (is.character(truncate)) {
+        if (any(!(truncate %in% x$studlab)))
+          stop("At least one value of argument 'truncate' does not ",
+               "match a study label.",
+               call. = FALSE)
+        truncate2 <- rep(FALSE, k.all)
+        truncate2[x$studlab %in% truncate] <- TRUE
+        truncate <- truncate2
+      }
+      else
+        stop("Argument 'truncate' must contain integers or study labels if ",
+             "length differs from number of treatment effects.",
+             call. = FALSE)
+    }
+  }
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -494,7 +541,16 @@ print.meta <- function(x,
       res <- cbind(res, byvar = as.character(x$byvar))
     ##
     dimnames(res)[[1]] <- x$studlab
-    prmatrix(res[order(sortvar), ], quote = FALSE, right = TRUE)
+    ##
+    if (!missing.truncate) {
+      sortvar <- sortvar[truncate]
+      res <- res[truncate, , drop = FALSE]
+    }
+    ##
+    prmatrix(res[order(sortvar), , drop = FALSE],
+             quote = FALSE, right = TRUE)
+    if (!missing.truncate)
+      cat(text.truncate, "\n")
     cat("\n")
   }
   
@@ -713,7 +769,16 @@ print.meta <- function(x,
                  if (show.w.random) text.w.random,
                  if (by) x$bylab,
                  if (!is.null(x$exclude)) "exclude"))
-        prmatrix(res[order(sortvar),], quote = FALSE, right = TRUE)
+        ##
+        if (!missing.truncate) {
+          sortvar <- sortvar[truncate]
+          res <- res[truncate, , drop = FALSE]
+        }
+        ##
+        prmatrix(res[order(sortvar), , drop = FALSE],
+                 quote = FALSE, right = TRUE)
+        if (!missing.truncate)
+          cat(text.truncate, "\n")
       }
     }
     

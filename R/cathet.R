@@ -75,7 +75,9 @@ cathet <- function(k,
         paste0(
           ifelse(
             print.tau2 | print.tau,
-          ifelse(!stau | print.tau2.ci | print.tau.ci, "\n", ";"),
+          ifelse(!stau | print.tau2.ci | print.tau.ci |
+                 (options()$width < 70 & print.I2.ci),
+                 "\n", ";"),
           ""),
           if (print.tau2 | print.tau)
             " ",

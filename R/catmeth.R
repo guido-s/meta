@@ -85,7 +85,7 @@ catmeth <- function(method,
     else if (method.ci == "WSCC")
       method.ci.details <-
         paste0("\n- Wilson Score confidence interval with ",
-               "continuity correction for individual studies")
+               "continuity correction\n", "  for individual studies")
     else if (method.ci == "AC")
       method.ci.details <-
         "\n- Agresti-Coull confidence interval for individual studies"
@@ -164,7 +164,9 @@ catmeth <- function(method,
             sm.details <-
               paste0(sm.details,
                      paste0("\n- Treatment arm continuity correction in ",
-                            "studies with zero cell frequencies"),
+                            "studies with",
+                            if (options()$width > 70) " " else "\n  ",
+                            "zero cell frequencies"),
                      if (method == "GLMM")
                        "\n  (only used to calculate individual study results)")
           else if (any(incr != 0) && txtCC)
@@ -173,7 +175,9 @@ catmeth <- function(method,
                      "\n- Continuity correction",
                      if (length(unique(incr)) == 1)
                        paste0(" of ", round(incr, 4)),
-                     " in studies with zero cell frequencies",
+                     " in studies with",
+                     if (options()$width > 70) " " else "\n  ",
+                     "zero cell frequencies",
                      if (method == "GLMM")
                        "\n  (only used to calculate individual study results)")
         }
@@ -281,15 +285,21 @@ catmeth <- function(method,
         lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
       ##
       if (lab.method.tau != "" & tau.common)
-        lab.method.tau <- paste0(lab.method.tau,
-                                 " (assuming common ", text.tau2,
-                                 " in subgroups)")
+        lab.method.tau <-
+          paste0(lab.method.tau,
+                 if (options()$width > 70) " " else "\n  ",
+                 "(assuming common ", text.tau2,
+                 " in subgroups)")
       ##
       if (lab.method.tau != "" & metabin & Q.Cochrane)
         lab.method.tau <-
           paste0(lab.method.tau,
                  "\n- Mantel-Haenszel estimator used in ",
-                 "calculation of Q and ", text.tau2, " (like RevMan 5)")
+                 "calculation of Q and ", text.tau2,
+                 if (options()$width > 70)
+                   " (like RevMan 5)"
+                 else
+                   "\n  (like RevMan 5)")
       ##
       if (print.tau.ci & method.tau.ci %in% c("QP", "BJ", "J")) {
         i.lab.tau.ci <-
@@ -353,14 +363,20 @@ catmeth <- function(method,
                               c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
     ##
     if (metabin)
-      method <- c("\n- Logistic regression model (fixed study effects)",
-                  "\n- Mixed-effects logistic regression model (random study effects)",
-                  "\n- Generalised linear mixed model (conditional Hypergeometric-Normal)",
-                  "\n- Generalised linear mixed model (conditional Binomial-Normal)")[i.model.glmm]
+      method <-
+        c("\n- Logistic regression model (fixed study effects)",
+          "\n- Mixed-effects logistic regression model (random study effects)",
+          paste("\n- Generalised linear mixed model",
+                "(conditional Hypergeometric-Normal)"),
+          paste("\n- Generalised linear mixed model",
+                "(conditional Binomial-Normal)")
+          )[i.model.glmm]
     else if (metainc)
-      method <- c("\n- Poisson regression model (fixed study effects)",
-                  "\n- Mixed-effects Poisson regression model (random study effects)",
-                  "\n- Generalised linear mixed model (conditional Poisson-Normal)")[i.model.glmm]
+      method <-
+        c("\n- Poisson regression model (fixed study effects)",
+          "\n- Mixed-effects Poisson regression model (random study effects)",
+          "\n- Generalised linear mixed model (conditional Poisson-Normal)"
+          )[i.model.glmm]
     else if (metaprop)
       method <- "\n- Random intercept logistic regression model"
     else if (metarate)

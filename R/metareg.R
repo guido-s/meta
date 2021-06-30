@@ -178,6 +178,8 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   model.glmm <- x$model.glmm
   ##
+  threelevel <- !is.null(x$k.study) && x$k != x$k.study
+  ##
   metabin <- inherits(x, "metabin")
   metainc <- inherits(x, "metainc")
   metaprop <- inherits(x, "metaprop")
@@ -203,8 +205,8 @@ metareg <- function(x, formula, method.tau = x$method.tau,
     event <- x$event
     time <- x$time
   }
-
-
+  
+  
   if (missing(formula)) {
     if (isCol(x$data, ".byvar"))
       if (intercept)
@@ -298,12 +300,26 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   warn.FE <- paste("Fallback to fixed effect model (argument",
                    "method.tau = \"FE\") due to small number of studies.")
   ##
-  if (method != "GLMM")
-    res <- rma.uni(yi = TE[!exclude], sei = seTE[!exclude],
-                   data = dataset,
-                   mods = formula, method = method.tau,
-                   test = test, level = 100 * level.comb,
-                   ...)
+  if (method != "GLMM") {
+    ##
+    ## Three-level model
+    ##
+    if (threelevel) {
+      ##
+      res <- rma.mv(TE[!exclude], seTE[!exclude]^2,
+                    data = dataset,
+                    mods = formula, method = method.tau,
+                    random = ~ 1 | .id / .idx,
+                    test = test, level = 100 * level.comb,
+                    ...)
+    }
+    else
+      res <- rma.uni(yi = TE[!exclude], sei = seTE[!exclude],
+                     data = dataset,
+                     mods = formula, method = method.tau,
+                     test = test, level = 100 * level.comb,
+                     ...)
+  }
   else {
     if (metabin) {
       if (sum(!exclude) > 2)

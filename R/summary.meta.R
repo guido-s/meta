@@ -62,9 +62,10 @@
 #' @param digits.Q Minimal number of significant digits for
 #'   heterogeneity statistic Q, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance, see \code{print.default}.
+#'   between-study variance \eqn{\tau^2}, see \code{print.default}.
+#' @param digits.tau Minimal number of significant digits for
+#'   \eqn{\tau}, the square root of the between-study variance
+#'   \eqn{\tau^2}.
 #' @param digits.H Minimal number of significant digits for H
 #'   statistic, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
@@ -78,6 +79,11 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
+#' @param print.tau2 A logical specifying whether between-study
+#'   variance \eqn{\tau^2} should be printed.
+#' @param print.tau A logical specifying whether \eqn{\tau}, the
+#'   square root of the between-study variance \eqn{\tau^2}, should be
+#'   printed.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
 #' @param warn A logical indicating whether the use of
@@ -98,7 +104,10 @@
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
 #'   R\eqn{_b}.
-#' @param digits.zval Deprecated argument (replaced by \code{digits.stat}).
+#' @param details.methods A logical specifying whether details on
+#'   statistical methods should be printed.
+#' @param digits.zval Deprecated argument (replaced by
+#'   \code{digits.stat}).
 #' @param \dots Additional arguments (ignored).
 #'
 #' @details
@@ -818,6 +827,8 @@ print.summary.meta <- function(x,
                                big.mark = gs("big.mark"),
                                zero.pval = gs("zero.pval"),
                                JAMA.pval = gs("JAMA.pval"),
+                               print.tau2 = TRUE,
+                               print.tau = TRUE,
                                print.I2 = gs("print.I2"),
                                print.H = gs("print.H"),
                                print.Rb = gs("print.Rb"),
@@ -826,6 +837,8 @@ print.summary.meta <- function(x,
                                text.tau = gs("text.tau"),
                                text.I2 = gs("text.I2"),
                                text.Rb = gs("text.Rb"),
+                               ##
+                               details.methods = TRUE,
                                ##
                                digits.zval = digits.stat,
                                ##
@@ -868,6 +881,8 @@ print.summary.meta <- function(x,
     backtransf <- TRUE
   chklogical(backtransf)
   ##
+  chklogical(print.tau2)
+  chklogical(print.tau)
   chklogical(print.I2)
   chklogical(print.H)
   chklogical(print.Rb)
@@ -918,6 +933,8 @@ print.summary.meta <- function(x,
     chklogical(print.CMH)
   chklogical(header)
   chknumeric(bylab.nchar)
+  ##
+  chklogical(details.methods)
   ##
   ## Additional arguments / checks for metacont objects
   ##
@@ -1330,36 +1347,37 @@ print.summary.meta <- function(x,
                             if (null.given) "p-value"))
     prmatrix(res, quote = FALSE, right = TRUE, ...)
     ## Print information on summary method:
-    catmeth(class = class(x),
-            method =
-              if (!metaprop | (overall & (comb.fixed | comb.random)) |
-                  overall.hetstat | by)
-                x$method else "NoMA",
-            sm = sm,
-            k.all = k.all,
-            sparse = ifelse(bip, x$sparse, FALSE),
-            incr = if (bip) x$incr else FALSE,
-            allincr = ifelse(bip, x$allincr, FALSE),
-            addincr = ifelse(bip, x$addincr, FALSE),
-            allstudies = x$allstudies,
-            doublezeros = x$doublezeros,
-            MH.exact = ifelse(metabin, x$MH.exact, FALSE),
-            method.ci = method.ci,
-            pooledvar = x$pooledvar,
-            method.smd = x$method.smd,
-            sd.glass = x$sd.glass,
-            exact.smd = x$exact.smd,
-            model.glmm = x$model.glmm,
-            pscale = pscale,
-            irscale = irscale,
-            irunit = irunit,
-            null.effect = if (null.given) null.effect else 0,
-            big.mark = big.mark,
-            digits = digits, digits.tau = digits.tau,
-            text.tau = text.tau, text.tau2 = text.tau2,
-            method.miss = x$method.miss,
-            IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
-            threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
+    if (details.methods)
+      catmeth(class = class(x),
+              method =
+                if (!metaprop | (overall & (comb.fixed | comb.random)) |
+                    overall.hetstat | by)
+                  x$method else "NoMA",
+              sm = sm,
+              k.all = k.all,
+              sparse = ifelse(bip, x$sparse, FALSE),
+              incr = if (bip) x$incr else FALSE,
+              allincr = ifelse(bip, x$allincr, FALSE),
+              addincr = ifelse(bip, x$addincr, FALSE),
+              allstudies = x$allstudies,
+              doublezeros = x$doublezeros,
+              MH.exact = ifelse(metabin, x$MH.exact, FALSE),
+              method.ci = method.ci,
+              pooledvar = x$pooledvar,
+              method.smd = x$method.smd,
+              sd.glass = x$sd.glass,
+              exact.smd = x$exact.smd,
+              model.glmm = x$model.glmm,
+              pscale = pscale,
+              irscale = irscale,
+              irunit = irunit,
+              null.effect = if (null.given) null.effect else 0,
+              big.mark = big.mark,
+              digits = digits, digits.tau = digits.tau,
+              text.tau = text.tau, text.tau2 = text.tau2,
+              method.miss = x$method.miss,
+              IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
+              threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
   }
   else if (is.na(k)) {
     ## Do nothing
@@ -1480,14 +1498,12 @@ print.summary.meta <- function(x,
     if (overall.hetstat) {
       cat("\nQuantifying heterogeneity:\n")
       ##
-      print.tau2 <- TRUE
       print.tau2.ci <-
         print.tau2 & all(!(is.na(x$tau2$lower) | is.na(x$tau2$upper)))
       if (print.tau2.ci &&
           (all(x$tau2$lower == 0) & all(x$tau2$upper == 0)))
         print.tau2.ci <- FALSE
       ##
-      print.tau <- TRUE
       print.tau.ci <-
         print.tau & all(!(is.na(x$tau$lower) | is.na(x$tau$upper)))
       if (print.tau.ci &&
@@ -1788,7 +1804,7 @@ print.summary.meta <- function(x,
     ##
     ## Print information on summary method:
     ##
-    if (comb.fixed | comb.random | prediction)
+    if (details.methods & (comb.fixed | comb.random | prediction))
       catmeth(class = class(x),
               method =
                 if ((overall & (comb.fixed | comb.random)) |

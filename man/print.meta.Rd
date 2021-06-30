@@ -34,6 +34,8 @@
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
+  truncate,
+  text.truncate = "*** Output truncated ***",
   warn.backtransf = FALSE,
   ...
 )
@@ -136,6 +138,13 @@ root of the between-study variance \eqn{\tau^2}.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
 I\eqn{^2}.}
+
+\item{truncate}{An optional vector used to truncate the printout of
+results for individual studies (must be a logical vector of same
+length as \code{x$TE} or contain numerical values).}
+
+\item{text.truncate}{A character string printed if study results
+were truncated from the printout.}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are

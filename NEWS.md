@@ -1,3 +1,18 @@
+## meta, version 4.18-3 (2021-mm-dd)
+
+### Bug fixes
+
+* metareg():
+  - use rma.mv() from R package **metafor** for three-level models
+    instead of rma.uni()
+
+### Internal changes
+
+* metagen():
+  - new variable '.idx' with running index in meta-analysis data set
+    (list element 'data')
+
+
 ## meta, version 4.18-2 (2021-06-11)
 
 ### Bug fixes

@@ -1305,8 +1305,11 @@ metagen <- function(TE, seTE, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!missing.id)
+    if (!missing.id) {
       data$.id <- id
+      idx <- seq_along(id)
+      data$.idx <- idx
+    }
     ##
     if (!missing.pval)
       data$.pval <- pval
@@ -1355,8 +1358,10 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(n.c))
       n.c <- n.c[subset]
     ##
-    if (!missing.id)
+    if (!missing.id) {
       id <- id[subset]
+      idx <- idx[subset]
+    }
     ##
     if (!missing.pval)
       pval <- pval[subset]
@@ -1863,8 +1868,6 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Three-level meta-analysis
       ##
-      id.TE <- seq_along(TE)
-      ##
       ## No fixed effect method for three-level model
       ##
       if (comb.fixed) {
@@ -1890,7 +1893,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       m4 <- rma.mv(TE, seTE^2,
                    method = method.tau,
-                   random = ~ 1 | id / id.TE,
+                   random = ~ 1 | id / idx,
                    control = control)
       ##
       w.random <- rep_len(NA, length(w.fixed))
@@ -1904,37 +1907,39 @@ metagen <- function(TE, seTE, studlab,
     ## Hartung-Knapp adjustment
     ##
     if (hakn) {
-      alpha <- (1 - level.comb) / 2
+      ## alpha <- (1 - level.comb) / 2
       df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
       ##
+      seTE.random.classic <- seTE.random
       seTE.random <- sqrt(q / sum(w.random))
       ##
       if (adhoc.hakn == "se") {
         ##
-        ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003)
+        ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
+        ## i.e., if q < 1
         ##
         if (q < 1) {
           seTE.random.hakn.orig <- seTE.random
-          seTE.random <- sqrt(1 /  sum(w.random))
+          seTE.random <- seTE.random.classic
         }
       }
       else if (adhoc.hakn == "ci") {
         ##
         ## Use wider confidence interval, i.e., confidence interval
-        ## from classic random effects meta-analysis if HK CI is
+        ## from classic random effects meta-analysis if CI_HK is
         ## smaller
         ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
         ##
         ci.hk <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn)
-        ci.re <- ci(TE.random, seTE.random, level = level.comb)
+        ci.re <- ci(TE.random, seTE.random.classic, level = level.comb)
         ##
         width.hk <- ci.hk$upper - ci.hk$lower
         width.re <- ci.re$upper - ci.re$lower
         ##
         if (width.hk < width.re) {
           seTE.random.hakn.orig <- seTE.random
-          seTE.random <- sqrt(1 /  sum(w.random))
+          seTE.random <- seTE.random.classic
           df.hakn <- NA
         }
       }
@@ -1953,7 +1958,7 @@ metagen <- function(TE, seTE, studlab,
         ##
         if (width.hk < width.dl) {
           seTE.random.hakn.orig <- seTE.random
-          seTE.random <- sqrt(max(q, 1) /  sum(w.random))
+          seTE.random <- seTE.random.classic
         }
       }
       ##
