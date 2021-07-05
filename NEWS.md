@@ -1,5 +1,11 @@
 ## meta, version 4.18-3 (2021-mm-dd)
 
+### Major changes
+
+* Calculation of weights for three-level random effects model using
+  weights.rma.mv() with argument type = "rowsum" from R package
+  **metafor**
+
 ### Bug fixes
 
 * metareg():
@@ -11,6 +17,8 @@
 * metagen():
   - new variable '.idx' with running index in meta-analysis data set
     (list element 'data')
+  - new logical list element 'three.level' indicating whether
+    three-level model was used
 
 
 ## meta, version 4.18-2 (2021-06-11)

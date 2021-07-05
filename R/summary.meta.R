@@ -526,8 +526,10 @@ summary.meta <- function(object,
               overall.hetstat = overall.hetstat,
               text.fixed = object$text.fixed,
               text.random = object$text.random,
-              text.predict = object$text.predict)
-  ##  
+              text.predict = object$text.predict,
+              ##
+              three.level = object$three.level)
+  ##
   ## Add results from subgroup analysis
   ##
   if (length(object$byvar) > 0) {
@@ -1377,7 +1379,8 @@ print.summary.meta <- function(x,
               text.tau = text.tau, text.tau2 = text.tau2,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
-              threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
+              three.level =
+                if (is.null(x$three.level)) FALSE else x$three.level)
   }
   else if (is.na(k)) {
     ## Do nothing
@@ -1849,7 +1852,8 @@ print.summary.meta <- function(x,
               text.tau = text.tau, text.tau2 = text.tau2,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
-              threelevel = if (is.null(x$k.study)) FALSE else x$k != x$k.study)
+              three.level =
+                if (is.null(x$three.level)) FALSE else x$three.level)
   }
   
   

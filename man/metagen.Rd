@@ -441,6 +441,11 @@ object is a list containing the following components:
 Fixed effect and random effects meta-analysis based on estimates
 (e.g. log hazard ratios) and their standard errors. The inverse
 variance method is used for pooling.
+
+Three-level random effects meta-analysis (Van den Noortgate et al.,
+2013) is available by internally calling
+\code{\link[metafor]{rma.mv}} function from R package
+\bold{metafor} (Viechtbauer, 2010).
 }
 \details{
 This function provides the \emph{generic inverse variance method}
@@ -459,6 +464,16 @@ function.
 
 Furthermore, R function \code{\link{update.meta}} can be used to
 rerun a meta-analysis with different settings.
+
+\subsection{Three-level random effects meta-analysis}{
+
+A three-level random effects meta-analysis model (Van den Noortgate
+et al., 2013) is utilized if argument \code{id} is used and at
+least one study provides more than one estimate. Internally,
+\code{\link[metafor]{rma.mv}} is called to conduct the analysis and
+\code{\link[metafor]{weights.rma.mv}} with argument \code{type =
+"rowsum"} is used to calculate random effects weights.
+}
 
 \subsection{Approximate treatment estimates}{
 

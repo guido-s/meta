@@ -5,6 +5,11 @@
 #' Fixed effect and random effects meta-analysis based on estimates
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
+#'
+#' Three-level random effects meta-analysis (Van den Noortgate et al.,
+#' 2013) is available by internally calling
+#' \code{\link[metafor]{rma.mv}} function from R package
+#' \bold{metafor} (Viechtbauer, 2010).
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
 #'   risk difference.
@@ -175,6 +180,16 @@
 #' 
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
+#' 
+#' \subsection{Three-level random effects meta-analysis}{
+#' 
+#' A three-level random effects meta-analysis model (Van den Noortgate
+#' et al., 2013) is utilized if argument \code{id} is used and at
+#' least one study provides more than one estimate. Internally,
+#' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
+#' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
+#' "rowsum"} is used to calculate random effects weights.
+#' }
 #' 
 #' \subsection{Approximate treatment estimates}{
 #' 
@@ -1413,20 +1428,20 @@ metagen <- function(TE, seTE, studlab,
   ## No three-level meta-analysis conducted if variable 'id' contains
   ## different values for each estimate
   ##
-  multi.level <- FALSE
+  three.level <- FALSE
   ##
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
-    multi.level <- TRUE
+    three.level <- TRUE
   ##
-  if (!multi.level & method.tau.ci == "PL") {
+  if (!three.level & method.tau.ci == "PL") {
     if (method.tau == "DL")
       method.tau.ci <- "J"
     else
       method.tau.ci <- "QP"
   }
   ##
-  if (multi.level) {
+  if (three.level) {
     if (!(method.tau %in% c("REML", "ML"))) {
       if (!missing.method.tau)
         warning("For three-level model, argument 'method.tau' set to \"REML\".",
@@ -1823,7 +1838,7 @@ metagen <- function(TE, seTE, studlab,
     ##
     ## Different calculations for three-level models
     ##
-    if (!multi.level) {
+    if (!three.level) {
       ##
       ## Classic meta-analysis
       ##
@@ -1896,7 +1911,7 @@ metagen <- function(TE, seTE, studlab,
                    random = ~ 1 | id / idx,
                    control = control)
       ##
-      w.random <- rep_len(NA, length(w.fixed))
+      w.random <- weights(m4, type = "rowsum")
       ##
       TE.random <- m4$b
       seTE.random <- m4$se
@@ -2088,11 +2103,16 @@ metagen <- function(TE, seTE, studlab,
               label.c = label.c,
               label.left = label.left,
               label.right = label.right,
+              ##
               data = if (keepdata) data else NULL,
               subset = if (keepdata) subset else NULL,
               exclude = if (!missing.exclude) exclude else NULL,
+              ##
               print.byvar = print.byvar,
               byseparator = byseparator,
+              ##
+              three.level = three.level,
+              ##
               warn = warn,
               call = match.call(),
               backtransf = backtransf,

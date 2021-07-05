@@ -34,7 +34,7 @@ catmeth <- function(method,
                     text.tau = gs("text.tau"),
                     text.tau2 = gs("text.tau2"),
                     method.miss, IMOR.e, IMOR.c,
-                    threelevel = FALSE
+                    three.level = FALSE
                     ) {
   
   metabin  <- "metabin"  %in% class
@@ -339,7 +339,7 @@ catmeth <- function(method,
     if (MH.exact | metainc)
       lab.method.details <-
         paste0(" (without continuity correction)", lab.method.details)
-  if (threelevel)
+  if (three.level)
     lab.method.details <-
       paste0(" (three-level model)", lab.method.details)
   ##
