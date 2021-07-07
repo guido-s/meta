@@ -1,6 +1,8 @@
-## meta, version 4.18-3 (2021-mm-dd)
+## meta, version 4.19-0 (2021-mm-dd)
 
 ### Major changes
+
+* Subgroup analysis for three-level model fully implemented
 
 * Calculation of weights for three-level random effects model using
   weights.rma.mv() with argument type = "rowsum" from R package
@@ -8,9 +10,25 @@
 
 ### Bug fixes
 
+* metagen():
+  - treatment estimates for three-level models with subgroups were not
+    based on common between-study variance despite argument tau.common
+    = TRUE
+
 * metareg():
   - use rma.mv() from R package **metafor** for three-level models
     instead of rma.uni()
+
+### User-visible changes
+
+* print.meta():
+  - for three-level models, column with grouping information added to
+    study details
+
+* metagen():
+  - default for estimation of between-study variance has changed for
+    three-level models with subgroups, i.e., tau2 is allowed to be
+    different in subgroups by default
 
 ### Internal changes
 
@@ -1042,7 +1060,7 @@
 * New function metabind() to combine meta-analysis objects, e.g. to
   generate a forest plot with results of several subgroup analyses
 
-* Subgroup analyses implemented for generalised linear mixed models
+* Subgroup analysis implemented for generalised linear mixed models
   (GLMMs) with and without assumption of common between-study variance
   (arguments 'byvar' and 'tau.common')
 

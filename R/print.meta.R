@@ -387,7 +387,7 @@ print.meta <- function(x,
     text.w.random <- paste0("%W(", x$text.w.random, ")")
   ##
   by <- !is.null(x$bylab)
-  
+  id <- !is.null(x$three.level) && x$three.level
   
   ##
   ##
@@ -536,6 +536,9 @@ print.meta <- function(x,
                    seTE = formatN(round(x$seTE, digits), digits,
                                   "NA", big.mark = big.mark))
     }
+    ##
+    if (id)
+      res <- cbind(res, id = as.character(x$id))
     ##
     if (by)
       res <- cbind(res, byvar = as.character(x$byvar))
@@ -716,6 +719,7 @@ print.meta <- function(x,
                    if (show.w.random)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
+                   if (id) as.character(x$id),
                    if (by) as.character(x$byvar),
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
@@ -753,6 +757,7 @@ print.meta <- function(x,
                    c(sm.lab, ci.lab,
                      if (show.w.fixed) text.w.fixed,
                      if (show.w.random) text.w.random,
+                     if (id) "id",
                      if (by) x$bylab,
                      if (!is.null(x$exclude)) "exclude"))
             prmatrix(res, quote = FALSE, right = TRUE)
@@ -767,6 +772,7 @@ print.meta <- function(x,
                c(sm.lab, ci.lab,
                  if (show.w.fixed) text.w.fixed,
                  if (show.w.random) text.w.random,
+                 if (id) "id",
                  if (by) x$bylab,
                  if (!is.null(x$exclude)) "exclude"))
         ##

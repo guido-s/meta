@@ -1448,14 +1448,6 @@ metagen <- function(TE, seTE, studlab,
                 call. = FALSE)
       method.tau <- "REML"
     }
-    ##
-    if (by & !tau.common) {
-      if (!missing(tau.common))
-        warning("For three-level model, argument 'tau.common' set to ",
-                "\"TRUE\".",
-                call. = FALSE)
-      tau.common <- TRUE
-    }
   }
   ##
   if (by) {
@@ -1843,7 +1835,7 @@ metagen <- function(TE, seTE, studlab,
       ## Classic meta-analysis
       ##
       if (is.null(tau.preset))
-        tau2.calc <- if (is.na(hc$tau2)) 0 else hc$tau2
+        tau2.calc <- if (is.na(sum(hc$tau2))) 0 else sum(hc$tau2)
       else {
         tau2.calc <- tau.preset^2
         ##
@@ -1899,15 +1891,8 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Conduct three-level meta-analysis
       ##
-      if (by & !tau.common) {
-        if (!missing(tau.common))
-          warning("Argument 'tau.common' set to TRUE for three-level model.",
-                  call. = FALSE)
-        tau.common <- TRUE
-      }
-      ##
       m4 <- rma.mv(TE, seTE^2,
-                   method = method.tau,
+                   method = method.tau, test = ifelse(hakn, "t", "z"),
                    random = ~ 1 | id / idx,
                    control = control)
       ##
@@ -1917,11 +1902,26 @@ metagen <- function(TE, seTE, studlab,
       seTE.random <- m4$se
       ##
       tau2.calc <- sum(m4$tau2)
+      ##
+      ## Confidence interval for three-level model
+      ##
+      ci.r <- list(statistic = m4$zval, p = m4$pval,
+                   lower = m4$ci.lb, upper = m4$ci.ub)
+      df.hakn <- k - 1
+      ##
+      ## No adhoc method for three-level models
+      ##
+      if (!missing(adhoc.hakn) && adhoc.hakn != "") {
+        warning("Ad hoc variance correction not implemented ",
+                "for three-level model.",
+                call. = FALSE)
+        adhoc.hakn <- ""
+      }
     }
     ##
-    ## Hartung-Knapp adjustment
+    ## Hartung-Knapp adjustment (not three-level model)
     ##
-    if (hakn) {
+    if (hakn & !three.level) {
       ## alpha <- (1 - level.comb) / 2
       df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
@@ -1980,7 +1980,7 @@ metagen <- function(TE, seTE, studlab,
       ci.r <- ci(TE.random, seTE.random, level = level.comb, df = df.hakn,
                  null.effect = null.effect)
     }
-    else
+    else if (!three.level)
       ci.r <- ci(TE.random, seTE.random, level = level.comb,
                  null.effect = null.effect)
     ##
@@ -2133,8 +2133,13 @@ metagen <- function(TE, seTE, studlab,
       res <- c(res, subgroup(res))
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else
-      res <- c(res, subgroup(res, hcc$tau.resid))
+    else {
+      if (three.level)
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$byvar, bylevs(res$byvar))))
+      else
+        res <- c(res, subgroup(res, hcc$tau.resid))
+    }
     ##
     if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA

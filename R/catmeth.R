@@ -287,7 +287,8 @@ catmeth <- function(method,
       if (lab.method.tau != "" & tau.common)
         lab.method.tau <-
           paste0(lab.method.tau,
-                 if (options()$width > 70) " " else "\n  ",
+                 if (options()$width <= 70 || i.lab.method.tau == 3)
+                   "\n  " else " ",
                  "(assuming common ", text.tau2,
                  " in subgroups)")
       ##

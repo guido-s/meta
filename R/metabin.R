@@ -1776,7 +1776,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                               method = method.tau,
                               test = ifelse(hakn, "t", "z"),
                               level = 100 * level.comb,
-                                measure = "OR", model = model.glmm,
+                              measure = "OR", model = model.glmm,
                               control = control,
                               ...)
     else {

@@ -1,4 +1,4 @@
-subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
+subgroup <- function(x, tau.preset = NULL, byvar.rma, ...) {
   
   
   byvar <- x$byvar
@@ -35,7 +35,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   
   
   res.w <- matrix(NA, ncol = 48, nrow = n.bylevs)
-  add.w <- matrix(NA, ncol =  2, nrow = n.bylevs)
+  add.w <- matrix("", ncol =  2, nrow = n.bylevs)
   j <- 0
   ##
   for (i in bylevs) {
@@ -247,9 +247,10 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
                    meta1$pval.random                          # 48
                    )
     ##
-    add.w[j, ] <- c(meta1$sign.lower.tau, # 1
-                    meta1$sign.upper.tau  # 2
-                    )
+    if (n.tau.ci == 1)
+      add.w[j, ] <- c(meta1$sign.lower.tau, # 1
+                      meta1$sign.upper.tau  # 2
+                      )
   }
   ##
   TE.fixed.w    <- res.w[, 1]
@@ -323,11 +324,79 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   statistic.random.w <- res.w[, 47]
   pval.random.w <- res.w[, 48]
   ##
+  ## Three-level model with common tau-squared
+  ##
+  if (!is.null(x$three.level) && x$three.level && !missing(byvar.rma)) {
+    mod <- as.call(~ byvar.rma - 1)
+    mod.Q <- as.call(~ byvar.rma)
+    ##
+    no.with.id <- x$id
+    runID <- seq_along(no.with.id)
+    ##
+    mv.random <- rma.mv(x$TE, x$seTE^2,
+                        mods = mod,
+                        random = ~ 1 | no.with.id / runID,
+                        method = x$method.tau,
+                        test = ifelse(x$hakn, "t", "z"),
+                        level = 100 * x$level.comb)
+    ##
+    mv.random.Q <-
+      suppressWarnings(rma.mv(x$TE, x$seTE^2,
+                              mods = mod.Q,
+                              random = ~ 1 | no.with.id / runID,
+                              method = x$method.tau,
+                              test = ifelse(x$hakn, "t", "z"),
+                              level = 100 * x$level.comb))
+    ##
+    if (length(TE.random.w) != length(as.numeric(mv.random$b))) {
+      TE.random.w[!is.na(TE.random.w)] <- as.numeric(mv.random$b)
+      seTE.random.w[!is.na(seTE.random.w)] <- as.numeric(mv.random$se)
+    }
+    else {
+      TE.random.w   <- as.numeric(mv.random$b)
+      seTE.random.w <- as.numeric(mv.random$se)
+    }
+    ##
+    tau2.w <- rep_len(sum(mv.random$sigma2), n.bylevs)
+    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
+    tau.w <- rep_len(sqrt(sum(mv.random$sigma2)), n.bylevs)
+    lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
+    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
+    ##
+    tau2.1.w <- tau2.w
+    tau2.2.w <- rep_len(NA, n.bylevs)
+    lower.tau2.1.w <- lower.tau2.w
+    lower.tau2.2.w <- rep_len(NA, n.bylevs)
+    upper.tau2.1.w <- upper.tau2.w
+    upper.tau2.2.w <- rep_len(NA, n.bylevs)
+    ##
+    Rb.w     <- rep_len(NA, n.bylevs)
+    Rb.w.low <- rep_len(NA, n.bylevs)
+    Rb.w.upp <- rep_len(NA, n.bylevs)
+    ##
+    ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.comb)
+    ##
+    if (!is.null(x$hakn) && x$hakn)
+      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb, df = k.w - 1)
+    else
+      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.comb)
+    ##
+    lower.fixed.w <- ci.fixed.w$lower
+    upper.fixed.w <- ci.fixed.w$upper
+    statistic.fixed.w <- ci.fixed.w$statistic
+    pval.fixed.w <- ci.fixed.w$p
+    ##
+    lower.random.w <- ci.random.w$lower
+    upper.random.w <- ci.random.w$upper
+    statistic.random.w <- ci.random.w$statistic
+    pval.random.w <- ci.random.w$p
+  }
+  ##
   ## GLMM with common tau-squared
   ##
-  if (x$method == "GLMM" & !missing(byvar.glmm)) {
-    mod <- as.call(~ byvar.glmm - 1)
-    mod.Q <- as.call(~ byvar.glmm)
+  if (x$method == "GLMM" & !missing(byvar.rma)) {
+    mod <- as.call(~ byvar.rma - 1)
+    mod.Q <- as.call(~ byvar.rma)
     ##
     if (prop) {
       glmm.fixed <- rma.glmm(xi = x$event, ni = x$n,
@@ -527,7 +596,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
   ##
   ## Tests for subgroup differences
   ##
-  if (x$method == "GLMM" & !missing(byvar.glmm)) {
+  if (x$method == "GLMM" & !missing(byvar.rma)) {
     Q.w.fixed <- glmm.fixed.Q$QE.Wld
     df.Q.w <- glmm.fixed.Q$k.eff - glmm.fixed.Q$p.eff
     pval.Q.w.fixed  <- glmm.fixed.Q$QEp.Wld
@@ -539,6 +608,19 @@ subgroup <- function(x, tau.preset = NULL, byvar.glmm, ...) {
     ##
     pval.Q.b.fixed  <- glmm.fixed.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
+  }
+  else if (!is.null(x$three.level) && x$three.level && !missing(byvar.rma)) {
+    Q.w.fixed <- NA
+    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
+    pval.Q.w.fixed <- NA
+    ##
+    Q.b.fixed  <- NA
+    Q.b.random <- mv.random.Q$QM
+    ##
+    df.Q.b <- mv.random.Q$p.eff - 1
+    ##
+    pval.Q.b.fixed  <- NA
+    pval.Q.b.random <- mv.random.Q$QMp
   }
   else {
     Q.w.fixed <- sum(Q.w, na.rm = TRUE)
