@@ -89,18 +89,23 @@ example, the function can be used to specify general settings:
 The first command can be used to reproduce meta-analyses from
 Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
 \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
-and specifies to use a RevMan 5 layout in forest plots. The second
-command can be used to generate forest plots following instructions
-for authors of the \emph{Journal of the American Medical
-Association}
-(\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). The
-next two commands implement the recommendations of the Institute
-for Quality and Efficiency in Health Care (IQWiG), Germany
-accordinging to General Methods 5 and 6, respectively
-(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}). The
-last setting can be used to print p-values in scientific notation
-and to suppress the calculation of confidence intervals for the
-between-study variance.
+and specifies to use a RevMan 5 layout in forest plots.
+
+The second command can be used to generate forest plots following
+instructions for authors of the \emph{Journal of the American
+Medical Association}
+(\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
+labels according to JAMA guidelines can be generated using
+\code{\link{JAMAlabels}}.
+
+The next two commands implement the recommendations of the
+Institute for Quality and Efficiency in Health Care (IQWiG),
+Germany accordinging to General Methods 5 and 6, respectively
+(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+
+The last setting can be used to print p-values in scientific
+notation and to suppress the calculation of confidence intervals
+for the between-study variance.
 
 In addition, \code{\link{settings.meta}} can be used to change
 individual settings. For example, the following R command specifies

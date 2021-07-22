@@ -1094,6 +1094,8 @@ Examples). Otherwise the length of \code{leftlabs} and
 respectively. The value \code{NA} can be used to specify columns
 which should use default labels (see Examples).
 
+\subsection{Forest plots in RevMan5 layout}{
+
 If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), the layout for forest plots used for
 Cochrane reviews (which are generated with Review Manager 5,
@@ -1114,6 +1116,9 @@ is reproduced:
 \item Label "Study or Subgroup" is printed for meta-analysis with
   subgroups (\code{leftlabs})
 }
+}
+
+\subsection{Forest plots in JAMA layout}{
 
 If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), instructions for authors of the
@@ -1138,6 +1143,11 @@ are taken into account:
 \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 }
+Study labels according to JAMA guidelines can be generated using
+\code{\link{JAMAlabels}}.
+}
+
+\subsection{Forest plots showing results of subgroups}{
 
 The following changes are conducted if argument
 \code{layout = "subgroup"} (and arguments \code{leftcols} and
@@ -1151,6 +1161,7 @@ conducted:
 \item Label "Subgroup" is printed instead of "Study"
   (\code{leftlabs})
 }
+} 
 
 If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
 "Experimental" and "Control" are used as labels for experimental
@@ -1369,7 +1380,7 @@ A re-evaluation of random-effects meta-analysis.
 \seealso{
 \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
-  \code{\link{settings.meta}}
+  \code{\link{settings.meta}}, \code{\link{JAMAlabels}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

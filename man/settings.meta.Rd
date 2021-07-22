@@ -42,18 +42,23 @@ Examples) or use one of the following general settings:
 The first command can be used to reproduce meta-analyses from
 Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
 \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
-and specifies to use a RevMan 5 layout in forest plots. The second
-command can be used to generate forest plots following instructions
-for authors of the \emph{Journal of the American Medical
-Association}
-(\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). The
-next commands implement the recommendations of the Institute for
-Quality and Efficiency in Health Care, Germany (IQWiG) accordinging
-to General Methods 5 and 6, respectively
-(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}). The
-last setting can be used to print p-values in scientific notation
-and to suppress the calculation of confidence intervals for the
-between-study variance.
+and specifies to use a RevMan 5 layout in forest plots.
+
+The second command can be used to generate forest plots following
+instructions for authors of the \emph{Journal of the American
+Medical Association}
+(\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
+labels according to JAMA guidelines can be generated using
+\code{\link{JAMAlabels}}.
+
+The next commands implement the recommendations of the Institute
+for Quality and Efficiency in Health Care, Germany (IQWiG)
+accordinging to General Methods 5 and 6, respectively
+(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+
+The last setting can be used to print p-values in scientific
+notation and to suppress the calculation of confidence intervals
+for the between-study variance.
 
 RevMan 5 settings, in detail:
 \tabular{lll}{
@@ -215,7 +220,8 @@ settings.meta(oldset)
 
 }
 \seealso{
-\code{\link{gs}}, \code{\link{forest.meta}}
+\code{\link{gs}}, \code{\link{forest.meta}},
+  \code{\link{JAMAlabels}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

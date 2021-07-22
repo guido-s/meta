@@ -8,6 +8,8 @@
   weights.rma.mv() with argument type = "rowsum" from R package
   **metafor**
 
+* Print study label for meta-analysis with a single study
+
 ### Bug fixes
 
 * metagen():

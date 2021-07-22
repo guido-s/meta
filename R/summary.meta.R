@@ -530,6 +530,11 @@ summary.meta <- function(object,
               ##
               three.level = object$three.level)
   ##
+  ## Add study label for meta-analysis with a single study
+  ##
+  if (res$k.all == 1)
+    res$studlab <- object$studlab
+  ##
   ## Add results from subgroup analysis
   ##
   if (length(object$byvar) > 0) {
@@ -1343,7 +1348,7 @@ print.summary.meta <- function(x,
                    formatPT(pTE.fixed, digits = digits.pval,
                             scientific = scientific.pval,
                             zero = zero.pval, JAMA = JAMA.pval))
-    dimnames(res) <- list("",
+    dimnames(res) <- list(x$studlab,
                           c(sm.lab, x$ci.lab,
                             if (null.given) "z",
                             if (null.given) "p-value"))
