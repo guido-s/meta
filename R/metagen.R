@@ -153,6 +153,8 @@
 #'   grouping variable should be printed in front of the group labels.
 #' @param byseparator A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -959,6 +961,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     byvar, bylab, print.byvar = gs("print.byvar"),
                     byseparator = gs("byseparator"),
+                    test.subgroup = gs("test.subgroup"),
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"),
@@ -1190,8 +1193,10 @@ metagen <- function(TE, seTE, studlab,
   chklength(seTE, k.All, arg)
   chklength(studlab, k.All, arg)
   ##
-  if (by)
+  if (by) {
     chklength(byvar, k.All, arg)
+    chklogical(test.subgroup)
+  }
   ##
   ## Additional checks
   ##
@@ -2110,6 +2115,7 @@ metagen <- function(TE, seTE, studlab,
               ##
               print.byvar = print.byvar,
               byseparator = byseparator,
+              test.subgroup = test.subgroup,
               ##
               three.level = three.level,
               ##

@@ -116,7 +116,7 @@
   label.test.overall.fixed,
   label.test.overall.random,
   print.stat = TRUE,
-  test.subgroup,
+  test.subgroup = x$test.subgroup,
   test.subgroup.fixed,
   test.subgroup.random,
   print.Q.subgroup = TRUE,

@@ -4,11 +4,15 @@
 
 * Subgroup analysis for three-level model fully implemented
 
+* New default for forest plots to show results of test for subgroup
+  differences in meta-analyses with subgroups
+
 * Calculation of weights for three-level random effects model using
   weights.rma.mv() with argument type = "rowsum" from R package
   **metafor**
 
-* Print study label for meta-analysis with a single study
+* Print study label provided by argument 'studlab' for meta-analysis
+  with a single study
 
 ### Bug fixes
 
@@ -22,6 +26,11 @@
     instead of rma.uni()
 
 ### User-visible changes
+
+* metabin(), metacont(), metacor(), metacr(), metagen(), metagen(),
+  metainc(), metamean(), metaprop(), metarate():
+  - new argument 'test.subgroup' to print results of test for subgroup
+    differences
 
 * print.meta():
   - for three-level models, column with grouping information added to

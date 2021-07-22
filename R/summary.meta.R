@@ -19,6 +19,8 @@
 #'   argument is useful in a meta-analysis with subgroups if
 #'   heterogeneity statistics should only be printed on subgroup
 #'   level.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param bylab A character string with a label for the grouping
 #'   variable.
 #' @param print.byvar A logical indicating whether the name of the
@@ -289,6 +291,7 @@ summary.meta <- function(object,
                          prediction = object$prediction,
                          overall = object$overall,
                          overall.hetstat = object$overall.hetstat,
+                         test.subgroup = object$test.subgroup,
                          ##
                          backtransf = object$backtransf,
                          pscale = object$pscale,
@@ -343,6 +346,10 @@ summary.meta <- function(object,
   chklogical(overall)
   overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
   chklogical(overall.hetstat)
+  test.subgroup <- replaceNULL(test.subgroup, TRUE)
+  if (is.na(test.subgroup))
+    test.subgroup <- FALSE
+  chklogical(test.subgroup)
   ##
   chklogical(backtransf)
   ##
@@ -524,6 +531,7 @@ summary.meta <- function(object,
               prediction = prediction,
               overall = overall,
               overall.hetstat = overall.hetstat,
+              test.subgroup = test.subgroup,
               text.fixed = object$text.fixed,
               text.random = object$text.random,
               text.predict = object$text.predict,
@@ -604,6 +612,9 @@ summary.meta <- function(object,
     res$bylab           <- bylab
     res$tau.common      <- object$tau.common
     res$bylevs          <- object$bylevs
+    ##
+    if (is.null(res$test.subgroup))
+      res$test.subgroup <- TRUE
   }
   ##
   class(res) <- "summary.meta"
@@ -713,8 +724,8 @@ summary.meta <- function(object,
   }
   ##
   if (is.rate(object$sm)) {
-    res$event     <- object$event
-    res$time      <- object$time
+    res$event <- object$event
+    res$time  <- object$time
   }
   ##
   if (inherits(object, "trimfill")) {
@@ -763,6 +774,11 @@ summary.meta <- function(object,
     class(res) <- c(class(res), "metamiss")
   }
   ##
+  ## Function netpairwise() from R package netmeta
+  ##
+  if (inherits(object, "netpairwise"))
+    class(res) <- c(class(res), "is.netpairwise")
+  ##
   res$complab <- object$complab
   res$outclab <- object$outclab
   res$title   <- object$title
@@ -807,6 +823,7 @@ print.summary.meta <- function(x,
                                prediction = x$prediction,
                                overall = x$overall,
                                overall.hetstat = x$overall.hetstat,
+                               test.subgroup = x$test.subgroup,
                                ##
                                print.byvar = x$print.byvar,
                                byseparator = x$byseparator,
@@ -927,10 +944,14 @@ print.summary.meta <- function(x,
   chklogical(comb.fixed)
   chklogical(comb.random)
   chklogical(prediction)
-  replaceNULL(overall, TRUE)
+  overall <- replaceNULL(overall, TRUE)
   chklogical(overall)
-  replaceNULL(overall.hetstat, TRUE)
+  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
   chklogical(overall.hetstat)
+  test.subgroup <- replaceNULL(test.subgroup, TRUE)
+  if (is.na(test.subgroup))
+    test.subgroup <- FALSE
+  chklogical(test.subgroup)
   ##
   if (by) {
     chklogical(print.byvar)
@@ -1498,8 +1519,20 @@ print.summary.meta <- function(x,
         prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
       }
     }
-    else
-      cat(paste0("Number of studies: k = ", k, "\n"))
+    else {
+      if (k.study != k) {
+        cat(paste0("Number of studies: ",
+                   if (inherits(x, "is.netpairwise")) "k" else "n", " = ",
+                   format(x$k.study, big.mark = big.mark), "\n"))
+        cat(paste0("Number of ",
+                   if (inherits(x, "is.netpairwise"))
+                     "pairwise comparisons: m = " else "estimates: k = ",
+                   format(k, big.mark = big.mark), "\n"))
+      }
+      else
+        cat(paste0("Number of studies: k = ",
+                   format(k, big.mark = big.mark), "\n"))
+    }
     ##
     ## Print information on heterogeneity
     ##
@@ -1621,6 +1654,13 @@ print.summary.meta <- function(x,
     ## Print information for subgroup analysis
     ##
     if (by) {
+      if (inherits(x, "metabind"))
+        anaunit <- "meta-analyses"
+      else if (inherits(x, "is.netpairwise"))
+        anaunit <- "pairwise comparisons"
+      else
+        anaunit <- "subgroups"
+      ##
       if (comb.fixed) {
         ##
         ## Subgroup analysis based on fixed effect model
@@ -1660,20 +1700,22 @@ print.summary.meta <- function(x,
                          big.mark = big.mark)
         ##
         dimnames(Tdata) <- list(bylab,
-                                c("  k", sm.lab, x$ci.lab,
+                                c(if (inherits(x, "is.netpairwise"))
+                                    "  m" else "  k",
+                                  sm.lab, x$ci.lab,
                                   "Q",
                                   if (print.I2) text.I2,
                                   if (print.Rb) text.Rb,
                                   if (!comb.random) text.tau2,
                                   if (!comb.random) text.tau)
                                 )
-        if (inherits(x, "metabind"))
-          cat(paste0("\nResults for meta-analyses (", text.fixed.br, "):\n"))
-        else
-          cat(paste0("\nResults for subgroups (", text.fixed.br, "):\n"))
+        ##
+        cat(paste0("\nResults for ", anaunit, " (",
+                   text.fixed.br, "):\n"))
+        ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
-        if (!inherits(x, "metabind")) {
+        if (test.subgroup & !inherits(x, "metabind")) {
           cat(paste0("\nTest for subgroup differences (",
                      text.fixed.br, "):\n"))
           if (x$method == "MH") {
@@ -1745,21 +1787,20 @@ print.summary.meta <- function(x,
                          big.mark = big.mark)
         ##
         dimnames(Tdata) <- list(bylab,
-                                c("  k", sm.lab, x$ci.lab,
+                                c(if (inherits(x, "is.netpairwise"))
+                                    "  m" else "  k",
+                                  sm.lab, x$ci.lab,
                                   text.tau2, text.tau,
                                   if (!comb.fixed) "Q",
                                   if (!comb.fixed & print.I2) text.I2,
                                   if (!comb.fixed & print.Rb) text.Rb)
                                 )
         ##
-        if (inherits(x, "metabind"))
-          cat(paste0("\nResults for meta-analyses (", text.random.br, "):\n"))
-        else
-          cat(paste0("\nResults for subgroups (", text.random.br, "):\n"))
+        cat(paste0("\nResults for ", anaunit, " (", text.random.br, "):\n"))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
-        if (!inherits(x, "metabind")) {
+        if (test.subgroup & !inherits(x, "metabind")) {
           cat(paste0("\nTest for subgroup differences (",
                      text.random.br, "):\n"))
           if (is.na(Q.w.random)) {

@@ -23,6 +23,7 @@ metacr(
   swap.events,
   logscale,
   backtransf = gs("backtransf"),
+  test.subgroup,
   text.fixed = gs("text.fixed"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
@@ -100,6 +101,9 @@ back transformed in printouts and plots. If
 printed as odds ratios rather than log odds ratios and results
 for \code{sm="ZCOR"} are printed as correlations rather than
 Fisher's z transformed correlations, for example.}
+
+\item{test.subgroup}{A logical value indicating whether to print
+results of test for subgroup differences.}
 
 \item{text.fixed}{A character string used in printouts and forest
 plot to label the pooled fixed effect estimate.}

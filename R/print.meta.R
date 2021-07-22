@@ -704,8 +704,12 @@ print.meta <- function(x,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
-      show.w.fixed  <- (overall | by) & comb.fixed  & !mb.glmm
-      show.w.random <- (overall | by) & comb.random & !mb.glmm
+      show.w.fixed  <-
+        (overall | by) & !mb.glmm &
+        (comb.fixed && !all(is.na(w.fixed.p)))
+      show.w.random <-
+        (overall | by) & !mb.glmm &
+        (comb.random && !all(is.na(w.random.p)))
       ##
       res <- cbind(formatN(round(TE, digits), digits, "NA",
                            big.mark = big.mark),

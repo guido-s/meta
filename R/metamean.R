@@ -114,6 +114,8 @@
 #'   grouping variable should be printed in front of the group labels.
 #' @param byseparator A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -638,6 +640,7 @@ metamean <- function(n, mean, sd, studlab,
                      ##
                      byvar, bylab, print.byvar = gs("print.byvar"),
                      byseparator = gs("byseparator"),
+                     test.subgroup = gs("test.subgroup"),
                      ##
                      keepdata = gs("keepdata"),
                      warn = gs("warn"),
@@ -837,17 +840,21 @@ metamean <- function(n, mean, sd, studlab,
     approx.sd <- setchar(approx.sd, c("", "iqr.range", "iqr", "range"))
   }
   ##
-  if (by)
+  if (by) {
     chklength(byvar, k.All, fun)
+    chklogical(test.subgroup)
+  }
   ##
   ## Additional checks
   ##
   if (!by & tau.common) {
-    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+    warning("Value for argument 'tau.common' set to FALSE as ",
+            "argument 'byvar' is missing.")
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
-    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
+    warning("Argument 'tau.common' set to TRUE as ",
+            "argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
   
@@ -1328,6 +1335,7 @@ metamean <- function(n, mean, sd, studlab,
     res$bylab <- bylab
     res$print.byvar <- print.byvar
     res$byseparator <- byseparator
+    res$test.subgroup <- test.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

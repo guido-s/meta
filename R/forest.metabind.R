@@ -371,6 +371,8 @@ forest.metabind <- function(x,
          ##
          scientific.pval = scientific.pval,
          big.mark = big.mark,
+         ##
+         test.subgroup = FALSE,
          ...)
   
   

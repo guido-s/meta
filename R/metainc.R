@@ -120,6 +120,8 @@
 #'   grouping variable should be printed in front of the group labels.
 #' @param byseparator A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -676,6 +678,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     byvar, bylab, print.byvar = gs("print.byvar"),
                     byseparator = gs("byseparator"),
+                    test.subgroup = gs("test.subgroup"),
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"),
@@ -847,8 +850,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
   ##
-  if (by)
+  if (by) {
     chklength(byvar, k.All, fun)
+    chklogical(test.subgroup)
+  }
   ##
   if (!null.n.e)
     chklength(n.e, k.All, fun)
@@ -1423,6 +1428,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$bylab <- bylab
     res$print.byvar <- print.byvar
     res$byseparator <- byseparator
+    res$test.subgroup <- test.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

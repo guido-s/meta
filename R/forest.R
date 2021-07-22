@@ -1086,7 +1086,7 @@ forest.meta <- function(x,
                         ##
                         print.stat = TRUE,
                         ##
-                        test.subgroup,
+                        test.subgroup = x$test.subgroup,
                         test.subgroup.fixed,
                         test.subgroup.random,
                         print.Q.subgroup = TRUE,
@@ -1914,6 +1914,12 @@ forest.meta <- function(x,
   ##
   byvar <- x$byvar
   by <- !is.null(byvar)
+  ##
+  if (is.null(test.subgroup))
+    test.subgroup <- by
+  if (is.na(test.subgroup))
+    test.subgroup <- FALSE
+  chklogical(test.subgroup)
   ##
   if (!by) {
     test.subgroup.fixed  <- FALSE

@@ -12,6 +12,7 @@
   prediction = object$prediction,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
+  test.subgroup = object$test.subgroup,
   backtransf = object$backtransf,
   pscale = object$pscale,
   irscale = object$irscale,
@@ -32,6 +33,7 @@
   prediction = x$prediction,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
+  test.subgroup = x$test.subgroup,
   print.byvar = x$print.byvar,
   byseparator = x$byseparator,
   print.CMH = x$print.CMH,
@@ -90,6 +92,9 @@ heterogeneity measures for overall treatment comparisons. This
 argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
+
+\item{test.subgroup}{A logical value indicating whether to print
+results of test for subgroup differences.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results

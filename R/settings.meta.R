@@ -402,6 +402,7 @@ settings.meta <- function(...) {
     catarg("tau.common     ")
     catarg("prediction     ")
     catarg("level.predict  ")
+    catarg("test.subgroup  ")
     catarg("method.bias    ")
     catarg("text.fixed     ")
     catarg("text.random    ")
@@ -441,7 +442,8 @@ settings.meta <- function(...) {
     catarg("text.I2        ")
     catarg("text.Rb        ")
     ##
-    cat("\n* Default summary measure (argument 'sm' in corresponding function) *\n")
+    cat(paste("\n* Default summary measure (argument 'sm' in",
+               "corresponding function) *\n"))
     cat("- metabin():  ")
     catarg("smbin ", newline = FALSE)
     cat("- metacont(): ")
@@ -457,7 +459,8 @@ settings.meta <- function(...) {
     cat("- metarate(): ")
     catarg("smrate", newline = FALSE)
     ##
-    cat("\n* Additional settings for metabin(), metainc(), metaprop(), and metarate() *\n")
+    cat(paste("\n* Additional settings for metabin(), metainc(),",
+              "metaprop(), and metarate() *\n"))
     catarg("incr   ")
     catarg("allincr")
     catarg("addincr")
@@ -490,7 +493,6 @@ settings.meta <- function(...) {
     cat("\n* Settings for forest.meta() *\n")
     catarg("layout              ")
     catarg("test.overall        ")
-    catarg("test.subgroup       ")
     catarg("test.effect.subgroup")
     catarg("digits.forest       ",
            end = "\n  (argument 'digits' in forest.meta())")
@@ -509,6 +511,7 @@ settings.meta <- function(...) {
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
+    setOption("test.subgroup", TRUE)
     setOption("method.bias", "Egger")
     setOption("text.fixed", "Fixed effect model")
     setOption("text.random", "Random effects model")
@@ -584,7 +587,6 @@ settings.meta <- function(...) {
     ##
     setOption("layout", "meta")
     setOption("test.overall", FALSE)
-    setOption("test.subgroup", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
   }

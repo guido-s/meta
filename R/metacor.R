@@ -90,6 +90,8 @@
 #'   grouping variable should be printed in front of the group labels.
 #' @param byseparator A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param control An optional list to control the iterative process to
@@ -521,6 +523,7 @@ metacor <- function(cor, n, studlab,
                     ##
                     byvar, bylab, print.byvar = gs("print.byvar"),
                     byseparator = gs("byseparator"),
+                    test.subgroup = gs("test.subgroup"),
                     ##
                     keepdata = gs("keepdata"),
                     ##
@@ -627,8 +630,10 @@ metacor <- function(cor, n, studlab,
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   ##
-  if (by)
+  if (by) {
     chklength(byvar, k.All, fun)
+    chklogical(test.subgroup)
+  }
   ##
   ## Additional checks
   ##
@@ -848,6 +853,7 @@ metacor <- function(cor, n, studlab,
     res$bylab <- bylab
     res$print.byvar <- print.byvar
     res$byseparator <- byseparator
+    res$test.subgroup <- test.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

@@ -60,6 +60,7 @@ metabin(
   bylab,
   print.byvar = gs("print.byvar"),
   byseparator = gs("byseparator"),
+  test.subgroup = gs("test.subgroup"),
   print.CMH = gs("print.CMH"),
   keepdata = gs("keepdata"),
   warn = gs("warn"),
@@ -251,6 +252,9 @@ grouping variable should be printed in front of the group labels.}
 
 \item{byseparator}{A character string defining the separator
 between label and levels of grouping variable.}
+
+\item{test.subgroup}{A logical value indicating whether to print
+results of test for subgroup differences.}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be

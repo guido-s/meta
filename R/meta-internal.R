@@ -295,7 +295,7 @@ setOption("label.right", "")
 ##
 setOption("layout", "meta")
 setOption("test.overall", FALSE)
-setOption("test.subgroup", FALSE)
+setOption("test.subgroup", TRUE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
 

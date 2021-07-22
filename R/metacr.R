@@ -45,6 +45,8 @@
 #'   non-events should be interchanged.
 #' @param logscale A logical indicating whether effect estimates are
 #'   entered on log-scale.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If
 #'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
@@ -156,6 +158,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    backtransf = gs("backtransf"),
                    ##
+                   test.subgroup,
+                   ##
                    text.fixed = gs("text.fixed"),
                    text.random = gs("text.random"),
                    text.predict = gs("text.predict"),
@@ -253,7 +257,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   if (is.na(overall))
     overall <- TRUE
   type <- unique(x$type[sel])
-  test.subgroup <- unique(x$test.subgroup[sel])
+  if (missing(test.subgroup))
+    test.subgroup <- unique(x$test.subgroup[sel])
   ##
   if (missing(method))
     method <- unique(x$method[sel])
@@ -329,8 +334,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   dropnames <- c("comp.no", "outcome.no", "group.no",
                  "overall", "test.subgroup",
                  "type", "method", "sm", "model", "comb.fixed", "comb.random",
-                 "outclab", "k", "event.e.pooled", "n.e.pooled", "event.c.pooled",
-                 "n.c.pooled", "TE.pooled", "lower.pooled", "upper.pooled",
+                 "outclab", "k",
+                 "event.e.pooled", "n.e.pooled",
+                 "event.c.pooled", "n.c.pooled",
+                 "TE.pooled", "lower.pooled", "upper.pooled",
                  "weight.pooled", "Z.pooled", "pval.TE.pooled",
                  "Q", "pval.Q", "I2", "tau2", "Q.w", "pval.Q.w", "I2.w",
                  "swap.events", "enter.n", "logscale", "label.e", "label.c",
@@ -362,6 +369,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       byvar = grplab,
                       bylab = "grp",
                       print.byvar = FALSE,
+                      test.subgroup = test.subgroup,
                       backtransf = backtransf,
                       ##
                       text.fixed = text.fixed, text.random = text.random,
@@ -390,6 +398,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       byvar = grplab,
                       bylab = "grp",
                       print.byvar = FALSE,
+                      test.subgroup = test.subgroup,
                       backtransf = backtransf,
                       ##
                       text.fixed = text.fixed, text.random = text.random,
@@ -421,6 +430,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      byvar = grplab,
                      bylab = "grp",
                      print.byvar = FALSE,
+                     test.subgroup = test.subgroup,
                      ##
                      text.fixed = text.fixed, text.random = text.random,
                      text.predict = text.predict,
@@ -447,6 +457,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     byvar = grplab,
                     bylab = "grp",
                     print.byvar = FALSE,
+                    test.subgroup = test.subgroup,
                     backtransf = backtransf,
                     ##
                     text.fixed = text.fixed, text.random = text.random,
@@ -474,6 +485,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     byvar = grplab,
                     bylab = "grp",
                     print.byvar = FALSE,
+                    test.subgroup = test.subgroup,
                     n.e = n.e,
                     n.c = n.c,
                     backtransf = backtransf,
@@ -503,6 +515,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     byvar = grplab,
                     bylab = "grp",
                     print.byvar = FALSE,
+                    test.subgroup = test.subgroup,
                     backtransf = backtransf,
                     ##
                     text.fixed = text.fixed, text.random = text.random,
@@ -675,24 +688,23 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     keepdata = keepdata)
   }
   
-  
   if (sm == "OTHER") {
     warning('Meta-analysis not possible for sm = "OTHER".')
-    res <- NULL
+    return(NULL)
   }
-  else {
-    res <- m1
-    attr(res, "comp.no") <- comp.no
-    attr(res, "outcome.no") <- outcome.no
-    attr(res, "type") <- type
-    attr(res, "test.subgroup") <- test.subgroup
-    if (type == "D")
-      attr(res, "swap.events") <- swap.events
+  
+  res <- m1
+  ##
+  attr(res, "comp.no") <- comp.no
+  attr(res, "outcome.no") <- outcome.no
+  attr(res, "type") <- type
+  ##
+  if (type == "D")
+    attr(res, "swap.events") <- swap.events
     attr(res, "logscale") <- logscale
-    if (!is.null(x$enter.n))
-      attr(res, "enter.n") <- x$enter.n
-  }
-  
-  
+  ##
+  if (!is.null(x$enter.n))
+    attr(res, "enter.n") <- x$enter.n
+  ##
   res
 }
