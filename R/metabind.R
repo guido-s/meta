@@ -94,18 +94,8 @@
 
 
 metabind <- function(..., name, pooled, backtransf, outclab) {
-
-
-  replace.NULL <- function(x, val = NA) {
-    if (is.null(x))
-      res <- val
-    else
-      res <- x
-    ##
-    res
-  }
-
-
+  
+  
   if (!missing(pooled))
     pooled <- setchar(pooled, c("fixed", "random"))
   ##
@@ -178,7 +168,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     name <- rep("", n.meta)
     ##
     for (i in n.i)
-      name[i] <- replace.NULL(args[[i]]$bylab)
+      name[i] <- replaceNULL(args[[i]]$bylab)
     ##
     if (all(is.na(name)))
       name <- paste0("meta", n.i)
@@ -224,8 +214,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          comb.random = m.i$comb.random,
                          hakn = m.i$hakn,
                          method.tau = m.i$method.tau,
-                         tau.preset = replace.NULL(m.i$tau.preset),
-                         TE.tau = replace.NULL(m.i$TE.tau),
+                         tau.preset = replaceNULL(m.i$tau.preset),
+                         TE.tau = replaceNULL(m.i$TE.tau),
                          tau.common = m.i$tau.common,
                          prediction = m.i$prediction,
                          method.bias = "",
@@ -241,12 +231,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          ##
                          print.byvar = FALSE,
                          byseparator = "",
-                         warn = replace.NULL(m.i$warn, FALSE),
+                         warn = replaceNULL(m.i$warn, FALSE),
                          ##
                          backtransf = m.i$backtransf,
                          pscale = m.i$pscale,
                          irscale = m.i$irscale,
-                         irunit = replace.NULL(m.i$ir.unit),
+                         irunit = replaceNULL(m.i$ir.unit),
                          ##
                          stringsAsFactors = FALSE)
     ##
@@ -326,16 +316,16 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                              upper.random.w = m.i$upper.random,
                              statistic.random.w = m.i$statistic.random,
                              pval.random.w = m.i$pval.random,
-                             df.hakn.w = replace.NULL(m.i$df.hakn),
+                             df.hakn.w = replaceNULL(m.i$df.hakn),
                              w.random.w = 0, # sum(m.i$w.random),
                              ##
                              n.harmonic.mean.w =
-                               1 / mean(1 / replace.NULL(m.i$n)),
+                               1 / mean(1 / replaceNULL(m.i$n)),
                              t.harmonic.mean.w =
-                               1 / mean(1 / replace.NULL(m.i$time)),
+                               1 / mean(1 / replaceNULL(m.i$time)),
                              ##
-                             n.e.w = sum(replace.NULL(m.i$n.e)),
-                             n.c.w = sum(replace.NULL(m.i$n.c)),
+                             n.e.w = sum(replaceNULL(m.i$n.e)),
+                             n.c.w = sum(replaceNULL(m.i$n.c)),
                              ##
                              k.w = m.i$k,
                              k.all.w = length(m.i$TE),
@@ -384,9 +374,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       data.i <- data.frame(name = name[i],
                            bylevs = m.i$bylevs,
                            ##
-                           n.e = replace.NULL(m.i$n.e.w),
-                           n.c = replace.NULL(m.i$n.c.w),
-                           df.hakn = replace.NULL(m.i$df.hakn.w),
+                           n.e = replaceNULL(m.i$n.e.w),
+                           n.c = replaceNULL(m.i$n.c.w),
+                           df.hakn = replaceNULL(m.i$df.hakn.w),
                            ##
                            k = m.i$k.w,
                            k.all = m.i$k.all.w,
@@ -422,9 +412,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       data.i <- data.frame(name = name[i],
                            bylevs = "overall",
                            ##
-                           n.e = sum(replace.NULL(m.i$n.e)),
-                           n.c = sum(replace.NULL(m.i$n.c)),
-                           df.hakn = replace.NULL(m.i$df.hakn),
+                           n.e = sum(replaceNULL(m.i$n.e)),
+                           n.c = sum(replaceNULL(m.i$n.c)),
+                           df.hakn = replaceNULL(m.i$df.hakn),
                            ##
                            k = m.i$k,
                            k.all = length(m.i$TE),
@@ -471,7 +461,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             upper.random = m.i$upper.random,
                             statistic.random = m.i$statistic.random,
                             pval.random = m.i$pval.random,
-                            df.hakn = replace.NULL(m.i$df.hakn),
+                            df.hakn = replaceNULL(m.i$df.hakn),
                             ##
                             seTE.predict = m.i$seTE.predict,
                             lower.predict = m.i$lower.predict,
@@ -485,7 +475,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             tau2 = m.i$tau2,
                             lower.tau2 = m.i$lower.tau2,
                             upper.tau2 = m.i$upper.tau2,
-                            se.tau2 = replace.NULL(m.i$se.tau2),
+                            se.tau2 = replaceNULL(m.i$se.tau2),
                             tau = m.i$tau,
                             lower.tau = m.i$lower.tau,
                             upper.tau = m.i$upper.tau,
@@ -620,12 +610,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   for (i in n.i) {
     m.i <- args[[i]]
     ##
-    study.i <- data.frame(studlab = replace.NULL(m.i$bylevs, "overall"),
+    study.i <- data.frame(studlab = replaceNULL(m.i$bylevs, "overall"),
                           stringsAsFactors = FALSE)
     ##
     if (is.subgroup[i]) {
-      study.i$n.e <- replace.NULL(m.i$n.e.w)
-      study.i$n.c <- replace.NULL(m.i$n.c.w)
+      study.i$n.e <- replaceNULL(m.i$n.e.w)
+      study.i$n.c <- replaceNULL(m.i$n.c.w)
       ##
       if (pooled == "fixed") {
         study.i$TE <- m.i$TE.fixed.w
@@ -649,8 +639,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       }
     }
     else {
-      study.i$n.e <- sum(replace.NULL(m.i$n.e.w))
-      study.i$n.c <- sum(replace.NULL(m.i$n.c.w))
+      study.i$n.e <- sum(replaceNULL(m.i$n.e.w))
+      study.i$n.c <- sum(replaceNULL(m.i$n.c.w))
       ##
       if (pooled == "fixed") {
         study.i$TE <- m.i$TE.fixed

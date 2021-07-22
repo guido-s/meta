@@ -117,8 +117,8 @@
   label.test.overall.random,
   print.stat = TRUE,
   test.subgroup = x$test.subgroup,
-  test.subgroup.fixed,
-  test.subgroup.random,
+  test.subgroup.fixed = test.subgroup & comb.fixed,
+  test.subgroup.random = test.subgroup & comb.random,
   print.Q.subgroup = TRUE,
   label.test.subgroup.fixed,
   label.test.subgroup.random,
@@ -1350,9 +1350,7 @@ forest(m1, sortvar = -year, comb.random = FALSE)
 # Print results of test for subgroup differences (random effects
 # model)
 #
-forest(m2,
-       sortvar = -TE, comb.fixed = FALSE,
-       test.subgroup.random = TRUE)
+forest(m2, sortvar = -TE, comb.fixed = FALSE)
 
 # Print only subgroup results
 #

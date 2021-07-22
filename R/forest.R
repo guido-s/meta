@@ -936,9 +936,7 @@
 #' # Print results of test for subgroup differences (random effects
 #' # model)
 #' #
-#' forest(m2,
-#'        sortvar = -TE, comb.fixed = FALSE,
-#'        test.subgroup.random = TRUE)
+#' forest(m2, sortvar = -TE, comb.fixed = FALSE)
 #' 
 #' # Print only subgroup results
 #' #
@@ -1087,8 +1085,8 @@ forest.meta <- function(x,
                         print.stat = TRUE,
                         ##
                         test.subgroup = x$test.subgroup,
-                        test.subgroup.fixed,
-                        test.subgroup.random,
+                        test.subgroup.fixed = test.subgroup & comb.fixed,
+                        test.subgroup.random = test.subgroup & comb.random,
                         print.Q.subgroup = TRUE,
                         label.test.subgroup.fixed,
                         label.test.subgroup.random,
@@ -1494,10 +1492,12 @@ forest.meta <- function(x,
   ##
   chklogical(test.overall.fixed)
   chklogical(test.overall.random)
-  if (!missing(test.subgroup.fixed))
-    chklogical(test.subgroup.fixed)
-  if (!missing(test.subgroup.random))
-    chklogical(test.subgroup.random)
+  ##
+  test.subgroup <- replaceNULL(test.subgroup, TRUE)
+  chklogical(test.subgroup)
+  chklogical(test.subgroup.fixed)
+  chklogical(test.subgroup.random)
+  ##
   chklogical(print.Q.subgroup)
   if (!missing(test.effect.subgroup.fixed))
     chklogical(test.effect.subgroup.fixed)
@@ -1915,12 +1915,6 @@ forest.meta <- function(x,
   byvar <- x$byvar
   by <- !is.null(byvar)
   ##
-  if (is.null(test.subgroup))
-    test.subgroup <- by
-  if (is.na(test.subgroup))
-    test.subgroup <- FALSE
-  chklogical(test.subgroup)
-  ##
   if (!by) {
     test.subgroup.fixed  <- FALSE
     test.subgroup.random <- FALSE
@@ -1928,21 +1922,6 @@ forest.meta <- function(x,
     test.effect.subgroup.random <- FALSE
   }
   else {
-    if (!missing(test.subgroup)) {
-      if (missing(test.subgroup.fixed))
-        test.subgroup.fixed <- comb.fixed & test.subgroup
-      ##
-      if (missing(test.subgroup.random))
-        test.subgroup.random <- comb.random & test.subgroup
-    }
-    else {
-      if (missing(test.subgroup.fixed))
-        test.subgroup.fixed <- comb.fixed & gs("test.subgroup")
-      ##
-      if (missing(test.subgroup.random))
-        test.subgroup.random <- comb.random & gs("test.subgroup")
-    }
-    ##
     if (!missing(test.effect.subgroup)) {
       if (missing(test.effect.subgroup.fixed))
         test.effect.subgroup.fixed <- comb.fixed & test.effect.subgroup

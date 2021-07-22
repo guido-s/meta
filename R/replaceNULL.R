@@ -1,4 +1,4 @@
-replaceNULL <- function(x, replace) {
+replaceNULL <- function(x, replace = NA) {
   if (is.null(x))
     res <- replace
   else
