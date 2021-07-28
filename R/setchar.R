@@ -12,7 +12,12 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
   }
   else {
     numeric.x <- FALSE
-    idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
+    ##
+    if (length(unique(tolower(x))) != length(unique(x)) |
+        length(unique(tolower(val))) != length(unique(val)))
+      idx <- charmatch(x, val, nomatch = NA)
+    else
+      idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
   }
   ##
   if (anyNA(idx) || any(idx == 0)) {
