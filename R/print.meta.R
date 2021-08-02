@@ -61,12 +61,12 @@
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
-#' @param big.mark A character used as thousands separator.
 #' @param zero.pval A logical specifying whether p-values should be
 #'   printed with a leading zero.
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
+#' @param big.mark A character used as thousands separator.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -172,9 +172,10 @@ print.meta <- function(x,
                        digits.weight = gs("digits.weight"),
                        ##
                        scientific.pval = gs("scientific.pval"),
-                       big.mark = gs("big.mark"),
                        zero.pval = gs("zero.pval"),
                        JAMA.pval = gs("JAMA.pval"),
+                       ##
+                       big.mark = gs("big.mark"),
                        ##
                        text.tau2 = gs("text.tau2"),
                        text.tau = gs("text.tau"),
