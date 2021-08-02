@@ -49,8 +49,6 @@
   - new logical list element 'three.level' indicating whether
     three-level model was used
 
-* New internal function sm2armlab()
-
 
 ## meta, version 4.18-2 (2021-06-11)
 
