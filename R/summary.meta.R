@@ -620,6 +620,11 @@ summary.meta <- function(object,
   class(res) <- "summary.meta"
   ##
   if (inherits(object, "metabin")) {
+    res$event.e <- object$event.e
+    res$n.e     <- object$n.e
+    res$event.c <- object$event.c
+    res$n.c     <- object$n.c
+    ##
     res$sparse      <- object$sparse
     res$incr        <- object$incr
     res$allincr     <- object$allincr
@@ -639,6 +644,13 @@ summary.meta <- function(object,
   }
   ##
   if (inherits(object, "metacont")) {
+    res$n.e     <- object$n.e
+    res$mean.e <- object$mean.e
+    res$sd.e   <- object$sd.e
+    res$n.c     <- object$n.c
+    res$mean.c <- object$mean.c
+    res$sd.c   <- object$sd.c
+    ##
     res$pooledvar  <- object$pooledvar
     res$method.smd <- object$method.smd
     res$sd.glass   <- object$sd.glass
@@ -664,6 +676,14 @@ summary.meta <- function(object,
   }
   ##
   if (inherits(object, "metainc")) {
+    res$event.e <- object$event.e
+    res$time.e  <- object$time.e
+    res$event.c <- object$event.c
+    res$time.c  <- object$time.c
+    ##
+    res$n.e <- object$n.e
+    res$n.c <- object$n.c
+    ##
     res$sparse  <- object$sparse
     res$incr    <- object$incr
     res$allincr <- object$allincr
@@ -802,6 +822,8 @@ summary.meta <- function(object,
     res$version <- packageDescription("meta")$Version
   ##
   res$version.metafor <- object$version.metafor
+  ##
+  attr(res, "class.orig") <- class(object)
   
   
   res
@@ -1335,6 +1357,56 @@ print.summary.meta <- function(x,
       uppRb <- NA
     }
   }
+  ##
+  catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE) {
+    if (type == "n") {
+      txt <- "observations"
+      idx <- "o"
+    }
+    else if (type == "e") {
+      txt <- "events"
+      idx <- "e"
+    }
+    ##
+    if (!is.null(var1) & !is.null(var2)) {
+      sum1 <- sum(var1, na.rm = TRUE)
+      sum2 <- sum(var2, na.rm = TRUE)
+      ##
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum1 + sum2, big.mark = big.mark),
+                 ##" (", idx, ".e = ",
+                 ##format(sum1, big.mark = big.mark),
+                 ##", ", idx, ".c = ",
+                 ##format(sum2, big.mark = big.mark),
+                 ##")",
+                 "\n"))
+    }
+    else if (!is.null(var1)) {
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum(var1, na.rm = TRUE),
+                          big.mark = big.mark),
+                 "\n"))
+    }
+    else if (!is.null(var2)) {
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum(var2, na.rm = TRUE), big.mark = big.mark),
+                 "\n"))
+    }
+    ##
+    if (addrow)
+      cat("\n")
+    ##
+    invisible(NULL)
+  }
+  ##
+  sel.n <-
+    !is.null(attr(x, "class.orig")) &
+    any(attr(x, "class.orig") %in%
+        c("metacor", "metaprop", "metamean"))
+  ##
+  sel.ev <-
+    !is.null(attr(x, "class.orig")) &
+    any(attr(x, "class.orig") %in% "metaprop")
   
   
   ##
@@ -1356,6 +1428,16 @@ print.summary.meta <- function(x,
   else if (k.all == 1) {
     ##
     ## Print results for a single study
+    ##
+    if (sel.n)
+      catobsev(x$n, type = "n")
+    else
+      catobsev(x$n.e, x$n.c, type = "n")
+    ##
+    if (sel.ev)
+      catobsev(x$event, type = "e", addrow = TRUE)
+    else
+      catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
     ##
     res <- cbind(formatN(TE.fixed, digits, "NA",
                          big.mark = big.mark),
@@ -1427,17 +1509,17 @@ print.summary.meta <- function(x,
           cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
                      " (", text.fixed.br, "), k = ",
                      format(k, big.mark = big.mark),
-                     " (", text.random.br, ")\n\n"))
+                     " (", text.random.br, ")\n"))
         else {
           if (k.study != k) {
             cat(paste0("Number of studies combined: n = ",
                        format(x$k.study, big.mark = big.mark), "\n"))
             cat(paste0("Number of estimates combined: k = ",
-                       format(k, big.mark = big.mark), "\n\n"))
+                       format(k, big.mark = big.mark), "\n"))
           }
           else
             cat(paste0("Number of studies combined: k = ",
-                       format(k, big.mark = big.mark), "\n\n"))
+                       format(k, big.mark = big.mark), "\n"))
         }
       }
       else
@@ -1445,7 +1527,17 @@ print.summary.meta <- function(x,
                    format(k, big.mark = big.mark),
                    " (with ",
                    format(x$k0, big.mark = big.mark),
-                   " added studies)\n\n"))
+                   " added studies)\n"))
+      ##
+      if (sel.n)
+        catobsev(x$n, type = "n")
+      else
+        catobsev(x$n.e, x$n.c, type = "n")
+      ##
+      if (sel.ev)
+        catobsev(x$event, type = "e", addrow = TRUE)
+      else
+        catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)      
       ##
       res <- cbind(formatN(c(if (comb.fixed) TE.fixed,
                              if (comb.random) TE.random,
@@ -1532,6 +1624,16 @@ print.summary.meta <- function(x,
       else
         cat(paste0("Number of studies: k = ",
                    format(k, big.mark = big.mark), "\n"))
+      ##
+      if (sel.n)
+        catobsev(x$n, type = "n")
+      else
+        catobsev(x$n.e, x$n.c, type = "n")
+      ##
+      if (sel.ev)
+        catobsev(x$event, type = "e")
+      else
+        catobsev(x$event.e, x$event.c, type = "e")
     }
     ##
     ## Print information on heterogeneity

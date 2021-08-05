@@ -1,4 +1,4 @@
-## meta, version 4.19-0 (2021-mm-dd)
+## meta, version 4.19-0 (2021-08-05)
 
 ### Major changes
 
@@ -13,6 +13,9 @@
 
 * Print study label provided by argument 'studlab' for meta-analysis
   with a single study
+
+* Total number of observations and events printed in summaries (if
+  available)
 
 ### Bug fixes
 
