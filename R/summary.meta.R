@@ -516,7 +516,7 @@ summary.meta <- function(object,
               ##
               H = ci.H, I2 = ci.I2, Rb = ci.Rb,
               H.resid = ci.H.resid, I2.resid = ci.I2.resid,
-              k.all = length(object$TE),
+              k.all = replaceNULL(object$k.all, length(object$TE)),
               Q.CMH = object$Q.CMH,
               k.MH = object$k.MH,
               sm = object$sm, method = object$method,
@@ -1018,9 +1018,9 @@ print.summary.meta <- function(x,
   ## (3) Some additional settings
   ##
   ##
-  k.all <- length(x$study$TE)
+  k.all <- replaceNULL(x$k.all, length(x$study$TE))
   k <- x$k
-  k.study <- ifelse(is.null(x$k.study), k, x$k.study)
+  k.study <- replaceNULL(x$k.study, k)
   sm <- x$sm
   ##
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))

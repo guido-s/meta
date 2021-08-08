@@ -1,3 +1,11 @@
+## meta, version 4.19-1 (2021-mm-dd)
+
+### User-visible changes
+
+* bubble.metareg():
+  - show regression lines for a single categorical covariate
+
+
 ## meta, version 4.19-0 (2021-08-05)
 
 ### Major changes

@@ -2059,7 +2059,7 @@ metagen <- function(TE, seTE, studlab,
               lower.predict = p.lower, upper.predict = p.upper,
               level.predict = level.predict,
               ##
-              k = k, k.study = k.study,
+              k = k, k.study = k.study, k.all = k.all,
               Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
               tau2 = hc$tau2, se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,

@@ -191,20 +191,6 @@ bubble.metareg <- function(x,
   if (covar.name == ".byvar")
     covar.name <- x$.meta$x$bylab
   ##
-  if (length(covar.names.without.intrcpt) > 1) {
-    warning(paste0("Only first covariate in meta-regression ",
-                   "('", covar.name, "') considered in bubble plot. ",
-                   "No regression line plotted.")
-            )
-    regline <- FALSE
-    if (missing(xlab))
-      xlab <- paste0("Covariate ", covar.name,
-                     " (meta-regression: ", charform, ")")
-  }
-  else
-    if (missing(xlab))
-      xlab = paste("Covariate", covar.name)
-  ##
   if (covar.name %in% names(x$.meta$x$data))
     covar <- x$.meta$x$data[[covar.name]]
   else if (".byvar" %in% names(x$.meta$x$data))
@@ -239,8 +225,22 @@ bubble.metareg <- function(x,
     beta <- coef(x)[covar.name]
   else
     beta <- coef(x)[".byvar"]
-
-
+  ##
+  if (length(covar.names.without.intrcpt) > 1 & !is.factor(covar)) {
+    warning(paste0("Only first covariate in meta-regression ",
+                   "('", covar.name, "') considered in bubble plot. ",
+                   "No regression line plotted.")
+            )
+    regline <- FALSE
+    if (missing(xlab))
+      xlab <- paste0("Covariate ", covar.name,
+                     " (meta-regression: ", charform, ")")
+  }
+  else
+    if (missing(xlab))
+      xlab = paste("Covariate", covar.name)
+  
+  
   ys <- TE
   ##
   if (missing(ylim))
