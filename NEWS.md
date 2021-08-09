@@ -1,6 +1,20 @@
 ## meta, version 4.19-1 (2021-mm-dd)
 
+### Bug fixes
+
+* metagen():
+  - set random effects weights equal to zero for estimates with
+    standard errors equal to NA (to fix error bubble.metareg)
+
+* metareg():
+  - for three-level model, use 'test = "t"' instead of 'test = "knha"'
+    in internal call of rma.mv()
+
 ### User-visible changes
+
+* summary.meta():
+  - print tau2 and tau for subgroups with single study if argument
+    'tau.common = TRUE'
 
 * bubble.metareg():
   - show regression lines for a single categorical covariate

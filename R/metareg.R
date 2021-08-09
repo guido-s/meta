@@ -286,10 +286,10 @@ metareg <- function(x, formula, method.tau = x$method.tau,
 
 
   ##
-  ## Argument test in rma.uni() and rma.glmm()
+  ## Argument test in rma.uni(), rma.glmm() and rma.mv()
   ##
   test <- ifelse(!hakn, "z",
-                 ifelse(method != "GLMM", "knha", "t"))
+                 ifelse(method == "GLMM" | threelevel, "t", "knha"))
 
   ##
   ## Covariate 'x' make problems without removing meta-analysis object x

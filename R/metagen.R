@@ -1896,12 +1896,20 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Conduct three-level meta-analysis
       ##
-      m4 <- rma.mv(TE, seTE^2,
+      sel.4 <- !is.na(TE) & !is.na(seTE)
+      TE.4 <- TE[sel.4]
+      seTE.4 <- seTE[sel.4]
+      id.4 <- id[sel.4]
+      idx.4 <- idx[sel.4]
+      ##
+      m4 <- rma.mv(TE.4, seTE.4^2,
                    method = method.tau, test = ifelse(hakn, "t", "z"),
-                   random = ~ 1 | id / idx,
+                   random = ~ 1 | id.4 / idx.4,
                    control = control)
       ##
-      w.random <- weights(m4, type = "rowsum")
+      w.random <- rep_len(NA, length(TE))
+      w.random[sel.4] <- weights(m4, type = "rowsum")
+      w.random[is.na(w.random)] <- 0
       ##
       TE.random <- m4$b
       seTE.random <- m4$se
