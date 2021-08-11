@@ -25,6 +25,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.rma, ...) {
   bin.cont.gen <- bin | cont | gen
   bin.inc <- bin | inc
   cor.prop.mean <- cor | prop | mean
+  ##
+  three.level <- !is.null(x$three.level) && x$three.level
   
   
   sumNA <- function(x)
@@ -326,7 +328,7 @@ subgroup <- function(x, tau.preset = NULL, byvar.rma, ...) {
   ##
   ## Three-level model with common tau-squared
   ##
-  if (!is.null(x$three.level) && x$three.level && !missing(byvar.rma)) {
+  if (three.level && !missing(byvar.rma)) {
     mod <- as.call(~ byvar.rma - 1)
     mod.Q <- as.call(~ byvar.rma)
     ##
@@ -598,18 +600,19 @@ subgroup <- function(x, tau.preset = NULL, byvar.rma, ...) {
   ##
   if (x$method == "GLMM" & !missing(byvar.rma)) {
     Q.w.fixed <- glmm.fixed.Q$QE.Wld
-    df.Q.w <- glmm.fixed.Q$k.eff - glmm.fixed.Q$p.eff
+    df.Q.w <- glmm.fixed.Q$QE.df
     pval.Q.w.fixed  <- glmm.fixed.Q$QEp.Wld
     ##
     Q.b.fixed  <- glmm.fixed.Q$QM
     Q.b.random <- glmm.random.Q$QM
     ##
-    df.Q.b <- glmm.fixed.Q$p.eff - 1
+    df.Q.b <- glmm.fixed.Q$QMdf
+    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
     ##
     pval.Q.b.fixed  <- glmm.fixed.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
   }
-  else if (!is.null(x$three.level) && x$three.level && !missing(byvar.rma)) {
+  else if (three.level && !missing(byvar.rma)) {
     Q.w.fixed <- NA
     df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
     pval.Q.w.fixed <- NA
@@ -617,7 +620,8 @@ subgroup <- function(x, tau.preset = NULL, byvar.rma, ...) {
     Q.b.fixed  <- NA
     Q.b.random <- mv.random.Q$QM
     ##
-    df.Q.b <- mv.random.Q$p.eff - 1
+    df.Q.b <- mv.random.Q$QMdf
+    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
     ##
     pval.Q.b.fixed  <- NA
     pval.Q.b.random <- mv.random.Q$QMp

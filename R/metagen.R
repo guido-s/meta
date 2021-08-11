@@ -2143,8 +2143,13 @@ metagen <- function(TE, seTE, studlab,
     res$byvar <- byvar
     res$bylab <- bylab
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
+      if (three.level)
+        res$Q.b.random <- NA
+        res$df.Q.b <- NA
+        res$pval.Q.b.random <- NA
+    }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
     else {
