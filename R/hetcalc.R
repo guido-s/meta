@@ -105,7 +105,7 @@ hetcalc <- function(TE, seTE,
       ##
       if (df.Q < 2)
         method.tau.ci <- ""
-      else if (!is.null(id))
+      else if (!is.null(id) & method.tau.ci != "")
         method.tau.ci <- "PL"
       ##
       ## Confidence interal for overall result
@@ -203,7 +203,7 @@ hetcalc <- function(TE, seTE,
     ##
     if (df.Q < 2 || useFE)
       method.tau.ci <- ""
-    else if (!is.null(id))
+    else if (!is.null(id) & method.tau.ci != "")
       method.tau.ci <- "PL"
     ##
     ## Confidence interal for residual heterogeneity

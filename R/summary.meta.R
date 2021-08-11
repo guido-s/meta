@@ -1914,7 +1914,7 @@ print.summary.meta <- function(x,
           Q.lab <- "Q"
         }
         ##
-        if (test.subgroup & !inherits(x, "metabind")) {
+        if (test.subgroup & !inherits(x, "metabind") & !is.na(Q.b.random)) {
           cat(paste0("\nTest for subgroup differences (",
                      text.random.br, "):\n"))
           if (is.na(Q.w.random)) {

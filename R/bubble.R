@@ -287,8 +287,41 @@ bubble.metareg <- function(x,
   }
   else
     cexs <- cex
-
-
+  ##
+  if (length(col) > 1 && length(col) != length(TE))
+    stop("Length of argument 'col' must be 1 or the same as ",
+         "number of studies in meta-analysis.")
+  ##
+  if (length(bg) > 1 && length(bg) != length(TE))
+    stop("Length of argument 'col' must be 1 or the same as ",
+         "number of studies in meta-analysis.")
+  ##
+  o <- rev(order(cex))
+  xs <- xs[o]
+  ys <- ys[o]
+  studlab <- studlab[o]
+  cexs <- cexs[o]
+  ##
+  if (length(col) > 1)
+    cols <- col[o]
+  else
+    cols <- rep(col, length(o))
+  ##
+  if (length(bg) > 1)
+    bgs <- bg[o]
+  else
+    bgs <- rep(bg, length(o))
+  ##
+  if (length(cex.studlab) > 1)
+    cex.studlab <- cex.studlab[o]
+  ##
+  if (length(pos.studlab) > 1)
+    pos.studlab <- pos.studlab[o]
+  ##
+  if (length(offset) > 1)
+    offset <- offset[o]
+  
+  
   ##
   ##
   ## Generate bubble plot
@@ -302,6 +335,8 @@ bubble.metareg <- function(x,
       ys.i <- ys[sel]
       studlab.i <- studlab[sel]
       cexs.i <- cexs[sel]
+      col.i <- cols[sel]
+      bg.i <- bgs[sel]
       ##
       plot(xs.i, ys.i,
        pch = pch, cex = cexs.i,
@@ -315,7 +350,9 @@ bubble.metareg <- function(x,
               c(alpha, alpha + coef(x)[i]),
               lty = lty, lwd = lwd, col = col.line)
       ##
-      points(xs.i, ys.i, cex = cexs.i, pch = pch, col = col, bg = bg)
+      for (j in seq_along(xs.i))
+        points(xs.i[j], ys.i[j], cex = cexs.i[j], pch = pch,
+               col = col.i[j], bg = bg.i[j])
       ##
       ## x-axis
       ##
@@ -346,7 +383,7 @@ bubble.metareg <- function(x,
       abline(alpha, beta,
              lty = lty, lwd = lwd, col = col.line)
     ##
-    points(xs, ys, cex = cexs, pch = pch, col = col, bg = bg)
+    points(xs, ys, cex = cexs, pch = pch, col = cols, bg = bgs)
     ##
     ## x-axis
     ##
