@@ -1359,6 +1359,7 @@ print.summary.meta <- function(x,
   }
   ##
   three.level <- if (is.null(x$three.level)) FALSE else x$three.level
+  is.glmm <- x$method == "GLMM"
   ##
   catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE) {
     if (type == "n") {
@@ -1719,7 +1720,7 @@ print.summary.meta <- function(x,
       ##
       if (comb.fixed | comb.random) {
         if (k > 1) {
-          if (x$method != "GLMM") {
+          if (!is.glmm) {
             Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
                            format(df.Q, big.mark = big.mark),
@@ -1818,34 +1819,48 @@ print.summary.meta <- function(x,
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
+        if (is.glmm & length(df.Q.b) > 1) {
+          dfs.b <-
+            rmSpace(paste(formatN(df.Q.b, digits = 0, big.mark = big.mark),
+                          collapse = ", "), end = TRUE)
+          Q.lab <- "F"
+        }
+        else {
+          dfs.b <- formatN(df.Q.b, digits = 0, big.mark = big.mark)
+          Q.lab <- "Q"
+        }
+        ##
         if (test.subgroup & !inherits(x, "metabind")) {
           cat(paste0("\nTest for subgroup differences (",
                      text.fixed.br, "):\n"))
           if (x$method == "MH") {
             Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
-                           format(df.Q.b, big.mark = big.mark),
+                           formatN(dfs.b, digits = 0, big.mark = big.mark),
                            formatPT(pval.Q.b.fixed,
                                     digits = digits.pval.Q,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval))
             dimnames(Qdata) <- list("Between groups  ",
-                                    c("Q", "d.f.", "p-value"))
+                                    c(Q.lab, "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
           else {
             Qs  <- c(Q.b.fixed, Q.w.fixed)
-            dfs <- c(df.Q.b, df.Q.w)
+            dfs <- c(dfs.b, formatN(df.Q.w, digits = 0, big.mark = big.mark))
+            Q.lab <-
+              ifelse(is.glmm && Q.lab == "F", "F/Q", Q.lab)
+            ##
             pvals <- c(pval.Q.b.fixed, pval.Q.w.fixed)
             Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
-                           format(dfs, big.mark = big.mark),
+                           dfs,
                            formatPT(pvals,
                                     digits = digits.pval.Q,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval))
             dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                    c("Q", "d.f.", "p-value"))
+                                    c(Q.lab, "d.f.", "p-value"))
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
         }
@@ -1903,10 +1918,10 @@ print.summary.meta <- function(x,
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
-        if (three.level & length(df.Q.b) > 1) {
+        if ((three.level | is.glmm) & length(df.Q.b) > 1) {
           dfs.b <-
             rmSpace(paste(formatN(df.Q.b, digits = 0, big.mark = big.mark),
-                          collapse = " & "), end = TRUE)
+                          collapse = ", "), end = TRUE)
           Q.lab <- "F"
         }
         else {
@@ -1932,7 +1947,7 @@ print.summary.meta <- function(x,
             Qs  <- c(Q.b.random, Q.w.random)
             dfs <- c(dfs.b, formatN(df.Q.w, digits = 0, big.mark = big.mark))
             Q.lab <-
-              ifelse(three.level && Q.lab == "F", "F/Q", Q.lab)
+              ifelse((three.level | is.glmm) && Q.lab == "F", "F/Q", Q.lab)
             ##
             pvals <- c(pval.Q.b.random, pval.Q.w.random)
             Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",

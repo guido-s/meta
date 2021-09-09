@@ -183,6 +183,7 @@
   calcwidth.hetstat = FALSE,
   calcwidth.tests = FALSE,
   calcwidth.subgroup = FALSE,
+  calcwidth.addline = FALSE,
   just = if (layout == "JAMA") "left" else "right",
   just.studlab = "left",
   just.addcols = "center",
@@ -192,6 +193,7 @@
   addrow,
   addrow.overall,
   addrow.subgroups,
+  addrows.below.overall = 0,
   new = TRUE,
   backtransf = x$backtransf,
   digits = gs("digits.forest"),
@@ -807,6 +809,10 @@ calculate width of the column with study labels.}
 subgroup labels should be considered to calculate width of the
 column with study labels.}
 
+\item{calcwidth.addline}{A logical indicating whether text for
+additional lines should be considered to calculate width of the
+column with study labels.}
+
 \item{just}{Justification of text in all columns but columns with
 study labels and additional variables (possible values: "left",
 "right", "center").}
@@ -837,6 +843,10 @@ row is printed above overall meta-analysis results.}
 
 \item{addrow.subgroups}{A logical value indicating whether an empty
 row is printed between results for subgroups.}
+
+\item{addrows.below.overall}{A numeric value indicating how many
+empty rows are printed between meta-analysis results and
+heterogeneity statistics and test results.}
 
 \item{new}{A logical value indicating whether a new figure should
 be printed in an existing graphics window.}
@@ -981,6 +991,14 @@ e.g., \code{\link{metabin}}), additional information is printed,
 e.g., " (99\%-CI)" for a 99\% confidence interval in the
 meta-analysis.
 
+Depending on the number of information printed on the left side of
+the forest plot, the text for heterogeneity statistics following
+the overall meta-analysis results can be overlapping with the
+x-axis. Argument \code{addrows.below.overall} can be used to
+specify the number of empty rows that are printed between
+meta-analysis results and heterogeneity statistics and test
+results (see Examples).
+
 The following arguments can be used to print results for various
 statistical tests:
 \tabular{ll}{
@@ -999,11 +1017,12 @@ statistical tests:
   model)
 }
 
-By default, these arguments are \code{FALSE}. R function
+By default, these arguments are \code{FALSE} with exception of the
+tests for subgroup differences which are \code{TRUE}. R function
 \code{\link{settings.meta}} can be used to change this default for
 the entire R session. For example, use the following command to
 always print results of tests for an overall effect:
-\code{settings.meta(test.overall = TRUE)}
+\code{settings.meta(test.overall = TRUE)} .
 
 The arguments \code{leftcols} and \code{rightcols} can be used to
 specify columns which are plotted on the left and right side of the
@@ -1257,8 +1276,20 @@ forest(m1, test.overall.fixed = TRUE, test.overall.random = TRUE)
 forest(m1, col.square = "black", hetstat = FALSE)
 
 # Change set of columns printed on left side of forest plot
+# (resulting in overlapping text)
 #
 forest(m1, comb.random = FALSE, leftcols = "studlab")
+
+# Use argument 'addrows.below.overall' to add space between
+# meta-analysis results and heterogeneity statistics
+#
+forest(m1, comb.random = FALSE, leftcols = "studlab", addrows = 2)
+
+# Use argument 'calcwidth.hetstat' to consider text for heterogeneity
+# measures in width of column with study labels
+#
+forest(m1, comb.random = FALSE, leftcols = "studlab",
+       calcwidth.hetstat = TRUE)
 
 # Do not print columns on right side of forest plot
 #
@@ -1354,12 +1385,17 @@ forest(m2, sortvar = -TE, comb.fixed = FALSE)
 
 # Print only subgroup results
 #
-forest(m2, layout = "subgroup")
+forest(m2, layout = "subgroup", addrows = 2)
+
+# Print only subgroup results (and consider text for tests of
+# subgroup differences in width of subgroup column)
+#
+forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
 
 # Print only subgroup results (and consider text for heterogeneity
 # measures in width of subgroup column)
 #
-forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
+forest(m2, layout = "subgroup", addrows = 2, calcwidth.hetstat = TRUE)
 }
 
 }

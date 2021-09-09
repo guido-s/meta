@@ -413,6 +413,9 @@
 #' @param calcwidth.subgroup A logical indicating whether text with
 #'   subgroup labels should be considered to calculate width of the
 #'   column with study labels.
+#' @param calcwidth.addline A logical indicating whether text for
+#'   additional lines should be considered to calculate width of the
+#'   column with study labels.
 #' @param just Justification of text in all columns but columns with
 #'   study labels and additional variables (possible values: "left",
 #'   "right", "center").
@@ -435,6 +438,9 @@
 #'   row is printed above overall meta-analysis results.
 #' @param addrow.subgroups A logical value indicating whether an empty
 #'   row is printed between results for subgroups.
+#' @param addrows.below.overall A numeric value indicating how many
+#'   empty rows are printed between meta-analysis results and
+#'   heterogeneity statistics and test results.
 #' @param new A logical value indicating whether a new figure should
 #'   be printed in an existing graphics window.
 #' @param backtransf A logical indicating whether results should be
@@ -546,6 +552,14 @@
 #' e.g., \code{\link{metabin}}), additional information is printed,
 #' e.g., " (99\%-CI)" for a 99\% confidence interval in the
 #' meta-analysis.
+#'
+#' Depending on the number of information printed on the left side of
+#' the forest plot, the text for heterogeneity statistics following
+#' the overall meta-analysis results can be overlapping with the
+#' x-axis. Argument \code{addrows.below.overall} can be used to
+#' specify the number of empty rows that are printed between
+#' meta-analysis results and heterogeneity statistics and test
+#' results (see Examples).
 #' 
 #' The following arguments can be used to print results for various
 #' statistical tests:
@@ -565,11 +579,12 @@
 #'   model)
 #' }
 #' 
-#' By default, these arguments are \code{FALSE}. R function
+#' By default, these arguments are \code{FALSE} with exception of the
+#' tests for subgroup differences which are \code{TRUE}. R function
 #' \code{\link{settings.meta}} can be used to change this default for
 #' the entire R session. For example, use the following command to
 #' always print results of tests for an overall effect:
-#' \code{settings.meta(test.overall = TRUE)}
+#' \code{settings.meta(test.overall = TRUE)} .
 #' 
 #' The arguments \code{leftcols} and \code{rightcols} can be used to
 #' specify columns which are plotted on the left and right side of the
@@ -843,8 +858,20 @@
 #' forest(m1, col.square = "black", hetstat = FALSE)
 #' 
 #' # Change set of columns printed on left side of forest plot
+#' # (resulting in overlapping text)
 #' #
 #' forest(m1, comb.random = FALSE, leftcols = "studlab")
+#'
+#' # Use argument 'addrows.below.overall' to add space between
+#' # meta-analysis results and heterogeneity statistics
+#' #
+#' forest(m1, comb.random = FALSE, leftcols = "studlab", addrows = 2)
+#' 
+#' # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
+#' # measures in width of column with study labels
+#' #
+#' forest(m1, comb.random = FALSE, leftcols = "studlab",
+#'        calcwidth.hetstat = TRUE)
 #' 
 #' # Do not print columns on right side of forest plot
 #' #
@@ -940,12 +967,17 @@
 #' 
 #' # Print only subgroup results
 #' #
-#' forest(m2, layout = "subgroup")
+#' forest(m2, layout = "subgroup", addrows = 2)
+#' 
+#' # Print only subgroup results (and consider text for tests of
+#' # subgroup differences in width of subgroup column)
+#' #
+#' forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
 #' 
 #' # Print only subgroup results (and consider text for heterogeneity
 #' # measures in width of subgroup column)
 #' #
-#' forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
+#' forest(m2, layout = "subgroup", addrows = 2, calcwidth.hetstat = TRUE)
 #' }
 #'
 #' @method forest meta
@@ -1160,6 +1192,7 @@ forest.meta <- function(x,
                         calcwidth.hetstat = FALSE,
                         calcwidth.tests  = FALSE,
                         calcwidth.subgroup = FALSE,
+                        calcwidth.addline = FALSE,
                         ##
                         just = if (layout == "JAMA") "left" else "right",
                         just.studlab = "left",
@@ -1171,6 +1204,7 @@ forest.meta <- function(x,
                         addrow,
                         addrow.overall,
                         addrow.subgroups,
+                        addrows.below.overall = 0,
                         ##
                         new = TRUE,
                         ##
@@ -1543,6 +1577,7 @@ forest.meta <- function(x,
   chklogical(calcwidth.hetstat)
   chklogical(calcwidth.tests)
   chklogical(calcwidth.subgroup)
+  chklogical(calcwidth.addline)
   just.cols <- setchar(just, c("right", "center", "left"))
   just.studlab <- setchar(just.studlab, c("right", "center", "left"))
   just.addcols <- setchar(just.addcols, c("right", "center", "left"))
@@ -1580,6 +1615,8 @@ forest.meta <- function(x,
     chklogical(addrow.subgroups)
   else
     addrow.subgroups <- !jama
+  ##
+  chknumeric(addrows.below.overall, min = 0, length = 1)
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
@@ -6759,6 +6796,8 @@ forest.meta <- function(x,
     yNext    <- yNext + 1
   }
   ##
+  yNext <- yNext + addrows.below.overall
+  ##
   if (overall.hetstat) {
     yHetstat <- yNext
     yNext    <- yNext + 1
@@ -7046,11 +7085,13 @@ forest.meta <- function(x,
                      ##
                      col = c(col.diamond.lines.pooled, col.study),
                      col.square = c(col.diamond.pooled, col.square),
-                     col.square.lines = c(col.diamond.lines.pooled, col.square.lines),
+                     col.square.lines =
+                       c(col.diamond.lines.pooled, col.square.lines),
                      col.inside = c(col.inside.pooled, col.inside),
                      ##
                      col.diamond = c(col.diamond.pooled, col.square),
-                     col.diamond.lines = c(col.diamond.lines.pooled, col.square.lines),
+                     col.diamond.lines =
+                       c(col.diamond.lines.pooled, col.square.lines),
                      ##
                      lwd = lwd
                      )
@@ -7478,14 +7519,18 @@ forest.meta <- function(x,
   ##
   if (by) {
     del.lines <-
-      c(if (!calcwidth.fixed)              # FE
+      c(if (!calcwidth.fixed)   # FE
           2,
-        if (!calcwidth.random)             # RE
+        if (!calcwidth.random)  # RE
           3,
-        if (!calcwidth.predict)            # PI
+        if (!calcwidth.predict) # PI
           4,
-        if (!calcwidth.tests)              # tests
-          5:n.summaries,
+        if (!calcwidth.hetstat) # heterogeneity
+          5:6,
+        if (!calcwidth.tests)   # tests
+          7:10,
+        if (!calcwidth.addline) # additional lines
+          11:12,
         ##
         ## Subgroups
         ##
@@ -7512,8 +7557,12 @@ forest.meta <- function(x,
                      3,
                    if (!calcwidth.predict) # PI
                      4,
+                   if (!calcwidth.hetstat) # heterogeneity
+                     5:6,
                    if (!calcwidth.tests)   # tests
-                     5:n.summaries)
+                     7:10,
+                   if (!calcwidth.addline) # additional lines
+                     11:12)
   ##
   for (i in seq(along = leftcols)) {
     if (i == 1) {
@@ -7571,7 +7620,8 @@ forest.meta <- function(x,
   ##
   ymin.line <- overall.hetstat + test.overall.fixed + test.overall.random +
     resid.hetstat + test.subgroup.fixed + test.subgroup.random +
-    (1 - missing.text.addline1) + (1 - missing.text.addline2)
+    (1 - missing.text.addline1) + (1 - missing.text.addline2) +
+    addrows.below.overall
   ##
   ymin.line <- ymin.line + (overall & ymin.line == 0 &
                             !(!addrow.overall | !addrow))
