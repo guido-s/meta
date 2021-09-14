@@ -9,7 +9,7 @@ Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "sc@imbi.uni-freiburg.de",
                   comment = c(ORCID = "0000-0001-6214-9087"))
-Author: Guido Schwarzer [aut, cre]
+Author: Guido Schwarzer [cre, aut] (<https://orcid.org/0000-0001-6214-9087>)
 Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 URL: https://github.com/guido-s/meta/ https://www.springer.com/gp/book/9783319214153
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker <DOI:10.1007/978-3-319-21416-0>, "Meta-Analysis with R" (2015):

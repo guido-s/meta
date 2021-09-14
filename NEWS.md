@@ -1,4 +1,4 @@
-## meta, version 4.19-1 (2021-mm-dd)
+## meta, version 4.19-1 (2021-09-14)
 
 ### Bug fixes
 
@@ -717,8 +717,7 @@
   objects created with metabind()
 
 * P-values can be printed according to [JAMA reporting
-  standards](https://www.amamanualofstyle.com/view/10.1093/jama/9780195176339.001.0001/med-9780195176339-div2-485)
-  (subscription necessary)
+  standards](https://jamanetwork.com/journals/jama)
 
 * In subgroup analyses, print the group labels instead of levels if
   the grouping variable is a factor
@@ -729,7 +728,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https://www.doi.org/10.1136/ebmental-2019-300117)
+  al. (2019)](https://ebmh.bmj.com/content/22/4/153/)
 
 ### User-visible changes
 
