@@ -894,6 +894,12 @@ mid-range, and/or mid-quartile range.
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 The Cochrane Collaboration, 2020
 
+Shi J, Luo D, Weng H, Zeng XT, Lin L, Chu H, Tong T (2020):
+Optimally estimating the sample standard deviation from the
+five-number summary.
+\emph{Research Synthesis Methods},
+\bold{11}, 641--54
+
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.
 \emph{Behavior Research Methods},
