@@ -28,7 +28,7 @@ Installation using R package
 [**devtools**](https://cran.r-project.org/package=devtools):
 ```r
 install.packages("devtools")
-devtools::install_github("guido-s/meta, ref = "R-book-first-edition")
+devtools::install_github("guido-s/meta", ref = "R-book-first-edition")
 ```
 
 Please send an email to Guido Schwarzer <sc@imbi.uni-freiburg.de> for
