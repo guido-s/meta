@@ -228,8 +228,8 @@ metareg <- function(x, formula, method.tau = x$method.tau,
       formula.text <- deparse(substitute(formula))
     else {
       if (is.char & length(formula) != 1)
-        stop("Alphanumeric argument 'formula' must be of length 1.",
-             call. = FALSE)
+        formula.text <- paste("~", deparse(substitute(formula)))
+      else
       formula.text <- deparse(formula)
     }
     ##
