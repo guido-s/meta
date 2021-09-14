@@ -511,7 +511,7 @@ settings.meta <- function(...) {
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
-    setOption("test.subgroup", TRUE)
+    setOption("test.subgroup", FALSE)
     setOption("method.bias", "Egger")
     setOption("text.fixed", "Fixed effect model")
     setOption("text.random", "Random effects model")

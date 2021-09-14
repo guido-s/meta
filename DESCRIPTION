@@ -1,6 +1,6 @@
 Package: meta
-Title: General Package for Meta-Analysis
-Version: 4.19-1
+Title: General Package for Meta-Analysis (Use R!-Book Meta-Analysis with R, first edition)
+Version: 4.20-0
 Date: 2021-09-14
 Depends: R (>= 3.5.0)
 Imports: metafor (>= 2.1-0), grid, lme4, CompQuadForm, xml2

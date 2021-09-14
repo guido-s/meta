@@ -1,10 +1,18 @@
+## meta, version 4.20-0 (2021-09-14)
+
+### Major changes
+
+ * New branch to support Use R!-Book Meta-Analysis with R, first
+   edition
+
+
 ## meta, version 4.19-1 (2021-09-14)
 
 ### Bug fixes
 
 * metagen():
   - set random effects weights equal to zero for estimates with
-    standard errors equal to NA (to fix error bubble.metareg)
+    standard errors equal to NA (to fix error in bubble.metareg)
 
 * metareg():
   - for three-level model, use 'test = "t"' instead of 'test = "knha"'

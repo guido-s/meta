@@ -1,10 +1,7 @@
 # meta: General Package for Meta-Analysis
-Official Git repository of R package **meta**
-
-[![Build Status](https://travis-ci.org/guido-s/meta.svg?branch=master)](https://travis-ci.org/guido-s/meta)
-[![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
-[![Monthly Downloads](http://cranlogs.r-pkg.org/badges/meta)](http://cranlogs.r-pkg.org/badges/meta)
-[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/meta)](http://cranlogs.r-pkg.org/badges/grand-total/meta)
+Git repository of R package **meta** to support [*Meta-Analysis with R
+(Use-R!), first
+edition*](http://www.springer.com/gp/book/9783319214153)
 
 
 ## Description
@@ -27,28 +24,12 @@ User-friendly general package providing standard methods for meta-analysis and s
 
 ## Installation
 
-### Current official [![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
-```r
-install.packages("meta")
-```
-
-### Current beta / GitHub release:
-
 Installation using R package
 [**devtools**](https://cran.r-project.org/package=devtools):
 ```r
 install.packages("devtools")
-devtools::install_github("guido-s/meta")
+devtools::install_github("guido-s/meta, ref = "R-book-first-edition")
 ```
 
-
-### Bug Reports:
-
-```r
-bug.report(package = "meta")
-```
-
-The bug.report function is not supported in RStudio. Please send an
-email to Guido Schwarzer <sc@imbi.uni-freiburg.de> if you use RStudio.
-
-You can also report bugs on GitHub under [Issues](https://github.com/guido-s/meta/issues/).
+Please send an email to Guido Schwarzer <sc@imbi.uni-freiburg.de> for
+additional support on this version of **meta**.
