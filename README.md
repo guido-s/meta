@@ -38,7 +38,7 @@ Installation using R package
 [**devtools**](https://cran.r-project.org/package=devtools):
 ```r
 install.packages("devtools")
-devtools::install_github("guido-s/meta")
+devtools::install_github("guido-s/meta", ref = "develop")
 ```
 
 
