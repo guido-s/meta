@@ -378,6 +378,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            n.c = replaceNULL(m.i$n.c.w),
                            df.hakn = replaceNULL(m.i$df.hakn.w),
                            ##
+                           n.harmonic.mean = m.i$n.harmonic.mean.w,
+                           t.harmonic.mean = m.i$t.harmonic.mean.w,
+                           ##
                            k = m.i$k.w,
                            k.all = m.i$k.all.w,
                            Q = m.i$Q.w,
@@ -683,6 +686,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   ##
   res$data <- data
+  res$n.harmonic.mean <- data$n.harmonic.mean
+  res$t.harmonic.mean <- data$t.harmonic.mean
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version

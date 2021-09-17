@@ -342,8 +342,9 @@ print.meta <- function(x,
   ## (3) Some additional settings
   ##
   ##
+  is.metabind <- inherits(x, "metabind")
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  mb.glmm <- inherits(x, "metabind") | x$method == "GLMM"
+  mb.glmm <- is.metabind | x$method == "GLMM"
   ##
   prediction <- prediction & x$k >= 3
   if (is.na(prediction))
@@ -590,7 +591,7 @@ print.meta <- function(x,
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
-      if (metainf.metacum) {
+      if (metainf.metacum | is.metabind) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean
         else
@@ -704,7 +705,7 @@ print.meta <- function(x,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
-    else if (!(inherits(x, "metabind") && !x$show.studies)) {
+    else if (!(is.metabind && !x$show.studies)) {
       show.w.fixed  <-
         (overall | by) & !mb.glmm &
         (comb.fixed && !all(is.na(w.fixed.p)))
