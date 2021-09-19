@@ -5366,7 +5366,7 @@ forest.meta <- function(x,
     ##
     ## Freeman-Tukey Arcsin transformation
     ##
-    if (metainf.metacum) {
+    if (metainf.metacum | metabind) {
       if (sm == "IRFT") {
         npft <- x$t.harmonic.mean
         npft.ma <- x$t.harmonic.mean.ma

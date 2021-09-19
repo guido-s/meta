@@ -378,6 +378,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            n.c = replaceNULL(m.i$n.c.w),
                            df.hakn = replaceNULL(m.i$df.hakn.w),
                            ##
+                           n.harmonic.mean = m.i$n.harmonic.mean.w,
+                           t.harmonic.mean = m.i$t.harmonic.mean.w,
+                           ##
                            k = m.i$k.w,
                            k.all = m.i$k.all.w,
                            Q = m.i$Q.w,
@@ -415,6 +418,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            n.e = sum(replaceNULL(m.i$n.e)),
                            n.c = sum(replaceNULL(m.i$n.c)),
                            df.hakn = replaceNULL(m.i$df.hakn),
+                           ##
+                           n.harmonic.mean =
+                             1 / mean(1 / replaceNULL(m.i$n)),
+                           t.harmonic.mean =
+                             1 / mean(1 / replaceNULL(m.i$time)),
                            ##
                            k = m.i$k,
                            k.all = length(m.i$TE),
@@ -462,6 +470,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             statistic.random = m.i$statistic.random,
                             pval.random = m.i$pval.random,
                             df.hakn = replaceNULL(m.i$df.hakn),
+                            ##
+                            n.harmonic.mean.ma =
+                              1 / mean(1 / replaceNULL(m.i$n)),
+                            t.harmonic.mean.ma =
+                              1 / mean(1 / replaceNULL(m.i$time)),
                             ##
                             seTE.predict = m.i$seTE.predict,
                             lower.predict = m.i$lower.predict,
@@ -683,6 +696,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   ##
   res$data <- data
+  res$n.harmonic.mean <- data$n.harmonic.mean
+  res$t.harmonic.mean <- data$t.harmonic.mean
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
@@ -736,6 +751,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$I2 <- makeunique(res$I2)
   res$lower.I2 <- makeunique(res$lower.I2)
   res$upper.I2 <- makeunique(res$upper.I2)
+  ##
+  res$n.harmonic.mean.ma <- makeunique(res$n.harmonic.mean.ma)
+  res$t.harmonic.mean.ma <- makeunique(res$t.harmonic.mean.ma)
   ##
   res$Rb <- makeunique(res$Rb)
   res$lower.Rb <- makeunique(res$lower.Rb)
