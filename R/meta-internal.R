@@ -2,7 +2,7 @@
   msg <- paste0("Loading 'meta' package (version ",
                 utils::packageDescription("meta")$Version,
                 ").",
-                "\nSupporting book 'Meta-Analysis with R (first edition)",
+                "\nSupporting book 'Meta-Analysis with R' (first edition)",
                 "\nType 'help(meta)' for a brief overview.")
   packageStartupMessage(msg)
 }
