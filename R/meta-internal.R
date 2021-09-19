@@ -2,6 +2,7 @@
   msg <- paste0("Loading 'meta' package (version ",
                 utils::packageDescription("meta")$Version,
                 ").",
+                "\nSupporting book 'Meta-Analysis with R (first edition)",
                 "\nType 'help(meta)' for a brief overview.")
   packageStartupMessage(msg)
 }
@@ -202,7 +203,7 @@ setOption("comb.random", TRUE)
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")
 setOption("method.tau", "DL")
-setOption("method.tau.ci", NULL)
+setOption("method.tau.ci", "")
 setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
@@ -295,7 +296,7 @@ setOption("label.right", "")
 ##
 setOption("layout", "meta")
 setOption("test.overall", FALSE)
-setOption("test.subgroup", FALSE)
+setOption("test.subgroup", TRUE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
 

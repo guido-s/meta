@@ -481,6 +481,24 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$pval.Q.b.random <- meta2$pval.Q.b.random
     }
   }
+  ##
+  if (is.null(meta1$lower.tau))
+    meta1$lower.tau <- NA
+  if (is.null(meta1$upper.tau))
+    meta1$upper.tau <- NA
+  if (is.null(meta1$lower.tau2))
+    meta1$lower.tau2 <- NA
+  if (is.null(meta1$upper.tau2))
+    meta1$upper.tau2 <- NA
+  ##
+  if (is.null(meta2$lower.tau))
+    meta2$lower.tau <- NA
+  if (is.null(meta2$upper.tau))
+    meta2$upper.tau <- NA
+  if (is.null(meta2$lower.tau2))
+    meta2$lower.tau2 <- NA
+  if (is.null(meta2$upper.tau2))
+    meta2$upper.tau2 <- NA
   
   
   ##
@@ -598,7 +616,11 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
     }
     else if (
+           any(is.na(meta1$tau) != is.na(meta2$tau)) |
+           all(!is.na(c(meta1$tau, meta2$tau))) |
            any(meta1$tau != meta2$tau) |
+           any(is.na(meta1$lower.tau) != is.na(meta2$lower.tau)) |
+           all(!is.na(c(meta1$lower.tau, meta2$lower.tau))) |
            any(meta1$lower.tau != meta2$lower.tau)) {
       ##
       if (meta1$method.tau != meta2$method.tau) {
