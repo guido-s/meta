@@ -419,6 +419,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            n.c = sum(replaceNULL(m.i$n.c)),
                            df.hakn = replaceNULL(m.i$df.hakn),
                            ##
+                           n.harmonic.mean =
+                             1 / mean(1 / replaceNULL(m.i$n)),
+                           t.harmonic.mean =
+                             1 / mean(1 / replaceNULL(m.i$time)),
+                           ##
                            k = m.i$k,
                            k.all = length(m.i$TE),
                            Q = m.i$Q,
@@ -465,6 +470,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                             statistic.random = m.i$statistic.random,
                             pval.random = m.i$pval.random,
                             df.hakn = replaceNULL(m.i$df.hakn),
+                            ##
+                            n.harmonic.mean.ma =
+                              1 / mean(1 / replaceNULL(m.i$n)),
+                            t.harmonic.mean.ma =
+                              1 / mean(1 / replaceNULL(m.i$time)),
                             ##
                             seTE.predict = m.i$seTE.predict,
                             lower.predict = m.i$lower.predict,
@@ -741,6 +751,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$I2 <- makeunique(res$I2)
   res$lower.I2 <- makeunique(res$lower.I2)
   res$upper.I2 <- makeunique(res$upper.I2)
+  ##
+  res$n.harmonic.mean.ma <- makeunique(res$n.harmonic.mean.ma)
+  res$t.harmonic.mean.ma <- makeunique(res$t.harmonic.mean.ma)
   ##
   res$Rb <- makeunique(res$Rb)
   res$lower.Rb <- makeunique(res$lower.Rb)

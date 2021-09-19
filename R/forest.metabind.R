@@ -344,7 +344,7 @@ forest.metabind <- function(x,
                       "Fixed Effect Model"
                     else
                       "Random Effects Model",
-                    if (x$sm != "")
+                    if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
                       paste0("\n(", xlab(x$sm, x$backtransf), ")"))
   
   

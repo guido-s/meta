@@ -756,7 +756,10 @@ summary.meta <- function(object,
   }
   ##
   if (inherits(object, "metabind")) {
+    res$n.harmonic.mean.ma <- object$n.harmonic.mean.ma
+    res$t.harmonic.mean.ma <- object$t.harmonic.mean.ma
     res$show.studies <- object$show.studies
+    ##
     class(res) <- c(class(res), "metabind")
   }
   ##
@@ -903,6 +906,7 @@ print.summary.meta <- function(x,
     return(invisible(NULL))
   ##
   by <- !is.null(x$bylab)
+  is.metabind <- inherits(x, "metabind")
   
   
   ##
@@ -1180,10 +1184,18 @@ print.summary.meta <- function(x,
   }
   ##
   if (backtransf) {
-    if (sm %in% c("IR", "IRLN", "IRS", "IRFT"))
-      harmonic.mean <- 1 / mean(1 / x$time)
-    else
-      harmonic.mean <- 1 / mean(1 / x$n)
+    if (sm == "IRFT") {
+      if (is.metabind)
+        harmonic.mean <- x$t.harmonic.mean.ma
+      else
+        harmonic.mean <- 1 / mean(1 / x$time)
+    }
+    else {
+      if (is.metabind)
+        harmonic.mean <- x$n.harmonic.mean.ma
+      else
+        harmonic.mean <- 1 / mean(1 / x$n)
+    }
     ##
     TE.fixed    <- backtransf(TE.fixed, sm, "mean",
                               harmonic.mean,
@@ -1673,7 +1685,7 @@ print.summary.meta <- function(x,
       ##
       ## Print information on residual heterogeneity
       ##
-      if (by & !inherits(x, "metabind")) {
+      if (by & !is.metabind) {
         ##
         Q.resid <- x$Q.w.fixed
         k.resid <- x$df.Q.w + 1
@@ -1758,7 +1770,7 @@ print.summary.meta <- function(x,
     ## Print information for subgroup analysis
     ##
     if (by) {
-      if (inherits(x, "metabind"))
+      if (is.metabind)
         anaunit <- "meta-analyses"
       else if (inherits(x, "is.netpairwise"))
         anaunit <- "pairwise comparisons"
@@ -1830,7 +1842,7 @@ print.summary.meta <- function(x,
           Q.lab <- "Q"
         }
         ##
-        if (test.subgroup & !inherits(x, "metabind")) {
+        if (test.subgroup & !is.metabind) {
           cat(paste0("\nTest for subgroup differences (",
                      text.fixed.br, "):\n"))
           if (x$method == "MH") {
@@ -1929,7 +1941,7 @@ print.summary.meta <- function(x,
           Q.lab <- "Q"
         }
         ##
-        if (test.subgroup & !inherits(x, "metabind") & !is.na(Q.b.random)) {
+        if (test.subgroup & !is.metabind & !is.na(Q.b.random)) {
           cat(paste0("\nTest for subgroup differences (",
                      text.random.br, "):\n"))
           if (is.na(Q.w.random)) {
@@ -1964,7 +1976,7 @@ print.summary.meta <- function(x,
         }
       }
       ##
-      if (prediction.w & !inherits(x, "metabind")) {
+      if (prediction.w & !is.metabind) {
         ##
         ## Prediction intervals for subgroups
         ##
