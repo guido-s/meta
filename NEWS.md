@@ -1,3 +1,12 @@
+## meta, version 4.19-2 (2021-09-29)
+
+### Bug fix
+
+* Forest plots of meta-analyses assuming a common between-study
+  heterogeneity variance in subgroups resulted in an error
+  (bug was introduced in **meta**, version 4.16-0)
+
+
 ## meta, version 4.19-1 (2021-09-14)
 
 ### Bug fixes
