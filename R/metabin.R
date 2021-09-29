@@ -503,7 +503,6 @@
 #'   \code{byvar} is not missing.}  \item{lower.fixed.w,
 #'   upper.fixed.w}{Lower and upper confidence interval limits in
 #'   subgroups (fixed effect model) - if \code{byvar} is not missing.}
-#'
 #' \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
 #'   of treatment effect in subgroups (fixed effect model) - if
 #'   \code{byvar} is not missing.}  \item{TE.random.w,
@@ -518,63 +517,74 @@
 #'   (random effects model) - if \code{byvar} is not missing.}
 #' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
 #'   random effects model) - if \code{byvar} is not missing.}
-#'   \item{df.hakn.w}{Degrees of freedom for test of treatment effect
+#' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{byvar} is not
-#'   missing and \code{hakn = TRUE}.}  \item{event.e.w}{Number of
-#'   events in experimental group in subgroups - if \code{byvar} is
-#'   not missing.}  \item{n.e.w}{Number of observations in
-#'   experimental group in subgroups - if \code{byvar} is not
-#'   missing.}  \item{event.c.w}{Number of events in control group in
-#'   subgroups - if \code{byvar} is not missing.}  \item{n.c.w}{Number
-#'   of observations in control group in subgroups - if \code{byvar}
-#'   is not missing.}  \item{k.w}{Number of studies combined within
+#'   missing and \code{hakn = TRUE}.}
+#' \item{event.e.w}{Number of events in experimental group in
 #'   subgroups - if \code{byvar} is not missing.}
-#'   \item{k.all.w}{Number of all studies in subgroups - if
-#'   \code{byvar} is not missing.}  \item{Q.w.fixed}{Overall within
-#'   subgroups heterogeneity statistic Q (based on fixed effect model)
-#'   - if \code{byvar} is not missing.}  \item{Q.w.random}{Overall
-#'   within subgroups heterogeneity statistic Q (based on random
-#'   effects model) - if \code{byvar} is not missing (only calculated
-#'   if argument \code{tau.common} is TRUE).}  \item{df.Q.w}{Degrees
-#'   of freedom for test of overall within subgroups heterogeneity -
-#'   if \code{byvar} is not missing.}  \item{pval.Q.w.fixed}{P-value
-#'   of within subgroups heterogeneity statistic Q (based on fixed
-#'   effect model) - if \code{byvar} is not missing.}
-#'   \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
+#' \item{n.e.w}{Number of observations in experimental group in
+#'   subgroups - if \code{byvar} is not missing.}
+#' \item{event.c.w}{Number of events in control group in subgroups -
+#'   if \code{byvar} is not missing.}
+#' \item{n.c.w}{Number of observations in control group in subgroups -
+#'   if \code{byvar} is not missing.}
+#' \item{k.w}{Number of studies combined within subgroups - if
+#'   \code{byvar} is not missing.}
+#' \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+#'   is not missing.}
+#' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
+#'   (based on fixed effect model) - if \code{byvar} is not missing.}
+#' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
+#'   Q (based on random effects model) - if \code{byvar} is not
+#'   missing (only calculated if argument \code{tau.common} is TRUE).}
+#' \item{df.Q.w}{Degrees of freedom for test of overall within
+#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   not missing.}
+#' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{byvar} is
-#'   not missing.}  \item{Q.b.fixed}{Overall between subgroups
-#'   heterogeneity statistic Q (based on fixed effect model) - if
-#'   \code{byvar} is not missing.}  \item{Q.b.random}{Overall between
-#'   subgroups heterogeneity statistic Q (based on random effects
-#'   model) - if \code{byvar} is not missing.}  \item{df.Q.b}{Degrees
-#'   of freedom for test of overall between subgroups heterogeneity -
-#'   if \code{byvar} is not missing.}  \item{pval.Q.b.fixed}{P-value
-#'   of between subgroups heterogeneity statistic Q (based on fixed
-#'   effect model) - if \code{byvar} is not missing.}
-#'   \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
+#'   not missing.}
+#' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
+#'   Q (based on fixed effect model) - if \code{byvar} is not
+#'   missing.}
+#' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
+#'   Q (based on random effects model) - if \code{byvar} is not
+#'   missing.}
+#' \item{df.Q.b}{Degrees of freedom for test of overall between
+#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   not missing.}
+#' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{byvar} is
-#'   not missing.}  \item{tau.w}{Square-root of between-study variance
+#'   not missing.}
+#' \item{tau.w}{Square-root of between-study variance
 #'   within subgroups - if \code{byvar} is not missing.}
-#'   \item{H.w}{Heterogeneity statistic H within subgroups - if
-#'   \code{byvar} is not missing.}  \item{lower.H.w, upper.H.w}{Lower
-#'   and upper confidence limit for heterogeneity statistic H within
-#'   subgroups - if \code{byvar} is not missing.}
-#'   \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups -
-#'   if \code{byvar} is not missing.}  \item{lower.I2.w,
-#'   upper.I2.w}{Lower and upper confidence limit for heterogeneity
-#'   statistic I\eqn{^2} within subgroups - if \code{byvar} is not
-#'   missing.}  \item{keepdata}{As defined above.}
-#'   \item{data}{Original data (set) used in function call (if
-#'   \code{keepdata = TRUE}).}  \item{subset}{Information on subset of
-#'   original data used in meta-analysis (if \code{keepdata = TRUE}).}
-#'   \item{.glmm.fixed}{GLMM object generated by call of
+#' \item{H.w}{Heterogeneity statistic H within subgroups - if
+#'   \code{byvar} is not missing.}
+#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
+#'   heterogeneity statistic H within subgroups - if \code{byvar} is
+#'   not missing.}
+#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
+#'   \code{byvar} is not missing.}
+#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
+#'   heterogeneity statistic I\eqn{^2} within subgroups - if
+#'   \code{byvar} is not missing.}
+#' \item{keepdata}{As defined above.}
+#' \item{data}{Original data (set) used in function call (if
+#'   \code{keepdata = TRUE}).}
+#' \item{subset}{Information on subset of original data used in
+#'   meta-analysis (if \code{keepdata = TRUE}).}
+#' \item{.glmm.fixed}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
-#'   \item{.glmm.random}{GLMM object generated by call of
+#' \item{.glmm.random}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (random effects model).}
-#'   \item{call}{Function call.}  \item{version}{Version of R package
-#'   \bold{meta} used to create object.}
-#'   \item{version.metafor}{Version of R package \bold{metafor} used
-#'   for GLMMs.}
+#' \item{call}{Function call.}
+#' \item{version}{Version of R package \bold{meta} used to create
+#'   object.}
+#' \item{version.metafor}{Version of R package \bold{metafor} used for
+#'   GLMMs.}
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -1928,9 +1938,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                   sign.lower.tau.resid = "",
                   sign.upper.tau.resid = "",
                   ##
-                  Q.resid = NA,
-                  df.Q.resid = NA,
-                  pval.Q.resid = NA,
+                  Q.resid = Q.r,
+                  df.Q.resid = df.Q.r,
+                  pval.Q.resid = pvalQ(Q.r, df.Q.r),
                   ##
                   H.resid = H.r$TE,
                   lower.H.resid = H.r$lower,
@@ -1997,6 +2007,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
     }
     else {
+      res$Q.w.random <- hcc$Q.resid
+      res$df.Q.w.random <- hcc$df.Q.resid
+      res$pval.Q.w.random <- hcc$pval.Q.resid
+      ##
       res$tau2.resid <- hcc$tau2.resid
       res$lower.tau2.resid <- hcc$lower.tau2.resid
       res$upper.tau2.resid <- hcc$upper.tau2.resid
@@ -2007,9 +2021,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
       res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
       ##
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
+      res$Q.resid <- hcc$Q.resid
+      res$df.Q.resid <- hcc$df.Q.resid
+      res$pval.Q.resid <- hcc$pval.Q.resid
       ##
       res$H.resid <- hcc$H.resid
       res$lower.H.resid <- hcc$lower.H.resid

@@ -2172,6 +2172,7 @@ metagen <- function(TE, seTE, studlab,
     else {
       res$Q.w.random <- hcc$Q.resid
       res$df.Q.w.random <- hcc$df.Q.resid
+      res$pval.Q.w.random <- hcc$pval.Q.resid
       ##
       res$tau2.resid <- hcc$tau2.resid
       res$lower.tau2.resid <- hcc$lower.tau2.resid

@@ -1570,9 +1570,9 @@ metaprop <- function(event, n, studlab,
                   sign.lower.tau.resid = "",
                   sign.upper.tau.resid = "",
                   ##
-                  Q.resid = NA,
-                  df.Q.resid = NA,
-                  pval.Q.resid = NA,
+                  Q.resid = Q.r,
+                  df.Q.resid = df.Q.r,
+                  pval.Q.resid = pvalQ(Q.r, df.Q.r),
                   ##
                   H.resid = H.r$TE,
                   lower.H.resid = H.r$lower,
@@ -1631,6 +1631,10 @@ metaprop <- function(event, n, studlab,
       res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
     }
     else {
+      res$Q.w.random <- hcc$Q.resid
+      res$df.Q.w.random <- hcc$df.Q.resid
+      res$pval.Q.w.random <- hcc$pval.Q.resid
+      ##
       res$tau2.resid <- hcc$tau2.resid
       res$lower.tau2.resid <- hcc$lower.tau2.resid
       res$upper.tau2.resid <- hcc$upper.tau2.resid
@@ -1641,9 +1645,9 @@ metaprop <- function(event, n, studlab,
       res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
       res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
       ##
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
+      res$Q.resid <- hcc$Q.resid
+      res$df.Q.resid <- hcc$df.Q.resid
+      res$pval.Q.resid <- hcc$pval.Q.resid
       ##
       res$H.resid <- hcc$H.resid
       res$lower.H.resid <- hcc$lower.H.resid

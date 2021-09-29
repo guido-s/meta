@@ -6,6 +6,18 @@
   in line with other print and summary functions in R)
 
 
+## meta, version 4.19-2 (2021-09-29)
+
+### Bug fix
+
+* Forest plots of meta-analyses assuming a common between-study
+  heterogeneity variance in subgroups resulted in an error
+  (bug was introduced in **meta**, version 4.16-0)
+
+* For GLMMs, export Wald-type Q statistic for residual heterogeneity
+  instead of missing value
+
+
 ## meta, version 4.19-1 (2021-09-14)
 
 ### Bug fixes
