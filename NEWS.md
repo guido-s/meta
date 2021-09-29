@@ -1,3 +1,11 @@
+## meta, version 5.0-0 (2021-mm-dd)
+
+### Major changes
+
+* Behaviour of print.meta() and print.summary.meta() switched (to be
+  in line with other print and summary functions in R)
+
+
 ## meta, version 4.19-1 (2021-09-14)
 
 ### Bug fixes
