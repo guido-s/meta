@@ -1237,9 +1237,9 @@ metarate <- function(event, time, studlab,
                   sign.lower.tau.resid = "",
                   sign.upper.tau.resid = "",
                   ##
-                  Q.resid = NA,
-                  df.Q.resid = NA,
-                  pval.Q.resid = NA,
+                  Q.resid = Q.r,
+                  df.Q.resid = df.Q.r,
+                  pval.Q.resid = pvalQ(Q.r, df.Q.r),
                   ##
                   H.resid = H.r$TE,
                   lower.H.resid = H.r$lower,
