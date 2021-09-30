@@ -1064,6 +1064,8 @@ side of the forest plot}}:
 \code{\link{metagen}} \tab \code{c("studlab", "TE", "seTE")} \cr
 \code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",
   "event.c", "time.c")} \cr
+\code{\link{metamean}} \tab \code{c("studlab", "n", "mean", "sd")}
+  \cr
 \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 \code{\link{metarate}} \tab \code{c("studlab", "event", "time")}
   \cr

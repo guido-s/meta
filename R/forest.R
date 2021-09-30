@@ -626,6 +626,8 @@
 #' \code{\link{metagen}} \tab \code{c("studlab", "TE", "seTE")} \cr
 #' \code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",
 #'   "event.c", "time.c")} \cr
+#' \code{\link{metamean}} \tab \code{c("studlab", "n", "mean", "sd")}
+#'   \cr
 #' \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 #' \code{\link{metarate}} \tab \code{c("studlab", "event", "time")}
 #'   \cr
@@ -1261,6 +1263,7 @@ forest.meta <- function(x,
   metacor <- inherits(x, "metacor")
   metagen <- inherits(x, "metagen")
   metainc <- inherits(x, "metainc")
+  metamean <- inherits(x, "metamean")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   metabind <- inherits(x, "is.metabind")
@@ -2322,7 +2325,7 @@ forest.meta <- function(x,
   else {
     if (revman5) {
       if (miss.col.square) {
-        if (metacont)
+        if (metacont | metamean)
           col.square <- rep("green", K.all)
         else if (metabin)
           col.square <- rep("blue", K.all)
@@ -2330,7 +2333,7 @@ forest.meta <- function(x,
           col.square <- rep("red", K.all)
       }
       if (miss.col.square.lines) {
-        if (metacont)
+        if (metacont | metamean)
           col.square.lines <- rep("green", K.all)
         else if (metabin)
           col.square.lines <- rep("darkblue", K.all)
@@ -2468,8 +2471,14 @@ forest.meta <- function(x,
       else if (max(pos.rightcols.new) > length(rightlabs))
         stop("Too few labels defined for argument 'rightcols'.")
       ##
-      if ( (metacor | metaprop) & any(rightcols.new == "n"))
+      if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
         rightlabs.new[rightlabs.new == "n"] <- "Total"
+      ##
+      if (metamean & any(rightcols.new == "mean"))
+        rightlabs.new[rightlabs.new == "mean"] <- "Mean"
+      ##
+      if (metamean & any(rightcols.new == "sd"))
+        rightlabs.new[rightlabs.new == "sd"] <- "SD"
       ##
       if ( (metarate) & any(rightcols.new == "time"))
         rightlabs.new[rightlabs.new == "time"] <- "Time"
@@ -2495,8 +2504,14 @@ forest.meta <- function(x,
       else if (max(pos.leftcols.new) > length(leftlabs))
         stop("Too few labels defined for argument 'leftcols'.")
       ##
-      if ((metacor | metaprop) & any(leftcols.new == "n"))
+      if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
         leftlabs.new[leftlabs.new == "n"] <- "Total"
+      ##
+      if (metamean & any(leftcols.new == "mean"))
+        leftlabs.new[leftlabs.new == "mean"] <- "Mean"
+      ##
+      if (metamean & any(leftcols.new == "sd"))
+        leftlabs.new[leftlabs.new == "sd"] <- "SD"
       ##
       if ((metarate) & any(leftcols.new == "time"))
         leftlabs.new[leftlabs.new == "time"] <- "Time"
@@ -2570,10 +2585,25 @@ forest.meta <- function(x,
         }
       }
       ##
+      if (metamean) {
+        if (study.results) {
+          if (revman5)
+            leftcols <- c(leftcols,
+                          "mean.e", "sd.e", "n.e")
+          else
+            leftcols <- c(leftcols,
+                          "n.e", "mean.e", "sd.e")
+        }
+        else if (pooled.totals) {
+          leftcols <- c(leftcols, "n.e")
+          if (is.null(lab.e.attach.to.col))
+            lab.e.attach.to.col <- "n.e"
+        }
+      }
+      ##
       if (metaprop) {
         if (study.results)
-          leftcols <- c(leftcols,
-                        "event.e", "n.e")
+          leftcols <- c(leftcols, "event.e", "n.e")
         else {
           leftcols <- c(leftcols,
                         if (pooled.events) "event.e",
@@ -2663,6 +2693,30 @@ forest.meta <- function(x,
     x$n.e <- x$n
   }
   ##
+  if (metamean) {
+    x$n.e <- x$n
+    x$mean.e <- x$mean
+    x$sd.e <- x$sd
+    ##
+    if (!is.null(rightcols)) {
+      if (any(rightcols == "n"))
+        rightcols[rightcols == "n"] <- "n.e"
+      if (any(rightcols == "mean"))
+        rightcols[rightcols == "mean"] <- "mean.e"
+      if (any(rightcols == "sd"))
+        rightcols[rightcols == "sd"] <- "sd.e"
+    }
+    ##
+    if (!is.null(leftcols)) {
+      if (any(leftcols == "n"))
+        leftcols[leftcols == "n"] <- "n.e"
+      if (any(leftcols == "mean"))
+        leftcols[leftcols == "mean"] <- "mean.e"
+      if (any(leftcols == "sd"))
+        leftcols[leftcols == "sd"] <- "sd.e"
+    }
+  }
+  ##
   if (metaprop) {
     x$event.e <- x$event
     x$n.e <- x$n
@@ -2681,6 +2735,7 @@ forest.meta <- function(x,
         leftcols[leftcols == "event"] <- "event.e"
     }
   }
+  ##
   if (metarate) {
     x$event.e <- x$event
     x$time.e <- x$time
@@ -4448,7 +4503,7 @@ forest.meta <- function(x,
     w.random.w <- x$w.random.w[o]
     e.e.w <- if (metaprop | metarate) x$event.w[o] else x$event.e.w[o]
     t.e.w <- if (metainc | metarate) x$time.e.w[o] else rep(NA, n.by)
-    n.e.w <- if (metacor | metaprop) x$n.w[o] else x$n.e.w[o]
+    n.e.w <- if (metacor | metaprop | metamean) x$n.w[o] else x$n.e.w[o]
     e.c.w <- x$event.c.w[o]
     t.c.w <- if (metainc) x$time.c.w[o] else rep(NA, n.by)
     n.c.w <- x$n.c.w[o]
@@ -6510,6 +6565,10 @@ forest.meta <- function(x,
    (any(rightcols %in% c("sd.e", "sd.c")) |
     any(leftcols  %in% c("sd.e", "sd.c")))
   ) |
+  (metamean &
+   (any(rightcols %in% c("sd.e")) |
+    any(leftcols  %in% c("sd.e")))
+  ) |
   (!is.null(lab.e.attach.to.col) & !is.null(lab.e)) |
   (!is.null(lab.c.attach.to.col) & !is.null(lab.c)) |
   newline.all
@@ -6705,7 +6764,7 @@ forest.meta <- function(x,
                            "the character string \"symmetric\""))
     symmetric <- TRUE
     ##
-    if (metaprop | metarate) {
+    if (metaprop | metarate | metamean) {
       xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
                 max(c(uppTE, uppTE.predict), na.rm = TRUE))
     }
@@ -7731,6 +7790,14 @@ forest.meta <- function(x,
         else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
           add.text(col.lab.e, j)
       }
+      else if (metamean) {
+        if (revman5 & leftcols[i] == "col.n.e" & just.c == "right")
+          add.text(col.lab.e, j)
+        else if (!revman5 & leftcols[i] == "col.sd.e" & just.c == "right")
+          add.text(col.lab.e, j)
+        else if (leftcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
+          add.text(col.lab.e, j)
+      }
       ##
       if (!is.null(lab.c.attach.to.col)) {
         if (leftcols[i] == paste0("col.", lab.c.attach.to.col))
@@ -7931,6 +7998,14 @@ forest.meta <- function(x,
             add.text(col.lab.e, j)
           else if (rightcols[i] == "col.event.e" &
                    just.c %in% c("left", "center"))
+            add.text(col.lab.e, j)
+        }
+        else if (metamean) {
+          if (revman5 & rightcols[i] == "col.n.e" & just.c == "right")
+            add.text(col.lab.e, j)
+          else if (!revman5 & rightcols[i] == "col.sd.e" & just.c == "right")
+            add.text(col.lab.e, j)
+          else if (rightcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
             add.text(col.lab.e, j)
         }
         ##
