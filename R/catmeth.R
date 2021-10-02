@@ -140,13 +140,15 @@ catmeth <- function(method,
   ##
   if (metabin | metainc | metaprop | metarate) {
     txtCC <- !(method == "MH" & MH.exact & k.all == 1)
+    txtCC.ind <- (method == "MH" & MH.exact) | method == "GLMM"
+    ##
     if (!(sm == "ASD" | method == "Peto")) {
       if (addincr) {
         if (all(incr == "TACC") && txtCC)
           sm.details <-
             paste0(sm.details,
                    "\n- Treatment arm continuity correction in all studies",
-                   if (method == "GLMM")
+                   if (txtCC.ind)
                      "\n  (only used to calculate individual study results)")
         else if (all(incr != 0) && txtCC)
           sm.details <-
@@ -155,7 +157,7 @@ catmeth <- function(method,
                    if (length(unique(incr)) == 1)
                      paste0(" of ", round(incr, 4)),
                    " in all studies",
-                   if (method == "GLMM")
+                   if (txtCC.ind)
                      "\n  (only used to calculate individual study results)")
       }
       else if (sparse) {
@@ -167,7 +169,7 @@ catmeth <- function(method,
                             "studies with",
                             if (options()$width > 70) " " else "\n  ",
                             "zero cell frequencies"),
-                     if (method == "GLMM")
+                     if (txtCC.ind)
                        "\n  (only used to calculate individual study results)")
           else if (any(incr != 0) && txtCC)
             sm.details <-
@@ -178,7 +180,7 @@ catmeth <- function(method,
                      " in studies with",
                      if (options()$width > 70) " " else "\n  ",
                      "zero cell frequencies",
-                     if (method == "GLMM")
+                     if (txtCC.ind)
                        "\n  (only used to calculate individual study results)")
         }
         else {
@@ -187,7 +189,7 @@ catmeth <- function(method,
               sm.details <-
                 paste0(sm.details,
                        "\n- Treatment arm continuity correction in all studies",
-                       if (method == "GLMM")
+                       if (txtCC.ind)
                          "\n  (only used to calculate individual study results)")
           }
           else if (any(incr != 0) && txtCC)
@@ -197,7 +199,7 @@ catmeth <- function(method,
                      if (length(unique(incr)) == 1)
                        paste0(" of ", round(incr, 4)),
                      " in all studies",
-                     if (method == "GLMM")
+                     if (txtCC.ind)
                        "\n  (only used to calculate individual study results)")
         }
         ##
