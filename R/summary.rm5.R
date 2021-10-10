@@ -1,8 +1,8 @@
-#' Cochrane review: Summary of meta-analyses
+#' Cochrane review: detailed summary of meta-analyses
 #' 
 #' @description
-#' Calculate and print a summary of all meta-analyses in a Cochrane
-#' review.
+#' Calculate and print a detailed summary of all meta-analyses in a
+#' Cochrane review.
 #' 
 #' @param object An object of class \code{rm5}.
 #' @param x An object of class \code{summary.rm5}.
@@ -49,9 +49,8 @@
 #' #
 #' summary(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 #' 
-#' @rdname summary.rm5
+#' @method summary rm5
 #' @export
-#' @export summary.rm5
 
 
 summary.rm5 <- function(object, comp.no, outcome.no, ...) {
@@ -99,7 +98,6 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
 #' @rdname summary.rm5
 #' @method print summary.rm5
 #' @export
-#' @export print.summary.rm5
 
 
 print.summary.rm5 <- function(x, ...) {

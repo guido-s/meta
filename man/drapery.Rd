@@ -17,8 +17,8 @@ drapery(
   cex.labels = 0.7,
   subset.labels,
   srt.labels,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   lty.fixed = 1,
   lwd.fixed = max(3, lwd.study),
   col.fixed = "blue",
@@ -29,7 +29,7 @@ drapery(
   lty.sign = 1,
   lwd.sign = 1,
   col.sign = "black",
-  prediction = comb.random,
+  prediction = random,
   col.predict = "lightblue",
   alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1) else c(0.01, 0.05, 0.1),
   lty.alpha = 2,
@@ -47,7 +47,7 @@ drapery(
   xlim,
   ylim,
   lwd.max = 2.5,
-  lwd.study.weight = if (comb.random) "random" else "fixed",
+  lwd.study.weight = if (random) "random" else "fixed",
   at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
@@ -90,11 +90,11 @@ be shown in the drapery plot.}
 \item{srt.labels}{A numerical vector or single numeric (between 0
 and 90) specifying the angle to rotate study labels; see Details.}
 
-\item{comb.fixed}{A logical indicating whether to show result for
-the fixed effect model.}
+\item{fixed}{A logical indicating whether to show result for the
+fixed effect / common effect model.}
 
-\item{comb.random}{A logical indicating whether to show result for
-the random effects model.}
+\item{random}{A logical indicating whether to show result for the
+random effects model.}
 
 \item{lty.fixed}{Line type for fixed effect meta-analysis.}
 
@@ -249,7 +249,7 @@ drapery(m1, xlim = c(0.5, 50))
 data(Fleiss1993bin)
 m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
          data = Fleiss1993bin, studlab = paste(study, year),
-         sm = "OR", comb.random = FALSE)
+         sm = "OR", random = FALSE)
 
 # Produce drapery plot and print data frame with connection between
 # IDs and study labels

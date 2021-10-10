@@ -36,14 +36,14 @@ containing the following components:
 \item{method}{Method used for pooling.}
 \item{k}{Number of studies combined in meta-analysis.}
 \item{pooled}{As defined above.}
-\item{comb.fixed}{A logical indicating whether analysis is based on
+\item{fixed}{A logical indicating whether analysis is based on
   fixed effect model.}
-\item{comb.random}{A logical indicating whether analysis is based
+\item{random}{A logical indicating whether analysis is based
   on random effects model.}
 \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
 \item{TE.random, seTE.random}{Value is \code{NA}.}
 \item{Q}{Value is \code{NA}.}
-\item{level.comb}{The level used to calculate confidence intervals
+\item{level.ma}{The level used to calculate confidence intervals
   for pooled estimates.}
 \item{hakn}{A logical indicating whether the method by Hartung and
   Knapp is used to adjust test statistics and confidence
@@ -71,11 +71,11 @@ A cumulative meta-analysis is performed. Studies are included
 sequentially as defined by \code{sortvar}.
 
 Information from object \code{x} is utilised if argument
-\code{pooled} is missing. A fixed effect model is assumed
-(\code{pooled = "fixed"}) if argument \code{x$comb.fixed} is
+\code{pooled} is missing. A fixed effect / common effect model is
+assumed (\code{pooled = "fixed"}) if argument \code{x$fixed} is
 \code{TRUE}; a random effects model is assumed (\code{pooled =
-"random"}) if argument \code{x$comb.random} is \code{TRUE} and
-\code{x$comb.fixed} is \code{FALSE}.
+"random"}) if argument \code{x$random} is \code{TRUE} and
+\code{x$fixed} is \code{FALSE}.
 }
 \examples{
 data(Fleiss1993bin)

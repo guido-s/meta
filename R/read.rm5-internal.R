@@ -88,15 +88,15 @@ extract_outcomes <- function(txt, outcome.type, res,
       if (is.na(random) & outcome.type == "IPD")
         random <- "NO"
       model <- ifelse(random == "NO", "Fixed", "Random")
-      comb.fixed <- model == "Fixed"
-      comb.random <- model == "Random"
+      fixed <- model == "Fixed"
+      random <- model == "Random"
       ##
       TE.pooled <- as.numeric(xml_attr(xml.j, "EFFECT_SIZE"))
       lower.pooled <- as.numeric(xml_attr(xml.j, "CI_START"))
       upper.pooled <- as.numeric(xml_attr(xml.j, "CI_END"))
       weight.pooled <- as.numeric(xml_attr(xml.j, "WEIGHT"))
       level <- as.numeric(xml_attr(xml.j, "CI_STUDY")) / 100
-      level.comb <- as.numeric(xml_attr(xml.j, "CI_TOTAL")) / 100
+      level.ma <- as.numeric(xml_attr(xml.j, "CI_TOTAL")) / 100
       ##
       Z.pooled <- as.numeric(xml_attr(xml.j, "Z"))
       pval.TE.pooled <- as.numeric(xml_attr(xml.j, "P_Z"))
@@ -240,7 +240,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                          overall = overall,
                          test.subgroup = test.subgroup,
                          type = type, method = method, sm = sm, model = model,
-                         comb.fixed = comb.fixed, comb.random = comb.random,
+                         fixed = fixed, random = random,
                          outclab = outclab,
                          k = n.studies,
                          event.e.pooled = event.e.pooled,
@@ -251,7 +251,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                          lower.pooled = lower.pooled,
                          upper.pooled = upper.pooled,
                          weight.pooled = weight.pooled,
-                         level.comb = level.comb,
+                         level.ma = level.ma,
                          Z.pooled = Z.pooled, pval.TE.pooled = pval.TE.pooled,
                          Q = Q, pval.Q = pval.Q,
                          I2 = I2, tau2 = tau2,
@@ -364,7 +364,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                        overall = overall,
                        test.subgroup = test.subgroup,
                        type = type, method = method, sm = sm, model = model,
-                       comb.fixed = comb.fixed, comb.random = comb.random,
+                       fixed = fixed, random = random,
                        outclab = outclab,
                        k = n.studies,
                        event.e.pooled = event.e.pooled,
@@ -375,7 +375,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                        lower.pooled = lower.pooled,
                        upper.pooled = upper.pooled,
                        weight.pooled = weight.pooled,
-                       level.comb = level.comb,
+                       level.ma = level.ma,
                        Z.pooled = Z.pooled, pval.TE.pooled = pval.TE.pooled,
                        Q = Q, pval.Q = pval.Q,
                        I2 = I2, tau2 = tau2,
@@ -673,8 +673,8 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
   tdata$method[tdata$method == "IV"] <- "Inverse"
   tdata$sm <- as.character(tdata$sm)
   tdata$model <- as.character(tdata$model)
-  tdata$comb.fixed  <- tdata$model == "Fixed"
-  tdata$comb.random <- tdata$model == "Random"
+  tdata$fixed  <- tdata$model == "Fixed"
+  tdata$random <- tdata$model == "Random"
   ##
   tdata$sm[tdata$sm == "Odds Ratio"] <- "OR"
   tdata$sm[tdata$sm == "Odds Ratio (Non-event)"] <- "OR"
@@ -739,8 +739,8 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
                            method      = selvar(tdata$method, sel.outc),
                            sm          = selvar(tdata$sm, sel.outc),
                            model       = selvar(tdata$model, sel.outc),
-                           comb.fixed  = selvar(tdata$comb.fixed, sel.outc),
-                           comb.random = selvar(tdata$comb.random, sel.outc),
+                           fixed  = selvar(tdata$fixed, sel.outc),
+                           random = selvar(tdata$random, sel.outc),
                            outclab     = selvar(tdata$author, sel.outc),
                            ##
                            k = selvar(tdata$df, sel.outc) + 1,
@@ -997,13 +997,13 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                     overall = NA,
                     test.subgroup = NA,
                     type = "", method = "", sm = "", model = "",
-                    comb.fixed = NA, comb.random = NA,
+                    fixed = NA, random = NA,
                     outclab = "",
                     k = NA,
                     event.e.pooled = NA, n.e.pooled = NA,
                     event.c.pooled = NA, n.c.pooled = NA,
                     TE.pooled = NA, lower.pooled = NA, upper.pooled = NA,
-                    level.comb = NA,
+                    level.ma = NA,
                     weight.pooled = NA,
                     Z.pooled = NA, pval.TE.pooled = NA,
                     Q = NA, pval.Q = NA,

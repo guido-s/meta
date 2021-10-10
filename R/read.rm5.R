@@ -4,7 +4,7 @@
 #' Reads analysis data from Cochrane intervention review created with
 #' RevMan 5 and creates a data frame from it.
 #' 
-#' @aliases read.rm5 print.rm5 Fleiss1993_CR
+#' @aliases read.rm5 Fleiss1993_CR
 #' 
 #' @param file The name of a file to read data values from.
 #' @param sep The field separator character (only considered for
@@ -20,9 +20,6 @@
 #'   (argument \code{outclab}); this is the default in RevMan 5.
 #' @param debug An integer between 0 and 3 indicating whether to print
 #'   debug messages (only considered for RM5-files).
-#' @param \dots Additional arguments (passed on to
-#'   \code{print.data.frame}).
-#' @param x An object of class \code{rm5}
 #' 
 #' @details
 #' Review Manager 5 (RevMan 5) was the software used for preparing and
@@ -97,7 +94,7 @@
 #'   interval for treatment effect in individual studies.}
 #' \item{weight}{Weight of individual studies (according to
 #'   meta-analytical method used in respective meta-analysis - see
-#'   below for details).}
+#'   details).}
 #' \item{order}{Ordering of studies.}
 #' \item{grplab}{Group label.}
 #' \item{type}{Type of outcome. D = dichotomous, C = continuous, P =
@@ -109,48 +106,48 @@
 #'   been used for pooling of studies.}
 #' \item{model}{A character string indicating which meta-analytical
 #'   model has been used (either \code{"Fixed"} or \code{"Random"}).}
-#' \item{comb.fixed}{A logical indicating whether fixed effect
+#' \item{fixed}{A logical indicating whether fixed effect
 #'   meta-analysis has been used in respective meta-analysis (see
-#'   below for details).}
-#' \item{comb.random}{A logical indicating whether random effects
+#'   details).}
+#' \item{random}{A logical indicating whether random effects
 #'   meta-analysis has been used in respective meta-analysis (see
-#'   below for details).}
+#'   details).}
 #' \item{outclab}{Outcome label.}
 #' \item{k}{Total number of studies combined in respective
 #'   meta-analysis).}
 #' \item{event.e.pooled}{Number of events in experimental group in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{n.e.pooled}{Number of observations in experimental group in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{event.c.pooled}{Number of events in control group in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{n.c.pooled}{Number of observations in control group in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{TE.pooled}{Estimated treatment effect in respective
-#'   meta-analysis (see below for details).}
+#'   meta-analysis (see details).}
 #' \item{lower, upper}{Lower and upper limit of 95\% confidence
 #'   interval for treatment effect in respective meta-analysis (see
-#'   below for details).}
+#'   details).}
 #' \item{weight.pooled}{Total weight in respective meta-analysis (see
-#'   below for details).}
+#'   details).}
 #' \item{Z.pooled}{Z-score for test of overall treatment effect in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{pval.pooled}{P-value for test of overall treatment effect in
-#'   respective meta-analysis (see below for details).}
+#'   respective meta-analysis (see details).}
 #' \item{Q}{Heterogeneity statistic Q in respective meta-analysis (see
-#'   below for details).}
+#'   details).}
 #' \item{pval.Q}{P-value of heterogeneity statistic Q in respective
-#'   meta-analysis (see below for details).}
+#'   meta-analysis (see details).}
 #' \item{I2}{Heterogeneity statistic I\eqn{^2} in respective meta-analysis
-#'   (see below for details).}
+#'   (see details).}
 #' \item{tau2}{Between-study variance (moment estimator of
 #'   DerSimonian-Laird) in respective meta-analysis.}
 #' \item{Q.w}{Heterogeneity statistic Q within groups in respective
-#'   meta-analysis (see below for details).}
+#'   meta-analysis (see details).}
 #' \item{pval.Q.w}{P-value of heterogeneity statistic Q within groups
-#'   in respective meta-analysis (see below for details).}
+#'   in respective meta-analysis (see details).}
 #' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within groups in respective
-#'   meta-analysis (see below for details).}
+#'   meta-analysis (see details).}
 #' \item{label.e}{Label for experimental group.}
 #' \item{label.c}{Label for control group.}
 #' \item{label.left}{Graph label on left side of forest plot.}
@@ -161,7 +158,8 @@
 #' 
 #' @seealso \code{\link{summary.rm5}}, \code{\link{metabias.rm5}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{metagen}}, \code{\link{metacr}}
+#'   \code{\link{metagen}}, \code{\link{metacr}},
+#'   \code{\link{print.rm5}}
 #' 
 #' @references
 #' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
@@ -241,31 +239,4 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
     attr(res, "filename") <- file
   ##
   res
-}
-
-
-
-
-
-#' @rdname read.rm5
-#' @method print rm5
-#' @export
-#' @export print.rm5
-
-
-print.rm5 <- function(x, ...) {
-  
-  
-  ##
-  ##
-  ## (1) Check for rm5 object
-  ##
-  ##
-  chkclass(x, "rm5")
-  
-  
-  print.data.frame(x, ...)
-  
-  
-  invisible(NULL)
 }

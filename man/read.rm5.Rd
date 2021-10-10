@@ -2,7 +2,6 @@
 % Please edit documentation in R/read.rm5.R
 \name{read.rm5}
 \alias{read.rm5}
-\alias{print.rm5}
 \alias{Fleiss1993_CR}
 \title{Import RevMan 5 analysis data}
 \usage{
@@ -14,8 +13,6 @@ read.rm5(
   numbers.in.labels = TRUE,
   debug = 0
 )
-
-\method{print}{rm5}(x, ...)
 }
 \arguments{
 \item{file}{The name of a file to read data values from.}
@@ -37,11 +34,6 @@ the comparison (argument \code{complab}) and outcome label
 
 \item{debug}{An integer between 0 and 3 indicating whether to print
 debug messages (only considered for RM5-files).}
-
-\item{x}{An object of class \code{rm5}}
-
-\item{\dots}{Additional arguments (passed on to
-\code{print.data.frame}).}
 }
 \value{
 A data frame containing the following components:
@@ -66,7 +58,7 @@ A data frame containing the following components:
   interval for treatment effect in individual studies.}
 \item{weight}{Weight of individual studies (according to
   meta-analytical method used in respective meta-analysis - see
-  below for details).}
+  details).}
 \item{order}{Ordering of studies.}
 \item{grplab}{Group label.}
 \item{type}{Type of outcome. D = dichotomous, C = continuous, P =
@@ -78,48 +70,48 @@ A data frame containing the following components:
   been used for pooling of studies.}
 \item{model}{A character string indicating which meta-analytical
   model has been used (either \code{"Fixed"} or \code{"Random"}).}
-\item{comb.fixed}{A logical indicating whether fixed effect
+\item{fixed}{A logical indicating whether fixed effect
   meta-analysis has been used in respective meta-analysis (see
-  below for details).}
-\item{comb.random}{A logical indicating whether random effects
+  details).}
+\item{random}{A logical indicating whether random effects
   meta-analysis has been used in respective meta-analysis (see
-  below for details).}
+  details).}
 \item{outclab}{Outcome label.}
 \item{k}{Total number of studies combined in respective
   meta-analysis).}
 \item{event.e.pooled}{Number of events in experimental group in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{n.e.pooled}{Number of observations in experimental group in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{event.c.pooled}{Number of events in control group in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{n.c.pooled}{Number of observations in control group in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{TE.pooled}{Estimated treatment effect in respective
-  meta-analysis (see below for details).}
+  meta-analysis (see details).}
 \item{lower, upper}{Lower and upper limit of 95\% confidence
   interval for treatment effect in respective meta-analysis (see
-  below for details).}
+  details).}
 \item{weight.pooled}{Total weight in respective meta-analysis (see
-  below for details).}
+  details).}
 \item{Z.pooled}{Z-score for test of overall treatment effect in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{pval.pooled}{P-value for test of overall treatment effect in
-  respective meta-analysis (see below for details).}
+  respective meta-analysis (see details).}
 \item{Q}{Heterogeneity statistic Q in respective meta-analysis (see
-  below for details).}
+  details).}
 \item{pval.Q}{P-value of heterogeneity statistic Q in respective
-  meta-analysis (see below for details).}
+  meta-analysis (see details).}
 \item{I2}{Heterogeneity statistic I\eqn{^2} in respective meta-analysis
-  (see below for details).}
+  (see details).}
 \item{tau2}{Between-study variance (moment estimator of
   DerSimonian-Laird) in respective meta-analysis.}
 \item{Q.w}{Heterogeneity statistic Q within groups in respective
-  meta-analysis (see below for details).}
+  meta-analysis (see details).}
 \item{pval.Q.w}{P-value of heterogeneity statistic Q within groups
-  in respective meta-analysis (see below for details).}
+  in respective meta-analysis (see details).}
 \item{I2.w}{Heterogeneity statistic I\eqn{^2} within groups in respective
-  meta-analysis (see below for details).}
+  meta-analysis (see details).}
 \item{label.e}{Label for experimental group.}
 \item{label.c}{Label for control group.}
 \item{label.left}{Graph label on left side of forest plot.}
@@ -203,7 +195,8 @@ The Cochrane Collaboration, 2020
 \seealso{
 \code{\link{summary.rm5}}, \code{\link{metabias.rm5}},
   \code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{metagen}}, \code{\link{metacr}}
+  \code{\link{metagen}}, \code{\link{metacr}},
+  \code{\link{print.rm5}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

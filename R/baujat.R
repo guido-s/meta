@@ -99,7 +99,6 @@
 #' 
 #' @method baujat meta
 #' @export
-#' @export baujat.meta
 
 
 baujat.meta <- function(x,

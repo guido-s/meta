@@ -6,26 +6,28 @@
 #' to fixed effect and random effects meta-analysis.
 #' 
 #' @param object An object of class \code{meta}.
-#' @param comb.fixed A logical indicating whether absolute and
+#' @param fixed A logical indicating whether absolute and
 #'   percentage weights from the fixed effect model should be
 #'   calculated.
-#' @param comb.random A logical indicating whether absolute and
+#' @param random A logical indicating whether absolute and
 #'   percentage weights from the random effects model should be
 #'   calculated.
-#' @param \dots Additional arguments (ignored at the moment).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @return
 #' A data frame with the following variables is returned:
 #' \tabular{lll}{
 #' \bold{Variable} \tab \bold{Definition} \tab \bold{Condition} \cr
 #' w.fixed \tab absolute weights in fixed effect model \tab (if
-#'   \code{comb.fixed = TRUE}) \cr
+#'   \code{fixed = TRUE}) \cr
 #' p.fixed \tab percentage weights in fixed effect model \tab (if
-#'   \code{comb.fixed = TRUE}) \cr
+#'   \code{fixed = TRUE}) \cr
 #' w.random \tab absolute weights in random effects model \tab (if
-#'   \code{comb.random = TRUE}) \cr
+#'   \code{random = TRUE}) \cr
 #' p.random \tab percentage weights in random effects model \tab (if
-#'   \code{comb.random = TRUE})
+#'   \code{random = TRUE})
 #' }
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
@@ -47,7 +49,7 @@
 #' 
 #' # Do meta-analysis (only random effects model)
 #' #
-#' meta2 <- update(meta1, comb.fixed = FALSE)
+#' meta2 <- update(meta1, fixed = FALSE)
 #' 
 #' # Print weights for random effects meta-analysis
 #' #
@@ -55,15 +57,16 @@
 #' 
 #' # Print weights for fixed effect and random effects meta-analysis
 #' #
-#' weights(meta2, comb.fixed = TRUE)
+#' weights(meta2, fixed = TRUE)
 #' 
+#' @method weights meta
 #' @export
-#' @export weights.meta
 
 
 weights.meta <- function(object,
-                         comb.fixed = object$comb.fixed,
-                         comb.random = object$comb.random,
+                         fixed = object$fixed,
+                         random = object$random,
+                         warn.deprecated = gs("warn.deprecated"),
                          ...) {
   
   ##
@@ -72,10 +75,24 @@ weights.meta <- function(object,
   ##
   ##
   chkclass(object, "meta")
+  ##
+  ## Check for deprecated arguments in '...'
+  ##
+  args  <- list(...)
+  chklogical(warn.deprecated)
+  ##
+  fixed <-
+    deprecated(fixed, missing(fixed), args, "comb.fixed",
+               warn.deprecated)
+  ##
+  random <-
+    deprecated(random, missing(random), args, "comb.random",
+               warn.deprecated)
   
   
-  if (!(comb.fixed | comb.random)) {
-    warning("Information missing which weights should be calculated (see arguments 'comb.fixed' and 'comb.random')")
+  if (!(fixed | random)) {
+    warning("Information missing which weights should be ",
+            "calculated (see arguments 'fixed' and 'random')")
     return(NULL)
   }
 
@@ -89,12 +106,12 @@ weights.meta <- function(object,
   ##
   rownames(res) <- object$studlab
   ##
-  if (!comb.fixed) {
+  if (!fixed) {
     res$w.fixed <- NULL
     res$p.fixed <- NULL
   }
   ##
-  if (!comb.random) {
+  if (!random) {
     res$w.random <- NULL
     res$p.random <- NULL
   }

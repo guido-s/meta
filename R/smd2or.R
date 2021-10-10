@@ -103,6 +103,7 @@ smd2or <- function(smd, se.smd, studlab,
   is.meta <- inherits(smd, "meta")
   ##
   if (is.meta) {
+    smd <- updateversion(smd)
     if (smd$sm != "SMD")
       stop("Effect measure must be equal to 'SMD'.", call. = FALSE)
     else {
@@ -183,14 +184,14 @@ smd2or <- function(smd, se.smd, studlab,
   
   
   if (is.meta) {
-    if (is.null(mdat$byvar))
+    if (is.null(mdat$subgroup))
       res <- metagen(lnOR, selnOR, sm = "OR",
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
-                     level = mdat$level, level.comb = mdat$level.comb,
-                     comb.fixed = mdat$comb.fixed,
-                     comb.random = mdat$comb.random,
+                     level = mdat$level, level.ma = mdat$level.ma,
+                     fixed = mdat$fixed,
+                     random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
@@ -210,9 +211,9 @@ smd2or <- function(smd, se.smd, studlab,
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
-                     level = mdat$level, level.comb = mdat$level.comb,
-                     comb.fixed = mdat$comb.fixed,
-                     comb.random = mdat$comb.random,
+                     level = mdat$level, level.ma = mdat$level.ma,
+                     fixed = mdat$fixed,
+                     random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
@@ -227,9 +228,10 @@ smd2or <- function(smd, se.smd, studlab,
                      label.e = mdat$label.e,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
-                     byvar = mdat$byvar, bylab = mdat$bylab,
-                     print.byvar = mdat$print.byvar,
-                     byseparator = mdat$byseparator,
+                     subgroup = mdat$subgroup,
+                     subgroup.name = mdat$subgroup.name,
+                     print.subgroup.name = mdat$print.subgroup.name,
+                     sep.subgroup = mdat$sep.subgroup,
                      control = mdat$control)
   }
   else {

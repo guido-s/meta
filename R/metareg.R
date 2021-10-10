@@ -32,7 +32,7 @@
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
 #'   intervals.
-#' @param level.comb The level used to calculate confidence intervals
+#' @param level.ma The level used to calculate confidence intervals
 #'   for parameter estimates in the meta-regression model.
 #' @param intercept A logical indicating whether an intercept should
 #'   be included in the meta-regression model.
@@ -46,7 +46,7 @@
 #' 
 #' In addition, a list \code{.meta} is added to the output containing
 #' the following components:
-#' \item{x, formula, method.tau, hakn, level.comb, intercept}{As
+#' \item{x, formula, method.tau, hakn, level.ma, intercept}{As
 #'   defined above.}
 #' \item{dots}{Information provided in argument '\dots{}'.}
 #' \item{call}{Function call.}
@@ -90,7 +90,7 @@
 #' 
 #' # Do meta-regression for covariate region
 #' #
-#' mu2 <- update(m1, byvar = region, tau.common = TRUE, comb.fixed = FALSE)
+#' mu2 <- update(m1, subgroup = region, tau.common = TRUE, fixed = FALSE)
 #' metareg(mu2)
 #' 
 #' # Same result for
@@ -109,7 +109,7 @@
 #' # - test for subgroup differences
 #' # (as argument 'tau.common' is - by default - FALSE)
 #' #
-#' mu1 <- update(m1, byvar = region)
+#' mu1 <- update(m1, subgroup = region)
 #' mu1
 #' 
 #' # Generate bubble plot
@@ -142,7 +142,7 @@
 
 
 metareg <- function(x, formula, method.tau = x$method.tau,
-                    hakn = x$hakn, level.comb = x$level.comb,
+                    hakn = x$hakn, level.ma = x$level.ma,
                     intercept = TRUE, ...) {
 
   if ("data" %in% names(list(...))) {
@@ -167,6 +167,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   ##
   chkclass(x, "meta")
+  x <- updateversion(x)
   
   
   ##
@@ -208,15 +209,15 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   
   
   if (missing(formula)) {
-    if (isCol(x$data, ".byvar"))
+    if (isCol(x$data, ".subgroup"))
       if (intercept)
-        formula <- as.call(~ .byvar)
+        formula <- as.call(~ .subgroup)
       else
-        formula <- as.call(~ .byvar - 1)
+        formula <- as.call(~ .subgroup - 1)
     else {
       warning("No meta-regression conducted as argument 'formula' ",
               "is missing and no information is provided on subgroup ",
-              "variable, i.e. list element 'byvar' in meta-analysis object ",
+              "variable, i.e. list element 'subgroup' in meta-analysis object ",
               "'x' (see help page of R function metareg).")
       return(invisible(NULL))
     }
@@ -228,8 +229,8 @@ metareg <- function(x, formula, method.tau = x$method.tau,
       formula.text <- deparse(substitute(formula))
     else {
       if (is.char & length(formula) != 1)
-        stop("Alphanumeric argument 'formula' must be of length 1.",
-             call. = FALSE)
+        formula.text <- paste("~", deparse(substitute(formula)))
+      else
       formula.text <- deparse(formula)
     }
     ##
@@ -255,7 +256,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   chklogical(hakn)
   ##
-  chklevel(level.comb)
+  chklevel(level.ma)
   chklogical(intercept)
 
   if (is.null(x$data)) {
@@ -310,14 +311,14 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                     data = dataset,
                     mods = formula, method = method.tau,
                     random = ~ 1 | .id / .idx,
-                    test = test, level = 100 * level.comb,
+                    test = test, level = 100 * level.ma,
                     ...)
     }
     else
       res <- rma.uni(yi = TE[!exclude], sei = seTE[!exclude],
                      data = dataset,
                      mods = formula, method = method.tau,
-                     test = test, level = 100 * level.comb,
+                     test = test, level = 100 * level.ma,
                      ...)
   }
   else {
@@ -327,7 +328,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                         ci = event.c[!exclude], n2i = n.c[!exclude],
                         data = dataset,
                         mods = formula, method = method.tau,
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "OR", model = model.glmm,
                         ...)
       else {
@@ -337,7 +338,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                         ci = event.c[!exclude], n2i = n.c[!exclude],
                         data = dataset,
                         mods = formula, method = "FE",
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "OR", model = model.glmm,
                         ...)
       }
@@ -348,7 +349,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                         x2i = event.c[!exclude], t2i = time.c[!exclude],
                         data = dataset,
                         mods = formula, method = method.tau,
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "IRR", model = model.glmm,
                         ...)
       else {
@@ -358,7 +359,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                         x2i = event.c[!exclude], t2i = time.c[!exclude],
                         data = dataset,
                         mods = formula, method = "FE",
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "IRR", model = model.glmm,
                         ...)
       }
@@ -368,7 +369,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
         res <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
                         data = dataset,
                         mods = formula, method = method.tau,
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "PLO",
                         ...)
       else {
@@ -377,7 +378,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
         res <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
                         data = dataset,
                         mods = formula, method = "FE",
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "PLO",
                         ...)
       }
@@ -387,7 +388,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
         res <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
                         data = dataset,
                         mods = formula, method = method.tau,
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "IRLN",
                         ...)
       else {
@@ -396,7 +397,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
         res <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
                         data = dataset,
                         mods = formula, method = "FE",
-                        test = test, level = 100 * level.comb,
+                        test = test, level = 100 * level.ma,
                         measure = "IRLN",
                         ...)
       }
@@ -408,7 +409,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                     formula = formula,
                     method.tau = method.tau,
                     hakn = hakn,
-                    level.comb = level.comb,
+                    level.ma = level.ma,
                     intercept = intercept,
                     dots = list(...),
                     call = match.call(),

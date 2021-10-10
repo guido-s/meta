@@ -7,35 +7,47 @@
 \usage{
 \method{print}{meta}(
   x,
-  sortvar,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   prediction = x$prediction,
-  details = FALSE,
-  ma = TRUE,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
+  test.subgroup = x$test.subgroup,
+  test.subgroup.fixed = test.subgroup & fixed,
+  test.subgroup.random = test.subgroup & random,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
+  subgroup.name = x$subgroup.name,
+  print.subgroup.name = x$print.subgroup.name,
+  sep.subgroup = x$sep.subgroup,
+  nchar.subgroup = 35,
+  header = TRUE,
+  print.CMH = x$print.CMH,
   digits = gs("digits"),
-  digits.se = gs("digits.se"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
+  digits.pval.Q = max(gs("digits.pval.Q"), 2),
+  digits.Q = gs("digits.Q"),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
+  digits.H = gs("digits.H"),
   digits.I2 = gs("digits.I2"),
-  digits.prop = gs("digits.prop"),
-  digits.weight = gs("digits.weight"),
   scientific.pval = gs("scientific.pval"),
+  big.mark = gs("big.mark"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
-  big.mark = gs("big.mark"),
+  print.tau2 = TRUE,
+  print.tau = TRUE,
+  print.I2 = gs("print.I2"),
+  print.H = gs("print.H"),
+  print.Rb = gs("print.Rb"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
-  truncate,
-  text.truncate = "*** Output truncated ***",
+  text.Rb = gs("text.Rb"),
+  details.methods = TRUE,
   warn.backtransf = FALSE,
   ...
 )
@@ -43,25 +55,16 @@
 cilayout(bracket = "[", separator = "; ")
 }
 \arguments{
-\item{x}{An object of class \code{meta}}
+\item{x}{An object of class \code{meta}.}
 
-\item{sortvar}{An optional vector used to sort the individual
-studies (must be of same length as \code{x$TE}).}
-
-\item{comb.fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a fixed effect
 meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
-
-\item{details}{A logical indicating whether further details of
-individual studies should be printed.}
-
-\item{ma}{A logical indicating whether the summary results of the
-meta-analysis should be printed.}
 
 \item{overall}{A logical indicating whether overall summaries
 should be reported. This argument is useful in a meta-analysis
@@ -73,10 +76,21 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
+\item{test.subgroup}{A logical value indicating whether to print
+results of test for subgroup differences.}
+
+\item{test.subgroup.fixed}{A logical value indicating whether to
+print results of test for subgroup differences (based on fixed
+effect / common effect model).}
+
+\item{test.subgroup.random}{A logical value indicating whether to
+print results of test for subgroup differences (based on random
+effects model).}
+
 \item{backtransf}{A logical indicating whether printed results
-should be back transformed. If \code{backtransf = TRUE}, results
-for \code{sm = "OR"} are printed as odds ratios rather than log
-odds ratios and results for \code{sm = "ZCOR"} are printed as
+should be back transformed. If \code{backtransf=TRUE}, results
+for \code{sm="OR"} are printed as odds ratios rather than log
+odds ratios and results for \code{sm="ZCOR"} are printed as
 correlations rather than Fisher's z transformed correlations, for
 example.}
 
@@ -93,33 +107,60 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
 
+\item{subgroup.name}{A character string with a name for the
+grouping variable.}
+
+\item{print.subgroup.name}{A logical indicating whether the name of
+the grouping variable should be printed in front of the group
+labels.}
+
+\item{sep.subgroup}{A character string defining the separator
+between label and levels of grouping variable.}
+
+\item{nchar.subgroup}{A numeric specifying the number of characters
+to print from subgroup labels.}
+
+\item{header}{A logical indicating whether information on title of
+meta-analysis, comparison and outcome should be printed at the
+beginning of the printout.}
+
+\item{print.CMH}{A logical indicating whether result of the
+Cochran-Mantel-Haenszel test for overall effect should be
+printed.}
+
 \item{digits}{Minimal number of significant digits, see
 \code{print.default}.}
 
-\item{digits.se}{Minimal number of significant digits for standard
-deviations and standard errors, see \code{print.default}.}
+\item{digits.stat}{Minimal number of significant digits for z- or
+t-value of test for overall effect, see \code{print.default}.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
-of test of treatment effect, see \code{print.default}.}
+of overall treatment effect, see \code{print.default}.}
+
+\item{digits.pval.Q}{Minimal number of significant digits for
+p-value of heterogeneity test, see \code{print.default}.}
+
+\item{digits.Q}{Minimal number of significant digits for
+heterogeneity statistic Q, see \code{print.default}.}
 
 \item{digits.tau2}{Minimal number of significant digits for
-between-study variance, see \code{print.default}.}
+between-study variance \eqn{\tau^2}, see \code{print.default}.}
 
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance, see \code{print.default}.}
+\item{digits.tau}{Minimal number of significant digits for
+\eqn{\tau}, the square root of the between-study variance
+\eqn{\tau^2}.}
+
+\item{digits.H}{Minimal number of significant digits for H
+statistic, see \code{print.default}.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
 
-\item{digits.prop}{Minimal number of significant digits for
-proportions, see \code{print.default}.}
-
-\item{digits.weight}{Minimal number of significant digits for
-weights, see \code{print.default}.}
-
 \item{scientific.pval}{A logical specifying whether p-values should
 be printed in scientific notation, e.g., 1.2345e-01 instead of
 0.12345.}
+
+\item{big.mark}{A character used as thousands separator.}
 
 \item{zero.pval}{A logical specifying whether p-values should be
 printed with a leading zero.}
@@ -128,7 +169,21 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
-\item{big.mark}{A character used as thousands separator.}
+\item{print.tau2}{A logical specifying whether between-study
+variance \eqn{\tau^2} should be printed.}
+
+\item{print.tau}{A logical specifying whether \eqn{\tau}, the
+square root of the between-study variance \eqn{\tau^2}, should be
+printed.}
+
+\item{print.I2}{A logical specifying whether heterogeneity
+statistic I\eqn{^2} should be printed.}
+
+\item{print.H}{A logical specifying whether heterogeneity statistic
+H should be printed.}
+
+\item{print.Rb}{A logical specifying whether heterogeneity
+statistic R\eqn{_b} should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}
@@ -139,19 +194,17 @@ root of the between-study variance \eqn{\tau^2}.}
 \item{text.I2}{Text printed to identify heterogeneity statistic
 I\eqn{^2}.}
 
-\item{truncate}{An optional vector used to truncate the printout of
-results for individual studies (must be a logical vector of same
-length as \code{x$TE} or contain numerical values).}
+\item{text.Rb}{Text printed to identify heterogeneity statistic
+R\eqn{_b}.}
 
-\item{text.truncate}{A character string printed if study results
-were truncated from the printout.}
+\item{details.methods}{A logical specifying whether details on
+statistical methods should be printed.}
 
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
 below 0 and backtransformed proportions are above 1.}
 
-\item{\dots}{Additional arguments (passed on to
-\code{\link{print.summary.meta}} called internally).}
+\item{\dots}{Additional arguments (passed on to \code{prmatrix}).}
 
 \item{bracket}{A character with bracket symbol to print lower
 confidence interval: "[", "(", "\{", "".}
@@ -161,8 +214,7 @@ between lower and upper confidence interval.}
 }
 \description{
 Print method for objects of class \code{meta}.
-}
-\details{
+
 R function cilayout can be utilised to change the layout to print
 confidence intervals (both in printout from print.meta and
 print.summary.meta function as well as in forest plots). The
@@ -183,39 +235,3 @@ can be used to specify the time unit used in individual studies
 (default: "person-years"). This information is printed in summaries
 and forest plots if argument \code{irscale} is not equal to 1.
 }
-\examples{
-data(Fleiss1993cont)
-m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "SMD",
-               studlab = paste(study, year))
-m1
-
-print(m1, digits = 2)
-
-\dontrun{
-# Use unicode characters to print tau^2, tau, and I^2 
-print(m1,
-      text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
-}
-
-}
-\references{
-Cooper H & Hedges LV (1994), \emph{The Handbook of
-  Research Synthesis}.  Newbury Park, CA: Russell Sage Foundation.
-
-Crippa A, Khudyakov P, Wang M, Orsini N, Spiegelman D (2016), A new measure
-of between-studies heterogeneity in meta-analysis.  \emph{Statistics in
-Medicine}, \bold{35}, 3661--75.
-
-Higgins JPT & Thompson SG (2002), Quantifying heterogeneity in a
-meta-analysis.  \emph{Statistics in Medicine}, \bold{21}, 1539--58.
-}
-\seealso{
-\code{\link{summary.meta}}, \code{\link{update.meta}},
-  \code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{metagen}}
-}
-\author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
-}
-\keyword{print}

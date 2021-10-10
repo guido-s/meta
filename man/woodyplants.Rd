@@ -45,17 +45,17 @@ m1 <- metacont(n.elev, mean.elev, sd.elev,
                n.amb, mean.amb, sd.amb,
                data = woodyplants, sm = "ROM",
                studlab = paste(obsno, papno, sep = " / "))
-summary(m1, prediction = TRUE)
+print(m1, prediction = TRUE)
 
 # Meta-analysis for plants grown with low soil fertility treatment
 #
 m2 <- update(m1, subset = (treat == "fert" & level == "low"))
-summary(m2, prediction = TRUE)
+print(m2, prediction = TRUE)
 
 # Meta-analysis for plants grown under low light conditions
 #
 m3 <- update(m1, subset = (treat == "light" & level == "low"))
-summary(m3, prediction = TRUE)
+print(m3, prediction = TRUE)
 }
 \references{
 Hedges LV, Gurevitch J, Curtis PS (1999):

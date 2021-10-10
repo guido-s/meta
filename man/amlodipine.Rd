@@ -36,17 +36,20 @@ data(amlodipine)
 m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
               n.plac, mean.plac, sqrt(var.plac),
               data = amlodipine, studlab = study)
-s1 <- summary(m)
-s2 <- summary(update(m, hakn = TRUE))
-
-vars <- c("TE", "lower", "upper")
+m.hakn <- update(m, hakn = TRUE)
 
 # Same results for mean difference as in Table III in Hartung and
 # Knapp (2001)
 #
-res.md <- rbind(data.frame(s1$fixed)[vars],
-                data.frame(s1$random)[vars],
-                data.frame(s2$random)[vars])
+vars.fixed <- c("TE.fixed", "lower.fixed", "upper.fixed")
+vars.random <- c("TE.random", "lower.random", "upper.random")
+#
+res.fixed <- as.data.frame(m[vars.fixed])
+names(res.fixed) <- vars.random
+#
+res.md <- rbind(res.fixed,
+                as.data.frame(m[vars.random]),
+                as.data.frame(m.hakn[vars.random]))
 #
 res.md <- round(res.md, 5)
 #

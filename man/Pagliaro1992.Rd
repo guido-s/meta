@@ -34,7 +34,7 @@ data(Pagliaro1992)
 sclero <- subset(Pagliaro1992, treat.exp == "Sclerotherapy")
 
 m <- metagen(logOR, selogOR, data = sclero, sm = "OR")
-summary(m)
+m
 
 # Thompson & Sharp (1999), Table IV, method (2)
 metabias(m, method = "Egger")

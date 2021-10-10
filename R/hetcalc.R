@@ -1,6 +1,6 @@
 hetcalc <- function(TE, seTE,
                     method.tau, method.tau.ci,
-                    TE.tau, level.hetstats, byvar, control,
+                    TE.tau, level.hetstats, subgroup, control,
                     id = NULL) {
   
   Ccalc <- function(x) {
@@ -12,7 +12,7 @@ hetcalc <- function(TE, seTE,
   }
   
   
-  by <- !missing(byvar)
+  by <- !missing(subgroup)
   ##
   sel.noInf <- !is.infinite(TE) & !is.infinite(seTE)
   TE <- TE[sel.noInf]
@@ -20,7 +20,7 @@ hetcalc <- function(TE, seTE,
   if (!is.null(id))
     id <- id[sel.noInf]
   if (by)
-    byvar <- byvar[sel.noInf]
+    subgroup <- subgroup[sel.noInf]
   ##
   sel.noNA <- !(is.na(TE) | is.na(seTE))
   TE <- TE[sel.noNA]
@@ -28,7 +28,7 @@ hetcalc <- function(TE, seTE,
   if (!is.null(id))
     id <- id[sel.noNA]
   if (by)
-    byvar <- byvar[sel.noNA]
+    subgroup <- subgroup[sel.noNA]
   ##
   noHet <- all(!sel.noNA) || sum(sel.noNA) < 2
   allNA <- all(!sel.noNA)
@@ -132,18 +132,18 @@ hetcalc <- function(TE, seTE,
   useFE <- FALSE
   ##
   if (by) {
-    if (is.numeric(byvar))
-      byvar <- as.factor(byvar)
+    if (is.numeric(subgroup))
+      subgroup <- as.factor(subgroup)
     ##
     if (is.null(id)) {
-      if (length(unique(byvar)) == 1)
+      if (length(unique(subgroup)) == 1)
         mf1 <- rma.uni(yi = TE, sei = seTE,
                        method = method.tau,
                        control = control)
       else {
         mf1 <- try(rma.uni(yi = TE, sei = seTE,
                            method = method.tau,
-                           mods = ~ byvar, control = control),
+                           mods = ~ subgroup, control = control),
                    silent = TRUE)
         ##
         if ("try-error" %in% class(mf1))
@@ -153,7 +153,7 @@ hetcalc <- function(TE, seTE,
             useFE <- TRUE
             mf1 <- rma.uni(yi = TE, sei = seTE,
                            method = "FE",
-                           mods = ~ byvar, control = control)
+                           mods = ~ subgroup, control = control)
           }
           else
             stop(mf1)
@@ -165,7 +165,7 @@ hetcalc <- function(TE, seTE,
     else {
       idx <- seq_along(TE)
       ##
-      if (length(unique(byvar)) == 1)
+      if (length(unique(subgroup)) == 1)
         mf1 <- rma.mv(TE, seTE^2,
                       method = method.tau,
                       random = ~ 1 | id / idx,
@@ -174,7 +174,7 @@ hetcalc <- function(TE, seTE,
         mf1 <- try(rma.mv(TE, seTE^2,
                           method = method.tau,
                           random = ~ 1 | id / idx,
-                          mods = ~ byvar, control = control),
+                          mods = ~ subgroup, control = control),
                    silent = TRUE)
         ##
         if ("try-error" %in% class(mf1))
@@ -185,7 +185,7 @@ hetcalc <- function(TE, seTE,
             mf1 <- rma.mv(TE, seTE^2,
                           method = "FE",
                           random = ~ 1 | id / idx,
-                          mods = ~ byvar, control = control)
+                          mods = ~ subgroup, control = control)
           }
           else
             stop(mf1)
@@ -211,12 +211,12 @@ hetcalc <- function(TE, seTE,
     if (method.tau.ci == "BJ")
       ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
                                      weights = 1 / seTE^2,
-                                     mods = ~ byvar, control = control,
+                                     mods = ~ subgroup, control = control,
                                      method = "GENQ"))
     else if (method.tau.ci == "J")
       ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
                                      weights = 1 / seTE,
-                                     mods = ~ byvar, control = control,
+                                     mods = ~ subgroup, control = control,
                                      method = "GENQ"))
     else if (method.tau.ci == "QP")
       ci1 <- confint.rma.uni(mf1)

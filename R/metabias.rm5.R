@@ -67,8 +67,8 @@
 #' #
 #' metabias(Fleiss1993_CR, comp.no = 1, outcome.no = 2, k.min = 5)
 #' 
+#' @method metabias rm5
 #' @export
-#' @export metabias.rm5
 
 
 metabias.rm5 <- function(x, comp.no, outcome.no,

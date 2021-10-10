@@ -36,19 +36,24 @@ m.or <- metabin(event.cisa, n.cisa, event.plac, n.plac,
                 data = cisapride, sm = "OR", method = "Inverse",
                 studlab = study, addincr = TRUE)
 
-s1 <- summary(update(m.or, sm = "RR"))
-s2 <- summary(update(m.or, sm = "RR", hakn = TRUE))
-#
-s3 <- summary(m.or)
-s4 <- summary(update(m.or, hakn = TRUE))
+m.or.hakn <- update(m.or, hakn = TRUE)
+m.rr <- update(m.or, sm = "RR")
+m.rr.hakn <- update(m.or, sm = "RR", hakn = TRUE)
 
-vars <- c("TE", "lower", "upper")
+vars.fixed <- c("TE.fixed", "lower.fixed", "upper.fixed")
+vars.random <- c("TE.random", "lower.random", "upper.random")
+#
+res.fixed.or <- as.data.frame(m.or[vars.fixed])
+names(res.fixed.or) <- vars.random
+#
+res.fixed.rr <- as.data.frame(m.rr[vars.fixed])
+names(res.fixed.rr) <- vars.random
 
 # Results for log risk ratio - see Table VII in Hartung and Knapp (2001) 
 #
-res.rr <- rbind(data.frame(s1$fixed)[vars],
-                data.frame(s1$random)[vars],
-                data.frame(s2$random)[vars])
+res.rr <- rbind(res.fixed.rr,
+                as.data.frame(m.rr[vars.random]),
+                as.data.frame(m.rr.hakn[vars.random]))
 #
 row.names(res.rr) <- c("FE", "RE", "RE (HaKn)")
 names(res.rr) <- c("Log risk ratio", "CI lower", "CI upper")
@@ -58,9 +63,9 @@ res.rr
 
 # Results for log odds ratio (Table VII in Hartung and Knapp 2001) 
 #
-res.or <- rbind(data.frame(s3$fixed)[vars],
-                data.frame(s3$random)[vars],
-                data.frame(s4$random)[vars])
+res.or <- rbind(res.fixed.or,
+                as.data.frame(m.or[vars.random]),
+                as.data.frame(m.or.hakn[vars.random]))
 #
 row.names(res.or) <- c("FE", "RE", "RE (HaKn)")
 names(res.or) <- c("Log odds ratio", "CI lower", "CI upper")

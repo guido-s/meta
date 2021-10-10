@@ -151,7 +151,7 @@ data(Fleiss1993cont)
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
                data = Fleiss1993cont, sm = "MD",
-               comb.fixed = FALSE,
+               fixed = FALSE,
                text.random = "Classic random effects",
                text.w.random = "RE")
 #
@@ -186,7 +186,7 @@ data(Fleiss1993bin)
 #
 m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
               studlab = paste(study, year),
-              sm = "OR", comb.random = FALSE,
+              sm = "OR", random = FALSE,
               text.fixed = "MH method", text.w.fixed = "MH")
 #
 # Peto method

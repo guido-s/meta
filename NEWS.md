@@ -1,3 +1,41 @@
+## meta, version 5.0-0 (2021-10-11)
+
+### Major changes
+
+* Behaviour of print.meta() and print.summary.meta() switched (to be
+  in line with other print and summary functions in R)
+
+* New default settings:
+  - Restricted maximum likelihood (REML) instead of DerSimonian-Laird
+    estimator used as default to estimate between-study heterogeneity
+	(argument 'method.tau')
+  - Do not use Q statistic based on Mantel-Haenszel estimate to
+    calculate DerSimonian-Laird estimator of the between-study
+    variance (argument 'Q.Cochrane')
+  - Print 'Common effect model' instead of 'Fixed effect model'
+
+* Default settings of **meta**, version 4 or lower, can be used with
+  command *settings.meta("meta4")* - this does not change the new
+  behaviour of print.meta() and print.summary.meta()
+
+* Renamed arguments:
+  - 'fixed' (instead of 'comb.fixed')
+  - 'random' (instead of 'comb.random')
+  - 'level.ma' (instead of 'level.comb')
+  - 'subgroup' (instead of 'byvar')
+  - 'subgroup.name' (instead of 'bylab')
+  - 'print.subgroup.name' (instead of 'print.byvar')
+  - 'sep.subgroup' (instead of 'byseparator')
+  - 'nchar.subgroup' (instead of 'bylab.nchar')
+
+### Internal changes
+
+* Function gs() can be used to access internal settings
+
+* Aggregate internal auxiliary functions in files meta-aux.R to
+  meta-xlab.R
+
+
 ## meta, version 4.19-2 (2021-09-29)
 
 ### Bug fix
@@ -740,7 +778,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https://ebmh.bmj.com/content/22/4/153/)
+  al. (2019)](https://www.doi.org/10.1136/ebmental-2019-300117)
 
 ### User-visible changes
 

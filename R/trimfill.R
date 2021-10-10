@@ -30,12 +30,12 @@
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies. If existing, \code{x$level} is used as value
 #'   for \code{level}; otherwise 0.95 is used.
-#' @param level.comb The level used to calculate confidence interval
-#'   for the pooled estimate. If existing, \code{x$level.comb} is used
-#'   as value for \code{level.comb}; otherwise 0.95 is used.
-#' @param comb.fixed A logical indicating whether a fixed effect
+#' @param level.ma The level used to calculate confidence interval
+#'   for the pooled estimate. If existing, \code{x$level.ma} is used
+#'   as value for \code{level.ma}; otherwise 0.95 is used.
+#' @param fixed A logical indicating whether a fixed effect
 #'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
+#' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
@@ -88,8 +88,8 @@
 #' A fixed effect or random effects model can be used to estimate the
 #' number of missing studies (argument \code{ma.fixed}). Furthermore,
 #' a fixed effect and/or random effects model can be used to summaries
-#' study results (arguments \code{comb.fixed} and
-#' \code{comb.random}). Simulation results (Peters et al. 2007)
+#' study results (arguments \code{fixed} and
+#' \code{random}). Simulation results (Peters et al. 2007)
 #' indicate that the fixed-random model, i.e. using a fixed effect
 #' model to estimate the number of missing studies and a random
 #' effects model to summaries results, (i) performs better than the
@@ -110,8 +110,8 @@
 #' object is a list containing the following components:
 #' \item{studlab, sm, left, ma.fixed, type, n.iter.max}{As defined
 #'   above.}
-#' \item{level, level.comb, level.predict}{As defined above.}
-#' \item{comb.fixed, comb.random, prediction}{As defined above.}
+#' \item{level, level.ma, level.predict}{As defined above.}
+#' \item{fixed, random, prediction}{As defined above.}
 #' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   individual studies.}
@@ -209,29 +209,28 @@
 #' data(Fleiss1993bin)
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
 #' tf1 <- trimfill(m1)
-#' summary(tf1)
+#' tf1
 #' funnel(tf1)
 #' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-#'        level = 0.9, comb.random = FALSE)
+#'        level = 0.9, random = FALSE)
 #' #
 #' # Use log odds ratios on x-axis
 #' #
 #' funnel(tf1, backtransf = FALSE)
 #' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-#'        level = 0.9, comb.random = FALSE, backtransf = FALSE)
+#'        level = 0.9, random = FALSE, backtransf = FALSE)
 #' 
 #' trimfill(m1$TE, m1$seTE, sm = m1$sm)
 #' 
 #' @rdname trimfill
 #' @method trimfill meta
 #' @export
-#' @export trimfill.meta
 
 
 trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           type = "L", n.iter.max = 50,
-                          level = x$level, level.comb = x$level.comb,
-                          comb.fixed = FALSE, comb.random = TRUE,
+                          level = x$level, level.ma = x$level.ma,
+                          fixed = FALSE, random = TRUE,
                           hakn = x$hakn,
                           method.tau = x$method.tau,
                           method.tau.ci = x$method.tau.ci,
@@ -244,7 +243,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   
   ##
   ##
-  ## (1) Check for meta object and upgrade older meta objects
+  ## (1) Check for meta object
   ##
   ##
   chkclass(x, "meta")
@@ -263,11 +262,11 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   type <- setchar(type, c("L", "R"))
   ##
   chklevel(level)
-  chklevel(level.comb)
+  chklevel(level.ma)
   chklevel(level.predict)
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   ##
   chklogical(prediction)
   ##
@@ -587,14 +586,14 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   
   if (!left)
     m <- metagen(-TE, seTE, studlab = studlab,
-                 level = level, level.comb = level.comb,
+                 level = level, level.ma = level.ma,
                  hakn = hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  prediction = prediction, level.predict = level.predict,
                  null.effect = transf.null.effect)
   else
     m <- metagen(TE, seTE, studlab = studlab,
-                 level = level, level.comb = level.comb,
+                 level = level, level.ma = level.ma,
                  hakn = hakn,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  prediction = prediction, level.predict = level.predict,
@@ -604,10 +603,10 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   ##
   ## Calculate H, I-Squared, and Rb
   ##
-  Hres  <- calcH(m$Q, m$df.Q, level.comb)
-  I2res <- isquared(m$Q, m$df.Q, level.comb)
+  Hres  <- calcH(m$Q, m$df.Q, level.ma)
+  I2res <- isquared(m$Q, m$df.Q, level.ma)
   Rbres <- with(m,
-                Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.comb))
+                Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.ma))
   
   
   ##
@@ -711,9 +710,9 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               label.left = x$label.left,
               label.right = x$label.right,
               k0 = k0,
-              level = level, level.comb = level.comb,
-              comb.fixed = comb.fixed,
-              comb.random = comb.random,
+              level = level, level.ma = level.ma,
+              fixed = fixed,
+              random = random,
               ##
               n.e = n.e,
               n.c = n.c,
@@ -759,14 +758,13 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
 #' @rdname trimfill
 #' @method trimfill default
 #' @export
-#' @export trimfill.default
 
 
 trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
                              type = "L", n.iter.max = 50,
                              sm = "", studlab = NULL,
-                             level = 0.95, level.comb = level,
-                             comb.fixed = FALSE, comb.random = TRUE,
+                             level = 0.95, level.ma = level,
+                             fixed = FALSE, random = TRUE,
                              hakn = FALSE,
                              method.tau = "DL",
                              method.tau.ci = if (method.tau == "DL") "J" else "QP",
@@ -813,8 +811,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ##
   res <- trimfill(m, left = left, ma.fixed = ma.fixed,
                   type = type, n.iter.max = n.iter.max,
-                  level = level, level.comb = level.comb,
-                  comb.fixed = comb.fixed, comb.random = TRUE,
+                  level = level, level.ma = level.ma,
+                  fixed = fixed, random = TRUE,
                   hakn = hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   prediction = prediction, level.predict = level.predict,

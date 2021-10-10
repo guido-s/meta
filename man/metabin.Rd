@@ -23,13 +23,13 @@ metabin(
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
   Q.Cochrane = gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
-  model.glmm = "UM.FS",
+  model.glmm = gs("model.glmm"),
   level = gs("level"),
-  level.comb = gs("level.comb"),
-  comb.fixed = gs("comb.fixed"),
-  comb.random = gs("comb.random"),
-  overall = comb.fixed | comb.random,
-  overall.hetstat = comb.fixed | comb.random,
+  level.ma = gs("level.ma"),
+  fixed = gs("fixed"),
+  random = gs("random") | !is.null(tau.preset),
+  overall = fixed | random,
+  overall.hetstat = fixed | random,
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
@@ -56,14 +56,16 @@ metabin(
   label.c = gs("label.c"),
   label.left = gs("label.left"),
   label.right = gs("label.right"),
-  byvar,
-  bylab,
-  print.byvar = gs("print.byvar"),
-  byseparator = gs("byseparator"),
+  subgroup,
+  subgroup.name = NULL,
+  print.subgroup.name = gs("print.subgroup.name"),
+  sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
+  byvar,
   print.CMH = gs("print.CMH"),
   keepdata = gs("keepdata"),
   warn = gs("warn"),
+  warn.deprecated = gs("warn.deprecated"),
   control = NULL,
   ...
 )
@@ -143,13 +145,13 @@ and \code{"CM.AL"}, see Details.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.comb}{The level used to calculate confidence intervals
-for pooled estimates.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
+\item{fixed}{A logical indicating whether a fixed effect / common
+effect meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{overall}{A logical indicating whether overall summaries
@@ -241,20 +243,23 @@ random effects model.}
 
 \item{label.right}{Graph label on right side of forest plot.}
 
-\item{byvar}{An optional vector containing grouping information
-(must be of same length as \code{event.e}).}
+\item{subgroup}{An optional vector to conduct a meta-analysis with
+subgroups.}
 
-\item{bylab}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a name for the
+subgroup variable.}
 
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the subgroup variable should be printed in front of the group
+labels.}
 
-\item{byseparator}{A character string defining the separator
-between label and levels of grouping variable.}
+\item{sep.subgroup}{A character string defining the separator
+between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be
@@ -266,6 +271,9 @@ should be kept in meta object.}
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if \code{incr} is added to studies with zero cell
 frequencies).}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
@@ -285,7 +293,7 @@ object is a list containing the following components:
 \item{sm, method, incr, allincr, addincr,}{As defined above.}
 \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
   defined above.}
-\item{warn, level, level.comb, comb.fixed, comb.random,}{As defined
+\item{warn, level, level.ma, fixed, random,}{As defined
   above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -293,7 +301,8 @@ object is a list containing the following components:
 \item{tau.common, title, complab, outclab,}{As defined above.}
 \item{label.e, label.c, label.left, label.right,}{As defined
   above.}
-\item{byvar, bylab, print.byvar, byseparator}{As defined above.}
+\item{subgroup, subgroup.name,}{As defined above.}
+\item{print.subgroup.name, sep.subgroup, warn,}{As defined above.}
 \item{TE, seTE}{Estimated treatment effect and standard error of
   individual studies.}
 \item{lower, upper}{Lower and upper confidence interval limits for
@@ -361,81 +370,81 @@ object is a list containing the following components:
   Hartung-Knapp method (only if \code{hakn = TRUE}).}
 \item{k.MH}{Number of studies combined in meta-analysis using
   Mantel-Haenszel method.}
-\item{bylevs}{Levels of grouping variable - if \code{byvar} is not
+\item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
 \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
   standard error in subgroups (fixed effect model) - if
-  \code{byvar} is not missing.}  \item{lower.fixed.w,
+  \code{subgroup} is not missing.}  \item{lower.fixed.w,
   upper.fixed.w}{Lower and upper confidence interval limits in
-  subgroups (fixed effect model) - if \code{byvar} is not missing.}
+  subgroups (fixed effect model) - if \code{subgroup} is not missing.}
 \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
   of treatment effect in subgroups (fixed effect model) - if
-  \code{byvar} is not missing.}  \item{TE.random.w,
+  \code{subgroup} is not missing.}  \item{TE.random.w,
   seTE.random.w}{Estimated treatment effect and standard error in
-  subgroups (random effects model) - if \code{byvar} is not
+  subgroups (random effects model) - if \code{subgroup} is not
   missing.}
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of treatment effect in subgroups
-  (random effects model) - if \code{byvar} is not missing.}
+  (random effects model) - if \code{subgroup} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{byvar} is not missing.}
+  random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
-  for Hartung-Knapp method in subgroups - if \code{byvar} is not
+  for Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
 \item{event.e.w}{Number of events in experimental group in
-  subgroups - if \code{byvar} is not missing.}
+  subgroups - if \code{subgroup} is not missing.}
 \item{n.e.w}{Number of observations in experimental group in
-  subgroups - if \code{byvar} is not missing.}
+  subgroups - if \code{subgroup} is not missing.}
 \item{event.c.w}{Number of events in control group in subgroups -
-  if \code{byvar} is not missing.}
+  if \code{subgroup} is not missing.}
 \item{n.c.w}{Number of observations in control group in subgroups -
-  if \code{byvar} is not missing.}
+  if \code{subgroup} is not missing.}
 \item{k.w}{Number of studies combined within subgroups - if
-  \code{byvar} is not missing.}
-\item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+  \code{subgroup} is not missing.}
+\item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
 \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{byvar} is not missing.}
+  (based on fixed effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
+  Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
-  subgroups heterogeneity - if \code{byvar} is not missing.}
+  subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
+  statistic Q (based on fixed effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
+  statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
 \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{byvar} is not
+  Q (based on fixed effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
+  Q (based on random effects model) - if \code{subgroup} is not
   missing.}
 \item{df.Q.b}{Degrees of freedom for test of overall between
-  subgroups heterogeneity - if \code{byvar} is not missing.}
+  subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
+  statistic Q (based on fixed effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
+  statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
 \item{tau.w}{Square-root of between-study variance
-  within subgroups - if \code{byvar} is not missing.}
+  within subgroups - if \code{subgroup} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-  heterogeneity statistic H within subgroups - if \code{byvar} is
+  heterogeneity statistic H within subgroups - if \code{subgroup} is
   not missing.}
 \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
   heterogeneity statistic I\eqn{^2} within subgroups - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{keepdata}{As defined above.}
 \item{data}{Original data (set) used in function call (if
   \code{keepdata = TRUE}).}
@@ -489,9 +498,9 @@ rerun a meta-analysis with different settings.
 
 \subsection{Meta-analysis method}{
 
-By default, both fixed effect and random effects models are
-considered (see arguments \code{comb.fixed} and
-\code{comb.random}). If \code{method} is \code{"MH"} (default), the
+By default, both fixed effect (also called common effect) and
+random effects models are considered (see arguments \code{fixed}
+and \code{random}). If \code{method} is \code{"MH"} (default), the
 Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
 1986) is used to calculate the fixed effect estimate; if
 \code{method} is \code{"Inverse"}, inverse variance weighting is
@@ -673,7 +682,7 @@ correction is not available.
 
 A prediction interval for the proportion in a new study (Higgins et
 al., 2009) is calculated if arguments \code{prediction} and
-\code{comb.random} are \code{TRUE}. Note, the definition of
+\code{random} are \code{TRUE}. Note, the definition of
 prediction intervals varies in the literature. This function
 implements equation (12) of Higgins et al., (2009) which proposed a
 \emph{t} distribution with \emph{K-2} degrees of freedom where
@@ -682,7 +691,7 @@ implements equation (12) of Higgins et al., (2009) which proposed a
 
 \subsection{Subgroup analysis}{
 
-Argument \code{byvar} can be used to conduct subgroup analysis for
+Argument \code{subgroup} can be used to conduct subgroup analysis for
 a categorical covariate. The \code{\link{metareg}} function can be
 used instead for more than one categorical covariate or continuous
 covariates.
@@ -702,14 +711,14 @@ Meta-analysis results are the same for both arguments.
 
 Internally, both fixed effect and random effects models are
 calculated regardless of values choosen for arguments
-\code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+\code{fixed} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component
 \code{TE.random} of an object of class \code{"meta"} even if
-argument \code{comb.random = FALSE}. However, all functions in R
+argument \code{random = FALSE}. However, all functions in R
 package \bold{meta} will adequately consider the values for
-\code{comb.fixed} and \code{comb.random}. E.g. function
+\code{fixed} and \code{random}. E.g. function
 \code{\link{print.meta}} will not print results for the random
-effects model if \code{comb.random = FALSE}.
+effects model if \code{random = FALSE}.
 }
 }
 \examples{
@@ -729,6 +738,8 @@ data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
               data = Olkin1995, subset = c(41, 47, 51, 59),
               method = "Inverse")
+m1
+# Show results for individual studies
 summary(m1)
 
 # Use different subset of Olkin (1995)
@@ -736,7 +747,7 @@ summary(m1)
 m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
               data = Olkin1995, subset = year < 1970,
               method = "Inverse", studlab = author)
-summary(m2)
+m2
 forest(m2)
 
 # Meta-analysis with odds ratio as summary measure
@@ -746,19 +757,19 @@ m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
               sm = "OR", method = "Inverse", studlab = author)
 # Same meta-analysis result using 'update.meta' function
 m3 <- update(m2, sm = "OR")
-summary(m3)
+m3
 
 # Meta-analysis based on Mantel-Haenszel method (with odds ratio as
 # summary measure)
 #
 m4 <- update(m3, method = "MH")
-summary(m4)
+m4
 
 # Meta-analysis based on Peto method (only available for odds ratio
 # as summary measure)
 #
 m5 <- update(m3, method = "Peto")
-summary(m5)
+m5
 
 \dontrun{
 # Meta-analysis using generalised linear mixed models (only if R
@@ -775,7 +786,7 @@ m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
               method = "GLMM")
 # Same results:
 m6 <- update(m2, method = "GLMM")
-summary(m6)
+m6
 
 # Mixed-effects logistic regression model with random study effects
 # (warning message printed due to argument 'nAGQ')
@@ -786,33 +797,33 @@ m7 <- update(m6, model.glmm = "UM.RS")
 # function
 #
 m7 <- update(m6, model.glmm = "UM.RS", nAGQ = 1)
-summary(m7)
+m7
 
 # Generalised linear mixed model (conditional
 # Hypergeometric-Normal) (R package 'BiasedUrn' must be available)
 #
 if (require(BiasedUrn, quietly = TRUE)) {
  m8 <- update(m6, model.glmm = "CM.EL")
- summary(m8)
+ m8
 }
 
 # Generalised linear mixed model (conditional Binomial-Normal)
 #
 m9 <- update(m6, model.glmm = "CM.AL")
-summary(m9)
+m9
 
 # Logistic regression model with (k = 70) fixed study effects
 # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #
 m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
                data = Olkin1995, method = "GLMM")
-summary(m10)
+m10
 
 # Mixed-effects logistic regression model with random study effects
 # - about 50 seconds with Intel Core i7-3667U, 2.0GHz
 # - several warning messages, e.g. "failure to converge, ..."
 #
-summary(update(m10, model.glmm = "UM.RS"))
+update(m10, model.glmm = "UM.RS")
 
 # Conditional Hypergeometric-Normal GLMM
 # - long computation time (about 12 minutes with Intel Core
@@ -824,13 +835,13 @@ summary(update(m10, model.glmm = "UM.RS"))
 #
 if (require(BiasedUrn, quietly = TRUE)) {
  system.time(m11 <- update(m10, model.glmm = "CM.EL"))
- summary(m11)
+ m11
 }
 
 # Generalised linear mixed model (conditional Binomial-Normal)
 # (less than 1 second with Intel Core i7-3667U, 2.0GHz)
 #
-summary(update(m10, model.glmm = "CM.AL"))
+update(m10, model.glmm = "CM.AL")
 }
 }
 

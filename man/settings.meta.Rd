@@ -25,9 +25,7 @@ functions: \code{\link{metabin}}, \code{\link{metacont}},
 \code{\link{metarate}}
 
 Furthermore, some of these settings are considered to print
-meta-analysis results using \code{\link{print.meta}} and
-\code{\link{print.summary.meta}}, and to produce forest plots using
-\code{\link{forest.meta}}.
+meta-analysis results and to produce forest plots.
 
 The function can be used to either change individual settings (see
 Examples) or use one of the following general settings:
@@ -37,6 +35,7 @@ Examples) or use one of the following general settings:
 \item \code{settings.meta("iqwig5")}
 \item \code{settings.meta("iqwig6")}
 \item \code{settings.meta("geneexpr")}
+\item \code{settings.meta("meta4")}
 }
 
 The first command can be used to reproduce meta-analyses from
@@ -56,9 +55,12 @@ for Quality and Efficiency in Health Care, Germany (IQWiG)
 accordinging to General Methods 5 and 6, respectively
 (\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
 
-The last setting can be used to print p-values in scientific
-notation and to suppress the calculation of confidence intervals
-for the between-study variance.
+The setting \code{"geneexpr"} can be used to print p-values in
+scientific notation and to suppress the calculation of confidence
+intervals for the between-study variance.
+
+The last setting uses the default settings of R package
+\bold{meta}, version 4 or below.
 
 RevMan 5 settings, in detail:
 \tabular{lll}{
@@ -126,6 +128,12 @@ Settings for gene expression data:
  \tab between-study heterogeneity variance \cr
 }
 
+Settings for \bold{meta}, version 4 or below:
+\tabular{lll}{
+\bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+\code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+}
+
 A list of all arguments with current settings is printed using the
 command \code{settings.meta("print")}.
 
@@ -160,7 +168,7 @@ settings.meta(oldset)
 # (99\%-CI for studies, 99.9\%-CI for pooled effects)
 #
 metagen(1:3, 2:4 / 10, sm = "MD")
-settings.meta(level = 0.99, level.comb = 0.999)
+settings.meta(level = 0.99, level.ma = 0.999)
 metagen(1:3, 2:4 / 10, sm = "MD")
 
 # Always print a prediction interval
@@ -192,7 +200,7 @@ metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 # Forest plot using RevMan 5 style
 #
 settings.meta("revman5")
-forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
+forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
        label.left = "Favours A", label.right = "Favours B",
        colgap.studlab = "2cm",
        colgap.forest.left = "0.2cm")
@@ -200,7 +208,7 @@ forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
 # Forest plot using JAMA style
 #
 settings.meta("jama")
-forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
+forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
        label.left = "Favours A", label.right = "Favours B",
        colgap.studlab = "2cm",
        colgap.forest.left = "0.2cm")
@@ -209,7 +217,7 @@ forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
 # (especially useful if upper confidence limit can be negative)
 #
 settings.meta(CIseparator = " - ")
-forest(metagen(-(1:3), 2:4 / 10, sm="MD", comb.fixed=FALSE),
+forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
        label.left="Favours A", label.right="Favours B",
        colgap.studlab = "2cm",
        colgap.forest.left = "0.2cm")
@@ -221,7 +229,7 @@ settings.meta(oldset)
 }
 \seealso{
 \code{\link{gs}}, \code{\link{forest.meta}},
-  \code{\link{JAMAlabels}}
+  \code{\link{print.meta}}, \code{\link{JAMAlabels}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

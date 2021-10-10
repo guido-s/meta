@@ -9,7 +9,7 @@ metareg(
   formula,
   method.tau = x$method.tau,
   hakn = x$hakn,
-  level.comb = x$level.comb,
+  level.ma = x$level.ma,
   intercept = TRUE,
   ...
 )
@@ -29,7 +29,7 @@ abbreviated.}
 Knapp should be used to adjust test statistics and confidence
 intervals.}
 
-\item{level.comb}{The level used to calculate confidence intervals
+\item{level.ma}{The level used to calculate confidence intervals
 for parameter estimates in the meta-regression model.}
 
 \item{intercept}{A logical indicating whether an intercept should
@@ -45,7 +45,7 @@ for more details on the output from this function.
 
 In addition, a list \code{.meta} is added to the output containing
 the following components:
-\item{x, formula, method.tau, hakn, level.comb, intercept}{As
+\item{x, formula, method.tau, hakn, level.ma, intercept}{As
   defined above.}
 \item{dots}{Information provided in argument '\dots{}'.}
 \item{call}{Function call.}
@@ -98,7 +98,7 @@ metareg(m1)
 
 # Do meta-regression for covariate region
 #
-mu2 <- update(m1, byvar = region, tau.common = TRUE, comb.fixed = FALSE)
+mu2 <- update(m1, subgroup = region, tau.common = TRUE, fixed = FALSE)
 metareg(mu2)
 
 # Same result for
@@ -117,7 +117,7 @@ metareg(m1, region)
 # - test for subgroup differences
 # (as argument 'tau.common' is - by default - FALSE)
 #
-mu1 <- update(m1, byvar = region)
+mu1 <- update(m1, subgroup = region)
 mu1
 
 # Generate bubble plot

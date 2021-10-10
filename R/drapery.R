@@ -28,10 +28,10 @@
 #'   be shown in the drapery plot.
 #' @param srt.labels A numerical vector or single numeric (between 0
 #'   and 90) specifying the angle to rotate study labels; see Details.
-#' @param comb.fixed A logical indicating whether to show result for
-#'   the fixed effect model.
-#' @param comb.random A logical indicating whether to show result for
-#'   the random effects model.
+#' @param fixed A logical indicating whether to show result for the
+#'   fixed effect / common effect model.
+#' @param random A logical indicating whether to show result for the
+#'   random effects model.
 #' @param lty.fixed Line type for fixed effect meta-analysis.
 #' @param lwd.fixed Line width for fixed effect meta-analysis.
 #' @param col.fixed Colour of lines for fixed effect meta-analysis.
@@ -169,7 +169,7 @@
 #' data(Fleiss1993bin)
 #' m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'          data = Fleiss1993bin, studlab = paste(study, year),
-#'          sm = "OR", comb.random = FALSE)
+#'          sm = "OR", random = FALSE)
 #'
 #' # Produce drapery plot and print data frame with connection between
 #' # IDs and study labels
@@ -197,7 +197,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     labels, col.labels = "black", cex.labels = 0.7,
                     subset.labels, srt.labels,
                     ##
-                    comb.fixed = x$comb.fixed, comb.random = x$comb.random,
+                    fixed = x$fixed, random = x$random,
                     lty.fixed = 1, lwd.fixed = max(3, lwd.study),
                     col.fixed = "blue",
                     lty.random = 1, lwd.random = lwd.fixed,
@@ -205,7 +205,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     ##
                     sign = NULL,
                     lty.sign = 1, lwd.sign = 1, col.sign = "black",
-                    prediction = comb.random, col.predict = "lightblue",
+                    prediction = random, col.predict = "lightblue",
                     ##
                     alpha = if (type == "zvalue") c(0.001, 0.01, 0.05, 0.1)
                             else c(0.01, 0.05, 0.1),
@@ -220,7 +220,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     xlab, ylab,
                     xlim, ylim,
                     lwd.max = 2.5,
-                    lwd.study.weight = if (comb.random) "random" else "fixed",
+                    lwd.study.weight = if (random) "random" else "fixed",
                     at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
@@ -244,6 +244,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ##
   chkclass(x, "meta")
+  x <- updateversion(x)
+  ##
   seq.TE <- seq(along = x$TE)
   k.all <- length(seq.TE)
   ##
@@ -350,8 +352,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ## Other arguments
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   chklogical(prediction)
   ##
   if (!is.null(sign)) {
@@ -395,7 +397,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ## Additional check
   ##
-  if (!any(c(study.results, comb.fixed, comb.random, prediction))) {
+  if (!any(c(study.results, fixed, random, prediction))) {
     warning("Nothing selected to show in drapery plot.")
     return(invisible(NULL))
   }
@@ -524,14 +526,14 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   if (!study.results & missing.xlim) {
     if (prediction) {
       xvals <- x.grid[sel.predict]
-      if (comb.fixed)
+      if (fixed)
         xvals <- c(xvals, x.grid[sel.fixed])
       xlim <- range(xvals)
     }
     else {
-      if (comb.fixed & comb.random)
+      if (fixed & random)
         xvals <- c(x.grid[sel.fixed], x.grid[sel.random])
-      else if (!comb.fixed)
+      else if (!fixed)
         xvals <- x.grid[sel.random]
       else
         xvals <- x.grid[sel.fixed]
@@ -643,13 +645,13 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     ##
     ## Add fixed effect lines
     ##
-    if (comb.fixed)
+    if (fixed)
       lines(x.grid[sel.fixed], y.fixed[sel.fixed],
             lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
     ##
     ## Add random effects lines
     ##
-    if (comb.random)
+    if (random)
       lines(x.grid[sel.random], y.random[sel.random],
             lty = lty.random, lwd = lwd.random, col = col.random)
     ##
@@ -681,17 +683,17 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     ##
     ## Add legend
     ##
-    if (legend & any(c(comb.fixed, comb.random, prediction)))
+    if (legend & any(c(fixed, random, prediction)))
       legend(pos.legend,
-             col = c(if (comb.fixed) col.fixed,
-                     if (comb.random) col.random,
+             col = c(if (fixed) col.fixed,
+                     if (random) col.random,
                      if (prediction) col.predict),
-             lwd = c(if (comb.fixed) lwd.fixed,
-                     if (comb.random) lwd.random,
+             lwd = c(if (fixed) lwd.fixed,
+                     if (random) lwd.random,
                      if (prediction) lwd.random),
              bty = bty, bg = bg,
-             c(if (comb.fixed) "Fixed effect model",
-               if (comb.random)"Random effects model",
+             c(if (fixed) "Fixed effect model",
+               if (random)"Random effects model",
                if (prediction) "Range of prediction"))
     ##
     ## Add y-axis on right side

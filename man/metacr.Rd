@@ -11,9 +11,9 @@ metacr(
   method,
   sm,
   level = gs("level"),
-  level.comb = gs("level.comb"),
-  comb.fixed,
-  comb.random,
+  level.ma = gs("level.ma"),
+  fixed,
+  random,
   hakn = FALSE,
   method.tau = "DL",
   method.tau.ci = gs("method.tau.ci"),
@@ -33,7 +33,8 @@ metacr(
   complab,
   outclab,
   keepdata = gs("keepdata"),
-  warn = FALSE
+  warn = FALSE,
+  ...
 )
 }
 \arguments{
@@ -56,13 +57,13 @@ be used for pooling of studies.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.comb}{The level used to calculate confidence intervals
+\item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a fixed effect
 meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{hakn}{A logical indicating whether the method by Hartung and
@@ -132,6 +133,8 @@ should be kept in meta object.}
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if \code{incr} is added to studies with zero cell
 frequencies).}
+
+\item{\dots}{Additional arguments (to catch deprecated arguments).}
 }
 \value{
 An object of class \code{"meta"} and \code{"metabin"},

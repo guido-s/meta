@@ -14,8 +14,8 @@
   ylab = NULL,
   TE.fixed = x$TE.fixed,
   TE.random = x$TE.random,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   backtransf = x$backtransf,
   axes = TRUE,
   pch = 21,
@@ -52,8 +52,8 @@
   ylab = NULL,
   TE.fixed = NULL,
   TE.random = NULL,
-  comb.fixed = !is.null(TE.fixed),
-  comb.random = !is.null(TE.random),
+  fixed = !is.null(TE.fixed),
+  random = !is.null(TE.random),
   backtransf = TRUE,
   axes = TRUE,
   pch = 21,
@@ -99,11 +99,11 @@ effect estimate(s).}
 \item{TE.random}{A numeric or vector specifying combined random
 effects estimate(s).}
 
-\item{comb.fixed}{A logical indicating whether the pooled fixed
-effect estimate should be plotted.}
+\item{fixed}{A logical indicating whether the fixed effect estimate
+should be plotted.}
 
-\item{comb.random}{A logical indicating whether the pooled random
-effects estimate should be plotted.}
+\item{random}{A logical indicating whether the random effects
+estimate should be plotted.}
 
 \item{backtransf}{A logical indicating which values should be
 printed on x- and y-axis (see Details).}
@@ -126,10 +126,10 @@ used if \code{pch} in \code{21:25}).}
 \item{lwd}{The line width.}
 
 \item{lwd.fixed}{The line width(s) for fixed effect estimate(s) (if
-\code{comb.fixed} is not \code{NULL} or \code{FALSE}).}
+\code{fixed} is not \code{NULL} or \code{FALSE}).}
 
 \item{lwd.random}{The line width(s) for random effects estimate(s)
-(if \code{comb.random} is not \code{NULL} or \code{FALSE}).}
+(if \code{random} is not \code{NULL} or \code{FALSE}).}
 
 \item{lty.fixed}{Line type(s) for fixed effect estimate(s).}
 
@@ -195,17 +195,16 @@ summary measure (\code{sm = "OR"}), log probabilities for \code{sm
 = "RR"}, and arcsine-transformed probabilities for \code{sm =
 "ASD"}.
 
-If \code{comb.fixed} is TRUE, the pooled estimate of the fixed
-effect model is plotted as a line. If \code{comb.random} is TRUE,
-the pooled estimate of the random effects model is plotted as a
-line.
+If \code{fixed} is TRUE, the estimate of the fixed effect / common
+effct model is plotted as a line. If \code{random} is TRUE, the
+estimate of the random effects model is plotted as a line.
 
 Information from object \code{x} is utilised if argument
 \code{weight} is missing. Weights from the fixed effect model are
-used (\code{weight = "fixed"}) if argument \code{x$comb.fixed} is
+used (\code{weight = "fixed"}) if argument \code{x$fixed} is
 \code{TRUE}; weights from the random effects model are used
-(\code{weight = "random"}) if argument \code{x$comb.random} is
-\code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
+(\code{weight = "random"}) if argument \code{x$random} is
+\code{TRUE} and \code{x$fixed} is \code{FALSE}.
 }
 \examples{
 data(Olkin1995)
@@ -238,7 +237,7 @@ labbe(m1, sm = "OR", backtransf = FALSE)
 mycols <- c("blue", "yellow", "green", "red",
             "green", "yellow", "blue")
 labbe(m1, sm = "OR",
-      comb.random = FALSE,
+      random = FALSE,
       TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
       col.fixed = mycols, lwd.fixed = 2)
 
@@ -246,7 +245,7 @@ labbe(m1, sm = "OR",
 # treatment effects (defined as log odds ratios)
 #
 labbe(m1, sm = "OR",
-      comb.random = FALSE,
+      random = FALSE,
       TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
       col.fixed = mycols, lwd.fixed = 2,
       backtransf = FALSE)

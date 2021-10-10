@@ -40,14 +40,14 @@ m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #
 # Update meta-analysis object and do subgroup analyses
 #
-summary(update(m1, byvar = group))
+update(m1, subgroup = group)
 
 # Same result using metacont function directly
 #
 m2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
                data = Fleiss1993cont, sm = "SMD",
-               studlab = paste(study, year), byvar = group)
-summary(m2)
+               studlab = paste(study, year), subgroup = group)
+m2
 
 # Compare printout of the following two commands
 #

@@ -11,8 +11,8 @@
   ylim = NULL,
   xlab = NULL,
   ylab = NULL,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   axes = TRUE,
   pch = if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
   text = NULL,
@@ -31,7 +31,7 @@
   contour.levels = NULL,
   col.contour,
   ref = ifelse(is.relative.effect(x$sm), 1, 0),
-  level = if (comb.fixed | comb.random) x$level else NULL,
+  level = if (fixed | random) x$level else NULL,
   studlab = FALSE,
   cex.studlab = 0.8,
   pos.studlab = 2,
@@ -55,11 +55,11 @@
 
 \item{ylab}{A label for the y-axis.}
 
-\item{comb.fixed}{A logical indicating whether the pooled fixed
+\item{fixed}{A logical indicating whether the fixed effect / common
 effect estimate should be plotted.}
 
-\item{comb.random}{A logical indicating whether the pooled random
-effects estimate should be plotted.}
+\item{random}{A logical indicating whether the random effects
+estimate should be plotted.}
 
 \item{axes}{A logical indicating whether axes should be drawn on
 the plot.}
@@ -71,18 +71,18 @@ instead of plotting symbol.}
 
 \item{cex}{The magnification to be used for plotting symbol.}
 
-\item{lty.fixed}{Line type (pooled fixed effect estimate).}
+\item{lty.fixed}{Line type (fixed effect estimate).}
 
-\item{lty.random}{Line type (pooled random effects estimate).}
+\item{lty.random}{Line type (random effects estimate).}
 
 \item{lwd}{The line width for confidence intervals (if \code{level}
 is not \code{NULL}).}
 
 \item{lwd.fixed}{The line width for fixed effect estimate (if
-\code{comb.fixed} is not \code{NULL}).}
+\code{fixed} is not \code{NULL}).}
 
 \item{lwd.random}{The line width for random effects estimate (if
-\code{comb.random} is not \code{NULL}).}
+\code{random} is not \code{NULL}).}
 
 \item{col}{A vector with colour of plotting symbols.}
 
@@ -158,14 +158,13 @@ produced to assess causes of funnel plot asymmetry.
 }
 \details{
 A funnel plot (Light & Pillemer, 1984) is drawn in the active
-graphics window. If \code{comb.fixed} is TRUE, the pooled estimate
-of the fixed effect model is plotted as a vertical line. Similarly,
-if \code{comb.random} is TRUE, the pooled estimate of the random
-effects model is plotted. If \code{level} is not NULL, the
-corresponding approximate confidence limits are drawn around the
-fixed effect estimate (if \code{comb.fixed} is TRUE) or the random
-effects estimate (if \code{comb.random} is TRUE and
-\code{comb.fixed} is FALSE).
+graphics window. If \code{fixed} is TRUE, the estimate of the fixed
+effect model is plotted as a vertical line. Similarly, if
+\code{random} is TRUE, the estimate of the random effects model is
+plotted. If \code{level} is not NULL, the corresponding approximate
+confidence limits are drawn around the fixed effect estimate (if
+\code{fixed} is TRUE) or the random effects estimate (if
+\code{random} is TRUE and \code{fixed} is FALSE).
 
 In the funnel plot, the standard error of the treatment estimates
 is plotted on the y-axis by default (\code{yaxis = "se"}) which is
@@ -201,14 +200,14 @@ funnel(m1)
 # Funnel plot with confidence intervals, fixed effect estimate and
 # contours
 #
-cc <- funnel(m1, comb.fixed = TRUE,
+cc <- funnel(m1, fixed = TRUE,
              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
 legend(0.05, 0.05,
        c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
 
 # Contour-enhanced funnel plot with user-chosen colours
 #
-funnel(m1, comb.fixed = TRUE,
+funnel(m1, fixed = TRUE,
        level = 0.95, contour = c(0.9, 0.95, 0.99),
        col.contour = c("darkgreen", "green", "lightgreen"),
        lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)

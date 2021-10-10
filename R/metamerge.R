@@ -126,7 +126,7 @@
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'                data = Fleiss1993cont, sm = "MD",
-#'                comb.fixed = FALSE,
+#'                fixed = FALSE,
 #'                text.random = "Classic random effects",
 #'                text.w.random = "RE")
 #' #
@@ -161,7 +161,7 @@
 #' #
 #' m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'               studlab = paste(study, year),
-#'               sm = "OR", comb.random = FALSE,
+#'               sm = "OR", random = FALSE,
 #'               text.fixed = "MH method", text.w.fixed = "MH")
 #' #
 #' # Peto method
@@ -191,7 +191,10 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   
   
   chkclass(meta1, "meta")
+  meta1 <- updateversion(meta1)
   chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
+  if (inherits(meta2, "meta"))
+    meta2 <- updateversion(meta2)
   ##
   if (inherits(meta1, "metamerge"))
     stop("Argument 'meta1' already of class \"metameta\".",
@@ -207,7 +210,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   if (!missing(pooled1))
     pooled1 <- setchar(pooled1, c("fixed", "random"))
   else
-    pooled1 <- ifelse(meta1$comb.random, "random", "fixed")
+    pooled1 <- ifelse(meta1$random, "random", "fixed")
   ##
   if (!missing(pooled2))
     pooled2 <- setchar(pooled2, c("fixed", "random"))
@@ -215,7 +218,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     if (is.copas | is.limit | is.robu)
       pooled2 <- "random"
     else
-      pooled2 <- ifelse(meta2$comb.random, "random", "fixed")
+      pooled2 <- ifelse(meta2$random, "random", "fixed")
   }
   ##
   if (!missing(text.pooled1))
@@ -320,7 +323,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$pval.fixed <- meta1$pval.random
     res$w.fixed <- meta1$w.random
     ##
-    if (!is.null(meta1$byvar)) {
+    if (!is.null(meta1$subgroup)) {
       res$TE.fixed.w <- meta1$TE.random.w
       res$seTE.fixed.w <- meta1$seTE.random.w
       res$lower.fixed.w <- meta1$lower.random.w
@@ -416,7 +419,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     else
       res$w.random <- meta2$w.fixed
     ##
-    if (!is.null(meta2$byvar)) {
+    if (!is.null(meta2$subgroup)) {
       res$TE.random.w <- meta2$TE.fixed.w
       res$seTE.random.w <- meta2$seTE.fixed.w
       res$lower.random.w <- meta2$lower.fixed.w
@@ -465,7 +468,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     else
       res$w.random <- meta2$w.random
     ##
-    if (!is.null(meta2$byvar)) {
+    if (!is.null(meta2$subgroup)) {
       res$TE.random.w <- meta2$TE.random.w
       res$seTE.random.w <- meta2$seTE.random.w
       res$lower.random.w <- meta2$lower.random.w
@@ -629,7 +632,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     }
   }
   ##
-  res$comb.fixed <- res$comb.random <- TRUE
+  res$fixed <- res$random <- TRUE
   res$backtransf <- backtransf
   ##
   res$pooled1 <- pooled1

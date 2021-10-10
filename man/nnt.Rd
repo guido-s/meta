@@ -9,14 +9,14 @@
 \usage{
 nnt(x, ...)
 
-\method{nnt}{meta}(x, p.c, comb.fixed = x$comb.fixed, comb.random = x$comb.random, ...)
+\method{nnt}{meta}(x, p.c, fixed = x$fixed, random = x$random, ...)
 
 \method{nnt}{default}(x, p.c, sm, lower, upper, ...)
 
 \method{print}{nnt.meta}(
   x,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   digits = gs("digits"),
   digits.prop = gs("digits.prop"),
   big.mark = gs("big.mark"),
@@ -31,10 +31,10 @@ effect, i.e., risk difference(s), risk ratio(s), or odds ratio(s).}
 
 \item{p.c}{Baseline risk (control group event probability).}
 
-\item{comb.fixed}{A logical indicating whether NNTs should be
+\item{fixed}{A logical indicating whether NNTs should be
 calculated based on fixed effect estimate.}
 
-\item{comb.random}{A logical indicating whether NNTs should be
+\item{random}{A logical indicating whether NNTs should be
 calculated based on random effects estimate.}
 
 \item{sm}{Summary measure.}
@@ -89,8 +89,8 @@ nnt(0.73, p.c = 0.3, sm = "OR")
 # Use Mantel-Haenszel odds ratio to calculate NNTs
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
-              comb.random = FALSE)
-nnt(m1, comb.random = TRUE)
+              random = FALSE)
+nnt(m1, random = TRUE)
 
 }
 \references{

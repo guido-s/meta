@@ -2,333 +2,34 @@
 % Please edit documentation in R/summary.meta.R
 \name{summary.meta}
 \alias{summary.meta}
-\alias{print.summary.meta}
 \title{Summary of meta-analysis results}
 \usage{
-\method{summary}{meta}(
-  object,
-  comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random,
-  prediction = object$prediction,
-  overall = object$overall,
-  overall.hetstat = object$overall.hetstat,
-  test.subgroup = object$test.subgroup,
-  backtransf = object$backtransf,
-  pscale = object$pscale,
-  irscale = object$irscale,
-  irunit = object$irunit,
-  bylab = object$bylab,
-  print.byvar = object$print.byvar,
-  byseparator = object$byseparator,
-  bystud = FALSE,
-  print.CMH = object$print.CMH,
-  warn = object$warn,
-  ...
-)
-
-\method{print}{summary.meta}(
-  x,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
-  prediction = x$prediction,
-  overall = x$overall,
-  overall.hetstat = x$overall.hetstat,
-  test.subgroup = x$test.subgroup,
-  print.byvar = x$print.byvar,
-  byseparator = x$byseparator,
-  print.CMH = x$print.CMH,
-  header = TRUE,
-  backtransf = x$backtransf,
-  pscale = x$pscale,
-  irscale = x$irscale,
-  irunit = x$irunit,
-  bylab.nchar = 35,
-  digits = gs("digits"),
-  digits.stat = gs("digits.stat"),
-  digits.pval = max(gs("digits.pval"), 2),
-  digits.pval.Q = max(gs("digits.pval.Q"), 2),
-  digits.Q = gs("digits.Q"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.H = gs("digits.H"),
-  digits.I2 = gs("digits.I2"),
-  scientific.pval = gs("scientific.pval"),
-  big.mark = gs("big.mark"),
-  zero.pval = gs("zero.pval"),
-  JAMA.pval = gs("JAMA.pval"),
-  print.tau2 = TRUE,
-  print.tau = TRUE,
-  print.I2 = gs("print.I2"),
-  print.H = gs("print.H"),
-  print.Rb = gs("print.Rb"),
-  text.tau2 = gs("text.tau2"),
-  text.tau = gs("text.tau"),
-  text.I2 = gs("text.I2"),
-  text.Rb = gs("text.Rb"),
-  details.methods = TRUE,
-  digits.zval = digits.stat,
-  warn.backtransf = FALSE,
-  ...
-)
+\method{summary}{meta}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
-
-\item{comb.random}{A logical indicating whether a random effects
-meta-analysis should be conducted.}
-
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
-
-\item{overall}{A logical indicating whether overall summaries
-should be reported. This argument is useful in a meta-analysis
-with subgroups if overall results should not be reported.}
-
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
-
-\item{test.subgroup}{A logical value indicating whether to print
-results of test for subgroup differences.}
-
-\item{backtransf}{A logical indicating whether printed results
-should be back transformed. If \code{backtransf=TRUE}, results
-for \code{sm="OR"} are printed as odds ratios rather than log
-odds ratios and results for \code{sm="ZCOR"} are printed as
-correlations rather than Fisher's z transformed correlations, for
-example.}
-
-\item{pscale}{A numeric giving scaling factor for printing of
-single event probabilities or risk differences, i.e. if argument
-\code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
-\code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
-
-\item{irscale}{A numeric defining a scaling factor for printing of
-single incidence rates or incidence rate differences, i.e. if
-argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
-\code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
-
-\item{irunit}{A character specifying the time unit used to
-calculate rates, e.g. person-years.}
-
-\item{bylab}{A character string with a label for the grouping
-variable.}
-
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
-
-\item{byseparator}{A character string defining the separator
-between label and levels of grouping variable.}
-
-\item{bystud}{A logical indicating whether results of individual
-studies should be printed by grouping variable.}
-
-\item{print.CMH}{A logical indicating whether result of the
-Cochran-Mantel-Haenszel test for overall effect should be
-printed.}
-
-\item{warn}{A logical indicating whether the use of
-\code{summary.meta} in connection with \code{metacum} or
-\code{metainf} should result in a warning.}
-
 \item{\dots}{Additional arguments (ignored).}
-
-\item{x}{An object of class \code{summary.meta}.}
-
-\item{header}{A logical indicating whether information on title of
-meta-analysis, comparison and outcome should be printed at the
-beginning of the printout.}
-
-\item{bylab.nchar}{A numeric specifying the number of characters to
-print from label for the grouping variable.}
-
-\item{digits}{Minimal number of significant digits, see
-\code{print.default}.}
-
-\item{digits.stat}{Minimal number of significant digits for z- or
-t-value of test for overall effect, see \code{print.default}.}
-
-\item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
-
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
-
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance \eqn{\tau^2}, see \code{print.default}.}
-
-\item{digits.tau}{Minimal number of significant digits for
-\eqn{\tau}, the square root of the between-study variance
-\eqn{\tau^2}.}
-
-\item{digits.H}{Minimal number of significant digits for H
-statistic, see \code{print.default}.}
-
-\item{digits.I2}{Minimal number of significant digits for I-squared
-and Rb statistic, see \code{print.default}.}
-
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{zero.pval}{A logical specifying whether p-values should be
-printed with a leading zero.}
-
-\item{JAMA.pval}{A logical specifying whether p-values for test of
-overall effect should be printed according to JAMA reporting
-standards.}
-
-\item{print.tau2}{A logical specifying whether between-study
-variance \eqn{\tau^2} should be printed.}
-
-\item{print.tau}{A logical specifying whether \eqn{\tau}, the
-square root of the between-study variance \eqn{\tau^2}, should be
-printed.}
-
-\item{print.I2}{A logical specifying whether heterogeneity
-statistic I\eqn{^2} should be printed.}
-
-\item{print.H}{A logical specifying whether heterogeneity statistic
-H should be printed.}
-
-\item{print.Rb}{A logical specifying whether heterogeneity
-statistic R\eqn{_b} should be printed.}
-
-\item{text.tau2}{Text printed to identify between-study variance
-\eqn{\tau^2}.}
-
-\item{text.tau}{Text printed to identify \eqn{\tau}, the square
-root of the between-study variance \eqn{\tau^2}.}
-
-\item{text.I2}{Text printed to identify heterogeneity statistic
-I\eqn{^2}.}
-
-\item{text.Rb}{Text printed to identify heterogeneity statistic
-R\eqn{_b}.}
-
-\item{details.methods}{A logical specifying whether details on
-statistical methods should be printed.}
-
-\item{digits.zval}{Deprecated argument (replaced by
-\code{digits.stat}).}
-
-\item{warn.backtransf}{A logical indicating whether a warning
-should be printed if backtransformed proportions and rates are
-below 0 and backtransformed proportions are above 1.}
 }
 \value{
-A list is returned by the function \code{summary.meta} with the
-following elements:
-\item{study}{Results for individual studies (a list with elements
-  TE, seTE, lower, upper, z, p, level, df).}
-\item{fixed}{Results for fixed effect model (a list with elements
-  TE, seTE, lower, upper, z, p, level, df).}  #
-\item{random}{Results for random effects model (a list with
-  elements TE, seTE, lower, upper, z, p, level, df).}
-\item{k}{Number of studies combined in meta-analysis.}
-\item{Q}{Heterogeneity statistic Q.}
-\item{tau}{Square-root of between-study variance.}
-\item{se.tau2}{Standard error of between-study variance.}
-\item{H}{Heterogeneity statistic H (a list with elements TE, lower,
-  upper).}
-\item{I2}{Heterogeneity statistic I\eqn{^2} (a list with elements TE,
-  lower, upper), see Higgins & Thompson (2002).}
-\item{Rb}{Heterogeneity statistic R\eqn{_b} (a list with elements TE,
-  lower, upper), see Crippa et al. (2016).}  # \item{k.all}{Total
-  number of studies.}
-\item{Q.CMH}{Cochran-Mantel-Haenszel test statistic for overall
-  effect.}
-\item{sm}{A character string indicating underlying summary
-  measure.}
-\item{method}{A character string with the pooling method.}
-\item{call}{Function call.}
-\item{ci.lab}{Label for confidence interval.}
-\item{hakn}{A logical indicating whether method by Hartung and
-  Knapp was used.}
-\item{adhoc.hakn}{A character string indicating whether \emph{ad
-  hoc} variance correction should be used for Hartung-Knapp
-  method.}
-\item{method.tau}{A character string indicating which method is
-  used to estimate the between-study variance tau-squared.}
-\item{tau.common}{A logical indicating whether tau-squared is
-  assumed to be the same across subgroups.}
-\item{within.fixed}{Result for fixed effect model within groups (a
-  list with elements TE, seTE, lower, upper, z, p, level, df,
-  harmonic.mean) - if \code{byvar} is not missing.}
-\item{within.random}{Result for random effects model within groups
-  (a list with elements TE, seTE, lower, upper, z, p, level, df,
-  harmonic.mean) - if \code{byvar} is not missing.}
-\item{k.w}{Number of studies combined within groups - if
-  \code{byvar} is not missing.}
-\item{Q.w}{Heterogeneity statistic Q within groups - if
-  \code{byvar} is not missing.}
-\item{Q.b.fixed}{Heterogeneity statistic Q between groups (based on
-  fixed effect model) - if \code{byvar} is not missing.}
-\item{Q.b.random}{Heterogeneity statistic Q between groups (based
-  on random effects model) - if \code{byvar} is not missing.}
-\item{tau.w}{Square-root of between-study variance within subgroups
-  - if \code{byvar} is not missing.}
-\item{H.w}{Heterogeneity statistic H within subgroups (a list with
-  elements TE, lower, upper) - if \code{byvar} is not missing.}
-\item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups (a list
-  with elements TE, lower, upper) - if \code{byvar} is not
-  missing.}
-\item{Rb.w}{Heterogeneity statistic R\eqn{_b} within subgroups (a list
-  with elements TE, lower, upper) - if \code{byvar} is not
-  missing.}
-\item{H.resid}{Statistic H for residual heterogeneity (a list with
-  elements TE, lower, upper) - if \code{byvar} is not missing.}
-\item{I2.resid}{Statistic I\eqn{^2} for residual heterogeneity (a list
-  with elements TE, lower, upper) - if \code{byvar} is not
-  missing.}
-\item{bylevs}{Levels of grouping variable - if \code{byvar} is not
-  missing.}
-\item{title}{Title of meta-analysis / systematic review.}
-\item{complab}{Comparison label.}
-\item{outclab}{Outcome label.}
-\item{data}{Original data (set) used to create meta object.}
-\item{subset}{Information on subset of original data used in
-  meta-analysis.}
-\item{prediction, level.predict}{As defined above.}
-\item{comb.fixed, comb.random, print.CMH}{As defined above.}
-\item{version}{Version of R package \bold{meta} used to create
-  object.}
+An object of classes \code{summary.meta} and \code{meta}.
 }
 \description{
 Summary method for objects of class \code{meta}.
 }
 \details{
-Note, in R package \bold{meta}, version 3.0-0 some arguments have
-been removed from R functions \code{\link{summary.meta}}
-(arguments: byvar, level, level.comb, level.prediction) and
-print.summary.meta (arguments: level, level.comb,
-level.prediction). This functionality is now provided by R function
-\code{\link{update.meta}} (or directly in meta-analysis functions,
-e.g., \code{\link{metabin}}, \code{\link{metacont}},
-\code{\link{metagen}}, \code{\link{metacor}}, and
-\code{\link{metaprop}}).
-
 Review Manager 5 (RevMan 5) is the current software used for
 preparing and maintaining Cochrane Reviews
 (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 In RevMan 5, subgroup analyses can be defined and data from a
-Cochrane review can be imported to Rusing the function \code{read.rm5}. If a
-meta-analysis is then conducted using function \code{metacr}, information on
-subgroups is available in R (components \code{byvar}, \code{bylab}, and
-\code{print.byvar}, \code{byvar} in an object of class \code{"meta"}).
-Accordingly, by using function \code{metacr} there is no need to define
-subgroups in order to redo the statistical analysis conducted in the
-Cochrane review.
+Cochrane review can be imported to Rusing the function
+\code{read.rm5}. If a meta-analysis is then conducted using
+function \code{metacr}, information on subgroups is available in R
+(components \code{subgroup}, \code{subgroup.name}, and
+\code{print.subgroup.name}, \code{subgroup} in an object of class
+\code{"meta"}).  Accordingly, by using function \code{metacr} there
+is no need to define subgroups in order to redo the statistical
+analysis conducted in the Cochrane review.
 
 Note, for an object of type \code{metaprop}, starting with version
 3.7-0 of meta, list elements \code{TE}, \code{lower} and
@@ -368,8 +69,8 @@ m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
                studlab = paste(study, year))
 summary(m1)
 
-summary(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
-forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
+summary(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
+forest(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
 
 \dontrun{
 # Use unicode characters to print tau^2, tau, and I^2
@@ -394,7 +95,7 @@ Quantifying heterogeneity in a meta-analysis.
 \bold{21}, 1539--58
 }
 \seealso{
-\code{\link{update.meta}}, \code{\link{metabin}},
+\code{\link{print.summary.meta}}, \code{\link{metabin}},
   \code{\link{metacont}}, \code{\link{metagen}}
 }
 \author{

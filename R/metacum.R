@@ -15,11 +15,11 @@
 #' sequentially as defined by \code{sortvar}.
 #' 
 #' Information from object \code{x} is utilised if argument
-#' \code{pooled} is missing. A fixed effect model is assumed
-#' (\code{pooled = "fixed"}) if argument \code{x$comb.fixed} is
+#' \code{pooled} is missing. A fixed effect / common effect model is
+#' assumed (\code{pooled = "fixed"}) if argument \code{x$fixed} is
 #' \code{TRUE}; a random effects model is assumed (\code{pooled =
-#' "random"}) if argument \code{x$comb.random} is \code{TRUE} and
-#' \code{x$comb.fixed} is \code{FALSE}.
+#' "random"}) if argument \code{x$random} is \code{TRUE} and
+#' \code{x$fixed} is \code{FALSE}.
 #' 
 #' @return
 #' An object of class \code{c("metacum", "meta")} with corresponding
@@ -41,14 +41,14 @@
 #' \item{method}{Method used for pooling.}
 #' \item{k}{Number of studies combined in meta-analysis.}
 #' \item{pooled}{As defined above.}
-#' \item{comb.fixed}{A logical indicating whether analysis is based on
+#' \item{fixed}{A logical indicating whether analysis is based on
 #'   fixed effect model.}
-#' \item{comb.random}{A logical indicating whether analysis is based
+#' \item{random}{A logical indicating whether analysis is based
 #'   on random effects model.}
 #' \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
 #' \item{TE.random, seTE.random}{Value is \code{NA}.}
 #' \item{Q}{Value is \code{NA}.}
-#' \item{level.comb}{The level used to calculate confidence intervals
+#' \item{level.ma}{The level used to calculate confidence intervals
 #'   for pooled estimates.}
 #' \item{hakn}{A logical indicating whether the method by Hartung and
 #'   Knapp is used to adjust test statistics and confidence
@@ -131,7 +131,7 @@ metacum <- function(x, pooled, sortvar) {
   if (!missing(pooled))
     pooled <- setchar(pooled, c("fixed", "random"))
   else
-    if (!x$comb.fixed & x$comb.random)
+    if (!x$fixed & x$random)
       pooled <- "random"
     else
       pooled <- "fixed"
@@ -150,7 +150,8 @@ metacum <- function(x, pooled, sortvar) {
   }
   sort <- !is.null(sortvar)
   if (sort && (length(sortvar) != k.all))
-    stop("Number of studies in object 'x' and argument 'sortvar' have different length.")
+    stop("Number of studies in object 'x' and argument 'sortvar' ",
+         "have different length.")
   if (!sort)
     sortvar <- 1:k.all
   
@@ -239,7 +240,7 @@ metacum <- function(x, pooled, sortvar) {
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
-                   level.comb = x$level.comb,
+                   level.ma = x$level.ma,
                    ##
                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
@@ -258,7 +259,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     sm = x$sm, pooledvar = x$pooledvar,
                     ##
-                    level.comb = x$level.comb,
+                    level.ma = x$level.ma,
                     ##
                     hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
@@ -276,7 +277,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    sm = x$sm, null.effect = x$null.effect,
                    ##
-                   level.comb = x$level.comb,
+                   level.ma = x$level.ma,
                    ##
                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
@@ -293,7 +294,7 @@ metacum <- function(x, pooled, sortvar) {
                    ##
                    sm = x$sm, null.effect = x$null.effect,
                    ##
-                   level.comb = x$level.comb,
+                   level.ma = x$level.ma,
                    ##
                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
@@ -315,7 +316,7 @@ metacum <- function(x, pooled, sortvar) {
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
-                   level.comb = x$level.comb,
+                   level.ma = x$level.ma,
                    ##
                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
@@ -333,7 +334,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     sm = x$sm, null.effect = x$null.effect,
                     ##
-                    level.comb = x$level.comb,
+                    level.ma = x$level.ma,
                     ##
                     hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
@@ -354,7 +355,7 @@ metacum <- function(x, pooled, sortvar) {
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     method.ci = x$method.ci,
                     ##
-                    level.comb = x$level.comb,
+                    level.ma = x$level.ma,
                     ##
                     hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
@@ -374,7 +375,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     incr = incr.i, allincr = x$allincr, addincr = x$addincr,
                     ##
-                    level.comb = x$level.comb,
+                    level.ma = x$level.ma,
                     ##
                     hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
@@ -529,18 +530,20 @@ metacum <- function(x, pooled, sortvar) {
               Rb = c(Rb.i, NA, x$Rb),
               ##
               w = c(weight.i, NA, w.s),
-              df.hakn = if (pooled == "random" & x$hakn) c(df.hakn.i, NA, x$df.hakn) else NULL,
+              df.hakn =
+                if (pooled == "random" & x$hakn)
+                  c(df.hakn.i, NA, x$df.hakn) else NULL,
               ##
               sm = x$sm, method = x$method, k = x$k,
               pooled = pooled,
-              comb.fixed = ifelse(pooled == "fixed", TRUE, FALSE),
-              comb.random = ifelse(pooled == "random", TRUE, FALSE),
+              fixed = ifelse(pooled == "fixed", TRUE, FALSE),
+              random = ifelse(pooled == "random", TRUE, FALSE),
               TE.fixed = NA, seTE.fixed = NA,
               TE.random = NA, seTE.random = NA,
               null.effect = x$null.effect,
               ##
               Q = NA,
-              level.comb = x$level.comb,
+              level.ma = x$level.ma,
               hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
               method.tau = x$method.tau,
               tau.preset = x$tau.preset,
@@ -560,11 +563,17 @@ metacum <- function(x, pooled, sortvar) {
               title = x$title, complab = x$complab,
               outclab = x$outclab,
               ##
+              x = x,
+              ##
               call = match.call())
   
   res$version <- packageDescription("meta")$Version
+  ##
+  res$x$fixed <- res$fixed
+  res$x$random <- res$random
   
-  class(res) <- c("metacum", "meta")
+  class(res) <- c("metacum", "summary.meta", "meta")
+  ##
   if (inherits(x, "trimfill"))
     class(res) <- c(class(res), "trimfill")
   

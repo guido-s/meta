@@ -49,11 +49,11 @@
 #'   should be used.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.comb The level used to calculate confidence intervals
+#' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param comb.fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a fixed effect
 #'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
+#' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param overall A logical indicating whether overall summaries
 #'   should be reported. This argument is useful in a meta-analysis
@@ -155,14 +155,18 @@
 #'   \code{"SA"}, \code{"SACC"}, or \code{"NAsm"}, can be
 #'   abbreviated. See functions \code{\link{metacont}} and
 #'   \code{\link{metaprop}}.
-#' @param byvar An optional vector containing grouping information
-#'   (must be of same length as \code{event.e}).
-#' @param bylab A character string with a label for the grouping
-#'   variable.
-#' @param print.byvar A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
-#' @param byseparator A character string defining the separator
-#'   between label and levels of grouping variable.
+#' @param subgroup An optional vector to conduct a meta-analysis with
+#'   subgroups.
+#' @param subgroup.name A character string with a name for the
+#'   subgroup variable.
+#' @param print.subgroup.name A logical indicating whether the name of
+#'   the subgroup variable should be printed in front of the group
+#'   labels.
+#' @param sep.subgroup A character string defining the separator
+#'   between name of subgroup variable and subgroup label.
+#' @param test.subgroup A logical value indicating whether to print
+#'   results of test for subgroup differences.
+#' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
 #'   printed.
@@ -183,6 +187,8 @@
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
@@ -231,10 +237,11 @@
 #' 
 #' # Use different levels for confidence intervals
 #' #
-#' m2 <- update(m1, level = 0.66, level.comb = 0.99)
+#' m2 <- update(m1, level = 0.66, level.ma = 0.99)
 #' print(m2, digits = 2)
 #' forest(m2)
 #' 
+#' @method update meta
 #' @export
 #' @export update.meta
 
@@ -254,9 +261,9 @@ update.meta <- function(object,
                         Q.Cochrane = object$Q.Cochrane,
                         model.glmm = object$model.glmm,
                         level = object$level,
-                        level.comb = object$level.comb,
-                        comb.fixed = object$comb.fixed,
-                        comb.random = object$comb.random,
+                        level.ma = object$level.ma,
+                        fixed = object$fixed,
+                        random = object$random,
                         overall = object$overall,
                         overall.hetstat = object$overall.hetstat,
                         hakn = object$hakn,
@@ -296,10 +303,14 @@ update.meta <- function(object,
                         sd.glass = object$sd.glass,
                         exact.smd = object$exact.smd,
                         method.ci = object$method.ci,
+                        ##
+                        subgroup,
+                        subgroup.name = object$subgroup.name,
+                        print.subgroup.name = object$print.subgroup.name,
+                        sep.subgroup = object$sep.subgroup,
+                        test.subgroup = object$test.subgroup,
                         byvar,
-                        bylab = object$bylab,
-                        print.byvar = object$print.byvar,
-                        byseparator = object$byseparator,
+                        ##
                         print.CMH = object$print.CMH,
                         keepdata = TRUE,
                         ##
@@ -308,7 +319,7 @@ update.meta <- function(object,
                         type = object$type,
                         n.iter.max = object$n.iter.max,
                         ##
-                        warn = FALSE,
+                        warn = FALSE, warn.deprecated = gs("warn.deprecated"),
                         ##
                         control = object$control,
                         ...) {
@@ -329,76 +340,33 @@ update.meta <- function(object,
   metamean <- inherits(object, "metamean")
   metaprop <- inherits(object, "metaprop")
   metarate <- inherits(object, "metarate")
-  
-  
   ##
+  if (is.null(object$version))
+    meta.version <- 0.1
+  else
+    meta.version <- as.numeric(unlist(strsplit(object$version, "-"))[1])
   ##
-  ## (2) Replace missing arguments with defaults
-  ##
-  ##
-  replacemiss <- function(x, replace) {
+  if (meta.version < 5.0) {
     ##
-    xnam <- deparse(substitute(x))
+    ## Changes for meta objects with version < 5.0
     ##
-    if (is.null(x))
-      if (missing(replace))
-        res <- gs(xnam)
-      else
-        res <- replace
-    else
-      res <- x
+    object$fixed <- object$comb.fixed
+    object$random <- object$comb.random
+    object$level.ma <- object$level.comb
     ##
-    res
+    if (!is.null(object$byvar)) {
+      object$data$.subgroup <- object$byvar
+      object$subgroup.name <- object$bylab
+      object$print.subgroup.name <- object$print.byvar
+      object$sep.subgroup <- object$byseparator
+    }
   }
+  
+  
   ##
-  comb.fixed <- replacemiss(comb.fixed)
-  comb.random <- replacemiss(comb.random)
-  overall <- replaceNULL(overall, comb.fixed | comb.random)
-  overall.hetstat <- replaceNULL(overall.hetstat, comb.fixed | comb.random)
   ##
-  RR.Cochrane <- replacemiss(RR.Cochrane, object$RR.cochrane)
-  Q.Cochrane <- replacemiss(Q.Cochrane, TRUE)
-  if (method != "MH" |
-      method.tau != "DL" |
-      !(sm %in% c("OR", "RR", "RD", "DOR")))
-    Q.Cochrane <- FALSE
+  ## (2) Check arguments
   ##
-  model.glmm <- replacemiss(model.glmm)
-  ##
-  level <- replacemiss(level)
-  level.comb <- replacemiss(level.comb)
-  ##
-  hakn <- replacemiss(hakn)
-  adhoc.hakn <- replacemiss(adhoc.hakn)
-  method.tau <- replacemiss(method.tau)
-  method.tau.ci <- replacemiss(method.tau.ci, "")
-  tau.preset <- replacemiss(tau.preset, NULL)
-  TE.tau <- replacemiss(TE.tau, NULL)
-  null.effect <- replacemiss(null.effect, NA)
-  method.bias <- replacemiss(method.bias)
-  ##
-  backtransf <- replacemiss(backtransf)
-  label.left <- replacemiss(label.left)
-  label.right <- replacemiss(label.right)
-  ##
-  tau.common <- replacemiss(tau.common)
-  level.predict <- replacemiss(level.predict)
-  prediction <- replacemiss(prediction)
-  ##
-  pscale  <- replacemiss(pscale, 1)
-  irscale <- replacemiss(irscale, 1)
-  irunit   <- replacemiss(irunit, 1)
-  ##
-  title <- replacemiss(title)
-  complab <- replacemiss(complab)
-  outclab <- replacemiss(outclab, "")
-  label.e <- replacemiss(label.e)
-  label.c <- replacemiss(label.c)
-  ##
-  print.byvar <- replacemiss(print.byvar)
-  byseparator <- replacemiss(byseparator)
-  ##
-  warn <- replacemiss(warn)
   ##
   if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
@@ -408,6 +376,48 @@ update.meta <- function(object,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  ##
+  ## Check for deprecated arguments in '...'
+  ##
+  args  <- list(...)
+  chklogical(warn.deprecated)
+  ##
+  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+                         warn.deprecated)
+  chklevel(level.ma)
+  ##
+  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
+                      warn.deprecated)
+  chklogical(fixed)
+  ##
+  random <- deprecated(random, missing(random), args, "comb.random",
+                       warn.deprecated)
+  chklogical(random)
+  ##
+  missing.subgroup.name <- missing(subgroup.name)
+  subgroup.name <-
+    deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
+               warn.deprecated)
+  ##
+  print.subgroup.name <-
+    deprecated(print.subgroup.name, missing(print.subgroup.name),
+               args, "print.byvar", warn.deprecated)
+  chklogical(print.subgroup.name)
+  ##
+  sep.subgroup <-
+    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+               warn.deprecated)
+  if (!is.null(sep.subgroup))
+    chkchar(sep.subgroup, length = 1)
+  ##
+  test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
+  ##
+  ## Some more checks
+  ##
+  overall <- replaceNULL(overall, fixed | random)
+  overall.hetstat <- replaceNULL(overall.hetstat, fixed | random)
+  chklogical(overall)
+  chklogical(overall.hetstat)
   
   
   ##
@@ -442,8 +452,8 @@ update.meta <- function(object,
     res <- trimfill(object,
                     left = left, ma.fixed = ma.fixed,
                     type = type, n.iter.max = n.iter.max,
-                    level = level, level.comb = level.comb,
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    level = level, level.ma = level.ma,
+                    fixed = fixed, random = random,
                     hakn = hakn, adhoc.hakn = adhoc.hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     prediction = prediction, level.predict = level.predict,
@@ -467,8 +477,8 @@ update.meta <- function(object,
     ##
     res <- object
     ##
-    res$comb.fixed <- ifelse(res$pooled == "fixed", TRUE, FALSE)
-    res$comb.random <- ifelse(res$pooled == "random", TRUE, FALSE)
+    res$fixed <- ifelse(res$pooled == "fixed", TRUE, FALSE)
+    res$random <- ifelse(res$pooled == "random", TRUE, FALSE)
     ##
     res$call.object <- object$call
     res$call <- match.call()
@@ -483,8 +493,7 @@ update.meta <- function(object,
   ## (5) Prepare older meta object
   ##
   ##
-  if (!(!is.null(object$version) &&
-        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 3.2)) {
+  if (meta.version < 3.2) {
     ##
     ## Changes for meta objects with version < 3.2
     ##
@@ -529,8 +538,7 @@ update.meta <- function(object,
     }
   }
   ##
-  if (!(!is.null(object$version) &&
-        as.numeric(unlist(strsplit(object$version, "-"))[1]) >= 4.8)) {
+  if (meta.version < 4.8) {
     ##
     ## Changes for meta objects with version < 4.8
     ##
@@ -620,30 +628,38 @@ update.meta <- function(object,
       incr <- gs("incr")
   }
   ##
-  ## Catch argument 'byvar'
+  ## Catch argument 'subgroup'
   ##
+  missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
   ##
-  if (!missing.byvar) {
+  if (!missing.subgroup | !missing.byvar) {
+    subgroup <- eval(mf[[match("subgroup", names(mf))]],
+                     data, enclos = sys.frame(sys.parent()))
     byvar <- eval(mf[[match("byvar", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
+    subgroup <-
+      deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                  warn.deprecated)
     ##
-    byvar.name <- as.character(mf[[match("byvar", names(mf))]])
-    if (length(byvar.name) > 1 & byvar.name[1] == "$")
-      byvar.name <- byvar.name[length(byvar.name)]
-    if (length(byvar.name) > 1)
-      byvar.name <- "byvar"
-    ##
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
-    ##
-    data$.byvar <- byvar
+    data$.subgroup <- subgroup
   }
-  else if (isCol(object$data, ".byvar"))
-    byvar <- object$data$.byvar
+  else if (isCol(object$data, ".subgroup"))
+    subgroup <- object$data$.subgroup
   else
-    byvar <- NULL
+    subgroup <- NULL
+  ##
+  if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (!missing.subgroup)
+      subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+    else if (!missing.byvar)
+      subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+  }
   ##
   missing.sm <- missing(sm)
+  ##
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
   
   
   ##
@@ -676,6 +692,18 @@ update.meta <- function(object,
       object$data$.incr <- 0
     }
     ##
+    if (method == "GLMM") {
+      sm <- "OR"
+      method.tau <- "ML"
+    }
+    ##
+    RR.Cochrane <- replaceNULL(object$RR.Cochrane, gs("RR.cochrane"))
+    ##
+    if (method != "MH" |
+        method.tau != "DL" |
+        !(sm %in% c("OR", "RR", "RD", "DOR")))
+      Q.Cochrane <- FALSE
+    ##
     m <- metabin(event.e = object$data$.event.e,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
@@ -687,19 +715,19 @@ update.meta <- function(object,
                  data = data, subset = subset,
                  ##
                  method = method,
-                 sm = ifelse(method == "GLMM", "OR", sm),
+                 sm = sm,
                  incr = incr,
                  allincr = allincr, addincr = addincr,
                  allstudies = allstudies,
                  MH.exact = MH.exact, RR.Cochrane = RR.Cochrane,
                  Q.Cochrane = Q.Cochrane, model.glmm = model.glmm,
                  ##
-                 level = level, level.comb = level.comb,
-                 comb.fixed = comb.fixed, comb.random = comb.random,
+                 level = level, level.ma = level.ma,
+                 fixed = fixed, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
-                 method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                 method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -718,18 +746,22 @@ update.meta <- function(object,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
                  ##
-                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                 byseparator = byseparator,
+                 subgroup = subgroup, subgroup.name = subgroup.name,
+                 print.subgroup.name = print.subgroup.name,
+                 sep.subgroup = sep.subgroup,
+                 test.subgroup = test.subgroup,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
-                 warn = warn,
+                 warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control,
                  ...)
   }
   ##
-  if (metacont)
+  if (metacont) {
+    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
+    ##
     m <- metacont(n.e = object$data$.n.e,
                   mean.e = object$data$.mean.e,
                   sd.e = object$data$.sd.e,
@@ -747,10 +779,9 @@ update.meta <- function(object,
                   method.smd = method.smd, sd.glass = sd.glass,
                   exact.smd = exact.smd,
                   ##
-                  method.ci = ifelse(is.null(method.ci), gs("method.ci.cont"),
-                                     method.ci),
-                  level = level, level.comb = level.comb,
-                  comb.fixed = comb.fixed, comb.random = comb.random,
+                  method.ci = method.ci,
+                  level = level, level.ma = level.ma,
+                  fixed = fixed, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -770,13 +801,16 @@ update.meta <- function(object,
                   label.e = label.e, label.c = label.c,
                   label.right = label.right, label.left = label.left,
                   ##
-                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                  byseparator = byseparator,
+                  subgroup = subgroup, subgroup.name = subgroup.name,
+                  print.subgroup.name = print.subgroup.name,
+                  sep.subgroup = sep.subgroup,
+                  test.subgroup = test.subgroup,
                   ##
                   keepdata = keepdata,
-                  warn = warn,
+                  warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
+  }
   ##
   if (metacor)
     m <- metacor(cor = object$data$.cor,
@@ -789,8 +823,8 @@ update.meta <- function(object,
                  ##
                  sm = sm,
                  ##
-                 level = level, level.comb = level.comb,
-                 comb.fixed = comb.fixed, comb.random = comb.random,
+                 level = level, level.ma = level.ma,
+                 fixed = fixed, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -811,10 +845,13 @@ update.meta <- function(object,
                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
-                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                 byseparator = byseparator,
+                 subgroup = subgroup, subgroup.name = subgroup.name,
+                 print.subgroup.name = print.subgroup.name,
+                 sep.subgroup = sep.subgroup,
+                 test.subgroup = test.subgroup,
                  ##
                  keepdata = keepdata,
+                 warn.deprecated = FALSE,
                  ##
                  control = control)
   ##
@@ -843,8 +880,8 @@ update.meta <- function(object,
                  ##
                  sm = sm,
                  ##
-                 level = level, level.comb = level.comb,
-                 comb.fixed = comb.fixed, comb.random = comb.random,
+                 level = level, level.ma = level.ma,
+                 fixed = fixed, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -868,11 +905,13 @@ update.meta <- function(object,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
                  ##
-                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                 byseparator = byseparator,
+                 subgroup = subgroup, subgroup.name = subgroup.name,
+                 print.subgroup.name = print.subgroup.name,
+                 sep.subgroup = sep.subgroup,
+                 test.subgroup = test.subgroup,
                  ##
                  keepdata = keepdata,
-                 warn = warn,
+                 warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control)
     if (add.e)
@@ -903,6 +942,11 @@ update.meta <- function(object,
       data.m <- data.m[, names(data.m) != "n.c"]
     }
     ##
+    if (method == "GLMM") {
+      sm <- "IRR"
+      method.tau <- "ML"
+    }
+    ##
     m <- metainc(event.e = object$data$.event.e,
                  time.e = object$data$.time.e,
                  event.c = object$data$.event.c,
@@ -914,17 +958,17 @@ update.meta <- function(object,
                  data = data, subset = subset,
                  ##
                  method = method,
-                 sm = ifelse(method == "GLMM", "IRR", sm),
+                 sm = sm,
                  incr = incr,
                  allincr = allincr, addincr = addincr,
                  model.glmm = model.glmm,
                  ##
-                 level = level, level.comb = level.comb,
-                 comb.fixed = comb.fixed, comb.random = comb.random,
+                 level = level, level.ma = level.ma,
+                 fixed = fixed, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
-                 method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                 method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -945,11 +989,13 @@ update.meta <- function(object,
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
                  ##
-                 byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                 byseparator = byseparator,
+                 subgroup = subgroup, subgroup.name = subgroup.name,
+                 print.subgroup.name = print.subgroup.name,
+                 sep.subgroup = sep.subgroup,
+                 test.subgroup = test.subgroup,
                  ##
                  keepdata = keepdata,
-                 warn = warn,
+                 warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control,
                  ...)
@@ -961,7 +1007,9 @@ update.meta <- function(object,
       m$data <- m$data[, names(data)]
   }
   ##
-  if (metamean)
+  if (metamean) {
+    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
+    ##
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
@@ -973,10 +1021,9 @@ update.meta <- function(object,
                   ##
                   sm = sm,
                   ##
-                  method.ci = ifelse(is.null(method.ci), gs("method.ci.cont"),
-                                     method.ci),
-                  level = level, level.comb = level.comb,
-                  comb.fixed = comb.fixed, comb.random = comb.random,
+                  method.ci = method.ci,
+                  level = level, level.ma = level.ma,
+                  fixed = fixed, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -998,13 +1045,16 @@ update.meta <- function(object,
                   ##
                   title = title, complab = complab, outclab = outclab,
                   ##
-                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                  byseparator = byseparator,
+                  subgroup = subgroup, subgroup.name = subgroup.name,
+                  print.subgroup.name = print.subgroup.name,
+                  sep.subgroup = sep.subgroup,
+                  test.subgroup = test.subgroup,
                   ##
                   keepdata = keepdata,
-                  warn = warn,
+                  warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
+  }
   ##
   if (metaprop) {
     sm <- setchar(sm, .settings$sm4prop)
@@ -1012,6 +1062,13 @@ update.meta <- function(object,
     ##
     if (method == "GLMM" & !missing.sm & sm != "PLOGIT")
       warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
+    ##
+    if (method == "GLMM") {
+      sm <- "PLOGIT"
+      method.tau <- "ML"
+    }
+    ##
+    method.ci <- replaceNULL(method.ci, gs("method.ci.prop"))
     ##
     m <- metaprop(event = object$data$.event,
                   n = object$data$.n,
@@ -1021,18 +1078,17 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, method = method,
                   ##
-                  sm = ifelse(method == "GLMM", "PLOGIT", sm),
+                  sm = sm,
                   incr = incr,
                   allincr = allincr, addincr = addincr,
                   ##
-                  method.ci = ifelse(is.null(method.ci), gs("method.ci.prop"),
-                                     method.ci),
-                  level = level, level.comb = level.comb,
-                  comb.fixed = comb.fixed, comb.random = comb.random,
+                  method.ci = method.ci,
+                  level = level, level.ma = level.ma,
+                  fixed = fixed, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
-                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                  method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1050,11 +1106,13 @@ update.meta <- function(object,
                   text.w.fixed = text.w.fixed, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                  byseparator = byseparator,
+                  subgroup = subgroup, subgroup.name = subgroup.name,
+                  print.subgroup.name = print.subgroup.name,
+                  sep.subgroup = sep.subgroup,
+                  test.subgroup = test.subgroup,
                   ##
                   keepdata = keepdata,
-                  warn = warn,
+                  warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control,
                   ...)
@@ -1067,6 +1125,11 @@ update.meta <- function(object,
     if (method == "GLMM" & !missing.sm & sm != "IRLN")
       warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")
     ##
+    if (method == "GLMM") {
+      sm <- "IRLN"
+      method.tau <- "ML"
+    }
+    ##
     m <- metarate(event = object$data$.event,
                   time = object$data$.time,
                   ##
@@ -1075,16 +1138,16 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, method = method,
                   ##
-                  sm = ifelse(method == "GLMM", "IRLN", sm),
+                  sm = sm,
                   incr = incr,
                   allincr = allincr, addincr = addincr,
                   ##
-                  level = level, level.comb = level.comb,
-                  comb.fixed = comb.fixed, comb.random = comb.random,
+                  level = level, level.ma = level.ma,
+                  fixed = fixed, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
-                  method.tau = ifelse(method == "GLMM", "ML", method.tau),
+                  method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1102,11 +1165,13 @@ update.meta <- function(object,
                   text.w.fixed = text.w.fixed, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  byvar = byvar, bylab = bylab, print.byvar = print.byvar,
-                  byseparator = byseparator,
+                  subgroup = subgroup, subgroup.name = subgroup.name,
+                  print.subgroup.name = print.subgroup.name,
+                  sep.subgroup = sep.subgroup,
+                  test.subgroup = test.subgroup,
                   ##
                   keepdata = keepdata,
-                  warn = warn,
+                  warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control,
                   ...)

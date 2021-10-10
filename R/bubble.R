@@ -107,7 +107,6 @@
 #' @rdname bubble.metareg
 #' @method bubble metareg
 #' @export
-#' @export bubble.metareg
 
 
 bubble.metareg <- function(x,
@@ -188,13 +187,13 @@ bubble.metareg <- function(x,
   ##
   nointrcpt <- ifelse("intrcpt" %in% covar.names, FALSE, TRUE)
   ##
-  if (covar.name == ".byvar")
-    covar.name <- x$.meta$x$bylab
+  if (covar.name == ".subgroup")
+    covar.name <- x$.meta$x$subgroup.name
   ##
   if (covar.name %in% names(x$.meta$x$data))
     covar <- x$.meta$x$data[[covar.name]]
-  else if (".byvar" %in% names(x$.meta$x$data))
-    covar <- x$.meta$x$data[[".byvar"]]
+  else if (".subgroup" %in% names(x$.meta$x$data))
+    covar <- x$.meta$x$data[[".subgroup"]]
   else
     covar <- get(covar.name)
   ##
@@ -224,7 +223,7 @@ bubble.metareg <- function(x,
   if (covar.name %in% names(coef(x)))
     beta <- coef(x)[covar.name]
   else
-    beta <- coef(x)[".byvar"]
+    beta <- coef(x)[".subgroup"]
   ##
   if (length(covar.names.without.intrcpt) > 1 & !is.factor(covar)) {
     warning(paste0("Only first covariate in meta-regression ",

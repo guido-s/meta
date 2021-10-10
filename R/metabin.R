@@ -65,11 +65,11 @@
 #'   and \code{"CM.AL"}, see Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.comb The level used to calculate confidence intervals
-#'   for pooled estimates.
-#' @param comb.fixed A logical indicating whether a fixed effect
-#'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param fixed A logical indicating whether a fixed effect / common
+#'   effect meta-analysis should be conducted.
+#' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param overall A logical indicating whether overall summaries
 #'   should be reported. This argument is useful in a meta-analysis
@@ -134,16 +134,18 @@
 #' @param label.c Label for control group.
 #' @param label.left Graph label on left side of forest plot.
 #' @param label.right Graph label on right side of forest plot.
-#' @param byvar An optional vector containing grouping information
-#'   (must be of same length as \code{event.e}).
-#' @param bylab A character string with a label for the grouping
-#'   variable.
-#' @param print.byvar A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
-#' @param byseparator A character string defining the separator
-#'   between label and levels of grouping variable.
+#' @param subgroup An optional vector to conduct a meta-analysis with
+#'   subgroups.
+#' @param subgroup.name A character string with a name for the
+#'   subgroup variable.
+#' @param print.subgroup.name A logical indicating whether the name of
+#'   the subgroup variable should be printed in front of the group
+#'   labels.
+#' @param sep.subgroup A character string defining the separator
+#'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
 #'   printed.
@@ -152,6 +154,8 @@
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
@@ -187,9 +191,9 @@
 #' 
 #' \subsection{Meta-analysis method}{
 #' 
-#' By default, both fixed effect and random effects models are
-#' considered (see arguments \code{comb.fixed} and
-#' \code{comb.random}). If \code{method} is \code{"MH"} (default), the
+#' By default, both fixed effect (also called common effect) and
+#' random effects models are considered (see arguments \code{fixed}
+#' and \code{random}). If \code{method} is \code{"MH"} (default), the
 #' Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
 #' 1986) is used to calculate the fixed effect estimate; if
 #' \code{method} is \code{"Inverse"}, inverse variance weighting is
@@ -371,7 +375,7 @@
 #' 
 #' A prediction interval for the proportion in a new study (Higgins et
 #' al., 2009) is calculated if arguments \code{prediction} and
-#' \code{comb.random} are \code{TRUE}. Note, the definition of
+#' \code{random} are \code{TRUE}. Note, the definition of
 #' prediction intervals varies in the literature. This function
 #' implements equation (12) of Higgins et al., (2009) which proposed a
 #' \emph{t} distribution with \emph{K-2} degrees of freedom where
@@ -380,7 +384,7 @@
 #'
 #' \subsection{Subgroup analysis}{
 #' 
-#' Argument \code{byvar} can be used to conduct subgroup analysis for
+#' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
@@ -400,14 +404,14 @@
 #' 
 #' Internally, both fixed effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+#' \code{fixed} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
-#' argument \code{comb.random = FALSE}. However, all functions in R
+#' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{comb.fixed} and \code{comb.random}. E.g. function
+#' \code{fixed} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
-#' effects model if \code{comb.random = FALSE}.
+#' effects model if \code{random = FALSE}.
 #' }
 #' 
 #' @return
@@ -420,7 +424,7 @@
 #' \item{sm, method, incr, allincr, addincr,}{As defined above.}
 #' \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
 #'   defined above.}
-#' \item{warn, level, level.comb, comb.fixed, comb.random,}{As defined
+#' \item{warn, level, level.ma, fixed, random,}{As defined
 #'   above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -428,7 +432,8 @@
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
 #'   above.}
-#' \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
+#' \item{subgroup, subgroup.name,}{As defined above.}
+#' \item{print.subgroup.name, sep.subgroup, warn,}{As defined above.}
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   individual studies.}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
@@ -496,81 +501,81 @@
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
 #' \item{k.MH}{Number of studies combined in meta-analysis using
 #'   Mantel-Haenszel method.}
-#' \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
+#' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
 #' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
 #'   standard error in subgroups (fixed effect model) - if
-#'   \code{byvar} is not missing.}  \item{lower.fixed.w,
+#'   \code{subgroup} is not missing.}  \item{lower.fixed.w,
 #'   upper.fixed.w}{Lower and upper confidence interval limits in
-#'   subgroups (fixed effect model) - if \code{byvar} is not missing.}
+#'   subgroups (fixed effect model) - if \code{subgroup} is not missing.}
 #' \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
 #'   of treatment effect in subgroups (fixed effect model) - if
-#'   \code{byvar} is not missing.}  \item{TE.random.w,
+#'   \code{subgroup} is not missing.}  \item{TE.random.w,
 #'   seTE.random.w}{Estimated treatment effect and standard error in
-#'   subgroups (random effects model) - if \code{byvar} is not
+#'   subgroups (random effects model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{lower.random.w, upper.random.w}{Lower and upper confidence
 #'   interval limits in subgroups (random effects model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{statistic.random.w, pval.random.w}{z-value or t-value and
 #'   corresponding p-value for test of treatment effect in subgroups
-#'   (random effects model) - if \code{byvar} is not missing.}
+#'   (random effects model) - if \code{subgroup} is not missing.}
 #' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-#'   random effects model) - if \code{byvar} is not missing.}
+#'   random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
-#'   for Hartung-Knapp method in subgroups - if \code{byvar} is not
+#'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
 #'   missing and \code{hakn = TRUE}.}
 #' \item{event.e.w}{Number of events in experimental group in
-#'   subgroups - if \code{byvar} is not missing.}
+#'   subgroups - if \code{subgroup} is not missing.}
 #' \item{n.e.w}{Number of observations in experimental group in
-#'   subgroups - if \code{byvar} is not missing.}
+#'   subgroups - if \code{subgroup} is not missing.}
 #' \item{event.c.w}{Number of events in control group in subgroups -
-#'   if \code{byvar} is not missing.}
+#'   if \code{subgroup} is not missing.}
 #' \item{n.c.w}{Number of observations in control group in subgroups -
-#'   if \code{byvar} is not missing.}
+#'   if \code{subgroup} is not missing.}
 #' \item{k.w}{Number of studies combined within subgroups - if
-#'   \code{byvar} is not missing.}
-#' \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+#'   \code{subgroup} is not missing.}
+#' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
 #' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-#'   (based on fixed effect model) - if \code{byvar} is not missing.}
+#'   (based on fixed effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{byvar} is not
+#'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
-#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{byvar} is
+#'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-#'   Q (based on fixed effect model) - if \code{byvar} is not
+#'   Q (based on fixed effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{byvar} is not
+#'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
-#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{byvar} is
+#'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{tau.w}{Square-root of between-study variance
-#'   within subgroups - if \code{byvar} is not missing.}
+#'   within subgroups - if \code{subgroup} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic H within subgroups - if \code{byvar} is
+#'   heterogeneity statistic H within subgroups - if \code{subgroup} is
 #'   not missing.}
 #' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
 #'   heterogeneity statistic I\eqn{^2} within subgroups - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{keepdata}{As defined above.}
 #' \item{data}{Original data (set) used in function call (if
 #'   \code{keepdata = TRUE}).}
@@ -729,6 +734,8 @@
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'               data = Olkin1995, subset = c(41, 47, 51, 59),
 #'               method = "Inverse")
+#' m1
+#' # Show results for individual studies
 #' summary(m1)
 #' 
 #' # Use different subset of Olkin (1995)
@@ -736,7 +743,7 @@
 #' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'               data = Olkin1995, subset = year < 1970,
 #'               method = "Inverse", studlab = author)
-#' summary(m2)
+#' m2
 #' forest(m2)
 #' 
 #' # Meta-analysis with odds ratio as summary measure
@@ -746,19 +753,19 @@
 #'               sm = "OR", method = "Inverse", studlab = author)
 #' # Same meta-analysis result using 'update.meta' function
 #' m3 <- update(m2, sm = "OR")
-#' summary(m3)
+#' m3
 #' 
 #' # Meta-analysis based on Mantel-Haenszel method (with odds ratio as
 #' # summary measure)
 #' #
 #' m4 <- update(m3, method = "MH")
-#' summary(m4)
+#' m4
 #' 
 #' # Meta-analysis based on Peto method (only available for odds ratio
 #' # as summary measure)
 #' #
 #' m5 <- update(m3, method = "Peto")
-#' summary(m5)
+#' m5
 #' 
 #' \dontrun{
 #' # Meta-analysis using generalised linear mixed models (only if R
@@ -775,7 +782,7 @@
 #'               method = "GLMM")
 #' # Same results:
 #' m6 <- update(m2, method = "GLMM")
-#' summary(m6)
+#' m6
 #' 
 #' # Mixed-effects logistic regression model with random study effects
 #' # (warning message printed due to argument 'nAGQ')
@@ -786,33 +793,33 @@
 #' # function
 #' #
 #' m7 <- update(m6, model.glmm = "UM.RS", nAGQ = 1)
-#' summary(m7)
+#' m7
 #' 
 #' # Generalised linear mixed model (conditional
 #' # Hypergeometric-Normal) (R package 'BiasedUrn' must be available)
 #' #
 #' if (require(BiasedUrn, quietly = TRUE)) {
 #'  m8 <- update(m6, model.glmm = "CM.EL")
-#'  summary(m8)
+#'  m8
 #' }
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' #
 #' m9 <- update(m6, model.glmm = "CM.AL")
-#' summary(m9)
+#' m9
 #' 
 #' # Logistic regression model with (k = 70) fixed study effects
 #' # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #' #
 #' m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'                data = Olkin1995, method = "GLMM")
-#' summary(m10)
+#' m10
 #' 
 #' # Mixed-effects logistic regression model with random study effects
 #' # - about 50 seconds with Intel Core i7-3667U, 2.0GHz
 #' # - several warning messages, e.g. "failure to converge, ..."
 #' #
-#' summary(update(m10, model.glmm = "UM.RS"))
+#' update(m10, model.glmm = "UM.RS")
 #' 
 #' # Conditional Hypergeometric-Normal GLMM
 #' # - long computation time (about 12 minutes with Intel Core
@@ -824,13 +831,13 @@
 #' #
 #' if (require(BiasedUrn, quietly = TRUE)) {
 #'  system.time(m11 <- update(m10, model.glmm = "CM.EL"))
-#'  summary(m11)
+#'  m11
 #' }
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' # (less than 1 second with Intel Core i7-3667U, 2.0GHz)
 #' #
-#' summary(update(m10, model.glmm = "CM.AL"))
+#' update(m10, model.glmm = "CM.AL")
 #' }
 #' }
 #' 
@@ -853,13 +860,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     MH.exact = gs("MH.exact"), RR.Cochrane = gs("RR.Cochrane"),
                     Q.Cochrane =
                       gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
-                    model.glmm = "UM.FS",
+                    model.glmm = gs("model.glmm"),
                     ##
-                    level = gs("level"), level.comb = gs("level.comb"),
-                    comb.fixed = gs("comb.fixed"),
-                    comb.random = gs("comb.random"),
-                    overall = comb.fixed | comb.random,
-                    overall.hetstat = comb.fixed | comb.random,
+                    level = gs("level"), level.ma = gs("level.ma"),
+                    fixed = gs("fixed"),
+                    random = gs("random") | !is.null(tau.preset),
+                    overall = fixed | random,
+                    overall.hetstat = fixed | random,
                     ##
                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau =
@@ -892,14 +899,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     label.left = gs("label.left"),
                     label.right = gs("label.right"),
                     ##
-                    byvar, bylab, print.byvar = gs("print.byvar"),
-                    byseparator = gs("byseparator"),
+                    subgroup, subgroup.name = NULL,
+                    print.subgroup.name = gs("print.subgroup.name"),
+                    sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    byvar,
                     ##
                     print.CMH = gs("print.CMH"),
                     ##
                     keepdata = gs("keepdata"),
-                    warn = gs("warn"),
+                    warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
                     ##
                     control = NULL,
                     ...
@@ -920,11 +929,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   metafor <- sm %in% sm.metafor
   ##
   chklevel(level)
-  chklevel(level.comb)
-  chklogical(comb.fixed)
-  chklogical(comb.random)
-  chklogical(overall)
-  chklogical(overall.hetstat)
   ##
   chklogical(hakn)
   missing.adhoc.hakn <- missing(adhoc.hakn)
@@ -977,7 +981,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(addincr)
   chklogical(allstudies)
   chklogical(MH.exact)
-  chklogical(RR.Cochrane)
   chklogical(Q.Cochrane)
   if (Q.Cochrane & (method != "MH" | method.tau != "DL")) {
     warning("Argument 'Q.Cochrane' only considered for ",
@@ -986,7 +989,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     Q.Cochrane <- FALSE
   }
   ##
-  model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+  if (length(model.glmm) == 0)
+    model.glmm <- gs("model.glmm")
+  model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL", ""))
   if (is.glmm & model.glmm == "CM.EL")
     is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
@@ -1026,23 +1031,46 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Check for deprecated arguments in '...'
   ##
   args  <- list(...)
-  ## Check whether first argument is a list. In this case only use
-  ## this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
+  chklogical(warn.deprecated)
   ##
-  additional.arguments <- names(args)
+  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+                         warn.deprecated)
+  chklevel(level.ma)
   ##
-  if (length(additional.arguments) > 0) {
-    if ("RR.cochrane" %in% additional.arguments)
-      if (!missing(RR.Cochrane))
-        warning("Argument 'RR.cochrane' ignored as both arguments ",
-                "'RR.Cochrane' and 'RR.cochrane' are provided.")
-      else {
-        RR.Cochrane <- args[["RR.cochrane"]]
-        chklogical(RR.Cochrane)
-      }
-  }
+  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
+                      warn.deprecated)
+  chklogical(fixed)
+  ##
+  random <- deprecated(random, missing(random), args, "comb.random",
+                       warn.deprecated)
+  chklogical(random)
+  ##
+  missing.subgroup.name <- missing(subgroup.name)
+  subgroup.name <-
+    deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
+               warn.deprecated)
+  ##
+  print.subgroup.name <-
+    deprecated(print.subgroup.name, missing(print.subgroup.name),
+               args, "print.byvar", warn.deprecated)
+  print.subgroup.name <- replaceNULL(print.subgroup.name, FALSE)
+  chklogical(print.subgroup.name)
+  ##
+  sep.subgroup <-
+    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+               warn.deprecated)
+  if (!is.null(sep.subgroup))
+    chkchar(sep.subgroup, length = 1)
+  ##
+  RR.Cochrane <-
+    deprecated(RR.Cochrane, missing(RR.Cochrane), args, "RR.cochrane",
+               warn.deprecated)
+  chklogical(RR.Cochrane)
+  ##
+  ## Some more checks
+  ##
+  chklogical(overall)
+  chklogical(overall.hetstat)
   
   
   ##
@@ -1101,15 +1129,22 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   ##
-  ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   studlab <- setstudlab(studlab, k.All)
   ##
+  missing.subgroup <- missing(subgroup)
+  subgroup <- eval(mf[[match("subgroup", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+  missing.byvar <- missing(byvar)
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
-  by <- !is.null(byvar)
+  ##
+  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                          warn.deprecated)
+  by <- !is.null(subgroup)
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -1118,8 +1153,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   exclude <- eval(mf[[match("exclude", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   missing.exclude <- is.null(exclude)
-
-
+  
+  
   ##
   ##
   ## (3) Check length of essential variables
@@ -1134,7 +1169,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chklength(incr, k.All, fun)
   ##
   if (by) {
-    chklength(byvar, k.All, fun)
+    chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
   }
   ##
@@ -1155,7 +1190,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   if (!by & tau.common) {
     if (warn)
-      warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
+      warning("Value for argument 'tau.common' set to FALSE as argument 'subgroup' is missing.")
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
@@ -1208,7 +1243,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     data$.incr <- incr
     ##
     if (by)
-      data$.byvar <- byvar
+      data$.subgroup <- subgroup
     ##
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
@@ -1242,7 +1277,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       incr <- incr[subset]
     ##
     if (by)
-      byvar <- byvar[subset]
+      subgroup <- subgroup[subset]
   }
   ##
   ## Determine total number of studies
@@ -1255,8 +1290,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    comb.fixed  <- FALSE
-    comb.random <- FALSE
+    fixed  <- FALSE
+    random <- FALSE
     prediction  <- FALSE
     overall <- FALSE
     overall.hetstat <- FALSE
@@ -1277,10 +1312,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.c     <- int2num(n.c)
   ##
   if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+    chkmiss(subgroup)
+    ##
+    if (missing.subgroup.name & is.null(subgroup.name)) {
+      if (!missing.subgroup)
+        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+      else if (!missing.byvar)
+        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+    }
   }
+  ##
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
   
   
   ##
@@ -1653,7 +1696,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
                              ci = event.c[!exclude], n2i = n.c[!exclude],
                              method = "FE", test = ifelse(hakn, "t", "z"),
-                             level = 100 * level.comb,
+                             level = 100 * level.ma,
                              measure = "OR", model = model.glmm,
                              control = control,
                              ...)
@@ -1682,9 +1725,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                ##
                sm = sm,
                level = level,
-               level.comb = level.comb,
-               comb.fixed = comb.fixed,
-               comb.random = comb.random,
+               level.ma = level.ma,
+               fixed = fixed,
+               random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                ##
@@ -1728,7 +1771,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (Q.Cochrane & method == "MH") TE.fixed else TE.tau,
-                   level.comb, byvar, control)
+                   level.ma, subgroup, control)
   }
   
   
@@ -1772,7 +1815,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (method %in% c("MH", "Peto", "GLMM", "SSW")) {
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.comb)
+    ci.f <- ci(TE.fixed, seTE.fixed, level = level.ma)
     ##
     res$TE.fixed <- TE.fixed
     res$seTE.fixed <- seTE.fixed
@@ -1791,7 +1834,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                               ci = event.c[!exclude], n2i = n.c[!exclude],
                               method = method.tau,
                               test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.comb,
+                              level = 100 * level.ma,
                               measure = "OR", model = model.glmm,
                               control = control,
                               ...)
@@ -1806,7 +1849,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE.random   <- as.numeric(glmm.random$b)
     seTE.random <- as.numeric(glmm.random$se)
     ##
-    ci.r <- ci(TE.random, seTE.random, level = level.comb,
+    ci.r <- ci(TE.random, seTE.random, level = level.ma,
                df = if (hakn) k - 1)
     ##
     res$w.random <- rep(NA, length(event.e))
@@ -1863,12 +1906,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$sign.lower.tau <- ""
     res$sign.upper.tau <- ""
     ##
-    H <- calcH(res$Q, res$df.Q, level.comb)
+    H <- calcH(res$Q, res$df.Q, level.ma)
     res$H <- H$TE
     res$lower.H <- H$lower
     res$upper.H <- H$upper
     ##
-    I2 <- isquared(res$Q, res$df.Q, level.comb)
+    I2 <- isquared(res$Q, res$df.Q, level.ma)
     res$I2 <- I2$TE
     res$lower.I2 <- I2$lower
     res$upper.I2 <- I2$upper
@@ -1882,9 +1925,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$version.metafor <- packageDescription("metafor")$Version
     ##
     if (by) {
-      n.by <- length(unique(byvar[!exclude]))
+      n.by <- length(unique(subgroup[!exclude]))
       if (n.by > 1)
-        byvar.glmm <- factor(byvar[!exclude], bylevs(byvar[!exclude]))
+        subgroup.glmm <- factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
       ##
       glmm.random.by <-
         try(suppressWarnings(rma.glmm(ai = event.e[!exclude],
@@ -1892,10 +1935,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                       ci = event.c[!exclude],
                                       n2i = n.c[!exclude],
                                       mods =
-                                        if (n.by > 1) ~ byvar.glmm else NULL,
+                                        if (n.by > 1) ~ subgroup.glmm else NULL,
                                       method = method.tau,
                                       test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.comb,
+                                      level = 100 * level.ma,
                                       measure = "OR", model = model.glmm,
                                       control = control,
                                       ...)),
@@ -1911,10 +1954,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                       ci = event.c[!exclude],
                                       n2i = n.c[!exclude],
                                       mods =
-                                        if (n.by > 1) ~ byvar.glmm else NULL,
+                                        if (n.by > 1) ~ subgroup.glmm else NULL,
                                       method = "FE",
                                       test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.comb,
+                                      level = 100 * level.ma,
                                       measure = "OR", model = model.glmm,
                                       control = control,
                                       ...))
@@ -1925,8 +1968,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       Q.r <- glmm.random.by$QE.Wld
       df.Q.r <- glmm.random.by$k - glmm.random.by$p
       ##
-      H.r  <- calcH(Q.r, df.Q.r, level.comb)
-      I2.r <- isquared(Q.r, df.Q.r, level.comb)
+      H.r  <- calcH(Q.r, df.Q.r, level.ma)
+      I2.r <- isquared(Q.r, df.Q.r, level.ma)
       ##
       hcc <- list(tau2.resid = glmm.random.by$tau2,
                   lower.tau2.resid = NA,
@@ -1954,9 +1997,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   else if (method == "SSW") {
     if (hakn)
-      ci.r <- ci(TE.random, seTE.random, level = level.comb, df = m$k - 1)
+      ci.r <- ci(TE.random, seTE.random, level = level.ma, df = m$k - 1)
     else
-      ci.r <- ci(TE.random, seTE.random, level = level.comb)
+      ci.r <- ci(TE.random, seTE.random, level = level.ma)
     ##
     res$TE.random <- TE.random
     res$seTE.random <- seTE.random
@@ -1979,10 +2022,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Add results from subgroup analysis
   ##
   if (by) {
-    res$byvar <- byvar
-    res$bylab <- bylab
-    res$print.byvar <- print.byvar
-    res$byseparator <- byseparator
+    res$subgroup <- subgroup
+    res$subgroup.name <- subgroup.name
+    res$print.subgroup.name <- print.subgroup.name
+    res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
     res$tau.common <- tau.common
     ##
@@ -1993,7 +2036,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     else {
       if (is.glmm)
         res <- c(res, subgroup(res, NULL,
-                               factor(res$byvar, bylevs(res$byvar)), ...))
+                               factor(res$subgroup, bylevs(res$subgroup)), ...))
       else
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
@@ -2040,8 +2083,21 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$time.c.w <- NULL
   }
   ##
+  ## Backward compatibility
+  ##
+  res$comb.fixed <- fixed
+  res$comb.random <- random
+  res$level.comb <- level.ma
+  ##
+  if (by) {
+    res$byvar <- subgroup
+    res$bylab <- subgroup.name
+    res$print.byvar <- print.subgroup.name
+    res$byseparator <- sep.subgroup
+  }
+  ##
   class(res) <- c(fun, "meta")
-
-
+  
+  
   res
 }

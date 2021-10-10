@@ -34,22 +34,22 @@
 #' #
 #' # Update meta-analysis object and do subgroup analyses
 #' #
-#' summary(update(m1, byvar = group))
+#' update(m1, subgroup = group)
 #' 
 #' # Same result using metacont function directly
 #' #
 #' m2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'                data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year), byvar = group)
-#' summary(m2)
+#'                studlab = paste(study, year), subgroup = group)
+#' m2
 #' 
 #' # Compare printout of the following two commands
 #' #
 #' as.data.frame(m1)
 #' m1$data
 #'
+#' @method as.data.frame meta
 #' @export
-#' @export as.data.frame.meta
 
 
 as.data.frame.meta <- function(x, row.names = NULL,
@@ -62,7 +62,6 @@ as.data.frame.meta <- function(x, row.names = NULL,
   ##
   ##
   chkclass(x, "meta")
-  x <- updateversion(x)
   
   
   ## Remove element 'call' from object of class meta to get rid

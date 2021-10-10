@@ -12,9 +12,9 @@
 #' @param sm Summary measure.
 #' @param lower Lower confidence interval limit.
 #' @param upper Upper confidence interval limit.
-#' @param comb.fixed A logical indicating whether NNTs should be
+#' @param fixed A logical indicating whether NNTs should be
 #'   calculated based on fixed effect estimate.
-#' @param comb.random A logical indicating whether NNTs should be
+#' @param random A logical indicating whether NNTs should be
 #'   calculated based on random effects estimate.
 #' @param digits Minimal number of significant digits, see
 #'   \code{print.default}.
@@ -67,8 +67,8 @@
 #' # Use Mantel-Haenszel odds ratio to calculate NNTs
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
-#'               comb.random = FALSE)
-#' nnt(m1, comb.random = TRUE)
+#'               random = FALSE)
+#' nnt(m1, random = TRUE)
 #' 
 #' @rdname nnt
 #' @export nnt
@@ -84,18 +84,19 @@ nnt <- function(x, ...)
 #' @rdname nnt
 #' @method nnt meta
 #' @export
-#' @export nnt.meta
 
 
 nnt.meta <- function(x, p.c,
-                     comb.fixed = x$comb.fixed,
-                     comb.random = x$comb.random, ...) {
+                     fixed = x$fixed,
+                     random = x$random, ...) {
   
   
   ##
   ## (1) Check for meta object and summary measure
   ##
   chkclass(x, "meta")
+  x <- updateversion(x)
+  ##
   if (!(x$sm %in% c("RD", "RR", "OR")))
     stop("Calculation of NNTs only possible for risk difference, ",
          "risk ratio, or odds ratio as summary measure (argument 'sm').")
@@ -122,8 +123,8 @@ nnt.meta <- function(x, p.c,
   ##
   ## (3) Check other arguments
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   
   
   ##
@@ -131,18 +132,18 @@ nnt.meta <- function(x, p.c,
   ##
   res <- list()
   ##
-  if (comb.fixed) {
-    res$fixed <- data.frame(p.c = p.c, NNT = NA,
-                            lower.NNT = NA, upper.NNT = NA)
+  if (fixed) {
+    res$nnt.fixed <- data.frame(p.c = p.c, NNT = NA,
+                                lower.NNT = NA, upper.NNT = NA)
     ##
     res$TE.fixed    <- x$TE.fixed
     res$lower.fixed <- x$lower.fixed
     res$upper.fixed <- x$upper.fixed
   }
   ##
-  if (comb.random) {
-    res$random <- data.frame(p.c = p.c, NNT = NA,
-                             lower.NNT = NA, upper.NNT = NA)
+  if (random) {
+    res$nnt.random <- data.frame(p.c = p.c, NNT = NA,
+                                 lower.NNT = NA, upper.NNT = NA)
     ##
     res$TE.random    <- x$TE.random
     res$lower.random <- x$lower.random
@@ -150,50 +151,50 @@ nnt.meta <- function(x, p.c,
   }
   ##
   if (x$sm == "RD") {
-    if (comb.fixed) {
-      res$fixed$NNT       <- -1 / res$TE.fixed
-      res$fixed$lower.NNT <- -1 / res$lower.fixed
-      res$fixed$upper.NNT <- -1 / res$upper.fixed
+    if (fixed) {
+      res$nnt.fixed$NNT       <- -1 / res$TE.fixed
+      res$nnt.fixed$lower.NNT <- -1 / res$lower.fixed
+      res$nnt.fixed$upper.NNT <- -1 / res$upper.fixed
     }
     ##
-    if (comb.random) {
-      res$random$NNT       <- -1 / res$TE.random
-      res$random$lower.NNT <- -1 / res$lower.random
-      res$random$upper.NNT <- -1 / res$upper.random
+    if (random) {
+      res$nnt.random$NNT       <- -1 / res$TE.random
+      res$nnt.random$lower.NNT <- -1 / res$lower.random
+      res$nnt.random$upper.NNT <- -1 / res$upper.random
     }
   }
   ##
   else if (x$sm == "RR") {
-    if (comb.fixed) {
-      res$fixed$NNT       <- logRR2NNT(res$TE.fixed, p.c)
-      res$fixed$lower.NNT <- logRR2NNT(res$lower.fixed, p.c)
-      res$fixed$upper.NNT <- logRR2NNT(res$upper.fixed, p.c)
+    if (fixed) {
+      res$nnt.fixed$NNT       <- logRR2NNT(res$TE.fixed, p.c)
+      res$nnt.fixed$lower.NNT <- logRR2NNT(res$lower.fixed, p.c)
+      res$nnt.fixed$upper.NNT <- logRR2NNT(res$upper.fixed, p.c)
     }
     ##
-    if (comb.random) {
-      res$random$NNT       <- logRR2NNT(res$TE.random, p.c)
-      res$random$lower.NNT <- logRR2NNT(res$lower.random, p.c)
-      res$random$upper.NNT <- logRR2NNT(res$upper.random, p.c)
+    if (random) {
+      res$nnt.random$NNT       <- logRR2NNT(res$TE.random, p.c)
+      res$nnt.random$lower.NNT <- logRR2NNT(res$lower.random, p.c)
+      res$nnt.random$upper.NNT <- logRR2NNT(res$upper.random, p.c)
     }
   }
   ##
   else if (x$sm == "OR") {
-    if (comb.fixed) {
-      res$fixed$NNT       <- logOR2NNT(res$TE.fixed, p.c)
-      res$fixed$lower.NNT <- logOR2NNT(res$lower.fixed, p.c)
-      res$fixed$upper.NNT <- logOR2NNT(res$upper.fixed, p.c)
+    if (fixed) {
+      res$nnt.fixed$NNT       <- logOR2NNT(res$TE.fixed, p.c)
+      res$nnt.fixed$lower.NNT <- logOR2NNT(res$lower.fixed, p.c)
+      res$nnt.fixed$upper.NNT <- logOR2NNT(res$upper.fixed, p.c)
     }
     ##
-    if (comb.random) {
-      res$random$NNT       <- logOR2NNT(res$TE.random, p.c)
-      res$random$lower.NNT <- logOR2NNT(res$lower.random, p.c)
-      res$random$upper.NNT <- logOR2NNT(res$upper.random, p.c)
+    if (random) {
+      res$nnt.random$NNT       <- logOR2NNT(res$TE.random, p.c)
+      res$nnt.random$lower.NNT <- logOR2NNT(res$lower.random, p.c)
+      res$nnt.random$upper.NNT <- logOR2NNT(res$upper.random, p.c)
     }
   }
   ##
   res$sm <- x$sm
-  res$comb.fixed <- comb.fixed
-  res$comb.random <- comb.random
+  res$fixed <- fixed
+  res$random <- random
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
@@ -211,7 +212,6 @@ nnt.meta <- function(x, p.c,
 #' @rdname nnt
 #' @method nnt default
 #' @export
-#' @export nnt.default
 
 
 nnt.default <- function(x, p.c, sm, lower, upper, ...) {
@@ -238,7 +238,7 @@ nnt.default <- function(x, p.c, sm, lower, upper, ...) {
   ##
   missing.lower <- missing(lower)
   if (!missing.lower)
-      chklength(lower, length(x), "nnt.default")
+    chklength(lower, length(x), "nnt.default")
   ##
   missing.upper <- missing(upper)
   if (!missing.upper)
@@ -254,7 +254,7 @@ nnt.default <- function(x, p.c, sm, lower, upper, ...) {
     ##
     if (bad)
       stop("Lengths of arguments 'x' and 'p.c' do not match.",
-             call. = FALSE)
+           call. = FALSE)
   }
   
   
@@ -314,15 +314,14 @@ nnt.default <- function(x, p.c, sm, lower, upper, ...) {
 #' @rdname nnt
 #' @method print nnt.meta
 #' @export
-#' @export print.nnt.meta
 
 
 print.nnt.meta <- function(x,
-                           comb.fixed = x$comb.fixed,
-                           comb.random = x$comb.random,
+                           fixed = x$fixed,
+                           random = x$random,
                            digits = gs("digits"),
                            digits.prop = gs("digits.prop"),
-                       big.mark = gs("big.mark"),
+                           big.mark = gs("big.mark"),
                            ...) {
   
   
@@ -335,49 +334,49 @@ print.nnt.meta <- function(x,
   ##
   ## (2) Check arguments
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
 
 
-  if (comb.fixed) {
-    cat("Fixed effect model: \n\n")
-    x$fixed$p.c <- formatN(round(x$fixed$p.c, digits.prop),
-                           digits.prop, big.mark = big.mark)
+  if (fixed) {
+    cat(paste0(gs("text.fixed"), ": \n\n"))
+    x$nnt.fixed$p.c <- formatN(round(x$nnt.fixed$p.c, digits.prop),
+                               digits.prop, big.mark = big.mark)
     ##
-    x$fixed$NNT <- formatN(round(x$fixed$NNT, digits),
-                           digits, big.mark = big.mark)
+    x$nnt.fixed$NNT <- formatN(round(x$nnt.fixed$NNT, digits),
+                               digits, big.mark = big.mark)
     ##
-    x$fixed$lower.NNT <- formatN(round(x$fixed$lower.NNT, digits),
-                                 digits, big.mark = big.mark)
+    x$nnt.fixed$lower.NNT <- formatN(round(x$nnt.fixed$lower.NNT, digits),
+                                     digits, big.mark = big.mark)
     ##
-    x$fixed$upper.NNT <- formatN(round(x$fixed$upper.NNT, digits),
-                                 digits, big.mark = big.mark)
+    x$nnt.fixed$upper.NNT <- formatN(round(x$nnt.fixed$upper.NNT, digits),
+                                     digits, big.mark = big.mark)
     ##
-    prmatrix(x$fixed, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$fixed)))
-    if (comb.random)
+    prmatrix(x$nnt.fixed, quote = FALSE, right = TRUE,
+             rowlab = rep("", nrow(x$nnt.fixed)))
+    if (random)
       cat("\n")
   }
   ##
-  if (comb.random) {
-    cat("Random effects model: \n\n")
-    x$random$p.c <- formatN(round(x$random$p.c, digits.prop),
-                           digits.prop, big.mark = big.mark)
+  if (random) {
+    cat(paste0(gs("text.random"), ": \n\n"))
+    x$nnt.random$p.c <- formatN(round(x$nnt.random$p.c, digits.prop),
+                                digits.prop, big.mark = big.mark)
     ##
-    x$random$NNT <- formatN(round(x$random$NNT, digits),
-                           digits, big.mark = big.mark)
+    x$nnt.random$NNT <- formatN(round(x$nnt.random$NNT, digits),
+                                digits, big.mark = big.mark)
     ##
-    x$random$lower.NNT <- formatN(round(x$random$lower.NNT, digits),
-                                 digits, big.mark = big.mark)
+    x$nnt.random$lower.NNT <- formatN(round(x$nnt.random$lower.NNT, digits),
+                                      digits, big.mark = big.mark)
     ##
-    x$random$upper.NNT <- formatN(round(x$random$upper.NNT, digits),
-                                 digits, big.mark = big.mark)
+    x$nnt.random$upper.NNT <- formatN(round(x$nnt.random$upper.NNT, digits),
+                                      digits, big.mark = big.mark)
     ##
-    prmatrix(x$random, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$fixed)))
+    prmatrix(x$nnt.random, quote = FALSE, right = TRUE,
+             rowlab = rep("", nrow(x$nnt.fixed)))
   }
   
   

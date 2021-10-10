@@ -6,36 +6,40 @@
 \usage{
 \method{weights}{meta}(
   object,
-  comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random,
+  fixed = object$fixed,
+  random = object$random,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}
 
-\item{comb.fixed}{A logical indicating whether absolute and
+\item{fixed}{A logical indicating whether absolute and
 percentage weights from the fixed effect model should be
 calculated.}
 
-\item{comb.random}{A logical indicating whether absolute and
+\item{random}{A logical indicating whether absolute and
 percentage weights from the random effects model should be
 calculated.}
 
-\item{\dots}{Additional arguments (ignored at the moment).}
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{\dots}{Additional arguments (to catch deprecated arguments).}
 }
 \value{
 A data frame with the following variables is returned:
 \tabular{lll}{
 \bold{Variable} \tab \bold{Definition} \tab \bold{Condition} \cr
 w.fixed \tab absolute weights in fixed effect model \tab (if
-  \code{comb.fixed = TRUE}) \cr
+  \code{fixed = TRUE}) \cr
 p.fixed \tab percentage weights in fixed effect model \tab (if
-  \code{comb.fixed = TRUE}) \cr
+  \code{fixed = TRUE}) \cr
 w.random \tab absolute weights in random effects model \tab (if
-  \code{comb.random = TRUE}) \cr
+  \code{random = TRUE}) \cr
 p.random \tab percentage weights in random effects model \tab (if
-  \code{comb.random = TRUE})
+  \code{random = TRUE})
 }
 }
 \description{
@@ -57,7 +61,7 @@ weights(meta1)
 
 # Do meta-analysis (only random effects model)
 #
-meta2 <- update(meta1, comb.fixed = FALSE)
+meta2 <- update(meta1, fixed = FALSE)
 
 # Print weights for random effects meta-analysis
 #
@@ -65,7 +69,7 @@ weights(meta2)
 
 # Print weights for fixed effect and random effects meta-analysis
 #
-weights(meta2, comb.fixed = TRUE)
+weights(meta2, fixed = TRUE)
 
 }
 \seealso{
