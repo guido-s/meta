@@ -1,4 +1,4 @@
-## meta, version 5.0-0 (2021-mm-dd)
+## meta, version 5.0-0 (2021-10-11)
 
 ### Major changes
 
@@ -8,6 +8,10 @@
 * New default settings:
   - Restricted maximum likelihood (REML) instead of DerSimonian-Laird
     estimator used as default to estimate between-study heterogeneity
+	(argument 'method.tau')
+  - Do not use Q statistic based on Mantel-Haenszel estimate to
+    calculate DerSimonian-Laird estimator of the between-study
+    variance (argument 'Q.Cochrane')
   - Print 'Common effect model' instead of 'Fixed effect model'
 
 * Default settings of **meta**, version 4 or lower, can be used with
@@ -15,14 +19,14 @@
   behaviour of print.meta() and print.summary.meta()
 
 * Renamed arguments:
-  - fixed (instead of comb.fixed)
-  - random (instead of comb.random)
-  - level.ma (instead of level.comb)
-  - subgroup (instead of byvar)
-  - subgroup.name (instead of bylab)
-  - print.subgroup.name (instead of print.byvar)
-  - sep.subgroup (instead of byseparator)
-  - nchar.subgroup (instead of bylab.nchar)
+  - 'fixed' (instead of 'comb.fixed')
+  - 'random' (instead of 'comb.random')
+  - 'level.ma' (instead of 'level.comb')
+  - 'subgroup' (instead of 'byvar')
+  - 'subgroup.name' (instead of 'bylab')
+  - 'print.subgroup.name' (instead of 'print.byvar')
+  - 'sep.subgroup' (instead of 'byseparator')
+  - 'nchar.subgroup' (instead of 'bylab.nchar')
 
 ### Internal changes
 

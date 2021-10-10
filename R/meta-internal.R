@@ -169,7 +169,7 @@ catmeth <- function(method,
                     doublezeros = FALSE,
                     MH.exact = FALSE,
                     RR.Cochrane = FALSE,
-                    Q.Cochrane = TRUE,
+                    Q.Cochrane = FALSE,
                     method.ci = NULL,
                     print.tau.ci = FALSE,
                     method.tau.ci = "",
@@ -194,7 +194,6 @@ catmeth <- function(method,
   metabin  <- "metabin"  %in% class
   metacont <- "metacont" %in% class
   metainc  <- "metainc"  %in% class
-  metamean <- "metamean" %in% class
   metaprop <- "metaprop" %in% class
   metarate <- "metarate" %in% class
   trimfill <- "trimfill" %in% class
