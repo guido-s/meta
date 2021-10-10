@@ -10,8 +10,8 @@
   sortvar,
   studlab = TRUE,
   layout = gs("layout"),
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   overall = x$overall,
   text.fixed = x$text.fixed,
   text.random = x$text.random,
@@ -25,14 +25,14 @@
   text.predict = x$text.predict,
   subgroup = TRUE,
   print.subgroup.labels = TRUE,
-  bylab = x$bylab,
-  print.byvar = x$print.byvar,
-  byseparator = x$byseparator,
+  subgroup.name = x$subgroup.name,
+  print.subgroup.name = x$print.subgroup.name,
+  sep.subgroup = x$sep.subgroup,
   text.fixed.w = text.fixed,
   text.random.w = text.random,
   text.predict.w = text.predict,
   bysort = FALSE,
-  pooled.totals = comb.fixed | comb.random,
+  pooled.totals = fixed | random,
   pooled.events = FALSE,
   pooled.times = FALSE,
   study.results = TRUE,
@@ -42,7 +42,7 @@
   smlab.pos,
   xlim = "symmetric",
   allstudies = TRUE,
-  weight.study,
+  weight.study = NULL,
   weight.subgroup,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -80,20 +80,20 @@
   col.square = "gray",
   col.square.lines = col.square,
   col.inside = "white",
+  col.inside.fixed = col.inside,
+  col.inside.random = col.inside,
   col.diamond = "gray",
   col.diamond.fixed = col.diamond,
   col.diamond.random = col.diamond,
   col.diamond.lines = "black",
   col.diamond.lines.fixed = col.diamond.lines,
   col.diamond.lines.random = col.diamond.lines,
-  col.inside.fixed = col.inside,
-  col.inside.random = col.inside,
   col.predict = "red",
   col.predict.lines = "black",
   col.by = "darkgray",
   col.label.right = "black",
   col.label.left = "black",
-  hetstat = comb.fixed | comb.random | overall.hetstat,
+  hetstat = fixed | random | overall.hetstat,
   overall.hetstat = x$overall.hetstat,
   hetlab = "Heterogeneity: ",
   resid.hetstat,
@@ -111,14 +111,14 @@
   text.subgroup.nohet = "not applicable",
   LRT = FALSE,
   test.overall = gs("test.overall"),
-  test.overall.fixed = comb.fixed & overall & test.overall,
-  test.overall.random = comb.random & overall & test.overall,
+  test.overall.fixed = fixed & overall & test.overall,
+  test.overall.random = random & overall & test.overall,
   label.test.overall.fixed,
   label.test.overall.random,
   print.stat = TRUE,
   test.subgroup = x$test.subgroup,
-  test.subgroup.fixed = test.subgroup & comb.fixed,
-  test.subgroup.random = test.subgroup & comb.random,
+  test.subgroup.fixed = test.subgroup & fixed,
+  test.subgroup.random = test.subgroup & random,
   print.Q.subgroup = TRUE,
   label.test.subgroup.fixed,
   label.test.subgroup.random,
@@ -176,7 +176,7 @@
   colgap.forest = colgap,
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
-  calcwidth.pooled = (comb.fixed | comb.random) & (overall | !is.null(x$byvar)),
+  calcwidth.pooled = (fixed | random) & (overall | !is.null(x$subgroup)),
   calcwidth.fixed = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
   calcwidth.predict = FALSE,
@@ -217,10 +217,6 @@
   big.mark = gs("big.mark"),
   zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
   JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
-  col.i = col.study,
-  weight = weight.study,
-  digits.zval = digits.stat,
-  print.zval = print.stat,
   ...
 )
 }
@@ -237,11 +233,11 @@ provided (must be of same length as \code{x$TE} then).}
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
 
-\item{comb.fixed}{A logical indicating whether fixed effect
-estimate should be plotted.}
+\item{fixed}{A logical indicating whether fixed effect / common
+effect estimate should be plotted.}
 
-\item{comb.random}{A logical indicating whether random effects
-estimate should be plotted.}
+\item{random}{A logical indicating whether random effects estimate
+should be plotted.}
 
 \item{overall}{A logical indicating whether overall summaries
 should be plotted. This argument is useful in a meta-analysis
@@ -282,13 +278,13 @@ on group level.}
 \item{print.subgroup.labels}{A logical indicating whether subgroup
 label should be printed.}
 
-\item{bylab}{A character string with a label for the grouping
+\item{subgroup.name}{A character string with a label for the grouping
 variable.}
 
-\item{print.byvar}{A logical indicating whether the name of the
+\item{print.subgroup.name}{A logical indicating whether the name of the
 grouping variable should be printed in front of the group labels.}
 
-\item{byseparator}{A character string defining the separator
+\item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
 
 \item{text.fixed.w}{A character string to label the pooled fixed
@@ -469,6 +465,12 @@ reflecting study's weight in the meta-analysis.}
 confidence limits if confidence limits are completely within
 squares.}
 
+\item{col.inside.fixed}{The colour for result of fixed effect
+meta-analysis if confidence limit lies completely within square.}
+
+\item{col.inside.random}{The colour for result of random effects
+meta-analysis if confidence limit lies completely within square.}
+
 \item{col.diamond}{The colour of diamonds representing the results
 for fixed effect and random effects models.}
 
@@ -487,12 +489,6 @@ diamond for fixed effect estimate.}
 
 \item{col.diamond.lines.random}{The colour of the outer lines of
 diamond for random effects estimate.}
-
-\item{col.inside.fixed}{The colour for result of fixed effect
-meta-analysis if confidence limit lies completely within square.}
-
-\item{col.inside.random}{The colour for result of random effects
-meta-analysis if confidence limit lies completely within square.}
 
 \item{col.predict}{Background colour of prediction interval.}
 
@@ -925,17 +921,6 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
-\item{col.i}{Deprecated argument (replaced by \code{col.study}).}
-
-\item{weight}{Deprecated argument (replaced by
-\code{weight.study}).}
-
-\item{digits.zval}{Deprecated argument (replaced by
-\code{digits.stat}).}
-
-\item{print.zval}{Deprecated argument (replaced by
-\code{print.stat}).}
-
 \item{\dots}{Additional graphical arguments.}
 }
 \description{
@@ -969,9 +954,9 @@ individual treatment estimates based either on the fixed effect
 (\code{weight.study = "fixed"}) or random effects meta-analysis
 (\code{weight.study = "random"}). Information from meta-analysis object
 \code{x} is utilised if argument \code{weight.study} is missing. Weights
-from the fixed effect model are used if argument \code{x$comb.fixed} is
+from the fixed effect model are used if argument \code{x$fixed} is
 \code{TRUE}; weights from the random effects model are used if argument
-\code{x$comb.random} is \code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
+\code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
 
 Arguments \code{text.fixed}, \code{text.random}, and
@@ -986,7 +971,7 @@ prediction interval). By default the following text is printed:
 
 If confidence interval levels are different for individual studies,
 meta-analysis, and prediction interval (arguments \code{level},
-\code{level.comb}, \code{level.predict} in meta-analysis functions,
+\code{level.ma}, \code{level.predict} in meta-analysis functions,
 e.g., \code{\link{metabin}}), additional information is printed,
 e.g., " (99\%-CI)" for a 99\% confidence interval in the
 meta-analysis.
@@ -1044,8 +1029,8 @@ Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
 }
 
 By default, estimated treatment effect and corresponding confidence
-interval will be printed.  Depending on arguments \code{comb.fixed}
-and \code{comb.random}, weights of the fixed effect and/or random
+interval will be printed.  Depending on arguments \code{fixed}
+and \code{random}, weights of the fixed effect and/or random
 effects model will be given too. For an object of class
 \code{\link{metacum}} or \code{\link{metainf}} only the estimated
 treatment effect with confidence interval are plotted.
@@ -1065,7 +1050,7 @@ side of the forest plot}}:
 \code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",
   "event.c", "time.c")} \cr
 \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
-\code{\link{metarate}} \tab \code{c("studlab", "event", "time")}
+\code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
   \cr
 \code{\link{metacum}} \tab \code{"studlab"} \cr
 \code{\link{metainf}} \tab \code{"studlab"}
@@ -1201,7 +1186,7 @@ and forest plots if argument \code{irscale} is not equal to 1.
 
 A prediction interval for treatment effect of a new study (Higgins
 et al., 2009) is given in the forest plot if arguments
-\code{prediction} and \code{comb.random} are \code{TRUE}. For
+\code{prediction} and \code{random} are \code{TRUE}. For
 graphical presentation of prediction intervals the approach by
 Guddat et al. (2012) is used.
 
@@ -1216,8 +1201,8 @@ to print heterogeneity information:
 Otherwise, information on heterogeneity is printed in dedicated rows.
 
 Note, in R package \bold{meta}, version 3.0-0 the following
-arguments have been removed from R function forest.meta: byvar,
-level, level.comb, level.predict. This functionality is now
+arguments have been removed from R function forest.meta: subgroup,
+level, level.ma, level.predict. This functionality is now
 provided by R function \code{\link{update.meta}} (or directly in R
 functions, e.g., \code{\link{metabin}}, \code{\link{metacont}},
 \code{\link{metagen}}, \code{\link{metacor}}, and
@@ -1242,7 +1227,7 @@ forest(m1)
 # Furthermore, add labels on both sides of forest plot and
 # prediction interval
 #
-forest(m1, layout = "RevMan5", comb.fixed = FALSE,
+forest(m1, layout = "RevMan5", fixed = FALSE,
        label.right = "Favours control", col.label.right = "red",
        label.left = "Favours experimental", col.label.left = "green",
        prediction = TRUE)
@@ -1257,10 +1242,10 @@ dev.off()
 
 # Sort studies by decreasing treatment effect within year subgroups
 #
-m2 <- update(m1, byvar = ifelse(year < 1987,
+m2 <- update(m1, subgroup = ifelse(year < 1987,
                                 "Before 1987", "1987 and later"),
-             print.byvar = FALSE)
-forest(m2, sortvar = -TE, comb.random = FALSE)
+             print.subgroup.name = FALSE)
+forest(m2, sortvar = -TE, random = FALSE)
 
 # Forest plot specifying argument xlim
 #
@@ -1278,17 +1263,17 @@ forest(m1, col.square = "black", hetstat = FALSE)
 # Change set of columns printed on left side of forest plot
 # (resulting in overlapping text)
 #
-forest(m1, comb.random = FALSE, leftcols = "studlab")
+forest(m1, random = FALSE, leftcols = "studlab")
 
 # Use argument 'addrows.below.overall' to add space between
 # meta-analysis results and heterogeneity statistics
 #
-forest(m1, comb.random = FALSE, leftcols = "studlab", addrows = 2)
+forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
 
 # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
 # measures in width of column with study labels
 #
-forest(m1, comb.random = FALSE, leftcols = "studlab",
+forest(m1, random = FALSE, leftcols = "studlab",
        calcwidth.hetstat = TRUE)
 
 # Do not print columns on right side of forest plot
@@ -1297,7 +1282,7 @@ forest(m1, rightcols = FALSE)
 
 # Change study label to "Author"
 #
-forest(m1, comb.random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
+forest(m1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot (in one column)
@@ -1360,28 +1345,28 @@ forest(m1,
 
 # Sort by weight in fixed effect model
 #
-forest(m1, sortvar = 1 / w.fixed, comb.random = FALSE)
+forest(m1, sortvar = 1 / w.fixed, random = FALSE)
 
 # Sort by decreasing weight in fixed effect model
 #
-forest(m1, sortvar = -1 / w.fixed, comb.random = FALSE)
+forest(m1, sortvar = -1 / w.fixed, random = FALSE)
 
 # Sort by size of treatment effect
 #
-forest(m1, sortvar = TE, comb.random = FALSE)
+forest(m1, sortvar = TE, random = FALSE)
 
 # Sort by size of treatment effect
 #
-forest(m1, sortvar = -TE, comb.random = FALSE)
+forest(m1, sortvar = -TE, random = FALSE)
 
 # Sort by decreasing year of publication
 #
-forest(m1, sortvar = -year, comb.random = FALSE)
+forest(m1, sortvar = -year, random = FALSE)
 
 # Print results of test for subgroup differences (random effects
 # model)
 #
-forest(m2, sortvar = -TE, comb.fixed = FALSE)
+forest(m2, sortvar = -TE, fixed = FALSE)
 
 # Print only subgroup results
 #

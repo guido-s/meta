@@ -39,7 +39,7 @@ data(Fleiss1993cont)
 metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
          data = Fleiss1993cont,
          studlab = paste(study, year),
-         comb.random = FALSE)
+         random = FALSE)
 }
 \seealso{
 \code{\link{Fleiss1993bin}}

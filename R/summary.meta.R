@@ -4,73 +4,21 @@
 #' Summary method for objects of class \code{meta}.
 #' 
 #' @param object An object of class \code{meta}.
-#' @param comb.fixed A logical indicating whether a fixed effect
-#'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
-#'   meta-analysis should be conducted.
-#' @param prediction A logical indicating whether a prediction
-#'   interval should be printed.
-#' @param overall A logical indicating whether overall summaries
-#'   should be reported. This argument is useful in a meta-analysis
-#'   with subgroups if overall results should not be reported.
-#' @param overall.hetstat A logical value indicating whether to print
-#'   heterogeneity measures for overall treatment comparisons. This
-#'   argument is useful in a meta-analysis with subgroups if
-#'   heterogeneity statistics should only be printed on subgroup
-#'   level.
-#' @param test.subgroup A logical value indicating whether to print
-#'   results of test for subgroup differences.
-#' @param backtransf A logical indicating whether printed results
-#'   should be back transformed. If \code{backtransf=TRUE}, results
-#'   for \code{sm="OR"} are printed as odds ratios rather than log
-#'   odds ratios and results for \code{sm="ZCOR"} are printed as
-#'   correlations rather than Fisher's z transformed correlations, for
-#'   example.
-#' @param pscale A numeric giving scaling factor for printing of
-#'   single event probabilities or risk differences, i.e. if argument
-#'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
-#'   \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.
-#' @param irscale A numeric defining a scaling factor for printing of
-#'   single incidence rates or incidence rate differences, i.e. if
-#'   argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
-#'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
-#' @param irunit A character specifying the time unit used to
-#'   calculate rates, e.g. person-years.
-#' @param bylab A character string with a label for the grouping
-#'   variable.
-#' @param print.byvar A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
-#' @param byseparator A character string defining the separator
-#'   between label and levels of grouping variable.
-#' @param bystud A logical indicating whether results of individual
-#'   studies should be printed by grouping variable.
-#' @param print.CMH A logical indicating whether result of the
-#'   Cochran-Mantel-Haenszel test for overall effect should be
-#'   printed.
 #' @param \dots Additional arguments (ignored).
 #'
 #' @details
-#' Note, in R package \bold{meta}, version 3.0-0 some arguments have
-#' been removed from R functions \code{\link{summary.meta}}
-#' (arguments: byvar, level, level.comb, level.prediction) and
-#' print.summary.meta (arguments: level, level.comb,
-#' level.prediction). This functionality is now provided by R function
-#' \code{\link{update.meta}} (or directly in meta-analysis functions,
-#' e.g., \code{\link{metabin}}, \code{\link{metacont}},
-#' \code{\link{metagen}}, \code{\link{metacor}}, and
-#' \code{\link{metaprop}}).
-#' 
 #' Review Manager 5 (RevMan 5) is the current software used for
 #' preparing and maintaining Cochrane Reviews
 #' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 #' In RevMan 5, subgroup analyses can be defined and data from a
-#' Cochrane review can be imported to Rusing the function \code{read.rm5}. If a
-#' meta-analysis is then conducted using function \code{metacr}, information on
-#' subgroups is available in R (components \code{byvar}, \code{bylab}, and
-#' \code{print.byvar}, \code{byvar} in an object of class \code{"meta"}).
-#' Accordingly, by using function \code{metacr} there is no need to define
-#' subgroups in order to redo the statistical analysis conducted in the
-#' Cochrane review.
+#' Cochrane review can be imported to Rusing the function
+#' \code{read.rm5}. If a meta-analysis is then conducted using
+#' function \code{metacr}, information on subgroups is available in R
+#' (components \code{subgroup}, \code{subgroup.name}, and
+#' \code{print.subgroup.name}, \code{subgroup} in an object of class
+#' \code{"meta"}).  Accordingly, by using function \code{metacr} there
+#' is no need to define subgroups in order to redo the statistical
+#' analysis conducted in the Cochrane review.
 #' 
 #' Note, for an object of type \code{metaprop}, starting with version
 #' 3.7-0 of meta, list elements \code{TE}, \code{lower} and
@@ -108,7 +56,7 @@
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{update.meta}}, \code{\link{metabin}},
+#' @seealso \code{\link{print.summary.meta}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}}
 #' 
 #' @references
@@ -133,8 +81,8 @@
 #'                studlab = paste(study, year))
 #' summary(m1)
 #' 
-#' summary(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
-#' forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
+#' summary(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
+#' forest(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
 #' 
 #' \dontrun{
 #' # Use unicode characters to print tau^2, tau, and I^2
@@ -142,31 +90,12 @@
 #'       text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
-#' @rdname summary.meta
+#' @method summary meta
 #' @export
 #' @export summary.meta
 
 
-summary.meta <- function(object,
-                         comb.fixed = object$comb.fixed,
-                         comb.random = object$comb.random,
-                         prediction = object$prediction,
-                         overall = object$overall,
-                         overall.hetstat = object$overall.hetstat,
-                         test.subgroup = object$test.subgroup,
-                         ##
-                         backtransf = object$backtransf,
-                         pscale = object$pscale,
-                         irscale = object$irscale,
-                         irunit = object$irunit,
-                         ##
-                         bylab = object$bylab,
-                         print.byvar = object$print.byvar,
-                         byseparator = object$byseparator,
-                         bystud = FALSE,
-                         ##
-                         print.CMH = object$print.CMH,
-                         ...) {
+summary.meta <- function(object, ...) {
   
   
   ##
@@ -176,20 +105,11 @@ summary.meta <- function(object,
   ##
   chkclass(object, "meta")
   ##
-  if (inherits(object, "metacum")) {
-    warning("Summary method not defined for objects of class \"metacum\".")
+  if (inherits(object, c("metacum", "metainf")))
     return(object)
-  }
   ##
-  if (inherits(object, "metainf")) {
-    warning("Summary method not defined for objects of class \"metainf\".")
-    return(object)
-  }
-  ##
-  object <- updateversion(object)
-  ##
-  metaprop <- inherits(object, "metaprop")
-  metarate <- inherits(object, "metarate")
+  metaprop <- inherits(class(object), "metaprop")
+  metarate <- inherits(class(object), "metarate")
   
   
   ##
@@ -197,98 +117,140 @@ summary.meta <- function(object,
   ## (2) Check other arguments
   ##
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
-  chklogical(prediction)
-  overall <- replaceNULL(overall, comb.fixed | comb.random)
-  chklogical(overall)
-  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
-  chklogical(overall.hetstat)
-  test.subgroup <- replaceNULL(test.subgroup, TRUE)
-  if (is.na(test.subgroup))
-    test.subgroup <- FALSE
-  chklogical(test.subgroup)
-  ##
-  chklogical(backtransf)
-  ##
-  chknumeric(pscale, length = 1)
-  chknumeric(irscale, length = 1)
-  ##
-  if (!backtransf & pscale != 1 & !is.untransformed(object$sm)) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
-    pscale <- 1
-  }
-  ##
-  if (!backtransf & irscale != 1 & !is.untransformed(object$sm)) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
-    irscale <- 1
-  }
-  ##
-  if (!is.null(print.byvar))
-    chklogical(print.byvar)
-  if (!is.null(byseparator))
-    chkchar(byseparator)
-  chklogical(bystud)
-  if (!is.null(print.CMH))
-    chklogical(print.CMH)
-  ##
-  cl <- paste0("update.meta() or ", class(object)[1], "()")
   addargs <- names(list(...))
   ##
-  fun <- "summary.meta"
-  ##
-  warnarg("byvar", addargs, fun, cl)
-  warnarg("level", addargs, fun, cl)
-  warnarg("level.comb", addargs, fun, cl)
-  warnarg("level.predict", addargs, fun, cl)
+  if (length(addargs) > 0)
+    warning("Additional arguments provided in '...' are ignored.",
+            call. = FALSE)
   
   
   ##
   ##
-  ## (3) Generate R object
+  ## (3) Results for individual studies
+  ##
+  ##
+  object$df <- replaceNULL(object$df, NA)
+  method.ci <- replaceNULL(object$method.ci, "")
+  object$statistic <- replaceNULL(object$statistic, object$zval)
+  ##
+  ci.study <- list(TE = object$TE,
+                   seTE = object$seTE,
+                   lower = object$lower,
+                   upper = object$upper,
+                   statistic = object$statistic,
+                   p = object$pval,
+                   level = object$level,
+                   df = object$df)
+  ##
+  if (metaprop) {
+    ci.study$event <- object$event
+    ci.study$n <- object$n
+  }
+  
+  
+  ##
+  ##
+  ## (4) Results for meta-analysis
+  ##
+  ##
+  ci.f <- list(TE = object$TE.fixed,
+               seTE = object$seTE.fixed,
+               lower = object$lower.fixed,
+               upper = object$upper.fixed,
+               statistic = object$statistic.fixed,
+               p = object$pval.fixed,
+               level = object$level.ma)
+  if (metaprop)
+    ci.f$harmonic.mean <- 1 / mean(1 / object$n)
+  else if (metarate)
+    ci.f$harmonic.mean <- 1 / mean(1 / object$time)
+  ##
+  ci.r <- list(TE = object$TE.random,
+               seTE = object$seTE.random,
+               lower = object$lower.random,
+               upper = object$upper.random,
+               statistic = object$statistic.random,
+               p = object$pval.random,
+               level = object$level.ma,
+               df = if (!is.null(object$df.hakn)) object$df.hakn else NA)
+  if (metaprop)
+    ci.r$harmonic.mean <- 1 / mean(1 / object$n)
+  else if (metarate)
+    ci.r$harmonic.mean <- 1 / mean(1 / object$time)
+  ##
+  ci.p <- list(TE = NA,
+               seTE = object$seTE.predict,
+               lower = object$lower.predict,
+               upper = object$upper.predict,
+               statistic = NA,
+               p = NA,
+               level = object$level.predict,
+               df = object$k - 2)
+  
+  
+  ##
+  ##
+  ## (5) Generate R object
   ##
   ##
   res <- object
   ##
-  comb.fixed <- comb.fixed
-  res$comb.random <- comb.random
-  res$prediction <- prediction
-  res$overall <- overall
-  res$overall.hetstat <- overall.hetstat
-  res$test.subgroup <- test.subgroup
+  res$fixed <- ci.f
+  res$random <- ci.r
+  res$predict <- ci.p
   ##
-  res$backtransf <- backtransf
-  res$pscale <- pscale
-  res$irscale <- irscale
-  res$irunit <- irunit
+  ## Add results from subgroup analysis
   ##
-  res$bylab <- bylab
-  res$print.byvar <- print.byvar
-  res$byseparator <- byseparator
-  res$bystud <- bystud
+  if (length(object$subgroup) > 0) {
+    ##
+    n.by <- length(object$bylevs)
+    ##
+    ci.fixed.w <- list(TE = object$TE.fixed.w,
+                       seTE = object$seTE.fixed.w,
+                       lower = object$lower.fixed.w,
+                       upper = object$upper.fixed.w,
+                       statistic = object$statistic.fixed.w,
+                       p = object$pval.fixed.w,
+                       level = object$level.ma,
+                       harmonic.mean = object$n.harmonic.mean.w)
+    ##
+    if (metarate)
+      ci.fixed.w$harmonic.mean <- object$t.harmonic.mean.w
+    ##
+    ci.random.w <- list(TE = object$TE.random.w,
+                        seTE = object$seTE.random.w,
+                        lower = object$lower.random.w,
+                        upper = object$upper.random.w,
+                        statistic = object$statistic.random.w,
+                        p = object$pval.random.w,
+                        level = object$level.ma,
+                        df = object$df.hakn.w,
+                        harmonic.mean = object$n.harmonic.mean.w)
+    ##
+    ci.predict.w <- list(TE = rep(NA, n.by),
+                         seTE = object$seTE.predict.w,
+                         lower = object$lower.predict.w,
+                         upper = object$upper.predict.w,
+                         statistic = rep(NA, n.by),
+                         p = rep(NA, n.by),
+                         level = object$level.predict,
+                         df = object$k.w - 2,
+                         harmonic.mean = object$n.harmonic.mean.w)
+    ##
+    if (metarate)
+      ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
+    ## 
+    res$within.fixed    <- ci.fixed.w
+    res$within.random   <- ci.random.w
+    res$within.predict  <- ci.predict.w
+    ##
+    if (is.null(res$test.subgroup))
+      res$test.subgroup <- TRUE
+  }
   ##
-  res$print.CMH <- print.CMH
-  ##
-  res$call.summary <- match.call()
+  res$x <- object
   ##
   class(res) <- c("summary.meta", class(object))
-  
-  
-  ##if (metaprop)
-  ##  ci.f$harmonic.mean <- 1 / mean(1 / object$n)
-  ##else if (metarate)
-  ##  ci.f$harmonic.mean <- 1 / mean(1 / object$time)
-  
-  
-  ##if (inherits(object, "metamiss")) {
-  ##  res$n.e <- object$n.e + object$miss.e
-  ##  res$n.c <- object$n.c + object$miss.c
-  ##}
-  ##
-  ## Function netpairwise() from R package netmeta
-  ##
-  if (inherits(object, "netpairwise"))
-    class(res) <- c(class(res), "is.netpairwise")
   ##
   attr(res, "class.orig") <- class(object)
   

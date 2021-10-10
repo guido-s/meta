@@ -337,7 +337,7 @@ draw.forest <- function(x, column) {
 
 draw.lines <- function(x, column,
                        ref, TE.fixed, TE.random,
-                       overall, comb.fixed, comb.random, prediction,
+                       overall, fixed, random, prediction,
                        ymin.fixed, ymin.random, ymin.ref, ymax,
 		       lwd, lty.fixed, lty.random, col.fixed, col.random,
                        min, max,
@@ -383,7 +383,7 @@ draw.lines <- function(x, column,
   ##
   ## Line for fixed effect estimate:
   ##
-  if (comb.fixed & overall & !is.na(TE.fixed))
+  if (fixed & overall & !is.na(TE.fixed))
     if (min <= TE.fixed & TE.fixed <= max)
       if (!is.null(lty.fixed))
         grid.lines(x = unit(TE.fixed, "native"),
@@ -392,7 +392,7 @@ draw.lines <- function(x, column,
   ##
   ## Line for random effects estimate:
   ##
-  if (comb.random & overall & !is.na(TE.random))
+  if (random & overall & !is.na(TE.random))
     if (min <= TE.random & TE.random <= max)
       if (!is.null(lty.random) & !is.na(TE.random))
         grid.lines(x = unit(TE.random, "native"),

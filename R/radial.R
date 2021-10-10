@@ -13,7 +13,7 @@
 #' @param ylim The y limits (min, max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param comb.fixed A logical indicating whether the pooled fixed
+#' @param fixed A logical indicating whether the pooled fixed
 #'   effect estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
@@ -28,7 +28,7 @@
 #' 
 #' @details
 #' A radial plot (Galbraith 1988a,b), also called Galbraith plot, is
-#' drawn in the active graphics window. If \code{comb.fixed} is TRUE,
+#' drawn in the active graphics window. If \code{fixed} is TRUE,
 #' the pooled estimate of the fixed effect model is plotted. If
 #' \code{level} is not NULL, the corresponding confidence limits are
 #' drawn.
@@ -66,7 +66,6 @@
 #' @rdname radial
 #' @method radial meta
 #' @export
-#' @export radial.meta
 
 
 radial.meta <- function(x,
@@ -75,7 +74,7 @@ radial.meta <- function(x,
                         xlab = "Inverse of standard error",
                         ylab = "Standardised treatment effect (z-score)",
                         ##
-                        comb.fixed = TRUE,
+                        fixed = TRUE,
                         ##
                         axes = TRUE,
                         pch = 1, text = NULL, cex = 1, col = NULL,
@@ -89,6 +88,7 @@ radial.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
+  x <- updateversion(x)
   
   
   TE <- x$TE
@@ -136,7 +136,7 @@ radial.meta <- function(x,
       text(1 / seTE, zscore, labels = text, cex = cex, col = col)
   }
 
-  if (comb.fixed) {
+  if (fixed) {
     lmcomb <- lm(zscore ~ I(1 / seTE) - 1)
     abline(lmcomb, lty = 4)
     if (!is.null(level)) {
@@ -156,7 +156,6 @@ radial.meta <- function(x,
 #' @rdname radial
 #' @method radial default
 #' @export
-#' @export radial.default
 
 
 radial.default <- function(x, y,
@@ -165,7 +164,7 @@ radial.default <- function(x, y,
                            xlab = "Inverse of standard error",
                            ylab = "Standardised treatment effect (z-score)",
                            ##
-                           comb.fixed = TRUE,
+                           fixed = TRUE,
                            ##
                            axes = TRUE,
                            ##
@@ -203,7 +202,7 @@ radial.default <- function(x, y,
   ##
   radial(m, xlim = xlim, ylim = ylim,
          xlab = xlab, ylab = ylab,
-         comb.fixed = comb.fixed, axes = axes,
+         fixed = fixed, axes = axes,
          pch = pch, text = text,
          cex = cex, col = col, level = level, ...)
   

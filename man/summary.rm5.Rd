@@ -3,7 +3,7 @@
 \name{summary.rm5}
 \alias{summary.rm5}
 \alias{print.summary.rm5}
-\title{Cochrane review: Summary of meta-analyses}
+\title{Cochrane review: detailed summary of meta-analyses}
 \usage{
 \method{summary}{rm5}(object, comp.no, outcome.no, ...)
 
@@ -21,8 +21,8 @@
 \item{x}{An object of class \code{summary.rm5}.}
 }
 \description{
-Calculate and print a summary of all meta-analyses in a Cochrane
-review.
+Calculate and print a detailed summary of all meta-analyses in a
+Cochrane review.
 }
 \details{
 This function can be used to redo all or selected meta-analyses of

@@ -18,9 +18,7 @@
 #' \code{\link{metarate}}
 #' 
 #' Furthermore, some of these settings are considered to print
-#' meta-analysis results using \code{\link{print.meta}} and
-#' \code{\link{print.summary.meta}}, and to produce forest plots using
-#' \code{\link{forest.meta}}.
+#' meta-analysis results and to produce forest plots.
 #' 
 #' The function can be used to either change individual settings (see
 #' Examples) or use one of the following general settings:
@@ -30,6 +28,7 @@
 #' \item \code{settings.meta("iqwig5")}
 #' \item \code{settings.meta("iqwig6")}
 #' \item \code{settings.meta("geneexpr")}
+#' \item \code{settings.meta("meta4")}
 #' }
 #'
 #' The first command can be used to reproduce meta-analyses from
@@ -49,9 +48,12 @@
 #' accordinging to General Methods 5 and 6, respectively
 #' (\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
 #'
-#' The last setting can be used to print p-values in scientific
-#' notation and to suppress the calculation of confidence intervals
-#' for the between-study variance.
+#' The setting \code{"geneexpr"} can be used to print p-values in
+#' scientific notation and to suppress the calculation of confidence
+#' intervals for the between-study variance.
+#'
+#' The last setting uses the default settings of R package
+#' \bold{meta}, version 4 or below.
 #' 
 #' RevMan 5 settings, in detail:
 #' \tabular{lll}{
@@ -119,6 +121,12 @@
 #'  \tab between-study heterogeneity variance \cr
 #' }
 #' 
+#' Settings for \bold{meta}, version 4 or below:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+#' }
+#' 
 #' A list of all arguments with current settings is printed using the
 #' command \code{settings.meta("print")}.
 #' 
@@ -128,7 +136,7 @@
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
 #' @seealso \code{\link{gs}}, \code{\link{forest.meta}},
-#'   \code{\link{JAMAlabels}}
+#'   \code{\link{print.meta}}, \code{\link{JAMAlabels}}
 #' 
 #' @examples
 #' # Get listing of current settings
@@ -158,7 +166,7 @@
 #' # (99%-CI for studies, 99.9%-CI for pooled effects)
 #' #
 #' metagen(1:3, 2:4 / 10, sm = "MD")
-#' settings.meta(level = 0.99, level.comb = 0.999)
+#' settings.meta(level = 0.99, level.ma = 0.999)
 #' metagen(1:3, 2:4 / 10, sm = "MD")
 #' 
 #' # Always print a prediction interval
@@ -190,7 +198,7 @@
 #' # Forest plot using RevMan 5 style
 #' #
 #' settings.meta("revman5")
-#' forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
+#' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
 #'        label.left = "Favours A", label.right = "Favours B",
 #'        colgap.studlab = "2cm",
 #'        colgap.forest.left = "0.2cm")
@@ -198,7 +206,7 @@
 #' # Forest plot using JAMA style
 #' #
 #' settings.meta("jama")
-#' forest(metagen(1:3, 2:4 / 10, sm = "MD", comb.fixed = FALSE),
+#' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
 #'        label.left = "Favours A", label.right = "Favours B",
 #'        colgap.studlab = "2cm",
 #'        colgap.forest.left = "0.2cm")
@@ -207,7 +215,7 @@
 #' # (especially useful if upper confidence limit can be negative)
 #' #
 #' settings.meta(CIseparator = " - ")
-#' forest(metagen(-(1:3), 2:4 / 10, sm="MD", comb.fixed=FALSE),
+#' forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
 #'        label.left="Favours A", label.right="Favours B",
 #'        colgap.studlab = "2cm",
 #'        colgap.forest.left = "0.2cm")
@@ -224,16 +232,7 @@ settings.meta <- function(...) {
   ## Return current settings
   ##
   res <- .settings
-  res$metafor <- NULL
-  res$sm4bin <- res$sm4cont <- res$sm4cor <- res$sm4inc <-
-    res$sm4mean <- res$sm4prop <- res$sm4rate <- NULL
-  res$ci4cont <- res$ci4prop <- NULL
-  res$meth4bin <- res$meth4inc <- res$meth4prop <- res$meth4rate <- NULL
-  res$meth4tau <- res$meth4tau.ci <- NULL
-  res$adhoc4hakn <- res$meth4bias <- res$meth4bias.old <- NULL
-  res$argslist <- NULL
-  res$Wan2014.Table1 <- res$Wan2014.Table2 <- NULL
-  res$digits.zval <- NULL
+  res$argslist <- res$argslist.internal <- NULL
   
   
   catarg <- function(x, newline = TRUE, end = "") {
@@ -312,10 +311,26 @@ settings.meta <- function(...) {
   args  <- list(...)
   ## Check whether first argument is a list. In this case only use
   ## this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
+  warn.depr <- TRUE
+  if (length(args) > 0 && is.list(args[[1]])) {
+    warn.depr <- FALSE
     args <- args[[1]]
+  }
   ##
-  names <- names(args)
+  names.all <- names(args)
+  names <- names.all[!(names.all %in% .settings$argslist.internal)]
+  ##
+  ## Deprecated arguments
+  ##
+  if (warn.depr) {
+    chkdeprecated(names.all, "level.ma", "level.comb")
+    chkdeprecated(names.all, "fixed", "comb.fixed")
+    chkdeprecated(names.all, "random", "comb.random")
+    chkdeprecated(names.all, "digits.stat", "digits.zval")
+    ##
+    chkdeprecated(names.all, "print.subgroup.name", "print.byvar")
+    chkdeprecated(names.all, "sep.subgroup", "byseparator")
+  }
   
   
   for (i in seq_along(names))
@@ -329,12 +344,14 @@ settings.meta <- function(...) {
   
   
   if (length(args) > 1 && any(names == "reset")) {
-    cat("To reset settings in R package meta use command 'settings.meta(\"reset\")'\n")
+    cat(paste("To reset settings in R package meta use ",
+              "command 'settings.meta(\"reset\")'\n"))
     return(invisible(res))
   }
   ##
   if (length(args) > 1 && any(names == "setting")) {
-    cat("Argument 'setting' can only be used without other arguments (R package meta)\n")
+    cat(paste("Argument 'setting' can only be used without ",
+              "other arguments (R package meta)\n"))
     return(invisible(res))
   }
   
@@ -344,7 +361,7 @@ settings.meta <- function(...) {
   specific.settings <- FALSE
   ##
   if (length(args) == 1) {
-    if (!is.null(names)) {
+    if (length(names) > 0) {
       if (names == "print") {
         chklogical(args[[1]], "print")
         print.settings <- args[[1]]
@@ -355,7 +372,8 @@ settings.meta <- function(...) {
         if (args[[1]])
           reset.settings <- TRUE
         else {
-          cat("To reset settings in R package meta use command 'settings.meta(\"reset\")'\n")
+          cat(paste("To reset settings in R package meta",
+                    "use command 'settings.meta(\"reset\")'\n"))
           return(invisible(res))
         }
       }
@@ -365,7 +383,7 @@ settings.meta <- function(...) {
         specific.settings <- TRUE
       }
     }
-    else if (is.null(names) & is.character(args[[1]])) {
+    else if (length(names) == 0 & is.character(args[[1]])) {
       ##
       idx <- charmatch(tolower(args[[1]]), "print", nomatch = NA)
       if (!(anyNA(idx) || any(idx == 0)))
@@ -391,56 +409,57 @@ settings.meta <- function(...) {
                ") **\n\n"))
     ##
     cat(paste0("* General settings *\n"))
-    catarg("level          ")
-    catarg("level.comb     ")
-    catarg("comb.fixed     ")
-    catarg("comb.random    ")
-    catarg("hakn           ")
-    catarg("adhoc.hakn     ")
-    catarg("method.tau     ")
-    catarg("method.tau.ci  ")
-    catarg("tau.common     ")
-    catarg("prediction     ")
-    catarg("level.predict  ")
-    catarg("test.subgroup  ")
-    catarg("method.bias    ")
-    catarg("text.fixed     ")
-    catarg("text.random    ")
-    catarg("text.predict   ")
-    catarg("text.w.fixed   ")
-    catarg("text.w.random  ")
-    catarg("title          ")
-    catarg("complab        ")
-    catarg("CIbracket      ")
-    catarg("CIseparator    ")
-    catarg("print.byvar    ")
-    catarg("byseparator    ")
-    catarg("keepdata       ")
-    catarg("warn           ")
-    catarg("backtransf     ")
-    catarg("digits         ")
-    catarg("digits.se      ")
-    catarg("digits.stat    ")
-    catarg("digits.Q       ")
-    catarg("digits.tau2    ")
-    catarg("digits.tau     ")
-    catarg("digits.H       ")
-    catarg("digits.I2      ")
-    catarg("digits.prop    ")
-    catarg("digits.weight  ")
-    catarg("digits.pval    ")
-    catarg("digits.pval.Q  ")
-    catarg("scientific.pval")
-    catarg("big.mark       ")
-    catarg("zero.pval      ")
-    catarg("JAMA.pval      ")
-    catarg("print.I2       ")
-    catarg("print.H        ")
-    catarg("print.Rb       ")
-    catarg("text.tau2      ")
-    catarg("text.tau       ")
-    catarg("text.I2        ")
-    catarg("text.Rb        ")
+    catarg("level              ")
+    catarg("level.ma           ")
+    catarg("fixed              ")
+    catarg("random             ")
+    catarg("hakn               ")
+    catarg("adhoc.hakn         ")
+    catarg("method.tau         ")
+    catarg("method.tau.ci      ")
+    catarg("tau.common         ")
+    catarg("prediction         ")
+    catarg("level.predict      ")
+    catarg("test.subgroup      ")
+    catarg("method.bias        ")
+    catarg("text.fixed         ")
+    catarg("text.random        ")
+    catarg("text.predict       ")
+    catarg("text.w.fixed       ")
+    catarg("text.w.random      ")
+    catarg("title              ")
+    catarg("complab            ")
+    catarg("CIbracket          ")
+    catarg("CIseparator        ")
+    catarg("print.subgroup.name")
+    catarg("sep.subgroup       ")
+    catarg("keepdata           ")
+    catarg("warn               ")
+    catarg("warn.deprecated    ")
+    catarg("backtransf         ")
+    catarg("digits             ")
+    catarg("digits.se          ")
+    catarg("digits.stat        ")
+    catarg("digits.Q           ")
+    catarg("digits.tau2        ")
+    catarg("digits.tau         ")
+    catarg("digits.H           ")
+    catarg("digits.I2          ")
+    catarg("digits.prop        ")
+    catarg("digits.weight      ")
+    catarg("digits.pval        ")
+    catarg("digits.pval.Q      ")
+    catarg("scientific.pval    ")
+    catarg("big.mark           ")
+    catarg("zero.pval          ")
+    catarg("JAMA.pval          ")
+    catarg("print.I2           ")
+    catarg("print.H            ")
+    catarg("print.Rb           ")
+    catarg("text.tau2          ")
+    catarg("text.tau           ")
+    catarg("text.I2            ")
+    catarg("text.Rb            ")
     ##
     cat(paste("\n* Default summary measure (argument 'sm' in",
                "corresponding function) *\n"))
@@ -501,31 +520,32 @@ settings.meta <- function(...) {
     cat("\n** Reset all meta-analysis settings (R package meta). **\n\n")
     ##
     setOption("level", 0.95)
-    setOption("level.comb", 0.95)
-    setOption("comb.fixed", TRUE)
-    setOption("comb.random", TRUE)
+    setOption("level.ma", 0.95)
+    setOption("fixed", TRUE)
+    setOption("random", TRUE)
     setOption("hakn", FALSE)
     setOption("adhoc.hakn", "")
-    setOption("method.tau", "DL")
+    setOption("method.tau", "REML")
     setOption("method.tau.ci", NULL)
     setOption("tau.common", FALSE)
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
     setOption("test.subgroup", TRUE)
     setOption("method.bias", "Egger")
-    setOption("text.fixed", "Fixed effect model")
+    setOption("text.fixed", "Common effect model")
     setOption("text.random", "Random effects model")
     setOption("text.predict", "Prediction interval")
-    setOption("text.w.fixed", "fixed")
+    setOption("text.w.fixed", "common")
     setOption("text.w.random", "random")
     setOption("title", "")
     setOption("complab", "")
     setOption("CIbracket", "[")
     setOption("CIseparator", "; ")
-    setOption("print.byvar", TRUE)
-    setOption("byseparator", " = ")
+    setOption("print.subgroup.name", TRUE)
+    setOption("sep.subgroup", " = ")
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
+    setOption("warn.deprecated", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
@@ -558,7 +578,7 @@ settings.meta <- function(...) {
     setOption("allstudies", FALSE)
     setOption("MH.exact", FALSE)
     setOption("RR.Cochrane", FALSE)
-    setOption("Q.Cochrane", TRUE)
+    setOption("Q.Cochrane", FALSE)
     setOption("model.glmm", "UM.FS")
     setOption("print.CMH", FALSE)
     ##
@@ -593,7 +613,8 @@ settings.meta <- function(...) {
   else if (specific.settings) {
     ##
     ## Remember:
-    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6", "geneexpr", "meta4")
+    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6",
+    ##               "geneexpr", "meta4")
     ##
     if (setting == "RevMan5") {
       specificSettings(args = c("hakn", "method.tau", "tau.common",
@@ -641,11 +662,16 @@ settings.meta <- function(...) {
     else if (setting == "meta4") {
       specificSettings(args = c("hakn", "method.tau",
                                 "RR.Cochrane", "Q.Cochrane",
-                                "CIbracket", "CIseparator"),
+                                "CIbracket", "CIseparator",
+                                "text.fixed", "text.w.fixed",
+                                "warn.deprecated"),
                        new = list(FALSE, "DL",
                                   FALSE, TRUE,
-                                  "[", "; "),
-                       setting = "Settings from R package meta (version 4.y-z and older)")
+                                  "[", "; ",
+                                  "Fixed effect model", "fixed",
+                                  FALSE),
+                       setting =
+                         "settings from meta, version 4 or below")
     }
     ##
     else if (setting == "geneexpr") {
@@ -655,101 +681,94 @@ settings.meta <- function(...) {
     }
   }
   else {
-    argid <- function(x, value) {
-      if (any(names == value))
-        res <- seq(along = x)[names == value]
-      else
-        res <- NA
-      res
-    }
+    idlevel <- argid(names.all, "level")
+    idlevel.ma <- argid(names.all, "level.ma")
+    idfixed <- argid(names.all, "fixed")
+    idrandom <- argid(names.all, "random")
+    idhakn <- argid(names.all, "hakn")
+    idadhoc.hakn <- argid(names.all, "adhoc.hakn")
+    idmethod.tau <- argid(names.all, "method.tau")
+    idmethod.tau.ci <- argid(names.all, "method.tau.ci")
+    idtau.common <- argid(names.all, "tau.common")
+    idprediction <- argid(names.all, "prediction")
+    idlevel.predict <- argid(names.all, "level.predict")
+    idmethod.bias <- argid(names.all, "method.bias")
+    idtext.fixed <- argid(names.all, "text.fixed")
+    idtext.random <- argid(names.all, "text.random")
+    idtext.predict <- argid(names.all, "text.predict")
+    idtext.w.fixed <- argid(names.all, "text.w.fixed")
+    idtext.w.random <- argid(names.all, "text.w.random")
+    idtitle <- argid(names.all, "title")
+    idcomplab <- argid(names.all, "complab")
+    idCIbracket <- argid(names.all, "CIbracket")
+    idCIseparator <- argid(names.all, "CIseparator")
+    idprint.subgroup.name <- argid(names.all, "print.subgroup.name")
+    idsep.subgroup <- argid(names.all, "sep.subgroup")
+    idkeepdata <- argid(names.all, "keepdata")
+    idwarn <- argid(names.all, "warn")
+    idwarn.deprecated <- argid(names.all, "warn.deprecated")
+    idbacktransf <- argid(names.all, "backtransf")
+    iddigits <- argid(names.all, "digits")
+    iddigits.se <- argid(names.all, "digits.se")
+    iddigits.stat <- argid(names.all, "digits.stat")
+    iddigits.Q <- argid(names.all, "digits.Q") 
+    iddigits.tau2 <- argid(names.all, "digits.tau2")
+    iddigits.tau <- argid(names.all, "digits.tau")
+    iddigits.H <- argid(names.all, "digits.H") 
+    iddigits.I2 <- argid(names.all, "digits.I2")
+    iddigits.prop <- argid(names.all, "digits.prop")
+    iddigits.weight <- argid(names.all,"digits.weight")
+    iddigits.pval <- argid(names.all, "digits.pval")
+    iddigits.pval.Q <- argid(names.all, "digits.pval.Q")
+    idscientific.pval <- argid(names.all, "scientific.pval")
+    idbig.mark <- argid(names.all, "big.mark")
+    idzero.pval <- argid(names.all, "zero.pval")
+    idJAMA.pval <- argid(names.all, "JAMA.pval")
+    idprint.I2 <- argid(names.all, "print.I2")
+    idprint.H <- argid(names.all, "print.H")
+    idprint.Rb <- argid(names.all, "print.Rb")
+    idtext.tau2 <- argid(names.all, "text.tau2")
+    idtext.tau <- argid(names.all, "text.tau")
+    idtext.I2 <- argid(names.all, "text.I2")
+    idtext.Rb <- argid(names.all, "text.Rb")
     ##
-    idlevel <- argid(names, "level")
-    idlevel.comb <- argid(names, "level.comb")
-    idcomb.fixed <- argid(names, "comb.fixed")
-    idcomb.random <- argid(names, "comb.random")
-    idhakn <- argid(names, "hakn")
-    idadhoc.hakn <- argid(names, "adhoc.hakn")
-    idmethod.tau <- argid(names, "method.tau")
-    idmethod.tau.ci <- argid(names, "method.tau.ci")
-    idtau.common <- argid(names, "tau.common")
-    idprediction <- argid(names, "prediction")
-    idlevel.predict <- argid(names, "level.predict")
-    idmethod.bias <- argid(names, "method.bias")
-    idtext.fixed <- argid(names, "text.fixed")
-    idtext.random <- argid(names, "text.random")
-    idtext.predict <- argid(names, "text.predict")
-    idtext.w.fixed <- argid(names, "text.w.fixed")
-    idtext.w.random <- argid(names, "text.w.random")
-    idtitle <- argid(names, "title")
-    idcomplab <- argid(names, "complab")
-    idCIbracket <- argid(names, "CIbracket")
-    idCIseparator <- argid(names, "CIseparator")
-    idprint.byvar <- argid(names, "print.byvar")
-    idbyseparator <- argid(names, "byseparator")
-    idkeepdata <- argid(names, "keepdata")
-    idwarn <- argid(names, "warn")
-    idbacktransf <- argid(names, "backtransf")
-    iddigits <- argid(names, "digits")
-    iddigits.se <- argid(names, "digits.se")
-    iddigits.stat <- argid(names, "digits.stat")
-    iddigits.Q <- argid(names, "digits.Q") 
-    iddigits.tau2 <- argid(names, "digits.tau2")
-    iddigits.tau <- argid(names, "digits.tau")
-    iddigits.H <- argid(names, "digits.H") 
-    iddigits.I2 <- argid(names, "digits.I2")
-    iddigits.prop <- argid(names, "digits.prop")
-    iddigits.weight <- argid(names,"digits.weight")
-    iddigits.pval <- argid(names, "digits.pval")
-    iddigits.pval.Q <- argid(names, "digits.pval.Q")
-    idscientific.pval <- argid(names, "scientific.pval")
-    idbig.mark <- argid(names, "big.mark")
-    idzero.pval <- argid(names, "zero.pval")
-    idJAMA.pval <- argid(names, "JAMA.pval")
-    idprint.I2 <- argid(names, "print.I2")
-    idprint.H <- argid(names, "print.H")
-    idprint.Rb <- argid(names, "print.Rb")
-    idtext.tau2 <- argid(names, "text.tau2")
-    idtext.tau <- argid(names, "text.tau")
-    idtext.I2 <- argid(names, "text.I2")
-    idtext.Rb <- argid(names, "text.Rb")
+    idsmbin <- argid(names.all, "smbin")
+    idmethod <- argid(names.all, "method")
+    idincr <- argid(names.all, "incr")
+    idallincr <- argid(names.all, "allincr")
+    idaddincr <- argid(names.all, "addincr")
+    idallstudies <- argid(names.all, "allstudies")
+    idMH.exact <- argid(names.all, "MH.exact")
+    idRR.Cochrane <- argid(names.all, "RR.Cochrane")
+    idQ.Cochrane <- argid(names.all, "Q.Cochrane")
+    idmodel.glmm <- argid(names.all, "model.glmm")
+    idprint.CMH <- argid(names.all, "print.CMH")
     ##
-    idsmbin <- argid(names, "smbin")
-    idmethod <- argid(names, "method")
-    idincr <- argid(names, "incr")
-    idallincr <- argid(names, "allincr")
-    idaddincr <- argid(names, "addincr")
-    idallstudies <- argid(names, "allstudies")
-    idMH.exact <- argid(names, "MH.exact")
-    idRR.Cochrane <- argid(names, "RR.Cochrane")
-    idQ.Cochrane <- argid(names, "Q.Cochrane")
-    idmodel.glmm <- argid(names, "model.glmm")
-    idprint.CMH <- argid(names, "print.CMH")
+    idsmcont <- argid(names.all, "smcont")
+    idsmcor <- argid(names.all, "smcor")
+    idsminc <- argid(names.all, "sminc")
+    idsmmean <- argid(names.all, "smmean")
+    idsmprop <- argid(names.all, "smprop")
+    idsmrate <- argid(names.all, "smrate")
     ##
-    idsmcont <- argid(names, "smcont")
-    idsmcor <- argid(names, "smcor")
-    idsminc <- argid(names, "sminc")
-    idsmmean <- argid(names, "smmean")
-    idsmprop <- argid(names, "smprop")
-    idsmrate <- argid(names, "smrate")
+    idpooledvar <- argid(names.all, "pooledvar")
+    idmethod.smd <- argid(names.all, "method.smd")
+    idsd.glass <- argid(names.all, "sd.glass")
+    idexact.smd <- argid(names.all, "exact.smd")
+    idmethod.ci.cont <- argid(names.all, "method.ci.cont")
     ##
-    idpooledvar <- argid(names, "pooledvar")
-    idmethod.smd <- argid(names, "method.smd")
-    idsd.glass <- argid(names, "sd.glass")
-    idexact.smd <- argid(names, "exact.smd")
-    idmethod.ci.cont <- argid(names, "method.ci.cont")
+    idmethod.ci.prop <- argid(names.all, "method.ci.prop")
     ##
-    idmethod.ci.prop <- argid(names, "method.ci.prop")
+    idlabel.e <- argid(names.all, "label.e")
+    idlabel.c <- argid(names.all, "label.c")
+    idlabel.left <- argid(names.all, "label.left")
+    idlabel.right <- argid(names.all, "label.right")
     ##
-    idlabel.e <- argid(names, "label.e")
-    idlabel.c <- argid(names, "label.c")
-    idlabel.left <- argid(names, "label.left")
-    idlabel.right <- argid(names, "label.right")
-    ##
-    idlayout <- argid(names, "layout")
-    idtest.overall <- argid(names, "test.overall")
-    idtest.subgroup <- argid(names, "test.subgroup")
-    idtest.effect.subgroup <- argid(names, "test.effect.subgroup")
-    iddigits.forest <- argid(names, "digits.forest")
+    idlayout <- argid(names.all, "layout")
+    idtest.overall <- argid(names.all, "test.overall")
+    idtest.subgroup <- argid(names.all, "test.subgroup")
+    idtest.effect.subgroup <- argid(names.all, "test.effect.subgroup")
+    iddigits.forest <- argid(names.all, "digits.forest")
     ##
     ## General settings
     ##
@@ -758,20 +777,20 @@ settings.meta <- function(...) {
       chklevel(level)
       setOption("level", level)
     }
-    if (!is.na(idlevel.comb)) {
-      level.comb <- args[[idlevel.comb]]
-      chklevel(level.comb)
-      setOption("level.comb", level.comb)
+    if (!is.na(idlevel.ma)) {
+      level.ma <- args[[idlevel.ma]]
+      chklevel(level.ma)
+      setOption("level.ma", level.ma)
     }
-    if (!is.na(idcomb.fixed)) {
-      comb.fixed <- args[[idcomb.fixed]]
-      chklogical(comb.fixed)
-      setOption("comb.fixed", comb.fixed)
+    if (!is.na(idfixed)) {
+      fixed <- args[[idfixed]]
+      chklogical(fixed)
+      setOption("fixed", fixed)
     }
-    if (!is.na(idcomb.random)) {
-      comb.random <- args[[idcomb.random]]
-      chklogical(comb.random)
-      setOption("comb.random", comb.random)
+    if (!is.na(idrandom)) {
+      random <- args[[idrandom]]
+      chklogical(random)
+      setOption("random", random)
     }
     if (!is.na(idhakn)) {
       hakn <- args[[idhakn]]
@@ -875,17 +894,17 @@ settings.meta <- function(...) {
       ##
       setOption("CIseparator", CIseparator)
     }
-    if (!is.na(idprint.byvar)) {
-      print.byvar <- args[[idprint.byvar]]
-      chklogical(print.byvar)
-      setOption("print.byvar", print.byvar)
+    if (!is.na(idprint.subgroup.name)) {
+      print.subgroup.name <- args[[idprint.subgroup.name]]
+      chklogical(print.subgroup.name)
+      setOption("print.subgroup.name", print.subgroup.name)
     }
-    if (!is.na(idbyseparator)) {
-      byseparator <- args[[idbyseparator]]
-      if (length(byseparator) != 1)
-        stop("Argument 'byseparator' must be a character string.")
+    if (!is.na(idsep.subgroup)) {
+      sep.subgroup <- args[[idsep.subgroup]]
+      if (length(sep.subgroup) != 1)
+        stop("Argument 'sep.subgroup' must be a character string.")
       ##
-      setOption("byseparator", byseparator)
+      setOption("sep.subgroup", sep.subgroup)
     }
     if (!is.na(idkeepdata)) {
       keepdata <- args[[idkeepdata]]
@@ -896,6 +915,11 @@ settings.meta <- function(...) {
       warn <- args[[idwarn]]
       chklogical(warn)
       setOption("warn", warn)
+    }
+    if (!is.na(idwarn.deprecated)) {
+      warn.deprecated <- args[[idwarn.deprecated]]
+      chklogical(warn.deprecated)
+      setOption("warn.deprecated", warn.deprecated)
     }
     if (!is.na(idbacktransf)) {
       backtransf <- args[[idbacktransf]]
@@ -911,10 +935,6 @@ settings.meta <- function(...) {
       digits.se <- args[[iddigits.se]]
       chknumeric(digits.se, min = 0, length = 1)
       setOption("digits.se", digits.se)
-    }
-    if (!is.na(argid(names, "digits.zval"))) {
-      warning("Argument 'digits.zval' is deprecated; ",
-              "use instead argument 'digits.stat'.", call. = FALSE)
     }
     if (!is.na(iddigits.stat)) {
       digits.stat <- args[[iddigits.stat]]

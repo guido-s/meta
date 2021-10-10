@@ -305,7 +305,6 @@
 #' @rdname metabias
 #' @method metabias meta
 #' @export
-#' @export metabias.meta
 
 
 metabias.meta <- function(x, method.bias = x$method.bias,
@@ -318,6 +317,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   ##
   chkclass(x, "meta")
+  x <- updateversion(x)
   x.name <- deparse(substitute(x))
   ##  
   if (inherits(x, "metacum"))
@@ -447,7 +447,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   if (k < k.min | k < 3)
     res <- list(k = k, k.min = k.min)
-  else if (length(x$byvar) != 0)
+  else if (length(x$subgroup) != 0)
     res <- list(subgroup = TRUE)
   else {
     ##
@@ -639,7 +639,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     if (plotit) {
       ##
       if (method.bias == "Egger" | method.bias == "Thompson") {
-        radial(TE, seTE, comb.fixed = FALSE)
+        radial(TE, seTE, fixed = FALSE)
         abline(lreg$slope, lreg$intercept)
       }
       else if (method.bias == "Begg") {
@@ -652,7 +652,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       }
       else if (method.bias == "Harbord") {
         ##
-        radial(TE.score, seTE.score, comb.fixed = FALSE)
+        radial(TE.score, seTE.score, fixed = FALSE)
         abline(lreg$slope, lreg$intercept)
       }
     }
@@ -694,7 +694,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
 #' @rdname metabias
 #' @method print metabias
 #' @export
-#' @export print.metabias
 
 
 print.metabias <- function(x,
@@ -971,7 +970,6 @@ metabias <- function(x, ...)
 #' @rdname metabias
 #' @method metabias default
 #' @export
-#' @export metabias.default
 
 
 metabias.default <- function(x, seTE,
@@ -1014,5 +1012,26 @@ metabias.default <- function(x, seTE,
                   k.min = k.min, ...)
   
   
+  res
+}
+
+
+
+
+
+setmethodbias <- function(x) {
+  oldmethod <- setchar(x, .settings$meth4bias.old,
+                       stop.at.error = FALSE)
+  ##
+  if (is.null(oldmethod))
+    res <- setchar(x, .settings$meth4bias)
+  else
+    res <- switch(oldmethod,
+                  rank = "Begg",
+                  linreg = "Egger",
+                  mm = "Thompson",
+                  count = "Schwarzer",
+                  score = "Harbord")
+  ##
   res
 }

@@ -41,8 +41,9 @@ gs <- function(x) {
   x.nam <- deparse(substitute(x))
   x.nam <- substring(x.nam, 2, nchar(x.nam) - 1)
   ##
-  x <- setchar(x, .settings$argslist, "unmatched", name = x.nam,
-               stop.at.error = FALSE)
+  if (!(x %in% .settings$argslist.internal))
+    x <- setchar(x, .settings$argslist, "unmatched", name = x.nam,
+                 stop.at.error = FALSE)
   
   if (!is.null(x))
     x <- settings.meta()[[x]]

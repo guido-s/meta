@@ -36,7 +36,7 @@
 #' metabin(d.asp, n.asp, d.plac, n.plac,
 #'         data = Fleiss1993bin,
 #'         studlab = paste(study, year),
-#'         sm = "OR", comb.random = FALSE)
+#'         sm = "OR", random = FALSE)
 
 
 NULL

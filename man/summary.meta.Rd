@@ -4,86 +4,10 @@
 \alias{summary.meta}
 \title{Summary of meta-analysis results}
 \usage{
-\method{summary}{meta}(
-  object,
-  comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random,
-  prediction = object$prediction,
-  overall = object$overall,
-  overall.hetstat = object$overall.hetstat,
-  test.subgroup = object$test.subgroup,
-  backtransf = object$backtransf,
-  pscale = object$pscale,
-  irscale = object$irscale,
-  irunit = object$irunit,
-  bylab = object$bylab,
-  print.byvar = object$print.byvar,
-  byseparator = object$byseparator,
-  bystud = FALSE,
-  print.CMH = object$print.CMH,
-  ...
-)
+\method{summary}{meta}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{meta}.}
-
-\item{comb.fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
-
-\item{comb.random}{A logical indicating whether a random effects
-meta-analysis should be conducted.}
-
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
-
-\item{overall}{A logical indicating whether overall summaries
-should be reported. This argument is useful in a meta-analysis
-with subgroups if overall results should not be reported.}
-
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
-
-\item{test.subgroup}{A logical value indicating whether to print
-results of test for subgroup differences.}
-
-\item{backtransf}{A logical indicating whether printed results
-should be back transformed. If \code{backtransf=TRUE}, results
-for \code{sm="OR"} are printed as odds ratios rather than log
-odds ratios and results for \code{sm="ZCOR"} are printed as
-correlations rather than Fisher's z transformed correlations, for
-example.}
-
-\item{pscale}{A numeric giving scaling factor for printing of
-single event probabilities or risk differences, i.e. if argument
-\code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
-\code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
-
-\item{irscale}{A numeric defining a scaling factor for printing of
-single incidence rates or incidence rate differences, i.e. if
-argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
-\code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
-
-\item{irunit}{A character specifying the time unit used to
-calculate rates, e.g. person-years.}
-
-\item{bylab}{A character string with a label for the grouping
-variable.}
-
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
-
-\item{byseparator}{A character string defining the separator
-between label and levels of grouping variable.}
-
-\item{bystud}{A logical indicating whether results of individual
-studies should be printed by grouping variable.}
-
-\item{print.CMH}{A logical indicating whether result of the
-Cochran-Mantel-Haenszel test for overall effect should be
-printed.}
 
 \item{\dots}{Additional arguments (ignored).}
 }
@@ -94,27 +18,18 @@ An object of classes \code{summary.meta} and \code{meta}.
 Summary method for objects of class \code{meta}.
 }
 \details{
-Note, in R package \bold{meta}, version 3.0-0 some arguments have
-been removed from R functions \code{\link{summary.meta}}
-(arguments: byvar, level, level.comb, level.prediction) and
-print.summary.meta (arguments: level, level.comb,
-level.prediction). This functionality is now provided by R function
-\code{\link{update.meta}} (or directly in meta-analysis functions,
-e.g., \code{\link{metabin}}, \code{\link{metacont}},
-\code{\link{metagen}}, \code{\link{metacor}}, and
-\code{\link{metaprop}}).
-
 Review Manager 5 (RevMan 5) is the current software used for
 preparing and maintaining Cochrane Reviews
 (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
 In RevMan 5, subgroup analyses can be defined and data from a
-Cochrane review can be imported to Rusing the function \code{read.rm5}. If a
-meta-analysis is then conducted using function \code{metacr}, information on
-subgroups is available in R (components \code{byvar}, \code{bylab}, and
-\code{print.byvar}, \code{byvar} in an object of class \code{"meta"}).
-Accordingly, by using function \code{metacr} there is no need to define
-subgroups in order to redo the statistical analysis conducted in the
-Cochrane review.
+Cochrane review can be imported to Rusing the function
+\code{read.rm5}. If a meta-analysis is then conducted using
+function \code{metacr}, information on subgroups is available in R
+(components \code{subgroup}, \code{subgroup.name}, and
+\code{print.subgroup.name}, \code{subgroup} in an object of class
+\code{"meta"}).  Accordingly, by using function \code{metacr} there
+is no need to define subgroups in order to redo the statistical
+analysis conducted in the Cochrane review.
 
 Note, for an object of type \code{metaprop}, starting with version
 3.7-0 of meta, list elements \code{TE}, \code{lower} and
@@ -154,8 +69,8 @@ m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
                studlab = paste(study, year))
 summary(m1)
 
-summary(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
-forest(update(m1, byvar = c(1, 2, 1, 1, 2), bylab = "group"))
+summary(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
+forest(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
 
 \dontrun{
 # Use unicode characters to print tau^2, tau, and I^2
@@ -180,7 +95,7 @@ Quantifying heterogeneity in a meta-analysis.
 \bold{21}, 1539--58
 }
 \seealso{
-\code{\link{update.meta}}, \code{\link{metabin}},
+\code{\link{print.summary.meta}}, \code{\link{metabin}},
   \code{\link{metacont}}, \code{\link{metagen}}
 }
 \author{

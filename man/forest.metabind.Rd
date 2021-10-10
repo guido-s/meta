@@ -167,8 +167,8 @@ m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 
 # Conduct two subgroup analyses
 #
-mu1 <- update(m1, byvar = age, bylab = "Age group")
-mu2 <- update(m1, byvar = region, bylab = "Region")
+mu1 <- update(m1, subgroup = age, bylab = "Age group")
+mu2 <- update(m1, subgroup = region, bylab = "Region")
 
 # Combine subgroup meta-analyses and show forest plot with subgroup
 # results

@@ -53,8 +53,8 @@
 #'
 #' # Conduct two subgroup analyses
 #' #
-#' mu1 <- update(m1, byvar = age, bylab = "Age group")
-#' mu2 <- update(m1, byvar = region, bylab = "Region")
+#' mu1 <- update(m1, subgroup = age, subgroup.name = "Age group")
+#' mu2 <- update(m1, subgroup = region, subgroup.name = "Region")
 #'
 #' # Combine subgroup meta-analyses and show forest plot with subgroup
 #' # results
@@ -132,26 +132,23 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   }
   ##  
   for (i in n.i) {
-    if (!inherits(args[[i]], "meta"))
-      stop("All elements of argument '...' must be of ",
-           "class 'meta'.",
-           call. = FALSE)
-    ##
     if (inherits(args[[i]], "metabind"))
       stop("Elements of argument '...' may not be of ",
            "class 'metabind'.",
            call. = FALSE)
+    ##
+    if (!inherits(args[[i]], "meta"))
+      stop("All elements of argument '...' must be of class 'meta'.",
+           call. = FALSE)
+    else
+      args[[i]] <- updateversion(args[[i]])
   }
   
   
   is.subgroup <- rep(FALSE, n.meta)
   ##
   for (i in n.i) {
-    if (!inherits(args[[i]], "meta"))
-      stop("All elements of argument '...' must be of class 'meta'.",
-           call. = FALSE)
-    ##
-    if (!is.null(args[[i]]$byvar))
+    if (!is.null(args[[i]]$subgroup))
       is.subgroup[i] <- TRUE
   }
   
@@ -168,7 +165,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     name <- rep("", n.meta)
     ##
     for (i in n.i)
-      name[i] <- replaceNULL(args[[i]]$bylab)
+      name[i] <- replaceNULL(args[[i]]$subgroup.name)
     ##
     if (all(is.na(name)))
       name <- paste0("meta", n.i)
@@ -207,11 +204,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     ##
     meth.i <- data.frame(sm = m.i$sm,
                          method = m.i$method,
-                         level = m.i$level.comb,
-                         level.comb = m.i$level.comb,
+                         level = m.i$level.ma,
+                         level.ma = m.i$level.ma,
                          level.predict = m.i$level.predict,
-                         comb.fixed = m.i$comb.fixed,
-                         comb.random = m.i$comb.random,
+                         fixed = m.i$fixed,
+                         random = m.i$random,
                          hakn = m.i$hakn,
                          method.tau = m.i$method.tau,
                          tau.preset = replaceNULL(m.i$tau.preset),
@@ -229,8 +226,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          label.left = m.i$label.left,
                          label.right = m.i$label.right,
                          ##
-                         print.byvar = FALSE,
-                         byseparator = "",
+                         print.subgroup.name = FALSE,
+                         sep.subgroup = "",
                          warn = replaceNULL(m.i$warn, FALSE),
                          ##
                          backtransf = m.i$backtransf,
@@ -249,12 +246,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ## Unify some settings
   ##
   if (missing(pooled)) {
-    if (all(meth$comb.fixed) & all(!meth$comb.random))
+    if (all(meth$fixed) & all(!meth$random))
       pooled <- "fixed"
-    else if (all(!meth$comb.fixed) & all(meth$comb.random))
+    else if (all(!meth$fixed) & all(meth$random))
       pooled <- "random"
     else {
-      if (any(meth$comb.fixed)) {
+      if (any(meth$fixed)) {
         warning3 <-
           paste("Note, results from random effects model extracted.",
                 "Use argument pooled = \"fixed\" for results of",
@@ -266,12 +263,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   }
   ##
   if (pooled == "fixed") {
-    meth$comb.fixed <- TRUE
-    meth$comb.random <- FALSE
+    meth$fixed <- TRUE
+    meth$random <- FALSE
   }
   else {
-    meth$comb.fixed <- FALSE
-    meth$comb.random <- TRUE
+    meth$fixed <- FALSE
+    meth$random <- TRUE
   }
   
   
@@ -677,7 +674,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       }
     }
     ##
-    study.i$byvar <- name[i]
+    study.i$subgroup <- name[i]
     ##
     if (i == 1)
       study <- study.i
@@ -686,9 +683,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   }
   
   
-  if (length(unique(study$byvar)) == 1) {
+  if (length(unique(study$subgroup)) == 1) {
     res <- c(as.list(study), as.list(meth[1, ]), as.list(overall))
-    res$byvar <- NULL
+    res$subgroup <- NULL
   }
   else
     res <- c(as.list(study), as.list(meth[1, ]),
@@ -781,9 +778,9 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   res$is.subgroup <- is.subgroup
 
 
-  if (!is.null(res$byvar)) {
-    res$bylab <- "meta-analysis"
-    res$bylevs <- unique(res$byvar)
+  if (!is.null(res$subgroup)) {
+    res$subgroup.name <- "meta-analysis"
+    res$bylevs <- unique(res$subgroup)
     res$w.fixed <- rep(0, length(res$w.fixed))
     res$w.fixed.w <- rep(0, length(res$w.fixed.w))
     res$w.random <- rep(0, length(res$w.random))

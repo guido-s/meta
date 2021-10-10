@@ -30,7 +30,7 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' summary(metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995))
+#' metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995)
 
 
 NULL

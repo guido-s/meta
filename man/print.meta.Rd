@@ -7,20 +7,22 @@
 \usage{
 \method{print}{meta}(
   x,
-  comb.fixed = x$comb.fixed,
-  comb.random = x$comb.random,
+  fixed = x$fixed,
+  random = x$random,
   prediction = x$prediction,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
   test.subgroup = x$test.subgroup,
+  test.subgroup.fixed = test.subgroup & fixed,
+  test.subgroup.random = test.subgroup & random,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
-  bylab = x$bylab,
-  print.byvar = x$print.byvar,
-  byseparator = x$byseparator,
-  bylab.nchar = 35,
+  subgroup.name = x$subgroup.name,
+  print.subgroup.name = x$print.subgroup.name,
+  sep.subgroup = x$sep.subgroup,
+  nchar.subgroup = 35,
   header = TRUE,
   print.CMH = x$print.CMH,
   digits = gs("digits"),
@@ -55,10 +57,10 @@ cilayout(bracket = "[", separator = "; ")
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a fixed effect
 meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{prediction}{A logical indicating whether a prediction
@@ -76,6 +78,14 @@ level.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{test.subgroup.fixed}{A logical value indicating whether to
+print results of test for subgroup differences (based on fixed
+effect / common effect model).}
+
+\item{test.subgroup.random}{A logical value indicating whether to
+print results of test for subgroup differences (based on random
+effects model).}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results
@@ -97,17 +107,18 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
 
-\item{bylab}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a name for the
+grouping variable.}
 
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the grouping variable should be printed in front of the group
+labels.}
 
-\item{byseparator}{A character string defining the separator
+\item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
 
-\item{bylab.nchar}{A numeric specifying the number of characters to
-print from label for the grouping variable.}
+\item{nchar.subgroup}{A numeric specifying the number of characters
+to print from subgroup labels.}
 
 \item{header}{A logical indicating whether information on title of
 meta-analysis, comparison and outcome should be printed at the

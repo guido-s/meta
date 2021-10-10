@@ -42,7 +42,7 @@
 #' metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'          data = Fleiss1993cont,
 #'          studlab = paste(study, year),
-#'          comb.random = FALSE)
+#'          random = FALSE)
 
 
 NULL

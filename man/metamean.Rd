@@ -24,11 +24,11 @@ metamean(
   sm = gs("smmean"),
   method.ci = gs("method.ci.cont"),
   level = gs("level"),
-  level.comb = gs("level.comb"),
-  comb.fixed = gs("comb.fixed"),
-  comb.random = gs("comb.random"),
-  overall = comb.fixed | comb.random,
-  overall.hetstat = comb.fixed | comb.random,
+  level.ma = gs("level.ma"),
+  fixed = gs("fixed"),
+  random = gs("random") | !is.null(tau.preset),
+  overall = fixed | random,
+  overall.hetstat = fixed | random,
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
@@ -49,14 +49,17 @@ metamean(
   title = gs("title"),
   complab = gs("complab"),
   outclab = "",
-  byvar,
-  bylab,
-  print.byvar = gs("print.byvar"),
-  byseparator = gs("byseparator"),
+  subgroup,
+  subgroup.name = NULL,
+  print.subgroup.name = gs("print.subgroup.name"),
+  sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
+  byvar,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
-  control = NULL
+  warn.deprecated = gs("warn.deprecated"),
+  control = NULL,
+  ...
 )
 }
 \arguments{
@@ -118,13 +121,13 @@ Details.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.comb}{The level used to calculate confidence intervals
-for pooled estimates.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
+\item{fixed}{A logical indicating whether a fixed effect / common
+effect meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{overall}{A logical indicating whether overall summaries
@@ -205,20 +208,23 @@ random effects model.}
 
 \item{outclab}{Outcome label.}
 
-\item{byvar}{An optional vector containing grouping information
-(must be of same length as \code{n}).}
+\item{subgroup}{An optional vector to conduct a meta-analysis with
+subgroups.}
 
-\item{bylab}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a name for the
+subgroup variable.}
 
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the subgroup variable should be printed in front of the group
+labels.}
 
-\item{byseparator}{A character string defining the separator
-between label and levels of grouping variable.}
+\item{sep.subgroup}{A character string defining the separator
+between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -227,9 +233,14 @@ should be kept in meta object.}
 (e.g., if studies are excluded from meta-analysis due to zero
 standard deviations).}
 
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
 is passed on to \code{\link[metafor]{rma.uni}}.}
+
+\item{\dots}{Additional arguments (to catch deprecated arguments).}
 }
 \value{
 An object of class \code{c("metamean", "meta")} with corresponding
@@ -240,13 +251,13 @@ object is a list containing the following components:
 \item{median, q1, q3, min, max,}{As defined above.}
 \item{method.mean, method.sd,}{As defined above.}
 \item{approx.mean, approx.sd,}{As defined above.}
-\item{level, level.comb,}{As defined above.}
-\item{comb.fixed, comb.random,}{As defined above.}
+\item{level, level.ma,}{As defined above.}
+\item{fixed, random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 \item{tau.common, title, complab, outclab,}{As defined above.}
-\item{byvar, bylab, print.byvar, byseparator, warn}{As defined
+\item{subgroup, subgroup.name, print.subgroup.name, sep.subgroup, warn}{As defined
   above.}
 \item{TE, seTE}{Estimated effect (mean or log mean) and standard
   error of individual studies.}
@@ -294,77 +305,77 @@ object is a list containing the following components:
 \item{method}{Pooling method: \code{"Inverse"}.}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn = TRUE}).}
-\item{bylevs}{Levels of grouping variable - if \code{byvar} is not
+\item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
 \item{TE.fixed.w, seTE.fixed.w}{Estimated effect and standard error
-  in subgroups (fixed effect model) - if \code{byvar} is not
+  in subgroups (fixed effect model) - if \code{subgroup} is not
   missing.}
 \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
   interval limits in subgroups (fixed effect model) - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
   test of treatment effect in subgroups (fixed effect model) - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated effect and standard
-  error in subgroups (random effects model) - if \code{byvar} is
+  error in subgroups (random effects model) - if \code{subgroup} is
   not missing.}
 \item{lower.random.w, upper.random.w}{Lower and upper confidence
   interval limits in subgroups (random effects model) - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{statistic.random.w, pval.random.w}{Statistics and p-values
   for test of treatment effect in subgroups (random effects model)
-  - if \code{byvar} is not missing.}
+  - if \code{subgroup} is not missing.}
 \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{byvar} is not missing.}
+  random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of effect for
-  Hartung-Knapp method in subgroups - if \code{byvar} is not
+  Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
 \item{n.e.w}{Number of observations in experimental group in
-  subgroups - if \code{byvar} is not missing.}
+  subgroups - if \code{subgroup} is not missing.}
 \item{n.c.w}{Number of observations in control group in subgroups -
-  if \code{byvar} is not missing.}
+  if \code{subgroup} is not missing.}
 \item{k.w}{Number of studies combined within subgroups - if
-  \code{byvar} is not missing.}
-\item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+  \code{subgroup} is not missing.}
+\item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
 \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{byvar} is not missing.}
+  (based on fixed effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
+  Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
-  subgroups heterogeneity - if \code{byvar} is not missing.}
+  subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
+  statistic Q (based on fixed effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
+  statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
 \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{byvar} is not
+  Q (based on fixed effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{byvar} is not
+  Q (based on random effects model) - if \code{subgroup} is not
   missing.}
 \item{df.Q.b}{Degrees of freedom for test of overall between
-  subgroups heterogeneity - if \code{byvar} is not missing.}
+  subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{byvar} is
+  statistic Q (based on fixed effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{byvar} is
+  statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
 \item{tau.w}{Square-root of between-study variance within subgroups
-  - if \code{byvar} is not missing.}
+  - if \code{subgroup} is not missing.}
 \item{H.w}{Heterogeneity statistic H within subgroups - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-  heterogeneity statistic H within subgroups - if \code{byvar} is
+  heterogeneity statistic H within subgroups - if \code{subgroup} is
   not missing.}
 \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-  \code{byvar} is not missing.}
+  \code{subgroup} is not missing.}
 \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-  heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
+  heterogeneity statistic I\eqn{^2} within subgroups - if \code{subgroup} is
   not missing.}
 \item{keepdata}{As defined above.}
 \item{data}{Original data (set) used in function call (if
@@ -584,7 +595,7 @@ method:
 
 A prediction interval for the proportion in a new study (Higgins et
 al., 2009) is calculated if arguments \code{prediction} and
-\code{comb.random} are \code{TRUE}. Note, the definition of
+\code{random} are \code{TRUE}. Note, the definition of
 prediction intervals varies in the literature. This function
 implements equation (12) of Higgins et al., (2009) which proposed a
 \emph{t} distribution with \emph{K-2} degrees of freedom where
@@ -593,7 +604,7 @@ implements equation (12) of Higgins et al., (2009) which proposed a
 
 \subsection{Subgroup analysis}{
 
-Argument \code{byvar} can be used to conduct subgroup analysis for
+Argument \code{subgroup} can be used to conduct subgroup analysis for
 a categorical covariate. The \code{\link{metareg}} function can be
 used instead for more than one categorical covariate or continuous
 covariates.
@@ -613,14 +624,14 @@ Meta-analysis results are the same for both arguments.
 
 Internally, both fixed effect and random effects models are
 calculated regardless of values choosen for arguments
-\code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+\code{fixed} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component
 \code{TE.random} of an object of class \code{"meta"} even if
-argument \code{comb.random = FALSE}. However, all functions in R
+argument \code{random = FALSE}. However, all functions in R
 package \bold{meta} will adequately consider the values for
-\code{comb.fixed} and \code{comb.random}. E.g. functions
+\code{fixed} and \code{random}. E.g. functions
 \code{\link{print.meta}} and \code{\link{forest.meta}} will not
-print results for the random effects model if \code{comb.random =
+print results for the random effects model if \code{random =
 FALSE}.
 }
 }

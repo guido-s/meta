@@ -1,7 +1,7 @@
 xlab <- function(sm, backtransf,
                  pscale = 1, irscale = 1, irunit = "person-years",
                  newline = FALSE, revman5 = FALSE,
-                 big.mark = big.mark) {
+                 big.mark = gs("big.mark")) {
   
   res <- NULL
   
@@ -149,3 +149,19 @@ xlab <- function(sm, backtransf,
   
   res
 }
+
+
+is.cor <- function(x)
+  x %in% gs("sm4cor")
+
+
+is.mean <- function(x)
+  x %in% gs("sm4mean")
+
+
+is.prop <- function(x)
+  x %in% gs("sm4prop")
+
+
+is.rate <- function(x)
+  x %in% gs("sm4rate")

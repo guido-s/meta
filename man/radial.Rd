@@ -12,7 +12,7 @@
   ylim = NULL,
   xlab = "Inverse of standard error",
   ylab = "Standardised treatment effect (z-score)",
-  comb.fixed = TRUE,
+  fixed = TRUE,
   axes = TRUE,
   pch = 1,
   text = NULL,
@@ -29,7 +29,7 @@
   ylim = NULL,
   xlab = "Inverse of standard error",
   ylab = "Standardised treatment effect (z-score)",
-  comb.fixed = TRUE,
+  fixed = TRUE,
   axes = TRUE,
   pch = 1,
   text = NULL,
@@ -51,7 +51,7 @@ effect in individual studies.}
 
 \item{ylab}{A label for the y-axis.}
 
-\item{comb.fixed}{A logical indicating whether the pooled fixed
+\item{fixed}{A logical indicating whether the pooled fixed
 effect estimate should be plotted.}
 
 \item{axes}{A logical indicating whether axes should be drawn on
@@ -79,7 +79,7 @@ to assess bias in meta-analysis.
 }
 \details{
 A radial plot (Galbraith 1988a,b), also called Galbraith plot, is
-drawn in the active graphics window. If \code{comb.fixed} is TRUE,
+drawn in the active graphics window. If \code{fixed} is TRUE,
 the pooled estimate of the fixed effect model is plotted. If
 \code{level} is not NULL, the corresponding confidence limits are
 drawn.

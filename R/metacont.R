@@ -61,11 +61,11 @@
 #'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.comb The level used to calculate confidence intervals
-#'   for pooled estimates.
-#' @param comb.fixed A logical indicating whether a fixed effect
-#'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param fixed A logical indicating whether a fixed effect / common
+#'   effect meta-analysis should be conducted.
+#' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param overall A logical indicating whether overall summaries
 #'   should be reported. This argument is useful in a meta-analysis
@@ -145,24 +145,29 @@
 #' @param exact.smd A logical indicating whether exact formulae should
 #'   be used in estimation of the standardised mean difference and its
 #'   standard error (see Details).
-#' @param byvar An optional vector containing grouping information
-#'   (must be of same length as \code{n.e}).
-#' @param bylab A character string with a label for the grouping
-#'   variable.
-#' @param print.byvar A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
-#' @param byseparator A character string defining the separator
-#'   between label and levels of grouping variable.
+#' @param subgroup An optional vector to conduct a meta-analysis with
+#'   subgroups.
+#' @param subgroup.name A character string with a name for the
+#'   subgroup variable.
+#' @param print.subgroup.name A logical indicating whether the name of
+#'   the subgroup variable should be printed in front of the group
+#'   labels.
+#' @param sep.subgroup A character string defining the separator
+#'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param byvar Deprecated argument (replaced by 'subgroup').
 ##' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if studies are excluded from meta-analysis due to zero
 #'   standard deviations).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}}.
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
 #' Calculation of fixed and random effects estimates for meta-analyses
@@ -414,7 +419,7 @@
 #' 
 #' A prediction interval for the proportion in a new study (Higgins et
 #' al., 2009) is calculated if arguments \code{prediction} and
-#' \code{comb.random} are \code{TRUE}. Note, the definition of
+#' \code{random} are \code{TRUE}. Note, the definition of
 #' prediction intervals varies in the literature. This function
 #' implements equation (12) of Higgins et al., (2009) which proposed a
 #' \emph{t} distribution with \emph{K-2} degrees of freedom where
@@ -423,7 +428,7 @@
 #'
 #' \subsection{Subgroup analysis}{
 #' 
-#' Argument \code{byvar} can be used to conduct subgroup analysis for
+#' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
@@ -443,14 +448,14 @@
 #' 
 #' Internally, both fixed effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{comb.fixed} and \code{comb.random}. Accordingly, the estimate
+#' \code{fixed} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
-#' argument \code{comb.random = FALSE}. However, all functions in R
+#' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{comb.fixed} and \code{comb.random}. E.g. function
+#' \code{fixed} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
-#' effects model if \code{comb.random = FALSE}.
+#' effects model if \code{random = FALSE}.
 #' }
 #' 
 #' @note
@@ -470,8 +475,8 @@
 #' \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 #' \item{method.mean, method.sd,}{As defined above.}
 #' \item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As defined above.}
-#' \item{level, level.comb,}{As defined above.}
-#' \item{comb.fixed, comb.random,}{As defined above.}
+#' \item{level, level.ma,}{As defined above.}
+#' \item{fixed, random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{pooledvar, method.smd, sd.glass,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -479,7 +484,8 @@
 #' \item{tau.common, title, complab, outclab,}{As defined above.}
 #' \item{label.e, label.c, label.left, label.right,}{As defined
 #'   above.}
-#' \item{byvar, bylab, print.byvar, byseparator}{As defined above.}
+#' \item{subgroup, subgroup.name,}{As defined above.}
+#' \item{print.subgroup.name, sep.subgroup, warn,}{As defined above.}
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   individual studies.}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
@@ -528,77 +534,77 @@
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
 #' \item{method}{Pooling method: \code{"Inverse"}.}
-#' \item{bylevs}{Levels of grouping variable - if \code{byvar} is not
+#' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
 #' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
 #'   standard error in subgroups (fixed effect model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
 #'   interval limits in subgroups (fixed effect model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
 #'   test of treatment effect in subgroups (fixed effect model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
 #'   standard error in subgroups (random effects model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.random.w, upper.random.w}{Lower and upper confidence
 #'   interval limits in subgroups (random effects model) - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{statistic.random.w, pval.random.w}{Statistics and p-values
 #'   for test of treatment effect in subgroups (random effects model)
-#'   - if \code{byvar} is not missing.}
+#'   - if \code{subgroup} is not missing.}
 #' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-#'   random effects model) - if \code{byvar} is not missing.}
+#'   random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
-#'   for Hartung-Knapp method in subgroups - if \code{byvar} is not
+#'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
 #'   missing and \code{hakn = TRUE}.}
 #' \item{n.e.w}{Number of observations in experimental group in
-#'   subgroups - if \code{byvar} is not missing.}
+#'   subgroups - if \code{subgroup} is not missing.}
 #' \item{n.c.w}{Number of observations in control group in subgroups -
-#'   if \code{byvar} is not missing.}
+#'   if \code{subgroup} is not missing.}
 #' \item{k.w}{Number of studies combined within subgroups - if
-#'   \code{byvar} is not missing.}
-#' \item{k.all.w}{Number of all studies in subgroups - if \code{byvar}
+#'   \code{subgroup} is not missing.}
+#' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
 #' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-#'   (based on fixed effect model) - if \code{byvar} is not missing.}
+#'   (based on fixed effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{byvar} is not
+#'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
-#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{byvar} is
+#'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-#'   Q (based on fixed effect model) - if \code{byvar} is not
+#'   Q (based on fixed effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{byvar} is not
+#'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
-#'   subgroups heterogeneity - if \code{byvar} is not missing.}
+#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{byvar} is
+#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{byvar} is
+#'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{tau.w}{Square-root of between-study variance within subgroups
-#'   - if \code{byvar} is not missing.}
+#'   - if \code{subgroup} is not missing.}
 #' \item{H.w}{Heterogeneity statistic H within subgroups - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic H within subgroups - if \code{byvar} is
+#'   heterogeneity statistic H within subgroups - if \code{subgroup} is
 #'   not missing.}
 #' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-#'   \code{byvar} is not missing.}
+#'   \code{subgroup} is not missing.}
 #' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{byvar} is
+#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{subgroup} is
 #'   not missing.}
 #' \item{keepdata}{As defined above.}
 #' \item{data}{Original data (set) used in function call (if
@@ -770,11 +776,11 @@
 #' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
 #'                n.plac, mean.plac, sqrt(var.plac),
 #'                data = amlodipine, studlab = study)
-#' summary(m2)
+#' m2
 #' 
 #' # Use pooled variance
 #' #
-#' summary(update(m2, pooledvar = TRUE))
+#' update(m2, pooledvar = TRUE)
 #' 
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
@@ -782,8 +788,8 @@
 #' m3 <- metacont(n.elev, mean.elev, sd.elev,
 #' 		  n.amb, mean.amb, sd.amb,
 #'                data = woodyplants, sm = "ROM")
-#' summary(m3)
-#' summary(m3, backtransf = FALSE)
+#' m3
+#' print(m3, backtransf = FALSE)
 #' 
 #' @export metacont
 
@@ -806,11 +812,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      exact.smd = gs("exact.smd"),
                      ##
                      method.ci = gs("method.ci.cont"),
-                     level = gs("level"), level.comb = gs("level.comb"),
-                     comb.fixed = gs("comb.fixed"),
-                     comb.random = gs("comb.random"),
-                     overall = comb.fixed | comb.random,
-                     overall.hetstat = comb.fixed | comb.random,
+                     level = gs("level"), level.ma = gs("level.ma"),
+                     fixed = gs("fixed"),
+                     random = gs("random") | !is.null(tau.preset),
+                     overall = fixed | random,
+                     overall.hetstat = fixed | random,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau = gs("method.tau"),
@@ -837,15 +843,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      label.left = gs("label.left"),
                      label.right = gs("label.right"),
                      ##
-                     byvar, bylab, print.byvar = gs("print.byvar"),
-                     byseparator = gs("byseparator"),
+                     subgroup, subgroup.name = NULL,
+                     print.subgroup.name = gs("print.subgroup.name"),
+                     sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
                      ##
+                     byvar,
                      keepdata = gs("keepdata"),
-                     warn = gs("warn"),
+                     warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
                      ##
-                     control = NULL
-                     ) {
+                     control = NULL,
+                     ...) {
   
   
   ##
@@ -855,11 +863,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   chknull(sm)
   chklevel(level)
-  chklevel(level.comb)
-  chklogical(comb.fixed)
-  chklogical(comb.random)
-  chklogical(overall)
-  chklogical(overall.hetstat)
   ##
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
@@ -910,6 +913,45 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
   sd.glass <- setchar(sd.glass, c("control", "experimental"))
   chklogical(warn)
+  ##
+  ## Check for deprecated arguments in '...'
+  ##
+  args  <- list(...)
+  chklogical(warn.deprecated)
+  ##
+  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+                         warn.deprecated)
+  chklevel(level.ma)
+  ##
+  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
+                      warn.deprecated)
+  chklogical(fixed)
+  ##
+  random <- deprecated(random, missing(random), args, "comb.random",
+                       warn.deprecated)
+  chklogical(random)
+  ##
+  missing.subgroup.name <- missing(subgroup.name)
+  subgroup.name <-
+    deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
+               warn.deprecated)
+  ##
+  print.subgroup.name <-
+    deprecated(print.subgroup.name, missing(print.subgroup.name),
+               args, "print.byvar", warn.deprecated)
+  print.subgroup.name <- replaceNULL(print.subgroup.name, FALSE)
+  chklogical(print.subgroup.name)
+  ##
+  sep.subgroup <-
+    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+               warn.deprecated)
+  if (!is.null(sep.subgroup))
+    chkchar(sep.subgroup, length = 1)
+  ##
+  ## Some more checks
+  ##
+  chklogical(overall)
+  chklogical(overall.hetstat)
   
   
   ##
@@ -1009,15 +1051,22 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   id <- eval(mf[[match("id", names(mf))]],
              data, enclos = sys.frame(sys.parent()))
   ##
-  ## Catch 'studlab', 'byvar', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
   studlab <- eval(mf[[match("studlab", names(mf))]],
                   data, enclos = sys.frame(sys.parent()))
   studlab <- setstudlab(studlab, k.All)
   ##
+  missing.subgroup <- missing(subgroup)
+  subgroup <- eval(mf[[match("subgroup", names(mf))]],
+                   data, enclos = sys.frame(sys.parent()))
+  missing.byvar <- missing(byvar)
   byvar <- eval(mf[[match("byvar", names(mf))]],
                 data, enclos = sys.frame(sys.parent()))
-  by <- !is.null(byvar)
+  ##
+  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                          warn.deprecated)
+  by <- !is.null(subgroup)
   ##
   subset <- eval(mf[[match("subset", names(mf))]],
                  data, enclos = sys.frame(sys.parent()))
@@ -1082,6 +1131,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     missing.approx.sd.c <- missing(approx.sd.c)
   approx.sd.c <- eval(mf[[match("approx.sd.c", names(mf))]],
                       data, enclos = sys.frame(sys.parent()))
+  ##
+  ## Additional checks
+  ##
+  if (!by & tau.common) {
+    warning("Value for argument 'tau.common' set to FALSE as ",
+            "argument 'subgroup' is missing.")
+    tau.common <- FALSE
+  }
+  if (by & !tau.common & !is.null(tau.preset)) {
+    warning("Argument 'tau.common' set to TRUE as ",
+            "argument tau.preset is not NULL.")
+    tau.common <- TRUE
+  }
   
   
   ##
@@ -1155,19 +1217,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   ##
   if (by) {
-    chklength(byvar, k.All, arg)
+    chklength(subgroup, k.All, arg)
     chklogical(test.subgroup)
-  }
-  ##
-  ## Additional checks
-  ##
-  if (!by & tau.common) {
-    warning("Value for argument 'tau.common' set to FALSE as argument 'byvar' is missing.")
-    tau.common <- FALSE
-  }
-  if (by & !tau.common & !is.null(tau.preset)) {
-    warning("Argument 'tau.common' set to TRUE as argument tau.preset is not NULL.")
-    tau.common <- TRUE
   }
   
   
@@ -1243,7 +1294,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       data$.approx.sd.c <- approx.sd.c
     ##
     if (by)
-      data$.byvar <- byvar
+      data$.subgroup <- subgroup
     ##
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
@@ -1311,7 +1362,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       approx.sd.c <- approx.sd.c[subset]
     ##
     if (by)
-      byvar <- byvar[subset]
+      subgroup <- subgroup[subset]
   }
   ##
   ## Determine total number of studies
@@ -1324,8 +1375,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    comb.fixed  <- FALSE
-    comb.random <- FALSE
+    fixed  <- FALSE
+    random <- FALSE
     prediction  <- FALSE
     overall <- FALSE
     overall.hetstat <- FALSE
@@ -1390,12 +1441,20 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     min.c <- int2num(min.c)
   if (!missing.max.c)
     max.c <- int2num(max.c)
-    ##
+  ##
   if (by) {
-    chkmiss(byvar)
-    byvar.name <- byvarname(mf[[match("byvar", names(mf))]])
-    bylab <- if (!missing(bylab) && !is.null(bylab)) bylab else byvar.name
+    chkmiss(subgroup)
+    ##
+    if (missing.subgroup.name & is.null(subgroup.name)) {
+      if (!missing.subgroup)
+        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+      else if (!missing.byvar)
+        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+    }
   }
+  ##
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
   
   
   ##
@@ -1831,9 +1890,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                ##
                sm = sm,
                level = level,
-               level.comb = level.comb,
-               comb.fixed = comb.fixed,
-               comb.random = comb.random,
+               level.ma = level.ma,
+               fixed = fixed,
+               random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                ##
@@ -1866,7 +1925,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (by & tau.common) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, "",
-                   TE.tau, level.comb, byvar, control)
+                   TE.tau, level.ma, subgroup, control)
   }
   
   
@@ -1963,10 +2022,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## Add results from subgroup analysis
   ##
   if (by) {
-    res$byvar <- byvar
-    res$bylab <- bylab
-    res$print.byvar <- print.byvar
-    res$byseparator <- byseparator
+    res$subgroup <- subgroup
+    res$subgroup.name <- subgroup.name
+    res$print.subgroup.name <- print.subgroup.name
+    res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
     res$tau.common <- tau.common
     ##
@@ -2019,6 +2078,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$n.w <- NULL
     res$time.e.w <- NULL
     res$time.c.w <- NULL
+  }
+  ##
+  ## Backward compatibility
+  ##
+  res$comb.fixed <- fixed
+  res$comb.random <- random
+  res$level.comb <- level.ma
+  ##
+  if (by) {
+    res$byvar <- subgroup
+    res$bylab <- subgroup.name
+    res$print.byvar <- print.subgroup.name
+    res$byseparator <- sep.subgroup
   }
   ##
   class(res) <- c(fun, "meta")

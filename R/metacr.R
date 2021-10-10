@@ -17,11 +17,11 @@
 #'   be used for pooling of studies.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.comb The level used to calculate confidence intervals
+#' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param comb.fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a fixed effect
 #'   meta-analysis should be conducted.
-#' @param comb.random A logical indicating whether a random effects
+#' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param hakn A logical indicating whether the method by Hartung and
 #'   Knapp should be used to adjust test statistics and confidence
@@ -71,6 +71,7 @@
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
 #' Cochrane Intervention reviews are based on the comparison of two
@@ -143,8 +144,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    method, sm,
                    ##
-                   level = gs("level"), level.comb = gs("level.comb"),
-                   comb.fixed, comb.random,
+                   level = gs("level"), level.ma = gs("level.ma"),
+                   fixed, random,
                    ##
                    hakn = FALSE,
                    method.tau = "DL",
@@ -169,7 +170,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    title, complab, outclab,
                    ##
                    keepdata = gs("keepdata"),
-                   warn = FALSE) {
+                   warn = FALSE,
+                   ...) {
   
   
   ##
@@ -190,7 +192,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     chkchar(outcome.no, length = 1)
   ##
   chklevel(level)
-  chklevel(level.comb)
+  chklevel(level.ma)
   ##
   chklogical(hakn)
   method.tau <- setchar(method.tau, .settings$meth4tau)
@@ -272,11 +274,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   if (sm == "PETO_OR")
     sm <- "OR"
   ##
-  if (missing(comb.fixed))
-    comb.fixed  <- unique(x$comb.fixed[sel])
+  if (missing(fixed))
+    fixed  <- unique(x$fixed[sel])
   ##
-  if (missing(comb.random))
-    comb.random <- unique(x$comb.random[sel])
+  if (missing(random))
+    random <- unique(x$random[sel])
   ##  
   if (tau.common & method == "Peto") {
     if (warn)
@@ -333,7 +335,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   dropnames <- c("comp.no", "outcome.no", "group.no",
                  "overall", "test.subgroup",
-                 "type", "method", "sm", "model", "comb.fixed", "comb.random",
+                 "type", "method", "sm", "model", "fixed", "random",
                  "outclab", "k",
                  "event.e.pooled", "n.e.pooled",
                  "event.c.pooled", "n.c.pooled",
@@ -359,16 +361,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      comb.fixed = comb.fixed, comb.random = comb.random,
+                      fixed = fixed, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.comb = level.comb,
+                      level = level, level.ma = level.ma,
                       prediction = prediction, level.predict = level.predict,
                       overall = overall,
-                      byvar = grplab,
-                      bylab = "grp",
-                      print.byvar = FALSE,
+                      subgroup = grplab,
+                      subgroup.name = "grp",
+                      print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       backtransf = backtransf,
                       ##
@@ -388,16 +390,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      comb.fixed = comb.fixed, comb.random = comb.random,
+                      fixed = fixed, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.comb = level.comb,
+                      level = level, level.ma = level.ma,
                       prediction = prediction, level.predict = level.predict,
                       overall = overall,
-                      byvar = grplab,
-                      bylab = "grp",
-                      print.byvar = FALSE,
+                      subgroup = grplab,
+                      subgroup.name = "grp",
+                      print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       backtransf = backtransf,
                       ##
@@ -420,16 +422,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      n.c, mean.c, sd.c,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
-                     comb.fixed = comb.fixed, comb.random = comb.random,
+                     fixed = fixed, random = random,
                      hakn = hakn,
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
-                     level = level, level.comb = level.comb,
+                     level = level, level.ma = level.ma,
                      prediction = prediction, level.predict = level.predict,
                      overall = overall,
-                     byvar = grplab,
-                     bylab = "grp",
-                     print.byvar = FALSE,
+                     subgroup = grplab,
+                     subgroup.name = "grp",
+                     print.subgroup.name = FALSE,
                      test.subgroup = test.subgroup,
                      ##
                      text.fixed = text.fixed, text.random = text.random,
@@ -447,16 +449,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
-                    byvar = grplab,
-                    bylab = "grp",
-                    print.byvar = FALSE,
+                    subgroup = grplab,
+                    subgroup.name = "grp",
+                    print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     backtransf = backtransf,
                     ##
@@ -475,16 +477,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(TE, seTE,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
-                    byvar = grplab,
-                    bylab = "grp",
-                    print.byvar = FALSE,
+                    subgroup = grplab,
+                    subgroup.name = "grp",
+                    print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     n.e = n.e,
                     n.c = n.c,
@@ -505,16 +507,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
-                    byvar = grplab,
-                    bylab = "grp",
-                    print.byvar = FALSE,
+                    subgroup = grplab,
+                    subgroup.name = "grp",
+                    print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     backtransf = backtransf,
                     ##
@@ -541,11 +543,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      comb.fixed = comb.fixed, comb.random = comb.random,
+                      fixed = fixed, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.comb = level.comb,
+                      level = level, level.ma = level.ma,
                       prediction = prediction, level.predict = level.predict,
                       overall = overall,
                       backtransf = backtransf,
@@ -566,11 +568,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      comb.fixed = comb.fixed, comb.random = comb.random,
+                      fixed = fixed, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.comb = level.comb,
+                      level = level, level.ma = level.ma,
                       prediction = prediction, level.predict = level.predict,
                       overall = overall,
                       backtransf = backtransf,
@@ -594,11 +596,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      n.c, mean.c, sd.c,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
-                     comb.fixed = comb.fixed, comb.random = comb.random,
+                     fixed = fixed, random = random,
                      hakn = hakn,
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
-                     level = level, level.comb = level.comb,
+                     level = level, level.ma = level.ma,
                      prediction = prediction, level.predict = level.predict,
                      overall = overall,
                      ##
@@ -617,11 +619,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
                     backtransf = backtransf,
@@ -641,11 +643,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(TE, seTE,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
                     n.e = n.e,
@@ -667,11 +669,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    comb.fixed = comb.fixed, comb.random = comb.random,
+                    fixed = fixed, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.comb = level.comb,
+                    level = level, level.ma = level.ma,
                     prediction = prediction, level.predict = level.predict,
                     overall = overall,
                     backtransf = backtransf,

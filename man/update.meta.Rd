@@ -22,9 +22,9 @@
   Q.Cochrane = object$Q.Cochrane,
   model.glmm = object$model.glmm,
   level = object$level,
-  level.comb = object$level.comb,
-  comb.fixed = object$comb.fixed,
-  comb.random = object$comb.random,
+  level.ma = object$level.ma,
+  fixed = object$fixed,
+  random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
   hakn = object$hakn,
@@ -61,10 +61,12 @@
   sd.glass = object$sd.glass,
   exact.smd = object$exact.smd,
   method.ci = object$method.ci,
+  subgroup,
+  subgroup.name = object$subgroup.name,
+  print.subgroup.name = object$print.subgroup.name,
+  sep.subgroup = object$sep.subgroup,
+  test.subgroup = object$test.subgroup,
   byvar,
-  bylab = object$bylab,
-  print.byvar = object$print.byvar,
-  byseparator = object$byseparator,
   print.CMH = object$print.CMH,
   keepdata = TRUE,
   left = object$left,
@@ -72,6 +74,7 @@
   type = object$type,
   n.iter.max = object$n.iter.max,
   warn = FALSE,
+  warn.deprecated = gs("warn.deprecated"),
   control = object$control,
   ...
 )
@@ -140,13 +143,13 @@ should be used.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.comb}{The level used to calculate confidence intervals
+\item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a fixed effect
 meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{overall}{A logical indicating whether overall summaries
@@ -285,17 +288,23 @@ to calculate confidence intervals for individual studies. Either
 abbreviated. See functions \code{\link{metacont}} and
 \code{\link{metaprop}}.}
 
-\item{byvar}{An optional vector containing grouping information
-(must be of same length as \code{event.e}).}
+\item{subgroup}{An optional vector to conduct a meta-analysis with
+subgroups.}
 
-\item{bylab}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a name for the
+subgroup variable.}
 
-\item{print.byvar}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the subgroup variable should be printed in front of the group
+labels.}
 
-\item{byseparator}{A character string defining the separator
-between label and levels of grouping variable.}
+\item{sep.subgroup}{A character string defining the separator
+between name of subgroup variable and subgroup label.}
+
+\item{test.subgroup}{A logical value indicating whether to print
+results of test for subgroup differences.}
+
+\item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be
@@ -323,6 +332,9 @@ of missing studies.}
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if \code{incr} is added to studies with zero cell
 frequencies).}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
@@ -369,7 +381,7 @@ update(m1, subset = 1:2)
 
 # Use different levels for confidence intervals
 #
-m2 <- update(m1, level = 0.66, level.comb = 0.99)
+m2 <- update(m1, level = 0.66, level.ma = 0.99)
 print(m2, digits = 2)
 forest(m2)
 

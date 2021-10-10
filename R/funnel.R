@@ -12,18 +12,18 @@
 #' @param ylim The y limits (min,max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param comb.fixed A logical indicating whether the pooled fixed
+#' @param fixed A logical indicating whether the fixed effect / common
 #'   effect estimate should be plotted.
-#' @param comb.random A logical indicating whether the pooled random
-#'   effects estimate should be plotted.
+#' @param random A logical indicating whether the random effects
+#'   estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
 #' @param pch The plotting symbol used for individual studies.
 #' @param text A character vector specifying the text to be used
 #'   instead of plotting symbol.
 #' @param cex The magnification to be used for plotting symbol.
-#' @param lty.fixed Line type (pooled fixed effect estimate).
-#' @param lty.random Line type (pooled random effects estimate).
+#' @param lty.fixed Line type (fixed effect estimate).
+#' @param lty.random Line type (random effects estimate).
 #' @param col A vector with colour of plotting symbols.
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
@@ -33,9 +33,9 @@
 #' @param lwd The line width for confidence intervals (if \code{level}
 #'   is not \code{NULL}).
 #' @param lwd.fixed The line width for fixed effect estimate (if
-#'   \code{comb.fixed} is not \code{NULL}).
+#'   \code{fixed} is not \code{NULL}).
 #' @param lwd.random The line width for random effects estimate (if
-#'   \code{comb.random} is not \code{NULL}).
+#'   \code{random} is not \code{NULL}).
 #' @param log A character string which contains \code{"x"} if the
 #'   x-axis is to be logarithmic, \code{"y"} if the y-axis is to be
 #'   logarithmic and \code{"xy"} or \code{"yx"} if both axes are to be
@@ -80,14 +80,13 @@
 #' 
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
-#' graphics window. If \code{comb.fixed} is TRUE, the pooled estimate
-#' of the fixed effect model is plotted as a vertical line. Similarly,
-#' if \code{comb.random} is TRUE, the pooled estimate of the random
-#' effects model is plotted. If \code{level} is not NULL, the
-#' corresponding approximate confidence limits are drawn around the
-#' fixed effect estimate (if \code{comb.fixed} is TRUE) or the random
-#' effects estimate (if \code{comb.random} is TRUE and
-#' \code{comb.fixed} is FALSE).
+#' graphics window. If \code{fixed} is TRUE, the estimate of the fixed
+#' effect model is plotted as a vertical line. Similarly, if
+#' \code{random} is TRUE, the estimate of the random effects model is
+#' plotted. If \code{level} is not NULL, the corresponding approximate
+#' confidence limits are drawn around the fixed effect estimate (if
+#' \code{fixed} is TRUE) or the random effects estimate (if
+#' \code{random} is TRUE and \code{fixed} is FALSE).
 #' 
 #' In the funnel plot, the standard error of the treatment estimates
 #' is plotted on the y-axis by default (\code{yaxis = "se"}) which is
@@ -155,14 +154,14 @@
 #' # Funnel plot with confidence intervals, fixed effect estimate and
 #' # contours
 #' #
-#' cc <- funnel(m1, comb.fixed = TRUE,
+#' cc <- funnel(m1, fixed = TRUE,
 #'              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
 #' legend(0.05, 0.05,
 #'        c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
 #' 
 #' # Contour-enhanced funnel plot with user-chosen colours
 #' #
-#' funnel(m1, comb.fixed = TRUE,
+#' funnel(m1, fixed = TRUE,
 #'        level = 0.95, contour = c(0.9, 0.95, 0.99),
 #'        col.contour = c("darkgreen", "green", "lightgreen"),
 #'        lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
@@ -181,7 +180,7 @@ funnel.meta <- function(x,
                         ##
                         xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
                         ##
-                        comb.fixed = x$comb.fixed, comb.random = x$comb.random,
+                        fixed = x$fixed, random = x$random,
                         ##
                         axes = TRUE,
                         pch = if (!inherits(x, "trimfill"))
@@ -197,7 +196,7 @@ funnel.meta <- function(x,
                         ##
                         ref = ifelse(is.relative.effect(x$sm), 1, 0),
                         ##
-                        level = if (comb.fixed | comb.random) x$level else NULL,
+                        level = if (fixed | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                         ##
                         ref.triangle = FALSE,
@@ -232,8 +231,8 @@ funnel.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   chklogical(axes)
   chknumeric(cex)
   chknumeric(lty.fixed)
@@ -335,14 +334,14 @@ funnel.meta <- function(x,
     ##
     seTE.seq <- seq(seTE.min, seTE.max, length.out = 500)
     ##
-    if (comb.random & !comb.fixed)
+    if (random & !fixed)
       ciTE <- ci(TE.random, seTE.seq, level)
     else
       ciTE <- ci(TE.fixed, seTE.seq, level)
     ##
     ciTE.ref <- ci(ref, seTE.seq, level)
     ##
-    if ((comb.fixed | comb.random) & ref.triangle)
+    if ((fixed | random) & ref.triangle)
       TE.xlim <- c(min(c(TE, ciTE$lower, ciTE.ref$lower),
                        na.rm = TRUE) / 1.025,
                    1.025 * max(c(TE, ciTE$upper, ciTE.ref$upper),
@@ -582,11 +581,11 @@ funnel.meta <- function(x,
   ##
   ## Add results for meta-analysis
   ##
-  if (comb.fixed)
+  if (fixed)
     lines(c(TE.fixed, TE.fixed), range(ylim),
           lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
   ##
-  if (comb.random)
+  if (random)
     lines(c(TE.random, TE.random), range(ylim),
           lty = lty.random, lwd = lwd.random, col = col.random)
   ##
@@ -597,13 +596,13 @@ funnel.meta <- function(x,
   ## Add approximate confidence intervals
   ##
   if (!is.null(level)) {
-    if (comb.fixed | comb.random | !ref.triangle) {
+    if (fixed | random | !ref.triangle) {
       tlow <- ciTE$lower
       tupp <- ciTE$upper
       ##
-      lty.lines <- if (comb.random & !comb.fixed) lty.random else lty.fixed
-      lwd.lines <- if (comb.random & !comb.fixed) lwd.random else lwd.fixed
-      col.lines <- if (comb.random & !comb.fixed) col.random else col.fixed
+      lty.lines <- if (random & !fixed) lty.random else lty.fixed
+      lwd.lines <- if (random & !fixed) lwd.random else lwd.fixed
+      col.lines <- if (random & !fixed) col.random else col.fixed
       ##
       if (yaxis == "se") {
         points(tlow, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,

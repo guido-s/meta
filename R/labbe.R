@@ -17,10 +17,10 @@
 #'   effect estimate(s).
 #' @param TE.random A numeric or vector specifying combined random
 #'   effects estimate(s).
-#' @param comb.fixed A logical indicating whether the pooled fixed
-#'   effect estimate should be plotted.
-#' @param comb.random A logical indicating whether the pooled random
-#'   effects estimate should be plotted.
+#' @param fixed A logical indicating whether the fixed effect estimate
+#'   should be plotted.
+#' @param random A logical indicating whether the random effects
+#'   estimate should be plotted.
 #' @param backtransf A logical indicating which values should be
 #'   printed on x- and y-axis (see Details).
 #' @param axes A logical indicating whether axes should be drawn on
@@ -34,9 +34,9 @@
 #'   used if \code{pch} in \code{21:25}).
 #' @param lwd The line width.
 #' @param lwd.fixed The line width(s) for fixed effect estimate(s) (if
-#'   \code{comb.fixed} is not \code{NULL} or \code{FALSE}).
+#'   \code{fixed} is not \code{NULL} or \code{FALSE}).
 #' @param lwd.random The line width(s) for random effects estimate(s)
-#'   (if \code{comb.random} is not \code{NULL} or \code{FALSE}).
+#'   (if \code{random} is not \code{NULL} or \code{FALSE}).
 #' @param lty.fixed Line type(s) for fixed effect estimate(s).
 #' @param lty.random Line type(s) for random effects estimate(s).
 #' @param col.fixed Colour of line(s) for fixed effect estimate(s).
@@ -81,17 +81,16 @@
 #' = "RR"}, and arcsine-transformed probabilities for \code{sm =
 #' "ASD"}.
 #' 
-#' If \code{comb.fixed} is TRUE, the pooled estimate of the fixed
-#' effect model is plotted as a line. If \code{comb.random} is TRUE,
-#' the pooled estimate of the random effects model is plotted as a
-#' line.
+#' If \code{fixed} is TRUE, the estimate of the fixed effect / common
+#' effct model is plotted as a line. If \code{random} is TRUE, the
+#' estimate of the random effects model is plotted as a line.
 #' 
 #' Information from object \code{x} is utilised if argument
 #' \code{weight} is missing. Weights from the fixed effect model are
-#' used (\code{weight = "fixed"}) if argument \code{x$comb.fixed} is
+#' used (\code{weight = "fixed"}) if argument \code{x$fixed} is
 #' \code{TRUE}; weights from the random effects model are used
-#' (\code{weight = "random"}) if argument \code{x$comb.random} is
-#' \code{TRUE} and \code{x$comb.fixed} is \code{FALSE}.
+#' (\code{weight = "random"}) if argument \code{x$random} is
+#' \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -147,7 +146,7 @@
 #' mycols <- c("blue", "yellow", "green", "red",
 #'             "green", "yellow", "blue")
 #' labbe(m1, sm = "OR",
-#'       comb.random = FALSE,
+#'       random = FALSE,
 #'       TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'       col.fixed = mycols, lwd.fixed = 2)
 #' 
@@ -155,7 +154,7 @@
 #' # treatment effects (defined as log odds ratios)
 #' #
 #' labbe(m1, sm = "OR",
-#'       comb.random = FALSE,
+#'       random = FALSE,
 #'       TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'       col.fixed = mycols, lwd.fixed = 2,
 #'       backtransf = FALSE)
@@ -163,7 +162,6 @@
 #' @rdname labbe
 #' @method labbe metabin
 #' @export
-#' @export labbe.metabin
 
 
 labbe.metabin <- function(x,
@@ -171,8 +169,8 @@ labbe.metabin <- function(x,
                           xlab = NULL, ylab = NULL,
                           TE.fixed = x$TE.fixed,
                           TE.random = x$TE.random,
-                          comb.fixed = x$comb.fixed,
-                          comb.random = x$comb.random,
+                          fixed = x$fixed,
+                          random = x$random,
                           backtransf = x$backtransf,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
@@ -202,8 +200,8 @@ labbe.metabin <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   chklogical(backtransf)
   chklogical(axes)
   chknumeric(cex)
@@ -274,7 +272,7 @@ labbe.metabin <- function(x,
   
   
   if (missing(weight))
-    weight <- ifelse(comb.random & !comb.fixed, "random", "fixed")
+    weight <- ifelse(random & !fixed, "random", "fixed")
   ##
   iweight <- charmatch(tolower(weight),
                        c("same", "fixed", "random"), nomatch = NA)
@@ -299,10 +297,10 @@ labbe.metabin <- function(x,
     studlab <- x$studlab
   
   
-  if (length(comb.fixed) == 0)
-    comb.fixed <- TRUE
-  if (length(comb.random) == 0)
-    comb.random <- TRUE
+  if (length(fixed) == 0)
+    fixed <- TRUE
+  if (length(random) == 0)
+    random <- TRUE
   
   
   if (!backtransf)
@@ -371,22 +369,22 @@ labbe.metabin <- function(x,
   }
   
   
-  if (comb.fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
     lty.fixed <- rep(lty.fixed, length(TE.fixed))
   ##
-  if (comb.fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
     lwd.fixed <- rep(lwd.fixed, length(TE.fixed))
   ##
-  if (comb.fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
     col.fixed <- rep(col.fixed, length(TE.fixed))
   
-  if (comb.random && length(lty.random) == 1 & length(TE.random) > 1)
+  if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
   ##
-  if (comb.random && length(lwd.random) == 1 & length(TE.random) > 1)
+  if (random && length(lwd.random) == 1 & length(TE.random) > 1)
     lwd.random <- rep(lwd.random, length(TE.random))
   ##
-  if (comb.random && length(col.random) == 1 & length(TE.random) > 1)
+  if (random && length(col.random) == 1 & length(TE.random) > 1)
     col.random <- rep(col.random, length(TE.random))
   
   
@@ -417,7 +415,7 @@ labbe.metabin <- function(x,
   ##
   ## Add results for common effect model
   ##
-  if (comb.fixed & length(TE.fixed) > 0) {
+  if (fixed & length(TE.fixed) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)
@@ -462,7 +460,7 @@ labbe.metabin <- function(x,
   ##
   ## Add results for random effects model
   ##
-  if (comb.random & length(TE.random) > 0) {
+  if (random & length(TE.random) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)
@@ -521,15 +519,14 @@ labbe.metabin <- function(x,
 #' @rdname labbe
 #' @method labbe default
 #' @export
-#' @export labbe.default
 
 
 labbe.default <- function(x, y,
                           xlim, ylim,
                           xlab = NULL, ylab = NULL,
                           TE.fixed = NULL, TE.random = NULL,
-                          comb.fixed = !is.null(TE.fixed),
-                          comb.random = !is.null(TE.random),
+                          fixed = !is.null(TE.fixed),
+                          random = !is.null(TE.random),
                           backtransf = TRUE,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
@@ -555,8 +552,8 @@ labbe.default <- function(x, y,
   if(length(xpos) != length(ypos))
     stop("arguments 'x' and 'y' must be of same length")
   ##
-  chklogical(comb.fixed)
-  chklogical(comb.random)
+  chklogical(fixed)
+  chklogical(random)
   chklogical(backtransf)
   chklogical(axes)
   chknumeric(cex)
@@ -664,22 +661,22 @@ labbe.default <- function(x, y,
   }
   
   
-  if (comb.fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
     lty.fixed <- rep(lty.fixed, length(TE.fixed))
   ##
-  if (comb.fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
     lwd.fixed <- rep(lwd.fixed, length(TE.fixed))
   ##
-  if (comb.fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
+  if (fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
     col.fixed <- rep(col.fixed, length(TE.fixed))
   
-  if (comb.random && length(lty.random) == 1 & length(TE.random) > 1)
+  if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
   ##
-  if (comb.random && length(lwd.random) == 1 & length(TE.random) > 1)
+  if (random && length(lwd.random) == 1 & length(TE.random) > 1)
     lwd.random <- rep(lwd.random, length(TE.random))
   ##
-  if (comb.random && length(col.random) == 1 & length(TE.random) > 1)
+  if (random && length(col.random) == 1 & length(TE.random) > 1)
     col.random <- rep(col.random, length(TE.random))
   
   
@@ -710,7 +707,7 @@ labbe.default <- function(x, y,
   ##
   ## Add results for common effect model
   ##
-  if (comb.fixed & length(TE.fixed) > 0) {
+  if (fixed & length(TE.fixed) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)
@@ -755,7 +752,7 @@ labbe.default <- function(x, y,
   ##
   ## Add results for random effects model
   ##
-  if (comb.random & length(TE.random) > 0) {
+  if (random & length(TE.random) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)

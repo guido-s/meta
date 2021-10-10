@@ -13,9 +13,9 @@
   type = "L",
   n.iter.max = 50,
   level = x$level,
-  level.comb = x$level.comb,
-  comb.fixed = FALSE,
-  comb.random = TRUE,
+  level.ma = x$level.ma,
+  fixed = FALSE,
+  random = TRUE,
   hakn = x$hakn,
   method.tau = x$method.tau,
   method.tau.ci = x$method.tau.ci,
@@ -39,9 +39,9 @@
   sm = "",
   studlab = NULL,
   level = 0.95,
-  level.comb = level,
-  comb.fixed = FALSE,
-  comb.random = TRUE,
+  level.ma = level,
+  fixed = FALSE,
+  random = TRUE,
   hakn = FALSE,
   method.tau = "DL",
   method.tau.ci = if (method.tau == "DL") "J" else "QP",
@@ -79,14 +79,14 @@ of missing studies.}
 individual studies. If existing, \code{x$level} is used as value
 for \code{level}; otherwise 0.95 is used.}
 
-\item{level.comb}{The level used to calculate confidence interval
-for the pooled estimate. If existing, \code{x$level.comb} is used
-as value for \code{level.comb}; otherwise 0.95 is used.}
+\item{level.ma}{The level used to calculate confidence interval
+for the pooled estimate. If existing, \code{x$level.ma} is used
+as value for \code{level.ma}; otherwise 0.95 is used.}
 
-\item{comb.fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a fixed effect
 meta-analysis should be conducted.}
 
-\item{comb.random}{A logical indicating whether a random effects
+\item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
 \item{hakn}{A logical indicating whether the method by Hartung and
@@ -150,8 +150,8 @@ An object of class \code{c("metagen", "meta", "trimfill")}. The
 object is a list containing the following components:
 \item{studlab, sm, left, ma.fixed, type, n.iter.max}{As defined
   above.}
-\item{level, level.comb, level.predict}{As defined above.}
-\item{comb.fixed, comb.random, prediction}{As defined above.}
+\item{level, level.ma, level.predict}{As defined above.}
+\item{fixed, random, prediction}{As defined above.}
 \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 \item{TE, seTE}{Estimated treatment effect and standard error of
   individual studies.}
@@ -234,8 +234,8 @@ are available in this R function (argument \code{type}).
 A fixed effect or random effects model can be used to estimate the
 number of missing studies (argument \code{ma.fixed}). Furthermore,
 a fixed effect and/or random effects model can be used to summaries
-study results (arguments \code{comb.fixed} and
-\code{comb.random}). Simulation results (Peters et al. 2007)
+study results (arguments \code{fixed} and
+\code{random}). Simulation results (Peters et al. 2007)
 indicate that the fixed-random model, i.e. using a fixed effect
 model to estimate the number of missing studies and a random
 effects model to summaries results, (i) performs better than the
@@ -255,16 +255,16 @@ The function \code{\link{metagen}} is called internally.
 data(Fleiss1993bin)
 m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
 tf1 <- trimfill(m1)
-summary(tf1)
+tf1
 funnel(tf1)
 funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-       level = 0.9, comb.random = FALSE)
+       level = 0.9, random = FALSE)
 #
 # Use log odds ratios on x-axis
 #
 funnel(tf1, backtransf = FALSE)
 funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-       level = 0.9, comb.random = FALSE, backtransf = FALSE)
+       level = 0.9, random = FALSE, backtransf = FALSE)
 
 trimfill(m1$TE, m1$seTE, sm = m1$sm)
 

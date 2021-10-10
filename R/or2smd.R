@@ -87,7 +87,7 @@
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'               data = Fleiss1993bin,
 #'               studlab = paste(study, year),
-#'               sm = "OR", comb.random = FALSE)
+#'               sm = "OR", random = FALSE)
 #' or2smd(m1)
 #' 
 #' @export or2smd
@@ -101,6 +101,7 @@ or2smd <- function(lnOR, selnOR, studlab,
   is.meta <- inherits(lnOR, "meta")
   ##
   if (is.meta) {
+    lnOR <- updateversion(lnOR)
     if (lnOR$sm != "OR")
       stop("Effect measure must be equal to 'OR'.", call. = FALSE)
     else {
@@ -180,14 +181,14 @@ or2smd <- function(lnOR, selnOR, studlab,
   
   
   if (is.meta) {
-    if (is.null(mdat$byvar))
+    if (is.null(mdat$subgroup))
       res <- metagen(smd, se.smd, sm = "SMD",
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
-                     level = mdat$level, level.comb = mdat$level.comb,
-                     comb.fixed = mdat$comb.fixed,
-                     comb.random = mdat$comb.random,
+                     level = mdat$level, level.ma = mdat$level.ma,
+                     fixed = mdat$fixed,
+                     random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
@@ -206,9 +207,9 @@ or2smd <- function(lnOR, selnOR, studlab,
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
-                     level = mdat$level, level.comb = mdat$level.comb,
-                     comb.fixed = mdat$comb.fixed,
-                     comb.random = mdat$comb.random,
+                     level = mdat$level, level.ma = mdat$level.ma,
+                     fixed = mdat$fixed,
+                     random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
@@ -222,9 +223,10 @@ or2smd <- function(lnOR, selnOR, studlab,
                      label.e = mdat$label.e,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
-                     byvar = mdat$byvar, bylab = mdat$bylab,
-                     print.byvar = mdat$print.byvar,
-                     byseparator = mdat$byseparator,
+                     subgroup = mdat$subgroup,
+                     subgroup.name = mdat$subgroup.name,
+                     print.subgroup.name = mdat$print.subgroup.name,
+                     sep.subgroup = mdat$sep.subgroup,
                      control = mdat$control)
   }
   else {

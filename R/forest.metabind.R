@@ -122,8 +122,8 @@
 #'
 #' # Conduct two subgroup analyses
 #' #
-#' mu1 <- update(m1, byvar = age, bylab = "Age group")
-#' mu2 <- update(m1, byvar = region, bylab = "Region")
+#' mu1 <- update(m1, subgroup = age, bylab = "Age group")
+#' mu2 <- update(m1, subgroup = region, bylab = "Region")
 #'
 #' # Combine subgroup meta-analyses and show forest plot with subgroup
 #' # results
@@ -134,7 +134,6 @@
 #'
 #' @method forest metabind
 #' @export
-#' @export forest.metabind
 
 
 forest.metabind <- function(x,
@@ -201,13 +200,13 @@ forest.metabind <- function(x,
     if (list(...)[["hetstat"]])
       stop("Argument 'hetstat' must be FALSE for metabind objects.")
   ##
-  idx <- charmatch(tolower(addargs), "comb.fixed", nomatch = NA)
+  idx <- charmatch(tolower(addargs), "fixed", nomatch = NA)
   if (any(!is.na(idx)) && length(idx) > 0)
-    stop("Argument 'comb.fixed' cannot be used with metabind objects.")
+    stop("Argument 'fixed' cannot be used with metabind objects.")
   ##
-  idx <- charmatch(tolower(addargs), "comb.random", nomatch = NA)
+  idx <- charmatch(tolower(addargs), "random", nomatch = NA)
   if (any(!is.na(idx)) && length(idx) > 0)
-    stop("Argument 'comb.random' cannot be used with metabind objects.")
+    stop("Argument 'random' cannot be used with metabind objects.")
   ##
   ## Check for deprecated arguments in '...'
   ##
@@ -283,7 +282,7 @@ forest.metabind <- function(x,
   ## Set test for interaction
   ##
   if (any(x$is.subgroup)) {
-    if (x$comb.fixed) {
+    if (x$fixed) {
       x$data$Q.b <- x$data$Q.b.fixed
       x$data$pval.Q.b <- x$data$pval.Q.b.fixed
     }
@@ -340,7 +339,7 @@ forest.metabind <- function(x,
   
   
   if (missing(smlab))
-    smlab <- paste0(if (x$comb.fixed)
+    smlab <- paste0(if (x$fixed)
                       "Fixed Effect Model"
                     else
                       "Random Effects Model",
