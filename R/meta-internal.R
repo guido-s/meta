@@ -4,7 +4,7 @@
            utils::packageDescription("meta")$Version,
            ").",
            "\nType 'help(meta)' for a brief overview.",
-           "\nReaders of 'Use-R! Meta-Analysis with R' should install",
+           "\nReaders of 'Meta-Analysis with R (Use R!)' should install",
            "\nolder version of 'meta' package: ",
            "https://tinyurl.com/dt4y5drs")
   packageStartupMessage(msg)
