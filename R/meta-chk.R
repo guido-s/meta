@@ -183,7 +183,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
   ##
   x <- x[!is.na(x)]
   if (length(x) == 0)
-    return(invisible(NULL))
+    return(NULL)
   ##
   if (!is.numeric(x))
     stop("Non-numeric value for argument '", name, "'.",

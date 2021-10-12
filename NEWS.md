@@ -1,3 +1,12 @@
+## meta, version 5.0-1 (2021-mm-dd)
+
+### Bug fix
+
+* For small sample sizes, use correct entry from Table 2 in (Wan
+  et. (2014))(https://doi.org/10.1186/1471-2288-14-135) to approximate
+  standard deviation from median and related statistics
+
+
 ## meta, version 5.0-0 (2021-10-11)
 
 ### Major changes
@@ -778,7 +787,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https://www.doi.org/10.1136/ebmental-2019-300117)
+  al. (2019)](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019)
 
 ### User-visible changes
 

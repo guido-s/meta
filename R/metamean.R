@@ -1098,7 +1098,7 @@ metamean <- function(n, mean, sd, studlab,
       approx.mean[j] <- "iqr.range"
       ##
       mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
-                                     min[j], max[j], method.mean)$mean
+                                   min[j], max[j], method.mean)$mean
     }
     ##
     ## (b) Use IQR
@@ -1108,7 +1108,7 @@ metamean <- function(n, mean, sd, studlab,
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.mean[j] <- "iqr"
       mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
-                               method.mean)$mean
+                             method.mean)$mean
     }
     ##
     ## (c) Use range
@@ -1118,7 +1118,7 @@ metamean <- function(n, mean, sd, studlab,
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.mean[j] <- "range"
       mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
-                                 method.mean)$mean
+                               method.mean)$mean
     }
   }
   else {
@@ -1131,10 +1131,10 @@ metamean <- function(n, mean, sd, studlab,
                                      min[j], max[j], method.mean)$mean
       else if (i == "iqr")
         mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
-                                 method.mean)$mean
+                               method.mean)$mean
       else if (i == "range")
         mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
-                                   method.mean)$mean
+                                 method.mean)$mean
     }
   }
   
@@ -1169,8 +1169,8 @@ metamean <- function(n, mean, sd, studlab,
       approx.sd[j] <- "iqr.range"
       ##
       sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
-                                   min[j], max[j],
-                                   method.sd = method.sd)$sd
+                                 min[j], max[j],
+                                 method.sd = method.sd)$sd
     }
     ##
     ## (b) Use IQR
@@ -1198,8 +1198,8 @@ metamean <- function(n, mean, sd, studlab,
       ##
       if (i == "iqr.range")
         sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$sd
+                                   min[j], max[j],
+                                   method.sd = method.sd)$sd
       else if (i == "iqr")
         sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
       else if (i == "range")
@@ -1231,7 +1231,8 @@ metamean <- function(n, mean, sd, studlab,
   npn.n <- npn(n)
   ##
   if (any(npn.n) & warn)
-    warning("Studies with non-positive sample size get no weight in meta-analysis.")
+    warning("Studies with non-positive sample size get no weight in ",
+            "meta-analysis.")
   ##
   if (sm == "MRAW") {
     TE <- ifelse(npn.n, NA, mean)
@@ -1250,8 +1251,9 @@ metamean <- function(n, mean, sd, studlab,
     npn.mean <- npn(mean)
     ##
     if (any(npn.mean) & warn)
-      warning("Studies with negative or zero mean get no weight in meta-analysis.")
-
+      warning("Studies with negative or zero mean get no weight ",
+              "in meta-analysis.")
+    ##
     TE <- ifelse(npn.n | npn.mean, NA, log(mean))
     ##
     seTE <- ifelse(npn.n | npn.mean, NA, sqrt(sd^2 / (n * mean^2)))
@@ -1266,7 +1268,8 @@ metamean <- function(n, mean, sd, studlab,
   sel <- sd <= 0
   ##
   if (any(sel, na.rm = TRUE) & warn)
-    warning("Studies with non-positive standard deviation get no weight in meta-analysis.")
+    warning("Studies with non-positive standard deviation get ",
+            "no weight in meta-analysis.")
   ##
   seTE[sel] <- NA
   

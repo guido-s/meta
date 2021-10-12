@@ -451,6 +451,17 @@ print.meta <- function(x,
   TE.fixed    <- x$TE.fixed
   lowTE.fixed <- x$lower.fixed
   uppTE.fixed <- x$upper.fixed
+  pTE.fixed <- x$pval.fixed
+  sTE.fixed <- x$statistic.fixed
+  ##
+  if (k.all == 1) {
+    TE.fixed <- replaceNA(TE.fixed, x$TE)
+    lowTE.fixed <- replaceNA(lowTE.fixed, x$lower)
+    uppTE.fixed <- replaceNA(uppTE.fixed, x$upper)
+    ##
+    pTE.fixed <- x$pval
+    sTE.fixed <- x$statistic
+  }
   ##
   TE.random    <- x$TE.random
   lowTE.random <- x$lower.random
@@ -626,8 +637,7 @@ print.meta <- function(x,
   TE.fixed    <- round(TE.fixed, digits)
   lowTE.fixed <- round(lowTE.fixed, digits)
   uppTE.fixed <- round(uppTE.fixed, digits)
-  pTE.fixed <- x$pval.fixed
-  sTE.fixed <- round(x$statistic.fixed, digits.stat)
+  sTE.fixed <- round(sTE.fixed, digits.stat)
   ##
   TE.random    <- round(TE.random, digits)
   lowTE.random <- round(lowTE.random, digits)

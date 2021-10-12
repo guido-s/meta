@@ -28,6 +28,7 @@
   big.mark = gs("big.mark"),
   smlab,
   calcwidth.pooled = overall,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -111,6 +112,9 @@ figure).}
 \item{calcwidth.pooled}{A logical indicating whether text for fixed
 effect and random effects model should be considered to calculate
 width of the column with study labels.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}
