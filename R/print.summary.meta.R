@@ -403,13 +403,17 @@ print.summary.meta <- function(x,
   ## (4) Print title and details
   ##
   ##
-  if (inherits(x, "metamiss"))
+  is.metamiss <- inherits(x, "metamiss")
+  show.imor <- is.metamiss &
+    (length(unique(x$IMOR.e)) != 1 | length(unique(x$IMOR.c)) != 1)
+  ##
+  if (is.metamiss)
     cat("Sensitivity analysis for missing binary data\n\n")
   ##
   crtitle(x)
   ##
   if (details) {
-    if (inherits(x, "metamiss")) {
+    if (is.metamiss) {
       res <- cbind(event.e = formatN(x$event.e, digits = 0,
                                      "NA", big.mark = big.mark),
                    noevent.e = formatN(x$n.e - x$event.e - x$miss.e,
@@ -741,6 +745,8 @@ print.summary.meta <- function(x,
                              big.mark = big.mark),
                    if (id) as.character(x$id),
                    if (by) as.character(subgroup),
+                   if (show.imor) round(x$IMOR.e, 4),
+                   if (show.imor) round(x$IMOR.c, 4),
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
@@ -794,6 +800,8 @@ print.summary.meta <- function(x,
                  if (show.w.random) text.w.random,
                  if (id) "id",
                  if (by) subgroup.name,
+                 if (show.imor) "IMOR.e",
+                 if (show.imor) "IMOR.c",
                  if (!is.null(x$exclude)) "exclude"))
         ##
         if (!missing.truncate) {

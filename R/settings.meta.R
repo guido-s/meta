@@ -578,7 +578,7 @@ settings.meta <- function(...) {
     setOption("allstudies", FALSE)
     setOption("MH.exact", FALSE)
     setOption("RR.Cochrane", FALSE)
-    setOption("Q.Cochrane", FALSE)
+    setOption("Q.Cochrane", TRUE)
     setOption("model.glmm", "UM.FS")
     setOption("print.CMH", FALSE)
     ##
@@ -660,14 +660,10 @@ settings.meta <- function(...) {
     }
     ##
     else if (setting == "meta4") {
-      specificSettings(args = c("hakn", "method.tau",
-                                "RR.Cochrane", "Q.Cochrane",
-                                "CIbracket", "CIseparator",
+      specificSettings(args = c("method.tau",
                                 "text.fixed", "text.w.fixed",
                                 "warn.deprecated"),
-                       new = list(FALSE, "DL",
-                                  FALSE, TRUE,
-                                  "[", "; ",
+                       new = list("DL",
                                   "Fixed effect model", "fixed",
                                   FALSE),
                        setting =

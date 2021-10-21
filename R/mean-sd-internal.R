@@ -51,8 +51,8 @@ mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   ## Wan et al. (2014), equations (15) and (16)
   ##
   sd <- (q3 - q1) /
-    ifelse(n > 50, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
-           .settings$Wan2014.Table2[n])
+    ifelse(n > 201, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
+           gs("Wan2014.Table2")[ceiling(0.25 * (n - 1))])
   
   
   ##
@@ -146,11 +146,12 @@ mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
   }
   else if (tolower(method.sd) == "wan") {
     ## Wan et al. (2014), equations (12) and (13)
+    ##
     sd <- 0.5 * (
       (max - min) / ifelse(n > 50, 2 * qnorm((n - 0.375) / (n + 0.25)),
-                           .settings$Wan2014.Table1[n]) +
-      (q3 - q1) / ifelse(n > 50, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
-                         .settings$Wan2014.Table2[n])
+                           gs("Wan2014.Table1")[n]) +
+      (q3 - q1) / ifelse(n > 201, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
+                         gs("Wan2014.Table2")[ceiling(0.25 * (n - 1))])
     )
   }
   else
@@ -227,7 +228,7 @@ mean.sd.range <- function(n, median, min, max, method.mean = "Luo") {
   ##
   sd <- (max - min) /
     ifelse(n > 50, 2 * qnorm((n - 0.375) / (n + 0.25)),
-           .settings$Wan2014.Table1[n])
+           gs("Wan2014.Table1")[n])
   
   
   ##

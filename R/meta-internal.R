@@ -4,7 +4,7 @@
            utils::packageDescription("meta")$Version,
            ").",
            "\nType 'help(meta)' for a brief overview.",
-           "\nReaders of 'Use-R! Meta-Analysis with R' should install",
+           "\nReaders of 'Meta-Analysis with R (Use R!)' should install",
            "\nolder version of 'meta' package: ",
            "https://tinyurl.com/dt4y5drs")
   packageStartupMessage(msg)
@@ -425,7 +425,7 @@ catmeth <- function(method,
     }
     else {
       i.lab.method.tau <-
-        charmatch(method.tau, c(.settings$meth4tau, ""), nomatch = NA)
+        charmatch(method.tau, c(gs("meth4tau"), ""), nomatch = NA)
       ##
       lab.method.tau <-
         c("\n- DerSimonian-Laird estimator",
@@ -550,8 +550,16 @@ catmeth <- function(method,
       cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
     ##
     if (metamiss) {
-      if (method.miss == "IMOR")
-        mmiss <- paste0("IMOR.e = ", IMOR.e, ", IMOR.c = ", IMOR.c)
+      if (method.miss == "IMOR") {
+        mmiss <- "Informative Missingness Odds Ratio"
+        if (length(unique(IMOR.e)) == 1 & length(unique(IMOR.c)) == 1)
+          mmiss <-
+            paste0(mmiss, "\n                     ",
+                   "(IMOR.e = ", round(unique(IMOR.e), 4),
+                   ", IMOR.c = ", round(unique(IMOR.c), 4), ")")
+        else
+          mmiss <- paste(mmiss, "(IMOR)")
+      }
       else {
         meths <- c("Gamble-Hollis analysis",
                    "impute no events (ICA-0)",
@@ -820,7 +828,7 @@ setOption("method", "MH")
 setOption("allstudies", FALSE)
 setOption("MH.exact", FALSE)
 setOption("RR.Cochrane", FALSE)
-setOption("Q.Cochrane", FALSE)
+setOption("Q.Cochrane", TRUE)
 setOption("model.glmm", "UM.FS")
 setOption("print.CMH", FALSE)
 ##

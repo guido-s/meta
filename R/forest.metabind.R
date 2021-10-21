@@ -63,6 +63,8 @@
 #' @param calcwidth.pooled A logical indicating whether text for fixed
 #'   effect and random effects model should be considered to calculate
 #'   width of the column with study labels.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
@@ -164,6 +166,9 @@ forest.metabind <- function(x,
                             ##
                             smlab,
                             calcwidth.pooled = overall,
+                            ##
+                            warn.deprecated = gs("warn.deprecated"),
+                            ##
                             ...) {
   
   
@@ -182,7 +187,6 @@ forest.metabind <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
-  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.pval.Q, min = 1, length = 1)
   chknumeric(digits.Q, min = 0, length = 1)
@@ -211,25 +215,13 @@ forest.metabind <- function(x,
   ## Check for deprecated arguments in '...'
   ##
   args  <- list(...)
-  ## Check whether first argument is a list. In this case only use
-  ## this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
+  chklogical(warn.deprecated)
   ##
-  additional.arguments <- names(args)
-  ##
-  if (length(additional.arguments) > 0) {
-    if (!is.na(charmatch("digits.z", additional.arguments)))
-      if (!missing(digits.stat))
-        warning("Deprecated argument 'digits.zval' ignored as ",
-                "argument 'digits.stat' is also provided.")
-      else {
-        warning("Deprecated argument 'digits.zval' has been ",
-                "replaced by argument 'digits.stat'.")
-        digits.stat <- args[[charmatch("digits.z", additional.arguments)]]
-        chknumeric(digits.stat, min = 0, length = 1)
-      }
-  }
+  digits.stat <-
+    deprecated(digits.stat, missing(digits.stat), args, "digits.zval",
+               warn.deprecated)
+  digits.stat <- replaceNULL(digits.stat, gs("digits.stat"))
+  chknumeric(digits.stat, min = 0, length = 1)
   
   
   x$k.w.orig <- x$k.w
