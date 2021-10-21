@@ -1,9 +1,15 @@
-## meta, version 5.0-1 (2021-mm-dd)
+## meta, version 5.0-1 (2021-10-20)
+
+### Major changes
+
+* For backward compatibility, use Q statistic based on Mantel-Haenszel
+  estimate (argument 'Q.Cochrane') by default to calculate
+  DerSimonian-Laird estimator of the between-study variance
 
 ### Bug fix
 
-* For small sample sizes, use correct entry from Table 2 in (Wan
-  et. (2014))(https://doi.org/10.1186/1471-2288-14-135) to approximate
+* For small sample sizes, use correct entry from Table 2 in [(Wan et.,
+  2014)](https://doi.org/10.1186/1471-2288-14-135) to approximate
   standard deviation from median and related statistics
 
 

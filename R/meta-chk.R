@@ -67,7 +67,7 @@ chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
     stop("Argument '", name, "' must be a character or numeric vector.",
          call. = FALSE)
 }
-chklength <- function(x, k.all, fun, text, name = NULL) {
+chklength <- function(x, k.all, fun = "", text, name = NULL) {
   ##
   ## Check length of vector
   ##

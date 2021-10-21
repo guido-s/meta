@@ -448,22 +448,13 @@ print.meta <- function(x,
   ## (4) Set and backtransform results of meta-analysis
   ##
   ##
-  TE.fixed    <- x$TE.fixed
+  TE.fixed <- x$TE.fixed
   lowTE.fixed <- x$lower.fixed
   uppTE.fixed <- x$upper.fixed
   pTE.fixed <- x$pval.fixed
   sTE.fixed <- x$statistic.fixed
   ##
-  if (k.all == 1) {
-    TE.fixed <- replaceNA(TE.fixed, x$TE)
-    lowTE.fixed <- replaceNA(lowTE.fixed, x$lower)
-    uppTE.fixed <- replaceNA(uppTE.fixed, x$upper)
-    ##
-    pTE.fixed <- x$pval
-    sTE.fixed <- x$statistic
-  }
-  ##
-  TE.random    <- x$TE.random
+  TE.random <- x$TE.random
   lowTE.random <- x$lower.random
   uppTE.random <- x$upper.random
   ##
@@ -758,8 +749,9 @@ print.meta <- function(x,
   ## (5) Print result for meta-analysis
   ##
   ##
+  is.metamiss <- inherits(x, "metamiss")
   if (header) {
-    if (inherits(x, "metamiss"))
+    if (is.metamiss)
       cat("Sensitivity analysis for missing binary data\n\n")
     ##
     crtitle(x)
@@ -774,14 +766,16 @@ print.meta <- function(x,
     ## Print results for a single study
     ##
     if (!is.metabind) {
-      if (sel.n)
+      if (is.metamiss)
+        cat("\n")
+      else if (sel.n)
         catobsev(x$n, type = "n")
       else
         catobsev(x$n.e, x$n.c, type = "n")
       ##
       if (sel.ev)
         catobsev(x$event, type = "e", addrow = TRUE)
-      else
+      else if (!is.metamiss)
         catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
     }
     ##
@@ -875,14 +869,16 @@ print.meta <- function(x,
                    " added studies)\n"))
       ##
       if (!is.metabind) {
-        if (sel.n)
+        if (is.metamiss)
+          cat("\n")
+        else if (sel.n)
           catobsev(x$n, type = "n")
         else
           catobsev(x$n.e, x$n.c, type = "n")
         ##
         if (sel.ev)
           catobsev(x$event, type = "e", addrow = TRUE)
-        else
+        else if (!is.metamiss)
           catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
       }
       ##
@@ -973,14 +969,16 @@ print.meta <- function(x,
                    format(k, big.mark = big.mark), "\n"))
       ##
       if (!is.metabind) {
-        if (sel.n)
+        if (is.metamiss)
+          cat("\n")
+        else if (sel.n)
           catobsev(x$n, type = "n")
         else
           catobsev(x$n.e, x$n.c, type = "n")
         ##
         if (sel.ev)
           catobsev(x$event, type = "e")
-        else
+        else if (!is.metamiss)
           catobsev(x$event.e, x$event.c, type = "e")
       }
     }

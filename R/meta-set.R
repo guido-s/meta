@@ -5,7 +5,7 @@
 ## License: GPL (>= 2)
 ##
 setchar <- function(x, val, text, list = FALSE, name = NULL,
-                    stop.at.error = TRUE) {
+                    stop.at.error = TRUE, addtext = "") {
   if (is.null(name))
     name <- deparse(substitute(x))
   nval <- length(val)
@@ -52,7 +52,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       }
       ##
       if (stop.at.error)
-        stop(first, name, "' must be ", vlist, ".", call. = FALSE)
+        stop(first, name, "' must be ", vlist, addtext, ".", call. = FALSE)
       else
         return(NULL)
     }
