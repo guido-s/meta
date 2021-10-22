@@ -312,7 +312,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
                list(yi = TE[!exclude], V = seTE[!exclude]^2,
                     data = dataset,
                     mods = formula, method = method.tau,
-                    random = ~ 1 | .id / .idx,
+                    random = as.call(~ 1 | .id / .idx),
                     test = test, level = 100 * level.ma,
                     ...))
     }
