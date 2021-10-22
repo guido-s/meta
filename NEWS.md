@@ -1,9 +1,17 @@
+## meta, version 4.20-1 (2021-10-22)
+
+### Internal changes
+
+* Fix errors due to extended checks of arguments equal to NULL in R
+  package **metafor** , version 3.1
+
+
 ## meta, version 4.20-0 (2021-09-14)
 
 ### Major changes
 
- * New branch to support Use R!-Book Meta-Analysis with R, first
-   edition
+ * New branch to support first edition of *Meta-Analysis with R (Use
+   R!)*
 
 
 ## meta, version 4.19-1 (2021-09-14)
