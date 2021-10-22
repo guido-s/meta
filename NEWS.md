@@ -1,3 +1,11 @@
+## meta, version 5.0-2 (2021-mm-dd)
+
+### Internal changes
+
+* Fix errors due to extended checks of arguments equal to NULL in R
+  package **metafor** , version 3.1
+
+
 ## meta, version 5.0-1 (2021-10-20)
 
 ### Major changes
@@ -8,8 +16,8 @@
 
 ### Bug fix
 
-* For small sample sizes, use correct entry from Table 2 in [(Wan et.,
-  2014)](https://doi.org/10.1186/1471-2288-14-135) to approximate
+* For small sample sizes, use correct entry from Table 2 in [Wan et.
+  (2014)](https://doi.org/10.1186/1471-2288-14-135) to approximate
   standard deviation from median and related statistics
 
 

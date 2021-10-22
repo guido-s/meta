@@ -1693,13 +1693,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
        !any(event.c[!exclude] != n.c[!exclude]))
     ##
     if (!zero.all)
-      glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                             ci = event.c[!exclude], n2i = n.c[!exclude],
-                             method = "FE", test = ifelse(hakn, "t", "z"),
-                             level = 100 * level.ma,
-                             measure = "OR", model = model.glmm,
-                             control = control,
-                             ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                   ci = event.c[!exclude], n2i = n.c[!exclude],
+                   method = "FE", test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.ma,
+                   measure = "OR", model = model.glmm,
+                   control = control,
+                   ...))
     else
       glmm.fixed <- list(b = NA, se = NA,
                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
@@ -1830,14 +1832,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (is.glmm) {
     ##
     if (sum(!exclude) > 1 & !zero.all)
-      glmm.random <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                              ci = event.c[!exclude], n2i = n.c[!exclude],
-                              method = method.tau,
-                              test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.ma,
-                              measure = "OR", model = model.glmm,
-                              control = control,
-                              ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                   ci = event.c[!exclude], n2i = n.c[!exclude],
+                   method = method.tau,
+                   test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.ma,
+                   measure = "OR", model = model.glmm,
+                   control = control,
+                   ...))
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1928,39 +1932,47 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       n.by <- length(unique(subgroup[!exclude]))
       if (n.by > 1)
         subgroup.glmm <- factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
+      else
+        subgroup.glmm <- NA
       ##
       glmm.random.by <-
-        try(suppressWarnings(rma.glmm(ai = event.e[!exclude],
-                                      n1i = n.e[!exclude],
-                                      ci = event.c[!exclude],
-                                      n2i = n.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = method.tau,
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "OR", model = model.glmm,
-                                      control = control,
-                                      ...)),
-            silent = TRUE)
+        try(suppressWarnings(
+          runNN(rma.glmm,
+                list(ai = event.e[!exclude],
+                     n1i = n.e[!exclude],
+                     ci = event.c[!exclude],
+                     n2i = n.c[!exclude],
+                     mods =
+                       if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                     method = method.tau,
+                     test = ifelse(hakn, "t", "z"),
+                     level = 100 * level.ma,
+                     measure = "OR", model = model.glmm,
+                     control = control,
+                     data = data.frame(subgroup.glmm),
+                     ...))),
+          silent = TRUE)
       ##
       if ("try-error" %in% class(glmm.random.by))
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
                   glmm.random.by)) {
           glmm.random.by <-
-            suppressWarnings(rma.glmm(ai = event.e[!exclude],
-                                      n1i = n.e[!exclude],
-                                      ci = event.c[!exclude],
-                                      n2i = n.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = "FE",
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "OR", model = model.glmm,
-                                      control = control,
-                                      ...))
+            suppressWarnings(
+              runNN(rma.glmm,
+                    list(ai = event.e[!exclude],
+                         n1i = n.e[!exclude],
+                         ci = event.c[!exclude],
+                         n2i = n.c[!exclude],
+                         mods =
+                           if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                         method = "FE",
+                         test = ifelse(hakn, "t", "z"),
+                         level = 100 * level.ma,
+                         measure = "OR", model = model.glmm,
+                          control = control,
+                         data = data.frame(subgroup.glmm),
+                         ...)))
         }
         else
           stop(glmm.random.by)

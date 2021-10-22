@@ -335,20 +335,26 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     no.with.id <- x$id
     runID <- seq_along(no.with.id)
     ##
-    mv.random <- rma.mv(x$TE, x$seTE^2,
-                        mods = mod,
-                        random = ~ 1 | no.with.id / runID,
-                        method = x$method.tau,
-                        test = ifelse(x$hakn, "t", "z"),
-                        level = 100 * x$level.ma)
+    mv.random <-
+      runNN(rma.mv,
+            list(yi = x$TE, V = x$seTE^2,
+                 mods = mod,
+                 random = as.call(~ 1 | no.with.id / runID),
+                 method = x$method.tau,
+                 test = ifelse(x$hakn, "t", "z"),
+                 level = 100 * x$level.ma,
+                 data = data.frame(subgroup.rma, no.with.id, runID)))
     ##
     mv.random.Q <-
-      suppressWarnings(rma.mv(x$TE, x$seTE^2,
-                              mods = mod.Q,
-                              random = ~ 1 | no.with.id / runID,
-                              method = x$method.tau,
-                              test = ifelse(x$hakn, "t", "z"),
-                              level = 100 * x$level.ma))
+      suppressWarnings(
+        runNN(rma.mv,
+              list(yi = x$TE, V = x$seTE^2,
+                   mods = mod.Q,
+                   random = as.call(~ 1 | no.with.id / runID),
+                   method = x$method.tau,
+                   test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   data = data.frame(subgroup.rma, no.with.id, runID))))
     ##
     if (length(TE.random.w) != length(as.numeric(mv.random$b))) {
       TE.random.w[!is.na(TE.random.w)] <- as.numeric(mv.random$b)
@@ -401,151 +407,215 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     mod.Q <- as.call(~ subgroup.rma)
     ##
     if (prop) {
-      glmm.fixed <- rma.glmm(xi = x$event, ni = x$n,
-                             mods = mod,
-                             method = "FE", test = ifelse(x$hakn, "t", "z"),
-                             level = 100 * x$level.ma,
-                             measure = "PLO", ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(xi = x$event, ni = x$n,
+                   mods = mod,
+                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "PLO",
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
-      glmm.random <- rma.glmm(xi = x$event, ni = x$n,
-                              mods = mod,
-                              method = x$method.tau,
-                              test = ifelse(x$hakn, "t", "z"),
-                              level = 100 * x$level.ma,
-                              measure = "PLO", ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(xi = x$event, ni = x$n,
+                   mods = mod,
+                   method = x$method.tau,
+                   test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "PLO",
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
       ## Test for subgroup differences
       ##
       glmm.fixed.Q <-
-        suppressWarnings(rma.glmm(xi = x$event, ni = x$n,
-                                  mods = mod.Q,
-                                  method = "FE",
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "PLO", ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(xi = x$event, ni = x$n,
+                     mods = mod.Q,
+                     method = "FE",
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "PLO",
+                     data = data.frame(subgroup.rma),
+                     ...)))
       ##
       glmm.random.Q <-
-        suppressWarnings(rma.glmm(xi = x$event, ni = x$n,
-                                  mods = mod.Q,
-                                  method = x$method.tau,
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "PLO", ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(xi = x$event, ni = x$n,
+                     mods = mod.Q,
+                     method = x$method.tau,
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "PLO",
+                     data = data.frame(subgroup.rma),
+                     ...)))
     }
     ##
     else if (rate) {
-      glmm.fixed <- rma.glmm(xi = x$event, ti = x$time,
-                             mods = mod,
-                             method = "FE", test = ifelse(x$hakn, "t", "z"),
-                             level = 100 * x$level.ma,
-                             measure = "IRLN", control = x$control, ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(xi = x$event, ti = x$time,
+                   mods = mod,
+                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "IRLN", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
-      glmm.random <- rma.glmm(xi = x$event, ti = x$time,
-                              mods = mod,
-                              method = x$method.tau,
-                              test = ifelse(x$hakn, "t", "z"),
-                              level = 100 * x$level.ma,
-                              measure = "IRLN", control = x$control, ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(xi = x$event, ti = x$time,
+                   mods = mod,
+                   method = x$method.tau,
+                   test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "IRLN", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
       ## Test for subgroup differences
       ##
       glmm.fixed.Q <-
-        suppressWarnings(rma.glmm(xi = x$event, ti = x$time,
-                                  mods = mod.Q,
-                                  method = "FE",
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "IRLN", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(xi = x$event, ti = x$time,
+                     mods = mod.Q,
+                     method = "FE",
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "IRLN", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
       ##
       glmm.random.Q <-
-        suppressWarnings(rma.glmm(xi = x$event, ti = x$time,
-                                  mods = mod.Q,
-                                  method = x$method.tau,
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "IRLN", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(xi = x$event, ti = x$time,
+                     mods = mod.Q,
+                     method = x$method.tau,
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "IRLN", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
     }
     ##
     else if (inc) {
-      glmm.fixed <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                             x2i = x$event.c, t2i = x$time.c,
-                             mods = mod,
-                             method = "FE", test = ifelse(x$hakn, "t", "z"),
-                             model = x$model.glmm,
-                             level = 100 * x$level.ma,
-                             measure = "IRR", control = x$control, ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(x1i = x$event.e, t1i = x$time.e,
+                   x2i = x$event.c, t2i = x$time.c,
+                   mods = mod,
+                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   model = x$model.glmm,
+                   level = 100 * x$level.ma,
+                   measure = "IRR", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
-      glmm.random <- rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                              x2i = x$event.c, t2i = x$time.c,
-                              mods = mod,
-                              method = x$method.tau,
-                              model = x$model.glmm,
-                              test = ifelse(x$hakn, "t", "z"),
-                              level = 100 * x$level.ma,
-                              measure = "IRR", control = x$control, ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(x1i = x$event.e, t1i = x$time.e,
+                   x2i = x$event.c, t2i = x$time.c,
+                   mods = mod,
+                   method = x$method.tau,
+                   model = x$model.glmm,
+                   test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "IRR", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
       ## Test for subgroup differences
       ##
       glmm.fixed.Q <-
-        suppressWarnings(rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                                  x2i = x$event.c, t2i = x$time.c,
-                                  mods = mod.Q,
-                                  method = "FE",
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  model = x$model.glmm,
-                                  level = 100 * x$level.ma,
-                                  measure = "IRR", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(x1i = x$event.e, t1i = x$time.e,
+                     x2i = x$event.c, t2i = x$time.c,
+                     mods = mod.Q,
+                     method = "FE",
+                     test = ifelse(x$hakn, "t", "z"),
+                     model = x$model.glmm,
+                     level = 100 * x$level.ma,
+                     measure = "IRR", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
       ##
       glmm.random.Q <-
-        suppressWarnings(rma.glmm(x1i = x$event.e, t1i = x$time.e,
-                                  x2i = x$event.c, t2i = x$time.c,
-                                  mods = mod.Q,
-                                  method = x$method.tau,
-                                  model = x$model.glmm,
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "IRR", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(x1i = x$event.e, t1i = x$time.e,
+                     x2i = x$event.c, t2i = x$time.c,
+                     mods = mod.Q,
+                     method = x$method.tau,
+                     model = x$model.glmm,
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "IRR", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
     }
     ##
     else if (bin) {
-      glmm.fixed <- rma.glmm(ai = x$event.e, n1i = x$n.e,
-                             ci = x$event.c, n2i = x$n.c,
-                             mods = mod,
-                             method = "FE", test = ifelse(x$hakn, "t", "z"),
-                             model = x$model.glmm,
-                             level = 100 * x$level.ma,
-                             measure = "OR", control = x$control, ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(ai = x$event.e, n1i = x$n.e,
+                   ci = x$event.c, n2i = x$n.c,
+                   mods = mod,
+                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   model = x$model.glmm,
+                   level = 100 * x$level.ma,
+                   measure = "OR", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
-      glmm.random <- rma.glmm(ai = x$event.e, n1i = x$n.e,
-                              ci = x$event.c, n2i = x$n.c,
-                              mods = mod,
-                              method = x$method.tau,
-                              model = x$model.glmm,
-                              test = ifelse(x$hakn, "t", "z"),
-                              level = 100 * x$level.ma,
-                              measure = "OR", control = x$control, ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(ai = x$event.e, n1i = x$n.e,
+                   ci = x$event.c, n2i = x$n.c,
+                   mods = mod,
+                   method = x$method.tau,
+                   model = x$model.glmm,
+                   test = ifelse(x$hakn, "t", "z"),
+                   level = 100 * x$level.ma,
+                   measure = "OR", control = x$control,
+                   data = data.frame(subgroup.rma),
+                   ...))
       ##
       ## Test for subgroup differences
       ##
       glmm.fixed.Q <-
-        suppressWarnings(rma.glmm(ai = x$event.e, n1i = x$n.e,
-                                  ci = x$event.c, n2i = x$n.c,
-                                  mods = mod.Q,
-                                  method = "FE",
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  model = x$model.glmm,
-                                  level = 100 * x$level.ma,
-                                  measure = "OR", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(ai = x$event.e, n1i = x$n.e,
+                     ci = x$event.c, n2i = x$n.c,
+                     mods = mod.Q,
+                     method = "FE",
+                     test = ifelse(x$hakn, "t", "z"),
+                     model = x$model.glmm,
+                     level = 100 * x$level.ma,
+                     measure = "OR", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
       ##
       glmm.random.Q <-
-        suppressWarnings(rma.glmm(ai = x$event.e, n1i = x$n.e,
-                                  ci = x$event.c, n2i = x$n.c,
-                                  mods = mod.Q,
-                                  method = x$method.tau,
-                                  model = x$model.glmm,
-                                  test = ifelse(x$hakn, "t", "z"),
-                                  level = 100 * x$level.ma,
-                                  measure = "OR", control = x$control, ...))
+        suppressWarnings(
+          runNN(rma.glmm,
+                list(ai = x$event.e, n1i = x$n.e,
+                     ci = x$event.c, n2i = x$n.c,
+                     mods = mod.Q,
+                     method = x$method.tau,
+                     model = x$model.glmm,
+                     test = ifelse(x$hakn, "t", "z"),
+                     level = 100 * x$level.ma,
+                     measure = "OR", control = x$control,
+                     data = data.frame(subgroup.rma),
+                     ...)))
     }
     ##
     if (length(TE.fixed.w) != length(as.numeric(glmm.fixed$b))) {

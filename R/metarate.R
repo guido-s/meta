@@ -1065,11 +1065,13 @@ metarate <- function(event, time, studlab,
     hakn <- FALSE
   ##
   if (is.glmm & k > 0) {
-    glmm.fixed <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                           method = "FE", test = ifelse(hakn, "t", "z"),
-                           level = 100 * level.ma,
-                           measure = "IRLN", control = control,
-                           ...)
+    glmm.fixed <-
+      runNN(rma.glmm,
+            list(xi = event[!exclude], ti = time[!exclude],
+                 method = "FE", test = ifelse(hakn, "t", "z"),
+                 level = 100 * level.ma,
+                 measure = "IRLN", control = control,
+                 ...))
     ##
     TE.fixed   <- as.numeric(glmm.fixed$b)
     seTE.fixed <- as.numeric(glmm.fixed$se)
@@ -1167,12 +1169,14 @@ metarate <- function(event, time, studlab,
     if (sum(!exclude) > 1 &
         sum(event[!exclude], na.rm = TRUE) > 0 &
         any(event[!exclude] != time[!exclude]))
-      glmm.random <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                              method = method.tau,
-                              test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.ma,
-                              measure = "IRLN", control = control,
-                              ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(xi = event[!exclude], ti = time[!exclude],
+                   method = method.tau,
+                   test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.ma,
+                   measure = "IRLN", control = control,
+                   ...))
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1261,33 +1265,41 @@ metarate <- function(event, time, studlab,
       n.by <- length(unique(subgroup[!exclude]))
       if (n.by > 1)
         subgroup.glmm <- factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
+      else
+        subgroup.glmm <- NA
       ##
       glmm.random.by <-
-        try(suppressWarnings(rma.glmm(xi = event[!exclude],
-                                      ti = time[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = method.tau,
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "IRLN", control = control,
-                                      ...)),
-            silent = TRUE)
+        try(suppressWarnings(
+          runNN(rma.glmm,
+                list(xi = event[!exclude],
+                     ti = time[!exclude],
+                     mods =
+                       if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                      method = method.tau,
+                     test = ifelse(hakn, "t", "z"),
+                     level = 100 * level.ma,
+                     measure = "IRLN", control = control,
+                     data = data.frame(subgroup.glmm),
+                     ...))),
+          silent = TRUE)
       ##
       if ("try-error" %in% class(glmm.random.by))
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
                   glmm.random.by)) {
           glmm.random.by <-
-            suppressWarnings(rma.glmm(xi = event[!exclude],
-                                      ti = time[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = "FE",
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "IRLN", control = control,
-                                      ...))
+            suppressWarnings(
+              runNN(rma.glmm,
+                    list(xi = event[!exclude],
+                         ti = time[!exclude],
+                         mods =
+                           if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                         method = "FE",
+                          test = ifelse(hakn, "t", "z"),
+                         level = 100 * level.ma,
+                         measure = "IRLN", control = control,
+                         data = data.frame(subgroup.glmm),
+                         ...)))
         }
         else
           stop(glmm.random.by)
