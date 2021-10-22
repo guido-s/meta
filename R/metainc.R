@@ -1133,13 +1133,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
        !any(event.c[!exclude] != time.c[!exclude]))
     ##
     if (!zero.all)
-      glmm.fixed <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                             x2i = event.c[!exclude], t2i = time.c[!exclude],
-                             method = "FE", test = ifelse(hakn, "t", "z"),
-                             level = 100 * level.comb,
-                             measure = "IRR", model = model.glmm,
-                             control = control,
-                             ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                   x2i = event.c[!exclude], t2i = time.c[!exclude],
+                   method = "FE", test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.comb,
+                   measure = "IRR", model = model.glmm,
+                   control = control,
+                   ...))
     else
       glmm.fixed <- list(b = NA, se = NA,
                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
@@ -1247,14 +1249,16 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (is.glmm) {
     ##
     if (sum(!exclude) > 1 & !zero.all)
-      glmm.random <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                              x2i = event.c[!exclude], t2i = time.c[!exclude],
-                              method = method.tau,
-                              test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.comb,
-                              measure = "IRR", model = model.glmm,
-                              control = control,
-                              ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                   x2i = event.c[!exclude], t2i = time.c[!exclude],
+                   method = method.tau,
+                   test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.comb,
+                   measure = "IRR", model = model.glmm,
+                   control = control,
+                   ...))
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1345,39 +1349,49 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       n.by <- length(unique(byvar[!exclude]))
       if (n.by > 1)
         byvar.glmm <- factor(byvar[!exclude], bylevs(byvar[!exclude]))
+      else
+        byvar.glmm <- NA
       ##
       glmm.random.by <-
-        try(suppressWarnings(rma.glmm(x1i = event.e[!exclude],
-                                      t1i = time.e[!exclude],
-                                      x2i = event.c[!exclude],
-                                      t2i = time.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ byvar.glmm else NULL,
-                                      method = method.tau,
-                              test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.comb,
-                              measure = "IRR", model = model.glmm,
-                              control = control,
-                              ...)),
-            silent = TRUE)
+        try(suppressWarnings(
+          runNN(rma.glmm,
+                list(x1i = event.e[!exclude],
+                     t1i = time.e[!exclude],
+                     x2i = event.c[!exclude],
+                     t2i = time.c[!exclude],
+                     mods =
+                       if (n.by > 1)
+                         as.call(~ byvar.glmm) else NULL,
+                     method = method.tau,
+                     test = ifelse(hakn, "t", "z"),
+                     level = 100 * level.comb,
+                     measure = "IRR", model = model.glmm,
+                      control = control,
+                     data = data.frame(byvar.glmm),
+                     ...))),
+          silent = TRUE)
       ##
       if ("try-error" %in% class(glmm.random.by))
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
                   glmm.random.by)) {
           glmm.random.by <-
-            suppressWarnings(rma.glmm(x1i = event.e[!exclude],
-                                      t1i = time.e[!exclude],
-                                      x2i = event.c[!exclude],
-                                      t2i = time.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ byvar.glmm else NULL,
-                                      method = "FE",
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.comb,
-                                      measure = "IRR", model = model.glmm,
-                                      control = control,
-                                      ...))
+            suppressWarnings(
+              runNN(rma.glmm,
+                    list(x1i = event.e[!exclude],
+                         t1i = time.e[!exclude],
+                         x2i = event.c[!exclude],
+                         t2i = time.c[!exclude],
+                         mods =
+                           if (n.by > 1)
+                             as.call(~ byvar.glmm) else NULL,
+                         method = "FE",
+                         test = ifelse(hakn, "t", "z"),
+                         level = 100 * level.comb,
+                         measure = "IRR", model = model.glmm,
+                         control = control,
+                         data = data.frame(byvar.glmm),
+                         ...)))
         }
         else
           stop(glmm.random.by)
