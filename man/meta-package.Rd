@@ -172,7 +172,7 @@ meta: An R package for meta-analysis.
 \bold{7}, 40--5
 
 Schwarzer G, Carpenter JR and Rücker G (2015):
-\emph{Meta-Analysis with R (Use-R!)}.
+\emph{Meta-Analysis with R (Use R!)}.
 Springer International Publishing, Switzerland
 
 Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
