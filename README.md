@@ -8,10 +8,10 @@ edition*](http://www.springer.com/gp/book/9783319214153)
 ## Installation
 
 Installation using R package
-[**devtools**](https://cran.r-project.org/package=devtools):
+[**remotes**](https://cran.r-project.org/package=remotes):
 ```r
-install.packages("devtools")
-devtools::install_github("guido-s/meta", ref = "R-book-first-edition")
+install.packages("remotes")
+remotes::install_github("guido-s/meta", ref = "R-book-first-edition")
 ```
 
 Please send an email to Guido Schwarzer <sc@imbi.uni-freiburg.de> for
