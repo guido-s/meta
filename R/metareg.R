@@ -246,7 +246,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   if (is.null(method.tau))
     method.tau <- "DL"
   ##
-  method.tau <- setchar(method.tau, c(.settings$meth4tau, "FE"))
+  method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
   ##
   if (method.tau == "PM") {
     warning("Meta-regresion method not available for method.tau = \"PM\". ",

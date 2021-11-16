@@ -653,19 +653,19 @@ metarate <- function(event, time, studlab,
   ##
   ##
   chknull(sm)
-  sm <- setchar(sm, .settings$sm4rate)
+  sm <- setchar(sm, gs("sm4rate"))
   ##
   chklevel(level)
   ##
   chklogical(hakn)
   missing.adhoc.hakn <- missing(adhoc.hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   if (missing(method.tau))
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -701,7 +701,7 @@ metarate <- function(event, time, studlab,
   ##
   fun <- "metarate"
   ##
-  method <- setchar(method, .settings$meth4rate)
+  method <- setchar(method, gs("meth4rate"))
   is.glmm <- method == "GLMM"
   ##
   chklogical(allincr)

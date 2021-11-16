@@ -195,10 +195,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklevel(level.ma)
   ##
   chklogical(hakn)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)

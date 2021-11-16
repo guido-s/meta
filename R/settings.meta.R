@@ -593,7 +593,7 @@ settings.meta <- function(...) {
     setOption("pooledvar", FALSE)
     setOption("method.smd", "Hedges")
     setOption("sd.glass", "control")
-    setOption("exact.smd", FALSE)
+    setOption("exact.smd", TRUE)
     setOption("method.ci.cont", "z")
     ##
     setOption("method.ci.prop", "CP")
@@ -660,10 +660,10 @@ settings.meta <- function(...) {
     }
     ##
     else if (setting == "meta4") {
-      specificSettings(args = c("method.tau",
+      specificSettings(args = c("method.tau", "exact.smd",
                                 "text.fixed", "text.w.fixed",
                                 "warn.deprecated"),
-                       new = list("DL",
+                       new = list("DL", FALSE,
                                   "Fixed effect model", "fixed",
                                   FALSE),
                        setting =
@@ -795,12 +795,12 @@ settings.meta <- function(...) {
     }
     if (!is.na(idadhoc.hakn)) {
       adhoc.hakn <- args[[idadhoc.hakn]]
-      adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
+      adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
       setOption("adhoc.hakn", adhoc.hakn)
     }
     if (!is.na(idmethod.tau)) {
       method.tau <- args[[idmethod.tau]]
-      method.tau <- setchar(method.tau, .settings$meth4tau)
+      method.tau <- setchar(method.tau, gs("meth4tau"))
       setOption("method.tau", method.tau)
     }
     if (!is.na(idmethod.tau.ci)) {
@@ -825,7 +825,7 @@ settings.meta <- function(...) {
     }
     if (!is.na(idmethod.bias)) {
       method.bias <- args[[idmethod.bias]]
-      method.bias <- setchar(method.bias, .settings$meth4bias)
+      method.bias <- setchar(method.bias, gs("meth4bias"))
       setOption("method.bias", method.bias)
     }
     if (!is.na(idtext.fixed)) {
@@ -1052,12 +1052,12 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmbin)) {
       smbin <- args[[idsmbin]]
-      smbin <- setchar(smbin, .settings$sm4bin)
+      smbin <- setchar(smbin, gs("sm4bin"))
       setOption("smbin", smbin)
     }
     if (!is.na(idmethod)) {
       method <- args[[idmethod]]
-      method <- setchar(method, .settings$meth4bin)
+      method <- setchar(method, gs("meth4bin"))
       setOption("method", method)
     }
     if (!is.na(idmodel.glmm)) {
@@ -1113,7 +1113,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmcont)) {
       smcont <- args[[idsmcont]]
-      smcont <- setchar(smcont, .settings$sm4cont)
+      smcont <- setchar(smcont, gs("sm4cont"))
       setOption("smcont", smcont)
     }
     ##
@@ -1121,7 +1121,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmcor)) {
       smcor <- args[[idsmcor]]
-      smcor <- setchar(smcor, .settings$sm4cor)
+      smcor <- setchar(smcor, gs("sm4cor"))
       setOption("smcor", smcor)
     }
     ##
@@ -1150,7 +1150,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idmethod.ci.cont)) {
       method.ci.cont <- args[[idmethod.ci.cont]]
-      method.ci.cont <- setchar(method.ci.cont, .settings$ci4cont)
+      method.ci.cont <- setchar(method.ci.cont, gs("ci4cont"))
       setOption("method.ci.cont", method.ci.cont)
     }
     ##
@@ -1158,7 +1158,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsminc)) {
       sminc <- args[[idsminc]]
-      sminc <- setchar(sminc, .settings$sm4inc)
+      sminc <- setchar(sminc, gs("sm4inc"))
       setOption("sminc", sminc)
     }
     ##
@@ -1166,7 +1166,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmmean)) {
       smmean <- args[[idsmmean]]
-      smmean <- setchar(smmean, .settings$sm4mean)
+      smmean <- setchar(smmean, gs("sm4mean"))
       setOption("smmean", smmean)
     }
     ##
@@ -1174,13 +1174,13 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmprop)) {
       smprop <- args[[idsmprop]]
-      smprop <- setchar(smprop, .settings$sm4prop)
+      smprop <- setchar(smprop, gs("sm4prop"))
       setOption("smprop", smprop)
     }
     ##
     if (!is.na(idmethod.ci.prop)) {
       method.ci.prop <- args[[idmethod.ci.prop]]
-      method.ci.prop <- setchar(method.ci.prop, .settings$ci4prop)
+      method.ci.prop <- setchar(method.ci.prop, gs("ci4prop"))
       setOption("method.ci.prop", method.ci.prop)
     }
     ##
@@ -1188,7 +1188,7 @@ settings.meta <- function(...) {
     ##
     if (!is.na(idsmrate)) {
       smrate <- args[[idsmrate]]
-      smrate <- setchar(smrate, .settings$sm4rate)
+      smrate <- setchar(smrate, gs("sm4rate"))
       setOption("smrate", smrate)
     }
     ##

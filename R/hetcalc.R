@@ -94,7 +94,8 @@ hetcalc <- function(TE, seTE,
                 list(yi = TE, V = seTE^2, method = method.tau,
                      random = as.call(~ 1 | id / idx),
                      control = control,
-                     data = data.frame(id, idx)))
+                     data = data.frame(id, idx)),
+                warn = FALSE)
         ##
         tau2 <- mf0$sigma2
         se.tau2 <- NA
@@ -183,7 +184,8 @@ hetcalc <- function(TE, seTE,
                 list(yi = TE, V = seTE^2, method = method.tau,
                      random = as.call(~ 1 | id / idx),
                      control = control,
-                     data = data.frame(id, idx)))
+                     data = data.frame(id, idx)),
+                warn = FALSE)
       else {
         mf1 <-
           try(
@@ -191,7 +193,8 @@ hetcalc <- function(TE, seTE,
                   list(yi = TE, V = seTE^2, method = method.tau,
                        random = as.call(~ 1 | id / idx),
                        mods = as.call(~ subgroup), control = control,
-                       data = data.frame(TE, seTE, subgroup, id, idx))),
+                       data = data.frame(TE, seTE, subgroup, id, idx)),
+                  warn = FALSE),
             silent = TRUE)
         ##
         if ("try-error" %in% class(mf1))
@@ -205,7 +208,8 @@ hetcalc <- function(TE, seTE,
                          method = "FE",
                          random = as.call(~ 1 | id / idx),
                          mods = as.call(~ subgroup), control = control,
-                         data = data.frame(TE, seTE, subgroup, id, idx)))
+                         data = data.frame(TE, seTE, subgroup, id, idx)),
+                    warn = FALSE)
           }
           else
             stop(mf1)
@@ -275,18 +279,30 @@ hetcalc <- function(TE, seTE,
     sign.upper.tau <- ci0$ub.sign
   }
   else if (method.tau.ci == "PL") {
-    lower.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.lb"],
-                    ci0[[2]]$random["sigma^2.2", "ci.lb"])
-    upper.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.ub"],
-                    ci0[[2]]$random["sigma^2.2", "ci.ub"])
-    ##
-    lower.tau <- c(ci0[[1]]$random["sigma.1", "ci.lb"],
-                   ci0[[2]]$random["sigma.2", "ci.lb"])
-    upper.tau <- c(ci0[[1]]$random["sigma.1", "ci.ub"],
-                   ci0[[2]]$random["sigma.2", "ci.ub"])
-    ##
-    sign.lower.tau <- c(ci0[[1]]$lb.sign, ci0[[2]]$lb.sign)
-    sign.upper.tau <- c(ci0[[1]]$ub.sign, ci0[[2]]$ub.sign)
+    if (any(names(ci0) == "random")) {      
+      lower.tau2 <- c(NA, ci0$random["sigma^2.2", "ci.lb"])
+      upper.tau2 <- c(NA, ci0$random["sigma^2.2", "ci.ub"])
+      ##
+      lower.tau <- c(NA, ci0$random["sigma.2", "ci.lb"])
+      upper.tau <- c(NA, ci0$random["sigma.2", "ci.ub"])
+      ##
+      sign.lower.tau <- c("", ci0$lb.sign)
+      sign.upper.tau <- c("", ci0$ub.sign)
+    }
+    else {
+      lower.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.lb"],
+                      ci0[[2]]$random["sigma^2.2", "ci.lb"])
+      upper.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.ub"],
+                      ci0[[2]]$random["sigma^2.2", "ci.ub"])
+      ##
+      lower.tau <- c(ci0[[1]]$random["sigma.1", "ci.lb"],
+                     ci0[[2]]$random["sigma.2", "ci.lb"])
+      upper.tau <- c(ci0[[1]]$random["sigma.1", "ci.ub"],
+                     ci0[[2]]$random["sigma.2", "ci.ub"])
+      ##
+      sign.lower.tau <- c(ci0[[1]]$lb.sign, ci0[[2]]$lb.sign)
+      sign.upper.tau <- c(ci0[[1]]$ub.sign, ci0[[2]]$ub.sign)
+    }
   }
   else {
     lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
@@ -307,15 +323,24 @@ hetcalc <- function(TE, seTE,
       sign.upper.tau.resid <- ci1$ub.sign
     }
     else if (method.tau.ci == "PL") {
-      lower.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.lb"],
-                            ci1[[2]]$random["sigma^2.2", "ci.lb"])
-      upper.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.ub"],
-                            ci1[[2]]$random["sigma^2.2", "ci.ub"])
-      ##
-      lower.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.lb"],
-                           ci1[[2]]$random["sigma.2", "ci.lb"])
-      upper.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.ub"],
-                           ci1[[2]]$random["sigma.2", "ci.ub"])
+      if (any(names(ci0) == "random")) {      
+        lower.tau2.resid <- c(NA, ci0$random["sigma^2.2", "ci.lb"])
+        upper.tau2.resid <- c(NA, ci0$random["sigma^2.2", "ci.ub"])
+        ##
+        lower.tau.resid <- c(NA, ci0$random["sigma.2", "ci.lb"])
+        upper.tau.resid <- c(NA, ci0$random["sigma.2", "ci.ub"])
+      }
+      else {
+        lower.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.lb"],
+                              ci1[[2]]$random["sigma^2.2", "ci.lb"])
+        upper.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.ub"],
+                              ci1[[2]]$random["sigma^2.2", "ci.ub"])
+        ##
+        lower.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.lb"],
+                             ci1[[2]]$random["sigma.2", "ci.lb"])
+        upper.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.ub"],
+                             ci1[[2]]$random["sigma.2", "ci.ub"])
+      }
     }
     else {
       lower.tau2.resid <- upper.tau2.resid <-

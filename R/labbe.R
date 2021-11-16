@@ -213,7 +213,7 @@ labbe.metabin <- function(x,
   chklogical(nulleffect)
   chknumeric(lwd.nulleffect)
   chknull(sm)
-  sm <- setchar(sm, .settings$sm4bin)
+  sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   
@@ -565,7 +565,7 @@ labbe.default <- function(x, y,
   chklogical(nulleffect)
   chknumeric(lwd.nulleffect)
   chknull(sm)
-  sm <- setchar(sm, .settings$sm4bin)
+  sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   

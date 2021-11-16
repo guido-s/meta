@@ -549,11 +549,11 @@ metacor <- function(cor, n, studlab,
   chklevel(level)
   ##
   chklogical(hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -620,7 +620,7 @@ metacor <- function(cor, n, studlab,
   ## Additional arguments / checks for metacor objects
   ##
   fun <- "metacor"
-  sm <- setchar(sm, .settings$sm4cor)
+  sm <- setchar(sm, gs("sm4cor"))
   
   
   ##

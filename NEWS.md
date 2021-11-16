@@ -1,9 +1,20 @@
-## meta, version 5.0-2 (2021-mm-dd)
+## meta, version 5.1-0 (2021-mm-dd)
+
+### Major changes
+
+* By default, use exact formulae in estimation of the standardised
+  mean difference (Hedges' g, Cohen's d) and its standard error
+  [(White & Thomas, 2005)](https://doi.org/10.1191/1740774505cn081oa)
+
+### Bug fixes
+
+* Use of metagen() with argument 'id' (three-level model) does not
+  result in an error if all estimates come from a single study
 
 ### Internal changes
 
 * Fix errors due to extended checks of arguments equal to NULL in R
-  package **metafor** , version 3.1
+  package **metafor**, version 3.1 or above
 
 
 ## meta, version 5.0-1 (2021-10-20)
@@ -14,7 +25,7 @@
   estimate (argument 'Q.Cochrane') by default to calculate
   DerSimonian-Laird estimator of the between-study variance
 
-### Bug fix
+### Bug fixes
 
 * For small sample sizes, use correct entry from Table 2 in [Wan et.
   (2014)](https://doi.org/10.1186/1471-2288-14-135) to approximate
@@ -61,7 +72,7 @@
 
 ## meta, version 4.19-2 (2021-09-29)
 
-### Bug fix
+### Bug fixes
 
 * Forest plots of meta-analyses assuming a common between-study
   heterogeneity variance in subgroups resulted in an error

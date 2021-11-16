@@ -862,11 +862,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ##
   chknull(sm)
+  sm <- setchar(sm, gs("sm4cont"))
   chklevel(level)
   ##
   chklogical(hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
   missing.id <- missing(id)
   if (is.null(method.tau.ci))
@@ -876,14 +877,15 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       method.tau.ci <- "PL"
     else
       method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   chklogical(tau.common)
   ##
   chklogical(prediction)
   chklevel(level.predict)
-  ##
-  method.bias <- setmethodbias(method.bias)
+  ## Classic tests + Pustejovsky
+  method.bias <-
+    setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
   ##
   if (!is.null(text.fixed))
     chkchar(text.fixed, length = 1)
@@ -901,10 +903,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## Additional arguments / checks for metacont objects
   ##
   fun <- "metacont"
-  sm <- setchar(sm, .settings$sm4cont)
   if (sm != "MD")
     method.ci <- "z"
-  method.ci <- setchar(method.ci, .settings$ci4cont)
+  method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
   method.mean <- setchar(method.mean, c("Luo", "Wan"))
   method.sd <- setchar(method.sd, c("Shi", "Wan"))

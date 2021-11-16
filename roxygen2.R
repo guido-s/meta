@@ -31,6 +31,16 @@ check("../meta")
 
 
 ##
+## (6) Check examples
+##
+setwd("..")
+library(numDeriv)
+run_examples("meta", run_dontrun = TRUE, run_donttest = TRUE)
+warnings()
+
+
+##
 ## (6) Check R package (with dontrun examples)
 ##
-check("../meta", run_dont_test = TRUE)
+##setwd("meta")
+##check("../meta", run_dont_test = TRUE)
