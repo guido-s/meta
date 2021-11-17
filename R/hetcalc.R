@@ -80,18 +80,22 @@ hetcalc <- function(TE, seTE,
     }
     else {
       if (is.null(id)) {
-        mf0 <- rma.uni(yi = TE, sei = seTE,
-                       method = method.tau, control = control)
+        mf0 <- runNN(rma.uni,
+                     list(yi = TE, sei = seTE, method = method.tau,
+                          control = control))
         ##
         tau2 <- mf0$tau2
         se.tau2 <- mf0$se.tau2
       }
       else {
         idx <- seq_along(TE)
-        mf0 <- rma.mv(TE, seTE^2,
-                      method = method.tau,
-                      random = ~ 1 | id / idx,
-                      control = control)
+        mf0 <-
+          runNN(rma.mv,
+                list(yi = TE, V = seTE^2, method = method.tau,
+                     random = as.call(~ 1 | id / idx),
+                     control = control,
+                     data = data.frame(id, idx)),
+                warn = FALSE)
         ##
         tau2 <- mf0$sigma2
         se.tau2 <- NA
@@ -111,13 +115,17 @@ hetcalc <- function(TE, seTE,
       ## Confidence interal for overall result
       ##
       if (method.tau.ci == "BJ")
-        ci0 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
-                                       weights = 1 / seTE^2,
-                                       method = "GENQ", control = control))
+        ci0 <-
+          confint.rma.uni(
+            runNN(rma.uni,
+                  list(yi = TE, sei = seTE, weights = 1 / seTE^2,
+                       method = "GENQ", control = control)))
       else if (method.tau.ci == "J")
-        ci0 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
-                                       weights = 1 / seTE,
-                                       method = "GENQ", control = control))
+        ci0 <-
+          confint.rma.uni(
+            runNN(rma.uni,
+                  list(yi = TE, sei = seTE, weights = 1 / seTE,
+                       method = "GENQ", control = control)))
       else if (method.tau.ci == "QP")
         ci0 <- confint.rma.uni(mf0)
       else if (method.tau.ci == "PL")
@@ -137,23 +145,28 @@ hetcalc <- function(TE, seTE,
     ##
     if (is.null(id)) {
       if (length(unique(subgroup)) == 1)
-        mf1 <- rma.uni(yi = TE, sei = seTE,
-                       method = method.tau,
-                       control = control)
+        mf1 <-
+          runNN(rma.uni,
+                list(yi = TE, sei = seTE, method = method.tau,
+                     control = control))
       else {
-        mf1 <- try(rma.uni(yi = TE, sei = seTE,
-                           method = method.tau,
-                           mods = ~ subgroup, control = control),
-                   silent = TRUE)
+        mf1 <-
+          try(runNN(rma.uni,
+                    list(yi = TE, sei = seTE, method = method.tau,
+                         mods = as.call(~ subgroup), control = control,
+                         data = data.frame(TE, seTE, subgroup))),
+              silent = TRUE)
         ##
         if ("try-error" %in% class(mf1))
           if (grepl(paste0("Number of parameters to be estimated is ",
                            "larger than the number of observations"),
                     mf1)) {
             useFE <- TRUE
-            mf1 <- rma.uni(yi = TE, sei = seTE,
-                           method = "FE",
-                           mods = ~ subgroup, control = control)
+            mf1 <-
+              runNN(rma.uni,
+                    list(yi = TE, sei = seTE, method = "FE",
+                         mods = as.call(~ subgroup), control = control,
+                         data = data.frame(TE, seTE, subgroup)))
           }
           else
             stop(mf1)
@@ -166,26 +179,37 @@ hetcalc <- function(TE, seTE,
       idx <- seq_along(TE)
       ##
       if (length(unique(subgroup)) == 1)
-        mf1 <- rma.mv(TE, seTE^2,
-                      method = method.tau,
-                      random = ~ 1 | id / idx,
-                      control = control)
+        mf1 <-
+          runNN(rma.mv,
+                list(yi = TE, V = seTE^2, method = method.tau,
+                     random = as.call(~ 1 | id / idx),
+                     control = control,
+                     data = data.frame(id, idx)),
+                warn = FALSE)
       else {
-        mf1 <- try(rma.mv(TE, seTE^2,
-                          method = method.tau,
-                          random = ~ 1 | id / idx,
-                          mods = ~ subgroup, control = control),
-                   silent = TRUE)
+        mf1 <-
+          try(
+            runNN(rma.mv,
+                  list(yi = TE, V = seTE^2, method = method.tau,
+                       random = as.call(~ 1 | id / idx),
+                       mods = as.call(~ subgroup), control = control,
+                       data = data.frame(TE, seTE, subgroup, id, idx)),
+                  warn = FALSE),
+            silent = TRUE)
         ##
         if ("try-error" %in% class(mf1))
           if (grepl(paste0("Number of parameters to be estimated is ",
                            "larger than the number of observations"),
                     mf1)) {
             useFE <- TRUE
-            mf1 <- rma.mv(TE, seTE^2,
-                          method = "FE",
-                          random = ~ 1 | id / idx,
-                          mods = ~ subgroup, control = control)
+            mf1 <-
+              runNN(rma.mv,
+                    list(yi = TE, V = seTE^2,
+                         method = "FE",
+                         random = as.call(~ 1 | id / idx),
+                         mods = as.call(~ subgroup), control = control,
+                         data = data.frame(TE, seTE, subgroup, id, idx)),
+                    warn = FALSE)
           }
           else
             stop(mf1)
@@ -209,15 +233,21 @@ hetcalc <- function(TE, seTE,
     ## Confidence interal for residual heterogeneity
     ##
     if (method.tau.ci == "BJ")
-      ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
-                                     weights = 1 / seTE^2,
-                                     mods = ~ subgroup, control = control,
-                                     method = "GENQ"))
+      ci1 <-
+        confint.rma.uni(
+          runNN(rma.uni,
+                list(yi = TE, sei = seTE, weights = 1 / seTE^2,
+                     method = "GENQ",
+                     mods = as.call(~ subgroup), control = control,
+                     data = data.frame(TE, seTE, subgroup))))
     else if (method.tau.ci == "J")
-      ci1 <- confint.rma.uni(rma.uni(yi = TE, sei = seTE,
-                                     weights = 1 / seTE,
-                                     mods = ~ subgroup, control = control,
-                                     method = "GENQ"))
+      ci1 <-
+        confint.rma.uni(
+          runNN(rma.uni,
+                list(yi = TE, sei = seTE, weights = 1 / seTE,
+                     method = "GENQ",
+                     mods = as.call(~ subgroup), control = control,
+                     data = data.frame(TE, seTE, subgroup))))
     else if (method.tau.ci == "QP")
       ci1 <- confint.rma.uni(mf1)
     else if (method.tau.ci == "PL")
@@ -249,18 +279,30 @@ hetcalc <- function(TE, seTE,
     sign.upper.tau <- ci0$ub.sign
   }
   else if (method.tau.ci == "PL") {
-    lower.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.lb"],
-                    ci0[[2]]$random["sigma^2.2", "ci.lb"])
-    upper.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.ub"],
-                    ci0[[2]]$random["sigma^2.2", "ci.ub"])
-    ##
-    lower.tau <- c(ci0[[1]]$random["sigma.1", "ci.lb"],
-                   ci0[[2]]$random["sigma.2", "ci.lb"])
-    upper.tau <- c(ci0[[1]]$random["sigma.1", "ci.ub"],
-                   ci0[[2]]$random["sigma.2", "ci.ub"])
-    ##
-    sign.lower.tau <- c(ci0[[1]]$lb.sign, ci0[[2]]$lb.sign)
-    sign.upper.tau <- c(ci0[[1]]$ub.sign, ci0[[2]]$ub.sign)
+    if (any(names(ci0) == "random")) {      
+      lower.tau2 <- c(NA, ci0$random["sigma^2.2", "ci.lb"])
+      upper.tau2 <- c(NA, ci0$random["sigma^2.2", "ci.ub"])
+      ##
+      lower.tau <- c(NA, ci0$random["sigma.2", "ci.lb"])
+      upper.tau <- c(NA, ci0$random["sigma.2", "ci.ub"])
+      ##
+      sign.lower.tau <- c("", ci0$lb.sign)
+      sign.upper.tau <- c("", ci0$ub.sign)
+    }
+    else {
+      lower.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.lb"],
+                      ci0[[2]]$random["sigma^2.2", "ci.lb"])
+      upper.tau2 <- c(ci0[[1]]$random["sigma^2.1", "ci.ub"],
+                      ci0[[2]]$random["sigma^2.2", "ci.ub"])
+      ##
+      lower.tau <- c(ci0[[1]]$random["sigma.1", "ci.lb"],
+                     ci0[[2]]$random["sigma.2", "ci.lb"])
+      upper.tau <- c(ci0[[1]]$random["sigma.1", "ci.ub"],
+                     ci0[[2]]$random["sigma.2", "ci.ub"])
+      ##
+      sign.lower.tau <- c(ci0[[1]]$lb.sign, ci0[[2]]$lb.sign)
+      sign.upper.tau <- c(ci0[[1]]$ub.sign, ci0[[2]]$ub.sign)
+    }
   }
   else {
     lower.tau2 <- upper.tau2 <- lower.tau <- upper.tau <- NA
@@ -281,15 +323,24 @@ hetcalc <- function(TE, seTE,
       sign.upper.tau.resid <- ci1$ub.sign
     }
     else if (method.tau.ci == "PL") {
-      lower.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.lb"],
-                            ci1[[2]]$random["sigma^2.2", "ci.lb"])
-      upper.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.ub"],
-                            ci1[[2]]$random["sigma^2.2", "ci.ub"])
-      ##
-      lower.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.lb"],
-                           ci1[[2]]$random["sigma.2", "ci.lb"])
-      upper.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.ub"],
-                           ci1[[2]]$random["sigma.2", "ci.ub"])
+      if (any(names(ci0) == "random")) {      
+        lower.tau2.resid <- c(NA, ci0$random["sigma^2.2", "ci.lb"])
+        upper.tau2.resid <- c(NA, ci0$random["sigma^2.2", "ci.ub"])
+        ##
+        lower.tau.resid <- c(NA, ci0$random["sigma.2", "ci.lb"])
+        upper.tau.resid <- c(NA, ci0$random["sigma.2", "ci.ub"])
+      }
+      else {
+        lower.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.lb"],
+                              ci1[[2]]$random["sigma^2.2", "ci.lb"])
+        upper.tau2.resid <- c(ci1[[1]]$random["sigma^2.1", "ci.ub"],
+                              ci1[[2]]$random["sigma^2.2", "ci.ub"])
+        ##
+        lower.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.lb"],
+                             ci1[[2]]$random["sigma.2", "ci.lb"])
+        upper.tau.resid <- c(ci1[[1]]$random["sigma.1", "ci.ub"],
+                             ci1[[2]]$random["sigma.2", "ci.ub"])
+      }
     }
     else {
       lower.tau2.resid <- upper.tau2.resid <-

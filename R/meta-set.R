@@ -127,3 +127,22 @@ setunit <- function(x) {
   
   res
 }
+setmethodbias <- function(x, subset) {
+  oldmethod <- setchar(x, gs("meth4bias.old"),
+                       stop.at.error = FALSE)
+  ##
+  if (is.null(oldmethod))
+    if (missing(subset))
+      res <- setchar(x, gs("meth4bias"), name = "method.bias")
+    else
+      res <- setchar(x, gs("meth4bias")[subset], name = "method.bias")
+  else
+    res <- switch(oldmethod,
+                  rank = "Begg",
+                  linreg = "Egger",
+                  mm = "Thompson",
+                  count = "Schwarzer",
+                  score = "Harbord")
+  ##
+  res
+}

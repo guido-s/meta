@@ -984,7 +984,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   chknull(sm)
   ##
-  method.ci <- setchar(method.ci, .settings$ci4cont)
+  method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
   method.mean <- setchar(method.mean, c("Luo", "Wan"))
   method.sd <- setchar(method.sd, c("Shi", "Wan"))
@@ -992,9 +992,9 @@ metagen <- function(TE, seTE, studlab,
   chklevel(level)
   ##
   chklogical(hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   missing.method.tau <- missing(method.tau)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
   missing.id <- missing(id)
   ##
@@ -1006,7 +1006,7 @@ metagen <- function(TE, seTE, studlab,
       method.tau.ci <- "PL"
     else
       method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   chklogical(tau.common)
   ##
@@ -1875,7 +1875,7 @@ metagen <- function(TE, seTE, studlab,
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci,
                   TE.tau, level.ma,
-                  control = control, id = id)
+                  control = control, id = id[!exclude])
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
@@ -1883,7 +1883,7 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, method.tau.ci,
                      TE.tau, level.ma,
                      subgroup = subgroup,
-                     control = control, id = id)
+                     control = control, id = id[!exclude])
     }
     ##
     ## Different calculations for three-level models
@@ -1955,10 +1955,13 @@ metagen <- function(TE, seTE, studlab,
       id.4 <- id[sel.4]
       idx.4 <- idx[sel.4]
       ##
-      m4 <- rma.mv(TE.4, seTE.4^2,
-                   method = method.tau, test = ifelse(hakn, "t", "z"),
-                   random = ~ 1 | id.4 / idx.4,
-                   control = control)
+      m4 <-
+        runNN(rma.mv,
+               list(yi = TE.4, V = seTE.4^2,
+                    method = method.tau, test = ifelse(hakn, "t", "z"),
+                    random = as.call(~ 1 | id.4 / idx.4),
+                    control = control,
+                    data = data.frame(id.4, idx.4)))
       ##
       w.random <- rep_len(NA, length(TE))
       w.random[sel.4] <- weights(m4, type = "rowsum")

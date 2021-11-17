@@ -665,11 +665,11 @@ metamean <- function(n, mean, sd, studlab,
   chklevel(level)
   ##
   chklogical(hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
-  method.tau <- setchar(method.tau, .settings$meth4tau)
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
+  method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -695,10 +695,10 @@ metamean <- function(n, mean, sd, studlab,
   ## Additional arguments / checks for metamean objects
   ##
   fun <- "metamean"
-  sm <- setchar(sm, .settings$sm4mean)
+  sm <- setchar(sm, gs("sm4mean"))
   if (sm != "MRAW")
     method.ci <- "z"
-  method.ci <- setchar(method.ci, .settings$ci4cont)
+  method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
   method.mean <- setchar(method.mean, c("Luo", "Wan"))
   method.sd <- setchar(method.sd, c("Shi", "Wan"))

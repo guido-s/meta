@@ -772,11 +772,9 @@ m5 <- update(m3, method = "Peto")
 m5
 
 \dontrun{
-# Meta-analysis using generalised linear mixed models (only if R
-# packages 'metafor' and 'lme4' are available)
+# Meta-analysis using generalised linear mixed models
+# (only if R package 'lme4' is available)
 #
-if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
-    require(lme4, quietly = TRUE)) {
 
 # Logistic regression model with (k = 4) fixed study effects
 # (default: model.glmm = "UM.FS")
@@ -799,13 +797,11 @@ m7 <- update(m6, model.glmm = "UM.RS")
 m7 <- update(m6, model.glmm = "UM.RS", nAGQ = 1)
 m7
 
-# Generalised linear mixed model (conditional
-# Hypergeometric-Normal) (R package 'BiasedUrn' must be available)
+# Generalised linear mixed model (conditional Hypergeometric-Normal)
+# (R package 'BiasedUrn' must be available)
 #
-if (require(BiasedUrn, quietly = TRUE)) {
- m8 <- update(m6, model.glmm = "CM.EL")
- m8
-}
+m8 <- update(m6, model.glmm = "CM.EL")
+m8
 
 # Generalised linear mixed model (conditional Binomial-Normal)
 #
@@ -833,16 +829,13 @@ update(m10, model.glmm = "UM.RS")
 #   * confidence interval for treatment effect smaller in random
 #     effects model compared to fixed effect model
 #
-if (require(BiasedUrn, quietly = TRUE)) {
- system.time(m11 <- update(m10, model.glmm = "CM.EL"))
- m11
-}
+system.time(m11 <- update(m10, model.glmm = "CM.EL"))
+m11
 
 # Generalised linear mixed model (conditional Binomial-Normal)
 # (less than 1 second with Intel Core i7-3667U, 2.0GHz)
 #
 update(m10, model.glmm = "CM.AL")
-}
 }
 
 }

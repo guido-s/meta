@@ -234,10 +234,12 @@ linregcore <- function(TE, seTE, covar = NULL,
     predictor <- "sei"
   else
     predictor <- "ni"
-  
-  rma1 <- suppressWarnings(rma.uni(TE, sei = seTE, ni = covar,
-                                   method = method.tau, test = "t",
-                                   ...))
+  ##
+  rma1 <-
+    suppressWarnings(
+      runNN(rma.uni,
+            list(yi = TE, sei = seTE, ni = covar, method = method.tau,
+                 test = "t", ...)))
   ##
   reg <- suppressWarnings(regtest(rma1, predictor = predictor,
                                   model = model))

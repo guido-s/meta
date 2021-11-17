@@ -668,8 +668,8 @@ update.meta <- function(object,
   ##
   ##
   if (metabin) {
-    sm <- setchar(sm, .settings$sm4bin)
-    method <- setchar(method, .settings$meth4bin)
+    sm <- setchar(sm, gs("sm4bin"))
+    method <- setchar(method, gs("meth4bin"))
     ##
     if (method == "GLMM" & !missing.sm & sm != "OR")
       warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
@@ -923,8 +923,8 @@ update.meta <- function(object,
   }
   ##
   if (metainc) {
-    sm <- setchar(sm, .settings$sm4inc)
-    method <- setchar(method, .settings$meth4inc)
+    sm <- setchar(sm, gs("sm4inc"))
+    method <- setchar(method, gs("meth4inc"))
     ##
     if (method == "GLMM" & !missing.sm & sm != "IRR")
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
@@ -1057,8 +1057,8 @@ update.meta <- function(object,
   }
   ##
   if (metaprop) {
-    sm <- setchar(sm, .settings$sm4prop)
-    method <- setchar(method, .settings$meth4prop)
+    sm <- setchar(sm, gs("sm4prop"))
+    method <- setchar(method, gs("meth4prop"))
     ##
     if (method == "GLMM" & !missing.sm & sm != "PLOGIT")
       warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
@@ -1119,8 +1119,8 @@ update.meta <- function(object,
   }
   ##
   if (metarate) {
-    sm <- setchar(sm, .settings$sm4rate)
-    method <- setchar(method, .settings$meth4rate)
+    sm <- setchar(sm, gs("sm4rate"))
+    method <- setchar(method, gs("meth4rate"))
     ##
     if (method == "GLMM" & !missing.sm & sm != "IRLN")
       warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")

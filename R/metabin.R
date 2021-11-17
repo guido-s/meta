@@ -768,11 +768,9 @@
 #' m5
 #' 
 #' \dontrun{
-#' # Meta-analysis using generalised linear mixed models (only if R
-#' # packages 'metafor' and 'lme4' are available)
+#' # Meta-analysis using generalised linear mixed models
+#' # (only if R package 'lme4' is available)
 #' #
-#' if (suppressMessages(require(metafor, quietly = TRUE, warn = FALSE)) &
-#'     require(lme4, quietly = TRUE)) {
 #' 
 #' # Logistic regression model with (k = 4) fixed study effects
 #' # (default: model.glmm = "UM.FS")
@@ -795,13 +793,11 @@
 #' m7 <- update(m6, model.glmm = "UM.RS", nAGQ = 1)
 #' m7
 #' 
-#' # Generalised linear mixed model (conditional
-#' # Hypergeometric-Normal) (R package 'BiasedUrn' must be available)
+#' # Generalised linear mixed model (conditional Hypergeometric-Normal)
+#' # (R package 'BiasedUrn' must be available)
 #' #
-#' if (require(BiasedUrn, quietly = TRUE)) {
-#'  m8 <- update(m6, model.glmm = "CM.EL")
-#'  m8
-#' }
+#' m8 <- update(m6, model.glmm = "CM.EL")
+#' m8
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' #
@@ -829,16 +825,13 @@
 #' #   * confidence interval for treatment effect smaller in random
 #' #     effects model compared to fixed effect model
 #' #
-#' if (require(BiasedUrn, quietly = TRUE)) {
-#'  system.time(m11 <- update(m10, model.glmm = "CM.EL"))
-#'  m11
-#' }
+#' system.time(m11 <- update(m10, model.glmm = "CM.EL"))
+#' m11
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' # (less than 1 second with Intel Core i7-3667U, 2.0GHz)
 #' #
 #' update(m10, model.glmm = "CM.AL")
-#' }
 #' }
 #' 
 #' @export metabin
@@ -924,19 +917,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
                   "PBIT", "OR2D", "OR2DN", "OR2DL",
                   "MPRD", "MPRR", "MPOR", "MPORC", "MPPETO")
-  ## sm <- setchar(sm, c(.settings$sm4bin, sm.metafor))
-  sm <- setchar(sm, .settings$sm4bin)
+  ## sm <- setchar(sm, c(gs("sm4bin"), sm.metafor))
+  sm <- setchar(sm, gs("sm4bin"))
   metafor <- sm %in% sm.metafor
   ##
   chklevel(level)
   ##
   chklogical(hakn)
   missing.adhoc.hakn <- missing(adhoc.hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, .settings$adhoc4hakn)
-  method.tau <- setchar(method.tau, c(.settings$meth4tau, "KD"))
+  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
+  method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, .settings$meth4tau.ci)
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -972,7 +965,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     pscale <- 1
   }
   ##
-  method <- setchar(method, .settings$meth4bin)
+  method <- setchar(method, gs("meth4bin"))
   if (metafor)
     method <- "Inverse"
   is.glmm <- method == "GLMM"
@@ -1693,13 +1686,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
        !any(event.c[!exclude] != n.c[!exclude]))
     ##
     if (!zero.all)
-      glmm.fixed <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                             ci = event.c[!exclude], n2i = n.c[!exclude],
-                             method = "FE", test = ifelse(hakn, "t", "z"),
-                             level = 100 * level.ma,
-                             measure = "OR", model = model.glmm,
-                             control = control,
-                             ...)
+      glmm.fixed <-
+        runNN(rma.glmm,
+              list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                   ci = event.c[!exclude], n2i = n.c[!exclude],
+                   method = "FE", test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.ma,
+                   measure = "OR", model = model.glmm,
+                   control = control,
+                   ...))
     else
       glmm.fixed <- list(b = NA, se = NA,
                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
@@ -1830,14 +1825,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (is.glmm) {
     ##
     if (sum(!exclude) > 1 & !zero.all)
-      glmm.random <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                              ci = event.c[!exclude], n2i = n.c[!exclude],
-                              method = method.tau,
-                              test = ifelse(hakn, "t", "z"),
-                              level = 100 * level.ma,
-                              measure = "OR", model = model.glmm,
-                              control = control,
-                              ...)
+      glmm.random <-
+        runNN(rma.glmm,
+              list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                   ci = event.c[!exclude], n2i = n.c[!exclude],
+                   method = method.tau,
+                   test = ifelse(hakn, "t", "z"),
+                   level = 100 * level.ma,
+                   measure = "OR", model = model.glmm,
+                   control = control,
+                   ...))
     else {
       ##
       ## Fallback to fixed effect model due to small number of studies
@@ -1928,39 +1925,47 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       n.by <- length(unique(subgroup[!exclude]))
       if (n.by > 1)
         subgroup.glmm <- factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
+      else
+        subgroup.glmm <- NA
       ##
       glmm.random.by <-
-        try(suppressWarnings(rma.glmm(ai = event.e[!exclude],
-                                      n1i = n.e[!exclude],
-                                      ci = event.c[!exclude],
-                                      n2i = n.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = method.tau,
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "OR", model = model.glmm,
-                                      control = control,
-                                      ...)),
-            silent = TRUE)
+        try(suppressWarnings(
+          runNN(rma.glmm,
+                list(ai = event.e[!exclude],
+                     n1i = n.e[!exclude],
+                     ci = event.c[!exclude],
+                     n2i = n.c[!exclude],
+                     mods =
+                       if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                     method = method.tau,
+                     test = ifelse(hakn, "t", "z"),
+                     level = 100 * level.ma,
+                     measure = "OR", model = model.glmm,
+                     control = control,
+                     data = data.frame(subgroup.glmm),
+                     ...))),
+          silent = TRUE)
       ##
       if ("try-error" %in% class(glmm.random.by))
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
                   glmm.random.by)) {
           glmm.random.by <-
-            suppressWarnings(rma.glmm(ai = event.e[!exclude],
-                                      n1i = n.e[!exclude],
-                                      ci = event.c[!exclude],
-                                      n2i = n.c[!exclude],
-                                      mods =
-                                        if (n.by > 1) ~ subgroup.glmm else NULL,
-                                      method = "FE",
-                                      test = ifelse(hakn, "t", "z"),
-                                      level = 100 * level.ma,
-                                      measure = "OR", model = model.glmm,
-                                      control = control,
-                                      ...))
+            suppressWarnings(
+              runNN(rma.glmm,
+                    list(ai = event.e[!exclude],
+                         n1i = n.e[!exclude],
+                         ci = event.c[!exclude],
+                         n2i = n.c[!exclude],
+                         mods =
+                           if (n.by > 1) as.call(~ subgroup.glmm) else NULL,
+                         method = "FE",
+                         test = ifelse(hakn, "t", "z"),
+                         level = 100 * level.ma,
+                         measure = "OR", model = model.glmm,
+                          control = control,
+                         data = data.frame(subgroup.glmm),
+                         ...)))
         }
         else
           stop(glmm.random.by)

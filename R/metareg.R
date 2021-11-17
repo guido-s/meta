@@ -246,7 +246,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   if (is.null(method.tau))
     method.tau <- "DL"
   ##
-  method.tau <- setchar(method.tau, c(.settings$meth4tau, "FE"))
+  method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
   ##
   if (method.tau == "PM") {
     warning("Meta-regresion method not available for method.tau = \"PM\". ",
@@ -307,103 +307,123 @@ metareg <- function(x, formula, method.tau = x$method.tau,
     ##
     if (threelevel) {
       ##
-      res <- rma.mv(TE[!exclude], seTE[!exclude]^2,
+      res <-
+        runNN(rma.mv,
+               list(yi = TE[!exclude], V = seTE[!exclude]^2,
                     data = dataset,
                     mods = formula, method = method.tau,
-                    random = ~ 1 | .id / .idx,
+                    random = as.call(~ 1 | .id / .idx),
                     test = test, level = 100 * level.ma,
-                    ...)
+                    ...))
     }
     else
-      res <- rma.uni(yi = TE[!exclude], sei = seTE[!exclude],
-                     data = dataset,
-                     mods = formula, method = method.tau,
-                     test = test, level = 100 * level.ma,
-                     ...)
+      res <-
+        runNN(rma.uni,
+               list(yi = TE[!exclude], sei = seTE[!exclude],
+                    data = dataset,
+                    mods = formula, method = method.tau,
+                    test = test, level = 100 * level.ma,
+                    ...))
   }
   else {
     if (metabin) {
       if (sum(!exclude) > 2)
-        res <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                        ci = event.c[!exclude], n2i = n.c[!exclude],
-                        data = dataset,
-                        mods = formula, method = method.tau,
-                        test = test, level = 100 * level.ma,
-                        measure = "OR", model = model.glmm,
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                      ci = event.c[!exclude], n2i = n.c[!exclude],
+                      data = dataset,
+                      mods = formula, method = method.tau,
+                      test = test, level = 100 * level.ma,
+                      measure = "OR", model = model.glmm,
+                      ...))
       else {
         if (method.tau != "FE")
           warning(warn.FE)
-        res <- rma.glmm(ai = event.e[!exclude], n1i = n.e[!exclude],
-                        ci = event.c[!exclude], n2i = n.c[!exclude],
-                        data = dataset,
-                        mods = formula, method = "FE",
-                        test = test, level = 100 * level.ma,
-                        measure = "OR", model = model.glmm,
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                      ci = event.c[!exclude], n2i = n.c[!exclude],
+                      data = dataset,
+                      mods = formula, method = "FE",
+                      test = test, level = 100 * level.ma,
+                      measure = "OR", model = model.glmm,
+                      ...))
       }
     }
     else if (metainc) {
       if (sum(!exclude) > 2)
-        res <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                        x2i = event.c[!exclude], t2i = time.c[!exclude],
-                        data = dataset,
-                        mods = formula, method = method.tau,
-                        test = test, level = 100 * level.ma,
-                        measure = "IRR", model = model.glmm,
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                      x2i = event.c[!exclude], t2i = time.c[!exclude],
+                      data = dataset,
+                      mods = formula, method = method.tau,
+                      test = test, level = 100 * level.ma,
+                      measure = "IRR", model = model.glmm,
+                      ...))
       else {
         if (method.tau != "FE")
           warning(warn.FE)
-        res <- rma.glmm(x1i = event.e[!exclude], t1i = time.e[!exclude],
-                        x2i = event.c[!exclude], t2i = time.c[!exclude],
-                        data = dataset,
-                        mods = formula, method = "FE",
-                        test = test, level = 100 * level.ma,
-                        measure = "IRR", model = model.glmm,
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(x1i = event.e[!exclude], t1i = time.e[!exclude],
+                      x2i = event.c[!exclude], t2i = time.c[!exclude],
+                      data = dataset,
+                      mods = formula, method = "FE",
+                      test = test, level = 100 * level.ma,
+                      measure = "IRR", model = model.glmm,
+                      ...))
       }
     }
     else if (metaprop) {
       if (sum(!exclude) > 2)
-        res <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
-                        data = dataset,
-                        mods = formula, method = method.tau,
-                        test = test, level = 100 * level.ma,
-                        measure = "PLO",
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(xi = event[!exclude], ni = n[!exclude],
+                      data = dataset,
+                      mods = formula, method = method.tau,
+                      test = test, level = 100 * level.ma,
+                      measure = "PLO",
+                      ...))
       else {
         if (method.tau != "FE")
           warning(warn.FE)
-        res <- rma.glmm(xi = event[!exclude], ni = n[!exclude],
-                        data = dataset,
-                        mods = formula, method = "FE",
-                        test = test, level = 100 * level.ma,
-                        measure = "PLO",
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(xi = event[!exclude], ni = n[!exclude],
+                      data = dataset,
+                      mods = formula, method = "FE",
+                      test = test, level = 100 * level.ma,
+                      measure = "PLO",
+                      ...))
       }
     }
     else if (metarate) {
       if (sum(!exclude) > 2)
-        res <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                        data = dataset,
-                        mods = formula, method = method.tau,
-                        test = test, level = 100 * level.ma,
-                        measure = "IRLN",
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(xi = event[!exclude], ti = time[!exclude],
+                      data = dataset,
+                      mods = formula, method = method.tau,
+                      test = test, level = 100 * level.ma,
+                      measure = "IRLN",
+                      ...))
       else {
         if (method.tau != "FE")
           warning(warn.FE)
-        res <- rma.glmm(xi = event[!exclude], ti = time[!exclude],
-                        data = dataset,
-                        mods = formula, method = "FE",
-                        test = test, level = 100 * level.ma,
-                        measure = "IRLN",
-                        ...)
+        res <-
+          runNN(rma.glmm,
+                 list(xi = event[!exclude], ti = time[!exclude],
+                      data = dataset,
+                      mods = formula, method = "FE",
+                      test = test, level = 100 * level.ma,
+                      measure = "IRLN",
+                      ...))
       }
     }
   }
-
+  
 
   res$.meta <- list(x = ..x,
                     formula = formula,

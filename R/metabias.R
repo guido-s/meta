@@ -843,7 +843,7 @@ print.metabias <- function(x,
       ##
       if (x$var.model == "additive") {
         i.lab.method.tau <-
-          charmatch(x$x$method.tau, c(.settings$meth4tau, ""), nomatch = NA)
+          charmatch(x$x$method.tau, c(gs("meth4tau"), ""), nomatch = NA)
         ##
         lab.method.tau <-
           c("- DerSimonian-Laird estimator",
@@ -1012,26 +1012,5 @@ metabias.default <- function(x, seTE,
                   k.min = k.min, ...)
   
   
-  res
-}
-
-
-
-
-
-setmethodbias <- function(x) {
-  oldmethod <- setchar(x, .settings$meth4bias.old,
-                       stop.at.error = FALSE)
-  ##
-  if (is.null(oldmethod))
-    res <- setchar(x, .settings$meth4bias)
-  else
-    res <- switch(oldmethod,
-                  rank = "Begg",
-                  linreg = "Egger",
-                  mm = "Thompson",
-                  count = "Schwarzer",
-                  score = "Harbord")
-  ##
   res
 }

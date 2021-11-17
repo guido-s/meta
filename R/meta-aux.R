@@ -152,3 +152,10 @@ deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
     return(oldvar)
   }
 }
+runNN <- function(func, args, warn = TRUE) {
+  args <- args[!sapply(args, is.null)]
+  if (warn)
+    do.call(func, args)
+  else
+    suppressWarnings(do.call(func, args))
+}

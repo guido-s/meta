@@ -176,7 +176,7 @@ catmeth <- function(method,
                     pooledvar = FALSE,
                     method.smd,
                     sd.glass,
-                    exact.smd = FALSE,
+                    exact.smd = TRUE,
                     model.glmm,
                     pscale = 1,
                     irscale = 1,
@@ -837,7 +837,7 @@ setOption("print.CMH", FALSE)
 setOption("pooledvar", FALSE)
 setOption("method.smd", "Hedges")
 setOption("sd.glass", "control")
-setOption("exact.smd", FALSE)
+setOption("exact.smd", TRUE)
 setOption("method.ci.cont", "z")
 ##
 ## Additional setting for R function metaprop
