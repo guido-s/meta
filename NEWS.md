@@ -1,4 +1,12 @@
-## meta, version 5.1-0 (2021-mm-dd)
+## meta, version 5.1-1 (2021-mm-dd)
+
+### Bug fixes
+
+* Forest plot creation for meta-analysis of single means with
+  subgroups resulted in an error
+
+
+## meta, version 5.1-0 (2021-11-17)
 
 ### Major changes
 
