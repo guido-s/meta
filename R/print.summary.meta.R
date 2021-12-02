@@ -754,9 +754,19 @@ print.summary.meta <- function(x,
       if (k.all == 1) {
         ##
         if (!is.null(method.ci)) {
-          if (method.ci == "CP")
+          if (method.ci == "CP") {
             method.ci.details <-
               "Clopper-Pearson confidence interval:\n\n"
+            ##
+            ## Add p-value of binomial test
+            ##
+            if (any(!is.na(x$pval)))
+              res <- cbind(res,
+                           formatPT(x$pval, digits = digits.pval,
+                                    scientific = scientific.pval,
+                                    zero = zero.pval, JAMA = JAMA.pval,
+                                    lab.NA = ""))
+          }
           else if (method.ci == "WS")
             method.ci.details <-
               "Wilson Score confidence interval:\n\n"
@@ -777,6 +787,10 @@ print.summary.meta <- function(x,
             method.ci.details <-
               "Confidence interval based on t-distribution:\n\n"
           if (method.ci != "NAsm") {
+            catobsev(x$n, type = "n")
+            catobsev(x$event, type = "e", addrow = TRUE)
+            x.meta$n <- x.meta$event <- NA
+            ##
             cat(method.ci.details)
             dimnames(res) <-
               list("",
@@ -785,12 +799,43 @@ print.summary.meta <- function(x,
                      if (show.w.random) text.w.random,
                      if (id) "id",
                      if (by) subgroup.name,
-                     if (!is.null(x$exclude)) "exclude"))
+                     if (!is.null(x$exclude)) "exclude",
+                     if (method.ci == "CP" & (any(!is.na(x$pval)))) "p-value")
+                   )
             prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n")
           }
         }
-        cat("Normal approximation confidence interval:\n")
+        if (ma)
+          cat("Normal approximation confidence interval:")
+        else {
+          if (!(method.ci %in% c("t", "NAsm"))) {
+            if (pscale != 1)
+              sm.details <- paste0("\n- Events per ", pscale, " observations")
+            else
+              sm.details <- ""
+            ##
+            if (method.ci == "CP" & any(!is.na(x$pval))) {
+              if (pscale != 1)
+                sm.details <-
+                  paste0(sm.details,
+                         "\n- Null hypothesis: effect is equal to ",
+                         format(round(x$null.effect * pscale, digits),
+                                scientific = FALSE, big.mark = big.mark),
+                         " events per ",
+                         format(pscale, scientific = FALSE,
+                                big.mark = big.mark),
+                         " observations")
+              else
+                sm.details <-
+                  paste0(sm.details,
+                         "\n- Null hypothesis: effect is equal to ",
+                         format(x$null.effect, scientific = FALSE,
+                                big.mark = big.mark))
+            }
+            cat(paste0("Details:", sm.details, "\n"))
+          }
+        }
       }
       else {
         dimnames(res) <-

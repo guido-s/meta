@@ -1753,11 +1753,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     TE <- ifelse(npn.n, NA, mean.e - mean.c)
     ##
     if (pooledvar)
-      seTE <- ifelse(npn.n, NA,
-                     sqrt(var.pooled * (1 / n.e + 1 / n.c)))
+      seTE <-
+        ifelse(npn.n, NA, sqrt(var.pooled * (1 / n.e + 1 / n.c)))
     else
-      seTE <- ifelse(npn.n, NA,
-                     sqrt(sd.e^2 / n.e + sd.c^2 / n.c))
+      seTE <-
+        ifelse(npn.n, NA, sqrt(sd.e^2 / n.e + sd.c^2 / n.c))
     ##
     seTE[is.na(TE)] <- NA
     ##
@@ -1765,7 +1765,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ci.study <- ci(TE, seTE, df = n.e + n.c - 2)
   }
   else if (sm == "SMD") {
-    J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+    J <- function(x)
+      exp(lgamma(x / 2) - log(sqrt(x / 2)) - lgamma((x - 1) / 2))
+    ##
     K <- function(x) 1 - (x - 2) / (x * J(x)^2)
     ##
     if (method.smd %in% c("Hedges", "Cohen"))
@@ -1782,14 +1784,18 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       TE <- smd
       if (exact.smd) {
-        J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+        J <- function(x)
+          exp(lgamma(x / 2) - log(sqrt(x / 2)) - lgamma((x - 1) / 2))
+        ##
         K <- function(x) 1 - (x - 2) / (x * J(x)^2)
-        seTE <- ifelse(npn.n, NA,
-                       sqrt(N / (n.e * n.c) + (J(N - 2) * smd)^2 * K(N - 2)))
+        ##
+        seTE <-
+          ifelse(npn.n, NA,
+                 sqrt(1 / n.e + 1 / n.c + (J(N - 2) * smd)^2 * K(N - 2)))
       }
       else
-        seTE <- ifelse(npn.n, NA,
-                       sqrt(N / (n.e * n.c) + TE^2 / (2 * N)))
+        seTE <-
+          ifelse(npn.n, NA, sqrt(1 / n.e + 1 / n.c + TE^2 / (2 * N)))
     }
     else if (method.smd == "Hedges") {
       ##
@@ -1797,7 +1803,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ## formulae used in RevMan 5 (exact.smd = FALSE)
       ##
       if (exact.smd) {
-        J <- function(x) gamma(x / 2) / (sqrt(x / 2) * gamma((x - 1) / 2))
+        J <- function(x)
+          exp(lgamma(x / 2) - log(sqrt(x / 2)) - lgamma((x - 1) / 2))
+        ##
         K <- function(x) 1 - (x - 2) / (x * J(x)^2)
       }
       else {
@@ -1806,8 +1814,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       }
       ##
       TE   <- J(N - 2) * smd
-      seTE <- ifelse(npn.n, NA,
-                     sqrt(N / (n.e * n.c) + TE^2 * K(N - 2)))
+      seTE <-
+        ifelse(npn.n, NA, sqrt(1 / n.e + 1 / n.c + TE^2 * K(N - 2)))
     }
     else if (method.smd == "Glass") {
       ##
@@ -1816,8 +1824,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       n.g  <- if (sd.glass == "control") n.c else n.e
       ##
       TE <- smd
-      seTE <- ifelse(npn.n, NA,
-                     sqrt(N / (n.e * n.c) + TE^2 / (2 * (n.g - 1))))
+      seTE <-
+        ifelse(npn.n, NA, sqrt(1 / n.e + 1 / n.c + TE^2 / (2 * (n.g - 1))))
     }
     ##
     seTE[is.na(TE)] <- NA

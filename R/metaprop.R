@@ -1305,46 +1305,23 @@ metaprop <- function(event, n, studlab,
   ##
   ## Calculate confidence intervals
   ##
-  NAs <- rep(NA, k.all)
+  if (method.ci == "CP")
+    ci.study <- ciClopperPearson(event, n, level, null.effect)
+  else if (method.ci == "WS")
+    ci.study <- ciWilsonScore(event, n, level)
+  else if (method.ci == "WSCC")
+    ci.study <- ciWilsonScore(event, n, level, correct = TRUE)
+  else if (method.ci == "AC")
+    ci.study <- ciAgrestiCoull(event, n, level)
+  else if (method.ci == "SA")
+    ci.study <- ciSimpleAsymptotic(event, n, level)
+  else if (method.ci == "SACC")
+    ci.study <- ciSimpleAsymptotic(event, n, level, correct = TRUE)
+  else if (method.ci == "NAsm")
+    ci.study <- ci(TE, seTE, level, null.effect = null.effect)
   ##
-  if (method.ci == "CP") {
-    lower.study <- upper.study <- NAs
-    for (i in 1:k.all) {
-      if (!is.na(event[i] & !is.na(n[i]))) {
-        cint <- binom.test(event[i], n[i], conf.level = level)
-        ##
-        lower.study[i] <- cint$conf.int[[1]]
-        upper.study[i] <- cint$conf.int[[2]]
-      }
-      else {
-        lower.study[i] <- NA
-        upper.study[i] <- NA
-      }
-    }
-  }
-  ##
-  else {
-    if (method.ci == "WS")
-      ci.study <- ciWilsonScore(event, n, level = level)
-    ##
-    else if (method.ci == "WSCC")
-      ci.study <- ciWilsonScore(event, n, level = level, correct = TRUE)
-    ##
-    else if (method.ci == "AC")
-      ci.study <- ciAgrestiCoull(event, n, level = level)
-    ##
-    else if (method.ci == "SA")
-      ci.study <- ciSimpleAsymptotic(event, n, level = level)
-    ##
-    else if (method.ci == "SACC")
-      ci.study <- ciSimpleAsymptotic(event, n, level = level, correct = TRUE)
-    ##
-    else if (method.ci == "NAsm")
-      ci.study <- ci(TE, seTE, level = level)
-    ##
-    lower.study <- ci.study$lower
-    upper.study <- ci.study$upper
-  }
+  lower.study <- ci.study$lower
+  upper.study <- ci.study$upper
   ##  
   if (method.ci == "NAsm") {
     if (sm == "PLOGIT") {
@@ -1462,6 +1439,15 @@ metaprop <- function(event, n, studlab,
   m$label.c <- ""
   m$label.left <- ""
   m$label.right <- ""
+  ##
+  if (method.ci == "CP") {
+    m$statistic <- 1 * rep(NA, length(m$statistic))
+    m$pval <- ci.study$p
+  }    
+  else if (method.ci != "NAsm") {
+    m$statistic <- 1 * rep(NA, length(m$statistic))
+    m$pval <- 1 * rep(NA, length(m$pval))
+  }
   ##
   res <- c(res, m)
   res$null.effect <- null.effect

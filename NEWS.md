@@ -1,9 +1,34 @@
-## meta, version 5.1-1 (2021-mm-dd)
+## meta, version 5.1-1 (2021-12-03)
+
+### Major changes
+
+* For meta-analysis of single proportions,
+  - export p-value of exact binomial test for individual studies if
+    Clopper-Pearson method (method.ci = "CP") is used to calculate
+    confidence intervals for individual studies
+  - do not export p-value for individual studies if argument
+    'method.ci' is not equal to "CP" or "NAsm" (normal approximation
+    based on summary measure)
 
 ### Bug fixes
 
+* Meta-analysis of continuous outcomes using Hedges' g or Cohen's d as
+  summary measure resulted in [inestimable SMDs in individual
+  studies](https://github.com/guido-s/meta/issues/42) if the total
+  sample size was larger than 343 and argument 'exact.smd' was TRUE
+  (default)
+
 * Forest plot creation for meta-analysis of single means with
-  subgroups resulted in an error
+  subgroups resulted in an
+  [error](https://github.com/guido-s/meta/issues/41)
+
+### Internal changes
+
+* New internal function ciClopperPearson() to calculate confidence
+  limits and p-value for exact binomial method
+
+* Exported list elements changed for internal functions
+  ciAgrestiCoull(), ciSimpleAsymptotic() and ciWilsonScore()
 
 
 ## meta, version 5.1-0 (2021-11-17)
