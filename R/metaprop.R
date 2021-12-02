@@ -1441,12 +1441,12 @@ metaprop <- function(event, n, studlab,
   m$label.right <- ""
   ##
   if (method.ci == "CP") {
-    m$statistic <- 1 * rep(NA, length(m$statistic))
+    m$statistic <- rep(NA, length(m$statistic))
     m$pval <- ci.study$p
   }    
   else if (method.ci != "NAsm") {
-    m$statistic <- 1 * rep(NA, length(m$statistic))
-    m$pval <- 1 * rep(NA, length(m$pval))
+    m$statistic <- rep(NA, length(m$statistic))
+    m$pval <- rep(NA, length(m$pval))
   }
   ##
   res <- c(res, m)
