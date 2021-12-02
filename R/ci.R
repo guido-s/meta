@@ -40,10 +40,9 @@
 
 
 ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
-
-  if (level <= 0 | level >= 1)
-    stop("no valid level for confidence interval")
-
+  
+  chklevel(level)
+  
   alpha <- 1 - level
   
   if (is.null(df)) {

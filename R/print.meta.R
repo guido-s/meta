@@ -697,48 +697,6 @@ print.meta <- function(x,
   three.level <- if (is.null(x$three.level)) FALSE else x$three.level
   is.glmm <- x$method == "GLMM"
   ##
-  catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
-                       big.mark = gs("big.mark")) {
-    if (type == "n") {
-      txt <- "observations"
-      idx <- "o"
-    }
-    else if (type == "e") {
-      txt <- "events"
-      idx <- "e"
-    }
-    ##
-    if (!is.null(var1) & !is.null(var2)) {
-      sum1 <- sum(var1, na.rm = TRUE)
-      sum2 <- sum(var2, na.rm = TRUE)
-      ##
-      cat(paste0("Number of ", txt, ": ", idx, " = ",
-                 format(sum1 + sum2, big.mark = big.mark),
-                 ##" (", idx, ".e = ",
-                 ##format(sum1, big.mark = big.mark),
-                 ##", ", idx, ".c = ",
-                 ##format(sum2, big.mark = big.mark),
-                 ##")",
-                 "\n"))
-    }
-    else if (!is.null(var1)) {
-      cat(paste0("Number of ", txt, ": ", idx, " = ",
-                 format(sum(var1, na.rm = TRUE),
-                          big.mark = big.mark),
-                 "\n"))
-    }
-    else if (!is.null(var2)) {
-      cat(paste0("Number of ", txt, ": ", idx, " = ",
-                 format(sum(var2, na.rm = TRUE), big.mark = big.mark),
-                 "\n"))
-    }
-    ##
-    if (addrow)
-      cat("\n")
-    ##
-    invisible(NULL)
-  }
-  ##
   sel.n <- inherits(x, c("metacor", "metaprop", "metamean", "metarate"))
   ##
   sel.ev <- inherits(x, "metaprop")

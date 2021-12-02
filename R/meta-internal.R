@@ -597,6 +597,55 @@ catmeth <- function(method,
 }
 
 
+catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
+                     big.mark = gs("big.mark")) {
+  if (type == "n") {
+    txt <- "observations"
+    idx <- "o"
+  }
+  else if (type == "e") {
+    txt <- "events"
+    idx <- "e"
+  }
+  ##
+  if (!is.null(var1) & !is.null(var2)) {
+    if (!(all(is.na(var1)) | all(is.na(var2)))) {
+      sum1 <- sum(var1, na.rm = TRUE)
+      sum2 <- sum(var2, na.rm = TRUE)
+      ##
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum1 + sum2, big.mark = big.mark),
+                 ##" (", idx, ".e = ",
+                 ##format(sum1, big.mark = big.mark),
+                 ##", ", idx, ".c = ",
+                 ##format(sum2, big.mark = big.mark),
+                 ##")",
+                 "\n"))
+    }
+  }
+  else if (!is.null(var1)) {
+    if (!all(is.na(var1))) {
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum(var1, na.rm = TRUE),
+                        big.mark = big.mark),
+                 "\n"))
+    }
+  }
+  else if (!is.null(var2)) {
+    if (!all(is.na(var2))) {
+      cat(paste0("Number of ", txt, ": ", idx, " = ",
+                 format(sum(var2, na.rm = TRUE), big.mark = big.mark),
+                 "\n"))
+    }
+  }
+  ##
+  if (addrow)
+    cat("\n")
+  ##
+  invisible(NULL)
+}
+
+
 ## The following R code is based on the file snowfall-internal.R from
 ## R package snowfall (Maintainer: Jochen Knaus <jo@imbi.uni-freiburg.de>)
 ##
