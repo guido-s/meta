@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 5.1-1
-Date: 2021-11-29
+Date: 2021-12-02
 Depends: R (>= 4.0.0)
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2
 Suggests: BiasedUrn
