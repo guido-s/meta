@@ -1,3 +1,17 @@
+## meta, version 5.1-2 (2021-mm-dd)
+
+### Bug fixes
+
+* Use correct standard error to calculate prediction interval if
+  Hartung-Knapp method was used
+
+### Internal changes
+
+* metagen():
+  - new list elements 'seTE.hakn' and 'seTE.hakn.adhoc' (with standard
+    error for Hartung-Knapp method)
+
+
 ## meta, version 5.1-1 (2021-12-02)
 
 ### Major changes

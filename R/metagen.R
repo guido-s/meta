@@ -578,6 +578,10 @@
 #' \item{method}{Pooling method: \code{"Inverse"}.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
+#' \item{seTE.hakn}{Estimated standard error for Hartung-Knapp method
+#'   (not taking \emph{ad hoc} variance correction into account).}
+#' \item{seTE.hakn.adhoc}{Estimated standard error for Hartung-Knapp
+#'   method (taking \emph{ad hoc} variance correction into account).}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
 #' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
@@ -1832,7 +1836,7 @@ metagen <- function(TE, seTE, studlab,
   else
     k.study <- k
   ##
-  seTE.random.hakn.orig <- NULL
+  seTE.hakn <- seTE.hakn.adhoc <- NULL
   ##
   if (k == 0) {
     TE.fixed <- NA
@@ -1995,18 +1999,15 @@ metagen <- function(TE, seTE, studlab,
       df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
       ##
-      seTE.random.classic <- seTE.random
-      seTE.random <- sqrt(q / sum(w.random))
+      seTE.hakn <- seTE.hakn.adhoc <- sqrt(q / sum(w.random))
       ##
       if (adhoc.hakn == "se") {
         ##
         ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
         ## i.e., if q < 1
         ##
-        if (q < 1) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
-        }
+        if (q < 1)
+          seTE.hakn.adhoc <- seTE.random
       }
       else if (adhoc.hakn == "ci") {
         ##
@@ -2015,15 +2016,14 @@ metagen <- function(TE, seTE, studlab,
         ## smaller
         ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
         ##
-        ci.hk <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn)
-        ci.re <- ci(TE.random, seTE.random.classic, level = level.ma)
+        ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
+        ci.re <- ci(TE.random, seTE.random, level = level.ma)
         ##
         width.hk <- ci.hk$upper - ci.hk$lower
         width.re <- ci.re$upper - ci.re$lower
         ##
         if (width.hk < width.re) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
+          seTE.hakn.adhoc <- seTE.random
           df.hakn <- NA
         }
       }
@@ -2031,7 +2031,7 @@ metagen <- function(TE, seTE, studlab,
         ##
         ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
         ##
-        ci.hk <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn)
+        ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
         ##
         m.dl <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "",
                         hakn = FALSE)
@@ -2040,13 +2040,11 @@ metagen <- function(TE, seTE, studlab,
         width.hk <- ci.hk$upper - ci.hk$lower
         width.dl <- ci.dl$upper - ci.dl$lower
         ##
-        if (width.hk < width.dl) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
-        }
+        if (width.hk < width.dl)
+          seTE.hakn.adhoc <- seTE.random
       }
       ##
-      ci.r <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn,
+      ci.r <- ci(TE.random, seTE.hakn.adhoc, level = level.ma, df = df.hakn,
                  null.effect = null.effect)
     }
     else if (!three.level)
@@ -2151,7 +2149,8 @@ metagen <- function(TE, seTE, studlab,
               overall.hetstat = overall.hetstat,
               hakn = hakn, adhoc.hakn = adhoc.hakn,
               df.hakn = if (hakn) df.hakn else NA,
-              seTE.random.hakn.orig = seTE.random.hakn.orig,
+              seTE.hakn = seTE.hakn,
+              seTE.hakn.adhoc = seTE.hakn.adhoc,
               method.tau = method.tau, method.tau.ci = hc$method.tau.ci,
               tau.preset = tau.preset,
               TE.tau =

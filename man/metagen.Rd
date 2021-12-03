@@ -369,6 +369,10 @@ object is a list containing the following components:
 \item{method}{Pooling method: \code{"Inverse"}.}
 \item{df.hakn}{Degrees of freedom for test of treatment effect for
   Hartung-Knapp method (only if \code{hakn = TRUE}).}
+\item{seTE.hakn}{Estimated standard error for Hartung-Knapp method
+  (not taking \emph{ad hoc} variance correction into account).}
+\item{seTE.hakn.adhoc}{Estimated standard error for Hartung-Knapp
+  method (taking \emph{ad hoc} variance correction into account).}
 \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
 \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
