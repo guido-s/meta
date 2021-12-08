@@ -193,7 +193,7 @@ logit2p <- function(x) {
   res
 }
 p2logit <- function(x) {
-  res <- log(x) / log(1 - x)
+  res <- log(x) - log(1 - x)
   res
 }
 z2cor <- function(x) {
