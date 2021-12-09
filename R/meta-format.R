@@ -153,27 +153,25 @@ format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
   
   res
 }
-formatCI <- function(lower, upper, rmspace = TRUE,
+formatCI <- function(lower, upper,
                      bracket.left = gs("CIbracket"),
                      separator = gs("CIseparator"),
                      bracket.right,
                      justify.lower = "right",
                      justify.upper = justify.lower,
+                     lower.blank = gs("CIlower.blank"),
+                     upper.blank = gs("CIupper.blank"),
                      ...
                      ) {
   
   ## Change layout of CIs
   ##
-  bracks <- c("[", "(", "{", "")
-  ibracket <- charmatch(bracket.left,
-                        bracks,
-                        nomatch = NA)
+  chkchar(bracket.left, length = 1)
+  chkchar(separator, length = 1)
+  if (!missing(bracket.right))
+    chkchar(bracket.right, length = 1)
   ##
-  if (is.na(ibracket) | ibracket == 0)
-    stop("No valid bracket type specified. ",
-         "Admissible values: '[', '(', '{', '\"\"'")
-  ##
-  bracktype <- bracks[ibracket]
+  bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
   ##
   if (bracktype == "[") {
     bracketLeft <- "["
@@ -198,16 +196,19 @@ formatCI <- function(lower, upper, rmspace = TRUE,
   if (missing(bracket.right))
     bracket.right <- bracketRight
   
-  if (rmspace) {
-    lower <- rmSpace(lower)
-    upper <- rmSpace(upper)
-  }
+  format.lower <- format(lower, justify = justify.lower)
+  format.upper <- format(upper, justify = justify.upper)
+  ##
+  if (!lower.blank)
+    format.lower <- rmSpace(format.lower)
+  if (!upper.blank)
+    format.upper <- rmSpace(format.upper)
   ##
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste0(bracket.left,
-                       format(lower, justify = justify.lower),
+                       format.lower,
                        separator,
-                       format(upper, justify = justify.upper),
+                       format.upper,
                        bracket.right),
                 "")
   ##

@@ -5,11 +5,23 @@
 * Use correct standard error to calculate prediction interval if
   Hartung-Knapp method was used
 
+* In update.meta(), consider input for arguments 'pscale', 'irscale'
+  and 'irunit' for meta-analysis objects created with metagen()
+
+### User-visible changes
+
+* cilayout():
+  - new arguments 'lower.blank' and 'upper.blank'
+  - additional check for length of arguments
+
 ### Internal changes
 
 * metagen():
   - new list elements 'seTE.hakn' and 'seTE.hakn.adhoc' (with standard
     error for Hartung-Knapp method)
+
+* Internal function formatCI() considers values for 'lower.blank' and
+  'upper.blank' in cilayout()
 
 
 ## meta, version 5.1-1 (2021-12-02)

@@ -772,7 +772,8 @@ argslist <-
     "method.bias",
     "text.fixed", "text.random", "text.predict",
     "text.w.fixed", "text.w.random",
-    "title", "complab", "CIbracket", "CIseparator",
+    "title", "complab",
+    "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "warn", "warn.deprecated",
     "backtransf",
@@ -822,6 +823,8 @@ setOption("title", "")
 setOption("complab", "")
 setOption("CIbracket", "[")
 setOption("CIseparator", "; ")
+setOption("CIlower.blank", TRUE)
+setOption("CIupper.blank", TRUE)
 setOption("print.subgroup.name", TRUE)
 setOption("print.byvar", TRUE)
 setOption("sep.subgroup", " = ")

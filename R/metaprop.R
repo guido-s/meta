@@ -772,8 +772,7 @@
 #'   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),
 #'   scen2 = meta:::formatCI(lower[, 2], upper[, 2]),
 #'   scen3 = meta:::formatCI(lower[, 3], upper[, 3]),
-#'   scen4 = meta:::formatCI(lower[, 4], upper[, 4]),
-#'   stringsAsFactors = FALSE
+#'   scen4 = meta:::formatCI(lower[, 4], upper[, 4])
 #'   )
 #' names(tab1) <- c("r=81, n=263", "r=15, n=148",
 #'                  "r=0, n=20", "r=1, n=29")

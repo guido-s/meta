@@ -52,7 +52,12 @@
   ...
 )
 
-cilayout(bracket = "[", separator = "; ")
+cilayout(
+  bracket = gs("CIbracket"),
+  separator = gs("CIseparator"),
+  lower.blank = gs("CIlower.blank"),
+  upper.blank = gs("CIupper.blank")
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
@@ -211,6 +216,12 @@ confidence interval: "[", "(", "\{", "".}
 
 \item{separator}{A character string with information on separator
 between lower and upper confidence interval.}
+
+\item{lower.blank}{A logical indicating whether blanks between left
+bracket and lower confidence limit should be printed.}
+
+\item{upper.blank}{A logical indicating whether blanks between
+separator and upper confidence limit should be printed.}
 }
 \description{
 Print method for objects of class \code{meta}.

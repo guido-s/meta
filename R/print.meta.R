@@ -135,6 +135,10 @@
 #'   confidence interval: "[", "(", "\{", "".
 #' @param separator A character string with information on separator
 #'   between lower and upper confidence interval.
+#' @param lower.blank A logical indicating whether blanks between left
+#'   bracket and lower confidence limit should be printed.
+#' @param upper.blank A logical indicating whether blanks between
+#'   separator and upper confidence limit should be printed.
 #' @param \dots Additional arguments (passed on to \code{prmatrix}).
 #' 
 #' @rdname print.meta
@@ -243,7 +247,7 @@ print.meta <- function(x,
   is.prop <- is.prop(x$sm)
   is.rate <- is.rate(x$sm)
   ##
-  if (!is.prop & x$sm != "RD")
+  if (!(is.prop | x$sm == "RD"))
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
@@ -1353,20 +1357,23 @@ print.meta <- function(x,
 #' @export cilayout
 
 
-cilayout <- function(bracket = "[", separator = "; ") {
-  
-  ibracket <- charmatch(bracket,
-                        c("[", "(", "{", ""),
-                        nomatch = NA)
+cilayout <- function(bracket = gs("CIbracket"),
+                     separator = gs("CIseparator"),
+                     lower.blank = gs("CIlower.blank"),
+                     upper.blank = gs("CIupper.blank")) {
+
+  chkchar(bracket, length = 1)
+  chkchar(separator, length = 1)
   ##
-  if (is.na(ibracket) | ibracket == 0)
-    stop("No valid bracket type specified. ",
-         "Admissible values: '[', '(', '{', '\"\"'")
-  
-  bracket <- c("[", "(", "{", "")[ibracket]
+  bracket <- setchar(bracket, c("[", "(", "{", ""))
+  ##
+  chklogical(lower.blank)
+  chklogical(upper.blank)
   
   setOption("CIbracket", bracket)
   setOption("CIseparator", separator)
+  setOption("CIlower.blank", lower.blank)
+  setOption("CIupper.blank", upper.blank)
   
   invisible(NULL)
 }

@@ -431,6 +431,8 @@ settings.meta <- function(...) {
     catarg("complab            ")
     catarg("CIbracket          ")
     catarg("CIseparator        ")
+    catarg("CIlower.blank      ")
+    catarg("CIupper.blank      ")
     catarg("print.subgroup.name")
     catarg("sep.subgroup       ")
     catarg("keepdata           ")
@@ -541,6 +543,8 @@ settings.meta <- function(...) {
     setOption("complab", "")
     setOption("CIbracket", "[")
     setOption("CIseparator", "; ")
+    setOption("CIlower.blank", TRUE)
+    setOption("CIupper.blank", TRUE)
     setOption("print.subgroup.name", TRUE)
     setOption("sep.subgroup", " = ")
     setOption("keepdata", TRUE)
@@ -698,6 +702,8 @@ settings.meta <- function(...) {
     idcomplab <- argid(names.all, "complab")
     idCIbracket <- argid(names.all, "CIbracket")
     idCIseparator <- argid(names.all, "CIseparator")
+    idCIlower.blank <- argid(names.all, "CIlower.blank")
+    idCIupper.blank <- argid(names.all, "CIupper.blank")
     idprint.subgroup.name <- argid(names.all, "print.subgroup.name")
     idsep.subgroup <- argid(names.all, "sep.subgroup")
     idkeepdata <- argid(names.all, "keepdata")
@@ -889,6 +895,16 @@ settings.meta <- function(...) {
         stop("Argument 'CIseparator' must be a character string.")
       ##
       setOption("CIseparator", CIseparator)
+    }
+    if (!is.na(idCIlower.blank)) {
+      CIlower.blank <- args[[idCIlower.blank]]
+      chklogical(CIlower.blank)
+      setOption("CIlower.blank", CIlower.blank)
+    }
+    if (!is.na(idCIupper.blank)) {
+      CIupper.blank <- args[[idCIupper.blank]]
+      chklogical(CIupper.blank)
+      setOption("CIupper.blank", CIupper.blank)
     }
     if (!is.na(idprint.subgroup.name)) {
       print.subgroup.name <- args[[idprint.subgroup.name]]

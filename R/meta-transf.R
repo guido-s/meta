@@ -192,10 +192,6 @@ logit2p <- function(x) {
   res <- 1 / (1 + exp(-x))
   res
 }
-p2logit <- function(x) {
-  res <- log(x) - log(1 - x)
-  res
-}
 z2cor <- function(x) {
   res <- (exp(2 * x) - 1) / (exp(2 * x) + 1)
   res
@@ -286,5 +282,9 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
       res[sel0] <- 0
   }
 
+  res
+}
+p2logit <- function(x) {
+  res <- log(x) - log(1 - x)
   res
 }

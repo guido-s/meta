@@ -400,8 +400,8 @@ bubble.metareg <- function(x,
     if (box)
       box()
   }
-
-
+  
+  
   invisible(NULL)
 }
 

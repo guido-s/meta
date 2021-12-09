@@ -895,7 +895,8 @@ update.meta <- function(object,
                  ##
                  n.e = n.e, n.c = n.c,
                  ##
-                 backtransf = backtransf,
+                 backtransf = backtransf, pscale = pscale,
+                 irscale = irscale, irunit = irunit,
                  ##
                  text.fixed = text.fixed, text.random = text.random,
                  text.predict = text.predict,
