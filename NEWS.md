@@ -1,3 +1,11 @@
+## meta, version 4.20-2 (2021-12-14)
+
+### Bug fixes
+
+* In forest plots, show correct degrees of freedom for test of effect
+  in subgroups for Hartung-Knapp method
+
+
 ## meta, version 4.20-1 (2021-10-22)
 
 ### Internal changes

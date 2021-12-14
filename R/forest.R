@@ -4407,6 +4407,8 @@ forest.meta <- function(x,
     o <- order(factor(x$bylevs, levels = bylevs))
     k.w <- x$k.w[o]
     k.w.hetstat <- k.w.hetstat[o]
+    if (x$hakn)
+      df.hakn.w <- x$df.hakn.w[o]
     ##
     TE.fixed.w <- x$TE.fixed.w[o]
     lower.fixed.w <- x$lower.fixed.w[o]
@@ -4461,6 +4463,9 @@ forest.meta <- function(x,
     else
       sel <- k.w > 0
     k.w <- k.w[sel]
+    if (x$hakn)
+      df.hakn.w <- df.hakn.w[sel]
+    ##
     TE.fixed.w <- TE.fixed.w[sel]
     lower.fixed.w <- lower.fixed.w[sel]
     upper.fixed.w <- upper.fixed.w[sel]
@@ -5297,7 +5302,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
             else if (jama)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5308,7 +5313,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
             else
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5319,7 +5324,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
           }
         }
         else {
