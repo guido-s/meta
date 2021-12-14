@@ -8,6 +8,9 @@
 * In update.meta(), consider input for arguments 'pscale', 'irscale'
   and 'irunit' for meta-analysis objects created with metagen()
 
+* In forest plots, show correct degrees of freedom for test of effect
+  in subgroups for Hartung-Knapp method
+
 ### User-visible changes
 
 * cilayout():
