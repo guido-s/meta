@@ -4417,7 +4417,8 @@ forest.meta <- function(x,
     else
       sel <- k.w > 0
     k.w <- k.w[sel]
-    df.hakn.w <- df.hakn.w[sel]
+    if (x$hakn)
+      df.hakn.w <- df.hakn.w[sel]
     ##
     TE.fixed.w <- TE.fixed.w[sel]
     lower.fixed.w <- lower.fixed.w[sel]
@@ -5255,7 +5256,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.hakn.w))
+                                df = df.hakn.w[i]))
             else if (jama)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5266,7 +5267,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.hakn.w))
+                                df = df.hakn.w[i]))
             else
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5277,7 +5278,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.hakn.w))
+                                df = df.hakn.w[i]))
           }
         }
         else {
