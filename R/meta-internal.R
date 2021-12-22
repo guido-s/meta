@@ -785,7 +785,8 @@ argslist <-
     "method.ci.cont", "method.ci.prop",
     "label.e", "label.c", "label.left", "label.right",
     "layout",
-    "test.overall", "test.subgroup", "test.effect.subgroup",
+    "test.overall", "test.subgroup", "prediction.subgroup",
+    "test.effect.subgroup",
     "digits", "digits.se", "digits.zval", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
@@ -829,6 +830,8 @@ setOption("print.subgroup.name", TRUE)
 setOption("print.byvar", TRUE)
 setOption("sep.subgroup", " = ")
 setOption("byseparator", " = ")
+setOption("test.subgroup", TRUE)
+setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("warn.deprecated", TRUE)
@@ -907,7 +910,6 @@ setOption("label.right", "")
 ##
 setOption("layout", "meta")
 setOption("test.overall", FALSE)
-setOption("test.subgroup", TRUE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
 

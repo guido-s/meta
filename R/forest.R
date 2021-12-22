@@ -44,10 +44,11 @@
 #'   on group level.
 #' @param print.subgroup.labels A logical indicating whether subgroup
 #'   label should be printed.
-#' @param subgroup.name A character string with a label for the grouping
-#'   variable.
-#' @param print.subgroup.name A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
+#' @param subgroup.name A character string with a label for the
+#'   grouping variable.
+#' @param print.subgroup.name A logical indicating whether the name of
+#'   the grouping variable should be printed in front of the group
+#'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
 #' @param text.fixed.w A character string to label the pooled fixed
@@ -267,6 +268,8 @@
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param print.Q.subgroup A logical value indicating whether to print
 #'   the value of the heterogeneity statistic Q (test for subgroup
 #'   differences).
@@ -1115,6 +1118,7 @@ forest.meta <- function(x,
                         test.subgroup = x$test.subgroup,
                         test.subgroup.fixed = test.subgroup & fixed,
                         test.subgroup.random = test.subgroup & random,
+                        prediction.subgroup = x$prediction.subgroup,
                         print.Q.subgroup = TRUE,
                         label.test.subgroup.fixed,
                         label.test.subgroup.random,
@@ -1336,6 +1340,9 @@ forest.meta <- function(x,
     chklogical(print.subgroup.name)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup)
+  prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+  chklogical(prediction.subgroup)
+  prediction.subgroup.logical <- prediction.subgroup
   chklogical(bysort)
   chklogical(pooled.totals)
   chklogical(pooled.events)
@@ -1844,11 +1851,6 @@ forest.meta <- function(x,
   level.ma <- x$level.ma
   level.predict <- x$level.predict
   ##
-  chklevel(level)
-  chklevel(level.ma)
-  if (prediction)
-    chklevel(level.predict)
-  ##
   subgroup <- x$subgroup
   by <- !is.null(subgroup)
   ##
@@ -1959,6 +1961,7 @@ forest.meta <- function(x,
     ##
     hetstat <- FALSE
     prediction <- FALSE
+    prediction.subgroup.logical <- FALSE
     test.effect.subgroup.fixed  <- FALSE
     test.effect.subgroup.random <- FALSE
   }
@@ -4530,7 +4533,7 @@ forest.meta <- function(x,
       text.random.w <- rep("", n.by)
     }
     ##
-    if (metainf.metacum) {
+    if (metainf.metacum | !prediction.subgroup) {
       lower.predict.w <- upper.predict.w <- rep(NA, n.by)
       text.predict.w <- rep("", n.by)
     }
@@ -6035,7 +6038,8 @@ forest.meta <- function(x,
                  text.overall.fixed, text.overall.random,
                  text.subgroup.fixed, text.subgroup.random,
                  text.addline1, text.addline2,
-                 subgroup.name, text.fixed.w, text.random.w, text.predict.w, hetstat.w,
+                 subgroup.name, text.fixed.w, text.random.w, text.predict.w,
+                 hetstat.w,
                  unlist(text.effect.subgroup.fixed),
                  unlist(text.effect.subgroup.random),
                  studlab)
@@ -6555,7 +6559,7 @@ forest.meta <- function(x,
       ##
       ## Prediction interval
       ##
-      if (prediction & subgroup.logical) {
+      if (prediction.subgroup.logical & subgroup.logical) {
         yTE.w.predict[i] <- j
         j <- j + 1
       }
@@ -6610,8 +6614,8 @@ forest.meta <- function(x,
   ##
   if (is.null(xlim)) {
     if (metaprop) {
-      xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
-                max(c(uppTE, uppTE.predict), na.rm = TRUE))
+      xlim <- c(min(lowTEs, na.rm = TRUE),
+                max(uppTEs, na.rm = TRUE))
       ##
       if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
@@ -6629,17 +6633,17 @@ forest.meta <- function(x,
         xlim[2] <- upper.equi
     }
     else {
-      sel.low <- is.finite(lowTE)
-      sel.upp <- is.finite(uppTE)
+      sel.low <- is.finite(lowTEs)
+      sel.upp <- is.finite(uppTEs)
       ##
       if (all(!sel.low))
         minTE <- -0.5
       else
-        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
-        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+        maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
       ##
       xlim <- c(minTE, maxTE)
       ##
@@ -6670,21 +6674,21 @@ forest.meta <- function(x,
     symmetric <- TRUE
     ##
     if (metaprop | metarate | metamean) {
-      xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
-                max(c(uppTE, uppTE.predict), na.rm = TRUE))
+      xlim <- c(min(lowTEs, na.rm = TRUE),
+                max(uppTEs, na.rm = TRUE))
     }
     else {
-      sel.low <- is.finite(lowTE)
-      sel.upp <- is.finite(uppTE)
+      sel.low <- is.finite(lowTEs)
+      sel.upp <- is.finite(uppTEs)
       ##
       if (all(!sel.low))
         minTE <- -0.5
       else
-        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
-        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+        maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
       ##
       if (minTE < 0 & maxTE < 0)
         xlim <- c(minTE, -minTE)
@@ -7224,7 +7228,8 @@ forest.meta <- function(x,
                                    else just.addcols.right[i],
                                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", rep("", length(TE.w)), tmp.r),
+                                        c("", "", "", rep("", length(TE.w)),
+                                          tmp.r),
                                         yS,
                                         just.addcols.right[i],
                                         fcs, fontfamily)
@@ -8014,5 +8019,5 @@ forest.meta <- function(x,
   popViewport()
   
   
-  invisible(NULL)
+  invisible(list(xlim = xlim))
 }

@@ -61,6 +61,7 @@ metabin(
   print.subgroup.name = gs("print.subgroup.name"),
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
+  prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   print.CMH = gs("print.CMH"),
   keepdata = gs("keepdata"),
@@ -258,6 +259,9 @@ between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 

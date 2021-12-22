@@ -66,6 +66,7 @@
   print.subgroup.name = object$print.subgroup.name,
   sep.subgroup = object$sep.subgroup,
   test.subgroup = object$test.subgroup,
+  prediction.subgroup = object$prediction.subgroup,
   byvar,
   print.CMH = object$print.CMH,
   keepdata = TRUE,
@@ -303,6 +304,9 @@ between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 

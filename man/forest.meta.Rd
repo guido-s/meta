@@ -119,6 +119,7 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.fixed = test.subgroup & fixed,
   test.subgroup.random = test.subgroup & random,
+  prediction.subgroup = x$prediction.subgroup,
   print.Q.subgroup = TRUE,
   label.test.subgroup.fixed,
   label.test.subgroup.random,
@@ -278,11 +279,12 @@ on group level.}
 \item{print.subgroup.labels}{A logical indicating whether subgroup
 label should be printed.}
 
-\item{subgroup.name}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a label for the
+grouping variable.}
 
-\item{print.subgroup.name}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the grouping variable should be printed in front of the group
+labels.}
 
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
@@ -594,6 +596,9 @@ effect model).}
 \item{test.subgroup.random}{A logical value indicating whether to
 print results of test for subgroup differences (based on random
 effects model).}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{print.Q.subgroup}{A logical value indicating whether to print
 the value of the heterogeneity statistic Q (test for subgroup

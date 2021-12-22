@@ -156,6 +156,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -972,6 +974,7 @@ metagen <- function(TE, seTE, studlab,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    prediction.subgroup = gs("prediction.subgroup"),
                     byvar,
                     ##
                     keepdata = gs("keepdata"),
@@ -1249,6 +1252,7 @@ metagen <- function(TE, seTE, studlab,
   if (by) {
     chklength(subgroup, k.All, arg)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   ## Additional checks
@@ -2084,6 +2088,16 @@ metagen <- function(TE, seTE, studlab,
                 tau2.calc, hc$Q, hc$df.Q, level.ma)
   else
     Rbres <- list(TE = NA, lower = NA, upper = NA)
+  ##
+  ## Standard error used to calculate random effects confidence
+  ## interval for Hartung-Knapp adjustment (not three-level model)
+  ##
+  if (hakn & !three.level) {
+    seTE.classic <- seTE.random
+    seTE.random <- seTE.hakn.adhoc
+  }
+  else
+    seTE.classic <- seTE.random
   
   
   ##
@@ -2098,22 +2112,22 @@ metagen <- function(TE, seTE, studlab,
               ##
               TE = TE, seTE = seTE,
               lower = ci.study$lower, upper = ci.study$upper,
-              zval = ci.study$statistic,
               statistic = ci.study$statistic,
               pval = ci.study$p,
+              zval = ci.study$statistic,
               df = if (method.ci == "t") df else rep_len(NA, length(TE)),
               w.fixed = w.fixed, w.random = w.random,
               id = id,
               ##
               TE.fixed = TE.fixed, seTE.fixed = seTE.fixed,
               lower.fixed = lower.fixed, upper.fixed = upper.fixed,
-              zval.fixed = statistic.fixed,
               statistic.fixed = statistic.fixed, pval.fixed = pval.fixed,
+              zval.fixed = statistic.fixed,
               ##
               TE.random = TE.random, seTE.random = seTE.random,
               lower.random = lower.random, upper.random = upper.random,
-              zval.random = statistic.random,
               statistic.random = statistic.random, pval.random = pval.random,
+              zval.random = statistic.random,
               ##
               null.effect = null.effect,
               ##
@@ -2147,10 +2161,13 @@ metagen <- function(TE, seTE, studlab,
               random = random,
               overall = overall,
               overall.hetstat = overall.hetstat,
+              ##
               hakn = hakn, adhoc.hakn = adhoc.hakn,
               df.hakn = if (hakn) df.hakn else NA,
               seTE.hakn = seTE.hakn,
               seTE.hakn.adhoc = seTE.hakn.adhoc,
+              seTE.classic = seTE.classic,
+              ##
               method.tau = method.tau, method.tau.ci = hc$method.tau.ci,
               tau.preset = tau.preset,
               TE.tau =
@@ -2179,6 +2196,7 @@ metagen <- function(TE, seTE, studlab,
               print.subgroup.name = print.subgroup.name,
               sep.subgroup = sep.subgroup,
               test.subgroup = test.subgroup,
+              prediction.subgroup = prediction.subgroup,
               ##
               three.level = three.level,
               ##

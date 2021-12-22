@@ -1,4 +1,13 @@
-## meta, version 5.1-2 (2021-mm-dd)
+## meta, version 5.2-0 (2022-mm-dd)
+
+### Major changes
+
+* Prediction intervals in subgroups can be shown independently of
+  prediction interval for overall meta-analysis in printouts and
+  forest plots
+
+* Printing of spaces in confidence intervals can be suppressed, see
+  cilayout()
 
 ### Bug fixes
 
@@ -13,15 +22,26 @@
 
 ### User-visible changes
 
+* forest.meta(), metabin(), metacont(), metacor(), metacr(),
+  metagen(), metainc(), metamean(), metaprop(), metarate(),
+  print.meta(), update.meta():
+  - new argument 'prediction.subgroup'
+
+* settings.meta():
+  - new global setting 'prediction.subgroup' for prediction intervals
+    in subgroups
+  - new global settings 'CIlower.blank' and 'CIupper.blank'
+
 * cilayout():
   - new arguments 'lower.blank' and 'upper.blank'
-  - additional check for length of arguments
+  - additional checks for length of arguments
 
 ### Internal changes
 
 * metagen():
   - new list elements 'seTE.hakn' and 'seTE.hakn.adhoc' (with standard
-    error for Hartung-Knapp method)
+    error for Hartung-Knapp method) and 'seTE.classic' for classic
+    random effects inverse variance method
 
 * Internal function formatCI() considers values for 'lower.blank' and
   'upper.blank' in cilayout()

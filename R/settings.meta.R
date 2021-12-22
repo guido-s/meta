@@ -421,6 +421,7 @@ settings.meta <- function(...) {
     catarg("prediction         ")
     catarg("level.predict      ")
     catarg("test.subgroup      ")
+    catarg("prediction.subgroup")
     catarg("method.bias        ")
     catarg("text.fixed         ")
     catarg("text.random        ")
@@ -533,6 +534,7 @@ settings.meta <- function(...) {
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
     setOption("test.subgroup", TRUE)
+    setOption("prediction.subgroup", FALSE)
     setOption("method.bias", "Egger")
     setOption("text.fixed", "Common effect model")
     setOption("text.random", "Random effects model")
@@ -769,6 +771,7 @@ settings.meta <- function(...) {
     idlayout <- argid(names.all, "layout")
     idtest.overall <- argid(names.all, "test.overall")
     idtest.subgroup <- argid(names.all, "test.subgroup")
+    idprediction.subgroup <- argid(names.all, "prediction.subgroup")
     idtest.effect.subgroup <- argid(names.all, "test.effect.subgroup")
     iddigits.forest <- argid(names.all, "digits.forest")
     ##
@@ -1255,6 +1258,11 @@ settings.meta <- function(...) {
       test.subgroup <- args[[idtest.subgroup]]
       chklogical(test.subgroup)
       setOption("test.subgroup", test.subgroup)
+    }
+    if (!is.na(idprediction.subgroup)) {
+      prediction.subgroup <- args[[idprediction.subgroup]]
+      chklogical(prediction.subgroup)
+      setOption("prediction.subgroup", prediction.subgroup)
     }
     if (!is.na(idtest.effect.subgroup)) {
       test.effect.subgroup <- args[[idtest.effect.subgroup]]

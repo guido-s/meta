@@ -166,6 +166,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
@@ -309,6 +311,7 @@ update.meta <- function(object,
                         print.subgroup.name = object$print.subgroup.name,
                         sep.subgroup = object$sep.subgroup,
                         test.subgroup = object$test.subgroup,
+                        prediction.subgroup = object$prediction.subgroup,
                         byvar,
                         ##
                         print.CMH = object$print.CMH,
@@ -411,6 +414,7 @@ update.meta <- function(object,
     chkchar(sep.subgroup, length = 1)
   ##
   test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
+  prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
   ##
   ## Some more checks
   ##
@@ -750,6 +754,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
@@ -805,6 +810,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -849,6 +855,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn.deprecated = FALSE,
@@ -910,6 +917,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -994,6 +1002,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1050,6 +1059,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1111,6 +1121,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1170,6 +1181,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,

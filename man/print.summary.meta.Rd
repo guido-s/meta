@@ -9,11 +9,9 @@
   sortvar,
   fixed = x$x$fixed,
   random = x$x$random,
-  prediction = x$prediction,
   details = FALSE,
   ma = TRUE,
   overall = x$overall,
-  overall.hetstat = x$overall.hetstat,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -52,9 +50,6 @@ meta-analysis should be conducted.}
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
-
 \item{details}{A logical indicating whether further details of
 individual studies should be printed.}
 
@@ -64,12 +59,6 @@ meta-analysis should be printed.}
 \item{overall}{A logical indicating whether overall summaries
 should be reported. This argument is useful in a meta-analysis
 with subgroups if overall results should not be reported.}
-
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf = TRUE}, results

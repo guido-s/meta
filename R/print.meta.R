@@ -48,6 +48,8 @@
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
@@ -156,6 +158,7 @@ print.meta <- function(x,
                        test.subgroup = x$test.subgroup,
                        test.subgroup.fixed = test.subgroup & fixed,
                        test.subgroup.random = test.subgroup & random,
+                       prediction.subgroup = x$prediction.subgroup,
                        ##
                        backtransf = x$backtransf,
                        pscale = x$pscale,
@@ -278,6 +281,11 @@ print.meta <- function(x,
   test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
   chklogical(test.subgroup.random)
   ##
+  prediction.subgroup <- replaceNULL(prediction.subgroup, TRUE)
+  if (is.na(prediction.subgroup))
+    prediction.subgroup <- FALSE
+  chklogical(prediction.subgroup)
+  ##
   if (!is.null(print.CMH))
     chklogical(print.CMH)
   chklogical(header)
@@ -376,7 +384,7 @@ print.meta <- function(x,
   if (by) {
     k.w <- x$k.w
     ##
-    prediction.w <- prediction & k.w >= 3
+    prediction.w <- prediction.subgroup & k.w >= 3
     prediction.w[is.na(prediction.w)] <- FALSE
     prediction.w <- any(prediction.w)
   }

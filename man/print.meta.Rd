@@ -15,6 +15,7 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.fixed = test.subgroup & fixed,
   test.subgroup.random = test.subgroup & random,
+  prediction.subgroup = x$prediction.subgroup,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -91,6 +92,9 @@ effect / common effect model).}
 \item{test.subgroup.random}{A logical value indicating whether to
 print results of test for subgroup differences (based on random
 effects model).}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results

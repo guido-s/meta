@@ -215,6 +215,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          TE.tau = replaceNULL(m.i$TE.tau),
                          tau.common = m.i$tau.common,
                          prediction = m.i$prediction,
+                         prediction.subgroup = m.i$prediction.subgroup,
                          method.bias = "",
                          null.effect = m.i$null.effect,
                          ##
@@ -538,6 +539,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   if (any(meth$prediction))
     meth$prediction <- TRUE
+  ##
+  if (any(meth$prediction.subgroup))
+    meth$prediction.subgroup <- TRUE
+  else if (is.null(meth$prediction.subgroup) || anyNA(meth$prediction.subgroup))
+    meth$prediction.subgroup <- FALSE
   ##  
   ## Only consider argument 'tau.common' from subgroup meta-analyses
   ##
