@@ -1087,8 +1087,9 @@ update.meta <- function(object,
                   studlab = studlab,
                   exclude = exclude,
                   ##
-                  data = data, subset = subset, method = method,
+                  data = data, subset = subset,
                   ##
+                  method = method,
                   sm = sm,
                   incr = incr,
                   allincr = allincr, addincr = addincr,
@@ -1117,6 +1118,7 @@ update.meta <- function(object,
                   text.w.fixed = text.w.fixed, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  ##
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,

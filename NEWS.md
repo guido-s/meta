@@ -9,6 +9,9 @@
 * Printing of spaces in confidence intervals can be suppressed, see
   cilayout()
 
+* New function longarm() to transform data from pairwise comparisons
+  to long arm-based format
+
 ### Bug fixes
 
 * Use correct standard error to calculate prediction interval if
