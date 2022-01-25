@@ -510,13 +510,18 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   if (is.null(meta2$method.tau.ci))
     meta2$method.tau.ci <- ""
   ##
-  if (!is.null(meta2$hakn))
-    res$hakn <-
-      (pooled1 == "random" & meta1$hakn) |
-      (pooled2 == "random" & meta2$hakn)
-  else
-    res$hakn <-
-      (pooled1 == "random" & meta1$hakn)
+  if (pooled1 == "random" && !is.null(res$hakn) && res$hakn)
+    stop("Hartung-Knapp method must be provided as second ",
+         "random effects meta-analysis.")
+  ##
+  if (!is.null(meta2$hakn) && meta2$hakn) {
+    res$hakn <- meta2$hakn
+    res$adhoc.hakn <- meta2$adhoc.hakn
+    res$df.hakn <- meta2$df.hakn
+    res$seTE.hakn <- meta2$seTE.hakn
+    res$seTE.hakn.adhoc <- meta2$seTE.hakn.adhoc
+    res$seTE.classic <- meta2$seTE.classic
+  }
   ##
   if (!is.null(meta1$Q.Cochrane) & !is.null(meta2$Q.Cochrane))
     res$Q.Cochrane <-
@@ -600,18 +605,21 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       ##
       res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
     }
-    else if (
-           any(meta1$tau != meta2$tau) |
-           any(meta1$lower.tau != meta2$lower.tau)) {
+    else {
       ##
-      if (meta1$method.tau != meta2$method.tau) {
-        if (res$detail.tau == "")
-          res$detail.tau <- meta1$method.tau
-        if (meta2$detail.tau == "")
-          meta2$detail.tau <- meta2$method.tau
-        res$method.tau <- ""
-      }
-      ##
+      if (
+        any(meta1$tau != meta2$tau) |
+        (any(!is.na(meta1$lower.tau) & !is.na(meta2$lower.tau)) &&
+         any(meta1$lower.tau != meta2$lower.tau))) {
+        ##
+        if (meta1$method.tau != meta2$method.tau) {
+          if (res$detail.tau == "")
+            res$detail.tau <- meta1$method.tau
+          if (meta2$detail.tau == "")
+            meta2$detail.tau <- meta2$method.tau
+          res$method.tau <- ""
+        }
+        ##
       if (meta1$method.tau.ci != meta2$method.tau.ci) {
         if (res$detail.tau == "")
           res$detail.tau <- meta1$method.tau.ci
@@ -619,16 +627,17 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
           meta2$detail.tau <- meta2$method.tau.ci
         res$method.tau.ci <- ""
       }
-      ##
-      res$tau <- c(res$tau, meta2$tau)
-      res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
-      res$upper.tau <- c(res$upper.tau, meta2$upper.tau)
-      res$tau2 <- c(res$tau2, meta2$tau2)
-      res$lower.tau2 <- c(res$lower.tau2, meta2$lower.tau2)
-      res$upper.tau2 <- c(res$upper.tau2, meta2$upper.tau2)
-      res$se.tau <- c(res$se.tau, meta2$se.tau)
-      ##
-      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+        ##
+        res$tau <- c(res$tau, meta2$tau)
+        res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
+        res$upper.tau <- c(res$upper.tau, meta2$upper.tau)
+        res$tau2 <- c(res$tau2, meta2$tau2)
+        res$lower.tau2 <- c(res$lower.tau2, meta2$lower.tau2)
+        res$upper.tau2 <- c(res$upper.tau2, meta2$upper.tau2)
+        res$se.tau <- c(res$se.tau, meta2$se.tau)
+        ##
+        res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+      }
     }
   }
   ##

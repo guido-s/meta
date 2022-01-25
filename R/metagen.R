@@ -1105,11 +1105,11 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
   ## 'id' from data:
@@ -1126,23 +1126,12 @@ metagen <- function(TE, seTE, studlab,
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
   ##
-  TE <- eval(mf[[match("TE", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
-  ##
-  seTE <- eval(mf[[match("seTE", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-  ##
-  median <- eval(mf[[match("median", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
-  ##
-  lower <- eval(mf[[match("lower", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-  ##
-  upper <- eval(mf[[match("upper", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-  ##
-  id <- eval(mf[[match("id", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  TE <- catch("TE", mc, data, sfsp)
+  seTE <- catch("seTE", mc, data, sfsp)
+  median <- catch("median", mc, data, sfsp)
+  lower <- catch("lower", mc, data, sfsp)
+  upper <- catch("upper", mc, data, sfsp)
+  id <- catch("id", mc, data, sfsp)
   ##
   if (!missing.id & is.null(id))
     missing.id <- TRUE
@@ -1169,75 +1158,58 @@ metagen <- function(TE, seTE, studlab,
   if (!missing.median)
     chknull(median)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
-  ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
+  n.c <- catch("n.c", mc, data, sfsp)
   ##
   ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
   ## Catch 'pval', 'df', 'level.ci', 'q1', 'q3', 'min', 'max',
   ## 'approx.TE' and 'approx.seTE', from data:
   ##
   missing.pval <- missing(pval)
-  pval <- eval(mf[[match("pval", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  pval <- catch("pval", mc, data, sfsp)
   ##
   missing.df <- missing(df)
-  df <- eval(mf[[match("df", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  df <- catch("df", mc, data, sfsp)
   ##
   if (!missing(level.ci))
-    level.ci <- eval(mf[[match("level.ci", names(mf))]],
-                     data, enclos = sys.frame(sys.parent()))
+    level.ci <- catch("level.ci", mc, data, sfsp)
   ##
   missing.q1 <- missing(q1)
-  q1 <- eval(mf[[match("q1", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q1 <- catch("q1", mc, data, sfsp)
   ##
   missing.q3 <- missing(q3)
-  q3 <- eval(mf[[match("q3", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q3 <- catch("q3", mc, data, sfsp)
   ##
   missing.min <- missing(min)
-  min <- eval(mf[[match("min", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  min <- catch("min", mc, data, sfsp)
   ##
   missing.max <- missing(max)
-  max <- eval(mf[[match("max", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  max <- catch("max", mc, data, sfsp)
   ##
   missing.approx.TE <- missing(approx.TE)
-  approx.TE <- eval(mf[[match("approx.TE", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+  approx.TE <- catch("approx.TE", mc, data, sfsp)
   ##
   missing.approx.seTE <- missing(approx.seTE)
-  approx.seTE <- eval(mf[[match("approx.seTE", names(mf))]],
-                      data, enclos = sys.frame(sys.parent()))
+  approx.seTE <- catch("approx.seTE", mc, data, sfsp)
   
   
   ##
@@ -1513,9 +1485,9 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##

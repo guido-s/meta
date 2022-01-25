@@ -139,15 +139,13 @@ metainf <- function(x, pooled, sortvar) {
     else
       pooled <- "fixed"
   ##
-  mf <- match.call()
-  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x, stringsAsFactors = FALSE),
-                               enclos = sys.frame(sys.parent())),
-               silent = TRUE)
+  mc <- match.call()
+  error <-
+    try(sortvar <-
+          catch("sortvar", mc, x, sys.frame(sys.parent())),
+        silent = TRUE)
   if (class(error) == "try-error") {
-    xd <- x$data
-    sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                    xd, enclos = NULL)
+    sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }

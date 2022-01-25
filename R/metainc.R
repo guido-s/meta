@@ -821,70 +821,58 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', and 'n.c'
   ## from data:
   ##
-  event.e <- eval(mf[[match("event.e", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
   k.All <- length(event.e)
   ##
-  time.e <- eval(mf[[match("time.e", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  time.e <- catch("time.e", mc, data, sfsp)
   chknull(time.e)
   ##
-  event.c <- eval(mf[[match("event.c", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.c <- catch("event.c", mc, data, sfsp)
   chknull(event.c)
   ##
-  time.c <- eval(mf[[match("time.c", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  time.c <- catch("time.c", mc, data, sfsp)
   chknull(time.c)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
   null.n.e <- is.null(n.e)
   ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.c <- catch("n.c", mc, data, sfsp)
   null.n.c <- is.null(n.c)
   ##
   ## Catch 'incr' from data:
   ##
   if (!missing(incr))
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   chknumeric(incr, min = 0)
   ##
   ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   
   
@@ -1065,9 +1053,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##

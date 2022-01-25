@@ -2,28 +2,45 @@
 
 ### Major changes
 
+* Forest plot for meta-analysis with subgroups:
+  - more flexible printing of subgroup results
+  - by default, do not show subgroup results (pooled estimates and
+    information on heterogeneity) for subgroups consisting of a single
+    study
+
 * Prediction intervals in subgroups can be shown independently of
   prediction interval for overall meta-analysis in printouts and
   forest plots
 
-* Printing of spaces in confidence intervals can be suppressed, see
-  cilayout()
-
 * New function longarm() to transform data from pairwise comparisons
   to long arm-based format
+
+* Printing of spaces in confidence intervals can be suppressed
+
+* Help page of forest.meta() updated
 
 ### Bug fixes
 
 * Use correct standard error to calculate prediction interval if
   Hartung-Knapp method was used
 
-* In update.meta(), consider input for arguments 'pscale', 'irscale'
-  and 'irunit' for meta-analysis objects created with metagen()
-
 * In forest plots, show correct degrees of freedom for test of effect
   in subgroups for Hartung-Knapp method
 
+* In update.meta(), consider input for arguments 'pscale', 'irscale'
+  and 'irunit' for meta-analysis objects created with metagen()
+
 ### User-visible changes
+
+* forest.meta():
+  - new argument 'subgroup.hetstat'
+  - arguments 'subgroup', 'subgroup.hetstat', 'prediction.subgroup',
+    'test.effect.subgroup', 'test.effect.subgroup.fixed' and
+    'test.effect.subgroup.random' can be a logical vector of same
+    length as number of subgroups
+  - arguments 'lab.e', 'lab.c', 'lab.e.attach.to.col' and
+    'lab.c.attach.to.col' renamed to 'label.e', 'label.c',
+    'label.e.attach' and 'label.c.attach'
 
 * forest.meta(), metabin(), metacont(), metacor(), metacr(),
   metagen(), metainc(), metamean(), metaprop(), metarate(),
@@ -36,7 +53,8 @@
   - new global settings 'CIlower.blank' and 'CIupper.blank'
 
 * cilayout():
-  - new arguments 'lower.blank' and 'upper.blank'
+  - new arguments 'lower.blank' and 'upper.blank' to suppress printing
+    of spaces in confidence intervals
   - additional checks for length of arguments
 
 ### Internal changes
@@ -48,6 +66,8 @@
 
 * Internal function formatCI() considers values for 'lower.blank' and
   'upper.blank' in cilayout()
+
+* New internal function catch() to catch value for an argument
 
 
 ## meta, version 5.1-1 (2021-12-02)

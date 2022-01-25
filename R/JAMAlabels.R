@@ -39,11 +39,11 @@
 JAMAlabels <- function(author, year, citation, data = NULL) {
   
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   if (missing(author) | missing(year) | missing(citation))
     stop("Mandatory arguments: 'author', 'year', and 'citation'.",
@@ -51,14 +51,9 @@ JAMAlabels <- function(author, year, citation, data = NULL) {
   ##
   ## Catch 'author', 'year', and 'citation' from data:
   ##
-  author <- eval(mf[[match("author", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
-  ##
-  year <- eval(mf[[match("year", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-  ##
-  citation <- eval(mf[[match("citation", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  author <- catch("author", mc, data, sfsp)
+  year <- catch("year", mc, data, sfsp)
+  citation <- catch("citation", mc, data, sfsp)
   ##
   if (length(author) != length(year))
     stop("Arguments 'author' and 'year' must be of same length.",

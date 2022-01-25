@@ -26,10 +26,10 @@
 #' @aliases print.meta cilayout
 #' 
 #' @param x An object of class \code{meta}.
-#' @param fixed A logical indicating whether a fixed effect
-#'   meta-analysis should be conducted.
-#' @param random A logical indicating whether a random effects
-#'   meta-analysis should be conducted.
+#' @param fixed A logical indicating whether results for fixed effect
+#'   meta-analysis should be printed.
+#' @param random A logical indicating whether results for random
+#'   effects meta-analysis should be printed.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param overall A logical indicating whether overall summaries

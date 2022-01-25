@@ -194,15 +194,14 @@ print.summary.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  mf <- match.call()
-  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x.meta, stringsAsFactors = FALSE),
-                               enclos = sys.frame(sys.parent())),
-               silent = TRUE)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  error <-
+    try(sortvar <-
+          catch("sortvar", mc, x.meta, sfsp),
+        silent = TRUE)
   if (class(error) == "try-error") {
-    xd <- x$data
-    sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                    xd, enclos = NULL)
+    sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -268,12 +267,10 @@ print.summary.meta <- function(x,
   ##
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
-    truncate <- eval(mf[[match("truncate", names(mf))]],
-                     x.meta, enclos = sys.frame(sys.parent()))
+    truncate <- catch("truncate", mf, x.meta, sfsp)
     ##
     if (is.null(truncate))
-      truncate <- eval(mf[[match("truncate", names(mf))]],
-                       x$data, enclos = sys.frame(sys.parent()))
+      truncate <- catch("truncate", mf, x$data, enclos = sfsp)
     ##
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",

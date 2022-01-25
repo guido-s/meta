@@ -63,11 +63,11 @@ cilayout(
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
+\item{fixed}{A logical indicating whether results for fixed effect
+meta-analysis should be printed.}
 
-\item{random}{A logical indicating whether a random effects
-meta-analysis should be conducted.}
+\item{random}{A logical indicating whether results for random
+effects meta-analysis should be printed.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}

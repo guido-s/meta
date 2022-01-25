@@ -129,9 +129,11 @@ longarm <- function(treat1, treat2,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch treat1 and check for pairwise object
   ##
@@ -141,8 +143,7 @@ longarm <- function(treat1, treat2,
   if (missing.treat1)
     stop("Argument 'treat1' mandatory.")
   ##
-  treat1 <- eval(mf[[match("treat1", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  treat1 <- catch("treat1", mc, data, sfsp)
   ##
   ignore <- function(miss, name, func)
     if (!miss)
@@ -292,30 +293,18 @@ longarm <- function(treat1, treat2,
     ## Catch studlab, treat2, event1, event2, n1, n2, mean1, mean2,
     ## sd1, sd2, time1, time2 from data:
     ##
-    studlab <- eval(mf[[match("studlab", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
-    treat2 <- eval(mf[[match("treat2", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
-    event1 <- eval(mf[[match("event1", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-    event2 <- eval(mf[[match("event2", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
-    n1 <- eval(mf[[match("n1", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-    n2 <- eval(mf[[match("n2", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-    mean1 <- eval(mf[[match("mean1", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-    mean2 <- eval(mf[[match("mean2", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-    sd1 <- eval(mf[[match("sd1", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-    sd2 <- eval(mf[[match("sd2", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-    time1 <- eval(mf[[match("time1", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
-    time2 <- eval(mf[[match("time2", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+    studlab <- catch("studlab", mc, data, sfsp)
+    treat2 <- catch("treat2", mc, data, sfsp)
+    event1 <- catch("event1", mc, data, sfsp)
+    event2 <- catch("event2", mc, data, sfsp)
+    n1 <- catch("n1", mc, data, sfsp)
+    n2 <- catch("n2", mc, data, sfsp)
+    mean1 <- catch("mean1", mc, data, sfsp)
+    mean2 <- catch("mean2", mc, data, sfsp)
+    sd1 <- catch("sd1", mc, data, sfsp)
+    sd2 <- catch("sd2", mc, data, sfsp)
+    time1 <- catch("time1", mc, data, sfsp)
+    time2 <- catch("time2", mc, data, sfsp)
     if (missing.treat2)
       stop("Argument 'treat2' mandatory.")
     ##
@@ -365,13 +354,18 @@ longarm <- function(treat1, treat2,
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
     ##
-    if (nulldata)
+    if (nulldata) {
       data <-
-        data.frame(.treat1 = treat1, .treat2 = treat2,
-                   .event1 = event1, .event2 = event2, .n1 = n1, .n2 = n2,
-                   .mean1 = mean1, .mean2 = mean2, .sd1 = sd1, .sd2 = sd2,
-                   .time1 = time1, .time2 = time2,
-                   .studlab = studlab)
+        data.frame(.studlab = studlab,
+                   .treat1 = treat1, .treat2 = treat2,
+                   .n1 = n1, .n2 = n2)
+      data$.mean1 <- mean1
+      data$.mean2 <- mean2
+      data$.sd1 <- sd1
+      data$.sd2 <- sd2
+      data$.time1 <- time1
+      data$.time2 <- time2
+    }
     else {
       data$.treat1 <- treat1
       data$.treat2 <- treat2
@@ -508,5 +502,9 @@ longarm <- function(treat1, treat2,
   else
     res <- dat.l[, nam]
   
+  
+  attr(res, "type") <- type
+  attr(res, "longarm") <- TRUE
+  ##
   res
 }

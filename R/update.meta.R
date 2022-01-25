@@ -562,15 +562,15 @@ update.meta <- function(object,
     return(invisible(NULL))
   }
   ##
-  mf <- match.call()
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   ## Catch argument 'subset'
   ##
   missing.subset  <- missing(subset)
   ##
   if (!missing.subset)
-    subset <- eval(mf[[match("subset", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    subset <- catch("subset", mc, data, sfsp)
   else {
     if (!is.null(object$subset))
       subset <- object$subset
@@ -585,8 +585,7 @@ update.meta <- function(object,
   missing.studlab <- missing(studlab)
   ##
   if (!missing.studlab)
-    studlab <- eval(mf[[match("studlab", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    studlab <- catch("studlab", mc, data, sfsp)
   else if (isCol(object$data, ".studlab"))
     studlab <- object$data$.studlab
   else
@@ -597,8 +596,7 @@ update.meta <- function(object,
   missing.exclude <- missing(exclude)
   ##
   if (!missing.exclude)
-    exclude <- eval(mf[[match("exclude", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    exclude <- catch("exclude", mc, data, sfsp)
   else if (isCol(object$data, ".exclude"))
     exclude <- object$data$.exclude
   else
@@ -609,8 +607,7 @@ update.meta <- function(object,
   missing.id <- missing(id)
   ##
   if (!missing.id)
-    ...id <- eval(mf[[match("id", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+    ...id <- catch("id", mc, data, sfsp)
   else {
     if (isCol(object$data, ".id"))
       ...id <- object$data$.id
@@ -623,8 +620,7 @@ update.meta <- function(object,
   missing.incr <- missing(incr)
   ##
   if (!missing.incr)
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   else {
     if (isCol(object$data, ".incr"))
       incr <- object$data$.incr
@@ -638,10 +634,8 @@ update.meta <- function(object,
   missing.byvar <- missing(byvar)
   ##
   if (!missing.subgroup | !missing.byvar) {
-    subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                     data, enclos = sys.frame(sys.parent()))
-    byvar <- eval(mf[[match("byvar", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    byvar <- catch("byvar", mc, data, sfsp)
     subgroup <-
       deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                   warn.deprecated)
@@ -655,9 +649,9 @@ update.meta <- function(object,
   ##
   if (missing.subgroup.name & is.null(subgroup.name)) {
     if (!missing.subgroup)
-      subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+      subgroup.name <- byvarname("subgroup", mc)
     else if (!missing.byvar)
-      subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+      subgroup.name <- byvarname("byvar", mc)
   }
   ##
   missing.sm <- missing(sm)
