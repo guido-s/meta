@@ -1348,13 +1348,14 @@ forest.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  mf <- match.call()
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   error <-
-    try(sortvar <- catch("sortvar", mf, x, sys.frame(sys.parent())),
+    try(sortvar <- catch("sortvar", mc, x, sfsp),
         silent = TRUE)
   if (class(error) == "try-error") {
-    sortvar <- catch("sortvar", mf, x$data, NULL)
+    sortvar <- catch("sortvar", mc, x$data, NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -1398,7 +1399,7 @@ forest.meta <- function(x,
   else {
     if (!missing(subgroup) & !metabind)
       subgroup <-
-        catch("subgroup", mf, x, sys.frame(sys.parent()))
+        catch("subgroup", mc, x, sfsp)
     ##
     if (length(subgroup) == 1)
       subgroup.logical <- rep(subgroup, n.by) &
@@ -1413,7 +1414,7 @@ forest.meta <- function(x,
     ##
     if (!missing(subgroup.hetstat) & !metabind)
       subgroup.hetstat <-
-        catch("subgroup.hetstat", mf, x, sys.frame(sys.parent()))
+        catch("subgroup.hetstat", mc, x, sfsp)
     ##
     if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
       subgroup.hetstat.logical <- rep(TRUE, n.by)
@@ -1432,7 +1433,7 @@ forest.meta <- function(x,
     ##
     if (!missing(prediction.subgroup) & !metabind)
       prediction.subgroup <-
-        catch("prediction.subgroup", mf, x, sys.frame(sys.parent()))
+        catch("prediction.subgroup", mc, x, sfsp)
     ##
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     ##
@@ -1450,7 +1451,7 @@ forest.meta <- function(x,
     ##
     if (!missing(test.effect.subgroup)) {
       test.effect.subgroup <-
-        catch("test.effect.subgroup", mf, x, sys.frame(sys.parent()))
+        catch("test.effect.subgroup", mc, x, sfsp)
       test.effect.subgroup <- replaceNULL(test.effect.subgroup, FALSE)
       ##
       if (length(test.effect.subgroup) == 1) {
@@ -1476,7 +1477,7 @@ forest.meta <- function(x,
         fixed & test.effect.subgroup.logical
     else {
       test.effect.subgroup.fixed <-
-        catch("test.effect.subgroup.fixed", mf, x, sys.frame(sys.parent()))
+        catch("test.effect.subgroup.fixed", mc, x, sfsp)
       test.effect.subgroup.fixed <-
         replaceNULL(test.effect.subgroup.fixed, FALSE)
       ##
@@ -1502,7 +1503,7 @@ forest.meta <- function(x,
         random & test.effect.subgroup.logical
     else {
       test.effect.subgroup.random <-
-        catch("test.effect.subgroup.random", mf, x, sys.frame(sys.parent()))
+        catch("test.effect.subgroup.random", mc, x, sfsp)
       test.effect.subgroup.random <-
         replaceNULL(test.effect.subgroup.random, FALSE)
       ##
@@ -1529,10 +1530,10 @@ forest.meta <- function(x,
   ##
   if (!missing.studlab) {
     error <-
-      try(studlab <- catch("studlab", mf, x, sys.frame(sys.parent())),
+      try(studlab <- catch("studlab", mc, x, sfsp),
           silent = TRUE)
     if (class(error) == "try-error") {
-      studlab <- catch("studlab", mf, x$data, NULL)
+      studlab <- catch("studlab", mc, x$data, NULL)
       if (isCol(x$data, ".subset"))
         studlab <- studlab[x$data$.subset]
     }

@@ -267,10 +267,10 @@ print.summary.meta <- function(x,
   ##
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
-    truncate <- catch("truncate", mf, x.meta, sfsp)
+    truncate <- catch("truncate", mc, x.meta, sfsp)
     ##
     if (is.null(truncate))
-      truncate <- catch("truncate", mf, x$data, enclos = sfsp)
+      truncate <- catch("truncate", mc, x$data, sfsp)
     ##
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",
