@@ -870,9 +870,9 @@
 #' @examples
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = c(41, 47, 51, 59),
-#'               sm = "RR", method = "I",
-#'               studlab = paste(author, year))
+#'   data = Olkin1995, subset = c(41, 47, 51, 59),
+#'   sm = "RR", method = "I",
+#'   studlab = paste(author, year))
 #' 
 #' 
 #' \dontrun{
@@ -887,9 +887,9 @@
 #' # prediction interval
 #' #
 #' forest(m1, layout = "RevMan5", fixed = FALSE,
-#'        label.right = "Favours control", col.label.right = "red",
-#'        label.left = "Favours experimental", col.label.left = "green",
-#'        prediction = TRUE)
+#'   label.right = "Favours control", col.label.right = "red",
+#'   label.left = "Favours experimental", col.label.left = "green",
+#'   prediction = TRUE)
 #' 
 #' 
 #' \dontrun{
@@ -901,9 +901,8 @@
 #' 
 #' # Conduct subgroup meta-analysis
 #' #
-#' m2 <- update(m1, subgroup = ifelse(year < 1987,
-#'                                 "Before 1987", "1987 and later"),
-#'              print.subgroup.name = FALSE)
+#' m2 <- update(m1, subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+#'   print.subgroup.name = FALSE)
 #' 
 #' # Show summary results for subgroups with at least two studies
 #' #
@@ -935,7 +934,7 @@
 #' # measures in width of column with study labels
 #' #
 #' forest(m1, random = FALSE, leftcols = "studlab",
-#'        calcwidth.hetstat = TRUE)
+#'   calcwidth.hetstat = TRUE)
 #' 
 #' # Use argument 'addrows.below.overall' to manually add two empty
 #' # rows
@@ -965,49 +964,47 @@
 #' #    columns 'n.e' and 'n.c'
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-#'        label.e.attach = "event.e",
-#'        label.c.attach = "event.c")
+#'   leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
+#'   label.e.attach = "event.e", label.c.attach = "event.c")
 #' 
 #' # Specify column labels only for variables 'year' and 'author'
 #' # (and define digits for additional variables)
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"))
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"))
 #' 
 #' # Center text in all columns
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'        just = "center", just.addcols = "center", just.studlab = "center")
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+#'                "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'   just = "center", just.addcols = "center", just.studlab = "center")
 #' 
 #' # Same result
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'        just = "c", just.addcols = "c", just.studlab = "c")
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+#'              "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'   just = "c", just.addcols = "c", just.studlab = "c")
 #' 
 #' # Change some fontsizes and fontfaces
 #' #
 #' forest(m1,
-#'        fs.study = 10, ff.study = "italic",
-#'        fs.study.label = 11, ff.study.label = "bold",
-#'        fs.axis = 5, ff.axis = "italic",
-#'        ff.smlab = "bold.italic",
-#'        ff.fixed = "plain", ff.hetstat = "plain")
+#'   fs.study = 10, ff.study = "italic",
+#'   fs.study.label = 11, ff.study.label = "bold",
+#'   fs.axis = 5, ff.axis = "italic",
+#'   ff.smlab = "bold.italic",
+#'   ff.fixed = "plain", ff.hetstat = "plain")
 #' 
 #' # Change some colours
 #' #
 #' forest(m1,
-#'        col.diamond = "green", col.diamond.lines = "red",
-#'        col.study = c("green", "blue", "red", "orange"),
-#'        col.square = "pink", col.square.lines = "black")
+#'   col.diamond = "green", col.diamond.lines = "red",
+#'   col.study = c("green", "blue", "red", "orange"),
+#'   col.square = "pink", col.square.lines = "black")
 #' 
 #' # Sort by weight in fixed effect model
 #' #
@@ -1074,7 +1071,8 @@ forest.meta <- function(x,
                         text.predict = x$text.predict,
                         ##
                         subgroup = TRUE,
-                        subgroup.hetstat = subgroup,
+                        subgroup.hetstat =
+                          subgroup & (is.character(hetstat) || hetstat),
                         print.subgroup.labels = TRUE,
                         ##
                         subgroup.name = x$subgroup.name,
