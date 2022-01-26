@@ -1157,8 +1157,7 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat =
-                          fixed | random | overall.hetstat,
+                        hetstat = fixed | random | overall.hetstat,
                         overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat,
@@ -1178,8 +1177,7 @@ forest.meta <- function(x,
                         LRT = FALSE,
                         ##
                         test.overall = gs("test.overall"),
-                        test.overall.fixed =
-                          fixed & overall & test.overall,
+                        test.overall.fixed = fixed & overall & test.overall,
                         test.overall.random =
                           random & overall & test.overall,
                         label.test.overall.fixed,
@@ -1398,8 +1396,7 @@ forest.meta <- function(x,
   }
   else {
     if (!missing(subgroup) & !metabind)
-      subgroup <-
-        catch("subgroup", mc, x, sfsp)
+      subgroup <- catch("subgroup", mc, x, sfsp)
     ##
     if (length(subgroup) == 1)
       subgroup.logical <- rep(subgroup, n.by) &
@@ -1413,8 +1410,7 @@ forest.meta <- function(x,
     chklogical(subgroup[1])
     ##
     if (!missing(subgroup.hetstat) & !metabind)
-      subgroup.hetstat <-
-        catch("subgroup.hetstat", mc, x, sfsp)
+      subgroup.hetstat <- catch("subgroup.hetstat", mc, x, sfsp)
     ##
     if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
       subgroup.hetstat.logical <- rep(TRUE, n.by)
@@ -1432,8 +1428,7 @@ forest.meta <- function(x,
     }
     ##
     if (!missing(prediction.subgroup) & !metabind)
-      prediction.subgroup <-
-        catch("prediction.subgroup", mc, x, sfsp)
+      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
     ##
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     ##
@@ -2073,7 +2068,7 @@ forest.meta <- function(x,
   ## (4) Some assignments and additional checks
   ##
   ##
-  prediction <- prediction & x$k >= 3
+  prediction <- prediction & !is.na(x$lower.predict) & !is.na(x$upper.predict)
   ##
   level <- x$level
   level.ma <- x$level.ma
@@ -4707,6 +4702,14 @@ forest.meta <- function(x,
     ##
     bylevs <- bylevs[sel.w]
     n.by <- length(bylevs)
+    ##
+    ## Do not consider limits of prediction intervals in subgroups to
+    ## format confidence limits
+    ##
+    if (by) {
+      lower.predict.w[!prediction.subgroup.logical] <- NA
+      upper.predict.w[!prediction.subgroup.logical] <- NA
+    }
     ##
     sel.by.fixed         <- 3 + 0 * n.by + seq_len(n.by)
     sel.by.random        <- 3 + 1 * n.by + seq_len(n.by)
@@ -8253,5 +8256,19 @@ forest.meta <- function(x,
   popViewport()
   
   
-  invisible(list(xlim = xlim, addrows.below.overall = addrows.below.overall))
+  invisible(list(xlim = xlim, addrows.below.overall = addrows.below.overall,
+                 ##
+                 colgap = colgap,
+                 colgap.left = colgap.left,
+                 colgap.right = colgap.right,
+                 colgap.studlab = colgap.studlab,
+                 colgap.forest = colgap.forest.left,
+                 colgap.forest.left = colgap.forest,
+                 colgap.forest.right = colgap.forest.right,
+                 ##
+                 studlab = studlab,
+                 TE.format = TE.format,
+                 seTE.format = seTE.format,
+                 effect.format = effect.format,
+                 ci.format = ci.format))
 }
