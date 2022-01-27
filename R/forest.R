@@ -2521,7 +2521,10 @@ forest.meta <- function(x,
                 "Time", "Time",
                 sm.lab,
                 ci.lab,
-                if (revman5 & smlab.null) smlab else paste(sm.lab, ci.lab.bracket),
+                if (revman5 & smlab.null)
+                  smlab
+                else
+                  paste(sm.lab, ci.lab.bracket),
                 text.w.fixed,
                 text.w.random)
   ##
@@ -2545,7 +2548,8 @@ forest.meta <- function(x,
   ## Identify and process columns in addition to columns
   ## defined above in variables 'colnames' and 'labnames'
   ##
-  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
+  colnames.new <-
+    c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
   ##
   newcols <- length(colnames.new) > 0
   ##
@@ -2567,80 +2571,97 @@ forest.meta <- function(x,
       if (length(dataset1[[i]]) == 0 & length(dataset2[[i]]) == 0)
         stop("Variable '", i, "' not available in '", x.name, "'.")
     ##
-    rightcols.new <- rightcols[! rightcols %in% colnames.notNULL]
-    leftcols.new <- leftcols[! leftcols %in% colnames.notNULL]
+    rightcols.new <- rightcols[!rightcols %in% colnames.notNULL]
+    leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
     ##
-    ## Determine label for new columns
+    ## Determine labels for new columns
     ## 1. Use column name as label if no label is given
-    ##    argument right | left | labs
-    ## 2. Otherwise use corresponding entry from
-    ##    argument right | left | labs
+    ## 2. Otherwise use specified labels
     ##
     if (length(rightcols.new) > 0) {
-      pos.rightcols.new <- match(rightcols.new, rightcols)
-      ##
-      rightlabs.new <- rightcols.new
-      for (i in seq(along = rightcols.new)) {
-        j <- match(rightcols.new[i], colnames)
-        if (!is.na(j))
-          rightlabs.new[i] <- labnames[j]
-        else if (rightcols.new[i] == "pval")
-          rightlabs.new[i] <- "P-value"
+      if (missing(rightlabs)) {
+        rightlabs.new <- rightcols.new
+        ##
+        if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
+          rightlabs.new[rightlabs.new == "n"] <- "Total"
+        ##
+        if (metamean & any(rightcols.new == "mean"))
+          rightlabs.new[rightlabs.new == "mean"] <- "Mean"
+        ##
+        if (metamean & any(rightcols.new == "sd"))
+          rightlabs.new[rightlabs.new == "sd"] <- "SD"
+        ##
+        if ((metarate) & any(rightcols.new == "time"))
+          rightlabs.new[rightlabs.new == "time"] <- "Time"
+        ##
+        if (any(rightcols.new == "pval"))
+          rightlabs.new[rightlabs.new == "pval"] <- "P-value"
       }
-      ##
-      if (missing(rightlabs))
-        rightlabs.new <- rightlabs.new
-      else if (length(rightcols.new) == length(rightlabs))
-        rightlabs.new <- rightlabs
-      else if (max(pos.rightcols.new) <= length(rightlabs))
-        rightlabs.new <- rightlabs[pos.rightcols.new]
-      else if (max(pos.rightcols.new) > length(rightlabs))
-        stop("Too few labels defined for argument 'rightcols'.")
-      ##
-      if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
-        rightlabs.new[rightlabs.new == "n"] <- "Total"
-      ##
-      if (metamean & any(rightcols.new == "mean"))
-        rightlabs.new[rightlabs.new == "mean"] <- "Mean"
-      ##
-      if (metamean & any(rightcols.new == "sd"))
-        rightlabs.new[rightlabs.new == "sd"] <- "SD"
-      ##
-      if ( (metarate) & any(rightcols.new == "time"))
-        rightlabs.new[rightlabs.new == "time"] <- "Time"
+      else {
+        if (length(rightcols.new) == length(rightlabs))
+          rightlabs.new <- rightlabs
+        else if (length(rightcols.new) > length(rightlabs))
+          stop("Too few labels defined for argument 'rightcols'.")
+        else {
+          rightlabs.new <- rightcols.new
+          ##
+          for (i in seq_along(rightcols.new)) {
+            match1.i <- match(rightcols.new[i], rightcols)
+            if (!is.na(rightlabs[match1.i]))
+              rightlabs.new[i] <- rightlabs[match1.i]
+            else {
+              match2.i <- match(rightcols.new[i], colnames)
+              if (!is.na(match2.i))
+                rightlabs.new[i] <- labnames[match2.i]
+              else if (rightcols.new[i] == "pval")
+                rightlabs.new[i] <- "P-value"
+            }
+          }
+        }
+      }
     }
+    ##
     if (length(leftcols.new) > 0) {
-      pos.leftcols.new <- match(leftcols.new, leftcols)
-      ##
-      leftlabs.new <- leftcols.new
-      for (i in seq(along = leftcols.new)) {
-        j <- match(leftcols.new[i], colnames)
-        if (!is.na(j))
-          leftlabs.new[i] <- labnames[j]
-        else if (leftcols.new[i] == "pval")
-          leftlabs.new[i] <- "P-value"
+      if (missing(leftlabs)) {
+        leftlabs.new <- leftcols.new
+        ##
+        if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
+          leftlabs.new[leftlabs.new == "n"] <- "Total"
+        ##
+        if (metamean & any(leftcols.new == "mean"))
+          leftlabs.new[leftlabs.new == "mean"] <- "Mean"
+        ##
+        if (metamean & any(leftcols.new == "sd"))
+          leftlabs.new[leftlabs.new == "sd"] <- "SD"
+        ##
+        if ((metarate) & any(leftcols.new == "time"))
+          leftlabs.new[leftlabs.new == "time"] <- "Time"
+        ##
+        if (any(leftcols.new == "pval"))
+          leftlabs.new[leftlabs.new == "pval"] <- "P-value"
       }
-      ##
-      if (missing(leftlabs))
-        leftlabs.new <- leftlabs.new
-      else if (length(leftcols.new) == length(leftlabs))
-        leftlabs.new <- leftlabs
-      else if (max(pos.leftcols.new) <= length(leftlabs))
-        leftlabs.new <- leftlabs[pos.leftcols.new]
-      else if (max(pos.leftcols.new) > length(leftlabs))
-        stop("Too few labels defined for argument 'leftcols'.")
-      ##
-      if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
-        leftlabs.new[leftlabs.new == "n"] <- "Total"
-      ##
-      if (metamean & any(leftcols.new == "mean"))
-        leftlabs.new[leftlabs.new == "mean"] <- "Mean"
-      ##
-      if (metamean & any(leftcols.new == "sd"))
-        leftlabs.new[leftlabs.new == "sd"] <- "SD"
-      ##
-      if ((metarate) & any(leftcols.new == "time"))
-        leftlabs.new[leftlabs.new == "time"] <- "Time"
+      else {
+        if (length(leftcols.new) == length(leftlabs))
+          leftlabs.new <- leftlabs
+        else if (length(leftcols.new) > length(leftlabs))
+          stop("Too few labels defined for argument 'leftcols'.")
+        else {
+          leftlabs.new <- leftcols.new
+          ##
+          for (i in seq_along(leftcols.new)) {
+            match1.i <- match(leftcols.new[i], leftcols)
+            if (!is.na(leftlabs[match1.i]))
+              leftlabs.new[i] <- leftlabs[match1.i]
+            else {
+              match2.i <- match(leftcols.new[i], colnames)
+              if (!is.na(match2.i))
+                leftlabs.new[i] <- labnames[match2.i]
+              else if (leftcols.new[i] == "pval")
+                leftlabs.new[i] <- "P-value"
+            }
+          }
+        }
+      }
     }
   }
   ##
@@ -5748,14 +5769,14 @@ forest.meta <- function(x,
   labs <- list()
   ##
   if (missing(leftlabs) || length(leftcols) != length(leftlabs)) {
-    for (i in seq(along = leftcols)) {
+    for (i in seq_along(leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(j))
         labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
     }
   }
   else if (length(leftcols) == length(leftlabs)) {
-    for (i in seq(along = leftcols)) {
+    for (i in seq_along(leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(leftlabs[i]))
         labs[[paste0("lab.", leftcols[i])]] <- leftlabs[i]
@@ -5766,14 +5787,14 @@ forest.meta <- function(x,
   }
   ##
   if (missing(rightlabs) || length(rightcols) != length(rightlabs)) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))
         labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
     }
   }
   else if (length(rightcols) == length(rightlabs)) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(rightlabs[i]))
         labs[[paste0("lab.", rightcols[i])]] <- rightlabs[i]
@@ -6164,7 +6185,7 @@ forest.meta <- function(x,
   ##
   if (newcols) {
     if (length(leftcols.new) > 0) {
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         ## Check for "\n" in label of new column
         clines <- twolines(leftlabs.new[i], leftcols.new[i])
         newline.addcol.left <- c(newline.addcol.left, clines$newline)
@@ -6172,7 +6193,7 @@ forest.meta <- function(x,
       newline.addcol.right <- sum(newline.addcol.right) > 0
     }
     if (length(leftcols.new) > 0) {
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         ## Check for "\n" in label of new column
         clines <- twolines(leftlabs.new[i], leftcols.new[i])
         newline.addcol.left <- c(newline.addcol.left, clines$newline)
@@ -7418,7 +7439,7 @@ forest.meta <- function(x,
         digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
     ##
     if (by) {
-      for (i in seq(along = rightcols.new)) {
+      for (i in seq_along(rightcols.new)) {
         tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
@@ -7467,7 +7488,7 @@ forest.meta <- function(x,
                                         just.addcols.right[i],
                                         fcs, fontfamily)
       }
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
@@ -7521,7 +7542,7 @@ forest.meta <- function(x,
       }
     }
     else {
-      for (i in seq(along = rightcols.new)) {
+      for (i in seq_along(rightcols.new)) {
         tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
@@ -7574,7 +7595,7 @@ forest.meta <- function(x,
                                         just.addcols.right[i],
                                         fcs, fontfamily)
       }
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
@@ -7766,7 +7787,7 @@ forest.meta <- function(x,
                    if (!calcwidth.addline) # additional lines
                      11:12)
   ##
-  for (i in seq(along = leftcols)) {
+  for (i in seq_along(leftcols)) {
     if (i == 1) {
       if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
         x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
@@ -7790,7 +7811,7 @@ forest.meta <- function(x,
   x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
   ##
   if (rsel) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       x1 <- unit.c(x1,
                    if (i == 1) colgap.forest.right else colgap.right,
                    wcalc(cols.calc[[rightcols[i]]]$labels))
@@ -7907,7 +7928,7 @@ forest.meta <- function(x,
   ##
   j <- 1
   ##
-  for (i in seq(along = leftcols)) {
+  for (i in seq_along(leftcols)) {
     add.text(cols[[leftcols[i]]], j)
     ##
     if (!is.na(yHeadadd)) {
@@ -8116,7 +8137,7 @@ forest.meta <- function(x,
   ##
   ##
   if (rsel) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       add.text(cols[[rightcols[i]]], j)
       ##
       if (!is.na(yHeadadd)) {

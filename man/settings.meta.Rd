@@ -5,10 +5,13 @@
 \title{Print and change default settings to conduct and print or plot
 meta-analyses in R package \bold{meta}.}
 \usage{
-settings.meta(...)
+settings.meta(..., quietly = TRUE)
 }
 \arguments{
 \item{...}{Arguments to change default settings.}
+
+\item{quietly}{A logical indicating whether information on settings
+should be printed.}
 }
 \description{
 Print and change default settings to conduct and print or plot
@@ -138,12 +141,13 @@ A list of all arguments with current settings is printed using the
 command \code{settings.meta("print")}.
 
 In order to reset all settings of R package \bold{meta} the command
-\code{settings.meta("reset")} can be used.
+\code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
+can be used.
 }
 \examples{
 # Get listing of current settings
 #
-settings.meta("print")
+settings.meta()
 
 # Meta-analyses using default settings
 #

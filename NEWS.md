@@ -48,6 +48,11 @@
   - new argument 'prediction.subgroup'
 
 * settings.meta():
+  - arguments 'print', 'reset' and 'setting' can be used like any
+    other setting; for example, it is possible to fully reset the
+    settings and switch to the RevMan 5 settings
+  - R commands 'settings.meta("print")' and 'settings.meta()' produce
+    the same printout
   - new global setting 'prediction.subgroup' for prediction intervals
     in subgroups
   - new global settings 'CIlower.blank' and 'CIupper.blank'
@@ -63,6 +68,9 @@
   - new list elements 'seTE.hakn' and 'seTE.hakn.adhoc' (with standard
     error for Hartung-Knapp method) and 'seTE.classic' for classic
     random effects inverse variance method
+
+* forest.meta():
+  - new code to assign missing column labels
 
 * Internal function formatCI() considers values for 'lower.blank' and
   'upper.blank' in cilayout()

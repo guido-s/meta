@@ -178,7 +178,7 @@ Fleiss1993_CR <- read.rm5(filename)
 
 # Choose RevMan 5 settings and store old settings
 #
-oldset <- settings.meta("revman5")
+oldset <- settings.meta("revman5", quietly = FALSE)
 
 # Same result as R command example(Fleiss1993bin)
 #

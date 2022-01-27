@@ -8,6 +8,8 @@
 #' the American Medical Association}.
 #' 
 #' @param ... Arguments to change default settings.
+#' @param quietly A logical indicating whether information on settings
+#'   should be printed.
 #' 
 #' @details
 #' This function can be used to define defaults for several arguments
@@ -131,7 +133,8 @@
 #' command \code{settings.meta("print")}.
 #' 
 #' In order to reset all settings of R package \bold{meta} the command
-#' \code{settings.meta("reset")} can be used.
+#' \code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
+#' can be used.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -141,7 +144,7 @@
 #' @examples
 #' # Get listing of current settings
 #' #
-#' settings.meta("print")
+#' settings.meta()
 #' 
 #' # Meta-analyses using default settings
 #' #
@@ -227,100 +230,110 @@
 #' @export settings.meta
 
 
-settings.meta <- function(...) {
+settings.meta <- function(..., quietly = TRUE) {
   
-  ## Return current settings
   ##
-  res <- .settings
-  res$argslist <- res$argslist.internal <- NULL
+  ## Check argument
+  ##
+  missing.quietly <- missing(quietly)
+  chklogical(quietly)
   
   
-  catarg <- function(x, newline = TRUE, end = "") {
-    xname <- x
-    x <- gsub(" ", "", x)
-    ##
-    if (newline)
-      cat("- ")
-    ##
-    if (is.null(.settings[[x]]))
-      cat(paste0(xname, ' = NULL', end, '\n'))
-    else if (is.character(.settings[[x]]))
-      cat(paste0(xname, ' = "', .settings[[x]], '"', end, '\n'))
-    else
-      cat(paste0(xname, ' = ', .settings[[x]], end, "\n"))
-    invisible(NULL)
-  }
+  ##
+  ## Save object with current settings
+  ##
+  oldset <- .settings
+  oldset$argslist <- oldset$argslist.internal <- NULL
   
   
-  specificSettings <- function(args, new, setting) {
-    isnull.old <- as.vector(unlist(lapply(.settings[args], is.null)))
-    ischar.old <- as.vector(unlist(lapply(.settings[args], is.character)))
-    old <- as.vector(unlist(.settings[args]))
-    ##
-    ischar.new <- as.vector(unlist(lapply(new, is.character)))
-    new <- as.vector(unlist(new))
-    ##
-    label.old <- ifelse(isnull.old, "NULL",
-                        ifelse(ischar.old, paste0("\"", old, "\""), old))
-    label.new <- ifelse(ischar.new, paste0("\"", new, "\""), new)
-    ##
-    sel <- new != old
-    if (any(sel)) {
-      tdata <- data.frame(argument = c("Argument",
-                                       "--------",
-                                       args[sel]),
-                          space1 = rep("  ", along = c(1:2, sel)),
-                          new = c("New value",
-                                  "---------",
-                                  label.new[sel]),
-                          space2 = rep("  ", along = c(1:2, sel)),
-                          previous = c("Previous value",
-                                       "--------------",
-                                       label.old[sel]))
-      
-      names(tdata) <- c("--------", "", "---------",
-                        "", "--------------")
-      ##
-      cat(paste0("\n** Use ", setting, " (R package meta) **\n\n"))
-      prmatrix(tdata, quote = FALSE, right = FALSE,
-               rowlab = rep_len("", 2 + sum(sel)))
-      ##
-      for (i in seq(along = args)) {
-        new.i <- new[i]
-        if (!ischar.new[i]) {
-          if (new.i %in% c("TRUE", "FALSE"))
-            new.i <- as.logical(new.i)
-          else
-            new.i <- as.numeric(new.i)
-        }
-        setOption(args[i], new.i)
-      }
-    }
-    else {
-      if (substring(setting, 1, 1) == "s")
-        setting <- paste0("S", substring(setting, 2))
-      cat(paste0("\n** ", setting, " already in used (R package meta). **\n\n"))
-    }
-  }
-  
-  
+  ##
+  ## Set internal variables
+  ##
   settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6", "geneexpr", "meta4")
   layouts <- c(settings[1:2], "meta")
-  
-  
+  ##
+  print.settings <- FALSE
+  reset.settings <- FALSE
+  specific.settings <- FALSE
+  ##
   args  <- list(...)
+  
+  
+  ##
+  ## Print settings if no argument is provided
+  ##
+  if (length(args) == 0) {
+    if (missing.quietly || !quietly)
+      settings.meta("print", quietly = FALSE)
+    return(invisible(oldset))
+  }
+  
+  
+  ##
   ## Check whether first argument is a list. In this case only use
   ## this list as input.
+  ##
   warn.depr <- TRUE
   if (length(args) > 0 && is.list(args[[1]])) {
+    if (!is.null(names(args))) {
+      print(names(args))
+      warning("Additional arguments ignored as first argument is a list.",
+              call. = FALSE)
+    }
     warn.depr <- FALSE
     args <- args[[1]]
   }
+  
+  
+  ##
+  ## Unnamed first (and only) argument must be character string or a
+  ## logical
+  ##
+  if (length(args) == 1 & is.null(names(args))) {
+    if (is.character(unlist(args)))
+      action <- setchar(unlist(args), c(settings, "reset", "print"),
+                        stop.at.error = FALSE)
+    else
+      action <- unlist(args)
+    ##
+    if (is.null(action))
+      stop("First argument can be one of the following character strings:",
+           "\n reset, print, ", paste(settings, collapse = ", "),
+           call. = FALSE)
+    else if (action == "reset")
+      settings.meta(reset = TRUE, quietly = quietly)
+    else if (action == "print" | (is.logical(action) && action))
+      settings.meta(print = TRUE, quietly = FALSE)
+    else
+      settings.meta(setting = action, quietly = quietly)
+    ##
+    return(invisible(oldset))
+  }
+  ##
+  else if (length(args) > 1 & names(args)[1] == "") {
+    if (is.character(unlist(args[[1]])))
+      action <- setchar(unlist(args[[1]]), c(settings, "reset", "print"),
+                        stop.at.error = FALSE)
+    else
+      action <- unlist(args[[1]])
+    ##
+    if (is.null(action))
+      stop("First argument can be one of the following character strings:",
+           "\n reset, print, ", paste(settings, collapse = ", "),
+           call. = FALSE)
+    else if (action == "reset")
+      settings.meta(reset = TRUE, quietly = quietly)
+    else if (action == "print")
+      settings.meta(print = TRUE, quietly = FALSE)
+    else
+      settings.meta(setting = action, quietly = quietly)
+  }
+  
+  
+  ##
+  ## Check and warn about deprecated arguments
   ##
   names.all <- names(args)
-  names <- names.all[!(names.all %in% .settings$argslist.internal)]
-  ##
-  ## Deprecated arguments
   ##
   if (warn.depr) {
     chkdeprecated(names.all, "level.ma", "level.comb")
@@ -331,8 +344,13 @@ settings.meta <- function(...) {
     chkdeprecated(names.all, "print.subgroup.name", "print.byvar")
     chkdeprecated(names.all, "sep.subgroup", "byseparator")
   }
+  ##  
+  names <- names.all[!(names.all %in% .settings$argslist.internal)]
   
   
+  ##
+  ## Check argument names
+  ##
   for (i in seq_along(names))
     names[i] <- setchar(names[i],
                         c(.settings$argslist, "reset", "print", "setting", ""),
@@ -343,67 +361,215 @@ settings.meta <- function(...) {
     stop("Arguments must be unique.")
   
   
-  if (length(args) > 1 && any(names == "reset")) {
-    cat(paste("To reset settings in R package meta use ",
-              "command 'settings.meta(\"reset\")'\n"))
-    return(invisible(res))
-  }
   ##
-  if (length(args) > 1 && any(names == "setting")) {
-    cat(paste("Argument 'setting' can only be used without ",
-              "other arguments (R package meta)\n"))
-    return(invisible(res))
-  }
-  
-  
-  print.settings <- FALSE
-  reset.settings <- FALSE
-  specific.settings <- FALSE
+  ## Determine whether to print, reset or use specific settings
   ##
-  if (length(args) == 1) {
-    if (length(names) > 0) {
-      if (names == "print") {
-        chklogical(args[[1]], "print")
-        print.settings <- args[[1]]
-      }
-      ##
-      else if (names == "reset") {
-        chklogical(args[[1]], "reset")
-        if (args[[1]])
-          reset.settings <- TRUE
-        else {
-          cat(paste("To reset settings in R package meta",
-                    "use command 'settings.meta(\"reset\")'\n"))
-          return(invisible(res))
-        }
-      }
-      ##
-      else if (names == "setting") {
-        setting <- setchar(args[[1]], settings, name = "setting")
-        specific.settings <- TRUE
-      }
+  if (any(names == "print") && args[["print"]]) {
+    print.settings <- TRUE
+    quietly <- FALSE
+  }
+  if (any(names == "reset") && args[["reset"]])
+    reset.settings <- TRUE
+  if (any(names == "setting")) {
+    setting <- setchar(args[["setting"]], settings)
+    specific.settings <- TRUE
+  }
+  
+  
+  ##
+  ## Reset settings
+  ##
+  if (reset.settings) {
+    if (!quietly)
+      cat("\n** Reset all meta-analysis settings (R package meta). **\n\n")
+    ##
+    setOption("level", 0.95)
+    setOption("level.ma", 0.95)
+    setOption("fixed", TRUE)
+    setOption("random", TRUE)
+    setOption("hakn", FALSE)
+    setOption("adhoc.hakn", "")
+    setOption("method.tau", "REML")
+    setOption("method.tau.ci", NULL)
+    setOption("tau.common", FALSE)
+    setOption("prediction", FALSE)
+    setOption("level.predict", 0.95)
+    setOption("test.subgroup", TRUE)
+    setOption("prediction.subgroup", FALSE)
+    setOption("method.bias", "Egger")
+    setOption("text.fixed", "Common effect model")
+    setOption("text.random", "Random effects model")
+    setOption("text.predict", "Prediction interval")
+    setOption("text.w.fixed", "common")
+    setOption("text.w.random", "random")
+    setOption("title", "")
+    setOption("complab", "")
+    setOption("CIbracket", "[")
+    setOption("CIseparator", "; ")
+    setOption("CIlower.blank", TRUE)
+    setOption("CIupper.blank", TRUE)
+    setOption("print.subgroup.name", TRUE)
+    setOption("sep.subgroup", " = ")
+    setOption("keepdata", TRUE)
+    setOption("warn", TRUE)
+    setOption("warn.deprecated", TRUE)
+    setOption("backtransf", TRUE)
+    setOption("digits", 4)
+    setOption("digits.se", 4)
+    setOption("digits.stat", 2)
+    setOption("digits.Q", 2)
+    setOption("digits.tau2", 4)
+    setOption("digits.tau", 4)
+    setOption("digits.H", 2)
+    setOption("digits.I2", 1)
+    setOption("digits.prop", 4)
+    setOption("digits.weight", 1)
+    setOption("digits.pval", 4)
+    setOption("digits.pval.Q", 4)
+    setOption("scientific.pval", FALSE)
+    setOption("big.mark", "")
+    setOption("zero.pval", TRUE)
+    setOption("JAMA.pval", FALSE)
+    setOption("print.I2", TRUE)
+    setOption("print.H", TRUE)
+    setOption("print.Rb", FALSE)
+    setOption("text.tau2", "tau^2")
+    setOption("text.tau", "tau")
+    setOption("text.I2", "I^2")
+    setOption("text.Rb", "Rb")
+    ##
+    setOption("method", "MH")
+    setOption("incr", 0.5)
+    setOption("allincr", FALSE)
+    setOption("addincr", FALSE)
+    setOption("allstudies", FALSE)
+    setOption("MH.exact", FALSE)
+    setOption("RR.Cochrane", FALSE)
+    setOption("Q.Cochrane", TRUE)
+    setOption("model.glmm", "UM.FS")
+    setOption("print.CMH", FALSE)
+    ##
+    setOption("smbin", "RR")
+    setOption("smcont", "MD")
+    setOption("smcor", "ZCOR")
+    setOption("sminc", "IRR")
+    setOption("smmean", "MRAW")
+    setOption("smprop", "PLOGIT")
+    setOption("smrate", "IRLN")
+    ##
+    setOption("pooledvar", FALSE)
+    setOption("method.smd", "Hedges")
+    setOption("sd.glass", "control")
+    setOption("exact.smd", TRUE)
+    setOption("method.ci.cont", "z")
+    ##
+    setOption("method.ci.prop", "CP")
+    ##
+    setOption("label.e", "Experimental")
+    setOption("label.c", "Control")
+    setOption("label.left", "")
+    setOption("label.right", "")
+    ##
+    ## Forest plots
+    ##
+    setOption("layout", "meta")
+    setOption("test.overall", FALSE)
+    setOption("test.effect.subgroup", FALSE)
+    setOption("digits.forest", 2)
+  }
+  
+  
+  ##
+  ## Specific settings
+  ##
+  if (specific.settings) {
+    ##
+    ## Remember:
+    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6",
+    ##               "geneexpr", "meta4")
+    ##
+    if (setting == "RevMan5") {
+      specificSettings(args = c("hakn", "method.tau", "tau.common",
+                                "MH.exact", "RR.Cochrane", "Q.Cochrane",
+                                "layout", "test.overall",
+                                "test.subgroup", "test.effect.subgroup",
+                                "digits.I2", "digits.tau2", "digits.tau",
+                                "CIbracket", "CIseparator"),
+                       new = list(replaceNULL(args[["hakn"]], FALSE),
+                                  replaceNULL(args[["method.tau"]], "DL"),
+                                  replaceNULL(args[["tau.common"]], FALSE),
+                                  replaceNULL(args[["MH.exact"]], FALSE),
+                                  replaceNULL(args[["RR.Cochrane"]], TRUE),
+                                  replaceNULL(args[["Q.Cochrane"]], TRUE),
+                                  "RevMan5",
+                                  replaceNULL(args[["test.overall"]], TRUE),
+                                  replaceNULL(args[["test.subgroup"]], TRUE),
+                                  replaceNULL(args[["test.effect.subgroup"]], TRUE),
+                                  replaceNULL(args[["digits.I2"]], 0),
+                                  replaceNULL(args[["digits.tau2"]], 3),
+                                  replaceNULL(args[["digits.tau"]], 4),
+                                  replaceNULL(args[["CIbracket"]], "["),
+                                  replaceNULL(args[["CIseparator"]], ", ")
+                                  ),
+                       setting = "RevMan 5 settings",
+                       quietly = quietly)
     }
-    else if (length(names) == 0 & is.character(args[[1]])) {
-      ##
-      idx <- charmatch(tolower(args[[1]]), "print", nomatch = NA)
-      if (!(anyNA(idx) || any(idx == 0)))
-        if (nchar(args[[1]]) >= 1)
-          print.settings <- TRUE
-      ##
-      idx <- charmatch(tolower(args[[1]]), "reset", nomatch = NA)
-      if (!(anyNA(idx) || any(idx == 0)))
-        if (nchar(args[[1]]) >= 3)
-          reset.settings <- TRUE
-      ##
-      if (!print.settings & !reset.settings) {
-        setting <- setchar(args[[1]], settings, name = "setting")
-        specific.settings <- TRUE
-      }
+    ##
+    else if (setting == "JAMA") {
+      specificSettings(args = c("layout", "test.overall",
+                                "test.subgroup", "test.effect.subgroup",
+                                "digits.I2", "digits.pval",
+                                "CIbracket", "CIseparator",
+                                "zero.pval", "JAMA.pval"),
+                       new = list("JAMA", TRUE,
+                                  FALSE, FALSE,
+                                  0, 3,
+                                  "(", "-",
+                                  FALSE, TRUE),
+                       setting = "JAMA settings",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "IQWiG5") {
+      specificSettings(args = c("hakn", "prediction"),
+                       new = list(TRUE, TRUE),
+                       setting = "IQWiG 5 settings",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "IQWiG6") {
+      specificSettings(args = c("hakn", "adhoc.hakn",
+                                "method.tau", "prediction"),
+                       new = list(TRUE, "iqwig6", "PM", TRUE),
+                       setting = "IQWiG 6 settings",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "meta4") {
+      specificSettings(args = c("method.tau", "exact.smd",
+                                "text.fixed", "text.w.fixed",
+                                "warn.deprecated"),
+                       new = list("DL", FALSE,
+                                  "Fixed effect model", "fixed",
+                                  FALSE),
+                       setting =
+                         "settings from meta, version 4 or below",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "geneexpr") {
+      specificSettings(args = c("scientific.pval", "method.tau.ci"),
+                       new = list(TRUE, ""),
+                       setting = "Settings for gene expression data",
+                       quietly = quietly)
     }
   }
   
   
-  if (print.settings) {
+  ##
+  ## Print settings
+  ##
+  if (print.settings & !quietly) {
     cat(paste0("\n** Settings for meta-analysis method (R package meta, ",
                "version ", utils::packageDescription("meta")$Version,
                ") **\n\n"))
@@ -519,170 +685,12 @@ settings.meta <- function(...) {
     catarg("digits.forest       ",
            end = "\n  (argument 'digits' in forest.meta())")
   }
-  else if (reset.settings) {
-    cat("\n** Reset all meta-analysis settings (R package meta). **\n\n")
-    ##
-    setOption("level", 0.95)
-    setOption("level.ma", 0.95)
-    setOption("fixed", TRUE)
-    setOption("random", TRUE)
-    setOption("hakn", FALSE)
-    setOption("adhoc.hakn", "")
-    setOption("method.tau", "REML")
-    setOption("method.tau.ci", NULL)
-    setOption("tau.common", FALSE)
-    setOption("prediction", FALSE)
-    setOption("level.predict", 0.95)
-    setOption("test.subgroup", TRUE)
-    setOption("prediction.subgroup", FALSE)
-    setOption("method.bias", "Egger")
-    setOption("text.fixed", "Common effect model")
-    setOption("text.random", "Random effects model")
-    setOption("text.predict", "Prediction interval")
-    setOption("text.w.fixed", "common")
-    setOption("text.w.random", "random")
-    setOption("title", "")
-    setOption("complab", "")
-    setOption("CIbracket", "[")
-    setOption("CIseparator", "; ")
-    setOption("CIlower.blank", TRUE)
-    setOption("CIupper.blank", TRUE)
-    setOption("print.subgroup.name", TRUE)
-    setOption("sep.subgroup", " = ")
-    setOption("keepdata", TRUE)
-    setOption("warn", TRUE)
-    setOption("warn.deprecated", TRUE)
-    setOption("backtransf", TRUE)
-    setOption("digits", 4)
-    setOption("digits.se", 4)
-    setOption("digits.stat", 2)
-    setOption("digits.Q", 2)
-    setOption("digits.tau2", 4)
-    setOption("digits.tau", 4)
-    setOption("digits.H", 2)
-    setOption("digits.I2", 1)
-    setOption("digits.prop", 4)
-    setOption("digits.weight", 1)
-    setOption("digits.pval", 4)
-    setOption("digits.pval.Q", 4)
-    setOption("scientific.pval", FALSE)
-    setOption("big.mark", "")
-    setOption("zero.pval", TRUE)
-    setOption("JAMA.pval", FALSE)
-    setOption("print.I2", TRUE)
-    setOption("print.H", TRUE)
-    setOption("print.Rb", FALSE)
-    setOption("text.tau2", "tau^2")
-    setOption("text.tau", "tau")
-    setOption("text.I2", "I^2")
-    setOption("text.Rb", "Rb")
-    ##
-    setOption("method", "MH")
-    setOption("incr", 0.5)
-    setOption("allincr", FALSE)
-    setOption("addincr", FALSE)
-    setOption("allstudies", FALSE)
-    setOption("MH.exact", FALSE)
-    setOption("RR.Cochrane", FALSE)
-    setOption("Q.Cochrane", TRUE)
-    setOption("model.glmm", "UM.FS")
-    setOption("print.CMH", FALSE)
-    ##
-    setOption("smbin", "RR")
-    setOption("smcont", "MD")
-    setOption("smcor", "ZCOR")
-    setOption("sminc", "IRR")
-    setOption("smmean", "MRAW")
-    setOption("smprop", "PLOGIT")
-    setOption("smrate", "IRLN")
-    ##
-    setOption("pooledvar", FALSE)
-    setOption("method.smd", "Hedges")
-    setOption("sd.glass", "control")
-    setOption("exact.smd", TRUE)
-    setOption("method.ci.cont", "z")
-    ##
-    setOption("method.ci.prop", "CP")
-    ##
-    setOption("label.e", "Experimental")
-    setOption("label.c", "Control")
-    setOption("label.left", "")
-    setOption("label.right", "")
-    ##
-    ## Forest plots
-    ##
-    setOption("layout", "meta")
-    setOption("test.overall", FALSE)
-    setOption("test.effect.subgroup", FALSE)
-    setOption("digits.forest", 2)
-  }
-  else if (specific.settings) {
-    ##
-    ## Remember:
-    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6",
-    ##               "geneexpr", "meta4")
-    ##
-    if (setting == "RevMan5") {
-      specificSettings(args = c("hakn", "method.tau", "tau.common",
-                                "MH.exact", "RR.Cochrane", "Q.Cochrane",
-                                "layout", "test.overall",
-                                "test.subgroup", "test.effect.subgroup",
-                                "digits.I2", "digits.tau2", "digits.tau",
-                                "CIbracket", "CIseparator"),
-                       new = list(FALSE, "DL", FALSE,
-                                  FALSE, TRUE, TRUE,
-                                  "RevMan5", TRUE,
-                                  TRUE, TRUE,
-                                  0, 2, 4,
-                                  "[", ", "),
-                       setting = "RevMan 5 settings")
-    }
-    ##
-    else if (setting == "JAMA") {
-      specificSettings(args = c("layout", "test.overall",
-                                "test.subgroup", "test.effect.subgroup",
-                                "digits.I2", "digits.pval",
-                                "CIbracket", "CIseparator",
-                                "zero.pval", "JAMA.pval"),
-                       new = list("JAMA", TRUE,
-                                  FALSE, FALSE,
-                                  0, 3,
-                                  "(", "-",
-                                  FALSE, TRUE),
-                       setting = "JAMA settings")
-    }
-    ##
-    else if (setting == "IQWiG5") {
-      specificSettings(args = c("hakn", "prediction"),
-                       new = list(TRUE, TRUE),
-                       setting = "IQWiG 5 settings")
-    }
-    ##
-    else if (setting == "IQWiG6") {
-      specificSettings(args = c("hakn", "adhoc.hakn",
-                                "method.tau", "prediction"),
-                       new = list(TRUE, "iqwig6", "PM", TRUE),
-                       setting = "IQWiG 6 settings")
-    }
-    ##
-    else if (setting == "meta4") {
-      specificSettings(args = c("method.tau", "exact.smd",
-                                "text.fixed", "text.w.fixed",
-                                "warn.deprecated"),
-                       new = list("DL", FALSE,
-                                  "Fixed effect model", "fixed",
-                                  FALSE),
-                       setting =
-                         "settings from meta, version 4 or below")
-    }
-    ##
-    else if (setting == "geneexpr") {
-      specificSettings(args = c("scientific.pval", "method.tau.ci"),
-                       new = list(TRUE, ""),
-                       setting = "Settings for gene expression data")
-    }
-  }
-  else {
+  
+  
+  ##
+  ## Set individual settings
+  ##
+  if (any(!(names %in% c("reset", "print", "setting")))) {
     idlevel <- argid(names.all, "level")
     idlevel.ma <- argid(names.all, "level.ma")
     idfixed <- argid(names.all, "fixed")
@@ -1276,5 +1284,6 @@ settings.meta <- function(...) {
     }
   }
   
-  invisible(res)
+  
+  invisible(oldset)
 }
