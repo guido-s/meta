@@ -21,7 +21,7 @@
 
 \item{year}{An optional vector providing year of publication.}
 
-\item{citation}{An optional vector proving citation numbers.}
+\item{citation}{An optional vector providing citation numbers.}
 
 \item{layout}{A character string specifying layout. Either "JAMA"
 or "Lancet".}
@@ -45,15 +45,14 @@ data(Fleiss1993bin)
 refs <- 20 + 1:7
 
 m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-             studlab = study,
-             sm = "OR", random = FALSE)
+ studlab = study, sm = "OR", random = FALSE)
 
 forest(m,
-  studlab = labels(m, year = year, layout = "JAMA"),
+  studlab = labels(m, year = year, citation = refs, layout = "JAMA"),
   layout = "JAMA", fontfamily = "Times", fontsize = 10)
 
 forest(m,
-  studlab = labels(m, year = year, layout = "Lancet"))
+  studlab = labels(m, year = year, citation = refs, layout = "Lancet"))
 
 }
 \seealso{

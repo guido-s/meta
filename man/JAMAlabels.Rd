@@ -11,7 +11,7 @@ JAMAlabels(author, year, citation, data = NULL)
 
 \item{year}{A vector providing year of publication.}
 
-\item{citation}{A vector proving citation numbers.}
+\item{citation}{A vector providing citation numbers.}
 
 \item{data}{An optional data frame containing the study
 information.}

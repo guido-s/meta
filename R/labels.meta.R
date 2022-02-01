@@ -11,7 +11,7 @@
 #' @param object An object of class \code{meta}.
 #' @param author An optional vector providing study authors.
 #' @param year An optional vector providing year of publication.
-#' @param citation An optional vector proving citation numbers.
+#' @param citation An optional vector providing citation numbers.
 #' @param layout A character string specifying layout. Either "JAMA"
 #'   or "Lancet".
 #' @param data An optional data frame containing the study
@@ -28,15 +28,14 @@
 #' refs <- 20 + 1:7
 #'
 #' m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-#'              studlab = study,
-#'              sm = "OR", random = FALSE)
+#'  studlab = study, sm = "OR", random = FALSE)
 #' 
 #' forest(m,
-#'   studlab = labels(m, year = year, layout = "JAMA"),
+#'   studlab = labels(m, year = year, citation = refs, layout = "JAMA"),
 #'   layout = "JAMA", fontfamily = "Times", fontsize = 10)
 #' 
 #' forest(m,
-#'   studlab = labels(m, year = year, layout = "Lancet"))
+#'   studlab = labels(m, year = year, citation = refs, layout = "Lancet"))
 #' 
 #' @method labels meta
 #' @export

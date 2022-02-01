@@ -11,7 +11,7 @@
 #' 
 #' @param author A vector providing study authors.
 #' @param year A vector providing year of publication.
-#' @param citation A vector proving citation numbers.
+#' @param citation A vector providing citation numbers.
 #' @param data An optional data frame containing the study
 #'   information.
 #' 
