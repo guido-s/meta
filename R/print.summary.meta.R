@@ -383,6 +383,7 @@ print.summary.meta <- function(x,
   ##
   is.metamiss <- inherits(x, "metamiss")
   show.imor <- is.metamiss &
+    !is.null(x$IMOR.e) & !is.null(x$IMOR.c) &&
     (length(unique(x$IMOR.e)) != 1 | length(unique(x$IMOR.c)) != 1)
   ##
   if (is.metamiss)

@@ -1,8 +1,5 @@
 *~
 *.bak
-kenscore.o
-meta.so
-src-x86_64
 symbols.rds
 .Rhistory
 .DS_Store

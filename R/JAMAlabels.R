@@ -1,7 +1,8 @@
-#' Create study labels in JAMA layout (for forest plot)
+#' Create study labels in JAMA layout (deprecated function)
 #' 
 #' @description
-#' Create study labels in JAMA layout (for forest plot).
+#' Deprecated function to create study labels in JAMA layout (for
+#' forest plot). Replaced by \code{\link{labels.meta}}.
 #' 
 #' @details
 #' This auxiliary function can be used to create study labels in JAMA
@@ -16,7 +17,7 @@
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{forest.meta}}
+#' @seealso \code{\link{labels.meta}}, \code{\link{forest.meta}}
 #' 
 #' @examples
 #' data(Fleiss1993bin)
@@ -74,4 +75,3 @@ JAMAlabels <- function(author, year, citation, data = NULL) {
   ##
   res
 }
-

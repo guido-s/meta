@@ -8,7 +8,8 @@
 \description{
 R package \bold{meta} is a user-friendly general package providing
 standard methods for meta-analysis and supporting Schwarzer et
-al. (2015), \url{https://www.springer.com/gp/book/9783319214153}.
+al. (2015),
+\url{https://link.springer.com/book/10.1007/978-3-319-21416-0}.
 }
 \details{
 R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -96,7 +97,7 @@ instructions for authors of the \emph{Journal of the American
 Medical Association}
 (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
 labels according to JAMA guidelines can be generated using
-\code{\link{JAMAlabels}}.
+\code{\link{labels.meta}}.
 
 The next two commands implement the recommendations of the
 Institute for Quality and Efficiency in Health Care (IQWiG),

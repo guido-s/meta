@@ -16,26 +16,35 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
          call. = FALSE)
   ##
   if (length == 1) {
-    if (!is.null(nchar) && nchar(x) != nchar)
-      if (nchar == 1)
+    if (!is.null(nchar) && !(nchar(x) %in% nchar))
+      if (length(nchar) == 1 && nchar == 1)
         stop("Argument '", name, "' must be a single character.",
              call. = FALSE)
       else
         stop("Argument '", name, "' must be a character string of length ",
-             nchar, ".",
+             if (length(nchar) == 2)
+               paste0(nchar, collapse = " or ")
+             else
+               paste0(nchar, collapse = ", "),
+             ".",
              call. = FALSE)
   }
   ##
   if (!is.character(x))
     stop("Argument '", name, "' must be a character vector.")
   else {
-    if (!is.null(nchar) & any(nchar(x) != nchar))
-      if (nchar == 1)
+    if (!is.null(nchar) & any(!(nchar(x) %in% nchar)))
+      if (length(nchar) == 1 && nchar == 1)
         stop("Argument '", name, "' must be a vector of single characters.",
              call. = FALSE)
       else
         stop("Argument '", name, "' must be a character vector where ",
-             "each element has ", nchar, " characters.",
+             "each element has ",
+             if (length(nchar) == 2)
+               paste0(nchar, collapse = " or ")
+             else
+               paste0(nchar, collapse = ", "),
+             " characters.",
              call. = FALSE)
   }
 }
@@ -234,10 +243,11 @@ argid <- function(x, value) {
     res <- NA
   res
 }
-chkdeprecated <- function(x, new, old) {
-  if (!is.na(argid(x, old)))
+chkdeprecated <- function(x, new, old, warn = TRUE) {
+  depr <- !is.na(argid(x, old))
+  if (depr & warn)
     warning("Deprecated argument '", old, "' ignored. ",
             "Use argument '", new, "' instead.",
             call. = FALSE)
-  invisible(NULL)
+  invisible(depr)
 }

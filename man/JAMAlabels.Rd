@@ -2,7 +2,7 @@
 % Please edit documentation in R/JAMAlabels.R
 \name{JAMAlabels}
 \alias{JAMAlabels}
-\title{Create study labels in JAMA layout (for forest plot)}
+\title{Create study labels in JAMA layout (deprecated function)}
 \usage{
 JAMAlabels(author, year, citation, data = NULL)
 }
@@ -17,7 +17,8 @@ JAMAlabels(author, year, citation, data = NULL)
 information.}
 }
 \description{
-Create study labels in JAMA layout (for forest plot).
+Deprecated function to create study labels in JAMA layout (for
+forest plot). Replaced by \code{\link{labels.meta}}.
 }
 \details{
 This auxiliary function can be used to create study labels in JAMA
@@ -41,7 +42,7 @@ forest(m, studlab = mylabs, layout = "JAMA",
 
 }
 \seealso{
-\code{\link{forest.meta}}
+\code{\link{labels.meta}}, \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

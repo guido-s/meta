@@ -722,7 +722,7 @@ print.meta <- function(x,
   is.metamiss <- inherits(x, "metamiss")
   if (header) {
     if (is.metamiss)
-      cat("Sensitivity analysis for missing binary data\n\n")
+      cat("Sensitivity analysis for missing binary data\n")
     ##
     crtitle(x)
   }
@@ -808,6 +808,9 @@ print.meta <- function(x,
     ##
     ## Print results for meta-analysis with more than one study
     ##
+    ##
+    if (header & is.metamiss)
+      cat("\n")
     ##
     if (overall & (fixed | random | prediction)) {
       if (!inherits(x, "trimfill")) {

@@ -1262,7 +1262,7 @@ are taken into account:
   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 }
 Study labels according to JAMA guidelines can be generated using
-\code{\link{JAMAlabels}}.
+\code{\link{labels.meta}}.
 }
 
 \subsection{Forest plots showing results of subgroups}{
@@ -1476,7 +1476,7 @@ A re-evaluation of random-effects meta-analysis.
 \seealso{
 \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
-  \code{\link{settings.meta}}, \code{\link{JAMAlabels}}
+  \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

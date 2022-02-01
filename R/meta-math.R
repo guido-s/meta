@@ -39,7 +39,7 @@ hypergeometric <- function(n1, m1, N, psi) {
   ## Based on
   ## Liao and Rosen (2001): Fast and Stable Algorithms for Computing
   ## and Sampling from the Noncentral Hypergeometric Distribution,
-  ## The American Statistician, 55, 236-369. 
+  ## The American Statistician, 55, 236-369.
   ##
   ## this is how to use the function
   ##
@@ -54,113 +54,124 @@ hypergeometric <- function(n1, m1, N, psi) {
   ## obj$d(40)
   ## obj$p(40)
   ## obj$r()
-  
+  ##
   n2 <- N - n1
-  
-  if(n1<0 | n2<0 | m1<0 | m1 > N | psi <= 0)
-    stop("wrong argument in hypergeometric")
-  
+  ##
+  if (n1 < 0 | n2 < 0 | m1 < 0 | m1 > N | psi <= 0)
+    stop("Wrong argument in hypergeometric")
+  ##
   mode.compute <- function() {
     a <- psi - 1
-    b <- -((m1 + n1 + 2) * psi + n2 - m1)     
+    b <- -((m1 + n1 + 2) * psi + n2 - m1)
     c <- psi * (n1 + 1) * (m1 + 1)
     q <- b + sign(b) * sqrt(b * b - 4 * a * c)
     q <- -q / 2
-    
-    mode <- trunc(c / q) 
-    if(uu >= mode && mode >= ll) return(mode)
-    else return(trunc(q / a))      
-  }       
-  
-  r.function <- function(i) (n1 - i + 1) * (m1 - i + 1) / i / (n2 - m1 + i) * psi
-  
-  ##
-  mean <- function() sum(prob[(ll:uu) + shift] * (ll:uu)) 
-  
-  var <-  function() sum(prob[(ll:uu) + shift] * (ll:uu)^2) - mean()^2          
-  
-  d <- function(x) return(prob[x + shift])
-  
-  p <- function(x, lower.tail = TRUE) {   
-    if(lower.tail) return(sum(prob[ll:(x + shift)]))
-    else return(sum(prob[(x + shift):uu]))
+    ##
+    mode <- trunc(c / q)
+    if (uu >= mode && mode >= ll)
+      return(mode)
+    else
+      return(trunc(q / a))
   }
-  
   ##
-  
-  sample.low.to.high <- function(lower.end, ran) { 
-    for(i in lower.end:uu) {                                
-      if(ran <= prob[i + shift]) return(i)
+  r.function <- function(i)
+    (n1 - i + 1) * (m1 - i + 1) / i / (n2 - m1 + i) * psi
+  ##
+  mean <- function()
+    sum(prob[(ll:uu) + shift] * (ll:uu))
+  ##
+  var <- function()
+    sum(prob[(ll:uu) + shift] * (ll:uu)^2) - mean()^2
+  ##
+  d <- function(x)
+    return(prob[x + shift])
+  ##
+  p <- function(x, lower.tail = TRUE) {
+    if (lower.tail)
+      return(sum(prob[ll:(x + shift)]))
+    else
+      return(sum(prob[(x + shift):uu]))
+  }
+  ##
+  sample.low.to.high <- function(lower.end, ran) {
+    for (i in lower.end:uu) {
+      if (ran <= prob[i + shift]) return(i)
       ran <- ran - prob[i + shift]
-    }                                
-  }
-  
-  sample.high.to.low <- function(upper.end, ran) {           
-    for(i in upper.end:ll) {                              
-      if(ran <= prob[i + shift]) return(i)
-      ran <- ran - prob[i + shift]
-    } 
-  }  
-  
-  
-  r <- function() {
-    ran <- runif(1) 
-    
-    if(mode == ll) return(sample.low.to.high(ll, ran))            
-    if(mode == uu) return(sample.high.to.low(uu, ran))                                         
-    
-    if(ran < prob[mode + shift]) return(mode)             
-    ran <- ran - prob[mode + shift]
-    
-    lower <- mode - 1                                                                            
-    upper <- mode + 1
-    
-    repeat{                                     
-      if(prob[upper + shift] >= prob[lower + shift]) {              
-        if(ran < prob[upper + shift]) return(upper)
-        ran <- ran - prob[upper + shift]
-        if(upper == uu) return(sample.high.to.low(lower, ran))
-        upper <- upper + 1                            
-      }
-      
-      else {
-        if(ran < prob[lower + shift]) return(lower)
-        ran <- ran - prob[lower + shift]
-        if(lower == ll) return(sample.low.to.high(upper, ran))
-        lower <- lower - 1                   
-      }      
-    } 
-  }
-  
-  ##
-  
-  ll <- max(0, m1 - n2)
-  uu <- min(n1, m1)              
-  mode <- mode.compute()  
-  
-  prob <- array(1, uu - ll + 1)
-  
-  shift <- 1 - ll 
-  if(mode<uu) #note the shift of location
-    {  
-      r1 <- r.function((mode + 1):uu)       
-      prob[(mode + 1 + shift):(uu + shift)] <- cumprod(r1)       
     }
-  
-  if(mode > ll) {
+  }
+  ##
+  sample.high.to.low <- function(upper.end, ran) {
+    for (i in upper.end:ll) {
+      if (ran <= prob[i + shift])
+        return(i)
+      ran <- ran - prob[i + shift]
+    }
+  }
+  ##
+  r <- function() {
+    ran <- runif(1)
+    ##
+    if (mode == ll)
+      return(sample.low.to.high(ll, ran))
+    ##
+    if (mode == uu)
+      return(sample.high.to.low(uu, ran))
+    ##
+    if (ran < prob[mode + shift])
+      return(mode)
+    ##
+    ran <- ran - prob[mode + shift]
+    ##
+    lower <- mode - 1
+    upper <- mode + 1
+    ##
+    repeat {
+      if (prob[upper + shift] >= prob[lower + shift]) {
+        if (ran < prob[upper + shift])
+          return(upper)
+        ran <- ran - prob[upper + shift]
+        if (upper == uu)
+          return(sample.high.to.low(lower, ran))
+        upper <- upper + 1
+      }
+      else {
+        if (ran < prob[lower + shift])
+          return(lower)
+        ran <- ran - prob[lower + shift]
+        if (lower == ll)
+          return(sample.low.to.high(upper, ran))
+        lower <- lower - 1
+      }
+    }
+  }
+  ##
+  ll <- max(0, m1 - n2)
+  uu <- min(n1, m1)
+  mode <- mode.compute()
+  ##
+  prob <- array(1, uu - ll + 1)
+  ##
+  shift <- 1 - ll
+  if (mode < uu) {
+    ## note the shift of location
+    r1 <- r.function((mode + 1):uu)
+    prob[(mode + 1 + shift):(uu + shift)] <- cumprod(r1)
+  }
+  ##
+  if (mode > ll) {
     r1 <- 1 / r.function(mode:(ll + 1))
     prob[(mode - 1 + shift):(ll + shift)] <- cumprod(r1)
   }
-  
-  prob <- prob / sum(prob) 
-  
+  ##
+  prob <- prob / sum(prob)
+  ##
   return(list(mean = mean, var = var, d = d, p = p, r = r))
 }
 kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   ##
   ## Check:
   ##
-  if(length(x) != length(y))
+  if (length(x) != length(y))
     stop("length of argument x and y must be equal")
   ##
   sel <- !is.na(x) & !is.na(y)
@@ -194,14 +205,14 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
   ## p. 66-68
   ##
   se.ks <- sqrt(1 / 18 * (n * (n - 1) * (2 * n + 5) -
-                            sum(t * (t - 1) * (2 * t + 5)) -
-                              sum(u * (u - 1) * (2 * u + 5))) +
-                                1 / (9 * n * (n - 1) * (n - 2))  * 
-                                  sum(t * (t - 1) * (t - 2)) * 
-                                    sum(u * (u - 1) * (u - 2)) +
-                                      1 / (2 * n * (n - 1))  * 
-                                        sum(t * (t - 1))  * 
-                                          sum(u * (u - 1)))
+                          sum(t * (t - 1) * (2 * t + 5)) -
+                          sum(u * (u - 1) * (2 * u + 5))) +
+                1 / (9 * n * (n - 1) * (n - 2))  *
+                sum(t * (t - 1) * (t - 2)) *
+                sum(u * (u - 1) * (u - 2)) +
+                1 / (2 * n * (n - 1))  *
+                sum(t * (t - 1))  *
+                sum(u * (u - 1)))
   ##
   if (as.logical(correct) &
       any(c(length(unique(x)), length(unique(y))) == 2))
@@ -229,7 +240,7 @@ kentau <- function(x, y, correct = FALSE, keep.data = FALSE) {
 linregcore <- function(TE, seTE, covar = NULL,
                        model = "lm", method.tau = "DL",
                        ...) {
-  
+  ##
   if (is.null(covar))
     predictor <- "sei"
   else
@@ -278,87 +289,6 @@ linregcore <- function(TE, seTE, covar = NULL,
   res$method.tau <- method.tau
   ##
   names(res$statistic) <- "t"
-  
-  
-  res
-}
-TE.seTE.ci <- function(lower, upper, level = 0.95,
-                       df = rep_len(NA, length(lower))) {
-  
-  
-  ##
-  ## Check arguments
-  ##
-  if (missing(lower))
-    stop("Mandatory argument 'lower' missing.", call. = FALSE)
-  if (missing(upper))
-    stop("Mandatory argument 'upper' missing.", call. = FALSE)
-  ##
-  k <- length(lower)
-  arg <- "lower"
-  chklength(upper, k, arg)
-  chklength(df, k, arg)
-  ##
-  if (any(lower >= upper, na.rm = TRUE))
-    stop("Lower limit must be smaller than upper limit.", call. = FALSE)
-  ##
-  chklevel(level, length = 0)
-  
-  
-  ##
-  ## Parmar et al. (1998), Stat Med
-  ##
-  ## Section 4.1 Indirect variance estimation
-  ##
-  ## Equation (7)
-  ##
-  varTE <- ifelse(is.na(df),
-                  ((upper - lower) /
-                   (2 * qnorm((1 - level) / 2, lower.tail = FALSE)))^2,
-                  ((upper - lower) /
-                   (2 * qt((1 - level) / 2, df = df, lower.tail = FALSE)))^2)
-  ##
-  seTE <- sqrt(varTE)
-  
-  
-  res <- list(TE = lower + (upper - lower) / 2, seTE = seTE,
-              lower = lower, upper = upper,
-              level = level, df = df)
-  ##
-  res
-}
-seTE.pval <- function(TE, pval, df = rep_len(NA, length(TE))) {
-  
-  
-  ##
-  ## Check arguments
-  ##
-  if (missing(TE))
-    stop("Mandatory argument 'TE' missing.", call. = FALSE)
-  if (missing(pval))
-    stop("Mandatory argument 'pval' missing", call. = FALSE)
-  ##
-  k <- length(TE)
-  arg <- "TE"
-  chklength(pval, k, arg)
-  chklength(df, k, arg)
-  ##
-  if (any(pval <= 0, na.rm = TRUE) | any(pval >= 1, na.rm = TRUE))
-    stop("No valid value for p-value", call. = FALSE)
-  
-  
-  ##
-  ## Parmar et al. (1998), Stat Med
-  ##
-  ## Equation (7)
-  ##
-  varTE <- ifelse(is.na(df),
-                  (TE / qnorm(pval / 2, lower.tail = FALSE))^2,
-                  (TE / qt(pval / 2, df = df, lower.tail = FALSE))^2)
-  seTE <- sqrt(varTE)
-  
-  
-  res <- list(TE = TE, seTE = seTE, pval = pval)
   ##
   res
 }

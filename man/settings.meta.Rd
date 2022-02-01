@@ -51,7 +51,7 @@ instructions for authors of the \emph{Journal of the American
 Medical Association}
 (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
 labels according to JAMA guidelines can be generated using
-\code{\link{JAMAlabels}}.
+\code{\link{labels.meta}}.
 
 The next commands implement the recommendations of the Institute
 for Quality and Efficiency in Health Care, Germany (IQWiG)
@@ -233,7 +233,7 @@ settings.meta(oldset)
 }
 \seealso{
 \code{\link{gs}}, \code{\link{forest.meta}},
-  \code{\link{print.meta}}, \code{\link{JAMAlabels}}
+  \code{\link{print.meta}}, \code{\link{labels.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

@@ -15,6 +15,9 @@
 * New function longarm() to transform data from pairwise comparisons
   to long arm-based format
 
+* New auxiliary function labels.meta() to create study labels for
+  forest plots in JAMA or Lancet layout
+
 * Printing of spaces in confidence intervals can be suppressed
 
 * Help page of forest.meta() updated
