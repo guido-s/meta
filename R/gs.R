@@ -46,7 +46,7 @@ gs <- function(x) {
                  stop.at.error = FALSE)
   
   if (!is.null(x))
-    x <- settings.meta()[[x]]
+    x <- settings.meta(quietly = TRUE)[[x]]
   
   x
 }

@@ -156,6 +156,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -578,6 +580,10 @@
 #' \item{method}{Pooling method: \code{"Inverse"}.}
 #' \item{df.hakn}{Degrees of freedom for test of treatment effect for
 #'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
+#' \item{seTE.hakn}{Estimated standard error for Hartung-Knapp method
+#'   (not taking \emph{ad hoc} variance correction into account).}
+#' \item{seTE.hakn.adhoc}{Estimated standard error for Hartung-Knapp
+#'   method (taking \emph{ad hoc} variance correction into account).}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
 #' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
@@ -826,7 +832,7 @@
 #' @examples
 #' data(Fleiss1993bin)
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'               data = Fleiss1993bin, sm = "RR", method = "I")
+#'   data = Fleiss1993bin, sm = "RR", method = "I")
 #' m1
 #' 
 #' # Identical results using the generic inverse variance method with
@@ -837,19 +843,16 @@
 #' m1.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = m1, sm = "RR")
 #' m1.gen
 #' forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
-#'
 #' 
 #' # Meta-analysis with prespecified between-study variance
 #' #
 #' metagen(m1$TE, m1$seTE, sm = "RR", tau.preset = sqrt(0.1))
-#'
 #' 
 #' # Meta-analysis of survival data:
 #' #
 #' logHR <- log(c(0.95, 1.5))
 #' selogHR <- c(0.25, 0.35)
 #' metagen(logHR, selogHR, sm = "HR")
-#'
 #' 
 #' # Paule-Mandel method to estimate between-study variance for data
 #' # from Paule & Mandel (1982)
@@ -858,7 +861,6 @@
 #' variance <- c(0.003, 0.076, 0.464, 0.003, 0.014)
 #' #
 #' metagen(average, sqrt(variance), sm = "MD", method.tau = "PM")
-#'
 #' 
 #' # Conduct meta-analysis using hazard ratios and 95% confidence intervals
 #' #
@@ -873,41 +875,39 @@
 #' # Input must be log hazard ratios, not hazard ratios
 #' #
 #' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-#'         studlab = study, sm = "HR")
+#'   studlab = study, sm = "HR")
 #'
-#' 
 #' # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 #' # show them in printouts and forest plots
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = study %in% c("MRC-1", "MRC-2"))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = study %in% c("MRC-1", "MRC-2"))
 #' #
 #' # Exclude MRC-1 and MRC-2 studies completely from meta-analysis
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         subset = !(study %in% c("MRC-1", "MRC-2")))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   subset = !(study %in% c("MRC-1", "MRC-2")))
 #'
-#' 
 #' # Exclude studies with total sample size above 1500
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = (n.asp + n.plac) > 1500)
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = (n.asp + n.plac) > 1500)
 #'
 #' # Exclude studies containing "MRC" in study name
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = grep("MRC", study))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = grep("MRC", study))
 #'
 #' # Use both arguments 'subset' and 'exclude'
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         subset = (n.asp + n.plac) > 1500,
-#'         exclude = grep("MRC", study))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   subset = (n.asp + n.plac) > 1500,
+#'   exclude = grep("MRC", study))
 #' 
 #' @export metagen
 
@@ -968,6 +968,7 @@ metagen <- function(TE, seTE, studlab,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    prediction.subgroup = gs("prediction.subgroup"),
                     byvar,
                     ##
                     keepdata = gs("keepdata"),
@@ -1098,11 +1099,11 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
   ## 'id' from data:
@@ -1119,23 +1120,12 @@ metagen <- function(TE, seTE, studlab,
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
   ##
-  TE <- eval(mf[[match("TE", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
-  ##
-  seTE <- eval(mf[[match("seTE", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-  ##
-  median <- eval(mf[[match("median", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
-  ##
-  lower <- eval(mf[[match("lower", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-  ##
-  upper <- eval(mf[[match("upper", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
-  ##
-  id <- eval(mf[[match("id", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  TE <- catch("TE", mc, data, sfsp)
+  seTE <- catch("seTE", mc, data, sfsp)
+  median <- catch("median", mc, data, sfsp)
+  lower <- catch("lower", mc, data, sfsp)
+  upper <- catch("upper", mc, data, sfsp)
+  id <- catch("id", mc, data, sfsp)
   ##
   if (!missing.id & is.null(id))
     missing.id <- TRUE
@@ -1162,75 +1152,58 @@ metagen <- function(TE, seTE, studlab,
   if (!missing.median)
     chknull(median)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
-  ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
+  n.c <- catch("n.c", mc, data, sfsp)
   ##
   ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
   ## Catch 'pval', 'df', 'level.ci', 'q1', 'q3', 'min', 'max',
   ## 'approx.TE' and 'approx.seTE', from data:
   ##
   missing.pval <- missing(pval)
-  pval <- eval(mf[[match("pval", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  pval <- catch("pval", mc, data, sfsp)
   ##
   missing.df <- missing(df)
-  df <- eval(mf[[match("df", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  df <- catch("df", mc, data, sfsp)
   ##
   if (!missing(level.ci))
-    level.ci <- eval(mf[[match("level.ci", names(mf))]],
-                     data, enclos = sys.frame(sys.parent()))
+    level.ci <- catch("level.ci", mc, data, sfsp)
   ##
   missing.q1 <- missing(q1)
-  q1 <- eval(mf[[match("q1", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q1 <- catch("q1", mc, data, sfsp)
   ##
   missing.q3 <- missing(q3)
-  q3 <- eval(mf[[match("q3", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q3 <- catch("q3", mc, data, sfsp)
   ##
   missing.min <- missing(min)
-  min <- eval(mf[[match("min", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  min <- catch("min", mc, data, sfsp)
   ##
   missing.max <- missing(max)
-  max <- eval(mf[[match("max", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  max <- catch("max", mc, data, sfsp)
   ##
   missing.approx.TE <- missing(approx.TE)
-  approx.TE <- eval(mf[[match("approx.TE", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+  approx.TE <- catch("approx.TE", mc, data, sfsp)
   ##
   missing.approx.seTE <- missing(approx.seTE)
-  approx.seTE <- eval(mf[[match("approx.seTE", names(mf))]],
-                      data, enclos = sys.frame(sys.parent()))
+  approx.seTE <- catch("approx.seTE", mc, data, sfsp)
   
   
   ##
@@ -1245,6 +1218,7 @@ metagen <- function(TE, seTE, studlab,
   if (by) {
     chklength(subgroup, k.All, arg)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   ## Additional checks
@@ -1505,9 +1479,9 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -1832,7 +1806,7 @@ metagen <- function(TE, seTE, studlab,
   else
     k.study <- k
   ##
-  seTE.random.hakn.orig <- NULL
+  seTE.hakn <- seTE.hakn.adhoc <- NULL
   ##
   if (k == 0) {
     TE.fixed <- NA
@@ -1995,18 +1969,15 @@ metagen <- function(TE, seTE, studlab,
       df.hakn <- k - 1
       q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
       ##
-      seTE.random.classic <- seTE.random
-      seTE.random <- sqrt(q / sum(w.random))
+      seTE.hakn <- seTE.hakn.adhoc <- sqrt(q / sum(w.random))
       ##
       if (adhoc.hakn == "se") {
         ##
         ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
         ## i.e., if q < 1
         ##
-        if (q < 1) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
-        }
+        if (q < 1)
+          seTE.hakn.adhoc <- seTE.random
       }
       else if (adhoc.hakn == "ci") {
         ##
@@ -2015,15 +1986,14 @@ metagen <- function(TE, seTE, studlab,
         ## smaller
         ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
         ##
-        ci.hk <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn)
-        ci.re <- ci(TE.random, seTE.random.classic, level = level.ma)
+        ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
+        ci.re <- ci(TE.random, seTE.random, level = level.ma)
         ##
         width.hk <- ci.hk$upper - ci.hk$lower
         width.re <- ci.re$upper - ci.re$lower
         ##
         if (width.hk < width.re) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
+          seTE.hakn.adhoc <- seTE.random
           df.hakn <- NA
         }
       }
@@ -2031,7 +2001,7 @@ metagen <- function(TE, seTE, studlab,
         ##
         ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
         ##
-        ci.hk <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn)
+        ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
         ##
         m.dl <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "",
                         hakn = FALSE)
@@ -2040,13 +2010,11 @@ metagen <- function(TE, seTE, studlab,
         width.hk <- ci.hk$upper - ci.hk$lower
         width.dl <- ci.dl$upper - ci.dl$lower
         ##
-        if (width.hk < width.dl) {
-          seTE.random.hakn.orig <- seTE.random
-          seTE.random <- seTE.random.classic
-        }
+        if (width.hk < width.dl)
+          seTE.hakn.adhoc <- seTE.random
       }
       ##
-      ci.r <- ci(TE.random, seTE.random, level = level.ma, df = df.hakn,
+      ci.r <- ci(TE.random, seTE.hakn.adhoc, level = level.ma, df = df.hakn,
                  null.effect = null.effect)
     }
     else if (!three.level)
@@ -2086,6 +2054,16 @@ metagen <- function(TE, seTE, studlab,
                 tau2.calc, hc$Q, hc$df.Q, level.ma)
   else
     Rbres <- list(TE = NA, lower = NA, upper = NA)
+  ##
+  ## Standard error used to calculate random effects confidence
+  ## interval for Hartung-Knapp adjustment (not three-level model)
+  ##
+  if (hakn & !three.level) {
+    seTE.classic <- seTE.random
+    seTE.random <- seTE.hakn.adhoc
+  }
+  else
+    seTE.classic <- seTE.random
   
   
   ##
@@ -2100,22 +2078,22 @@ metagen <- function(TE, seTE, studlab,
               ##
               TE = TE, seTE = seTE,
               lower = ci.study$lower, upper = ci.study$upper,
-              zval = ci.study$statistic,
               statistic = ci.study$statistic,
               pval = ci.study$p,
+              zval = ci.study$statistic,
               df = if (method.ci == "t") df else rep_len(NA, length(TE)),
               w.fixed = w.fixed, w.random = w.random,
               id = id,
               ##
               TE.fixed = TE.fixed, seTE.fixed = seTE.fixed,
               lower.fixed = lower.fixed, upper.fixed = upper.fixed,
-              zval.fixed = statistic.fixed,
               statistic.fixed = statistic.fixed, pval.fixed = pval.fixed,
+              zval.fixed = statistic.fixed,
               ##
               TE.random = TE.random, seTE.random = seTE.random,
               lower.random = lower.random, upper.random = upper.random,
-              zval.random = statistic.random,
               statistic.random = statistic.random, pval.random = pval.random,
+              zval.random = statistic.random,
               ##
               null.effect = null.effect,
               ##
@@ -2149,9 +2127,13 @@ metagen <- function(TE, seTE, studlab,
               random = random,
               overall = overall,
               overall.hetstat = overall.hetstat,
+              ##
               hakn = hakn, adhoc.hakn = adhoc.hakn,
               df.hakn = if (hakn) df.hakn else NA,
-              seTE.random.hakn.orig = seTE.random.hakn.orig,
+              seTE.hakn = seTE.hakn,
+              seTE.hakn.adhoc = seTE.hakn.adhoc,
+              seTE.classic = seTE.classic,
+              ##
               method.tau = method.tau, method.tau.ci = hc$method.tau.ci,
               tau.preset = tau.preset,
               TE.tau =
@@ -2180,6 +2162,7 @@ metagen <- function(TE, seTE, studlab,
               print.subgroup.name = print.subgroup.name,
               sep.subgroup = sep.subgroup,
               test.subgroup = test.subgroup,
+              prediction.subgroup = prediction.subgroup,
               ##
               three.level = three.level,
               ##

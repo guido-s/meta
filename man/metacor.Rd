@@ -43,6 +43,7 @@ metacor(
   print.subgroup.name = gs("print.subgroup.name"),
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
+  prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   keepdata = gs("keepdata"),
   warn.deprecated = gs("warn.deprecated"),
@@ -177,6 +178,9 @@ between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
@@ -508,10 +512,12 @@ forest(m1, backtransf = FALSE)
 m2 <- update(m1, sm = "cor")
 m2
 
+\dontrun{
 # Identical forest plots (as back transformation is the identity
 # transformation)
-# forest(m2)
-# forest(m2, backtransf = FALSE)
+forest(m2)
+forest(m2, backtransf = FALSE)
+}
 
 }
 \references{

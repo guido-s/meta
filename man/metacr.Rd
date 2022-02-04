@@ -24,6 +24,7 @@ metacr(
   logscale,
   backtransf = gs("backtransf"),
   test.subgroup,
+  prediction.subgroup = gs("prediction.subgroup"),
   text.fixed = gs("text.fixed"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
@@ -106,6 +107,9 @@ Fisher's z transformed correlations, for example.}
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
 
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
+
 \item{text.fixed}{A character string used in printouts and forest
 plot to label the pooled fixed effect estimate.}
 
@@ -174,7 +178,7 @@ Fleiss1993_CR <- read.rm5(filename)
 
 # Choose RevMan 5 settings and store old settings
 #
-oldset <- settings.meta("revman5")
+oldset <- settings.meta("revman5", quietly = FALSE)
 
 # Same result as R command example(Fleiss1993bin)
 #

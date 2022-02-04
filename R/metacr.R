@@ -47,6 +47,8 @@
 #'   entered on log-scale.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If
 #'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
@@ -117,7 +119,7 @@
 #' 
 #' # Choose RevMan 5 settings and store old settings
 #' #
-#' oldset <- settings.meta("revman5")
+#' oldset <- settings.meta("revman5", quietly = FALSE)
 #' 
 #' # Same result as R command example(Fleiss1993bin)
 #' #
@@ -160,6 +162,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    backtransf = gs("backtransf"),
                    ##
                    test.subgroup,
+                   prediction.subgroup = gs("prediction.subgroup"),
                    ##
                    text.fixed = gs("text.fixed"),
                    text.random = gs("text.random"),
@@ -203,6 +206,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  chklogical(prediction.subgroup)
   ##
   if (!missing(swap.events))
     chklogical(swap.events)
@@ -372,6 +376,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
+                      prediction.subgroup = prediction.subgroup,
                       backtransf = backtransf,
                       ##
                       text.fixed = text.fixed, text.random = text.random,
@@ -401,6 +406,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
+                      prediction.subgroup = prediction.subgroup,
                       backtransf = backtransf,
                       ##
                       text.fixed = text.fixed, text.random = text.random,
@@ -433,6 +439,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      subgroup.name = "grp",
                      print.subgroup.name = FALSE,
                      test.subgroup = test.subgroup,
+                     prediction.subgroup = prediction.subgroup,
                      ##
                      text.fixed = text.fixed, text.random = text.random,
                      text.predict = text.predict,
@@ -460,6 +467,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
+                    prediction.subgroup = prediction.subgroup,
                     backtransf = backtransf,
                     ##
                     text.fixed = text.fixed, text.random = text.random,
@@ -488,6 +496,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
+                    prediction.subgroup = prediction.subgroup,
+                    ##
                     n.e = n.e,
                     n.c = n.c,
                     backtransf = backtransf,
@@ -518,6 +528,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
+                    prediction.subgroup = prediction.subgroup,
                     backtransf = backtransf,
                     ##
                     text.fixed = text.fixed, text.random = text.random,

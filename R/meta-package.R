@@ -3,7 +3,8 @@
 #' @description
 #' R package \bold{meta} is a user-friendly general package providing
 #' standard methods for meta-analysis and supporting Schwarzer et
-#' al. (2015), \url{https://www.springer.com/gp/book/9783319214153}.
+#' al. (2015),
+#' \url{https://link.springer.com/book/10.1007/978-3-319-21416-0}.
 #' 
 #' @details
 #' R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -91,7 +92,7 @@
 #' Medical Association}
 #' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
 #' labels according to JAMA guidelines can be generated using
-#' \code{\link{JAMAlabels}}.
+#' \code{\link{labels.meta}}.
 #'
 #' The next two commands implement the recommendations of the
 #' Institute for Quality and Efficiency in Health Care (IQWiG),
@@ -202,14 +203,14 @@
 #'   polygon text
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm pt
-#'   qnorm qt runif update var weighted.mean weights
+#'   qlogis qnorm qt runif update var weighted.mean weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest
+#'   confint.rma.uni confint.rma.mv escalc regtest to.long
 #'
 #' @importFrom lme4 glmer
 #'

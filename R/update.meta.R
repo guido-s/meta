@@ -166,6 +166,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
@@ -223,8 +225,7 @@
 #' @examples
 #' data(Fleiss1993cont)
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year))
+#'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
 #' m1
 #' 
 #' # Change summary measure (from 'SMD' to 'MD')
@@ -309,6 +310,7 @@ update.meta <- function(object,
                         print.subgroup.name = object$print.subgroup.name,
                         sep.subgroup = object$sep.subgroup,
                         test.subgroup = object$test.subgroup,
+                        prediction.subgroup = object$prediction.subgroup,
                         byvar,
                         ##
                         print.CMH = object$print.CMH,
@@ -411,6 +413,7 @@ update.meta <- function(object,
     chkchar(sep.subgroup, length = 1)
   ##
   test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
+  prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
   ##
   ## Some more checks
   ##
@@ -558,15 +561,15 @@ update.meta <- function(object,
     return(invisible(NULL))
   }
   ##
-  mf <- match.call()
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   ## Catch argument 'subset'
   ##
   missing.subset  <- missing(subset)
   ##
   if (!missing.subset)
-    subset <- eval(mf[[match("subset", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    subset <- catch("subset", mc, data, sfsp)
   else {
     if (!is.null(object$subset))
       subset <- object$subset
@@ -581,8 +584,7 @@ update.meta <- function(object,
   missing.studlab <- missing(studlab)
   ##
   if (!missing.studlab)
-    studlab <- eval(mf[[match("studlab", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    studlab <- catch("studlab", mc, data, sfsp)
   else if (isCol(object$data, ".studlab"))
     studlab <- object$data$.studlab
   else
@@ -593,8 +595,7 @@ update.meta <- function(object,
   missing.exclude <- missing(exclude)
   ##
   if (!missing.exclude)
-    exclude <- eval(mf[[match("exclude", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    exclude <- catch("exclude", mc, data, sfsp)
   else if (isCol(object$data, ".exclude"))
     exclude <- object$data$.exclude
   else
@@ -605,8 +606,7 @@ update.meta <- function(object,
   missing.id <- missing(id)
   ##
   if (!missing.id)
-    ...id <- eval(mf[[match("id", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+    ...id <- catch("id", mc, data, sfsp)
   else {
     if (isCol(object$data, ".id"))
       ...id <- object$data$.id
@@ -619,8 +619,7 @@ update.meta <- function(object,
   missing.incr <- missing(incr)
   ##
   if (!missing.incr)
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   else {
     if (isCol(object$data, ".incr"))
       incr <- object$data$.incr
@@ -634,10 +633,8 @@ update.meta <- function(object,
   missing.byvar <- missing(byvar)
   ##
   if (!missing.subgroup | !missing.byvar) {
-    subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                     data, enclos = sys.frame(sys.parent()))
-    byvar <- eval(mf[[match("byvar", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    byvar <- catch("byvar", mc, data, sfsp)
     subgroup <-
       deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                   warn.deprecated)
@@ -651,9 +648,9 @@ update.meta <- function(object,
   ##
   if (missing.subgroup.name & is.null(subgroup.name)) {
     if (!missing.subgroup)
-      subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+      subgroup.name <- byvarname("subgroup", mc)
     else if (!missing.byvar)
-      subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+      subgroup.name <- byvarname("byvar", mc)
   }
   ##
   missing.sm <- missing(sm)
@@ -750,6 +747,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
@@ -805,6 +803,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -849,6 +848,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn.deprecated = FALSE,
@@ -895,7 +895,8 @@ update.meta <- function(object,
                  ##
                  n.e = n.e, n.c = n.c,
                  ##
-                 backtransf = backtransf,
+                 backtransf = backtransf, pscale = pscale,
+                 irscale = irscale, irunit = irunit,
                  ##
                  text.fixed = text.fixed, text.random = text.random,
                  text.predict = text.predict,
@@ -909,6 +910,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -993,6 +995,7 @@ update.meta <- function(object,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
+                 prediction.subgroup = prediction.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1049,6 +1052,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1076,8 +1080,9 @@ update.meta <- function(object,
                   studlab = studlab,
                   exclude = exclude,
                   ##
-                  data = data, subset = subset, method = method,
+                  data = data, subset = subset,
                   ##
+                  method = method,
                   sm = sm,
                   incr = incr,
                   allincr = allincr, addincr = addincr,
@@ -1106,10 +1111,12 @@ update.meta <- function(object,
                   text.w.fixed = text.w.fixed, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  ##
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1169,6 +1176,7 @@ update.meta <- function(object,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
+                  prediction.subgroup = prediction.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,

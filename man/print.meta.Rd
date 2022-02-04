@@ -15,6 +15,7 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.fixed = test.subgroup & fixed,
   test.subgroup.random = test.subgroup & random,
+  prediction.subgroup = x$prediction.subgroup,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -52,16 +53,21 @@
   ...
 )
 
-cilayout(bracket = "[", separator = "; ")
+cilayout(
+  bracket = gs("CIbracket"),
+  separator = gs("CIseparator"),
+  lower.blank = gs("CIlower.blank"),
+  upper.blank = gs("CIupper.blank")
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{fixed}{A logical indicating whether a fixed effect
-meta-analysis should be conducted.}
+\item{fixed}{A logical indicating whether results for fixed effect
+meta-analysis should be printed.}
 
-\item{random}{A logical indicating whether a random effects
-meta-analysis should be conducted.}
+\item{random}{A logical indicating whether results for random
+effects meta-analysis should be printed.}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
@@ -86,6 +92,9 @@ effect / common effect model).}
 \item{test.subgroup.random}{A logical value indicating whether to
 print results of test for subgroup differences (based on random
 effects model).}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results
@@ -211,6 +220,12 @@ confidence interval: "[", "(", "\{", "".}
 
 \item{separator}{A character string with information on separator
 between lower and upper confidence interval.}
+
+\item{lower.blank}{A logical indicating whether blanks between left
+bracket and lower confidence limit should be printed.}
+
+\item{upper.blank}{A logical indicating whether blanks between
+separator and upper confidence limit should be printed.}
 }
 \description{
 Print method for objects of class \code{meta}.

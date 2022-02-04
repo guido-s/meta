@@ -38,16 +38,22 @@
 #'   interval should be printed.
 #' @param text.predict A character string used in the plot to label
 #'   the prediction interval.
-#' @param subgroup A logical indicating whether subgroup results
-#'   should be shown in forest plot. This argument is useful in a
-#'   meta-analysis with subgroups if summaries should not be plotted
-#'   on group level.
+#' @param subgroup A single logical or logical vector indicating
+#'   whether / which subgroup results should be shown in forest
+#'   plot. This argument is useful in a meta-analysis with subgroups
+#'   if summaries should not be plotted for (some) subgroups.
+#' @param subgroup.hetstat A single logical or logical vector
+#'   indicating whether / which information on heterogeneity in
+#'   subgroups should be shown in forest plot. This argument is useful
+#'   in a meta-analysis with subgroups if heterogeneity statistics
+#'   should not be printed for (some) subgroups.
 #' @param print.subgroup.labels A logical indicating whether subgroup
 #'   label should be printed.
-#' @param subgroup.name A character string with a label for the grouping
-#'   variable.
-#' @param print.subgroup.name A logical indicating whether the name of the
-#'   grouping variable should be printed in front of the group labels.
+#' @param subgroup.name A character string with a label for the
+#'   grouping variable.
+#' @param print.subgroup.name A logical indicating whether the name of
+#'   the grouping variable should be printed in front of the group
+#'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
 #' @param text.fixed.w A character string to label the pooled fixed
@@ -73,14 +79,15 @@
 #' @param xlab A label for the x-axis.
 #' @param xlab.pos A numeric specifying the center of the label on the
 #'   x-axis.
-#' @param smlab A label for the summary measurex (printed at top of
+#' @param smlab A label for the summary measure (printed at top of
 #'   figure).
 #' @param smlab.pos A numeric specifying the center of the label for
 #'   the summary measure.
 #' @param xlim The x limits (min,max) of the plot, or the character
 #'   "s" to produce symmetric forest plots.
 #' @param allstudies A logical indicating whether studies with
-#'   inestimable treatment effects should be plotted.
+#'   inestimable treatment effects should be included in the forest
+#'   plot.
 #' @param weight.study A character string indicating weighting used to
 #'   determine size of squares or diamonds (argument
 #'   \code{type.study}) to plot individual study results. One of
@@ -117,10 +124,10 @@
 #' @param col.equi Line colour (limits of equivalence).
 #' @param fill.equi Colour of area between limits of equivalence.
 #' @param leftcols A character vector specifying (additional) columns
-#'   to be plotted on the left side of the forest plot or a logical
+#'   to be printed on the left side of the forest plot or a logical
 #'   value (see Details).
 #' @param rightcols A character vector specifying (additional) columns
-#'   to be plotted on the right side of the forest plot or a logical
+#'   to be printed on the right side of the forest plot or a logical
 #'   value (see Details).
 #' @param leftlabs A character vector specifying labels for
 #'   (additional) columns on left side of the forest plot (see
@@ -128,13 +135,13 @@
 #' @param rightlabs A character vector specifying labels for
 #'   (additional) columns on right side of the forest plot (see
 #'   Details).
-#' @param lab.e Label to be used for experimental group in table
+#' @param label.e Label to be used for experimental group in table
 #'   heading.
-#' @param lab.c Label to be used for control group in table heading.
-#' @param lab.e.attach.to.col A character specifying the column name
-#'   where label \code{lab.e} should be attached to in table heading.
-#' @param lab.c.attach.to.col A character specifying the column name
-#'   where label \code{lab.c} should be attached to in table heading.
+#' @param label.c Label to be used for control group in table heading.
+#' @param label.e.attach A character specifying the column name where
+#'   label \code{label.e} should be attached to in table heading.
+#' @param label.c.attach A character specifying the column name where
+#'   label \code{label.c} should be attached to in table heading.
 #' @param label.left Graph label on left side of forest plot.
 #' @param label.right Graph label on right side of forest plot.
 #' @param bottom.lr A logical indicating whether labels on right and
@@ -248,46 +255,46 @@
 #' @param test.overall A logical value indicating whether to print
 #'   results of test for overall effect.
 #' @param test.overall.fixed A logical value indicating whether to
-#'   print results of test for overall effect (based on fixed effect
-#'   model).
+#'   print results of test for overall effect (fixed effect model).
 #' @param test.overall.random A logical value indicating whether to
-#'   print results of test for overall effect (based on random effects
-#'   model).
+#'   print results of test for overall effect (random effects model).
 #' @param label.test.overall.fixed Label printed in front of results
-#'   of test for overall effect (based on fixed effect model).
+#'   of test for overall effect (fixed effect model).
 #' @param label.test.overall.random Label printed in front of results
-#'   of test for overall effect (based on random effects model).
+#'   of test for overall effect (random effects model).
 #' @param print.stat A logical value indicating whether z- or t-value
 #'   for test of treatment effect should be printed.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
 #' @param test.subgroup.fixed A logical value indicating whether to
-#'   print results of test for subgroup differences (based on fixed
-#'   effect model).
+#'   print results of test for subgroup differences (fixed effect
+#'   model).
 #' @param test.subgroup.random A logical value indicating whether to
-#'   print results of test for subgroup differences (based on random
-#'   effects model).
+#'   print results of test for subgroup differences (random effects
+#'   model).
+#' @param prediction.subgroup A single logical or logical vector
+#'   indicating whether / which prediction intervals should be printed
+#'   for subgroups.
 #' @param print.Q.subgroup A logical value indicating whether to print
 #'   the value of the heterogeneity statistic Q (test for subgroup
 #'   differences).
 #' @param label.test.subgroup.fixed Label printed in front of results
-#'   of test for subgroup differences (based on fixed effect model).
+#'   of test for subgroup differences (fixed effect model).
 #' @param label.test.subgroup.random Label printed in front of results
-#'   of test for subgroup differences (based on random effects model).
-#' @param test.effect.subgroup A logical value indicating whether to
-#'   print results of test for effect in subgroups.
-#' @param test.effect.subgroup.fixed A logical value indicating
-#'   whether to print results of test for effect in subgroups (based
-#'   on fixed effect model).
-#' @param test.effect.subgroup.random A logical value indicating
-#'   whether to print results of test for effect in subgroups (based
-#'   on random effects model).
+#'   of test for subgroup differences (random effects model).
+#' @param test.effect.subgroup A single logical or logical vector
+#'   indicating whether / which tests for effect in subgroups should
+#'   be printed.
+#' @param test.effect.subgroup.fixed A single logical or logical
+#'   vector indicating whether / which tests for effect in subgroups
+#'   should be printed (fixed effect model).
+#' @param test.effect.subgroup.random A single logical or logical
+#'   vector indicating whether / which tests for effect in subgroups
+#'   should be printed (random effects model).
 #' @param label.test.effect.subgroup.fixed Label printed in front of
-#'   results of test for effect in subgroups (based on fixed effect
-#'   model).
+#'   results of test for effect in subgroups (fixed effect model).
 #' @param label.test.effect.subgroup.random Label printed in front of
-#'   results of test for effect in subgroups (based on random effects
-#'   model).
+#'   results of test for effect in subgroups (random effects model).
 #' @param text.addline1 Text for first additional line (below
 #'   meta-analysis results).
 #' @param text.addline2 Text for second additional line (below
@@ -507,6 +514,8 @@
 #' \code{\link{png}}, or \code{\link{svg}} and to specify the width and
 #' height of the graphic (see Examples).
 #' 
+#' \subsection{Default layout for studies and pooled effects}{
+#' 
 #' By default, treatment estimates and confidence intervals are
 #' plotted in the following way:
 #' \itemize{
@@ -529,87 +538,23 @@
 #' \code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 #' The same square sizes are used if \code{weight.study = "same"}.
 #' 
-#' Arguments \code{text.fixed}, \code{text.random}, and
-#' \code{text.predict} can be used to change the label to identify
-#' overall results (fixed effect and random effects model as well as
-#' prediction interval). By default the following text is printed:
-#' \itemize{
-#' \item "Fixed effect model" (argument \code{text.fixed})
-#' \item "Random effects model" (\code{text.random})
-#' \item "Prediction interval" (\code{text.predict})
-#' }
-#'
-#' If confidence interval levels are different for individual studies,
-#' meta-analysis, and prediction interval (arguments \code{level},
-#' \code{level.ma}, \code{level.predict} in meta-analysis functions,
-#' e.g., \code{\link{metabin}}), additional information is printed,
-#' e.g., " (99\%-CI)" for a 99\% confidence interval in the
-#' meta-analysis.
-#'
-#' Depending on the number of information printed on the left side of
-#' the forest plot, the text for heterogeneity statistics following
-#' the overall meta-analysis results can be overlapping with the
-#' x-axis. Argument \code{addrows.below.overall} can be used to
-#' specify the number of empty rows that are printed between
-#' meta-analysis results and heterogeneity statistics and test
-#' results (see Examples).
-#' 
-#' The following arguments can be used to print results for various
-#' statistical tests:
-#' \tabular{ll}{
-#' \bold{Argument} \tab \bold{Statistical test} \cr
-#' \code{test.overall.fixed} \tab Test for overall effect (fixed
-#'   effect model) \cr
-#' \code{test.overall.random} \tab Test for overall effect (random
-#'   effects model) \cr
-#' \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
-#'   (FE model) \cr
-#' \code{test.effect.subgroup.random} \tab Test for effect in subgroup
-#'   (RE model) \cr
-#' \code{test.subgroup.fixed} \tab Test for subgroup differences (FE
-#'   model) \cr
-#' \code{test.subgroup.random} \tab Test for subgroup differences (RE
-#'   model)
+#' A prediction interval for treatment effect of a new study (Higgins
+#' et al., 2009) is given in the forest plot if arguments
+#' \code{prediction} and \code{random} are \code{TRUE}. For
+#' graphical presentation of prediction intervals the approach by
+#' Guddat et al. (2012) is used.
 #' }
 #' 
-#' By default, these arguments are \code{FALSE} with exception of the
-#' tests for subgroup differences which are \code{TRUE}. R function
-#' \code{\link{settings.meta}} can be used to change this default for
-#' the entire R session. For example, use the following command to
-#' always print results of tests for an overall effect:
-#' \code{settings.meta(test.overall = TRUE)} .
+#' \subsection{Columns printed on left side of forest plot}{
 #' 
-#' The arguments \code{leftcols} and \code{rightcols} can be used to
-#' specify columns which are plotted on the left and right side of the
-#' forest plot, respectively. If argument \code{rightcols} is
-#' \code{FALSE}, no columns will be plotted on the right side. By
-#' default, i.e. if arguments \code{leftcols} and \code{rightcols} are
-#' \code{NULL} and \code{layout = "meta"}, the following
-#' \emph{\bold{columns}} will be printed \emph{\bold{on the right side
-#' of the forest plot}}:
-#' \tabular{ll}{
-#' \bold{Meta-analysis results} \tab \bold{Value of argument
-#'   rightcols} \cr
-#' No summary \tab \code{c("effect", "ci")} \cr
-#' Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
-#'   \cr
-#' Only random effects model \tab \code{c("effect", "ci", "w.random")}
-#'   \cr
-#' Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
-#' }
-#'
-#' By default, estimated treatment effect and corresponding confidence
-#' interval will be printed.  Depending on arguments \code{fixed}
-#' and \code{random}, weights of the fixed effect and/or random
-#' effects model will be given too. For an object of class
-#' \code{\link{metacum}} or \code{\link{metainf}} only the estimated
-#' treatment effect with confidence interval are plotted.
-#' 
-#' Depending on the class of the meta-analysis object (which is
+#' Argument \code{leftcols} can be used to specify columns which are
+#' printed on the left side of the forest plot. By default, i.e. if
+#' argument \code{leftcols} is \code{NULL} and \code{layout = "meta"},
+#' and depending on the class of the meta-analysis object (which is
 #' defined by the R function used to generate the object) a different
 #' set of \emph{\bold{columns}} is printed \emph{\bold{on the left
 #' side of the forest plot}}:
-#' \tabular{cl}{
+#' \tabular{ll}{
 #' \bold{Function} \tab \bold{Value of argument leftcols} \cr
 #' \code{\link{metabin}} \tab \code{c("studlab", "event.e", "n.e",
 #'   "event.c", "n.c")} \cr
@@ -629,46 +574,209 @@
 #' }
 #'
 #' Note, \code{"studlab"} \bold{must be provided for study labels} in
-#' argument \code{rightcols} or \code{leftcols} instead of the
+#' argument \code{leftcols} or \code{rightcols} instead of the
 #' variable name used in the meta-analysis command. If, for example,
 #' \code{"id"} is provided in argument \code{leftcols} as this
-#' variable was used to define study labels in the meta-analysis, this
-#' variable will be treated as an additional variable, not as study
-#' labels.
+#' variable was used to define study labels in the meta-analysis
+#' function, this variable will be treated as an additional variable,
+#' not as study labels.
+#' }
+#' 
+#' \subsection{Overlapping information on left side of forest plot}{
 #'
+#' Depending on the number of columns printed on the left side of the
+#' forest plot, information on heterogeneity measures or statistical
+#' tests (see below) can be overlapping with the x-axis. Argument
+#' \code{addrows.below.overall} can be used to specify the number of
+#' empty rows that are printed between meta-analysis results and
+#' information on heterogeneity measures and statistical tests. By
+#' default, no additional rows are added to the forest plot. If
+#' \code{addrows.below.overall = NULL}, the function tries to add a
+#' sufficient number of empty rows to prevent overlapping
+#' text. Another possibility is to manually increase the space between
+#' the columns on the left side (argument \code{colgap.left}) or
+#' between the columns on the left side and the forest plot (argument
+#' \code{colgap.forest.left}).
+#' }
+#' 
+#' \subsection{Columns printed on right side of forest plot}{
+#' 
+#' Argument \code{rightcols} can be used to
+#' specify columns which are printed on the right side of the
+#' forest plot. If argument \code{rightcols} is
+#' \code{FALSE}, no columns will be printed on the right side. By
+#' default, i.e. if argument \code{rightcols} is
+#' \code{NULL} and \code{layout = "meta"}, the following
+#' \emph{\bold{columns}} will be printed \emph{\bold{on the right side
+#' of the forest plot}}:
+#' \tabular{ll}{
+#' \bold{Meta-analysis results} \tab \bold{Value of argument
+#'   rightcols} \cr
+#' No summary \tab \code{c("effect", "ci")} \cr
+#' Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
+#'   \cr
+#' Only random effects model \tab \code{c("effect", "ci", "w.random")}
+#'   \cr
+#' Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+#' }
+#'
+#' By default, estimated treatment effect and corresponding confidence
+#' interval will be printed. Depending on arguments \code{fixed} and
+#' \code{random}, weights of the fixed effect and/or random effects
+#' model will be given too. For an object of class
+#' \code{\link{metacum}} or \code{\link{metainf}} only the estimated
+#' treatment effect with confidence interval are plotted.
+#' }
+#'
+#' \subsection{Column names}{
+#' 
 #' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are plotted on left and right side of
-#' the forest plot, respectively. For certain columns predefined
-#' labels exist. If the arguments \code{leftlabs} and \code{rightlabs}
-#' are \code{NULL}, the following default labels will be used:
+#' specify column headings which are printed on left or right side of
+#' the forest plot. For certain columns predefined labels exist which
+#' are used by default, i.e., if arguments \code{leftlabs} and
+#' \code{rightlabs} are \code{NULL}:
 #' \tabular{rcccccc}{
-#' \bold{Column:} \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
+#' Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
 #'   \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-#' \bold{Label:} \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
+#' Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
 #'   "Total" \tab "Total" \cr
 #' \cr
-#' \bold{Column:} \tab \code{event.e} \tab \code{event.c} \tab
+#' Column: \tab \code{event.e} \tab \code{event.c} \tab
 #'   \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-#' \bold{Label:} \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
+#' Label: \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
 #'   \tab "Mean" \tab \cr
 #' \cr
-#' \bold{Column:} \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
+#' Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
 #'   \tab \code{time.c} \tab \code{effect} \tab \cr
-#' \bold{Label:} \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
+#' Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
 #'   \code{x$sm} \tab \cr
 #' \cr
-#' \bold{Column:} \tab \code{ci} \tab \code{effect.ci} \tab
+#' Column: \tab \code{ci} \tab \code{effect.ci} \tab
 #'   \code{w.fixed} \tab \code{w.random} \tab \tab \cr
-#' \bold{Label:} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
+#' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
 #'   "W(fixed)" \tab "W(random)" \tab \tab
 #' }
 #'
-#' For additional columns, the column name will be used as a label. It
-#' is possible to only provide labels for new columns (see
-#' Examples). Otherwise the length of \code{leftlabs} and
-#' \code{rightlabs} must be the same as the number of printed columns,
-#' respectively. The value \code{NA} can be used to specify columns
-#' which should use default labels (see Examples).
+#' For other columns, the column name will be used as a label if no
+#' column label is defined. It is possible to only provide labels for
+#' new columns (see Examples). Otherwise the length of \code{leftlabs}
+#' and \code{rightlabs} must be the same as the number of printed
+#' columns. The value \code{NA} can be used to specify columns which
+#' should use default labels (see Examples).
+#'
+#'
+#' In pairwise meta-analysis comparing two groups (i.e.,
+#' \code{\link{metabin}}, \code{\link{metacont}},
+#' \code{\link{metainc}}, and \code{\link{metagen}} depending on the
+#' outcome), arguments \code{label.e} and \code{label.c} are used to
+#' label columns belonging to the two treatment groups. By default,
+#' labels defined in the meta-analysis object are used. The columns
+#' where treatment labels are attached can be changed using arguments
+#' \code{label.e.attach} and \code{label.c.attach}.
+#' }
+#'
+#' \subsection{Information on heterogeneity and statistical tests}{
+#' 
+#' Argument \code{hetstat} can be a character string to specify where
+#' to print heterogeneity information:
+#' \itemize{
+#' \item row with results for fixed effect model (\code{hetstat =
+#' "fixed"}),
+#' \item row with results for random effects model (\code{hetstat =
+#' "random"}).
+#' }
+#' 
+#' Otherwise, information on heterogeneity measures is printed below
+#' the meta-analysis results if argument \code{overall.hetstat = TRUE}
+#' (default). The heterogeneity measures to print can be specified
+#' (see list of arguments following \code{overall.hetstat}).
+#' 
+#' In addition, the following arguments can be used to print results
+#' for various statistical tests:
+#' \tabular{ll}{
+#' \bold{Argument} \tab \bold{Statistical test} \cr
+#' \code{test.overall.fixed} \tab Test for overall effect (fixed
+#'   effect model) \cr
+#' \code{test.overall.random} \tab Test for overall effect (random
+#'   effects model) \cr
+#' \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
+#'   (FE model) \cr
+#' \code{test.effect.subgroup.random} \tab Test for effect in subgroup
+#'   (RE model) \cr
+#' \code{test.subgroup.fixed} \tab Test for subgroup differences (FE
+#'   model) \cr
+#' \code{test.subgroup.random} \tab Test for subgroup differences (RE
+#'   model)
+#' }
+#' 
+#' By default, these arguments are \code{FALSE} with exception of
+#' tests for subgroup differences which are \code{TRUE}. R function
+#' \code{\link{settings.meta}} can be used to change this default for
+#' the entire R session. For example, use the following command to
+#' always print results of tests for an overall effect:
+#' \code{settings.meta(test.overall = TRUE)}.
+#' }
+#'
+#' \subsection{Flexible printing of subgroup results}{
+#'
+#' Argument \code{subgroup} determines whether summary results are
+#' printed for subgroups. A logical vector of length equal to the
+#' number of subgroups can be provided to determine which subgroup
+#' summaries are printed. By default, only subgroup results based on
+#' at least two studies are printed which is identical to use argument
+#' \code{subgroup = k.w > 1}. The order of the logical vector
+#' corresponds to the order of subgroups in list element 'bylevs' of a
+#' meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
+#' used to show results for all subgroups (including those with a
+#' single study).
+#'
+#' The following arguments can be used in a similar way:
+#'
+#' \itemize{
+#' \item \code{subgroup.hetstat} (heterogeneity statistic in
+#'   subgroups),
+#' \item \code{prediction.subgroup} (prediction interval in
+#'   subgroups),
+#' \item \code{test.effect.subgroup} (test for effect in subgroups),
+#' \item \code{test.effect.subgroup.fixed} (test for effect in
+#'   subgroups, fixed effect model),
+#' \item \code{test.effect.subgroup.random} (test for effect in
+#'   subgroups, random effects model).
+#' }
+#' }
+#' 
+#' \subsection{Additional general settings}{
+#' 
+#' Arguments \code{text.fixed}, \code{text.random}, and
+#' \code{text.predict} can be used to change the label to identify
+#' overall results (fixed effect and random effects model as well as
+#' prediction interval). By default the following text is printed:
+#' \itemize{
+#' \item "Common effect model" (argument \code{text.fixed})
+#' \item "Random effects model" (\code{text.random})
+#' \item "Prediction interval" (\code{text.predict})
+#' }
+#'
+#' If confidence interval levels are different for individual studies,
+#' meta-analysis, and prediction interval (arguments \code{level},
+#' \code{level.ma}, \code{level.predict} in meta-analysis functions,
+#' e.g., \code{\link{metabin}}), additional information is printed,
+#' e.g., " (99\%-CI)" for a 99\% confidence interval in the
+#' meta-analysis.
+#' 
+#' Argument \code{pscale} can be used to rescale single proportions or
+#' risk differences, e.g., \code{pscale = 1000} means that proportions
+#' are expressed as events per 1000 observations. This is useful in
+#' situations with (very) low event probabilities.
+#' 
+#' Argument \code{irscale} can be used to rescale single rates or rate
+#' differences, e.g., \code{irscale = 1000} means that rates are
+#' expressed as events per 1000 time units, e.g., person-years. This is
+#' useful in situations with (very) low rates. Argument \code{irunit}
+#' can be used to specify the time unit used in individual studies
+#' (default: "person-years"). This information is printed in summaries
+#' and forest plots if argument \code{irscale} is not equal to 1.
+#' }
 #' 
 #' \subsection{Forest plots in RevMan5 layout}{
 #' 
@@ -720,7 +828,7 @@
 #'   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 #' }
 #' Study labels according to JAMA guidelines can be generated using
-#' \code{\link{JAMAlabels}}.
+#' \code{\link{labels.meta}}.
 #' }
 #'
 #' \subsection{Forest plots showing results of subgroups}{
@@ -739,52 +847,11 @@
 #' }
 #' } 
 #' 
-#' If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
-#' "Experimental" and "Control" are used as labels for experimental
-#' and control group, respectively.
-#' 
-#' Argument \code{pscale} can be used to rescale single proportions or
-#' risk differences, e.g., \code{pscale = 1000} means that proportions
-#' are expressed as events per 1000 observations. This is useful in
-#' situations with (very) low event probabilities.
-#' 
-#' Argument \code{irscale} can be used to rescale single rates or rate
-#' differences, e.g., \code{irscale = 1000} means that rates are
-#' expressed as events per 1000 time units, e.g., person-years. This is
-#' useful in situations with (very) low rates. Argument \code{irunit}
-#' can be used to specify the time unit used in individual studies
-#' (default: "person-years"). This information is printed in summaries
-#' and forest plots if argument \code{irscale} is not equal to 1.
-#' 
-#' A prediction interval for treatment effect of a new study (Higgins
-#' et al., 2009) is given in the forest plot if arguments
-#' \code{prediction} and \code{random} are \code{TRUE}. For
-#' graphical presentation of prediction intervals the approach by
-#' Guddat et al. (2012) is used.
-#' 
-#' Argument \code{hetstat} can be a character string to specify where
-#' to print heterogeneity information:
-#' \itemize{
-#' \item row with results for fixed effect model (\code{hetstat =
-#' "fixed"}),
-#' \item row with results for random effects model (\code{hetstat =
-#' "random"}).
-#' }
-#' Otherwise, information on heterogeneity is printed in dedicated rows.
-#' 
-#' Note, in R package \bold{meta}, version 3.0-0 the following
-#' arguments have been removed from R function forest.meta: subgroup,
-#' level, level.ma, level.predict. This functionality is now
-#' provided by R function \code{\link{update.meta}} (or directly in R
-#' functions, e.g., \code{\link{metabin}}, \code{\link{metacont}},
-#' \code{\link{metagen}}, \code{\link{metacor}}, and
-#' \code{\link{metaprop}}).
-#' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.metabind}},
-#'   \code{\link{settings.meta}}, \code{\link{JAMAlabels}}
+#'   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 #' 
 #' @references
 #' Guddat C, Grouven U, Bender R, Skipka G (2012):
@@ -803,9 +870,9 @@
 #' @examples
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = c(41, 47, 51, 59),
-#'               sm = "RR", method = "I",
-#'               studlab = paste(author, year))
+#'   data = Olkin1995, subset = c(41, 47, 51, 59),
+#'   sm = "RR", method = "I",
+#'   studlab = paste(author, year))
 #' 
 #' 
 #' \dontrun{
@@ -820,9 +887,9 @@
 #' # prediction interval
 #' #
 #' forest(m1, layout = "RevMan5", fixed = FALSE,
-#'        label.right = "Favours control", col.label.right = "red",
-#'        label.left = "Favours experimental", col.label.left = "green",
-#'        prediction = TRUE)
+#'   label.right = "Favours control", col.label.right = "red",
+#'   label.left = "Favours experimental", col.label.left = "green",
+#'   prediction = TRUE)
 #' 
 #' 
 #' \dontrun{
@@ -832,12 +899,19 @@
 #' forest(m1)
 #' dev.off()
 #' 
-#' # Sort studies by decreasing treatment effect within year subgroups
+#' # Conduct subgroup meta-analysis
 #' #
-#' m2 <- update(m1, subgroup = ifelse(year < 1987,
-#'                                 "Before 1987", "1987 and later"),
-#'              print.subgroup.name = FALSE)
+#' m2 <- update(m1,
+#'   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+#'   print.subgroup.name = FALSE)
+#' 
+#' # Show summary results for subgroups with at least two studies
+#' #
 #' forest(m2, sortvar = -TE, random = FALSE)
+#' 
+#' # Show results for all subgroups
+#' #
+#' forest(m2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
 #' 
 #' # Forest plot specifying argument xlim
 #' #
@@ -856,17 +930,17 @@
 #' # (resulting in overlapping text)
 #' #
 #' forest(m1, random = FALSE, leftcols = "studlab")
-#'
-#' # Use argument 'addrows.below.overall' to add space between
-#' # meta-analysis results and heterogeneity statistics
-#' #
-#' forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
 #' 
 #' # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
 #' # measures in width of column with study labels
 #' #
 #' forest(m1, random = FALSE, leftcols = "studlab",
-#'        calcwidth.hetstat = TRUE)
+#'   calcwidth.hetstat = TRUE)
+#' 
+#' # Use argument 'addrows.below.overall' to manually add two empty
+#' # rows
+#' #
+#' forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
 #' 
 #' # Do not print columns on right side of forest plot
 #' #
@@ -891,49 +965,47 @@
 #' #    columns 'n.e' and 'n.c'
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-#'        lab.e.attach.to.col = "event.e",
-#'        lab.c.attach.to.col = "event.c")
+#'   leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
+#'   label.e.attach = "event.e", label.c.attach = "event.c")
 #' 
 #' # Specify column labels only for variables 'year' and 'author'
 #' # (and define digits for additional variables)
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"))
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"))
 #' 
 #' # Center text in all columns
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                     "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'        just = "center", just.addcols = "center", just.studlab = "center")
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+#'                "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'   just = "center", just.addcols = "center", just.studlab = "center")
 #' 
 #' # Same result
 #' #
 #' forest(m1,
-#'        leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                   "author", "year"),
-#'        leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'        just = "c", just.addcols = "c", just.studlab = "c")
+#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+#'              "author", "year"),
+#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+#'   just = "c", just.addcols = "c", just.studlab = "c")
 #' 
 #' # Change some fontsizes and fontfaces
 #' #
 #' forest(m1,
-#'        fs.study = 10, ff.study = "italic",
-#'        fs.study.label = 11, ff.study.label = "bold",
-#'        fs.axis = 5, ff.axis = "italic",
-#'        ff.smlab = "bold.italic",
-#'        ff.fixed = "plain", ff.hetstat = "plain")
+#'   fs.study = 10, ff.study = "italic",
+#'   fs.study.label = 11, ff.study.label = "bold",
+#'   fs.axis = 5, ff.axis = "italic",
+#'   ff.smlab = "bold.italic",
+#'   ff.fixed = "plain", ff.hetstat = "plain")
 #' 
 #' # Change some colours
 #' #
 #' forest(m1,
-#'        col.diamond = "green", col.diamond.lines = "red",
-#'        col.study = c("green", "blue", "red", "orange"),
-#'        col.square = "pink", col.square.lines = "black")
+#'   col.diamond = "green", col.diamond.lines = "red",
+#'   col.study = c("green", "blue", "red", "orange"),
+#'   col.square = "pink", col.square.lines = "black")
 #' 
 #' # Sort by weight in fixed effect model
 #' #
@@ -962,7 +1034,7 @@
 #' 
 #' # Print only subgroup results
 #' #
-#' forest(m2, layout = "subgroup", addrows = 2)
+#' forest(m2, layout = "subgroup", addrows = NULL)
 #' 
 #' # Print only subgroup results (and consider text for tests of
 #' # subgroup differences in width of subgroup column)
@@ -970,9 +1042,9 @@
 #' forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
 #' 
 #' # Print only subgroup results (and consider text for heterogeneity
-#' # measures in width of subgroup column)
+#' # in width of subgroup column)
 #' #
-#' forest(m2, layout = "subgroup", addrows = 2, calcwidth.hetstat = TRUE)
+#' forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
 #' }
 #'
 #' @method forest meta
@@ -1000,6 +1072,8 @@ forest.meta <- function(x,
                         text.predict = x$text.predict,
                         ##
                         subgroup = TRUE,
+                        subgroup.hetstat =
+                          subgroup & (is.character(hetstat) || hetstat),
                         print.subgroup.labels = TRUE,
                         ##
                         subgroup.name = x$subgroup.name,
@@ -1034,11 +1108,11 @@ forest.meta <- function(x,
                         leftcols = NULL, rightcols = NULL,
                         leftlabs = NULL, rightlabs = NULL,
                         ##
-                        lab.e = x$label.e,
-                        lab.c = x$label.c,
+                        label.e = x$label.e,
+                        label.c = x$label.c,
                         ##
-                        lab.e.attach.to.col = NULL,
-                        lab.c.attach.to.col = NULL,
+                        label.e.attach = NULL,
+                        label.c.attach = NULL,
                         ##
                         label.right = x$label.right,
                         label.left = x$label.left,
@@ -1082,8 +1156,7 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat =
-                          fixed | random | overall.hetstat,
+                        hetstat = fixed | random | overall.hetstat,
                         overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat,
@@ -1103,8 +1176,7 @@ forest.meta <- function(x,
                         LRT = FALSE,
                         ##
                         test.overall = gs("test.overall"),
-                        test.overall.fixed =
-                          fixed & overall & test.overall,
+                        test.overall.fixed = fixed & overall & test.overall,
                         test.overall.random =
                           random & overall & test.overall,
                         label.test.overall.fixed,
@@ -1115,11 +1187,12 @@ forest.meta <- function(x,
                         test.subgroup = x$test.subgroup,
                         test.subgroup.fixed = test.subgroup & fixed,
                         test.subgroup.random = test.subgroup & random,
+                        prediction.subgroup = x$prediction.subgroup,
                         print.Q.subgroup = TRUE,
                         label.test.subgroup.fixed,
                         label.test.subgroup.random,
                         ##
-                        test.effect.subgroup,
+                        test.effect.subgroup = gs("test.effect.subgroup"),
                         test.effect.subgroup.fixed,
                         test.effect.subgroup.random,
                         label.test.effect.subgroup.fixed,
@@ -1258,6 +1331,13 @@ forest.meta <- function(x,
   metabind <- inherits(x, "is.metabind")
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  ##
+  by <- !is.null(x$subgroup)
+  ##
+  if (by)
+    n.by <- length(x$bylevs)
+  else
+    n.by <- 0
   
   
   ##
@@ -1265,15 +1345,14 @@ forest.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  mf <- match.call()
-  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x, stringsAsFactors = FALSE),
-                               enclos = sys.frame(sys.parent())),
-               silent = TRUE)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  ##
+  error <-
+    try(sortvar <- catch("sortvar", mc, x, sfsp),
+        silent = TRUE)
   if (class(error) == "try-error") {
-    xd <- x$data
-    sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                    xd, enclos = NULL)
+    sortvar <- catch("sortvar", mc, x$data, NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -1288,18 +1367,167 @@ forest.meta <- function(x,
   if (!sort)
     sortvar <- 1:K.all
   ##
+  if (!by) {
+    if (!missing(subgroup))
+      warning("Argument 'subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing(subgroup.hetstat))
+      warning("Argument 'subgroup.hetstat' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing(prediction.subgroup))
+      warning("Argument 'prediction.subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing(test.effect.subgroup))
+      warning("Argument 'test.effect.subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing(test.effect.subgroup.fixed))
+      warning("Argument 'test.effect.subgroup.fixed' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing(test.effect.subgroup.random))
+      warning("Argument 'test.effect.subgroup.random' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+  }
+  else {
+    if (!missing(subgroup) & !metabind)
+      subgroup <- catch("subgroup", mc, x, sfsp)
+    ##
+    if (length(subgroup) == 1)
+      subgroup.logical <- rep(subgroup, n.by) &
+        (x$k.w > 1 | layout == "subgroup")
+    else {
+      chklength(subgroup, n.by,
+                text = paste("Length of argument 'subgroup' must be",
+                             "equal to 1 or number of subgroups."))
+      subgroup.logical <- subgroup
+    }
+    chklogical(subgroup[1])
+    ##
+    if (!missing(subgroup.hetstat) & !metabind)
+      subgroup.hetstat <- catch("subgroup.hetstat", mc, x, sfsp)
+    ##
+    if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
+      subgroup.hetstat.logical <- rep(TRUE, n.by)
+    else if (length(subgroup.hetstat) == 1) {
+      chklogical(subgroup.hetstat)
+      subgroup.hetstat.logical <- subgroup.hetstat &
+        (x$k.w > 1 | layout == "subgroup")
+    }
+    else {
+      chklength(subgroup.hetstat, n.by,
+                text = paste("Length of argument 'subgroup.hetstat' must be",
+                             "equal to 1 or number of subgroups."))
+      chklogical(subgroup.hetstat[1])
+      subgroup.hetstat.logical <- subgroup.hetstat
+    }
+    ##
+    if (!missing(prediction.subgroup) & !metabind)
+      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+    ##
+    prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+    ##
+    if (length(prediction.subgroup) == 1)
+      prediction.subgroup.logical <-
+        rep(prediction.subgroup, n.by) &
+        !is.na(x$lower.predict.w) & !is.na(x$upper.predict.w)
+    else {
+      chklength(prediction.subgroup, n.by,
+                text = paste("Length of argument 'prediction.subgroup' must be",
+                             "equal to 1 or number of subgroups."))
+      prediction.subgroup.logical <- prediction.subgroup
+    }
+    chklogical(prediction.subgroup[1])
+    ##
+    if (!missing(test.effect.subgroup)) {
+      test.effect.subgroup <-
+        catch("test.effect.subgroup", mc, x, sfsp)
+      test.effect.subgroup <- replaceNULL(test.effect.subgroup, FALSE)
+      ##
+      if (length(test.effect.subgroup) == 1) {
+        chklogical(test.effect.subgroup)
+        ##
+        test.effect.subgroup.logical <-
+          rep(test.effect.subgroup, n.by) &
+          (x$k.w > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test.effect.subgroup, n.by,
+                  text = paste("Length of argument 'test.effect.subgroup'",
+                               "must be equal to 1 or number of subgroups."))
+        chklogical(test.effect.subgroup[1])
+        test.effect.subgroup.logical <- test.effect.subgroup
+      }
+    }
+    else
+      test.effect.subgroup.logical <- rep(test.effect.subgroup, n.by)
+    ##
+    if (missing(test.effect.subgroup.fixed))
+      test.effect.subgroup.fixed.logical <-
+        fixed & test.effect.subgroup.logical
+    else {
+      test.effect.subgroup.fixed <-
+        catch("test.effect.subgroup.fixed", mc, x, sfsp)
+      test.effect.subgroup.fixed <-
+        replaceNULL(test.effect.subgroup.fixed, FALSE)
+      ##
+      if (length(test.effect.subgroup.fixed) == 1) {
+        chklogical(test.effect.subgroup.fixed)
+        ##
+        test.effect.subgroup.fixed.logical <-
+          rep(test.effect.subgroup.fixed, n.by) &
+          (x$k.w > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test.effect.subgroup.fixed, n.by,
+                  text = paste("Length of argument",
+                               "'test.effect.subgroup.fixed'",
+                               "must be equal to 1 or number of subgroups."))
+        chklogical(test.effect.subgroup.fixed[1])
+        test.effect.subgroup.fixed.logical <- test.effect.subgroup.fixed
+      }
+    }
+    ##
+    if (missing(test.effect.subgroup.random))
+      test.effect.subgroup.random.logical <-
+        random & test.effect.subgroup.logical
+    else {
+      test.effect.subgroup.random <-
+        catch("test.effect.subgroup.random", mc, x, sfsp)
+      test.effect.subgroup.random <-
+        replaceNULL(test.effect.subgroup.random, FALSE)
+      ##
+      if (length(test.effect.subgroup.random) == 1) {
+        chklogical(test.effect.subgroup.random)
+        ##
+        test.effect.subgroup.random.logical <-
+          rep(test.effect.subgroup.random, n.by) &
+          (x$k.w > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test.effect.subgroup.random, n.by,
+                  text = paste("Length of argument",
+                               "'test.effect.subgroup.random'",
+                               "must be equal to 1 or number of subgroups."))
+        chklogical(test.effect.subgroup.random[1])
+        test.effect.subgroup.random.logical <- test.effect.subgroup.random
+      }
+    }
+  }
+  ##
   slab <- TRUE
   missing.studlab <- missing(studlab)
   ##
   if (!missing.studlab) {
-    error <- try(studlab <- eval(mf[[match("studlab", names(mf))]],
-                                 as.data.frame(x, stringsAsFactors = FALSE),
-                                 enclos = sys.frame(sys.parent())),
-                 silent = TRUE)
+    error <-
+      try(studlab <- catch("studlab", mc, x, sfsp),
+          silent = TRUE)
     if (class(error) == "try-error") {
-      xd <- x$data
-      studlab <- eval(mf[[match("studlab", names(mf))]],
-                      xd, enclos = NULL)
+      studlab <- catch("studlab", mc, x$data, NULL)
       if (isCol(x$data, ".subset"))
         studlab <- studlab[x$data$.subset]
     }
@@ -1329,8 +1557,7 @@ forest.meta <- function(x,
   chkcolor(col.fixed)
   chkcolor(col.random)
   chklogical(prediction)
-  chklogical(subgroup)
-  subgroup.logical <- subgroup
+  ##
   chklogical(print.subgroup.labels)
   if (!is.null(print.subgroup.name))
     chklogical(print.subgroup.name)
@@ -1521,10 +1748,6 @@ forest.meta <- function(x,
   chklogical(test.subgroup.random)
   ##
   chklogical(print.Q.subgroup)
-  if (!missing(test.effect.subgroup.fixed))
-    chklogical(test.effect.subgroup.fixed)
-  if (!missing(test.effect.subgroup.random))
-    chklogical(test.effect.subgroup.random)
   chknumeric(fontsize, length = 1)
   chknumeric(fs.heading, length = 1)
   if (!missing(fs.fixed))
@@ -1601,8 +1824,6 @@ forest.meta <- function(x,
   else
     addrow.subgroups <- !jama
   ##
-  chknumeric(addrows.below.overall, min = 0, length = 1)
-  ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
@@ -1635,7 +1856,7 @@ forest.meta <- function(x,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args  <- list(...)
+  args <- list(...)
   ## Check whether first argument is a list. In this case only use
   ## this list as input.
   if (length(args) > 0 && is.list(args[[1]]))
@@ -1656,6 +1877,14 @@ forest.meta <- function(x,
   chklogical(print.stat)
   ##
   label <- deprecated(label, missing(label), args, "labels")
+  ##
+  label.e <- deprecated(label.e, missing(label.e), args, "lab.e")
+  label.c <- deprecated(label.c, missing(label.c), args, "lab.c")
+  ##
+  label.e.attach <- deprecated(label.e.attach, missing(label.e.attach),
+                               args, "lab.e.attach.to.col")
+  label.c.attach <- deprecated(label.c.attach, missing(label.c.attach),
+                               args, "lab.c.attach.to.col")
   ##
   col.inside <-
     deprecated(col.inside, missing(col.inside), args, "col.i.inside.square")
@@ -1838,46 +2067,29 @@ forest.meta <- function(x,
   ## (4) Some assignments and additional checks
   ##
   ##
-  prediction <- prediction & x$k >= 3
+  prediction <- prediction & !is.na(x$lower.predict) & !is.na(x$upper.predict)
   ##
   level <- x$level
   level.ma <- x$level.ma
   level.predict <- x$level.predict
   ##
-  chklevel(level)
-  chklevel(level.ma)
-  if (prediction)
-    chklevel(level.predict)
+  if (is.null(label.right))
+    label.right <- ""
+  if (is.null(label.left))
+    label.left <- ""
   ##
   subgroup <- x$subgroup
-  by <- !is.null(subgroup)
   ##
   if (!by) {
-    test.subgroup.fixed  <- FALSE
+    fixed.random <- fixed & random
+    ##
+    test.subgroup.fixed <- FALSE
     test.subgroup.random <- FALSE
-    test.effect.subgroup.fixed <- FALSE
-    test.effect.subgroup.random <- FALSE
   }
-  else {
-    if (!missing(test.effect.subgroup)) {
-      if (missing(test.effect.subgroup.fixed))
-        test.effect.subgroup.fixed <- fixed & test.effect.subgroup
-      ##
-      if (missing(test.effect.subgroup.random))
-        test.effect.subgroup.random <- random & test.effect.subgroup
-    }
-    else {
-      if (missing(test.effect.subgroup.fixed))
-        test.effect.subgroup.fixed <- fixed & gs("test.effect.subgroup")
-      ##
-      if (missing(test.effect.subgroup.random))
-        test.effect.subgroup.random <- random & gs("test.effect.subgroup")
-    }
-  }
-  ##
-  fixed.random <-
-    (fixed | test.subgroup.fixed | test.effect.subgroup.fixed) &
-    (random | test.subgroup.random | test.effect.subgroup.random)
+  else
+    fixed.random <-
+      any(fixed | test.subgroup.fixed | test.effect.subgroup.fixed.logical) &
+      any(random | test.subgroup.random | test.effect.subgroup.random.logical)
   ##
   if (layout == "subgroup") {
     if (!missing(study.results) & study.results)
@@ -1951,23 +2163,19 @@ forest.meta <- function(x,
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
-    test.overall.fixed   <- FALSE
-    test.overall.random  <- FALSE
+    test.overall.fixed <- FALSE
+    test.overall.random <- FALSE
     resid.hetstat <- FALSE
-    test.subgroup.fixed  <- FALSE
+    test.subgroup.fixed <- FALSE
     test.subgroup.random <- FALSE
     ##
     hetstat <- FALSE
     prediction <- FALSE
-    test.effect.subgroup.fixed  <- FALSE
-    test.effect.subgroup.random <- FALSE
   }
   ##
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
-    test.overall.fixed  <- FALSE
+    test.overall.fixed <- FALSE
     test.overall.random <- FALSE
-    test.effect.subgroup.fixed  <- FALSE
-    test.effect.subgroup.random <- FALSE
   }
   ##
   if (!overall) {
@@ -1979,6 +2187,7 @@ forest.meta <- function(x,
       test.overall.random <- FALSE
   }
   ##
+  missing.leftcols <- missing(leftcols)
   if (is.logical(leftcols)) {
     if (!leftcols) {
       text.fixed <- ""
@@ -1998,6 +2207,32 @@ forest.meta <- function(x,
       leftcols <- NULL
   }
   ##
+  ## Add space for heterogeneity statistics (if needed)
+  ##
+  if (!missing(addrows.below.overall) & is.null(addrows.below.overall)) {
+    addrows.below.overall <- 0
+    ##
+    if (layout == "JAMA")
+      addrows.below.overall <- 3
+    else if (layout == "meta" & (metacor | metagen) &
+             overall.hetstat &
+             missing.leftcols & !calcwidth.hetstat)
+      addrows.below.overall <- 2
+    else if (layout %in% c("meta", "subgroup") &
+             (test.subgroup.fixed & test.subgroup.random) &
+             !calcwidth.tests) {
+      addrows.below.overall <- 1
+      ##
+      if (layout == "meta")
+        addrows.below.overall <-
+          addrows.below.overall +
+          as.numeric((label.left != "" | label.right != "")) +
+          as.numeric(xlab != "")
+    }
+  }
+  ##
+  chknumeric(addrows.below.overall, min = 0, length = 1)
+  ##
   notmiss.xlim <- !missing(xlim)
   ##
   if (just.studlab == "left")
@@ -2016,7 +2251,7 @@ forest.meta <- function(x,
   ##
   log.xaxis <- FALSE
   ##
-  if (missing(ref) && (is.prop(sm) | is.rate(sm)))
+  if (missing(ref) && (is.prop(sm) | is.rate(sm) | is.mean(sm)))
     ref <- NA
   ##
   if (backtransf & is.relative.effect(sm)) {
@@ -2050,11 +2285,6 @@ forest.meta <- function(x,
       smlab <- xlab(sm, backtransf, pscale = pscale,
                     newline = !revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
-  ##
-  if (is.null(label.right))
-    label.right <- ""
-  if (is.null(label.left))
-    label.left <- ""
   ##
   print.label <- label.left != "" | label.right != "" & !is.na(ref)
   if (print.label & !bottom.lr) {
@@ -2292,7 +2522,10 @@ forest.meta <- function(x,
                 "Time", "Time",
                 sm.lab,
                 ci.lab,
-                if (revman5 & smlab.null) smlab else paste(sm.lab, ci.lab.bracket),
+                if (revman5 & smlab.null)
+                  smlab
+                else
+                  paste(sm.lab, ci.lab.bracket),
                 text.w.fixed,
                 text.w.random)
   ##
@@ -2316,7 +2549,8 @@ forest.meta <- function(x,
   ## Identify and process columns in addition to columns
   ## defined above in variables 'colnames' and 'labnames'
   ##
-  colnames.new <- c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
+  colnames.new <-
+    c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
   ##
   newcols <- length(colnames.new) > 0
   ##
@@ -2338,80 +2572,97 @@ forest.meta <- function(x,
       if (length(dataset1[[i]]) == 0 & length(dataset2[[i]]) == 0)
         stop("Variable '", i, "' not available in '", x.name, "'.")
     ##
-    rightcols.new <- rightcols[! rightcols %in% colnames.notNULL]
-    leftcols.new  <- leftcols[! leftcols %in% colnames.notNULL]
+    rightcols.new <- rightcols[!rightcols %in% colnames.notNULL]
+    leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
     ##
-    ## Determine label for new columns
+    ## Determine labels for new columns
     ## 1. Use column name as label if no label is given
-    ##    argument right | left | labs
-    ## 2. Otherwise use corresponding entry from
-    ##    argument right | left | labs
+    ## 2. Otherwise use specified labels
     ##
     if (length(rightcols.new) > 0) {
-      pos.rightcols.new <- match(rightcols.new, rightcols)
-      ##
-      rightlabs.new <- rightcols.new
-      for (i in seq(along = rightcols.new)) {
-        j <- match(rightcols.new[i], colnames)
-        if (!is.na(j))
-          rightlabs.new[i] <- labnames[j]
-        else if (rightcols.new[i] == "pval")
-          rightlabs.new[i] <- "P-value"
+      if (missing(rightlabs)) {
+        rightlabs.new <- rightcols.new
+        ##
+        if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
+          rightlabs.new[rightlabs.new == "n"] <- "Total"
+        ##
+        if (metamean & any(rightcols.new == "mean"))
+          rightlabs.new[rightlabs.new == "mean"] <- "Mean"
+        ##
+        if (metamean & any(rightcols.new == "sd"))
+          rightlabs.new[rightlabs.new == "sd"] <- "SD"
+        ##
+        if ((metarate) & any(rightcols.new == "time"))
+          rightlabs.new[rightlabs.new == "time"] <- "Time"
+        ##
+        if (any(rightcols.new == "pval"))
+          rightlabs.new[rightlabs.new == "pval"] <- "P-value"
       }
-      ##
-      if (missing(rightlabs))
-        rightlabs.new <- rightlabs.new
-      else if (length(rightcols.new) == length(rightlabs))
-        rightlabs.new <- rightlabs
-      else if (max(pos.rightcols.new) <= length(rightlabs))
-        rightlabs.new <- rightlabs[pos.rightcols.new]
-      else if (max(pos.rightcols.new) > length(rightlabs))
-        stop("Too few labels defined for argument 'rightcols'.")
-      ##
-      if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
-        rightlabs.new[rightlabs.new == "n"] <- "Total"
-      ##
-      if (metamean & any(rightcols.new == "mean"))
-        rightlabs.new[rightlabs.new == "mean"] <- "Mean"
-      ##
-      if (metamean & any(rightcols.new == "sd"))
-        rightlabs.new[rightlabs.new == "sd"] <- "SD"
-      ##
-      if ( (metarate) & any(rightcols.new == "time"))
-        rightlabs.new[rightlabs.new == "time"] <- "Time"
+      else {
+        if (length(rightcols.new) == length(rightlabs))
+          rightlabs.new <- rightlabs
+        else if (length(rightcols.new) > length(rightlabs))
+          stop("Too few labels defined for argument 'rightcols'.")
+        else {
+          rightlabs.new <- rightcols.new
+          ##
+          for (i in seq_along(rightcols.new)) {
+            match1.i <- match(rightcols.new[i], rightcols)
+            if (!is.na(rightlabs[match1.i]))
+              rightlabs.new[i] <- rightlabs[match1.i]
+            else {
+              match2.i <- match(rightcols.new[i], colnames)
+              if (!is.na(match2.i))
+                rightlabs.new[i] <- labnames[match2.i]
+              else if (rightcols.new[i] == "pval")
+                rightlabs.new[i] <- "P-value"
+            }
+          }
+        }
+      }
     }
+    ##
     if (length(leftcols.new) > 0) {
-      pos.leftcols.new <- match(leftcols.new, leftcols)
-      ##
-      leftlabs.new <- leftcols.new
-      for (i in seq(along = leftcols.new)) {
-        j <- match(leftcols.new[i], colnames)
-        if (!is.na(j))
-          leftlabs.new[i] <- labnames[j]
-        else if (leftcols.new[i] == "pval")
-          leftlabs.new[i] <- "P-value"
+      if (missing(leftlabs)) {
+        leftlabs.new <- leftcols.new
+        ##
+        if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
+          leftlabs.new[leftlabs.new == "n"] <- "Total"
+        ##
+        if (metamean & any(leftcols.new == "mean"))
+          leftlabs.new[leftlabs.new == "mean"] <- "Mean"
+        ##
+        if (metamean & any(leftcols.new == "sd"))
+          leftlabs.new[leftlabs.new == "sd"] <- "SD"
+        ##
+        if ((metarate) & any(leftcols.new == "time"))
+          leftlabs.new[leftlabs.new == "time"] <- "Time"
+        ##
+        if (any(leftcols.new == "pval"))
+          leftlabs.new[leftlabs.new == "pval"] <- "P-value"
       }
-      ##
-      if (missing(leftlabs))
-        leftlabs.new <- leftlabs.new
-      else if (length(leftcols.new) == length(leftlabs))
-        leftlabs.new <- leftlabs
-      else if (max(pos.leftcols.new) <= length(leftlabs))
-        leftlabs.new <- leftlabs[pos.leftcols.new]
-      else if (max(pos.leftcols.new) > length(leftlabs))
-        stop("Too few labels defined for argument 'leftcols'.")
-      ##
-      if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
-        leftlabs.new[leftlabs.new == "n"] <- "Total"
-      ##
-      if (metamean & any(leftcols.new == "mean"))
-        leftlabs.new[leftlabs.new == "mean"] <- "Mean"
-      ##
-      if (metamean & any(leftcols.new == "sd"))
-        leftlabs.new[leftlabs.new == "sd"] <- "SD"
-      ##
-      if ((metarate) & any(leftcols.new == "time"))
-        leftlabs.new[leftlabs.new == "time"] <- "Time"
+      else {
+        if (length(leftcols.new) == length(leftlabs))
+          leftlabs.new <- leftlabs
+        else if (length(leftcols.new) > length(leftlabs))
+          stop("Too few labels defined for argument 'leftcols'.")
+        else {
+          leftlabs.new <- leftcols.new
+          ##
+          for (i in seq_along(leftcols.new)) {
+            match1.i <- match(leftcols.new[i], leftcols)
+            if (!is.na(leftlabs[match1.i]))
+              leftlabs.new[i] <- leftlabs[match1.i]
+            else {
+              match2.i <- match(leftcols.new[i], colnames)
+              if (!is.na(match2.i))
+                leftlabs.new[i] <- labnames[match2.i]
+              else if (leftcols.new[i] == "pval")
+                leftlabs.new[i] <- "P-value"
+            }
+          }
+        }
+      }
     }
   }
   ##
@@ -2439,10 +2690,10 @@ forest.meta <- function(x,
                         if (pooled.events) "event.c",
                         if (pooled.totals) "n.c")
           if (pooled.events & !pooled.totals) {
-            if (is.null(lab.e.attach.to.col))
-              lab.e.attach.to.col <- "event.e"
-            if (is.null(lab.c.attach.to.col))
-              lab.c.attach.to.col <- "event.c"
+            if (is.null(label.e.attach))
+              label.e.attach <- "event.e"
+            if (is.null(label.c.attach))
+              label.c.attach <- "event.c"
           }
         }
       }
@@ -2460,10 +2711,10 @@ forest.meta <- function(x,
         }
         else if (pooled.totals) {
           leftcols <- c(leftcols, "n.e", "n.c")
-          if (is.null(lab.e.attach.to.col))
-            lab.e.attach.to.col <- "n.e"
-          if (is.null(lab.c.attach.to.col))
-            lab.c.attach.to.col <- "n.c"
+          if (is.null(label.e.attach))
+            label.e.attach <- "n.e"
+          if (is.null(label.c.attach))
+            label.c.attach <- "n.c"
         }
       }
       ##
@@ -2472,13 +2723,13 @@ forest.meta <- function(x,
                       "TE", "seTE")
         if (!is.null(x$n.e)) {
           leftcols <- c(leftcols, "n.e")
-          if (is.null(lab.e.attach.to.col))
-            lab.e.attach.to.col <- "n.e"
+          if (is.null(label.e.attach))
+            label.e.attach <- "n.e"
         }
         if (!is.null(x$n.c)) {
           leftcols <- c(leftcols, "n.c")
-          if (is.null(lab.c.attach.to.col))
-            lab.c.attach.to.col <- "n.c"
+          if (is.null(label.c.attach))
+            label.c.attach <- "n.c"
         }
       }
       ##
@@ -2493,8 +2744,8 @@ forest.meta <- function(x,
         }
         else if (pooled.totals) {
           leftcols <- c(leftcols, "n.e")
-          if (is.null(lab.e.attach.to.col))
-            lab.e.attach.to.col <- "n.e"
+          if (is.null(label.e.attach))
+            label.e.attach <- "n.e"
         }
       }
       ##
@@ -2506,8 +2757,8 @@ forest.meta <- function(x,
                         if (pooled.events) "event.e",
                         if (pooled.totals) "n.e")
           if (pooled.events & !pooled.totals) {
-            if (is.null(lab.e.attach.to.col))
-              lab.e.attach.to.col <- "event.e"
+            if (is.null(label.e.attach))
+              label.e.attach <- "event.e"
           }
         }
       }
@@ -2522,8 +2773,8 @@ forest.meta <- function(x,
                         if (pooled.events) "event.e",
                         if (pooled.times) "time.e")
           if (pooled.events & !pooled.times) {
-            if (is.null(lab.e.attach.to.col))
-              lab.e.attach.to.col <- "event.e"
+            if (is.null(label.e.attach))
+              label.e.attach <- "event.e"
           }
         }
       }
@@ -2546,10 +2797,10 @@ forest.meta <- function(x,
                         if (pooled.events) "event.c",
                         if (pooled.times) "time.c")
           if (pooled.events & !pooled.times) {
-            if (is.null(lab.e.attach.to.col))
-              lab.e.attach.to.col <- "event.e"
-            if (is.null(lab.c.attach.to.col))
-              lab.c.attach.to.col <- "event.c"
+            if (is.null(label.e.attach))
+              label.e.attach <- "event.e"
+            if (is.null(label.c.attach))
+              label.c.attach <- "event.c"
           }
         }
       }
@@ -2656,12 +2907,12 @@ forest.meta <- function(x,
   ##
   if (metainf.metacum) {
     ##
-    x$TE.fixed    <- rev(x$TE)[1]
-    x$seTE.fixed  <- rev(x$seTE)[1]
+    x$TE.fixed <- rev(x$TE)[1]
+    x$seTE.fixed <- rev(x$seTE)[1]
     x$lower.fixed <- rev(x$lower)[1]
     x$upper.fixed <- rev(x$upper)[1]
     ##
-    x$TE.random   <- rev(x$TE)[1]
+    x$TE.random <- rev(x$TE)[1]
     x$seTE.random <- rev(x$seTE)[1]
     x$lower.random <- rev(x$lower)[1]
     x$upper.random <- rev(x$upper)[1]
@@ -2739,21 +2990,21 @@ forest.meta <- function(x,
   x$time.e <- x$time.e[sel]
   x$time.c <- x$time.c[sel]
   ##
-  x$TE   <- x$TE[sel]
+  x$TE <- x$TE[sel]
   x$seTE <- x$seTE[sel]
   ##
   x$lower <- x$lower[sel]
   x$upper <- x$upper[sel]
   ##
-  x$w.fixed  <- x$w.fixed[sel]
+  x$w.fixed <- x$w.fixed[sel]
   x$w.random <- x$w.random[sel]
-  studlab  <- studlab[sel]
-  type.study  <- type.study[sel]
+  studlab <- studlab[sel]
+  type.study <- type.study[sel]
   ##
   x$n.harmonic.mean <- x$n.harmonic.mean[sel]
   x$t.harmonic.mean <- x$t.harmonic.mean[sel]
   ##
-  subgroup   <- subgroup[sel]
+  subgroup <- subgroup[sel]
   sortvar <- sortvar[sel]
   ##
   col.study <- col.study[sel]
@@ -2806,7 +3057,7 @@ forest.meta <- function(x,
     x$n.harmonic.mean <- x$n.harmonic.mean[o]
     x$t.harmonic.mean <- x$t.harmonic.mean[o]
     ##
-    subgroup   <- subgroup[o]
+    subgroup <- subgroup[o]
     sortvar <- sortvar[o]
     ##
     col.study <- col.study[o]
@@ -2823,11 +3074,6 @@ forest.meta <- function(x,
       dataset2 <- dataset2[o, ]
     }
   }
-  ##
-  if (by)
-    n.by <- length(bylevs)
-  else
-    n.by <- 0
   ##
   if (metainf.metacum) {
     TE    <- x$TE
@@ -4358,116 +4604,139 @@ forest.meta <- function(x,
   if (by) {
     k.w.hetstat <- if (metabind) x$k.w.orig else x$k.w
     ##
-    o <- order(factor(x$bylevs, levels = bylevs))
-    k.w <- x$k.w[o]
-    k.w.hetstat <- k.w.hetstat[o]
+    o.w <- order(factor(x$bylevs, levels = bylevs))
+    k.w.hetstat <- k.w.hetstat[o.w]
+    if (x$hakn)
+      df.hakn.w <- x$df.hakn.w[o.w]
     ##
-    TE.fixed.w <- x$TE.fixed.w[o]
-    lower.fixed.w <- x$lower.fixed.w[o]
-    upper.fixed.w <- x$upper.fixed.w[o]
-    statistic.fixed.w <- x$statistic.fixed.w[o]
-    pval.fixed.w <- x$pval.fixed.w[o]
+    TE.fixed.w <- x$TE.fixed.w[o.w]
+    lower.fixed.w <- x$lower.fixed.w[o.w]
+    upper.fixed.w <- x$upper.fixed.w[o.w]
+    statistic.fixed.w <- x$statistic.fixed.w[o.w]
+    pval.fixed.w <- x$pval.fixed.w[o.w]
     ##
-    TE.random.w <- x$TE.random.w[o]
-    lower.random.w <- x$lower.random.w[o]
-    upper.random.w <- x$upper.random.w[o]
-    statistic.random.w <- x$statistic.random.w[o]
-    pval.random.w <- x$pval.random.w[o]
+    TE.random.w <- x$TE.random.w[o.w]
+    lower.random.w <- x$lower.random.w[o.w]
+    upper.random.w <- x$upper.random.w[o.w]
+    statistic.random.w <- x$statistic.random.w[o.w]
+    pval.random.w <- x$pval.random.w[o.w]
     ##
-    lower.predict.w <- x$lower.predict.w[o]
-    upper.predict.w <- x$upper.predict.w[o]
+    lower.predict.w <- x$lower.predict.w[o.w]
+    upper.predict.w <- x$upper.predict.w[o.w]
     ##
-    Q.w <- x$Q.w[o]
-    df.Q.w <- x$df.Q.w[o]
-    pval.Q.w <- x$pval.Q.w[o]
+    Q.w <- x$Q.w[o.w]
+    pval.Q.w <- x$pval.Q.w[o.w]
     ##
-    I2.w <- x$I2.w[o]
-    lowI2.w <- x$lower.I2.w[o]
-    uppI2.w <- x$upper.I2.w[o]
+    I2.w <- x$I2.w[o.w]
+    lowI2.w <- x$lower.I2.w[o.w]
+    uppI2.w <- x$upper.I2.w[o.w]
     ##
-    Rb.w <- x$Rb.w[o]
-    lowRb.w <- x$lower.Rb.w[o]
-    uppRb.w <- x$upper.Rb.w[o]
+    Rb.w <- x$Rb.w[o.w]
+    lowRb.w <- x$lower.Rb.w[o.w]
+    uppRb.w <- x$upper.Rb.w[o.w]
     ##
-    tau2.w <- x$tau2.w[o]
-    lower.tau2.w <- x$lower.tau2.w[o]
-    upper.tau2.w <- x$upper.tau2.w[o]
-    tau.w <- x$tau.w[o]
-    lower.tau.w <- x$lower.tau.w[o]
-    upper.tau.w <- x$upper.tau.w[o]
-    sign.lower.tau.w <- x$sign.lower.tau.w[o]
-    sign.upper.tau.w <- x$sign.upper.tau.w[o]
+    tau2.w <- x$tau2.w[o.w]
+    lower.tau2.w <- x$lower.tau2.w[o.w]
+    upper.tau2.w <- x$upper.tau2.w[o.w]
+    tau.w <- x$tau.w[o.w]
+    lower.tau.w <- x$lower.tau.w[o.w]
+    upper.tau.w <- x$upper.tau.w[o.w]
+    sign.lower.tau.w <- x$sign.lower.tau.w[o.w]
+    sign.upper.tau.w <- x$sign.upper.tau.w[o.w]
     ##
-    w.fixed.w  <- x$w.fixed.w[o]
-    w.random.w <- x$w.random.w[o]
-    e.e.w <- if (metaprop | metarate) x$event.w[o] else x$event.e.w[o]
-    t.e.w <- if (metainc | metarate) x$time.e.w[o] else rep(NA, n.by)
-    n.e.w <- if (metacor | metaprop | metamean) x$n.w[o] else x$n.e.w[o]
-    e.c.w <- x$event.c.w[o]
-    t.c.w <- if (metainc) x$time.c.w[o] else rep(NA, n.by)
-    n.c.w <- x$n.c.w[o]
-    n.harmonic.mean.w <- x$n.harmonic.mean.w[o]
-    t.harmonic.mean.w <- x$t.harmonic.mean.w[o]
-    k.all.w <- x$k.all.w[o]
+    w.fixed.w  <- x$w.fixed.w[o.w]
+    w.random.w <- x$w.random.w[o.w]
+    e.e.w <- if (metaprop | metarate) x$event.w[o.w] else x$event.e.w[o.w]
+    t.e.w <- if (metainc | metarate) x$time.e.w[o.w] else rep(NA, n.by)
+    n.e.w <- if (metacor | metaprop | metamean) x$n.w[o.w] else x$n.e.w[o.w]
+    e.c.w <- x$event.c.w[o.w]
+    t.c.w <- if (metainc) x$time.c.w[o.w] else rep(NA, n.by)
+    n.c.w <- x$n.c.w[o.w]
+    n.harmonic.mean.w <- x$n.harmonic.mean.w[o.w]
+    t.harmonic.mean.w <- x$t.harmonic.mean.w[o.w]
+    ##
+    k.all.w <- x$k.all.w[o.w]
+    k.w <- x$k.w[o.w]
+    subgroup.logical <- subgroup.logical[o.w]
+    subgroup.hetstat.logical <- subgroup.hetstat.logical[o.w]
+    prediction.subgroup.logical <- prediction.subgroup.logical[o.w]
     ##
     if (allstudies)
-      sel <- 1:length(k.w)
+      sel.w <- seq_along(k.w)
     else
-      sel <- k.w > 0
-    k.w <- k.w[sel]
-    TE.fixed.w <- TE.fixed.w[sel]
-    lower.fixed.w <- lower.fixed.w[sel]
-    upper.fixed.w <- upper.fixed.w[sel]
-    statistic.fixed.w <- statistic.fixed.w[sel]
-    pval.fixed.w <- pval.fixed.w[sel]
+      sel.w <- k.w > 0
+    if (x$hakn)
+      df.hakn.w <- df.hakn.w[sel.w]
     ##
-    TE.random.w <- TE.random.w[sel]
-    lower.random.w <- lower.random.w[sel]
-    upper.random.w <- upper.random.w[sel]
-    statistic.random.w <- statistic.random.w[sel]
-    pval.random.w <- pval.random.w[sel]
+    TE.fixed.w <- TE.fixed.w[sel.w]
+    lower.fixed.w <- lower.fixed.w[sel.w]
+    upper.fixed.w <- upper.fixed.w[sel.w]
+    statistic.fixed.w <- statistic.fixed.w[sel.w]
+    pval.fixed.w <- pval.fixed.w[sel.w]
     ##
-    lower.predict.w <- lower.predict.w[sel]
-    upper.predict.w <- upper.predict.w[sel]
+    TE.random.w <- TE.random.w[sel.w]
+    lower.random.w <- lower.random.w[sel.w]
+    upper.random.w <- upper.random.w[sel.w]
+    statistic.random.w <- statistic.random.w[sel.w]
+    pval.random.w <- pval.random.w[sel.w]
     ##
-    Q.w     <- Q.w[sel]
-    I2.w    <- I2.w[sel]
-    lowI2.w <- lowI2.w[sel]
-    uppI2.w <- uppI2.w[sel]
-    Rb.w    <- Rb.w[sel]
-    lowRb.w <- lowRb.w[sel]
-    uppRb.w <- uppRb.w[sel]
+    lower.predict.w <- lower.predict.w[sel.w]
+    upper.predict.w <- upper.predict.w[sel.w]
     ##
-    tau2.w <- tau2.w[sel]
-    lower.tau2.w <- lower.tau2.w[sel]
-    upper.tau2.w <- upper.tau2.w[sel]
-    tau.w <- tau.w[sel]
-    lower.tau.w <- lower.tau.w[sel]
-    upper.tau.w <- upper.tau.w[sel]
-    sign.lower.tau.w <- sign.lower.tau.w[sel]
-    sign.upper.tau.w <- sign.upper.tau.w[sel]
+    Q.w <- Q.w[sel.w]
+    pval.Q.w <- pval.Q.w[sel.w]
     ##
-    w.fixed.w  <- w.fixed.w[sel]
-    w.random.w <- w.random.w[sel]
-    e.e.w <- e.e.w[sel]
-    t.e.w <- t.e.w[sel]
-    n.e.w <- n.e.w[sel]
-    e.c.w <- e.c.w[sel]
-    t.c.w <- t.c.w[sel]
-    n.c.w <- n.c.w[sel]
-    n.harmonic.mean.w <- n.harmonic.mean.w[sel]
-    t.harmonic.mean.w <- t.harmonic.mean.w[sel]
-    k.all.w <- k.all.w[sel]
+    I2.w    <- I2.w[sel.w]
+    lowI2.w <- lowI2.w[sel.w]
+    uppI2.w <- uppI2.w[sel.w]
     ##
-    bylevs <- bylevs[sel]
+    Rb.w    <- Rb.w[sel.w]
+    lowRb.w <- lowRb.w[sel.w]
+    uppRb.w <- uppRb.w[sel.w]
+    ##
+    tau2.w <- tau2.w[sel.w]
+    lower.tau2.w <- lower.tau2.w[sel.w]
+    upper.tau2.w <- upper.tau2.w[sel.w]
+    tau.w <- tau.w[sel.w]
+    lower.tau.w <- lower.tau.w[sel.w]
+    upper.tau.w <- upper.tau.w[sel.w]
+    sign.lower.tau.w <- sign.lower.tau.w[sel.w]
+    sign.upper.tau.w <- sign.upper.tau.w[sel.w]
+    ##
+    w.fixed.w  <- w.fixed.w[sel.w]
+    w.random.w <- w.random.w[sel.w]
+    e.e.w <- e.e.w[sel.w]
+    t.e.w <- t.e.w[sel.w]
+    n.e.w <- n.e.w[sel.w]
+    e.c.w <- e.c.w[sel.w]
+    t.c.w <- t.c.w[sel.w]
+    n.c.w <- n.c.w[sel.w]
+    n.harmonic.mean.w <- n.harmonic.mean.w[sel.w]
+    t.harmonic.mean.w <- t.harmonic.mean.w[sel.w]
+    ##
+    k.all.w <- k.all.w[sel.w]
+    k.w <- k.w[sel.w]
+    subgroup.logical <- subgroup.logical[sel.w]
+    subgroup.hetstat.logical <- subgroup.hetstat.logical[sel.w]
+    prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
+    ##
+    bylevs <- bylevs[sel.w]
     n.by <- length(bylevs)
     ##
-    sel.by.fixed         <- 3 + 0 * n.by + 1:n.by
-    sel.by.random        <- 3 + 1 * n.by + 1:n.by
-    sel.by.predict       <- 3 + 2 * n.by + 1:n.by
-    sel.by.het           <- 3 + 3 * n.by + 1:n.by
-    sel.by.effect.fixed  <- 3 + 4 * n.by + 1:n.by
-    sel.by.effect.random <- 3 + 5 * n.by + 1:n.by
+    ## Do not consider limits of prediction intervals in subgroups to
+    ## format confidence limits
+    ##
+    if (by) {
+      lower.predict.w[!prediction.subgroup.logical] <- NA
+      upper.predict.w[!prediction.subgroup.logical] <- NA
+    }
+    ##
+    sel.by.fixed         <- 3 + 0 * n.by + seq_len(n.by)
+    sel.by.random        <- 3 + 1 * n.by + seq_len(n.by)
+    sel.by.predict       <- 3 + 2 * n.by + seq_len(n.by)
+    sel.by.het           <- 3 + 3 * n.by + seq_len(n.by)
+    sel.by.effect.fixed  <- 3 + 4 * n.by + seq_len(n.by)
+    sel.by.effect.random <- 3 + 5 * n.by + seq_len(n.by)
     sel.by <- c(sel.by.fixed, sel.by.random, sel.by.predict, sel.by.het,
                 sel.by.effect.fixed, sel.by.effect.random)
     sel.by.noNA <- c(sel.by.het, sel.by.effect.fixed, sel.by.effect.random)
@@ -4525,11 +4794,6 @@ forest.meta <- function(x,
       text.random.w <- rep("", n.by)
     }
     ##
-    if (metainf.metacum) {
-      lower.predict.w <- upper.predict.w <- rep(NA, n.by)
-      text.predict.w <- rep("", n.by)
-    }
-    ##
     hetstat.w <- vector("list", n.by)
     ##
     if (is.character(hetstat) || hetstat) {
@@ -4576,7 +4840,7 @@ forest.meta <- function(x,
                  paste0(", df",  hetseparator, k.w.hetstat - 1))
       ##
       hetstat.pval.Q.w <-
-        paste0(formatPT(replaceNULL(pval.Q.w, pvalQ(Q.w, df.Q.w)),
+        paste0(formatPT(replaceNULL(pval.Q.w, pvalQ(Q.w, k.w - 1)),
                         lab = TRUE, labval = "",
                         digits = digits.pval.Q,
                         zero = zero.pval, JAMA = JAMA.pval,
@@ -4611,7 +4875,7 @@ forest.meta <- function(x,
       while(any(grepl("  ", hetstat.Rb.w)))
         hetstat.Rb.w <- gsub("  ", " ", hetstat.Rb.w)
       ##
-      for (i in 1:n.by) {
+      for (i in seq_len(n.by)) {
         if (revman5)
           hetstat.w[[i]] <- substitute(paste(hl,
                                              "Tau"^2, ht, "; ",
@@ -5122,7 +5386,7 @@ forest.meta <- function(x,
     ##
     ## Label of test for effect in subgroups
     ##
-    if (test.effect.subgroup.fixed | test.effect.subgroup.random) {
+    if (any(test.effect.subgroup.fixed.logical) | any(test.effect.subgroup.random.logical)) {
       pvals.effect.w <- formatPT(c(pval.fixed.w, pval.random.w),
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
@@ -5144,9 +5408,9 @@ forest.meta <- function(x,
         statistics.effect.w <- gsub("  ", " ", statistics.effect.w)
     }
     ##
-    if (test.effect.subgroup.fixed) {
+    if (any(test.effect.subgroup.fixed.logical)) {
       text.effect.subgroup.fixed <- vector("list", n.by)
-      for (i in 1:n.by) {
+      for (i in seq_len(n.by)) {
         if (print.stat) {
           if (revman5)
             text.effect.subgroup.fixed[[i]] <-
@@ -5200,13 +5464,13 @@ forest.meta <- function(x,
     }
     else {
       text.effect.subgroup.fixed <- vector("list", n.by)
-      for (i in 1:n.by)
+      for (i in seq_len(n.by))
         text.effect.subgroup.fixed[[i]] <- ""
     }
     ##
-    if (test.effect.subgroup.random) {
+    if (any(test.effect.subgroup.random.logical)) {
       text.effect.subgroup.random <- vector("list", n.by)
-      for (i in 1:n.by) {
+      for (i in seq_len(n.by)) {
         if (print.stat) {
           if (!x$hakn) {
             if (revman5)
@@ -5251,7 +5515,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
             else if (jama)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5262,7 +5526,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
             else
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
@@ -5273,7 +5537,7 @@ forest.meta <- function(x,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = k.w.hetstat - 1))
+                                df = df.hakn.w[i]))
           }
         }
         else {
@@ -5303,7 +5567,7 @@ forest.meta <- function(x,
     }
     else {
       text.effect.subgroup.random <- vector("list", n.by)
-      for (i in 1:n.by)
+      for (i in seq_len(n.by))
         text.effect.subgroup.random[[i]] <- ""
     }
   }
@@ -5506,14 +5770,14 @@ forest.meta <- function(x,
   labs <- list()
   ##
   if (missing(leftlabs) || length(leftcols) != length(leftlabs)) {
-    for (i in seq(along = leftcols)) {
+    for (i in seq_along(leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(j))
         labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
     }
   }
   else if (length(leftcols) == length(leftlabs)) {
-    for (i in seq(along = leftcols)) {
+    for (i in seq_along(leftcols)) {
       j <- match(leftcols[i], colnames)
       if (!is.na(leftlabs[i]))
         labs[[paste0("lab.", leftcols[i])]] <- leftlabs[i]
@@ -5524,14 +5788,14 @@ forest.meta <- function(x,
   }
   ##
   if (missing(rightlabs) || length(rightcols) != length(rightlabs)) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))
         labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
     }
   }
   else if (length(rightcols) == length(rightlabs)) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(rightlabs[i]))
         labs[[paste0("lab.", rightcols[i])]] <- rightlabs[i]
@@ -5922,7 +6186,7 @@ forest.meta <- function(x,
   ##
   if (newcols) {
     if (length(leftcols.new) > 0) {
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         ## Check for "\n" in label of new column
         clines <- twolines(leftlabs.new[i], leftcols.new[i])
         newline.addcol.left <- c(newline.addcol.left, clines$newline)
@@ -5930,7 +6194,7 @@ forest.meta <- function(x,
       newline.addcol.right <- sum(newline.addcol.right) > 0
     }
     if (length(leftcols.new) > 0) {
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         ## Check for "\n" in label of new column
         clines <- twolines(leftlabs.new[i], leftcols.new[i])
         newline.addcol.left <- c(newline.addcol.left, clines$newline)
@@ -6030,7 +6294,8 @@ forest.meta <- function(x,
                  text.overall.fixed, text.overall.random,
                  text.subgroup.fixed, text.subgroup.random,
                  text.addline1, text.addline2,
-                 subgroup.name, text.fixed.w, text.random.w, text.predict.w, hetstat.w,
+                 subgroup.name, text.fixed.w, text.random.w, text.predict.w,
+                 hetstat.w,
                  unlist(text.effect.subgroup.fixed),
                  unlist(text.effect.subgroup.random),
                  studlab)
@@ -6469,8 +6734,8 @@ forest.meta <- function(x,
    (any(rightcols %in% c("sd.e")) |
     any(leftcols  %in% c("sd.e")))
   ) |
-  (!is.null(lab.e.attach.to.col) & !is.null(lab.e)) |
-  (!is.null(lab.c.attach.to.col) & !is.null(lab.c)) |
+  (!is.null(label.e.attach) & !is.null(label.e)) |
+  (!is.null(label.c.attach) & !is.null(label.c)) |
   newline.all
   ) {
     yHead <- 2
@@ -6501,7 +6766,7 @@ forest.meta <- function(x,
     yTE.w.effect.fixed <- yBylab
     yTE.w.effect.random <- yBylab
     ##
-    for (i in 1:n.by) {
+    for (i in seq_len(n.by)) {
       ##
       if (allstudies)
         k.i <- k.all.w[i]
@@ -6524,7 +6789,7 @@ forest.meta <- function(x,
       ##
       ## Fixed effect model
       ##
-      if (fixed & subgroup.logical) {
+      if (fixed & subgroup.logical[i]) {
         yTE.w.fixed[i] <- j
         j <- j + 1
       }
@@ -6533,7 +6798,7 @@ forest.meta <- function(x,
       ##
       ## Random effect model
       ##
-      if (random & subgroup.logical) {
+      if (random & subgroup.logical[i]) {
         yTE.w.random[i] <- j
         j <- j + 1
       }
@@ -6542,24 +6807,23 @@ forest.meta <- function(x,
       ##
       ## Only pooled totals
       ##
-      if (pooled.totals & subgroup.logical &
-          !(fixed | random)) {
+      if (pooled.totals & subgroup.logical[i] & !(fixed | random)) {
         yTE.w.fixed[i] <- j
         j <- j + 1
       }
       ##
-      ## Prediction interval
+      ## Prediction interval in subgroups
       ##
-      if (prediction & subgroup.logical) {
+      yTE.w.predict[i] <- NA
+      ##
+      if (prediction.subgroup.logical[i]) {
         yTE.w.predict[i] <- j
         j <- j + 1
       }
-      else
-        yTE.w.predict[i] <- NA
       ##
       ## Heterogeneity statistics
       ##
-      if (is.character(hetstat) || hetstat) {
+      if (subgroup.hetstat.logical[i]) {
         yTE.w.hetstat[i] <- j
         j <- j + 1
       }
@@ -6568,7 +6832,7 @@ forest.meta <- function(x,
       ##
       ## Test for effect in subgroup (fixed effect)
       ##
-      if (test.effect.subgroup.fixed) {
+      if (test.effect.subgroup.fixed.logical[i]) {
         yTE.w.effect.fixed[i] <- j
         j <- j + 1
       }
@@ -6577,7 +6841,7 @@ forest.meta <- function(x,
       ##
       ## Test for effect in subgroup (random effects)
       ##
-      if (test.effect.subgroup.random) {
+      if (test.effect.subgroup.random.logical[i]) {
         yTE.w.effect.random[i] <- j
         j <- j + 1
       }
@@ -6605,8 +6869,8 @@ forest.meta <- function(x,
   ##
   if (is.null(xlim)) {
     if (metaprop) {
-      xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
-                max(c(uppTE, uppTE.predict), na.rm = TRUE))
+      xlim <- c(min(lowTEs, na.rm = TRUE),
+                max(uppTEs, na.rm = TRUE))
       ##
       if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
@@ -6624,17 +6888,17 @@ forest.meta <- function(x,
         xlim[2] <- upper.equi
     }
     else {
-      sel.low <- is.finite(lowTE)
-      sel.upp <- is.finite(uppTE)
+      sel.low <- is.finite(lowTEs)
+      sel.upp <- is.finite(uppTEs)
       ##
       if (all(!sel.low))
         minTE <- -0.5
       else
-        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
-        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+        maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
       ##
       xlim <- c(minTE, maxTE)
       ##
@@ -6665,21 +6929,21 @@ forest.meta <- function(x,
     symmetric <- TRUE
     ##
     if (metaprop | metarate | metamean) {
-      xlim <- c(min(c(lowTE, lowTE.predict), na.rm = TRUE),
-                max(c(uppTE, uppTE.predict), na.rm = TRUE))
+      xlim <- c(min(lowTEs, na.rm = TRUE),
+                max(uppTEs, na.rm = TRUE))
     }
     else {
-      sel.low <- is.finite(lowTE)
-      sel.upp <- is.finite(uppTE)
+      sel.low <- is.finite(lowTEs)
+      sel.upp <- is.finite(uppTEs)
       ##
       if (all(!sel.low))
         minTE <- -0.5
       else
-        minTE <- min(c(lowTE[sel.low], lowTE.predict), na.rm = TRUE)
+        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
-        maxTE <- max(c(uppTE[sel.upp], uppTE.predict), na.rm = TRUE)
+        maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
       ##
       if (minTE < 0 & maxTE < 0)
         xlim <- c(minTE, -minTE)
@@ -6896,7 +7160,7 @@ forest.meta <- function(x,
   n.summaries <- 12
   ##
   if (by) {
-    for (i in 1:n.by) {
+    for (i in seq_len(n.by)) {
       ## Subgroup labels:
       col.studlab$labels[[n.summaries + i]] <-
         tg(subgroup.name[i], xpos.s, just.s,
@@ -7176,7 +7440,7 @@ forest.meta <- function(x,
         digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
     ##
     if (by) {
-      for (i in seq(along = rightcols.new)) {
+      for (i in seq_along(rightcols.new)) {
         tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
@@ -7219,12 +7483,13 @@ forest.meta <- function(x,
                                    else just.addcols.right[i],
                                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", rep("", length(TE.w)), tmp.r),
+                                        c("", "", "", rep("", length(TE.w)),
+                                          tmp.r),
                                         yS,
                                         just.addcols.right[i],
                                         fcs, fontfamily)
       }
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
@@ -7278,7 +7543,7 @@ forest.meta <- function(x,
       }
     }
     else {
-      for (i in seq(along = rightcols.new)) {
+      for (i in seq_along(rightcols.new)) {
         tname <- paste0("col.", rightcols.new[i])
         if (length(dataset1[[rightcols.new[i]]]) != 0)
           tmp.r <- dataset1[[rightcols.new[i]]]
@@ -7331,7 +7596,7 @@ forest.meta <- function(x,
                                         just.addcols.right[i],
                                         fcs, fontfamily)
       }
-      for (i in seq(along = leftcols.new)) {
+      for (i in seq_along(leftcols.new)) {
         tname <- paste0("col.", leftcols.new[i])
         if (length(dataset1[[leftcols.new[i]]]) != 0)
           tmp.l <- dataset1[[leftcols.new[i]]]        
@@ -7387,9 +7652,9 @@ forest.meta <- function(x,
     }
   }
   ##
-  col.lab.e <- tgl(lab.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
+  col.label.e <- tgl(label.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
-  col.lab.c <- tgl(lab.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
+  col.label.c <- tgl(label.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
   ##
   ##
   ##
@@ -7494,19 +7759,19 @@ forest.meta <- function(x,
         ## Subgroups
         ##
         if (!calcwidth.subgroup)
-          n.summaries + 0 * n.by + 1:n.by, # Labels
+          n.summaries + 0 * n.by + seq_len(n.by), # Labels
         if (!calcwidth.fixed)              # FE
-          n.summaries + 1 * n.by + 1:n.by,
+          n.summaries + 1 * n.by + seq_len(n.by),
         if (!calcwidth.random)             # RE
-          n.summaries + 2 * n.by + 1:n.by,
+          n.summaries + 2 * n.by + seq_len(n.by),
         if (!calcwidth.predict)            # PI
-          n.summaries + 3 * n.by + 1:n.by,
+          n.summaries + 3 * n.by + seq_len(n.by),
         if (!calcwidth.hetstat)            # heterogeneity statistic
-          n.summaries + 4 * n.by + 1:n.by,
+          n.summaries + 4 * n.by + seq_len(n.by),
         if (!calcwidth.tests)              # test for effect (FE)
-          n.summaries + 5 * n.by + 1:n.by,
+          n.summaries + 5 * n.by + seq_len(n.by),
         if (!calcwidth.tests)              # test for effect (RE)
-          n.summaries + 6 * n.by + 1:n.by
+          n.summaries + 6 * n.by + seq_len(n.by)
         )
   }
   else
@@ -7523,7 +7788,7 @@ forest.meta <- function(x,
                    if (!calcwidth.addline) # additional lines
                      11:12)
   ##
-  for (i in seq(along = leftcols)) {
+  for (i in seq_along(leftcols)) {
     if (i == 1) {
       if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
         x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
@@ -7547,7 +7812,7 @@ forest.meta <- function(x,
   x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
   ##
   if (rsel) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       x1 <- unit.c(x1,
                    if (i == 1) colgap.forest.right else colgap.right,
                    wcalc(cols.calc[[rightcols[i]]]$labels))
@@ -7664,62 +7929,62 @@ forest.meta <- function(x,
   ##
   j <- 1
   ##
-  for (i in seq(along = leftcols)) {
+  for (i in seq_along(leftcols)) {
     add.text(cols[[leftcols[i]]], j)
     ##
     if (!is.na(yHeadadd)) {
-      if (!is.null(lab.e.attach.to.col)) {
-        if (leftcols[i] == paste0("col.", lab.e.attach.to.col))
-          add.text(col.lab.e, j)
+      if (!is.null(label.e.attach)) {
+        if (leftcols[i] == paste0("col.", label.e.attach))
+          add.text(col.label.e, j)
       }
       else if (metabin) {
         if (leftcols[i] == "col.n.e" & just.c == "right")
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
         else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
       }
       else if (metacont) {
         if (leftcols[i] == "col.sd.e" & just.c == "right")
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
         else if (leftcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
       }
       else if (metainc) {
         if (leftcols[i] == "col.time.e" & just.c == "right")
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
         else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
       }
       else if (metamean) {
         if (revman5 & leftcols[i] == "col.n.e" & just.c == "right")
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
         else if (!revman5 & leftcols[i] == "col.sd.e" & just.c == "right")
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
         else if (leftcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
-          add.text(col.lab.e, j)
+          add.text(col.label.e, j)
       }
       ##
-      if (!is.null(lab.c.attach.to.col)) {
-        if (leftcols[i] == paste0("col.", lab.c.attach.to.col))
-          add.text(col.lab.c, j)
+      if (!is.null(label.c.attach)) {
+        if (leftcols[i] == paste0("col.", label.c.attach))
+          add.text(col.label.c, j)
       }
       else if (metabin) {
         if (leftcols[i] == "col.n.c" & just.c == "right")
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
         else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
       }
       else if (metacont) {
         if (leftcols[i] == "col.sd.c" & just.c == "right")
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
         else if (leftcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
       }
       else if (metainc) {
         if (leftcols[i] == "col.time.c" & just.c == "right")
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
         else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
-          add.text(col.lab.c, j)
+          add.text(col.label.c, j)
       }
       ##
       if (newline.studlab & leftcols[i] == "col.studlab")
@@ -7815,15 +8080,17 @@ forest.meta <- function(x,
   ##
   if (print.label) {
     if (!bottom.lr) {
-      add.text(ll1, j, xscale = col.forest$range)
-      ##
-      if (newline.ll)
-        add.text(ll2, j, xscale = col.forest$range)
-      ##
-      add.text(lr1, j, xscale = col.forest$range)
-      ##
-      if (newline.lr)
-        add.text(lr2, j, xscale = col.forest$range)
+      if (!is.na(ref)) {
+        add.text(ll1, j, xscale = col.forest$range)
+        ##
+        if (newline.ll)
+          add.text(ll2, j, xscale = col.forest$range)
+        ##
+        add.text(lr1, j, xscale = col.forest$range)
+        ##
+        if (newline.lr)
+          add.text(lr2, j, xscale = col.forest$range)
+      }
     }
     else {
       add.label(ll1, j,
@@ -7871,68 +8138,68 @@ forest.meta <- function(x,
   ##
   ##
   if (rsel) {
-    for (i in seq(along = rightcols)) {
+    for (i in seq_along(rightcols)) {
       add.text(cols[[rightcols[i]]], j)
       ##
       if (!is.na(yHeadadd)) {
-        if (!is.null(lab.e.attach.to.col)) {
-          if (rightcols[i] == paste0("col.", lab.e.attach.to.col))
-            add.text(col.lab.e, j)
+        if (!is.null(label.e.attach)) {
+          if (rightcols[i] == paste0("col.", label.e.attach))
+            add.text(col.label.e, j)
         }
         else if (metabin) {
           if (rightcols[i] == "col.n.e" & just.c == "right")
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
           else if (rightcols[i] == "col.event.e" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
         }
         else if (metacont) {
           if (rightcols[i] == "col.sd.e" & just.c == "right")
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
           else if (rightcols[i] == "col.mean.e" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
         }
         else if (metainc) {
           if (rightcols[i] == "col.time.e" & just.c == "right")
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
           else if (rightcols[i] == "col.event.e" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
         }
         else if (metamean) {
           if (revman5 & rightcols[i] == "col.n.e" & just.c == "right")
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
           else if (!revman5 & rightcols[i] == "col.sd.e" & just.c == "right")
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
           else if (rightcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
-            add.text(col.lab.e, j)
+            add.text(col.label.e, j)
         }
         ##
-        if (!is.null(lab.c.attach.to.col)) {
-          if (rightcols[i] == paste0("col.", lab.c.attach.to.col))
-            add.text(col.lab.c, j)
+        if (!is.null(label.c.attach)) {
+          if (rightcols[i] == paste0("col.", label.c.attach))
+            add.text(col.label.c, j)
         }
         else if (metabin) {
           if (rightcols[i] == "col.n.c" & just.c == "right")
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
           else if (rightcols[i] == "col.event.c" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
         }
         else if (metacont) {
           if (rightcols[i] == "col.sd.c" & just.c == "right")
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
           else if (rightcols[i] == "col.mean.c" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
         }
         else if (metainc) {
           if (rightcols[i] == "col.time.c" & just.c == "right")
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
           else if (rightcols[i] == "col.event.c" &
                    just.c %in% c("left", "center"))
-            add.text(col.lab.c, j)
+            add.text(col.label.c, j)
         }
         ##
         if (newline.studlab & rightcols[i] == "col.studlab")
@@ -8009,5 +8276,19 @@ forest.meta <- function(x,
   popViewport()
   
   
-  invisible(NULL)
+  invisible(list(xlim = xlim, addrows.below.overall = addrows.below.overall,
+                 ##
+                 colgap = colgap,
+                 colgap.left = colgap.left,
+                 colgap.right = colgap.right,
+                 colgap.studlab = colgap.studlab,
+                 colgap.forest = colgap.forest.left,
+                 colgap.forest.left = colgap.forest,
+                 colgap.forest.right = colgap.forest.right,
+                 ##
+                 studlab = studlab,
+                 TE.format = TE.format,
+                 seTE.format = seTE.format,
+                 effect.format = effect.format,
+                 ci.format = ci.format))
 }

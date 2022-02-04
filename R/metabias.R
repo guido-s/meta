@@ -271,8 +271,7 @@
 #' @examples
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = 1:10,
-#'               sm = "RR", method = "I")
+#'   data = Olkin1995, subset = 1:10, sm = "RR", method = "I")
 #' 
 #' metabias(m1)
 #' metabias(m1, plotit = TRUE)

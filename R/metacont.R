@@ -156,8 +156,10 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
-##' @param keepdata A logical indicating whether original data (set)
+#' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if studies are excluded from meta-analysis due to zero
@@ -752,7 +754,7 @@
 #' # Meta-analysis with Hedges' g as effect measure
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD")
+#'   data = Fleiss1993cont, sm = "SMD")
 #' m1
 #' forest(m1)
 #' 
@@ -773,9 +775,8 @@
 #' update(m1, exact.smd = TRUE)
 #' 
 #' data(amlodipine)
-#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
-#'                n.plac, mean.plac, sqrt(var.plac),
-#'                data = amlodipine, studlab = study)
+#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
+#'   data = amlodipine, studlab = study)
 #' m2
 #' 
 #' # Use pooled variance
@@ -785,9 +786,8 @@
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
 #' data(woodyplants)
-#' m3 <- metacont(n.elev, mean.elev, sd.elev,
-#' 		  n.amb, mean.amb, sd.amb,
-#'                data = woodyplants, sm = "ROM")
+#' m3 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
+#'   data = woodyplants, sm = "ROM")
 #' m3
 #' print(m3, backtransf = FALSE)
 #' 
@@ -847,6 +847,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
+                     prediction.subgroup = gs("prediction.subgroup"),
                      ##
                      byvar,
                      keepdata = gs("keepdata"),
@@ -961,11 +962,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and 'id'
   ## from data:
@@ -1012,126 +1013,99 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
          "arguments 'q1.c' & 'q3.c' or 'min.c & 'max.c'.",
          call. = FALSE)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
   chknull(n.e)
   k.All <- length(n.e)
   ##
-  mean.e <- eval(mf[[match("mean.e", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  mean.e <- catch("mean.e", mc, data, sfsp)
   if (!missing.mean.e)
     chknull(mean.e)
   else
     mean.e <- rep(NA, k.All)
   ##
-  sd.e <- eval(mf[[match("sd.e", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  sd.e <- catch("sd.e", mc, data, sfsp)
   if (!missing.sd.e)
     chknull(sd.e)
   else
     sd.e <- rep(NA, k.All)
   ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.c <- catch("n.c", mc, data, sfsp)
   chknull(n.c)
   ##
-  mean.c <- eval(mf[[match("mean.c", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  mean.c <- catch("mean.c", mc, data, sfsp)
   if (!missing.mean.c)
     chknull(mean.c)
   else
     mean.c <- rep(NA, k.All)
   ##
-  sd.c <- eval(mf[[match("sd.c", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  sd.c <- catch("sd.c", mc, data, sfsp)
   if (!missing.sd.c)
     chknull(sd.c)
   else
     sd.c <- rep(NA, k.All)
   ##
-  id <- eval(mf[[match("id", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  id <- catch("id", mc, data, sfsp)
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
   ## Catch 'median.e', 'q1.e', 'q3.e', 'min.e', 'max.e', 'median.c',
   ## 'q1.c', 'q3.c', 'min.c', 'max.c', 'approx.mean.e', 'approx.sd.e',
   ## 'approx.mean.c', and 'approx.sd.c', from data:
   ##
-  median.e <- eval(mf[[match("median.e", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  median.e <- catch("median.e", mc, data, sfsp)
   ##
-  q1.e <- eval(mf[[match("q1.e", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  q1.e <- catch("q1.e", mc, data, sfsp)
   ##
-  q3.e <- eval(mf[[match("q3.e", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  q3.e <- catch("q3.e", mc, data, sfsp)
   ##
-  min.e <- eval(mf[[match("min.e", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  min.e <- catch("min.e", mc, data, sfsp)
   ##
-  max.e <- eval(mf[[match("max.e", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  max.e <- catch("max.e", mc, data, sfsp)
   ##
-  median.c <- eval(mf[[match("median.c", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  median.c <- catch("median.c", mc, data, sfsp)
   ##
-  q1.c <- eval(mf[[match("q1.c", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  q1.c <- catch("q1.c", mc, data, sfsp)
   ##
-  q3.c <- eval(mf[[match("q3.c", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  q3.c <- catch("q3.c", mc, data, sfsp)
   ##
-  min.c <- eval(mf[[match("min.c", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  min.c <- catch("min.c", mc, data, sfsp)
   ##
-  max.c <- eval(mf[[match("max.c", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  max.c <- catch("max.c", mc, data, sfsp)
   ##
   missing.approx.mean.e <- missing(approx.mean.e)
-  approx.mean.e <- eval(mf[[match("approx.mean.e", names(mf))]],
-                        data, enclos = sys.frame(sys.parent()))
-  ##
+  approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
   if (!missing.approx.mean.e)
     missing.approx.mean.c <- FALSE
   else
     missing.approx.mean.c <- missing(approx.mean.c)
-  approx.mean.c <- eval(mf[[match("approx.mean.c", names(mf))]],
-                        data, enclos = sys.frame(sys.parent()))
+  approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
   ##
   missing.approx.sd.e <- missing(approx.sd.e)
-  approx.sd.e <- eval(mf[[match("approx.sd.e", names(mf))]],
-                      data, enclos = sys.frame(sys.parent()))
+  approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
   ##
   if (!missing.approx.sd.e)
     missing.approx.sd.c <- FALSE
   else
     missing.approx.sd.c <- missing(approx.sd.c)
-  approx.sd.c <- eval(mf[[match("approx.sd.c", names(mf))]],
-                      data, enclos = sys.frame(sys.parent()))
+  approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
   ##
   ## Additional checks
   ##
@@ -1220,6 +1194,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (by) {
     chklength(subgroup, k.All, arg)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   
   
@@ -1448,9 +1423,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -2036,6 +2011,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

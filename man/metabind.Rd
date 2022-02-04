@@ -4,7 +4,7 @@
 \alias{metabind}
 \title{Combine and summarize meta-analysis objects}
 \usage{
-metabind(..., name, pooled, backtransf, outclab)
+metabind(..., name = NULL, pooled = NULL, backtransf = NULL, outclab = NULL)
 }
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
@@ -13,9 +13,10 @@ with meta-analyses.}
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}
 
-\item{pooled}{A character string indicating whether results of a
-fixed effect or random effects model should be considered. Either
-\code{"fixed"} or \code{"random"}, can be abbreviated.}
+\item{pooled}{A character string or vector indicating whether
+results of a fixed effect or random effects model should be
+considered. Either \code{"fixed"} or \code{"random"}, can be
+abbreviated.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -55,7 +56,7 @@ Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
 Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "MD")
+  data = Fleiss1993cont, sm = "MD")
 
 # Conduct two subgroup analyses
 #
@@ -73,7 +74,7 @@ forest(mb1)
 # variance
 #
 m1.pm <- update(m1, method.tau = "PM")
-m1.reml <- update(m1, method.tau = "REML")
+m1.dl <- update(m1, method.tau = "DL")
 m1.ml <- update(m1, method.tau = "ML")
 m1.hs <- update(m1, method.tau = "HS")
 m1.sj <- update(m1, method.tau = "SJ")
@@ -82,17 +83,17 @@ m1.eb <- update(m1, method.tau = "EB")
 
 # Combine meta-analyses and show results
 #
-taus <- c("DerSimonian-Laird estimator",
-          "Paule-Mandel estimator",
-          "Restricted maximum-likelihood estimator",
-          "Maximum-likelihood estimator",
-          "Hunter-Schmidt estimator",
-          "Sidik-Jonkman estimator",
-          "Hedges estimator",
-          "Empirical Bayes estimator")
+taus <- c("Restricted maximum-likelihood estimator",
+  "Paule-Mandel estimator",
+  "DerSimonian-Laird estimator",
+  "Maximum-likelihood estimator",
+  "Hunter-Schmidt estimator",
+  "Sidik-Jonkman estimator",
+  "Hedges estimator",
+  "Empirical Bayes estimator")
 #
-m1.taus <- metabind(m1, m1.pm, m1.reml, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
-                    name = taus, pooled = "random")
+m1.taus <- metabind(m1, m1.pm, m1.dl, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
+  name = taus, pooled = "random")
 m1.taus
 forest(m1.taus, print.I2 = FALSE, print.pval.Q = FALSE)
 

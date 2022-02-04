@@ -145,6 +145,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
@@ -732,8 +734,7 @@
 #' #
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = c(41, 47, 51, 59),
-#'               method = "Inverse")
+#'    data = Olkin1995, subset = c(41, 47, 51, 59), method = "Inverse")
 #' m1
 #' # Show results for individual studies
 #' summary(m1)
@@ -741,16 +742,16 @@
 #' # Use different subset of Olkin (1995)
 #' #
 #' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               method = "Inverse", studlab = author)
+#'   data = Olkin1995, subset = year < 1970, studlab = author,
+#'   method = "Inverse")
 #' m2
 #' forest(m2)
 #' 
 #' # Meta-analysis with odds ratio as summary measure
 #' #
 #' m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               sm = "OR", method = "Inverse", studlab = author)
+#'   data = Olkin1995, subset = year < 1970,
+#'   sm = "OR", method = "Inverse", studlab = author)
 #' # Same meta-analysis result using 'update.meta' function
 #' m3 <- update(m2, sm = "OR")
 #' m3
@@ -776,8 +777,7 @@
 #' # (default: model.glmm = "UM.FS")
 #' #
 #' m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               method = "GLMM")
+#'   data = Olkin1995, subset = year < 1970, method = "GLMM")
 #' # Same results:
 #' m6 <- update(m2, method = "GLMM")
 #' m6
@@ -896,6 +896,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    prediction.subgroup = gs("prediction.subgroup"),
                     byvar,
                     ##
                     print.CMH = gs("print.CMH"),
@@ -1072,36 +1073,31 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'event.e', 'n.e', 'event.c', and 'n.c' from data:
   ##
-  event.e <- eval(mf[[match("event.e", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
   k.All <- length(event.e)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
   chknull(n.e)
   ##
-  event.c <- eval(mf[[match("event.c", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.c <- catch("event.c", mc, data, sfsp)
   chknull(event.c)
   ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.c <- catch("n.c", mc, data, sfsp)
   chknull(n.c)
   ##
   ## Catch 'incr' from data:
   ##
   if (!missing(incr))
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   ##
   if (is.numeric(incr))
     chknumeric(incr, min = 0)
@@ -1124,27 +1120,22 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   
   
@@ -1164,6 +1155,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   ## Additional checks
@@ -1309,9 +1301,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -2032,6 +2024,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

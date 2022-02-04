@@ -37,9 +37,8 @@ Data example in Fleiss (1993) for meta-analysis with continuous outcomes.
 \examples{
 data(Fleiss1993cont)
 metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-         data = Fleiss1993cont,
-         studlab = paste(study, year),
-         random = FALSE)
+  data = Fleiss1993cont, studlab = paste(study, year),
+  random = FALSE)
 }
 \seealso{
 \code{\link{Fleiss1993bin}}

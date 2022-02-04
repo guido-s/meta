@@ -25,6 +25,11 @@
   pos.studlab = 2,
   offset = 0.5,
   regline = TRUE,
+  backtransf = x$.meta$x$backtransf,
+  ref,
+  col.ref = "lightgray",
+  lty.ref = 1,
+  lwd.ref = 1,
   axes = TRUE,
   box = TRUE,
   ...
@@ -77,6 +82,23 @@ meta-analysis then).}
 \item{regline}{A logical indicating whether a regression line
 should be added to the bubble plot.}
 
+\item{backtransf}{A logical indicating whether results for relative
+summary measures (argument \code{sm} equal to \code{"OR"},
+\code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
+transformed. If \code{backtransf=TRUE}, results for
+\code{sm="OR"} are printed as odds ratios rather than log odds
+ratios, for example.}
+
+\item{ref}{A numerical giving the reference value to be plotted as
+a line in the bubble plot. No reference line is plotted if
+argument \code{ref} is equal to \code{NA}.}
+
+\item{col.ref}{Colour of the reference line.}
+
+\item{lty.ref}{The line type for the reference line.}
+
+\item{lwd.ref}{The line width for the reference line.}
+
 \item{axes}{A logical indicating whether axes should be printed.}
 
 \item{box}{A logical indicating whether a box should be printed.}
@@ -126,7 +148,7 @@ Fleiss1993cont$age <- c(55, 65, 52, 65, 58)
 Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "MD")
+  data = Fleiss1993cont, sm = "MD")
 
 mr1 <- metareg(m1, region)
 mr1

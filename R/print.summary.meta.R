@@ -12,8 +12,6 @@
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
-#' @param prediction A logical indicating whether a prediction
-#'   interval should be printed.
 #' @param details A logical indicating whether further details of
 #'   individual studies should be printed.
 #' @param ma A logical indicating whether the summary results of the
@@ -21,11 +19,6 @@
 #' @param overall A logical indicating whether overall summaries
 #'   should be reported. This argument is useful in a meta-analysis
 #'   with subgroups if overall results should not be reported.
-#' @param overall.hetstat A logical value indicating whether to print
-#'   heterogeneity measures for overall treatment comparisons. This
-#'   argument is useful in a meta-analysis with subgroups if
-#'   heterogeneity statistics should only be printed on subgroup
-#'   level.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf = TRUE}, results
 #'   for \code{sm = "OR"} are printed as odds ratios rather than log
@@ -124,8 +117,7 @@
 #' @examples
 #' data(Fleiss1993cont)
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year))
+#'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
 #' sm1 <- summary(m1)
 #' sm1
 #' 
@@ -134,8 +126,8 @@
 #' \dontrun{
 #' # Use unicode characters to print tau^2, tau, and I^2 
 #' print(sm1,
-#'       text.tau2 = "\u03c4\u00b2",
-#'       text.tau = "\u03c4", text.I2 = "I\u00b2")
+#'   text.tau2 = "\u03c4\u00b2",
+#'   text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
 #' @method print summary.meta
@@ -147,10 +139,8 @@ print.summary.meta <- function(x,
                                sortvar,
                                fixed = x$x$fixed,
                                random = x$x$random,
-                               prediction = x$prediction,
                                details = FALSE, ma = TRUE,
                                overall = x$overall,
-                               overall.hetstat = x$overall.hetstat,
                                ##
                                backtransf = x$backtransf,
                                pscale = x$pscale,
@@ -203,15 +193,14 @@ print.summary.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  mf <- match.call()
-  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x.meta, stringsAsFactors = FALSE),
-                               enclos = sys.frame(sys.parent())),
-               silent = TRUE)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  error <-
+    try(sortvar <-
+          catch("sortvar", mc, x.meta, sfsp),
+        silent = TRUE)
   if (class(error) == "try-error") {
-    xd <- x$data
-    sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                    xd, enclos = NULL)
+    sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -222,13 +211,10 @@ print.summary.meta <- function(x,
   if (!sort)
     sortvar <- 1:k.all
   ##
-  chklogical(prediction)
   chklogical(details)
   chklogical(ma)
   overall <- replaceNULL(overall, TRUE)
   chklogical(overall)
-  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
-  chklogical(overall.hetstat)
   ##
   if (is.untransformed(x$sm))
     backtransf <- TRUE
@@ -275,20 +261,15 @@ print.summary.meta <- function(x,
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
-  tt2 <- text.tau2
-  tt <- text.tau
-  ti <- text.I2
   ##
   ## Catch 'truncate' from meta-analysis object:
   ##
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
-    truncate <- eval(mf[[match("truncate", names(mf))]],
-                     x.meta, enclos = sys.frame(sys.parent()))
+    truncate <- catch("truncate", mc, x.meta, sfsp)
     ##
     if (is.null(truncate))
-      truncate <- eval(mf[[match("truncate", names(mf))]],
-                       x$data, enclos = sys.frame(sys.parent()))
+      truncate <- catch("truncate", mc, x$data, sfsp)
     ##
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",
@@ -349,10 +330,6 @@ print.summary.meta <- function(x,
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   mb.glmm <- inherits(x, "metabind") | x$method == "GLMM"
   ##
-  prediction <- prediction & x$k >= 3
-  if (is.na(prediction))
-    prediction <- FALSE
-  ##
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
   sm <- x$sm
@@ -405,6 +382,7 @@ print.summary.meta <- function(x,
   ##
   is.metamiss <- inherits(x, "metamiss")
   show.imor <- is.metamiss &
+    !is.null(x$IMOR.e) & !is.null(x$IMOR.c) &&
     (length(unique(x$IMOR.e)) != 1 | length(unique(x$IMOR.c)) != 1)
   ##
   if (is.metamiss)
@@ -876,8 +854,7 @@ print.summary.meta <- function(x,
                  header = FALSE,
                  digits = digits,
                  fixed = fixed, random = random,
-                 prediction = prediction,
-                 overall = overall, overall.hetstat = overall.hetstat,
+                 overall = overall,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  digits.tau2 = digits.tau2, digits.tau = digits.tau,

@@ -123,6 +123,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -581,16 +583,15 @@
 #' @examples
 #' data(smoking)
 #' m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
-#'               data = smoking, studlab = study)
+#'   data = smoking, studlab = study)
 #' print(m1, digits = 2)
 #' 
 #' m2 <- update(m1, method = "Cochran")
 #' print(m2, digits = 2)
 #' 
 #' data(lungcancer)
-#' m3 <- metainc(d.smokers, py.smokers,
-#'               d.nonsmokers, py.nonsmokers,
-#'               data = lungcancer, studlab = study)
+#' m3 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+#'   data = lungcancer, studlab = study)
 #' print(m3, digits = 2)
 #' 
 #' # Redo Cochran meta-analysis with inflated standard errors
@@ -598,17 +599,17 @@
 #' # All cause mortality
 #' #
 #' TEa <- log((smoking$d.smokers/smoking$py.smokers) /
-#'            (smoking$d.nonsmokers/smoking$py.nonsmokers))
+#'   (smoking$d.nonsmokers/smoking$py.nonsmokers))
 #' seTEa <- sqrt(1 / smoking$d.smokers + 1 / smoking$d.nonsmokers +
-#'               2.5 / smoking$d.nonsmokers)
+#'   2.5 / smoking$d.nonsmokers)
 #' metagen(TEa, seTEa, sm = "IRR", studlab = smoking$study)
 #' 
 #' # Lung cancer mortality
 #' #
 #' TEl <- log((lungcancer$d.smokers/lungcancer$py.smokers) /
-#'            (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers))
+#'   (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers))
 #' seTEl <- sqrt(1 / lungcancer$d.smokers + 1 / lungcancer$d.nonsmokers +
-#'               2.25 / lungcancer$d.nonsmokers)
+#'   2.25 / lungcancer$d.nonsmokers)
 #' metagen(TEl, seTEl, sm = "IRR", studlab = lungcancer$study)
 #'
 #' \dontrun{
@@ -618,7 +619,7 @@
 #' # Poisson regression model (fixed study effects)
 #' #
 #' m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
-#'               data = smoking, studlab = study, method = "GLMM")
+#'   data = smoking, studlab = study, method = "GLMM")
 #' m4
 #' 
 #' # Mixed-effects Poisson regression model (random study effects)
@@ -685,6 +686,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    prediction.subgroup = gs("prediction.subgroup"),
                     byvar,
                     ##
                     keepdata = gs("keepdata"),
@@ -818,70 +820,58 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', and 'n.c'
   ## from data:
   ##
-  event.e <- eval(mf[[match("event.e", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
   k.All <- length(event.e)
   ##
-  time.e <- eval(mf[[match("time.e", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  time.e <- catch("time.e", mc, data, sfsp)
   chknull(time.e)
   ##
-  event.c <- eval(mf[[match("event.c", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  event.c <- catch("event.c", mc, data, sfsp)
   chknull(event.c)
   ##
-  time.c <- eval(mf[[match("time.c", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  time.c <- catch("time.c", mc, data, sfsp)
   chknull(time.c)
   ##
-  n.e <- eval(mf[[match("n.e", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.e <- catch("n.e", mc, data, sfsp)
   null.n.e <- is.null(n.e)
   ##
-  n.c <- eval(mf[[match("n.c", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  n.c <- catch("n.c", mc, data, sfsp)
   null.n.c <- is.null(n.c)
   ##
   ## Catch 'incr' from data:
   ##
   if (!missing(incr))
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   chknumeric(incr, min = 0)
   ##
   ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   
   
@@ -901,6 +891,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   if (!null.n.e)
@@ -1061,9 +1052,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -1499,6 +1490,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

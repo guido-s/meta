@@ -85,9 +85,8 @@
 #' #
 #' data(Fleiss1993bin)
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
-#'               data = Fleiss1993bin,
-#'               studlab = paste(study, year),
-#'               sm = "OR", random = FALSE)
+#'   data = Fleiss1993bin, studlab = paste(study, year),
+#'   sm = "OR", random = FALSE)
 #' or2smd(m1)
 #' 
 #' @export or2smd
@@ -115,37 +114,32 @@ or2smd <- function(lnOR, selnOR, studlab,
     ## Read data
     ##
     nulldata <- is.null(data)
+    sfsp <- sys.frame(sys.parent())
+    mc <- match.call()
     ##
     if (nulldata)
-      data <- sys.frame(sys.parent())
-    ##
-    mf <- match.call()
+      data <- sfsp
     ##
     ## Catch 'lnOR' and 'selnOR' from data:
     ##
-    lnOR <- eval(mf[[match("lnOR", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+    lnOR <- catch("lnOR", mc, data, sfsp)
     ##
-    selnOR <- eval(mf[[match("selnOR", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    selnOR <- catch("selnOR", mc, data, sfsp)
     ##
     k.All <- length(lnOR)
     chknull(lnOR)
     ##
     ## Catch 'studlab', 'subset', and 'exclude' from data:
     ##
-    studlab <- eval(mf[[match("studlab", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    studlab <- catch("studlab", mc, data, sfsp)
     studlab <- setstudlab(studlab, k.All)
     print(studlab)
     ##
     missing.subset <- missing(subset)
-    subset <- eval(mf[[match("subset", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    subset <- catch("subset", mc, data, sfsp)
     ##
     missing.exclude <- missing(exclude)
-    exclude <- eval(mf[[match("exclude", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    exclude <- catch("exclude", mc, data, sfsp)
     ##
     ## Check length of essential variables
     ##

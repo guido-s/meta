@@ -28,8 +28,22 @@
 #' @param pos.studlab Position of study labels, see argument
 #'   \code{pos} in \code{\link{text}}.
 #' @param offset Offset for study labels (see \code{\link{text}}).
+#' @param offset Offset for study labels (see \code{\link{text}}).
 #' @param regline A logical indicating whether a regression line
 #'   should be added to the bubble plot.
+#' @param col.line Colour for the meta-regression line.
+#' @param backtransf A logical indicating whether results for relative
+#'   summary measures (argument \code{sm} equal to \code{"OR"},
+#'   \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
+#'   transformed. If \code{backtransf=TRUE}, results for
+#'   \code{sm="OR"} are printed as odds ratios rather than log odds
+#'   ratios, for example.
+#' @param ref A numerical giving the reference value to be plotted as
+#'   a line in the bubble plot. No reference line is plotted if
+#'   argument \code{ref} is equal to \code{NA}.
+#' @param col.ref Colour of the reference line.
+#' @param lty.ref The line type for the reference line.
+#' @param lwd.ref The line width for the reference line.
 #' @param axes A logical indicating whether axes should be printed.
 #' @param box A logical indicating whether a box should be printed.
 #' @param \dots Graphical arguments as in \code{par} may also be
@@ -86,7 +100,7 @@
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "MD")
+#'   data = Fleiss1993cont, sm = "MD")
 #' 
 #' mr1 <- metareg(m1, region)
 #' mr1
@@ -118,9 +132,12 @@ bubble.metareg <- function(x,
                            studlab = FALSE, cex.studlab = 0.8,
                            pos.studlab = 2, offset = 0.5,
                            regline = TRUE,
+                           backtransf = x$.meta$x$backtransf,
+                           ref,
+                           col.ref = "lightgray", lty.ref = 1, lwd.ref = 1,
                            axes = TRUE, box = TRUE, ...) {
-
-
+  
+  
   ##
   ##
   ## (1) Check for meta object
@@ -142,6 +159,9 @@ bubble.metareg <- function(x,
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   chknumeric(offset)
   chklogical(regline)
+  chklogical(backtransf)
+  chknumeric(lty.ref)
+  chknumeric(lwd.ref)
   chklogical(axes)
   chklogical(box)
   
@@ -156,8 +176,27 @@ bubble.metareg <- function(x,
   ##
   TE <- m1$TE
   sm <- m1$sm
-
-
+  
+  
+  if (backtransf & is.relative.effect(sm)) {
+    log <- "y"
+    TE <- exp(TE)
+  }
+  else
+    log <- ""
+  ##
+  if (missing(ref)) {
+    if (is.prop(sm) | is.rate(sm) | is.mean(sm))
+      ref <- NA
+    else if (is.relative.effect(sm) & backtransf)
+      ref <- 1
+    else
+      ref <- 0
+  }
+  ##
+  chknumeric(ref, length = 1)
+  
+  
   if (is.logical(studlab)) {
     if (studlab)
       studlab <- m1$studlab
@@ -246,8 +285,12 @@ bubble.metareg <- function(x,
     ylim <- range(ys)
   ##
   if (missing(ylab))
-    ylab <- paste0("Treatment effect (",
-                   tolower(xlab(sm, backtransf = FALSE)), ")")
+    if (is.relative.effect(sm))
+      ylab <- xlab(sm, backtransf)
+    else if (sm == "PRAW")
+      ylab <- "Proportion"
+    else
+      ylab <- xlab(sm, FALSE)
   
   
   missing.cex <- missing(cex)
@@ -338,16 +381,22 @@ bubble.metareg <- function(x,
       bg.i <- bgs[sel]
       ##
       plot(xs.i, ys.i,
-       pch = pch, cex = cexs.i,
-       xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-       type = "n", axes = FALSE, ...)
+           pch = pch, cex = cexs.i,
+           xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
+           type = "n", axes = FALSE, log = log, ...)
+      ##
+      ## Add reference line
+      ##
+      abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
       ##
       ## Add regression line
       ##
-      if (regline)
-        lines(c(0, 1),
-              c(alpha, alpha + coef(x)[i]),
-              lty = lty, lwd = lwd, col = col.line)
+      if (regline) {
+        y.reg <- c(alpha, alpha + coef(x)[i])
+        if (log == "y")
+          y.reg <- exp(y.reg)
+        lines(c(0, 1), y.reg, lty = lty, lwd = lwd, col = col.line)
+      }
       ##
       for (j in seq_along(xs.i))
         points(xs.i[j], ys.i[j], cex = cexs.i[j], pch = pch,
@@ -374,13 +423,22 @@ bubble.metareg <- function(x,
     plot(xs, ys,
          pch = pch, cex = cexs,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-         type = "n", axes = FALSE, ...)
+         type = "n", axes = FALSE, log = log, ...)
+    ##
+    ## Add reference line
+    ##
+    abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
     ##
     ## Add regression line
     ##
-    if (regline)
-      abline(alpha, beta,
-             lty = lty, lwd = lwd, col = col.line)
+    if (regline) {
+      x.reg <- c(xlim[1], xlim[2])
+      y.reg <- c(alpha + beta * xlim[1], alpha + beta * xlim[2])
+      if (log == "y")
+        y.reg <- exp(y.reg)
+      ##
+      lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
+    }
     ##
     points(xs, ys, cex = cexs, pch = pch, col = cols, bg = bgs)
     ##
@@ -400,8 +458,8 @@ bubble.metareg <- function(x,
     if (box)
       box()
   }
-
-
+  
+  
   invisible(NULL)
 }
 

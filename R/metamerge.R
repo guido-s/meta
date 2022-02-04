@@ -6,7 +6,7 @@
 #' example, useful to produce a forest plot of a random-effects
 #' meta-analysis with and without using the Hartung-Knapp method.
 #' 
-#' @param meta1 First meta-analysis object (of class \code{"meta"}).
+#' @param meta1 First meta-analysis object (see Details).
 #' @param meta2 Second meta-analysis object (see Details).
 #' @param pooled1 A character string indicating whether results of
 #'   fixed effect or random effects model should be considered for
@@ -55,10 +55,16 @@
 #' }
 #'
 #' The first argument must be an object created by a meta-analysis
-#' function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. The
-#' second meta-analysis could also be an object created with
-#' \code{\link{trimfill}}, \code{\link[metasens]{limitmeta}},
-#' \code{\link[metasens]{copas}}, or \code{\link[robumeta]{robu}}.
+#' function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. It
+#' is also possible to provide an object created with
+#' \code{\link[metasens]{limitmeta}} or
+#' \code{\link[metasens]{copas}}. In this case, arguments \code{meta2}
+#' and \code{pooled2} will be ignored.
+#'
+#' The second meta-analysis could be an object created by a
+#' meta-analysis function or with \code{\link{trimfill}},
+#' \code{\link[metasens]{limitmeta}}, \code{\link[metasens]{copas}},
+#' or \code{\link[robumeta]{robu}}.
 #'
 #' The created meta-analysis object only contains the study results
 #' from the first meta-analysis which are shown in printouts and
@@ -125,16 +131,13 @@
 #' data(Fleiss1993cont)
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "MD",
-#'                fixed = FALSE,
-#'                text.random = "Classic random effects",
-#'                text.w.random = "RE")
+#'   data = Fleiss1993cont, sm = "MD", fixed = FALSE,
+#'   text.random = "Classic random effects", text.w.random = "RE")
 #' #
 #' # Use Hartung-Knapp method
 #' #
 #' m2 <- update(m1, hakn = TRUE,
-#'              text.random = "Hartung-Knapp method",
-#'              text.w.random = "HK")
+#'   text.random = "Hartung-Knapp method", text.w.random = "HK")
 #' #
 #' # Merge results of the two meta-analyses
 #' #
@@ -146,11 +149,9 @@
 #' # between-study variance
 #' #
 #' m3 <- update(m1,
-#'              text.random = "Random effects moded (DL)",
-#'              text.w.random = "DL")
+#'   text.random = "Random effects moded (DL)", text.w.random = "DL")
 #' m4 <- update(m1, method.tau = "REML",
-#'              text.random = "Random effects moded (REML)",
-#'              text.w.random = "REML")
+#'   text.random = "Random effects moded (REML)", text.w.random = "REML")
 #' #
 #' m34 <- metamerge(m3, m4)
 #' m34
@@ -160,14 +161,13 @@
 #' # Mantel-Haenszel method
 #' #
 #' m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-#'               studlab = paste(study, year),
-#'               sm = "OR", random = FALSE,
-#'               text.fixed = "MH method", text.w.fixed = "MH")
+#'   studlab = paste(study, year), sm = "OR", random = FALSE,
+#'   text.fixed = "MH method", text.w.fixed = "MH")
 #' #
 #' # Peto method
 #' #
 #' m6 <- update(m5, method = "Peto", text.fixed = "Peto method",
-#'              text.w.fixed = "Peto")
+#'   text.w.fixed = "Peto")
 #' #
 #' # Merge results (show individual results for MH method)
 #' #
@@ -190,8 +190,23 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
                       backtransf) {
   
   
-  chkclass(meta1, "meta")
-  meta1 <- updateversion(meta1)
+  chkclass(meta1, c("meta", "limitmeta", "copas"))
+  if (inherits(meta1, "meta"))
+    meta1 <- updateversion(meta1)
+  else if (inherits(meta1, c("limitmeta", "copas"))) {
+    if (!missing(meta2))
+      warning("Argument 'meta2' ignored as argument 'meta1' is of class '",
+              class(meta1), "'.",
+              call. = FALSE)
+    if (!missing(pooled2))
+      warning("Argument 'pooled2' ignored as argument 'meta1' is of class '",
+              class(meta1), "'.",
+              call. = FALSE)
+    meta2 <- meta1
+    meta1 <- updateversion(meta1$x)
+    pooled2 <- "random"
+  }
+  ##
   chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
   if (inherits(meta2, "meta"))
     meta2 <- updateversion(meta2)
@@ -299,6 +314,10 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   ## Result of first meta-analysis is saved in list elements for fixed
   ## effect model
+  ##
+  if (pooled1 == "random" && !is.null(meta1$hakn) && meta1$hakn)
+    stop("Random effects meta-analysis with Hartung-Knapp method cannot be ",
+         "provided for argument 'meta1'.")
   ##
   res <- meta1
   ##
@@ -510,13 +529,14 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   if (is.null(meta2$method.tau.ci))
     meta2$method.tau.ci <- ""
   ##
-  if (!is.null(meta2$hakn))
-    res$hakn <-
-      (pooled1 == "random" & meta1$hakn) |
-      (pooled2 == "random" & meta2$hakn)
-  else
-    res$hakn <-
-      (pooled1 == "random" & meta1$hakn)
+  if (!is.null(meta2$hakn) && meta2$hakn) {
+    res$hakn <- meta2$hakn
+    res$adhoc.hakn <- meta2$adhoc.hakn
+    res$df.hakn <- meta2$df.hakn
+    res$seTE.hakn <- meta2$seTE.hakn
+    res$seTE.hakn.adhoc <- meta2$seTE.hakn.adhoc
+    res$seTE.classic <- meta2$seTE.classic
+  }
   ##
   if (!is.null(meta1$Q.Cochrane) & !is.null(meta2$Q.Cochrane))
     res$Q.Cochrane <-
@@ -568,8 +588,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$se.tau <- meta2$se.tau
     }
   }
-  ##
-  if (pooled1 == "random" & pooled2 == "random") {
+  else if (pooled1 == "random" & pooled2 == "random") {
     if (is.copas) {
       if (res$method.tau != "ML" & res$detail.tau == "") {
         res$detail.tau <- res$method.tau
@@ -600,18 +619,21 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       ##
       res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
     }
-    else if (
-           any(meta1$tau != meta2$tau) |
-           any(meta1$lower.tau != meta2$lower.tau)) {
+    else {
       ##
-      if (meta1$method.tau != meta2$method.tau) {
-        if (res$detail.tau == "")
-          res$detail.tau <- meta1$method.tau
-        if (meta2$detail.tau == "")
-          meta2$detail.tau <- meta2$method.tau
-        res$method.tau <- ""
-      }
-      ##
+      if (
+        any(meta1$tau != meta2$tau) |
+        (any(!is.na(meta1$lower.tau) & !is.na(meta2$lower.tau)) &&
+         any(meta1$lower.tau != meta2$lower.tau))) {
+        ##
+        if (meta1$method.tau != meta2$method.tau) {
+          if (res$detail.tau == "")
+            res$detail.tau <- meta1$method.tau
+          if (meta2$detail.tau == "")
+            meta2$detail.tau <- meta2$method.tau
+          res$method.tau <- ""
+        }
+        ##
       if (meta1$method.tau.ci != meta2$method.tau.ci) {
         if (res$detail.tau == "")
           res$detail.tau <- meta1$method.tau.ci
@@ -619,16 +641,17 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
           meta2$detail.tau <- meta2$method.tau.ci
         res$method.tau.ci <- ""
       }
-      ##
-      res$tau <- c(res$tau, meta2$tau)
-      res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
-      res$upper.tau <- c(res$upper.tau, meta2$upper.tau)
-      res$tau2 <- c(res$tau2, meta2$tau2)
-      res$lower.tau2 <- c(res$lower.tau2, meta2$lower.tau2)
-      res$upper.tau2 <- c(res$upper.tau2, meta2$upper.tau2)
-      res$se.tau <- c(res$se.tau, meta2$se.tau)
-      ##
-      res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+        ##
+        res$tau <- c(res$tau, meta2$tau)
+        res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
+        res$upper.tau <- c(res$upper.tau, meta2$upper.tau)
+        res$tau2 <- c(res$tau2, meta2$tau2)
+        res$lower.tau2 <- c(res$lower.tau2, meta2$lower.tau2)
+        res$upper.tau2 <- c(res$upper.tau2, meta2$upper.tau2)
+        res$se.tau <- c(res$se.tau, meta2$se.tau)
+        ##
+        res$detail.tau <- c(res$detail.tau, meta2$detail.tau)
+      }
     }
   }
   ##

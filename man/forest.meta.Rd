@@ -24,6 +24,7 @@
   prediction = x$prediction,
   text.predict = x$text.predict,
   subgroup = TRUE,
+  subgroup.hetstat = subgroup & (is.character(hetstat) || hetstat),
   print.subgroup.labels = TRUE,
   subgroup.name = x$subgroup.name,
   print.subgroup.name = x$print.subgroup.name,
@@ -57,10 +58,10 @@
   rightcols = NULL,
   leftlabs = NULL,
   rightlabs = NULL,
-  lab.e = x$label.e,
-  lab.c = x$label.c,
-  lab.e.attach.to.col = NULL,
-  lab.c.attach.to.col = NULL,
+  label.e = x$label.e,
+  label.c = x$label.c,
+  label.e.attach = NULL,
+  label.c.attach = NULL,
   label.right = x$label.right,
   label.left = x$label.left,
   bottom.lr = TRUE,
@@ -119,10 +120,11 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.fixed = test.subgroup & fixed,
   test.subgroup.random = test.subgroup & random,
+  prediction.subgroup = x$prediction.subgroup,
   print.Q.subgroup = TRUE,
   label.test.subgroup.fixed,
   label.test.subgroup.random,
-  test.effect.subgroup,
+  test.effect.subgroup = gs("test.effect.subgroup"),
   test.effect.subgroup.fixed,
   test.effect.subgroup.random,
   label.test.effect.subgroup.fixed,
@@ -270,19 +272,26 @@ interval should be printed.}
 \item{text.predict}{A character string used in the plot to label
 the prediction interval.}
 
-\item{subgroup}{A logical indicating whether subgroup results
-should be shown in forest plot. This argument is useful in a
-meta-analysis with subgroups if summaries should not be plotted
-on group level.}
+\item{subgroup}{A single logical or logical vector indicating
+whether / which subgroup results should be shown in forest
+plot. This argument is useful in a meta-analysis with subgroups
+if summaries should not be plotted for (some) subgroups.}
+
+\item{subgroup.hetstat}{A single logical or logical vector
+indicating whether / which information on heterogeneity in
+subgroups should be shown in forest plot. This argument is useful
+in a meta-analysis with subgroups if heterogeneity statistics
+should not be printed for (some) subgroups.}
 
 \item{print.subgroup.labels}{A logical indicating whether subgroup
 label should be printed.}
 
-\item{subgroup.name}{A character string with a label for the grouping
-variable.}
+\item{subgroup.name}{A character string with a label for the
+grouping variable.}
 
-\item{print.subgroup.name}{A logical indicating whether the name of the
-grouping variable should be printed in front of the group labels.}
+\item{print.subgroup.name}{A logical indicating whether the name of
+the grouping variable should be printed in front of the group
+labels.}
 
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
@@ -320,7 +329,7 @@ plot subgroup results).}
 \item{xlab.pos}{A numeric specifying the center of the label on the
 x-axis.}
 
-\item{smlab}{A label for the summary measurex (printed at top of
+\item{smlab}{A label for the summary measure (printed at top of
 figure).}
 
 \item{smlab.pos}{A numeric specifying the center of the label for
@@ -330,7 +339,8 @@ the summary measure.}
 "s" to produce symmetric forest plots.}
 
 \item{allstudies}{A logical indicating whether studies with
-inestimable treatment effects should be plotted.}
+inestimable treatment effects should be included in the forest
+plot.}
 
 \item{weight.study}{A character string indicating weighting used to
 determine size of squares or diamonds (argument
@@ -379,11 +389,11 @@ argument \code{upper.equi} is equal to \code{NA}.}
 \item{fill.equi}{Colour of area between limits of equivalence.}
 
 \item{leftcols}{A character vector specifying (additional) columns
-to be plotted on the left side of the forest plot or a logical
+to be printed on the left side of the forest plot or a logical
 value (see Details).}
 
 \item{rightcols}{A character vector specifying (additional) columns
-to be plotted on the right side of the forest plot or a logical
+to be printed on the right side of the forest plot or a logical
 value (see Details).}
 
 \item{leftlabs}{A character vector specifying labels for
@@ -394,16 +404,16 @@ Details).}
 (additional) columns on right side of the forest plot (see
 Details).}
 
-\item{lab.e}{Label to be used for experimental group in table
+\item{label.e}{Label to be used for experimental group in table
 heading.}
 
-\item{lab.c}{Label to be used for control group in table heading.}
+\item{label.c}{Label to be used for control group in table heading.}
 
-\item{lab.e.attach.to.col}{A character specifying the column name
-where label \code{lab.e} should be attached to in table heading.}
+\item{label.e.attach}{A character specifying the column name where
+label \code{label.e} should be attached to in table heading.}
 
-\item{lab.c.attach.to.col}{A character specifying the column name
-where label \code{lab.c} should be attached to in table heading.}
+\item{label.c.attach}{A character specifying the column name where
+label \code{label.c} should be attached to in table heading.}
 
 \item{label.right}{Graph label on right side of forest plot.}
 
@@ -568,18 +578,16 @@ generalized linear mixed models.}
 results of test for overall effect.}
 
 \item{test.overall.fixed}{A logical value indicating whether to
-print results of test for overall effect (based on fixed effect
-model).}
+print results of test for overall effect (fixed effect model).}
 
 \item{test.overall.random}{A logical value indicating whether to
-print results of test for overall effect (based on random effects
-model).}
+print results of test for overall effect (random effects model).}
 
 \item{label.test.overall.fixed}{Label printed in front of results
-of test for overall effect (based on fixed effect model).}
+of test for overall effect (fixed effect model).}
 
 \item{label.test.overall.random}{Label printed in front of results
-of test for overall effect (based on random effects model).}
+of test for overall effect (random effects model).}
 
 \item{print.stat}{A logical value indicating whether z- or t-value
 for test of treatment effect should be printed.}
@@ -588,41 +596,44 @@ for test of treatment effect should be printed.}
 results of test for subgroup differences.}
 
 \item{test.subgroup.fixed}{A logical value indicating whether to
-print results of test for subgroup differences (based on fixed
-effect model).}
+print results of test for subgroup differences (fixed effect
+model).}
 
 \item{test.subgroup.random}{A logical value indicating whether to
-print results of test for subgroup differences (based on random
-effects model).}
+print results of test for subgroup differences (random effects
+model).}
+
+\item{prediction.subgroup}{A single logical or logical vector
+indicating whether / which prediction intervals should be printed
+for subgroups.}
 
 \item{print.Q.subgroup}{A logical value indicating whether to print
 the value of the heterogeneity statistic Q (test for subgroup
 differences).}
 
 \item{label.test.subgroup.fixed}{Label printed in front of results
-of test for subgroup differences (based on fixed effect model).}
+of test for subgroup differences (fixed effect model).}
 
 \item{label.test.subgroup.random}{Label printed in front of results
-of test for subgroup differences (based on random effects model).}
+of test for subgroup differences (random effects model).}
 
-\item{test.effect.subgroup}{A logical value indicating whether to
-print results of test for effect in subgroups.}
+\item{test.effect.subgroup}{A single logical or logical vector
+indicating whether / which tests for effect in subgroups should
+be printed.}
 
-\item{test.effect.subgroup.fixed}{A logical value indicating
-whether to print results of test for effect in subgroups (based
-on fixed effect model).}
+\item{test.effect.subgroup.fixed}{A single logical or logical
+vector indicating whether / which tests for effect in subgroups
+should be printed (fixed effect model).}
 
-\item{test.effect.subgroup.random}{A logical value indicating
-whether to print results of test for effect in subgroups (based
-on random effects model).}
+\item{test.effect.subgroup.random}{A single logical or logical
+vector indicating whether / which tests for effect in subgroups
+should be printed (random effects model).}
 
 \item{label.test.effect.subgroup.fixed}{Label printed in front of
-results of test for effect in subgroups (based on fixed effect
-model).}
+results of test for effect in subgroups (fixed effect model).}
 
 \item{label.test.effect.subgroup.random}{Label printed in front of
-results of test for effect in subgroups (based on random effects
-model).}
+results of test for effect in subgroups (random effects model).}
 
 \item{text.addline1}{Text for first additional line (below
 meta-analysis results).}
@@ -937,6 +948,8 @@ possibility is to create a file using \code{\link{pdf}},
 \code{\link{png}}, or \code{\link{svg}} and to specify the width and
 height of the graphic (see Examples).
 
+\subsection{Default layout for studies and pooled effects}{
+
 By default, treatment estimates and confidence intervals are
 plotted in the following way:
 \itemize{
@@ -959,87 +972,23 @@ from the fixed effect model are used if argument \code{x$fixed} is
 \code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
 
-Arguments \code{text.fixed}, \code{text.random}, and
-\code{text.predict} can be used to change the label to identify
-overall results (fixed effect and random effects model as well as
-prediction interval). By default the following text is printed:
-\itemize{
-\item "Fixed effect model" (argument \code{text.fixed})
-\item "Random effects model" (\code{text.random})
-\item "Prediction interval" (\code{text.predict})
+A prediction interval for treatment effect of a new study (Higgins
+et al., 2009) is given in the forest plot if arguments
+\code{prediction} and \code{random} are \code{TRUE}. For
+graphical presentation of prediction intervals the approach by
+Guddat et al. (2012) is used.
 }
 
-If confidence interval levels are different for individual studies,
-meta-analysis, and prediction interval (arguments \code{level},
-\code{level.ma}, \code{level.predict} in meta-analysis functions,
-e.g., \code{\link{metabin}}), additional information is printed,
-e.g., " (99\%-CI)" for a 99\% confidence interval in the
-meta-analysis.
+\subsection{Columns printed on left side of forest plot}{
 
-Depending on the number of information printed on the left side of
-the forest plot, the text for heterogeneity statistics following
-the overall meta-analysis results can be overlapping with the
-x-axis. Argument \code{addrows.below.overall} can be used to
-specify the number of empty rows that are printed between
-meta-analysis results and heterogeneity statistics and test
-results (see Examples).
-
-The following arguments can be used to print results for various
-statistical tests:
-\tabular{ll}{
-\bold{Argument} \tab \bold{Statistical test} \cr
-\code{test.overall.fixed} \tab Test for overall effect (fixed
-  effect model) \cr
-\code{test.overall.random} \tab Test for overall effect (random
-  effects model) \cr
-\code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
-  (FE model) \cr
-\code{test.effect.subgroup.random} \tab Test for effect in subgroup
-  (RE model) \cr
-\code{test.subgroup.fixed} \tab Test for subgroup differences (FE
-  model) \cr
-\code{test.subgroup.random} \tab Test for subgroup differences (RE
-  model)
-}
-
-By default, these arguments are \code{FALSE} with exception of the
-tests for subgroup differences which are \code{TRUE}. R function
-\code{\link{settings.meta}} can be used to change this default for
-the entire R session. For example, use the following command to
-always print results of tests for an overall effect:
-\code{settings.meta(test.overall = TRUE)} .
-
-The arguments \code{leftcols} and \code{rightcols} can be used to
-specify columns which are plotted on the left and right side of the
-forest plot, respectively. If argument \code{rightcols} is
-\code{FALSE}, no columns will be plotted on the right side. By
-default, i.e. if arguments \code{leftcols} and \code{rightcols} are
-\code{NULL} and \code{layout = "meta"}, the following
-\emph{\bold{columns}} will be printed \emph{\bold{on the right side
-of the forest plot}}:
-\tabular{ll}{
-\bold{Meta-analysis results} \tab \bold{Value of argument
-  rightcols} \cr
-No summary \tab \code{c("effect", "ci")} \cr
-Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
-  \cr
-Only random effects model \tab \code{c("effect", "ci", "w.random")}
-  \cr
-Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
-}
-
-By default, estimated treatment effect and corresponding confidence
-interval will be printed.  Depending on arguments \code{fixed}
-and \code{random}, weights of the fixed effect and/or random
-effects model will be given too. For an object of class
-\code{\link{metacum}} or \code{\link{metainf}} only the estimated
-treatment effect with confidence interval are plotted.
-
-Depending on the class of the meta-analysis object (which is
+Argument \code{leftcols} can be used to specify columns which are
+printed on the left side of the forest plot. By default, i.e. if
+argument \code{leftcols} is \code{NULL} and \code{layout = "meta"},
+and depending on the class of the meta-analysis object (which is
 defined by the R function used to generate the object) a different
 set of \emph{\bold{columns}} is printed \emph{\bold{on the left
 side of the forest plot}}:
-\tabular{cl}{
+\tabular{ll}{
 \bold{Function} \tab \bold{Value of argument leftcols} \cr
 \code{\link{metabin}} \tab \code{c("studlab", "event.e", "n.e",
   "event.c", "n.c")} \cr
@@ -1059,46 +1008,209 @@ side of the forest plot}}:
 }
 
 Note, \code{"studlab"} \bold{must be provided for study labels} in
-argument \code{rightcols} or \code{leftcols} instead of the
+argument \code{leftcols} or \code{rightcols} instead of the
 variable name used in the meta-analysis command. If, for example,
 \code{"id"} is provided in argument \code{leftcols} as this
-variable was used to define study labels in the meta-analysis, this
-variable will be treated as an additional variable, not as study
-labels.
+variable was used to define study labels in the meta-analysis
+function, this variable will be treated as an additional variable,
+not as study labels.
+}
+
+\subsection{Overlapping information on left side of forest plot}{
+
+Depending on the number of columns printed on the left side of the
+forest plot, information on heterogeneity measures or statistical
+tests (see below) can be overlapping with the x-axis. Argument
+\code{addrows.below.overall} can be used to specify the number of
+empty rows that are printed between meta-analysis results and
+information on heterogeneity measures and statistical tests. By
+default, no additional rows are added to the forest plot. If
+\code{addrows.below.overall = NULL}, the function tries to add a
+sufficient number of empty rows to prevent overlapping
+text. Another possibility is to manually increase the space between
+the columns on the left side (argument \code{colgap.left}) or
+between the columns on the left side and the forest plot (argument
+\code{colgap.forest.left}).
+}
+
+\subsection{Columns printed on right side of forest plot}{
+
+Argument \code{rightcols} can be used to
+specify columns which are printed on the right side of the
+forest plot. If argument \code{rightcols} is
+\code{FALSE}, no columns will be printed on the right side. By
+default, i.e. if argument \code{rightcols} is
+\code{NULL} and \code{layout = "meta"}, the following
+\emph{\bold{columns}} will be printed \emph{\bold{on the right side
+of the forest plot}}:
+\tabular{ll}{
+\bold{Meta-analysis results} \tab \bold{Value of argument
+  rightcols} \cr
+No summary \tab \code{c("effect", "ci")} \cr
+Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
+  \cr
+Only random effects model \tab \code{c("effect", "ci", "w.random")}
+  \cr
+Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+}
+
+By default, estimated treatment effect and corresponding confidence
+interval will be printed. Depending on arguments \code{fixed} and
+\code{random}, weights of the fixed effect and/or random effects
+model will be given too. For an object of class
+\code{\link{metacum}} or \code{\link{metainf}} only the estimated
+treatment effect with confidence interval are plotted.
+}
+
+\subsection{Column names}{
 
 The arguments \code{leftlabs} and \code{rightlabs} can be used to
-specify column headings which are plotted on left and right side of
-the forest plot, respectively. For certain columns predefined
-labels exist. If the arguments \code{leftlabs} and \code{rightlabs}
-are \code{NULL}, the following default labels will be used:
+specify column headings which are printed on left or right side of
+the forest plot. For certain columns predefined labels exist which
+are used by default, i.e., if arguments \code{leftlabs} and
+\code{rightlabs} are \code{NULL}:
 \tabular{rcccccc}{
-\bold{Column:} \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
+Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
   \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-\bold{Label:} \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
+Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
   "Total" \tab "Total" \cr
 \cr
-\bold{Column:} \tab \code{event.e} \tab \code{event.c} \tab
+Column: \tab \code{event.e} \tab \code{event.c} \tab
   \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-\bold{Label:} \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
+Label: \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
   \tab "Mean" \tab \cr
 \cr
-\bold{Column:} \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
+Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
   \tab \code{time.c} \tab \code{effect} \tab \cr
-\bold{Label:} \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
+Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
   \code{x$sm} \tab \cr
 \cr
-\bold{Column:} \tab \code{ci} \tab \code{effect.ci} \tab
+Column: \tab \code{ci} \tab \code{effect.ci} \tab
   \code{w.fixed} \tab \code{w.random} \tab \tab \cr
-\bold{Label:} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
+Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
   "W(fixed)" \tab "W(random)" \tab \tab
 }
 
-For additional columns, the column name will be used as a label. It
-is possible to only provide labels for new columns (see
-Examples). Otherwise the length of \code{leftlabs} and
-\code{rightlabs} must be the same as the number of printed columns,
-respectively. The value \code{NA} can be used to specify columns
-which should use default labels (see Examples).
+For other columns, the column name will be used as a label if no
+column label is defined. It is possible to only provide labels for
+new columns (see Examples). Otherwise the length of \code{leftlabs}
+and \code{rightlabs} must be the same as the number of printed
+columns. The value \code{NA} can be used to specify columns which
+should use default labels (see Examples).
+
+
+In pairwise meta-analysis comparing two groups (i.e.,
+\code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{metainc}}, and \code{\link{metagen}} depending on the
+outcome), arguments \code{label.e} and \code{label.c} are used to
+label columns belonging to the two treatment groups. By default,
+labels defined in the meta-analysis object are used. The columns
+where treatment labels are attached can be changed using arguments
+\code{label.e.attach} and \code{label.c.attach}.
+}
+
+\subsection{Information on heterogeneity and statistical tests}{
+
+Argument \code{hetstat} can be a character string to specify where
+to print heterogeneity information:
+\itemize{
+\item row with results for fixed effect model (\code{hetstat =
+"fixed"}),
+\item row with results for random effects model (\code{hetstat =
+"random"}).
+}
+
+Otherwise, information on heterogeneity measures is printed below
+the meta-analysis results if argument \code{overall.hetstat = TRUE}
+(default). The heterogeneity measures to print can be specified
+(see list of arguments following \code{overall.hetstat}).
+
+In addition, the following arguments can be used to print results
+for various statistical tests:
+\tabular{ll}{
+\bold{Argument} \tab \bold{Statistical test} \cr
+\code{test.overall.fixed} \tab Test for overall effect (fixed
+  effect model) \cr
+\code{test.overall.random} \tab Test for overall effect (random
+  effects model) \cr
+\code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
+  (FE model) \cr
+\code{test.effect.subgroup.random} \tab Test for effect in subgroup
+  (RE model) \cr
+\code{test.subgroup.fixed} \tab Test for subgroup differences (FE
+  model) \cr
+\code{test.subgroup.random} \tab Test for subgroup differences (RE
+  model)
+}
+
+By default, these arguments are \code{FALSE} with exception of
+tests for subgroup differences which are \code{TRUE}. R function
+\code{\link{settings.meta}} can be used to change this default for
+the entire R session. For example, use the following command to
+always print results of tests for an overall effect:
+\code{settings.meta(test.overall = TRUE)}.
+}
+
+\subsection{Flexible printing of subgroup results}{
+
+Argument \code{subgroup} determines whether summary results are
+printed for subgroups. A logical vector of length equal to the
+number of subgroups can be provided to determine which subgroup
+summaries are printed. By default, only subgroup results based on
+at least two studies are printed which is identical to use argument
+\code{subgroup = k.w > 1}. The order of the logical vector
+corresponds to the order of subgroups in list element 'bylevs' of a
+meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
+used to show results for all subgroups (including those with a
+single study).
+
+The following arguments can be used in a similar way:
+
+\itemize{
+\item \code{subgroup.hetstat} (heterogeneity statistic in
+  subgroups),
+\item \code{prediction.subgroup} (prediction interval in
+  subgroups),
+\item \code{test.effect.subgroup} (test for effect in subgroups),
+\item \code{test.effect.subgroup.fixed} (test for effect in
+  subgroups, fixed effect model),
+\item \code{test.effect.subgroup.random} (test for effect in
+  subgroups, random effects model).
+}
+}
+
+\subsection{Additional general settings}{
+
+Arguments \code{text.fixed}, \code{text.random}, and
+\code{text.predict} can be used to change the label to identify
+overall results (fixed effect and random effects model as well as
+prediction interval). By default the following text is printed:
+\itemize{
+\item "Common effect model" (argument \code{text.fixed})
+\item "Random effects model" (\code{text.random})
+\item "Prediction interval" (\code{text.predict})
+}
+
+If confidence interval levels are different for individual studies,
+meta-analysis, and prediction interval (arguments \code{level},
+\code{level.ma}, \code{level.predict} in meta-analysis functions,
+e.g., \code{\link{metabin}}), additional information is printed,
+e.g., " (99\%-CI)" for a 99\% confidence interval in the
+meta-analysis.
+
+Argument \code{pscale} can be used to rescale single proportions or
+risk differences, e.g., \code{pscale = 1000} means that proportions
+are expressed as events per 1000 observations. This is useful in
+situations with (very) low event probabilities.
+
+Argument \code{irscale} can be used to rescale single rates or rate
+differences, e.g., \code{irscale = 1000} means that rates are
+expressed as events per 1000 time units, e.g., person-years. This is
+useful in situations with (very) low rates. Argument \code{irunit}
+can be used to specify the time unit used in individual studies
+(default: "person-years"). This information is printed in summaries
+and forest plots if argument \code{irscale} is not equal to 1.
+}
 
 \subsection{Forest plots in RevMan5 layout}{
 
@@ -1150,7 +1262,7 @@ are taken into account:
   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
 }
 Study labels according to JAMA guidelines can be generated using
-\code{\link{JAMAlabels}}.
+\code{\link{labels.meta}}.
 }
 
 \subsection{Forest plots showing results of subgroups}{
@@ -1167,55 +1279,14 @@ conducted:
 \item Label "Subgroup" is printed instead of "Study"
   (\code{leftlabs})
 }
-} 
-
-If arguments \code{lab.e} and \code{lab.c} are \code{NULL},
-"Experimental" and "Control" are used as labels for experimental
-and control group, respectively.
-
-Argument \code{pscale} can be used to rescale single proportions or
-risk differences, e.g., \code{pscale = 1000} means that proportions
-are expressed as events per 1000 observations. This is useful in
-situations with (very) low event probabilities.
-
-Argument \code{irscale} can be used to rescale single rates or rate
-differences, e.g., \code{irscale = 1000} means that rates are
-expressed as events per 1000 time units, e.g., person-years. This is
-useful in situations with (very) low rates. Argument \code{irunit}
-can be used to specify the time unit used in individual studies
-(default: "person-years"). This information is printed in summaries
-and forest plots if argument \code{irscale} is not equal to 1.
-
-A prediction interval for treatment effect of a new study (Higgins
-et al., 2009) is given in the forest plot if arguments
-\code{prediction} and \code{random} are \code{TRUE}. For
-graphical presentation of prediction intervals the approach by
-Guddat et al. (2012) is used.
-
-Argument \code{hetstat} can be a character string to specify where
-to print heterogeneity information:
-\itemize{
-\item row with results for fixed effect model (\code{hetstat =
-"fixed"}),
-\item row with results for random effects model (\code{hetstat =
-"random"}).
 }
-Otherwise, information on heterogeneity is printed in dedicated rows.
-
-Note, in R package \bold{meta}, version 3.0-0 the following
-arguments have been removed from R function forest.meta: subgroup,
-level, level.ma, level.predict. This functionality is now
-provided by R function \code{\link{update.meta}} (or directly in R
-functions, e.g., \code{\link{metabin}}, \code{\link{metacont}},
-\code{\link{metagen}}, \code{\link{metacor}}, and
-\code{\link{metaprop}}).
 }
 \examples{
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-              data = Olkin1995, subset = c(41, 47, 51, 59),
-              sm = "RR", method = "I",
-              studlab = paste(author, year))
+  data = Olkin1995, subset = c(41, 47, 51, 59),
+  sm = "RR", method = "I",
+  studlab = paste(author, year))
 
 
 \dontrun{
@@ -1230,9 +1301,9 @@ forest(m1)
 # prediction interval
 #
 forest(m1, layout = "RevMan5", fixed = FALSE,
-       label.right = "Favours control", col.label.right = "red",
-       label.left = "Favours experimental", col.label.left = "green",
-       prediction = TRUE)
+  label.right = "Favours control", col.label.right = "red",
+  label.left = "Favours experimental", col.label.left = "green",
+  prediction = TRUE)
 
 
 \dontrun{
@@ -1242,12 +1313,19 @@ pdf("forest-m1.pdf", width = 10, height = 3)
 forest(m1)
 dev.off()
 
-# Sort studies by decreasing treatment effect within year subgroups
+# Conduct subgroup meta-analysis
 #
-m2 <- update(m1, subgroup = ifelse(year < 1987,
-                                "Before 1987", "1987 and later"),
-             print.subgroup.name = FALSE)
+m2 <- update(m1,
+  subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+  print.subgroup.name = FALSE)
+
+# Show summary results for subgroups with at least two studies
+#
 forest(m2, sortvar = -TE, random = FALSE)
+
+# Show results for all subgroups
+#
+forest(m2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
 
 # Forest plot specifying argument xlim
 #
@@ -1267,16 +1345,16 @@ forest(m1, col.square = "black", hetstat = FALSE)
 #
 forest(m1, random = FALSE, leftcols = "studlab")
 
-# Use argument 'addrows.below.overall' to add space between
-# meta-analysis results and heterogeneity statistics
-#
-forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
-
 # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
 # measures in width of column with study labels
 #
 forest(m1, random = FALSE, leftcols = "studlab",
-       calcwidth.hetstat = TRUE)
+  calcwidth.hetstat = TRUE)
+
+# Use argument 'addrows.below.overall' to manually add two empty
+# rows
+#
+forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
 
 # Do not print columns on right side of forest plot
 #
@@ -1301,49 +1379,47 @@ forest(m1, rightcols = c("effect", "ci"))
 #    columns 'n.e' and 'n.c'
 #
 forest(m1,
-       leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-       lab.e.attach.to.col = "event.e",
-       lab.c.attach.to.col = "event.c")
+  leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
+  label.e.attach = "event.e", label.c.attach = "event.c")
 
 # Specify column labels only for variables 'year' and 'author'
 # (and define digits for additional variables)
 #
 forest(m1,
-       leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-                    "author", "year"),
-       leftlabs = c("Author", "Year of Publ"))
+  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
+  leftlabs = c("Author", "Year of Publ"))
 
 # Center text in all columns
 #
 forest(m1,
-       leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-                    "author", "year"),
-       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-       just = "center", just.addcols = "center", just.studlab = "center")
+  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+               "author", "year"),
+  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+  just = "center", just.addcols = "center", just.studlab = "center")
 
 # Same result
 #
 forest(m1,
-       leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-                  "author", "year"),
-       leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-       just = "c", just.addcols = "c", just.studlab = "c")
+  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
+             "author", "year"),
+  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
+  just = "c", just.addcols = "c", just.studlab = "c")
 
 # Change some fontsizes and fontfaces
 #
 forest(m1,
-       fs.study = 10, ff.study = "italic",
-       fs.study.label = 11, ff.study.label = "bold",
-       fs.axis = 5, ff.axis = "italic",
-       ff.smlab = "bold.italic",
-       ff.fixed = "plain", ff.hetstat = "plain")
+  fs.study = 10, ff.study = "italic",
+  fs.study.label = 11, ff.study.label = "bold",
+  fs.axis = 5, ff.axis = "italic",
+  ff.smlab = "bold.italic",
+  ff.fixed = "plain", ff.hetstat = "plain")
 
 # Change some colours
 #
 forest(m1,
-       col.diamond = "green", col.diamond.lines = "red",
-       col.study = c("green", "blue", "red", "orange"),
-       col.square = "pink", col.square.lines = "black")
+  col.diamond = "green", col.diamond.lines = "red",
+  col.study = c("green", "blue", "red", "orange"),
+  col.square = "pink", col.square.lines = "black")
 
 # Sort by weight in fixed effect model
 #
@@ -1372,7 +1448,7 @@ forest(m2, sortvar = -TE, fixed = FALSE)
 
 # Print only subgroup results
 #
-forest(m2, layout = "subgroup", addrows = 2)
+forest(m2, layout = "subgroup", addrows = NULL)
 
 # Print only subgroup results (and consider text for tests of
 # subgroup differences in width of subgroup column)
@@ -1380,9 +1456,9 @@ forest(m2, layout = "subgroup", addrows = 2)
 forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
 
 # Print only subgroup results (and consider text for heterogeneity
-# measures in width of subgroup column)
+# in width of subgroup column)
 #
-forest(m2, layout = "subgroup", addrows = 2, calcwidth.hetstat = TRUE)
+forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
 }
 
 }
@@ -1401,7 +1477,7 @@ A re-evaluation of random-effects meta-analysis.
 \seealso{
 \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
-  \code{\link{settings.meta}}, \code{\link{JAMAlabels}}
+  \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

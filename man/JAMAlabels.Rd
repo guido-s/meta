@@ -2,7 +2,7 @@
 % Please edit documentation in R/JAMAlabels.R
 \name{JAMAlabels}
 \alias{JAMAlabels}
-\title{Create study labels in JAMA layout (for forest plot)}
+\title{Create study labels in JAMA layout (deprecated function)}
 \usage{
 JAMAlabels(author, year, citation, data = NULL)
 }
@@ -11,13 +11,14 @@ JAMAlabels(author, year, citation, data = NULL)
 
 \item{year}{A vector providing year of publication.}
 
-\item{citation}{A vector proving citation numbers.}
+\item{citation}{A vector providing citation numbers.}
 
 \item{data}{An optional data frame containing the study
 information.}
 }
 \description{
-Create study labels in JAMA layout (for forest plot).
+Deprecated function to create study labels in JAMA layout (for
+forest plot). Replaced by \code{\link{labels.meta}}.
 }
 \details{
 This auxiliary function can be used to create study labels in JAMA
@@ -33,15 +34,15 @@ Fleiss1993bin$mylabs <-
   JAMAlabels(study, year, refs, data = Fleiss1993bin)
 
 m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-             studlab = paste(study, year),
-             sm = "OR", random = FALSE)
+  studlab = paste(study, year),
+  sm = "OR", random = FALSE)
 
 forest(m, studlab = mylabs, layout = "JAMA",
-       fontfamily = "Times", fontsize = 10)
+  fontfamily = "Times", fontsize = 10)
 
 }
 \seealso{
-\code{\link{forest.meta}}
+\code{\link{labels.meta}}, \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

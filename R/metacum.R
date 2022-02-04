@@ -81,8 +81,7 @@
 #' @examples
 #' data(Fleiss1993bin)
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
-#'               data = Fleiss1993bin, studlab = study,
-#'               sm = "RR", method = "I")
+#'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 #' m1
 #' metacum(m1)
 #' metacum(m1, pooled = "random")
@@ -93,13 +92,12 @@
 #' metacum(m1, sortvar = study)
 #' metacum(m1, sortvar = 7:1)
 #' 
-#' m2 <- update(m1, title = "Fleiss1993bin meta-analysis",
-#'              backtransf = FALSE)
+#' m2 <- update(m1, title = "Fleiss1993bin meta-analysis", backtransf = FALSE)
 #' metacum(m2)
 #' 
 #' data(Fleiss1993cont)
 #' m3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD")
+#'   data = Fleiss1993cont, sm = "SMD")
 #' metacum(m3)
 #' 
 #' @export metacum
@@ -136,15 +134,13 @@ metacum <- function(x, pooled, sortvar) {
     else
       pooled <- "fixed"
   ##
-  mf <- match.call()
-  error <- try(sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                               as.data.frame(x, stringsAsFactors = FALSE),
-                               enclos = sys.frame(sys.parent())),
-               silent = TRUE)
+  mc <- match.call()
+  error <-
+    try(sortvar <-
+          catch("sortvar", mc, x, sys.frame(sys.parent())),
+        silent = TRUE)
   if (class(error) == "try-error") {
-    xd <- x$data
-    sortvar <- eval(mf[[match("sortvar", names(mf))]],
-                    xd, enclos = NULL)
+    sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }

@@ -49,6 +49,7 @@ metaprop(
   print.subgroup.name = gs("print.subgroup.name"),
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
+  prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
@@ -208,6 +209,9 @@ between name of subgroup variable and subgroup label.}
 
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
+
+\item{prediction.subgroup}{A logical indicating whether prediction
+intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
@@ -744,22 +748,20 @@ m4 <- update(m1, method.ci = "WSCC")
 m5 <- update(m1, method.ci = "CP")
 #
 lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-                     m4$lower, NA, m5$lower), 4)
+  m4$lower, NA, m5$lower), 4)
 upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-                     m4$upper, NA, m5$upper), 4)
+  m4$upper, NA, m5$upper), 4)
 #
 tab1 <- data.frame(
   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),
   scen2 = meta:::formatCI(lower[, 2], upper[, 2]),
   scen3 = meta:::formatCI(lower[, 3], upper[, 3]),
-  scen4 = meta:::formatCI(lower[, 4], upper[, 4]),
-  stringsAsFactors = FALSE
+  scen4 = meta:::formatCI(lower[, 4], upper[, 4])
   )
 names(tab1) <- c("r=81, n=263", "r=15, n=148",
-                 "r=0, n=20", "r=1, n=29")
+  "r=0, n=20", "r=1, n=29")
 row.names(tab1) <- c("Simple", "- SA", "- SACC",
-                     "Score", "- WS", "- WSCC",
-                     "Binomial", "- CP")
+  "Score", "- WS", "- WSCC", "Binomial", "- CP")
 tab1[is.na(tab1)] <- ""
 # Newcombe (1998), Table I, methods 1-5:
 tab1
@@ -785,15 +787,15 @@ print(metaprop(event, n, sm = "PRAW", method.ci = "NAsm"), ma = FALSE)
 # Accordingly, method.ci = "NAsm" used internally.
 #
 print(metaprop(event, n, method.ci = "WS", method = "Inverse"),
-      ma = FALSE, backtransf = FALSE)
+  ma = FALSE, backtransf = FALSE)
 print(metaprop(event, n, sm = "PLN", method.ci = "WS"),
-      ma = FALSE, backtransf = FALSE)
+  ma = FALSE, backtransf = FALSE)
 print(metaprop(event, n, sm = "PFT", method.ci = "WS"),
-      ma = FALSE, backtransf = FALSE)
+  ma = FALSE, backtransf = FALSE)
 print(metaprop(event, n, sm = "PAS", method.ci = "WS"),
-      ma = FALSE, backtransf = FALSE)
+  ma = FALSE, backtransf = FALSE)
 print(metaprop(event, n, sm = "PRAW", method.ci = "WS"),
-      ma = FALSE, backtransf = FALSE)
+  ma = FALSE, backtransf = FALSE)
 
 # Same results (printed on original and log scale, respectively)
 #
@@ -805,7 +807,7 @@ round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 # Print results as events per 1000 observations
 #
 print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
-      pscale = 1000, digits = 1)
+  pscale = 1000, digits = 1)
 
 }
 \references{

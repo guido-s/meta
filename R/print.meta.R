@@ -26,10 +26,10 @@
 #' @aliases print.meta cilayout
 #' 
 #' @param x An object of class \code{meta}.
-#' @param fixed A logical indicating whether a fixed effect
-#'   meta-analysis should be conducted.
-#' @param random A logical indicating whether a random effects
-#'   meta-analysis should be conducted.
+#' @param fixed A logical indicating whether results for fixed effect
+#'   meta-analysis should be printed.
+#' @param random A logical indicating whether results for random
+#'   effects meta-analysis should be printed.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param overall A logical indicating whether overall summaries
@@ -48,6 +48,8 @@
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
@@ -135,6 +137,10 @@
 #'   confidence interval: "[", "(", "\{", "".
 #' @param separator A character string with information on separator
 #'   between lower and upper confidence interval.
+#' @param lower.blank A logical indicating whether blanks between left
+#'   bracket and lower confidence limit should be printed.
+#' @param upper.blank A logical indicating whether blanks between
+#'   separator and upper confidence limit should be printed.
 #' @param \dots Additional arguments (passed on to \code{prmatrix}).
 #' 
 #' @rdname print.meta
@@ -152,6 +158,7 @@ print.meta <- function(x,
                        test.subgroup = x$test.subgroup,
                        test.subgroup.fixed = test.subgroup & fixed,
                        test.subgroup.random = test.subgroup & random,
+                       prediction.subgroup = x$prediction.subgroup,
                        ##
                        backtransf = x$backtransf,
                        pscale = x$pscale,
@@ -243,7 +250,7 @@ print.meta <- function(x,
   is.prop <- is.prop(x$sm)
   is.rate <- is.rate(x$sm)
   ##
-  if (!is.prop & x$sm != "RD")
+  if (!(is.prop | x$sm == "RD"))
     pscale <- 1
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
@@ -273,6 +280,11 @@ print.meta <- function(x,
   chklogical(test.subgroup.fixed)
   test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
   chklogical(test.subgroup.random)
+  ##
+  prediction.subgroup <- replaceNULL(prediction.subgroup, TRUE)
+  if (is.na(prediction.subgroup))
+    prediction.subgroup <- FALSE
+  chklogical(prediction.subgroup)
   ##
   if (!is.null(print.CMH))
     chklogical(print.CMH)
@@ -372,7 +384,7 @@ print.meta <- function(x,
   if (by) {
     k.w <- x$k.w
     ##
-    prediction.w <- prediction & k.w >= 3
+    prediction.w <- prediction.subgroup & k.w >= 3
     prediction.w[is.na(prediction.w)] <- FALSE
     prediction.w <- any(prediction.w)
   }
@@ -710,7 +722,7 @@ print.meta <- function(x,
   is.metamiss <- inherits(x, "metamiss")
   if (header) {
     if (is.metamiss)
-      cat("Sensitivity analysis for missing binary data\n\n")
+      cat("Sensitivity analysis for missing binary data\n")
     ##
     crtitle(x)
   }
@@ -796,6 +808,9 @@ print.meta <- function(x,
     ##
     ## Print results for meta-analysis with more than one study
     ##
+    ##
+    if (header & is.metamiss)
+      cat("\n")
     ##
     if (overall & (fixed | random | prediction)) {
       if (!inherits(x, "trimfill")) {
@@ -1118,8 +1133,11 @@ print.meta <- function(x,
                                   if (!random) text.tau)
                                 )
         ##
-        cat(paste0("\nResults for ", anaunit, " (",
-                   text.fixed.br, "):\n"))
+        cat(paste0("\nResults for ", anaunit,
+                   if (is.metabind & length(unique(x$pooled)) != 1)
+                     ":\n"
+                   else
+                     paste0(" (", text.fixed.br, "):\n")))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
@@ -1219,7 +1237,11 @@ print.meta <- function(x,
                                   if (!fixed & print.Rb) text.Rb)
                                 )
         ##
-        cat(paste0("\nResults for ", anaunit, " (", text.random.br, "):\n"))
+        cat(paste0("\nResults for ", anaunit,
+                   if (is.metabind & length(unique(x$pooled)) != 1)
+                     ":\n"
+                   else
+                     paste0(" (", text.random.br, "):\n")))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
@@ -1353,20 +1375,23 @@ print.meta <- function(x,
 #' @export cilayout
 
 
-cilayout <- function(bracket = "[", separator = "; ") {
-  
-  ibracket <- charmatch(bracket,
-                        c("[", "(", "{", ""),
-                        nomatch = NA)
+cilayout <- function(bracket = gs("CIbracket"),
+                     separator = gs("CIseparator"),
+                     lower.blank = gs("CIlower.blank"),
+                     upper.blank = gs("CIupper.blank")) {
+
+  chkchar(bracket, length = 1)
+  chkchar(separator, length = 1)
   ##
-  if (is.na(ibracket) | ibracket == 0)
-    stop("No valid bracket type specified. ",
-         "Admissible values: '[', '(', '{', '\"\"'")
-  
-  bracket <- c("[", "(", "{", "")[ibracket]
+  bracket <- setchar(bracket, c("[", "(", "{", ""))
+  ##
+  chklogical(lower.blank)
+  chklogical(upper.blank)
   
   setOption("CIbracket", bracket)
   setOption("CIseparator", separator)
+  setOption("CIlower.blank", lower.blank)
+  setOption("CIupper.blank", upper.blank)
   
   invisible(NULL)
 }

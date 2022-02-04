@@ -5,10 +5,13 @@
 \title{Print and change default settings to conduct and print or plot
 meta-analyses in R package \bold{meta}.}
 \usage{
-settings.meta(...)
+settings.meta(..., quietly = TRUE)
 }
 \arguments{
 \item{...}{Arguments to change default settings.}
+
+\item{quietly}{A logical indicating whether information on settings
+should be printed.}
 }
 \description{
 Print and change default settings to conduct and print or plot
@@ -48,7 +51,7 @@ instructions for authors of the \emph{Journal of the American
 Medical Association}
 (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
 labels according to JAMA guidelines can be generated using
-\code{\link{JAMAlabels}}.
+\code{\link{labels.meta}}.
 
 The next commands implement the recommendations of the Institute
 for Quality and Efficiency in Health Care, Germany (IQWiG)
@@ -138,12 +141,13 @@ A list of all arguments with current settings is printed using the
 command \code{settings.meta("print")}.
 
 In order to reset all settings of R package \bold{meta} the command
-\code{settings.meta("reset")} can be used.
+\code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
+can be used.
 }
 \examples{
 # Get listing of current settings
 #
-settings.meta("print")
+settings.meta()
 
 # Meta-analyses using default settings
 #
@@ -201,26 +205,23 @@ metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #
 settings.meta("revman5")
 forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
-       label.left = "Favours A", label.right = "Favours B",
-       colgap.studlab = "2cm",
-       colgap.forest.left = "0.2cm")
+  label.left = "Favours A", label.right = "Favours B",
+  colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Forest plot using JAMA style
 #
 settings.meta("jama")
 forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
-       label.left = "Favours A", label.right = "Favours B",
-       colgap.studlab = "2cm",
-       colgap.forest.left = "0.2cm")
+  label.left = "Favours A", label.right = "Favours B",
+  colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Use slightly different layout for confidence intervals
 # (especially useful if upper confidence limit can be negative)
 #
 settings.meta(CIseparator = " - ")
 forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
-       label.left="Favours A", label.right="Favours B",
-       colgap.studlab = "2cm",
-       colgap.forest.left = "0.2cm")
+  label.left="Favours A", label.right="Favours B",
+  colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Use old settings
 #
@@ -229,7 +230,7 @@ settings.meta(oldset)
 }
 \seealso{
 \code{\link{gs}}, \code{\link{forest.meta}},
-  \code{\link{print.meta}}, \code{\link{JAMAlabels}}
+  \code{\link{print.meta}}, \code{\link{labels.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

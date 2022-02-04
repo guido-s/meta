@@ -88,7 +88,7 @@
 #' #
 #' data(Fleiss1993cont)
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD",
+#'   data = Fleiss1993cont, sm = "SMD",
 #'                studlab = paste(study, year))
 #' smd2or(m1)
 #' 
@@ -117,36 +117,31 @@ smd2or <- function(smd, se.smd, studlab,
     ## Read data
     ##
     nulldata <- is.null(data)
+    sfsp <- sys.frame(sys.parent())
+    mc <- match.call()
     ##
     if (nulldata)
-      data <- sys.frame(sys.parent())
-    ##
-    mf <- match.call()
+      data <- sfsp
     ##
     ## Catch 'smd' and 'se.smd' from data:
     ##
-    smd <- eval(mf[[match("smd", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+    smd <- catch("smd", mc, data, sfsp)
     ##
-    se.smd <- eval(mf[[match("se.smd", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    se.smd <- catch("se.smd", mc, data, sfsp)
     ##
     k.All <- length(smd)
     chknull(smd)
     ##
     ## Catch 'studlab', 'subset', and 'exclude' from data:
     ##
-    studlab <- eval(mf[[match("studlab", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    studlab <- catch("studlab", mc, data, sfsp)
     studlab <- setstudlab(studlab, k.All)
     ##
     missing.subset <- missing(subset)
-    subset <- eval(mf[[match("subset", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+    subset <- catch("subset", mc, data, sfsp)
     ##
     missing.exclude <- missing(exclude)
-    exclude <- eval(mf[[match("exclude", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+    exclude <- catch("exclude", mc, data, sfsp)
     ##
     ## Check length of essential variables
     ##

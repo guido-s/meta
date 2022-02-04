@@ -211,14 +211,13 @@
 #' tf1 <- trimfill(m1)
 #' tf1
 #' funnel(tf1)
-#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-#'        level = 0.9, random = FALSE)
+#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16), level = 0.9, random = FALSE)
 #' #
 #' # Use log odds ratios on x-axis
 #' #
 #' funnel(tf1, backtransf = FALSE)
-#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16),
-#'        level = 0.9, random = FALSE, backtransf = FALSE)
+#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16), level = 0.9, random = FALSE,
+#'   backtransf = FALSE)
 #' 
 #' trimfill(m1$TE, m1$seTE, sm = m1$sm)
 #' 

@@ -188,18 +188,10 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
   }
   res
 }
-logit2p <- function(x) {
-  res <- 1 / (1 + exp(-x))
-  res
-}
-p2logit <- function(x) {
-  res <- log(x) / log(1 - x)
-  res
-}
-z2cor <- function(x) {
-  res <- (exp(2 * x) - 1) / (exp(2 * x) + 1)
-  res
-}
+logit2p <- function(x)
+  1 / (1 + exp(-x))
+z2cor <- function(x)
+  tanh(x)
 backtransf <- function(x, sm, value, n, warn = FALSE) {
   
   ##
@@ -288,3 +280,5 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
 
   res
 }
+p2logit <- function(x)
+  qlogis(x)

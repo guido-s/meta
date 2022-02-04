@@ -117,6 +117,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -647,6 +649,7 @@ metamean <- function(n, mean, sd, studlab,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
+                     prediction.subgroup = gs("prediction.subgroup"),
                      byvar,
                      ##
                      keepdata = gs("keepdata"),
@@ -754,11 +757,11 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'n', 'mean', and 'sd' from data:
   ##
@@ -782,20 +785,17 @@ metamean <- function(n, mean, sd, studlab,
          "arguments 'q1' & 'q3' or 'min & 'max'.",
          call. = FALSE)
   ##
-  n <- eval(mf[[match("n", names(mf))]],
-            data, enclos = sys.frame(sys.parent()))
+  n <- catch("n", mc, data, sfsp)
   chknull(n)
   k.All <- length(n)
   ##
-  mean <- eval(mf[[match("mean", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
+  mean <- catch("mean", mc, data, sfsp)
   if (!missing.mean)
     chknull(mean)
   else
     mean <- rep(NA, k.All)
   ##
-  sd <- eval(mf[[match("sd", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  sd <- catch("sd", mc, data, sfsp)
   if (!missing.sd)
     chknull(sd)
   else
@@ -803,54 +803,42 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
   ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   ## 'approx.sd', from data:
   ##
-  median <- eval(mf[[match("median", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  median <- catch("median", mc, data, sfsp)
   ##
-  q1 <- eval(mf[[match("q1", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q1 <- catch("q1", mc, data, sfsp)
   ##
-  q3 <- eval(mf[[match("q3", names(mf))]],
-             data, enclos = sys.frame(sys.parent()))
+  q3 <- catch("q3", mc, data, sfsp)
   ##
-  min <- eval(mf[[match("min", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  min <- catch("min", mc, data, sfsp)
   ##
-  max <- eval(mf[[match("max", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  max <- catch("max", mc, data, sfsp)
   ##
   missing.approx.mean <- missing(approx.mean)
-  approx.mean <- eval(mf[[match("approx.mean", names(mf))]],
-                      data, enclos = sys.frame(sys.parent()))
+  approx.mean <- catch("approx.mean", mc, data, sfsp)
   ##
   missing.approx.sd <- missing(approx.sd)
-  approx.sd <- eval(mf[[match("approx.sd", names(mf))]],
-                    data, enclos = sys.frame(sys.parent()))
+  approx.sd <- catch("approx.sd", mc, data, sfsp)
   
   
   ##
@@ -894,6 +882,7 @@ metamean <- function(n, mean, sd, studlab,
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   ## Additional checks
@@ -1069,9 +1058,9 @@ metamean <- function(n, mean, sd, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -1398,6 +1387,7 @@ metamean <- function(n, mean, sd, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

@@ -114,6 +114,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -764,22 +766,20 @@
 #' m5 <- update(m1, method.ci = "CP")
 #' #
 #' lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-#'                      m4$lower, NA, m5$lower), 4)
+#'   m4$lower, NA, m5$lower), 4)
 #' upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-#'                      m4$upper, NA, m5$upper), 4)
+#'   m4$upper, NA, m5$upper), 4)
 #' #
 #' tab1 <- data.frame(
 #'   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),
 #'   scen2 = meta:::formatCI(lower[, 2], upper[, 2]),
 #'   scen3 = meta:::formatCI(lower[, 3], upper[, 3]),
-#'   scen4 = meta:::formatCI(lower[, 4], upper[, 4]),
-#'   stringsAsFactors = FALSE
+#'   scen4 = meta:::formatCI(lower[, 4], upper[, 4])
 #'   )
 #' names(tab1) <- c("r=81, n=263", "r=15, n=148",
-#'                  "r=0, n=20", "r=1, n=29")
+#'   "r=0, n=20", "r=1, n=29")
 #' row.names(tab1) <- c("Simple", "- SA", "- SACC",
-#'                      "Score", "- WS", "- WSCC",
-#'                      "Binomial", "- CP")
+#'   "Score", "- WS", "- WSCC", "Binomial", "- CP")
 #' tab1[is.na(tab1)] <- ""
 #' # Newcombe (1998), Table I, methods 1-5:
 #' tab1
@@ -805,15 +805,15 @@
 #' # Accordingly, method.ci = "NAsm" used internally.
 #' #
 #' print(metaprop(event, n, method.ci = "WS", method = "Inverse"),
-#'       ma = FALSE, backtransf = FALSE)
+#'   ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PLN", method.ci = "WS"),
-#'       ma = FALSE, backtransf = FALSE)
+#'   ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PFT", method.ci = "WS"),
-#'       ma = FALSE, backtransf = FALSE)
+#'   ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PAS", method.ci = "WS"),
-#'       ma = FALSE, backtransf = FALSE)
+#'   ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PRAW", method.ci = "WS"),
-#'       ma = FALSE, backtransf = FALSE)
+#'   ma = FALSE, backtransf = FALSE)
 #' 
 #' # Same results (printed on original and log scale, respectively)
 #' #
@@ -825,7 +825,7 @@
 #' # Print results as events per 1000 observations
 #' #
 #' print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
-#'       pscale = 1000, digits = 1)
+#'   pscale = 1000, digits = 1)
 #' 
 #' @export metaprop
 
@@ -876,6 +876,7 @@ metaprop <- function(event, n, studlab,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
+                     prediction.subgroup = gs("prediction.subgroup"),
                      byvar,
                      ##
                      keepdata = gs("keepdata"),
@@ -1013,53 +1014,45 @@ metaprop <- function(event, n, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'event' and 'n' from data:
   ##
-  event <- eval(mf[[match("event", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  event <- catch("event", mc, data, sfsp)
   chknull(event)
   k.All <- length(event)
   ##
-  n <- eval(mf[[match("n", names(mf))]],
-            data, enclos = sys.frame(sys.parent()))
+  n <- catch("n", mc, data, sfsp)
   chknull(n)
   ##
   ## Catch 'incr' from data:
   ##
   if (!missing(incr))
-    incr <- eval(mf[[match("incr", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+    incr <- catch("incr", mc, data, sfsp)
   chknumeric(incr, min = 0)
   ##
   ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   
   
@@ -1077,6 +1070,7 @@ metaprop <- function(event, n, studlab,
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   ##
   ## Additional checks
@@ -1234,9 +1228,9 @@ metaprop <- function(event, n, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -1660,6 +1654,7 @@ metaprop <- function(event, n, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

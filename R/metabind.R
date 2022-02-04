@@ -10,9 +10,10 @@
 #'   with meta-analyses.
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
-#' @param pooled A character string indicating whether results of a
-#'   fixed effect or random effects model should be considered. Either
-#'   \code{"fixed"} or \code{"random"}, can be abbreviated.
+#' @param pooled A character string or vector indicating whether
+#'   results of a fixed effect or random effects model should be
+#'   considered. Either \code{"fixed"} or \code{"random"}, can be
+#'   abbreviated.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If
 #'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
@@ -49,7 +50,7 @@
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "MD")
+#'   data = Fleiss1993cont, sm = "MD")
 #'
 #' # Conduct two subgroup analyses
 #' #
@@ -67,7 +68,7 @@
 #' # variance
 #' #
 #' m1.pm <- update(m1, method.tau = "PM")
-#' m1.reml <- update(m1, method.tau = "REML")
+#' m1.dl <- update(m1, method.tau = "DL")
 #' m1.ml <- update(m1, method.tau = "ML")
 #' m1.hs <- update(m1, method.tau = "HS")
 #' m1.sj <- update(m1, method.tau = "SJ")
@@ -76,47 +77,63 @@
 #'
 #' # Combine meta-analyses and show results
 #' #
-#' taus <- c("DerSimonian-Laird estimator",
-#'           "Paule-Mandel estimator",
-#'           "Restricted maximum-likelihood estimator",
-#'           "Maximum-likelihood estimator",
-#'           "Hunter-Schmidt estimator",
-#'           "Sidik-Jonkman estimator",
-#'           "Hedges estimator",
-#'           "Empirical Bayes estimator")
+#' taus <- c("Restricted maximum-likelihood estimator",
+#'   "Paule-Mandel estimator",
+#'   "DerSimonian-Laird estimator",
+#'   "Maximum-likelihood estimator",
+#'   "Hunter-Schmidt estimator",
+#'   "Sidik-Jonkman estimator",
+#'   "Hedges estimator",
+#'   "Empirical Bayes estimator")
 #' #
-#' m1.taus <- metabind(m1, m1.pm, m1.reml, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
-#'                     name = taus, pooled = "random")
+#' m1.taus <- metabind(m1, m1.pm, m1.dl, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
+#'   name = taus, pooled = "random")
 #' m1.taus
 #' forest(m1.taus, print.I2 = FALSE, print.pval.Q = FALSE)
 #' 
 #' @export metabind
 
 
-metabind <- function(..., name, pooled, backtransf, outclab) {
+metabind <- function(..., name = NULL, pooled = NULL,
+                     backtransf = NULL, outclab = NULL) {
   
   
-  if (!missing(pooled))
-    pooled <- setchar(pooled, c("fixed", "random"))
+  missing.name <- missing(name)
+  missing.pooled <- missing(pooled)
+  missing.backtransf <- missing(backtransf)
+  missing.outclab <- missing(outclab)
   ##
-  if (!missing(backtransf))
-    chklogical(backtransf)
-
-
   args <- list(...)
   ##
   n.meta <- length(args)
   n.i <- seq_len(n.meta)
+  is.limit <- is.copas <- is.trimfill <- rep(FALSE, n.meta)
   ##
-  if (length(args) == 1) {
+  if (!missing.pooled)
+    pooled <- setchar(pooled, c("fixed", "random"))
+  ##
+  if (!missing.backtransf)
+    chklogical(backtransf)  
+  
+  
+  ##
+  ## Act on single meta-analysis object in '...'
+  ##
+  if (n.meta == 1) {
     if (inherits(args[[1]], "meta.rm5")) {
       args <- args[[1]]
-      if (missing(name))
+      if (missing.name) {
         name <- unlist(lapply(args, "[[" , "outclab"))
+        missing.name <- FALSE
+      }
     }
+    else if (inherits(args[[1]], c("limitmeta", "copas")))
+      return(metamerge(args[[1]]))
+    else if (inherits(args[[1]], "meta"))
+      return(args[[1]])
     else if (!is.list(args[[1]]))
-      stop("All elements of argument '...' must be of ",
-           "class 'meta'.",
+      stop("All elements of argument '...' must be of class 'meta', ",
+           "'limitmeta', or 'copas'.",
            call. = FALSE)
     ##
     if (!inherits(args[[1]], "meta")) {
@@ -130,73 +147,108 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       args <- args2
     }
   }
+  
+  
   ##  
+  ## Act on limitmeta and copas objects
+  ##
+  name.i <- rep(NA, n.meta)
+  ##
   for (i in n.i) {
     if (inherits(args[[i]], "metabind"))
-      stop("Elements of argument '...' may not be of ",
-           "class 'metabind'.",
+      stop("Elements of argument '...' may not be of class 'metabind'.",
            call. = FALSE)
     ##
-    if (!inherits(args[[i]], "meta"))
-      stop("All elements of argument '...' must be of class 'meta'.",
-           call. = FALSE)
-    else
+    if (inherits(args[[i]], "meta")) {
       args[[i]] <- updateversion(args[[i]])
+      if (missing.name) {
+        if (inherits(args[[i]], "trimfill")) {
+          is.trimfill[i] <- TRUE
+          name.i[i] <- "trimfill"
+        }
+        else
+          name.i[i] <- replaceNULL(args[[i]]$subgroup.name)
+        if (is.na(name.i[i]))
+          name.i[i] <- class(args[[i]])[1]
+      }
+    }
+    else if (inherits(args[[i]], c("limitmeta", "copas"))) {
+      if (missing.name)
+        name.i[i] <- class(args[[i]])
+      if (inherits(args[[i]], "limitmeta"))
+        is.limit[i] <- TRUE
+      else
+        is.copas[i] <- TRUE
+      ##
+      args[[i]] <- metamerge(args[[i]])
+      args[[i]]$fixed <- FALSE
+    }
+    else
+      stop("All elements of argument '...' must be of class 'meta', ",
+           "'limitmeta', or 'copas'.",
+           call. = FALSE)
   }
-  
-  
+  ##
+  is.limit.copas <- is.limit | is.copas
+  ##
   is.subgroup <- rep(FALSE, n.meta)
   ##
   for (i in n.i) {
     if (!is.null(args[[i]]$subgroup))
       is.subgroup[i] <- TRUE
   }
+  ##
+  if (missing.pooled || length(pooled) == 1)
+    pooled <- rep(pooled, n.meta)
+  else
+    chklength(pooled, n.meta,
+              text = paste("Length of argument 'pooled' differs from",
+                           "number of meta-analyses."))
   
   
-  print.warning1 <- FALSE
-  print.warning2 <- FALSE
-  print.warning3 <- FALSE
-
-
   ##
   ## Name of meta-analysis object
   ##
-  if (missing(name)) {
-    name <- rep("", n.meta)
-    ##
-    for (i in n.i)
-      name[i] <- replaceNULL(args[[i]]$subgroup.name)
+  if (missing.name) {
+    name <- name.i
     ##
     if (all(is.na(name)))
       name <- paste0("meta", n.i)
     else if (anyNA(name))
       name[is.na(name)] <- paste0("meta", n.i[is.na(name)])
-    ##
-    if (length(unique(name)) != length(name)) {
-      warning1 <-
-        paste0("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
-               "' as argument 'name' is missing and information ",
-               "from meta-analysis objects is not unique.")
-      print.warning1 <- TRUE
-      ##
-      name <- paste0("meta", n.i)
-    }
   }
   else {
     if (length(name) != length(is.subgroup))
       stop("Number of meta-analyses and names provided in ",
            "argument 'name' differ.",
            call. = FALSE)
-    ##
-    if (length(unique(name)) != length(name)) {
-      warning2 <-
-        paste0("Meta-analyses are labelled 'meta1' to 'meta", n.meta,
-               "' as values of argument 'name' are not all disparate.")
-      print.warning2 <- FALSE
-      ##
-      name <- paste0("meta", n.i)
+  }
+  ##
+  ## Names for meta-analyses must be unique
+  ##
+  if (length(unique(name)) != length(name)) {
+    for (i in n.i)
+      if (name[i] %in% c("metabin", "metainc", "metaprop", "metarate") &
+          !is.trimfill[i])
+        name[i] <- paste(name[i], args[[i]]$method, sep = ".")
+  }
+  ##
+  if (length(unique(name)) != length(name)) {
+    if (missing.pooled) {
+      for (i in n.i)
+        if (inherits(args[[i]], "meta") & !is.copas[i])
+          name[i] <- paste(name[i], args[[i]]$method.tau, sep = ".")
+    }
+    else {
+      for (i in n.i)
+        if (inherits(args[[i]], "meta") & pooled[i] == "random" &
+            !is.copas[i])
+          name[i] <- paste(name[i], args[[i]]$method.tau, sep = ".")
     }
   }
+  ##
+  if (length(unique(name)) != length(name))
+    name <- paste0("meta", n.i)
   
   
   for (i in n.i) {
@@ -213,14 +265,16 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                          method.tau = m.i$method.tau,
                          tau.preset = replaceNULL(m.i$tau.preset),
                          TE.tau = replaceNULL(m.i$TE.tau),
-                         tau.common = m.i$tau.common,
+                         tau.common = replaceNULL(m.i$tau.common, FALSE),
                          prediction = m.i$prediction,
+                         prediction.subgroup =
+                           replaceNULL(m.i$prediction.subgroup, FALSE),
                          method.bias = "",
                          null.effect = m.i$null.effect,
                          ##
                          title = m.i$title,
                          complab = m.i$complab,
-                         outclab = if (missing(outclab)) m.i$outclab else outclab,
+                         outclab = if (missing.outclab) m.i$outclab else outclab,
                          label.e = m.i$label.e,
                          label.c = m.i$label.c,
                          label.left = m.i$label.left,
@@ -245,30 +299,22 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   ## Unify some settings
   ##
-  if (missing(pooled)) {
+  if (missing.pooled) {
     if (all(meth$fixed) & all(!meth$random))
-      pooled <- "fixed"
-    else if (all(!meth$fixed) & all(meth$random))
-      pooled <- "random"
-    else {
-      if (any(meth$fixed)) {
-        warning3 <-
-          paste("Note, results from random effects model extracted.",
-                "Use argument pooled = \"fixed\" for results of",
-                "fixed effect model.")
-        print.warning3 <- TRUE
-      }
-      pooled <- "random"
-    }
+      pooled <- rep("fixed", n.meta)
+    else
+      pooled <- rep("random", n.meta)
   }
   ##
-  if (pooled == "fixed") {
-    meth$fixed <- TRUE
-    meth$random <- FALSE
-  }
-  else {
+  unique.pooled <- length(unique(pooled)) == 1
+  ##
+  if (all(pooled == "random")) {
     meth$fixed <- FALSE
     meth$random <- TRUE
+  }
+  else {
+    meth$fixed <- TRUE
+    meth$random <- FALSE
   }
   
   
@@ -276,7 +322,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
     m.i <- args[[i]]
     ##
     if (length(m.i$tau) > 1)
-      if (pooled == "random") {
+      if (pooled[i] == "random") {
         m.i$tau <- m.i$tau[2]
         m.i$tau2 <- m.i$tau2[2]
         ##
@@ -299,56 +345,68 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
         }
       } 
     ##
-    subgroup.i <- data.frame(TE.fixed.w = m.i$TE.fixed,
-                             seTE.fixed.w = m.i$seTE.fixed,
-                             lower.fixed.w = m.i$lower.fixed,
-                             upper.fixed.w = m.i$upper.fixed,
-                             statistic.fixed.w = m.i$statistic.fixed,
-                             pval.fixed.w = m.i$pval.fixed,
-                             w.fixed.w = 0, # sum(m.i$w.fixed),
-                             ##
-                             TE.random.w = m.i$TE.random,
-                             seTE.random.w = m.i$seTE.random,
-                             lower.random.w = m.i$lower.random,
-                             upper.random.w = m.i$upper.random,
-                             statistic.random.w = m.i$statistic.random,
-                             pval.random.w = m.i$pval.random,
-                             df.hakn.w = replaceNULL(m.i$df.hakn),
-                             w.random.w = 0, # sum(m.i$w.random),
-                             ##
-                             n.harmonic.mean.w =
-                               1 / mean(1 / replaceNULL(m.i$n)),
-                             t.harmonic.mean.w =
-                               1 / mean(1 / replaceNULL(m.i$time)),
-                             ##
-                             n.e.w = sum(replaceNULL(m.i$n.e)),
-                             n.c.w = sum(replaceNULL(m.i$n.c)),
-                             ##
-                             k.w = m.i$k,
-                             k.all.w = length(m.i$TE),
-                             ##
-                             Q.w = m.i$Q,
-                             df.Q.w = m.i$df.Q,
-                             pval.Q.w = m.i$pval.Q,
-                             ##
-                             tau2.w = m.i$tau2,
-                             se.tau2.w = m.i$se.tau2,
-                             lower.tau2.w = m.i$lower.tau2,
-                             upper.tau2.w = m.i$upper.tau2,
-                             tau.w = m.i$tau,
-                             lower.tau.w = m.i$lower.tau,
-                             upper.tau.w = m.i$upper.tau,
-                             H.w = m.i$H,
-                             lower.H.w = m.i$lower.H,
-                             upper.H.w = m.i$upper.H,
-                             I2.w = m.i$I2,
-                             lower.I2.w = m.i$lower.I2,
-                             upper.I2.w = m.i$upper.I2,
-                             Rb.w = m.i$Rb,
-                             lower.Rb.w = m.i$lower.Rb,
-                             upper.Rb.w = m.i$upper.Rb,
-                             ##
-                             stringsAsFactors = FALSE)
+    if (unique.pooled) {
+      sel.r <- TRUE
+      sel.f <- !sel.r & !is.limit.copas[i]
+    }
+    else {
+      sel.r <- pooled[i] == "random"
+      sel.f <- !sel.r & !is.limit.copas[i]
+    }
+    ##
+    subgroup.i <- data.frame(
+      TE.fixed.w = if (sel.f) m.i$TE.fixed else m.i$TE.random,
+      seTE.fixed.w = if (sel.f) m.i$seTE.fixed else m.i$seTE.random,
+      lower.fixed.w = if (sel.f) m.i$lower.fixed else m.i$lower.random,
+      upper.fixed.w = if (sel.f) m.i$upper.fixed else m.i$upper.random,
+      statistic.fixed.w =
+        if (sel.f) m.i$statistic.fixed else m.i$statistic.random,
+      pval.fixed.w = if (sel.f) m.i$pval.fixed else m.i$pval.random,
+      w.fixed.w = 0, # sum(m.i$w.fixed),
+      ##
+      TE.random.w = if (!sel.r) m.i$TE.fixed else m.i$TE.random,
+      seTE.random.w = if (!sel.r) m.i$seTE.fixed else m.i$seTE.random,
+      lower.random.w = if (!sel.r) m.i$lower.fixed else m.i$lower.random,
+      upper.random.w = if (!sel.r) m.i$upper.fixed else m.i$upper.random,
+      statistic.random.w =
+        if (!sel.r) m.i$statistic.fixed else m.i$statistic.random,
+      pval.fixed.w = if (!sel.r) m.i$pval.fixed else m.i$pval.random,
+      df.hakn.w = replaceNULL(m.i$df.hakn),
+      w.random.w = 0, # sum(m.i$w.random),
+      ##
+      n.harmonic.mean.w =
+        1 / mean(1 / replaceNULL(m.i$n)),
+      t.harmonic.mean.w =
+        1 / mean(1 / replaceNULL(m.i$time)),
+      ##
+      n.e.w = sum(replaceNULL(m.i$n.e)),
+      n.c.w = sum(replaceNULL(m.i$n.c)),
+      ##
+      k.w = m.i$k,
+      k.all.w = length(m.i$TE),
+      ##
+      Q.w = if (!sel.r) NA else m.i$Q,
+      df.Q.w = if (!sel.r) NA else m.i$df.Q,
+      pval.Q.w = if (!sel.r) NA else m.i$pval.Q,
+      ##
+      tau2.w = if (!sel.r) NA else m.i$tau2,
+      se.tau2.w = if (!sel.r) NA else m.i$se.tau2,
+      lower.tau2.w = if (!sel.r) NA else m.i$lower.tau2,
+      upper.tau2.w = if (!sel.r) NA else m.i$upper.tau2,
+      tau.w = if (!sel.r) NA else m.i$tau,
+      lower.tau.w = if (!sel.r) NA else m.i$lower.tau,
+      upper.tau.w = if (!sel.r) NA else m.i$upper.tau,
+      H.w = if (!sel.r) NA else m.i$H,
+      lower.H.w = if (!sel.r) NA else m.i$lower.H,
+      upper.H.w = if (!sel.r) NA else m.i$upper.H,
+      I2.w = if (!sel.r) NA else m.i$I2,
+      lower.I2.w = if (!sel.r) NA else m.i$lower.I2,
+      upper.I2.w = if (!sel.r) NA else m.i$upper.I2,
+      Rb.w = if (!sel.r) NA else m.i$Rb,
+      lower.Rb.w = if (!sel.r) NA else m.i$lower.Rb,
+      upper.Rb.w = if (!sel.r) NA else m.i$upper.Rb,
+      ##
+      stringsAsFactors = FALSE)
     ##
     if (is.subgroup[i]) {
       ##
@@ -427,12 +485,12 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
                            df.Q = m.i$df.Q,
                            pval.Q = pvalQ(m.i$Q, m.i$df.Q),
                            ##
-                           tau = m.i$tau,
-                           lower.tau = m.i$lower.tau,
-                           upper.tau = m.i$upper.tau,
-                           tau2 = m.i$tau^2,
-                           lower.tau2 = m.i$lower.tau2,
-                           upper.tau2 = m.i$upper.tau2,
+                           tau = if (!sel.r) NA else m.i$tau,
+                           lower.tau = if (!sel.r) NA else m.i$lower.tau,
+                           upper.tau = if (!sel.r) NA else m.i$upper.tau,
+                           tau2 = if (!sel.r) NA else m.i$tau^2,
+                           lower.tau2 = if (!sel.r) NA else m.i$lower.tau2,
+                           upper.tau2 = if (!sel.r) NA else m.i$upper.tau2,
                            H = m.i$H,
                            lower.H = m.i$lower.H,
                            upper.H = m.i$upper.H,
@@ -526,7 +584,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   
   ## Unify more settings
   ##
-  if (missing(backtransf)) {
+  if (missing.backtransf) {
     if (any(meth$backtransf))
       meth$backtransf <- TRUE
   }
@@ -538,6 +596,11 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   ##
   if (any(meth$prediction))
     meth$prediction <- TRUE
+  ##
+  if (any(meth$prediction.subgroup))
+    meth$prediction.subgroup <- TRUE
+  else if (is.null(meth$prediction.subgroup) || anyNA(meth$prediction.subgroup))
+    meth$prediction.subgroup <- FALSE
   ##  
   ## Only consider argument 'tau.common' from subgroup meta-analyses
   ##
@@ -627,7 +690,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       study.i$n.e <- replaceNULL(m.i$n.e.w)
       study.i$n.c <- replaceNULL(m.i$n.c.w)
       ##
-      if (pooled == "fixed") {
+      if (pooled[i] == "fixed") {
         study.i$TE <- m.i$TE.fixed.w
         study.i$seTE <- m.i$seTE.fixed.w
         study.i$lower <- m.i$lower.fixed.w
@@ -652,7 +715,7 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
       study.i$n.e <- sum(replaceNULL(m.i$n.e.w))
       study.i$n.c <- sum(replaceNULL(m.i$n.c.w))
       ##
-      if (pooled == "fixed") {
+      if (pooled[i] == "fixed") {
         study.i$TE <- m.i$TE.fixed
         study.i$seTE <- m.i$seTE.fixed
         study.i$lower <- m.i$lower.fixed
@@ -776,8 +839,8 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   
   
   res$is.subgroup <- is.subgroup
-
-
+  
+  
   if (!is.null(res$subgroup)) {
     res$subgroup.name <- "meta-analysis"
     res$bylevs <- unique(res$subgroup)
@@ -792,21 +855,18 @@ metabind <- function(..., name, pooled, backtransf, outclab) {
   
   if (is.na(res$tau.preset))
     res$tau.preset <- NULL
-
-
+  ##
+  if (!unique.pooled) {
+    res$overall <- FALSE
+    res$overall.hetstat <- FALSE
+  }
+  ##
+  res$pooled <- pooled
+  res$is.limit.copas <- is.limit.copas
+  
+  
   class(res) <- c("metabind", "meta")
-
-
-  ##
-  ##
-  ##
-  if (print.warning1)
-    warning(warning1)
-  if (print.warning2)
-    warning(warning2)
-  if (print.warning3)
-    warning(warning3)
-
-
+  
+  
   res
 }

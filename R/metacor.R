@@ -94,6 +94,8 @@
 #'   between name of subgroup variable and subgroup label.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
@@ -482,11 +484,13 @@
 #' 
 #' m2 <- update(m1, sm = "cor")
 #' m2
-#' 
+#'
+#' \dontrun{
 #' # Identical forest plots (as back transformation is the identity
 #' # transformation)
-#' # forest(m2)
-#' # forest(m2, backtransf = FALSE)
+#' forest(m2)
+#' forest(m2, backtransf = FALSE)
+#' }
 #' 
 #' @export metacor
 
@@ -531,6 +535,7 @@ metacor <- function(cor, n, studlab,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
+                    prediction.subgroup = gs("prediction.subgroup"),
                     byvar,
                     ##
                     keepdata = gs("keepdata"),
@@ -629,44 +634,37 @@ metacor <- function(cor, n, studlab,
   ##
   ##
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   ## Catch 'cor' and 'n' from data:
   ##
-  cor <- eval(mf[[match("cor", names(mf))]],
-              data, enclos = sys.frame(sys.parent()))
+  cor <- catch("cor", mc, data, sfsp)
   chknull(cor)
   k.All <- length(cor)
   ##
-  n <- eval(mf[[match("n", names(mf))]],
-            data, enclos = sys.frame(sys.parent()))
+  n <- catch("n", mc, data, sfsp)
   chknull(n)
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
-  studlab <- eval(mf[[match("studlab", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
   ##
   missing.subgroup <- missing(subgroup)
-  subgroup <- eval(mf[[match("subgroup", names(mf))]],
-                   data, enclos = sys.frame(sys.parent()))
+  subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
-  byvar <- eval(mf[[match("byvar", names(mf))]],
-                data, enclos = sys.frame(sys.parent()))
+  byvar <- catch("byvar", mc, data, sfsp)
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar)
   by <- !is.null(subgroup)
   ##
-  subset <- eval(mf[[match("subset", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
-  exclude <- eval(mf[[match("exclude", names(mf))]],
-                  data, enclos = sys.frame(sys.parent()))
+  exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
   ## Additional checks
@@ -694,6 +692,7 @@ metacor <- function(cor, n, studlab,
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
+    chklogical(prediction.subgroup)
   }
   
   
@@ -795,9 +794,9 @@ metacor <- function(cor, n, studlab,
     ##
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname(mf[[match("subgroup", names(mf))]])
+        subgroup.name <- byvarname("subgroup", mc)
       else if (!missing.byvar)
-        subgroup.name <- byvarname(mf[[match("byvar", names(mf))]])
+        subgroup.name <- byvarname("byvar", mc)
     }
   }
   ##
@@ -912,6 +911,7 @@ metacor <- function(cor, n, studlab,
     res$print.subgroup.name <- print.subgroup.name
     res$sep.subgroup <- sep.subgroup
     res$test.subgroup <- test.subgroup
+    res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
     if (!tau.common)

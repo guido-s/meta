@@ -1,3 +1,101 @@
+## meta, version 5.2-0 (2022-mm-dd)
+
+### Major changes
+
+* Forest plot for meta-analysis with subgroups:
+  - more flexible printing of subgroup results
+  - by default, do not show subgroup results (pooled estimates and
+    information on heterogeneity) for subgroups consisting of a single
+    study
+
+* Prediction intervals in subgroups can be shown independently of
+  prediction interval for overall meta-analysis in printouts and
+  forest plots
+
+* Bubble plot shows relative treatment effects on original scale
+  instead of log scale and reference line is shown
+
+* Trim and fill, limit meta-analysis and Copas selection model objects
+  can be used in function metabind()
+
+* New function longarm() to transform data from pairwise comparisons
+  to long arm-based format
+
+* New auxiliary function labels.meta() to create study labels for
+  forest plots in JAMA or Lancet layout
+
+* Printing of spaces in confidence intervals can be suppressed
+
+* Help page of forest.meta() updated
+
+### Bug fixes
+
+* Use correct standard error to calculate prediction interval if
+  Hartung-Knapp method was used
+
+* In forest plots, show correct degrees of freedom for test of effect
+  in subgroups for Hartung-Knapp method
+
+* In update.meta(), consider input for arguments 'pscale', 'irscale'
+  and 'irunit' for meta-analysis objects created with metagen()
+
+### User-visible changes
+
+* forest.meta():
+  - new argument 'subgroup.hetstat'
+  - arguments 'subgroup', 'subgroup.hetstat', 'prediction.subgroup',
+    'test.effect.subgroup', 'test.effect.subgroup.fixed' and
+    'test.effect.subgroup.random' can be a logical vector of same
+    length as number of subgroups
+  - arguments 'lab.e', 'lab.c', 'lab.e.attach.to.col' and
+    'lab.c.attach.to.col' renamed to 'label.e', 'label.c',
+    'label.e.attach' and 'label.c.attach'
+
+* forest.meta(), metabin(), metacont(), metacor(), metacr(),
+  metagen(), metainc(), metamean(), metaprop(), metarate(),
+  print.meta(), update.meta():
+  - new argument 'prediction.subgroup'
+
+* metamerge():
+  - first argument can be of class 'limitmeta' or 'copas'
+
+* bubble.metareg():
+  - new argument 'backtransf' to (not) back transform relative
+    treatment effects on y-axis
+  - new arguments 'ref', 'col.ref', 'lty.ref' and 'lwd.ref' for
+    reference line
+
+* settings.meta():
+  - arguments 'print', 'reset' and 'setting' can be used like any
+    other setting; for example, it is possible to fully reset the
+    settings and switch to the RevMan 5 settings
+  - R commands 'settings.meta("print")' and 'settings.meta()' produce
+    the same printout
+  - new global setting 'prediction.subgroup' for prediction intervals
+    in subgroups
+  - new global settings 'CIlower.blank' and 'CIupper.blank'
+
+* cilayout():
+  - new arguments 'lower.blank' and 'upper.blank' to suppress printing
+    of spaces in confidence intervals
+  - additional checks for length of arguments
+
+### Internal changes
+
+* metagen():
+  - new list elements 'seTE.hakn' and 'seTE.hakn.adhoc' (with standard
+    error for Hartung-Knapp method) and 'seTE.classic' for classic
+    random effects inverse variance method
+
+* forest.meta():
+  - new code to assign missing column labels
+
+* Internal function formatCI() considers values for 'lower.blank' and
+  'upper.blank' in cilayout()
+
+* New internal function catch() to catch value for an argument
+
+
 ## meta, version 5.1-1 (2021-12-02)
 
 ### Major changes

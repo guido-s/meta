@@ -1,7 +1,8 @@
-#' Create study labels in JAMA layout (for forest plot)
+#' Create study labels in JAMA layout (deprecated function)
 #' 
 #' @description
-#' Create study labels in JAMA layout (for forest plot).
+#' Deprecated function to create study labels in JAMA layout (for
+#' forest plot). Replaced by \code{\link{labels.meta}}.
 #' 
 #' @details
 #' This auxiliary function can be used to create study labels in JAMA
@@ -10,13 +11,13 @@
 #' 
 #' @param author A vector providing study authors.
 #' @param year A vector providing year of publication.
-#' @param citation A vector proving citation numbers.
+#' @param citation A vector providing citation numbers.
 #' @param data An optional data frame containing the study
 #'   information.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{forest.meta}}
+#' @seealso \code{\link{labels.meta}}, \code{\link{forest.meta}}
 #' 
 #' @examples
 #' data(Fleiss1993bin)
@@ -27,11 +28,11 @@
 #'   JAMAlabels(study, year, refs, data = Fleiss1993bin)
 #'
 #' m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-#'              studlab = paste(study, year),
-#'              sm = "OR", random = FALSE)
+#'   studlab = paste(study, year),
+#'   sm = "OR", random = FALSE)
 #' 
 #' forest(m, studlab = mylabs, layout = "JAMA",
-#'        fontfamily = "Times", fontsize = 10)
+#'   fontfamily = "Times", fontsize = 10)
 #' 
 #' @export JAMAlabels
 
@@ -39,11 +40,11 @@
 JAMAlabels <- function(author, year, citation, data = NULL) {
   
   nulldata <- is.null(data)
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   if (nulldata)
-    data <- sys.frame(sys.parent())
-  ##
-  mf <- match.call()
+    data <- sfsp
   ##
   if (missing(author) | missing(year) | missing(citation))
     stop("Mandatory arguments: 'author', 'year', and 'citation'.",
@@ -51,14 +52,9 @@ JAMAlabels <- function(author, year, citation, data = NULL) {
   ##
   ## Catch 'author', 'year', and 'citation' from data:
   ##
-  author <- eval(mf[[match("author", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
-  ##
-  year <- eval(mf[[match("year", names(mf))]],
-               data, enclos = sys.frame(sys.parent()))
-  ##
-  citation <- eval(mf[[match("citation", names(mf))]],
-                 data, enclos = sys.frame(sys.parent()))
+  author <- catch("author", mc, data, sfsp)
+  year <- catch("year", mc, data, sfsp)
+  citation <- catch("citation", mc, data, sfsp)
   ##
   if (length(author) != length(year))
     stop("Arguments 'author' and 'year' must be of same length.",
@@ -79,4 +75,3 @@ JAMAlabels <- function(author, year, citation, data = NULL) {
   ##
   res
 }
-
