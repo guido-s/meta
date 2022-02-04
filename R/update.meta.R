@@ -225,8 +225,7 @@
 #' @examples
 #' data(Fleiss1993cont)
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year))
+#'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
 #' m1
 #' 
 #' # Change summary measure (from 'SMD' to 'MD')

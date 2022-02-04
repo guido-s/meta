@@ -209,9 +209,8 @@ used (\code{weight = "fixed"}) if argument \code{x$fixed} is
 \examples{
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-              data = Olkin1995,
-              studlab = paste(author, year),
-              sm = "RR", method = "I")
+  data = Olkin1995, studlab = paste(author, year),
+  sm = "RR", method = "I")
 
 # L'Abbe plot for risk ratio
 #
@@ -234,21 +233,17 @@ labbe(m1, sm = "OR", backtransf = FALSE)
 # L'Abbe plot for odds ratio with coloured lines for various
 # treatment effects (defined as log odds ratios)
 #
-mycols <- c("blue", "yellow", "green", "red",
-            "green", "yellow", "blue")
-labbe(m1, sm = "OR",
-      random = FALSE,
-      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-      col.fixed = mycols, lwd.fixed = 2)
+mycols <- c("blue", "yellow", "green", "red", "green", "yellow", "blue")
+labbe(m1, sm = "OR", random = FALSE,
+  TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+  col.fixed = mycols, lwd.fixed = 2)
 
 # L'Abbe plot on log odds scale with coloured lines for various
 # treatment effects (defined as log odds ratios)
 #
-labbe(m1, sm = "OR",
-      random = FALSE,
-      TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-      col.fixed = mycols, lwd.fixed = 2,
-      backtransf = FALSE)
+labbe(m1, sm = "OR", random = FALSE, backtransf = FALSE,
+  TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+  col.fixed = mycols, lwd.fixed = 2)
 
 }
 \references{

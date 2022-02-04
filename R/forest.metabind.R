@@ -58,6 +58,10 @@
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
 #' @param big.mark A character used as thousands separator.
+#' @param print.subgroup.labels A logical indicating whether subgroup
+#'   label should be printed.
+#' @param addrow.subgroups A logical value indicating whether an empty
+#'   row is printed between results for subgroups.
 #' @param smlab A label for the summary measurex (printed at top of
 #'   figure).
 #' @param calcwidth.pooled A logical indicating whether text for fixed
@@ -120,7 +124,7 @@
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "MD")
+#'   data = Fleiss1993cont, sm = "MD")
 #'
 #' # Conduct two subgroup analyses
 #' #
@@ -146,7 +150,7 @@ forest.metabind <- function(x,
                             ##
                             overall = FALSE,
                             subgroup = FALSE,
-                            hetstat = if (any(x$is.subgroup)) FALSE else "study",
+                            hetstat = FALSE,
                             overall.hetstat = FALSE,
                             ##
                             lab.NA = "",
@@ -163,6 +167,10 @@ forest.metabind <- function(x,
                             ##
                             scientific.pval = gs("scientific.pval"),
                             big.mark = gs("big.mark"),
+                            ##
+                            print.subgroup.labels =
+                              if (any(x$.meta$is.subgroup)) TRUE else FALSE,
+                            addrow.subgroups = print.subgroup.labels,
                             ##
                             smlab,
                             calcwidth.pooled = overall,
@@ -182,6 +190,9 @@ forest.metabind <- function(x,
   chklogical(overall)
   chklogical(subgroup)
   chklogical(overall.hetstat)
+  ##
+  chklogical(print.subgroup.labels)
+  chklogical(addrow.subgroups)
   ##
   chkchar(lab.NA)
   ##
@@ -235,6 +246,10 @@ forest.metabind <- function(x,
     leftcols <- c("studlab", "k")
     if (any(x$is.subgroup))
       leftcols <- c(leftcols, "pval.Q.b")
+    else {
+      x$studlab <- x$bylevs
+      leftcols <- c(leftcols, "tau2")
+    }
   }
   ##
   if (!is.logical(rightcols)) {
@@ -243,33 +258,53 @@ forest.metabind <- function(x,
     ##
     if ("k" %in% rightcols & "k" %in% leftcols)
       leftcols <- leftcols[leftcols != "k"]
+    ##
+    if ("tau2" %in% rightcols & "tau2" %in% leftcols)
+      leftcols <- leftcols[leftcols != "tau2"]
   }
   ##
-  label.studlab <- ifelse(any(x$is.subgroup), "Subgroup", "Meta-Analysis")
+  label.studlab <- ifelse(any(x$is.subgroup), "Subgroup", "Method")
   ##
-  if (missing(leftlabs)) {
+  newlab <- function(col, lab, varname, value) {
+    sel <- col == varname
+    if (!any(sel) || !is.na(lab[sel]))
+      return(lab)
+    else
+      lab[sel] <- value
+    lab
+  }
+  ##
+  if (missing(leftlabs))
     leftlabs <- rep(NA, length(leftcols))
-    leftlabs[leftcols == "studlab"] <- label.studlab
-    leftlabs[leftcols == "k"] <- "Number of\nStudies"
-    leftlabs[leftcols == "Q.b"] <- "Q.b"
-    leftlabs[leftcols == "tau2"] <- "Between-study\nvariance"
-    leftlabs[leftcols == "tau"] <- "Between-study\nSD"
-    leftlabs[leftcols == "pval.Q.b"] <- "Interaction\nP-value"
-    leftlabs[leftcols == "I2"] <- "I2"
+  if (any(is.na(leftlabs))) {
+    leftlabs <-
+      newlab(leftcols, leftlabs, "studlab", label.studlab)
+    leftlabs <-
+      newlab(leftcols, leftlabs, "k", "Number of\nStudies")
+    leftlabs <-
+      newlab(leftcols, leftlabs, "tau2", "Between-study\nvariance")
+    leftlabs <-
+      newlab(leftcols, leftlabs, "tau", "Between-study\nSD")
+    leftlabs <-
+      newlab(leftcols, leftlabs, "pval.Q.b", "Interaction\nP-value")
   }
   ##
-  if (missing(rightlabs)) {
+  if (missing(rightlabs))
     rightlabs <- rep(NA, length(rightcols))
-    rightlabs[rightcols == "studlab"] <- label.studlab
-    rightlabs[rightcols == "k"] <- "Number of\nStudies"
-    rightlabs[rightcols == "Q.b"] <- "Q.b"
-    rightlabs[rightcols == "tau2"] <- "Between-study\nvariance"
-    rightlabs[rightcols == "tau"] <- "Between-study\nSD"
-    rightlabs[rightcols == "pval.Q.b"] <- "Interaction\nP-value"
-    rightlabs[rightcols == "I2"] <- "I2"
+  if (any(is.na(rightlabs))) {
+    rightlabs <-
+      newlab(rightcols, rightlabs, "studlab", label.studlab)
+    rightlabs <-
+      newlab(rightcols, rightlabs, "k", "Number of\nStudies")
+    rightlabs <-
+      newlab(rightcols, rightlabs, "tau2", "Between-study\nvariance")
+    rightlabs <-
+      newlab(rightcols, rightlabs, "tau", "Between-study\nSD")
+    rightlabs <-
+      newlab(rightcols, rightlabs, "pval.Q.b", "Interaction\nP-value")
   }
-
-
+  
+  
   ##
   ## Set test for interaction
   ##
@@ -331,12 +366,15 @@ forest.metabind <- function(x,
   
   
   if (missing(smlab))
-    smlab <- paste0(if (x$fixed)
-                      "Fixed Effect Model"
-                    else
-                      "Random Effects Model",
-                    if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
-                      paste0("\n(", xlab(x$sm, x$backtransf), ")"))
+    if (length(unique(x$pooled)) == 1)
+      smlab <- paste0(if (x$fixed)
+                        "Fixed Effect Model"
+                      else
+                        "Random Effects Model",
+                      if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
+                        paste0("\n(", xlab(x$sm, x$backtransf), ")"))
+    else
+      smlab <- xlab(x$sm, x$backtransf)
   
   
   class(x) <- c("meta", "is.metabind")
@@ -346,6 +384,9 @@ forest.metabind <- function(x,
          leftcols = leftcols, leftlabs = leftlabs,
          rightcols = rightcols, rightlabs = rightlabs,
          overall = overall, subgroup = subgroup,
+         print.subgroup.labels = print.subgroup.labels,
+         addrow.subgroups = addrow.subgroups,
+         ##
          hetstat = hetstat, overall.hetstat = overall.hetstat,
          calcwidth.pooled = calcwidth.pooled,
          lab.NA = lab.NA, smlab = smlab,

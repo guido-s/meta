@@ -12,7 +12,7 @@
   rightlabs,
   overall = FALSE,
   subgroup = FALSE,
-  hetstat = if (any(x$is.subgroup)) FALSE else "study",
+  hetstat = FALSE,
   overall.hetstat = FALSE,
   lab.NA = "",
   digits = gs("digits.forest"),
@@ -26,6 +26,8 @@
   digits.I2 = max(gs("digits.I2") - 1, 0),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
+  print.subgroup.labels = if (any(x$.meta$is.subgroup)) TRUE else FALSE,
+  addrow.subgroups = print.subgroup.labels,
   smlab,
   calcwidth.pooled = overall,
   warn.deprecated = gs("warn.deprecated"),
@@ -106,6 +108,12 @@ be printed in scientific notation, e.g., 1.2345e-01 instead of
 
 \item{big.mark}{A character used as thousands separator.}
 
+\item{print.subgroup.labels}{A logical indicating whether subgroup
+label should be printed.}
+
+\item{addrow.subgroups}{A logical value indicating whether an empty
+row is printed between results for subgroups.}
+
 \item{smlab}{A label for the summary measurex (printed at top of
 figure).}
 
@@ -167,7 +175,7 @@ Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
 Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "MD")
+  data = Fleiss1993cont, sm = "MD")
 
 # Conduct two subgroup analyses
 #

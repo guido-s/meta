@@ -35,8 +35,7 @@ Fleiss1993cont$group <- c(1, 2, 1, 1, 2)
 # Do meta-analysis without grouping information
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "SMD",
-               studlab = paste(study, year))
+  data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
 #
 # Update meta-analysis object and do subgroup analyses
 #
@@ -45,8 +44,8 @@ update(m1, subgroup = group)
 # Same result using metacont function directly
 #
 m2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "SMD",
-               studlab = paste(study, year), subgroup = group)
+  data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year),
+  subgroup = group)
 m2
 
 # Compare printout of the following two commands

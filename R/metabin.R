@@ -734,8 +734,7 @@
 #' #
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = c(41, 47, 51, 59),
-#'               method = "Inverse")
+#'    data = Olkin1995, subset = c(41, 47, 51, 59), method = "Inverse")
 #' m1
 #' # Show results for individual studies
 #' summary(m1)
@@ -743,16 +742,16 @@
 #' # Use different subset of Olkin (1995)
 #' #
 #' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               method = "Inverse", studlab = author)
+#'   data = Olkin1995, subset = year < 1970, studlab = author,
+#'   method = "Inverse")
 #' m2
 #' forest(m2)
 #' 
 #' # Meta-analysis with odds ratio as summary measure
 #' #
 #' m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               sm = "OR", method = "Inverse", studlab = author)
+#'   data = Olkin1995, subset = year < 1970,
+#'   sm = "OR", method = "Inverse", studlab = author)
 #' # Same meta-analysis result using 'update.meta' function
 #' m3 <- update(m2, sm = "OR")
 #' m3
@@ -778,8 +777,7 @@
 #' # (default: model.glmm = "UM.FS")
 #' #
 #' m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = year < 1970,
-#'               method = "GLMM")
+#'   data = Olkin1995, subset = year < 1970, method = "GLMM")
 #' # Same results:
 #' m6 <- update(m2, method = "GLMM")
 #' m6

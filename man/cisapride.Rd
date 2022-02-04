@@ -33,8 +33,8 @@ This meta-analysis is used as a data example in Hartung and Knapp
 data(cisapride)
 
 m.or <- metabin(event.cisa, n.cisa, event.plac, n.plac,
-                data = cisapride, sm = "OR", method = "Inverse",
-                studlab = study, addincr = TRUE)
+  data = cisapride, sm = "OR", method = "Inverse",
+  studlab = study, addincr = TRUE)
 
 m.or.hakn <- update(m.or, hakn = TRUE)
 m.rr <- update(m.or, sm = "RR")
@@ -52,8 +52,8 @@ names(res.fixed.rr) <- vars.random
 # Results for log risk ratio - see Table VII in Hartung and Knapp (2001) 
 #
 res.rr <- rbind(res.fixed.rr,
-                as.data.frame(m.rr[vars.random]),
-                as.data.frame(m.rr.hakn[vars.random]))
+  as.data.frame(m.rr[vars.random]),
+  as.data.frame(m.rr.hakn[vars.random]))
 #
 row.names(res.rr) <- c("FE", "RE", "RE (HaKn)")
 names(res.rr) <- c("Log risk ratio", "CI lower", "CI upper")
@@ -64,8 +64,8 @@ res.rr
 # Results for log odds ratio (Table VII in Hartung and Knapp 2001) 
 #
 res.or <- rbind(res.fixed.or,
-                as.data.frame(m.or[vars.random]),
-                as.data.frame(m.or.hakn[vars.random]))
+  as.data.frame(m.or[vars.random]),
+  as.data.frame(m.or.hakn[vars.random]))
 #
 row.names(res.or) <- c("FE", "RE", "RE (HaKn)")
 names(res.or) <- c("Log odds ratio", "CI lower", "CI upper")

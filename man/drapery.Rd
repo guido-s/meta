@@ -237,9 +237,8 @@ and otherwise by 45 degrees.
 }
 \examples{
 data("lungcancer")
-m1 <- metainc(d.smokers, py.smokers,
-              d.nonsmokers, py.nonsmokers,
-              data = lungcancer, studlab = study)
+m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+  data = lungcancer, studlab = study)
 
 # Drapery plot
 #
@@ -248,8 +247,8 @@ drapery(m1, xlim = c(0.5, 50))
 \dontrun{
 data(Fleiss1993bin)
 m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
-         data = Fleiss1993bin, studlab = paste(study, year),
-         sm = "OR", random = FALSE)
+  data = Fleiss1993bin, studlab = paste(study, year),
+  sm = "OR", random = FALSE)
 
 # Produce drapery plot and print data frame with connection between
 # IDs and study labels
@@ -260,9 +259,9 @@ m2 <- metabin(d.asp, n.asp, d.plac, n.plac,
 # study labels and print labels and lines in red
 #
 drapery(m2,
-        labels = "studlab", subset.labels = pval < 0.05,
-        srt.labels = 0, col.labels = "red",
-        col.study = ifelse(pval < 0.05, "red", "darkgray"))
+  labels = "studlab", subset.labels = pval < 0.05,
+  srt.labels = 0, col.labels = "red",
+  col.study = ifelse(pval < 0.05, "red", "darkgray"))
 }
 
 }

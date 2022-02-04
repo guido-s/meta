@@ -19,7 +19,7 @@ metamerge(
 )
 }
 \arguments{
-\item{meta1}{First meta-analysis object (of class \code{"meta"}).}
+\item{meta1}{First meta-analysis object (see Details).}
 
 \item{meta2}{Second meta-analysis object (see Details).}
 
@@ -130,10 +130,16 @@ of the fixed effect or random effects meta-analysis and the
 }
 
 The first argument must be an object created by a meta-analysis
-function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. The
-second meta-analysis could also be an object created with
-\code{\link{trimfill}}, \code{\link[metasens]{limitmeta}},
-\code{\link[metasens]{copas}}, or \code{\link[robumeta]{robu}}.
+function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. It
+is also possible to provide an object created with
+\code{\link[metasens]{limitmeta}} or
+\code{\link[metasens]{copas}}. In this case, arguments \code{meta2}
+and \code{pooled2} will be ignored.
+
+The second meta-analysis could be an object created by a
+meta-analysis function or with \code{\link{trimfill}},
+\code{\link[metasens]{limitmeta}}, \code{\link[metasens]{copas}},
+or \code{\link[robumeta]{robu}}.
 
 The created meta-analysis object only contains the study results
 from the first meta-analysis which are shown in printouts and
@@ -150,16 +156,13 @@ individual study results.
 data(Fleiss1993cont)
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "MD",
-               fixed = FALSE,
-               text.random = "Classic random effects",
-               text.w.random = "RE")
+  data = Fleiss1993cont, sm = "MD", fixed = FALSE,
+  text.random = "Classic random effects", text.w.random = "RE")
 #
 # Use Hartung-Knapp method
 #
 m2 <- update(m1, hakn = TRUE,
-             text.random = "Hartung-Knapp method",
-             text.w.random = "HK")
+  text.random = "Hartung-Knapp method", text.w.random = "HK")
 #
 # Merge results of the two meta-analyses
 #
@@ -171,11 +174,9 @@ forest(m12, rightcols = c("effect", "ci", "w.fixed"))
 # between-study variance
 #
 m3 <- update(m1,
-             text.random = "Random effects moded (DL)",
-             text.w.random = "DL")
+  text.random = "Random effects moded (DL)", text.w.random = "DL")
 m4 <- update(m1, method.tau = "REML",
-             text.random = "Random effects moded (REML)",
-             text.w.random = "REML")
+  text.random = "Random effects moded (REML)", text.w.random = "REML")
 #
 m34 <- metamerge(m3, m4)
 m34
@@ -185,14 +186,13 @@ data(Fleiss1993bin)
 # Mantel-Haenszel method
 #
 m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-              studlab = paste(study, year),
-              sm = "OR", random = FALSE,
-              text.fixed = "MH method", text.w.fixed = "MH")
+  studlab = paste(study, year), sm = "OR", random = FALSE,
+  text.fixed = "MH method", text.w.fixed = "MH")
 #
 # Peto method
 #
 m6 <- update(m5, method = "Peto", text.fixed = "Peto method",
-             text.w.fixed = "Peto")
+  text.w.fixed = "Peto")
 #
 # Merge results (show individual results for MH method)
 #

@@ -117,8 +117,7 @@
 #' @examples
 #' data(Fleiss1993cont)
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year))
+#'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
 #' sm1 <- summary(m1)
 #' sm1
 #' 
@@ -127,8 +126,8 @@
 #' \dontrun{
 #' # Use unicode characters to print tau^2, tau, and I^2 
 #' print(sm1,
-#'       text.tau2 = "\u03c4\u00b2",
-#'       text.tau = "\u03c4", text.I2 = "I\u00b2")
+#'   text.tau2 = "\u03c4\u00b2",
+#'   text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
 #' @method print summary.meta

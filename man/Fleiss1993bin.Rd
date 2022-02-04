@@ -31,9 +31,7 @@ outcomes.
 }
 \examples{
 data(Fleiss1993bin)
-metabin(d.asp, n.asp, d.plac, n.plac,
-        data = Fleiss1993bin,
-        studlab = paste(study, year),
-        sm = "OR", random = FALSE)
+metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+  studlab = paste(study, year), sm = "OR", random = FALSE)
 }
 \keyword{datasets}

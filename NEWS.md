@@ -12,6 +12,12 @@
   prediction interval for overall meta-analysis in printouts and
   forest plots
 
+* Bubble plot shows relative treatment effects on original scale
+  instead of log scale and reference line is shown
+
+* Trim and fill, limit meta-analysis and Copas selection model objects
+  can be used in function metabind()
+
 * New function longarm() to transform data from pairwise comparisons
   to long arm-based format
 
@@ -49,6 +55,15 @@
   metagen(), metainc(), metamean(), metaprop(), metarate(),
   print.meta(), update.meta():
   - new argument 'prediction.subgroup'
+
+* metamerge():
+  - first argument can be of class 'limitmeta' or 'copas'
+
+* bubble.metareg():
+  - new argument 'backtransf' to (not) back transform relative
+    treatment effects on y-axis
+  - new arguments 'ref', 'col.ref', 'lty.ref' and 'lwd.ref' for
+    reference line
 
 * settings.meta():
   - arguments 'print', 'reset' and 'setting' can be used like any

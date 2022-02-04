@@ -202,26 +202,23 @@
 #' #
 #' settings.meta("revman5")
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
-#'        label.left = "Favours A", label.right = "Favours B",
-#'        colgap.studlab = "2cm",
-#'        colgap.forest.left = "0.2cm")
+#'   label.left = "Favours A", label.right = "Favours B",
+#'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
 #' # Forest plot using JAMA style
 #' #
 #' settings.meta("jama")
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
-#'        label.left = "Favours A", label.right = "Favours B",
-#'        colgap.studlab = "2cm",
-#'        colgap.forest.left = "0.2cm")
+#'   label.left = "Favours A", label.right = "Favours B",
+#'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #'
 #' # Use slightly different layout for confidence intervals
 #' # (especially useful if upper confidence limit can be negative)
 #' #
 #' settings.meta(CIseparator = " - ")
 #' forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
-#'        label.left="Favours A", label.right="Favours B",
-#'        colgap.studlab = "2cm",
-#'        colgap.forest.left = "0.2cm")
+#'   label.left="Favours A", label.right="Favours B",
+#'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
 #' # Use old settings
 #' #

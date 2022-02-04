@@ -82,8 +82,7 @@ Information from object \code{x} is utilised if argument
 \examples{
 data(Fleiss1993bin)
 m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
-              data = Fleiss1993bin, studlab = study,
-              sm = "RR", method = "I")
+  data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 m1
 metainf(m1)
 metainf(m1, pooled = "random")
@@ -95,13 +94,12 @@ forest(metainf(m1, pooled = "random"))
 metainf(m1, sortvar = study)
 metainf(m1, sortvar = 7:1)
 
-m2 <- update(m1, title = "Fleiss1993bin meta-analysis",
-             backtransf = FALSE)
+m2 <- update(m1, title = "Fleiss1993bin meta-analysis", backtransf = FALSE)
 metainf(m2)
 
 data(Fleiss1993cont)
 m3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-               data = Fleiss1993cont, sm = "SMD")
+  data = Fleiss1993cont, sm = "SMD")
 metainf(m3)
 
 }

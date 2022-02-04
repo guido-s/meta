@@ -103,9 +103,9 @@ augment <- function(x, len, fun) {
 }
 stoponly <- function(arg, val, func)
   stop("Argument ", arg, " =\"", val, "\"",
-               " only defined for meta-analysis conducted with ",
-               func, ".",
-               call. = FALSE)
+       " only defined for meta-analysis conducted with ",
+       func, ".",
+       call. = FALSE)
 deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
   ##
   new <- deparse(substitute(newvar))

@@ -754,7 +754,7 @@
 #' # Meta-analysis with Hedges' g as effect measure
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'                data = Fleiss1993cont, sm = "SMD")
+#'   data = Fleiss1993cont, sm = "SMD")
 #' m1
 #' forest(m1)
 #' 
@@ -775,9 +775,8 @@
 #' update(m1, exact.smd = TRUE)
 #' 
 #' data(amlodipine)
-#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
-#'                n.plac, mean.plac, sqrt(var.plac),
-#'                data = amlodipine, studlab = study)
+#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
+#'   data = amlodipine, studlab = study)
 #' m2
 #' 
 #' # Use pooled variance
@@ -787,9 +786,8 @@
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
 #' data(woodyplants)
-#' m3 <- metacont(n.elev, mean.elev, sd.elev,
-#' 		  n.amb, mean.amb, sd.amb,
-#'                data = woodyplants, sm = "ROM")
+#' m3 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
+#'   data = woodyplants, sm = "ROM")
 #' m3
 #' print(m3, backtransf = FALSE)
 #' 

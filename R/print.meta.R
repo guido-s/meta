@@ -1133,8 +1133,11 @@ print.meta <- function(x,
                                   if (!random) text.tau)
                                 )
         ##
-        cat(paste0("\nResults for ", anaunit, " (",
-                   text.fixed.br, "):\n"))
+        cat(paste0("\nResults for ", anaunit,
+                   if (is.metabind & length(unique(x$pooled)) != 1)
+                     ":\n"
+                   else
+                     paste0(" (", text.fixed.br, "):\n")))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
@@ -1234,7 +1237,11 @@ print.meta <- function(x,
                                   if (!fixed & print.Rb) text.Rb)
                                 )
         ##
-        cat(paste0("\nResults for ", anaunit, " (", text.random.br, "):\n"))
+        cat(paste0("\nResults for ", anaunit,
+                   if (is.metabind & length(unique(x$pooled)) != 1)
+                     ":\n"
+                   else
+                     paste0(" (", text.random.br, "):\n")))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##

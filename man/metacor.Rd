@@ -512,10 +512,12 @@ forest(m1, backtransf = FALSE)
 m2 <- update(m1, sm = "cor")
 m2
 
+\dontrun{
 # Identical forest plots (as back transformation is the identity
 # transformation)
-# forest(m2)
-# forest(m2, backtransf = FALSE)
+forest(m2)
+forest(m2, backtransf = FALSE)
+}
 
 }
 \references{

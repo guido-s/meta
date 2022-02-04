@@ -85,9 +85,8 @@ data.frame(SMD = round(mb$TE, 4), varSMD = round(mb$seTE^2, 4))
 #
 data(Fleiss1993bin)
 m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
-              data = Fleiss1993bin,
-              studlab = paste(study, year),
-              sm = "OR", random = FALSE)
+  data = Fleiss1993bin, studlab = paste(study, year),
+  sm = "OR", random = FALSE)
 or2smd(m1)
 
 }

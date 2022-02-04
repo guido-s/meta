@@ -141,9 +141,9 @@
 #' @examples
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'               data = Olkin1995, subset = c(41, 47, 51, 59),
-#'               studlab = paste(author, year),
-#'               sm = "RR", method = "I")
+#'   data = Olkin1995, subset = c(41, 47, 51, 59),
+#'   studlab = paste(author, year),
+#'   sm = "RR", method = "I")
 #' 
 #' oldpar <- par(mfrow = c(2, 2))
 #' 
@@ -157,17 +157,17 @@
 #' cc <- funnel(m1, fixed = TRUE,
 #'              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
 #' legend(0.05, 0.05,
-#'        c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
+#'   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
 #' 
 #' # Contour-enhanced funnel plot with user-chosen colours
 #' #
 #' funnel(m1, fixed = TRUE,
-#'        level = 0.95, contour = c(0.9, 0.95, 0.99),
-#'        col.contour = c("darkgreen", "green", "lightgreen"),
-#'        lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
+#'   level = 0.95, contour = c(0.9, 0.95, 0.99),
+#'   col.contour = c("darkgreen", "green", "lightgreen"),
+#'   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
 #' legend(0.05, 0.05,
-#'        c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"),
-#'        fill = c("darkgreen", "green", "lightgreen"))
+#'   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"),
+#'   fill = c("darkgreen", "green", "lightgreen"))
 #' 
 #' par(oldpar)
 #'

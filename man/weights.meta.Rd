@@ -52,8 +52,7 @@ data(Fleiss1993cont)
 # Do meta-analysis (fixed effect and random effects model)
 #
 meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-                  data = Fleiss1993cont, sm = "SMD",
-                  studlab = paste(study, year))
+  data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
 
 # Print weights for fixed effect and random effects meta-analysis
 #

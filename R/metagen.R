@@ -832,7 +832,7 @@
 #' @examples
 #' data(Fleiss1993bin)
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'               data = Fleiss1993bin, sm = "RR", method = "I")
+#'   data = Fleiss1993bin, sm = "RR", method = "I")
 #' m1
 #' 
 #' # Identical results using the generic inverse variance method with
@@ -843,19 +843,16 @@
 #' m1.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = m1, sm = "RR")
 #' m1.gen
 #' forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
-#'
 #' 
 #' # Meta-analysis with prespecified between-study variance
 #' #
 #' metagen(m1$TE, m1$seTE, sm = "RR", tau.preset = sqrt(0.1))
-#'
 #' 
 #' # Meta-analysis of survival data:
 #' #
 #' logHR <- log(c(0.95, 1.5))
 #' selogHR <- c(0.25, 0.35)
 #' metagen(logHR, selogHR, sm = "HR")
-#'
 #' 
 #' # Paule-Mandel method to estimate between-study variance for data
 #' # from Paule & Mandel (1982)
@@ -864,7 +861,6 @@
 #' variance <- c(0.003, 0.076, 0.464, 0.003, 0.014)
 #' #
 #' metagen(average, sqrt(variance), sm = "MD", method.tau = "PM")
-#'
 #' 
 #' # Conduct meta-analysis using hazard ratios and 95% confidence intervals
 #' #
@@ -879,41 +875,39 @@
 #' # Input must be log hazard ratios, not hazard ratios
 #' #
 #' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-#'         studlab = study, sm = "HR")
+#'   studlab = study, sm = "HR")
 #'
-#' 
 #' # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 #' # show them in printouts and forest plots
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = study %in% c("MRC-1", "MRC-2"))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = study %in% c("MRC-1", "MRC-2"))
 #' #
 #' # Exclude MRC-1 and MRC-2 studies completely from meta-analysis
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         subset = !(study %in% c("MRC-1", "MRC-2")))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   subset = !(study %in% c("MRC-1", "MRC-2")))
 #'
-#' 
 #' # Exclude studies with total sample size above 1500
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = (n.asp + n.plac) > 1500)
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = (n.asp + n.plac) > 1500)
 #'
 #' # Exclude studies containing "MRC" in study name
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         exclude = grep("MRC", study))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   exclude = grep("MRC", study))
 #'
 #' # Use both arguments 'subset' and 'exclude'
 #' #
 #' metabin(d.asp, n.asp, d.plac, n.plac, study,
-#'         data = Fleiss1993bin, sm = "RR", method = "I",
-#'         subset = (n.asp + n.plac) > 1500,
-#'         exclude = grep("MRC", study))
+#'   data = Fleiss1993bin, sm = "RR", method = "I",
+#'   subset = (n.asp + n.plac) > 1500,
+#'   exclude = grep("MRC", study))
 #' 
 #' @export metagen
 

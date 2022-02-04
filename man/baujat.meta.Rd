@@ -110,8 +110,7 @@ the values on the y-axis.
 data(Olkin1995)
 
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-              data = Olkin1995, sm = "OR", method = "I",
-              studlab = paste(author, year))
+  data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year))
 
 # Generate Baujat plot
 baujat(m1)

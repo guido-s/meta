@@ -645,16 +645,15 @@ effects model if \code{random = FALSE}.
 \examples{
 data(smoking)
 m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
-              data = smoking, studlab = study)
+  data = smoking, studlab = study)
 print(m1, digits = 2)
 
 m2 <- update(m1, method = "Cochran")
 print(m2, digits = 2)
 
 data(lungcancer)
-m3 <- metainc(d.smokers, py.smokers,
-              d.nonsmokers, py.nonsmokers,
-              data = lungcancer, studlab = study)
+m3 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+  data = lungcancer, studlab = study)
 print(m3, digits = 2)
 
 # Redo Cochran meta-analysis with inflated standard errors
@@ -662,17 +661,17 @@ print(m3, digits = 2)
 # All cause mortality
 #
 TEa <- log((smoking$d.smokers/smoking$py.smokers) /
-           (smoking$d.nonsmokers/smoking$py.nonsmokers))
+  (smoking$d.nonsmokers/smoking$py.nonsmokers))
 seTEa <- sqrt(1 / smoking$d.smokers + 1 / smoking$d.nonsmokers +
-              2.5 / smoking$d.nonsmokers)
+  2.5 / smoking$d.nonsmokers)
 metagen(TEa, seTEa, sm = "IRR", studlab = smoking$study)
 
 # Lung cancer mortality
 #
 TEl <- log((lungcancer$d.smokers/lungcancer$py.smokers) /
-           (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers))
+  (lungcancer$d.nonsmokers/lungcancer$py.nonsmokers))
 seTEl <- sqrt(1 / lungcancer$d.smokers + 1 / lungcancer$d.nonsmokers +
-              2.25 / lungcancer$d.nonsmokers)
+  2.25 / lungcancer$d.nonsmokers)
 metagen(TEl, seTEl, sm = "IRR", studlab = lungcancer$study)
 
 \dontrun{
@@ -682,7 +681,7 @@ metagen(TEl, seTEl, sm = "IRR", studlab = lungcancer$study)
 # Poisson regression model (fixed study effects)
 #
 m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
-              data = smoking, studlab = study, method = "GLMM")
+  data = smoking, studlab = study, method = "GLMM")
 m4
 
 # Mixed-effects Poisson regression model (random study effects)

@@ -1315,7 +1315,8 @@ dev.off()
 
 # Conduct subgroup meta-analysis
 #
-m2 <- update(m1, subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+m2 <- update(m1,
+  subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
   print.subgroup.name = FALSE)
 
 # Show summary results for subgroups with at least two studies

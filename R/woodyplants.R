@@ -48,10 +48,8 @@
 #' 
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
-#' m1 <- metacont(n.elev, mean.elev, sd.elev,
-#'                n.amb, mean.amb, sd.amb,
-#'                data = woodyplants, sm = "ROM",
-#'                studlab = paste(obsno, papno, sep = " / "))
+#' m1 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
+#'   data = woodyplants, sm = "ROM", studlab = paste(obsno, papno, sep = " / "))
 #' print(m1, prediction = TRUE)
 #' 
 #' # Meta-analysis for plants grown with low soil fertility treatment

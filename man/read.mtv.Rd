@@ -56,14 +56,14 @@ fleiss1933.cc <- read.mtv(filename)
 # Same result as R Command example(Fleiss1993bin):
 #
 metabin(event.e, n.e, event.c, n.c,
-        data = fleiss1933.cc, subset = type == "D",
-        studlab = paste(studlab, year))
+  data = fleiss1933.cc, subset = type == "D",
+  studlab = paste(studlab, year))
 
 # Same result: example(Fleiss1993cont)
 #
 metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c,
-         data = fleiss1933.cc, subset = type == "C",
-         studlab = paste(studlab, year))
+  data = fleiss1933.cc, subset = type == "C",
+  studlab = paste(studlab, year))
 
 }
 \references{
