@@ -1,3 +1,15 @@
+## meta, version 5.2-1 (2022-mm-dd)
+
+### User-visible changes
+
+* New function subset.longarm() to select subset of a longarm object
+
+### Internal changes
+
+* forest.meta():
+  - use meta:::formatN() instead of format() for formatting
+
+
 ## meta, version 5.2-0 (2022-02-04)
 
 ### Major changes

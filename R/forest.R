@@ -2436,7 +2436,7 @@ forest.meta <- function(x,
     if (missing(ff.lr))
       ff.lr <- "bold"
     if (xlab == "")
-      xlab <- paste0(smlab, " (", ci.lab, ")")
+      xlab <- paste0(sm.lab, " (", ci.lab, ")")
     if (miss.col.square)
       col.square <- rep("darkblue", K.all)
     if (miss.col.square.lines)
@@ -6426,25 +6426,23 @@ forest.meta <- function(x,
                              lab.NA.effect,
                              big.mark = big.mark)
     ci.format <- ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
-                        formatCI(format(round(exp(lowTEs), digits),
-                                        scientific = FALSE,
-                                        big.mark = big.mark),
-                                 format(round(exp(uppTEs), digits),
-                                        scientific = FALSE,
-                                        big.mark = big.mark)))
+                        formatCI(formatN(round(exp(lowTEs), digits),
+                                         big.mark = big.mark),
+                                 formatN(round(exp(uppTEs), digits),
+                                         big.mark = big.mark)))
   }
   else {
     effect.format <- formatN(round(TEs, digits), digits, lab.NA.effect,
                              big.mark = big.mark)
     ci.format <- ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
-                        formatCI(format(round(lowTEs, digits),
-                                        scientific = FALSE,
-                                        big.mark = big.mark),
-                                 format(round(uppTEs, digits),
-                                        scientific = FALSE,
-                                        big.mark = big.mark)))
+                        formatCI(formatN(round(lowTEs, digits),
+                                         big.mark = big.mark),
+                                 formatN(round(uppTEs, digits),
+                                         big.mark = big.mark)))
   }
-  effect.ci.format <- paste(effect.format, ci.format)
+  effect.ci.format <- paste0(effect.format,
+                             ifelse(is.na(TEs), "", " "),
+                             ci.format)
   ##
   ## No treatment effect for prediction interval
   ##
@@ -6570,25 +6568,21 @@ forest.meta <- function(x,
     }
   }
   ##
-  Ne.format <- ifelse(is.na(Ne), lab.NA, format(Ne, scientific = FALSE,
-                                                big.mark = big.mark))
-  Nc.format <- ifelse(is.na(Nc), lab.NA, format(Nc, scientific = FALSE,
-                                                big.mark = big.mark))
-  Ee.format <- ifelse(is.na(Ee), lab.NA, format(Ee, scientific = FALSE,
-                                                big.mark = big.mark))
-  Ec.format <- ifelse(is.na(Ec), lab.NA, format(Ec, scientific = FALSE,
-                                                big.mark = big.mark))
+  Ne.format <- formatN(Ne, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+  Nc.format <- formatN(Nc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+  Ee.format <- formatN(Ee, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+  Ec.format <- formatN(Ec, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   ##
   if (all(is.wholenumber(Te), na.rm = TRUE) & missing.digits.time)
-    Te.format <- ifelse(is.na(Te), lab.NA, format(Te, scientific = FALSE,
-                                                  big.mark = big.mark))
+    Te.format <-
+      formatN(Te, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
     Te.format <- formatN(round(Te, digits.time), digits.time, lab.NA,
                          big.mark = big.mark)
   ##
   if (all(is.wholenumber(Tc), na.rm = TRUE) & missing.digits.time)
-    Tc.format <- ifelse(is.na(Tc), lab.NA, format(Tc, scientific = FALSE,
-                                                  big.mark = big.mark))
+    Tc.format <-
+      formatN(Tc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
     Tc.format <- formatN(round(Tc, digits.time), digits.time, lab.NA,
                          big.mark = big.mark)
@@ -6660,10 +6654,8 @@ forest.meta <- function(x,
   }
   ##
   if (is.null(digits.mean)) {
-    Me.format <- ifelse(is.na(Me), lab.NA, format(Me, scientific = FALSE,
-                                                  big.mark = big.mark))
-    Mc.format <- ifelse(is.na(Mc), lab.NA, format(Mc, scientific = FALSE,
-                                                  big.mark = big.mark))
+    Me.format <- formatN(Me, text.NA = lab.NA, big.mark = big.mark)
+    Mc.format <- formatN(Mc, text.NA = lab.NA, big.mark = big.mark)
   }
   else {
     Me.format <- formatN(round(Me, digits.mean), digits.mean, lab.NA,
@@ -6672,10 +6664,8 @@ forest.meta <- function(x,
                          big.mark = big.mark)
   }
   if (is.null(digits.sd)) {
-    Se.format <- ifelse(is.na(Se), lab.NA, format(Se, scientific = FALSE,
-                                                  big.mark = big.mark))
-    Sc.format <- ifelse(is.na(Sc), lab.NA, format(Sc, scientific = FALSE,
-                                                  big.mark = big.mark))
+    Se.format <- formatN(Se, text.NA = lab.NA, big.mark = big.mark)
+    Sc.format <- formatN(Sc, text.NA = lab.NA, big.mark = big.mark)
   }
   else {
     Se.format <- formatN(round(Se, digits.sd), digits.sd, lab.NA,
@@ -6701,8 +6691,7 @@ forest.meta <- function(x,
     cor <- c(NA, NA, NA, x$cor)
   ##
   if (is.null(digits.cor))
-    cor.format <- ifelse(is.na(cor), lab.NA, format(cor, scientific = FALSE,
-                                                    big.mark = big.mark))
+    cor.format <- formatN(cor, text.NA = lab.NA)
   else
     cor.format <- formatN(round(cor, digits.cor), digits.cor, lab.NA,
                           big.mark = big.mark)
@@ -7451,9 +7440,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- ifelse(is.na(tmp.r), lab.NA,
-                            format(tmp.r, scientific = FALSE,
-                                   big.mark = big.mark))
+            tmp.r <- formatN(tmp.r, text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
             if (rightcols.new[i] == "pval")
               tmp.r <- formatPT(tmp.r, digits = digits.pval,
@@ -7500,9 +7487,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
           else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- ifelse(is.na(tmp.l), lab.NA,
-                            format(tmp.l, scientific = FALSE,
-                                   big.mark = big.mark))
+            tmp.l <- formatN(tmp.l, text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
             if (leftcols.new[i] == "pval")
               tmp.l <- formatPT(tmp.l, digits = digits.pval,
@@ -7554,9 +7539,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- ifelse(is.na(tmp.r), lab.NA,
-                            format(tmp.r, scientific = FALSE,
-                                   big.mark = big.mark))
+            tmp.r <- formatN(tmp.r, text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
             if (rightcols.new[i] == "pval")
               tmp.r <- formatPT(tmp.r, digits = digits.pval,
@@ -7607,9 +7590,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
           else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- ifelse(is.na(tmp.l), lab.NA,
-                            format(tmp.l, scientific = FALSE,
-                                   big.mark = big.mark))
+            tmp.l <- formatN(tmp.l, text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
             if (leftcols.new[i] == "pval")
               tmp.l <- formatPT(tmp.l, digits = digits.pval,
