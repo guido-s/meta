@@ -6654,8 +6654,19 @@ forest.meta <- function(x,
   }
   ##
   if (is.null(digits.mean)) {
-    Me.format <- formatN(Me, text.NA = lab.NA, big.mark = big.mark)
-    Mc.format <- formatN(Mc, text.NA = lab.NA, big.mark = big.mark)
+    if (all(is.wholenumber(Me), na.rm = TRUE))
+      Me.format <-
+        formatN(Me, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    else
+      Me.format <-
+        formatN(Me, text.NA = lab.NA, big.mark = big.mark)
+    ##
+    if (all(is.wholenumber(Mc), na.rm = TRUE))
+      Mc.format <-
+        formatN(Mc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    else
+      Mc.format <-
+        formatN(Mc, text.NA = lab.NA, big.mark = big.mark)
   }
   else {
     Me.format <- formatN(round(Me, digits.mean), digits.mean, lab.NA,
@@ -6664,8 +6675,19 @@ forest.meta <- function(x,
                          big.mark = big.mark)
   }
   if (is.null(digits.sd)) {
-    Se.format <- formatN(Se, text.NA = lab.NA, big.mark = big.mark)
-    Sc.format <- formatN(Sc, text.NA = lab.NA, big.mark = big.mark)
+    if (all(is.wholenumber(Se), na.rm = TRUE))
+      Se.format <-
+        formatN(Se, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    else
+      Se.format <-
+        formatN(Se, text.NA = lab.NA, big.mark = big.mark)
+    ##
+    if (all(is.wholenumber(Sc), na.rm = TRUE))
+      Sc.format <-
+        formatN(Sc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    else
+      Sc.format <-
+        formatN(Sc, text.NA = lab.NA, big.mark = big.mark)
   }
   else {
     Se.format <- formatN(round(Se, digits.sd), digits.sd, lab.NA,
@@ -7439,8 +7461,10 @@ forest.meta <- function(x,
         if (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
-          else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, text.NA = lab.NA, big.mark = big.mark)
+          else if (missing.addcols.right &
+                   all(is.wholenumber(tmp.r), na.rm = TRUE))
+            tmp.r <- formatN(tmp.r, digits = 0,
+                             text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
             if (rightcols.new[i] == "pval")
               tmp.r <- formatPT(tmp.r, digits = digits.pval,
@@ -7486,8 +7510,10 @@ forest.meta <- function(x,
         if (!is.character(tmp.l)) {
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
-          else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, text.NA = lab.NA, big.mark = big.mark)
+          else if (missing.addcols.left &
+                   all(is.wholenumber(tmp.l), na.rm = TRUE))
+            tmp.l <- formatN(tmp.l, digits = 0,
+                             text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
             if (leftcols.new[i] == "pval")
               tmp.l <- formatPT(tmp.l, digits = digits.pval,
@@ -7538,8 +7564,10 @@ forest.meta <- function(x,
         if (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
-          else if (all(is.wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, text.NA = lab.NA, big.mark = big.mark)
+          else if (missing.addcols.left &
+                   all(is.wholenumber(tmp.r), na.rm = TRUE))
+            tmp.r <- formatN(tmp.r, digits = 0,
+                             text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
             if (rightcols.new[i] == "pval")
               tmp.r <- formatPT(tmp.r, digits = digits.pval,
@@ -7589,8 +7617,10 @@ forest.meta <- function(x,
         if (!is.character(tmp.l)) {
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
-          else if (all(is.wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, text.NA = lab.NA, big.mark = big.mark)
+          else if (missing.addcols.left &
+                   all(is.wholenumber(tmp.l), na.rm = TRUE))
+            tmp.l <- formatN(tmp.l, digits = 0,
+                             text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
             if (leftcols.new[i] == "pval")
               tmp.l <- formatPT(tmp.l, digits = digits.pval,
