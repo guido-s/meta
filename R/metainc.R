@@ -744,7 +744,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   fun <- "metainc"
   ##
   if (sm != "IRD" & irscale != 1) {
-    warning("Argument 'irscale' only considered for incidence rate differences.")
+    warning("Argument 'irscale' only considered for ",
+            "incidence rate differences.",
+            call. = FALSE)
     irscale <- 1
   }
   ##
@@ -904,24 +906,28 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (is.glmm) {
     if (!is.null(TE.tau)) {
       if (warn)
-        warning("Argument 'TE.tau' not considered for GLMM.")
+        warning("Argument 'TE.tau' not considered for GLMM.",
+                call. = FALSE)
       TE.tau <- NULL
     }
     ##
     if (!is.null(tau.preset)) {
       if (warn)
-        warning("Argument 'tau.preset' not considered for GLMM.")
+        warning("Argument 'tau.preset' not considered for GLMM.",
+                call. = FALSE)
       tau.preset <- NULL
     }
   }
   if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as ",
-            "argument 'subgroup' is missing.")
+            "argument 'subgroup' is missing.",
+            call. = FALSE)
     tau.common <- FALSE
   }
   if (by & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as ",
-            "argument tau.preset is not NULL.")
+            "argument tau.preset is not NULL.",
+            call. = FALSE)
     tau.common <- TRUE
   }
   
@@ -1081,7 +1087,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
         (!missing(allincr) & allincr ) |
         (!missing(addincr) & addincr)
         )
-      warning("Note, for method = \"GLMM\", continuity correction only used to calculate individual study results.")
+      warning("Note, for method = \"GLMM\", continuity correction only ",
+              "used to calculate individual study results.",
+              call. = FALSE)
   ##
   if (addincr)
     incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
@@ -1168,7 +1176,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       seTE.fixed <- sqrt(1 / sum(event.e) + 1 / sum(event.c))
     }
     else if (sm == "IRD") {
-      warning("Cochran method only available for Incidence Rate Ratio (sm = \"IRR\")")
+      warning("Cochran method only available for ",
+              "Incidence Rate Ratio (sm = \"IRR\")",
+              call. = FALSE)
       return(NULL)
     }
   }

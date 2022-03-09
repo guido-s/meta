@@ -692,9 +692,10 @@ update.meta <- function(object,
     if (method == "GLMM") {
       sm <- "OR"
       method.tau <- "ML"
+      model.glmm <- replaceNULL(model.glmm, gs("model.glmm"))
     }
     ##
-    RR.Cochrane <- replaceNULL(object$RR.Cochrane, gs("RR.cochrane"))
+    RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
     ##
     if (method != "MH" |
         method.tau != "DL" |
@@ -947,6 +948,7 @@ update.meta <- function(object,
     if (method == "GLMM") {
       sm <- "IRR"
       method.tau <- "ML"
+      model.glmm <- replaceNULL(model.glmm, "UM.FS")
     }
     ##
     m <- metainc(event.e = object$data$.event.e,
