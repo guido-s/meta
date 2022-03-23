@@ -280,7 +280,7 @@ argslist.internal <-
     "print.byvar", "byseparator",
     "Wan2014.Table1", "Wan2014.Table2",
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
-    "ci4cont", "ci4prop",
+    "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
     "meth4tau", "meth4tau.ci",
     "adhoc4hakn",
@@ -301,6 +301,7 @@ setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
 ##
 setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
+setOption("ci4rate", c("NAsm", "Poisson"))
 ##
 setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
 setOption("meth4inc", c("Inverse", "MH", "Cochran", "GLMM"))
@@ -337,7 +338,7 @@ argslist <-
     "method", "allstudies", "MH.exact",
     "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
-    "method.ci.cont", "method.ci.prop",
+    "method.ci.cont", "method.ci.prop", "method.ci.rate",
     "label.e", "label.c", "label.left", "label.right",
     "layout",
     "test.overall", "test.subgroup", "prediction.subgroup",
@@ -453,6 +454,10 @@ setOption("method.ci.cont", "z")
 ## Additional setting for R function metaprop
 ##
 setOption("method.ci.prop", "CP")
+##
+## Additional setting for R function metarate
+##
+setOption("method.ci.rate", "NAsm")
 ##
 ## Settings for R functions comparing two treatments
 ##

@@ -354,11 +354,12 @@ print.meta <- function(x,
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
   metabin <- inherits(x, "metabin")
   metaprop <- inherits(x, "metaprop")
+  metarate <- inherits(x, "metarate")
   ##
   print.ci <- attr(x, ".print.study.results.")
   if (!is.null(print.ci) && print.ci) {
     method.ci <- x$method.ci
-    if (metaprop & !backtransf)
+    if ((metaprop | metarate) & !backtransf)
       method.ci <- "NAsm"
   }
   else
@@ -425,7 +426,8 @@ print.meta <- function(x,
   ##
   if (by)
     bylevs <- ifelse(nchar(x$bylevs) > nchar.subgroup,
-                     paste0(substring(x$bylevs, 1, nchar.subgroup - 4), " ..."),
+                     paste0(substring(x$bylevs, 1, nchar.subgroup - 4),
+                            " ..."),
                      x$bylevs)
   ##
   if (is.null(x$text.fixed))
@@ -711,7 +713,7 @@ print.meta <- function(x,
   ##
   sel.n <- inherits(x, c("metacor", "metaprop", "metamean", "metarate"))
   ##
-  sel.ev <- inherits(x, "metaprop")
+  sel.ev <- inherits(x, c("metaprop", "metarate"))
   
   
   ##
@@ -770,7 +772,7 @@ print.meta <- function(x,
     if (details.methods)
       catmeth(class = class(x),
               method =
-                if (!metaprop | (overall & (fixed | random)) |
+                if (!(metaprop | metarate) | (overall & (fixed | random)) |
                     overall.hetstat | by)
                   x$method else "NoMA",
               sm = sm,

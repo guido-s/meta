@@ -1,13 +1,26 @@
-## meta, version 5.2-1 (2022-mm-dd)
+## meta, version 5.3-0 (2022-mm-dd)
+
+### Major changes
+
+* Exact Poisson confidence limits can be calculated for individual
+  studies in meta-analysis of single rates
 
 ### User-visible changes
 
 * New function subset.longarm() to select subset of a longarm object
 
+* New argument 'method.ci' in function metarate()
+
+* New argument 'method.ci.rate' in function settings.meta()
+
 ### Internal changes
 
 * forest.meta():
   - use meta:::formatN() instead of format() for formatting
+
+* metarate():
+  - list elements 'lower' and 'upper' contain untransformed confidence
+    limits for individual studies
 
 
 ## meta, version 5.2-0 (2022-02-04)

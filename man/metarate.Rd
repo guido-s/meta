@@ -17,6 +17,7 @@ metarate(
   incr = gs("incr"),
   allincr = gs("allincr"),
   addincr = gs("addincr"),
+  method.ci = gs("method.ci.rate"),
   level = gs("level"),
   level.ma = gs("level.ma"),
   fixed = gs("fixed"),
@@ -96,6 +97,10 @@ events.}
 
 \item{addincr}{A logical indicating if \code{incr} is used for all
 studies irrespective of number of events.}
+
+\item{method.ci}{A character string indicating whether to use
+approximate normal ("NAsm") or exact Poisson ("Poisson")
+confidence limits.}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}

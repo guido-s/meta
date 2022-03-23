@@ -152,9 +152,9 @@
 #' @param method.ci A character string indicating which method is used
 #'   to calculate confidence intervals for individual studies. Either
 #'   \code{"z"}, \code{"t"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
-#'   \code{"SA"}, \code{"SACC"}, or \code{"NAsm"}, can be
-#'   abbreviated. See functions \code{\link{metacont}} and
-#'   \code{\link{metaprop}}.
+#'   \code{"SA"}, \code{"SACC"}, \code{"NAsm"}, or \code{"Poisson"},
+#'   can be abbreviated. See functions \code{\link{metacont}},
+#'   \code{\link{metaprop}} and \code{\link{metarate}}.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -1139,6 +1139,8 @@ update.meta <- function(object,
       method.tau <- "ML"
     }
     ##
+    method.ci <- replaceNULL(method.ci, gs("method.ci.rate"))
+    ##
     m <- metarate(event = object$data$.event,
                   time = object$data$.time,
                   ##
@@ -1151,6 +1153,7 @@ update.meta <- function(object,
                   incr = incr,
                   allincr = allincr, addincr = addincr,
                   ##
+                  method.ci = method.ci,
                   level = level, level.ma = level.ma,
                   fixed = fixed, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,

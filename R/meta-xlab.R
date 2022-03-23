@@ -149,19 +149,3 @@ xlab <- function(sm, backtransf,
   
   res
 }
-
-
-is.cor <- function(x)
-  x %in% gs("sm4cor")
-
-
-is.mean <- function(x)
-  x %in% gs("sm4mean")
-
-
-is.prop <- function(x)
-  x %in% gs("sm4prop")
-
-
-is.rate <- function(x)
-  x %in% gs("sm4rate")

@@ -202,8 +202,9 @@
 #' @importFrom graphics abline axis box mtext lines par plot points
 #'   polygon text
 #' 
-#' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm pt
-#'   qlogis qnorm qt runif update var weighted.mean weights
+#' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm
+#'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
+#'   weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail

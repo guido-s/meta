@@ -2266,10 +2266,16 @@ forest.meta <- function(x,
     pscale <- 1
   }
   ##
+  if (!backtransf & pscale != 1)
+    pscale <- 1
+  ##
   if (!backtransf & !missing(irscale) & irscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  ##
+  if (!backtransf & irscale != 1)
+    irscale <- 1
   ##
   if (is.null(xlab))
     xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
@@ -3122,7 +3128,7 @@ forest.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    if (metaprop & !backtransf) {
+    if ((metaprop | metarate) & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
       uppTE <- ciTE$upper
@@ -5610,6 +5616,9 @@ forest.meta <- function(x,
     if (metaprop) {
       TE <- x$event.e / x$n.e
     }
+    else if (metarate) {
+      TE <- x$event.e / x$time.e
+    }
     ## Relative effect measures will be back transformed later
     else if (!is.relative.effect(sm)) {
       TE <- backtransf(TE, sm, "mean", npft)
@@ -6879,7 +6888,7 @@ forest.meta <- function(x,
       xlim <- log(xlim)
   ##
   if (is.null(xlim)) {
-    if (metaprop) {
+    if (metaprop | metarate) {
       xlim <- c(min(lowTEs, na.rm = TRUE),
                 max(uppTEs, na.rm = TRUE))
       ##

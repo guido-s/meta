@@ -32,6 +32,9 @@
 #'   events.
 #' @param addincr A logical indicating if \code{incr} is used for all
 #'   studies irrespective of number of events.
+#' @param method.ci A character string indicating whether to use
+#'   approximate normal ("NAsm") or exact Poisson ("Poisson")
+#'   confidence limits.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
@@ -604,6 +607,7 @@ metarate <- function(event, time, studlab,
                      incr = gs("incr"), allincr = gs("allincr"),
                      addincr = gs("addincr"),
                      ##
+                     method.ci = gs("method.ci.rate"),
                      level = gs("level"), level.ma = gs("level.ma"),
                      fixed = gs("fixed"),
                      random = gs("random") | !is.null(tau.preset),
@@ -709,6 +713,7 @@ metarate <- function(event, time, studlab,
   ##
   chklogical(allincr)
   chklogical(addincr)
+  method.ci <- setchar(method.ci, gs("ci4rate"))
   chklogical(warn)
   ##
   if (is.glmm & sm != "IRLN")
@@ -972,6 +977,18 @@ metarate <- function(event, time, studlab,
   if (!is.null(n))
     n <- int2num(n)
   ##
+  ## Check for whole numbers
+  ##
+  if (method.ci != "NAsm") {
+    if (any(!is.wholenumber(event), na.rm = TRUE)) {
+      warning("Normal approximation confidence interval ",
+              "(argument method.ci = \"NAsm\") used as\n",
+              "at least one number of events contains a non-integer value.",
+              call. = FALSE)
+      method.ci <- "NAsm"
+    }
+  }
+  ##
   if (by) {
     chkmiss(subgroup)
     ##
@@ -1043,10 +1060,33 @@ metarate <- function(event, time, studlab,
   ##
   ## Calculate confidence intervals
   ##
-  ci.study <- ci(TE, seTE, level = level)
+  if (method.ci == "NAsm")
+    ci.study <- ci(TE, seTE, level = level)
+  else
+    ci.study <- ciPoisson(event, time, level, null.effect)
   ##
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
+  ##
+  if (method.ci == "NAsm") {
+    if (sm == "IRLN") {
+      lower.study <- exp(lower.study)
+      upper.study <- exp(upper.study)
+    }
+    else if (sm == "IRS") {
+      lower.study <- lower.study^2
+      upper.study <- upper.study^2
+    }
+    ##
+    else if (sm == "IRFT") {
+      lower.study <-
+        asin2ir(lower.study, time, value = "lower", warn = FALSE)
+      upper.study <-
+        asin2ir(upper.study, time, value = "upper", warn = FALSE)
+    }
+    ##
+    lower.study[lower.study < 0] <- 0
+  }
   
   
   ##
@@ -1128,6 +1168,7 @@ metarate <- function(event, time, studlab,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
+              method.ci = method.ci,
               incr.event = incr.event)
   ##
   ## Add meta-analysis results
@@ -1139,6 +1180,11 @@ metarate <- function(event, time, studlab,
   m$label.c <- ""
   m$label.left <- ""
   m$label.right <- ""
+  ##
+  if (method.ci == "exact") {
+    m$statistic <- rep(NA, length(m$statistic))
+    m$pval <- ci.study$p
+  }    
   ##
   res <- c(res, m)
   res$null.effect <- null.effect

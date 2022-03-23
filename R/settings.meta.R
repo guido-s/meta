@@ -462,6 +462,8 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setOption("method.ci.prop", "CP")
     ##
+    setOption("method.ci.rate", "NAsm")
+    ##
     setOption("label.e", "Experimental")
     setOption("label.c", "Control")
     setOption("label.left", "")
@@ -669,6 +671,9 @@ settings.meta <- function(..., quietly = TRUE) {
     cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci.prop")
     ##
+    cat("\n* Additional setting for metarate() *\n")
+    catarg("method.ci.rate")
+    ##
     cat("\n* Settings for R functions comparing two treatments *\n")
     catarg("label.e    ")
     catarg("label.c    ")
@@ -767,6 +772,8 @@ settings.meta <- function(..., quietly = TRUE) {
     idmethod.ci.cont <- argid(names.all, "method.ci.cont")
     ##
     idmethod.ci.prop <- argid(names.all, "method.ci.prop")
+    ##
+    idmethod.ci.rate <- argid(names.all, "method.ci.rate")
     ##
     idlabel.e <- argid(names.all, "label.e")
     idlabel.c <- argid(names.all, "label.c")
@@ -1214,6 +1221,12 @@ settings.meta <- function(..., quietly = TRUE) {
       smrate <- args[[idsmrate]]
       smrate <- setchar(smrate, gs("sm4rate"))
       setOption("smrate", smrate)
+    }
+    ##
+    if (!is.na(idmethod.ci.rate)) {
+      method.ci.rate <- args[[idmethod.ci.rate]]
+      method.ci.rate <- setchar(method.ci.rate, gs("ci4rate"))
+      setOption("method.ci.rate", method.ci.rate)
     }
     ##
     ## R functions comparing two treatments

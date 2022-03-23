@@ -1316,7 +1316,7 @@ metaprop <- function(event, n, studlab,
   ##
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
-  ##  
+  ##
   if (method.ci == "NAsm") {
     if (sm == "PLOGIT") {
       lower.study <- logit2p(lower.study)

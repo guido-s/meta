@@ -99,6 +99,9 @@ catmeth <- function(method,
     else if (method.ci == "NAsm")
       method.ci.details <-
         "\n- Normal approximation confidence interval for individual studies"
+    else if (method.ci == "Poisson")
+      method.ci.details <-
+        "\n- Exact Poisson confidence interval for individual studies"
     else if (method.ci == "t")
       method.ci.details <-
         "\n- Confidence interval for individual studies based on t-distribution"

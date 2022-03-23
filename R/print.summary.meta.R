@@ -558,7 +558,7 @@ print.summary.meta <- function(x,
   ## (5) Print results for individual studies
   ##
   ##
-  if (k.all == 1 & !inherits(x, "metaprop")) {
+  if (k.all == 1 & !inherits(x, c("metaprop", "metarate"))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -576,7 +576,7 @@ print.summary.meta <- function(x,
     uppTE <- x$upper
     method.ci <- x$method.ci
     ##
-    if (inherits(x, "metaprop") & !backtransf) {
+    if (inherits(x, c("metaprop", "metarate")) & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
       uppTE <- ciTE$upper
@@ -601,6 +601,9 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
+      ##
+      else if (inherits(x, "metarate"))
+        TE <- x$event / x$time
       else {
         TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, warn.backtransf)
         lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, warn.backtransf)
@@ -761,6 +764,9 @@ print.summary.meta <- function(x,
             method.ci.details <-
               paste0("Simple approximation confidence interval with ",
                      "continuity correction:\n\n")
+          else if (method.ci == "Poisson")
+            method.ci.details <-
+              "Exact Poisson confidence interval for individual studies:\n\n"
           else if (method.ci == "t")
             method.ci.details <-
               "Confidence interval based on t-distribution:\n\n"
