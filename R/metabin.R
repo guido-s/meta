@@ -1615,10 +1615,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       w.fixed <- C
       TE.fixed <- log(sum(A, na.rm = TRUE) / sum(C, na.rm = TRUE))
       seTE.fixed <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  *
-                            (sum(A * B, na.rm = TRUE) +
-                               exp(TE.fixed) * (sum(B * C, na.rm = TRUE) +
-                                                  sum(A * D, na.rm = TRUE)) +
-                                                    exp(TE.fixed)^2 * sum(C * D, na.rm = TRUE))))
+                          (sum(A * B, na.rm = TRUE) +
+                           exp(TE.fixed) * (sum(B * C, na.rm = TRUE) +
+                                            sum(A * D, na.rm = TRUE)) +
+                           exp(TE.fixed)^2 * sum(C * D, na.rm = TRUE))))
     }
     else if (sm == "RR") {
       ##

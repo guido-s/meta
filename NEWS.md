@@ -13,10 +13,17 @@
 
 * New argument 'method.ci.rate' in function settings.meta()
 
+* print.summary.meta():
+  - for a single study and metabin() with method = "MH", sm = "RR" and
+    RR.Cochrane = FALSE, print results using a continuity correction
+    for sample sizes of 1x incr (individual study) and 2x incr
+    (meta-analysis of single study)
+
 ### Internal changes
 
 * forest.meta():
   - use meta:::formatN() instead of format() for formatting
+  - print study label "1" instead of "" for a single study
 
 * metarate():
   - list elements 'lower' and 'upper' contain untransformed confidence

@@ -558,7 +558,10 @@ print.summary.meta <- function(x,
   ## (5) Print results for individual studies
   ##
   ##
-  if (k.all == 1 & !inherits(x, c("metaprop", "metarate"))) {
+  if (k.all == 1 &&
+      !(inherits(x, c("metaprop", "metarate")) |
+        (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+         !is.zero(x$TE - x$TE.fixed)))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -583,6 +586,10 @@ print.summary.meta <- function(x,
       ##
       method.ci <- "NAsm"
     }
+    if (k.all == 1 &&
+        inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        !is.zero(x$TE - x$TE.fixed))
+      method.ci <- "!RR.Cochrane"
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
@@ -770,14 +777,27 @@ print.summary.meta <- function(x,
           else if (method.ci == "t")
             method.ci.details <-
               "Confidence interval based on t-distribution:\n\n"
+          else if (method.ci == "!RR.Cochrane")
+            method.ci.details <-
+              paste0("Continuity correction of 1*incr for sample sizes\n",
+                     "(Hartung & Knapp, 2001, Stat Med, equation (18)):\n\n")
+          ##
           if (method.ci != "NAsm") {
-            catobsev(x$n, type = "n")
-            catobsev(x$event, type = "e", addrow = TRUE)
-            x.meta$n <- x.meta$event <- NA
+            if (method.ci == "!RR.Cochrane") {
+              catobsev(x$n.e + x$n.c, type = "n")
+              catobsev(x$event.e + x$event.c, type = "e", addrow = TRUE)
+              x.meta$n.e <- x.meta$event.e <-
+                x.meta$n.c <- x.meta$event.c <- NA
+            }
+            else {
+              catobsev(x$n, type = "n")
+              catobsev(x$event, type = "e", addrow = TRUE)
+              x.meta$n <- x.meta$event <- NA
+            }
             ##
             cat(method.ci.details)
             dimnames(res) <-
-              list("",
+              list(x$studlab,
                    c(sm.lab, ci.lab,
                      if (show.w.fixed) text.w.fixed,
                      if (show.w.random) text.w.random,
@@ -790,8 +810,12 @@ print.summary.meta <- function(x,
             cat("\n")
           }
         }
-        if (ma)
-          cat("Normal approximation confidence interval:")
+        if (ma) {
+          if (inherits(x, c("metaprop", "metarate")))
+            cat("Normal approximation confidence interval:")
+          else if (!is.null(method.ci) && method.ci == "!RR.Cochrane")
+            cat("Mantel-Haenszel method:")
+        }
         else {
           if (!(method.ci %in% c("t", "NAsm"))) {
             if (pscale != 1)
