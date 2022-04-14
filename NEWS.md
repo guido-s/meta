@@ -5,6 +5,11 @@
 * Exact Poisson confidence limits can be calculated for individual
   studies in meta-analysis of single rates
 
+### Bug fixes
+
+* Use correct standard error for Cox and Snell's method in smd2or()
+  and or2smd()
+
 ### User-visible changes
 
 * New function subset.longarm() to select subset of a longarm object

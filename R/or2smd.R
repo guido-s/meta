@@ -166,11 +166,11 @@ or2smd <- function(lnOR, selnOR, studlab,
   ##  
   if (method == "HH") {
     smd <- lnOR * sqrt(3) / pi
-    se.smd <- sqrt(selnOR^2 * 3 / pi^2)
+    se.smd <- selnOR * sqrt(3) / pi
   }
   else if (method == "CS") {
     smd <- lnOR / 1.65
-    se.smd <- sqrt(selnOR^2 / 1.65)
+    se.smd <- selnOR / 1.65
   }
   
   

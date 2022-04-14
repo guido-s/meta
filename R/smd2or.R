@@ -168,11 +168,11 @@ smd2or <- function(smd, se.smd, studlab,
   ##
   if (method == "HH") {
     lnOR <- smd * pi / sqrt(3)
-    selnOR <- sqrt(se.smd^2 * pi^2 / 3)
+    selnOR <- se.smd * pi / sqrt(3)
   }
   else if (method == "CS") {
     lnOR <- smd * 1.65
-    selnOR <- sqrt(se.smd^2 * 1.65)
+    selnOR <- se.smd * 1.65
   }
   ##
   chklogical(backtransf)
