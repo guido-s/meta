@@ -121,10 +121,10 @@ Argument \code{cex} specifies the plotting size for each individual
 study. If this argument is missing the weights from the
 meta-regression model will be used (which typically is a random
 effects model). Use \code{cex="fixed"} in order to utilise weights
-from a fixed effect model to define the size of the plotted symbols
-(even for a random effects meta-regression). If a vector with
-individual study weights is provided, the length of this vector
-must be of the same length as the number of studies.
+from a common effect model to define the size of the plotted
+symbols (even for a random effects meta-regression). If a vector
+with individual study weights is provided, the length of this
+vector must be of the same length as the number of studies.
 
 Arguments \code{min.cex} and \code{max.cex} can be used to define
 the size of the smallest and largest plotting symbol. The plotting

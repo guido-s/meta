@@ -51,7 +51,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -111,13 +111,13 @@
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
 #' @param text.fixed A character string used in printouts and forest
-#'   plot to label the pooled fixed effect estimate.
+#'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
 #' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
@@ -179,7 +179,7 @@
 #'   the linear regression test for funnel plot symmetry (i.e.,
 #'   function \code{metabias(..., method = "linreg")}) is used to
 #'   determine whether studies are missing on the left or right side.
-#' @param ma.fixed A logical indicating whether a fixed effect or
+#' @param ma.fixed A logical indicating whether a common effect or
 #'   random effects model is used to estimate the number of missing
 #'   studies.
 #' @param type A character indicating which method is used to estimate

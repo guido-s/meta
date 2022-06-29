@@ -5,6 +5,12 @@
 * Exact Poisson confidence limits can be calculated for individual
   studies in meta-analysis of single rates
 
+* Calculate Cochran's Q (instead of taken directly from **metafor**
+  package)
+
+* Use term 'common effect model' instead of 'fixed effect model' in
+  the documentation
+
 ### Bug fixes
 
 * Use correct standard error for Cox and Snell's method in smd2or()

@@ -8,7 +8,7 @@
 #' @param x An object of class \code{summary.meta}
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
-#' @param fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -199,7 +199,7 @@ print.summary.meta <- function(x,
     try(sortvar <-
           catch("sortvar", mc, x.meta, sfsp),
         silent = TRUE)
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
@@ -359,12 +359,12 @@ print.summary.meta <- function(x,
       sm.lab <- paste0("log", sm)
   ##
   if (is.null(x$text.w.fixed))
-    text.w.fixed <- "%W(fixed)"
+    text.w.fixed <- paste0("%W(", gs("text.w.fixed"), ")")
   else
     text.w.fixed <- paste0("%W(", x$text.w.fixed, ")")
   ##
   if (is.null(x$text.w.random))
-    text.w.random <- "%W(random)"
+    text.w.random <- paste0("%W(", gs("text.w.random"), ")")
   else
     text.w.random <- paste0("%W(", x$text.w.random, ")")
   ##
@@ -680,15 +680,15 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
-          cat("Influential analysis (Fixed effect model)\n")
+          cat(paste0("Influential analysis (", gs("text.fixed"), ")\n"))
         else
-          cat("Influential analysis (Random effects model)\n")
+          cat(paste0("Influential analysis (", gs("text.random"), ")\n"))
       }
       else if (inherits(x, "metacum")) {
         if (!is.random)
-          cat("Cumulative meta-analysis (Fixed effect model)\n")
+          cat(paste0("Cumulative meta-analysis (", gs("text.fixed"), ")\n"))
         else
-          cat("Cumulative meta-analysis (Random effects model)\n")
+          cat(paste0("Cumulative meta-analysis (", gs("text.random"), ")\n"))
       }
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")

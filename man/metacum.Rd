@@ -9,7 +9,7 @@ metacum(x, pooled, sortvar)
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{pooled}{A character string indicating whether a fixed effect
+\item{pooled}{A character string indicating whether a common effect
 or random effects model is used for pooling. Either missing (see
 Details), \code{"fixed"}, or \code{"random"}, can be abbreviated.}
 
@@ -26,7 +26,7 @@ containing the following components:
 \item{statistic}{Statistic for test of overall effect.}
 \item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing addition of studies.}
-\item{w}{Sum of weights from fixed effect or random effects model.}
+\item{w}{Sum of weights from common effect or random effects model.}
 \item{I2}{Heterogeneity statistic I\eqn{^2}.}
 \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 \item{tau}{Square-root of between-study variance.}
@@ -37,7 +37,7 @@ containing the following components:
 \item{k}{Number of studies combined in meta-analysis.}
 \item{pooled}{As defined above.}
 \item{fixed}{A logical indicating whether analysis is based on
-  fixed effect model.}
+  common effect model.}
 \item{random}{A logical indicating whether analysis is based
   on random effects model.}
 \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
@@ -71,8 +71,8 @@ A cumulative meta-analysis is performed. Studies are included
 sequentially as defined by \code{sortvar}.
 
 Information from object \code{x} is utilised if argument
-\code{pooled} is missing. A fixed effect / common effect model is
-assumed (\code{pooled = "fixed"}) if argument \code{x$fixed} is
+\code{pooled} is missing. A common effect model is assumed
+(\code{pooled = "fixed"}) if argument \code{x$fixed} is
 \code{TRUE}; a random effects model is assumed (\code{pooled =
 "random"}) if argument \code{x$random} is \code{TRUE} and
 \code{x$fixed} is \code{FALSE}.

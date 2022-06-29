@@ -29,12 +29,12 @@
 #' @param srt.labels A numerical vector or single numeric (between 0
 #'   and 90) specifying the angle to rotate study labels; see Details.
 #' @param fixed A logical indicating whether to show result for the
-#'   fixed effect / common effect model.
+#'   common effect model.
 #' @param random A logical indicating whether to show result for the
 #'   random effects model.
-#' @param lty.fixed Line type for fixed effect meta-analysis.
-#' @param lwd.fixed Line width for fixed effect meta-analysis.
-#' @param col.fixed Colour of lines for fixed effect meta-analysis.
+#' @param lty.fixed Line type for common effect meta-analysis.
+#' @param lwd.fixed Line width for common effect meta-analysis.
+#' @param col.fixed Colour of lines for common effect meta-analysis.
 #' @param lty.random Line type for random effects meta-analysis.
 #' @param lwd.random Line width for random effects meta-analysis.
 #' @param col.random Colour of lines for random effects meta-analysis.
@@ -74,7 +74,7 @@
 #'   \code{layout} is equal to \code{"linewidth"}).
 #' @param lwd.study.weight A character string indicating whether to
 #'   determine line width for individual studies using weights from
-#'   fixed effect (\code{"fixed"}) or random effects model
+#'   common effect (\code{"fixed"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
 #' @param at Points at which tick-marks are to be drawn on the x-axis.
@@ -131,7 +131,7 @@
 #' otherwise labels are not rotated.
 #' 
 #' If \code{labels = "studlab"}, labels are rotated by -45 degrees for
-#' studies with a treatment estimate below the fixed effect estimate
+#' studies with a treatment estimate below the common effect estimate
 #' and otherwise by 45 degrees.
 #' 
 #' @author Gerta Rücker \email{sc@@imbi.uni-freiburg.de}, Guido
@@ -642,7 +642,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       }
     }
     ##
-    ## Add fixed effect lines
+    ## Add common effect lines
     ##
     if (fixed)
       lines(x.grid[sel.fixed], y.fixed[sel.fixed],
@@ -691,8 +691,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                      if (random) lwd.random,
                      if (prediction) lwd.random),
              bty = bty, bg = bg,
-             c(if (fixed) "Fixed effect model",
-               if (random)"Random effects model",
+             c(if (fixed) gs("text.fixed"),
+               if (random) gs("text.random"),
                if (prediction) "Range of prediction"))
     ##
     ## Add y-axis on right side

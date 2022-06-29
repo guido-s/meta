@@ -11,7 +11,7 @@
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
 #' @param pooled A character string or vector indicating whether
-#'   results of a fixed effect or random effects model should be
+#'   results of a common effect or random effects model should be
 #'   considered. Either \code{"fixed"} or \code{"random"}, can be
 #'   abbreviated.
 #' @param backtransf A logical indicating whether results should be

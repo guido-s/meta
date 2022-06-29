@@ -14,7 +14,7 @@
 #'   the linear regression test for funnel plot symmetry (i.e.,
 #'   function \code{metabias(..., method="Egger")}) is used to
 #'   determine whether studies are missing on the left or right side.
-#' @param ma.fixed A logical indicating whether a fixed effect or
+#' @param ma.fixed A logical indicating whether a common effect or
 #'   random effects model is used to estimate the number of missing
 #'   studies.
 #' @param type A character indicating which method is used to estimate
@@ -33,7 +33,7 @@
 #' @param level.ma The level used to calculate confidence interval
 #'   for the pooled estimate. If existing, \code{x$level.ma} is used
 #'   as value for \code{level.ma}; otherwise 0.95 is used.
-#' @param fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -85,17 +85,17 @@
 #' R-estimator) have been shown to perform better in simulations, and
 #' are available in this R function (argument \code{type}).
 #' 
-#' A fixed effect or random effects model can be used to estimate the
+#' A common effect or random effects model can be used to estimate the
 #' number of missing studies (argument \code{ma.fixed}). Furthermore,
-#' a fixed effect and/or random effects model can be used to summaries
+#' a common effect and/or random effects model can be used to summaries
 #' study results (arguments \code{fixed} and
 #' \code{random}). Simulation results (Peters et al. 2007)
-#' indicate that the fixed-random model, i.e. using a fixed effect
+#' indicate that the common-random model, i.e. using a common effect
 #' model to estimate the number of missing studies and a random
 #' effects model to summaries results, (i) performs better than the
-#' fixed-fixed model, and (ii) performs no worse than and marginally
+#' common-common model, and (ii) performs no worse than and marginally
 #' better in certain situations than the random-random
-#' model. Accordingly, the fixed-random model is the default.
+#' model. Accordingly, the common-random model is the default.
 #' 
 #' An empirical comparison of the trim-and-fill method and the Copas
 #' selection model (Schwarzer et al. 2010) indicates that the
@@ -119,10 +119,10 @@
 #'   individual studies.}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
-#'   random effects model).} 
+#' \item{w.fixed, w.random}{Weight of individual studies (in common
+#'   effect and random effects model).}
 #' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-#'   standard error (fixed effect model).}
+#'   standard error (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
 #' \item{seTE.predict}{Standard error utilised for prediction

@@ -3,11 +3,11 @@
 #' @description
 #' This function returns a data frame containing information on
 #' absolute and percentage weights of individual studies contributing
-#' to fixed effect and random effects meta-analysis.
+#' to common effect and random effects meta-analysis.
 #' 
 #' @param object An object of class \code{meta}.
 #' @param fixed A logical indicating whether absolute and
-#'   percentage weights from the fixed effect model should be
+#'   percentage weights from the common effect model should be
 #'   calculated.
 #' @param random A logical indicating whether absolute and
 #'   percentage weights from the random effects model should be
@@ -20,9 +20,9 @@
 #' A data frame with the following variables is returned:
 #' \tabular{lll}{
 #' \bold{Variable} \tab \bold{Definition} \tab \bold{Condition} \cr
-#' w.fixed \tab absolute weights in fixed effect model \tab (if
+#' w.fixed \tab absolute weights in common effect model \tab (if
 #'   \code{fixed = TRUE}) \cr
-#' p.fixed \tab percentage weights in fixed effect model \tab (if
+#' p.fixed \tab percentage weights in common effect model \tab (if
 #'   \code{fixed = TRUE}) \cr
 #' w.random \tab absolute weights in random effects model \tab (if
 #'   \code{random = TRUE}) \cr
@@ -37,12 +37,12 @@
 #' 
 #' @examples
 #' data(Fleiss1993cont)
-#' # Do meta-analysis (fixed effect and random effects model)
+#' # Do meta-analysis (common effect and random effects model)
 #' #
 #' meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
 #' 
-#' # Print weights for fixed effect and random effects meta-analysis
+#' # Print weights for common effect and random effects meta-analysis
 #' #
 #' weights(meta1)
 #' 
@@ -54,7 +54,7 @@
 #' #
 #' weights(meta2)
 #' 
-#' # Print weights for fixed effect and random effects meta-analysis
+#' # Print weights for common effect and random effects meta-analysis
 #' #
 #' weights(meta2, fixed = TRUE)
 #' 

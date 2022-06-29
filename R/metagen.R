@@ -2,7 +2,7 @@
 #' 
 #' @description
 #' 
-#' Fixed effect and random effects meta-analysis based on estimates
+#' Common effect and random effects meta-analysis based on estimates
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
 #'
@@ -35,8 +35,8 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
-#' @param fixed A logical indicating whether a fixed effect / common
-#'   effect meta-analysis should be conducted.
+#' @param fixed A logical indicating whether a common effect
+#'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param overall A logical indicating whether overall summaries
@@ -129,13 +129,13 @@
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
 #' @param text.fixed A character string used in printouts and forest
-#'   plot to label the pooled fixed effect estimate.
+#'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
 #' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
@@ -322,7 +322,7 @@
 #' By default, the first method is used if argument \code{df} is
 #' missing and the second method otherwise.
 #' 
-#' Note, this choice does not affect the results of the fixed effect
+#' Note, this choice does not affect the results of the common effect
 #' and random effects meta-analysis.
 #' }
 #' 
@@ -399,7 +399,7 @@
 #' the variance estimate from the classic random effects model with
 #' the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
 #' alternative approach is to use the wider confidence interval of
-#' classic fixed or random effects meta-analysis and the HK method
+#' classic common or random effects meta-analysis and the HK method
 #' (Wiksten et al., 2016; Jackson et al., 2017).
 #'
 #' Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
@@ -480,7 +480,7 @@
 #' 
 #' \subsection{Presentation of meta-analysis results}{
 #' 
-#' Internally, both fixed effect and random effects models are
+#' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{fixed} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
@@ -536,14 +536,14 @@
 #'   individual studies.}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
-#'   random effects model).}
+#' \item{w.fixed, w.random}{Weight of individual studies (in common
+#'   effect and random effects model).}
 #' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-#'   standard error (fixed effect model).}
+#'   standard error (common effect model).}
 #' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-#'   limits (fixed effect model).}
+#'   limits (common effect model).}
 #' \item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
-#'   overall treatment effect (fixed effect model).}
+#'   overall treatment effect (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
 #' \item{lower.random, upper.random}{Lower and upper confidence
@@ -587,13 +587,13 @@
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
 #' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
-#'   standard error in subgroups (fixed effect model) - if
+#'   standard error in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
-#'   interval limits in subgroups (fixed effect model) - if
+#'   interval limits in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
-#'   test of treatment effect in subgroups (fixed effect model) - if
+#'   test of treatment effect in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
 #'   standard error in subgroups (random effects model) - if
@@ -604,8 +604,8 @@
 #' \item{statistic.random.w, pval.random.w}{Statistics and p-values
 #'   for test of treatment effect in subgroups (random effects model)
 #'   - if \code{subgroup} is not missing.}
-#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-#'   random effects model) - if \code{subgroup} is not missing.}
+#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in common effect
+#'   and random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
 #'   missing and \code{hakn = TRUE}.}
@@ -621,20 +621,20 @@
 #' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
 #' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-#'   (based on fixed effect model) - if \code{subgroup} is not missing.}
+#'   (based on common effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
+#'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-#'   Q (based on fixed effect model) - if \code{subgroup} is not
+#'   Q (based on common effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
@@ -642,7 +642,7 @@
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
 #' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
+#'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}  \item{pval.Q.b.random}{P-value of between
 #'   subgroups heterogeneity statistic Q (based on random effects
 #'   model) - if \code{subgroup} is not missing.}
@@ -1911,7 +1911,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       if (fixed) {
         if (!missing.fixed)
-          warning("Fixed effect model not calculated for three-level model.",
+          warning(gs("text.fixed"), " not calculated for three-level model.",
                   call. = FALSE)
         fixed <- FALSE
       }

@@ -9,11 +9,11 @@
 #' @param meta1 First meta-analysis object (see Details).
 #' @param meta2 Second meta-analysis object (see Details).
 #' @param pooled1 A character string indicating whether results of
-#'   fixed effect or random effects model should be considered for
+#'   common effect or random effects model should be considered for
 #'   first meta-analysis. Either \code{"fixed"} or \code{"random"},
 #'   can be abbreviated.
 #' @param pooled2 A character string indicating whether results of
-#'   fixed effect or random effects model should be considered for
+#'   common effect or random effects model should be considered for
 #'   second meta-analysis. Either \code{"fixed"} or \code{"random"},
 #'   can be abbreviated.
 #' @param text.pooled1 A character string used in printouts and forest
@@ -35,13 +35,13 @@
 #' 
 #' @details
 #' In R package \bold{meta}, objects of class \code{"meta"} contain
-#' results of both a fixed effect and random effects
+#' results of both a common effect and random effects
 #' meta-analysis. This function enables the user to keep the results
 #' of one of these models and to add results from a second
 #' meta-analysis or a sensitivity analysis.
 #'
 #' Applications of this function include printing and plotting results
-#' of the fixed effect or random effects meta-analysis and the
+#' of the common effect or random effects meta-analysis and the
 #' \itemize{
 #' \item Hartung-Knapp method (see argument \code{hakn} in
 #'   \code{\link{metagen}}),
@@ -312,7 +312,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   
   
   ##
-  ## Result of first meta-analysis is saved in list elements for fixed
+  ## Result of first meta-analysis is saved in list elements for common
   ## effect model
   ##
   if (pooled1 == "random" && !is.null(meta1$hakn) && meta1$hakn)

@@ -14,8 +14,8 @@
 #'   provided (must be of same length as \code{x$TE} then).
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see Details).
-#' @param fixed A logical indicating whether fixed effect / common
-#'   effect estimate should be plotted.
+#' @param fixed A logical indicating whether common effect estimate
+#'   should be plotted.
 #' @param random A logical indicating whether random effects estimate
 #'   should be plotted.
 #' @param overall A logical indicating whether overall summaries
@@ -23,15 +23,15 @@
 #'   with subgroups if summaries should only be plotted on group
 #'   level.
 #' @param text.fixed A character string used in the plot to label the
-#'   pooled fixed effect estimate.
+#'   pooled common effect estimate.
 #' @param text.random A character string used in the plot to label the
 #'   pooled random effects estimate.
-#' @param lty.fixed Line type (pooled fixed effect estimate).
+#' @param lty.fixed Line type (pooled common effect estimate).
 #' @param lty.random Line type (pooled random effects estimate).
-#' @param col.fixed Line colour (pooled fixed effect estimate).
+#' @param col.fixed Line colour (pooled common effect estimate).
 #' @param col.random Line colour (pooled random effects estimate).
 #' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param prediction A logical indicating whether a prediction
@@ -56,7 +56,7 @@
 #'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
-#' @param text.fixed.w A character string to label the pooled fixed
+#' @param text.fixed.w A character string to label the pooled common
 #'   effect estimate within subgroups, or a character vector of same
 #'   length as number of subgroups with corresponging labels.
 #' @param text.random.w A character string to label the pooled random
@@ -93,14 +93,14 @@
 #'   \code{type.study}) to plot individual study results. One of
 #'   missing, \code{"same"}, \code{"fixed"}, or \code{"random"}, can
 #'   be abbreviated. Plot symbols have the same size for all studies
-#'   or represent study weights from fixed effect or random effects
+#'   or represent study weights from common effect or random effects
 #'   model.
 #' @param weight.subgroup A character string indicating weighting used
 #'   to determine size of squares or diamonds (argument
 #'   \code{type.subgroup}) to plot subgroup results. One of missing,
 #'   \code{"same"}, or \code{"weight"}, can be abbreviated. Plot
 #'   symbols have the same size for all subgroup results or represent
-#'   subgroup weights from fixed effect or random effects model.
+#'   subgroup weights from common effect or random effects model.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -160,7 +160,7 @@
 #'   plot treatment effects and confidence intervals for individual
 #'   studies (see Details).
 #' @param type.fixed A character string specifying how to plot
-#'   treatment effect and confidence interval for fixed effect
+#'   treatment effect and confidence interval for common effect
 #'   meta-analysis (see Details).
 #' @param type.random A character string specifying how to plot
 #'   treatment effect and confidence interval for random effects
@@ -170,7 +170,7 @@
 #'   (see Details).
 #' @param type.subgroup.fixed A character string specifying how to
 #'   plot treatment effect and confidence interval for subgroup
-#'   results (fixed effect model).
+#'   results (common effect model).
 #' @param type.subgroup.random A character string specifying how to
 #'   plot treatment effect and confidence interval for subgroup
 #'   results (random effects model).
@@ -179,7 +179,7 @@
 #' @param col.inside The colour for individual study results and
 #'   confidence limits if confidence limits are completely within
 #'   squares.
-#' @param col.inside.fixed The colour for result of fixed effect
+#' @param col.inside.fixed The colour for result of common effect
 #'   meta-analysis if confidence limit lies completely within square.
 #' @param col.inside.random The colour for result of random effects
 #'   meta-analysis if confidence limit lies completely within square.
@@ -188,16 +188,16 @@
 #' @param col.square.lines The colour for the outer lines of squares
 #'   reflecting study's weight in the meta-analysis.
 #' @param col.diamond The colour of diamonds representing the results
-#'   for fixed effect and random effects models.
-#' @param col.diamond.fixed The colour of diamonds for fixed effect
+#'   for common effect and random effects models.
+#' @param col.diamond.fixed The colour of diamonds for common effect
 #'   estimates.
 #' @param col.diamond.random The colour of diamonds for random effects
 #'   estimates.
 #' @param col.diamond.lines The colour of the outer lines of diamonds
-#'   representing the results for fixed effect and random effects
+#'   representing the results for common effect and random effects
 #'   models.
 #' @param col.diamond.lines.fixed The colour of the outer lines of
-#'   diamond for fixed effect estimate.
+#'   diamond for common effect estimate.
 #' @param col.diamond.lines.random The colour of the outer lines of
 #'   diamond for random effects estimate.
 #' @param col.predict Background colour of prediction interval.
@@ -255,11 +255,11 @@
 #' @param test.overall A logical value indicating whether to print
 #'   results of test for overall effect.
 #' @param test.overall.fixed A logical value indicating whether to
-#'   print results of test for overall effect (fixed effect model).
+#'   print results of test for overall effect (common effect model).
 #' @param test.overall.random A logical value indicating whether to
 #'   print results of test for overall effect (random effects model).
 #' @param label.test.overall.fixed Label printed in front of results
-#'   of test for overall effect (fixed effect model).
+#'   of test for overall effect (common effect model).
 #' @param label.test.overall.random Label printed in front of results
 #'   of test for overall effect (random effects model).
 #' @param print.stat A logical value indicating whether z- or t-value
@@ -267,7 +267,7 @@
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
 #' @param test.subgroup.fixed A logical value indicating whether to
-#'   print results of test for subgroup differences (fixed effect
+#'   print results of test for subgroup differences (common effect
 #'   model).
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (random effects
@@ -279,7 +279,7 @@
 #'   the value of the heterogeneity statistic Q (test for subgroup
 #'   differences).
 #' @param label.test.subgroup.fixed Label printed in front of results
-#'   of test for subgroup differences (fixed effect model).
+#'   of test for subgroup differences (common effect model).
 #' @param label.test.subgroup.random Label printed in front of results
 #'   of test for subgroup differences (random effects model).
 #' @param test.effect.subgroup A single logical or logical vector
@@ -287,12 +287,12 @@
 #'   be printed.
 #' @param test.effect.subgroup.fixed A single logical or logical
 #'   vector indicating whether / which tests for effect in subgroups
-#'   should be printed (fixed effect model).
+#'   should be printed (common effect model).
 #' @param test.effect.subgroup.random A single logical or logical
 #'   vector indicating whether / which tests for effect in subgroups
 #'   should be printed (random effects model).
 #' @param label.test.effect.subgroup.fixed Label printed in front of
-#'   results of test for effect in subgroups (fixed effect model).
+#'   results of test for effect in subgroups (common effect model).
 #' @param label.test.effect.subgroup.random Label printed in front of
 #'   results of test for effect in subgroups (random effects model).
 #' @param text.addline1 Text for first additional line (below
@@ -304,13 +304,13 @@
 #' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fs.heading The size of text for column headings, see
 #'   \code{\link{gpar}}.
-#' @param fs.fixed The size of text for results of fixed effect model,
+#' @param fs.fixed The size of text for results of common effect model,
 #'   see \code{\link{gpar}}.
 #' @param fs.random The size of text for results of random effects
 #'   model, see \code{\link{gpar}}.
 #' @param fs.predict The size of text for results of prediction
 #'   interval, see \code{\link{gpar}}.
-#' @param fs.fixed.labels The size of text for label of fixed effect
+#' @param fs.fixed.labels The size of text for label of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param fs.random.labels The size of text for label of random
 #'   effects model, see \code{\link{gpar}}.
@@ -339,13 +339,13 @@
 #'   forest plot, see \code{\link{gpar}}.
 #' @param ff.heading The fontface for column headings, see
 #'   \code{\link{gpar}}.
-#' @param ff.fixed The fontface of text for results of fixed effect
+#' @param ff.fixed The fontface of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param ff.random The fontface of text for results of random effects
 #'   model, see \code{\link{gpar}}.
 #' @param ff.predict The fontface of text for results of prediction
 #'   interval, see \code{\link{gpar}}.
-#' @param ff.fixed.labels The fontface of text for label of fixed
+#' @param ff.fixed.labels The fontface of text for label of common
 #'   effect model, see \code{\link{gpar}}.
 #' @param ff.random.labels The fontface of text for label of random
 #'   effects model, see \code{\link{gpar}}.
@@ -399,7 +399,7 @@
 #' @param colgap.forest.right Either a character string or a
 #'   \code{\link[grid]{unit}} object specifying gap between column on
 #'   the right side of forest plot and the forest plot.
-#' @param calcwidth.pooled A logical indicating whether text for fixed
+#' @param calcwidth.pooled A logical indicating whether text for common
 #'   effect and random effects model should be considered to calculate
 #'   width of the column with study labels.
 #' @param calcwidth.fixed A logical indicating whether text given in
@@ -529,11 +529,11 @@
 #' }
 #' 
 #' In a forest plot, size of the squares typically reflects the precision of
-#' individual treatment estimates based either on the fixed effect
+#' individual treatment estimates based either on the common effect
 #' (\code{weight.study = "fixed"}) or random effects meta-analysis
 #' (\code{weight.study = "random"}). Information from meta-analysis object
 #' \code{x} is utilised if argument \code{weight.study} is missing. Weights
-#' from the fixed effect model are used if argument \code{x$fixed} is
+#' from the common effect model are used if argument \code{x$fixed} is
 #' \code{TRUE}; weights from the random effects model are used if argument
 #' \code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 #' The same square sizes are used if \code{weight.study = "same"}.
@@ -613,7 +613,7 @@
 #' \bold{Meta-analysis results} \tab \bold{Value of argument
 #'   rightcols} \cr
 #' No summary \tab \code{c("effect", "ci")} \cr
-#' Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
+#' Only common effect model \tab \code{c("effect", "ci", "w.fixed")}
 #'   \cr
 #' Only random effects model \tab \code{c("effect", "ci", "w.random")}
 #'   \cr
@@ -622,7 +622,7 @@
 #'
 #' By default, estimated treatment effect and corresponding confidence
 #' interval will be printed. Depending on arguments \code{fixed} and
-#' \code{random}, weights of the fixed effect and/or random effects
+#' \code{random}, weights of the common effect and/or random effects
 #' model will be given too. For an object of class
 #' \code{\link{metacum}} or \code{\link{metainf}} only the estimated
 #' treatment effect with confidence interval are plotted.
@@ -654,7 +654,7 @@
 #' Column: \tab \code{ci} \tab \code{effect.ci} \tab
 #'   \code{w.fixed} \tab \code{w.random} \tab \tab \cr
 #' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-#'   "W(fixed)" \tab "W(random)" \tab \tab
+#'   "W(common)" \tab "W(random)" \tab \tab
 #' }
 #'
 #' For other columns, the column name will be used as a label if no
@@ -680,7 +680,7 @@
 #' Argument \code{hetstat} can be a character string to specify where
 #' to print heterogeneity information:
 #' \itemize{
-#' \item row with results for fixed effect model (\code{hetstat =
+#' \item row with results for common effect model (\code{hetstat =
 #' "fixed"}),
 #' \item row with results for random effects model (\code{hetstat =
 #' "random"}).
@@ -695,15 +695,15 @@
 #' for various statistical tests:
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Statistical test} \cr
-#' \code{test.overall.fixed} \tab Test for overall effect (fixed
+#' \code{test.overall.fixed} \tab Test for overall effect (common
 #'   effect model) \cr
 #' \code{test.overall.random} \tab Test for overall effect (random
 #'   effects model) \cr
 #' \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
-#'   (FE model) \cr
+#'   (CE model) \cr
 #' \code{test.effect.subgroup.random} \tab Test for effect in subgroup
 #'   (RE model) \cr
-#' \code{test.subgroup.fixed} \tab Test for subgroup differences (FE
+#' \code{test.subgroup.fixed} \tab Test for subgroup differences (CE
 #'   model) \cr
 #' \code{test.subgroup.random} \tab Test for subgroup differences (RE
 #'   model)
@@ -739,7 +739,7 @@
 #'   subgroups),
 #' \item \code{test.effect.subgroup} (test for effect in subgroups),
 #' \item \code{test.effect.subgroup.fixed} (test for effect in
-#'   subgroups, fixed effect model),
+#'   subgroups, common effect model),
 #' \item \code{test.effect.subgroup.random} (test for effect in
 #'   subgroups, random effects model).
 #' }
@@ -749,7 +749,7 @@
 #' 
 #' Arguments \code{text.fixed}, \code{text.random}, and
 #' \code{text.predict} can be used to change the label to identify
-#' overall results (fixed effect and random effects model as well as
+#' overall results (common effect and random effects model as well as
 #' prediction interval). By default the following text is printed:
 #' \itemize{
 #' \item "Common effect model" (argument \code{text.fixed})
@@ -1007,11 +1007,11 @@
 #'   col.study = c("green", "blue", "red", "orange"),
 #'   col.square = "pink", col.square.lines = "black")
 #' 
-#' # Sort by weight in fixed effect model
+#' # Sort by weight in common effect model
 #' #
 #' forest(m1, sortvar = 1 / w.fixed, random = FALSE)
 #' 
-#' # Sort by decreasing weight in fixed effect model
+#' # Sort by decreasing weight in common effect model
 #' #
 #' forest(m1, sortvar = -1 / w.fixed, random = FALSE)
 #' 
@@ -1351,7 +1351,7 @@ forest.meta <- function(x,
   error <-
     try(sortvar <- catch("sortvar", mc, x, sfsp),
         silent = TRUE)
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     sortvar <- catch("sortvar", mc, x$data, NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
@@ -1526,7 +1526,7 @@ forest.meta <- function(x,
     error <-
       try(studlab <- catch("studlab", mc, x, sfsp),
           silent = TRUE)
-    if (class(error) == "try-error") {
+    if (inherits(error, "try-error")) {
       studlab <- catch("studlab", mc, x$data, NULL)
       if (isCol(x$data, ".subset"))
         studlab <- studlab[x$data$.subset]
@@ -2107,23 +2107,24 @@ forest.meta <- function(x,
       if (revman5.jama)
         text.fixed <- paste0("Total (",
                              if (fixed.random)
-                               "fixed effect, ",
+                               paste0(gs("text.w.fixed"), " effect, "),
                              round(x$level.ma * 100), "% CI)")
       else if (!is.null(text.fixed))
         text.fixed <- paste0(text.fixed, " (",
                              round(x$level.ma * 100), "%-CI)")
       else
-        text.fixed <- paste0("Fixed effect model (",
+        text.fixed <- paste0(gs("text.fixed"), " (",
                              round(x$level.ma * 100), "%-CI)")
     }
     else {
       if (revman5.jama) {
         text.fixed <- "Total"
         if (fixed.random)
-          text.fixed <- paste(text.fixed, "(fixed effect)")
+          text.fixed <- paste0(text.fixed, " (", gs("text.w.fixed"),
+                               " effect)")
       }
       else if (is.null(text.fixed))
-        text.fixed <- "Fixed effect model"
+        text.fixed <- gs("text.fixed")
     }
   }
   ##
@@ -2133,23 +2134,24 @@ forest.meta <- function(x,
       if (revman5.jama)
         text.random <- paste0("Total (",
                               if (fixed.random)
-                                "random effects, ",
+                                paste0(gs("text.w.random"), " effect, "),
                               round(x$level.ma * 100), "% CI)")
       else if (!is.null(text.random))
         text.random <- paste0(text.random, " (",
                               round(x$level.ma * 100), "%-CI)")
       else
-        text.random <- paste0("Random effects model (",
+        text.random <- paste0(gs("text.random"), " (",
                               round(x$level.ma * 100), "%-CI)")
     }
     else {
       if (revman5.jama) {
         text.random <- "Total"
         if (fixed.random)
-          text.random <- paste(text.random, "(random effects)")
+          text.random <- paste0(text.random, " (", gs("text.w.random"),
+                                " effect)")
       }
       else if (is.null(text.random))
-        text.random <- "Random effects model"
+        text.random <- gs("text.random")
     }
   }
   ##
@@ -2323,23 +2325,27 @@ forest.meta <- function(x,
   if (missing(label.test.overall.fixed))
     label.test.overall.fixed <-
       paste0("Test for overall effect",
-             if (fixed.random) " (fixed effect)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.fixed"), " effect)"),
              ": ")
   if (missing(label.test.overall.random))
     label.test.overall.random <-
       paste0("Test for overall effect",
-             if (fixed.random) " (random effects)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
   if (missing(label.test.subgroup.fixed))
     label.test.subgroup.fixed <-
       paste0("Test for subgroup differences",
-             if (fixed.random) " (fixed effect)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.fixed"), " effect)"),
              ": ")
   if (missing(label.test.subgroup.random))
     label.test.subgroup.random <-
       paste0("Test for subgroup differences",
-             if (fixed.random) " (random effects)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
   if (missing(label.test.effect.subgroup.fixed))
@@ -2348,7 +2354,8 @@ forest.meta <- function(x,
                "Test for overall effect"
              else
                "Test for effect in subgroup",
-             if (fixed.random) " (fixed effect)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.fixed"), " effect)"),
              ": ")
   if (missing(label.test.effect.subgroup.random))
     label.test.effect.subgroup.random <-
@@ -2356,7 +2363,8 @@ forest.meta <- function(x,
                "Test for overall effect"
              else
                "Test for effect in subgroup",
-             if (fixed.random) " (random effects)",
+             if (fixed.random)
+               paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
   fs.head <- fs.heading
@@ -6794,7 +6802,7 @@ forest.meta <- function(x,
       else
         yTE[(k - k.i + 1):k] <- NA
       ##
-      ## Fixed effect model
+      ## Common effect model
       ##
       if (fixed & subgroup.logical[i]) {
         yTE.w.fixed[i] <- j
@@ -6803,7 +6811,7 @@ forest.meta <- function(x,
       else
         yTE.w.fixed[i] <- NA
       ##
-      ## Random effect model
+      ## Random effects model
       ##
       if (random & subgroup.logical[i]) {
         yTE.w.random[i] <- j
@@ -6837,7 +6845,7 @@ forest.meta <- function(x,
       else
         yTE.w.hetstat[i] <- NA
       ##
-      ## Test for effect in subgroup (fixed effect)
+      ## Test for effect in subgroup (common effect)
       ##
       if (test.effect.subgroup.fixed.logical[i]) {
         yTE.w.effect.fixed[i] <- j
@@ -7129,7 +7137,7 @@ forest.meta <- function(x,
   ## Study label:
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
                                 just.s, fs.head, ff.head, fontfamily)
-  ## Fixed effect estimate:
+  ## Common effect estimate:
   col.studlab$labels[[2]] <- tg(text.fixed, xpos.s, just.s,
                                 fs.fixed.labels, ff.fixed.labels, fontfamily)
   ## Random effects estimate:
@@ -7145,13 +7153,13 @@ forest.meta <- function(x,
   ## Statistic for residual heterogeneity:
   col.studlab$labels[[6]] <- tg(hetstat.resid, xpos.s, just.s,
                                 fs.hetstat, ff.hetstat, fontfamily)
-  ## Test for overall effect (fixed effect model):
+  ## Test for overall effect (common effect model):
   col.studlab$labels[[7]] <- tg(text.overall.fixed, xpos.s, just.s,
                                 fs.test.overall, ff.test.overall, fontfamily)
   ## Test for overall effect (random effects model):
   col.studlab$labels[[8]] <- tg(text.overall.random, xpos.s, just.s,
                                 fs.test.overall, ff.test.overall, fontfamily)
-  ## Test for subgroup differences (fixed effect model):
+  ## Test for subgroup differences (common effect model):
   col.studlab$labels[[9]] <- tg(text.subgroup.fixed, xpos.s, just.s,
                                 fs.test.subgroup, ff.test.subgroup, fontfamily)
   ## Test for subgroup differences (random effects model):
@@ -7172,7 +7180,7 @@ forest.meta <- function(x,
       col.studlab$labels[[n.summaries + i]] <-
         tg(subgroup.name[i], xpos.s, just.s,
            fs.head, ff.head, fontfamily, col.by)
-      ## Fixed effect estimates:
+      ## Common effect estimates:
       col.studlab$labels[[n.summaries + 1 * n.by + i]] <-
         tg(text.fixed.w[[i]], xpos.s, just.s,
            fs.fixed.labels, ff.fixed.labels, fontfamily, col.by)
@@ -7188,7 +7196,7 @@ forest.meta <- function(x,
       col.studlab$labels[[n.summaries + 4 * n.by + i]] <-
         tg(hetstat.w[[i]], xpos.s, just.s,
            fs.hetstat, ff.hetstat, fontfamily, col.by)
-      ## Test for effect in subgroup (fixed effect model):
+      ## Test for effect in subgroup (common effect model):
       col.studlab$labels[[n.summaries + 5 * n.by + i]] <-
         tg(text.effect.subgroup.fixed[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
@@ -7750,7 +7758,7 @@ forest.meta <- function(x,
   ##
   if (by) {
     del.lines <-
-      c(if (!calcwidth.fixed)   # FE
+      c(if (!calcwidth.fixed)   # CE
           2,
         if (!calcwidth.random)  # RE
           3,
@@ -7767,7 +7775,7 @@ forest.meta <- function(x,
         ##
         if (!calcwidth.subgroup)
           n.summaries + 0 * n.by + seq_len(n.by), # Labels
-        if (!calcwidth.fixed)              # FE
+        if (!calcwidth.fixed)              # CE
           n.summaries + 1 * n.by + seq_len(n.by),
         if (!calcwidth.random)             # RE
           n.summaries + 2 * n.by + seq_len(n.by),
@@ -7775,14 +7783,14 @@ forest.meta <- function(x,
           n.summaries + 3 * n.by + seq_len(n.by),
         if (!calcwidth.hetstat)            # heterogeneity statistic
           n.summaries + 4 * n.by + seq_len(n.by),
-        if (!calcwidth.tests)              # test for effect (FE)
+        if (!calcwidth.tests)              # test for effect (CE)
           n.summaries + 5 * n.by + seq_len(n.by),
         if (!calcwidth.tests)              # test for effect (RE)
           n.summaries + 6 * n.by + seq_len(n.by)
         )
   }
   else
-    del.lines <- c(if (!calcwidth.fixed)   # FE
+    del.lines <- c(if (!calcwidth.fixed)   # CE
                      2,
                    if (!calcwidth.random)  # RE
                      3,

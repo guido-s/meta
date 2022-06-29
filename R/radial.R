@@ -13,7 +13,7 @@
 #' @param ylim The y limits (min, max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param fixed A logical indicating whether the pooled fixed
+#' @param fixed A logical indicating whether the pooled common
 #'   effect estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
@@ -29,7 +29,7 @@
 #' @details
 #' A radial plot (Galbraith 1988a,b), also called Galbraith plot, is
 #' drawn in the active graphics window. If \code{fixed} is TRUE,
-#' the pooled estimate of the fixed effect model is plotted. If
+#' the pooled estimate of the common effect model is plotted. If
 #' \code{level} is not NULL, the corresponding confidence limits are
 #' drawn.
 #' 

@@ -24,12 +24,12 @@ metamerge(
 \item{meta2}{Second meta-analysis object (see Details).}
 
 \item{pooled1}{A character string indicating whether results of
-fixed effect or random effects model should be considered for
+common effect or random effects model should be considered for
 first meta-analysis. Either \code{"fixed"} or \code{"random"},
 can be abbreviated.}
 
 \item{pooled2}{A character string indicating whether results of
-fixed effect or random effects model should be considered for
+common effect or random effects model should be considered for
 second meta-analysis. Either \code{"fixed"} or \code{"random"},
 can be abbreviated.}
 
@@ -110,13 +110,13 @@ meta-analysis with and without using the Hartung-Knapp method.
 }
 \details{
 In R package \bold{meta}, objects of class \code{"meta"} contain
-results of both a fixed effect and random effects
+results of both a common effect and random effects
 meta-analysis. This function enables the user to keep the results
 of one of these models and to add results from a second
 meta-analysis or a sensitivity analysis.
 
 Applications of this function include printing and plotting results
-of the fixed effect or random effects meta-analysis and the
+of the common effect or random effects meta-analysis and the
 \itemize{
 \item Hartung-Knapp method (see argument \code{hakn} in
   \code{\link{metagen}}),

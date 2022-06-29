@@ -93,13 +93,13 @@ coordinates of points of the L'Abbé plot.}
 
 \item{ylab}{A label for the y-axis.}
 
-\item{TE.fixed}{A numeric or vector specifying combined fixed
+\item{TE.fixed}{A numeric or vector specifying combined common
 effect estimate(s).}
 
 \item{TE.random}{A numeric or vector specifying combined random
 effects estimate(s).}
 
-\item{fixed}{A logical indicating whether the fixed effect estimate
+\item{fixed}{A logical indicating whether the common effect estimate
 should be plotted.}
 
 \item{random}{A logical indicating whether the random effects
@@ -125,17 +125,17 @@ used if \code{pch} in \code{21:25}).}
 
 \item{lwd}{The line width.}
 
-\item{lwd.fixed}{The line width(s) for fixed effect estimate(s) (if
+\item{lwd.fixed}{The line width(s) for common effect estimate(s) (if
 \code{fixed} is not \code{NULL} or \code{FALSE}).}
 
 \item{lwd.random}{The line width(s) for random effects estimate(s)
 (if \code{random} is not \code{NULL} or \code{FALSE}).}
 
-\item{lty.fixed}{Line type(s) for fixed effect estimate(s).}
+\item{lty.fixed}{Line type(s) for common effect estimate(s).}
 
 \item{lty.random}{Line type(s) for random effects estimate(s).}
 
-\item{col.fixed}{Colour of line(s) for fixed effect estimate(s).}
+\item{col.fixed}{Colour of line(s) for common effect estimate(s).}
 
 \item{col.random}{Colour of line(s) for random effects estimate(s).}
 
@@ -155,7 +155,7 @@ plotting symbols is to be used for individual treatment
 estimates. One of missing (see Details), \code{"same"},
 \code{"fixed"}, or \code{"random"}, can be abbreviated. Plot
 symbols have the same size for all studies or represent study
-weights from fixed effect or random effects model.}
+weights from common effect or random effects model.}
 
 \item{studlab}{A logical indicating whether study labels should be
 printed in the graph. A vector with study labels can also be
@@ -195,12 +195,12 @@ summary measure (\code{sm = "OR"}), log probabilities for \code{sm
 = "RR"}, and arcsine-transformed probabilities for \code{sm =
 "ASD"}.
 
-If \code{fixed} is TRUE, the estimate of the fixed effect / common
-effct model is plotted as a line. If \code{random} is TRUE, the
-estimate of the random effects model is plotted as a line.
+If \code{fixed} is TRUE, the estimate of the common effct model is
+plotted as a line. If \code{random} is TRUE, the estimate of the
+random effects model is plotted as a line.
 
 Information from object \code{x} is utilised if argument
-\code{weight} is missing. Weights from the fixed effect model are
+\code{weight} is missing. Weights from the common effect model are
 used (\code{weight = "fixed"}) if argument \code{x$fixed} is
 \code{TRUE}; weights from the random effects model are used
 (\code{weight = "random"}) if argument \code{x$random} is

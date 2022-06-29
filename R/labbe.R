@@ -13,11 +13,11 @@
 #' @param ylim The y limits (min, max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param TE.fixed A numeric or vector specifying combined fixed
+#' @param TE.fixed A numeric or vector specifying combined common
 #'   effect estimate(s).
 #' @param TE.random A numeric or vector specifying combined random
 #'   effects estimate(s).
-#' @param fixed A logical indicating whether the fixed effect estimate
+#' @param fixed A logical indicating whether the common effect estimate
 #'   should be plotted.
 #' @param random A logical indicating whether the random effects
 #'   estimate should be plotted.
@@ -33,13 +33,13 @@
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
 #' @param lwd The line width.
-#' @param lwd.fixed The line width(s) for fixed effect estimate(s) (if
+#' @param lwd.fixed The line width(s) for common effect estimate(s) (if
 #'   \code{fixed} is not \code{NULL} or \code{FALSE}).
 #' @param lwd.random The line width(s) for random effects estimate(s)
 #'   (if \code{random} is not \code{NULL} or \code{FALSE}).
-#' @param lty.fixed Line type(s) for fixed effect estimate(s).
+#' @param lty.fixed Line type(s) for common effect estimate(s).
 #' @param lty.random Line type(s) for random effects estimate(s).
-#' @param col.fixed Colour of line(s) for fixed effect estimate(s).
+#' @param col.fixed Colour of line(s) for common effect estimate(s).
 #' @param col.random Colour of line(s) for random effects estimate(s).
 #' @param nulleffect A logical indicating whether line for null effect
 #'   should be added to the plot..
@@ -53,7 +53,7 @@
 #'   estimates. One of missing (see Details), \code{"same"},
 #'   \code{"fixed"}, or \code{"random"}, can be abbreviated. Plot
 #'   symbols have the same size for all studies or represent study
-#'   weights from fixed effect or random effects model.
+#'   weights from common effect or random effects model.
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$event.e} then).
@@ -81,12 +81,12 @@
 #' = "RR"}, and arcsine-transformed probabilities for \code{sm =
 #' "ASD"}.
 #' 
-#' If \code{fixed} is TRUE, the estimate of the fixed effect / common
-#' effct model is plotted as a line. If \code{random} is TRUE, the
-#' estimate of the random effects model is plotted as a line.
+#' If \code{fixed} is TRUE, the estimate of the common effct model is
+#' plotted as a line. If \code{random} is TRUE, the estimate of the
+#' random effects model is plotted as a line.
 #' 
 #' Information from object \code{x} is utilised if argument
-#' \code{weight} is missing. Weights from the fixed effect model are
+#' \code{weight} is missing. Weights from the common effect model are
 #' used (\code{weight = "fixed"}) if argument \code{x$fixed} is
 #' \code{TRUE}; weights from the random effects model are used
 #' (\code{weight = "random"}) if argument \code{x$random} is

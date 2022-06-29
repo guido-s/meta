@@ -19,7 +19,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param fixed A logical indicating whether a fixed effect
+#' @param fixed A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -56,13 +56,13 @@
 #'   for \code{sm="ZCOR"} are printed as correlations rather than
 #'   Fisher's z transformed correlations, for example.
 #' @param text.fixed A character string used in printouts and forest
-#'   plot to label the pooled fixed effect estimate.
+#'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
 #' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param title Title of meta-analysis / systematic review.

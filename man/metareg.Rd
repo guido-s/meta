@@ -39,7 +39,7 @@ be included in the meta-regression model.}
 \code{\link[metafor]{rma.uni}}.}
 }
 \value{
-An object of class \code{c("metareg", "rma.uni","rma")}. Please
+An object of class \code{c("metareg", "rma.uni", "rma")}. Please
 look at the help page of R function \code{\link[metafor]{rma.uni}}
 for more details on the output from this function.
 

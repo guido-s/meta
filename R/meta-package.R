@@ -10,7 +10,7 @@
 #' R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
 #' provides the following statistical methods for meta-analysis.
 #' \enumerate{
-#' \item Fixed effect and random effects model:
+#' \item Common effect (also called fixed effect) and random effects model:
 #' \itemize{
 #'  \item Meta-analysis of continuous outcome data (\code{\link{metacont}})
 #'  \item Meta-analysis of binary outcome data (\code{\link{metabin}})

@@ -26,7 +26,7 @@
 #' @aliases print.meta cilayout
 #' 
 #' @param x An object of class \code{meta}.
-#' @param fixed A logical indicating whether results for fixed effect
+#' @param fixed A logical indicating whether results for common effect
 #'   meta-analysis should be printed.
 #' @param random A logical indicating whether results for random
 #'   effects meta-analysis should be printed.
@@ -43,8 +43,8 @@
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
 #' @param test.subgroup.fixed A logical value indicating whether to
-#'   print results of test for subgroup differences (based on fixed
-#'   effect / common effect model).
+#'   print results of test for subgroup differences (based on common
+#'   effect model).
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
@@ -1087,7 +1087,7 @@ print.meta <- function(x,
       ##
       if (fixed) {
         ##
-        ## Subgroup analysis based on fixed effect model
+        ## Subgroup analysis based on common effect model
         ##
         Tdata <- cbind(format(k.w, big.mark = big.mark),
                        formatN(TE.fixed.w, digits, "NA",

@@ -61,7 +61,7 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect
+\item{fixed}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
@@ -111,7 +111,7 @@ results of test for subgroup differences.}
 intervals should be printed for subgroups.}
 
 \item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -120,7 +120,7 @@ plot to label the pooled random effects estimate.}
 plot to label the prediction interval.}
 
 \item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}

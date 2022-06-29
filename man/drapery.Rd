@@ -91,16 +91,16 @@ be shown in the drapery plot.}
 and 90) specifying the angle to rotate study labels; see Details.}
 
 \item{fixed}{A logical indicating whether to show result for the
-fixed effect / common effect model.}
+common effect model.}
 
 \item{random}{A logical indicating whether to show result for the
 random effects model.}
 
-\item{lty.fixed}{Line type for fixed effect meta-analysis.}
+\item{lty.fixed}{Line type for common effect meta-analysis.}
 
-\item{lwd.fixed}{Line width for fixed effect meta-analysis.}
+\item{lwd.fixed}{Line width for common effect meta-analysis.}
 
-\item{col.fixed}{Colour of lines for fixed effect meta-analysis.}
+\item{col.fixed}{Colour of lines for common effect meta-analysis.}
 
 \item{lty.random}{Line type for random effects meta-analysis.}
 
@@ -166,7 +166,7 @@ x-axis.}
 
 \item{lwd.study.weight}{A character string indicating whether to
 determine line width for individual studies using weights from
-fixed effect (\code{"fixed"}) or random effects model
+common effect (\code{"fixed"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
 
@@ -232,7 +232,7 @@ degrees if at least one study label has more than three characters;
 otherwise labels are not rotated.
 
 If \code{labels = "studlab"}, labels are rotated by -45 degrees for
-studies with a treatment estimate below the fixed effect estimate
+studies with a treatment estimate below the common effect estimate
 and otherwise by 45 degrees.
 }
 \examples{

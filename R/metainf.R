@@ -5,7 +5,7 @@
 #' omitting one study at a time.
 #' 
 #' @param x An object of class \code{meta}.
-#' @param pooled A character string indicating whether a fixed effect
+#' @param pooled A character string indicating whether a common effect
 #'   or random effects model is used for pooling. Either missing (see
 #'   Details), \code{"fixed"} or \code{"random"}, can be abbreviated.
 #' @param sortvar An optional vector used to sort the individual
@@ -17,7 +17,7 @@
 #' \code{sortvar}.
 #' 
 #' Information from object \code{x} is utilised if argument
-#' \code{pooled} is missing. A fixed effect model is assumed
+#' \code{pooled} is missing. A common effect model is assumed
 #' (\code{pooled="fixed"}) if argument \code{x$fixed} is
 #' \code{TRUE}; a random effects model is assumed
 #' (\code{pooled="random"}) if argument \code{x$random} is
@@ -33,7 +33,7 @@
 #' \item{statistic}{Statistic for test of overall effect.}
 #' \item{pval}{P-value for test of overall effect.}
 #' \item{studlab}{Study label describing omission of studies.}
-#' \item{w}{Sum of weights from fixed effect or random effects model.}
+#' \item{w}{Sum of weights from common effect or random effects model.}
 #' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
 #' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 #' \item{tau}{Square-root of between-study variance.}
@@ -44,7 +44,7 @@
 #' \item{k}{Number of studies combined in meta-analysis.}
 #' \item{pooled}{As defined above.}
 #' \item{fixed}{A logical indicating whether analysis is based on
-#'   fixed effect model.}
+#'   common effect model.}
 #' \item{random}{A logical indicating whether analysis is based
 #'   on random effects model.}
 #' \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
@@ -142,7 +142,7 @@ metainf <- function(x, pooled, sortvar) {
     try(sortvar <-
           catch("sortvar", mc, x, sys.frame(sys.parent())),
         silent = TRUE)
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]

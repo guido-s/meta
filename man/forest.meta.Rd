@@ -235,8 +235,8 @@ provided (must be of same length as \code{x$TE} then).}
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
 
-\item{fixed}{A logical indicating whether fixed effect / common
-effect estimate should be plotted.}
+\item{fixed}{A logical indicating whether common effect estimate
+should be plotted.}
 
 \item{random}{A logical indicating whether random effects estimate
 should be plotted.}
@@ -247,21 +247,21 @@ with subgroups if summaries should only be plotted on group
 level.}
 
 \item{text.fixed}{A character string used in the plot to label the
-pooled fixed effect estimate.}
+pooled common effect estimate.}
 
 \item{text.random}{A character string used in the plot to label the
 pooled random effects estimate.}
 
-\item{lty.fixed}{Line type (pooled fixed effect estimate).}
+\item{lty.fixed}{Line type (pooled common effect estimate).}
 
 \item{lty.random}{Line type (pooled random effects estimate).}
 
-\item{col.fixed}{Line colour (pooled fixed effect estimate).}
+\item{col.fixed}{Line colour (pooled common effect estimate).}
 
 \item{col.random}{Line colour (pooled random effects estimate).}
 
 \item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -296,7 +296,7 @@ labels.}
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
 
-\item{text.fixed.w}{A character string to label the pooled fixed
+\item{text.fixed.w}{A character string to label the pooled common
 effect estimate within subgroups, or a character vector of same
 length as number of subgroups with corresponging labels.}
 
@@ -347,7 +347,7 @@ determine size of squares or diamonds (argument
 \code{type.study}) to plot individual study results. One of
 missing, \code{"same"}, \code{"fixed"}, or \code{"random"}, can
 be abbreviated. Plot symbols have the same size for all studies
-or represent study weights from fixed effect or random effects
+or represent study weights from common effect or random effects
 model.}
 
 \item{weight.subgroup}{A character string indicating weighting used
@@ -355,7 +355,7 @@ to determine size of squares or diamonds (argument
 \code{type.subgroup}) to plot subgroup results. One of missing,
 \code{"same"}, or \code{"weight"}, can be abbreviated. Plot
 symbols have the same size for all subgroup results or represent
-subgroup weights from fixed effect or random effects model.}
+subgroup weights from common effect or random effects model.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -443,7 +443,7 @@ plot treatment effects and confidence intervals for individual
 studies (see Details).}
 
 \item{type.fixed}{A character string specifying how to plot
-treatment effect and confidence interval for fixed effect
+treatment effect and confidence interval for common effect
 meta-analysis (see Details).}
 
 \item{type.random}{A character string specifying how to plot
@@ -456,7 +456,7 @@ treatment effect and confidence interval for subgroup results
 
 \item{type.subgroup.fixed}{A character string specifying how to
 plot treatment effect and confidence interval for subgroup
-results (fixed effect model).}
+results (common effect model).}
 
 \item{type.subgroup.random}{A character string specifying how to
 plot treatment effect and confidence interval for subgroup
@@ -475,27 +475,27 @@ reflecting study's weight in the meta-analysis.}
 confidence limits if confidence limits are completely within
 squares.}
 
-\item{col.inside.fixed}{The colour for result of fixed effect
+\item{col.inside.fixed}{The colour for result of common effect
 meta-analysis if confidence limit lies completely within square.}
 
 \item{col.inside.random}{The colour for result of random effects
 meta-analysis if confidence limit lies completely within square.}
 
 \item{col.diamond}{The colour of diamonds representing the results
-for fixed effect and random effects models.}
+for common effect and random effects models.}
 
-\item{col.diamond.fixed}{The colour of diamonds for fixed effect
+\item{col.diamond.fixed}{The colour of diamonds for common effect
 estimates.}
 
 \item{col.diamond.random}{The colour of diamonds for random effects
 estimates.}
 
 \item{col.diamond.lines}{The colour of the outer lines of diamonds
-representing the results for fixed effect and random effects
+representing the results for common effect and random effects
 models.}
 
 \item{col.diamond.lines.fixed}{The colour of the outer lines of
-diamond for fixed effect estimate.}
+diamond for common effect estimate.}
 
 \item{col.diamond.lines.random}{The colour of the outer lines of
 diamond for random effects estimate.}
@@ -578,13 +578,13 @@ generalized linear mixed models.}
 results of test for overall effect.}
 
 \item{test.overall.fixed}{A logical value indicating whether to
-print results of test for overall effect (fixed effect model).}
+print results of test for overall effect (common effect model).}
 
 \item{test.overall.random}{A logical value indicating whether to
 print results of test for overall effect (random effects model).}
 
 \item{label.test.overall.fixed}{Label printed in front of results
-of test for overall effect (fixed effect model).}
+of test for overall effect (common effect model).}
 
 \item{label.test.overall.random}{Label printed in front of results
 of test for overall effect (random effects model).}
@@ -596,7 +596,7 @@ for test of treatment effect should be printed.}
 results of test for subgroup differences.}
 
 \item{test.subgroup.fixed}{A logical value indicating whether to
-print results of test for subgroup differences (fixed effect
+print results of test for subgroup differences (common effect
 model).}
 
 \item{test.subgroup.random}{A logical value indicating whether to
@@ -612,7 +612,7 @@ the value of the heterogeneity statistic Q (test for subgroup
 differences).}
 
 \item{label.test.subgroup.fixed}{Label printed in front of results
-of test for subgroup differences (fixed effect model).}
+of test for subgroup differences (common effect model).}
 
 \item{label.test.subgroup.random}{Label printed in front of results
 of test for subgroup differences (random effects model).}
@@ -623,14 +623,14 @@ be printed.}
 
 \item{test.effect.subgroup.fixed}{A single logical or logical
 vector indicating whether / which tests for effect in subgroups
-should be printed (fixed effect model).}
+should be printed (common effect model).}
 
 \item{test.effect.subgroup.random}{A single logical or logical
 vector indicating whether / which tests for effect in subgroups
 should be printed (random effects model).}
 
 \item{label.test.effect.subgroup.fixed}{Label printed in front of
-results of test for effect in subgroups (fixed effect model).}
+results of test for effect in subgroups (common effect model).}
 
 \item{label.test.effect.subgroup.random}{Label printed in front of
 results of test for effect in subgroups (random effects model).}
@@ -649,7 +649,7 @@ meta-analysis results).}
 \item{fs.heading}{The size of text for column headings, see
 \code{\link{gpar}}.}
 
-\item{fs.fixed}{The size of text for results of fixed effect model,
+\item{fs.fixed}{The size of text for results of common effect model,
 see \code{\link{gpar}}.}
 
 \item{fs.random}{The size of text for results of random effects
@@ -658,7 +658,7 @@ model, see \code{\link{gpar}}.}
 \item{fs.predict}{The size of text for results of prediction
 interval, see \code{\link{gpar}}.}
 
-\item{fs.fixed.labels}{The size of text for label of fixed effect
+\item{fs.fixed.labels}{The size of text for label of common effect
 model, see \code{\link{gpar}}.}
 
 \item{fs.random.labels}{The size of text for label of random
@@ -702,7 +702,7 @@ forest plot, see \code{\link{gpar}}.}
 \item{ff.heading}{The fontface for column headings, see
 \code{\link{gpar}}.}
 
-\item{ff.fixed}{The fontface of text for results of fixed effect
+\item{ff.fixed}{The fontface of text for results of common effect
 model, see \code{\link{gpar}}.}
 
 \item{ff.random}{The fontface of text for results of random effects
@@ -711,7 +711,7 @@ model, see \code{\link{gpar}}.}
 \item{ff.predict}{The fontface of text for results of prediction
 interval, see \code{\link{gpar}}.}
 
-\item{ff.fixed.labels}{The fontface of text for label of fixed
+\item{ff.fixed.labels}{The fontface of text for label of common
 effect model, see \code{\link{gpar}}.}
 
 \item{ff.random.labels}{The fontface of text for label of random
@@ -788,7 +788,7 @@ the left side of forest plot and the forest plot.}
 \code{\link[grid]{unit}} object specifying gap between column on
 the right side of forest plot and the forest plot.}
 
-\item{calcwidth.pooled}{A logical indicating whether text for fixed
+\item{calcwidth.pooled}{A logical indicating whether text for common
 effect and random effects model should be considered to calculate
 width of the column with study labels.}
 
@@ -963,11 +963,11 @@ plotted in the following way:
 }
 
 In a forest plot, size of the squares typically reflects the precision of
-individual treatment estimates based either on the fixed effect
+individual treatment estimates based either on the common effect
 (\code{weight.study = "fixed"}) or random effects meta-analysis
 (\code{weight.study = "random"}). Information from meta-analysis object
 \code{x} is utilised if argument \code{weight.study} is missing. Weights
-from the fixed effect model are used if argument \code{x$fixed} is
+from the common effect model are used if argument \code{x$fixed} is
 \code{TRUE}; weights from the random effects model are used if argument
 \code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
@@ -1047,7 +1047,7 @@ of the forest plot}}:
 \bold{Meta-analysis results} \tab \bold{Value of argument
   rightcols} \cr
 No summary \tab \code{c("effect", "ci")} \cr
-Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
+Only common effect model \tab \code{c("effect", "ci", "w.fixed")}
   \cr
 Only random effects model \tab \code{c("effect", "ci", "w.random")}
   \cr
@@ -1056,7 +1056,7 @@ Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
 
 By default, estimated treatment effect and corresponding confidence
 interval will be printed. Depending on arguments \code{fixed} and
-\code{random}, weights of the fixed effect and/or random effects
+\code{random}, weights of the common effect and/or random effects
 model will be given too. For an object of class
 \code{\link{metacum}} or \code{\link{metainf}} only the estimated
 treatment effect with confidence interval are plotted.
@@ -1088,7 +1088,7 @@ Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
 Column: \tab \code{ci} \tab \code{effect.ci} \tab
   \code{w.fixed} \tab \code{w.random} \tab \tab \cr
 Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(fixed)" \tab "W(random)" \tab \tab
+  "W(common)" \tab "W(random)" \tab \tab
 }
 
 For other columns, the column name will be used as a label if no
@@ -1114,7 +1114,7 @@ where treatment labels are attached can be changed using arguments
 Argument \code{hetstat} can be a character string to specify where
 to print heterogeneity information:
 \itemize{
-\item row with results for fixed effect model (\code{hetstat =
+\item row with results for common effect model (\code{hetstat =
 "fixed"}),
 \item row with results for random effects model (\code{hetstat =
 "random"}).
@@ -1129,15 +1129,15 @@ In addition, the following arguments can be used to print results
 for various statistical tests:
 \tabular{ll}{
 \bold{Argument} \tab \bold{Statistical test} \cr
-\code{test.overall.fixed} \tab Test for overall effect (fixed
+\code{test.overall.fixed} \tab Test for overall effect (common
   effect model) \cr
 \code{test.overall.random} \tab Test for overall effect (random
   effects model) \cr
 \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
-  (FE model) \cr
+  (CE model) \cr
 \code{test.effect.subgroup.random} \tab Test for effect in subgroup
   (RE model) \cr
-\code{test.subgroup.fixed} \tab Test for subgroup differences (FE
+\code{test.subgroup.fixed} \tab Test for subgroup differences (CE
   model) \cr
 \code{test.subgroup.random} \tab Test for subgroup differences (RE
   model)
@@ -1173,7 +1173,7 @@ The following arguments can be used in a similar way:
   subgroups),
 \item \code{test.effect.subgroup} (test for effect in subgroups),
 \item \code{test.effect.subgroup.fixed} (test for effect in
-  subgroups, fixed effect model),
+  subgroups, common effect model),
 \item \code{test.effect.subgroup.random} (test for effect in
   subgroups, random effects model).
 }
@@ -1183,7 +1183,7 @@ The following arguments can be used in a similar way:
 
 Arguments \code{text.fixed}, \code{text.random}, and
 \code{text.predict} can be used to change the label to identify
-overall results (fixed effect and random effects model as well as
+overall results (common effect and random effects model as well as
 prediction interval). By default the following text is printed:
 \itemize{
 \item "Common effect model" (argument \code{text.fixed})
@@ -1421,11 +1421,11 @@ forest(m1,
   col.study = c("green", "blue", "red", "orange"),
   col.square = "pink", col.square.lines = "black")
 
-# Sort by weight in fixed effect model
+# Sort by weight in common effect model
 #
 forest(m1, sortvar = 1 / w.fixed, random = FALSE)
 
-# Sort by decreasing weight in fixed effect model
+# Sort by decreasing weight in common effect model
 #
 forest(m1, sortvar = -1 / w.fixed, random = FALSE)
 

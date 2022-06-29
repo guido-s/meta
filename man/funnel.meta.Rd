@@ -55,8 +55,8 @@
 
 \item{ylab}{A label for the y-axis.}
 
-\item{fixed}{A logical indicating whether the fixed effect / common
-effect estimate should be plotted.}
+\item{fixed}{A logical indicating whether the common effect
+estimate should be plotted.}
 
 \item{random}{A logical indicating whether the random effects
 estimate should be plotted.}
@@ -71,14 +71,14 @@ instead of plotting symbol.}
 
 \item{cex}{The magnification to be used for plotting symbol.}
 
-\item{lty.fixed}{Line type (fixed effect estimate).}
+\item{lty.fixed}{Line type (common effect estimate).}
 
 \item{lty.random}{Line type (random effects estimate).}
 
 \item{lwd}{The line width for confidence intervals (if \code{level}
 is not \code{NULL}).}
 
-\item{lwd.fixed}{The line width for fixed effect estimate (if
+\item{lwd.fixed}{The line width for common effect estimate (if
 \code{fixed} is not \code{NULL}).}
 
 \item{lwd.random}{The line width for random effects estimate (if
@@ -89,7 +89,7 @@ is not \code{NULL}).}
 \item{bg}{A vector with background colour of plotting symbols (only
 used if \code{pch} in \code{21:25}).}
 
-\item{col.fixed}{Colour of line representing fixed effect estimate.}
+\item{col.fixed}{Colour of line representing common effect estimate.}
 
 \item{col.random}{Colour of line representing random effects
 estimate.}
@@ -158,11 +158,11 @@ produced to assess causes of funnel plot asymmetry.
 }
 \details{
 A funnel plot (Light & Pillemer, 1984) is drawn in the active
-graphics window. If \code{fixed} is TRUE, the estimate of the fixed
+graphics window. If \code{fixed} is TRUE, the estimate of the common
 effect model is plotted as a vertical line. Similarly, if
 \code{random} is TRUE, the estimate of the random effects model is
 plotted. If \code{level} is not NULL, the corresponding approximate
-confidence limits are drawn around the fixed effect estimate (if
+confidence limits are drawn around the common effect estimate (if
 \code{fixed} is TRUE) or the random effects estimate (if
 \code{random} is TRUE and \code{fixed} is FALSE).
 
@@ -197,7 +197,7 @@ oldpar <- par(mfrow = c(2, 2))
 #
 funnel(m1)
 
-# Funnel plot with confidence intervals, fixed effect estimate and
+# Funnel plot with confidence intervals, common effect estimate and
 # contours
 #
 cc <- funnel(m1, fixed = TRUE,

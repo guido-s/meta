@@ -118,8 +118,8 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect / common
-effect meta-analysis should be conducted.}
+\item{fixed}{A logical indicating whether a common effect
+meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
@@ -190,7 +190,7 @@ incidence rate differences.}
 calculate rates, e.g. person-years.}
 
 \item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -199,7 +199,7 @@ plot to label the pooled random effects estimate.}
 plot to label the prediction interval.}
 
 \item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -279,14 +279,14 @@ object is a list containing the following components:
   individual studies.}
 \item{zval, pval}{z-value and p-value for test of treatment effect
   for individual studies.}
-\item{w.fixed, w.random}{Weight of individual studies (in fixed and
-  random effects model).}
+\item{w.fixed, w.random}{Weight of individual studies (in common
+  effect and random effects model).}
 \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-  standard error (fixed effect model).}
+  standard error (common effect model).}
 \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-  limits (fixed effect model).}
+  limits (common effect model).}
 \item{statistic.fixed, pval.fixed}{z-value and p-value for test of
-  overall treatment effect (fixed effect model).}
+  overall treatment effect (common effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect
   and standard error (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
@@ -333,13 +333,13 @@ object is a list containing the following components:
 \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
 \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
-  standard error in subgroups (fixed effect model) - if
+  standard error in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
 \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
-  interval limits in subgroups (fixed effect model) - if
+  interval limits in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
 \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test of
-  treatment effect in subgroups (fixed effect model) - if
+  treatment effect in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
   standard error in subgroups (random effects model) - if
@@ -350,8 +350,8 @@ object is a list containing the following components:
 \item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of treatment effect in subgroups
   (random effects model) - if \code{subgroup} is not missing.}
-\item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{subgroup} is not missing.}
+\item{w.fixed.w, w.random.w}{Weight of subgroups (in common effect
+  and random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
@@ -372,20 +372,20 @@ object is a list containing the following components:
 \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
 \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{subgroup} is not missing.}
+  (based on common effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
   subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
 \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{subgroup} is not
+  Q (based on common effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
@@ -393,7 +393,7 @@ object is a list containing the following components:
 \item{df.Q.b}{Degrees of freedom for test of overall between
   subgroups heterogeneity - if \code{subgroup} is not missing.}
 \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
@@ -416,7 +416,7 @@ object is a list containing the following components:
 \item{subset}{Information on subset of original data used in
   meta-analysis (if \code{keepdata = TRUE}).}
 \item{.glmm.fixed}{GLMM object generated by call of
-  \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
+  \code{\link[metafor]{rma.glmm}} function (common effect model).}
 \item{.glmm.random}{GLMM object generated by call of
   \code{\link[metafor]{rma.glmm}} function (random effects model).}
 \item{call}{Function call.}
@@ -426,7 +426,7 @@ object is a list containing the following components:
   GLMMs.}
 }
 \description{
-Calculation of fixed effect and random effects estimates (incidence
+Calculation of common effect and random effects estimates (incidence
 rate ratio or incidence rate difference) for meta-analyses with
 event counts.  Mantel-Haenszel, Cochran, inverse variance method,
 and generalised linear mixed model (GLMM) are available for
@@ -435,7 +435,7 @@ from R package \bold{metafor} (Viechtbauer 2010) is called
 internally.
 }
 \details{
-Calculation of fixed and random effects estimates for meta-analyses
+Calculation of common and random effects estimates for meta-analyses
 comparing two incidence rates.
 
 The following measures of treatment effect are available:
@@ -456,10 +456,10 @@ rerun a meta-analysis with different settings.
 
 \subsection{Meta-analysis method}{
 
-By default, both fixed effect and random effects models are
+By default, both common effect and random effects models are
 considered (see arguments \code{fixed} and
 \code{random}). If \code{method} is \code{"MH"} (default), the
-Mantel-Haenszel method is used to calculate the fixed effect
+Mantel-Haenszel method is used to calculate the common effect
 estimate (Greenland & Robbins, 1985); if \code{method} is
 \code{"Inverse"}, inverse variance weighting is used for pooling;
 if \code{method} is \code{"Cochran"}, the Cochran method is used
@@ -499,7 +499,7 @@ are described in \code{\link[metafor]{rma.glmm}} where you can also
 find information on the iterative algorithms used for estimation.
 Note, regardless of which value is used for argument
 \code{model.glmm}, results for two different GLMMs are calculated:
-fixed effect model (with fixed treatment effect) and random effects
+common effect model (with fixed treatment effect) and random effects
 model (with random treatment effects).
 }
 
@@ -569,7 +569,7 @@ Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
 correction has been proposed by utilising the variance estimate
 from the classic random effects model with the HK method (Knapp and
 Hartung, 2003; IQWiQ, 2020). An alternative approach is to use the
-wider confidence interval of classic fixed or random effects
+wider confidence interval of classic common or random effects
 meta-analysis and the HK method (Wiksten et al., 2016; Jackson et
 al., 2017).
 
@@ -630,7 +630,7 @@ Meta-analysis results are the same for both arguments.
 
 \subsection{Presentation of meta-analysis results}{
 
-Internally, both fixed effect and random effects models are
+Internally, both common effect and random effects models are
 calculated regardless of values choosen for arguments
 \code{fixed} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component

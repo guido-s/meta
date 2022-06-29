@@ -63,7 +63,7 @@ cilayout(
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{fixed}{A logical indicating whether results for fixed effect
+\item{fixed}{A logical indicating whether results for common effect
 meta-analysis should be printed.}
 
 \item{random}{A logical indicating whether results for random
@@ -86,8 +86,8 @@ level.}
 results of test for subgroup differences.}
 
 \item{test.subgroup.fixed}{A logical value indicating whether to
-print results of test for subgroup differences (based on fixed
-effect / common effect model).}
+print results of test for subgroup differences (based on common
+effect model).}
 
 \item{test.subgroup.random}{A logical value indicating whether to
 print results of test for subgroup differences (based on random

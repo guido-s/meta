@@ -86,6 +86,9 @@ hetcalc <- function(TE, seTE,
         ##
         tau2 <- mf0$tau2
         se.tau2 <- mf0$se.tau2
+        ## Calculate Cochran's Q
+        w <- 1 / seTE^2
+        Q <- sum(w * (TE - weighted.mean(TE, w))^2)
       }
       else {
         idx <- seq_along(TE)
@@ -99,11 +102,12 @@ hetcalc <- function(TE, seTE,
         ##
         tau2 <- mf0$sigma2
         se.tau2 <- NA
+        ##
+        Q <- mf0$QE
       }
       ##
       tau <- sqrt(tau2)
       ##
-      Q <- mf0$QE
       df.Q <- mf0$k - mf0$p
       pval.Q <- pvalQ(Q, df.Q)
       ##

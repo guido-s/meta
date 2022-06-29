@@ -13,7 +13,7 @@
 #' @param lower Lower confidence interval limit.
 #' @param upper Upper confidence interval limit.
 #' @param fixed A logical indicating whether NNTs should be
-#'   calculated based on fixed effect estimate.
+#'   calculated based on common effect estimate.
 #' @param random A logical indicating whether NNTs should be
 #'   calculated based on random effects estimate.
 #' @param digits Minimal number of significant digits, see

@@ -10,7 +10,7 @@ Official Git repository of R package **meta**
 ## Description
 
 User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
- - fixed effect and random effects meta-analysis;
+ - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
  - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
  - import data from 'RevMan 5';

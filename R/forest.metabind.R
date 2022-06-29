@@ -64,7 +64,7 @@
 #'   row is printed between results for subgroups.
 #' @param smlab A label for the summary measurex (printed at top of
 #'   figure).
-#' @param calcwidth.pooled A logical indicating whether text for fixed
+#' @param calcwidth.pooled A logical indicating whether text for common
 #'   effect and random effects model should be considered to calculate
 #'   width of the column with study labels.
 #' @param warn.deprecated A logical indicating whether warnings should
@@ -99,7 +99,7 @@
 #' Argument \code{hetstat} can be a character string to specify where
 #' to print heterogeneity information:
 #' \itemize{
-#' \item row with results for fixed effect model (\code{hetstat =
+#' \item row with results for common effect model (\code{hetstat =
 #' "fixed"}),
 #' \item row with results for random effects model (\code{hetstat =
 #' "random"}),
@@ -368,9 +368,9 @@ forest.metabind <- function(x,
   if (missing(smlab))
     if (length(unique(x$pooled)) == 1)
       smlab <- paste0(if (x$fixed)
-                        "Fixed Effect Model"
+                        gs("text.fixed")
                       else
-                        "Random Effects Model",
+                        gs("text.random"),
                       if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
                         paste0("\n(", xlab(x$sm, x$backtransf), ")"))
     else

@@ -32,7 +32,7 @@ effect, i.e., risk difference(s), risk ratio(s), or odds ratio(s).}
 \item{p.c}{Baseline risk (control group event probability).}
 
 \item{fixed}{A logical indicating whether NNTs should be
-calculated based on fixed effect estimate.}
+calculated based on common effect estimate.}
 
 \item{random}{A logical indicating whether NNTs should be
 calculated based on random effects estimate.}
