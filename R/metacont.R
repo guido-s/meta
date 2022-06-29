@@ -988,9 +988,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   missing.min.c <- missing(min.c)
   missing.max.c <- missing(max.c)
   ##
-  if (!missing.id & is.null(id))
-    missing.id <- TRUE
-  ##
   if (missing.mean.e & missing.median.e)
     stop("Provide either argument 'mean.e' or 'median.e'.",
          call. = FALSE)
@@ -1045,6 +1042,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sd.c <- rep(NA, k.All)
   ##
   id <- catch("id", mc, data, sfsp)
+  if (!missing.id & is.null(id))
+    missing.id <- TRUE
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
@@ -2014,12 +2013,23 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
+      if (res$three.level) {
+        res$Q.b.random <- NA
+        res$df.Q.b <- NA
+        res$pval.Q.b.random <- NA
+      }
+    }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else
-      res <- c(res, subgroup(res, hcc$tau.resid))
+    else {
+      if (res$three.level)
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$subgroup, bylevs(res$subgroup))))
+      else
+        res <- c(res, subgroup(res, hcc$tau.resid))
+    }
     ##
     if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA

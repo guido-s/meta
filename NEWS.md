@@ -16,6 +16,12 @@
 * Use correct standard error for Cox and Snell's method in smd2or()
   and or2smd()
 
+* Three-level model did not work if variable from data set was
+  provided as input to argument 'id' in metacont()
+
+* Argument 'tau.common = TRUE' was ignored in subgroup analysis of
+  three-level model in metacont()
+
 ### User-visible changes
 
 * New function subset.longarm() to select subset of a longarm object

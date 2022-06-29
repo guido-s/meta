@@ -1129,6 +1129,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (!missing.id & is.null(id))
     missing.id <- TRUE
+  if (!missing.id)
+    idx <- seq_along(id)
   ##
   k.All <- if (!missing.TE)
              length(TE)
@@ -1346,7 +1348,6 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (!missing.id) {
       data$.id <- id
-      idx <- seq_along(id)
       data$.idx <- idx
     }
     ##
