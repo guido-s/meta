@@ -372,7 +372,7 @@ print.summary.meta <- function(x,
   subgroup.name <- replaceNULL(x$subgroup.name, x$bylab)
   ##
   by <- !is.null(subgroup.name)
-  id <- !is.null(x$three.level) && x$three.level
+  three.level <- !is.null(x$three.level) && x$three.level
   
   
   ##
@@ -532,8 +532,8 @@ print.summary.meta <- function(x,
                                   "NA", big.mark = big.mark))
     }
     ##
-    if (id)
-      res <- cbind(res, id = as.character(x$id))
+    if (three.level)
+      res <- cbind(res, cluster = as.character(x$cluster))
     ##
     if (by)
       res <- cbind(res, subgroup = as.character(subgroup))
@@ -731,7 +731,7 @@ print.summary.meta <- function(x,
                    if (show.w.random)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
-                   if (id) as.character(x$id),
+                   if (three.level) as.character(x$cluster),
                    if (by) as.character(subgroup),
                    if (show.imor) round(x$IMOR.e, 4),
                    if (show.imor) round(x$IMOR.c, 4),
@@ -801,7 +801,7 @@ print.summary.meta <- function(x,
                    c(sm.lab, ci.lab,
                      if (show.w.fixed) text.w.fixed,
                      if (show.w.random) text.w.random,
-                     if (id) "id",
+                     if (three.level) "cluster",
                      if (by) subgroup.name,
                      if (!is.null(x$exclude)) "exclude",
                      if (method.ci == "CP" & (any(!is.na(x$pval)))) "p-value")
@@ -851,7 +851,7 @@ print.summary.meta <- function(x,
                c(sm.lab, ci.lab,
                  if (show.w.fixed) text.w.fixed,
                  if (show.w.random) text.w.random,
-                 if (id) "id",
+                 if (three.level) "cluster",
                  if (by) subgroup.name,
                  if (show.imor) "IMOR.e",
                  if (show.imor) "IMOR.c",

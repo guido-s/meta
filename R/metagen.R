@@ -22,8 +22,8 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots (see Details).
-#' @param id An optional vector specifying which estimates come from
-#'   the same study resulting in the use of a three-level
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
@@ -159,6 +159,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param id Deprecated argument (replaced by 'cluster').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -193,8 +194,8 @@
 #' \subsection{Three-level random effects meta-analysis}{
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{id} is used and at
-#' least one study provides more than one estimate. Internally,
+#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
@@ -522,7 +523,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-#' \item{id, sm, method.ci, level, level.ma,}{As defined above.}
+#' \item{cluster, sm, method.ci, level, level.ma,}{As defined above.}
 #' \item{fixed, random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -908,13 +909,22 @@
 #'   data = Fleiss1993bin, sm = "RR", method = "I",
 #'   subset = (n.asp + n.plac) > 1500,
 #'   exclude = grep("MRC", study))
+#'
+#' \dontrun{
+#' # Three-level model: effects of modified school calendars on
+#' # student achievement
+#' data(dat.konstantopoulos2011, package = "metadat")
+#' metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
+#'   sm = "SMD",
+#'   cluster = district, detail.tau = c("district", "district/school"))
+#' }
 #' 
 #' @export metagen
 
 
 metagen <- function(TE, seTE, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL, id = NULL,
+                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
                     ##
                     sm = "",
                     ##
@@ -969,7 +979,7 @@ metagen <- function(TE, seTE, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
-                    byvar,
+                    byvar, id,
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
@@ -996,18 +1006,6 @@ metagen <- function(TE, seTE, studlab,
   adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
-  missing.id <- missing(id)
-  ##
-  missing.method.tau.ci <- missing(method.tau.ci)
-  if (is.null(method.tau.ci))
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else if (!missing.id)
-      method.tau.ci <- "PL"
-    else
-      method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   chklogical(tau.common)
   ##
@@ -1106,7 +1104,7 @@ metagen <- function(TE, seTE, studlab,
     data <- sfsp
   ##
   ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
-  ## 'id' from data:
+  ## 'cluster' from data:
   ##
   missing.TE <- missing(TE)
   missing.seTE <- missing(seTE)
@@ -1125,12 +1123,28 @@ metagen <- function(TE, seTE, studlab,
   median <- catch("median", mc, data, sfsp)
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
+  ##
+  missing.cluster <- missing(cluster)
+  cluster <- catch("cluster", mc, data, sfsp)
+  missing.id <- missing(id)
   id <- catch("id", mc, data, sfsp)
   ##
-  if (!missing.id & is.null(id))
-    missing.id <- TRUE
-  if (!missing.id)
-    idx <- seq_along(id)
+  cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
+                         warn.deprecated)
+  with.cluster <- !is.null(cluster)
+  ##
+  if (with.cluster)
+    idx <- seq_along(cluster)
+  ##
+  missing.method.tau.ci <- missing(method.tau.ci)
+  if (is.null(method.tau.ci))
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else if (with.cluster)
+      method.tau.ci <- "PL"
+    else
+      method.tau.ci <- "QP"
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   k.All <- if (!missing.TE)
              length(TE)
@@ -1241,8 +1255,8 @@ metagen <- function(TE, seTE, studlab,
     chklength(n.e, k.All, arg)
   if (!is.null(n.c))
     chklength(n.c, k.All, arg)
-  if (!missing.id)
-    chklength(id, k.All, arg)
+  if (with.cluster)
+    chklength(cluster, k.All, arg)
   ##
   if (!missing.approx.TE) {
     if (length(approx.TE) == 1)
@@ -1346,8 +1360,8 @@ metagen <- function(TE, seTE, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!missing.id) {
-      data$.id <- id
+    if (with.cluster) {
+      data$.id <- data$.cluster <- cluster
       data$.idx <- idx
     }
     ##
@@ -1398,8 +1412,8 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(n.c))
       n.c <- n.c[subset]
     ##
-    if (!missing.id) {
-      id <- id[subset]
+    if (with.cluster) {
+      cluster <- cluster[subset]
       idx <- idx[subset]
     }
     ##
@@ -1450,13 +1464,13 @@ metagen <- function(TE, seTE, studlab,
   chknumeric(TE)
   chknumeric(seTE, 0)
   ##
-  ## No three-level meta-analysis conducted if variable 'id' contains
-  ## different values for each estimate
+  ## No three-level meta-analysis conducted if variable 'cluster'
+  ## contains different values for each estimate
   ##
   three.level <- FALSE
   ##
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
+  if (with.cluster && length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
   ##
   if (!three.level & method.tau.ci == "PL") {
@@ -1800,9 +1814,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   k <- sum(!is.na(seTE[!exclude]))
   ##
-  if (!missing.id) {
-    id.incl <- id[!exclude]
-    k.study <- length(unique(id.incl[!is.na(seTE[!exclude])]))
+  if (with.cluster) {
+    cluster.incl <- cluster[!exclude]
+    k.study <- length(unique(cluster.incl[!is.na(seTE[!exclude])]))
   }
   else
     k.study <- k
@@ -1850,7 +1864,7 @@ metagen <- function(TE, seTE, studlab,
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci,
                   TE.tau, level.ma,
-                  control = control, id = id[!exclude])
+                  control = control, cluster = cluster[!exclude])
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
@@ -1858,7 +1872,7 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, method.tau.ci,
                      TE.tau, level.ma,
                      subgroup = subgroup,
-                     control = control, id = id[!exclude])
+                     control = control, cluster = cluster[!exclude])
     }
     ##
     ## Different calculations for three-level models
@@ -1927,16 +1941,16 @@ metagen <- function(TE, seTE, studlab,
       sel.4 <- !is.na(TE) & !is.na(seTE)
       TE.4 <- TE[sel.4]
       seTE.4 <- seTE[sel.4]
-      id.4 <- id[sel.4]
+      cluster.4 <- cluster[sel.4]
       idx.4 <- idx[sel.4]
       ##
       m4 <-
         runNN(rma.mv,
                list(yi = TE.4, V = seTE.4^2,
                     method = method.tau, test = ifelse(hakn, "t", "z"),
-                    random = as.call(~ 1 | id.4 / idx.4),
+                    random = as.call(~ 1 | cluster.4 / idx.4),
                     control = control,
-                    data = data.frame(id.4, idx.4)))
+                    data = data.frame(cluster.4, idx.4)))
       ##
       w.random <- rep_len(NA, length(TE))
       w.random[sel.4] <- weights(m4, type = "rowsum")
@@ -2073,7 +2087,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   if (missing(detail.tau) && k != k.study)
-    detail.tau <- c("level 2", "level 1")
+    detail.tau <- c("between cluster", "within cluster")
   ##
   res <- list(studlab = studlab,
               ##
@@ -2084,7 +2098,7 @@ metagen <- function(TE, seTE, studlab,
               zval = ci.study$statistic,
               df = if (method.ci == "t") df else rep_len(NA, length(TE)),
               w.fixed = w.fixed, w.random = w.random,
-              id = id,
+              cluster = cluster,
               ##
               TE.fixed = TE.fixed, seTE.fixed = seTE.fixed,
               lower.fixed = lower.fixed, upper.fixed = upper.fixed,
@@ -2257,6 +2271,8 @@ metagen <- function(TE, seTE, studlab,
     res$print.byvar <- print.subgroup.name
     res$byseparator <- sep.subgroup
   }
+  if (three.level)
+    res$id <- res$cluster
   ##
   class(res) <- c(fun, "meta")
   

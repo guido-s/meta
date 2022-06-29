@@ -15,7 +15,7 @@ metacont(
   data = NULL,
   subset = NULL,
   exclude = NULL,
-  id = NULL,
+  cluster = NULL,
   median.e,
   q1.e,
   q3.e,
@@ -74,6 +74,7 @@ metacont(
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
+  id,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -106,8 +107,8 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
-\item{id}{An optional vector specifying which estimates come from
-the same study resulting in the use of a three-level
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{median.e}{Median in experimental group (used to estimate the
@@ -304,6 +305,8 @@ results of test for subgroup differences.}
 intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
+
+\item{id}{Deprecated argument (replaced by 'cluster').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}

@@ -11,6 +11,8 @@
 * Use term 'common effect model' instead of 'fixed effect model' in
   the documentation
 
+* For three-level models, argument 'id' has been renamed to 'cluster'.
+
 ### Bug fixes
 
 * Use correct standard error for Cox and Snell's method in smd2or()
@@ -27,6 +29,8 @@
 * New function subset.longarm() to select subset of a longarm object
 
 * New argument 'method.ci' in function metarate()
+
+* New argument 'cluster' in functions metacont() and metagen()
 
 * New argument 'method.ci.rate' in function settings.meta()
 

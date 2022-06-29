@@ -19,8 +19,8 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
-#' @param id An optional vector specifying which estimates come from
-#'   the same study resulting in the use of a three-level
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
@@ -159,6 +159,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param id Deprecated argument (replaced by 'cluster').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -796,7 +797,7 @@
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL, id = NULL,
+                     data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -849,7 +850,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
                      ##
-                     byvar,
+                     byvar, id,
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
                      ##
@@ -869,16 +870,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
-  missing.id <- missing(id)
-  if (is.null(method.tau.ci))
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else if (!missing.id)
-      method.tau.ci <- "PL"
-    else
-      method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   chklogical(tau.common)
   ##
@@ -968,8 +959,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (nulldata)
     data <- sfsp
   ##
-  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and 'id'
-  ## from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and
+  ## 'cluster' from data:
   ##
   missing.mean.e <- missing(mean.e)
   missing.sd.e <- missing(sd.e)
@@ -1041,9 +1032,23 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   else
     sd.c <- rep(NA, k.All)
   ##
+  missing.cluster <- missing(cluster)
+  cluster <- catch("cluster", mc, data, sfsp)
+  missing.id <- missing(id)
   id <- catch("id", mc, data, sfsp)
-  if (!missing.id & is.null(id))
-    missing.id <- TRUE
+  ##
+  cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
+                         warn.deprecated)
+  with.cluster <- !is.null(cluster)
+  ##
+  if (is.null(method.tau.ci))
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else if (with.cluster)
+      method.tau.ci <- "PL"
+    else
+      method.tau.ci <- "QP"
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
   ##
@@ -1132,8 +1137,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklength(mean.c, k.All, arg)
   chklength(sd.c, k.All, arg)
   chklength(studlab, k.All, arg)
-  if (!missing.id)
-    chklength(id, k.All, arg)
+  if (with.cluster)
+    chklength(cluster, k.All, arg)
   ##
   if (!missing.median.e)
     chklength(median.e, k.All, arg)
@@ -1283,8 +1288,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!missing.id)
-      data$.id <- id
+    if (with.cluster)
+      data$.id <- data$.cluster <- cluster
   }
   
   
@@ -1302,8 +1307,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
     ##
-    if (!missing.id)
-      id <- id[subset]
+    if (with.cluster)
+      cluster <- cluster[subset]
     ##
     exclude <- exclude[subset]
     ##
@@ -1841,7 +1846,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   multi.level <- FALSE
   ##
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
+  if (with.cluster && length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     multi.level <- TRUE
   ##
   if (multi.level) {
@@ -1869,7 +1874,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               id = id,
+               cluster = cluster,
                ##
                sm = sm,
                level = level,

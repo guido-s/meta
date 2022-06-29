@@ -10,7 +10,7 @@
   subset,
   studlab,
   exclude,
-  id,
+  cluster,
   method = object$method,
   sm = object$sm,
   incr,
@@ -68,6 +68,7 @@
   test.subgroup = object$test.subgroup,
   prediction.subgroup = object$prediction.subgroup,
   byvar,
+  id,
   print.CMH = object$print.CMH,
   keepdata = TRUE,
   left = object$left,
@@ -93,8 +94,8 @@
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
-\item{id}{An optional vector specifying which estimates come from
-the same study resulting in the use of a three-level
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{method}{A character string indicating which method is to be
@@ -309,6 +310,8 @@ results of test for subgroup differences.}
 intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
+
+\item{id}{Deprecated argument (replaced by 'cluster').}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be

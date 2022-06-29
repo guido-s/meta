@@ -80,7 +80,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         x$sd.c[sel],
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
-                        id = if (!is.null(x$id)) x$id[sel] else NULL,
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         sm = x$sm, pooledvar = x$pooledvar,
                         level = x$level, level.ma = x$level.ma,
                         fixed = x$fixed, random = x$random,
@@ -112,7 +113,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
-                       id = if (!is.null(x$id)) x$id[sel] else NULL,
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        level = x$level, level.ma = x$level.ma,
                        fixed = x$fixed, random = x$random,
                        hakn = x$hakn,
@@ -340,29 +342,29 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     mod <- as.call(~ subgroup.rma - 1)
     mod.Q <- as.call(~ subgroup.rma)
     ##
-    no.with.id <- x$id
-    runID <- seq_along(no.with.id)
+    cluster <- x$cluster
+    runID <- seq_along(cluster)
     ##
     mv.random <-
       runNN(rma.mv,
             list(yi = x$TE, V = x$seTE^2,
                  mods = mod,
-                 random = as.call(~ 1 | no.with.id / runID),
+                 random = as.call(~ 1 | cluster / runID),
                  method = x$method.tau,
                  test = ifelse(x$hakn, "t", "z"),
                  level = 100 * x$level.ma,
-                 data = data.frame(subgroup.rma, no.with.id, runID)))
+                 data = data.frame(subgroup.rma, cluster, runID)))
     ##
     mv.random.Q <-
       suppressWarnings(
         runNN(rma.mv,
               list(yi = x$TE, V = x$seTE^2,
                    mods = mod.Q,
-                   random = as.call(~ 1 | no.with.id / runID),
+                   random = as.call(~ 1 | cluster / runID),
                    method = x$method.tau,
                    test = ifelse(x$hakn, "t", "z"),
                    level = 100 * x$level.ma,
-                   data = data.frame(subgroup.rma, no.with.id, runID))))
+                   data = data.frame(subgroup.rma, cluster, runID))))
     ##
     if (length(TE.random.w) != length(as.numeric(mv.random$b))) {
       TE.random.w[!is.na(TE.random.w)] <- as.numeric(mv.random$b)

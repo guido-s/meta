@@ -10,8 +10,8 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
-#' @param id An optional vector specifying which estimates come from
-#'   the same study resulting in the use of a three-level
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies; see \code{\link{metabin}} and
@@ -169,6 +169,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param id Deprecated argument (replaced by 'cluster').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
 #'   printed.
@@ -249,7 +250,7 @@
 
 update.meta <- function(object, 
                         data = object$data,
-                        subset, studlab, exclude, id,
+                        subset, studlab, exclude, cluster,
                         ##
                         method = object$method,
                         sm = object$sm,
@@ -311,7 +312,7 @@ update.meta <- function(object,
                         sep.subgroup = object$sep.subgroup,
                         test.subgroup = object$test.subgroup,
                         prediction.subgroup = object$prediction.subgroup,
-                        byvar,
+                        byvar, id,
                         ##
                         print.CMH = object$print.CMH,
                         keepdata = TRUE,
@@ -347,6 +348,15 @@ update.meta <- function(object,
     meta.version <- 0.1
   else
     meta.version <- as.numeric(unlist(strsplit(object$version, "-"))[1])
+  ##
+  if (meta.version < 5.3) {
+    ##
+    ## Changes for meta objects with version < 5.3
+    ##
+    if (!is.null(object$id))
+      object$cluster <- object$id
+      object$data$.cluster <- object$data$.id
+  }
   ##
   if (meta.version < 5.0) {
     ##
@@ -601,18 +611,24 @@ update.meta <- function(object,
   else
     exclude <- NULL
   ##
-  ## Catch argument 'id'
+  ## Catch argument 'cluster'
   ##
+  missing.cluster <- missing(cluster)
   missing.id <- missing(id)
   ##
-  if (!missing.id)
-    ...id <- catch("id", mc, data, sfsp)
-  else {
-    if (isCol(object$data, ".id"))
-      ...id <- object$data$.id
-    else
-      ...id <- NULL
+  if (!missing.cluster | !missing.id) {
+    cluster <- catch("cluster", mc, data, sfsp)
+    id <- catch("id", mc, data, sfsp)
+    ...cluster <-
+      deprecated2(cluster, missing.cluster, id, missing.id,
+                  warn.deprecated)
+    ##
+    data$.cluster <- ...cluster
   }
+  else if (isCol(object$data, ".cluster"))
+    ...cluster <- object$data$.cluster
+  else
+    ...cluster <- NULL
   ##
   ## Catch argument 'incr'
   ##
@@ -770,7 +786,7 @@ update.meta <- function(object,
                   ##
                   studlab = studlab,
                   exclude = exclude,
-                  id = ...id,
+                  cluster = ...cluster,
                   ##
                   data = data, subset = subset,
                   ##
@@ -875,7 +891,7 @@ update.meta <- function(object,
                  ##
                  studlab = studlab,
                  exclude = exclude,
-                 id = ...id,
+                 cluster = ...cluster,
                  ##
                  data = data.m, subset = subset,
                  ##

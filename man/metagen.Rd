@@ -11,7 +11,7 @@ metagen(
   data = NULL,
   subset = NULL,
   exclude = NULL,
-  id = NULL,
+  cluster = NULL,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -71,6 +71,7 @@ metagen(
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
+  id,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -96,8 +97,8 @@ be used (see Details).}
 from meta-analysis, however, to include in printouts and forest
 plots (see Details).}
 
-\item{id}{An optional vector specifying which estimates come from
-the same study resulting in the use of a three-level
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{sm}{A character string indicating underlying summary measure,
@@ -293,6 +294,8 @@ intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
+\item{id}{Deprecated argument (replaced by 'cluster').}
+
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
@@ -315,7 +318,7 @@ An object of class \code{c("metagen", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-\item{id, sm, method.ci, level, level.ma,}{As defined above.}
+\item{cluster, sm, method.ci, level, level.ma,}{As defined above.}
 \item{fixed, random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -491,8 +494,8 @@ rerun a meta-analysis with different settings.
 \subsection{Three-level random effects meta-analysis}{
 
 A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{id} is used and at
-least one study provides more than one estimate. Internally,
+et al., 2013) is utilized if argument \code{cluster} is used and at
+least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
@@ -893,6 +896,15 @@ metabin(d.asp, n.asp, d.plac, n.plac, study,
   data = Fleiss1993bin, sm = "RR", method = "I",
   subset = (n.asp + n.plac) > 1500,
   exclude = grep("MRC", study))
+
+\dontrun{
+# Three-level model: effects of modified school calendars on
+# student achievement
+data(dat.konstantopoulos2011, package = "metadat")
+metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
+  sm = "SMD",
+  cluster = district, detail.tau = c("district", "district/school"))
+}
 
 }
 \references{
