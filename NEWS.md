@@ -11,7 +11,9 @@
 * Use term 'common effect model' instead of 'fixed effect model' in
   the documentation
 
-* For three-level models, argument 'id' has been renamed to 'cluster'.
+* For three-level models,
+  - argument 'id' has been renamed to 'cluster',
+  - cluster variable is shown in forest plots.
 
 ### Bug fixes
 

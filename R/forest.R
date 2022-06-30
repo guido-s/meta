@@ -573,6 +573,9 @@
 #' \code{\link{metainf}} \tab \code{"studlab"}
 #' }
 #'
+#' For three-level models, the cluster variable is printed next to the
+#' study labels (value \code{"cluster"} in argument leftcols).
+#'
 #' Note, \code{"studlab"} \bold{must be provided for study labels} in
 #' argument \code{leftcols} or \code{rightcols} instead of the
 #' variable name used in the meta-analysis command. If, for example,
@@ -636,15 +639,15 @@
 #' are used by default, i.e., if arguments \code{leftlabs} and
 #' \code{rightlabs} are \code{NULL}:
 #' \tabular{rcccccc}{
-#' Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
-#'   \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-#' Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
+#' Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
+#'   \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
+#' Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
 #'   "Total" \tab "Total" \cr
 #' \cr
-#' Column: \tab \code{event.e} \tab \code{event.c} \tab
-#'   \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-#' Label: \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
-#'   \tab "Mean" \tab \cr
+#' Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
+#'   \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
+#' Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
+#'   "Mean" \tab "Mean" \cr
 #' \cr
 #' Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
 #'   \tab \code{time.c} \tab \code{effect} \tab \cr
@@ -2423,7 +2426,9 @@ forest.meta <- function(x,
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
   ##
-  colnames <- c("studlab", "TE", "seTE",
+  colnames <- c("studlab",
+                "TE", "seTE",
+                "cluster",
                 "n.e", "n.c",
                 "event.e", "event.c",
                 "mean.e", "mean.c",
@@ -2533,6 +2538,7 @@ forest.meta <- function(x,
   ##
   labnames <- c(lab.studlab,
                 "TE", if (revman5) "SE" else "seTE",
+                "Cluster",
                 "Total", "Total", "Events", "Events",
                 "Mean", "Mean", "SD", "SD",
                 "Cor",
@@ -2551,6 +2557,7 @@ forest.meta <- function(x,
   ## element x$data)
   ##
   colnames.notNULL <- colnames
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cluster")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.c")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.e")
@@ -2609,11 +2616,14 @@ forest.meta <- function(x,
         if (metamean & any(rightcols.new == "sd"))
           rightlabs.new[rightlabs.new == "sd"] <- "SD"
         ##
-        if ((metarate) & any(rightcols.new == "time"))
+        if (metarate & any(rightcols.new == "time"))
           rightlabs.new[rightlabs.new == "time"] <- "Time"
         ##
         if (any(rightcols.new == "pval"))
           rightlabs.new[rightlabs.new == "pval"] <- "P-value"
+        ##
+        if (three.level & any(rightcols.new == "cluster"))
+          rightlabs.new[rightlabs.new == "cluster"] <- "Cluster"
       }
       else {
         if (length(rightcols.new) == length(rightlabs))
@@ -2652,11 +2662,14 @@ forest.meta <- function(x,
         if (metamean & any(leftcols.new == "sd"))
           leftlabs.new[leftlabs.new == "sd"] <- "SD"
         ##
-        if ((metarate) & any(leftcols.new == "time"))
+        if (metarate & any(leftcols.new == "time"))
           leftlabs.new[leftlabs.new == "time"] <- "Time"
         ##
         if (any(leftcols.new == "pval"))
           leftlabs.new[leftlabs.new == "pval"] <- "P-value"
+        ##
+        if (three.level & any(leftcols.new == "cluster"))
+          leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
       }
       else {
         if (length(leftcols.new) == length(leftlabs))
@@ -2686,13 +2699,17 @@ forest.meta <- function(x,
   ## Default set of columns if argument leftcols and / or
   ## rightcols not specified
   ##
+  three.level <- !is.null(x$three.level) && x$three.level
+  ##
   if (is.null(leftcols)) {
     ##
     leftcols <- "studlab"
     ##
+    if (three.level)
+      leftcols <- c(leftcols, "cluster")
+    ##
     if (jama) {
-      leftcols <- c(leftcols,
-                    "effect.ci")
+      leftcols <- c(leftcols, "effect.ci")
     }
     else {
       if (metabin) {
@@ -3042,6 +3059,8 @@ forest.meta <- function(x,
     ##
     subgroup.factor <- factor(subgroup, levels = bylevs)
     o <- order(subgroup.factor, sortvar)
+    ##
+    x$cluster <- x$cluster[o]
     ##
     x$n.e <- x$n.e[o]
     x$n.c <- x$n.c[o]
@@ -5835,6 +5854,7 @@ forest.meta <- function(x,
       w.random.percent <- FALSE
   }
   ## "studlab", "TE", "seTE",
+  ## "cluster",
   ## "n.e", "n.c",
   ## "event.e", "event.c",
   ## "mean.e", "mean.c",
@@ -5855,81 +5875,6 @@ forest.meta <- function(x,
   else {
     newline.studlab <- FALSE
     longer.studlab <- labs[["lab.studlab"]]
-  }
-  ##
-  ## Check for "\n" in label of column 'effect'
-  ##
-  clines <- twolines(labs[["lab.effect"]], "effect")
-  ##
-  if (clines$newline) {
-    newline.effect <- TRUE
-    labs[["lab.effect"]] <- clines$bottom
-    add.effect <- clines$top
-    longer.effect <- clines$longer
-  }
-  else {
-    newline.effect <- FALSE
-    longer.effect <- labs[["lab.effect"]]
-  }
-  ##
-  ## Check for "\n" in label of column 'ci'
-  ##
-  clines <- twolines(labs[["lab.ci"]], "ci")
-  ##
-  if (clines$newline) {
-    newline.ci <- TRUE
-    labs[["lab.ci"]] <- clines$bottom
-    add.ci <- clines$top
-    longer.ci <- clines$longer
-  }
-  else {
-    newline.ci <- FALSE
-    longer.ci <- labs[["lab.ci"]]
-  }
-  ##
-  ## Check for "\n" in label of column 'effect.ci'
-  ##
-  clines <- twolines(labs[["lab.effect.ci"]], "effect.ci")
-  ##
-  if (clines$newline) {
-    newline.effect.ci <- TRUE
-    labs[["lab.effect.ci"]] <- clines$bottom
-    add.effect.ci <- clines$top
-    longer.effect.ci <- clines$longer
-  }
-  else {
-    newline.effect.ci <- FALSE
-    longer.effect.ci <- labs[["lab.effect.ci"]]
-  }
-  ##
-  ## Check for "\n" in label of column 'w.fixed'
-  ##
-  clines <- twolines(labs[["lab.w.fixed"]], "w.fixed")
-  ##
-  if (clines$newline) {
-    newline.w.fixed <- TRUE
-    labs[["lab.w.fixed"]] <- clines$bottom
-    add.w.fixed <- clines$top
-    longer.w.fixed <- clines$longer
-  }
-  else {
-    newline.w.fixed <- FALSE
-    longer.w.fixed <- labs[["lab.w.fixed"]]
-  }
-  ##
-  ## Check for "\n" in label of column 'w.random'
-  ##
-  clines <- twolines(labs[["lab.w.random"]], "w.random")
-  ##
-  if (clines$newline) {
-    newline.w.random <- TRUE
-    labs[["lab.w.random"]] <- clines$bottom
-    add.w.random <- clines$top
-    longer.w.random <- clines$longer
-  }
-  else {
-    newline.w.random <- FALSE
-    longer.w.random <- labs[["lab.w.random"]]
   }
   ##
   ## Check for "\n" in label of column 'TE'
@@ -5960,6 +5905,21 @@ forest.meta <- function(x,
   else {
     newline.seTE <- FALSE
     longer.seTE <- labs[["lab.seTE"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'cluster'
+  ##
+  clines <- twolines(labs[["lab.cluster"]], "cluster")
+  ##
+  if (clines$newline) {
+    newline.cluster <- TRUE
+    labs[["lab.cluster"]] <- clines$bottom
+    add.cluster <- clines$top
+    longer.cluster <- clines$longer
+  }
+  else {
+    newline.cluster <- FALSE
+    longer.cluster <- labs[["lab.cluster"]]
   }
   ##
   ## Check for "\n" in label of column 'n.e'
@@ -6127,6 +6087,81 @@ forest.meta <- function(x,
     longer.time.c <- labs[["lab.time.c"]]
   }
   ##
+  ## Check for "\n" in label of column 'effect'
+  ##
+  clines <- twolines(labs[["lab.effect"]], "effect")
+  ##
+  if (clines$newline) {
+    newline.effect <- TRUE
+    labs[["lab.effect"]] <- clines$bottom
+    add.effect <- clines$top
+    longer.effect <- clines$longer
+  }
+  else {
+    newline.effect <- FALSE
+    longer.effect <- labs[["lab.effect"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'ci'
+  ##
+  clines <- twolines(labs[["lab.ci"]], "ci")
+  ##
+  if (clines$newline) {
+    newline.ci <- TRUE
+    labs[["lab.ci"]] <- clines$bottom
+    add.ci <- clines$top
+    longer.ci <- clines$longer
+  }
+  else {
+    newline.ci <- FALSE
+    longer.ci <- labs[["lab.ci"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'effect.ci'
+  ##
+  clines <- twolines(labs[["lab.effect.ci"]], "effect.ci")
+  ##
+  if (clines$newline) {
+    newline.effect.ci <- TRUE
+    labs[["lab.effect.ci"]] <- clines$bottom
+    add.effect.ci <- clines$top
+    longer.effect.ci <- clines$longer
+  }
+  else {
+    newline.effect.ci <- FALSE
+    longer.effect.ci <- labs[["lab.effect.ci"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'w.fixed'
+  ##
+  clines <- twolines(labs[["lab.w.fixed"]], "w.fixed")
+  ##
+  if (clines$newline) {
+    newline.w.fixed <- TRUE
+    labs[["lab.w.fixed"]] <- clines$bottom
+    add.w.fixed <- clines$top
+    longer.w.fixed <- clines$longer
+  }
+  else {
+    newline.w.fixed <- FALSE
+    longer.w.fixed <- labs[["lab.w.fixed"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'w.random'
+  ##
+  clines <- twolines(labs[["lab.w.random"]], "w.random")
+  ##
+  if (clines$newline) {
+    newline.w.random <- TRUE
+    labs[["lab.w.random"]] <- clines$bottom
+    add.w.random <- clines$top
+    longer.w.random <- clines$longer
+  }
+  else {
+    newline.w.random <- FALSE
+    longer.w.random <- labs[["lab.w.random"]]
+  }
+  ##
   ## Check for "\n" in argument 'smlab'
   ##
   clines <- twolines(smlab, arg = TRUE)
@@ -6218,6 +6253,7 @@ forest.meta <- function(x,
   ##
   newline <- newline.studlab | newline.effect | newline.ci | newline.effect.ci |
     newline.w.fixed | newline.w.random | newline.TE | newline.seTE |
+    newline.cluster |
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
@@ -6524,7 +6560,22 @@ forest.meta <- function(x,
   else
     sum.t.c <- sum(x$time.c, na.rm = TRUE)
   ##
+  if (is.character(x$cluster))
+    as.character.cluster <- TRUE
+  else if (is.factor(x$cluster)) {
+    if (anyNA(suppressWarnings(as.numeric(as.character(x$cluster)))))
+      as.character.cluster <- TRUE
+    else
+      as.character.cluster <- FALSE
+    ##
+    x$cluster <- as.character(x$cluster)
+  }
+  else
+    as.character.cluster <- FALSE
+  ##
   if (by) {
+    cluster.format <-  c("", "", "", rep("", 6 * n.by), x$cluster)
+    ##
     if (pooled.totals) {
       Ne <- c(sum.n.e, sum.n.e, NA, n.e.w, n.e.w, rep(NA, 4 * n.by), x$n.e)
       Nc <- c(sum.n.c, sum.n.c, NA, n.c.w, n.c.w, rep(NA, 4 * n.by), x$n.c)
@@ -6551,6 +6602,8 @@ forest.meta <- function(x,
     }
   }
   else {
+    cluster.format <-  c("", "", "", x$cluster)
+    ##
     if (pooled.totals) {
       Ne <- c(sum.n.e, sum.n.e, NA, x$n.e)
       Nc <- c(sum.n.c, sum.n.c, NA, x$n.c)
@@ -7234,6 +7287,11 @@ forest.meta <- function(x,
   col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS, just.c, fcs,
                         fontfamily)
   ##
+  col.cluster <-
+    formatcol(labs[["lab.cluster"]], cluster.format,
+              yS, if (as.character.cluster) "left" else just.c,
+              fcs, fontfamily)
+  ##
   col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs,
                        fontfamily)
   col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.c, fcs,
@@ -7281,6 +7339,9 @@ forest.meta <- function(x,
   col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.c, fcs, fontfamily)
   col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.c, fcs,
                              fontfamily)
+  ##
+  col.cluster.calc <- formatcol(longer.cluster, cluster.format,
+                                yS, just.c, fcs, fontfamily)
   ##
   col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs, fontfamily)
   col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.c, fcs, fontfamily)
@@ -7382,6 +7443,8 @@ forest.meta <- function(x,
                     col.TE = col.TE.calc,
                     col.seTE = col.seTE.calc)
   ##
+  cols[["col.cluster"]] <- col.cluster
+  ##
   cols[["col.n.e"]] <- col.n.e
   cols[["col.n.c"]] <- col.n.c
   cols[["col.event.e"]] <- col.event.e
@@ -7396,6 +7459,8 @@ forest.meta <- function(x,
   ##
   cols[["col.time.e"]] <- col.time.e
   cols[["col.time.c"]] <- col.time.c
+  ##
+  cols.calc[["col.cluster"]] <- col.cluster.calc
   ##
   cols.calc[["col.n.e"]] <- col.n.e.calc
   cols.calc[["col.n.c"]] <- col.n.c.calc
@@ -7704,6 +7769,13 @@ forest.meta <- function(x,
   ##
   if (newline.seTE)
     col.add.seTE <- tgl(add.seTE, xpos.c, just.c, fs.head, ff.head, fontfamily)
+  ##
+  if (newline.cluster)
+    col.add.cluster <-
+      tgl(add.cluster,
+          if (as.character.cluster) 0 else xpos.c,
+          if (as.character.cluster) "left" else just.c,
+          fs.head, ff.head, fontfamily)
   ##
   if (newline.n.e)
     col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
@@ -8018,6 +8090,8 @@ forest.meta <- function(x,
         add.text(col.add.TE, j)
       if (newline.seTE & leftcols[i] == "col.seTE")
         add.text(col.add.seTE, j)
+      if (newline.cluster & leftcols[i] == "col.cluster")
+        add.text(col.add.cluster, j)
       if (newline.n.e & leftcols[i] == "col.n.e")
         add.text(col.add.n.e, j)
       if (newline.n.c & leftcols[i] == "col.n.c")
@@ -8233,6 +8307,8 @@ forest.meta <- function(x,
           add.text(col.add.TE, j)
         if (newline.seTE & rightcols[i] == "col.seTE")
           add.text(col.add.seTE, j)
+        if (newline.cluster & rightcols[i] == "col.cluster")
+          add.text(col.add.cluster, j)
         if (newline.n.e & rightcols[i] == "col.n.e")
           add.text(col.add.n.e, j)
         if (newline.n.c & rightcols[i] == "col.n.c")
@@ -8304,6 +8380,7 @@ forest.meta <- function(x,
                  studlab = studlab,
                  TE.format = TE.format,
                  seTE.format = seTE.format,
+                 cluster.format = cluster.format,
                  effect.format = effect.format,
                  ci.format = ci.format))
 }

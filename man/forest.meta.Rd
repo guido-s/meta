@@ -1007,6 +1007,9 @@ side of the forest plot}}:
 \code{\link{metainf}} \tab \code{"studlab"}
 }
 
+For three-level models, the cluster variable is printed next to the
+study labels (value \code{"cluster"} in argument leftcols).
+
 Note, \code{"studlab"} \bold{must be provided for study labels} in
 argument \code{leftcols} or \code{rightcols} instead of the
 variable name used in the meta-analysis command. If, for example,
@@ -1070,15 +1073,15 @@ the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
 \tabular{rcccccc}{
-Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
-  \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
+Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
+  \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
+Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
   "Total" \tab "Total" \cr
 \cr
-Column: \tab \code{event.e} \tab \code{event.c} \tab
-  \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-Label: \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
-  \tab "Mean" \tab \cr
+Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
+  \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
+Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
+  "Mean" \tab "Mean" \cr
 \cr
 Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
   \tab \code{time.c} \tab \code{effect} \tab \cr

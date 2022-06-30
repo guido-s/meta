@@ -34,22 +34,22 @@
 #'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"}, or
 #'   \code{"DOR"}) is to be used for pooling of studies, see Details.
 #' @param incr Could be either a numerical value which is added to
-#'   each cell frequency for studies with a zero cell count or the
+#'   cell frequencies for studies with a zero cell count or the
 #'   character string \code{"TACC"} which stands for treatment arm
 #'   continuity correction, see Details.
-#' @param allincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies if at least one study has a zero
-#'   cell count. If FALSE (default), \code{incr} is added only to each
-#'   cell frequency of studies with a zero cell count.
-#' @param addincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies irrespective of zero cell counts.
+#' @param allincr A logical indicating if \code{incr} is added to cell
+#'   frequencies of all studies if at least one study has a zero cell
+#'   count. If FALSE (default), \code{incr} is added only to cell
+#'   frequencies of studies with a zero cell count.
+#' @param addincr A logical indicating if \code{incr} is added to cell
+#'   frequencies of all studies irrespective of zero cell counts.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
 #'   or \code{"DOR"}).
 #' @param MH.exact A logical indicating if \code{incr} is not to be
-#'   added to all cell frequencies for studies with a zero cell count
-#'   to calculate the pooled estimate based on the Mantel-Haenszel
+#'   added to cell frequencies for studies with a zero cell count to
+#'   calculate the pooled estimate based on the Mantel-Haenszel
 #'   method.
 #' @param RR.Cochrane A logical indicating if 2*\code{incr} instead of
 #'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
@@ -266,18 +266,22 @@
 #' \subsection{Continuity correction}{
 #' 
 #' For studies with a zero cell count, by default, 0.5 is added to all
-#' cell frequencies of these studies; if \code{incr} is \code{"TACC"}
-#' a treatment arm continuity correction is used instead (Sweeting et
-#' al., 2004; Diamond et al., 2007). For odds ratio and risk ratio,
-#' treatment estimates and standard errors are only calculated for
-#' studies with zero or all events in both groups if \code{allstudies}
-#' is \code{TRUE}. This continuity correction is used both to
-#' calculate individual study results with confidence limits and to
-#' conduct meta-analysis based on the inverse variance method. For
-#' Peto method and GLMMs no continuity correction is used. For the
-#' Mantel-Haenszel method, by default (if \code{MH.exact} is FALSE),
-#' \code{incr} is added to all cell frequencies of a study with a zero
-#' cell count in the calculation of the pooled risk ratio or odds
+#' cell frequencies (odds ratio) or only the number of events (risk
+#' ratio); if \code{incr} is \code{"TACC"} a treatment arm continuity
+#' correction is used instead (Sweeting et al., 2004; Diamond et al.,
+#' 2007). For odds ratio and risk ratio, treatment estimates and
+#' standard errors are only calculated for studies with zero or all
+#' events in both groups if \code{allstudies} is \code{TRUE}. This
+#' continuity correction is used both to calculate individual study
+#' results with confidence limits and to conduct meta-analysis based
+#' on the inverse variance method. For the risk difference, 0.5 is
+#' only added to all cell frequencies to calculate the standard error.
+#'
+#' For Peto method and GLMMs no continuity correction is used.
+#'
+#' For the Mantel-Haenszel method, by default (if \code{MH.exact} is
+#' FALSE), \code{incr} is added to cell frequencies of a study with a
+#' zero cell count in the calculation of the pooled risk ratio or odds
 #' ratio as well as the estimation of the variance of the pooled risk
 #' difference, risk ratio or odds ratio. This approach is also used in
 #' other software, e.g. RevMan 5 and the Stata procedure
