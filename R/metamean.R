@@ -1231,7 +1231,7 @@ metamean <- function(n, mean, sd, studlab,
     seTE[is.na(TE)] <- NA
     ##
     if (method.ci == "t")
-      ci.study <- ci(TE, seTE, df = n - 1)
+      ci.study <- ci(TE, seTE, level = level, df = n - 1)
     ##
     transf.null.effect <- null.effect
   }

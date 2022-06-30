@@ -1741,7 +1741,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     seTE[is.na(TE)] <- NA
     ##
     if (method.ci == "t")
-      ci.study <- ci(TE, seTE, df = n.e + n.c - 2)
+      ci.study <- ci(TE, seTE, level = level, df = n.e + n.c - 2)
   }
   else if (sm == "SMD") {
     J <- function(x)

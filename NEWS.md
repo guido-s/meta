@@ -26,6 +26,10 @@
 * Argument 'tau.common = TRUE' was ignored in subgroup analysis of
   three-level model in metacont()
 
+* Argument 'level' was ignored in the calculation of confidence limits
+  for individual studies in metacont() and metamean() if argument
+  'method.ci = "t"'
+
 ### User-visible changes
 
 * New function subset.longarm() to select subset of a longarm object
