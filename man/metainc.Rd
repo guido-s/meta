@@ -16,8 +16,7 @@ metainc(
   method = if (sm == "IRSD") "Inverse" else "MH",
   sm = gs("sminc"),
   incr = gs("incr"),
-  allincr = gs("allincr"),
-  addincr = gs("addincr"),
+  method.incr = gs("method.incr"),
   model.glmm = "UM.FS",
   level = gs("level"),
   level.ma = gs("level.ma"),
@@ -97,16 +96,12 @@ abbreviated.}
 (\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
 pooling of studies, see Details.}
 
-\item{incr}{A numerical value which is added to each cell frequency
+\item{incr}{A numerical value which is added to cell frequencies
 for studies with a zero cell count, see Details.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies if at least one study has a zero
-cell count. If FALSE (default), \code{incr} is added only to each
-cell frequency of studies with a zero cell count.}
-
-\item{addincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}), see Details.}
 
 \item{model.glmm}{A character string indicating which GLMM should
 be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
@@ -262,7 +257,7 @@ An object of class \code{c("metainc", "meta")} with corresponding
 object is a list containing the following components:
 \item{event.e, time.e, event.c, time.c, studlab, exclude,}{As
   defined above.}
-\item{sm, method, incr, allincr, addincr, model.glmm, warn,}{As
+\item{sm, method, incr, method.incr, model.glmm, warn,}{As
   defined above.}
 \item{level, level.ma, fixed, random,}{As defined
   above.}
@@ -504,6 +499,16 @@ model (with random treatment effects).
 }
 
 \subsection{Continuity correction}{
+
+Three approaches are available to apply a continuity correction:
+\itemize{
+\item Only studies with a zero cell count (\code{method.incr =
+  "only0", default})
+\item All studies if at least one study has a zero cell count
+  (\code{method.incr = "if0all"})
+\item All studies irrespective of zero cell counts
+  (\code{method.incr = "all"})
+}
 
 For studies with a zero cell count, by default, 0.5 is added to all
 cell frequencies of these studies (argument \code{incr}). This

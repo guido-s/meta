@@ -14,8 +14,7 @@
   method = object$method,
   sm = object$sm,
   incr,
-  allincr = object$allincr,
-  addincr = object$addincr,
+  method.incr = object$method.incr,
   allstudies = object$allstudies,
   MH.exact = object$MH.exact,
   RR.Cochrane = object$RR.Cochrane,
@@ -110,13 +109,9 @@ to each cell frequency for studies with a zero cell count or the
 character string \code{"TA"} which stands for treatment arm
 continuity correction.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies if at least one study has a zero
-cell count. If FALSE (default), \code{incr} is added only to each
-cell frequency of studies with a zero cell count.}
-
-\item{addincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}).}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
@@ -366,7 +361,7 @@ was created with R function \code{\link{metabin}},
 \code{\link{metagen}}, \code{\link{metainc}},
 \code{\link{metamean}}, \code{\link{metaprop}}, or
 \code{\link{metarate}}. More details on function arguments are
-available in help files of respective R functions
+available in help files of respective R functions.
 
 This function can also be used for objects of class 'trimfill',
 'metacum', and 'metainf'.

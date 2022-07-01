@@ -26,12 +26,9 @@
 #' @param incr A numeric which is added to event number and sample
 #'   size of studies with zero or all events, i.e., studies with an
 #'   event probability of either 0 or 1.
-#' @param allincr A logical indicating if \code{incr} is considered
-#'   for all studies if at least one study has either zero or all
-#'   events. If FALSE (default), \code{incr} is considered only in
-#'   studies with zero or all events.
-#' @param addincr A logical indicating if \code{incr} is used for all
-#'   studies irrespective of number of events.
+#' @param method.incr A character string indicating which continuity
+#'   correction method should be used (\code{"only0"},
+#'   \code{"if0all"}, or \code{"all"}), see Details.
 #' @param method.ci A character string indicating which method is used
 #'   to calculate confidence intervals for individual studies, see
 #'   Details.
@@ -201,10 +198,20 @@
 #' }
 #' 
 #' \subsection{Continuity correction}{
+#'
+#' Three approaches are available to apply a continuity correction:
+#' \itemize{
+#' \item Only studies with a zero cell count (\code{method.incr =
+#'   "only0"})
+#' \item All studies if at least one study has a zero cell count
+#'   (\code{method.incr = "if0all"})
+#' \item All studies irrespective of zero cell counts
+#'   (\code{method.incr = "all"})
+#' }
 #' 
-#' If the summary measure is equal to "PLOGIT", "PLN", or "PRAW", a
-#' continuity correction is applied if any study has either zero or
-#' all events, i.e., an event probability of either 0 or 1.
+#' If the summary measure is equal to "PLOGIT", "PLN", or "PRAW", the
+#' continuity correction is applied if a study has either zero or all
+#' events, i.e., an event probability of either 0 or 1.
 #'
 #' By default, 0.5 is used as continuity correction (argument
 #' \code{incr}). This continuity correction is used both to calculate
@@ -396,7 +403,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{event, n, studlab, exclude,}{As defined above.}
-#' \item{sm, incr, allincr, addincr, method.ci,}{As defined above.}
+#' \item{sm, incr, method.incr, method.ci,}{As defined above.}
 #' \item{level, level.ma,}{As defined above.}
 #' \item{fixed, random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
@@ -837,8 +844,7 @@ metaprop <- function(event, n, studlab,
                      ##
                      sm = gs("smprop"),
                      ##
-                     incr = gs("incr"), allincr = gs("allincr"),
-                     addincr = gs("addincr"),
+                     incr = gs("incr"), method.incr = gs("method.incr"),
                      ##
                      method.ci = gs("method.ci.prop"),
                      level = gs("level"), level.ma = gs("level.ma"),
@@ -901,6 +907,9 @@ metaprop <- function(event, n, studlab,
   chknull(sm)
   sm <- setchar(sm, gs("sm4prop"))
   ##
+  missing.method.incr <- missing(method.incr)
+  method.incr <- setchar(method.incr, gs("meth4incr"))
+  ##
   chklevel(level)
   ##
   chklogical(hakn)
@@ -947,8 +956,6 @@ metaprop <- function(event, n, studlab,
   ##
   fun <- "metaprop"
   ##
-  chklogical(allincr)
-  chklogical(addincr)
   method.ci <- setchar(method.ci, gs("ci4prop"))
   chklogical(warn)
   ##
@@ -1001,6 +1008,27 @@ metaprop <- function(event, n, studlab,
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
+  ##
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  if (missing.method.incr) {
+    method.incr <- gs("method.incr")
+    ##
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  ##
+  addincr <- allincr <- FALSE
+  if (method.incr == "all")
+    addincr <- TRUE
+  else if (method.incr == "if0all")
+    allincr <- TRUE
   ##
   ## Some more checks
   ##
@@ -1419,6 +1447,7 @@ metaprop <- function(event, n, studlab,
   ##
   res <- list(event = event, n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              method.incr = method.incr,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
               method.ci = method.ci,

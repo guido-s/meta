@@ -2086,6 +2086,8 @@ forest.meta <- function(x,
   ##
   subgroup <- x$subgroup
   ##
+  three.level <- !is.null(x$three.level) && x$three.level
+  ##
   if (!by) {
     fixed.random <- fixed & random
     ##
@@ -2698,8 +2700,6 @@ forest.meta <- function(x,
   ##
   ## Default set of columns if argument leftcols and / or
   ## rightcols not specified
-  ##
-  three.level <- !is.null(x$three.level) && x$three.level
   ##
   if (is.null(leftcols)) {
     ##

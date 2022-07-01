@@ -1,12 +1,6 @@
-## meta, version 5.3-0 (2022-mm-dd)
+## meta, version 5.5-0 (2022-mm-dd)
 
 ### Major changes
-
-* Exact Poisson confidence limits can be calculated for individual
-  studies in meta-analysis of single rates
-
-* Calculate Cochran's Q (instead of taken directly from **metafor**
-  package)
 
 * Use term 'common effect model' instead of 'fixed effect model' in
   the documentation
@@ -14,6 +8,17 @@
 * For three-level models,
   - argument 'id' has been renamed to 'cluster',
   - cluster variable is shown in forest plots.
+
+* For continuity corrections, new argument 'method.incr' replaces
+  arguments 'allincr' and 'addincr' for meta-analysis with binary
+  outcome or incidence rates
+
+* Exact Poisson confidence limits can be calculated for individual
+  studies in meta-analysis of single rates
+
+* Calculate Cochran's Q directly in **meta** for classic inverse
+  variance meta-analysis (instead of taking it from **metafor**
+  package)
 
 ### Bug fixes
 
@@ -39,6 +44,9 @@
 * New argument 'cluster' in functions metacont() and metagen()
 
 * New argument 'method.ci.rate' in function settings.meta()
+
+* New argument 'method.incr' in functions metabin(), metainc(),
+  metaprop() and metarate()
 
 * print.summary.meta():
   - for a single study and metabin() with method = "MH", sm = "RR" and

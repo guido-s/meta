@@ -37,7 +37,7 @@
 #' 
 #' m.or <- metabin(event.cisa, n.cisa, event.plac, n.plac,
 #'   data = cisapride, sm = "OR", method = "Inverse",
-#'   studlab = study, addincr = TRUE)
+#'   studlab = study, method.incr = "all")
 #' 
 #' m.or.hakn <- update(m.or, hakn = TRUE)
 #' m.rr <- update(m.or, sm = "RR")

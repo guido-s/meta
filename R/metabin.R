@@ -37,12 +37,9 @@
 #'   cell frequencies for studies with a zero cell count or the
 #'   character string \code{"TACC"} which stands for treatment arm
 #'   continuity correction, see Details.
-#' @param allincr A logical indicating if \code{incr} is added to cell
-#'   frequencies of all studies if at least one study has a zero cell
-#'   count. If FALSE (default), \code{incr} is added only to cell
-#'   frequencies of studies with a zero cell count.
-#' @param addincr A logical indicating if \code{incr} is added to cell
-#'   frequencies of all studies irrespective of zero cell counts.
+#' @param method.incr A character string indicating which continuity
+#'   correction method should be used (\code{"only0"},
+#'   \code{"if0all"}, or \code{"all"}), see Details.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
@@ -264,20 +261,44 @@
 #' }
 #' 
 #' \subsection{Continuity correction}{
-#' 
-#' For studies with a zero cell count, by default, 0.5 is added to all
-#' cell frequencies (odds ratio) or only the number of events (risk
-#' ratio); if \code{incr} is \code{"TACC"} a treatment arm continuity
-#' correction is used instead (Sweeting et al., 2004; Diamond et al.,
-#' 2007). For odds ratio and risk ratio, treatment estimates and
-#' standard errors are only calculated for studies with zero or all
-#' events in both groups if \code{allstudies} is \code{TRUE}. This
-#' continuity correction is used both to calculate individual study
-#' results with confidence limits and to conduct meta-analysis based
-#' on the inverse variance method. For the risk difference, 0.5 is
-#' only added to all cell frequencies to calculate the standard error.
 #'
-#' For Peto method and GLMMs no continuity correction is used.
+#' Three approaches are available to apply a continuity correction:
+#' \itemize{
+#' \item Only studies with a zero cell count (\code{method.incr =
+#'   "only0"})
+#' \item All studies if at least one study has a zero cell count
+#'   (\code{method.incr = "if0all"})
+#' \item All studies irrespective of zero cell counts
+#'   (\code{method.incr = "all"})
+#' }
+#' 
+#' By default, a continuity correction is only applied to studies with
+#' a zero cell count (\code{method.incr = "only0"}). This method
+#' showed the best performance for the odds ratio in a simulation
+#' study under the random effects model (Weber et al., 2022).
+#'
+#' The continuity correction method is used both to calculate
+#' individual study results with confidence limits and to conduct
+#' meta-analysis based on the inverse variance method. For the risk
+#' difference, the method is only considered to calculate standard
+#' errors and confidence limits.  For Peto method and GLMMs no
+#' continuity correction is used in the meta-analysis. Furthermore,
+#' the continuity correction is ignored for individual studies for the
+#' Peto method.
+#'
+#' For studies with a zero cell count, by default, 0.5 (argument
+#' \code{incr}) is added to all cell frequencies for the odds ratio or
+#' only the number of events for the risk ratio (argument
+#' \code{RR.Cochrane = FALSE}, default). The increment is added to all
+#' cell frequencies for the risk ratio if argument \code{RR.Cochrane =
+#' TRUE}. For the risk difference, \code{incr} is only added to all
+#' cell frequencies to calculate the standard error. Finally, a
+#' treatment arm continuity correction is used if \code{incr = "TACC"}
+#' (Sweeting et al., 2004; Diamond et al., 2007).
+#'
+#' For odds ratio and risk ratio, treatment estimates and standard
+#' errors are only calculated for studies with zero or all events in
+#' both groups if \code{allstudies = TRUE}.
 #'
 #' For the Mantel-Haenszel method, by default (if \code{MH.exact} is
 #' FALSE), \code{incr} is added to cell frequencies of a study with a
@@ -427,7 +448,7 @@
 #'
 #' \item{event.e, n.e, event.c, n.c, studlab, exclude,}{As defined
 #'   above.}
-#' \item{sm, method, incr, allincr, addincr,}{As defined above.}
+#' \item{sm, method, incr, method.incr,}{As defined above.}
 #' \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
 #'   defined above.}
 #' \item{warn, level, level.ma, fixed, random,}{As defined
@@ -711,6 +732,11 @@
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
 #' 
+#' Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2022):
+#' Zero-cell corrections in random-effects meta-analyses.
+#' \emph{Research Synthesis Methods},
+#' DOI: 10.1002/jrsm.1460
+#' 
 #' Wiksten A, Rücker G, Schwarzer G (2016):
 #' Hartung-Knapp method is not always conservative compared with
 #' fixed-effect meta-analysis.
@@ -738,7 +764,9 @@
 #' #
 #' data(Olkin1995)
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'    data = Olkin1995, subset = c(41, 47, 51, 59), method = "Inverse")
+#'   data = Olkin1995, subset = c(41, 47, 51, 59),
+#'   studlab = paste(author, year),
+#'   method = "Inverse")
 #' m1
 #' # Show results for individual studies
 #' summary(m1)
@@ -746,7 +774,8 @@
 #' # Use different subset of Olkin (1995)
 #' #
 #' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'   data = Olkin1995, subset = year < 1970, studlab = author,
+#'   data = Olkin1995, subset = year < 1970,
+#'   studlab = paste(author, year),
 #'   method = "Inverse")
 #' m2
 #' forest(m2)
@@ -755,7 +784,8 @@
 #' #
 #' m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = year < 1970,
-#'   sm = "OR", method = "Inverse", studlab = author)
+#'   studlab = paste(author, year),
+#'   sm = "OR", method = "Inverse")
 #' # Same meta-analysis result using 'update.meta' function
 #' m3 <- update(m2, sm = "OR")
 #' m3
@@ -781,6 +811,7 @@
 #' # (default: model.glmm = "UM.FS")
 #' #
 #' m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'   studlab = paste(author, year),
 #'   data = Olkin1995, subset = year < 1970, method = "GLMM")
 #' # Same results:
 #' m6 <- update(m2, method = "GLMM")
@@ -812,7 +843,8 @@
 #' # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #' #
 #' m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'                data = Olkin1995, method = "GLMM")
+#'    studlab = paste(author, year),
+#'    data = Olkin1995, method = "GLMM")
 #' m10
 #' 
 #' # Mixed-effects logistic regression model with random study effects
@@ -851,8 +883,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                               c("peto", "glmm", "ssw"),
                                               nomatch = NA)),
                              "OR", gs("smbin")),
-                    incr = gs("incr"), allincr = gs("allincr"),
-                    addincr = gs("addincr"),
+                    incr = gs("incr"), method.incr = gs("method.incr"),
                     allstudies = gs("allstudies"),
                     MH.exact = gs("MH.exact"), RR.Cochrane = gs("RR.Cochrane"),
                     Q.Cochrane =
@@ -975,8 +1006,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     method <- "Inverse"
   is.glmm <- method == "GLMM"
   ##
-  chklogical(allincr)
-  chklogical(addincr)
+  missing.method.incr <- missing(method.incr)
+  method.incr <- setchar(method.incr, gs("meth4incr"))
+  ##
   chklogical(allstudies)
   chklogical(MH.exact)
   chklogical(Q.Cochrane)
@@ -1064,6 +1096,28 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     deprecated(RR.Cochrane, missing(RR.Cochrane), args, "RR.cochrane",
                warn.deprecated)
   chklogical(RR.Cochrane)
+  ##
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  if (missing.method.incr) {
+    method.incr <- gs("method.incr")
+    ##
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  ##
+  addincr <- allincr <- FALSE
+  if (!(sm == "ASD" | method %in% c("Peto", "GLMM")))
+    if (method.incr == "all")
+      addincr <- TRUE
+    else if (method.incr == "if0all")
+      allincr <- TRUE
   ##
   ## Some more checks
   ##
@@ -1395,8 +1449,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
     if ((!missing(incr) & any(incr != 0)) |
-        (!missing(allincr) & allincr ) |
-        (!missing(addincr) & addincr) |
+        allincr |addincr |
         (!missing(allstudies) & allstudies)
         )
       if (sm == "ASD") {
@@ -1567,16 +1620,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     ## Other effect measures calculated in R package metafor
     ##
-    if (addincr)
-      to <- "all"
-    else if (allincr)
-      to <- "if0all"
-    else
-      to <- "only0"
-    ##
     tmp <- escalc(measure = sm,
                   ai = n11, bi = n12, ci = n21, di = n22,
-                  add = incr, to = to, drop00 = !allstudies)
+                  add = incr, to = method.incr, drop00 = !allstudies)
     TE <- tmp$yi
     seTE <- sqrt(tmp$vi)
   }
@@ -1775,6 +1821,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               event.c = event.c, n.c = n.c,
               method = method,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              method.incr = method.incr,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
               allstudies = allstudies,

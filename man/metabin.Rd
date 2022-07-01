@@ -17,8 +17,7 @@ metabin(
   sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch =
     NA)), "OR", gs("smbin")),
   incr = gs("incr"),
-  allincr = gs("allincr"),
-  addincr = gs("addincr"),
+  method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
@@ -110,13 +109,9 @@ cell frequencies for studies with a zero cell count or the
 character string \code{"TACC"} which stands for treatment arm
 continuity correction, see Details.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to cell
-frequencies of all studies if at least one study has a zero cell
-count. If FALSE (default), \code{incr} is added only to cell
-frequencies of studies with a zero cell count.}
-
-\item{addincr}{A logical indicating if \code{incr} is added to cell
-frequencies of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}), see Details.}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
@@ -294,7 +289,7 @@ object is a list containing the following components:
 
 \item{event.e, n.e, event.c, n.c, studlab, exclude,}{As defined
   above.}
-\item{sm, method, incr, allincr, addincr,}{As defined above.}
+\item{sm, method, incr, method.incr,}{As defined above.}
 \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
   defined above.}
 \item{warn, level, level.ma, fixed, random,}{As defined
@@ -574,19 +569,43 @@ effects model (with random treatment effects).
 
 \subsection{Continuity correction}{
 
-For studies with a zero cell count, by default, 0.5 is added to all
-cell frequencies (odds ratio) or only the number of events (risk
-ratio); if \code{incr} is \code{"TACC"} a treatment arm continuity
-correction is used instead (Sweeting et al., 2004; Diamond et al.,
-2007). For odds ratio and risk ratio, treatment estimates and
-standard errors are only calculated for studies with zero or all
-events in both groups if \code{allstudies} is \code{TRUE}. This
-continuity correction is used both to calculate individual study
-results with confidence limits and to conduct meta-analysis based
-on the inverse variance method. For the risk difference, 0.5 is
-only added to all cell frequencies to calculate the standard error.
+Three approaches are available to apply a continuity correction:
+\itemize{
+\item Only studies with a zero cell count (\code{method.incr =
+  "only0"})
+\item All studies if at least one study has a zero cell count
+  (\code{method.incr = "if0all"})
+\item All studies irrespective of zero cell counts
+  (\code{method.incr = "all"})
+}
 
-For Peto method and GLMMs no continuity correction is used.
+By default, a continuity correction is only applied to studies with
+a zero cell count (\code{method.incr = "only0"}). This method
+showed the best performance for the odds ratio in a simulation
+study under the random effects model (Weber et al., 2022).
+
+The continuity correction method is used both to calculate
+individual study results with confidence limits and to conduct
+meta-analysis based on the inverse variance method. For the risk
+difference, the method is only considered to calculate standard
+errors and confidence limits.  For Peto method and GLMMs no
+continuity correction is used in the meta-analysis. Furthermore,
+the continuity correction is ignored for individual studies for the
+Peto method.
+
+For studies with a zero cell count, by default, 0.5 (argument
+\code{incr}) is added to all cell frequencies for the odds ratio or
+only the number of events for the risk ratio (argument
+\code{RR.Cochrane = FALSE}, default). The increment is added to all
+cell frequencies for the risk ratio if argument \code{RR.Cochrane =
+TRUE}. For the risk difference, \code{incr} is only added to all
+cell frequencies to calculate the standard error. Finally, a
+treatment arm continuity correction is used if \code{incr = "TACC"}
+(Sweeting et al., 2004; Diamond et al., 2007).
+
+For odds ratio and risk ratio, treatment estimates and standard
+errors are only calculated for studies with zero or all events in
+both groups if \code{allstudies = TRUE}.
 
 For the Mantel-Haenszel method, by default (if \code{MH.exact} is
 FALSE), \code{incr} is added to cell frequencies of a study with a
@@ -744,7 +763,9 @@ metabin(0, 10, 0, 10, sm = "OR", allstudies = TRUE)
 #
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-   data = Olkin1995, subset = c(41, 47, 51, 59), method = "Inverse")
+  data = Olkin1995, subset = c(41, 47, 51, 59),
+  studlab = paste(author, year),
+  method = "Inverse")
 m1
 # Show results for individual studies
 summary(m1)
@@ -752,7 +773,8 @@ summary(m1)
 # Use different subset of Olkin (1995)
 #
 m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-  data = Olkin1995, subset = year < 1970, studlab = author,
+  data = Olkin1995, subset = year < 1970,
+  studlab = paste(author, year),
   method = "Inverse")
 m2
 forest(m2)
@@ -761,7 +783,8 @@ forest(m2)
 #
 m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, subset = year < 1970,
-  sm = "OR", method = "Inverse", studlab = author)
+  studlab = paste(author, year),
+  sm = "OR", method = "Inverse")
 # Same meta-analysis result using 'update.meta' function
 m3 <- update(m2, sm = "OR")
 m3
@@ -787,6 +810,7 @@ m5
 # (default: model.glmm = "UM.FS")
 #
 m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+  studlab = paste(author, year),
   data = Olkin1995, subset = year < 1970, method = "GLMM")
 # Same results:
 m6 <- update(m2, method = "GLMM")
@@ -818,7 +842,8 @@ m9
 # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #
 m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-               data = Olkin1995, method = "GLMM")
+   studlab = paste(author, year),
+   data = Olkin1995, method = "GLMM")
 m10
 
 # Mixed-effects logistic regression model with random study effects
@@ -951,6 +976,11 @@ Viechtbauer W (2010):
 Conducting meta-analyses in R with the metafor package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
+
+Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2022):
+Zero-cell corrections in random-effects meta-analyses.
+\emph{Research Synthesis Methods},
+DOI: 10.1002/jrsm.1460
 
 Wiksten A, Rücker G, Schwarzer G (2016):
 Hartung-Knapp method is not always conservative compared with

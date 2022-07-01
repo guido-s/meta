@@ -22,12 +22,9 @@
 #'   to each cell frequency for studies with a zero cell count or the
 #'   character string \code{"TA"} which stands for treatment arm
 #'   continuity correction.
-#' @param allincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies if at least one study has a zero
-#'   cell count. If FALSE (default), \code{incr} is added only to each
-#'   cell frequency of studies with a zero cell count.
-#' @param addincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies irrespective of zero cell counts.
+#' @param method.incr A character string indicating which continuity
+#'   correction method should be used (\code{"only0"},
+#'   \code{"if0all"}, or \code{"all"}).
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only if \code{sm} is equal to \code{"RR"} or
@@ -205,7 +202,7 @@
 #' \code{\link{metagen}}, \code{\link{metainc}},
 #' \code{\link{metamean}}, \code{\link{metaprop}}, or
 #' \code{\link{metarate}}. More details on function arguments are
-#' available in help files of respective R functions
+#' available in help files of respective R functions.
 #' 
 #' This function can also be used for objects of class 'trimfill',
 #' 'metacum', and 'metainf'.
@@ -255,8 +252,7 @@ update.meta <- function(object,
                         method = object$method,
                         sm = object$sm,
                         incr,
-                        allincr = object$allincr,
-                        addincr = object$addincr,
+                        method.incr = object$method.incr,
                         allstudies = object$allstudies,
                         MH.exact = object$MH.exact,
                         RR.Cochrane = object$RR.Cochrane,
@@ -349,9 +345,15 @@ update.meta <- function(object,
   else
     meta.version <- as.numeric(unlist(strsplit(object$version, "-"))[1])
   ##
-  if (meta.version < 5.3) {
+  if (meta.version < 5.5) {
     ##
-    ## Changes for meta objects with version < 5.3
+    ## Changes for meta objects with version < 5.5
+    ##
+    method.incr <- gs("method.incr")
+    if (is.logical(object$addincr) && object$addincr)
+      method.incr <- "all"
+    else if (is.logical(object$allincr) && object$allincr)
+      method.incr <- "if0all"
     ##
     if (!is.null(object$id))
       object$cluster <- object$id
@@ -424,6 +426,20 @@ update.meta <- function(object,
   ##
   test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
   prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
+  ##
+  missing.method.incr <- missing(method.incr)
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  if (missing.method.incr) {
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
   ##
   ## Some more checks
   ##
@@ -731,7 +747,7 @@ update.meta <- function(object,
                  method = method,
                  sm = sm,
                  incr = incr,
-                 allincr = allincr, addincr = addincr,
+                 method.incr = method.incr,
                  allstudies = allstudies,
                  MH.exact = MH.exact, RR.Cochrane = RR.Cochrane,
                  Q.Cochrane = Q.Cochrane, model.glmm = model.glmm,
@@ -980,7 +996,7 @@ update.meta <- function(object,
                  method = method,
                  sm = sm,
                  incr = incr,
-                 allincr = allincr, addincr = addincr,
+                 method.incr = method.incr,
                  model.glmm = model.glmm,
                  ##
                  level = level, level.ma = level.ma,
@@ -1103,7 +1119,7 @@ update.meta <- function(object,
                   method = method,
                   sm = sm,
                   incr = incr,
-                  allincr = allincr, addincr = addincr,
+                  method.incr = method.incr,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
@@ -1167,7 +1183,7 @@ update.meta <- function(object,
                   ##
                   sm = sm,
                   incr = incr,
-                  allincr = allincr, addincr = addincr,
+                  method.incr = method.incr,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,

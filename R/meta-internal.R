@@ -285,6 +285,7 @@ argslist.internal <-
     "meth4tau", "meth4tau.ci",
     "adhoc4hakn",
     "meth4bias", "meth4bias.old",
+    "meth4incr",
     "version.update")
 ##
 setOption("argslist.internal", argslist.internal)
@@ -317,6 +318,8 @@ setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
                          "Harbord", "Peters", "Deeks",
                          "Pustejovsky", "Macaskill"))
 ##
+setOption("meth4incr", c("only0", "if0all", "all"))
+##
 setOption("version.update", 5.0)
 ##
 ## List of arguments that can be changed by user
@@ -334,7 +337,7 @@ argslist <-
     "keepdata", "warn", "warn.deprecated",
     "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
-    "incr", "allincr", "addincr",
+    "incr", "method.incr", "allincr", "addincr",
     "method", "allstudies", "MH.exact",
     "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
@@ -430,6 +433,7 @@ setOption("smrate", "IRLN")
 ## Settings for R functions metabin, metainc, metaprop
 ##
 setOption("incr", 0.5)
+setOption("method.incr", "only0")
 setOption("allincr", FALSE)
 setOption("addincr", FALSE)
 ##

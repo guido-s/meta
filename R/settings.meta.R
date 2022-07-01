@@ -340,6 +340,9 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     chkdeprecated(names.all, "print.subgroup.name", "print.byvar")
     chkdeprecated(names.all, "sep.subgroup", "byseparator")
+    ##
+    chkdeprecated(names.all, "method.incr", "addincr")
+    chkdeprecated(names.all, "method.incr", "allincr")
   }
   ##  
   names <- names.all[!(names.all %in% .settings$argslist.internal)]
@@ -437,6 +440,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setOption("method", "MH")
     setOption("incr", 0.5)
+    setOption("method.incr", "only0")
     setOption("allincr", FALSE)
     setOption("addincr", FALSE)
     setOption("allstudies", FALSE)
@@ -648,9 +652,10 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     cat(paste("\n* Additional settings for metabin(), metainc(),",
               "metaprop(), and metarate() *\n"))
-    catarg("incr   ")
-    catarg("allincr")
-    catarg("addincr")
+    catarg("incr       ")
+    catarg("method.incr")
+    #catarg("allincr")
+    #catarg("addincr")
     ##
     cat("\n* Additional settings for metabin() *\n")
     catarg("method     ")
@@ -749,8 +754,7 @@ settings.meta <- function(..., quietly = TRUE) {
     idsmbin <- argid(names.all, "smbin")
     idmethod <- argid(names.all, "method")
     idincr <- argid(names.all, "incr")
-    idallincr <- argid(names.all, "allincr")
-    idaddincr <- argid(names.all, "addincr")
+    idmethod.incr <- argid(names.all, "method.incr")
     idallstudies <- argid(names.all, "allstudies")
     idMH.exact <- argid(names.all, "MH.exact")
     idRR.Cochrane <- argid(names.all, "RR.Cochrane")
@@ -1104,15 +1108,10 @@ settings.meta <- function(..., quietly = TRUE) {
                         "should be numeric or the character string \"TACC\"")
       setOption("incr", incr)
     }
-    if (!is.na(idallincr)) {
-      allincr <- args[[idallincr]]
-      chklogical(allincr)
-      setOption("allincr", allincr)
-    }
-    if (!is.na(idaddincr)) {
-      addincr <- args[[idaddincr]]
-      chklogical(addincr)
-      setOption("addincr", addincr)
+    if (!is.na(idmethod.incr)) {
+      method.incr <- args[[idmethod.incr]]
+      method.incr <- setchar(method.incr, gs("meth4incr"))
+      setOption("method.incr", method.incr)
     }
     if (!is.na(idallstudies)) {
       allstudies <- args[[idallstudies]]

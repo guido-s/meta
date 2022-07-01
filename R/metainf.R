@@ -228,7 +228,7 @@ metainf <- function(x, pooled, sortvar) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, method.incr = x$method.incr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
@@ -306,7 +306,7 @@ metainf <- function(x, pooled, sortvar) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, method.incr = x$method.incr,
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
@@ -346,7 +346,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
-                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, method.incr = x$method.incr,
                     method.ci = x$method.ci,
                     ##
                     level.ma = x$level.ma,
@@ -367,7 +367,7 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
-                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, method.incr = x$method.incr,
                     ##
                     level.ma = x$level.ma,
                     ##

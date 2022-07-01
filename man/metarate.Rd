@@ -15,8 +15,7 @@ metarate(
   method = "Inverse",
   sm = gs("smrate"),
   incr = gs("incr"),
-  allincr = gs("allincr"),
-  addincr = gs("addincr"),
+  method.incr = gs("method.incr"),
   method.ci = gs("method.ci.rate"),
   level = gs("level"),
   level.ma = gs("level.ma"),
@@ -90,13 +89,9 @@ to be used for pooling of studies, see Details.}
 \item{incr}{A numeric which is added to the event number of studies
 with zero events, i.e., studies with an incidence rate of 0.}
 
-\item{allincr}{A logical indicating if \code{incr} is considered
-for all studies if at least one study has zero events. If FALSE
-(default), \code{incr} is considered only in studies with zero
-events.}
-
-\item{addincr}{A logical indicating if \code{incr} is used for all
-studies irrespective of number of events.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}), see Details.}
 
 \item{method.ci}{A character string indicating whether to use
 approximate normal ("NAsm") or exact Poisson ("Poisson")
@@ -243,7 +238,7 @@ An object of class \code{c("metarate", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{event, n, studlab, exclude,}{As defined above.}
-\item{sm, incr, allincr, addincr, method.ci,}{As defined above.}
+\item{sm, incr, method.incr, method.ci,}{As defined above.}
 \item{level, level.ma,}{As defined above.}
 \item{fixed, random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
@@ -442,8 +437,18 @@ rerun a meta-analysis with different settings.
 
 \subsection{Continuity correction}{
 
+Three approaches are available to apply a continuity correction:
+\itemize{
+\item Only studies with a zero cell count (\code{method.incr =
+  "only0"})
+\item All studies if at least one study has a zero cell count
+  (\code{method.incr = "if0all"})
+\item All studies irrespective of zero cell counts
+  (\code{method.incr = "all"})
+}
+
 If the summary measure (argument \code{sm}) is equal to "IR" or
-"IRLN", a continuity correction is applied if any study has zero
+"IRLN", the continuity correction is applied if a study has zero
 events, i.e., an incidence rate of 0.
 
 By default, 0.5 is used as continuity correction (argument

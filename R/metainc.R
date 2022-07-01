@@ -28,14 +28,11 @@
 #' @param sm A character string indicating which summary measure
 #'   (\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
 #'   pooling of studies, see Details.
-#' @param incr A numerical value which is added to each cell frequency
+#' @param incr A numerical value which is added to cell frequencies
 #'   for studies with a zero cell count, see Details.
-#' @param allincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies if at least one study has a zero
-#'   cell count. If FALSE (default), \code{incr} is added only to each
-#'   cell frequency of studies with a zero cell count.
-#' @param addincr A logical indicating if \code{incr} is added to each
-#'   cell frequency of all studies irrespective of zero cell counts.
+#' @param method.incr A character string indicating which continuity
+#'   correction method should be used (\code{"only0"},
+#'   \code{"if0all"}, or \code{"all"}), see Details.
 #' @param model.glmm A character string indicating which GLMM should
 #'   be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
 #'   \code{"CM.EL"}, see Details.
@@ -211,6 +208,16 @@
 #' }
 #' 
 #' \subsection{Continuity correction}{
+#'
+#' Three approaches are available to apply a continuity correction:
+#' \itemize{
+#' \item Only studies with a zero cell count (\code{method.incr =
+#'   "only0", default})
+#' \item All studies if at least one study has a zero cell count
+#'   (\code{method.incr = "if0all"})
+#' \item All studies irrespective of zero cell counts
+#'   (\code{method.incr = "all"})
+#' }
 #' 
 #' For studies with a zero cell count, by default, 0.5 is added to all
 #' cell frequencies of these studies (argument \code{incr}). This
@@ -355,7 +362,7 @@
 #' object is a list containing the following components:
 #' \item{event.e, time.e, event.c, time.c, studlab, exclude,}{As
 #'   defined above.}
-#' \item{sm, method, incr, allincr, addincr, model.glmm, warn,}{As
+#' \item{sm, method, incr, method.incr, model.glmm, warn,}{As
 #'   defined above.}
 #' \item{level, level.ma, fixed, random,}{As defined
 #'   above.}
@@ -641,8 +648,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
                     sm = gs("sminc"),
                     ##
-                    incr = gs("incr"), allincr = gs("allincr"),
-                    addincr = gs("addincr"),
+                    incr = gs("incr"), method.incr = gs("method.incr"),
                     model.glmm = "UM.FS",
                     ##
                     level = gs("level"), level.ma = gs("level.ma"),
@@ -751,10 +757,12 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   method <- setchar(method, gs("meth4inc"))
+  ##
+  missing.method.incr <- missing(method.incr)
+  method.incr <- setchar(method.incr, gs("meth4incr"))
+  ##
   is.glmm <- method == "GLMM"
   ##
-  chklogical(allincr)
-  chklogical(addincr)
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL"))
   chklogical(warn)
   ##
@@ -809,6 +817,27 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
+  ##
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  if (missing.method.incr) {
+    method.incr <- gs("method.incr")
+    ##
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  ##
+  addincr <- allincr <- FALSE
+  if (method.incr == "all")
+    addincr <- TRUE
+  else if (method.incr == "if0all")
+    allincr <- TRUE
   ##
   ## Some more checks
   ##
@@ -1084,9 +1113,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (is.glmm & sparse)
     if ((!missing(incr) & any(incr != 0)) |
-        (!missing(allincr) & allincr ) |
-        (!missing(addincr) & addincr)
-        )
+        allincr | addincr)
       warning("Note, for method = \"GLMM\", continuity correction only ",
               "used to calculate individual study results.",
               call. = FALSE)
@@ -1264,6 +1291,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               event.c = event.c, time.c = time.c,
               method = method,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              method.incr = method.incr,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
               incr.event = incr.event,
