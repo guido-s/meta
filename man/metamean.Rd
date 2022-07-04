@@ -12,6 +12,7 @@ metamean(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  cluster = NULL,
   median,
   q1,
   q3,
@@ -81,6 +82,10 @@ be used.}
 \item{exclude}{An optional vector specifying studies to exclude
 from meta-analysis, however, to include in printouts and forest
 plots.}
+
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
+meta-analysis model.}
 
 \item{median}{Median (used to estimate the mean and standard
 deviation).}
@@ -157,8 +162,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -251,7 +256,7 @@ An object of class \code{c("metamean", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 \item{n, mean, sd,}{As defined above.}
-\item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 \item{median, q1, q3, min, max,}{As defined above.}
 \item{method.mean, method.sd,}{As defined above.}
 \item{approx.mean, approx.sd,}{As defined above.}
@@ -448,7 +453,7 @@ By default, methods described in Luo et al. (2018) are utilized
 }
 
 Instead the methods described in Wan et al. (2014) are used if
-argument \code{method.mean = "Wan"}):
+argument \code{method.mean = "Wan"}:
 \itemize{
 \item equation (10) if sample size, median, interquartile range and 
   range are available,
@@ -544,14 +549,17 @@ estimators.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method
+\bold{Argument}\tab \bold{Method} \cr
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these methods. No
-confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-if \code{method.tau.ci = ""}.
+
+See \code{\link{metagen}} for more information on these methods.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -704,6 +712,11 @@ A comparison of heterogeneity variance estimators in simulated
 random-effects meta-analyses.
 \emph{Research Synthesis Methods},
 \bold{10}, 83--98
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.

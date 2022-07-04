@@ -700,6 +700,9 @@ update.meta <- function(object,
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))
     ##
+    if (!is.null(...cluster))
+      method <- "Inverse"
+    ##
     if (method == "GLMM" & !missing.sm & sm != "OR")
       warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
     ##
@@ -741,6 +744,7 @@ update.meta <- function(object,
                  ##
                  studlab = studlab,
                  exclude = exclude,
+                 cluster = ...cluster,
                  ##
                  data = data, subset = subset,
                  ##
@@ -850,6 +854,7 @@ update.meta <- function(object,
                  ##
                  studlab = studlab,
                  exclude = exclude,
+                 cluster = ...cluster,
                  ##
                  data = data, subset = subset,
                  ##
@@ -961,6 +966,9 @@ update.meta <- function(object,
     sm <- setchar(sm, gs("sm4inc"))
     method <- setchar(method, gs("meth4inc"))
     ##
+    if (!is.null(...cluster))
+      method <- "Inverse"
+    ##
     if (method == "GLMM" & !missing.sm & sm != "IRR")
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
     ##
@@ -990,6 +998,7 @@ update.meta <- function(object,
                  ##
                  studlab = studlab,
                  exclude = exclude,
+                 cluster = ...cluster,
                  ##
                  data = data, subset = subset,
                  ##
@@ -1053,6 +1062,7 @@ update.meta <- function(object,
                   ##
                   studlab = studlab,
                   exclude = exclude,
+                  cluster = ...cluster,
                   ##
                   data = data, subset = subset,
                   ##
@@ -1098,6 +1108,8 @@ update.meta <- function(object,
     sm <- setchar(sm, gs("sm4prop"))
     method <- setchar(method, gs("meth4prop"))
     ##
+    if (!is.null(...cluster))
+      method <- "Inverse"
     if (method == "GLMM" & !missing.sm & sm != "PLOGIT")
       warning("Summary measure 'sm = \"PLOGIT\" used as 'method = \"GLMM\".")
     ##
@@ -1113,6 +1125,7 @@ update.meta <- function(object,
                   ##
                   studlab = studlab,
                   exclude = exclude,
+                  cluster = ...cluster,
                   ##
                   data = data, subset = subset,
                   ##
@@ -1163,6 +1176,9 @@ update.meta <- function(object,
     sm <- setchar(sm, gs("sm4rate"))
     method <- setchar(method, gs("meth4rate"))
     ##
+    if (!is.null(...cluster))
+      method <- "Inverse"
+    ##
     if (method == "GLMM" & !missing.sm & sm != "IRLN")
       warning("Summary measure 'sm = \"IRLN\" used as 'method = \"GLMM\".")
     ##
@@ -1178,6 +1194,7 @@ update.meta <- function(object,
                   ##
                   studlab = studlab,
                   exclude = exclude,
+                  cluster = ...cluster,
                   ##
                   data = data, subset = subset, method = method,
                   ##

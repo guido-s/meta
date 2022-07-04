@@ -307,15 +307,16 @@ catmeth <- function(method,
                  else
                    "\n  (like RevMan 5)")
       ##
-      if (print.tau.ci & method.tau.ci %in% c("QP", "BJ", "J")) {
+      if (print.tau.ci & method.tau.ci %in% c("QP", "BJ", "J", "PL")) {
         i.lab.tau.ci <-
-          charmatch(method.tau.ci, c("QP", "BJ", "J"), nomatch = NA)
+          charmatch(method.tau.ci, c("QP", "BJ", "J", "PL"), nomatch = NA)
         ##
         lab.tau.ci <-
           paste("\n-",
-                 c("Q-profile method",
+                 c("Q-Profile method",
                    "Biggerstaff and Jackson method",
-                   "Jackson method")[i.lab.tau.ci],
+                   "Jackson method",
+                   "Profile-Likelihood method")[i.lab.tau.ci],
                  "for confidence interval of",
                  text.tau2, "and", text.tau)
         ##

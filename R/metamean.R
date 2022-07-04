@@ -16,6 +16,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
+#'   meta-analysis model.
 #' @param median Median (used to estimate the mean and standard
 #'   deviation).
 #' @param q1 First quartile (used to estimate the mean and standard
@@ -74,8 +77,8 @@
 #'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+#'   \code{"PL"}, or \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -185,7 +188,7 @@
 #' }
 #' 
 #' Instead the methods described in Wan et al. (2014) are used if
-#' argument \code{method.mean = "Wan"}):
+#' argument \code{method.mean = "Wan"}:
 #' \itemize{
 #' \item equation (10) if sample size, median, interquartile range and 
 #'   range are available,
@@ -281,14 +284,17 @@
 #' The following methods to calculate a confidence interval for
 #' \eqn{\tau^2} and \eqn{\tau} are available.
 #' \tabular{ll}{
-#' \bold{Argument}\tab \bold{Method} \cr 
-#' \code{method.tau.ci = "J"}\tab Method by Jackson \cr
-#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-#' \code{method.tau.ci = "QP"}\tab Q-Profile method
+#' \bold{Argument}\tab \bold{Method} \cr
+#' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+#'   three-level meta-analysis \cr
+#'  \tab (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
 #' }
-#' See \code{\link{metagen}} for more information on these methods. No
-#' confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-#' if \code{method.tau.ci = ""}.
+#' 
+#' See \code{\link{metagen}} for more information on these methods.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -386,7 +392,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #' \item{n, mean, sd,}{As defined above.}
-#' \item{studlab, exclude, sm, method.ci,}{As defined above.}
+#' \item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 #' \item{median, q1, q3, min, max,}{As defined above.}
 #' \item{method.mean, method.sd,}{As defined above.}
 #' \item{approx.mean, approx.sd,}{As defined above.}
@@ -570,6 +576,11 @@
 #' random-effects meta-analyses.
 #' \emph{Research Synthesis Methods},
 #' \bold{10}, 83--98
+#'
+#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+#' Three-level meta-analysis of dependent effect sizes.
+#' \emph{Behavior Research Methods},
+#' \bold{45}, 576--94
 #' 
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the Metafor Package.
@@ -606,7 +617,7 @@
 
 metamean <- function(n, mean, sd, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL,
+                     data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
                      ##
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
@@ -670,9 +681,6 @@ metamean <- function(n, mean, sd, studlab,
   chklogical(hakn)
   adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  if (is.null(method.tau.ci))
-    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -707,9 +715,6 @@ metamean <- function(n, mean, sd, studlab,
   method.sd <- setchar(method.sd, c("Shi", "Wan"))
   ##
   chklogical(warn)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
   ##
   ## Check for deprecated arguments in '...'
   ##
@@ -801,7 +806,8 @@ metamean <- function(n, mean, sd, studlab,
   else
     sd <- rep(NA, k.All)
   ##
-  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  ## from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
@@ -820,6 +826,9 @@ metamean <- function(n, mean, sd, studlab,
   ##
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
+  ##
+  cluster <- catch("cluster", mc, data, sfsp)
+  with.cluster <- !is.null(cluster)
   ##
   ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   ## 'approx.sd', from data:
@@ -849,6 +858,8 @@ metamean <- function(n, mean, sd, studlab,
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
+  if (with.cluster)
+    chklength(cluster, k.All, fun)
   ##
   if (!missing.median)
     chklength(median, k.All, fun)
@@ -967,6 +978,9 @@ metamean <- function(n, mean, sd, studlab,
     ##
     if (!missing.exclude)
       data$.exclude <- exclude
+    ##
+    if (with.cluster)
+      data$.id <- data$.cluster <- cluster
   }
   
   
@@ -1265,11 +1279,48 @@ metamean <- function(n, mean, sd, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (10) Additional checks for three-level model
+  ##
+  ##
+  three.level <- FALSE
+  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
+  ##
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (with.cluster &&
+      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+    three.level <- TRUE
+  ##
+  if (three.level) {
+    fixed <- FALSE
+    ##
+    if (!(method.tau %in% c("REML", "ML"))) {
+      if (!missing(method.tau))
+        warning("For three-level model, argument 'method.tau' set to \"REML\".",
+                call. = FALSE)
+      method.tau <- "REML"
+    }
+    ##
+    if (by & !tau.common) {
+      if (!missing(tau.common))
+        warning("For three-level model, argument 'tau.common' set to ",
+                "\"TRUE\".",
+                call. = FALSE)
+      tau.common <- TRUE
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (11) Do meta-analysis
   ##
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
+               cluster = cluster,
                ##
                sm = sm,
                level = level,
@@ -1390,12 +1441,23 @@ metamean <- function(n, mean, sd, studlab,
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
+      if (res$three.level) {
+        res$Q.b.random <- NA
+        res$df.Q.b <- NA
+        res$pval.Q.b.random <- NA
+      }
+    }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else
-      res <- c(res, subgroup(res, hcc$tau.resid))
+    else {
+      if (res$three.level)
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$subgroup, bylevs(res$subgroup))))
+      else
+        res <- c(res, subgroup(res, hcc$tau.resid))
+    }
     ##
     if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA

@@ -26,6 +26,9 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
+#'   meta-analysis model.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
 #'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
@@ -93,8 +96,8 @@
 #'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+#'   \code{"PL"}, or \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -160,7 +163,8 @@
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.glmm}}, respectively.
 #' @param \dots Additional arguments passed on to
-#'   \code{\link[metafor]{rma.glmm}} function.
+#'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
+#'   arguments.
 #' 
 #' @details
 #' Calculation of common and random effects estimates for meta-analyses
@@ -340,16 +344,20 @@
 #' The following methods to calculate a confidence interval for
 #' \eqn{\tau^2} and \eqn{\tau} are available.
 #' \tabular{ll}{
-#' \bold{Argument}\tab \bold{Method} \cr 
-#' \code{method.tau.ci = "J"}\tab Method by Jackson \cr
-#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-#' \code{method.tau.ci = "QP"}\tab Q-Profile method
+#' \bold{Argument}\tab \bold{Method} \cr
+#' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+#'   three-level meta-analysis \cr
+#'  \tab (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
 #' }
-#' See \code{\link{metagen}} for more information on these
-#' methods. For GLMMs, no confidence intervals for \eqn{\tau^2} and
-#' \eqn{\tau} are calculated. Likewise, no confidence intervals for
-#' \eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
-#' ""}. 
+#' 
+#' See \code{\link{metagen}} for more information on these methods.
+#'
+#' For GLMMs, no confidence intervals for \eqn{\tau^2} and \eqn{\tau}
+#' are calculated.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -446,7 +454,7 @@
 #' \code{print}, \code{summary}, and \code{forest} functions. The
 #' object is a list containing the following components:
 #'
-#' \item{event.e, n.e, event.c, n.c, studlab, exclude,}{As defined
+#' \item{event.e, n.e, event.c, n.c, studlab, exclude, cluster,}{As defined
 #'   above.}
 #' \item{sm, method, incr, method.incr,}{As defined above.}
 #' \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
@@ -726,6 +734,11 @@
 #' in meta-analysis of sparse data.
 #'\emph{Statistics in Medicine},
 #' \bold{23}, 1351--75
+#'
+#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+#' Three-level meta-analysis of dependent effect sizes.
+#' \emph{Behavior Research Methods},
+#' \bold{45}, 576--94
 #' 
 #' Viechtbauer W (2010):
 #' Conducting meta-analyses in R with the metafor package.
@@ -875,7 +888,7 @@
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL,
+                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
@@ -963,9 +976,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.adhoc.hakn <- missing(adhoc.hakn)
   adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
-  if (is.null(method.tau.ci))
-    method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -1001,6 +1011,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     pscale <- 1
   }
   ##
+  missing.method <- missing(method)
   method <- setchar(method, gs("meth4bin"))
   if (metafor)
     method <- "Inverse"
@@ -1022,8 +1033,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (length(model.glmm) == 0)
     model.glmm <- gs("model.glmm")
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL", ""))
-  if (is.glmm & model.glmm == "CM.EL")
-    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
   chklogical(print.CMH)
   ##
@@ -1034,28 +1043,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               "Mantel-Haenszel method in combination with ",
               "DerSimonian-Laird estimator.")
     Q.Cochrane <- FALSE
-  }
-  ##
-  if (sm != "OR") {
-    if (method == "Peto")
-      stop("Peto's method only possible with argument 'sm = \"OR\"'")
-    else if (method == "SSW")
-      stop("Sample size weighting only available with argument 'sm = \"OR\"'")
-    else if (is.glmm)
-      stop("Generalised linear mixed models only possible with ",
-           "argument 'sm = \"OR\"'.")
-  }
-  ##
-  if (is.glmm & method.tau != "ML")
-    stop("Generalised linear mixed models only possible with ",
-         "argument 'method.tau = \"ML\"'.")
-  ##
-  if (is.glmm & hakn & adhoc.hakn != "") {
-    if (!missing.adhoc.hakn)
-      warning("Ad hoc variance correction for Hartung-Knapp method ",
-              "not available for GLMMs.",
-              call. = FALSE)
-    adhoc.hakn <- ""
   }
   ##
   ## Check for deprecated arguments in '...'
@@ -1176,7 +1163,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   ##
-  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  ## from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
@@ -1195,6 +1183,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
+  ##
+  cluster <- catch("cluster", mc, data, sfsp)
+  with.cluster <- !is.null(cluster)
   
   
   ##
@@ -1206,6 +1197,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklength(event.c, k.All, fun)
   chklength(n.c, k.All, fun)
   chklength(studlab, k.All, fun)
+  if (with.cluster)
+    chklength(cluster, k.All, fun)
   ##
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
@@ -1218,19 +1211,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Additional checks
   ##
-  if (is.glmm) {
-    if (!is.null(TE.tau)) {
-      if (warn)
-        warning("Argument 'TE.tau' not considered for GLMM.")
-      TE.tau <- NULL
-    }
-    ##
-    if (!is.null(tau.preset)) {
-      if (warn)
-        warning("Argument 'tau.preset' not considered for GLMM.")
-      tau.preset <- NULL
-    }
-  }
   if (!by & tau.common) {
     if (warn)
       warning("Value for argument 'tau.common' set to FALSE as argument 'subgroup' is missing.")
@@ -1299,6 +1279,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (!missing.exclude)
       data$.exclude <- exclude
+    ##
+    if (with.cluster)
+      data$.id <- data$.cluster <- cluster
   }
 
 
@@ -1441,33 +1424,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                               RR = (event.c == 0 & event.e == 0))
     if (any(sel.doublezeros, na.rm = TRUE))
       doublezeros <- TRUE
-  }
-  ##
-  ## No need to add anything to cell counts for
-  ##  (i)  arcsine difference as summary measure
-  ##  (ii) Peto method or GLMM
-  ##
-  if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
-    if ((!missing(incr) & any(incr != 0)) |
-        allincr |addincr |
-        (!missing(allstudies) & allstudies)
-        )
-      if (sm == "ASD") {
-        if ((sparse | addincr) & warn) {
-          warning("Note, no continuity correction considered ",
-                  "for arcsine difference (sm = \"ASD\").")
-        }
-      }
-      else if (method == "Peto") {
-        if ((sparse | addincr) & warn)
-          warning("Note, no continuity correction considered ",
-                  "for method = \"Peto\".")
-      }
-      else if (is.glmm) {
-        if ((sparse | addincr) & warn)
-          warning("Note, for method = \"GLMM\", continuity correction ",
-                  "only used to calculate individual study results.")
-      }
   }
   ##
   ## Define continuity correction
@@ -1630,7 +1586,123 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (8) Do meta-analysis
+  ## (8) Additional checks for three-level model
+  ##
+  ##
+  three.level <- FALSE
+  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
+  ##
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (with.cluster &&
+      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+    three.level <- TRUE
+  ##
+  if (three.level) {
+    fixed <- FALSE
+    ##
+    if (method != "Inverse") {
+      if (!missing.method)
+        warning("Inverse variance method used in three-level model.",
+                call. = FALSE)
+      method <- "Inverse"
+      is.glmm <- FALSE
+    }
+    ##
+    if (!(method.tau %in% c("REML", "ML"))) {
+      if (!missing(method.tau))
+        warning("For three-level model, argument 'method.tau' set to \"REML\".",
+                call. = FALSE)
+      method.tau <- "REML"
+    }
+    ##
+    if (by & !tau.common) {
+      if (!missing(tau.common))
+        warning("For three-level model, argument 'tau.common' set to ",
+                "\"TRUE\".",
+                call. = FALSE)
+      tau.common <- TRUE
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (9) Additional checks for GLMM, Peto method or SSW
+  ##
+  ##
+  if (sm != "OR") {
+    if (method == "Peto")
+      stop("Peto's method only possible with argument 'sm = \"OR\"'")
+    else if (method == "SSW")
+      stop("Sample size weighting only available with argument 'sm = \"OR\"'")
+    else if (is.glmm)
+      stop("Generalised linear mixed models only possible with ",
+           "argument 'sm = \"OR\"'.")
+  }
+  ##
+  if (is.glmm & method.tau != "ML")
+    stop("Generalised linear mixed models only possible with ",
+         "argument 'method.tau = \"ML\"'.")
+  ##
+  if (is.glmm & hakn & adhoc.hakn != "") {
+    if (!missing.adhoc.hakn)
+      warning("Ad hoc variance correction for Hartung-Knapp method ",
+              "not available for GLMMs.",
+              call. = FALSE)
+    adhoc.hakn <- ""
+  }
+  ##
+  ## No need to add anything to cell counts for
+  ##  (i)  arcsine difference as summary measure
+  ##  (ii) Peto method or GLMM
+  ##
+  if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
+    if ((!missing(incr) & any(incr != 0)) |
+        allincr |addincr |
+        (!missing(allstudies) & allstudies)
+        )
+      if (sm == "ASD") {
+        if ((sparse | addincr) & warn) {
+          warning("Note, no continuity correction considered ",
+                  "for arcsine difference (sm = \"ASD\").")
+        }
+      }
+      else if (method == "Peto") {
+        if ((sparse | addincr) & warn)
+          warning("Note, no continuity correction considered ",
+                  "for method = \"Peto\".")
+      }
+      else if (is.glmm) {
+        if ((sparse | addincr) & warn)
+          warning("Note, for method = \"GLMM\", continuity correction ",
+                  "only used to calculate individual study results.")
+      }
+  }
+  ##
+  if (is.glmm) {
+    if (!is.null(TE.tau)) {
+      if (warn)
+        warning("Argument 'TE.tau' not considered for GLMM.")
+      TE.tau <- NULL
+    }
+    ##
+    if (!is.null(tau.preset)) {
+      if (warn)
+        warning("Argument 'tau.preset' not considered for GLMM.")
+      tau.preset <- NULL
+    }
+  }
+  ##
+  if (is.glmm & model.glmm == "CM.EL")
+    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
+  
+  
+  ##
+  ##
+  ## (10) Do meta-analysis
   ##
   ##
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
@@ -1759,6 +1831,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
+               cluster = cluster,
                ##
                sm = sm,
                level = level,
@@ -2078,14 +2151,24 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
+      if (res$three.level) {
+        res$Q.b.random <- NA
+        res$df.Q.b <- NA
+        res$pval.Q.b.random <- NA
+      }
+    }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
     else {
       if (is.glmm)
         res <- c(res, subgroup(res, NULL,
                                factor(res$subgroup, bylevs(res$subgroup)), ...))
+      else if (res$three.level)
+        res <- c(res,
+                 subgroup(res, NULL,
+                          factor(res$subgroup, bylevs(res$subgroup))))
       else
         res <- c(res, subgroup(res, hcc$tau.resid))
     }

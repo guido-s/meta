@@ -13,6 +13,7 @@ metainc(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  cluster = NULL,
   method = if (sm == "IRSD") "Inverse" else "MH",
   sm = gs("sminc"),
   incr = gs("incr"),
@@ -87,6 +88,10 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
+meta-analysis model.}
+
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"MH"},
 \code{"Inverse"}, \code{"Cochran"}, or \code{"GLMM"} can be
@@ -145,8 +150,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -249,13 +254,15 @@ estimate the between-study variance \eqn{\tau^2}. This argument
 is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
-\item{\dots}{Additional arguments (to catch deprecated arguments).}
+\item{\dots}{Additional arguments passed on to
+\code{\link[metafor]{rma.glmm}} function and to catch deprecated
+arguments.}
 }
 \value{
 An object of class \code{c("metainc", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
-\item{event.e, time.e, event.c, time.c, studlab, exclude,}{As
+\item{event.e, time.e, event.c, time.c, studlab, exclude, cluster,}{As
   defined above.}
 \item{sm, method, incr, method.incr, model.glmm, warn,}{As
   defined above.}
@@ -546,16 +553,20 @@ GLMMs.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method
+\bold{Argument}\tab \bold{Method} \cr
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these
-methods. For GLMMs, no confidence intervals for \eqn{\tau^2} and
-\eqn{\tau} are calculated. Likewise, no confidence intervals for
-\eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
-""}. 
+
+See \code{\link{metagen}} for more information on these methods.
+
+For GLMMs, no confidence intervals for \eqn{\tau^2} and \eqn{\tau}
+are calculated.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -744,6 +755,11 @@ the generalized linear mixed model with applications in sparse
 data.
 \emph{Statistics in Medicine},
 \bold{29}, 3046--67
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.

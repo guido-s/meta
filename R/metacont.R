@@ -92,8 +92,8 @@
 #'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+#'   \code{"PL"}, or \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -263,7 +263,7 @@
 #' }
 #' 
 #' Instead the methods described in Wan et al. (2014) are used if
-#' argument \code{method.mean = "Wan"}):
+#' argument \code{method.mean = "Wan"}:
 #' \itemize{
 #' \item equation (10) if sample size, median, interquartile range and 
 #'   range are available,
@@ -364,17 +364,17 @@
 #' The following methods to calculate a confidence interval for
 #' \eqn{\tau^2} and \eqn{\tau} are available.
 #' \tabular{ll}{
-#' \bold{Argument}\tab \bold{Method} \cr 
+#' \bold{Argument}\tab \bold{Method} \cr
 #' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 #' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
 #' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
-#'  three-level meta-analysis model \cr
-#' \tab (Van den Noortgate et al., 2013)
+#'   three-level meta-analysis \cr
+#'  \tab (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
 #' }
-#' See \code{\link{metagen}} for more information on these methods. No
-#' confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-#' if \code{method.tau.ci = ""}.
+#' 
+#' See \code{\link{metagen}} for more information on these methods.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -473,7 +473,7 @@
 #'
 #' \item{n.e, mean.e, sd.e,}{As defined above.}
 #' \item{n.c, mean.c, sd.c,}{As defined above.}
-#' \item{studlab, exclude, sm, method.ci,}{As defined above.}
+#' \item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 #' \item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
 #' \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 #' \item{method.mean, method.sd,}{As defined above.}
@@ -797,7 +797,8 @@
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                     data = NULL, subset = NULL, exclude = NULL,
+                     cluster = NULL,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -959,8 +960,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (nulldata)
     data <- sfsp
   ##
-  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and
-  ## 'cluster' from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c' from data:
   ##
   missing.mean.e <- missing(mean.e)
   missing.sd.e <- missing(sd.e)
@@ -1032,25 +1032,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   else
     sd.c <- rep(NA, k.All)
   ##
-  missing.cluster <- missing(cluster)
-  cluster <- catch("cluster", mc, data, sfsp)
-  missing.id <- missing(id)
-  id <- catch("id", mc, data, sfsp)
-  ##
-  cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
-                         warn.deprecated)
-  with.cluster <- !is.null(cluster)
-  ##
-  if (is.null(method.tau.ci))
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else if (with.cluster)
-      method.tau.ci <- "PL"
-    else
-      method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset', 'exclude', and
+  ## 'cluster' from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
@@ -1069,6 +1052,24 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
+  ##
+  missing.cluster <- missing(cluster)
+  cluster <- catch("cluster", mc, data, sfsp)
+  missing.id <- missing(id)
+  id <- catch("id", mc, data, sfsp)
+  ##
+  cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
+                         warn.deprecated)
+  with.cluster <- !is.null(cluster)
+  ##
+  if (is.null(method.tau.ci))
+    if (with.cluster)
+      method.tau.ci <- "PL"
+    else if (method.tau == "DL")
+      method.tau.ci <- "J"
+     else
+      method.tau.ci <- "QP"
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   ## Catch 'median.e', 'q1.e', 'q3.e', 'min.e', 'max.e', 'median.c',
   ## 'q1.c', 'q3.c', 'min.c', 'max.c', 'approx.mean.e', 'approx.sd.e',
@@ -1306,11 +1307,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
-    ##
+    if (!missing.exclude)
+      exclude <- exclude[subset]
     if (with.cluster)
       cluster <- cluster[subset]
-    ##
-    exclude <- exclude[subset]
     ##
     if (!missing.median.e)
       median.e <- median.e[subset]
@@ -1839,17 +1839,27 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   if (sm == "SMD")
     TE[sel] <- NA
+  
+  
   ##
-  ## No three-level meta-analysis conducted if variable 'id' contains
-  ## different values for each estimate
   ##
-  multi.level <- FALSE
+  ## (10) Additional checks for three-level model
   ##
+  ##
+  three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  if (with.cluster && length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
-    multi.level <- TRUE
   ##
-  if (multi.level) {
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (with.cluster &&
+      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+    three.level <- TRUE
+  ##
+  if (three.level) {
+    fixed <- FALSE
+    ##
     if (!(method.tau %in% c("REML", "ML"))) {
       if (!missing(method.tau))
         warning("For three-level model, argument 'method.tau' set to \"REML\".",
@@ -1869,7 +1879,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (11) Do meta-analysis
   ##
   ##
   m <- metagen(TE, seTE, studlab,

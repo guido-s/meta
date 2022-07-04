@@ -228,8 +228,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -331,7 +331,7 @@ object is a list containing the following components:
 
 \item{n.e, mean.e, sd.e,}{As defined above.}
 \item{n.c, mean.c, sd.c,}{As defined above.}
-\item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 \item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
 \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 \item{method.mean, method.sd,}{As defined above.}
@@ -572,7 +572,7 @@ By default, methods described in Luo et al. (2018) are utilized
 }
 
 Instead the methods described in Wan et al. (2014) are used if
-argument \code{method.mean = "Wan"}):
+argument \code{method.mean = "Wan"}:
 \itemize{
 \item equation (10) if sample size, median, interquartile range and 
   range are available,
@@ -673,17 +673,17 @@ estimators.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
+\bold{Argument}\tab \bold{Method} \cr
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
 \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
- three-level meta-analysis model \cr
-\tab (Van den Noortgate et al., 2013)
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these methods. No
-confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-if \code{method.tau.ci = ""}.
+
+See \code{\link{metagen}} for more information on these methods.
 }
 
 \subsection{Hartung-Knapp method}{

@@ -531,7 +531,7 @@ methods described in Luo et al. (2018) are utilized (argument
 }
 
 Instead the methods described in Wan et al. (2014) are used if
-argument \code{method.mean = "Wan"}):
+argument \code{method.mean = "Wan"}:
 \itemize{
 \item equation (2) if sample size, median and range are available,
 \item equation (14) if sample size, median and interquartile range
@@ -671,18 +671,16 @@ The following methods to calculate a confidence interval for
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
- three-level meta-analysis model \cr
-\tab (Van den Noortgate et al., 2013)
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for three-level \cr
+ \tab meta-analysis model (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
 The first three methods have been recommended by Veroniki et
 al. (2016). By default, the Jackson method is used for the
 DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
 method for all other estimators of \eqn{\tau^2}. The
 Profile-Likelihood method is the only method available for the
-three-level meta-analysis model. No confidence intervals for
-\eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
-""}.
+three-level meta-analysis model.
 }
 
 \subsection{Hartung-Knapp method}{

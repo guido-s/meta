@@ -231,7 +231,7 @@
 #' }
 #' 
 #' Instead the methods described in Wan et al. (2014) are used if
-#' argument \code{method.mean = "Wan"}):
+#' argument \code{method.mean = "Wan"}:
 #' \itemize{
 #' \item equation (2) if sample size, median and range are available,
 #' \item equation (14) if sample size, median and interquartile range
@@ -371,18 +371,16 @@
 #' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 #' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
-#'  three-level meta-analysis model \cr
-#' \tab (Van den Noortgate et al., 2013)
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for three-level \cr
+#'  \tab meta-analysis model (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
 #' }
 #' The first three methods have been recommended by Veroniki et
 #' al. (2016). By default, the Jackson method is used for the
 #' DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
 #' method for all other estimators of \eqn{\tau^2}. The
 #' Profile-Likelihood method is the only method available for the
-#' three-level meta-analysis model. No confidence intervals for
-#' \eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
-#' ""}.
+#' three-level meta-analysis model.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -924,7 +922,8 @@
 
 metagen <- function(TE, seTE, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
+                    cluster = NULL,
                     ##
                     sm = "",
                     ##
@@ -1137,14 +1136,6 @@ metagen <- function(TE, seTE, studlab,
     idx <- seq_along(cluster)
   ##
   missing.method.tau.ci <- missing(method.tau.ci)
-  if (is.null(method.tau.ci))
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else if (with.cluster)
-      method.tau.ci <- "PL"
-    else
-      method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   k.All <- if (!missing.TE)
              length(TE)
@@ -1401,8 +1392,12 @@ metagen <- function(TE, seTE, studlab,
     TE <- TE[subset]
     seTE <- seTE[subset]
     studlab <- studlab[subset]
-    ##
-    exclude <- exclude[subset]
+    if (!missing.exclude)
+      exclude <- exclude[subset]
+    if (with.cluster) {
+      cluster <- cluster[subset]
+      idx <- idx[subset]
+    }
     ##
     if (by)
       subgroup <- subgroup[subset]
@@ -1411,11 +1406,6 @@ metagen <- function(TE, seTE, studlab,
       n.e <- n.e[subset]
     if (!is.null(n.c))
       n.c <- n.c[subset]
-    ##
-    if (with.cluster) {
-      cluster <- cluster[subset]
-      idx <- idx[subset]
-    }
     ##
     if (!missing.pval)
       pval <- pval[subset]
@@ -1463,45 +1453,6 @@ metagen <- function(TE, seTE, studlab,
   ##
   chknumeric(TE)
   chknumeric(seTE, 0)
-  ##
-  ## No three-level meta-analysis conducted if variable 'cluster'
-  ## contains different values for each estimate
-  ##
-  three.level <- FALSE
-  ##
-  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  if (with.cluster && length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
-    three.level <- TRUE
-  ##
-  if (!three.level & method.tau.ci == "PL") {
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else
-      method.tau.ci <- "QP"
-  }
-  ##
-  if (three.level) {
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing.method.tau)
-        warning("For three-level model, argument 'method.tau' set to \"REML\".",
-                call. = FALSE)
-      method.tau <- "REML"
-    }
-  }
-  ##
-  if (by) {
-    chkmiss(subgroup)
-    ##
-    if (missing.subgroup.name & is.null(subgroup.name)) {
-      if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
-      else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
-    }
-  }
-  ##
-  if (!is.null(subgroup.name))
-    chkchar(subgroup.name, length = 1)
   
   
   ##
@@ -1809,12 +1760,68 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (10) Additional checks for three-level model
+  ##
+  ##
+  three.level <- FALSE
+  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
+  ##
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (with.cluster &&
+      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+    three.level <- TRUE
+  ##
+  if (is.null(method.tau.ci))
+    if (three.level)
+      method.tau.ci <- "PL"
+    else if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else
+      method.tau.ci <- "QP"
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  ##
+  if (!three.level & method.tau.ci == "PL") {
+    if (method.tau == "DL")
+      method.tau.ci <- "J"
+    else
+      method.tau.ci <- "QP"
+  }
+  ##
+  if (three.level) {
+    if (!(method.tau %in% c("REML", "ML"))) {
+      if (!missing.method.tau)
+        warning("For three-level model, argument 'method.tau' set to \"REML\".",
+                call. = FALSE)
+      method.tau <- "REML"
+    }
+  }
+  ##
+  if (by) {
+    chkmiss(subgroup)
+    ##
+    if (missing.subgroup.name & is.null(subgroup.name)) {
+      if (!missing.subgroup)
+        subgroup.name <- byvarname("subgroup", mc)
+      else if (!missing.byvar)
+        subgroup.name <- byvarname("byvar", mc)
+    }
+  }
+  ##
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
+  
+  
+  ##
+  ##
+  ## (11) Do meta-analysis
   ##
   ##
   k <- sum(!is.na(seTE[!exclude]))
   ##
-  if (with.cluster) {
+  if (three.level) {
     cluster.incl <- cluster[!exclude]
     k.study <- length(unique(cluster.incl[!is.na(seTE[!exclude])]))
   }

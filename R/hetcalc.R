@@ -32,6 +32,16 @@ hetcalc <- function(TE, seTE,
   ##
   noHet <- all(!sel.noNA) || sum(sel.noNA) < 2
   allNA <- all(!sel.noNA)
+  ##
+  three.level <- FALSE
+  ##
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (!is.null(cluster) &&
+      length(unique(cluster)) != length(cluster))
+    three.level <- TRUE
   
   
   ##
@@ -79,7 +89,7 @@ hetcalc <- function(TE, seTE,
       sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
     }
     else {
-      if (is.null(cluster)) {
+      if (!three.level) {
         mf0 <- runNN(rma.uni,
                      list(yi = TE, sei = seTE, method = method.tau,
                           control = control))
@@ -113,7 +123,7 @@ hetcalc <- function(TE, seTE,
       ##
       if (df.Q < 2)
         method.tau.ci <- ""
-      else if (!is.null(cluster) & method.tau.ci != "")
+      else if (three.level & method.tau.ci != "")
         method.tau.ci <- "PL"
       ##
       ## Confidence interal for overall result
@@ -147,7 +157,7 @@ hetcalc <- function(TE, seTE,
     if (is.numeric(subgroup))
       subgroup <- as.factor(subgroup)
     ##
-    if (is.null(cluster)) {
+    if (!three.level) {
       if (length(unique(subgroup)) == 1)
         mf1 <-
           runNN(rma.uni,
@@ -231,7 +241,7 @@ hetcalc <- function(TE, seTE,
     ##
     if (df.Q < 2 || useFE)
       method.tau.ci <- ""
-    else if (!is.null(cluster) & method.tau.ci != "")
+    else if (three.level & method.tau.ci != "")
       method.tau.ci <- "PL"
     ##
     ## Confidence interal for residual heterogeneity
