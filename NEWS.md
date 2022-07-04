@@ -35,6 +35,8 @@
   for individual studies in metacont() and metamean() if argument
   'method.ci = "t"'
 
+* Show points in bubble plot of meta-regression with GLMM
+
 ### User-visible changes
 
 * New function subset.longarm() to select subset of a longarm object

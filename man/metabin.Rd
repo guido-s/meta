@@ -582,7 +582,7 @@ Three approaches are available to apply a continuity correction:
 By default, a continuity correction is only applied to studies with
 a zero cell count (\code{method.incr = "only0"}). This method
 showed the best performance for the odds ratio in a simulation
-study under the random effects model (Weber et al., 2022).
+study under the random effects model (Weber et al., 2020).
 
 The continuity correction method is used both to calculate
 individual study results with confidence limits and to conduct
@@ -875,7 +875,7 @@ Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
 Methods for estimating between-study variance and overall
 effect in meta-analysis of odds-ratios.
 \emph{Research Synthesis Methods},
-DOI: 10.1002/jrsm.1404
+\bold{11}, 426--42
 
 Cooper H & Hedges LV (1994):
 \emph{The Handbook of Research Synthesis}.
@@ -977,10 +977,10 @@ Conducting meta-analyses in R with the metafor package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
 
-Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2022):
+Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2020):
 Zero-cell corrections in random-effects meta-analyses.
 \emph{Research Synthesis Methods},
-DOI: 10.1002/jrsm.1460
+\bold{11}, 913--9
 
 Wiksten A, Rücker G, Schwarzer G (2016):
 Hartung-Knapp method is not always conservative compared with

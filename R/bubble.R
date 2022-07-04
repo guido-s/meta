@@ -318,13 +318,21 @@ bubble.metareg <- function(x,
     cex <- m1$w.fixed
   else if (random.cex)
     cex <- m1$w.random
+  else if (length(cex) == 1)
+    cex <- rep_len(cex, length(TE))
+  ##
+  if (all(is.na(cex))) {
+    cex <- rep_len(1, length(TE))
+    min.cex <- 1
+    max.cex <- 1
+  }
   ##
   if (length(cex) != length(TE))
     stop("Length of argument 'cex' must be the same as ",
          "number of studies in meta-analysis.")
   ##
   if (missing.cex | fixed.cex) {
-    cexs <- max.cex*(cex / max(cex))
+    cexs <- max.cex * (cex / max(cex))
     cexs[cexs < min.cex] <- min.cex
   }
   else
