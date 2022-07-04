@@ -53,6 +53,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
@@ -97,6 +99,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        level = x$level, level.ma = x$level.ma,
                        fixed = x$fixed, random = x$random,
                        hakn = x$hakn,
@@ -131,6 +135,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
@@ -151,6 +157,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
                         fixed = x$fixed, random = x$random,
                         hakn = x$hakn,
@@ -167,6 +175,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
@@ -186,6 +196,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
