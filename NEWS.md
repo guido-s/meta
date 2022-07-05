@@ -4,10 +4,6 @@
 
 * Three-level model implemented in all meta-analysis functions
 
-* For three-level models,
-  - argument 'id' has been renamed to 'cluster',
-  - cluster variable is shown in forest plots.
-
 * Use term 'common effect model' instead of 'fixed effect model' in
   the documentation
 
@@ -17,6 +13,10 @@
 
 * Exact Poisson confidence limits can be calculated for individual
   studies in meta-analysis of single rates
+
+* Show information on statistical significance and between-study
+  heterogeneity in forest plots of cumulative or leave-one-out
+  meta-analysis
 
 * Calculate Cochran's Q directly in **meta** for classic inverse
   variance meta-analysis (instead of taking it from **metafor**
@@ -41,13 +41,17 @@
 
 ### User-visible changes
 
-* New function subset.longarm() to select subset of a longarm object
-
-* New argument 'method.ci' in function metarate()
+* For three-level models,
+  - argument 'id' has been renamed to 'cluster',
+  - cluster variable is shown in forest plots.
 
 * New argument 'cluster' in functions metabin(), metacont(),
   metacor(), and metagen(), metainc(), metamean(), metaprop() and
   metarate()
+
+* New function subset.longarm() to select subset of a longarm object
+
+* New argument 'method.ci' in function metarate()
 
 * New argument 'method.ci.rate' in function settings.meta()
 

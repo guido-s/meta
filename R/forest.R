@@ -626,9 +626,13 @@
 #' By default, estimated treatment effect and corresponding confidence
 #' interval will be printed. Depending on arguments \code{fixed} and
 #' \code{random}, weights of the common effect and/or random effects
-#' model will be given too. For an object of class
-#' \code{\link{metacum}} or \code{\link{metainf}} only the estimated
-#' treatment effect with confidence interval are plotted.
+#' model will be given too.
+#'
+#' For an object of class \code{\link{metacum}} or
+#' \code{\link{metainf}} the following columns will be printed:
+#' \code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
+#' information corresponds to the printout with
+#' \code{\link{print.meta}}.
 #' }
 #'
 #' \subsection{Column names}{
@@ -1121,7 +1125,7 @@ forest.meta <- function(x,
                         label.left = x$label.left,
                         bottom.lr = TRUE,
                         ##
-                        lab.NA = ".", lab.NA.effect = "", lab.NA.weight = "--",
+                        lab.NA = ".", lab.NA.effect, lab.NA.weight = "--",
                         ##
                         lwd = 1,
                         ##
@@ -1635,6 +1639,11 @@ forest.meta <- function(x,
   ##
   chklogical(bottom.lr)
   chkchar(lab.NA)
+  if (missing(lab.NA.effect))
+    if (metainf.metacum)
+      lab.NA.effect <- lab.NA
+    else
+      lab.NA.effect <- ""
   chkchar(lab.NA.effect)
   chkchar(lab.NA.weight)
   if (!is.null(at))
@@ -2441,6 +2450,9 @@ forest.meta <- function(x,
                 "effect.ci",
                 "w.fixed", "w.random")
   ##
+  if (metainf.metacum)
+    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
+  ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <- c("Study", "Study", "Source", "Subgroup")[sel.studlab]
   if (revman5 & by)
@@ -2554,6 +2566,9 @@ forest.meta <- function(x,
                 text.w.fixed,
                 text.w.random)
   ##
+  if (metainf.metacum)
+    labnames <- c(labnames, "P-value", "Tau2", "Tau", "I2")
+  ##
   ## If any of the following list elements is NULL, these 'special'
   ## variable names are searched for in original data set (i.e., list
   ## element x$data)
@@ -2624,6 +2639,15 @@ forest.meta <- function(x,
         if (any(rightcols.new == "pval"))
           rightlabs.new[rightlabs.new == "pval"] <- "P-value"
         ##
+        if (any(rightcols.new == "tau2"))
+          rightlabs.new[rightlabs.new == "tau2"] <- "Tau2"
+        ##
+        if (any(rightcols.new == "tau"))
+          rightlabs.new[rightlabs.new == "tau"] <- "Tau"
+        ##
+        if (any(rightcols.new == "I2"))
+          rightlabs.new[rightlabs.new == "I2"] <- "I2"
+        ##
         if (three.level & any(rightcols.new == "cluster"))
           rightlabs.new[rightlabs.new == "cluster"] <- "Cluster"
       }
@@ -2645,6 +2669,12 @@ forest.meta <- function(x,
                 rightlabs.new[i] <- labnames[match2.i]
               else if (rightcols.new[i] == "pval")
                 rightlabs.new[i] <- "P-value"
+              else if (rightcols.new[i] == "tau2")
+                rightlabs.new[i] <- "Tau2"
+              else if (rightcols.new[i] == "tau")
+                rightlabs.new[i] <- "Tau"
+              else if (rightcols.new[i] == "I2")
+                rightlabs.new[i] <- "I2"
             }
           }
         }
@@ -2670,6 +2700,15 @@ forest.meta <- function(x,
         if (any(leftcols.new == "pval"))
           leftlabs.new[leftlabs.new == "pval"] <- "P-value"
         ##
+        if (any(leftcols.new == "tau2"))
+          leftlabs.new[leftlabs.new == "tau2"] <- "Tau2"
+        ##
+        if (any(leftcols.new == "tau"))
+          leftlabs.new[leftlabs.new == "tau"] <- "Tau"
+        ##
+        if (any(leftcols.new == "I2"))
+          leftlabs.new[leftlabs.new == "I2"] <- "I2"
+        ##
         if (three.level & any(leftcols.new == "cluster"))
           leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
       }
@@ -2691,6 +2730,12 @@ forest.meta <- function(x,
                 leftlabs.new[i] <- labnames[match2.i]
               else if (leftcols.new[i] == "pval")
                 leftlabs.new[i] <- "P-value"
+              else if (leftcols.new[i] == "tau2")
+                leftlabs.new[i] <- "Tau2"
+              else if (leftcols.new[i] == "tau")
+                leftlabs.new[i] <- "Tau"
+              else if (leftcols.new[i] == "I2")
+                leftlabs.new[i] <- "I2"
             }
           }
         }
@@ -2864,6 +2909,9 @@ forest.meta <- function(x,
       if (random)
         rightcols <- c(rightcols, "w.random")
     }
+    ##
+    if (metainf.metacum)
+      rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")  
   }
   
   
@@ -2969,6 +3017,16 @@ forest.meta <- function(x,
     x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
     x$t.harmonic.mean <- rev(rev(x$t.harmonic.mean)[-(1:2)])
     ##
+    x$pval.overall <- rev(x$pval)[1]
+    x$tau2.overall <- rev(x$tau2)[1]
+    x$tau.overall <- rev(x$tau)[1]
+    x$I2.overall <- rev(x$I2)[1]
+    ##
+    x$pval <- rev(rev(x$pval)[-(1:2)])
+    x$tau2 <- rev(rev(x$tau2)[-(1:2)])
+    x$tau <- rev(rev(x$tau)[-(1:2)])
+    x$I2 <- rev(rev(x$I2)[-(1:2)])
+    ##
     if (overall & x$pooled == "fixed") {
       fixed <- TRUE
       random <- FALSE
@@ -3038,6 +3096,13 @@ forest.meta <- function(x,
   x$n.harmonic.mean <- x$n.harmonic.mean[sel]
   x$t.harmonic.mean <- x$t.harmonic.mean[sel]
   ##
+  if (metainf.metacum) {
+    x$pval <- x$pval[sel]
+    x$tau2 <- x$tau2[sel]
+    x$tau <- x$tau[sel]
+    x$I2 <- x$I2[sel]
+  }
+  ##
   subgroup <- subgroup[sel]
   sortvar <- sortvar[sel]
   ##
@@ -3092,6 +3157,13 @@ forest.meta <- function(x,
     ##
     x$n.harmonic.mean <- x$n.harmonic.mean[o]
     x$t.harmonic.mean <- x$t.harmonic.mean[o]
+    ##
+    if (metainf.metacum) {
+      x$pval <- x$pval[o]
+      x$tau2 <- x$tau2[o]
+      x$tau <- x$tau[o]
+      x$I2 <- x$I2[o]
+    }
     ##
     subgroup <- subgroup[o]
     sortvar <- sortvar[o]
@@ -5861,6 +5933,7 @@ forest.meta <- function(x,
   ## "sd.e", "sd.c",
   ## "cor",
   ## "time.e", "time.c",
+  ## "pval", "tau2", "tau", "I2" (for metainf.metacum)
   ##
   ## Check for "\n" in label of column 'studlab'
   ##
@@ -6162,6 +6235,66 @@ forest.meta <- function(x,
     longer.w.random <- labs[["lab.w.random"]]
   }
   ##
+  ## Check for "\n" in label of column 'pval'
+  ##
+  clines <- twolines(labs[["lab.pval"]], "pval")
+  ##
+  if (clines$newline) {
+    newline.pval <- TRUE
+    labs[["lab.pval"]] <- clines$bottom
+    add.pval <- clines$top
+    longer.pval <- clines$longer
+  }
+  else {
+    newline.pval <- FALSE
+    longer.pval <- labs[["lab.pval"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'tau2'
+  ##
+  clines <- twolines(labs[["lab.tau2"]], "tau2")
+  ##
+  if (clines$newline) {
+    newline.tau2 <- TRUE
+    labs[["lab.tau2"]] <- clines$bottom
+    add.tau2 <- clines$top
+    longer.tau2 <- clines$longer
+  }
+  else {
+    newline.tau2 <- FALSE
+    longer.tau2 <- labs[["lab.tau2"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'tau'
+  ##
+  clines <- twolines(labs[["lab.tau"]], "tau")
+  ##
+  if (clines$newline) {
+    newline.tau <- TRUE
+    labs[["lab.tau"]] <- clines$bottom
+    add.tau <- clines$top
+    longer.tau <- clines$longer
+  }
+  else {
+    newline.tau <- FALSE
+    longer.tau <- labs[["lab.tau"]]
+  }
+  ##
+  ## Check for "\n" in label of column 'I2'
+  ##
+  clines <- twolines(labs[["lab.I2"]], "I2")
+  ##
+  if (clines$newline) {
+    newline.I2 <- TRUE
+    labs[["lab.I2"]] <- clines$bottom
+    add.I2 <- clines$top
+    longer.I2 <- clines$longer
+  }
+  else {
+    newline.I2 <- FALSE
+    longer.I2 <- labs[["lab.I2"]]
+  }
+  ##
   ## Check for "\n" in argument 'smlab'
   ##
   clines <- twolines(smlab, arg = TRUE)
@@ -6257,6 +6390,7 @@ forest.meta <- function(x,
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
+    newline.pval | newline.tau2 | newline.tau | newline.I2 |
     newline.smlab | newline.addcol.left | newline.addcol.right
   ##
   newline.all <- newline | (!newline & (newline.ll | newline.lr) & !addrow)
@@ -6781,6 +6915,36 @@ forest.meta <- function(x,
   ##
   if (by)
     cor.format[sel.by] <- ""
+  ##
+  ## Leave-one-out / cumulative meta-analysis
+  ##
+  if (metainf.metacum) {
+    pval.format <-  c(x$pval.overall, x$pval.overall, NA, x$pval)
+    tau2.format <-  c(x$tau2.overall, x$tau2.overall, NA, x$tau2)
+    tau.format <-  c(x$tau.overall, x$tau.overall, NA, x$tau)
+    I2.format <-  c(x$I2.overall, x$I2.overall, NA, x$I2)
+    ##
+    pval.format <-  formatPT(pval.format, digits = digits.pval,
+                             big.mark = big.mark,
+                             lab = FALSE, labval = "",
+                             zero = zero.pval, JAMA = JAMA.pval,
+                             scientific = scientific.pval,
+                             lab.NA = lab.NA)
+    tau2.format <-  formatPT(tau2.format, digits = digits.tau2,
+                             big.mark = big.mark,
+                             lab = FALSE, labval = "",
+                             lab.NA = lab.NA)
+    tau.format <-  formatPT(tau.format, digits = digits.tau,
+                            big.mark = big.mark,
+                            lab = FALSE, labval = "",
+                            lab.NA = lab.NA)
+    I2.format <- formatN(100 * I2.format, digits.I2, lab.NA)
+    I2.format <- paste0(I2.format, ifelse(I2.format == lab.NA, "", "%"))
+    ##
+    ## Print nothing for lines with prediction interval
+    ##
+    pval.format[3] <- tau2.format[3] <- tau.format[3] <- I2.format[3] <- ""
+  }
   ##
   ##
   ## y-axis:
@@ -7320,6 +7484,17 @@ forest.meta <- function(x,
   col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs,
                           fontfamily)
   ##
+  if (metainf.metacum) {
+    col.pval <- formatcol(labs[["lab.pval"]], pval.format, yS, just.c, fcs,
+                          fontfamily)
+    col.tau2 <- formatcol(labs[["lab.tau2"]], tau2.format, yS, just.c, fcs,
+                          fontfamily)
+    col.tau <- formatcol(labs[["lab.tau"]], tau.format, yS, just.c, fcs,
+                         fontfamily)
+    col.I2 <- formatcol(labs[["lab.I2"]], I2.format, yS, just.c, fcs,
+                        fontfamily)
+  }
+  ##
   ##
   ##
   col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
@@ -7368,6 +7543,17 @@ forest.meta <- function(x,
                                fontfamily)
   col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs,
                                fontfamily)
+  ##
+  if (metainf.metacum) {
+    col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
+                               fontfamily)
+    col.tau2.calc <- formatcol(longer.tau2, tau2.format, yS, just.c, fcs,
+                               fontfamily)
+    col.tau.calc <- formatcol(longer.tau, tau.format, yS, just.c, fcs,
+                               fontfamily)
+    col.I2.calc <- formatcol(longer.I2, I2.format, yS, just.c, fcs,
+                               fontfamily)
+  }
   ##
   ##
   ##
@@ -7460,6 +7646,15 @@ forest.meta <- function(x,
   cols[["col.time.e"]] <- col.time.e
   cols[["col.time.c"]] <- col.time.c
   ##
+  if (metainf.metacum) {
+    cols[["col.pval"]] <- col.pval
+    cols[["col.tau2"]] <- col.tau2
+    cols[["col.tau"]] <- col.tau
+    cols[["col.I2"]] <- col.I2
+  }
+  ##
+  ## Calculate
+  ##
   cols.calc[["col.cluster"]] <- col.cluster.calc
   ##
   cols.calc[["col.n.e"]] <- col.n.e.calc
@@ -7476,6 +7671,13 @@ forest.meta <- function(x,
   ##
   cols.calc[["col.time.e"]] <- col.time.e.calc
   cols.calc[["col.time.c"]] <- col.time.c.calc
+  ##
+  if (metainf.metacum) {
+    cols.calc[["col.pval"]] <- col.pval.calc
+    cols.calc[["col.tau2"]] <- col.tau2.calc
+    cols.calc[["col.tau"]] <- col.tau.calc
+    cols.calc[["col.I2"]] <- col.I2.calc
+  }
   ##
   if (newcols) {
     ##
@@ -7538,6 +7740,15 @@ forest.meta <- function(x,
             if (rightcols.new[i] == "pval")
               tmp.r <- formatPT(tmp.r, digits = digits.pval,
                                 big.mark = big.mark)
+            else if (rightcols.new[i] == "tau2")
+              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
+                                big.mark = big.mark)
+            else if (rightcols.new[i] == "tau")
+              tmp.r <- formatPT(tmp.r, digits = digits.tau,
+                                big.mark = big.mark)
+            else if (rightcols.new[i] == "I2")
+              tmp.r <-
+                paste0(formatN(100 * tmp.r, digits.I2, "NA"), "%")
             else
               tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
                                text.NA = "", big.mark = big.mark)
@@ -7556,12 +7767,15 @@ forest.meta <- function(x,
         }
         else
           lab.new <- longer.new <- rightlabs.new[i]
-        cols[[tname]] <- formatcol(lab.new,
-                                   c("", "", "", rep("", length(TE.w)), tmp.r),
-                                   yS,
-                                   if (rightcols.new[i] == "pval") just
-                                   else just.addcols.right[i],
-                                   fcs, fontfamily)
+        cols[[tname]] <-
+          formatcol(lab.new,
+                    c("", "", "", rep("", length(TE.w)), tmp.r),
+                    yS,
+                    if (rightcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                      just
+                    else
+                      just.addcols.right[i],
+                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", rep("", length(TE.w)),
                                           tmp.r),
@@ -7587,6 +7801,15 @@ forest.meta <- function(x,
             if (leftcols.new[i] == "pval")
               tmp.l <- formatPT(tmp.l, digits = digits.pval,
                                 big.mark = big.mark)
+            else if (leftcols.new[i] == "tau2")
+              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
+                                big.mark = big.mark)
+            else if (leftcols.new[i] == "tau")
+              tmp.l <- formatPT(tmp.l, digits = digits.tau,
+                                big.mark = big.mark)
+            else if (leftcols.new[i] == "I2")
+              tmp.l <-
+                paste0(formatN(100 * tmp.l, digits.I2, "NA"), "%")
             else
               tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
                                text.NA = "", big.mark = big.mark)
@@ -7606,13 +7829,16 @@ forest.meta <- function(x,
         else
           lab.new <- longer.new <- leftlabs.new[i]
         ##
-        cols[[tname]] <- formatcol(lab.new,
-                                   c("", "", "",
-                                     rep("", length(TE.w)), tmp.l),
-                                   yS,
-                                   if (leftcols.new[i] == "pval") just
-                                   else just.addcols.left[i],
-                                   fcs, fontfamily)
+        cols[[tname]] <-
+          formatcol(lab.new,
+                    c("", "", "",
+                      rep("", length(TE.w)), tmp.l),
+                    yS,
+                    if (leftcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                      just
+                    else
+                      just.addcols.left[i],
+                    fcs, fontfamily)
         ##
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "",
@@ -7645,6 +7871,19 @@ forest.meta <- function(x,
                                 zero = zero.pval, JAMA = JAMA.pval,
                                 scientific = scientific.pval,
                                 lab.NA = "NA")
+            else if (rightcols.new[i] == "tau2")
+              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                lab.NA = "NA")
+            else if (rightcols.new[i] == "tau")
+              tmp.r <- formatPT(tmp.r, digits = digits.tau,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                lab.NA = "NA")
+            else if (rightcols.new[i] == "I2")
+              tmp.r <-
+                paste0(formatN(100 * tmp.r, digits.I2, "NA"), "%")
             else
               tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
                                text.NA = "", big.mark = big.mark)
@@ -7664,12 +7903,15 @@ forest.meta <- function(x,
         else
           lab.new <- longer.new <- rightlabs.new[i]
         ##
-        cols[[tname]] <- formatcol(lab.new,
-                                   c("", "", "", tmp.r),
-                                   yS,
-                                   if (rightcols.new[i] == "pval") just
-                                   else just.addcols.right[i],
-                                   fcs, fontfamily)
+        cols[[tname]] <-
+          formatcol(lab.new,
+                    c("", "", "", tmp.r),
+                    yS,
+                    if (rightcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                      just
+                    else
+                      just.addcols.right[i],
+                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.r),
                                         yS,
@@ -7698,6 +7940,19 @@ forest.meta <- function(x,
                                 zero = zero.pval, JAMA = JAMA.pval,
                                 scientific = scientific.pval,
                                 lab.NA = "NA")
+            else if (leftcols.new[i] == "tau2")
+              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                lab.NA = "NA")
+            else if (leftcols.new[i] == "tau")
+              tmp.l <- formatPT(tmp.l, digits = digits.tau,
+                                big.mark = big.mark,
+                                lab = FALSE, labval = "",
+                                lab.NA = "NA")
+            else if (leftcols.new[i] == "I2")
+              tmp.l <-
+                paste0(formatN(100 * tmp.l, digits.I2, "NA"), "%")
             else
               tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
                                text.NA = "", big.mark = big.mark)
@@ -7717,12 +7972,15 @@ forest.meta <- function(x,
         else
           lab.new <- longer.new <- leftlabs.new[i]
         ##
-        cols[[tname]] <- formatcol(lab.new,
-                                   c("", "", "", tmp.l),
-                                   yS,
-                                   if (leftcols.new[i] == "pval") just
-                                   else just.addcols.left[i],
-                                   fcs, fontfamily)
+        cols[[tname]] <-
+          formatcol(lab.new,
+                    c("", "", "", tmp.l),
+                    yS,
+                    if (leftcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                      just
+                    else
+                      just.addcols.left[i],
+                    fcs, fontfamily)
         cols.calc[[tname]] <- formatcol(longer.new,
                                         c("", "", "", tmp.l),
                                         yS,
@@ -7815,6 +8073,21 @@ forest.meta <- function(x,
   if (newline.time.c)
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
+  ##
+  if (metainf.metacum) {
+    if (newline.pval)
+      col.add.pval <- tgl(add.pval, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
+    if (newline.tau2)
+      col.add.tau2 <- tgl(add.tau2, xpos.c, just.c, fs.head, ff.head,
+                          fontfamily)
+    if (newline.tau)
+      col.add.tau <- tgl(add.tau, xpos.c, just.c, fs.head, ff.head,
+                         fontfamily)
+    if (newline.I2)
+      col.add.I2 <- tgl(add.I2, xpos.c, just.c, fs.head, ff.head,
+                        fontfamily)
+  }
   ##
   leftcols  <- paste0("col.", leftcols)
   rightcols <- paste0("col.", rightcols)
@@ -8115,6 +8388,17 @@ forest.meta <- function(x,
       if (newline.time.c & leftcols[i] == "col.time.c")
         add.text(col.add.time.c, j)
       ##
+      if (metainf.metacum) {
+        if (newline.pval & leftcols[i] == "col.pval")
+          add.text(col.add.pval, j)
+        if (newline.tau2 & leftcols[i] == "col.tau2")
+          add.text(col.add.tau2, j)
+        if (newline.tau & leftcols[i] == "col.tau")
+          add.text(col.add.tau, j)
+        if (newline.I2 & leftcols[i] == "col.I2")
+          add.text(col.add.I2, j)
+      }
+      ##
       ## Add text in first line of forest plot for new columns
       ##
       if (newcols)
@@ -8332,6 +8616,17 @@ forest.meta <- function(x,
         if (newline.time.c & rightcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         ##
+        if (metainf.metacum) {
+          if (newline.pval & rightcols[i] == "col.pval")
+            add.text(col.add.pval, j)
+          if (newline.tau2 & rightcols[i] == "col.tau2")
+            add.text(col.add.tau2, j)
+          if (newline.tau & rightcols[i] == "col.tau")
+            add.text(col.add.tau, j)
+          if (newline.I2 & rightcols[i] == "col.I2")
+            add.text(col.add.I2, j)
+        }
+        ##
         ## Add text in first line of forest plot for new columns
         ##
         if (newcols)
@@ -8366,21 +8661,30 @@ forest.meta <- function(x,
   ##
   popViewport()
   
-  
-  invisible(list(xlim = xlim, addrows.below.overall = addrows.below.overall,
-                 ##
-                 colgap = colgap,
-                 colgap.left = colgap.left,
-                 colgap.right = colgap.right,
-                 colgap.studlab = colgap.studlab,
-                 colgap.forest = colgap.forest.left,
-                 colgap.forest.left = colgap.forest,
+
+  res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
+              ##
+              colgap = colgap,
+              colgap.left = colgap.left,
+              colgap.right = colgap.right,
+              colgap.studlab = colgap.studlab,
+              colgap.forest = colgap.forest.left,
+              colgap.forest.left = colgap.forest,
                  colgap.forest.right = colgap.forest.right,
-                 ##
-                 studlab = studlab,
-                 TE.format = TE.format,
-                 seTE.format = seTE.format,
-                 cluster.format = cluster.format,
-                 effect.format = effect.format,
-                 ci.format = ci.format))
+              ##
+              studlab = studlab,
+              TE.format = TE.format,
+              seTE.format = seTE.format,
+              cluster.format = cluster.format,
+              effect.format = effect.format,
+              ci.format = ci.format)
+  ##
+  if (metainf.metacum) {
+    res$pval.format <- pval.format
+    res$tau2.format <- tau2.format
+    res$tau.format <- tau.format
+    res$I2.format <- I2.format
+  }
+  
+  invisible(res)
 }

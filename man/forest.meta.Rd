@@ -66,7 +66,7 @@
   label.left = x$label.left,
   bottom.lr = TRUE,
   lab.NA = ".",
-  lab.NA.effect = "",
+  lab.NA.effect,
   lab.NA.weight = "--",
   lwd = 1,
   at = NULL,
@@ -1060,9 +1060,13 @@ Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
 By default, estimated treatment effect and corresponding confidence
 interval will be printed. Depending on arguments \code{fixed} and
 \code{random}, weights of the common effect and/or random effects
-model will be given too. For an object of class
-\code{\link{metacum}} or \code{\link{metainf}} only the estimated
-treatment effect with confidence interval are plotted.
+model will be given too.
+
+For an object of class \code{\link{metacum}} or
+\code{\link{metainf}} the following columns will be printed:
+\code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
+information corresponds to the printout with
+\code{\link{print.meta}}.
 }
 
 \subsection{Column names}{
