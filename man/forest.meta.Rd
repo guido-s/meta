@@ -1013,7 +1013,7 @@ study labels (value \code{"cluster"} in argument leftcols).
 Note, \code{"studlab"} \bold{must be provided for study labels} in
 argument \code{leftcols} or \code{rightcols} instead of the
 variable name used in the meta-analysis command. If, for example,
-\code{"id"} is provided in argument \code{leftcols} as this
+\code{"study"} is provided in argument \code{leftcols} as this
 variable was used to define study labels in the meta-analysis
 function, this variable will be treated as an additional variable,
 not as study labels.

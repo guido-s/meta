@@ -579,7 +579,7 @@
 #' Note, \code{"studlab"} \bold{must be provided for study labels} in
 #' argument \code{leftcols} or \code{rightcols} instead of the
 #' variable name used in the meta-analysis command. If, for example,
-#' \code{"id"} is provided in argument \code{leftcols} as this
+#' \code{"study"} is provided in argument \code{leftcols} as this
 #' variable was used to define study labels in the meta-analysis
 #' function, this variable will be treated as an additional variable,
 #' not as study labels.
@@ -1339,6 +1339,10 @@ forest.meta <- function(x,
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##
+  meta <- !metabind &&
+    (metabin | metacont | metacor | metagen | metainc | metamean |
+     metaprop | metarate | metainf.metacum)
+  ##
   by <- !is.null(x$subgroup)
   ##
   if (by)
@@ -1526,9 +1530,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  slab <- TRUE
   missing.studlab <- missing(studlab)
-  ##
   if (!missing.studlab) {
     error <-
       try(studlab <- catch("studlab", mc, x, sfsp),
@@ -1540,6 +1542,7 @@ forest.meta <- function(x,
     }
   }
   ##
+  slab <- TRUE
   if (length(studlab) == 1 & is.logical(studlab)) {
     if (studlab == FALSE) {
       studlab <- rep("", K.all)
@@ -2207,23 +2210,12 @@ forest.meta <- function(x,
   }
   ##
   missing.leftcols <- missing(leftcols)
+  lsel <- TRUE
   if (is.logical(leftcols)) {
-    if (!leftcols) {
-      text.fixed <- ""
-      text.random <- ""
-      text.predict <- ""
-      leftcols <- "studlab"
-      studlab <- rep("", K.all)
-      slab <- FALSE
-      hetstat <- FALSE
-      overall.hetstat <- FALSE
-      resid.hetstat <- FALSE
-      colgap.left <- grid::unit(0, "mm")
-      colgap.studlab <- grid::unit(0, "mm")
-      colgap.forest.left <- grid::unit(0, "mm")
-    }
-    else
-      leftcols <- NULL
+    if (!leftcols)
+      lsel <- FALSE
+    ##
+    leftcols <- NULL
   }
   ##
   ## Add space for heterogeneity statistics (if needed)
@@ -2746,7 +2738,7 @@ forest.meta <- function(x,
   ## Default set of columns if argument leftcols and / or
   ## rightcols not specified
   ##
-  if (is.null(leftcols)) {
+  if (is.null(leftcols) && lsel) {
     ##
     leftcols <- "studlab"
     ##
@@ -2900,7 +2892,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  if (is.null(rightcols) & rsel) {
+  if (is.null(rightcols) && rsel) {
     rightcols <- c("effect", "ci")
     ##
     if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
@@ -5873,21 +5865,23 @@ forest.meta <- function(x,
   ##
   labs <- list()
   ##
-  if (missing(leftlabs) || length(leftcols) != length(leftlabs)) {
-    for (i in seq_along(leftcols)) {
-      j <- match(leftcols[i], colnames)
-      if (!is.na(j))
-        labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
-    }
-  }
-  else if (length(leftcols) == length(leftlabs)) {
-    for (i in seq_along(leftcols)) {
-      j <- match(leftcols[i], colnames)
-      if (!is.na(leftlabs[i]))
-        labs[[paste0("lab.", leftcols[i])]] <- leftlabs[i]
-      else
+  if (lsel) {
+    if (missing(leftlabs) || length(leftcols) != length(leftlabs)) {
+      for (i in seq_along(leftcols)) {
+        j <- match(leftcols[i], colnames)
         if (!is.na(j))
           labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
+      }
+    }
+    else if (length(leftcols) == length(leftlabs)) {
+      for (i in seq_along(leftcols)) {
+        j <- match(leftcols[i], colnames)
+        if (!is.na(leftlabs[i]))
+          labs[[paste0("lab.", leftcols[i])]] <- leftlabs[i]
+        else
+          if (!is.na(j))
+          labs[[paste0("lab.", leftcols[i])]] <- labnames[j]
+      }
     }
   }
   ##
@@ -8148,28 +8142,32 @@ forest.meta <- function(x,
                    if (!calcwidth.addline) # additional lines
                      11:12)
   ##
-  for (i in seq_along(leftcols)) {
-    if (i == 1) {
-      if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
-        x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
-      else
-        x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels))
+  if (lsel) {
+    for (i in seq_along(leftcols)) {
+      if (i == 1) {
+        if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
+          x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
+        else
+          x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels))
+      }
+      else {
+        if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
+          x1 <- unit.c(x1,
+                       colgap.left,
+                       wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
+        else
+          x1 <- unit.c(x1,
+                       if (leftcols[[i - 1]] == "col.studlab")
+                         colgap.studlab
+                       else colgap.left,
+                       wcalc(cols.calc[[leftcols[i]]]$labels))
+      }
     }
-    else {
-      if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
-        x1 <- unit.c(x1,
-                     colgap.left,
-                     wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
-      else
-        x1 <- unit.c(x1,
-                     if (leftcols[[i - 1]] == "col.studlab")
-                       colgap.studlab
-                     else colgap.left,
-                     wcalc(cols.calc[[leftcols[i]]]$labels))
-    }
+    ##
+    x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
   }
-  ##
-  x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
+  else
+    x1 <- unit.c(col.forestwidth)
   ##
   if (rsel) {
     for (i in seq_along(rightcols)) {
@@ -8289,145 +8287,147 @@ forest.meta <- function(x,
   ##
   j <- 1
   ##
-  for (i in seq_along(leftcols)) {
-    add.text(cols[[leftcols[i]]], j)
-    ##
-    if (!is.na(yHeadadd)) {
-      if (!is.null(label.e.attach)) {
-        if (leftcols[i] == paste0("col.", label.e.attach))
-          add.text(col.label.e, j)
-      }
-      else if (metabin) {
-        if (leftcols[i] == "col.n.e" & just.c == "right")
-          add.text(col.label.e, j)
-        else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
-          add.text(col.label.e, j)
-      }
-      else if (metacont) {
-        if (leftcols[i] == "col.sd.e" & just.c == "right")
-          add.text(col.label.e, j)
-        else if (leftcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
-          add.text(col.label.e, j)
-      }
-      else if (metainc) {
-        if (leftcols[i] == "col.time.e" & just.c == "right")
-          add.text(col.label.e, j)
-        else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
-          add.text(col.label.e, j)
-      }
-      else if (metamean) {
-        if (revman5 & leftcols[i] == "col.n.e" & just.c == "right")
-          add.text(col.label.e, j)
-        else if (!revman5 & leftcols[i] == "col.sd.e" & just.c == "right")
-          add.text(col.label.e, j)
-        else if (leftcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
-          add.text(col.label.e, j)
-      }
+  if (lsel) {
+    for (i in seq_along(leftcols)) {
+      add.text(cols[[leftcols[i]]], j)
       ##
-      if (!is.null(label.c.attach)) {
-        if (leftcols[i] == paste0("col.", label.c.attach))
-          add.text(col.label.c, j)
-      }
-      else if (metabin) {
-        if (leftcols[i] == "col.n.c" & just.c == "right")
-          add.text(col.label.c, j)
-        else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
-          add.text(col.label.c, j)
-      }
-      else if (metacont) {
-        if (leftcols[i] == "col.sd.c" & just.c == "right")
-          add.text(col.label.c, j)
-        else if (leftcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
-          add.text(col.label.c, j)
-      }
-      else if (metainc) {
-        if (leftcols[i] == "col.time.c" & just.c == "right")
-          add.text(col.label.c, j)
-        else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
-          add.text(col.label.c, j)
-      }
-      ##
-      if (newline.studlab & leftcols[i] == "col.studlab")
-        add.text(col.add.studlab, j)
-      if (newline.effect & leftcols[i] == "col.effect")
-        add.text(col.add.effect, j)
-      if (newline.ci & leftcols[i] == "col.ci")
-        add.text(col.add.ci, j)
-      if (newline.effect.ci & leftcols[i] == "col.effect.ci")
-        add.text(col.add.effect.ci, j)
-      if (newline.w.fixed & leftcols[i] == "col.w.fixed")
-        add.text(col.add.w.fixed, j)
-      if (newline.w.random & leftcols[i] == "col.w.random")
-        add.text(col.add.w.random, j)
-      if (newline.TE & leftcols[i] == "col.TE")
-        add.text(col.add.TE, j)
-      if (newline.seTE & leftcols[i] == "col.seTE")
-        add.text(col.add.seTE, j)
-      if (newline.cluster & leftcols[i] == "col.cluster")
-        add.text(col.add.cluster, j)
-      if (newline.n.e & leftcols[i] == "col.n.e")
-        add.text(col.add.n.e, j)
-      if (newline.n.c & leftcols[i] == "col.n.c")
-        add.text(col.add.n.c, j)
-      if (newline.event.e & leftcols[i] == "col.event.e")
-        add.text(col.add.event.e, j)
-      if (newline.event.c & leftcols[i] == "col.event.c")
-        add.text(col.add.event.c, j)
-      if (newline.mean.e & leftcols[i] == "col.mean.e")
-        add.text(col.add.mean.e, j)
-      if (newline.mean.c & leftcols[i] == "col.mean.c")
-        add.text(col.add.mean.c, j)
-      if (newline.sd.e & leftcols[i] == "col.sd.e")
-        add.text(col.add.sd.e, j)
-      if (newline.sd.c & leftcols[i] == "col.sd.c")
-        add.text(col.add.sd.c, j)
-      if (newline.cor & leftcols[i] == "col.cor")
-        add.text(col.add.cor, j)
-      if (newline.time.e & leftcols[i] == "col.time.e")
-        add.text(col.add.time.e, j)
-      if (newline.time.c & leftcols[i] == "col.time.c")
-        add.text(col.add.time.c, j)
-      ##
-      if (metainf.metacum) {
-        if (newline.pval & leftcols[i] == "col.pval")
-          add.text(col.add.pval, j)
-        if (newline.tau2 & leftcols[i] == "col.tau2")
-          add.text(col.add.tau2, j)
-        if (newline.tau & leftcols[i] == "col.tau")
-          add.text(col.add.tau, j)
-        if (newline.I2 & leftcols[i] == "col.I2")
-          add.text(col.add.I2, j)
-      }
-      ##
-      ## Add text in first line of forest plot for new columns
-      ##
-      if (newcols)
-        if (length(leftcols.new) > 0 &
-            leftcols[i] %in% paste0("col.", leftcols.new)) {
-          sel <- paste0("col.", leftcols.new) == leftcols[i]
-          ##
-          ## Check for "\n" in label of new column
-          ##
-          clines <- twolines(leftlabs.new[sel], leftcols[i])
-          ##
-          just.new <- just.addcols.left[sel]
-          ##
-          if (just.new == "left")
-            xpos.new <- 0
-          else if (just.new == "center")
-            xpos.new <- 0.5
-          else if (just.new == "right")
-            xpos.new <- 1
-          ##
-          ## Add first line
-          ##
-          if (clines$newline)
-            add.text(tgl(clines$top, xpos.new, just.new, fs.head, ff.head,
-                         fontfamily), j)
+      if (!is.na(yHeadadd)) {
+        if (!is.null(label.e.attach)) {
+          if (leftcols[i] == paste0("col.", label.e.attach))
+            add.text(col.label.e, j)
         }
+        else if (metabin) {
+          if (leftcols[i] == "col.n.e" & just.c == "right")
+            add.text(col.label.e, j)
+          else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+            add.text(col.label.e, j)
+        }
+        else if (metacont) {
+          if (leftcols[i] == "col.sd.e" & just.c == "right")
+            add.text(col.label.e, j)
+          else if (leftcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
+            add.text(col.label.e, j)
+        }
+        else if (metainc) {
+          if (leftcols[i] == "col.time.e" & just.c == "right")
+            add.text(col.label.e, j)
+          else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+            add.text(col.label.e, j)
+        }
+        else if (metamean) {
+          if (revman5 & leftcols[i] == "col.n.e" & just.c == "right")
+            add.text(col.label.e, j)
+          else if (!revman5 & leftcols[i] == "col.sd.e" & just.c == "right")
+            add.text(col.label.e, j)
+          else if (leftcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
+            add.text(col.label.e, j)
+        }
+        ##
+        if (!is.null(label.c.attach)) {
+          if (leftcols[i] == paste0("col.", label.c.attach))
+            add.text(col.label.c, j)
+        }
+        else if (metabin) {
+          if (leftcols[i] == "col.n.c" & just.c == "right")
+            add.text(col.label.c, j)
+          else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+            add.text(col.label.c, j)
+        }
+        else if (metacont) {
+          if (leftcols[i] == "col.sd.c" & just.c == "right")
+            add.text(col.label.c, j)
+          else if (leftcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
+            add.text(col.label.c, j)
+        }
+        else if (metainc) {
+          if (leftcols[i] == "col.time.c" & just.c == "right")
+            add.text(col.label.c, j)
+          else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+            add.text(col.label.c, j)
+        }
+        ##
+        if (newline.studlab & leftcols[i] == "col.studlab")
+          add.text(col.add.studlab, j)
+        if (newline.effect & leftcols[i] == "col.effect")
+          add.text(col.add.effect, j)
+        if (newline.ci & leftcols[i] == "col.ci")
+          add.text(col.add.ci, j)
+        if (newline.effect.ci & leftcols[i] == "col.effect.ci")
+          add.text(col.add.effect.ci, j)
+        if (newline.w.fixed & leftcols[i] == "col.w.fixed")
+          add.text(col.add.w.fixed, j)
+        if (newline.w.random & leftcols[i] == "col.w.random")
+          add.text(col.add.w.random, j)
+        if (newline.TE & leftcols[i] == "col.TE")
+          add.text(col.add.TE, j)
+        if (newline.seTE & leftcols[i] == "col.seTE")
+          add.text(col.add.seTE, j)
+        if (newline.cluster & leftcols[i] == "col.cluster")
+          add.text(col.add.cluster, j)
+        if (newline.n.e & leftcols[i] == "col.n.e")
+          add.text(col.add.n.e, j)
+        if (newline.n.c & leftcols[i] == "col.n.c")
+          add.text(col.add.n.c, j)
+        if (newline.event.e & leftcols[i] == "col.event.e")
+          add.text(col.add.event.e, j)
+        if (newline.event.c & leftcols[i] == "col.event.c")
+          add.text(col.add.event.c, j)
+        if (newline.mean.e & leftcols[i] == "col.mean.e")
+          add.text(col.add.mean.e, j)
+        if (newline.mean.c & leftcols[i] == "col.mean.c")
+          add.text(col.add.mean.c, j)
+        if (newline.sd.e & leftcols[i] == "col.sd.e")
+          add.text(col.add.sd.e, j)
+        if (newline.sd.c & leftcols[i] == "col.sd.c")
+          add.text(col.add.sd.c, j)
+        if (newline.cor & leftcols[i] == "col.cor")
+          add.text(col.add.cor, j)
+        if (newline.time.e & leftcols[i] == "col.time.e")
+          add.text(col.add.time.e, j)
+        if (newline.time.c & leftcols[i] == "col.time.c")
+          add.text(col.add.time.c, j)
+        ##
+        if (metainf.metacum) {
+          if (newline.pval & leftcols[i] == "col.pval")
+            add.text(col.add.pval, j)
+          if (newline.tau2 & leftcols[i] == "col.tau2")
+            add.text(col.add.tau2, j)
+          if (newline.tau & leftcols[i] == "col.tau")
+            add.text(col.add.tau, j)
+          if (newline.I2 & leftcols[i] == "col.I2")
+            add.text(col.add.I2, j)
+        }
+        ##
+        ## Add text in first line of forest plot for new columns
+        ##
+        if (newcols)
+          if (length(leftcols.new) > 0 &
+              leftcols[i] %in% paste0("col.", leftcols.new)) {
+            sel <- paste0("col.", leftcols.new) == leftcols[i]
+            ##
+            ## Check for "\n" in label of new column
+            ##
+            clines <- twolines(leftlabs.new[sel], leftcols[i])
+            ##
+            just.new <- just.addcols.left[sel]
+            ##
+            if (just.new == "left")
+              xpos.new <- 0
+            else if (just.new == "center")
+              xpos.new <- 0.5
+            else if (just.new == "right")
+              xpos.new <- 1
+            ##
+            ## Add first line
+            ##
+            if (clines$newline)
+              add.text(tgl(clines$top, xpos.new, just.new, fs.head, ff.head,
+                           fontfamily), j)
+          }
+      }
+      ##
+      j <- j + 2
     }
-    ##
-    j <- j + 2
   }
   ##
   ## Produce forest plot
