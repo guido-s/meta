@@ -1307,10 +1307,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
-    if (!missing.exclude)
-      exclude <- exclude[subset]
-    if (with.cluster)
-      cluster <- cluster[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (!missing.median.e)
       median.e <- median.e[subset]

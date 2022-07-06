@@ -1004,9 +1004,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (with.cluster)
-      data$.id <- data$.cluster <- cluster
-    ##
     if (!null.n.e)
       data$.n.e <- n.e
     if (!null.n.e)

@@ -778,10 +778,8 @@ metacor <- function(cor, n, studlab,
     cor <- cor[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
-    if (!missing.exclude)
-      exclude <- exclude[subset]
-    if (with.cluster)
-      cluster <- cluster[subset]
+    ##
+    exclude <- exclude[subset]
     ##
     if (by)
       subgroup <- subgroup[subset]

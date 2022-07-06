@@ -22,6 +22,7 @@
   variance meta-analysis (instead of taking it from **metafor**
   package)
 
+
 ### Bug fixes
 
 * Use correct standard error for Cox and Snell's method in smd2or()

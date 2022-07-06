@@ -1008,15 +1008,24 @@ side of the forest plot}}:
 }
 
 For three-level models, the cluster variable is printed next to the
-study labels (value \code{"cluster"} in argument leftcols).
+study labels (value \code{"cluster"} in argument \code{leftcols}).
 
-Note, \code{"studlab"} \bold{must be provided for study labels} in
-argument \code{leftcols} or \code{rightcols} instead of the
-variable name used in the meta-analysis command. If, for example,
-\code{"study"} is provided in argument \code{leftcols} as this
-variable was used to define study labels in the meta-analysis
-function, this variable will be treated as an additional variable,
-not as study labels.
+By default, study labels and labels for pooled estimates and
+heterogeneity statistics will be printed in the first column on the
+left side of the forest plot. The character string \code{"studlab"}
+is used to identify study labels as this is the name of the list
+element of a meta-analysis object.
+
+If the character string \code{"studlab"} is not provided in
+\code{leftcols} and \code{rightcols}, the first \emph{additional}
+variable specified by the user is used as study labels (and labels
+for pooled estimates are printed in this column). Additional
+variables are any variables not mentioned in the section on
+predefined column names below. For example, \code{leftcols =
+"studlab"} and \code{leftcols = "study"} would result in the same
+forest plot if the variable \code{"study"} was used in the command
+to conduct the meta-analysis. If no additional variable is provided
+by the user, no study labels will be printed.
 }
 
 \subsection{Overlapping information on left side of forest plot}{
@@ -1069,7 +1078,7 @@ information corresponds to the printout with
 \code{\link{print.meta}}.
 }
 
-\subsection{Column names}{
+\subsection{Predefined column names}{
 
 The arguments \code{leftlabs} and \code{rightlabs} can be used to
 specify column headings which are printed on left or right side of

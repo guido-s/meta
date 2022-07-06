@@ -1392,8 +1392,9 @@ metagen <- function(TE, seTE, studlab,
     TE <- TE[subset]
     seTE <- seTE[subset]
     studlab <- studlab[subset]
-    if (!missing.exclude)
-      exclude <- exclude[subset]
+    ##
+    exclude <- exclude[subset]
+    ##
     if (with.cluster) {
       cluster <- cluster[subset]
       idx <- idx[subset]

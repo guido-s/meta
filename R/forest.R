@@ -574,15 +574,24 @@
 #' }
 #'
 #' For three-level models, the cluster variable is printed next to the
-#' study labels (value \code{"cluster"} in argument leftcols).
+#' study labels (value \code{"cluster"} in argument \code{leftcols}).
 #'
-#' Note, \code{"studlab"} \bold{must be provided for study labels} in
-#' argument \code{leftcols} or \code{rightcols} instead of the
-#' variable name used in the meta-analysis command. If, for example,
-#' \code{"study"} is provided in argument \code{leftcols} as this
-#' variable was used to define study labels in the meta-analysis
-#' function, this variable will be treated as an additional variable,
-#' not as study labels.
+#' By default, study labels and labels for pooled estimates and
+#' heterogeneity statistics will be printed in the first column on the
+#' left side of the forest plot. The character string \code{"studlab"}
+#' is used to identify study labels as this is the name of the list
+#' element of a meta-analysis object.
+#'
+#' If the character string \code{"studlab"} is not provided in
+#' \code{leftcols} and \code{rightcols}, the first \emph{additional}
+#' variable specified by the user is used as study labels (and labels
+#' for pooled estimates are printed in this column). Additional
+#' variables are any variables not mentioned in the section on
+#' predefined column names below. For example, \code{leftcols =
+#' "studlab"} and \code{leftcols = "study"} would result in the same
+#' forest plot if the variable \code{"study"} was used in the command
+#' to conduct the meta-analysis. If no additional variable is provided
+#' by the user, no study labels will be printed.
 #' }
 #' 
 #' \subsection{Overlapping information on left side of forest plot}{
@@ -635,7 +644,7 @@
 #' \code{\link{print.meta}}.
 #' }
 #'
-#' \subsection{Column names}{
+#' \subsection{Predefined column names}{
 #' 
 #' The arguments \code{leftlabs} and \code{rightlabs} can be used to
 #' specify column headings which are printed on left or right side of
@@ -1342,6 +1351,15 @@ forest.meta <- function(x,
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
      metaprop | metarate | metainf.metacum)
+  
+  
+  ##
+  ##
+  ## (2) Determine columns on left and right side of forest plot
+  ##
+  ##
+  missing.leftcols <- missing(leftcols)
+  missing.rightcols <- missing(rightcols)
   ##
   by <- !is.null(x$subgroup)
   ##
@@ -1349,11 +1367,163 @@ forest.meta <- function(x,
     n.by <- length(x$bylevs)
   else
     n.by <- 0
+  ##
+  layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
+  if (layout == "subgroup" & is.null(x$subgroup)) {
+    warning("Argument 'layout' set to \"meta\" (default) as ",
+            "no subgroup analysis was conducted.")
+    layout <- "meta"
+  }
+  if (layout == "subgroup") {
+    if (missing(type.subgroup))
+      type.subgroup <- "square"
+    if (missing(type.subgroup.fixed))
+      type.subgroup.fixed <- "square"
+    if (missing(type.subgroup.random))
+      type.subgroup.random <- "square"
+    ##
+    if (missing(pooled.totals))
+      pooled.totals <- FALSE
+  }
+  revman5 <- layout == "RevMan5"
+  jama <- layout == "JAMA"
+  revman5.jama <- revman5 | jama
+  ##
+  lsel <- TRUE
+  if (is.logical(leftcols)) {
+    if (!leftcols)
+      lsel <- FALSE
+    ##
+    leftcols <- NULL
+  }
+  ##
+  rsel <- !(is.logical(rightcols) && length(rightcols) == 1 && !rightcols)
+  if (revman5.jama)
+    rsel <- FALSE
+  ##
+  if (!rsel)
+    rightcols <- NULL
+  ##
+  ## Check for duplicate columns
+  ##
+  if (length(c(rightcols, leftcols)) > 0 &&
+      any(duplicated(c(rightcols, leftcols))))
+    stop("Duplicate entries in 'leftcols' and 'rightcols'.")
+  ##
+  colnames <- c("studlab",
+                "TE", "seTE",
+                "cluster",
+                "n.e", "n.c",
+                "event.e", "event.c",
+                "mean.e", "mean.c",
+                "sd.e", "sd.c",
+                "cor",
+                "time.e", "time.c",
+                "effect", "ci",
+                "effect.ci",
+                "w.fixed", "w.random")
+  ##
+  if (metainf.metacum)
+    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
+  ##
+  ## If any of the following list elements is NULL, these 'special'
+  ## variable names are searched for in original data set (i.e., list
+  ## element x$data)
+  ##
+  colnames.notNULL <- colnames
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cluster")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.c")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cor")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.e")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.c")
+  ##
+  ## Identify and process columns in addition to columns
+  ## defined above in variable 'colnames'
+  ##
+  colnames.new <-
+    c(leftcols, rightcols)[!c(leftcols, rightcols) %in% colnames.notNULL]
+  ##
+  newcols <- length(colnames.new) > 0
+  ##
+  withstudlab <-
+    (lsel & missing(leftcols)) |
+    (lsel & !missing(leftcols) & "studlab" %in% leftcols) |
+    (rsel & !missing(rightcols) & "studlab" %in% rightcols)
+  ##
+  if (!withstudlab || newcols) {
+    dataset2 <- as.data.frame(x)
+    ##
+    if (!is.null(x$data))
+      dataset1 <- x$data
+    else if (!is.null(x$x$data))
+      dataset1 <- x$x$data
+    else
+      dataset1 <- dataset2
+    ##
+    if (!is.null(x$subset))
+      dataset1 <- dataset1[x$subset, ]
+    ##
+    if (!withstudlab && newcols) {
+      ##
+      ## Check whether first additional variable is part of
+      ## meta-object
+      ##
+      firstvar <- colnames.new[1]
+      colnames.new <- colnames.new[-1]
+      newcols <- length(colnames.new) > 0
+      ##
+      if (length(dataset1[[firstvar]]) == 0 &
+          length(dataset2[[firstvar]]) == 0)
+        stop("Variable '", firstvar, "' not available in '",
+             x.name, "'.",
+             call. = FALSE)
+      else {        
+        if (length(dataset1[[firstvar]]) != 0)
+         studlab.new <- dataset1[[firstvar]]
+        else if (length(dataset2[[firstvar]]) != 0)
+          studlab.new <- dataset2[[firstvar]]
+        ##
+        if (metainf.metacum)
+          studlab.new <- c(studlab.new, "", rev(x$studlab)[1])
+        ##
+        if (length(x$studlab) != length(studlab.new))
+          stop("Variable '", firstvar, "' has different length ",
+               "than list element '", x.name, "' with study labels.",
+               call. = FALSE)
+        ##
+        x$studlab <- studlab.new
+        switch.l <- leftcols == firstvar
+        switch.r <- rightcols == firstvar
+        if (any(switch.l))
+          leftcols[switch.l] <- "studlab"
+        if (any(switch.r))
+          rightcols[switch.r] <- "studlab"
+        ##
+      }
+    }
+  }
+  ##
+  if (newcols) {
+    ##
+    ## Determine labels for new columns
+    ## 1. Use column name as label if no label is given
+    ## 2. Otherwise use specified labels
+    ##
+    rightcols.new <- rightcols[!rightcols %in% colnames.notNULL]
+    leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
+  }
   
   
   ##
   ##
-  ## (2) Check other arguments
+  ## (3) Check other arguments
   ##
   ##
   sfsp <- sys.frame(sys.parent())
@@ -1605,27 +1775,6 @@ forest.meta <- function(x,
     stop("Value for 'lower.equi' must be smaller than 'upper.equi'.")
   chknumeric(lty.equi)
   chkcolor(col.equi)
-  ##
-  layout <- setchar(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
-  if (layout == "subgroup" & is.null(x$subgroup)) {
-    warning("Argument 'layout' set to \"meta\" (default) as ",
-            "no subgroup analysis was conducted.")
-    layout <- "meta"
-  }
-  if (layout == "subgroup") {
-    if (missing(type.subgroup))
-      type.subgroup <- "square"
-    if (missing(type.subgroup.fixed))
-      type.subgroup.fixed <- "square"
-    if (missing(type.subgroup.random))
-      type.subgroup.random <- "square"
-    ##
-    if (missing(pooled.totals))
-      pooled.totals <- FALSE
-  }
-  revman5 <- layout == "RevMan5"
-  jama <- layout == "JAMA"
-  revman5.jama <- revman5 | jama
   ##
   type.study <- setchar(type.study, c("square", "diamond", "predict"))
   type.fixed <- setchar(type.fixed, c("square", "diamond", "predict"))
@@ -2052,7 +2201,7 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (3) Check length of variables
+  ## (4) Check length of variables
   ##
   ##
   fun <- "forest.meta"
@@ -2082,7 +2231,7 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (4) Some assignments and additional checks
+  ## (5) Some assignments and additional checks
   ##
   ##
   prediction <- prediction & !is.na(x$lower.predict) & !is.na(x$upper.predict)
@@ -2207,15 +2356,6 @@ forest.meta <- function(x,
       test.overall.fixed <- FALSE
     if (test.overall.random)
       test.overall.random <- FALSE
-  }
-  ##
-  missing.leftcols <- missing(leftcols)
-  lsel <- TRUE
-  if (is.logical(leftcols)) {
-    if (!leftcols)
-      lsel <- FALSE
-    ##
-    leftcols <- NULL
   }
   ##
   ## Add space for heterogeneity statistics (if needed)
@@ -2382,26 +2522,8 @@ forest.meta <- function(x,
   
   ##
   ##
-  ## (5) Determine columns on left and right side of forest plot
+  ## (6) Labels for columns on left and right side of forest plot
   ##
-  ##
-  ## Determine whether to print columns on right and / or left side
-  ## of forest plot
-  ##
-  rsel <- !(is.logical(rightcols) && length(rightcols) == 1 && !rightcols)
-  if (revman5.jama)
-    rsel <- FALSE
-  ##
-  if (!rsel)
-    rightcols <- NULL
-  ##
-  ## Check for duplicate columns
-  ##
-  if (length(c(rightcols, leftcols)) > 0 &&
-      any(duplicated(c(rightcols, leftcols))))
-    stop("Duplicate entries in 'leftcols' and 'rightcols'.")
-  ##
-  ## Predefined columns and labels
   ##
   sm.lab <- sm
   ##
@@ -2428,22 +2550,6 @@ forest.meta <- function(x,
   else 
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
-  ##
-  colnames <- c("studlab",
-                "TE", "seTE",
-                "cluster",
-                "n.e", "n.c",
-                "event.e", "event.c",
-                "mean.e", "mean.c",
-                "sd.e", "sd.c",
-                "cor",
-                "time.e", "time.c",
-                "effect", "ci",
-                "effect.ci",
-                "w.fixed", "w.random")
-  ##
-  if (metainf.metacum)
-    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
   ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <- c("Study", "Study", "Source", "Subgroup")[sel.studlab]
@@ -2561,56 +2667,7 @@ forest.meta <- function(x,
   if (metainf.metacum)
     labnames <- c(labnames, "P-value", "Tau2", "Tau", "I2")
   ##
-  ## If any of the following list elements is NULL, these 'special'
-  ## variable names are searched for in original data set (i.e., list
-  ## element x$data)
-  ##
-  colnames.notNULL <- colnames
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cluster")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.c")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.e")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.c")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.e")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "mean.c")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.e")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "sd.c")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cor")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.e")
-  colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.c")
-  ##
-  ## Identify and process columns in addition to columns
-  ## defined above in variables 'colnames' and 'labnames'
-  ##
-  colnames.new <-
-    c(rightcols, leftcols)[!c(rightcols, leftcols) %in% colnames.notNULL]
-  ##
-  newcols <- length(colnames.new) > 0
-  ##
   if (newcols) {
-    dataset2 <- as.data.frame(x)
-    ##
-    if (is.null(x$data))
-      dataset1 <- dataset2
-    else
-      dataset1 <- x$data
-    ##
-    if (!is.null(x$subset))
-      dataset1 <- dataset1[x$subset, ]
-    ##
-    ## Check whether additional variables are
-    ## part of meta-object
-    ##
-    for (i in colnames.new)
-      if (length(dataset1[[i]]) == 0 & length(dataset2[[i]]) == 0)
-        stop("Variable '", i, "' not available in '", x.name, "'.")
-    ##
-    rightcols.new <- rightcols[!rightcols %in% colnames.notNULL]
-    leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
-    ##
-    ## Determine labels for new columns
-    ## 1. Use column name as label if no label is given
-    ## 2. Otherwise use specified labels
     ##
     if (length(rightcols.new) > 0) {
       if (missing(rightlabs)) {
@@ -2660,7 +2717,7 @@ forest.meta <- function(x,
               if (!is.na(match2.i))
                 rightlabs.new[i] <- labnames[match2.i]
               else if (rightcols.new[i] == "pval")
-                rightlabs.new[i] <- "P-value"
+                  rightlabs.new[i] <- "P-value"
               else if (rightcols.new[i] == "tau2")
                 rightlabs.new[i] <- "Tau2"
               else if (rightcols.new[i] == "tau")
@@ -2679,7 +2736,7 @@ forest.meta <- function(x,
         ##
         if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
           leftlabs.new[leftlabs.new == "n"] <- "Total"
-        ##
+          ##
         if (metamean & any(leftcols.new == "mean"))
           leftlabs.new[leftlabs.new == "mean"] <- "Mean"
         ##
@@ -2688,13 +2745,13 @@ forest.meta <- function(x,
         ##
         if (metarate & any(leftcols.new == "time"))
           leftlabs.new[leftlabs.new == "time"] <- "Time"
-        ##
+          ##
         if (any(leftcols.new == "pval"))
           leftlabs.new[leftlabs.new == "pval"] <- "P-value"
         ##
         if (any(leftcols.new == "tau2"))
           leftlabs.new[leftlabs.new == "tau2"] <- "Tau2"
-        ##
+          ##
         if (any(leftcols.new == "tau"))
           leftlabs.new[leftlabs.new == "tau"] <- "Tau"
         ##
@@ -2702,7 +2759,7 @@ forest.meta <- function(x,
           leftlabs.new[leftlabs.new == "I2"] <- "I2"
         ##
         if (three.level & any(leftcols.new == "cluster"))
-          leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
+            leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
       }
       else {
         if (length(leftcols.new) == length(leftlabs))
