@@ -1378,10 +1378,11 @@ forest.meta <- function(x,
             "no subgroup analysis was conducted.")
     layout <- "meta"
   }
+  missing.type.subgroup.common <- missing(type.subgroup.common)
   if (layout == "subgroup") {
     if (missing(type.subgroup))
       type.subgroup <- "square"
-    if (missing(type.subgroup.common))
+    if (missing.type.subgroup.common)
       type.subgroup.common <- "square"
     if (missing(type.subgroup.random))
       type.subgroup.random <- "square"
@@ -1753,6 +1754,8 @@ forest.meta <- function(x,
     chknumeric(lty.common, length = 1)
   if (!is.null(lty.random))
     chknumeric(lty.random, length = 1)
+  col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
+                           warn.deprecated)
   chkcolor(col.common, length = 1)
   chkcolor(col.random, length = 1)
   chklogical(prediction)
@@ -1922,6 +1925,10 @@ forest.meta <- function(x,
   }
   chkchar(resid.hetlab)
   ##
+  test.overall.common <-
+    deprecated(test.overall.common, missing(test.overall.common),
+               args, "test.overall.fixed",
+               warn.deprecated)
   chklogical(test.overall.common)
   chklogical(test.overall.random)
   ##
@@ -1939,7 +1946,7 @@ forest.meta <- function(x,
   chknumeric(fs.heading, length = 1)
   ##
   missing.fs.common <- missing(fs.common)
-  missing.fs.fixed <- is.na(argid(args, "fs.fixed"))
+  missing.fs.fixed <- is.na(argid(names(args), "fs.fixed"))
   if (!missing.fs.fixed) {
     fs.common <-
       deprecated(fs.common, missing.fs.common, args, "fs.fixed",
@@ -1955,7 +1962,7 @@ forest.meta <- function(x,
     chknumeric(fs.predict, length = 1)
   ##
   missing.fs.common.labels <- missing(fs.common.labels)
-  missing.fs.fixed.labels <- is.na(argid(args, "fs.fixed.labels"))
+  missing.fs.fixed.labels <- is.na(argid(names(args), "fs.fixed.labels"))
   if (!missing.fs.fixed.labels) {
     fs.common.labels <-
       deprecated(fs.common.labels, missing.fs.common.labels,
@@ -1990,7 +1997,7 @@ forest.meta <- function(x,
   chknumeric(fs.lr, length = 1)
   ##
   missing.ff.common <- missing(ff.common)
-  missing.ff.fixed <- is.na(argid(args, "ff.fixed"))
+  missing.ff.fixed <- is.na(argid(names(args), "ff.fixed"))
   if (!missing.ff.fixed) {
     ff.common <-
       deprecated(ff.common, missing.ff.common, args, "ff.fixed",
@@ -1999,7 +2006,7 @@ forest.meta <- function(x,
   }
   ##
   missing.ff.common.labels <- missing(ff.common.labels)
-  missing.ff.fixed.labels <- is.na(argid(args, "ff.fixed.labels"))
+  missing.ff.fixed.labels <- is.na(argid(names(args), "ff.fixed.labels"))
   if (!missing.ff.fixed.labels) {
     ff.common.labels <-
       deprecated(ff.common.labels, missing.ff.common.labels,
@@ -2128,13 +2135,13 @@ forest.meta <- function(x,
   chkcolor(col.inside.common)
   chkcolor(col.inside.random)
   ##
-  if (!is.na(argid(args, "col.diamond.lines.fixed"))) {
+  if (!is.na(argid(names(args), "col.diamond.lines.fixed"))) {
     col.diamond.lines.common <-
       deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
                  args, "col.diamond.lines.fixed",
                  warn.deprecated)
   }
-  else if (!is.na(argid(args, "col.diamond.fixed.lines"))) {
+  else if (!is.na(argid(names(args), "col.diamond.fixed.lines"))) {
     col.diamond.lines.common <-
       deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
                  args, "col.diamond.fixed.lines",
@@ -2347,7 +2354,7 @@ forest.meta <- function(x,
   }
   ##
   missing.text.common <- missing(text.common)
-  missing.text.fixed <- is.na(argid(args, "text.fixed"))
+  missing.text.fixed <- is.na(argid(names(args), "text.fixed"))
   if (!missing.text.fixed) {
     text.common <-
       deprecated(text.common, missing.text.common, args, "text.fixed",
@@ -2557,7 +2564,7 @@ forest.meta <- function(x,
   ##
   missing.label.test.overall.common <- missing(label.test.overall.common)
   missing.label.test.overall.fixed <-
-    is.na(argid(args, "label.test.overall.fixed"))
+    is.na(argid(names(args), "label.test.overall.fixed"))
   if (!missing.label.test.overall.fixed) {
     label.test.overall.common <-
       deprecated(label.test.overall.common, missing.label.test.overall.common,
@@ -2580,7 +2587,7 @@ forest.meta <- function(x,
   ##
   missing.label.test.subgroup.common <- missing(label.test.subgroup.common)
   missing.label.test.subgroup.fixed <-
-    is.na(argid(args, "label.test.subgroup.fixed"))
+    is.na(argid(names(args), "label.test.subgroup.fixed"))
   if (!missing.label.test.subgroup.fixed) {
     label.test.subgroup.common <-
       deprecated(label.test.subgroup.common,
@@ -2605,7 +2612,7 @@ forest.meta <- function(x,
   missing.label.test.effect.subgroup.common <-
     missing(label.test.effect.subgroup.common)
   missing.label.test.effect.subgroup.fixed <-
-    is.na(argid(args, "label.test.effect.subgroup.fixed"))
+    is.na(argid(names(args), "label.test.effect.subgroup.fixed"))
   if (!missing.label.test.effect.subgroup.fixed) {
     label.test.effect.subgroup.common <-
       deprecated(label.test.effect.subgroup.common,
@@ -2687,7 +2694,7 @@ forest.meta <- function(x,
     ci.lab <- paste0(100 * level.ma, "%", cisep, "CI")
   ##
   missing.col.diamond.common <- missing(col.diamond.common)
-  missing.col.diamond.fixed <- is.na(argid(args, "col.diamond.fixed"))
+  missing.col.diamond.fixed <- is.na(argid(names(args), "col.diamond.fixed"))
   if (!missing.col.diamond.fixed) {
     col.diamond.common <-
       deprecated(col.diamond.common, missing.col.diamond.common,
@@ -5062,7 +5069,7 @@ forest.meta <- function(x,
       w.common.w.p <- rep(NA, n.by)
       ##
       missing.text.common.w <- missing(text.common.w)
-      missing.text.common.w <- is.na(argid(args, "text.common.w"))
+      missing.text.common.w <- is.na(argid(names(args), "text.common.w"))
       if (!missing.text.common.w) {
         text.common.w <-
           deprecated(text.common.w, missing.text.common.w, args,
@@ -6613,7 +6620,7 @@ forest.meta <- function(x,
                warn.deprecated)
   ##
   type.subgroup.common <-
-    deprecated(type.subgroup.common, missing(type.subgroup.common),
+    deprecated(type.subgroup.common, missing.type.subgroup.common,
                args, "type.subgroup.common",
                warn.deprecated)
   ##
