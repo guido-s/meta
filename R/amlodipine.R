@@ -38,8 +38,10 @@
 #' @examples
 #' data(amlodipine)
 #' 
-#' m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
-#'   data = amlodipine, studlab = study)
+#' m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+#'   n.plac, mean.plac, sqrt(var.plac),
+#'   data = amlodipine, studlab = study,
+#'   method.tau = "DL")
 #' m.hakn <- update(m, hakn = TRUE)
 #' 
 #' # Same results for mean difference as in Table III in Hartung and

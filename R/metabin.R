@@ -67,7 +67,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
-#' @param fixed A logical indicating whether a common effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -117,13 +117,13 @@
 #'   odds ratios and log risk ratios will be shown.
 #' @param pscale A numeric defining a scaling factor for printing of
 #'   risk differences.
-#' @param text.fixed A character string used in printouts and forest
+#' @param text.common A character string used in printouts and forest
 #'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
+#' @param text.w.common A character string used to label weights of
 #'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
@@ -195,7 +195,7 @@
 #' \subsection{Meta-analysis method}{
 #' 
 #' By default, both common effect (also called common effect) and
-#' random effects models are considered (see arguments \code{fixed}
+#' random effects models are considered (see arguments \code{common}
 #' and \code{random}). If \code{method} is \code{"MH"} (default), the
 #' Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
 #' 1986) is used to calculate the common effect estimate; if
@@ -439,12 +439,12 @@
 #' 
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{fixed} and \code{random}. Accordingly, the estimate
+#' \code{common} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
 #' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{fixed} and \code{random}. E.g. function
+#' \code{common} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{random = FALSE}.
 #' }
@@ -459,7 +459,7 @@
 #' \item{sm, method, incr, method.incr,}{As defined above.}
 #' \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
 #'   defined above.}
-#' \item{warn, level, level.ma, fixed, random,}{As defined
+#' \item{warn, level, level.ma, common, random,}{As defined
 #'   above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -475,14 +475,14 @@
 #'   individual studies.}
 #' \item{zval, pval}{z-value and p-value for test of treatment effect
 #'   for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in common
+#' \item{w.common, w.random}{Weight of individual studies (in common
 #'   effect and random effects model).}
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect,
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect,
 #'   e.g., log risk ratio or risk difference, and standard error
 #'   (common effect model).}
-#' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+#' \item{lower.common, upper.common}{Lower and upper confidence interval
 #'   limits (common effect model).}
-#' \item{statistic.fixed, pval.fixed}{z-value and p-value for test of
+#' \item{statistic.common, pval.common}{z-value and p-value for test of
 #'   overall treatment effect (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect,
 #'   e.g., log risk ratio or risk difference, and standard error
@@ -538,12 +538,12 @@
 #'   Mantel-Haenszel method.}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
-#' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
+#' \item{TE.common.w, seTE.common.w}{Estimated treatment effect and
 #'   standard error in subgroups (common effect model) - if
-#'   \code{subgroup} is not missing.}  \item{lower.fixed.w,
-#'   upper.fixed.w}{Lower and upper confidence interval limits in
+#'   \code{subgroup} is not missing.}  \item{lower.common.w,
+#'   upper.common.w}{Lower and upper confidence interval limits in
 #'   subgroups (common effect model) - if \code{subgroup} is not missing.}
-#' \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
+#' \item{statistic.common.w, pval.common.w}{z-value and p-value for test
 #'   of treatment effect in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}  \item{TE.random.w,
 #'   seTE.random.w}{Estimated treatment effect and standard error in
@@ -555,7 +555,7 @@
 #' \item{statistic.random.w, pval.random.w}{z-value or t-value and
 #'   corresponding p-value for test of treatment effect in subgroups
 #'   (random effects model) - if \code{subgroup} is not missing.}
-#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in common effect
+#' \item{w.common.w, w.random.w}{Weight of subgroups (in common effect
 #'   and random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
@@ -572,20 +572,20 @@
 #'   \code{subgroup} is not missing.}
 #' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
-#' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
+#' \item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
 #'   (based on common effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+#' \item{pval.Q.w.common}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
-#' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
+#' \item{Q.b.common}{Overall between subgroups heterogeneity statistic
 #'   Q (based on common effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
@@ -593,7 +593,7 @@
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+#' \item{pval.Q.b.common}{P-value of between subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
@@ -616,7 +616,7 @@
 #'   \code{keepdata = TRUE}).}
 #' \item{subset}{Information on subset of original data used in
 #'   meta-analysis (if \code{keepdata = TRUE}).}
-#' \item{.glmm.fixed}{GLMM object generated by call of
+#' \item{.glmm.common}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (common effect model).}
 #' \item{.glmm.random}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (random effects model).}
@@ -904,10 +904,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     model.glmm = gs("model.glmm"),
                     ##
                     level = gs("level"), level.ma = gs("level.ma"),
-                    fixed = gs("fixed"),
+                    common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
-                    overall = fixed | random,
-                    overall.hetstat = fixed | random,
+                    overall = common | random,
+                    overall.hetstat = common | random,
                     ##
                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau =
@@ -928,10 +928,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     backtransf = gs("backtransf"),
                     pscale = 1,
                     ##
-                    text.fixed = gs("text.fixed"),
+                    text.common = gs("text.common"),
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
-                    text.w.fixed = gs("text.w.fixed"),
+                    text.w.common = gs("text.w.common"),
                     text.w.random = gs("text.w.random"),
                     ##
                     title = gs("title"), complab = gs("complab"),
@@ -987,14 +987,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chknumeric(pscale, length = 1)
   ##
-  if (!is.null(text.fixed))
-    chkchar(text.fixed, length = 1)
+  if (!is.null(text.common))
+    chkchar(text.common, length = 1)
   if (!is.null(text.random))
     chkchar(text.random, length = 1)
   if (!is.null(text.predict))
     chkchar(text.predict, length = 1)
-  if (!is.null(text.w.fixed))
-    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.common))
+    chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
   ##
@@ -1047,16 +1047,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args  <- list(...)
+  args <- list(...)
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
-                      warn.deprecated)
-  chklogical(fixed)
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
+                       warn.deprecated)
+  common <- deprecated(common, missing.common, args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
@@ -1316,9 +1319,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    fixed  <- FALSE
+    common <- FALSE
     random <- FALSE
-    prediction  <- FALSE
+    prediction <- FALSE
     overall <- FALSE
     overall.hetstat <- FALSE
   }
@@ -1420,7 +1423,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (sparse & sm %in% c("RR", "OR") & !(method %in% c("Peto", "GLMM"))) {
     sel.doublezeros <- switch(sm,
                               OR = (event.e == 0   & event.c ==   0) |
-                                   (event.c == n.c & event.e == n.e),
+                                (event.c == n.c & event.e == n.e),
                               RR = (event.c == 0 & event.e == 0))
     if (any(sel.doublezeros, na.rm = TRUE))
       doublezeros <- TRUE
@@ -1508,7 +1511,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.2 <- n12 + n22
   ##
   Q.CMH <- (sum((n11 - n1. * n.1 / n..)[!exclude], na.rm = TRUE)^2 /
-              sum((n1. * n2. * n.1 * n.2 / n..^3)[!exclude], na.rm = TRUE))
+            sum((n1. * n2. * n.1 * n.2 / n..^3)[!exclude], na.rm = TRUE))
   ##
   p.e <- (n11 + incr.e) / (n1. + 2 * incr.e)
   p.c <- (n21 + incr.c) / (n2. + 2 * incr.c)
@@ -1543,18 +1546,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (!RR.Cochrane) {
       TE <- log(((n11 + incr.e) / (n1. + incr.e)) /
-                  ((n21 + incr.c) / (n2. + incr.c)))
+                ((n21 + incr.c) / (n2. + incr.c)))
       ##
       ## Hartung & Knapp (2001), Stat Med, equation (18)
       ##
       seTE <- sqrt((1 / (n11 + incr.e * (!allevents)) - 1 / (n1. + incr.e) +
-                      1 / (n21 + incr.c * (!allevents)) - 1 / (n2. + incr.c)))
+                    1 / (n21 + incr.c * (!allevents)) - 1 / (n2. + incr.c)))
     }
     else {
       TE <- log(((n11 + incr.e) / (n1. + 2 * incr.e)) /
-                  ((n21 + incr.c) / (n2. + 2 * incr.c)))
+                ((n21 + incr.c) / (n2. + 2 * incr.c)))
       seTE <- sqrt((1 / (n11 + incr.e) - 1 / (n1. + 2 * incr.e) +
-                      1 / (n21 + incr.c) - 1 / (n2. + 2 * incr.c)))
+                    1 / (n21 + incr.c) - 1 / (n2. + 2 * incr.c)))
     }
   }
   else if (sm == "RD") {
@@ -1563,7 +1566,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     TE <- n11 / n1. - n21 / n2.
     seTE <- sqrt((n11 + incr.e) * (n12 + incr.e) / (n1. + 2 * incr.e)^3 +
-                   (n21 + incr.c) * (n22 + incr.c) / (n2. + 2 * incr.c)^3)
+                 (n21 + incr.c) * (n22 + incr.c) / (n2. + 2 * incr.c)^3)
   }
   else if (sm == "ASD") {
     ##
@@ -1601,7 +1604,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    fixed <- FALSE
+    common <- FALSE
     ##
     if (method != "Inverse") {
       if (!missing.method)
@@ -1734,13 +1737,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ##
       ## Cooper & Hedges (1994), p. 265-6
       ##
-      w.fixed <- C
-      TE.fixed <- log(sum(A, na.rm = TRUE) / sum(C, na.rm = TRUE))
-      seTE.fixed <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  *
-                          (sum(A * B, na.rm = TRUE) +
-                           exp(TE.fixed) * (sum(B * C, na.rm = TRUE) +
-                                            sum(A * D, na.rm = TRUE)) +
-                           exp(TE.fixed)^2 * sum(C * D, na.rm = TRUE))))
+      w.common <- C
+      TE.common <- log(sum(A, na.rm = TRUE) / sum(C, na.rm = TRUE))
+      seTE.common <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  *
+                           (sum(A * B, na.rm = TRUE) +
+                            exp(TE.common) * (sum(B * C, na.rm = TRUE) +
+                                              sum(A * D, na.rm = TRUE)) +
+                            exp(TE.common)^2 * sum(C * D, na.rm = TRUE))))
     }
     else if (sm == "RR") {
       ##
@@ -1750,17 +1753,17 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ## (MH.exact == FALSE)
       ##
       D <- ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.1 + incr.e + incr.c) -
-              (n11 + incr.e) * (n21 + incr.c) * (n.. + 2 * incr.e + 2 * incr.c)) /
-                (n.. + 2 * incr.e + 2 * incr.c)^2
+            (n11 + incr.e) * (n21 + incr.c) * (n.. + 2 * incr.e + 2 * incr.c)) /
+        (n.. + 2 * incr.e + 2 * incr.c)^2
       R <- (n11 + incr.e) * (n2. + 2 * incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       S <- (n21 + incr.c) * (n1. + 2 * incr.e) / (n.. + 2 * incr.e + 2 * incr.c)
       ##
       D[exclude] <- R[exclude] <- S[exclude] <- 0
       ##
-      w.fixed <- S
-      TE.fixed <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
-      seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
-                                                   sum(S, na.rm = TRUE)))
+      w.common <- S
+      TE.common <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
+      seTE.common <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
+                                                  sum(S, na.rm = TRUE)))
     }
     else if (sm == "RD") {
       ##
@@ -1770,27 +1773,27 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ## und RevMan 3.1 (MH.exact == FALSE)
       ##
       R <- ((n11 + incr.e) * (n12 + incr.e) * (n2. + 2 * incr.c)^3 +
-              (n21 + incr.c) * (n22 + incr.c) * (n1. + 2 * incr.e)^3) /
-                ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.. + 2 * incr.e + 2 * incr.c)^2)
+            (n21 + incr.c) * (n22 + incr.c) * (n1. + 2 * incr.e)^3) /
+        ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.. + 2 * incr.e + 2 * incr.c)^2)
       S <- (n1. + 2 * incr.e) * (n2. + 2 * incr.c) /
         (n.. + 2 * incr.e + 2 * incr.c)
       ##
       R[exclude] <- S[exclude] <- 0
       ##
-      w.fixed <- S
-      TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-      seTE.fixed <- sqrt(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE)^2)
+      w.common <- S
+      TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
+      seTE.common <- sqrt(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE)^2)
     }
     ##
-    w.fixed[is.na(w.fixed)] <- 0
+    w.common[is.na(w.common)] <- 0
   }
   else if (method == "Peto") {
-    w.fixed <- 1 / seTE^2
-    w.fixed[exclude] <- 0
-    TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-    seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
+    w.common <- 1 / seTE^2
+    w.common[exclude] <- 0
+    TE.common   <- weighted.mean(TE, w.common, na.rm = TRUE)
+    seTE.common <- sqrt(1 / sum(w.common, na.rm = TRUE))
     ##
-    w.fixed[is.na(w.fixed)] <- 0
+    w.common[is.na(w.common)] <- 0
   }
   else if (is.glmm) {
     zero.all <-
@@ -1800,7 +1803,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
        !any(event.c[!exclude] != n.c[!exclude]))
     ##
     if (!zero.all)
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(ai = event.e[!exclude], n1i = n.e[!exclude],
                    ci = event.c[!exclude], n2i = n.c[!exclude],
@@ -1810,23 +1813,23 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                    control = control,
                    ...))
     else
-      glmm.fixed <- list(b = NA, se = NA,
-                         QE.Wld = NA, QE.df = NA, QE.LRT = NA,
-                         tau2 = NA, se.tau2 = NA)
+      glmm.common <- list(b = NA, se = NA,
+                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
+                          tau2 = NA, se.tau2 = NA)
     ##
-    TE.fixed   <- as.numeric(glmm.fixed$b)
-    seTE.fixed <- as.numeric(glmm.fixed$se)
+    TE.common   <- as.numeric(glmm.common$b)
+    seTE.common <- as.numeric(glmm.common$se)
     ##
-    w.fixed <- rep(NA, length(event.e))
+    w.common <- rep(NA, length(event.e))
   }
   else if (method == "SSW") {
-    w.fixed <- n.e * n.c / (n.e + n.c)
-    w.fixed[exclude] <- 0
-    TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-    seTE.fixed <- sqrt(sum(w.fixed^2 * seTE^2, na.rm = TRUE) /
-                       sum(w.fixed, na.rm = TRUE)^2)
+    w.common <- n.e * n.c / (n.e + n.c)
+    w.common[exclude] <- 0
+    TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
+    seTE.common <- sqrt(sum(w.common^2 * seTE^2, na.rm = TRUE) /
+                        sum(w.common, na.rm = TRUE)^2)
     ##
-    w.fixed[is.na(w.fixed)] <- 0
+    w.common[is.na(w.common)] <- 0
   }
   ##
   m <- metagen(TE, seTE, studlab,
@@ -1836,7 +1839,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                sm = sm,
                level = level,
                level.ma = level.ma,
-               fixed = fixed,
+               common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
@@ -1844,7 +1847,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                hakn = hakn, adhoc.hakn = adhoc.hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
-               TE.tau = if (Q.Cochrane) TE.fixed else TE.tau,
+               TE.tau = if (Q.Cochrane) TE.common else TE.tau,
                tau.common = FALSE,
                ##
                prediction = prediction,
@@ -1854,9 +1857,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                ##
                backtransf = backtransf,
                ##
-               text.fixed = text.fixed, text.random = text.random,
+               text.common = text.common, text.random = text.random,
                text.predict = text.predict,
-               text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+               text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
                label.e = label.e, label.c = label.c,
@@ -1880,7 +1883,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (by & tau.common & !is.glmm) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, "",
-                   if (Q.Cochrane & method == "MH") TE.fixed else TE.tau,
+                   if (Q.Cochrane & method == "MH") TE.common else TE.tau,
                    level.ma, subgroup, control)
   }
   
@@ -1904,7 +1907,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               Q.CMH = Q.CMH, df.Q.CMH = 1, pval.Q.CMH = pvalQ(Q.CMH, 1),
               print.CMH = print.CMH,
               incr.e = incr.e, incr.c = incr.c,
-              k.MH = if (method == "MH") sum(w.fixed > 0) else NA,
+              k.MH = if (method == "MH") sum(w.common > 0) else NA,
               k.all = k.all)
   ##
   ## Add meta-analysis results
@@ -1926,16 +1929,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (method %in% c("MH", "Peto", "GLMM", "SSW")) {
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.ma)
+    ci.f <- ci(TE.common, seTE.common, level = level.ma)
     ##
-    res$TE.fixed <- TE.fixed
-    res$seTE.fixed <- seTE.fixed
-    res$w.fixed <- w.fixed
-    res$lower.fixed <- ci.f$lower
-    res$upper.fixed <- ci.f$upper
-    res$statistic.fixed <- ci.f$statistic
-    res$pval.fixed <- ci.f$p
-    res$zval.fixed <- ci.f$statistic
+    res$TE.common <- TE.common
+    res$seTE.common <- seTE.common
+    res$w.common <- w.common
+    res$lower.common <- ci.f$lower
+    res$upper.common <- ci.f$upper
+    res$statistic.common <- ci.f$statistic
+    res$pval.common <- ci.f$p
+    res$zval.common <- ci.f$statistic
   }
   ##
   if (is.glmm) {
@@ -1956,7 +1959,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       ## Fallback to common effect model due to small number of studies
       ## or zero or all events in all studies
       ##
-      glmm.random <- glmm.fixed
+      glmm.random <- glmm.common
     }
     ##
     TE.random   <- as.numeric(glmm.random$b)
@@ -2033,7 +2036,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$lower.Rb <- NA
     res$upper.Rb <- NA
     ##
-    res$.glmm.fixed  <- glmm.fixed
+    res$.glmm.common  <- glmm.common
     res$.glmm.random <- glmm.random
     res$version.metafor <- packageDescription("metafor")$Version
     ##
@@ -2079,7 +2082,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                          test = ifelse(hakn, "t", "z"),
                          level = 100 * level.ma,
                          measure = "OR", model = model.glmm,
-                          control = control,
+                         control = control,
                          data = data.frame(subgroup.glmm),
                          ...)))
         }
@@ -2217,9 +2220,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Backward compatibility
   ##
-  res$comb.fixed <- fixed
-  res$comb.random <- random
-  res$level.comb <- level.ma
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$w.fixed <- res$w.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
   ##
   if (by) {
     res$byvar <- subgroup

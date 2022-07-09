@@ -22,7 +22,7 @@
   model.glmm = object$model.glmm,
   level = object$level,
   level.ma = object$level.ma,
-  fixed = object$fixed,
+  common = object$common,
   random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
@@ -41,10 +41,10 @@
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
-  text.fixed = object$text.fixed,
+  text.common = object$text.common,
   text.random = object$text.random,
   text.predict = object$text.predict,
-  text.w.fixed = object$text.w.fixed,
+  text.w.common = object$text.w.common,
   text.w.random = object$text.w.random,
   title = object$title,
   complab = object$complab,
@@ -71,7 +71,7 @@
   print.CMH = object$print.CMH,
   keepdata = TRUE,
   left = object$left,
-  ma.fixed = object$ma.fixed,
+  ma.common = object$ma.common,
   type = object$type,
   n.iter.max = object$n.iter.max,
   warn = FALSE,
@@ -143,7 +143,7 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{fixed}{A logical indicating whether a common effect
+\item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
@@ -221,7 +221,7 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
 
-\item{text.fixed}{A character string used in printouts and forest
+\item{text.common}{A character string used in printouts and forest
 plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
@@ -230,7 +230,7 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
+\item{text.w.common}{A character string used to label weights of
 common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
@@ -321,7 +321,7 @@ the linear regression test for funnel plot symmetry (i.e.,
 function \code{metabias(..., method = "linreg")}) is used to
 determine whether studies are missing on the left or right side.}
 
-\item{ma.fixed}{A logical indicating whether a common effect or
+\item{ma.common}{A logical indicating whether a common effect or
 random effects model is used to estimate the number of missing
 studies.}
 

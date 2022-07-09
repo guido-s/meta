@@ -39,8 +39,8 @@ confidence limits are calculated; argument \code{ciexact=TRUE} in
 metaprop function). Accordingly, the following results are based on
 the same transformation defined by argument \code{sm}: list
 elements \code{TE}, \code{lower} and \code{upper} in elements
-\code{study}, \code{fixed}, \code{random}, \code{within.fixed} and
-\code{within.random}.
+\code{study}, \code{common}, \code{random}, \code{within.common}
+and \code{within.random}.
 
 R function cilayout can be utilised to change the layout to print
 confidence intervals (both in printout from print.meta and

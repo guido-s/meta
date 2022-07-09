@@ -276,7 +276,7 @@ setVar <- function(var = NULL, arg = NULL) {
 ## List of internal settings
 ##
 argslist.internal <-
-  c("comb.fixed", "comb.random", "level.comb", "digits.zval",
+  c("fixed", "comb.fixed", "comb.random", "level.comb", "digits.zval",
     "print.byvar", "byseparator",
     "Wan2014.Table1", "Wan2014.Table2",
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
@@ -286,6 +286,7 @@ argslist.internal <-
     "adhoc4hakn",
     "meth4bias", "meth4bias.old",
     "meth4incr",
+    "text.fixed", "text.w.fixed",
     "version.update")
 ##
 setOption("argslist.internal", argslist.internal)
@@ -325,12 +326,12 @@ setOption("version.update", 5.0)
 ## List of arguments that can be changed by user
 ##
 argslist <-
-  c("level", "level.ma", "fixed", "random",
+  c("level", "level.ma", "common", "random",
     "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
     "prediction", "level.predict",
     "method.bias",
-    "text.fixed", "text.random", "text.predict",
-    "text.w.fixed", "text.w.random",
+    "text.common", "text.random", "text.predict",
+    "text.w.common", "text.w.random",
     "title", "complab",
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
@@ -362,6 +363,7 @@ setOption("argslist", argslist)
 setOption("level", 0.95)
 setOption("level.ma", 0.95)
 setOption("level.comb", 0.95)
+setOption("common", TRUE)
 setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
@@ -374,9 +376,11 @@ setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
 setOption("method.bias", "Egger")
+setOption("text.common", "Common effect model")
 setOption("text.fixed", "Common effect model")
 setOption("text.random", "Random effects model")
 setOption("text.predict", "Prediction interval")
+setOption("text.w.common", "common")
 setOption("text.w.fixed", "common")
 setOption("text.w.random", "random")
 setOption("title", "")
@@ -393,7 +397,7 @@ setOption("test.subgroup", TRUE)
 setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
-setOption("warn.deprecated", TRUE)
+setOption("warn.deprecated", FALSE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)

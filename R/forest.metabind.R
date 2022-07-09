@@ -100,7 +100,7 @@
 #' to print heterogeneity information:
 #' \itemize{
 #' \item row with results for common effect model (\code{hetstat =
-#' "fixed"}),
+#' "common"}),
 #' \item row with results for random effects model (\code{hetstat =
 #' "random"}),
 #' \item rows with 'study' information (\code{hetstat = "study"}).
@@ -186,6 +186,7 @@ forest.metabind <- function(x,
   ##
   ##
   chkclass(x, "metabind")
+  x <- updateversion(x)
   ##
   chklogical(overall)
   chklogical(subgroup)
@@ -214,6 +215,10 @@ forest.metabind <- function(x,
   if (any(!is.na(idx)) && length(idx) > 0)
     if (list(...)[["hetstat"]])
       stop("Argument 'hetstat' must be FALSE for metabind objects.")
+  ##
+  idx <- charmatch(tolower(addargs), "common", nomatch = NA)
+  if (any(!is.na(idx)) && length(idx) > 0)
+    stop("Argument 'common' cannot be used with metabind objects.")
   ##
   idx <- charmatch(tolower(addargs), "fixed", nomatch = NA)
   if (any(!is.na(idx)) && length(idx) > 0)
@@ -309,9 +314,9 @@ forest.metabind <- function(x,
   ## Set test for interaction
   ##
   if (any(x$is.subgroup)) {
-    if (x$fixed) {
-      x$data$Q.b <- x$data$Q.b.fixed
-      x$data$pval.Q.b <- x$data$pval.Q.b.fixed
+    if (x$common) {
+      x$data$Q.b <- x$data$Q.b.common
+      x$data$pval.Q.b <- x$data$pval.Q.b.common
     }
     else {
       x$data$Q.b <- x$data$Q.b.random
@@ -367,8 +372,8 @@ forest.metabind <- function(x,
   
   if (missing(smlab))
     if (length(unique(x$pooled)) == 1)
-      smlab <- paste0(if (x$fixed)
-                        gs("text.fixed")
+      smlab <- paste0(if (x$common)
+                        gs("text.common")
                       else
                         gs("text.random"),
                       if (x$sm != "" & xlab(x$sm, x$backtransf) != "")

@@ -6,7 +6,7 @@
 \usage{
 \method{weights}{meta}(
   object,
-  fixed = object$fixed,
+  common = object$common,
   random = object$random,
   warn.deprecated = gs("warn.deprecated"),
   ...
@@ -15,7 +15,7 @@
 \arguments{
 \item{object}{An object of class \code{meta}.}
 
-\item{fixed}{A logical indicating whether absolute and
+\item{common}{A logical indicating whether absolute and
 percentage weights from the common effect model should be
 calculated.}
 
@@ -32,10 +32,10 @@ be printed if deprecated arguments are used.}
 A data frame with the following variables is returned:
 \tabular{lll}{
 \bold{Variable} \tab \bold{Definition} \tab \bold{Condition} \cr
-w.fixed \tab absolute weights in common effect model \tab (if
-  \code{fixed = TRUE}) \cr
-p.fixed \tab percentage weights in common effect model \tab (if
-  \code{fixed = TRUE}) \cr
+w.common \tab absolute weights in common effect model \tab (if
+  \code{common = TRUE}) \cr
+p.common \tab percentage weights in common effect model \tab (if
+  \code{common = TRUE}) \cr
 w.random \tab absolute weights in random effects model \tab (if
   \code{random = TRUE}) \cr
 p.random \tab percentage weights in random effects model \tab (if
@@ -60,7 +60,7 @@ weights(meta1)
 
 # Do meta-analysis (only random effects model)
 #
-meta2 <- update(meta1, fixed = FALSE)
+meta2 <- update(meta1, common = FALSE)
 
 # Print weights for random effects meta-analysis
 #
@@ -68,7 +68,7 @@ weights(meta2)
 
 # Print weights for common effect and random effects meta-analysis
 #
-weights(meta2, fixed = TRUE)
+weights(meta2, common = TRUE)
 
 }
 \seealso{

@@ -120,7 +120,7 @@ treatment effect (Thompson & Higgins, 2002).
 Argument \code{cex} specifies the plotting size for each individual
 study. If this argument is missing the weights from the
 meta-regression model will be used (which typically is a random
-effects model). Use \code{cex="fixed"} in order to utilise weights
+effects model). Use \code{cex="common"} in order to utilise weights
 from a common effect model to define the size of the plotted
 symbols (even for a random effects meta-regression). If a vector
 with individual study weights is provided, the length of this
@@ -160,7 +160,7 @@ mr2 <- metareg(m1, age)
 mr2
 
 bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70))
-bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70), cex = "fixed")
+bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70), cex = "common")
 
 # Do not print regression line
 #

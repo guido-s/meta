@@ -201,14 +201,14 @@
 #' # Forest plot using RevMan 5 style
 #' #
 #' settings.meta("revman5")
-#' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
+#' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
 #' # Forest plot using JAMA style
 #' #
 #' settings.meta("jama")
-#' forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
+#' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #'
@@ -216,8 +216,8 @@
 #' # (especially useful if upper confidence limit can be negative)
 #' #
 #' settings.meta(CIseparator = " - ")
-#' forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
-#'   label.left="Favours A", label.right="Favours B",
+#' forest(metagen(-(1:3), 2:4 / 10, sm = "MD", common = FALSE),
+#'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
 #' # Use old settings
@@ -334,7 +334,8 @@ settings.meta <- function(..., quietly = TRUE) {
   ##
   if (warn.depr) {
     chkdeprecated(names.all, "level.ma", "level.comb")
-    chkdeprecated(names.all, "fixed", "comb.fixed")
+    chkdeprecated(names.all, "common", "fixed")
+    chkdeprecated(names.all, "common", "comb.fixed")
     chkdeprecated(names.all, "random", "comb.random")
     chkdeprecated(names.all, "digits.stat", "digits.zval")
     ##
@@ -385,7 +386,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setOption("level", 0.95)
     setOption("level.ma", 0.95)
-    setOption("fixed", TRUE)
+    setOption("common", TRUE)
     setOption("random", TRUE)
     setOption("hakn", FALSE)
     setOption("adhoc.hakn", "")
@@ -397,10 +398,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("test.subgroup", TRUE)
     setOption("prediction.subgroup", FALSE)
     setOption("method.bias", "Egger")
-    setOption("text.fixed", "Common effect model")
+    setOption("text.common", "Common effect model")
     setOption("text.random", "Random effects model")
     setOption("text.predict", "Prediction interval")
-    setOption("text.w.fixed", "common")
+    setOption("text.w.common", "common")
     setOption("text.w.random", "random")
     setOption("title", "")
     setOption("complab", "")
@@ -412,7 +413,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("sep.subgroup", " = ")
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
-    setOption("warn.deprecated", TRUE)
+    setOption("warn.deprecated", FALSE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
@@ -550,7 +551,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     else if (setting == "meta4") {
       specificSettings(args = c("method.tau", "exact.smd",
-                                "text.fixed", "text.w.fixed",
+                                "text.common", "text.w.common",
                                 "warn.deprecated"),
                        new = list("DL", FALSE,
                                   "Fixed effect model", "fixed",
@@ -580,7 +581,7 @@ settings.meta <- function(..., quietly = TRUE) {
     cat(paste0("* General settings *\n"))
     catarg("level              ")
     catarg("level.ma           ")
-    catarg("fixed              ")
+    catarg("common             ")
     catarg("random             ")
     catarg("hakn               ")
     catarg("adhoc.hakn         ")
@@ -592,10 +593,10 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("test.subgroup      ")
     catarg("prediction.subgroup")
     catarg("method.bias        ")
-    catarg("text.fixed         ")
+    catarg("text.common        ")
     catarg("text.random        ")
     catarg("text.predict       ")
-    catarg("text.w.fixed       ")
+    catarg("text.w.common      ")
     catarg("text.w.random      ")
     catarg("title              ")
     catarg("complab            ")
@@ -700,7 +701,7 @@ settings.meta <- function(..., quietly = TRUE) {
   if (any(!(names %in% c("reset", "print", "setting")))) {
     idlevel <- argid(names.all, "level")
     idlevel.ma <- argid(names.all, "level.ma")
-    idfixed <- argid(names.all, "fixed")
+    idcommon <- argid(names.all, "common")
     idrandom <- argid(names.all, "random")
     idhakn <- argid(names.all, "hakn")
     idadhoc.hakn <- argid(names.all, "adhoc.hakn")
@@ -710,10 +711,10 @@ settings.meta <- function(..., quietly = TRUE) {
     idprediction <- argid(names.all, "prediction")
     idlevel.predict <- argid(names.all, "level.predict")
     idmethod.bias <- argid(names.all, "method.bias")
-    idtext.fixed <- argid(names.all, "text.fixed")
+    idtext.common <- argid(names.all, "text.common")
     idtext.random <- argid(names.all, "text.random")
     idtext.predict <- argid(names.all, "text.predict")
-    idtext.w.fixed <- argid(names.all, "text.w.fixed")
+    idtext.w.common <- argid(names.all, "text.w.common")
     idtext.w.random <- argid(names.all, "text.w.random")
     idtitle <- argid(names.all, "title")
     idcomplab <- argid(names.all, "complab")
@@ -803,10 +804,10 @@ settings.meta <- function(..., quietly = TRUE) {
       chklevel(level.ma)
       setOption("level.ma", level.ma)
     }
-    if (!is.na(idfixed)) {
-      fixed <- args[[idfixed]]
-      chklogical(fixed)
-      setOption("fixed", fixed)
+    if (!is.na(idcommon)) {
+      common <- args[[idcommon]]
+      chklogical(common)
+      setOption("common", common)
     }
     if (!is.na(idrandom)) {
       random <- args[[idrandom]]
@@ -853,12 +854,12 @@ settings.meta <- function(..., quietly = TRUE) {
       method.bias <- setchar(method.bias, gs("meth4bias"))
       setOption("method.bias", method.bias)
     }
-    if (!is.na(idtext.fixed)) {
-      text.fixed <- args[[idtext.fixed]]
-      if (length(text.fixed) != 1)
-        stop("Argument 'text.fixed' must be a character string.")
+    if (!is.na(idtext.common)) {
+      text.common <- args[[idtext.common]]
+      if (length(text.common) != 1)
+        stop("Argument 'text.common' must be a character string.")
       ##
-      setOption("text.fixed", text.fixed)
+      setOption("text.common", text.common)
     }
     if (!is.na(idtext.random)) {
       text.random <- args[[idtext.random]]
@@ -874,12 +875,12 @@ settings.meta <- function(..., quietly = TRUE) {
       ##
       setOption("text.predict", text.predict)
     }
-    if (!is.na(idtext.w.fixed)) {
-      text.w.fixed <- args[[idtext.w.fixed]]
-      if (length(text.w.fixed) != 1)
-        stop("Argument 'text.w.fixed' must be a character string.")
+    if (!is.na(idtext.w.common)) {
+      text.w.common <- args[[idtext.w.common]]
+      if (length(text.w.common) != 1)
+        stop("Argument 'text.w.common' must be a character string.")
       ##
-      setOption("text.w.fixed", text.w.fixed)
+      setOption("text.w.common", text.w.common)
     }
     if (!is.na(idtext.w.random)) {
       text.w.random <- args[[idtext.w.random]]

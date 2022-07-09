@@ -60,7 +60,7 @@
 #' Argument \code{cex} specifies the plotting size for each individual
 #' study. If this argument is missing the weights from the
 #' meta-regression model will be used (which typically is a random
-#' effects model). Use \code{cex="fixed"} in order to utilise weights
+#' effects model). Use \code{cex="common"} in order to utilise weights
 #' from a common effect model to define the size of the plotted
 #' symbols (even for a random effects meta-regression). If a vector
 #' with individual study weights is provided, the length of this
@@ -112,7 +112,7 @@
 #' mr2
 #' 
 #' bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70))
-#' bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70), cex = "fixed")
+#' bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70), cex = "common")
 #' 
 #' # Do not print regression line
 #' #
@@ -166,7 +166,7 @@ bubble.metareg <- function(x,
   chklogical(box)
   
   
-  m0 <- x$.meta$x
+  m0 <- update(x$.meta$x)
   method.tau0 <- x$.meta$method.tau
   ##
   if (method.tau0 != "FE" & (method.tau0 != m0$method.tau))
@@ -296,26 +296,27 @@ bubble.metareg <- function(x,
   missing.cex <- missing(cex)
   ##
   if (!missing.cex && is.character(cex)) {
-    cex.type <- setchar(cex, c("fixed", "random"),
-                        "must be numeric or equal to \"fixed\" or \"random\"")
+    cex.type <- setchar(cex, c("common", "random", "fixed"),
+                        "must be numeric or equal to \"common\" or \"random\"")
+    cex.type[cex.type == "fixed"] <- "common"
     if (length(unique(cex.type)) != 1)
       stop("Argument 'cex' must be numeric or equal to ",
-           "\"fixed\" or \"random\".")
-    fixed.cex <- all(cex.type == "fixed")
+           "\"common\" or \"random\".")
+    common.cex <- all(cex.type == "common")
     random.cex <- all(cex.type == "random")
   }
   else {
-    fixed.cex <- FALSE
+    common.cex <- FALSE
     random.cex <- FALSE
   }
   ##
   if (missing.cex)
     if (method.tau0 == "FE")
-      cex <- m1$w.fixed
+      cex <- m1$w.common
     else
       cex <- m1$w.random
-  else if (fixed.cex)
-    cex <- m1$w.fixed
+  else if (common.cex)
+    cex <- m1$w.common
   else if (random.cex)
     cex <- m1$w.random
   else if (length(cex) == 1)
@@ -331,7 +332,7 @@ bubble.metareg <- function(x,
     stop("Length of argument 'cex' must be the same as ",
          "number of studies in meta-analysis.")
   ##
-  if (missing.cex | fixed.cex) {
+  if (missing.cex | common.cex) {
     cexs <- max.cex * (cex / max(cex))
     cexs[cexs < min.cex] <- min.cex
   }

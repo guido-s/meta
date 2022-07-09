@@ -28,8 +28,8 @@
 #' metaprop function). Accordingly, the following results are based on
 #' the same transformation defined by argument \code{sm}: list
 #' elements \code{TE}, \code{lower} and \code{upper} in elements
-#' \code{study}, \code{fixed}, \code{random}, \code{within.fixed} and
-#' \code{within.random}.
+#' \code{study}, \code{common}, \code{random}, \code{within.common}
+#' and \code{within.random}.
 #' 
 #' R function cilayout can be utilised to change the layout to print
 #' confidence intervals (both in printout from print.meta and
@@ -107,6 +107,8 @@ summary.meta <- function(object, ...) {
   if (inherits(object, c("metacum", "metainf")))
     return(object)
   ##
+  object <- updateversion(object)
+  ##
   metaprop <- inherits(class(object), "metaprop")
   metarate <- inherits(class(object), "metarate")
   
@@ -152,17 +154,17 @@ summary.meta <- function(object, ...) {
   ## (4) Results for meta-analysis
   ##
   ##
-  ci.f <- list(TE = object$TE.fixed,
-               seTE = object$seTE.fixed,
-               lower = object$lower.fixed,
-               upper = object$upper.fixed,
-               statistic = object$statistic.fixed,
-               p = object$pval.fixed,
+  ci.c <- list(TE = object$TE.common,
+               seTE = object$seTE.common,
+               lower = object$lower.common,
+               upper = object$upper.common,
+               statistic = object$statistic.common,
+               p = object$pval.common,
                level = object$level.ma)
   if (metaprop)
-    ci.f$harmonic.mean <- 1 / mean(1 / object$n)
+    ci.c$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
-    ci.f$harmonic.mean <- 1 / mean(1 / object$time)
+    ci.c$harmonic.mean <- 1 / mean(1 / object$time)
   ##
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
@@ -194,9 +196,13 @@ summary.meta <- function(object, ...) {
   ##
   res <- object
   ##
-  res$fixed <- ci.f
+  res$common <- ci.c
   res$random <- ci.r
   res$predict <- ci.p
+  ##
+  ## Backward compatibility
+  ##
+  res$fixed <- ci.c
   ##
   ## Add results from subgroup analysis
   ##
@@ -204,17 +210,17 @@ summary.meta <- function(object, ...) {
     ##
     n.by <- length(object$bylevs)
     ##
-    ci.fixed.w <- list(TE = object$TE.fixed.w,
-                       seTE = object$seTE.fixed.w,
-                       lower = object$lower.fixed.w,
-                       upper = object$upper.fixed.w,
-                       statistic = object$statistic.fixed.w,
-                       p = object$pval.fixed.w,
-                       level = object$level.ma,
-                       harmonic.mean = object$n.harmonic.mean.w)
+    ci.common.w <- list(TE = object$TE.common.w,
+                        seTE = object$seTE.common.w,
+                        lower = object$lower.common.w,
+                        upper = object$upper.common.w,
+                        statistic = object$statistic.common.w,
+                        p = object$pval.common.w,
+                        level = object$level.ma,
+                        harmonic.mean = object$n.harmonic.mean.w)
     ##
     if (metarate)
-      ci.fixed.w$harmonic.mean <- object$t.harmonic.mean.w
+      ci.common.w$harmonic.mean <- object$t.harmonic.mean.w
     ##
     ci.random.w <- list(TE = object$TE.random.w,
                         seTE = object$seTE.random.w,
@@ -239,7 +245,7 @@ summary.meta <- function(object, ...) {
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ## 
-    res$within.fixed    <- ci.fixed.w
+    res$within.common   <- ci.common.w
     res$within.random   <- ci.random.w
     res$within.predict  <- ci.predict.w
     ##

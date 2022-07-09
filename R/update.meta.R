@@ -48,7 +48,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param fixed A logical indicating whether a common effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -107,13 +107,13 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
-#' @param text.fixed A character string used in printouts and forest
+#' @param text.common A character string used in printouts and forest
 #'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
+#' @param text.w.common A character string used to label weights of
 #'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
@@ -177,7 +177,7 @@
 #'   the linear regression test for funnel plot symmetry (i.e.,
 #'   function \code{metabias(..., method = "linreg")}) is used to
 #'   determine whether studies are missing on the left or right side.
-#' @param ma.fixed A logical indicating whether a common effect or
+#' @param ma.common A logical indicating whether a common effect or
 #'   random effects model is used to estimate the number of missing
 #'   studies.
 #' @param type A character indicating which method is used to estimate
@@ -260,7 +260,7 @@ update.meta <- function(object,
                         model.glmm = object$model.glmm,
                         level = object$level,
                         level.ma = object$level.ma,
-                        fixed = object$fixed,
+                        common = object$common,
                         random = object$random,
                         overall = object$overall,
                         overall.hetstat = object$overall.hetstat,
@@ -281,10 +281,10 @@ update.meta <- function(object,
                         irscale = object$irscale,
                         irunit = object$irunit,
                         ##
-                        text.fixed = object$text.fixed,
+                        text.common = object$text.common,
                         text.random = object$text.random,
                         text.predict = object$text.predict,
-                        text.w.fixed = object$text.w.fixed,
+                        text.w.common = object$text.w.common,
                         text.w.random = object$text.w.random,
                         ##
                         title = object$title,
@@ -314,7 +314,7 @@ update.meta <- function(object,
                         keepdata = TRUE,
                         ##
                         left = object$left,
-                        ma.fixed = object$ma.fixed,
+                        ma.common = object$ma.common,
                         type = object$type,
                         n.iter.max = object$n.iter.max,
                         ##
@@ -326,7 +326,7 @@ update.meta <- function(object,
   
   ##
   ##
-  ## (1) Check for meta object
+  ## (1) Check for meta object and update older meta objects
   ##
   ##
   chkclass(object, "meta")
@@ -344,183 +344,6 @@ update.meta <- function(object,
     meta.version <- 0.1
   else
     meta.version <- as.numeric(unlist(strsplit(object$version, "-"))[1])
-  ##
-  if (meta.version < 5.5) {
-    ##
-    ## Changes for meta objects with version < 5.5
-    ##
-    method.incr <- gs("method.incr")
-    if (is.logical(object$addincr) && object$addincr)
-      method.incr <- "all"
-    else if (is.logical(object$allincr) && object$allincr)
-      method.incr <- "if0all"
-    ##
-    if (!is.null(object$id))
-      object$cluster <- object$id
-      object$data$.cluster <- object$data$.id
-  }
-  ##
-  if (meta.version < 5.0) {
-    ##
-    ## Changes for meta objects with version < 5.0
-    ##
-    object$fixed <- object$comb.fixed
-    object$random <- object$comb.random
-    object$level.ma <- object$level.comb
-    ##
-    if (!is.null(object$byvar)) {
-      object$data$.subgroup <- object$byvar
-      object$subgroup.name <- object$bylab
-      object$print.subgroup.name <- object$print.byvar
-      object$sep.subgroup <- object$byseparator
-    }
-  }
-  
-  
-  ##
-  ##
-  ## (2) Check arguments
-  ##
-  ##
-  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
-    pscale <- 1
-  }
-  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
-    irscale <- 1
-  }
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
-  args  <- list(...)
-  chklogical(warn.deprecated)
-  ##
-  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
-                         warn.deprecated)
-  chklevel(level.ma)
-  ##
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
-                      warn.deprecated)
-  chklogical(fixed)
-  ##
-  random <- deprecated(random, missing(random), args, "comb.random",
-                       warn.deprecated)
-  chklogical(random)
-  ##
-  missing.subgroup.name <- missing(subgroup.name)
-  subgroup.name <-
-    deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
-               warn.deprecated)
-  ##
-  print.subgroup.name <-
-    deprecated(print.subgroup.name, missing(print.subgroup.name),
-               args, "print.byvar", warn.deprecated)
-  chklogical(print.subgroup.name)
-  ##
-  sep.subgroup <-
-    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
-               warn.deprecated)
-  if (!is.null(sep.subgroup))
-    chkchar(sep.subgroup, length = 1)
-  ##
-  test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
-  prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
-  ##
-  missing.method.incr <- missing(method.incr)
-  addincr <-
-    deprecated(method.incr, missing.method.incr, args, "addincr",
-               warn.deprecated)
-  allincr <-
-    deprecated(method.incr, missing.method.incr, args, "allincr",
-               warn.deprecated)
-  if (missing.method.incr) {
-    if (is.logical(addincr) && addincr)
-      method.incr <- "all"
-    else if (is.logical(allincr) && allincr)
-      method.incr <- "if0all"
-  }
-  ##
-  ## Some more checks
-  ##
-  overall <- replaceNULL(overall, fixed | random)
-  overall.hetstat <- replaceNULL(overall.hetstat, fixed | random)
-  chklogical(overall)
-  chklogical(overall.hetstat)
-  
-  
-  ##
-  ##
-  ## (3) Update trim-and-fill object
-  ##
-  ##
-  if (inherits(object, "trimfill")) {
-    ##
-    rmfilled <- function(x) {
-      ##
-      if (!is.null(object[[x]]))
-        res <- object[[x]][!object$trimfill]
-      else
-        res <- NULL
-      ##
-      res
-    }
-    ##
-    tfnames <- c("TE", "seTE",
-                 "studlab",
-                 "n.e", "n.c",
-                 "event.e", "event.c",
-                 "mean.e", "mean.c", "sd.e", "sd.c",
-                 "n", "event", "cor")
-    ##
-    for (i in tfnames)
-      object[[i]] <- rmfilled(i)
-    ##
-    oldclass <- object$class.x
-    ##
-    res <- trimfill(object,
-                    left = left, ma.fixed = ma.fixed,
-                    type = type, n.iter.max = n.iter.max,
-                    level = level, level.ma = level.ma,
-                    fixed = fixed, random = random,
-                    hakn = hakn, adhoc.hakn = adhoc.hakn,
-                    method.tau = method.tau, method.tau.ci = method.tau.ci,
-                    prediction = prediction, level.predict = level.predict,
-                    silent = TRUE,
-                    ...)
-    ##
-    res$call.object <- object$call
-    res$call <- match.call()
-    res$class.x <- oldclass
-    ##
-    return(res)
-  }
-  
-  
-  ##
-  ##
-  ## (4) Update metacum or metainf object
-  ##
-  ##
-  if (inherits(object, "metacum") | inherits(object, "metainf")) {
-    ##
-    res <- object
-    ##
-    res$fixed <- ifelse(res$pooled == "fixed", TRUE, FALSE)
-    res$random <- ifelse(res$pooled == "random", TRUE, FALSE)
-    ##
-    res$call.object <- object$call
-    res$call <- match.call()
-    res$version <- packageDescription("meta")$Version
-    ##
-    return(res)
-  }
-  
-  
-  ##
-  ##
-  ## (5) Prepare older meta object
-  ##
   ##
   if (meta.version < 3.2) {
     ##
@@ -581,11 +404,224 @@ update.meta <- function(object,
         object$k.MH <- NA
   }
   ##
+  if (meta.version < 5.0) {
+    ##
+    ## Changes for meta objects with version < 5.0
+    ##
+    object$fixed <- object$comb.fixed
+    object$random <- object$comb.random
+    object$level.ma <- object$level.comb
+    ##
+    if (!is.null(object$byvar)) {
+      object$data$.subgroup <- object$byvar
+      object$subgroup.name <- object$bylab
+      object$print.subgroup.name <- object$print.byvar
+      object$sep.subgroup <- object$byseparator
+    }
+  }
+  ##
+  if (meta.version < 5.5) {
+    ##
+    ## Changes for meta objects with version < 5.5
+    ##
+    res$common <- res$fixed
+    res$w.common <- res$w.fixed
+    ##
+    res$TE.common <- res$TE.fixed
+    res$seTE.common <- res$seTE.fixed
+    res$lower.common <- res$lower.fixed
+    res$upper.common <- res$upper.fixed
+    res$statistic.common <- res$statistic.fixed
+    res$pval.common <- res$pval.fixed
+    res$zval.common <- res$zval.fixed
+    ##
+    res$text.common <- res$text.fixed
+    res$text.w.common <- res$text.w.fixed
+    ##
+    if (!is.null(res$pooled) && res$pooled == "fixed")
+      res$pooled <- "common"
+    ##
+    if (!is.null(object$byvar)) {
+      object$TE.common.w <- object$TE.fixed.w
+      object$seTE.common.w <- object$seTE.fixed.w
+      object$lower.common.w <- object$lower.fixed.w
+      object$upper.common.w <- object$upper.fixed.w
+      object$statistic.common.w <- object$statistic.fixed.w
+      object$pval.common.w <- object$pval.fixed.w
+      object$zval.common.w <- object$zval.fixed.w
+      object$w.common.w <- object$w.fixed.w
+      ##
+      object$Q.w.common <- object$Q.w.fixed
+      object$pval.Q.w.common <- object$pval.Q.w.fixed
+      object$Q.b.common <- object$Q.b.fixed
+      object$pval.Q.b.common <- object$pval.Q.b.fixed
+    }
+    ##
+    method.incr <- gs("method.incr")
+    if (is.logical(object$addincr) && object$addincr)
+      method.incr <- "all"
+    else if (is.logical(object$allincr) && object$allincr)
+      method.incr <- "if0all"
+    ##
+    if (!is.null(object$id))
+      object$cluster <- object$id
+      object$data$.cluster <- object$data$.id
+  }
+  
+  
+  ##
+  ##
+  ## (2) Check arguments
+  ##
+  ##
+  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
+    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    pscale <- 1
+  }
+  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
+    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    irscale <- 1
+  }
+  ##
+  ## Check for deprecated arguments in '...'
+  ##
+  args  <- list(...)
+  chklogical(warn.deprecated)
+  ##
+  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+                         warn.deprecated)
+  chklevel(level.ma)
+  ##
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
+                      warn.deprecated)
+  common <- deprecated(common, missing.common, args, "fixed",
+                      warn.deprecated)
+  chklogical(common)
+  ##
+  random <- deprecated(random, missing(random), args, "comb.random",
+                       warn.deprecated)
+  chklogical(random)
+  ##
+  missing.subgroup.name <- missing(subgroup.name)
+  subgroup.name <-
+    deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
+               warn.deprecated)
+  ##
+  print.subgroup.name <-
+    deprecated(print.subgroup.name, missing(print.subgroup.name),
+               args, "print.byvar", warn.deprecated)
+  chklogical(print.subgroup.name)
+  ##
+  sep.subgroup <-
+    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+               warn.deprecated)
+  if (!is.null(sep.subgroup))
+    chkchar(sep.subgroup, length = 1)
+  ##
+  test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
+  prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
+  ##
+  missing.method.incr <- missing(method.incr)
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  if (missing.method.incr) {
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  ##
+  ## Some more checks
+  ##
+  overall <- replaceNULL(overall, common | random)
+  overall.hetstat <- replaceNULL(overall.hetstat, common | random)
+  chklogical(overall)
+  chklogical(overall.hetstat)
+  
+  
+  ##
+  ##
+  ## (3) Update trim-and-fill object
+  ##
+  ##
+  if (inherits(object, "trimfill")) {
+    ##
+    rmfilled <- function(x) {
+      ##
+      if (!is.null(object[[x]]))
+        res <- object[[x]][!object$trimfill]
+      else
+        res <- NULL
+      ##
+      res
+    }
+    ##
+    tfnames <- c("TE", "seTE",
+                 "studlab",
+                 "n.e", "n.c",
+                 "event.e", "event.c",
+                 "mean.e", "mean.c", "sd.e", "sd.c",
+                 "n", "event", "cor")
+    ##
+    for (i in tfnames)
+      object[[i]] <- rmfilled(i)
+    ##
+    oldclass <- object$class.x
+    ##
+    res <- trimfill(object,
+                    left = left, ma.common = ma.common,
+                    type = type, n.iter.max = n.iter.max,
+                    level = level, level.ma = level.ma,
+                    common = common, random = random,
+                    hakn = hakn, adhoc.hakn = adhoc.hakn,
+                    method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    prediction = prediction, level.predict = level.predict,
+                    silent = TRUE,
+                    ...)
+    ##
+    res$call.object <- object$call
+    res$call <- match.call()
+    res$class.x <- oldclass
+    ##
+    return(res)
+  }
+  
+  
+  ##
+  ##
+  ## (4) Update metacum or metainf object
+  ##
+  ##
+  if (inherits(object, "metacum") | inherits(object, "metainf")) {
+    ##
+    res <- object
+    ##
+    res$common <- ifelse(res$pooled == "common", TRUE, FALSE)
+    res$random <- ifelse(res$pooled == "random", TRUE, FALSE)
+    ##
+    res$call.object <- object$call
+    res$call <- match.call()
+    res$version <- packageDescription("meta")$Version
+    ##
+    return(res)
+  }
+  ##
   if (is.null(object$data)) {
     warning("Necessary data not available. Please, recreate ",
             "meta-analysis object without option 'keepdata = FALSE'.")
     return(invisible(NULL))
   }
+  
+  
+  ##
+  ##
+  ## (5) Catch variables
+  ##
   ##
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -757,7 +793,7 @@ update.meta <- function(object,
                  Q.Cochrane = Q.Cochrane, model.glmm = model.glmm,
                  ##
                  level = level, level.ma = level.ma,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -772,9 +808,9 @@ update.meta <- function(object,
                  ##
                  backtransf = backtransf, pscale = pscale,
                  ##
-                 text.fixed = text.fixed, text.random = text.random,
+                 text.common = text.common, text.random = text.random,
                  text.predict = text.predict,
-                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
@@ -816,7 +852,7 @@ update.meta <- function(object,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
-                  fixed = fixed, random = random,
+                  common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -828,9 +864,9 @@ update.meta <- function(object,
                   ##
                   method.bias = method.bias,
                   ##
-                  text.fixed = text.fixed, text.random = text.random,
+                  text.common = text.common, text.random = text.random,
                   text.predict = text.predict,
-                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
                   label.e = label.e, label.c = label.c,
@@ -861,7 +897,7 @@ update.meta <- function(object,
                  sm = sm,
                  ##
                  level = level, level.ma = level.ma,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -877,9 +913,9 @@ update.meta <- function(object,
                  ##
                  backtransf = backtransf,
                  ##
-                 text.fixed = text.fixed, text.random = text.random,
+                 text.common = text.common, text.random = text.random,
                  text.predict = text.predict,
-                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
                  subgroup = subgroup, subgroup.name = subgroup.name,
@@ -919,7 +955,7 @@ update.meta <- function(object,
                  sm = sm,
                  ##
                  level = level, level.ma = level.ma,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -936,9 +972,9 @@ update.meta <- function(object,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  ##
-                 text.fixed = text.fixed, text.random = text.random,
+                 text.common = text.common, text.random = text.random,
                  text.predict = text.predict,
-                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
@@ -1009,7 +1045,7 @@ update.meta <- function(object,
                  model.glmm = model.glmm,
                  ##
                  level = level, level.ma = level.ma,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
                  hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -1026,9 +1062,9 @@ update.meta <- function(object,
                  ##
                  backtransf = backtransf, irscale = irscale, irunit = irunit,
                  ##
-                 text.fixed = text.fixed, text.random = text.random,
+                 text.common = text.common, text.random = text.random,
                  text.predict = text.predict,
-                 text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                 text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
                  label.e = label.e, label.c = label.c,
@@ -1070,7 +1106,7 @@ update.meta <- function(object,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
-                  fixed = fixed, random = random,
+                  common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -1086,9 +1122,9 @@ update.meta <- function(object,
                   ##
                   backtransf = backtransf,
                   ##
-                  text.fixed = text.fixed, text.random = text.random,
+                  text.common = text.common, text.random = text.random,
                   text.predict = text.predict,
-                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
                   ##
@@ -1136,7 +1172,7 @@ update.meta <- function(object,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
-                  fixed = fixed, random = random,
+                  common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -1153,9 +1189,9 @@ update.meta <- function(object,
                   ##
                   backtransf = backtransf, pscale = pscale,
                   ##
-                  text.fixed = text.fixed, text.random = text.random,
+                  text.common = text.common, text.random = text.random,
                   text.predict = text.predict,
-                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
                   ##
@@ -1204,7 +1240,7 @@ update.meta <- function(object,
                   ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
-                  fixed = fixed, random = random,
+                  common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
                   hakn = hakn, adhoc.hakn = adhoc.hakn,
@@ -1221,9 +1257,9 @@ update.meta <- function(object,
                   ##
                   backtransf = backtransf, irscale = irscale, irunit = irunit,
                   ##
-                  text.fixed = text.fixed, text.random = text.random,
+                  text.common = text.common, text.random = text.random,
                   text.predict = text.predict,
-                  text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+                  text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
                   subgroup = subgroup, subgroup.name = subgroup.name,

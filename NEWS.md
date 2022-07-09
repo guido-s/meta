@@ -2,10 +2,11 @@
 
 ### Major changes
 
-* Three-level model implemented in all meta-analysis functions
-
 * Use term 'common effect model' instead of 'fixed effect model' in
-  the documentation
+  the documentation and argument 'common' instead of 'fixed' to (not)
+  show results for common effect model
+
+* Three-level model implemented in all meta-analysis functions
 
 * For continuity corrections, new argument 'method.incr' replaces
   arguments 'allincr' and 'addincr' for meta-analysis with binary
@@ -21,6 +22,9 @@
 * Calculate Cochran's Q directly in **meta** for classic inverse
   variance meta-analysis (instead of taking it from **metafor**
   package)
+
+* By default, do not print warnings for deprecated arguments; this can
+  be changed with command 'settings.meta(warn.deprecated = TRUE)'
 
 
 ### Bug fixes
@@ -46,9 +50,9 @@
   - argument 'id' has been renamed to 'cluster',
   - cluster variable is shown in forest plots.
 
-* New argument 'cluster' in functions metabin(), metacont(),
-  metacor(), and metagen(), metainc(), metamean(), metaprop() and
-  metarate()
+* New arguments 'common' and 'cluster' in functions metabin(),
+  metacont(), metacor(), metagen(), metainc(), metamean(), metaprop()
+  and metarate()
 
 * New function subset.longarm() to select subset of a longarm object
 

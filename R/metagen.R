@@ -35,7 +35,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
-#' @param fixed A logical indicating whether a common effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -128,13 +128,13 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
-#' @param text.fixed A character string used in printouts and forest
+#' @param text.common A character string used in printouts and forest
 #'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
+#' @param text.w.common A character string used to label weights of
 #'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
@@ -481,12 +481,12 @@
 #' 
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{fixed} and \code{random}. Accordingly, the estimate
+#' \code{common} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
 #' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{fixed} and \code{random}. For example, functions
+#' \code{common} and \code{random}. For example, functions
 #' \code{\link{print.meta}} and \code{\link{forest.meta}} will not
 #' show results for the random effects model if \code{random =
 #' FALSE}.
@@ -504,7 +504,7 @@
 #' (default: "person-years"). This information is printed in summaries
 #' and forest plots if argument \code{irscale} is not equal to 1.
 #'
-#' Default settings for \code{fixed}, \code{random},
+#' Default settings for \code{common}, \code{random},
 #' \code{pscale}, \code{irscale}, \code{irunit} and several other
 #' arguments can be set for the whole R session using
 #' \code{\link{settings.meta}}.
@@ -522,7 +522,7 @@
 #' object is a list containing the following components:
 #' \item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
 #' \item{cluster, sm, method.ci, level, level.ma,}{As defined above.}
-#' \item{fixed, random,}{As defined above.}
+#' \item{common, random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
@@ -535,13 +535,13 @@
 #'   individual studies.}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in common
+#' \item{w.common, w.random}{Weight of individual studies (in common
 #'   effect and random effects model).}
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect and
 #'   standard error (common effect model).}
-#' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+#' \item{lower.common, upper.common}{Lower and upper confidence interval
 #'   limits (common effect model).}
-#' \item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+#' \item{statistic.common, pval.common}{Statistic and p-value for test of
 #'   overall treatment effect (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
@@ -585,13 +585,13 @@
 #'   method (taking \emph{ad hoc} variance correction into account).}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
-#' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
+#' \item{TE.common.w, seTE.common.w}{Estimated treatment effect and
 #'   standard error in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
+#' \item{lower.common.w, upper.common.w}{Lower and upper confidence
 #'   interval limits in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
+#' \item{statistic.common.w, pval.common.w}{Statistics and p-values for
 #'   test of treatment effect in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
@@ -603,7 +603,7 @@
 #' \item{statistic.random.w, pval.random.w}{Statistics and p-values
 #'   for test of treatment effect in subgroups (random effects model)
 #'   - if \code{subgroup} is not missing.}
-#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in common effect
+#' \item{w.common.w, w.random.w}{Weight of subgroups (in common effect
 #'   and random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
@@ -619,20 +619,20 @@
 #'   subgroups - if \code{subgroup} is not missing.}
 #' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
-#' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
+#' \item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
 #'   (based on common effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+#' \item{pval.Q.w.common}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
-#' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
+#' \item{Q.b.common}{Overall between subgroups heterogeneity statistic
 #'   Q (based on common effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
@@ -640,7 +640,7 @@
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+#' \item{pval.Q.b.common}{P-value of between subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}  \item{pval.Q.b.random}{P-value of between
 #'   subgroups heterogeneity statistic Q (based on random effects
@@ -929,10 +929,10 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     method.ci = if (missing(df)) "z" else "t",
                     level = gs("level"), level.ma = gs("level.ma"),
-                    fixed = gs("fixed"),
+                    common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
-                    overall = fixed | random,
-                    overall.hetstat = fixed | random,
+                    overall = common | random,
+                    overall.hetstat = common | random,
                     ##
                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau = gs("method.tau"),
@@ -961,10 +961,10 @@ metagen <- function(TE, seTE, studlab,
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
                     ##
-                    text.fixed = gs("text.fixed"),
+                    text.common = gs("text.common"),
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
-                    text.w.fixed = gs("text.w.fixed"),
+                    text.w.common = gs("text.w.common"),
                     text.w.random = gs("text.w.random"),
                     ##
                     title = gs("title"), complab = gs("complab"),
@@ -1031,14 +1031,14 @@ metagen <- function(TE, seTE, studlab,
     irscale <- 1
   }
   ##
-  if (!is.null(text.fixed))
-    chkchar(text.fixed, length = 1)
+  if (!is.null(text.common))
+    chkchar(text.common, length = 1)
   if (!is.null(text.random))
     chkchar(text.random, length = 1)
   if (!is.null(text.predict))
     chkchar(text.predict, length = 1)
-  if (!is.null(text.w.fixed))
-    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.common))
+    chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
   ##
@@ -1058,10 +1058,12 @@ metagen <- function(TE, seTE, studlab,
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  missing.fixed <- missing(fixed)
-  fixed <- deprecated(fixed, missing.fixed, args, "comb.fixed",
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
                       warn.deprecated)
-  chklogical(fixed)
+  common <- deprecated(common, missing.common, args, "fixed",
+                      warn.deprecated)
+  chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
@@ -1443,7 +1445,7 @@ metagen <- function(TE, seTE, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    fixed <- FALSE
+    common <- FALSE
     random <- FALSE
     prediction <- FALSE
     overall <- FALSE
@@ -1832,13 +1834,13 @@ metagen <- function(TE, seTE, studlab,
   seTE.hakn <- seTE.hakn.adhoc <- NULL
   ##
   if (k == 0) {
-    TE.fixed <- NA
-    seTE.fixed <- NA
-    statistic.fixed <- NA
-    pval.fixed <- NA
-    lower.fixed <- NA
-    upper.fixed <- NA
-    w.fixed <- rep(0, k.all)
+    TE.common <- NA
+    seTE.common <- NA
+    statistic.common <- NA
+    pval.common <- NA
+    lower.common <- NA
+    upper.common <- NA
+    w.common <- rep(0, k.all)
     ##
     TE.random <- NA
     seTE.random <- NA
@@ -1903,20 +1905,20 @@ metagen <- function(TE, seTE, studlab,
         hc$sign.upper.tau <- ""
       }
       ##
-      ## Fixed effect estimate (Cooper & Hedges, 1994, p. 265-6)
+      ## Common effect estimate (Cooper & Hedges, 1994, p. 265-6)
       ##
-      w.fixed <- 1 / seTE^2
-      w.fixed[is.na(w.fixed) | is.na(TE) | exclude] <- 0
+      w.common <- 1 / seTE^2
+      w.common[is.na(w.common) | is.na(TE) | exclude] <- 0
       ##
-      TE.fixed   <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-      seTE.fixed <- sqrt(1 / sum(w.fixed, na.rm = TRUE))
+      TE.common   <- weighted.mean(TE, w.common, na.rm = TRUE)
+      seTE.common <- sqrt(1 / sum(w.common, na.rm = TRUE))
       ##
-      ci.f <- ci(TE.fixed, seTE.fixed, level = level.ma,
+      ci.f <- ci(TE.common, seTE.common, level = level.ma,
                  null.effect = null.effect)
-      statistic.fixed <- ci.f$statistic
-      pval.fixed <- ci.f$p
-      lower.fixed <- ci.f$lower
-      upper.fixed <- ci.f$upper
+      statistic.common <- ci.f$statistic
+      pval.common <- ci.f$p
+      lower.common <- ci.f$lower
+      upper.common <- ci.f$upper
       ##
       ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
       ##
@@ -1930,19 +1932,19 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Three-level meta-analysis
       ##
-      ## No fixed effect method for three-level model
+      ## No common effect method for three-level model
       ##
-      if (fixed) {
-        if (!missing.fixed)
-          warning(gs("text.fixed"), " not calculated for three-level model.",
+      if (common) {
+        if (!missing.common)
+          warning(gs("text.common"), " not calculated for three-level model.",
                   call. = FALSE)
-        fixed <- FALSE
+        common <- FALSE
       }
       ##
-      w.fixed <- rep_len(NA, length(seTE))
+      w.common <- rep_len(NA, length(seTE))
       ##
-      TE.fixed <- seTE.fixed <- lower.fixed <- upper.fixed <-
-        statistic.fixed <- pval.fixed <- NA
+      TE.common <- seTE.common <- lower.common <- upper.common <-
+        statistic.common <- pval.common <- NA
       ##
       ## Conduct three-level meta-analysis
       ##
@@ -2105,13 +2107,13 @@ metagen <- function(TE, seTE, studlab,
               pval = ci.study$p,
               zval = ci.study$statistic,
               df = if (method.ci == "t") df else rep_len(NA, length(TE)),
-              w.fixed = w.fixed, w.random = w.random,
+              w.common = w.common, w.random = w.random,
               cluster = cluster,
               ##
-              TE.fixed = TE.fixed, seTE.fixed = seTE.fixed,
-              lower.fixed = lower.fixed, upper.fixed = upper.fixed,
-              statistic.fixed = statistic.fixed, pval.fixed = pval.fixed,
-              zval.fixed = statistic.fixed,
+              TE.common = TE.common, seTE.common = seTE.common,
+              lower.common = lower.common, upper.common = upper.common,
+              statistic.common = statistic.common, pval.common = pval.common,
+              zval.common = statistic.common,
               ##
               TE.random = TE.random, seTE.random = seTE.random,
               lower.random = lower.random, upper.random = upper.random,
@@ -2146,7 +2148,7 @@ metagen <- function(TE, seTE, studlab,
               sm = sm, method = "Inverse",
               level = level,
               level.ma = level.ma,
-              fixed = fixed,
+              common = common,
               random = random,
               overall = overall,
               overall.hetstat = overall.hetstat,
@@ -2168,9 +2170,9 @@ metagen <- function(TE, seTE, studlab,
               n.e = n.e,
               n.c = n.c,
               ##
-              text.fixed = text.fixed, text.random = text.random,
+              text.common = text.common, text.random = text.random,
               text.predict = text.predict,
-              text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+              text.w.common = text.w.common, text.w.random = text.w.random,
               ##
               title = title, complab = complab, outclab = outclab,
               label.e = label.e,
@@ -2269,16 +2271,44 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Backward compatibility
   ##
-  res$comb.fixed <- fixed
+  res$fixed <- common
+  res$comb.fixed <- common
   res$comb.random <- random
   res$level.comb <- level.ma
+  ##
+  res$w.fixed <- res$w.common
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
+  ##
+  res$text.fixed <- res$text.common
+  res$text.w.fixed <- res$text.w.common
   ##
   if (by) {
     res$byvar <- subgroup
     res$bylab <- subgroup.name
     res$print.byvar <- print.subgroup.name
     res$byseparator <- sep.subgroup
+    ##
+    res$TE.fixed.w <- res$TE.common.w
+    res$seTE.fixed.w <- res$seTE.common.w
+    res$lower.fixed.w <- res$lower.common.w
+    res$upper.fixed.w <- res$upper.common.w
+    res$statistic.fixed.w <- res$statistic.common.w
+    res$pval.fixed.w <- res$pval.common.w
+    res$zval.fixed.w <- res$zval.common.w
+    res$w.fixed.w <- res$w.common.w
+    ##
+    res$Q.w.fixed <- res$Q.w.common
+    res$pval.Q.w.fixed <- res$pval.Q.w.common
+    res$Q.b.fixed <- res$Q.b.common
+    res$pval.Q.b.fixed <- res$pval.Q.b.common
   }
+  ##
   if (three.level)
     res$id <- res$cluster
   ##

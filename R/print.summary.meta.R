@@ -8,7 +8,7 @@
 #' @param x An object of class \code{summary.meta}
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
-#' @param fixed A logical indicating whether a common effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -137,7 +137,7 @@
 
 print.summary.meta <- function(x,
                                sortvar,
-                               fixed = x$x$fixed,
+                               common = x$x$common,
                                random = x$x$random,
                                details = FALSE, ma = TRUE,
                                overall = x$overall,
@@ -185,7 +185,7 @@ print.summary.meta <- function(x,
   ##
   k.all <- length(x$TE)
   ##
-  x.meta <- x$x
+  x.meta <- updateversion(x$x)
   
   
   ##
@@ -304,9 +304,11 @@ print.summary.meta <- function(x,
   ##
   args  <- list(...)
   ##
-  fixed <- replaceNULL(fixed, x$comb.fixed)
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed", FALSE)
-  chklogical(fixed)
+  missing.common <- missing(common)
+  common <- replaceNULL(common, x$comb.common)
+  common <- deprecated(common, missing.common, args, "comb.fixed", FALSE)
+  common <- deprecated(common, missing.common, args, "fixed", FALSE)
+  chklogical(common)
   ##
   random <- replaceNULL(random, x$comb.random)
   random <- deprecated(random, missing(random), args, "comb.random", FALSE)
@@ -358,10 +360,10 @@ print.summary.meta <- function(x,
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
   ##
-  if (is.null(x$text.w.fixed))
-    text.w.fixed <- paste0("%W(", gs("text.w.fixed"), ")")
+  if (is.null(x$text.w.common))
+    text.w.common <- paste0("%W(", gs("text.w.common"), ")")
   else
-    text.w.fixed <- paste0("%W(", x$text.w.fixed, ")")
+    text.w.common <- paste0("%W(", x$text.w.common, ")")
   ##
   if (is.null(x$text.w.random))
     text.w.random <- paste0("%W(", gs("text.w.random"), ")")
@@ -438,7 +440,7 @@ print.summary.meta <- function(x,
     }
     else if (inherits(x, "metacont")) {
       res <- cbind(n.e = formatN(x$n.e, digits = 0,
-                                      "NA", big.mark = big.mark),
+                                 "NA", big.mark = big.mark),
                    mean.e = formatN(round(x$mean.e, digits), digits,
                                     "NA", big.mark = big.mark),
                    sd.e = formatN(round(x$sd.e, digits.se), digits.se,
@@ -561,7 +563,7 @@ print.summary.meta <- function(x,
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
         (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
-         !is.zero(x$TE - x$TE.fixed)))) {
+         !is.zero(x$TE - x$TE.common)))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -588,7 +590,7 @@ print.summary.meta <- function(x,
     }
     if (k.all == 1 &&
         inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
-        !is.zero(x$TE - x$TE.fixed))
+        !is.zero(x$TE - x$TE.common))
       method.ci <- "!RR.Cochrane"
     ##
     if (backtransf) {
@@ -635,11 +637,11 @@ print.summary.meta <- function(x,
     uppTE <- round(uppTE, digits)
     ##
     if (!metainf.metacum) {
-      if (fixed)
-        if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
-          w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE),
+      if (common)
+        if (!all(is.na(x$w.common)) && sum(x$w.common) > 0)
+          w.common.p <- round(100 * x$w.common / sum(x$w.common, na.rm = TRUE),
                              digits.weight)
-        else w.fixed.p <- x$w.fixed
+        else w.common.p <- x$w.common
       ##
       if (random)
         if (!is.null(x$w.random) & !all(is.na(x$w.random)) &&
@@ -680,13 +682,13 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
-          cat(paste0("Influential analysis (", gs("text.fixed"), ")\n"))
+          cat(paste0("Influential analysis (", gs("text.common"), ")\n"))
         else
           cat(paste0("Influential analysis (", gs("text.random"), ")\n"))
       }
       else if (inherits(x, "metacum")) {
         if (!is.random)
-          cat(paste0("Cumulative meta-analysis (", gs("text.fixed"), ")\n"))
+          cat(paste0("Cumulative meta-analysis (", gs("text.common"), ")\n"))
         else
           cat(paste0("Cumulative meta-analysis (", gs("text.random"), ")\n"))
       }
@@ -712,9 +714,9 @@ print.summary.meta <- function(x,
                 IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
-      show.w.fixed  <-
+      show.w.common  <-
         (overall | by) & !mb.glmm &
-        (fixed && !all(is.na(w.fixed.p)))
+        (common && !all(is.na(w.common.p)))
       show.w.random <-
         (overall | by) & !mb.glmm &
         (random && !all(is.na(w.random.p)))
@@ -725,8 +727,8 @@ print.summary.meta <- function(x,
                                     big.mark = big.mark),
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
-                   if (show.w.fixed)
-                     formatN(w.fixed.p, digits.weight,
+                   if (show.w.common)
+                     formatN(w.common.p, digits.weight,
                              big.mark = big.mark),
                    if (show.w.random)
                      formatN(w.random.p, digits.weight,
@@ -799,7 +801,7 @@ print.summary.meta <- function(x,
             dimnames(res) <-
               list(x$studlab,
                    c(sm.lab, ci.lab,
-                     if (show.w.fixed) text.w.fixed,
+                     if (show.w.common) text.w.common,
                      if (show.w.random) text.w.random,
                      if (three.level) "cluster",
                      if (by) subgroup.name,
@@ -849,7 +851,7 @@ print.summary.meta <- function(x,
         dimnames(res) <-
           list(x$studlab,
                c(sm.lab, ci.lab,
-                 if (show.w.fixed) text.w.fixed,
+                 if (show.w.common) text.w.common,
                  if (show.w.random) text.w.random,
                  if (three.level) "cluster",
                  if (by) subgroup.name,
@@ -883,7 +885,7 @@ print.summary.meta <- function(x,
       print.meta(x.meta,
                  header = FALSE,
                  digits = digits,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,

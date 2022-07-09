@@ -33,7 +33,8 @@ This meta-analysis is used as a data example in Hartung and Knapp
 data(cisapride)
 
 m.or <- metabin(event.cisa, n.cisa, event.plac, n.plac,
-  data = cisapride, sm = "OR", method = "Inverse",
+  data = cisapride, sm = "OR",
+  method = "Inverse", method.tau = "DL",
   studlab = study, method.incr = "all")
 
 m.or.hakn <- update(m.or, hakn = TRUE)

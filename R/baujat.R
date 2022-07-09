@@ -189,7 +189,7 @@ baujat.meta <- function(x,
   }
   
   
-  m.inf <- metainf(x, pooled = "fixed")
+  m.inf <- metainf(x, pooled = "common")
   TE.inf <- m.inf$TE[seq_along(TE)]
   seTE.inf <- m.inf$seTE[seq_along(TE)]
   ##

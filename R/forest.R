@@ -14,7 +14,7 @@
 #'   provided (must be of same length as \code{x$TE} then).
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see Details).
-#' @param fixed A logical indicating whether common effect estimate
+#' @param common A logical indicating whether common effect estimate
 #'   should be plotted.
 #' @param random A logical indicating whether random effects estimate
 #'   should be plotted.
@@ -22,15 +22,15 @@
 #'   should be plotted. This argument is useful in a meta-analysis
 #'   with subgroups if summaries should only be plotted on group
 #'   level.
-#' @param text.fixed A character string used in the plot to label the
+#' @param text.common A character string used in the plot to label the
 #'   pooled common effect estimate.
 #' @param text.random A character string used in the plot to label the
 #'   pooled random effects estimate.
-#' @param lty.fixed Line type (pooled common effect estimate).
+#' @param lty.common Line type (pooled common effect estimate).
 #' @param lty.random Line type (pooled random effects estimate).
-#' @param col.fixed Line colour (pooled common effect estimate).
+#' @param col.common Line colour (pooled common effect estimate).
 #' @param col.random Line colour (pooled random effects estimate).
-#' @param text.w.fixed A character string used to label weights of
+#' @param text.w.common A character string used to label weights of
 #'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
@@ -56,7 +56,7 @@
 #'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
-#' @param text.fixed.w A character string to label the pooled common
+#' @param text.common.w A character string to label the pooled common
 #'   effect estimate within subgroups, or a character vector of same
 #'   length as number of subgroups with corresponging labels.
 #' @param text.random.w A character string to label the pooled random
@@ -91,7 +91,7 @@
 #' @param weight.study A character string indicating weighting used to
 #'   determine size of squares or diamonds (argument
 #'   \code{type.study}) to plot individual study results. One of
-#'   missing, \code{"same"}, \code{"fixed"}, or \code{"random"}, can
+#'   missing, \code{"same"}, \code{"common"}, or \code{"random"}, can
 #'   be abbreviated. Plot symbols have the same size for all studies
 #'   or represent study weights from common effect or random effects
 #'   model.
@@ -159,7 +159,7 @@
 #' @param type.study A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for individual
 #'   studies (see Details).
-#' @param type.fixed A character string specifying how to plot
+#' @param type.common A character string specifying how to plot
 #'   treatment effect and confidence interval for common effect
 #'   meta-analysis (see Details).
 #' @param type.random A character string specifying how to plot
@@ -168,7 +168,7 @@
 #' @param type.subgroup A character string specifying how to plot
 #'   treatment effect and confidence interval for subgroup results
 #'   (see Details).
-#' @param type.subgroup.fixed A character string specifying how to
+#' @param type.subgroup.common A character string specifying how to
 #'   plot treatment effect and confidence interval for subgroup
 #'   results (common effect model).
 #' @param type.subgroup.random A character string specifying how to
@@ -179,7 +179,7 @@
 #' @param col.inside The colour for individual study results and
 #'   confidence limits if confidence limits are completely within
 #'   squares.
-#' @param col.inside.fixed The colour for result of common effect
+#' @param col.inside.common The colour for result of common effect
 #'   meta-analysis if confidence limit lies completely within square.
 #' @param col.inside.random The colour for result of random effects
 #'   meta-analysis if confidence limit lies completely within square.
@@ -189,14 +189,14 @@
 #'   reflecting study's weight in the meta-analysis.
 #' @param col.diamond The colour of diamonds representing the results
 #'   for common effect and random effects models.
-#' @param col.diamond.fixed The colour of diamonds for common effect
+#' @param col.diamond.common The colour of diamonds for common effect
 #'   estimates.
 #' @param col.diamond.random The colour of diamonds for random effects
 #'   estimates.
 #' @param col.diamond.lines The colour of the outer lines of diamonds
 #'   representing the results for common effect and random effects
 #'   models.
-#' @param col.diamond.lines.fixed The colour of the outer lines of
+#' @param col.diamond.lines.common The colour of the outer lines of
 #'   diamond for common effect estimate.
 #' @param col.diamond.lines.random The colour of the outer lines of
 #'   diamond for random effects estimate.
@@ -254,11 +254,11 @@
 #'   generalized linear mixed models.
 #' @param test.overall A logical value indicating whether to print
 #'   results of test for overall effect.
-#' @param test.overall.fixed A logical value indicating whether to
+#' @param test.overall.common A logical value indicating whether to
 #'   print results of test for overall effect (common effect model).
 #' @param test.overall.random A logical value indicating whether to
 #'   print results of test for overall effect (random effects model).
-#' @param label.test.overall.fixed Label printed in front of results
+#' @param label.test.overall.common Label printed in front of results
 #'   of test for overall effect (common effect model).
 #' @param label.test.overall.random Label printed in front of results
 #'   of test for overall effect (random effects model).
@@ -266,7 +266,7 @@
 #'   for test of treatment effect should be printed.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
-#' @param test.subgroup.fixed A logical value indicating whether to
+#' @param test.subgroup.common A logical value indicating whether to
 #'   print results of test for subgroup differences (common effect
 #'   model).
 #' @param test.subgroup.random A logical value indicating whether to
@@ -278,20 +278,20 @@
 #' @param print.Q.subgroup A logical value indicating whether to print
 #'   the value of the heterogeneity statistic Q (test for subgroup
 #'   differences).
-#' @param label.test.subgroup.fixed Label printed in front of results
+#' @param label.test.subgroup.common Label printed in front of results
 #'   of test for subgroup differences (common effect model).
 #' @param label.test.subgroup.random Label printed in front of results
 #'   of test for subgroup differences (random effects model).
 #' @param test.effect.subgroup A single logical or logical vector
 #'   indicating whether / which tests for effect in subgroups should
 #'   be printed.
-#' @param test.effect.subgroup.fixed A single logical or logical
+#' @param test.effect.subgroup.common A single logical or logical
 #'   vector indicating whether / which tests for effect in subgroups
 #'   should be printed (common effect model).
 #' @param test.effect.subgroup.random A single logical or logical
 #'   vector indicating whether / which tests for effect in subgroups
 #'   should be printed (random effects model).
-#' @param label.test.effect.subgroup.fixed Label printed in front of
+#' @param label.test.effect.subgroup.common Label printed in front of
 #'   results of test for effect in subgroups (common effect model).
 #' @param label.test.effect.subgroup.random Label printed in front of
 #'   results of test for effect in subgroups (random effects model).
@@ -304,13 +304,13 @@
 #' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fs.heading The size of text for column headings, see
 #'   \code{\link{gpar}}.
-#' @param fs.fixed The size of text for results of common effect model,
-#'   see \code{\link{gpar}}.
+#' @param fs.common The size of text for results of common effect
+#'   model, see \code{\link{gpar}}.
 #' @param fs.random The size of text for results of random effects
 #'   model, see \code{\link{gpar}}.
 #' @param fs.predict The size of text for results of prediction
 #'   interval, see \code{\link{gpar}}.
-#' @param fs.fixed.labels The size of text for label of common effect
+#' @param fs.common.labels The size of text for label of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param fs.random.labels The size of text for label of random
 #'   effects model, see \code{\link{gpar}}.
@@ -339,13 +339,13 @@
 #'   forest plot, see \code{\link{gpar}}.
 #' @param ff.heading The fontface for column headings, see
 #'   \code{\link{gpar}}.
-#' @param ff.fixed The fontface of text for results of common effect
+#' @param ff.common The fontface of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param ff.random The fontface of text for results of random effects
 #'   model, see \code{\link{gpar}}.
 #' @param ff.predict The fontface of text for results of prediction
 #'   interval, see \code{\link{gpar}}.
-#' @param ff.fixed.labels The fontface of text for label of common
+#' @param ff.common.labels The fontface of text for label of common
 #'   effect model, see \code{\link{gpar}}.
 #' @param ff.random.labels The fontface of text for label of random
 #'   effects model, see \code{\link{gpar}}.
@@ -399,11 +399,11 @@
 #' @param colgap.forest.right Either a character string or a
 #'   \code{\link[grid]{unit}} object specifying gap between column on
 #'   the right side of forest plot and the forest plot.
-#' @param calcwidth.pooled A logical indicating whether text for common
-#'   effect and random effects model should be considered to calculate
-#'   width of the column with study labels.
-#' @param calcwidth.fixed A logical indicating whether text given in
-#'   arguments \code{text.fixed} and \code{text.fixed.w} should be
+#' @param calcwidth.pooled A logical indicating whether text for
+#'   common effect and random effects model should be considered to
+#'   calculate width of the column with study labels.
+#' @param calcwidth.common A logical indicating whether text given in
+#'   arguments \code{text.common} and \code{text.common.w} should be
 #'   considered to calculate width of the column with study labels.
 #' @param calcwidth.random A logical indicating whether text given in
 #'   arguments \code{text.random} and \code{text.random.w} should be
@@ -502,6 +502,8 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param \dots Additional graphical arguments.
 #' 
 #' @details
@@ -524,18 +526,18 @@
 #'   of the square (\code{type.study = "square"})
 #' \item For meta-analysis results, a diamond with treatment estimate
 #'   in the center and right and left side corresponding to lower and
-#'   upper confidence limits (\code{type.fixed = "diamond"},
+#'   upper confidence limits (\code{type.common = "diamond"},
 #'   \code{type.random = "diamond"}, and \code{type.subgroup = "diamond"})
 #' }
 #' 
 #' In a forest plot, size of the squares typically reflects the precision of
 #' individual treatment estimates based either on the common effect
-#' (\code{weight.study = "fixed"}) or random effects meta-analysis
+#' (\code{weight.study = "common"}) or random effects meta-analysis
 #' (\code{weight.study = "random"}). Information from meta-analysis object
 #' \code{x} is utilised if argument \code{weight.study} is missing. Weights
-#' from the common effect model are used if argument \code{x$fixed} is
+#' from the common effect model are used if argument \code{x$common} is
 #' \code{TRUE}; weights from the random effects model are used if argument
-#' \code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
+#' \code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' The same square sizes are used if \code{weight.study = "same"}.
 #' 
 #' A prediction interval for treatment effect of a new study (Higgins
@@ -625,15 +627,15 @@
 #' \bold{Meta-analysis results} \tab \bold{Value of argument
 #'   rightcols} \cr
 #' No summary \tab \code{c("effect", "ci")} \cr
-#' Only common effect model \tab \code{c("effect", "ci", "w.fixed")}
+#' Only common effect model \tab \code{c("effect", "ci", "w.common")}
 #'   \cr
 #' Only random effects model \tab \code{c("effect", "ci", "w.random")}
 #'   \cr
-#' Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+#' Both models \tab \code{c("effect", "ci", "w.common", "w.random")}
 #' }
 #'
 #' By default, estimated treatment effect and corresponding confidence
-#' interval will be printed. Depending on arguments \code{fixed} and
+#' interval will be printed. Depending on arguments \code{common} and
 #' \code{random}, weights of the common effect and/or random effects
 #' model will be given too.
 #'
@@ -668,7 +670,7 @@
 #'   \code{x$sm} \tab \cr
 #' \cr
 #' Column: \tab \code{ci} \tab \code{effect.ci} \tab
-#'   \code{w.fixed} \tab \code{w.random} \tab \tab \cr
+#'   \code{w.common} \tab \code{w.random} \tab \tab \cr
 #' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
 #'   "W(common)" \tab "W(random)" \tab \tab
 #' }
@@ -697,7 +699,7 @@
 #' to print heterogeneity information:
 #' \itemize{
 #' \item row with results for common effect model (\code{hetstat =
-#' "fixed"}),
+#' "common"}),
 #' \item row with results for random effects model (\code{hetstat =
 #' "random"}).
 #' }
@@ -711,15 +713,15 @@
 #' for various statistical tests:
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Statistical test} \cr
-#' \code{test.overall.fixed} \tab Test for overall effect (common
+#' \code{test.overall.common} \tab Test for overall effect (common
 #'   effect model) \cr
 #' \code{test.overall.random} \tab Test for overall effect (random
 #'   effects model) \cr
-#' \code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
+#' \code{test.effect.subgroup.common} \tab Test for effect in subgroup
 #'   (CE model) \cr
 #' \code{test.effect.subgroup.random} \tab Test for effect in subgroup
 #'   (RE model) \cr
-#' \code{test.subgroup.fixed} \tab Test for subgroup differences (CE
+#' \code{test.subgroup.common} \tab Test for subgroup differences (CE
 #'   model) \cr
 #' \code{test.subgroup.random} \tab Test for subgroup differences (RE
 #'   model)
@@ -754,7 +756,7 @@
 #' \item \code{prediction.subgroup} (prediction interval in
 #'   subgroups),
 #' \item \code{test.effect.subgroup} (test for effect in subgroups),
-#' \item \code{test.effect.subgroup.fixed} (test for effect in
+#' \item \code{test.effect.subgroup.common} (test for effect in
 #'   subgroups, common effect model),
 #' \item \code{test.effect.subgroup.random} (test for effect in
 #'   subgroups, random effects model).
@@ -763,12 +765,12 @@
 #' 
 #' \subsection{Additional general settings}{
 #' 
-#' Arguments \code{text.fixed}, \code{text.random}, and
+#' Arguments \code{text.common}, \code{text.random}, and
 #' \code{text.predict} can be used to change the label to identify
 #' overall results (common effect and random effects model as well as
 #' prediction interval). By default the following text is printed:
 #' \itemize{
-#' \item "Common effect model" (argument \code{text.fixed})
+#' \item "Common effect model" (argument \code{text.common})
 #' \item "Random effects model" (\code{text.random})
 #' \item "Prediction interval" (\code{text.predict})
 #' }
@@ -808,7 +810,7 @@
 #'   (\code{test.overall}, \code{test.effect.subgroup},
 #'   \code{test.subgroup})
 #' \item Diamonds representing meta-analysis results are printed in
-#'   black (\code{diamond.fixed}, \code{diamond.random})
+#'   black (\code{diamond.common}, \code{diamond.random})
 #' \item Colour of squares depends on the meta-analysis object
 #'   (\code{col.square}, \code{col.square.lines})
 #' \item Information on effect measure and meta-analysis method is
@@ -833,7 +835,7 @@
 #'   interval is printed at bottom of forest plot (\code{xlab})
 #' \item Tests for overall effect are printed (\code{test.overall})
 #' \item Diamonds representing meta-analysis results are printed in
-#'   lightblue (\code{diamond.fixed}, \code{diamond.random})
+#'   lightblue (\code{diamond.common}, \code{diamond.random})
 #' \item Squares representing individual study results are printed in
 #'   darkblue (\code{col.square}, \code{col.square.lines})
 #' \item Between-study variance \eqn{\tau^2} is not printed
@@ -902,7 +904,7 @@
 #' # Furthermore, add labels on both sides of forest plot and
 #' # prediction interval
 #' #
-#' forest(m1, layout = "RevMan5", fixed = FALSE,
+#' forest(m1, layout = "RevMan5", common = FALSE,
 #'   label.right = "Favours control", col.label.right = "red",
 #'   label.left = "Favours experimental", col.label.left = "green",
 #'   prediction = TRUE)
@@ -935,7 +937,7 @@
 #' 
 #' # Print results of test for overall effect
 #' #
-#' forest(m1, test.overall.fixed = TRUE, test.overall.random = TRUE)
+#' forest(m1, test.overall.common = TRUE, test.overall.random = TRUE)
 #' 
 #' # Forest plot with 'classic' layout used in R package meta,
 #' # version < 1.6-0
@@ -1014,7 +1016,7 @@
 #'   fs.study.label = 11, ff.study.label = "bold",
 #'   fs.axis = 5, ff.axis = "italic",
 #'   ff.smlab = "bold.italic",
-#'   ff.fixed = "plain", ff.hetstat = "plain")
+#'   ff.common = "plain", ff.hetstat = "plain")
 #' 
 #' # Change some colours
 #' #
@@ -1025,11 +1027,11 @@
 #' 
 #' # Sort by weight in common effect model
 #' #
-#' forest(m1, sortvar = 1 / w.fixed, random = FALSE)
+#' forest(m1, sortvar = 1 / w.common, random = FALSE)
 #' 
 #' # Sort by decreasing weight in common effect model
 #' #
-#' forest(m1, sortvar = -1 / w.fixed, random = FALSE)
+#' forest(m1, sortvar = -1 / w.common, random = FALSE)
 #' 
 #' # Sort by size of treatment effect
 #' #
@@ -1046,7 +1048,7 @@
 #' # Print results of test for subgroup differences (random effects
 #' # model)
 #' #
-#' forest(m2, sortvar = -TE, fixed = FALSE)
+#' forest(m2, sortvar = -TE, common = FALSE)
 #' 
 #' # Print only subgroup results
 #' #
@@ -1074,14 +1076,14 @@ forest.meta <- function(x,
                         ##
                         layout = gs("layout"),
                         ##
-                        fixed = x$fixed,
+                        common = x$common,
                         random = x$random,
                         overall = x$overall,
-                        text.fixed = x$text.fixed,
+                        text.common = x$text.common,
                         text.random = x$text.random,
-                        lty.fixed = 2, lty.random = 3,
-                        col.fixed = "black", col.random = "black",
-                        text.w.fixed = x$text.w.fixed,
+                        lty.common = 2, lty.random = 3,
+                        col.common = "black", col.random = "black",
+                        text.w.common = x$text.w.common,
                         text.w.random = x$text.w.random,
                         ##
                         prediction = x$prediction,
@@ -1095,12 +1097,12 @@ forest.meta <- function(x,
                         subgroup.name = x$subgroup.name,
                         print.subgroup.name = x$print.subgroup.name,
                         sep.subgroup = x$sep.subgroup,
-                        text.fixed.w = text.fixed,
+                        text.common.w = text.common,
                         text.random.w = text.random,
                         text.predict.w = text.predict,
                         bysort = FALSE,
                         ##
-                        pooled.totals = fixed | random,
+                        pooled.totals = common | random,
                         pooled.events = FALSE, pooled.times = FALSE,
                         ##
                         study.results = TRUE,
@@ -1142,11 +1144,11 @@ forest.meta <- function(x,
                         label = TRUE,
                         ##
                         type.study = "square",
-                        type.fixed = "diamond",
-                        type.random = type.fixed,
+                        type.common = "diamond",
+                        type.random = type.common,
                         type.subgroup =
                           ifelse(study.results, "diamond", "square"),
-                        type.subgroup.fixed = type.subgroup,
+                        type.subgroup.common = type.subgroup,
                         type.subgroup.random = type.subgroup,
                         ##
                         col.study = "black",
@@ -1154,14 +1156,14 @@ forest.meta <- function(x,
                         col.square.lines = col.square,
                         ##
                         col.inside = "white",
-                        col.inside.fixed = col.inside,
+                        col.inside.common = col.inside,
                         col.inside.random = col.inside,
                         ##
                         col.diamond = "gray",
-                        col.diamond.fixed = col.diamond,
+                        col.diamond.common = col.diamond,
                         col.diamond.random = col.diamond,
                         col.diamond.lines = "black",
-                        col.diamond.lines.fixed = col.diamond.lines,
+                        col.diamond.lines.common = col.diamond.lines,
                         col.diamond.lines.random = col.diamond.lines,
                         ##
                         col.predict = "red",
@@ -1172,7 +1174,7 @@ forest.meta <- function(x,
                         col.label.right = "black",
                         col.label.left = "black",
                         ##
-                        hetstat = fixed | random | overall.hetstat,
+                        hetstat = common | random | overall.hetstat,
                         overall.hetstat = x$overall.hetstat,
                         hetlab = "Heterogeneity: ",
                         resid.hetstat,
@@ -1192,26 +1194,26 @@ forest.meta <- function(x,
                         LRT = FALSE,
                         ##
                         test.overall = gs("test.overall"),
-                        test.overall.fixed = fixed & overall & test.overall,
+                        test.overall.common = common & overall & test.overall,
                         test.overall.random =
                           random & overall & test.overall,
-                        label.test.overall.fixed,
+                        label.test.overall.common,
                         label.test.overall.random,
                         ##
                         print.stat = TRUE,
                         ##
                         test.subgroup = x$test.subgroup,
-                        test.subgroup.fixed = test.subgroup & fixed,
+                        test.subgroup.common = test.subgroup & common,
                         test.subgroup.random = test.subgroup & random,
                         prediction.subgroup = x$prediction.subgroup,
                         print.Q.subgroup = TRUE,
-                        label.test.subgroup.fixed,
+                        label.test.subgroup.common,
                         label.test.subgroup.random,
                         ##
                         test.effect.subgroup = gs("test.effect.subgroup"),
-                        test.effect.subgroup.fixed,
+                        test.effect.subgroup.common,
                         test.effect.subgroup.random,
-                        label.test.effect.subgroup.fixed,
+                        label.test.effect.subgroup.common,
                         label.test.effect.subgroup.random,
                         ##
                         text.addline1,
@@ -1220,10 +1222,10 @@ forest.meta <- function(x,
                         fontsize = 12,
                         fontfamily = NULL,
                         fs.heading = fontsize,
-                        fs.fixed,
+                        fs.common,
                         fs.random,
                         fs.predict,
-                        fs.fixed.labels,
+                        fs.common.labels,
                         fs.random.labels,
                         fs.predict.labels,
                         fs.study = fontsize,
@@ -1239,10 +1241,10 @@ forest.meta <- function(x,
                         fs.lr = fontsize,
                         ##
                         ff.heading = "bold",
-                        ff.fixed,
+                        ff.common,
                         ff.random,
                         ff.predict,
-                        ff.fixed.labels,
+                        ff.common.labels,
                         ff.random.labels,
                         ff.predict.labels,
                         ff.study = "plain",
@@ -1269,9 +1271,9 @@ forest.meta <- function(x,
                         colgap.forest.right = colgap.forest,
                         ##
                         calcwidth.pooled =
-                          (fixed | random) &
+                          (common | random) &
                           (overall | !is.null(x$subgroup)),
-                        calcwidth.fixed = calcwidth.pooled,
+                        calcwidth.common = calcwidth.pooled,
                         calcwidth.random = calcwidth.pooled,
                         calcwidth.predict = FALSE,
                         calcwidth.hetstat = FALSE,
@@ -1320,6 +1322,8 @@ forest.meta <- function(x,
                           if (layout == "JAMA") FALSE else gs("zero.pval"),
                         JAMA.pval =
                           if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+                        ##
+                        warn.deprecated = gs("warn.deprecated"),
                         ...) {
   
   
@@ -1377,8 +1381,8 @@ forest.meta <- function(x,
   if (layout == "subgroup") {
     if (missing(type.subgroup))
       type.subgroup <- "square"
-    if (missing(type.subgroup.fixed))
-      type.subgroup.fixed <- "square"
+    if (missing(type.subgroup.common))
+      type.subgroup.common <- "square"
     if (missing(type.subgroup.random))
       type.subgroup.random <- "square"
     ##
@@ -1421,7 +1425,7 @@ forest.meta <- function(x,
                 "time.e", "time.c",
                 "effect", "ci",
                 "effect.ci",
-                "w.fixed", "w.random")
+                "w.fixed", "w.common", "w.random")
   ##
   if (metainf.metacum)
     colnames <- c(colnames, "pval", "tau2", "tau", "I2")
@@ -1565,8 +1569,8 @@ forest.meta <- function(x,
       warning("Argument 'test.effect.subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(test.effect.subgroup.fixed))
-      warning("Argument 'test.effect.subgroup.fixed' only considered for ",
+    if (!missing(test.effect.subgroup.common))
+      warning("Argument 'test.effect.subgroup.common' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
     if (!missing(test.effect.subgroup.random))
@@ -1647,29 +1651,29 @@ forest.meta <- function(x,
     else
       test.effect.subgroup.logical <- rep(test.effect.subgroup, n.by)
     ##
-    if (missing(test.effect.subgroup.fixed))
-      test.effect.subgroup.fixed.logical <-
-        fixed & test.effect.subgroup.logical
+    if (missing(test.effect.subgroup.common))
+      test.effect.subgroup.common.logical <-
+        common & test.effect.subgroup.logical
     else {
-      test.effect.subgroup.fixed <-
-        catch("test.effect.subgroup.fixed", mc, x, sfsp)
-      test.effect.subgroup.fixed <-
-        replaceNULL(test.effect.subgroup.fixed, FALSE)
+      test.effect.subgroup.common <-
+        catch("test.effect.subgroup.common", mc, x, sfsp)
+      test.effect.subgroup.common <-
+        replaceNULL(test.effect.subgroup.common, FALSE)
       ##
-      if (length(test.effect.subgroup.fixed) == 1) {
-        chklogical(test.effect.subgroup.fixed)
+      if (length(test.effect.subgroup.common) == 1) {
+        chklogical(test.effect.subgroup.common)
         ##
-        test.effect.subgroup.fixed.logical <-
-          rep(test.effect.subgroup.fixed, n.by) &
+        test.effect.subgroup.common.logical <-
+          rep(test.effect.subgroup.common, n.by) &
           (x$k.w > 1 | layout == "subgroup")
       }
       else {
-        chklength(test.effect.subgroup.fixed, n.by,
+        chklength(test.effect.subgroup.common, n.by,
                   text = paste("Length of argument",
-                               "'test.effect.subgroup.fixed'",
+                               "'test.effect.subgroup.common'",
                                "must be equal to 1 or number of subgroups."))
-        chklogical(test.effect.subgroup.fixed[1])
-        test.effect.subgroup.fixed.logical <- test.effect.subgroup.fixed
+        chklogical(test.effect.subgroup.common[1])
+        test.effect.subgroup.common.logical <- test.effect.subgroup.common
       }
     }
     ##
@@ -1728,17 +1732,29 @@ forest.meta <- function(x,
     stop("Number of studies in object 'x' and argument 'studlab' have ",
          "different length.")
   ##
-  chklogical(fixed)
+  ## Additional arguments in '...'
+  ##
+  args <- list(...)
+  ## Check whether first argument is a list. In this case only use
+  ## this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  ##
+  common <- deprecated(common, missing(common), args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   chklogical(random)
-  overall <- replaceNULL(overall, fixed | random)
+  overall <- replaceNULL(overall, common | random)
   chklogical(overall)
   ##
-  if (!is.null(lty.fixed))
-    chknumeric(lty.fixed)
+  lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
+                           warn.deprecated)
+  if (!is.null(lty.common))
+    chknumeric(lty.common, length = 1)
   if (!is.null(lty.random))
-    chknumeric(lty.random)
-  chkcolor(col.fixed)
-  chkcolor(col.random)
+    chknumeric(lty.random, length = 1)
+  chkcolor(col.common, length = 1)
+  chkcolor(col.random, length = 1)
   chklogical(prediction)
   ##
   chklogical(print.subgroup.labels)
@@ -1777,10 +1793,10 @@ forest.meta <- function(x,
   chkcolor(col.equi)
   ##
   type.study <- setchar(type.study, c("square", "diamond", "predict"))
-  type.fixed <- setchar(type.fixed, c("square", "diamond", "predict"))
+  type.common <- setchar(type.common, c("square", "diamond", "predict"))
   type.random <- setchar(type.random, c("square", "diamond", "predict"))
   type.subgroup <- setchar(type.subgroup, c("square", "diamond", "predict"))
-  type.subgroup.fixed <- setchar(type.subgroup.fixed,
+  type.subgroup.common <- setchar(type.subgroup.common,
                                  c("square", "diamond", "predict"))
   type.subgroup.random <- setchar(type.subgroup.random,
                                   c("square", "diamond", "predict"))
@@ -1801,7 +1817,6 @@ forest.meta <- function(x,
   if (!is.null(at))
     chknumeric(at)
   chkcolor(col.diamond)
-  chkcolor(col.diamond.fixed)
   chkcolor(col.diamond.random)
   chkcolor(col.predict)
   chkcolor(col.predict.lines)
@@ -1858,7 +1873,8 @@ forest.meta <- function(x,
   ##
   hetstat.pooled <- ""
   if (is.character(hetstat)) {
-    hetstat.pooled <- setchar(hetstat, c("fixed", "random", "study"))
+    hetstat.pooled <- setchar(hetstat, c("common", "random", "study", "fixed"))
+    hetstat.pooled[hetstat.pooled == "fixed"] <- "common"
     if (!metabind & hetstat.pooled == "study") {
       warning("Argument 'hetstat = \"study\"' ",
               "only considered for 'metabind' objects.")
@@ -1868,8 +1884,8 @@ forest.meta <- function(x,
   else
     chklogical(hetstat)
   ##
-  if (hetstat.pooled == "fixed") {
-    fixed <- TRUE
+  if (hetstat.pooled == "common") {
+    common <- TRUE
     overall <- TRUE
   }
   if (hetstat.pooled == "random") {
@@ -1906,25 +1922,50 @@ forest.meta <- function(x,
   }
   chkchar(resid.hetlab)
   ##
-  chklogical(test.overall.fixed)
+  chklogical(test.overall.common)
   chklogical(test.overall.random)
   ##
   test.subgroup <- replaceNULL(test.subgroup, TRUE)
   chklogical(test.subgroup)
-  chklogical(test.subgroup.fixed)
+  test.subgroup.common <-
+    deprecated(test.subgroup.common, missing(test.subgroup.common),
+               args, "test.subgroup.fixed",
+               warn.deprecated)
+  chklogical(test.subgroup.common)
   chklogical(test.subgroup.random)
   ##
   chklogical(print.Q.subgroup)
   chknumeric(fontsize, length = 1)
   chknumeric(fs.heading, length = 1)
-  if (!missing(fs.fixed))
-    chknumeric(fs.fixed, length = 1)
+  ##
+  missing.fs.common <- missing(fs.common)
+  missing.fs.fixed <- is.na(argid(args, "fs.fixed"))
+  if (!missing.fs.fixed) {
+    fs.common <-
+      deprecated(fs.common, missing.fs.common, args, "fs.fixed",
+                 warn.deprecated)
+    missing.fs.common <- FALSE
+  }
+  if (!missing.fs.common)
+    chknumeric(fs.common, length = 1)
+  ##
   if (!missing(fs.random))
     chknumeric(fs.random, length = 1)
   if (!missing(fs.predict))
     chknumeric(fs.predict, length = 1)
-  if (!missing(fs.fixed.labels))
-    chknumeric(fs.fixed.labels, length = 1)
+  ##
+  missing.fs.common.labels <- missing(fs.common.labels)
+  missing.fs.fixed.labels <- is.na(argid(args, "fs.fixed.labels"))
+  if (!missing.fs.fixed.labels) {
+    fs.common.labels <-
+      deprecated(fs.common.labels, missing.fs.common.labels,
+                 args, "fs.fixed.labels",
+                 warn.deprecated)
+    missing.fs.common.labels <- FALSE
+  }
+  if (!missing.fs.common.labels)
+    chknumeric(fs.common.labels, length = 1)
+  ##
   if (!missing(fs.random.labels))
     chknumeric(fs.random.labels, length = 1)
   if (!missing(fs.predict.labels))
@@ -1947,9 +1988,33 @@ forest.meta <- function(x,
   chknumeric(fs.smlab, length = 1)
   chknumeric(fs.xlab, length = 1)
   chknumeric(fs.lr, length = 1)
+  ##
+  missing.ff.common <- missing(ff.common)
+  missing.ff.fixed <- is.na(argid(args, "ff.fixed"))
+  if (!missing.ff.fixed) {
+    ff.common <-
+      deprecated(ff.common, missing.ff.common, args, "ff.fixed",
+                 warn.deprecated)
+    missing.ff.common <- FALSE
+  }
+  ##
+  missing.ff.common.labels <- missing(ff.common.labels)
+  missing.ff.fixed.labels <- is.na(argid(args, "ff.fixed.labels"))
+  if (!missing.ff.fixed.labels) {
+    ff.common.labels <-
+      deprecated(ff.common.labels, missing.ff.common.labels,
+                 args, "ff.fixed.labels",
+                 warn.deprecated)
+    missing.ff.common.labels <- FALSE
+  }
+  ##
   chknumeric(squaresize, length = 1)
   chklogical(calcwidth.pooled)
-  chklogical(calcwidth.fixed)
+  calcwidth.common <-
+    deprecated(calcwidth.common, missing(calcwidth.common),
+               args, "calcwidth.fixed",
+               warn.deprecated)
+  chklogical(calcwidth.common)
   chklogical(calcwidth.random)
   chklogical(calcwidth.predict)
   chklogical(calcwidth.hetstat)
@@ -1985,7 +2050,7 @@ forest.meta <- function(x,
   if (!missing(addrow.overall))
     chklogical(addrow.overall)
   else
-    addrow.overall <- !jama & overall & (fixed | random | prediction)
+    addrow.overall <- !jama & overall & (common | random | prediction)
   if (!missing(addrow.subgroups))
     chklogical(addrow.subgroups)
   else
@@ -2023,104 +2088,118 @@ forest.meta <- function(x,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args <- list(...)
-  ## Check whether first argument is a list. In this case only use
-  ## this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
-  ##
   weight.study <-
-      deprecated(weight.study, missing(weight.study), args, "weight")
+      deprecated(weight.study, missing(weight.study), args, "weight",
+                 warn.deprecated)
   if (missing(weight.study) || is.null(weight.study))
-    weight.study <- ifelse(random & !fixed, "random", "fixed")
-  weight.study <- setchar(weight.study, c("same", "fixed", "random"))
+    weight.study <- ifelse(random & !common, "random", "common")
+  weight.study <- setchar(weight.study, c("same", "common", "random", "fixed"))
+  weight.study[weight.study == "fixed"] <- "common"
   ##
   digits.stat <-
-    deprecated(digits.stat, missing(digits.stat), args, "digits.zval")
+    deprecated(digits.stat, missing(digits.stat), args, "digits.zval",
+               warn.deprecated)
   chknumeric(digits.stat, min = 0, length = 1)
   ##
   print.stat <-
-    deprecated(print.stat, missing(print.stat), args, "print.zval")
+    deprecated(print.stat, missing(print.stat), args, "print.zval",
+               warn.deprecated)
   chklogical(print.stat)
   ##
-  label <- deprecated(label, missing(label), args, "labels")
+  label <- deprecated(label, missing(label), args, "labels",
+                      warn.deprecated)
   ##
-  label.e <- deprecated(label.e, missing(label.e), args, "lab.e")
-  label.c <- deprecated(label.c, missing(label.c), args, "lab.c")
+  label.e <- deprecated(label.e, missing(label.e), args, "lab.e",
+                        warn.deprecated)
+  label.c <- deprecated(label.c, missing(label.c), args, "lab.c",
+                        warn.deprecated)
   ##
   label.e.attach <- deprecated(label.e.attach, missing(label.e.attach),
-                               args, "lab.e.attach.to.col")
+                               args, "lab.e.attach.to.col",
+                               warn.deprecated)
   label.c.attach <- deprecated(label.c.attach, missing(label.c.attach),
-                               args, "lab.c.attach.to.col")
+                               args, "lab.c.attach.to.col",
+                               warn.deprecated)
   ##
   col.inside <-
-    deprecated(col.inside, missing(col.inside), args, "col.i.inside.square")
+    deprecated(col.inside, missing(col.inside), args, "col.i.inside.square",
+               warn.deprecated)
   chkcolor(col.inside)
-  chkcolor(col.inside.fixed)
+  chkcolor(col.inside.common)
   chkcolor(col.inside.random)
   ##
-  col.diamond.lines.fixed <-
-    deprecated(col.diamond.lines.fixed, missing(col.diamond.lines.fixed),
-               args, "col.diamond.fixed.lines")
+  if (!is.na(argid(args, "col.diamond.lines.fixed"))) {
+    col.diamond.lines.common <-
+      deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
+                 args, "col.diamond.lines.fixed",
+                 warn.deprecated)
+  }
+  else if (!is.na(argid(args, "col.diamond.fixed.lines"))) {
+    col.diamond.lines.common <-
+      deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
+                 args, "col.diamond.fixed.lines",
+                 warn.deprecated)
+  }
   chkcolor(col.diamond.lines)
-  chkcolor(col.diamond.lines.fixed)
+  chkcolor(col.diamond.lines.common)
   ##
   col.diamond.lines.random <-
     deprecated(col.diamond.lines.random, missing(col.diamond.lines.random),
-               args, "col.diamond.random.lines")
+               args, "col.diamond.random.lines",
+               warn.deprecated)
   chkcolor(col.diamond.lines.random)
   ##
   ## Additional assignments
   ##
   if (jama) {
-    if (missing(ff.fixed))
-      ff.fixed <- "plain"
+    if (missing.ff.common)
+      ff.common <- "plain"
     if (missing(ff.random))
-      ff.random <- ff.fixed
+      ff.random <- ff.common
     if (missing(ff.predict))
-      ff.predict <- ff.fixed
-    if (missing(ff.fixed.labels))
-      ff.fixed.labels <- ff.fixed
+      ff.predict <- ff.common
+    if (missing.ff.common.labels)
+      ff.common.labels <- ff.common
     if (missing(ff.random.labels))
       ff.random.labels <- ff.random
     if (missing(ff.predict.labels))
       ff.predict.labels <- ff.predict
     ##
-    if (missing(fs.fixed))
-      fs.fixed <- fontsize
+    if (missing.fs.common)
+      fs.common <- fontsize
     if (missing(fs.random))
-      fs.random <- fs.fixed
+      fs.random <- fs.common
     if (missing(fs.predict))
-      fs.predict <- fs.fixed
-    if (missing(fs.fixed.labels))
-      fs.fixed.labels <- fs.fixed
+      fs.predict <- fs.common
+    if (missing.fs.common.labels)
+      fs.common.labels <- fs.common
     if (missing(fs.random.labels))
       fs.random.labels <- fs.random
     if (missing(fs.predict.labels))
       fs.predict.labels <- fs.predict
   }
   else {
-    if (missing(ff.fixed))
-      ff.fixed <- "bold"
+    if (missing.ff.common)
+      ff.common <- "bold"
     if (missing(ff.random))
-      ff.random <- ff.fixed
+      ff.random <- ff.common
     if (missing(ff.predict))
-      ff.predict <- ff.fixed
-    if (missing(ff.fixed.labels))
-      ff.fixed.labels <- ff.fixed
+      ff.predict <- ff.common
+    if (missing.ff.common.labels)
+      ff.common.labels <- ff.common
     if (missing(ff.random.labels))
       ff.random.labels <- ff.random
     if (missing(ff.predict.labels))
       ff.predict.labels <- ff.predict
     ##
-    if (missing(fs.fixed))
-      fs.fixed <- fontsize
+    if (missing.fs.common)
+      fs.common <- fontsize
     if (missing(fs.random))
-      fs.random <- fs.fixed
+      fs.random <- fs.common
     if (missing(fs.predict))
-      fs.predict <- fs.fixed
-    if (missing(fs.fixed.labels))
-      fs.fixed.labels <- fs.fixed
+      fs.predict <- fs.common
+    if (missing.fs.common.labels)
+      fs.common.labels <- fs.common
     if (missing(fs.random.labels))
       fs.random.labels <- fs.random
     if (missing(fs.predict.labels))
@@ -2250,14 +2329,14 @@ forest.meta <- function(x,
   three.level <- !is.null(x$three.level) && x$three.level
   ##
   if (!by) {
-    fixed.random <- fixed & random
+    common.random <- common & random
     ##
-    test.subgroup.fixed <- FALSE
+    test.subgroup.common <- FALSE
     test.subgroup.random <- FALSE
   }
   else
-    fixed.random <-
-      any(fixed | test.subgroup.fixed | test.effect.subgroup.fixed.logical) &
+    common.random <-
+      any(common | test.subgroup.common | test.effect.subgroup.common.logical) &
       any(random | test.subgroup.random | test.effect.subgroup.random.logical)
   ##
   if (layout == "subgroup") {
@@ -2267,30 +2346,38 @@ forest.meta <- function(x,
     study.results <- FALSE
   }
   ##
-  missing.text.fixed <- missing(text.fixed)
-  if (missing.text.fixed | is.null(text.fixed)) {
+  missing.text.common <- missing(text.common)
+  missing.text.fixed <- is.na(argid(args, "text.fixed"))
+  if (!missing.text.fixed) {
+    text.common <-
+      deprecated(text.common, missing.text.common, args, "text.fixed",
+                 warn.deprecated)
+    missing.text.common <- FALSE
+  }
+  ##
+  if (missing.text.common | is.null(text.common)) {
     if (study.results & (x$level != x$level.ma | revman5)) {
       if (revman5.jama)
-        text.fixed <- paste0("Total (",
-                             if (fixed.random)
-                               paste0(gs("text.w.fixed"), " effect, "),
+        text.common <- paste0("Total (",
+                             if (common.random)
+                               paste0(gs("text.w.common"), " effect, "),
                              round(x$level.ma * 100), "% CI)")
-      else if (!is.null(text.fixed))
-        text.fixed <- paste0(text.fixed, " (",
+      else if (!is.null(text.common))
+        text.common <- paste0(text.common, " (",
                              round(x$level.ma * 100), "%-CI)")
       else
-        text.fixed <- paste0(gs("text.fixed"), " (",
+        text.common <- paste0(gs("text.common"), " (",
                              round(x$level.ma * 100), "%-CI)")
     }
     else {
       if (revman5.jama) {
-        text.fixed <- "Total"
-        if (fixed.random)
-          text.fixed <- paste0(text.fixed, " (", gs("text.w.fixed"),
+        text.common <- "Total"
+        if (common.random)
+          text.common <- paste0(text.common, " (", gs("text.w.common"),
                                " effect)")
       }
-      else if (is.null(text.fixed))
-        text.fixed <- gs("text.fixed")
+      else if (is.null(text.common))
+        text.common <- gs("text.common")
     }
   }
   ##
@@ -2299,7 +2386,7 @@ forest.meta <- function(x,
     if (study.results & (x$level != x$level.ma | revman5)) {
       if (revman5.jama)
         text.random <- paste0("Total (",
-                              if (fixed.random)
+                              if (common.random)
                                 paste0(gs("text.w.random"), " effect, "),
                               round(x$level.ma * 100), "% CI)")
       else if (!is.null(text.random))
@@ -2312,7 +2399,7 @@ forest.meta <- function(x,
     else {
       if (revman5.jama) {
         text.random <- "Total"
-        if (fixed.random)
+        if (common.random)
           text.random <- paste0(text.random, " (", gs("text.w.random"),
                                 " effect)")
       }
@@ -2334,10 +2421,10 @@ forest.meta <- function(x,
   ##
   if (metainf.metacum) {
     overall.hetstat <- FALSE
-    test.overall.fixed <- FALSE
+    test.overall.common <- FALSE
     test.overall.random <- FALSE
     resid.hetstat <- FALSE
-    test.subgroup.fixed <- FALSE
+    test.subgroup.common <- FALSE
     test.subgroup.random <- FALSE
     ##
     hetstat <- FALSE
@@ -2345,15 +2432,15 @@ forest.meta <- function(x,
   }
   ##
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
-    test.overall.fixed <- FALSE
+    test.overall.common <- FALSE
     test.overall.random <- FALSE
   }
   ##
   if (!overall) {
     if (test.overall)
       test.overall <- FALSE
-    if (test.overall.fixed)
-      test.overall.fixed <- FALSE
+    if (test.overall.common)
+      test.overall.common <- FALSE
     if (test.overall.random)
       test.overall.random <- FALSE
   }
@@ -2370,7 +2457,7 @@ forest.meta <- function(x,
              missing.leftcols & !calcwidth.hetstat)
       addrows.below.overall <- 2
     else if (layout %in% c("meta", "subgroup") &
-             (test.subgroup.fixed & test.subgroup.random) &
+             (test.subgroup.common & test.subgroup.random) &
              !calcwidth.tests) {
       addrows.below.overall <- 1
       ##
@@ -2468,40 +2555,73 @@ forest.meta <- function(x,
   colgap.forest.left <- setunit(colgap.forest.left)
   colgap.forest.right <- setunit(colgap.forest.right)
   ##
-  if (missing(label.test.overall.fixed))
-    label.test.overall.fixed <-
+  missing.label.test.overall.common <- missing(label.test.overall.common)
+  missing.label.test.overall.fixed <-
+    is.na(argid(args, "label.test.overall.fixed"))
+  if (!missing.label.test.overall.fixed) {
+    label.test.overall.common <-
+      deprecated(label.test.overall.common, missing.label.test.overall.common,
+                 args, "label.test.overall.fixed",
+                 warn.deprecated)
+    missing.label.test.overall.common <- FALSE
+  }
+  if (missing.label.test.overall.common)
+    label.test.overall.common <-
       paste0("Test for overall effect",
-             if (fixed.random)
-               paste0(" (", gs("text.w.fixed"), " effect)"),
+             if (common.random)
+               paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
   if (missing(label.test.overall.random))
     label.test.overall.random <-
       paste0("Test for overall effect",
-             if (fixed.random)
+             if (common.random)
                paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
-  if (missing(label.test.subgroup.fixed))
-    label.test.subgroup.fixed <-
+  missing.label.test.subgroup.common <- missing(label.test.subgroup.common)
+  missing.label.test.subgroup.fixed <-
+    is.na(argid(args, "label.test.subgroup.fixed"))
+  if (!missing.label.test.subgroup.fixed) {
+    label.test.subgroup.common <-
+      deprecated(label.test.subgroup.common,
+                 missing.label.test.subgroup.common,
+                 args, "label.test.subgroup.fixed",
+                 warn.deprecated)
+    missing.label.test.subgroup.common <- FALSE
+  }
+  if (missing.label.test.subgroup.common)
+    label.test.subgroup.common <-
       paste0("Test for subgroup differences",
-             if (fixed.random)
-               paste0(" (", gs("text.w.fixed"), " effect)"),
+             if (common.random)
+               paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
   if (missing(label.test.subgroup.random))
     label.test.subgroup.random <-
       paste0("Test for subgroup differences",
-             if (fixed.random)
+             if (common.random)
                paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
-  if (missing(label.test.effect.subgroup.fixed))
-    label.test.effect.subgroup.fixed <-
+  missing.label.test.effect.subgroup.common <-
+    missing(label.test.effect.subgroup.common)
+  missing.label.test.effect.subgroup.fixed <-
+    is.na(argid(args, "label.test.effect.subgroup.fixed"))
+  if (!missing.label.test.effect.subgroup.fixed) {
+    label.test.effect.subgroup.common <-
+      deprecated(label.test.effect.subgroup.common,
+                 missing.label.test.effect.subgroup.common,
+                 args, "label.test.effect.subgroup.fixed",
+                 warn.deprecated)
+    missing.label.test.effect.subgroup.common <- FALSE
+  }
+  if (missing.label.test.effect.subgroup.common)
+    label.test.effect.subgroup.common <-
       paste0(if (revman5.jama)
                "Test for overall effect"
              else
                "Test for effect in subgroup",
-             if (fixed.random)
-               paste0(" (", gs("text.w.fixed"), " effect)"),
+             if (common.random)
+               paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
   if (missing(label.test.effect.subgroup.random))
     label.test.effect.subgroup.random <-
@@ -2509,7 +2629,7 @@ forest.meta <- function(x,
                "Test for overall effect"
              else
                "Test for effect in subgroup",
-             if (fixed.random)
+             if (common.random)
                paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   ##
@@ -2566,6 +2686,17 @@ forest.meta <- function(x,
   else
     ci.lab <- paste0(100 * level.ma, "%", cisep, "CI")
   ##
+  missing.col.diamond.common <- missing(col.diamond.common)
+  missing.col.diamond.fixed <- is.na(argid(args, "col.diamond.fixed"))
+  if (!missing.col.diamond.fixed) {
+    col.diamond.common <-
+      deprecated(col.diamond.common, missing.col.diamond.common,
+                 args, "col.diamond.fixed",
+                 warn.deprecated)
+    missing.col.diamond.common <- FALSE
+  }
+  chkcolor(col.diamond.common)
+  ##
   if (jama) {
     if (missing(ff.lr))
       ff.lr <- "bold"
@@ -2575,8 +2706,8 @@ forest.meta <- function(x,
       col.square <- rep("darkblue", K.all)
     if (miss.col.square.lines)
       col.square.lines <- rep("darkblue", K.all)
-    if (missing(col.diamond.fixed))
-      col.diamond.fixed <- "lightblue"
+    if (missing.col.diamond.common)
+      col.diamond.common <- "lightblue"
     if (missing(col.diamond.random))
       col.diamond.random <- "lightblue"
     ##
@@ -2601,17 +2732,17 @@ forest.meta <- function(x,
         else
           col.square.lines <- rep("red", K.all)
       }
-      if (missing(col.diamond.fixed))
-        col.diamond.fixed <- "black"
+      if (missing.col.diamond.common)
+        col.diamond.common <- "black"
       if (missing(col.diamond.random))
         col.diamond.random <- "black"
       ##
       sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
       lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
       ##
-      if (fixed.random)
+      if (common.random)
         lab.model <- "Fixed + Random, "
-      else if (fixed)
+      else if (common)
         lab.model <- "Fixed, "
       else if (random)
         lab.model <- "Random, "
@@ -2632,15 +2763,19 @@ forest.meta <- function(x,
   else if (gs("CIbracket") == "")
     ci.lab.bracket <- ci.lab
   ##
-  if (!fixed.random) {
-    text.w.fixed <- "Weight"
+  if (!common.random) {
+    text.w.common <- "Weight"
     text.w.random <- "Weight"
   }
   else {
-    if (is.null(text.w.fixed))
-      text.w.fixed <- paste0("Weight\n(", gs("text.w.fixed"), ")")
+    text.w.common <-
+      deprecated(text.w.common, missing(text.w.common), args, "text.w.fixed",
+                 warn.deprecated)
+    ##
+    if (is.null(text.w.common))
+      text.w.common <- paste0("Weight\n(", gs("text.w.common"), ")")
     else
-      text.w.fixed <- paste0("Weight\n(", text.w.fixed, ")")
+      text.w.common <- paste0("Weight\n(", text.w.common, ")")
     ##
     if (is.null(text.w.random))
       text.w.random <- paste0("Weight\n(", gs("text.w.random"), ")")
@@ -2661,7 +2796,8 @@ forest.meta <- function(x,
                   smlab
                 else
                   paste(sm.lab, ci.lab.bracket),
-                text.w.fixed,
+                text.w.common,
+                text.w.common,
                 text.w.random)
   ##
   if (metainf.metacum)
@@ -2939,8 +3075,8 @@ forest.meta <- function(x,
     if (revman5) {
       ##
       if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
-        if (fixed)
-          leftcols <- c(leftcols, "w.fixed")
+        if (common)
+          leftcols <- c(leftcols, "w.common")
         if (random)
           leftcols <- c(leftcols, "w.random")
       }
@@ -2949,12 +3085,15 @@ forest.meta <- function(x,
     }
   }
   ##
+  leftcols[leftcols == "w.fixed"] <- "w.common"
+  leftcols <- unique(leftcols)
+  ##
   if (is.null(rightcols) && rsel) {
     rightcols <- c("effect", "ci")
     ##
     if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
-      if (fixed)
-        rightcols <- c(rightcols, "w.fixed")
+      if (common)
+        rightcols <- c(rightcols, "w.common")
       if (random)
         rightcols <- c(rightcols, "w.random")
     }
@@ -2962,6 +3101,12 @@ forest.meta <- function(x,
     if (metainf.metacum)
       rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")  
   }
+  ##
+  rightcols[rightcols == "w.fixed"] <- "w.common"
+  rightcols <- unique(rightcols)
+  ##
+  if (any(leftcols == "w.common") & any(rightcols == "w.common"))
+    leftcols <- leftcols[!leftcols == "w.common"]
   
   
   ##
@@ -3038,10 +3183,10 @@ forest.meta <- function(x,
   ##
   if (metainf.metacum) {
     ##
-    x$TE.fixed <- rev(x$TE)[1]
-    x$seTE.fixed <- rev(x$seTE)[1]
-    x$lower.fixed <- rev(x$lower)[1]
-    x$upper.fixed <- rev(x$upper)[1]
+    x$TE.common <- rev(x$TE)[1]
+    x$seTE.common <- rev(x$seTE)[1]
+    x$lower.common <- rev(x$lower)[1]
+    x$upper.common <- rev(x$upper)[1]
     ##
     x$TE.random <- rev(x$TE)[1]
     x$seTE.random <- rev(x$seTE)[1]
@@ -3060,7 +3205,7 @@ forest.meta <- function(x,
     x$lower <- rev(rev(x$lower)[-(1:2)])
     x$upper <- rev(rev(x$upper)[-(1:2)])
     ##
-    x$w.fixed <- rev(rev(x$w)[-(1:2)])
+    x$w.common <- rev(rev(x$w)[-(1:2)])
     x$w.random <- rev(rev(x$w)[-(1:2)])
     ##
     x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
@@ -3076,14 +3221,14 @@ forest.meta <- function(x,
     x$tau <- rev(rev(x$tau)[-(1:2)])
     x$I2 <- rev(rev(x$I2)[-(1:2)])
     ##
-    if (overall & x$pooled == "fixed") {
-      fixed <- TRUE
+    if (overall & x$pooled == "common") {
+      common <- TRUE
       random <- FALSE
       if (weight.study != "same")
-        weight.study <- "fixed"
+        weight.study <- "common"
     }
     else if (overall & x$pooled == "random") {
-      fixed <- FALSE
+      common <- FALSE
       random <- TRUE
       if (weight.study != "same")
         weight.study <- "random"
@@ -3137,7 +3282,7 @@ forest.meta <- function(x,
   x$lower <- x$lower[sel]
   x$upper <- x$upper[sel]
   ##
-  x$w.fixed <- x$w.fixed[sel]
+  x$w.common <- x$w.common[sel]
   x$w.random <- x$w.random[sel]
   studlab <- studlab[sel]
   type.study <- type.study[sel]
@@ -3199,7 +3344,7 @@ forest.meta <- function(x,
     x$lower <- x$lower[o]
     x$upper <- x$upper[o]
     ##
-    x$w.fixed  <- x$w.fixed[o]
+    x$w.common  <- x$w.common[o]
     x$w.random <- x$w.random[o]
     studlab  <- studlab[o]
     type.study  <- type.study[o]
@@ -3238,9 +3383,9 @@ forest.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    TE.fixed    <- x$TE.fixed
-    lowTE.fixed <- x$lower.fixed
-    uppTE.fixed <- x$upper.fixed
+    TE.common    <- x$TE.common
+    lowTE.common <- x$lower.common
+    uppTE.common <- x$upper.common
     ##
     TE.random    <- x$TE.random
     lowTE.random <- x$lower.random
@@ -3267,10 +3412,10 @@ forest.meta <- function(x,
     lowRb <- NA
     uppRb <- NA
     ##
-    Q.b.fixed  <- NA
+    Q.b.common  <- NA
     Q.b.random <- NA
     df.Q.b     <- NA
-    pval.Q.b.fixed  <- NA
+    pval.Q.b.common  <- NA
     pval.Q.b.random <- NA
   }
   else {
@@ -3285,9 +3430,9 @@ forest.meta <- function(x,
       uppTE <- ciTE$upper
     }
     ##
-    TE.fixed <- x$TE.fixed
-    lowTE.fixed <- x$lower.fixed
-    uppTE.fixed <- x$upper.fixed
+    TE.common <- x$TE.common
+    lowTE.common <- x$lower.common
+    uppTE.common <- x$upper.common
     ##
     TE.random <- x$TE.random
     lowTE.random <- x$lower.random
@@ -3345,11 +3490,11 @@ forest.meta <- function(x,
     uppRb <- x$upper.Rb
     ##
     if (by) {
-      Q.b.fixed <- x$Q.b.fixed
+      Q.b.common <- x$Q.b.common
       Q.b.random <- x$Q.b.random
       df.Q.b <- x$df.Q.b
-      pval.Q.b.fixed <-
-        replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
+      pval.Q.b.common <-
+        replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b))
       pval.Q.b.random <-
         replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
       ##
@@ -3379,7 +3524,7 @@ forest.meta <- function(x,
       uppI2.resid <- x$upper.I2.resid
     }
     else {
-      Q.b.fixed  <- NA
+      Q.b.common  <- NA
       Q.b.random <- NA
       df.Q.b     <- NA
     }
@@ -4467,14 +4612,14 @@ forest.meta <- function(x,
   ## Label of test for overall effect
   ##
   ##
-  if (test.overall.fixed | test.overall.random) {
-    pvals.overall <- formatPT(c(x$pval.fixed, x$pval.random),
+  if (test.overall.common | test.overall.random) {
+    pvals.overall <- formatPT(c(x$pval.common, x$pval.random),
                               lab = TRUE, labval = "",
                               digits = digits.pval,
                               zero = zero.pval, JAMA = JAMA.pval,
                               scientific = scientific.pval,
                               lab.NA = "NA")
-    statistics.overall <- formatN(c(x$statistic.fixed, x$statistic.random),
+    statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
                                   digits.stat, "NA", big.mark = big.mark)
     ##
     ## Remove superfluous spaces
@@ -4487,50 +4632,50 @@ forest.meta <- function(x,
       statistics.overall <- gsub("  ", " ", statistics.overall)
   }
   ##
-  if (test.overall.fixed) {
+  if (test.overall.common) {
     if (print.stat) {
       if (revman5)
-        text.overall.fixed  <- substitute(paste(tl,
+        text.overall.common  <- substitute(paste(tl,
                                                 Z, hetseparator, tt,
                                                 " (P", tp, ")"),
-                                          list(tl = label.test.overall.fixed,
+                                          list(tl = label.test.overall.common,
                                                hetseparator = hetseparator,
                                                tt = statistics.overall[1],
                                                tp = pvals.overall[1]))
       else if (jama)
-        text.overall.fixed  <- substitute(paste(tl,
+        text.overall.common  <- substitute(paste(tl,
                                                 italic(z), hetseparator, tt,
                                                 " (", italic(P), tp, ")"),
-                                          list(tl = label.test.overall.fixed,
+                                          list(tl = label.test.overall.common,
                                                hetseparator = hetseparator,
                                                tt = statistics.overall[1],
                                                tp = pvals.overall[1]))
       else
-        text.overall.fixed  <- substitute(paste(tl,
+        text.overall.common  <- substitute(paste(tl,
                                                 italic(z), hetseparator, tt,
                                                 " (", italic(p), tp, ")"),
-                                          list(tl = label.test.overall.fixed,
+                                          list(tl = label.test.overall.common,
                                                hetseparator = hetseparator,
                                                tt = statistics.overall[1],
                                                tp = pvals.overall[1]))
     }
     else {
       if (revman5)
-        text.overall.fixed  <- substitute(paste(tl, " P", tp),
-                                          list(tl = label.test.overall.fixed,
+        text.overall.common  <- substitute(paste(tl, " P", tp),
+                                          list(tl = label.test.overall.common,
                                                tp = pvals.overall[1]))
       else if (jama)
-        text.overall.fixed  <- substitute(paste(tl, " ", italic(P), tp),
-                                          list(tl = label.test.overall.fixed,
+        text.overall.common  <- substitute(paste(tl, " ", italic(P), tp),
+                                          list(tl = label.test.overall.common,
                                                tp = pvals.overall[1]))
       else
-        text.overall.fixed  <- substitute(paste(tl, " ", italic(p), tp),
-                                          list(tl = label.test.overall.fixed,
+        text.overall.common  <- substitute(paste(tl, " ", italic(p), tp),
+                                          list(tl = label.test.overall.common,
                                                tp = pvals.overall[1]))     
     }
   }
   else
-    text.overall.fixed <- ""
+    text.overall.common <- ""
   ##
   if (test.overall.random) {
     if (print.stat) {
@@ -4612,8 +4757,8 @@ forest.meta <- function(x,
   ## Label of test for subgroup differences
   ##
   if (by) {
-    Q.bs <- c(Q.b.fixed, Q.b.random)
-    pval.Q.bs <- c(pval.Q.b.fixed, pval.Q.b.random)
+    Q.bs <- c(Q.b.common, Q.b.random)
+    pval.Q.bs <- c(pval.Q.b.common, pval.Q.b.random)
   }
   else {
     Q.bs <- NA
@@ -4645,55 +4790,55 @@ forest.meta <- function(x,
   while(any(grepl("  ", hetstat.Q.bs)))
     hetstat.Q.bs <- gsub("  ", " ", hetstat.Q.bs)
   ##
-  if (test.subgroup.fixed) {
+  if (test.subgroup.common) {
     if (print.Q.subgroup) {
       if (revman5)
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl,
                            "Chi"^2, tq,
                            " (P", tp, ")"),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tq = hetstat.Q.bs[1],
                           tp = hetstat.pval.Q.bs[1]))
       else if (jama)
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(P), tp, ")"),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tq = hetstat.Q.bs[1],
                           tp = hetstat.pval.Q.bs[1],
                           df = df.Q.b))
       else
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(p), tp, ")"),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tq = hetstat.Q.bs[1],
                           tp = hetstat.pval.Q.bs[1],
                           df = df.Q.b))
     }
     else {
       if (revman5)
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tp = hetstat.pval.Q.bs[1]))
       else if (jama)
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl, " ", italic(P), tp),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tp = hetstat.pval.Q.bs[1]))
       else
-        text.subgroup.fixed <-
+        text.subgroup.common <-
           substitute(paste(tl, " ", italic(p), tp),
-                     list(tl = label.test.subgroup.fixed,
+                     list(tl = label.test.subgroup.common,
                           tp = hetstat.pval.Q.bs[1]))
     }
   }
   else
-    text.subgroup.fixed <- ""
+    text.subgroup.common <- ""
   
   
   if (test.subgroup.random) {
@@ -4760,11 +4905,11 @@ forest.meta <- function(x,
     if (x$hakn)
       df.hakn.w <- x$df.hakn.w[o.w]
     ##
-    TE.fixed.w <- x$TE.fixed.w[o.w]
-    lower.fixed.w <- x$lower.fixed.w[o.w]
-    upper.fixed.w <- x$upper.fixed.w[o.w]
-    statistic.fixed.w <- x$statistic.fixed.w[o.w]
-    pval.fixed.w <- x$pval.fixed.w[o.w]
+    TE.common.w <- x$TE.common.w[o.w]
+    lower.common.w <- x$lower.common.w[o.w]
+    upper.common.w <- x$upper.common.w[o.w]
+    statistic.common.w <- x$statistic.common.w[o.w]
+    pval.common.w <- x$pval.common.w[o.w]
     ##
     TE.random.w <- x$TE.random.w[o.w]
     lower.random.w <- x$lower.random.w[o.w]
@@ -4795,7 +4940,7 @@ forest.meta <- function(x,
     sign.lower.tau.w <- x$sign.lower.tau.w[o.w]
     sign.upper.tau.w <- x$sign.upper.tau.w[o.w]
     ##
-    w.fixed.w  <- x$w.fixed.w[o.w]
+    w.common.w  <- x$w.common.w[o.w]
     w.random.w <- x$w.random.w[o.w]
     e.e.w <- if (metaprop | metarate) x$event.w[o.w] else x$event.e.w[o.w]
     t.e.w <- if (metainc | metarate) x$time.e.w[o.w] else rep(NA, n.by)
@@ -4819,11 +4964,11 @@ forest.meta <- function(x,
     if (x$hakn)
       df.hakn.w <- df.hakn.w[sel.w]
     ##
-    TE.fixed.w <- TE.fixed.w[sel.w]
-    lower.fixed.w <- lower.fixed.w[sel.w]
-    upper.fixed.w <- upper.fixed.w[sel.w]
-    statistic.fixed.w <- statistic.fixed.w[sel.w]
-    pval.fixed.w <- pval.fixed.w[sel.w]
+    TE.common.w <- TE.common.w[sel.w]
+    lower.common.w <- lower.common.w[sel.w]
+    upper.common.w <- upper.common.w[sel.w]
+    statistic.common.w <- statistic.common.w[sel.w]
+    pval.common.w <- pval.common.w[sel.w]
     ##
     TE.random.w <- TE.random.w[sel.w]
     lower.random.w <- lower.random.w[sel.w]
@@ -4854,7 +4999,7 @@ forest.meta <- function(x,
     sign.lower.tau.w <- sign.lower.tau.w[sel.w]
     sign.upper.tau.w <- sign.upper.tau.w[sel.w]
     ##
-    w.fixed.w  <- w.fixed.w[sel.w]
+    w.common.w  <- w.common.w[sel.w]
     w.random.w <- w.random.w[sel.w]
     e.e.w <- e.e.w[sel.w]
     t.e.w <- t.e.w[sel.w]
@@ -4882,41 +5027,51 @@ forest.meta <- function(x,
       upper.predict.w[!prediction.subgroup.logical] <- NA
     }
     ##
-    sel.by.fixed         <- 3 + 0 * n.by + seq_len(n.by)
+    sel.by.common        <- 3 + 0 * n.by + seq_len(n.by)
     sel.by.random        <- 3 + 1 * n.by + seq_len(n.by)
     sel.by.predict       <- 3 + 2 * n.by + seq_len(n.by)
     sel.by.het           <- 3 + 3 * n.by + seq_len(n.by)
-    sel.by.effect.fixed  <- 3 + 4 * n.by + seq_len(n.by)
+    sel.by.effect.common  <- 3 + 4 * n.by + seq_len(n.by)
     sel.by.effect.random <- 3 + 5 * n.by + seq_len(n.by)
-    sel.by <- c(sel.by.fixed, sel.by.random, sel.by.predict, sel.by.het,
-                sel.by.effect.fixed, sel.by.effect.random)
-    sel.by.noNA <- c(sel.by.het, sel.by.effect.fixed, sel.by.effect.random)
+    sel.by <- c(sel.by.common, sel.by.random, sel.by.predict, sel.by.het,
+                sel.by.effect.common, sel.by.effect.random)
+    sel.by.noNA <- c(sel.by.het, sel.by.effect.common, sel.by.effect.random)
     ##
-    if (!metainf.metacum & fixed) {
+    if (!metainf.metacum & common) {
       if (!overall) {
         i <- 0
         for (bylev.i in bylevs) {
           i <- i + 1
           sel.i <- subgroup == bylev.i
-          x$w.fixed[sel.i] <- x$w.fixed[sel.i] / w.fixed.w[i]
+          x$w.common[sel.i] <- x$w.common[sel.i] / w.common.w[i]
         }
-        w.fixed.w.p <- ifelse(is.na(w.fixed.w), NA, 100)
+        w.common.w.p <- ifelse(is.na(w.common.w), NA, 100)
       }
       else {
-        if (!all(is.na(w.fixed.w)) && sum(w.fixed.w) > 0)
-          w.fixed.w.p <-
-            round(100 * w.fixed.w / sum(w.fixed.w, na.rm = TRUE),
+        if (!all(is.na(w.common.w)) && sum(w.common.w) > 0)
+          w.common.w.p <-
+            round(100 * w.common.w / sum(w.common.w, na.rm = TRUE),
                   digits.weight)
         else
-          w.fixed.w.p <- w.fixed.w
+          w.common.w.p <- w.common.w
       }
     }
     else {
-      TE.fixed.w <- lower.fixed.w <- upper.fixed.w <- rep(NA, n.by)
+      TE.common.w <- lower.common.w <- upper.common.w <- rep(NA, n.by)
       ##
-      w.fixed.w.p <- rep(NA, n.by)
-      if (missing(text.fixed.w))
-        text.fixed.w <- rep("Overall", n.by)
+      w.common.w.p <- rep(NA, n.by)
+      ##
+      missing.text.common.w <- missing(text.common.w)
+      missing.text.common.w <- is.na(argid(args, "text.common.w"))
+      if (!missing.text.common.w) {
+        text.common.w <-
+          deprecated(text.common.w, missing.text.common.w, args,
+                     "text.common.w",
+                     warn.deprecated)
+        missing.text.common.w <- FALSE
+      }
+      if (missing(text.common.w))
+        text.common.w <- rep("Overall", n.by)
     }
     ##
     if (!metainf.metacum & random) {
@@ -5518,12 +5673,12 @@ forest.meta <- function(x,
       }
     }
     ##
-    TE.w <- c(TE.fixed.w, TE.random.w, rep(NA, 4 * n.by))
+    TE.w <- c(TE.common.w, TE.random.w, rep(NA, 4 * n.by))
     lowTE.w <-
-      c(lower.fixed.w, lower.random.w, lower.predict.w,
+      c(lower.common.w, lower.random.w, lower.predict.w,
         rep(NA, 3 * n.by))
     uppTE.w <-
-      c(upper.fixed.w, upper.random.w, upper.predict.w,
+      c(upper.common.w, upper.random.w, upper.predict.w,
         rep(NA, 3 * n.by))
     n.harmonic.mean.w <-
       c(n.harmonic.mean.w, n.harmonic.mean.w, n.harmonic.mean.w,
@@ -5531,21 +5686,21 @@ forest.meta <- function(x,
     t.harmonic.mean.w <-
       c(t.harmonic.mean.w, t.harmonic.mean.w, t.harmonic.mean.w,
         rep(NA, 3 * n.by))
-    weight.w.p <- c(w.fixed.w.p, w.random.w.p, rep(NA, 4 * n.by))
+    weight.w.p <- c(w.common.w.p, w.random.w.p, rep(NA, 4 * n.by))
     ##
-    ##test.fixed.w <- ""
+    ##test.common.w <- ""
     ##
     ## Label of test for effect in subgroups
     ##
-    if (any(test.effect.subgroup.fixed.logical) |
+    if (any(test.effect.subgroup.common.logical) |
         any(test.effect.subgroup.random.logical)) {
-      pvals.effect.w <- formatPT(c(pval.fixed.w, pval.random.w),
+      pvals.effect.w <- formatPT(c(pval.common.w, pval.random.w),
                                  lab = TRUE, labval = "",
                                  digits = digits.pval,
                                  zero = zero.pval, JAMA = JAMA.pval,
                                  scientific = scientific.pval,
                                  lab.NA = "NA")
-      statistics.effect.w <- formatN(c(statistic.fixed.w, statistic.random.w),
+      statistics.effect.w <- formatN(c(statistic.common.w, statistic.random.w),
                                      digits.stat, "NA", big.mark = big.mark)
       ##
       ## Remove superfluous spaces
@@ -5558,64 +5713,64 @@ forest.meta <- function(x,
         statistics.effect.w <- gsub("  ", " ", statistics.effect.w)
     }
     ##
-    if (any(test.effect.subgroup.fixed.logical)) {
-      text.effect.subgroup.fixed <- vector("list", n.by)
+    if (any(test.effect.subgroup.common.logical)) {
+      text.effect.subgroup.common <- vector("list", n.by)
       for (i in seq_len(n.by)) {
         if (print.stat) {
           if (revman5)
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                Z, hetseparator, tt,
                                " (P", tp, ")"),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (jama)
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                italic(z), hetseparator, tt,
                                " (", italic(P), tp, ")"),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                italic(z), hetseparator, tt,
                                " (", italic(p), tp, ")"),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
         }
         else {
           if (revman5)
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " P", tp),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (jama)
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " ", italic(P), tp),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else
-            text.effect.subgroup.fixed[[i]] <-
+            text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " ", italic(p), tp),
-                         list(tl = label.test.effect.subgroup.fixed,
+                         list(tl = label.test.effect.subgroup.common,
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
         }
       }
     }
     else {
-      text.effect.subgroup.fixed <- vector("list", n.by)
+      text.effect.subgroup.common <- vector("list", n.by)
       for (i in seq_len(n.by))
-        text.effect.subgroup.fixed[[i]] <- ""
+        text.effect.subgroup.common[[i]] <- ""
     }
     ##
     if (any(test.effect.subgroup.random.logical)) {
@@ -5773,12 +5928,12 @@ forest.meta <- function(x,
     ## Results of meta-analysis
     ##
     if (!is.relative.effect(sm)) {
-      TE.fixed    <- backtransf(TE.fixed, sm, "mean",
-                                npft.ma, warn = fixed)
-      lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
-                                npft.ma, warn = fixed)
-      uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
-                                npft.ma, warn = fixed)
+      TE.common    <- backtransf(TE.common, sm, "mean",
+                                npft.ma, warn = common)
+      lowTE.common <- backtransf(lowTE.common, sm, "lower",
+                                npft.ma, warn = common)
+      uppTE.common <- backtransf(uppTE.common, sm, "upper",
+                                npft.ma, warn = common)
       ##
       TE.random <- backtransf(TE.random, sm, "mean",
                               npft.ma, warn = random)
@@ -5813,9 +5968,9 @@ forest.meta <- function(x,
       lowTE <- pscale * lowTE
       uppTE <- pscale * uppTE
       ##
-      TE.fixed    <- pscale * TE.fixed
-      lowTE.fixed <- pscale * lowTE.fixed
-      uppTE.fixed <- pscale * uppTE.fixed
+      TE.common    <- pscale * TE.common
+      lowTE.common <- pscale * lowTE.common
+      uppTE.common <- pscale * uppTE.common
       ##
       TE.random    <- pscale * TE.random
       lowTE.random <- pscale * lowTE.random
@@ -5839,9 +5994,9 @@ forest.meta <- function(x,
     lowTE <- irscale * lowTE
     uppTE <- irscale * uppTE
     ##
-    TE.fixed    <- irscale * TE.fixed
-    lowTE.fixed <- irscale * lowTE.fixed
-    uppTE.fixed <- irscale * uppTE.fixed
+    TE.common    <- irscale * TE.common
+    lowTE.common <- irscale * lowTE.common
+    uppTE.common <- irscale * uppTE.common
     ##
     TE.random    <- irscale * TE.random
     lowTE.random <- irscale * lowTE.random
@@ -5869,10 +6024,10 @@ forest.meta <- function(x,
     uppTE.exclude[exclude] <- NA
   }
   ##
-  if (!fixed) {
-    TE.fixed    <- NA
-    lowTE.fixed <- NA
-    uppTE.fixed <- NA
+  if (!common) {
+    TE.common    <- NA
+    lowTE.common <- NA
+    uppTE.common <- NA
   }
   ##
   if (!random) {
@@ -5888,14 +6043,14 @@ forest.meta <- function(x,
   ##
   if (!metainf.metacum) {
     if (by & !overall)
-      w.fixed.p <- round(100 * x$w.fixed, digits.weight)
+      w.common.p <- round(100 * x$w.common, digits.weight)
     else {
-      if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
-        w.fixed.p <-
-          round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE),
+      if (!all(is.na(x$w.common)) && sum(x$w.common) > 0)
+        w.common.p <-
+          round(100 * x$w.common / sum(x$w.common, na.rm = TRUE),
                 digits.weight)
       else
-        w.fixed.p <- x$w.fixed
+        w.common.p <- x$w.common
     }
     ##
     if (by & !overall)
@@ -5910,7 +6065,7 @@ forest.meta <- function(x,
     }
   }
   else {
-    w.fixed.p  <- rep(NA, length(TE))
+    w.common.p  <- rep(NA, length(TE))
     w.random.p <- rep(NA, length(TE))
   }
   
@@ -5965,10 +6120,10 @@ forest.meta <- function(x,
   ##
   ## Check for "%" in weight labels
   ##
-  w.fixed.percent <- TRUE
-  if (!is.null(labs[["lab.w.fixed"]])) {
-    if (grepl("%", labs[["lab.w.fixed"]]))
-      w.fixed.percent <- FALSE
+  w.common.percent <- TRUE
+  if (!is.null(labs[["lab.w.common"]])) {
+    if (grepl("%", labs[["lab.w.common"]]))
+      w.common.percent <- FALSE
   }
   ##
   w.random.percent <- TRUE
@@ -6256,19 +6411,19 @@ forest.meta <- function(x,
     longer.effect.ci <- labs[["lab.effect.ci"]]
   }
   ##
-  ## Check for "\n" in label of column 'w.fixed'
+  ## Check for "\n" in label of column 'w.common'
   ##
-  clines <- twolines(labs[["lab.w.fixed"]], "w.fixed")
+  clines <- twolines(labs[["lab.w.common"]], "w.common")
   ##
   if (clines$newline) {
-    newline.w.fixed <- TRUE
-    labs[["lab.w.fixed"]] <- clines$bottom
-    add.w.fixed <- clines$top
-    longer.w.fixed <- clines$longer
+    newline.w.common <- TRUE
+    labs[["lab.w.common"]] <- clines$bottom
+    add.w.common <- clines$top
+    longer.w.common <- clines$longer
   }
   else {
-    newline.w.fixed <- FALSE
-    longer.w.fixed <- labs[["lab.w.fixed"]]
+    newline.w.common <- FALSE
+    longer.w.common <- labs[["lab.w.common"]]
   }
   ##
   ## Check for "\n" in label of column 'w.random'
@@ -6436,7 +6591,7 @@ forest.meta <- function(x,
   }
   ##
   newline <- newline.studlab | newline.effect | newline.ci | newline.effect.ci |
-    newline.w.fixed | newline.w.random | newline.TE | newline.seTE |
+    newline.w.common | newline.w.random | newline.TE | newline.seTE |
     newline.cluster |
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
@@ -6452,21 +6607,36 @@ forest.meta <- function(x,
   ## (10) Define columns in forest plot as well as x- and y-limits
   ##
   ##
+  type.common <-
+    deprecated(type.common, missing(type.common),
+               args, "type.common",
+               warn.deprecated)
+  ##
+  type.subgroup.common <-
+    deprecated(type.subgroup.common, missing(type.subgroup.common),
+               args, "type.subgroup.common",
+               warn.deprecated)
+  ##
+  col.inside.common <-
+    deprecated(col.inside.common, missing(col.inside.common),
+               args, "col.inside.common",
+               warn.deprecated)
+  ##
   if (by) {
     ##
     subgroup.name <-
       bylabel(subgroup.name, bylevs, print.subgroup.name, sep.subgroup,
               big.mark = big.mark)
     ##
-    wrong.fixed <- FALSE
+    wrong.common <- FALSE
     wrong.random <- FALSE
     wrong.predict <- FALSE
     ##
     if (n.by > 1) {
-      if (length(text.fixed.w) == 1)
-        text.fixed.w <- rep(text.fixed.w, n.by)
-      else if (length(text.fixed.w) != n.by)
-        wrong.fixed <- TRUE
+      if (length(text.common.w) == 1)
+        text.common.w <- rep(text.common.w, n.by)
+      else if (length(text.common.w) != n.by)
+        wrong.common <- TRUE
       ##
       if (length(text.random.w) == 1)
         text.random.w <- rep(text.random.w, n.by)
@@ -6479,16 +6649,16 @@ forest.meta <- function(x,
         wrong.predict <- TRUE
     }
     else if (n.by == 1) {
-      if (length(text.fixed.w) != 1)
-        wrong.fixed <- TRUE
+      if (length(text.common.w) != 1)
+        wrong.common <- TRUE
       if (length(text.random.w) != 1)
         wrong.random <- TRUE
       if (length(text.predict.w) != 1)
         wrong.predict <- TRUE
     }
     ##
-    if (wrong.fixed)
-      stop("Argument 'text.fixed.w' must be a single character string",
+    if (wrong.common)
+      stop("Argument 'text.common.w' must be a single character string",
            if (n.by > 1)
              paste0(" or of length ", n.by, "\n  (number of subgroups).")
            else
@@ -6508,9 +6678,9 @@ forest.meta <- function(x,
            else
              ".")
     ##
-    if (hetstat.pooled == "fixed") {
-      text.fixed <- hetstat.overall
-      text.fixed.w <- hetstat.w
+    if (hetstat.pooled == "common") {
+      text.common <- hetstat.overall
+      text.common.w <- hetstat.w
       hetstat <- FALSE
     }
     else if (hetstat.pooled == "random") {
@@ -6523,25 +6693,25 @@ forest.meta <- function(x,
       hetstat <- FALSE
     }
     ##
-    modlabs <- c(text.fixed, text.random, text.predict,
+    modlabs <- c(text.common, text.random, text.predict,
                  hetstat.overall, hetstat.resid,
-                 text.overall.fixed, text.overall.random,
-                 text.subgroup.fixed, text.subgroup.random,
+                 text.overall.common, text.overall.random,
+                 text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
-                 subgroup.name, text.fixed.w, text.random.w, text.predict.w,
+                 subgroup.name, text.common.w, text.random.w, text.predict.w,
                  hetstat.w,
-                 unlist(text.effect.subgroup.fixed),
+                 unlist(text.effect.subgroup.common),
                  unlist(text.effect.subgroup.random),
                  studlab)
     ##
-    TEs    <- c(TE.fixed, TE.random, NA, TE.w, TE)
-    lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w, lowTE)
-    uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w, uppTE)
+    TEs    <- c(TE.common, TE.random, NA, TE.w, TE)
+    lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w, lowTE)
+    uppTEs <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     ##
-    TEs.exclude    <- c(TE.fixed, TE.random, NA, TE.w, TE.exclude)
-    lowTEs.exclude <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE.w,
+    TEs.exclude    <- c(TE.common, TE.random, NA, TE.w, TE.exclude)
+    lowTEs.exclude <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w,
                         lowTE.exclude)
-    uppTEs.exclude <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE.w,
+    uppTEs.exclude <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w,
                         uppTE.exclude)
     ##
     TEs.study <- c("", "", "", rep("", 6 * n.by),
@@ -6550,76 +6720,76 @@ forest.meta <- function(x,
                      formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
     ##
     if (weight.subgroup == "same") {
-      w.fixeds  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.fixed.p)
+      w.commons  <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.common.p)
       w.randoms <- c(NA, NA, NA, rep(NA, length(weight.w.p)), w.random.p)
     }
     else {
-      w.fixeds  <- c(NA, NA, NA, weight.w.p, w.fixed.p)
+      w.commons  <- c(NA, NA, NA, weight.w.p, w.common.p)
       w.randoms <- c(NA, NA, NA, weight.w.p, w.random.p)
     }
     ##
-    format.w.fixed  <- formatN(c(100, weight.w.p, w.fixed.p), digits.weight)
+    format.w.common  <- formatN(c(100, weight.w.p, w.common.p), digits.weight)
     format.w.random <- formatN(c(100, weight.w.p, w.random.p), digits.weight)
-    w.fixeds.text  <- c(format.w.fixed[1], lab.NA.weight, "",
-                        format.w.fixed[-1])
+    w.commons.text  <- c(format.w.common[1], lab.NA.weight, "",
+                        format.w.common[-1])
     w.randoms.text <- c(lab.NA.weight, format.w.random[1], "",
                         format.w.random[-1])
     ##
-    sel.fixed  <- w.fixeds.text == lab.NA.weight
+    sel.common  <- w.commons.text == lab.NA.weight
     sel.random <- w.randoms.text == lab.NA.weight
     ##
-    sel.fixed[sel.by.random] <- TRUE
-    sel.random[sel.by.fixed] <- TRUE
+    sel.common[sel.by.random] <- TRUE
+    sel.random[sel.by.common] <- TRUE
     ##
-    type.pooled <- c(type.fixed,
+    type.pooled <- c(type.common,
                      type.random,
                      "predict",
-                     rep(type.subgroup.fixed, n.by),
+                     rep(type.subgroup.common, n.by),
                      rep(type.subgroup.random, n.by),
                      rep("predict", n.by),
                      rep("", 3 * n.by))
     col.diamond.pooled <-
-      c(col.diamond.fixed, col.diamond.random, col.predict,
-        rep(col.diamond.fixed, n.by),
+      c(col.diamond.common, col.diamond.random, col.predict,
+        rep(col.diamond.common, n.by),
         rep(col.diamond.random, n.by),
         rep(col.predict, n.by),
         rep(NA, 3 * n.by))
     col.diamond.lines.pooled <-
-      c(col.diamond.lines.fixed, col.diamond.lines.random,
+      c(col.diamond.lines.common, col.diamond.lines.random,
         col.predict.lines,
-        rep(col.diamond.lines.fixed, n.by),
+        rep(col.diamond.lines.common, n.by),
         rep(col.diamond.lines.random, n.by),
         rep(col.predict.lines, n.by),
         rep(NA, 3 * n.by))
     col.inside.pooled <-
-      c(col.inside.fixed, col.inside.random, "",
-        rep(col.inside.fixed, n.by),
+      c(col.inside.common, col.inside.random, "",
+        rep(col.inside.common, n.by),
         rep(col.inside.random, n.by),
         rep("", n.by),
         rep(NA, 3 * n.by))
   }
   else {
     ##
-    if (hetstat.pooled == "fixed")
-      text.fixed <- hetstat.overall
+    if (hetstat.pooled == "common")
+      text.common <- hetstat.overall
     else if (hetstat.pooled == "random")
       text.random <- hetstat.overall
     ##
-    modlabs <- c(text.fixed, text.random, text.predict,
+    modlabs <- c(text.common, text.random, text.predict,
                  hetstat.overall, hetstat.resid,
-                 text.overall.fixed, text.overall.random,
-                 text.subgroup.fixed, text.subgroup.random,
+                 text.overall.common, text.overall.random,
+                 text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
                  studlab)
     ##
-    TEs    <- c(TE.fixed, TE.random, NA, TE)
-    lowTEs <- c(lowTE.fixed, lowTE.random, lowTE.predict, lowTE)
-    uppTEs <- c(uppTE.fixed, uppTE.random, uppTE.predict, uppTE)
+    TEs    <- c(TE.common, TE.random, NA, TE)
+    lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE)
+    uppTEs <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE)
     ##
-    TEs.exclude    <- c(TE.fixed, TE.random, NA, TE.exclude)
-    lowTEs.exclude <- c(lowTE.fixed, lowTE.random,
+    TEs.exclude    <- c(TE.common, TE.random, NA, TE.exclude)
+    lowTEs.exclude <- c(lowTE.common, lowTE.random,
                         lowTE.predict, lowTE.exclude)
-    uppTEs.exclude <- c(uppTE.fixed, uppTE.random,
+    uppTEs.exclude <- c(uppTE.common, uppTE.random,
                         uppTE.predict, uppTE.exclude)
     ##
     TEs.study <- c("", "", "",
@@ -6627,26 +6797,26 @@ forest.meta <- function(x,
     seTEs.study <- c("", "", "",
                      formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
     ##
-    w.fixeds  <- c(NA, NA, NA, w.fixed.p)
+    w.commons  <- c(NA, NA, NA, w.common.p)
     w.randoms <- c(NA, NA, NA, w.random.p)
     ##
-    format.w.fixed  <- formatN(c(100, w.fixed.p), digits.weight)
+    format.w.common  <- formatN(c(100, w.common.p), digits.weight)
     format.w.random <- formatN(c(100, w.random.p), digits.weight)
-    w.fixeds.text  <- c(format.w.fixed[1], lab.NA.weight, "",
-                        format.w.fixed[-1])
+    w.commons.text  <- c(format.w.common[1], lab.NA.weight, "",
+                        format.w.common[-1])
     w.randoms.text <- c(lab.NA.weight, format.w.random[1], "",
                         format.w.random[-1])
     ##
-    sel.fixed <- w.fixeds.text == lab.NA.weight
+    sel.common <- w.commons.text == lab.NA.weight
     sel.random <- w.randoms.text == lab.NA.weight
     ##
-    type.pooled <- c(type.fixed, type.random, "predict")
+    type.pooled <- c(type.common, type.random, "predict")
     col.diamond.pooled <-
-      c(col.diamond.fixed, col.diamond.random, col.predict)
+      c(col.diamond.common, col.diamond.random, col.predict)
     col.diamond.lines.pooled <-
-      c(col.diamond.lines.fixed, col.diamond.lines.random,
+      c(col.diamond.lines.common, col.diamond.lines.random,
         col.predict.lines)
-    col.inside.pooled <- c(col.inside.fixed, col.inside.random, "")
+    col.inside.pooled <- c(col.inside.common, col.inside.random, "")
   }
   ##
   ## Treatment effect and confidence interval
@@ -6693,17 +6863,17 @@ forest.meta <- function(x,
     effect.ci.format[sel.by.noNA] <- ""
   }
   ##
-  ## Weights of fixed and random effects model
+  ## Weights of common and random effects model
   ##
-  w.fixed.format  <- paste0(w.fixeds.text, if (w.fixed.percent) "%")
+  w.common.format  <- paste0(w.commons.text, if (w.common.percent) "%")
   w.random.format <- paste0(w.randoms.text, if (w.random.percent) "%")
   ##
-  w.fixed.format[w.fixed.format == "%"] <- ""
+  w.common.format[w.common.format == "%"] <- ""
   w.random.format[w.random.format == "%"] <- ""
   ##
-  w.fixed.format[sel.fixed] <- lab.NA.weight
+  w.common.format[sel.common] <- lab.NA.weight
   if (by)
-    w.fixed.format[sel.by.noNA] <- ""
+    w.common.format[sel.by.noNA] <- ""
   w.random.format[sel.random] <- lab.NA.weight
   if (by)
     w.random.format[sel.by.noNA] <- ""
@@ -6846,7 +7016,7 @@ forest.meta <- function(x,
     Te.format[sel.by.noNA] <- Tc.format[sel.by.noNA] <- ""
   }
   ##
-  if (fixed.random) {
+  if (common.random) {
     ##
     ## Print nothing in lines with results for random effects model
     ##
@@ -6867,7 +7037,7 @@ forest.meta <- function(x,
     Ee.format[1:2] <- Ec.format[1:2] <- ""
     ##
     if (by) {
-      Ee.format[sel.by.fixed]  <- Ec.format[sel.by.fixed]  <- ""
+      Ee.format[sel.by.common]  <- Ec.format[sel.by.common]  <- ""
       Ee.format[sel.by.random] <- Ec.format[sel.by.random] <- ""
     }
   }
@@ -6878,7 +7048,7 @@ forest.meta <- function(x,
     Te.format[1:2] <- Tc.format[1:2] <- ""
     ##
     if (by) {
-      Te.format[sel.by.fixed]  <- Tc.format[sel.by.fixed]  <- ""
+      Te.format[sel.by.common]  <- Tc.format[sel.by.common]  <- ""
       Te.format[sel.by.random] <- Tc.format[sel.by.random] <- ""
     }
   }
@@ -7042,11 +7212,11 @@ forest.meta <- function(x,
     k <- 0
     yBylab <- rep(NA, n.by)
     yTE <- rep(NA, n.stud)
-    yTE.w.fixed <- yBylab
+    yTE.w.common <- yBylab
     yTE.w.random <- yBylab
     yTE.w.predict <- yBylab
     yTE.w.hetstat <- yBylab
-    yTE.w.effect.fixed <- yBylab
+    yTE.w.effect.common <- yBylab
     yTE.w.effect.random <- yBylab
     ##
     for (i in seq_len(n.by)) {
@@ -7072,12 +7242,12 @@ forest.meta <- function(x,
       ##
       ## Common effect model
       ##
-      if (fixed & subgroup.logical[i]) {
-        yTE.w.fixed[i] <- j
+      if (common & subgroup.logical[i]) {
+        yTE.w.common[i] <- j
         j <- j + 1
       }
       else
-        yTE.w.fixed[i] <- NA
+        yTE.w.common[i] <- NA
       ##
       ## Random effects model
       ##
@@ -7090,8 +7260,8 @@ forest.meta <- function(x,
       ##
       ## Only pooled totals
       ##
-      if (pooled.totals & subgroup.logical[i] & !(fixed | random)) {
-        yTE.w.fixed[i] <- j
+      if (pooled.totals & subgroup.logical[i] & !(common | random)) {
+        yTE.w.common[i] <- j
         j <- j + 1
       }
       ##
@@ -7115,12 +7285,12 @@ forest.meta <- function(x,
       ##
       ## Test for effect in subgroup (common effect)
       ##
-      if (test.effect.subgroup.fixed.logical[i]) {
-        yTE.w.effect.fixed[i] <- j
+      if (test.effect.subgroup.common.logical[i]) {
+        yTE.w.effect.common[i] <- j
         j <- j + 1
       }
       else
-        yTE.w.effect.fixed[i] <- NA
+        yTE.w.effect.common[i] <- NA
       ##
       ## Test for effect in subgroup (random effects)
       ##
@@ -7138,8 +7308,8 @@ forest.meta <- function(x,
     if (!addrow.subgroups)
       j <- j + 1
     ##
-    yTE.w <- c(yTE.w.fixed, yTE.w.random, yTE.w.predict, yTE.w.hetstat,
-               yTE.w.effect.fixed, yTE.w.effect.random)
+    yTE.w <- c(yTE.w.common, yTE.w.random, yTE.w.predict, yTE.w.hetstat,
+               yTE.w.effect.common, yTE.w.effect.random)
   }
   ##
   ##
@@ -7262,39 +7432,39 @@ forest.meta <- function(x,
   if (missing(smlab.pos))
     smlab.pos <- mean(xlim)
   ##
-  yTE.fixed  <- NA
+  yTE.common  <- NA
   yTE.random <- NA
   yPredict   <- NA
   yHetstat <- NA
   yResidHetstat <- NA
-  yOverall.fixed  <- NA
+  yOverall.common  <- NA
   yOverall.random <- NA
-  ySubgroup.fixed  <- NA
+  ySubgroup.common  <- NA
   ySubgroup.random <- NA
   yText.addline1 <- NA
   yText.addline2 <- NA
   ##
-  if (fixed & random & overall) {
-    yTE.fixed  <- yNext
+  if (common & random & overall) {
+    yTE.common  <- yNext
     yTE.random <- yNext + 1
     yNext      <- yNext + 2
   }
   ##
-  else if (fixed & !random & overall) {
-    yTE.fixed <- yNext
+  else if (common & !random & overall) {
+    yTE.common <- yNext
     yNext     <- yNext + 1
   }
   ##
-  else if (!fixed & random & overall) {
+  else if (!common & random & overall) {
     yTE.random <- yNext
     yNext      <- yNext + 1
   }
   ##
-  else if (!fixed & !random & pooled.totals & overall) {
-    yTE.fixed  <- yNext
+  else if (!common & !random & pooled.totals & overall) {
+    yTE.common  <- yNext
     yNext      <- yNext + 1
-    if (missing(text.fixed))
-      text.fixed <- "Overall"
+    if (missing(text.common))
+      text.common <- "Overall"
   }
   ##
   if (prediction & overall) {
@@ -7314,8 +7484,8 @@ forest.meta <- function(x,
     yNext  <- yNext + 1
   }
   ##
-  if (test.overall.fixed) {
-    yOverall.fixed <- yNext
+  if (test.overall.common) {
+    yOverall.common <- yNext
     yNext          <- yNext + 1
   }
   ##
@@ -7324,8 +7494,8 @@ forest.meta <- function(x,
     yNext           <- yNext + 1
   }
   ##
-  if (test.subgroup.fixed) {
-    ySubgroup.fixed <- yNext
+  if (test.subgroup.common) {
+    ySubgroup.common <- yNext
     yNext           <- yNext + 1
   }
   ##
@@ -7342,29 +7512,29 @@ forest.meta <- function(x,
   if (!missing.text.addline2)
     yText.addline2 <- yNext
   ##
-  if (!fixed & !pooled.totals) text.fixed <- ""
+  if (!common & !pooled.totals) text.common <- ""
   if (!random) text.random <- ""
   if (!prediction) text.predict <- ""
   ##
   yTE <- yHead + yTE + addrow
   ##
-  yTE.fixed  <- yHead + yTE.fixed + addrow
+  yTE.common  <- yHead + yTE.common + addrow
   yTE.random <- yHead + yTE.random + addrow
   yPredict   <- yHead + yPredict + addrow
   ##
   yHetstat <- yHead + yHetstat + addrow
   yResidHetstat <- yHead + yResidHetstat + addrow
-  yOverall.fixed  <- yHead + yOverall.fixed + addrow
+  yOverall.common  <- yHead + yOverall.common + addrow
   yOverall.random <- yHead + yOverall.random + addrow
-  ySubgroup.fixed  <- yHead + ySubgroup.fixed + addrow
+  ySubgroup.common  <- yHead + ySubgroup.common + addrow
   ySubgroup.random <- yHead + ySubgroup.random + addrow
   yText.addline1 <- yHead + yText.addline1 + addrow
   yText.addline2 <- yHead + yText.addline2 + addrow
   ##
   yStats <- c(yHetstat,
               yResidHetstat,
-              yOverall.fixed, yOverall.random,
-              ySubgroup.fixed, ySubgroup.random,
+              yOverall.common, yOverall.random,
+              ySubgroup.common, ySubgroup.random,
               yText.addline1, yText.addline2)
   ##
   if (by) {
@@ -7372,19 +7542,19 @@ forest.meta <- function(x,
     yTE.w  <- yHead + yTE.w + addrow
     ##
     yLab <- c(yHead,
-              yTE.fixed, yTE.random, yPredict,
+              yTE.common, yTE.random, yPredict,
               yStats,
               yBylab, yTE.w,
               yTE)
     ##
-    yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE.w, yTE)
+    yS <- c(yHead, yTE.common, yTE.random, yPredict, yTE.w, yTE)
   }
   else {
-    yLab <- c(yHead, yTE.fixed, yTE.random, yPredict,
+    yLab <- c(yHead, yTE.common, yTE.random, yPredict,
               yStats,
               yTE)
     ##
-    yS <- c(yHead, yTE.fixed, yTE.random, yPredict, yTE)
+    yS <- c(yHead, yTE.common, yTE.random, yPredict, yTE)
   }
   
   
@@ -7406,8 +7576,8 @@ forest.meta <- function(x,
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
                                 just.s, fs.head, ff.head, fontfamily)
   ## Common effect estimate:
-  col.studlab$labels[[2]] <- tg(text.fixed, xpos.s, just.s,
-                                fs.fixed.labels, ff.fixed.labels, fontfamily)
+  col.studlab$labels[[2]] <- tg(text.common, xpos.s, just.s,
+                                fs.common.labels, ff.common.labels, fontfamily)
   ## Random effects estimate:
   col.studlab$labels[[3]] <- tg(text.random, xpos.s, just.s,
                                 fs.random.labels, ff.random.labels, fontfamily)
@@ -7422,13 +7592,13 @@ forest.meta <- function(x,
   col.studlab$labels[[6]] <- tg(hetstat.resid, xpos.s, just.s,
                                 fs.hetstat, ff.hetstat, fontfamily)
   ## Test for overall effect (common effect model):
-  col.studlab$labels[[7]] <- tg(text.overall.fixed, xpos.s, just.s,
+  col.studlab$labels[[7]] <- tg(text.overall.common, xpos.s, just.s,
                                 fs.test.overall, ff.test.overall, fontfamily)
   ## Test for overall effect (random effects model):
   col.studlab$labels[[8]] <- tg(text.overall.random, xpos.s, just.s,
                                 fs.test.overall, ff.test.overall, fontfamily)
   ## Test for subgroup differences (common effect model):
-  col.studlab$labels[[9]] <- tg(text.subgroup.fixed, xpos.s, just.s,
+  col.studlab$labels[[9]] <- tg(text.subgroup.common, xpos.s, just.s,
                                 fs.test.subgroup, ff.test.subgroup, fontfamily)
   ## Test for subgroup differences (random effects model):
   col.studlab$labels[[10]] <- tg(text.subgroup.random, xpos.s, just.s,
@@ -7450,8 +7620,8 @@ forest.meta <- function(x,
            fs.head, ff.head, fontfamily, col.by)
       ## Common effect estimates:
       col.studlab$labels[[n.summaries + 1 * n.by + i]] <-
-        tg(text.fixed.w[[i]], xpos.s, just.s,
-           fs.fixed.labels, ff.fixed.labels, fontfamily, col.by)
+        tg(text.common.w[[i]], xpos.s, just.s,
+           fs.common.labels, ff.common.labels, fontfamily, col.by)
       ## Random effects estimates:
       col.studlab$labels[[n.summaries + 2 * n.by + i]] <-
         tg(text.random.w[[i]], xpos.s, just.s,
@@ -7466,7 +7636,7 @@ forest.meta <- function(x,
            fs.hetstat, ff.hetstat, fontfamily, col.by)
       ## Test for effect in subgroup (common effect model):
       col.studlab$labels[[n.summaries + 5 * n.by + i]] <-
-        tg(text.effect.subgroup.fixed[[i]], xpos.s, just.s,
+        tg(text.effect.subgroup.common[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
            fontfamily, col.by)
       ## Test for effect in subgroup (random effects model):
@@ -7479,7 +7649,7 @@ forest.meta <- function(x,
   ##
   fcs <- list(fs.study = fs.study, ff.study = ff.study,
               fs.heading = fs.head, ff.heading = ff.head,
-              fs.fixed = fs.fixed, ff.fixed = ff.fixed,
+              fs.common = fs.common, ff.common = ff.common,
               fs.random = fs.random, ff.random = ff.random,
               fs.predict = fs.predict, ff.predict = ff.predict,
               by = by, n.by = n.by, col.by = col.by)
@@ -7493,7 +7663,7 @@ forest.meta <- function(x,
     formatcol(labs[["lab.effect.ci"]], effect.ci.format, yS,
               if (revman5) "center" else just.c, fcs, fontfamily)
   ##
-  col.w.fixed  <- formatcol(labs[["lab.w.fixed"]], w.fixed.format, yS,
+  col.w.common  <- formatcol(labs[["lab.w.common"]], w.common.format, yS,
                             just.c, fcs, fontfamily)
   col.w.random <- formatcol(labs[["lab.w.random"]], w.random.format, yS,
                             just.c, fcs, fontfamily)
@@ -7557,7 +7727,7 @@ forest.meta <- function(x,
   col.effect.ci.calc <- formatcol(longer.effect.ci, effect.ci.format, yS,
                                   just.c, fcs, fontfamily)
   ##
-  col.w.fixed.calc  <- formatcol(longer.w.fixed, w.fixed.format, yS,
+  col.w.common.calc  <- formatcol(longer.w.common, w.common.format, yS,
                                  just.c, fcs, fontfamily)
   col.w.random.calc <- formatcol(longer.w.random, w.random.format, yS,
                                  just.c, fcs, fontfamily)
@@ -7639,8 +7809,8 @@ forest.meta <- function(x,
   }
   else {
     ##
-    if (weight.study == "fixed")
-      information <- sqrt(w.fixeds)
+    if (weight.study == "common")
+      information <- sqrt(w.commons)
     else if (weight.study == "random")
       information <- sqrt(w.randoms)
     ## Square height equal to 1 for most precise study result
@@ -7666,7 +7836,7 @@ forest.meta <- function(x,
                col.effect = col.effect,
                col.ci = col.ci,
                col.effect.ci = col.effect.ci,
-               col.w.fixed = col.w.fixed,
+               col.w.common = col.w.common,
                col.w.random = col.w.random,
                col.TE = col.TE,
                col.seTE = col.seTE)
@@ -7675,7 +7845,7 @@ forest.meta <- function(x,
                     col.effect = col.effect.calc,
                     col.ci = col.ci.calc,
                     col.effect.ci = col.effect.ci.calc,
-                    col.w.fixed = col.w.fixed.calc,
+                    col.w.common = col.w.common.calc,
                     col.w.random = col.w.random.calc,
                     col.TE = col.TE.calc,
                     col.seTE = col.seTE.calc)
@@ -8064,8 +8234,8 @@ forest.meta <- function(x,
                              if (revman5) "center" else just.c,
                              fs.head, ff.head, fontfamily)
   ##
-  if (newline.w.fixed)
-    col.add.w.fixed <- tgl(add.w.fixed, xpos.c, just.c, fs.head, ff.head,
+  if (newline.w.common)
+    col.add.w.common <- tgl(add.w.common, xpos.c, just.c, fs.head, ff.head,
                            fontfamily)
   ##
   if (newline.w.random)
@@ -8154,7 +8324,7 @@ forest.meta <- function(x,
   ##
   if (by) {
     del.lines <-
-      c(if (!calcwidth.fixed)   # CE
+      c(if (!calcwidth.common)   # CE
           2,
         if (!calcwidth.random)  # RE
           3,
@@ -8171,7 +8341,7 @@ forest.meta <- function(x,
         ##
         if (!calcwidth.subgroup)
           n.summaries + 0 * n.by + seq_len(n.by), # Labels
-        if (!calcwidth.fixed)              # CE
+        if (!calcwidth.common)              # CE
           n.summaries + 1 * n.by + seq_len(n.by),
         if (!calcwidth.random)             # RE
           n.summaries + 2 * n.by + seq_len(n.by),
@@ -8186,7 +8356,7 @@ forest.meta <- function(x,
         )
   }
   else
-    del.lines <- c(if (!calcwidth.fixed)   # CE
+    del.lines <- c(if (!calcwidth.common)   # CE
                      2,
                    if (!calcwidth.random)  # RE
                      3,
@@ -8242,34 +8412,34 @@ forest.meta <- function(x,
   ##
   if (by) {
     addline <- addrow * (!any(c(overall.hetstat,
-                                test.overall.fixed, test.overall.random,
+                                test.overall.common, test.overall.random,
                                 resid.hetstat,
-                                test.subgroup.fixed, test.subgroup.random)))
+                                test.subgroup.common, test.subgroup.random)))
     ##
-    nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
+    nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
                             yStats, yTE.w), na.rm = TRUE)
   }
   else {
-    addline <- addrow * (!any(c(test.overall.fixed, test.overall.random,
+    addline <- addrow * (!any(c(test.overall.common, test.overall.random,
                                 overall.hetstat)))
     ##
-    nrow <- max(addline + c(yTE, yTE.fixed, yTE.random, yPredict,
+    nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
                             yStats), na.rm = TRUE)
   }
   ##
-  ymin.line <- overall.hetstat + test.overall.fixed + test.overall.random +
-    resid.hetstat + test.subgroup.fixed + test.subgroup.random +
+  ymin.line <- overall.hetstat + test.overall.common + test.overall.random +
+    resid.hetstat + test.subgroup.common + test.subgroup.random +
     (1 - missing.text.addline1) + (1 - missing.text.addline2) +
     addrows.below.overall
   ##
   ymin.line <- ymin.line + (overall & ymin.line == 0 &
                             !(!addrow.overall | !addrow))
-  if (hetstat %in% c("fixed", "random") &
+  if (hetstat %in% c("common", "random") &
       (!missing.text.addline1 | !missing.text.addline2)) {
     ymin.line <- ymin.line + 1
   }
   ##
-  ymin.fixed  <- spacing * (ymin.line + prediction + random + 0.5)
+  ymin.common  <- spacing * (ymin.line + prediction + random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
   ymin.ref    <- spacing * (ymin.line + (!(overall | overall.hetstat) & addrow))
   ##
@@ -8411,8 +8581,8 @@ forest.meta <- function(x,
           add.text(col.add.ci, j)
         if (newline.effect.ci & leftcols[i] == "col.effect.ci")
           add.text(col.add.effect.ci, j)
-        if (newline.w.fixed & leftcols[i] == "col.w.fixed")
-          add.text(col.add.w.fixed, j)
+        if (newline.w.common & leftcols[i] == "col.w.common")
+          add.text(col.add.w.common, j)
         if (newline.w.random & leftcols[i] == "col.w.random")
           add.text(col.add.w.random, j)
         if (newline.TE & leftcols[i] == "col.TE")
@@ -8490,10 +8660,10 @@ forest.meta <- function(x,
   ## Produce forest plot
   ##
   draw.lines(col.forest, j,
-             ref, TE.fixed, TE.random,
-             overall, fixed, random, prediction,
-             ymin.fixed, ymin.random, ymin.ref, ymax,
-             lwd, lty.fixed, lty.random, col.fixed, col.random,
+             ref, TE.common, TE.random,
+             overall, common, random, prediction,
+             ymin.common, ymin.random, ymin.ref, ymax,
+             lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
              lower.equi, upper.equi, lty.equi, col.equi, fill.equi)
   ##
@@ -8640,8 +8810,8 @@ forest.meta <- function(x,
           add.text(col.add.ci, j)
         if (newline.effect.ci & rightcols[i] == "col.effect.ci")
           add.text(col.add.effect.ci, j)
-        if (newline.w.fixed & rightcols[i] == "col.w.fixed")
-          add.text(col.add.w.fixed, j)
+        if (newline.w.common & rightcols[i] == "col.w.common")
+          add.text(col.add.w.common, j)
         if (newline.w.random & rightcols[i] == "col.w.random")
           add.text(col.add.w.random, j)
         if (newline.TE & rightcols[i] == "col.TE")

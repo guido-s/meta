@@ -43,7 +43,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
-#' @param fixed A logical indicating whether a common effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -95,13 +95,13 @@
 #'   incidence rate differences.
 #' @param irunit A character string specifying the time unit used to
 #'   calculate rates, e.g. person-years.
-#' @param text.fixed A character string used in printouts and forest
+#' @param text.common A character string used in printouts and forest
 #'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
+#' @param text.w.common A character string used to label weights of
 #'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
@@ -164,7 +164,7 @@
 #' \subsection{Meta-analysis method}{
 #' 
 #' By default, both common effect and random effects models are
-#' considered (see arguments \code{fixed} and
+#' considered (see arguments \code{common} and
 #' \code{random}). If \code{method} is \code{"MH"} (default), the
 #' Mantel-Haenszel method is used to calculate the common effect
 #' estimate (Greenland & Robbins, 1985); if \code{method} is
@@ -353,12 +353,12 @@
 #' 
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{fixed} and \code{random}. Accordingly, the estimate
+#' \code{common} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
 #' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{fixed} and \code{random}. E.g. function
+#' \code{common} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{random = FALSE}.
 #' }
@@ -371,7 +371,7 @@
 #'   defined above.}
 #' \item{sm, method, incr, method.incr, model.glmm, warn,}{As
 #'   defined above.}
-#' \item{level, level.ma, fixed, random,}{As defined
+#' \item{level, level.ma, common, random,}{As defined
 #'   above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -386,13 +386,13 @@
 #'   individual studies.}
 #' \item{zval, pval}{z-value and p-value for test of treatment effect
 #'   for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in common
+#' \item{w.common, w.random}{Weight of individual studies (in common
 #'   effect and random effects model).}
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect and
 #'   standard error (common effect model).}
-#' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+#' \item{lower.common, upper.common}{Lower and upper confidence interval
 #'   limits (common effect model).}
-#' \item{statistic.fixed, pval.fixed}{z-value and p-value for test of
+#' \item{statistic.common, pval.common}{z-value and p-value for test of
 #'   overall treatment effect (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
@@ -439,13 +439,13 @@
 #'   Mantel-Haenszel method.}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
-#' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
+#' \item{TE.common.w, seTE.common.w}{Estimated treatment effect and
 #'   standard error in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
+#' \item{lower.common.w, upper.common.w}{Lower and upper confidence
 #'   interval limits in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test of
+#' \item{statistic.common.w, pval.common.w}{z-value and p-value for test of
 #'   treatment effect in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
@@ -457,7 +457,7 @@
 #' \item{statistic.random.w, pval.random.w}{z-value or t-value and
 #'   corresponding p-value for test of treatment effect in subgroups
 #'   (random effects model) - if \code{subgroup} is not missing.}
-#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in common effect
+#' \item{w.common.w, w.random.w}{Weight of subgroups (in common effect
 #'   and random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
@@ -478,20 +478,20 @@
 #'   \code{subgroup} is not missing.}
 #' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
-#' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
+#' \item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
 #'   (based on common effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
+#' \item{pval.Q.w.common}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
-#' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
+#' \item{Q.b.common}{Overall between subgroups heterogeneity statistic
 #'   Q (based on common effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
@@ -499,7 +499,7 @@
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
+#' \item{pval.Q.b.common}{P-value of between subgroups heterogeneity
 #'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
@@ -522,7 +522,7 @@
 #'   \code{keepdata = TRUE}).}
 #' \item{subset}{Information on subset of original data used in
 #'   meta-analysis (if \code{keepdata = TRUE}).}
-#' \item{.glmm.fixed}{GLMM object generated by call of
+#' \item{.glmm.common}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (common effect model).}
 #' \item{.glmm.random}{GLMM object generated by call of
 #'   \code{\link[metafor]{rma.glmm}} function (random effects model).}
@@ -664,10 +664,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     model.glmm = "UM.FS",
                     ##
                     level = gs("level"), level.ma = gs("level.ma"),
-                    fixed = gs("fixed"),
+                    common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
-                    overall = fixed | random,
-                    overall.hetstat = fixed | random,
+                    overall = common | random,
+                    overall.hetstat = common | random,
                     ##
                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                     method.tau =
@@ -688,10 +688,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     backtransf = if (sm == "IRSD") FALSE else gs("backtransf"),
                     irscale = 1, irunit = "person-years",
                     ##
-                    text.fixed = gs("text.fixed"),
+                    text.common = gs("text.common"),
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
-                    text.w.fixed = gs("text.w.fixed"),
+                    text.w.common = gs("text.w.common"),
                     text.w.random = gs("text.w.random"),
                     ##
                     title = gs("title"), complab = gs("complab"),
@@ -744,14 +744,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chknumeric(irscale, length = 1)
   chkchar(irunit)
   ##
-  if (!is.null(text.fixed))
-    chkchar(text.fixed, length = 1)
+  if (!is.null(text.common))
+    chkchar(text.common, length = 1)
   if (!is.null(text.random))
     chkchar(text.random, length = 1)
   if (!is.null(text.predict))
     chkchar(text.predict, length = 1)
-  if (!is.null(text.w.fixed))
-    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.common))
+    chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
   ##
@@ -788,9 +788,12 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
-                      warn.deprecated)
-  chklogical(fixed)
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
+                       warn.deprecated)
+  common <- deprecated(common, missing.common, args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
@@ -1047,9 +1050,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    fixed  <- FALSE
+    common <- FALSE
     random <- FALSE
-    prediction  <- FALSE
+    prediction <- FALSE
     overall <- FALSE
     overall.hetstat <- FALSE
   }
@@ -1105,8 +1108,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
         incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
-    else
-      incr.event <- rep(0, k.all)
+  else
+    incr.event <- rep(0, k.all)
   ##  
   if (sm == "IRR") {
     TE <- log(((event.e + incr.event) / time.e) / ((event.c + incr.event) / time.c))
@@ -1139,7 +1142,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    fixed <- FALSE
+    common <- FALSE
     ##
     if (method != "Inverse") {
       if (!missing.method)
@@ -1243,10 +1246,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       ##
       D[exclude] <- R[exclude] <- S[exclude] <- 0
       ##
-      w.fixed <- S
-      TE.fixed <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
-      seTE.fixed <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
-                                                   sum(S, na.rm = TRUE)))
+      w.common <- S
+      TE.common <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
+      seTE.common <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
+                                                  sum(S, na.rm = TRUE)))
     }
     else if (sm == "IRD") {
       L <- (x.k * m.k^2 + y.k * n.k^2) / N.k^2
@@ -1254,9 +1257,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       ##
       L[exclude] <- S[exclude] <- 0
       ##
-      w.fixed <- S
-      TE.fixed <- weighted.mean(TE, w.fixed, na.rm = TRUE)
-      seTE.fixed <- sqrt(sum(L, na.rm = TRUE) / sum(S, na.rm = TRUE)^2)
+      w.common <- S
+      TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
+      seTE.common <- sqrt(sum(L, na.rm = TRUE) / sum(S, na.rm = TRUE)^2)
     }
   }
   ##
@@ -1267,10 +1270,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ## Chapter 8
     ## 
     if (sm == "IRR") {
-      w.fixed <- event.c * time.e / time.c
-      w.fixed[exclude] <- 0
-      TE.fixed <- weighted.mean(TE, w.fixed)
-      seTE.fixed <- sqrt(1 / sum(event.e) + 1 / sum(event.c))
+      w.common <- event.c * time.e / time.c
+      w.common[exclude] <- 0
+      TE.common <- weighted.mean(TE, w.common)
+      seTE.common <- sqrt(1 / sum(event.e) + 1 / sum(event.c))
     }
     else if (sm == "IRD") {
       warning("Cochran method only available for ",
@@ -1287,7 +1290,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
        !any(event.c[!exclude] != time.c[!exclude]))
     ##
     if (!zero.all)
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(x1i = event.e[!exclude], t1i = time.e[!exclude],
                    x2i = event.c[!exclude], t2i = time.c[!exclude],
@@ -1297,14 +1300,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                    control = control,
                    ...))
     else
-      glmm.fixed <- list(b = NA, se = NA,
-                         QE.Wld = NA, QE.df = NA, QE.LRT = NA,
-                         tau2 = NA, se.tau2 = NA)
+      glmm.common <- list(b = NA, se = NA,
+                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
+                          tau2 = NA, se.tau2 = NA)
     ##
-    TE.fixed   <- as.numeric(glmm.fixed$b)
-    seTE.fixed <- as.numeric(glmm.fixed$se)
+    TE.common   <- as.numeric(glmm.common$b)
+    seTE.common <- as.numeric(glmm.common$se)
     ##
-    w.fixed <- rep(NA, length(time.e))
+    w.common <- rep(NA, length(time.e))
   }
   ##
   m <- metagen(TE, seTE, studlab,
@@ -1314,7 +1317,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                sm = sm,
                level = level,
                level.ma = level.ma,
-               fixed = fixed,
+               common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
@@ -1322,7 +1325,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                hakn = hakn, adhoc.hakn = adhoc.hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
-               TE.tau = if (method == "Inverse") TE.tau else TE.fixed,
+               TE.tau = if (method == "Inverse") TE.tau else TE.common,
                tau.common = FALSE,
                ##
                prediction = prediction,
@@ -1332,9 +1335,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                ##
                backtransf = backtransf,
                ##
-               text.fixed = text.fixed, text.random = text.random,
+               text.common = text.common, text.random = text.random,
                text.predict = text.predict,
-               text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+               text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
                label.e = label.e, label.c = label.c,
@@ -1348,7 +1351,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (by & tau.common & !is.glmm) {
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, "",
-                   if (method == "Inverse") TE.tau else TE.fixed,
+                   if (method == "Inverse") TE.tau else TE.common,
                    level.ma, subgroup, control)
   }
   
@@ -1366,7 +1369,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               sparse = sparse,
               allincr = allincr, addincr = addincr,
               incr.event = incr.event,
-              k.MH = if (method == "MH") sum(w.fixed > 0) else NA)
+              k.MH = if (method == "MH") sum(w.common > 0) else NA)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)
@@ -1390,16 +1393,16 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (method %in% c("MH", "Cochran", "GLMM")) {
     ##
-    ci.f <- ci(TE.fixed, seTE.fixed, level = level.ma)
+    ci.f <- ci(TE.common, seTE.common, level = level.ma)
     ##
-    res$TE.fixed <- TE.fixed
-    res$seTE.fixed <- seTE.fixed
-    res$w.fixed <- w.fixed
-    res$lower.fixed <- ci.f$lower
-    res$upper.fixed <- ci.f$upper
-    res$statistic.fixed <- ci.f$statistic
-    res$pval.fixed <- ci.f$p
-    res$zval.fixed <- ci.f$statistic
+    res$TE.common <- TE.common
+    res$seTE.common <- seTE.common
+    res$w.common <- w.common
+    res$lower.common <- ci.f$lower
+    res$upper.common <- ci.f$upper
+    res$statistic.common <- ci.f$statistic
+    res$pval.common <- ci.f$p
+    res$zval.common <- ci.f$statistic
   }
   ##
   if (is.glmm) {
@@ -1420,7 +1423,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       ## Fallback to common effect model due to small number of studies
       ## or zero events
       ##
-      glmm.random <- glmm.fixed
+      glmm.random <- glmm.common
     }
     ##
     TE.random   <- as.numeric(glmm.random$b)
@@ -1497,7 +1500,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$lower.Rb <- NA
     res$upper.Rb <- NA
     ##
-    res$.glmm.fixed  <- glmm.fixed
+    res$.glmm.common  <- glmm.common
     res$.glmm.random <- glmm.random
     res$version.metafor <- packageDescription("metafor")$Version
     ##
@@ -1522,7 +1525,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                      test = ifelse(hakn, "t", "z"),
                      level = 100 * level.ma,
                      measure = "IRR", model = model.glmm,
-                      control = control,
+                     control = control,
                      data = data.frame(subgroup.glmm),
                      ...))),
           silent = TRUE)
@@ -1672,9 +1675,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Backward compatibility
   ##
-  res$comb.fixed <- fixed
-  res$comb.random <- random
-  res$level.comb <- level.ma
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$w.fixed <- res$w.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
   ##
   if (by) {
     res$byvar <- subgroup

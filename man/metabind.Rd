@@ -15,7 +15,7 @@ names for the meta-analysis objects.}
 
 \item{pooled}{A character string or vector indicating whether
 results of a common effect or random effects model should be
-considered. Either \code{"fixed"} or \code{"random"}, can be
+considered. Either \code{"common"} or \code{"random"}, can be
 abbreviated.}
 
 \item{backtransf}{A logical indicating whether results should be

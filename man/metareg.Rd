@@ -98,7 +98,7 @@ metareg(m1)
 
 # Do meta-regression for covariate region
 #
-mu2 <- update(m1, subgroup = region, tau.common = TRUE, fixed = FALSE)
+mu2 <- update(m1, subgroup = region, tau.common = TRUE, common = FALSE)
 metareg(mu2)
 
 # Same result for

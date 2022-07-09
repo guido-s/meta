@@ -90,7 +90,7 @@
 #' 
 #' # Do meta-regression for covariate region
 #' #
-#' mu2 <- update(m1, subgroup = region, tau.common = TRUE, fixed = FALSE)
+#' mu2 <- update(m1, subgroup = region, tau.common = TRUE, common = FALSE)
 #' metareg(mu2)
 #' 
 #' # Same result for
@@ -179,7 +179,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   model.glmm <- x$model.glmm
   ##
-  threelevel <- !is.null(x$k.study) && x$k != x$k.study
+  three.level <- !is.null(x$k.study) && x$k != x$k.study
   ##
   metabin <- inherits(x, "metabin")
   metainc <- inherits(x, "metainc")
@@ -290,7 +290,7 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ## Argument test in rma.uni(), rma.glmm() and rma.mv()
   ##
   test <- ifelse(!hakn, "z",
-                 ifelse(method == "GLMM" | threelevel, "t", "knha"))
+                 ifelse(method == "GLMM" | three.level, "t", "knha"))
 
   ##
   ## Covariate 'x' make problems without removing meta-analysis object x
@@ -298,14 +298,14 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ..x <- x
   rm(x)
   ##
-  warn.FE <- paste("Fallback to fixed effect model (argument",
+  warn.FE <- paste("Fallback to common effect model (argument",
                    "method.tau = \"FE\") due to small number of studies.")
   ##
   if (method != "GLMM") {
     ##
     ## Three-level model
     ##
-    if (threelevel) {
+    if (three.level) {
       ##
       res <-
         runNN(rma.mv,

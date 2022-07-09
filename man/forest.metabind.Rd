@@ -159,7 +159,7 @@ Argument \code{hetstat} can be a character string to specify where
 to print heterogeneity information:
 \itemize{
 \item row with results for common effect model (\code{hetstat =
-"fixed"}),
+"common"}),
 \item row with results for random effects model (\code{hetstat =
 "random"}),
 \item rows with 'study' information (\code{hetstat = "study"}).
