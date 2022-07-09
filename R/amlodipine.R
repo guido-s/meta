@@ -47,7 +47,7 @@
 #' # Same results for mean difference as in Table III in Hartung and
 #' # Knapp (2001)
 #' #
-#' vars.common <- c("TE.fixed", "lower.fixed", "upper.fixed")
+#' vars.common <- c("TE.common", "lower.common", "upper.common")
 #' vars.random <- c("TE.random", "lower.random", "upper.random")
 #' #
 #' res.common <- as.data.frame(m[vars.common])

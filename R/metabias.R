@@ -467,11 +467,11 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         ## Begg und Mazumdar (1994), Biometrics, 50, 1088-1101
         ##
         m <- metagen(TE, seTE, method.tau.ci = "")
-        TE.fixed <- m$TE.fixed
-        seTE.fixed <- m$seTE.fixed
+        TE.common <- m$TE.common
+        seTE.common <- m$seTE.common
         ##
-        varTE.s <- seTE^2 - seTE.fixed^2
-        TE.s <- (TE - TE.fixed) / sqrt(varTE.s)
+        varTE.s <- seTE^2 - seTE.common^2
+        TE.s <- (TE - TE.common) / sqrt(varTE.s)
         ##
         ktau <- kentau(TE.s, seTE^2, correct = correct)
       }
@@ -481,7 +481,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         ##
         if (inherits(x, "metabin")) {
           TE.MH <- metabin(x$event.e, x$n.e, x$event.c, x$n.c,
-                           sm = "OR", method = "MH", warn = FALSE)$TE.fixed
+                           sm = "OR", method = "MH", warn = FALSE)$TE.common
           ##
           n.. <- n.e + n.c
           n11 <- event.e
@@ -638,7 +638,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     if (plotit) {
       ##
       if (method.bias == "Egger" | method.bias == "Thompson") {
-        radial(TE, seTE, fixed = FALSE)
+        radial(TE, seTE, common = FALSE)
         abline(lreg$slope, lreg$intercept)
       }
       else if (method.bias == "Begg") {
@@ -651,7 +651,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       }
       else if (method.bias == "Harbord") {
         ##
-        radial(TE.score, seTE.score, fixed = FALSE)
+        radial(TE.score, seTE.score, common = FALSE)
         abline(lreg$slope, lreg$intercept)
       }
     }

@@ -158,8 +158,8 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  TE.fixed <- metagen(TE, seTE, exclude = x$exclude,
-                      method.tau.ci = "")$TE.fixed
+  TE.common <- metagen(TE, seTE, exclude = x$exclude,
+                       method.tau.ci = "")$TE.common
   k <- x$k
   ##
   if (is.logical(studlab)) {
@@ -193,10 +193,10 @@ baujat.meta <- function(x,
   TE.inf <- m.inf$TE[seq_along(TE)]
   seTE.inf <- m.inf$seTE[seq_along(TE)]
   ##
-  ys <- (TE.inf - TE.fixed)^2 / seTE.inf^2
+  ys <- (TE.inf - TE.common)^2 / seTE.inf^2
   ys <- ys * yscale
   ##  
-  xs <- (TE - TE.fixed)^2 / seTE^2
+  xs <- (TE - TE.common)^2 / seTE^2
   ##
   if (!is.null(x$exclude))
     xs[x$exclude] <- NA

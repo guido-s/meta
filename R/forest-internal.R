@@ -336,10 +336,10 @@ draw.forest <- function(x, column) {
 
 
 draw.lines <- function(x, column,
-                       ref, TE.fixed, TE.random,
-                       overall, fixed, random, prediction,
-                       ymin.fixed, ymin.random, ymin.ref, ymax,
-		       lwd, lty.fixed, lty.random, col.fixed, col.random,
+                       ref, TE.common, TE.random,
+                       overall, common, random, prediction,
+                       ymin.common, ymin.random, ymin.ref, ymax,
+                       lwd, lty.common, lty.random, col.common, col.random,
                        min, max,
                        lower.equi, upper.equi,
                        lty.equi, col.equi, fill.equi) {
@@ -381,14 +381,14 @@ draw.lines <- function(x, column,
                y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd))
   ##
-  ## Line for fixed effect estimate:
+  ## Line for common effect estimate:
   ##
-  if (fixed & overall & !is.na(TE.fixed))
-    if (min <= TE.fixed & TE.fixed <= max)
-      if (!is.null(lty.fixed))
-        grid.lines(x = unit(TE.fixed, "native"),
-                   y = unit(c(ymin.fixed, ymax), "lines"),
-                   gp = gpar(lty = lty.fixed, lwd = lwd, col = col.fixed))
+  if (common & overall & !is.na(TE.common))
+    if (min <= TE.common & TE.common <= max)
+      if (!is.null(lty.common))
+        grid.lines(x = unit(TE.common, "native"),
+                   y = unit(c(ymin.common, ymax), "lines"),
+                   gp = gpar(lty = lty.common, lwd = lwd, col = col.common))
   ##
   ## Line for random effects estimate:
   ##
@@ -435,13 +435,13 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                 fontfamily = fontfamily)
                               )
   ##
-  ## Fixed effect estimate:
+  ## Common effect estimate:
   ##
   res$labels[[2]] <- textGrob(y[1],
                               x = xpos, just = just,
                               gp = gpar(
-                                fontsize = settings$fs.fixed,
-                                fontface = settings$ff.fixed,
+                                fontsize = settings$fs.common,
+                                fontface = settings$ff.common,
                                 fontfamily = fontfamily)
                               )
   ##
@@ -468,15 +468,15 @@ formatcol <- function(x, y, rows, just = "right", settings,
   if (settings$by)
     for (i in 1:settings$n.by) {
       ##
-      ## Fixed effect estimates:
+      ## Common effect estimates:
       ##
       res$labels[[4 + i]] <-
         textGrob(y[3 + i],
                  x = xpos, just = just,
                  gp = 
                    gpar(
-                     fontsize = settings$fs.fixed,
-                     fontface = settings$ff.fixed,
+                     fontsize = settings$fs.common,
+                     fontface = settings$ff.common,
                      fontfamily = fontfamily,
                      col = settings$col.by)
                  )

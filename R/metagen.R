@@ -981,7 +981,8 @@ metagen <- function(TE, seTE, studlab,
                     byvar, id,
                     ##
                     keepdata = gs("keepdata"),
-                    warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
+                    warn = gs("warn"),
+                    warn.deprecated = gs("warn.deprecated"),
                     ##
                     control = NULL,
                     ...) {

@@ -51,10 +51,10 @@ hetcalc <- function(TE, seTE,
     ##
     ## Mantel-Haenszel estimator to calculate Q and tau (like RevMan 5)
     ##
-    w.fixed <- 1 / seTE^2
-    w.fixed[is.na(w.fixed)] <- 0
+    w.common <- 1 / seTE^2
+    w.common[is.na(w.common)] <- 0
     ##
-    Q <- sum(w.fixed * (TE - TE.tau)^2, na.rm = TRUE)
+    Q <- sum(w.common * (TE - TE.tau)^2, na.rm = TRUE)
     df.Q <- sum(!is.na(seTE)) - 1
     pval.Q <- pvalQ(Q, df.Q)
     ##
@@ -63,7 +63,7 @@ hetcalc <- function(TE, seTE,
     else if (round(Q, digits = 18) <= df.Q)
       tau2 <- 0
     else
-      tau2 <- (Q - df.Q) / Ccalc(w.fixed)
+      tau2 <- (Q - df.Q) / Ccalc(w.common)
     ##
     se.tau2 <- lower.tau2 <- upper.tau2 <- NA
     tau <- sqrt(tau2)

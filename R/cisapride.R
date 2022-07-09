@@ -44,7 +44,7 @@
 #' m.rr <- update(m.or, sm = "RR")
 #' m.rr.hakn <- update(m.or, sm = "RR", hakn = TRUE)
 #'
-#' vars.common <- c("TE.fixed", "lower.fixed", "upper.fixed")
+#' vars.common <- c("TE.common", "lower.common", "upper.common")
 #' vars.random <- c("TE.random", "lower.random", "upper.random")
 #' #
 #' res.common.or <- as.data.frame(m.or[vars.common])
