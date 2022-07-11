@@ -14,7 +14,7 @@
 #'   the linear regression test for funnel plot symmetry (i.e.,
 #'   function \code{metabias(..., method="Egger")}) is used to
 #'   determine whether studies are missing on the left or right side.
-#' @param ma.fixed A logical indicating whether a fixed effect or
+#' @param ma.common A logical indicating whether a common effect or
 #'   random effects model is used to estimate the number of missing
 #'   studies.
 #' @param type A character indicating which method is used to estimate
@@ -30,10 +30,10 @@
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies. If existing, \code{x$level} is used as value
 #'   for \code{level}; otherwise 0.95 is used.
-#' @param level.ma The level used to calculate confidence interval
-#'   for the pooled estimate. If existing, \code{x$level.ma} is used
-#'   as value for \code{level.ma}; otherwise 0.95 is used.
-#' @param fixed A logical indicating whether a fixed effect
+#' @param level.ma The level used to calculate confidence interval for
+#'   the pooled estimate. If existing, \code{x$level.ma} is used as
+#'   value for \code{level.ma}; otherwise 0.95 is used.
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -71,7 +71,9 @@
 #'   calculate rates, e.g. person-years.
 #' @param silent A logical indicating whether basic information on
 #'   iterations shown.
-#' @param \dots other arguments
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #'
 #' @details
 #' The trim-and-fill method (Duval, Tweedie 2000a, 2000b) can be used
@@ -85,17 +87,17 @@
 #' R-estimator) have been shown to perform better in simulations, and
 #' are available in this R function (argument \code{type}).
 #' 
-#' A fixed effect or random effects model can be used to estimate the
-#' number of missing studies (argument \code{ma.fixed}). Furthermore,
-#' a fixed effect and/or random effects model can be used to summaries
-#' study results (arguments \code{fixed} and
-#' \code{random}). Simulation results (Peters et al. 2007)
-#' indicate that the fixed-random model, i.e. using a fixed effect
-#' model to estimate the number of missing studies and a random
-#' effects model to summaries results, (i) performs better than the
-#' fixed-fixed model, and (ii) performs no worse than and marginally
-#' better in certain situations than the random-random
-#' model. Accordingly, the fixed-random model is the default.
+#' A common effect or random effects model can be used to estimate the
+#' number of missing studies (argument \code{ma.common}). Furthermore,
+#' a common effect and/or random effects model can be used to
+#' summaries study results (arguments \code{common} and
+#' \code{random}). Simulation results (Peters et al. 2007) indicate
+#' that the common-random model, i.e. using a common effect model to
+#' estimate the number of missing studies and a random effects model
+#' to summaries results, (i) performs better than the common-common
+#' model, and (ii) performs no worse than and marginally better in
+#' certain situations than the random-random model. Accordingly, the
+#' common-random model is the default.
 #' 
 #' An empirical comparison of the trim-and-fill method and the Copas
 #' selection model (Schwarzer et al. 2010) indicates that the
@@ -108,10 +110,10 @@
 #' @return
 #' An object of class \code{c("metagen", "meta", "trimfill")}. The
 #' object is a list containing the following components:
-#' \item{studlab, sm, left, ma.fixed, type, n.iter.max}{As defined
+#' \item{studlab, sm, left, ma.common, type, n.iter.max}{As defined
 #'   above.}
 #' \item{level, level.ma, level.predict}{As defined above.}
-#' \item{fixed, random, prediction}{As defined above.}
+#' \item{common, random, prediction}{As defined above.}
 #' \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   individual studies.}
@@ -119,10 +121,10 @@
 #'   individual studies.}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
-#'   random effects model).} 
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-#'   standard error (fixed effect model).}
+#' \item{w.common, w.random}{Weight of individual studies (in common
+#'   effect and random effects model).}
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect and
+#'   standard error (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
 #' \item{seTE.predict}{Standard error utilised for prediction
@@ -226,10 +228,10 @@
 #' @export
 
 
-trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
+trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                           type = "L", n.iter.max = 50,
                           level = x$level, level.ma = x$level.ma,
-                          fixed = FALSE, random = TRUE,
+                          common = FALSE, random = TRUE,
                           hakn = x$hakn,
                           method.tau = x$method.tau,
                           method.tau.ci = x$method.tau.ci,
@@ -237,7 +239,9 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
                           level.predict = x$level.predict,
                           backtransf = x$backtransf, pscale = x$pscale,
                           irscale = x$irscale, irunit = x$irunit,
-                          silent = TRUE, ...) {
+                          silent = TRUE,
+                          warn.deprecated = gs("warn.deprecated"),
+                          ...) {
   
   
   ##
@@ -258,13 +262,20 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   ##
   ## Check arguments
   ##
+  args <- list(...)
+  ma.common <- deprecated(ma.common, missing(ma.common), args, "ma.fixed",
+                          warn.deprecated)
+  chklogical(ma.common)
   type <- setchar(type, c("L", "R"))
+  chknumeric(n.iter.max, min = 1, length = 1)
   ##
   chklevel(level)
   chklevel(level.ma)
   chklevel(level.predict)
   ##
-  chklogical(fixed)
+  common <- deprecated(common, missing(common), args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   chklogical(random)
   ##
   chklogical(prediction)
@@ -447,10 +458,13 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
     sd.c <- sd.c[ord]
   
   
-  if (ma.fixed)
-    TE.sum <- metagen(TE, seTE)$TE.fixed
+  if (ma.common)
+    TE.sum <-
+      metagen(TE, seTE, method.tau = "DL", method.tau.ci = "")$TE.common
   else
-    TE.sum <- metagen(TE, seTE, method.tau = method.tau)$TE.random
+    TE.sum <-
+      metagen(TE, seTE, method.tau = method.tau,
+              method.tau.ci = "")$TE.random
   
   
   if (k == 1) {
@@ -470,11 +484,13 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
       ##
       sel <- 1:(k - k0)
       ##
-      if (ma.fixed)
-        TE.sum <- metagen(TE[sel], seTE[sel])$TE.fixed
+      if (ma.common)
+        TE.sum <- metagen(TE[sel], seTE[sel],
+                          method.tau = "DL", method.tau.ci = "")$TE.common
       else
         TE.sum <- metagen(TE[sel], seTE[sel],
-                          method.tau = method.tau)$TE.random
+                          method.tau = method.tau,
+                          method.tau.ci = "")$TE.random
       ##
       trim1 <- estimate.missing(TE, TE.sum, type)
       ##
@@ -645,16 +661,18 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               TE = m.all$TE, seTE = m.all$seTE,
               lower = m.all$lower, upper = m.all$upper,
               statistic = m.all$statistic, pval = m.all$pval,
-              w.fixed = m.all$w.fixed, w.random = m.all$w.random,
+              w.common = m.all$w.common, w.random = m.all$w.random,
               exclude = exclude.na,
               ##
-              TE.fixed = m$TE.fixed, seTE.fixed = m$seTE.fixed,
-              lower.fixed = m$lower.fixed, upper.fixed = m$upper.fixed,
-              statistic.fixed = m$statistic.fixed, pval.fixed = m$pval.fixed,
+              TE.common = m$TE.common, seTE.common = m$seTE.common,
+              lower.common = m$lower.common, upper.common = m$upper.common,
+              statistic.common = m$statistic.common,
+              pval.common = m$pval.common,
               ##
               TE.random = m$TE.random, seTE.random = m$seTE.random,
               lower.random = m$lower.random, upper.random = m$upper.random,
-              statistic.random = m$statistic.random, pval.random = m$pval.random,
+              statistic.random = m$statistic.random,
+              pval.random = m$pval.random,
               ##
               seTE.predict = m$seTE.predict,
               lower.predict = m$lower.predict,
@@ -687,7 +705,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               ##
               call = match.call(),
               left = left,
-              ma.fixed = ma.fixed,
+              ma.common = ma.common,
               type = type,
               n.iter.max = n.iter.max,
               n.iter = n.iter,
@@ -697,9 +715,9 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               method.tau = m$method.tau,
               prediction = prediction,
               ##
-              text.fixed = x$text.fixed, text.random = x$text.random,
+              text.common = x$text.common, text.random = x$text.random,
               text.predict = x$text.predict,
-              text.w.fixed = x$text.w.fixed, text.w.random = x$text.w.random,
+              text.w.common = x$text.w.common, text.w.random = x$text.w.random,
               ##
               title = x$title,
               complab = x$complab,
@@ -710,7 +728,7 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
               label.right = x$label.right,
               k0 = k0,
               level = level, level.ma = level.ma,
-              fixed = fixed,
+              common = common,
               random = random,
               ##
               n.e = n.e,
@@ -742,6 +760,24 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
   res$pscale <- pscale
   res$irscale <- irscale
   res$irunit <- irunit
+  ##
+  ## Backward compatibility
+  ##
+  res$fixed <- res$common
+  ##
+  res$w.fixed <- res$w.common
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
+  ##
+  res$ma.fixed <- res$ma.common
+  res$text.fixed <- res$text.common
+  res$text.w.fixed <- res$text.w.common
+  
   
   res$version <- packageDescription("meta")$Version
   
@@ -759,14 +795,15 @@ trimfill.meta <- function(x, left = NULL, ma.fixed = TRUE,
 #' @export
 
 
-trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
+trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              type = "L", n.iter.max = 50,
                              sm = "", studlab = NULL,
                              level = 0.95, level.ma = level,
-                             fixed = FALSE, random = TRUE,
+                             common = FALSE, random = TRUE,
                              hakn = FALSE,
                              method.tau = "DL",
-                             method.tau.ci = if (method.tau == "DL") "J" else "QP",
+                             method.tau.ci =
+                               if (method.tau == "DL") "J" else "QP",
                              prediction = FALSE, level.predict = level,
                              backtransf = TRUE, pscale = 1,
                              irscale = 1, irunit = "person-years",
@@ -800,7 +837,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ## (2) Do meta-analysis
   ##
   ##
-  m <- metagen(x, seTE, studlab = studlab, sm = sm, method.tau.ci = "")
+  m <- metagen(x, seTE, studlab = studlab, sm = sm,
+               method.tau = "DL", method.tau.ci = "")
   
   
   ##
@@ -808,10 +846,10 @@ trimfill.default <- function(x, seTE, left = NULL, ma.fixed = TRUE,
   ## (3) Run trim-and-fill method
   ##
   ##
-  res <- trimfill(m, left = left, ma.fixed = ma.fixed,
+  res <- trimfill(m, left = left, ma.common = ma.common,
                   type = type, n.iter.max = n.iter.max,
                   level = level, level.ma = level.ma,
-                  fixed = fixed, random = TRUE,
+                  common = common, random = random,
                   hakn = hakn,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   prediction = prediction, level.predict = level.predict,

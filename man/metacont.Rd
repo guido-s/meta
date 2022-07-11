@@ -15,7 +15,7 @@ metacont(
   data = NULL,
   subset = NULL,
   exclude = NULL,
-  id = NULL,
+  cluster = NULL,
   median.e,
   q1.e,
   q3.e,
@@ -40,10 +40,10 @@ metacont(
   method.ci = gs("method.ci.cont"),
   level = gs("level"),
   level.ma = gs("level.ma"),
-  fixed = gs("fixed"),
+  common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
-  overall = fixed | random,
-  overall.hetstat = fixed | random,
+  overall = common | random,
+  overall.hetstat = common | random,
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
@@ -55,10 +55,10 @@ metacont(
   level.predict = gs("level.predict"),
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
-  text.fixed = gs("text.fixed"),
+  text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
-  text.w.fixed = gs("text.w.fixed"),
+  text.w.common = gs("text.w.common"),
   text.w.random = gs("text.w.random"),
   title = gs("title"),
   complab = gs("complab"),
@@ -74,6 +74,7 @@ metacont(
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
+  id,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -106,8 +107,8 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
-\item{id}{An optional vector specifying which estimates come from
-the same study resulting in the use of a three-level
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{median.e}{Median in experimental group (used to estimate the
@@ -195,8 +196,8 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect / common
-effect meta-analysis should be conducted.}
+\item{common}{A logical indicating whether a common effect
+meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
@@ -227,8 +228,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -255,8 +256,8 @@ means (\code{sm="ROM"}) should be back transformed in printouts
 and plots. If TRUE (default), results will be presented as ratio
 of means; otherwise log ratio of means will be shown.}
 
-\item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+\item{text.common}{A character string used in printouts and forest
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -264,8 +265,8 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -305,6 +306,8 @@ intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
+\item{id}{Deprecated argument (replaced by 'cluster').}
+
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
@@ -328,13 +331,14 @@ object is a list containing the following components:
 
 \item{n.e, mean.e, sd.e,}{As defined above.}
 \item{n.c, mean.c, sd.c,}{As defined above.}
-\item{studlab, exclude, sm, method.ci,}{As defined above.}
+\item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 \item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
 \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 \item{method.mean, method.sd,}{As defined above.}
-\item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As defined above.}
+\item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As
+  defined above.}
 \item{level, level.ma,}{As defined above.}
-\item{fixed, random,}{As defined above.}
+\item{common, random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{pooledvar, method.smd, sd.glass,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -350,14 +354,14 @@ object is a list containing the following components:
   individual studies.}
 \item{statistic, pval}{Statistic and p-value for test of treatment
   effect for individual studies.}
-\item{w.fixed, w.random}{Weight of individual studies (in fixed and
-  random effects model).}
-\item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-  standard error (fixed effect model).}
-\item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-  limits (fixed effect model).}
-\item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
-  overall treatment effect (fixed effect model).}
+\item{w.common, w.random}{Weight of individual studies (in common
+  effect and random effects model).}
+\item{TE.common, seTE.common}{Estimated overall treatment effect and
+  standard error (common effect model).}
+\item{lower.common, upper.common}{Lower and upper confidence interval
+  limits (common effect model).}
+\item{statistic.common, pval.common}{Statistic and p-value for test of
+  overall treatment effect (common effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect
   and standard error (random effects model).}
 \item{lower.random, upper.random}{Lower and upper confidence
@@ -369,7 +373,10 @@ object is a list containing the following components:
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic Q.}
 \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 \item{pval.Q}{P-value of heterogeneity test.}
@@ -394,14 +401,14 @@ object is a list containing the following components:
 \item{method}{Pooling method: \code{"Inverse"}.}
 \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
-\item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
-  standard error in subgroups (fixed effect model) - if
+\item{TE.common.w, seTE.common.w}{Estimated treatment effect and
+  standard error in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
-\item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
-  interval limits in subgroups (fixed effect model) - if
+\item{lower.common.w, upper.common.w}{Lower and upper confidence
+  interval limits in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
-\item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
-  test of treatment effect in subgroups (fixed effect model) - if
+\item{statistic.common.w, pval.common.w}{Statistics and p-values for
+  test of treatment effect in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
   standard error in subgroups (random effects model) - if
@@ -412,8 +419,8 @@ object is a list containing the following components:
 \item{statistic.random.w, pval.random.w}{Statistics and p-values
   for test of treatment effect in subgroups (random effects model)
   - if \code{subgroup} is not missing.}
-\item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{subgroup} is not missing.}
+\item{w.common.w, w.random.w}{Weight of subgroups (in common effect
+  and random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
@@ -425,29 +432,29 @@ object is a list containing the following components:
   \code{subgroup} is not missing.}
 \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
-\item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{subgroup} is not missing.}
+\item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
+  (based on common effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.w.common}{P-value of within subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
-\item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{subgroup} is not
+\item{Q.b.common}{Overall between subgroups heterogeneity statistic
+  Q (based on common effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing.}
 \item{df.Q.b}{Degrees of freedom for test of overall between
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.b.common}{P-value of between subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
@@ -474,12 +481,12 @@ object is a list containing the following components:
   object.}
 }
 \description{
-Calculation of fixed and random effects estimates for meta-analyses
+Calculation of common and random effects estimates for meta-analyses
 with continuous outcome data; inverse variance weighting is used
 for pooling.
 }
 \details{
-Calculation of fixed and random effects estimates for meta-analyses
+Calculation of common and random effects estimates for meta-analyses
 with continuous outcome data; inverse variance weighting is used
 for pooling.
 
@@ -539,7 +546,7 @@ difference. The standard deviation in the experimental group
 Meta-analysis of ratio of means -- also called response ratios --
 is described in Hedges et al. (1999) and Friedrich et al. (2008).
 Calculations are conducted on the log scale and list elements
-\code{TE}, \code{TE.fixed}, and \code{TE.random} contain the
+\code{TE}, \code{TE.common}, and \code{TE.random} contain the
 logarithm of the ratio of means. In printouts and plots these
 values are back transformed if argument \code{backtransf = TRUE}.
 }
@@ -569,7 +576,7 @@ By default, methods described in Luo et al. (2018) are utilized
 }
 
 Instead the methods described in Wan et al. (2014) are used if
-argument \code{method.mean = "Wan"}):
+argument \code{method.mean = "Wan"}:
 \itemize{
 \item equation (10) if sample size, median, interquartile range and 
   range are available,
@@ -642,7 +649,7 @@ interval for individual studies can be based on the
 \item t-distribution (\code{method.ci = "t"}).
 }
 
-Note, this choice does not affect the results of the fixed effect
+Note, this choice does not affect the results of the common effect
 and random effects meta-analysis.
 }
 
@@ -670,17 +677,17 @@ estimators.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
+\bold{Argument}\tab \bold{Method} \cr
 \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
 \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
- three-level meta-analysis model \cr
-\tab (Van den Noortgate et al., 2013)
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these methods. No
-confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-if \code{method.tau.ci = ""}.
+
+See \code{\link{metagen}} for more information on these methods.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -700,7 +707,7 @@ Wiksten et al., 2016). In such cases, an
 the variance estimate from the classic random effects model with
 the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
 alternative approach is to use the wider confidence interval of
-classic fixed or random effects meta-analysis and the HK method
+classic common or random effects meta-analysis and the HK method
 (Wiksten et al., 2016; Jackson et al., 2017).
 
 Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
@@ -755,14 +762,14 @@ Meta-analysis results are the same for both arguments.
 
 \subsection{Presentation of meta-analysis results}{
 
-Internally, both fixed effect and random effects models are
+Internally, both common effect and random effects models are
 calculated regardless of values choosen for arguments
-\code{fixed} and \code{random}. Accordingly, the estimate
+\code{common} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component
 \code{TE.random} of an object of class \code{"meta"} even if
 argument \code{random = FALSE}. However, all functions in R
 package \bold{meta} will adequately consider the values for
-\code{fixed} and \code{random}. E.g. function
+\code{common} and \code{random}. E.g. function
 \code{\link{print.meta}} will not print results for the random
 effects model if \code{random = FALSE}.
 }

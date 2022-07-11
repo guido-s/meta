@@ -9,13 +9,13 @@
 \usage{
 nnt(x, ...)
 
-\method{nnt}{meta}(x, p.c, fixed = x$fixed, random = x$random, ...)
+\method{nnt}{meta}(x, p.c, common = x$common, random = x$random, ...)
 
 \method{nnt}{default}(x, p.c, sm, lower, upper, ...)
 
 \method{print}{nnt.meta}(
   x,
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
   digits = gs("digits"),
   digits.prop = gs("digits.prop"),
@@ -25,14 +25,15 @@ nnt(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, or estimated treatment
-effect, i.e., risk difference(s), risk ratio(s), or odds ratio(s).}
+effect, i.e., risk difference(s), risk ratio(s), or odds
+ratio(s).}
 
-\item{\dots}{Additional arguments (ignored at the moment).}
+\item{\dots}{Additional arguments (to catch deprecated arguments).}
 
 \item{p.c}{Baseline risk (control group event probability).}
 
-\item{fixed}{A logical indicating whether NNTs should be
-calculated based on fixed effect estimate.}
+\item{common}{A logical indicating whether NNTs should be
+calculated based on common effect estimate.}
 
 \item{random}{A logical indicating whether NNTs should be
 calculated based on random effects estimate.}

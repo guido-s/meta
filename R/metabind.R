@@ -11,8 +11,8 @@
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
 #' @param pooled A character string or vector indicating whether
-#'   results of a fixed effect or random effects model should be
-#'   considered. Either \code{"fixed"} or \code{"random"}, can be
+#'   results of a common effect or random effects model should be
+#'   considered. Either \code{"common"} or \code{"random"}, can be
 #'   abbreviated.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If
@@ -109,8 +109,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
   n.i <- seq_len(n.meta)
   is.limit <- is.copas <- is.trimfill <- rep(FALSE, n.meta)
   ##
-  if (!missing.pooled)
-    pooled <- setchar(pooled, c("fixed", "random"))
+  if (!missing(pooled)) {
+    pooled <- setchar(pooled, c("common", "random", "fixed"))
+    pooled[pooled == "fixed"] <- "common"
+  }
   ##
   if (!missing.backtransf)
     chklogical(backtransf)  
@@ -181,7 +183,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
         is.copas[i] <- TRUE
       ##
       args[[i]] <- metamerge(args[[i]])
-      args[[i]]$fixed <- FALSE
+      args[[i]]$common <- FALSE
     }
     else
       stop("All elements of argument '...' must be of class 'meta', ",
@@ -259,7 +261,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          level = m.i$level.ma,
                          level.ma = m.i$level.ma,
                          level.predict = m.i$level.predict,
-                         fixed = m.i$fixed,
+                         common = m.i$common,
                          random = m.i$random,
                          hakn = m.i$hakn,
                          method.tau = m.i$method.tau,
@@ -274,7 +276,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          ##
                          title = m.i$title,
                          complab = m.i$complab,
-                         outclab = if (missing.outclab) m.i$outclab else outclab,
+                         outclab =
+                           if (missing.outclab) m.i$outclab else outclab,
                          label.e = m.i$label.e,
                          label.c = m.i$label.c,
                          label.left = m.i$label.left,
@@ -300,8 +303,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
   ## Unify some settings
   ##
   if (missing.pooled) {
-    if (all(meth$fixed) & all(!meth$random))
-      pooled <- rep("fixed", n.meta)
+    if (all(meth$common) & all(!meth$random))
+      pooled <- rep("common", n.meta)
     else
       pooled <- rep("random", n.meta)
   }
@@ -309,11 +312,11 @@ metabind <- function(..., name = NULL, pooled = NULL,
   unique.pooled <- length(unique(pooled)) == 1
   ##
   if (all(pooled == "random")) {
-    meth$fixed <- FALSE
+    meth$common <- FALSE
     meth$random <- TRUE
   }
   else {
-    meth$fixed <- TRUE
+    meth$common <- TRUE
     meth$random <- FALSE
   }
   
@@ -355,22 +358,22 @@ metabind <- function(..., name = NULL, pooled = NULL,
     }
     ##
     subgroup.i <- data.frame(
-      TE.fixed.w = if (sel.f) m.i$TE.fixed else m.i$TE.random,
-      seTE.fixed.w = if (sel.f) m.i$seTE.fixed else m.i$seTE.random,
-      lower.fixed.w = if (sel.f) m.i$lower.fixed else m.i$lower.random,
-      upper.fixed.w = if (sel.f) m.i$upper.fixed else m.i$upper.random,
-      statistic.fixed.w =
-        if (sel.f) m.i$statistic.fixed else m.i$statistic.random,
-      pval.fixed.w = if (sel.f) m.i$pval.fixed else m.i$pval.random,
-      w.fixed.w = 0, # sum(m.i$w.fixed),
+      TE.common.w = if (sel.f) m.i$TE.common else m.i$TE.random,
+      seTE.common.w = if (sel.f) m.i$seTE.common else m.i$seTE.random,
+      lower.common.w = if (sel.f) m.i$lower.common else m.i$lower.random,
+      upper.common.w = if (sel.f) m.i$upper.common else m.i$upper.random,
+      statistic.common.w =
+        if (sel.f) m.i$statistic.common else m.i$statistic.random,
+      pval.common.w = if (sel.f) m.i$pval.common else m.i$pval.random,
+      w.common.w = 0, # sum(m.i$w.common),
       ##
-      TE.random.w = if (!sel.r) m.i$TE.fixed else m.i$TE.random,
-      seTE.random.w = if (!sel.r) m.i$seTE.fixed else m.i$seTE.random,
-      lower.random.w = if (!sel.r) m.i$lower.fixed else m.i$lower.random,
-      upper.random.w = if (!sel.r) m.i$upper.fixed else m.i$upper.random,
+      TE.random.w = if (!sel.r) m.i$TE.common else m.i$TE.random,
+      seTE.random.w = if (!sel.r) m.i$seTE.common else m.i$seTE.random,
+      lower.random.w = if (!sel.r) m.i$lower.common else m.i$lower.random,
+      upper.random.w = if (!sel.r) m.i$upper.common else m.i$upper.random,
       statistic.random.w =
-        if (!sel.r) m.i$statistic.fixed else m.i$statistic.random,
-      pval.fixed.w = if (!sel.r) m.i$pval.fixed else m.i$pval.random,
+        if (!sel.r) m.i$statistic.common else m.i$statistic.random,
+      pval.common.w = if (!sel.r) m.i$pval.common else m.i$pval.random,
       df.hakn.w = replaceNULL(m.i$df.hakn),
       w.random.w = 0, # sum(m.i$w.random),
       ##
@@ -383,7 +386,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
       n.c.w = sum(replaceNULL(m.i$n.c)),
       ##
       k.w = m.i$k,
-      k.all.w = length(m.i$TE),
+      k.study.w = m.i$k.study,
+      k.all.w = m.i$k.all,
+      k.TE.w = m.i$k.TE,
       ##
       Q.w = if (!sel.r) NA else m.i$Q,
       df.Q.w = if (!sel.r) NA else m.i$df.Q,
@@ -410,19 +415,19 @@ metabind <- function(..., name = NULL, pooled = NULL,
     ##
     if (is.subgroup[i]) {
       ##
-      Q.b.fixed.i <- m.i$Q.b.fixed
+      Q.b.common.i <- m.i$Q.b.common
       Q.b.random.i <- m.i$Q.b.random
       df.Q.b.i <- m.i$df.Q.b
-      pval.Q.b.fixed.i  <- m.i$pval.Q.b.fixed
+      pval.Q.b.common.i  <- m.i$pval.Q.b.common
       pval.Q.b.random.i <- m.i$pval.Q.b.random
       ##
       n.bylevs.i <- length(m.i$k.w) - 1
       ##
       if (n.bylevs.i > 0) {
-        Q.b.fixed.i <- c(Q.b.fixed.i, rep(NA, n.bylevs.i))
+        Q.b.common.i <- c(Q.b.common.i, rep(NA, n.bylevs.i))
         Q.b.random.i <- c(Q.b.random.i, rep(NA, n.bylevs.i))
         df.Q.b.i <- c(df.Q.b.i, rep(NA, n.bylevs.i))
-        pval.Q.b.fixed.i <- c(pval.Q.b.fixed.i, rep(NA, n.bylevs.i))
+        pval.Q.b.common.i <- c(pval.Q.b.common.i, rep(NA, n.bylevs.i))
         pval.Q.b.random.i <- c(pval.Q.b.random.i, rep(NA, n.bylevs.i))
       }
       ##
@@ -437,7 +442,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            t.harmonic.mean = m.i$t.harmonic.mean.w,
                            ##
                            k = m.i$k.w,
+                           k.study = m.i$k.study.w,
                            k.all = m.i$k.all.w,
+                           k.TE = m.i$k.TE.w,
                            Q = m.i$Q.w,
                            df.Q = m.i$k.w - 1,
                            pval.Q = pvalQ(m.i$Q.w, m.i$k.w - 1),
@@ -458,10 +465,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            lower.Rb = m.i$lower.Rb.w,
                            upper.Rb = m.i$upper.Rb.w,
                            ##
-                           Q.b.fixed = Q.b.fixed.i,
+                           Q.b.common = Q.b.common.i,
                            Q.b.random = Q.b.random.i,
                            df.Q.b = df.Q.b.i,
-                           pval.Q.b.fixed = pval.Q.b.fixed.i,
+                           pval.Q.b.common = pval.Q.b.common.i,
                            pval.Q.b.random = pval.Q.b.random.i,
                            ##
                            stringsAsFactors = FALSE)
@@ -480,7 +487,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                              1 / mean(1 / replaceNULL(m.i$time)),
                            ##
                            k = m.i$k,
-                           k.all = length(m.i$TE),
+                           k.study = m.i$k.study,
+                           k.all = m.i$k.all,
+                           k.TE = m.i$k.TE,
                            Q = m.i$Q,
                            df.Q = m.i$df.Q,
                            pval.Q = pvalQ(m.i$Q, m.i$df.Q),
@@ -501,22 +510,22 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            lower.Rb = m.i$lower.Rb,
                            upper.Rb = m.i$upper.Rb,
                            ##
-                           Q.b.fixed = NA,
+                           Q.b.common = NA,
                            Q.b.random = NA,
                            df.Q.b = NA,
-                           pval.Q.b.fixed = NA,
+                           pval.Q.b.common = NA,
                            pval.Q.b.random = NA,
                            ##
                            stringsAsFactors = FALSE)
     ##
     overall.i <- data.frame(name = name[i],
                             ##
-                            TE.fixed = m.i$TE.fixed,
-                            seTE.fixed = m.i$seTE.fixed,
-                            lower.fixed = m.i$lower.fixed,
-                            upper.fixed = m.i$upper.fixed,
-                            statistic.fixed = m.i$statistic.fixed,
-                            pval.fixed = m.i$pval.fixed,
+                            TE.common = m.i$TE.common,
+                            seTE.common = m.i$seTE.common,
+                            lower.common = m.i$lower.common,
+                            upper.common = m.i$upper.common,
+                            statistic.common = m.i$statistic.common,
+                            pval.common = m.i$pval.common,
                             ##
                             TE.random = m.i$TE.random,
                             seTE.random = m.i$seTE.random,
@@ -536,7 +545,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                             upper.predict = m.i$upper.predict,
                             ##
                             k = m.i$k,
-                            k.all = length(m.i$TE),
+                            k.study = m.i$k.study,
+                            k.all = m.i$k.all,
+                            k.TE = m.i$k.TE,
                             ##
                             Q = m.i$Q,
                             df.Q = m.i$df.Q,
@@ -558,11 +569,11 @@ metabind <- function(..., name = NULL, pooled = NULL,
                             lower.Rb = m.i$lower.Rb,
                             upper.Rb = m.i$upper.Rb,
                             ##
-                            Q.w.fixed = NA,
+                            Q.w.common = NA,
                             Q.w.random = NA,
                             ##
-                            Q.b.fixed = NA,
-                            pval.Q.b.fixed = NA,
+                            Q.b.common = NA,
+                            pval.Q.b.common = NA,
                             Q.b.random = NA,
                             df.Q.b = NA,
                             pval.Q.b.random = NA,
@@ -690,14 +701,14 @@ metabind <- function(..., name = NULL, pooled = NULL,
       study.i$n.e <- replaceNULL(m.i$n.e.w)
       study.i$n.c <- replaceNULL(m.i$n.c.w)
       ##
-      if (pooled[i] == "fixed") {
-        study.i$TE <- m.i$TE.fixed.w
-        study.i$seTE <- m.i$seTE.fixed.w
-        study.i$lower <- m.i$lower.fixed.w
-        study.i$upper <- m.i$upper.fixed.w
-        study.i$statistic <- m.i$statistic.fixed.w
-        study.i$pval <- m.i$pval.fixed.w
-        study.i$w.fixed <- m.i$w.fixed.w
+      if (pooled[i] == "common") {
+        study.i$TE <- m.i$TE.common.w
+        study.i$seTE <- m.i$seTE.common.w
+        study.i$lower <- m.i$lower.common.w
+        study.i$upper <- m.i$upper.common.w
+        study.i$statistic <- m.i$statistic.common.w
+        study.i$pval <- m.i$pval.common.w
+        study.i$w.common <- m.i$w.common.w
         study.i$w.random <- 0
       }
       else {
@@ -707,7 +718,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
         study.i$upper <- m.i$upper.random.w
         study.i$statistic <- m.i$statistic.random.w
         study.i$pval <- m.i$pval.random.w
-        study.i$w.fixed <- 0
+        study.i$w.common <- 0
         study.i$w.random <- m.i$w.random.w
       }
     }
@@ -715,14 +726,14 @@ metabind <- function(..., name = NULL, pooled = NULL,
       study.i$n.e <- sum(replaceNULL(m.i$n.e.w))
       study.i$n.c <- sum(replaceNULL(m.i$n.c.w))
       ##
-      if (pooled[i] == "fixed") {
-        study.i$TE <- m.i$TE.fixed
-        study.i$seTE <- m.i$seTE.fixed
-        study.i$lower <- m.i$lower.fixed
-        study.i$upper <- m.i$upper.fixed
-        study.i$statistic <- m.i$statistic.fixed
-        study.i$pval <- m.i$pval.fixed
-        study.i$w.fixed <- 1
+      if (pooled[i] == "common") {
+        study.i$TE <- m.i$TE.common
+        study.i$seTE <- m.i$seTE.common
+        study.i$lower <- m.i$lower.common
+        study.i$upper <- m.i$upper.common
+        study.i$statistic <- m.i$statistic.common
+        study.i$pval <- m.i$pval.common
+        study.i$w.common <- 1
         study.i$w.random <- 0
       }
       else {
@@ -732,7 +743,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
         study.i$upper <- m.i$upper.random
         study.i$statistic <- m.i$statistic.random
         study.i$pval <- m.i$pval.random
-        study.i$w.fixed <- 0
+        study.i$w.common <- 0
         study.i$w.random <- 1
       }
     }
@@ -772,12 +783,12 @@ metabind <- function(..., name = NULL, pooled = NULL,
     res
   }
   ##
-  res$TE.fixed <- makeunique(res$TE.fixed)
-  res$seTE.fixed <- makeunique(res$seTE.fixed)
-  res$lower.fixed <- makeunique(res$lower.fixed)
-  res$upper.fixed <- makeunique(res$upper.fixed)
-  res$statistic.fixed <- makeunique(res$statistic.fixed)
-  res$pval.fixed <- makeunique(res$pval.fixed)
+  res$TE.common <- makeunique(res$TE.common)
+  res$seTE.common <- makeunique(res$seTE.common)
+  res$lower.common <- makeunique(res$lower.common)
+  res$upper.common <- makeunique(res$upper.common)
+  res$statistic.common <- makeunique(res$statistic.common)
+  res$pval.common <- makeunique(res$pval.common)
   ##
   res$TE.random <- makeunique(res$TE.random)
   res$seTE.random <- makeunique(res$seTE.random)
@@ -792,7 +803,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
   res$upper.predict <- makeunique(res$upper.predict)
   ##
   res$k <- makeunique(res$k)
+  res$k.study <- makeunique(res$k.study)
   res$k.all <- makeunique(res$k.all)
+  res$k.TE <- makeunique(res$k.TE)
   ##
   res$Q <- makeunique(res$Q)
   res$df.Q <- makeunique(res$df.Q, 0)
@@ -819,17 +832,17 @@ metabind <- function(..., name = NULL, pooled = NULL,
   res$lower.Rb <- makeunique(res$lower.Rb)
   res$upper.Rb <- makeunique(res$upper.Rb)
   ##
-  res$Q.w.fixed <- makeunique(res$Q.w.fixed)
+  res$Q.w.common <- makeunique(res$Q.w.common)
   res$Q.w.random <- makeunique(res$Q.w.random)
   res$df.Q.w <- makeunique(res$df.Q.w, 0)
   ##
-  res$Q.b.fixed <- makeunique(res$Q.b.fixed)
+  res$Q.b.common <- makeunique(res$Q.b.common)
   res$Q.b.random <- makeunique(res$Q.b.random)
   ##
   res$df.Q.b <- makeunique(res$df.Q.b, 0)
-  res$pval.Q.b.fixed <-
-    makeunique(makeunique(res$pval.Q.b.fixed,
-                          pvalQ(res$Q.b.fixed, res$df.Q.b)))
+  res$pval.Q.b.common <-
+    makeunique(makeunique(res$pval.Q.b.common,
+                          pvalQ(res$Q.b.common, res$df.Q.b)))
   res$pval.Q.b.random <-
     makeunique(makeunique(res$pval.Q.b.random,
                           pvalQ(res$Q.b.random, res$df.Q.b)))
@@ -844,8 +857,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
   if (!is.null(res$subgroup)) {
     res$subgroup.name <- "meta-analysis"
     res$bylevs <- unique(res$subgroup)
-    res$w.fixed <- rep(0, length(res$w.fixed))
-    res$w.fixed.w <- rep(0, length(res$w.fixed.w))
+    res$w.common <- rep(0, length(res$w.common))
+    res$w.common.w <- rep(0, length(res$w.common.w))
     res$w.random <- rep(0, length(res$w.random))
     res$w.random.w <- rep(0, length(res$w.random.w))
     res$lower.predict.w <- rep(NA, length(res$w.random.w))
@@ -863,6 +876,46 @@ metabind <- function(..., name = NULL, pooled = NULL,
   ##
   res$pooled <- pooled
   res$is.limit.copas <- is.limit.copas
+  ##
+  ## Backward compatibility
+  ##
+  res$fixed <- res$common
+  res$comb.fixed <- res$common
+  res$comb.random <- res$random
+  res$level.comb <- res$level.ma
+  ##
+  res$w.fixed <- res$w.common
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
+  ##
+  res$text.fixed <- res$text.common
+  res$text.w.fixed <- res$text.w.common
+  ##
+  if (!is.null(res$subgroup)) {
+    res$byvar <- res$subgroup
+    res$bylab <- res$subgroup.name
+    res$print.byvar <- res$print.subgroup.name
+    res$byseparator <- res$sep.subgroup
+    ##
+    res$TE.fixed.w <- res$TE.common.w
+    res$seTE.fixed.w <- res$seTE.common.w
+    res$lower.fixed.w <- res$lower.common.w
+    res$upper.fixed.w <- res$upper.common.w
+    res$statistic.fixed.w <- res$statistic.common.w
+    res$pval.fixed.w <- res$pval.common.w
+    res$zval.fixed.w <- res$zval.common.w
+    res$w.fixed.w <- res$w.common.w
+    ##
+    res$Q.w.fixed <- res$Q.w.common
+    res$pval.Q.w.fixed <- res$pval.Q.w.common
+    res$Q.b.fixed <- res$Q.b.common
+    res$pval.Q.b.fixed <- res$pval.Q.b.common
+  }
   
   
   class(res) <- c("metabind", "meta")

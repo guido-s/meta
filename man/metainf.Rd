@@ -9,9 +9,9 @@ metainf(x, pooled, sortvar)
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{pooled}{A character string indicating whether a fixed effect
+\item{pooled}{A character string indicating whether a common effect
 or random effects model is used for pooling. Either missing (see
-Details), \code{"fixed"} or \code{"random"}, can be abbreviated.}
+Details), \code{"common"} or \code{"random"}, can be abbreviated.}
 
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
@@ -26,7 +26,7 @@ containing the following components:
 \item{statistic}{Statistic for test of overall effect.}
 \item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing omission of studies.}
-\item{w}{Sum of weights from fixed effect or random effects model.}
+\item{w}{Sum of weights from common effect or random effects model.}
 \item{I2}{Heterogeneity statistic I\eqn{^2}.}
 \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 \item{tau}{Square-root of between-study variance.}
@@ -36,11 +36,11 @@ containing the following components:
 \item{method}{Method used for pooling.}
 \item{k}{Number of studies combined in meta-analysis.}
 \item{pooled}{As defined above.}
-\item{fixed}{A logical indicating whether analysis is based on
-  fixed effect model.}
+\item{common}{A logical indicating whether analysis is based on
+  common effect model.}
 \item{random}{A logical indicating whether analysis is based
   on random effects model.}
-\item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
+\item{TE.common, seTE.common}{Value is \code{NA}.}
 \item{TE.random, seTE.random}{Value is \code{NA}.}
 \item{Q}{Value is \code{NA}.}
 \item{level.ma}{The level used to calculate confidence intervals
@@ -73,11 +73,11 @@ omitting one study at a time. Studies are sorted according to
 \code{sortvar}.
 
 Information from object \code{x} is utilised if argument
-\code{pooled} is missing. A fixed effect model is assumed
-(\code{pooled="fixed"}) if argument \code{x$fixed} is
+\code{pooled} is missing. A common effect model is assumed
+(\code{pooled="common"}) if argument \code{x$common} is
 \code{TRUE}; a random effects model is assumed
 (\code{pooled="random"}) if argument \code{x$random} is
-\code{TRUE} and \code{x$fixed} is \code{FALSE}.
+\code{TRUE} and \code{x$common} is \code{FALSE}.
 }
 \examples{
 data(Fleiss1993bin)

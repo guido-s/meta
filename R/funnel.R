@@ -12,8 +12,8 @@
 #' @param ylim The y limits (min,max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param fixed A logical indicating whether the fixed effect / common
-#'   effect estimate should be plotted.
+#' @param common A logical indicating whether the common effect
+#'   estimate should be plotted.
 #' @param random A logical indicating whether the random effects
 #'   estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
@@ -22,18 +22,18 @@
 #' @param text A character vector specifying the text to be used
 #'   instead of plotting symbol.
 #' @param cex The magnification to be used for plotting symbol.
-#' @param lty.fixed Line type (fixed effect estimate).
+#' @param lty.common Line type (common effect estimate).
 #' @param lty.random Line type (random effects estimate).
 #' @param col A vector with colour of plotting symbols.
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
-#' @param col.fixed Colour of line representing fixed effect estimate.
+#' @param col.common Colour of line representing common effect estimate.
 #' @param col.random Colour of line representing random effects
 #'   estimate.
 #' @param lwd The line width for confidence intervals (if \code{level}
 #'   is not \code{NULL}).
-#' @param lwd.fixed The line width for fixed effect estimate (if
-#'   \code{fixed} is not \code{NULL}).
+#' @param lwd.common The line width for common effect estimate (if
+#'   \code{common} is not \code{NULL}).
 #' @param lwd.random The line width for random effects estimate (if
 #'   \code{random} is not \code{NULL}).
 #' @param log A character string which contains \code{"x"} if the
@@ -75,18 +75,20 @@
 #'   transformed in funnel plots. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
 #'   odds ratios, for example.
-#' @param \dots Additional graphical arguments (ignored at the
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #'   moment).
 #' 
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
-#' graphics window. If \code{fixed} is TRUE, the estimate of the fixed
-#' effect model is plotted as a vertical line. Similarly, if
+#' graphics window. If \code{common} is TRUE, the estimate of the
+#' common effect model is plotted as a vertical line. Similarly, if
 #' \code{random} is TRUE, the estimate of the random effects model is
 #' plotted. If \code{level} is not NULL, the corresponding approximate
-#' confidence limits are drawn around the fixed effect estimate (if
-#' \code{fixed} is TRUE) or the random effects estimate (if
-#' \code{random} is TRUE and \code{fixed} is FALSE).
+#' confidence limits are drawn around the common effect estimate (if
+#' \code{common} is TRUE) or the random effects estimate (if
+#' \code{random} is TRUE and \code{common} is FALSE).
 #' 
 #' In the funnel plot, the standard error of the treatment estimates
 #' is plotted on the y-axis by default (\code{yaxis = "se"}) which is
@@ -151,17 +153,17 @@
 #' #
 #' funnel(m1)
 #' 
-#' # Funnel plot with confidence intervals, fixed effect estimate and
+#' # Funnel plot with confidence intervals, common effect estimate and
 #' # contours
 #' #
-#' cc <- funnel(m1, fixed = TRUE,
+#' cc <- funnel(m1, common = TRUE,
 #'              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
 #' legend(0.05, 0.05,
 #'   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
 #' 
 #' # Contour-enhanced funnel plot with user-chosen colours
 #' #
-#' funnel(m1, fixed = TRUE,
+#' funnel(m1, common = TRUE,
 #'   level = 0.95, contour = c(0.9, 0.95, 0.99),
 #'   col.contour = c("darkgreen", "green", "lightgreen"),
 #'   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
@@ -180,23 +182,23 @@ funnel.meta <- function(x,
                         ##
                         xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
                         ##
-                        fixed = x$fixed, random = x$random,
+                        common = x$common, random = x$random,
                         ##
                         axes = TRUE,
                         pch = if (!inherits(x, "trimfill"))
                                 21 else ifelse(x$trimfill, 1, 21),
                         text = NULL, cex = 1,
-                        lty.fixed = 2, lty.random = 9,
-                        lwd = 1, lwd.fixed = lwd, lwd.random = lwd,
+                        lty.common = 2, lty.random = 9,
+                        lwd = 1, lwd.common = lwd, lwd.random = lwd,
                         col = "black", bg = "darkgray",
-                        col.fixed = "black", col.random = "black",
+                        col.common = "black", col.random = "black",
                         ##
                         log, yaxis,
                         contour.levels = NULL, col.contour,
                         ##
                         ref = ifelse(is.relative.effect(x$sm), 1, 0),
                         ##
-                        level = if (fixed | random) x$level else NULL,
+                        level = if (common | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                         ##
                         ref.triangle = FALSE,
@@ -206,6 +208,7 @@ funnel.meta <- function(x,
                         lty.ref.triangle = 5,
                         ##
                         backtransf = x$backtransf,
+                        warn.deprecated = gs("warn.deprecated"),
                         ...) {
   
   
@@ -231,15 +234,26 @@ funnel.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  chklogical(fixed)
+  args  <- list(...)
+  chklogical(warn.deprecated)
+  ##
+  common <- deprecated(common, missing(common), args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   chklogical(random)
   chklogical(axes)
-  chknumeric(cex)
-  chknumeric(lty.fixed)
-  chknumeric(lty.random)
-  chknumeric(lwd)
-  chknumeric(lwd.fixed)
-  chknumeric(lwd.random)
+  chknumeric(cex, length = 1)
+  lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
+                           warn.deprecated)
+  chknumeric(lty.common, length = 1)
+  chknumeric(lty.random, length = 1)
+  chknumeric(lwd, length = 1)
+  lwd.common <- deprecated(lwd.common, missing(lwd.common), args, "lwd.fixed",
+                           warn.deprecated)
+  chknumeric(lwd.common, length = 1)
+  chknumeric(lwd.random, length = 1)
+  col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
+                           warn.deprecated)
   ##
   if (missing(yaxis))
     if (inherits(x, "metabin") && x$sm == "DOR")
@@ -258,9 +272,9 @@ funnel.meta <- function(x,
   chknumeric(cex.studlab)
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   chklogical(ref.triangle)
-  chknumeric(lty.ref)
-  chknumeric(lwd.ref)
-  chknumeric(lty.ref.triangle)
+  chknumeric(lty.ref, length = 1)
+  chknumeric(lwd.ref, length = 1)
+  chknumeric(lty.ref.triangle, length = 1)
   chklogical(backtransf)
   
   
@@ -308,7 +322,7 @@ funnel.meta <- function(x,
   ## (4) Further assignments
   ##
   ##
-  TE.fixed <- x$TE.fixed
+  TE.common <- x$TE.common
   TE.random <- x$TE.random
   sm <- x$sm
   ##
@@ -334,14 +348,14 @@ funnel.meta <- function(x,
     ##
     seTE.seq <- seq(seTE.min, seTE.max, length.out = 500)
     ##
-    if (random & !fixed)
+    if (random & !common)
       ciTE <- ci(TE.random, seTE.seq, level)
     else
-      ciTE <- ci(TE.fixed, seTE.seq, level)
+      ciTE <- ci(TE.common, seTE.seq, level)
     ##
     ciTE.ref <- ci(ref, seTE.seq, level)
     ##
-    if ((fixed | random) & ref.triangle)
+    if ((common | random) & ref.triangle)
       TE.xlim <- c(min(c(TE, ciTE$lower, ciTE.ref$lower),
                        na.rm = TRUE) / 1.025,
                    1.025 * max(c(TE, ciTE$upper, ciTE.ref$upper),
@@ -358,7 +372,7 @@ funnel.meta <- function(x,
   ##
   if (backtransf & is.relative.effect(sm)) {
     TE <- exp(TE)
-    TE.fixed <- exp(TE.fixed)
+    TE.common <- exp(TE.common)
     TE.random <- exp(TE.random)
     ref <- exp(ref)
     ##
@@ -581,9 +595,9 @@ funnel.meta <- function(x,
   ##
   ## Add results for meta-analysis
   ##
-  if (fixed)
-    lines(c(TE.fixed, TE.fixed), range(ylim),
-          lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
+  if (common)
+    lines(c(TE.common, TE.common), range(ylim),
+          lty = lty.common, lwd = lwd.common, col = col.common)
   ##
   if (random)
     lines(c(TE.random, TE.random), range(ylim),
@@ -596,13 +610,13 @@ funnel.meta <- function(x,
   ## Add approximate confidence intervals
   ##
   if (!is.null(level)) {
-    if (fixed | random | !ref.triangle) {
+    if (common | random | !ref.triangle) {
       tlow <- ciTE$lower
       tupp <- ciTE$upper
       ##
-      lty.lines <- if (random & !fixed) lty.random else lty.fixed
-      lwd.lines <- if (random & !fixed) lwd.random else lwd.fixed
-      col.lines <- if (random & !fixed) col.random else col.fixed
+      lty.lines <- if (random & !common) lty.random else lty.common
+      lwd.lines <- if (random & !common) lwd.random else lwd.common
+      col.lines <- if (random & !common) col.random else col.common
       ##
       if (yaxis == "se") {
         points(tlow, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,

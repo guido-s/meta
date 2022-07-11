@@ -88,7 +88,7 @@ extract_outcomes <- function(txt, outcome.type, res,
       if (is.na(random) & outcome.type == "IPD")
         random <- "NO"
       model <- ifelse(random == "NO", "Fixed", "Random")
-      fixed <- model == "Fixed"
+      common <- model == "Fixed"
       random <- model == "Random"
       ##
       TE.pooled <- as.numeric(xml_attr(xml.j, "EFFECT_SIZE"))
@@ -240,7 +240,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                          overall = overall,
                          test.subgroup = test.subgroup,
                          type = type, method = method, sm = sm, model = model,
-                         fixed = fixed, random = random,
+                         common = common, random = random,
                          outclab = outclab,
                          k = n.studies,
                          event.e.pooled = event.e.pooled,
@@ -364,7 +364,7 @@ extract_outcomes <- function(txt, outcome.type, res,
                        overall = overall,
                        test.subgroup = test.subgroup,
                        type = type, method = method, sm = sm, model = model,
-                       fixed = fixed, random = random,
+                       common = common, random = random,
                        outclab = outclab,
                        k = n.studies,
                        event.e.pooled = event.e.pooled,
@@ -673,7 +673,7 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
   tdata$method[tdata$method == "IV"] <- "Inverse"
   tdata$sm <- as.character(tdata$sm)
   tdata$model <- as.character(tdata$model)
-  tdata$fixed  <- tdata$model == "Fixed"
+  tdata$common <- tdata$model == "Fixed"
   tdata$random <- tdata$model == "Random"
   ##
   tdata$sm[tdata$sm == "Odds Ratio"] <- "OR"
@@ -739,7 +739,7 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
                            method      = selvar(tdata$method, sel.outc),
                            sm          = selvar(tdata$sm, sel.outc),
                            model       = selvar(tdata$model, sel.outc),
-                           fixed  = selvar(tdata$fixed, sel.outc),
+                           common = selvar(tdata$common, sel.outc),
                            random = selvar(tdata$random, sel.outc),
                            outclab     = selvar(tdata$author, sel.outc),
                            ##
@@ -997,7 +997,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
                     overall = NA,
                     test.subgroup = NA,
                     type = "", method = "", sm = "", model = "",
-                    fixed = NA, random = NA,
+                    common = NA, random = NA,
                     outclab = "",
                     k = NA,
                     event.e.pooled = NA, n.e.pooled = NA,
@@ -1171,6 +1171,8 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ## res$lower.TE[sel.rel] <- log(res$lower.TE[sel.rel])
   ## res$upper.TE[sel.rel] <- log(res$upper.TE[sel.rel])
   ## res$seTE <- meta:::TE.seTE.ci(res$lower.TE, res$upper.TE, res$level)$seTE
+  ##
+  res$fixed <- res$common
   ##
   attr(res, "title") <- title
   attr(res, "version") <- packageDescription("meta")$Version

@@ -3,11 +3,11 @@
 #' @description
 #' This function returns a data frame containing information on
 #' absolute and percentage weights of individual studies contributing
-#' to fixed effect and random effects meta-analysis.
+#' to common effect and random effects meta-analysis.
 #' 
 #' @param object An object of class \code{meta}.
-#' @param fixed A logical indicating whether absolute and
-#'   percentage weights from the fixed effect model should be
+#' @param common A logical indicating whether absolute and
+#'   percentage weights from the common effect model should be
 #'   calculated.
 #' @param random A logical indicating whether absolute and
 #'   percentage weights from the random effects model should be
@@ -20,10 +20,10 @@
 #' A data frame with the following variables is returned:
 #' \tabular{lll}{
 #' \bold{Variable} \tab \bold{Definition} \tab \bold{Condition} \cr
-#' w.fixed \tab absolute weights in fixed effect model \tab (if
-#'   \code{fixed = TRUE}) \cr
-#' p.fixed \tab percentage weights in fixed effect model \tab (if
-#'   \code{fixed = TRUE}) \cr
+#' w.common \tab absolute weights in common effect model \tab (if
+#'   \code{common = TRUE}) \cr
+#' p.common \tab percentage weights in common effect model \tab (if
+#'   \code{common = TRUE}) \cr
 #' w.random \tab absolute weights in random effects model \tab (if
 #'   \code{random = TRUE}) \cr
 #' p.random \tab percentage weights in random effects model \tab (if
@@ -37,33 +37,33 @@
 #' 
 #' @examples
 #' data(Fleiss1993cont)
-#' # Do meta-analysis (fixed effect and random effects model)
+#' # Do meta-analysis (common effect and random effects model)
 #' #
 #' meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
 #' 
-#' # Print weights for fixed effect and random effects meta-analysis
+#' # Print weights for common effect and random effects meta-analysis
 #' #
 #' weights(meta1)
 #' 
 #' # Do meta-analysis (only random effects model)
 #' #
-#' meta2 <- update(meta1, fixed = FALSE)
+#' meta2 <- update(meta1, common = FALSE)
 #' 
 #' # Print weights for random effects meta-analysis
 #' #
 #' weights(meta2)
 #' 
-#' # Print weights for fixed effect and random effects meta-analysis
+#' # Print weights for common effect and random effects meta-analysis
 #' #
-#' weights(meta2, fixed = TRUE)
+#' weights(meta2, common = TRUE)
 #' 
 #' @method weights meta
 #' @export
 
 
 weights.meta <- function(object,
-                         fixed = object$fixed,
+                         common = object$common,
                          random = object$random,
                          warn.deprecated = gs("warn.deprecated"),
                          ...) {
@@ -74,14 +74,19 @@ weights.meta <- function(object,
   ##
   ##
   chkclass(object, "meta")
+  object <- update(object)
   ##
   ## Check for deprecated arguments in '...'
   ##
   args  <- list(...)
   chklogical(warn.deprecated)
   ##
-  fixed <-
-    deprecated(fixed, missing(fixed), args, "comb.fixed",
+  missing.common <- missing(common)
+  common <-
+    deprecated(common, missing.common, args, "comb.fixed",
+               warn.deprecated)
+  common <-
+    deprecated(common, missing.common, args, "fixed",
                warn.deprecated)
   ##
   random <-
@@ -89,25 +94,25 @@ weights.meta <- function(object,
                warn.deprecated)
   
   
-  if (!(fixed | random)) {
+  if (!(common | random)) {
     warning("Information missing which weights should be ",
-            "calculated (see arguments 'fixed' and 'random')")
+            "calculated (see arguments 'common' and 'random')")
     return(NULL)
   }
 
-  w.fixed  <- object$w.fixed
+  w.common  <- object$w.common
   w.random <- object$w.random
   ##
-  p.fixed  <- 100 * w.fixed  / sum(w.fixed,  na.rm = TRUE)
+  p.common <- 100 * w.common / sum(w.common, na.rm = TRUE)
   p.random <- 100 * w.random / sum(w.random, na.rm = TRUE)
 
-  res <- data.frame(w.fixed, p.fixed, w.random, p.random)
+  res <- data.frame(w.common, p.common, w.random, p.random)
   ##
   rownames(res) <- object$studlab
   ##
-  if (!fixed) {
-    res$w.fixed <- NULL
-    res$p.fixed <- NULL
+  if (!common) {
+    res$w.common <- NULL
+    res$p.common <- NULL
   }
   ##
   if (!random) {

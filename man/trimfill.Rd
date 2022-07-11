@@ -9,12 +9,12 @@
 \method{trimfill}{meta}(
   x,
   left = NULL,
-  ma.fixed = TRUE,
+  ma.common = TRUE,
   type = "L",
   n.iter.max = 50,
   level = x$level,
   level.ma = x$level.ma,
-  fixed = FALSE,
+  common = FALSE,
   random = TRUE,
   hakn = x$hakn,
   method.tau = x$method.tau,
@@ -26,6 +26,7 @@
   irscale = x$irscale,
   irunit = x$irunit,
   silent = TRUE,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 
@@ -33,14 +34,14 @@
   x,
   seTE,
   left = NULL,
-  ma.fixed = TRUE,
+  ma.common = TRUE,
   type = "L",
   n.iter.max = 50,
   sm = "",
   studlab = NULL,
   level = 0.95,
   level.ma = level,
-  fixed = FALSE,
+  common = FALSE,
   random = TRUE,
   hakn = FALSE,
   method.tau = "DL",
@@ -65,7 +66,7 @@ the linear regression test for funnel plot symmetry (i.e.,
 function \code{metabias(..., method="Egger")}) is used to
 determine whether studies are missing on the left or right side.}
 
-\item{ma.fixed}{A logical indicating whether a fixed effect or
+\item{ma.common}{A logical indicating whether a common effect or
 random effects model is used to estimate the number of missing
 studies.}
 
@@ -79,11 +80,11 @@ of missing studies.}
 individual studies. If existing, \code{x$level} is used as value
 for \code{level}; otherwise 0.95 is used.}
 
-\item{level.ma}{The level used to calculate confidence interval
-for the pooled estimate. If existing, \code{x$level.ma} is used
-as value for \code{level.ma}; otherwise 0.95 is used.}
+\item{level.ma}{The level used to calculate confidence interval for
+the pooled estimate. If existing, \code{x$level.ma} is used as
+value for \code{level.ma}; otherwise 0.95 is used.}
 
-\item{fixed}{A logical indicating whether a fixed effect
+\item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
@@ -133,7 +134,10 @@ calculate rates, e.g. person-years.}
 \item{silent}{A logical indicating whether basic information on
 iterations shown.}
 
-\item{\dots}{other arguments}
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{\dots}{Additional arguments (to catch deprecated arguments).}
 
 \item{seTE}{Standard error of estimated treatment effect.}
 
@@ -148,10 +152,10 @@ summary measure, e.g., \code{"RD"}, \code{"RR"}, \code{"OR"},
 \value{
 An object of class \code{c("metagen", "meta", "trimfill")}. The
 object is a list containing the following components:
-\item{studlab, sm, left, ma.fixed, type, n.iter.max}{As defined
+\item{studlab, sm, left, ma.common, type, n.iter.max}{As defined
   above.}
 \item{level, level.ma, level.predict}{As defined above.}
-\item{fixed, random, prediction}{As defined above.}
+\item{common, random, prediction}{As defined above.}
 \item{hakn, method.tau, method.tau.ci,}{As defined above.}
 \item{TE, seTE}{Estimated treatment effect and standard error of
   individual studies.}
@@ -159,10 +163,10 @@ object is a list containing the following components:
   individual studies.}
 \item{statistic, pval}{Statistic and p-value for test of treatment
   effect for individual studies.}
-\item{w.fixed, w.random}{Weight of individual studies (in fixed and
-  random effects model).} 
-\item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-  standard error (fixed effect model).}
+\item{w.common, w.random}{Weight of individual studies (in common
+  effect and random effects model).}
+\item{TE.common, seTE.common}{Estimated overall treatment effect and
+  standard error (common effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect
   and standard error (random effects model).}
 \item{seTE.predict}{Standard error utilised for prediction
@@ -231,17 +235,17 @@ the number of missing studies. Two of these methods (L- and
 R-estimator) have been shown to perform better in simulations, and
 are available in this R function (argument \code{type}).
 
-A fixed effect or random effects model can be used to estimate the
-number of missing studies (argument \code{ma.fixed}). Furthermore,
-a fixed effect and/or random effects model can be used to summaries
-study results (arguments \code{fixed} and
-\code{random}). Simulation results (Peters et al. 2007)
-indicate that the fixed-random model, i.e. using a fixed effect
-model to estimate the number of missing studies and a random
-effects model to summaries results, (i) performs better than the
-fixed-fixed model, and (ii) performs no worse than and marginally
-better in certain situations than the random-random
-model. Accordingly, the fixed-random model is the default.
+A common effect or random effects model can be used to estimate the
+number of missing studies (argument \code{ma.common}). Furthermore,
+a common effect and/or random effects model can be used to
+summaries study results (arguments \code{common} and
+\code{random}). Simulation results (Peters et al. 2007) indicate
+that the common-random model, i.e. using a common effect model to
+estimate the number of missing studies and a random effects model
+to summaries results, (i) performs better than the common-common
+model, and (ii) performs no worse than and marginally better in
+certain situations than the random-random model. Accordingly, the
+common-random model is the default.
 
 An empirical comparison of the trim-and-fill method and the Copas
 selection model (Schwarzer et al. 2010) indicates that the

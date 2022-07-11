@@ -13,12 +13,12 @@
 #' @param ylim The y limits (min, max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param TE.fixed A numeric or vector specifying combined fixed
+#' @param TE.common A numeric or vector specifying combined common
 #'   effect estimate(s).
 #' @param TE.random A numeric or vector specifying combined random
 #'   effects estimate(s).
-#' @param fixed A logical indicating whether the fixed effect estimate
-#'   should be plotted.
+#' @param common A logical indicating whether the common effect
+#'   estimate should be plotted.
 #' @param random A logical indicating whether the random effects
 #'   estimate should be plotted.
 #' @param backtransf A logical indicating which values should be
@@ -33,13 +33,13 @@
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
 #' @param lwd The line width.
-#' @param lwd.fixed The line width(s) for fixed effect estimate(s) (if
-#'   \code{fixed} is not \code{NULL} or \code{FALSE}).
+#' @param lwd.common The line width(s) for common effect estimate(s)
+#'   (if \code{common} is not \code{NULL} or \code{FALSE}).
 #' @param lwd.random The line width(s) for random effects estimate(s)
 #'   (if \code{random} is not \code{NULL} or \code{FALSE}).
-#' @param lty.fixed Line type(s) for fixed effect estimate(s).
+#' @param lty.common Line type(s) for common effect estimate(s).
 #' @param lty.random Line type(s) for random effects estimate(s).
-#' @param col.fixed Colour of line(s) for fixed effect estimate(s).
+#' @param col.common Colour of line(s) for common effect estimate(s).
 #' @param col.random Colour of line(s) for random effects estimate(s).
 #' @param nulleffect A logical indicating whether line for null effect
 #'   should be added to the plot..
@@ -51,9 +51,9 @@
 #'   plotting symbols or a character string indicating which type of
 #'   plotting symbols is to be used for individual treatment
 #'   estimates. One of missing (see Details), \code{"same"},
-#'   \code{"fixed"}, or \code{"random"}, can be abbreviated. Plot
+#'   \code{"common"}, or \code{"random"}, can be abbreviated. Plot
 #'   symbols have the same size for all studies or represent study
-#'   weights from fixed effect or random effects model.
+#'   weights from common effect or random effects model.
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$event.e} then).
@@ -62,6 +62,13 @@
 #'   \code{pos} in \code{\link{text}}.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param TE.fixed Deprecated argument (replaced by 'TE.common').
+#' @param fixed Deprecated argument (replaced by 'common').
+#' @param lwd.fixed Deprecated argument (replaced by 'lwd.common').
+#' @param lty.fixed Deprecated argument (replaced by 'lty.common').
+#' @param col.fixed Deprecated argument (replaced by 'col.common').
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #'
@@ -81,16 +88,16 @@
 #' = "RR"}, and arcsine-transformed probabilities for \code{sm =
 #' "ASD"}.
 #' 
-#' If \code{fixed} is TRUE, the estimate of the fixed effect / common
-#' effct model is plotted as a line. If \code{random} is TRUE, the
-#' estimate of the random effects model is plotted as a line.
+#' If \code{common} is TRUE, the estimate of the common effct model is
+#' plotted as a line. If \code{random} is TRUE, the estimate of the
+#' random effects model is plotted as a line.
 #' 
 #' Information from object \code{x} is utilised if argument
-#' \code{weight} is missing. Weights from the fixed effect model are
-#' used (\code{weight = "fixed"}) if argument \code{x$fixed} is
+#' \code{weight} is missing. Weights from the common effect model are
+#' used (\code{weight = "common"}) if argument \code{x$common} is
 #' \code{TRUE}; weights from the random effects model are used
 #' (\code{weight = "random"}) if argument \code{x$random} is
-#' \code{TRUE} and \code{x$fixed} is \code{FALSE}.
+#' \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -144,15 +151,15 @@
 #' #
 #' mycols <- c("blue", "yellow", "green", "red", "green", "yellow", "blue")
 #' labbe(m1, sm = "OR", random = FALSE,
-#'   TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-#'   col.fixed = mycols, lwd.fixed = 2)
+#'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+#'   col.common = mycols, lwd.common = 2)
 #' 
 #' # L'Abbe plot on log odds scale with coloured lines for various
 #' # treatment effects (defined as log odds ratios)
 #' #
 #' labbe(m1, sm = "OR", random = FALSE, backtransf = FALSE,
-#'   TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-#'   col.fixed = mycols, lwd.fixed = 2)
+#'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+#'   col.common = mycols, lwd.common = 2)
 #' 
 #' @rdname labbe
 #' @method labbe metabin
@@ -162,22 +169,26 @@
 labbe.metabin <- function(x,
                           xlim, ylim,
                           xlab = NULL, ylab = NULL,
-                          TE.fixed = x$TE.fixed,
+                          TE.common = x$TE.common,
                           TE.random = x$TE.random,
-                          fixed = x$fixed,
+                          common = x$common,
                           random = x$random,
                           backtransf = x$backtransf,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
                           col = "black", bg = "lightgray",
-                          lwd = 1, lwd.fixed = lwd, lwd.random = lwd,
-                          lty.fixed = 2, lty.random = 9,
-                          col.fixed = col, col.random = col,
+                          lwd = 1, lwd.common = lwd, lwd.random = lwd,
+                          lty.common = 2, lty.random = 9,
+                          col.common = col, col.random = col,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
                           sm = x$sm, weight,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = x$label.e, label.c = x$label.c,
+                          warn.deprecated = gs("warn.deprecated"),
+                          ##
+                          TE.fixed, fixed, lwd.fixed, lty.fixed, col.fixed,
+                          ##
                           ...) {
   
   
@@ -195,21 +206,37 @@ labbe.metabin <- function(x,
   ## (2) Check other arguments
   ##
   ##
-  chklogical(fixed)
+  common <-
+    deprecated2(common, missing(common), fixed, missing(fixed),
+                warn.deprecated)
+  chklogical(common)
   chklogical(random)
   chklogical(backtransf)
   chklogical(axes)
   chknumeric(cex)
   chknumeric(lwd)
-  chknumeric(lwd.fixed)
-  chknumeric(lwd.random)
-  chknumeric(lty.fixed)
+  lwd.common <-
+    deprecated2(lwd.common, missing(lwd.common),
+                lwd.fixed, missing(lwd.fixed),
+                warn.deprecated)
+  chknumeric(lwd.common)
+  lty.common <-
+    deprecated2(lty.common, missing(lty.common),
+                lty.fixed, missing(lty.fixed),
+                warn.deprecated)
+  chknumeric(lty.common)
   chknumeric(lty.random)
+  col.common <-
+    deprecated2(col.common, missing(col.common),
+                col.fixed, missing(col.fixed),
+                warn.deprecated)
   chklogical(nulleffect)
   chknumeric(lwd.nulleffect)
   chknull(sm)
   sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
+  chklogical(warn.deprecated)
+  ##
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   
   
@@ -228,15 +255,25 @@ labbe.metabin <- function(x,
   
   if (sm != x$sm) {
     m <- update(x, sm = sm)
-    if (missing(TE.fixed))
-      TE.fixed <- m$TE.fixed
+    if (missing(TE.common)) {
+      if (!missing(TE.fixed)) {
+        if (warn.deprecated)
+          warning(paste("Use argument 'TE.common' instead of",
+                        "'TE.fixed' (deprecated)."),
+                  call. = FALSE)
+        TE.common <- TE.fixed
+      }
+    }
+    else
+      TE.common <- m$TE.common
+    ##
     if (missing(TE.random))
       TE.random <- m$TE.random
-    w.fixed <- m$w.fixed
+    w.common <- m$w.common
     w.random <- m$w.random
   }
   else {
-    w.fixed <- x$w.fixed
+    w.common <- x$w.common
     w.random <- x$w.random
   }
   ##
@@ -245,7 +282,7 @@ labbe.metabin <- function(x,
   if (!is.null(x$exclude)) {
     xpos <- xpos[!x$exclude]
     ypos <- ypos[!x$exclude]
-    w.fixed <- w.fixed[!x$exclude]
+    w.common <- w.common[!x$exclude]
     w.random <- w.random[!x$exclude]
   }
   
@@ -267,18 +304,18 @@ labbe.metabin <- function(x,
   
   
   if (missing(weight))
-    weight <- ifelse(random & !fixed, "random", "fixed")
+    weight <- ifelse(random & !common, "random", "common")
   ##
   iweight <- charmatch(tolower(weight),
-                       c("same", "fixed", "random"), nomatch = NA)
+                       c("same", "common", "random"), nomatch = NA)
   ##
   if(is.na(iweight))
-    stop("weight should be \"same\", \"fixed\", or \"random\"")
+    stop("weight should be \"same\", \"common\", or \"random\"")
   ##
-  weight <- c("same", "fixed", "random")[iweight]
+  weight <- c("same", "common", "random")[iweight]
   ##
-  if (weight == "fixed")
-    cex.i <- 4 * cex * sqrt(w.fixed) / sqrt(max(w.fixed))
+  if (weight == "common")
+    cex.i <- 4 * cex * sqrt(w.common) / sqrt(max(w.common))
   else if (weight == "random")
     cex.i <- 4 * cex * sqrt(w.random) / sqrt(max(w.random))
   else if (weight == "same")
@@ -292,8 +329,8 @@ labbe.metabin <- function(x,
     studlab <- x$studlab
   
   
-  if (length(fixed) == 0)
-    fixed <- TRUE
+  if (length(common) == 0)
+    common <- TRUE
   if (length(random) == 0)
     random <- TRUE
   
@@ -311,6 +348,9 @@ labbe.metabin <- function(x,
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))
   if (missing(ylim))
     ylim <- xlim
+  ##
+  chknumeric(xlim, length = 2)
+  chknumeric(ylim, length = 2)
   
   
   oldpar <- par(pty = "s")
@@ -364,14 +404,14 @@ labbe.metabin <- function(x,
   }
   
   
-  if (fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
-    lty.fixed <- rep(lty.fixed, length(TE.fixed))
+  if (common && length(lty.common) == 1 & length(TE.common) > 1)
+    lty.common <- rep(lty.common, length(TE.common))
   ##
-  if (fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
-    lwd.fixed <- rep(lwd.fixed, length(TE.fixed))
+  if (common && length(lwd.common) == 1 & length(TE.common) > 1)
+    lwd.common <- rep(lwd.common, length(TE.common))
   ##
-  if (fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
-    col.fixed <- rep(col.fixed, length(TE.fixed))
+  if (common && length(col.common) == 1 & length(TE.common) > 1)
+    col.common <- rep(col.common, length(TE.common))
   
   if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
@@ -410,42 +450,42 @@ labbe.metabin <- function(x,
   ##
   ## Add results for common effect model
   ##
-  if (fixed & length(TE.fixed) > 0) {
+  if (common & length(TE.common) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)
-      for (i in 1:length(TE.fixed))
-        abline(TE.fixed[i], 1,
-               lty = lty.fixed[i], lwd = lwd.fixed[i],
-               col = col.fixed[i])
+      for (i in 1:length(TE.common))
+        abline(TE.common[i], 1,
+               lty = lty.common[i], lwd = lwd.common[i],
+               col = col.common[i])
     else {
       if (sm == "RR") {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- x.line * exp(TE.fixed[i])
+        for (i in 1:length(TE.common)) {
+          y.line <- x.line * exp(TE.common[i])
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
       else if (sm == "RD") {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- x.line + TE.fixed[i]
+        for (i in 1:length(TE.common)) {
+          y.line <- x.line + TE.common[i]
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
       else if (sm %in% c("OR", "DOR")) {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- exp(TE.fixed[i]) * (x.line / (1 - x.line)) /
-            (1 + exp(TE.fixed[i]) * x.line / (1 - x.line))
+        for (i in 1:length(TE.common)) {
+          y.line <- exp(TE.common[i]) * (x.line / (1 - x.line)) /
+            (1 + exp(TE.common[i]) * x.line / (1 - x.line))
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
-      else if (sm == "ASD" & length(TE.fixed) > 0) {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.fixed[i])^2
+      else if (sm == "ASD" & length(TE.common) > 0) {
+        for (i in 1:length(TE.common)) {
+          y.line <- sin(asin(sqrt(x.line)) + TE.common[i])^2
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
     }
@@ -519,21 +559,24 @@ labbe.metabin <- function(x,
 labbe.default <- function(x, y,
                           xlim, ylim,
                           xlab = NULL, ylab = NULL,
-                          TE.fixed = NULL, TE.random = NULL,
-                          fixed = !is.null(TE.fixed),
+                          TE.common = NULL, TE.random = NULL,
+                          common = !is.null(TE.common),
                           random = !is.null(TE.random),
                           backtransf = TRUE,
                           axes = TRUE,
                           pch = 21, text = NULL, cex = 1,
                           col = "black", bg = "lightgray",
-                          lwd = 1, lwd.fixed = lwd, lwd.random = lwd,
-                          lty.fixed = 2, lty.random = 9,
-                          col.fixed = col, col.random = col,
+                          lwd = 1, lwd.common = lwd, lwd.random = lwd,
+                          lty.common = 2, lty.random = 9,
+                          col.common = col, col.random = col,
                           nulleffect = TRUE,
                           lwd.nulleffect = lwd, col.nulleffect = "lightgray",
                           sm = "", weight,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = NULL, label.c = NULL,
+                          ##
+                          warn.deprecated = gs("warn.deprecated"),
+                          TE.fixed, fixed, lwd.fixed, lty.fixed, col.fixed,
                           ...) {
   
   ##
@@ -547,21 +590,38 @@ labbe.default <- function(x, y,
   if(length(xpos) != length(ypos))
     stop("arguments 'x' and 'y' must be of same length")
   ##
-  chklogical(fixed)
+  common <-
+    deprecated2(common, missing(common), fixed, missing(fixed),
+                warn.deprecated)
+  chklogical(common)
   chklogical(random)
   chklogical(backtransf)
   chklogical(axes)
   chknumeric(cex)
   chknumeric(lwd)
-  chknumeric(lwd.fixed)
+  lwd.common <-
+    deprecated2(lwd.common, missing(lwd.common),
+                lwd.fixed, missing(lwd.fixed),
+                warn.deprecated)
+  chknumeric(lwd.common)
   chknumeric(lwd.random)
-  chknumeric(lty.fixed)
+  lty.common <-
+    deprecated2(lty.common, missing(lty.common),
+                lty.fixed, missing(lty.fixed),
+                warn.deprecated)
+  chknumeric(lty.common)
   chknumeric(lty.random)
+  col.common <-
+    deprecated2(col.common, missing(col.common),
+                col.fixed, missing(col.fixed),
+                warn.deprecated)
   chklogical(nulleffect)
   chknumeric(lwd.nulleffect)
   chknull(sm)
   sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
+  chklogical(warn.deprecated)
+  ##
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   
   
@@ -656,14 +716,14 @@ labbe.default <- function(x, y,
   }
   
   
-  if (fixed && length(lty.fixed) == 1 & length(TE.fixed) > 1)
-    lty.fixed <- rep(lty.fixed, length(TE.fixed))
+  if (common && length(lty.common) == 1 & length(TE.common) > 1)
+    lty.common <- rep(lty.common, length(TE.common))
   ##
-  if (fixed && length(lwd.fixed) == 1 & length(TE.fixed) > 1)
-    lwd.fixed <- rep(lwd.fixed, length(TE.fixed))
+  if (common && length(lwd.common) == 1 & length(TE.common) > 1)
+    lwd.common <- rep(lwd.common, length(TE.common))
   ##
-  if (fixed && length(col.fixed) == 1 & length(TE.fixed) > 1)
-    col.fixed <- rep(col.fixed, length(TE.fixed))
+  if (common && length(col.common) == 1 & length(TE.common) > 1)
+    col.common <- rep(col.common, length(TE.common))
   
   if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
@@ -702,42 +762,42 @@ labbe.default <- function(x, y,
   ##
   ## Add results for common effect model
   ##
-  if (fixed & length(TE.fixed) > 0) {
+  if (common & length(TE.common) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
     ##
     if (!backtransf)
-      for (i in 1:length(TE.fixed))
-        abline(TE.fixed[i], 1,
-               lty = lty.fixed[i], lwd = lwd.fixed[i],
-               col = col.fixed[i])
+      for (i in 1:length(TE.common))
+        abline(TE.common[i], 1,
+               lty = lty.common[i], lwd = lwd.common[i],
+               col = col.common[i])
     else {
       if (sm == "RR") {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- x.line * exp(TE.fixed[i])
+        for (i in 1:length(TE.common)) {
+          y.line <- x.line * exp(TE.common[i])
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
       else if (sm == "RD") {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- x.line + TE.fixed[i]
+        for (i in 1:length(TE.common)) {
+          y.line <- x.line + TE.common[i]
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
       else if (sm %in% c("OR", "DOR")) {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- exp(TE.fixed[i]) * (x.line / (1 - x.line)) /
-            (1 + exp(TE.fixed[i]) * x.line / (1 - x.line))
+        for (i in 1:length(TE.common)) {
+          y.line <- exp(TE.common[i]) * (x.line / (1 - x.line)) /
+            (1 + exp(TE.common[i]) * x.line / (1 - x.line))
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
-      else if (sm == "ASD" & length(TE.fixed) > 0) {
-        for (i in 1:length(TE.fixed)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.fixed[i])^2
+      else if (sm == "ASD" & length(TE.common) > 0) {
+        for (i in 1:length(TE.common)) {
+          y.line <- sin(asin(sqrt(x.line)) + TE.common[i])^2
           addlines(x.line, y.line, ylim,
-                   lty.fixed[i], lwd.fixed[i], col.fixed[i])
+                   lty.common[i], lwd.common[i], col.common[i])
         }
       }
     }

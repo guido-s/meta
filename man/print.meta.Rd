@@ -7,13 +7,13 @@
 \usage{
 \method{print}{meta}(
   x,
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
   prediction = x$prediction,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
   test.subgroup = x$test.subgroup,
-  test.subgroup.fixed = test.subgroup & fixed,
+  test.subgroup.common = test.subgroup & common,
   test.subgroup.random = test.subgroup & random,
   prediction.subgroup = x$prediction.subgroup,
   backtransf = x$backtransf,
@@ -50,6 +50,7 @@
   text.Rb = gs("text.Rb"),
   details.methods = TRUE,
   warn.backtransf = FALSE,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 
@@ -63,8 +64,8 @@ cilayout(
 \arguments{
 \item{x}{An object of class \code{meta}.}
 
-\item{fixed}{A logical indicating whether results for fixed effect
-meta-analysis should be printed.}
+\item{common}{A logical indicating whether results for common
+effect meta-analysis should be printed.}
 
 \item{random}{A logical indicating whether results for random
 effects meta-analysis should be printed.}
@@ -85,9 +86,9 @@ level.}
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
 
-\item{test.subgroup.fixed}{A logical value indicating whether to
-print results of test for subgroup differences (based on fixed
-effect / common effect model).}
+\item{test.subgroup.common}{A logical value indicating whether to
+print results of test for subgroup differences (based on common
+effect model).}
 
 \item{test.subgroup.random}{A logical value indicating whether to
 print results of test for subgroup differences (based on random
@@ -212,6 +213,9 @@ statistical methods should be printed.}
 \item{warn.backtransf}{A logical indicating whether a warning
 should be printed if backtransformed proportions and rates are
 below 0 and backtransformed proportions are above 1.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional arguments (passed on to \code{prmatrix}).}
 

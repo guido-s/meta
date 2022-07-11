@@ -7,7 +7,7 @@
 \method{print}{summary.meta}(
   x,
   sortvar,
-  fixed = x$x$fixed,
+  common = x$x$common,
   random = x$x$random,
   details = FALSE,
   ma = TRUE,
@@ -44,7 +44,7 @@
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
 
-\item{fixed}{A logical indicating whether a fixed effect
+\item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects

@@ -51,8 +51,7 @@
 #' @export
 
 
-as.data.frame.meta <- function(x, row.names = NULL,
-                               optional = FALSE, ...) {
+as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   
   
   ##
@@ -71,6 +70,10 @@ as.data.frame.meta <- function(x, row.names = NULL,
   ##     on the function call.
   ##
   x$call <- NULL
+  
+  ## Remove data set from output
+  ##
+  x$data <- NULL
   
   if (!is.null(x$approx.TE) && all(x$approx.TE == ""))
     x$approx.TE <- NULL

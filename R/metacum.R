@@ -4,9 +4,9 @@
 #' Performs a cumulative meta-analysis.
 #' 
 #' @param x An object of class \code{meta}.
-#' @param pooled A character string indicating whether a fixed effect
+#' @param pooled A character string indicating whether a common effect
 #'   or random effects model is used for pooling. Either missing (see
-#'   Details), \code{"fixed"}, or \code{"random"}, can be abbreviated.
+#'   Details), \code{"common"}, or \code{"random"}, can be abbreviated.
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
 #' 
@@ -15,11 +15,11 @@
 #' sequentially as defined by \code{sortvar}.
 #' 
 #' Information from object \code{x} is utilised if argument
-#' \code{pooled} is missing. A fixed effect / common effect model is
-#' assumed (\code{pooled = "fixed"}) if argument \code{x$fixed} is
+#' \code{pooled} is missing. A common effect model is assumed
+#' (\code{pooled = "common"}) if argument \code{x$common} is
 #' \code{TRUE}; a random effects model is assumed (\code{pooled =
 #' "random"}) if argument \code{x$random} is \code{TRUE} and
-#' \code{x$fixed} is \code{FALSE}.
+#' \code{x$common} is \code{FALSE}.
 #' 
 #' @return
 #' An object of class \code{c("metacum", "meta")} with corresponding
@@ -31,7 +31,7 @@
 #' \item{statistic}{Statistic for test of overall effect.}
 #' \item{pval}{P-value for test of overall effect.}
 #' \item{studlab}{Study label describing addition of studies.}
-#' \item{w}{Sum of weights from fixed effect or random effects model.}
+#' \item{w}{Sum of weights from common effect or random effects model.}
 #' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
 #' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
 #' \item{tau}{Square-root of between-study variance.}
@@ -41,11 +41,11 @@
 #' \item{method}{Method used for pooling.}
 #' \item{k}{Number of studies combined in meta-analysis.}
 #' \item{pooled}{As defined above.}
-#' \item{fixed}{A logical indicating whether analysis is based on
-#'   fixed effect model.}
+#' \item{common}{A logical indicating whether analysis is based on
+#'   common effect model.}
 #' \item{random}{A logical indicating whether analysis is based
 #'   on random effects model.}
-#' \item{TE.fixed, seTE.fixed}{Value is \code{NA}.}
+#' \item{TE.common, seTE.common}{Value is \code{NA}.}
 #' \item{TE.random, seTE.random}{Value is \code{NA}.}
 #' \item{Q}{Value is \code{NA}.}
 #' \item{level.ma}{The level used to calculate confidence intervals
@@ -126,20 +126,22 @@ metacum <- function(x, pooled, sortvar) {
   ## (2) Check other arguments
   ##
   ##
-  if (!missing(pooled))
-    pooled <- setchar(pooled, c("fixed", "random"))
+  if (!missing(pooled)) {
+    pooled <- setchar(pooled, c("common", "random", "fixed"))
+    pooled[pooled == "fixed"] <- "common"
+  }
   else
-    if (!x$fixed & x$random)
+    if (!x$common & x$random)
       pooled <- "random"
     else
-      pooled <- "fixed"
+      pooled <- "common"
   ##
   mc <- match.call()
   error <-
     try(sortvar <-
           catch("sortvar", mc, x, sys.frame(sys.parent())),
         silent = TRUE)
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
@@ -230,7 +232,7 @@ metacum <- function(x, pooled, sortvar) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, method.incr = x$method.incr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
@@ -308,7 +310,7 @@ metacum <- function(x, pooled, sortvar) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                   incr = incr.i, method.incr = x$method.incr,
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
@@ -348,7 +350,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
-                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, method.incr = x$method.incr,
                     method.ci = x$method.ci,
                     ##
                     level.ma = x$level.ma,
@@ -369,7 +371,7 @@ metacum <- function(x, pooled, sortvar) {
                     ##
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
-                    incr = incr.i, allincr = x$allincr, addincr = x$addincr,
+                    incr = incr.i, method.incr = x$method.incr,
                     ##
                     level.ma = x$level.ma,
                     ##
@@ -390,13 +392,13 @@ metacum <- function(x, pooled, sortvar) {
                     m$sign.upper.tau  # 3
                     )
     ##
-    if (pooled == "fixed") {
-      res.i[i, ] <- c(m$TE.fixed,                                    #  1
-                      m$seTE.fixed,                                  #  2
-                      m$lower.fixed,                                 #  3
-                      m$upper.fixed,                                 #  4
-                      m$statistic.fixed,                             #  5
-                      m$pval.fixed,                                  #  6
+    if (pooled == "common") {
+      res.i[i, ] <- c(m$TE.common,                                   #  1
+                      m$seTE.common,                                 #  2
+                      m$lower.common,                                #  3
+                      m$upper.common,                                #  4
+                      m$statistic.common,                            #  5
+                      m$pval.common,                                 #  6
                       m$tau2,                                        #  7
                       m$lower.tau2,                                  #  8
                       m$upper.tau2,                                  #  9
@@ -407,7 +409,7 @@ metacum <- function(x, pooled, sortvar) {
                       m$I2,                                          # 14
                       m$lower.I2,                                    # 15
                       m$upper.I2,                                    # 16
-                      sum(m$w.fixed, na.rm = TRUE),                  # 17
+                      sum(m$w.common, na.rm = TRUE),                 # 17
                       if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 18
                       NA,                                            # 19
                       if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
@@ -472,14 +474,14 @@ metacum <- function(x, pooled, sortvar) {
   sign.lower.tau.i <- add.i[, 2]
   sign.upper.tau.i <- add.i[, 3]
   ##  
-  if (pooled == "fixed") {
-    TE.s <- x$TE.fixed
-    seTE.s <- x$seTE.fixed
-    lower.TE.s <- x$lower.fixed
-    upper.TE.s <- x$upper.fixed
-    statistic.s <- x$statistic.fixed
-    pval.s <- x$pval.fixed
-    w.s <- sum(x$w.fixed, na.rm = TRUE)
+  if (pooled == "common") {
+    TE.s <- x$TE.common
+    seTE.s <- x$seTE.common
+    lower.TE.s <- x$lower.common
+    upper.TE.s <- x$upper.common
+    statistic.s <- x$statistic.common
+    pval.s <- x$pval.common
+    w.s <- sum(x$w.common, na.rm = TRUE)
   }
   ##
   else if (pooled == "random") {
@@ -532,9 +534,9 @@ metacum <- function(x, pooled, sortvar) {
               ##
               sm = x$sm, method = x$method, k = x$k,
               pooled = pooled,
-              fixed = ifelse(pooled == "fixed", TRUE, FALSE),
+              common = ifelse(pooled == "common", TRUE, FALSE),
               random = ifelse(pooled == "random", TRUE, FALSE),
-              TE.fixed = NA, seTE.fixed = NA,
+              TE.common = NA, seTE.common = NA,
               TE.random = NA, seTE.random = NA,
               null.effect = x$null.effect,
               ##
@@ -552,9 +554,9 @@ metacum <- function(x, pooled, sortvar) {
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
               ##
-              text.fixed = x$text.fixed, text.random = x$text.random,
+              text.common = x$text.common, text.random = x$text.random,
               text.predict = x$text.predict,
-              text.w.fixed = x$text.w.fixed, text.w.random = x$text.w.random,
+              text.w.common = x$text.w.common, text.w.random = x$text.w.random,
               ##
               title = x$title, complab = x$complab,
               outclab = x$outclab,
@@ -565,8 +567,18 @@ metacum <- function(x, pooled, sortvar) {
   
   res$version <- packageDescription("meta")$Version
   ##
-  res$x$fixed <- res$fixed
+  res$x$common <- res$common
   res$x$random <- res$random
+  ##
+  ## Backward compatibility
+  ##
+  res$fixed <- res$x$fixed <- res$common
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  ##
+  res$text.fixed <- res$text.common
+  res$text.w.fixed <- res$text.w.common
+  
   
   class(res) <- c("metacum", "summary.meta", "meta")
   ##

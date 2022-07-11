@@ -13,12 +13,12 @@ metabin(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  cluster = NULL,
   method = ifelse(tau.common, "Inverse", gs("method")),
   sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch =
     NA)), "OR", gs("smbin")),
   incr = gs("incr"),
-  allincr = gs("allincr"),
-  addincr = gs("addincr"),
+  method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
@@ -26,10 +26,10 @@ metabin(
   model.glmm = gs("model.glmm"),
   level = gs("level"),
   level.ma = gs("level.ma"),
-  fixed = gs("fixed"),
+  common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
-  overall = fixed | random,
-  overall.hetstat = fixed | random,
+  overall = common | random,
+  overall.hetstat = common | random,
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
@@ -44,10 +44,10 @@ metabin(
     gs("method.bias"))),
   backtransf = gs("backtransf"),
   pscale = 1,
-  text.fixed = gs("text.fixed"),
+  text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
-  text.w.fixed = gs("text.w.fixed"),
+  text.w.common = gs("text.w.common"),
   text.w.random = gs("text.w.random"),
   title = gs("title"),
   complab = gs("complab"),
@@ -96,6 +96,10 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
+meta-analysis model.}
+
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"},
 \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
@@ -106,17 +110,13 @@ be abbreviated.}
 \code{"DOR"}) is to be used for pooling of studies, see Details.}
 
 \item{incr}{Could be either a numerical value which is added to
-each cell frequency for studies with a zero cell count or the
+cell frequencies for studies with a zero cell count or the
 character string \code{"TACC"} which stands for treatment arm
 continuity correction, see Details.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies if at least one study has a zero
-cell count. If FALSE (default), \code{incr} is added only to each
-cell frequency of studies with a zero cell count.}
-
-\item{addincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}), see Details.}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
@@ -124,8 +124,8 @@ events in both groups are to be included in the meta-analysis
 or \code{"DOR"}).}
 
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
-added to all cell frequencies for studies with a zero cell count
-to calculate the pooled estimate based on the Mantel-Haenszel
+added to cell frequencies for studies with a zero cell count to
+calculate the pooled estimate based on the Mantel-Haenszel
 method.}
 
 \item{RR.Cochrane}{A logical indicating if 2*\code{incr} instead of
@@ -149,8 +149,8 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect / common
-effect meta-analysis should be conducted.}
+\item{common}{A logical indicating whether a common effect
+meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
@@ -181,8 +181,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -215,8 +215,8 @@ odds ratios and log risk ratios will be shown.}
 \item{pscale}{A numeric defining a scaling factor for printing of
 risk differences.}
 
-\item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+\item{text.common}{A character string used in printouts and forest
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -224,8 +224,8 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -285,19 +285,20 @@ is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
 \item{\dots}{Additional arguments passed on to
-\code{\link[metafor]{rma.glmm}} function.}
+\code{\link[metafor]{rma.glmm}} function and to catch deprecated
+arguments.}
 }
 \value{
 An object of class \code{c("metabin", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
 
-\item{event.e, n.e, event.c, n.c, studlab, exclude,}{As defined
+\item{event.e, n.e, event.c, n.c, studlab, exclude, cluster,}{As defined
   above.}
-\item{sm, method, incr, allincr, addincr,}{As defined above.}
+\item{sm, method, incr, method.incr,}{As defined above.}
 \item{allstudies, MH.exact, RR.Cochrane, Q.Cochrane, model.glmm,}{As
   defined above.}
-\item{warn, level, level.ma, fixed, random,}{As defined
+\item{warn, level, level.ma, common, random,}{As defined
   above.}
 \item{overall, overall.hetstat,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -313,15 +314,15 @@ object is a list containing the following components:
   individual studies.}
 \item{zval, pval}{z-value and p-value for test of treatment effect
   for individual studies.}
-\item{w.fixed, w.random}{Weight of individual studies (in fixed and
-  random effects model).}
-\item{TE.fixed, seTE.fixed}{Estimated overall treatment effect,
+\item{w.common, w.random}{Weight of individual studies (in common
+  effect and random effects model).}
+\item{TE.common, seTE.common}{Estimated overall treatment effect,
   e.g., log risk ratio or risk difference, and standard error
-  (fixed effect model).}
-\item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-  limits (fixed effect model).}
-\item{statistic.fixed, pval.fixed}{z-value and p-value for test of
-  overall treatment effect (fixed effect model).}
+  (common effect model).}
+\item{lower.common, upper.common}{Lower and upper confidence interval
+  limits (common effect model).}
+\item{statistic.common, pval.common}{z-value and p-value for test of
+  overall treatment effect (common effect model).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect,
   e.g., log risk ratio or risk difference, and standard error
   (random effects model).}
@@ -335,7 +336,10 @@ object is a list containing the following components:
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic Q.}
 \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 \item{pval.Q}{P-value of heterogeneity test.}
@@ -376,13 +380,13 @@ object is a list containing the following components:
   Mantel-Haenszel method.}
 \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
-\item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
-  standard error in subgroups (fixed effect model) - if
-  \code{subgroup} is not missing.}  \item{lower.fixed.w,
-  upper.fixed.w}{Lower and upper confidence interval limits in
-  subgroups (fixed effect model) - if \code{subgroup} is not missing.}
-\item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
-  of treatment effect in subgroups (fixed effect model) - if
+\item{TE.common.w, seTE.common.w}{Estimated treatment effect and
+  standard error in subgroups (common effect model) - if
+  \code{subgroup} is not missing.}  \item{lower.common.w,
+  upper.common.w}{Lower and upper confidence interval limits in
+  subgroups (common effect model) - if \code{subgroup} is not missing.}
+\item{statistic.common.w, pval.common.w}{z-value and p-value for test
+  of treatment effect in subgroups (common effect model) - if
   \code{subgroup} is not missing.}  \item{TE.random.w,
   seTE.random.w}{Estimated treatment effect and standard error in
   subgroups (random effects model) - if \code{subgroup} is not
@@ -393,8 +397,8 @@ object is a list containing the following components:
 \item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of treatment effect in subgroups
   (random effects model) - if \code{subgroup} is not missing.}
-\item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{subgroup} is not missing.}
+\item{w.common.w, w.random.w}{Weight of subgroups (in common effect
+  and random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of treatment effect
   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
@@ -410,29 +414,29 @@ object is a list containing the following components:
   \code{subgroup} is not missing.}
 \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
-\item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{subgroup} is not missing.}
+\item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
+  (based on common effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.w.common}{P-value of within subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
-\item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{subgroup} is not
+\item{Q.b.common}{Overall between subgroups heterogeneity statistic
+  Q (based on common effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing.}
 \item{df.Q.b}{Degrees of freedom for test of overall between
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.b.common}{P-value of between subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
@@ -454,8 +458,8 @@ object is a list containing the following components:
   \code{keepdata = TRUE}).}
 \item{subset}{Information on subset of original data used in
   meta-analysis (if \code{keepdata = TRUE}).}
-\item{.glmm.fixed}{GLMM object generated by call of
-  \code{\link[metafor]{rma.glmm}} function (fixed effect model).}
+\item{.glmm.common}{GLMM object generated by call of
+  \code{\link[metafor]{rma.glmm}} function (common effect model).}
 \item{.glmm.random}{GLMM object generated by call of
   \code{\link[metafor]{rma.glmm}} function (random effects model).}
 \item{call}{Function call.}
@@ -465,7 +469,7 @@ object is a list containing the following components:
   GLMMs.}
 }
 \description{
-Calculation of fixed effect and random effects estimates (risk
+Calculation of common effect and random effects estimates (risk
 ratio, odds ratio, risk difference, arcsine difference, or
 diagnostic odds ratio) for meta-analyses with binary outcome
 data. Mantel-Haenszel, inverse variance, Peto method, generalised
@@ -475,7 +479,7 @@ from R package \bold{metafor} (Viechtbauer, 2010) is called
 internally.
 }
 \details{
-Calculation of fixed and random effects estimates for meta-analyses
+Calculation of common and random effects estimates for meta-analyses
 with binary outcome data.
 
 The following measures of treatment effect are available (Rücker et
@@ -502,11 +506,11 @@ rerun a meta-analysis with different settings.
 
 \subsection{Meta-analysis method}{
 
-By default, both fixed effect (also called common effect) and
-random effects models are considered (see arguments \code{fixed}
+By default, both common effect (also called common effect) and
+random effects models are considered (see arguments \code{common}
 and \code{random}). If \code{method} is \code{"MH"} (default), the
 Mantel-Haenszel method (Greenland & Robins, 1985; Robins et al.,
-1986) is used to calculate the fixed effect estimate; if
+1986) is used to calculate the common effect estimate; if
 \code{method} is \code{"Inverse"}, inverse variance weighting is
 used for pooling (Fleiss, 1993); if \code{method} is \code{"Peto"},
 the Peto method is used for pooling (Yussuf et al., 1985); if
@@ -514,7 +518,7 @@ the Peto method is used for pooling (Yussuf et al., 1985); if
 pooling (Bakbergenuly et al., 2020).
 
 While the Mantel-Haenszel and Peto method are defined under the
-fixed effect model, random effects variants based on these methods
+common effect model, random effects variants based on these methods
 are also implemented in \code{metabin}. Following RevMan 5, the
 Mantel-Haenszel estimator is used in the calculation of the
 between-study heterogeneity statistic Q which is used in the
@@ -544,7 +548,7 @@ meta-analysis with binary outcomes using argument \code{model.glmm}
 (which corresponds to argument \code{model} in the
 \code{\link[metafor]{rma.glmm}} function):
 \tabular{cl}{
-1. \tab Logistic regression model with fixed study effects
+1. \tab Logistic regression model with common study effects
  (default) \cr
  \tab (\code{model.glmm = "UM.FS"}, i.e., \bold{U}nconditional
  \bold{M}odel - \bold{F}ixed \bold{S}tudy effects) \cr
@@ -563,30 +567,58 @@ meta-analysis with binary outcomes using argument \code{model.glmm}
 }
 
 Details on these four GLMMs as well as additional arguments which
-can be provided using argument '\code{\dots}' in \code{metabin}
-are described in \code{\link[metafor]{rma.glmm}} where you can also
+can be provided using argument '\code{\dots}' in \code{metabin} are
+described in \code{\link[metafor]{rma.glmm}} where you can also
 find information on the iterative algorithms used for estimation.
 Note, regardless of which value is used for argument
 \code{model.glmm}, results for two different GLMMs are calculated:
-fixed effect model (with fixed treatment effect) and random effects
-model (with random treatment effects).
+common effect model (with fixed treatment effect) and random
+effects model (with random treatment effects).
 }
 
 \subsection{Continuity correction}{
 
-For studies with a zero cell count, by default, 0.5 is added to all
-cell frequencies of these studies; if \code{incr} is \code{"TACC"}
-a treatment arm continuity correction is used instead (Sweeting et
-al., 2004; Diamond et al., 2007). For odds ratio and risk ratio,
-treatment estimates and standard errors are only calculated for
-studies with zero or all events in both groups if \code{allstudies}
-is \code{TRUE}. This continuity correction is used both to
-calculate individual study results with confidence limits and to
-conduct meta-analysis based on the inverse variance method. For
-Peto method and GLMMs no continuity correction is used. For the
-Mantel-Haenszel method, by default (if \code{MH.exact} is FALSE),
-\code{incr} is added to all cell frequencies of a study with a zero
-cell count in the calculation of the pooled risk ratio or odds
+Three approaches are available to apply a continuity correction:
+\itemize{
+\item Only studies with a zero cell count (\code{method.incr =
+  "only0"})
+\item All studies if at least one study has a zero cell count
+  (\code{method.incr = "if0all"})
+\item All studies irrespective of zero cell counts
+  (\code{method.incr = "all"})
+}
+
+By default, a continuity correction is only applied to studies with
+a zero cell count (\code{method.incr = "only0"}). This method
+showed the best performance for the odds ratio in a simulation
+study under the random effects model (Weber et al., 2020).
+
+The continuity correction method is used both to calculate
+individual study results with confidence limits and to conduct
+meta-analysis based on the inverse variance method. For the risk
+difference, the method is only considered to calculate standard
+errors and confidence limits.  For Peto method and GLMMs no
+continuity correction is used in the meta-analysis. Furthermore,
+the continuity correction is ignored for individual studies for the
+Peto method.
+
+For studies with a zero cell count, by default, 0.5 (argument
+\code{incr}) is added to all cell frequencies for the odds ratio or
+only the number of events for the risk ratio (argument
+\code{RR.Cochrane = FALSE}, default). The increment is added to all
+cell frequencies for the risk ratio if argument \code{RR.Cochrane =
+TRUE}. For the risk difference, \code{incr} is only added to all
+cell frequencies to calculate the standard error. Finally, a
+treatment arm continuity correction is used if \code{incr = "TACC"}
+(Sweeting et al., 2004; Diamond et al., 2007).
+
+For odds ratio and risk ratio, treatment estimates and standard
+errors are only calculated for studies with zero or all events in
+both groups if \code{allstudies = TRUE}.
+
+For the Mantel-Haenszel method, by default (if \code{MH.exact} is
+FALSE), \code{incr} is added to cell frequencies of a study with a
+zero cell count in the calculation of the pooled risk ratio or odds
 ratio as well as the estimation of the variance of the pooled risk
 difference, risk ratio or odds ratio. This approach is also used in
 other software, e.g. RevMan 5 and the Stata procedure
@@ -624,16 +656,20 @@ GLMMs.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method
+\bold{Argument}\tab \bold{Method} \cr
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these
-methods. For GLMMs, no confidence intervals for \eqn{\tau^2} and
-\eqn{\tau} are calculated. Likewise, no confidence intervals for
-\eqn{\tau^2} and \eqn{\tau} are calculated if \code{method.tau.ci =
-""}. 
+
+See \code{\link{metagen}} for more information on these methods.
+
+For GLMMs, no confidence intervals for \eqn{\tau^2} and \eqn{\tau}
+are calculated.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -652,7 +688,7 @@ Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
 correction has been proposed by utilising the variance estimate
 from the classic random effects model with the HK method (Knapp and
 Hartung, 2003; IQWiQ, 2020). An alternative approach is to use the
-wider confidence interval of classic fixed or random effects
+wider confidence interval of classic common or random effects
 meta-analysis and the HK method (Wiksten et al., 2016; Jackson et
 al., 2017).
 
@@ -713,14 +749,14 @@ Meta-analysis results are the same for both arguments.
 
 \subsection{Presentation of meta-analysis results}{
 
-Internally, both fixed effect and random effects models are
+Internally, both common effect and random effects models are
 calculated regardless of values choosen for arguments
-\code{fixed} and \code{random}. Accordingly, the estimate
+\code{common} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component
 \code{TE.random} of an object of class \code{"meta"} even if
 argument \code{random = FALSE}. However, all functions in R
 package \bold{meta} will adequately consider the values for
-\code{fixed} and \code{random}. E.g. function
+\code{common} and \code{random}. E.g. function
 \code{\link{print.meta}} will not print results for the random
 effects model if \code{random = FALSE}.
 }
@@ -740,7 +776,9 @@ metabin(0, 10, 0, 10, sm = "OR", allstudies = TRUE)
 #
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-   data = Olkin1995, subset = c(41, 47, 51, 59), method = "Inverse")
+  data = Olkin1995, subset = c(41, 47, 51, 59),
+  studlab = paste(author, year),
+  method = "Inverse")
 m1
 # Show results for individual studies
 summary(m1)
@@ -748,7 +786,8 @@ summary(m1)
 # Use different subset of Olkin (1995)
 #
 m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-  data = Olkin1995, subset = year < 1970, studlab = author,
+  data = Olkin1995, subset = year < 1970,
+  studlab = paste(author, year),
   method = "Inverse")
 m2
 forest(m2)
@@ -757,7 +796,8 @@ forest(m2)
 #
 m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, subset = year < 1970,
-  sm = "OR", method = "Inverse", studlab = author)
+  studlab = paste(author, year),
+  sm = "OR", method = "Inverse")
 # Same meta-analysis result using 'update.meta' function
 m3 <- update(m2, sm = "OR")
 m3
@@ -783,6 +823,7 @@ m5
 # (default: model.glmm = "UM.FS")
 #
 m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+  studlab = paste(author, year),
   data = Olkin1995, subset = year < 1970, method = "GLMM")
 # Same results:
 m6 <- update(m2, method = "GLMM")
@@ -814,7 +855,8 @@ m9
 # (about 18 seconds with Intel Core i7-3667U, 2.0GHz)
 #
 m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-               data = Olkin1995, method = "GLMM")
+   studlab = paste(author, year),
+   data = Olkin1995, method = "GLMM")
 m10
 
 # Mixed-effects logistic regression model with random study effects
@@ -829,7 +871,7 @@ update(m10, model.glmm = "UM.RS")
 # - estimation problems for this very large dataset:
 #   * warning that Choleski factorization of Hessian failed
 #   * confidence interval for treatment effect smaller in random
-#     effects model compared to fixed effect model
+#     effects model compared to common effect model
 #
 system.time(m11 <- update(m10, model.glmm = "CM.EL"))
 m11
@@ -846,7 +888,7 @@ Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
 Methods for estimating between-study variance and overall
 effect in meta-analysis of odds-ratios.
 \emph{Research Synthesis Methods},
-DOI: 10.1002/jrsm.1404
+\bold{11}, 426--42
 
 Cooper H & Hedges LV (1994):
 \emph{The Handbook of Research Synthesis}.
@@ -943,10 +985,20 @@ in meta-analysis of sparse data.
 \emph{Statistics in Medicine},
 \bold{23}, 1351--75
 
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
+
 Viechtbauer W (2010):
 Conducting meta-analyses in R with the metafor package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
+
+Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2020):
+Zero-cell corrections in random-effects meta-analyses.
+\emph{Research Synthesis Methods},
+\bold{11}, 913--9
 
 Wiksten A, Rücker G, Schwarzer G (2016):
 Hartung-Knapp method is not always conservative compared with

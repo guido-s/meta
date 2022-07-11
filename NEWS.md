@@ -1,3 +1,95 @@
+## meta, version 5.5-0 (2022-mm-dd)
+
+### Major changes
+
+* Use term 'common effect model' instead of 'fixed effect model' in
+  the documentation and argument 'common' instead of 'fixed' to (not)
+  show results for common effect model
+
+* Three-level model implemented in all meta-analysis functions
+
+* For continuity corrections, new argument 'method.incr' replaces
+  arguments 'allincr' and 'addincr' for meta-analysis with binary
+  outcome or incidence rates
+
+* Exact Poisson confidence limits can be calculated for individual
+  studies in meta-analysis of single rates
+
+* Show information on statistical significance and between-study
+  heterogeneity in forest plots of cumulative or leave-one-out
+  meta-analysis
+
+* Calculate Cochran's Q directly in **meta** for classic inverse
+  variance meta-analysis (instead of taking it from **metafor**
+  package)
+
+* By default, do not print warnings for deprecated arguments; this can
+  be changed with command 'settings.meta(warn.deprecated = TRUE)'
+
+
+### Bug fixes
+
+* Use correct standard error for Cox and Snell's method in smd2or()
+  and or2smd()
+
+* Three-level model did not work if variable from data set was
+  provided as input to argument 'id' in metacont()
+
+* Argument 'tau.common = TRUE' was ignored in subgroup analysis of
+  three-level model in metacont()
+
+* Argument 'level' was ignored in the calculation of confidence limits
+  for individual studies in metacont() and metamean() if argument
+  'method.ci = "t"'
+
+* Show correct studies in forest plot with subgroups and missing
+  treatment effects if argument 'allstudies = FALSE'
+
+* Show points in bubble plot of meta-regression with GLMM
+
+### User-visible changes
+
+* For three-level models,
+  - argument 'id' has been renamed to 'cluster',
+  - cluster variable is shown in forest plots.
+
+* New arguments 'common' and 'cluster' in functions metabin(),
+  metacont(), metacor(), metagen(), metainc(), metamean(), metaprop()
+  and metarate()
+
+* New function subset.longarm() to select subset of a longarm object
+
+* New argument 'method.ci' in function metarate()
+
+* New argument 'method.ci.rate' in function settings.meta()
+
+* New argument 'method.incr' in functions metabin(), metainc(),
+  metaprop() and metarate()
+
+* print.summary.meta():
+  - for a single study and metabin() with method = "MH", sm = "RR" and
+    RR.Cochrane = FALSE, print results using a continuity correction
+    for sample sizes of 1x incr (individual study) and 2x incr
+    (meta-analysis of single study)
+
+### Internal changes
+
+* forest.meta():
+  - use meta:::formatN() instead of format() for formatting
+  - print study label "1" instead of "" for a single study
+
+* metarate():
+  - list elements 'lower' and 'upper' contain untransformed confidence
+    limits for individual studies
+
+* New internal function update_needed() to check whether update of
+  meta object is needed
+
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop() and metarate():
+  - new list element 'k.TE' with number of estimable effects
+
+
 ## meta, version 5.2-0 (2022-02-04)
 
 ### Major changes

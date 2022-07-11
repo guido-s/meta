@@ -28,13 +28,13 @@
 #'   be shown in the drapery plot.
 #' @param srt.labels A numerical vector or single numeric (between 0
 #'   and 90) specifying the angle to rotate study labels; see Details.
-#' @param fixed A logical indicating whether to show result for the
-#'   fixed effect / common effect model.
+#' @param common A logical indicating whether to show result for the
+#'   common effect model.
 #' @param random A logical indicating whether to show result for the
 #'   random effects model.
-#' @param lty.fixed Line type for fixed effect meta-analysis.
-#' @param lwd.fixed Line width for fixed effect meta-analysis.
-#' @param col.fixed Colour of lines for fixed effect meta-analysis.
+#' @param lty.common Line type for common effect meta-analysis.
+#' @param lwd.common Line width for common effect meta-analysis.
+#' @param col.common Colour of lines for common effect meta-analysis.
 #' @param lty.random Line type for random effects meta-analysis.
 #' @param lwd.random Line width for random effects meta-analysis.
 #' @param col.random Colour of lines for random effects meta-analysis.
@@ -74,7 +74,7 @@
 #'   \code{layout} is equal to \code{"linewidth"}).
 #' @param lwd.study.weight A character string indicating whether to
 #'   determine line width for individual studies using weights from
-#'   fixed effect (\code{"fixed"}) or random effects model
+#'   common effect (\code{"common"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
 #' @param at Points at which tick-marks are to be drawn on the x-axis.
@@ -82,6 +82,12 @@
 #'   test statistic functions.
 #' @param mar Physical plot margin, see \code{\link{par}}.
 #' @param plot A logical indicating whether to generate a figure.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param fixed Deprecated argument (replaced by 'common').
+#' @param lwd.fixed Deprecated argument (replaced by 'lwd.common').
+#' @param lty.fixed Deprecated argument (replaced by 'lty.common').
+#' @param col.fixed Deprecated argument (replaced by 'col.common').
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #' 
@@ -131,7 +137,7 @@
 #' otherwise labels are not rotated.
 #' 
 #' If \code{labels = "studlab"}, labels are rotated by -45 degrees for
-#' studies with a treatment estimate below the fixed effect estimate
+#' studies with a treatment estimate below the common effect estimate
 #' and otherwise by 45 degrees.
 #' 
 #' @author Gerta Rücker \email{sc@@imbi.uni-freiburg.de}, Guido
@@ -196,10 +202,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     labels, col.labels = "black", cex.labels = 0.7,
                     subset.labels, srt.labels,
                     ##
-                    fixed = x$fixed, random = x$random,
-                    lty.fixed = 1, lwd.fixed = max(3, lwd.study),
-                    col.fixed = "blue",
-                    lty.random = 1, lwd.random = lwd.fixed,
+                    common = x$common, random = x$random,
+                    lty.common = 1, lwd.common = max(3, lwd.study),
+                    col.common = "blue",
+                    lty.random = 1, lwd.random = lwd.common,
                     col.random = "red",
                     ##
                     sign = NULL,
@@ -219,11 +225,15 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     xlab, ylab,
                     xlim, ylim,
                     lwd.max = 2.5,
-                    lwd.study.weight = if (random) "random" else "fixed",
+                    lwd.study.weight = if (random) "random" else "common",
                     at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
                     plot = TRUE,
+                    ##
+                    warn.deprecated = gs("warn.deprecated"),
+                    fixed, lwd.fixed, lty.fixed, col.fixed,
+                    ##
                     ...) {
   
   
@@ -339,7 +349,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   if (missing(srt.labels)) {
     if (labels == "studlab" & max(nchar(x$studlab)) > 3)
-      srt.labels <- ifelse(x$TE < x$TE.fixed, 45, -45)
+      srt.labels <- ifelse(x$TE < x$TE.common, 45, -45)
     else
       srt.labels <- rep(0, k.all)
   }
@@ -351,9 +361,33 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ## Other arguments
   ##
-  chklogical(fixed)
+  common <-
+    deprecated2(common, missing(common), fixed, missing(fixed),
+                warn.deprecated)
+  chklogical(common)
   chklogical(random)
   chklogical(prediction)
+  ##
+  lwd.common <-
+    deprecated2(lwd.common, missing(lwd.common),
+                lwd.fixed, missing(lwd.fixed),
+                warn.deprecated)
+  chknumeric(lwd.common, length = 1)
+  ##
+  lty.common <-
+    deprecated2(lty.common, missing(lty.common),
+                lty.fixed, missing(lty.fixed),
+                warn.deprecated)
+  chknumeric(lty.common, length = 1)
+  ##
+  col.common <-
+    deprecated2(col.common, missing(col.common),
+                col.fixed, missing(col.fixed),
+                warn.deprecated)
+  chklength(col.common, 1,
+            text = "Argument 'col.common' must be of length 1.")
+  chklength(col.random, 1,
+            text = "Argument 'col.random' must be of length 1.")
   ##
   if (!is.null(sign)) {
     chklevel(sign, length = 0)
@@ -389,14 +423,14 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     chkchar(ylab, length = 1)
   ##
   chknumeric(lwd.max, min = 0, zero = TRUE, length = 1)
-  lwd.study.weight <- setchar(lwd.study.weight, c("random", "fixed"))
+  lwd.study.weight <- setchar(lwd.study.weight, c("random", "common"))
   ##
   chknumeric(n.grid, min = 0, zero = TRUE, length = 1)
   chklogical(plot)
   ##
   ## Additional check
   ##
-  if (!any(c(study.results, fixed, random, prediction))) {
+  if (!any(c(study.results, common, random, prediction))) {
     warning("Nothing selected to show in drapery plot.")
     return(invisible(NULL))
   }
@@ -436,14 +470,14 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     mx <- max(xlim)
   }
   ##
-  grid <- c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.fixed, x$TE.random)
+  grid <- c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.common, x$TE.random)
   ##
   if (type == "zvalue")
     grid <- c(grid,
               x$TE + ylim[1] * x$seTE,
               x$TE - ylim[1] * x$seTE,              
-              x$TE.fixed + ylim[1] * x$seTE.fixed,
-              x$TE.fixed - ylim[1] * x$seTE.fixed,
+              x$TE.common + ylim[1] * x$seTE.common,
+              x$TE.common - ylim[1] * x$seTE.common,
               x$TE.random + ylim[1] * x$seTE.random,
               x$TE.random - ylim[1] * x$seTE.random)
   ##
@@ -469,7 +503,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   upper <- x$upper[o]
   pval <- x$pval[o]
   statistic <- x$statistic[o]
-  w.fixed <- x$w.fixed[o]
+  w.common <- x$w.common[o]
   w.random <- x$w.random[o]
   seq.TE <- seq.TE[o]
   studlab <- x$studlab[o]
@@ -483,8 +517,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   subset.labels <- subset.labels[o]
   srt.labels <- srt.labels[o]
   ##
-  TE.fixed <- x$TE.fixed
-  seTE.fixed <- x$seTE.fixed
+  TE.common <- x$TE.common
+  seTE.common <- x$seTE.common
   TE.random <- x$TE.random
   seTE.random <- x$seTE.random
   seTE.predict <- x$seTE.predict
@@ -494,48 +528,48 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     col.study <- gray.colors(k.all)
   ##
   else if (layout == "linewidth" & missing.lwd.study) {
-    if (lwd.study.weight == "fixed")
-      lwd.study <- lwd.max * w.fixed / max(w.fixed)
+    if (lwd.study.weight == "common")
+      lwd.study <- lwd.max * w.common / max(w.common)
     else
       lwd.study <- lwd.max * w.random / max(w.random)
   }
   ##  
-  y.fixed <- pvf(grid, TE.fixed, seTE.fixed)
+  y.common <- pvf(grid, TE.common, seTE.common)
   y.random <- pvf(grid, TE.random, seTE.random)
   y.predict <- pvf(grid, TE.random, t.quantile / qnorm(0.975) * seTE.predict)
   y.alpha <- alpha
   ##
   if (type == "zvalue") {
-    y.fixed <- qnorm(y.fixed / 2)
+    y.common <- qnorm(y.common / 2)
     y.random <- qnorm(y.random / 2)
     y.predict <- qnorm(y.predict / 2)
     y.alpha <- qnorm(y.alpha / 2)
   }
   else if (type == "surprisal") {
-    y.fixed <- -log(y.fixed, base = 2)
+    y.common <- -log(y.common, base = 2)
     y.random <- -log(y.random, base = 2)
     y.predict <- -log(y.predict, base = 2)
     y.alpha <- -log(y.alpha, base = 2)
   }
   ##
-  sel.fixed <- y.fixed >= min(ylim)
+  sel.common <- y.common >= min(ylim)
   sel.random <- y.random >= min(ylim)
   sel.predict <- y.predict >= min(ylim)
   ##
   if (!study.results & missing.xlim) {
     if (prediction) {
       xvals <- x.grid[sel.predict]
-      if (fixed)
-        xvals <- c(xvals, x.grid[sel.fixed])
+      if (common)
+        xvals <- c(xvals, x.grid[sel.common])
       xlim <- range(xvals)
     }
     else {
-      if (fixed & random)
-        xvals <- c(x.grid[sel.fixed], x.grid[sel.random])
-      else if (!fixed)
+      if (common & random)
+        xvals <- c(x.grid[sel.common], x.grid[sel.random])
+      else if (!common)
         xvals <- x.grid[sel.random]
       else
-        xvals <- x.grid[sel.fixed]
+        xvals <- x.grid[sel.common]
       xlim <- range(xvals)
     }
   }
@@ -547,7 +581,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   ##
   if (plot) {
-    plot(x.grid, y.fixed,
+    plot(x.grid, y.common,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
          axes = FALSE, ...)
@@ -642,11 +676,11 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       }
     }
     ##
-    ## Add fixed effect lines
+    ## Add common effect lines
     ##
-    if (fixed)
-      lines(x.grid[sel.fixed], y.fixed[sel.fixed],
-            lty = lty.fixed, lwd = lwd.fixed, col = col.fixed)
+    if (common)
+      lines(x.grid[sel.common], y.common[sel.common],
+            lty = lty.common, lwd = lwd.common, col = col.common)
     ##
     ## Add random effects lines
     ##
@@ -682,24 +716,24 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     ##
     ## Add legend
     ##
-    if (legend & any(c(fixed, random, prediction)))
+    if (legend & any(c(common, random, prediction)))
       legend(pos.legend,
-             col = c(if (fixed) col.fixed,
+             col = c(if (common) col.common,
                      if (random) col.random,
                      if (prediction) col.predict),
-             lwd = c(if (fixed) lwd.fixed,
+             lwd = c(if (common) lwd.common,
                      if (random) lwd.random,
                      if (prediction) lwd.random),
              bty = bty, bg = bg,
-             c(if (fixed) "Fixed effect model",
-               if (random)"Random effects model",
+             c(if (common) gs("text.common"),
+               if (random) gs("text.random"),
                if (prediction) "Range of prediction"))
     ##
     ## Add y-axis on right side
     ##
     if (type == "pvalue") {
       par(new = TRUE)
-      plot(x.grid, y.fixed,
+      plot(x.grid, y.common,
            xlab = xlab, ylab = ylab,
            xlim = xlim, ylim = rev(ylim),
            type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
@@ -727,7 +761,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                       col.labels, cex.labels,
                       subset.labels, srt.labels,
                       TE, seTE, lower, upper, statistic, pval,
-                      w.fixed, w.random,
+                      w.common, w.random,
                       stringsAsFactors = FALSE)
     ##
     res <- res[order(res$ID), , drop = FALSE]

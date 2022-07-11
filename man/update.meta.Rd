@@ -10,12 +10,11 @@
   subset,
   studlab,
   exclude,
-  id,
+  cluster,
   method = object$method,
   sm = object$sm,
   incr,
-  allincr = object$allincr,
-  addincr = object$addincr,
+  method.incr = object$method.incr,
   allstudies = object$allstudies,
   MH.exact = object$MH.exact,
   RR.Cochrane = object$RR.Cochrane,
@@ -23,7 +22,7 @@
   model.glmm = object$model.glmm,
   level = object$level,
   level.ma = object$level.ma,
-  fixed = object$fixed,
+  common = object$common,
   random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
@@ -42,10 +41,10 @@
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
-  text.fixed = object$text.fixed,
+  text.common = object$text.common,
   text.random = object$text.random,
   text.predict = object$text.predict,
-  text.w.fixed = object$text.w.fixed,
+  text.w.common = object$text.w.common,
   text.w.random = object$text.w.random,
   title = object$title,
   complab = object$complab,
@@ -68,14 +67,16 @@
   test.subgroup = object$test.subgroup,
   prediction.subgroup = object$prediction.subgroup,
   byvar,
+  id,
   print.CMH = object$print.CMH,
   keepdata = TRUE,
   left = object$left,
-  ma.fixed = object$ma.fixed,
+  ma.common = object$ma.common,
   type = object$type,
   n.iter.max = object$n.iter.max,
   warn = FALSE,
   warn.deprecated = gs("warn.deprecated"),
+  verbose = FALSE,
   control = object$control,
   ...
 )
@@ -93,8 +94,8 @@
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
-\item{id}{An optional vector specifying which estimates come from
-the same study resulting in the use of a three-level
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{method}{A character string indicating which method is to be
@@ -109,13 +110,9 @@ to each cell frequency for studies with a zero cell count or the
 character string \code{"TA"} which stands for treatment arm
 continuity correction.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies if at least one study has a zero
-cell count. If FALSE (default), \code{incr} is added only to each
-cell frequency of studies with a zero cell count.}
-
-\item{addincr}{A logical indicating if \code{incr} is added to each
-cell frequency of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}).}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
@@ -147,7 +144,7 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect
+\item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
@@ -225,8 +222,8 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
 
-\item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+\item{text.common}{A character string used in printouts and forest
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -234,8 +231,8 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -285,9 +282,9 @@ standard error.}
 \item{method.ci}{A character string indicating which method is used
 to calculate confidence intervals for individual studies. Either
 \code{"z"}, \code{"t"}, \code{"WS"}, \code{"WSCC"}, \code{"AC"},
-\code{"SA"}, \code{"SACC"}, or \code{"NAsm"}, can be
-abbreviated. See functions \code{\link{metacont}} and
-\code{\link{metaprop}}.}
+\code{"SA"}, \code{"SACC"}, \code{"NAsm"}, or \code{"Poisson"},
+can be abbreviated. See functions \code{\link{metacont}},
+\code{\link{metaprop}} and \code{\link{metarate}}.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}
@@ -310,6 +307,8 @@ intervals should be printed for subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
+\item{id}{Deprecated argument (replaced by 'cluster').}
+
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be
 printed.}
@@ -323,7 +322,7 @@ the linear regression test for funnel plot symmetry (i.e.,
 function \code{metabias(..., method = "linreg")}) is used to
 determine whether studies are missing on the left or right side.}
 
-\item{ma.fixed}{A logical indicating whether a fixed effect or
+\item{ma.common}{A logical indicating whether a common effect or
 random effects model is used to estimate the number of missing
 studies.}
 
@@ -339,6 +338,9 @@ frequencies).}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
+
+\item{verbose}{A logical indicating whether to print information on
+updates of older meta versions.}
 
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
@@ -363,7 +365,7 @@ was created with R function \code{\link{metabin}},
 \code{\link{metagen}}, \code{\link{metainc}},
 \code{\link{metamean}}, \code{\link{metaprop}}, or
 \code{\link{metarate}}. More details on function arguments are
-available in help files of respective R functions
+available in help files of respective R functions.
 
 This function can also be used for objects of class 'trimfill',
 'metacum', and 'metainf'.

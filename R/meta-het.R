@@ -16,7 +16,7 @@ Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {
   ##
   k <- df.Q + 1
   varTE <- seTE^2
-  w.fixed <- 1 / varTE
+  w.common <- 1 / varTE
   
   
   ##
@@ -31,12 +31,12 @@ Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {
   ##
   S <- function(n, w) sum(w^n)
   ##
-  a <- varTE * (S(1, w.fixed) - S(2, w.fixed) / S(1, w.fixed))
+  a <- varTE * (S(1, w.common) - S(2, w.common) / S(1, w.common))
   ##
   seQ <- sqrt(2 * (k - 1) +
-              4 * (S(1, w.fixed) - S(2, w.fixed) / S(1, w.fixed)) * tau2 +
-              2 * (S(2, w.fixed) - 2 * S(3, w.fixed) / S(1, w.fixed) +
-                   S(2, w.fixed)^2 / S(1, w.fixed)^2) * tau2^2
+              4 * (S(1, w.common) - S(2, w.common) / S(1, w.common)) * tau2 +
+              2 * (S(2, w.common) - 2 * S(3, w.common) / S(1, w.common) +
+                   S(2, w.common)^2 / S(1, w.common)^2) * tau2^2
               )
   ##  
   seRb <- sqrt((1 / k * sum(a / (Q + a - (k - 1))^2))^2 * seQ^2)

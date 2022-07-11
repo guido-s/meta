@@ -10,16 +10,16 @@
   sortvar,
   studlab = TRUE,
   layout = gs("layout"),
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
   overall = x$overall,
-  text.fixed = x$text.fixed,
+  text.common = x$text.common,
   text.random = x$text.random,
-  lty.fixed = 2,
+  lty.common = 2,
   lty.random = 3,
-  col.fixed = "black",
+  col.common = "black",
   col.random = "black",
-  text.w.fixed = x$text.w.fixed,
+  text.w.common = x$text.w.common,
   text.w.random = x$text.w.random,
   prediction = x$prediction,
   text.predict = x$text.predict,
@@ -29,11 +29,11 @@
   subgroup.name = x$subgroup.name,
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
-  text.fixed.w = text.fixed,
+  text.common.w = text.common,
   text.random.w = text.random,
   text.predict.w = text.predict,
   bysort = FALSE,
-  pooled.totals = fixed | random,
+  pooled.totals = common | random,
   pooled.events = FALSE,
   pooled.times = FALSE,
   study.results = TRUE,
@@ -66,35 +66,35 @@
   label.left = x$label.left,
   bottom.lr = TRUE,
   lab.NA = ".",
-  lab.NA.effect = "",
+  lab.NA.effect,
   lab.NA.weight = "--",
   lwd = 1,
   at = NULL,
   label = TRUE,
   type.study = "square",
-  type.fixed = "diamond",
-  type.random = type.fixed,
+  type.common = "diamond",
+  type.random = type.common,
   type.subgroup = ifelse(study.results, "diamond", "square"),
-  type.subgroup.fixed = type.subgroup,
+  type.subgroup.common = type.subgroup,
   type.subgroup.random = type.subgroup,
   col.study = "black",
   col.square = "gray",
   col.square.lines = col.square,
   col.inside = "white",
-  col.inside.fixed = col.inside,
+  col.inside.common = col.inside,
   col.inside.random = col.inside,
   col.diamond = "gray",
-  col.diamond.fixed = col.diamond,
+  col.diamond.common = col.diamond,
   col.diamond.random = col.diamond,
   col.diamond.lines = "black",
-  col.diamond.lines.fixed = col.diamond.lines,
+  col.diamond.lines.common = col.diamond.lines,
   col.diamond.lines.random = col.diamond.lines,
   col.predict = "red",
   col.predict.lines = "black",
   col.by = "darkgray",
   col.label.right = "black",
   col.label.left = "black",
-  hetstat = fixed | random | overall.hetstat,
+  hetstat = common | random | overall.hetstat,
   overall.hetstat = x$overall.hetstat,
   hetlab = "Heterogeneity: ",
   resid.hetstat,
@@ -112,32 +112,32 @@
   text.subgroup.nohet = "not applicable",
   LRT = FALSE,
   test.overall = gs("test.overall"),
-  test.overall.fixed = fixed & overall & test.overall,
+  test.overall.common = common & overall & test.overall,
   test.overall.random = random & overall & test.overall,
-  label.test.overall.fixed,
+  label.test.overall.common,
   label.test.overall.random,
   print.stat = TRUE,
   test.subgroup = x$test.subgroup,
-  test.subgroup.fixed = test.subgroup & fixed,
+  test.subgroup.common = test.subgroup & common,
   test.subgroup.random = test.subgroup & random,
   prediction.subgroup = x$prediction.subgroup,
   print.Q.subgroup = TRUE,
-  label.test.subgroup.fixed,
+  label.test.subgroup.common,
   label.test.subgroup.random,
   test.effect.subgroup = gs("test.effect.subgroup"),
-  test.effect.subgroup.fixed,
+  test.effect.subgroup.common,
   test.effect.subgroup.random,
-  label.test.effect.subgroup.fixed,
+  label.test.effect.subgroup.common,
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
   fontsize = 12,
   fontfamily = NULL,
   fs.heading = fontsize,
-  fs.fixed,
+  fs.common,
   fs.random,
   fs.predict,
-  fs.fixed.labels,
+  fs.common.labels,
   fs.random.labels,
   fs.predict.labels,
   fs.study = fontsize,
@@ -152,10 +152,10 @@
   fs.xlab = fontsize,
   fs.lr = fontsize,
   ff.heading = "bold",
-  ff.fixed,
+  ff.common,
   ff.random,
   ff.predict,
-  ff.fixed.labels,
+  ff.common.labels,
   ff.random.labels,
   ff.predict.labels,
   ff.study = "plain",
@@ -178,8 +178,8 @@
   colgap.forest = colgap,
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
-  calcwidth.pooled = (fixed | random) & (overall | !is.null(x$subgroup)),
-  calcwidth.fixed = calcwidth.pooled,
+  calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
+  calcwidth.common = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
   calcwidth.predict = FALSE,
   calcwidth.hetstat = FALSE,
@@ -219,6 +219,7 @@
   big.mark = gs("big.mark"),
   zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
   JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -235,8 +236,8 @@ provided (must be of same length as \code{x$TE} then).}
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
 
-\item{fixed}{A logical indicating whether fixed effect / common
-effect estimate should be plotted.}
+\item{common}{A logical indicating whether common effect estimate
+should be plotted.}
 
 \item{random}{A logical indicating whether random effects estimate
 should be plotted.}
@@ -246,22 +247,22 @@ should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
 
-\item{text.fixed}{A character string used in the plot to label the
-pooled fixed effect estimate.}
+\item{text.common}{A character string used in the plot to label the
+pooled common effect estimate.}
 
 \item{text.random}{A character string used in the plot to label the
 pooled random effects estimate.}
 
-\item{lty.fixed}{Line type (pooled fixed effect estimate).}
+\item{lty.common}{Line type (pooled common effect estimate).}
 
 \item{lty.random}{Line type (pooled random effects estimate).}
 
-\item{col.fixed}{Line colour (pooled fixed effect estimate).}
+\item{col.common}{Line colour (pooled common effect estimate).}
 
 \item{col.random}{Line colour (pooled random effects estimate).}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -296,7 +297,7 @@ labels.}
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
 
-\item{text.fixed.w}{A character string to label the pooled fixed
+\item{text.common.w}{A character string to label the pooled common
 effect estimate within subgroups, or a character vector of same
 length as number of subgroups with corresponging labels.}
 
@@ -345,9 +346,9 @@ plot.}
 \item{weight.study}{A character string indicating weighting used to
 determine size of squares or diamonds (argument
 \code{type.study}) to plot individual study results. One of
-missing, \code{"same"}, \code{"fixed"}, or \code{"random"}, can
+missing, \code{"same"}, \code{"common"}, or \code{"random"}, can
 be abbreviated. Plot symbols have the same size for all studies
-or represent study weights from fixed effect or random effects
+or represent study weights from common effect or random effects
 model.}
 
 \item{weight.subgroup}{A character string indicating weighting used
@@ -355,7 +356,7 @@ to determine size of squares or diamonds (argument
 \code{type.subgroup}) to plot subgroup results. One of missing,
 \code{"same"}, or \code{"weight"}, can be abbreviated. Plot
 symbols have the same size for all subgroup results or represent
-subgroup weights from fixed effect or random effects model.}
+subgroup weights from common effect or random effects model.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -442,8 +443,8 @@ specify the labels to use. See \code{\link{grid.xaxis}}.}
 plot treatment effects and confidence intervals for individual
 studies (see Details).}
 
-\item{type.fixed}{A character string specifying how to plot
-treatment effect and confidence interval for fixed effect
+\item{type.common}{A character string specifying how to plot
+treatment effect and confidence interval for common effect
 meta-analysis (see Details).}
 
 \item{type.random}{A character string specifying how to plot
@@ -454,9 +455,9 @@ meta-analysis (see Details).}
 treatment effect and confidence interval for subgroup results
 (see Details).}
 
-\item{type.subgroup.fixed}{A character string specifying how to
+\item{type.subgroup.common}{A character string specifying how to
 plot treatment effect and confidence interval for subgroup
-results (fixed effect model).}
+results (common effect model).}
 
 \item{type.subgroup.random}{A character string specifying how to
 plot treatment effect and confidence interval for subgroup
@@ -475,27 +476,27 @@ reflecting study's weight in the meta-analysis.}
 confidence limits if confidence limits are completely within
 squares.}
 
-\item{col.inside.fixed}{The colour for result of fixed effect
+\item{col.inside.common}{The colour for result of common effect
 meta-analysis if confidence limit lies completely within square.}
 
 \item{col.inside.random}{The colour for result of random effects
 meta-analysis if confidence limit lies completely within square.}
 
 \item{col.diamond}{The colour of diamonds representing the results
-for fixed effect and random effects models.}
+for common effect and random effects models.}
 
-\item{col.diamond.fixed}{The colour of diamonds for fixed effect
+\item{col.diamond.common}{The colour of diamonds for common effect
 estimates.}
 
 \item{col.diamond.random}{The colour of diamonds for random effects
 estimates.}
 
 \item{col.diamond.lines}{The colour of the outer lines of diamonds
-representing the results for fixed effect and random effects
+representing the results for common effect and random effects
 models.}
 
-\item{col.diamond.lines.fixed}{The colour of the outer lines of
-diamond for fixed effect estimate.}
+\item{col.diamond.lines.common}{The colour of the outer lines of
+diamond for common effect estimate.}
 
 \item{col.diamond.lines.random}{The colour of the outer lines of
 diamond for random effects estimate.}
@@ -577,14 +578,14 @@ generalized linear mixed models.}
 \item{test.overall}{A logical value indicating whether to print
 results of test for overall effect.}
 
-\item{test.overall.fixed}{A logical value indicating whether to
-print results of test for overall effect (fixed effect model).}
+\item{test.overall.common}{A logical value indicating whether to
+print results of test for overall effect (common effect model).}
 
 \item{test.overall.random}{A logical value indicating whether to
 print results of test for overall effect (random effects model).}
 
-\item{label.test.overall.fixed}{Label printed in front of results
-of test for overall effect (fixed effect model).}
+\item{label.test.overall.common}{Label printed in front of results
+of test for overall effect (common effect model).}
 
 \item{label.test.overall.random}{Label printed in front of results
 of test for overall effect (random effects model).}
@@ -595,8 +596,8 @@ for test of treatment effect should be printed.}
 \item{test.subgroup}{A logical value indicating whether to print
 results of test for subgroup differences.}
 
-\item{test.subgroup.fixed}{A logical value indicating whether to
-print results of test for subgroup differences (fixed effect
+\item{test.subgroup.common}{A logical value indicating whether to
+print results of test for subgroup differences (common effect
 model).}
 
 \item{test.subgroup.random}{A logical value indicating whether to
@@ -611,8 +612,8 @@ for subgroups.}
 the value of the heterogeneity statistic Q (test for subgroup
 differences).}
 
-\item{label.test.subgroup.fixed}{Label printed in front of results
-of test for subgroup differences (fixed effect model).}
+\item{label.test.subgroup.common}{Label printed in front of results
+of test for subgroup differences (common effect model).}
 
 \item{label.test.subgroup.random}{Label printed in front of results
 of test for subgroup differences (random effects model).}
@@ -621,16 +622,16 @@ of test for subgroup differences (random effects model).}
 indicating whether / which tests for effect in subgroups should
 be printed.}
 
-\item{test.effect.subgroup.fixed}{A single logical or logical
+\item{test.effect.subgroup.common}{A single logical or logical
 vector indicating whether / which tests for effect in subgroups
-should be printed (fixed effect model).}
+should be printed (common effect model).}
 
 \item{test.effect.subgroup.random}{A single logical or logical
 vector indicating whether / which tests for effect in subgroups
 should be printed (random effects model).}
 
-\item{label.test.effect.subgroup.fixed}{Label printed in front of
-results of test for effect in subgroups (fixed effect model).}
+\item{label.test.effect.subgroup.common}{Label printed in front of
+results of test for effect in subgroups (common effect model).}
 
 \item{label.test.effect.subgroup.random}{Label printed in front of
 results of test for effect in subgroups (random effects model).}
@@ -649,8 +650,8 @@ meta-analysis results).}
 \item{fs.heading}{The size of text for column headings, see
 \code{\link{gpar}}.}
 
-\item{fs.fixed}{The size of text for results of fixed effect model,
-see \code{\link{gpar}}.}
+\item{fs.common}{The size of text for results of common effect
+model, see \code{\link{gpar}}.}
 
 \item{fs.random}{The size of text for results of random effects
 model, see \code{\link{gpar}}.}
@@ -658,7 +659,7 @@ model, see \code{\link{gpar}}.}
 \item{fs.predict}{The size of text for results of prediction
 interval, see \code{\link{gpar}}.}
 
-\item{fs.fixed.labels}{The size of text for label of fixed effect
+\item{fs.common.labels}{The size of text for label of common effect
 model, see \code{\link{gpar}}.}
 
 \item{fs.random.labels}{The size of text for label of random
@@ -702,7 +703,7 @@ forest plot, see \code{\link{gpar}}.}
 \item{ff.heading}{The fontface for column headings, see
 \code{\link{gpar}}.}
 
-\item{ff.fixed}{The fontface of text for results of fixed effect
+\item{ff.common}{The fontface of text for results of common effect
 model, see \code{\link{gpar}}.}
 
 \item{ff.random}{The fontface of text for results of random effects
@@ -711,7 +712,7 @@ model, see \code{\link{gpar}}.}
 \item{ff.predict}{The fontface of text for results of prediction
 interval, see \code{\link{gpar}}.}
 
-\item{ff.fixed.labels}{The fontface of text for label of fixed
+\item{ff.common.labels}{The fontface of text for label of common
 effect model, see \code{\link{gpar}}.}
 
 \item{ff.random.labels}{The fontface of text for label of random
@@ -788,12 +789,12 @@ the left side of forest plot and the forest plot.}
 \code{\link[grid]{unit}} object specifying gap between column on
 the right side of forest plot and the forest plot.}
 
-\item{calcwidth.pooled}{A logical indicating whether text for fixed
-effect and random effects model should be considered to calculate
-width of the column with study labels.}
+\item{calcwidth.pooled}{A logical indicating whether text for
+common effect and random effects model should be considered to
+calculate width of the column with study labels.}
 
-\item{calcwidth.fixed}{A logical indicating whether text given in
-arguments \code{text.fixed} and \code{text.fixed.w} should be
+\item{calcwidth.common}{A logical indicating whether text given in
+arguments \code{text.common} and \code{text.common.w} should be
 considered to calculate width of the column with study labels.}
 
 \item{calcwidth.random}{A logical indicating whether text given in
@@ -932,6 +933,9 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
 \item{\dots}{Additional graphical arguments.}
 }
 \description{
@@ -958,18 +962,18 @@ plotted in the following way:
   of the square (\code{type.study = "square"})
 \item For meta-analysis results, a diamond with treatment estimate
   in the center and right and left side corresponding to lower and
-  upper confidence limits (\code{type.fixed = "diamond"},
+  upper confidence limits (\code{type.common = "diamond"},
   \code{type.random = "diamond"}, and \code{type.subgroup = "diamond"})
 }
 
 In a forest plot, size of the squares typically reflects the precision of
-individual treatment estimates based either on the fixed effect
-(\code{weight.study = "fixed"}) or random effects meta-analysis
+individual treatment estimates based either on the common effect
+(\code{weight.study = "common"}) or random effects meta-analysis
 (\code{weight.study = "random"}). Information from meta-analysis object
 \code{x} is utilised if argument \code{weight.study} is missing. Weights
-from the fixed effect model are used if argument \code{x$fixed} is
+from the common effect model are used if argument \code{x$common} is
 \code{TRUE}; weights from the random effects model are used if argument
-\code{x$random} is \code{TRUE} and \code{x$fixed} is \code{FALSE}.
+\code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
 
 A prediction interval for treatment effect of a new study (Higgins
@@ -1007,13 +1011,25 @@ side of the forest plot}}:
 \code{\link{metainf}} \tab \code{"studlab"}
 }
 
-Note, \code{"studlab"} \bold{must be provided for study labels} in
-argument \code{leftcols} or \code{rightcols} instead of the
-variable name used in the meta-analysis command. If, for example,
-\code{"id"} is provided in argument \code{leftcols} as this
-variable was used to define study labels in the meta-analysis
-function, this variable will be treated as an additional variable,
-not as study labels.
+For three-level models, the cluster variable is printed next to the
+study labels (value \code{"cluster"} in argument \code{leftcols}).
+
+By default, study labels and labels for pooled estimates and
+heterogeneity statistics will be printed in the first column on the
+left side of the forest plot. The character string \code{"studlab"}
+is used to identify study labels as this is the name of the list
+element of a meta-analysis object.
+
+If the character string \code{"studlab"} is not provided in
+\code{leftcols} and \code{rightcols}, the first \emph{additional}
+variable specified by the user is used as study labels (and labels
+for pooled estimates are printed in this column). Additional
+variables are any variables not mentioned in the section on
+predefined column names below. For example, \code{leftcols =
+"studlab"} and \code{leftcols = "study"} would result in the same
+forest plot if the variable \code{"study"} was used in the command
+to conduct the meta-analysis. If no additional variable is provided
+by the user, no study labels will be printed.
 }
 
 \subsection{Overlapping information on left side of forest plot}{
@@ -1047,22 +1063,26 @@ of the forest plot}}:
 \bold{Meta-analysis results} \tab \bold{Value of argument
   rightcols} \cr
 No summary \tab \code{c("effect", "ci")} \cr
-Only fixed effect model \tab \code{c("effect", "ci", "w.fixed")}
+Only common effect model \tab \code{c("effect", "ci", "w.common")}
   \cr
 Only random effects model \tab \code{c("effect", "ci", "w.random")}
   \cr
-Both models \tab \code{c("effect", "ci", "w.fixed", "w.random")}
+Both models \tab \code{c("effect", "ci", "w.common", "w.random")}
 }
 
 By default, estimated treatment effect and corresponding confidence
-interval will be printed. Depending on arguments \code{fixed} and
-\code{random}, weights of the fixed effect and/or random effects
-model will be given too. For an object of class
-\code{\link{metacum}} or \code{\link{metainf}} only the estimated
-treatment effect with confidence interval are plotted.
+interval will be printed. Depending on arguments \code{common} and
+\code{random}, weights of the common effect and/or random effects
+model will be given too.
+
+For an object of class \code{\link{metacum}} or
+\code{\link{metainf}} the following columns will be printed:
+\code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
+information corresponds to the printout with
+\code{\link{print.meta}}.
 }
 
-\subsection{Column names}{
+\subsection{Predefined column names}{
 
 The arguments \code{leftlabs} and \code{rightlabs} can be used to
 specify column headings which are printed on left or right side of
@@ -1070,15 +1090,15 @@ the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
 \tabular{rcccccc}{
-Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE}
-  \tab \code{n.e} \tab \code{n.c} \tab \code{n} \cr
-Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Total" \tab
+Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
+  \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
+Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
   "Total" \tab "Total" \cr
 \cr
-Column: \tab \code{event.e} \tab \code{event.c} \tab
-  \code{event} \tab \code{mean.e} \tab \code{mean.c} \tab \cr
-Label: \tab "Events" \tab "Events" \tab "Events" \tab "Mean"
-  \tab "Mean" \tab \cr
+Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
+  \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
+Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
+  "Mean" \tab "Mean" \cr
 \cr
 Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
   \tab \code{time.c} \tab \code{effect} \tab \cr
@@ -1086,9 +1106,9 @@ Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
   \code{x$sm} \tab \cr
 \cr
 Column: \tab \code{ci} \tab \code{effect.ci} \tab
-  \code{w.fixed} \tab \code{w.random} \tab \tab \cr
+  \code{w.common} \tab \code{w.random} \tab \tab \cr
 Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(fixed)" \tab "W(random)" \tab \tab
+  "W(common)" \tab "W(random)" \tab \tab
 }
 
 For other columns, the column name will be used as a label if no
@@ -1114,8 +1134,8 @@ where treatment labels are attached can be changed using arguments
 Argument \code{hetstat} can be a character string to specify where
 to print heterogeneity information:
 \itemize{
-\item row with results for fixed effect model (\code{hetstat =
-"fixed"}),
+\item row with results for common effect model (\code{hetstat =
+"common"}),
 \item row with results for random effects model (\code{hetstat =
 "random"}).
 }
@@ -1129,15 +1149,15 @@ In addition, the following arguments can be used to print results
 for various statistical tests:
 \tabular{ll}{
 \bold{Argument} \tab \bold{Statistical test} \cr
-\code{test.overall.fixed} \tab Test for overall effect (fixed
+\code{test.overall.common} \tab Test for overall effect (common
   effect model) \cr
 \code{test.overall.random} \tab Test for overall effect (random
   effects model) \cr
-\code{test.effect.subgroup.fixed} \tab Test for effect in subgroup
-  (FE model) \cr
+\code{test.effect.subgroup.common} \tab Test for effect in subgroup
+  (CE model) \cr
 \code{test.effect.subgroup.random} \tab Test for effect in subgroup
   (RE model) \cr
-\code{test.subgroup.fixed} \tab Test for subgroup differences (FE
+\code{test.subgroup.common} \tab Test for subgroup differences (CE
   model) \cr
 \code{test.subgroup.random} \tab Test for subgroup differences (RE
   model)
@@ -1172,8 +1192,8 @@ The following arguments can be used in a similar way:
 \item \code{prediction.subgroup} (prediction interval in
   subgroups),
 \item \code{test.effect.subgroup} (test for effect in subgroups),
-\item \code{test.effect.subgroup.fixed} (test for effect in
-  subgroups, fixed effect model),
+\item \code{test.effect.subgroup.common} (test for effect in
+  subgroups, common effect model),
 \item \code{test.effect.subgroup.random} (test for effect in
   subgroups, random effects model).
 }
@@ -1181,12 +1201,12 @@ The following arguments can be used in a similar way:
 
 \subsection{Additional general settings}{
 
-Arguments \code{text.fixed}, \code{text.random}, and
+Arguments \code{text.common}, \code{text.random}, and
 \code{text.predict} can be used to change the label to identify
-overall results (fixed effect and random effects model as well as
+overall results (common effect and random effects model as well as
 prediction interval). By default the following text is printed:
 \itemize{
-\item "Common effect model" (argument \code{text.fixed})
+\item "Common effect model" (argument \code{text.common})
 \item "Random effects model" (\code{text.random})
 \item "Prediction interval" (\code{text.predict})
 }
@@ -1226,7 +1246,7 @@ is reproduced:
   (\code{test.overall}, \code{test.effect.subgroup},
   \code{test.subgroup})
 \item Diamonds representing meta-analysis results are printed in
-  black (\code{diamond.fixed}, \code{diamond.random})
+  black (\code{diamond.common}, \code{diamond.random})
 \item Colour of squares depends on the meta-analysis object
   (\code{col.square}, \code{col.square.lines})
 \item Information on effect measure and meta-analysis method is
@@ -1251,7 +1271,7 @@ are taken into account:
   interval is printed at bottom of forest plot (\code{xlab})
 \item Tests for overall effect are printed (\code{test.overall})
 \item Diamonds representing meta-analysis results are printed in
-  lightblue (\code{diamond.fixed}, \code{diamond.random})
+  lightblue (\code{diamond.common}, \code{diamond.random})
 \item Squares representing individual study results are printed in
   darkblue (\code{col.square}, \code{col.square.lines})
 \item Between-study variance \eqn{\tau^2} is not printed
@@ -1300,7 +1320,7 @@ forest(m1)
 # Furthermore, add labels on both sides of forest plot and
 # prediction interval
 #
-forest(m1, layout = "RevMan5", fixed = FALSE,
+forest(m1, layout = "RevMan5", common = FALSE,
   label.right = "Favours control", col.label.right = "red",
   label.left = "Favours experimental", col.label.left = "green",
   prediction = TRUE)
@@ -1333,7 +1353,7 @@ forest(m1, xlim = c(0.01, 10))
 
 # Print results of test for overall effect
 #
-forest(m1, test.overall.fixed = TRUE, test.overall.random = TRUE)
+forest(m1, test.overall.common = TRUE, test.overall.random = TRUE)
 
 # Forest plot with 'classic' layout used in R package meta,
 # version < 1.6-0
@@ -1412,7 +1432,7 @@ forest(m1,
   fs.study.label = 11, ff.study.label = "bold",
   fs.axis = 5, ff.axis = "italic",
   ff.smlab = "bold.italic",
-  ff.fixed = "plain", ff.hetstat = "plain")
+  ff.common = "plain", ff.hetstat = "plain")
 
 # Change some colours
 #
@@ -1421,13 +1441,13 @@ forest(m1,
   col.study = c("green", "blue", "red", "orange"),
   col.square = "pink", col.square.lines = "black")
 
-# Sort by weight in fixed effect model
+# Sort by weight in common effect model
 #
-forest(m1, sortvar = 1 / w.fixed, random = FALSE)
+forest(m1, sortvar = 1 / w.common, random = FALSE)
 
-# Sort by decreasing weight in fixed effect model
+# Sort by decreasing weight in common effect model
 #
-forest(m1, sortvar = -1 / w.fixed, random = FALSE)
+forest(m1, sortvar = -1 / w.common, random = FALSE)
 
 # Sort by size of treatment effect
 #
@@ -1444,7 +1464,7 @@ forest(m1, sortvar = -year, random = FALSE)
 # Print results of test for subgroup differences (random effects
 # model)
 #
-forest(m2, sortvar = -TE, fixed = FALSE)
+forest(m2, sortvar = -TE, common = FALSE)
 
 # Print only subgroup results
 #

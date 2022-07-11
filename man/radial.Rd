@@ -12,13 +12,15 @@
   ylim = NULL,
   xlab = "Inverse of standard error",
   ylab = "Standardised treatment effect (z-score)",
-  fixed = TRUE,
+  common = TRUE,
   axes = TRUE,
   pch = 1,
   text = NULL,
   cex = 1,
   col = NULL,
   level = NULL,
+  warn.deprecated = gs("warn.deprecated"),
+  fixed,
   ...
 )
 
@@ -29,7 +31,7 @@
   ylim = NULL,
   xlab = "Inverse of standard error",
   ylab = "Standardised treatment effect (z-score)",
-  fixed = TRUE,
+  common = TRUE,
   axes = TRUE,
   pch = 1,
   text = NULL,
@@ -51,8 +53,8 @@ effect in individual studies.}
 
 \item{ylab}{A label for the y-axis.}
 
-\item{fixed}{A logical indicating whether the pooled fixed
-effect estimate should be plotted.}
+\item{common}{A logical indicating whether the pooled common effect
+estimate should be plotted.}
 
 \item{axes}{A logical indicating whether axes should be drawn on
 the plot.}
@@ -68,6 +70,11 @@ instead of plotting symbol.}
 
 \item{level}{The confidence level utilised in the plot.}
 
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{fixed}{Deprecated argument (replaced by 'common').}
+
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
 
@@ -79,8 +86,8 @@ to assess bias in meta-analysis.
 }
 \details{
 A radial plot (Galbraith 1988a,b), also called Galbraith plot, is
-drawn in the active graphics window. If \code{fixed} is TRUE,
-the pooled estimate of the fixed effect model is plotted. If
+drawn in the active graphics window. If \code{common} is TRUE, the
+pooled estimate of the common effect model is plotted. If
 \code{level} is not NULL, the corresponding confidence limits are
 drawn.
 }

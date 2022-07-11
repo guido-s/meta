@@ -10,7 +10,7 @@
 #' R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
 #' provides the following statistical methods for meta-analysis.
 #' \enumerate{
-#' \item Fixed effect and random effects model:
+#' \item Common effect (also called fixed effect) and random effects model:
 #' \itemize{
 #'  \item Meta-analysis of continuous outcome data (\code{\link{metacont}})
 #'  \item Meta-analysis of binary outcome data (\code{\link{metabin}})
@@ -136,7 +136,10 @@
 #' \itemize{
 #' \item estimate the between-study variance \eqn{\tau^2},
 #' \item conduct meta-regression,
-#' \item estimate generalised linear mixed models.
+#' \item estimate three-level models (Van den Noortgate et al., 2013),
+#' \item estimate generalised linear mixed models (Stijnen et al.,
+#'   2010).
+#'
 #' }
 #' 
 #' @name meta-package
@@ -178,6 +181,13 @@
 #' Schwarzer G, Carpenter JR and Rücker G (2015):
 #' \emph{Meta-Analysis with R (Use-R!)}.
 #' Springer International Publishing, Switzerland
+#' 
+#' Stijnen T, Hamza TH, Ozdemir P (2010):
+#' Random effects meta-analysis of event outcome in the framework of
+#' the generalized linear mixed model with applications in sparse
+#' data.
+#' \emph{Statistics in Medicine},
+#' \bold{29}, 3046--67
 #'
 #' Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
 #' et al. (2016):
@@ -185,6 +195,11 @@
 #' in meta-analysis.
 #' \emph{Research Synthesis Methods},
 #' \bold{7}, 55--79 
+#'
+#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+#' Three-level meta-analysis of dependent effect sizes.
+#' \emph{Behavior Research Methods},
+#' \bold{45}, 576--94
 #' 
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the metafor Package.
@@ -202,8 +217,9 @@
 #' @importFrom graphics abline axis box mtext lines par plot points
 #'   polygon text
 #' 
-#' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm pt
-#'   qlogis qnorm qt runif update var weighted.mean weights
+#' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm
+#'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
+#'   weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail

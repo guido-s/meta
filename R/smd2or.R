@@ -168,11 +168,11 @@ smd2or <- function(smd, se.smd, studlab,
   ##
   if (method == "HH") {
     lnOR <- smd * pi / sqrt(3)
-    selnOR <- sqrt(se.smd^2 * pi^2 / 3)
+    selnOR <- se.smd * pi / sqrt(3)
   }
   else if (method == "CS") {
     lnOR <- smd * 1.65
-    selnOR <- sqrt(se.smd^2 * 1.65)
+    selnOR <- se.smd * 1.65
   }
   ##
   chklogical(backtransf)
@@ -184,8 +184,9 @@ smd2or <- function(smd, se.smd, studlab,
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
+                     cluster = mdat$cluster,
                      level = mdat$level, level.ma = mdat$level.ma,
-                     fixed = mdat$fixed,
+                     common = mdat$common,
                      random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
@@ -206,8 +207,9 @@ smd2or <- function(smd, se.smd, studlab,
                      data = mdat,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
+                     cluster = mdat$cluster,
                      level = mdat$level, level.ma = mdat$level.ma,
-                     fixed = mdat$fixed,
+                     common = mdat$common,
                      random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,

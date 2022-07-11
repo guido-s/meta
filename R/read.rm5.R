@@ -106,7 +106,7 @@
 #'   been used for pooling of studies.}
 #' \item{model}{A character string indicating which meta-analytical
 #'   model has been used (either \code{"Fixed"} or \code{"Random"}).}
-#' \item{fixed}{A logical indicating whether fixed effect
+#' \item{common}{A logical indicating whether common effect
 #'   meta-analysis has been used in respective meta-analysis (see
 #'   details).}
 #' \item{random}{A logical indicating whether random effects

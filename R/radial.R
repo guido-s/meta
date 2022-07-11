@@ -13,8 +13,8 @@
 #' @param ylim The y limits (min, max) of the plot.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
-#' @param fixed A logical indicating whether the pooled fixed
-#'   effect estimate should be plotted.
+#' @param common A logical indicating whether the pooled common effect
+#'   estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
 #' @param pch The plotting symbol used for individual studies.
@@ -23,13 +23,16 @@
 #' @param cex The magnification to be used for plotting symbol.
 #' @param col A vector with colour of plotting symbols.
 #' @param level The confidence level utilised in the plot.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
+#' @param fixed Deprecated argument (replaced by 'common').
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #' 
 #' @details
 #' A radial plot (Galbraith 1988a,b), also called Galbraith plot, is
-#' drawn in the active graphics window. If \code{fixed} is TRUE,
-#' the pooled estimate of the fixed effect model is plotted. If
+#' drawn in the active graphics window. If \code{common} is TRUE, the
+#' pooled estimate of the common effect model is plotted. If
 #' \code{level} is not NULL, the corresponding confidence limits are
 #' drawn.
 #' 
@@ -73,12 +76,15 @@ radial.meta <- function(x,
                         xlab = "Inverse of standard error",
                         ylab = "Standardised treatment effect (z-score)",
                         ##
-                        fixed = TRUE,
+                        common = TRUE,
                         ##
                         axes = TRUE,
                         pch = 1, text = NULL, cex = 1, col = NULL,
                         ##
-                        level = NULL, ...) {
+                        level = NULL,
+                        warn.deprecated = gs("warn.deprecated"),
+                        fixed,
+                        ...) {
   
   
   ##
@@ -88,21 +94,43 @@ radial.meta <- function(x,
   ##
   chkclass(x, "meta")
   x <- updateversion(x)
-  
-  
+  ##  
   TE <- x$TE
   seTE <- x$seTE
   
   
-  if(length(TE) != length(seTE))
-    stop("length of argument TE and seTE must be equal")
-
-  if (!is.null(level) && (level <=0 | level >= 1))
-    stop("no valid level for confidence interval")
+  ##
+  ##
+  ## (2) Check arguments
+  ##
+  ##
+  if (!is.null(xlim))
+    chknumeric(xlim, length = 2)
+  if (!is.null(ylim))
+    chknumeric(ylim, length = 2)
+  chkchar(xlab, length = 1)
+  chkchar(ylab, length = 1)
+  ##
+  common <-
+    deprecated2(common, missing(common), fixed, missing(fixed),
+                warn.deprecated)
+  chklogical(common)
+  ##
+  chklogical(axes)
+  if (!is.null(level))
+    chklevel(level)
+  ##
+  if (!is.null(text))
+    chklength(text, length(TE),
+              text = paste(
+                "Argument 'text' must have same length as number of",
+                "studies in meta-analysis."))
   
   
   ##
-  ## Exclude studies from radial plot
+  ##
+  ## (3) Produce radial plot
+  ##
   ## 
   if (!is.null(x$exclude)) {
     TE <- TE[!x$exclude]
@@ -110,14 +138,13 @@ radial.meta <- function(x,
     if (!is.null(text))
       text <- text[!x$exclude]
   }
-  
-  
+  ##
   zscore <- TE / seTE
-
+  ##
   if (is.null(xlim)) xlim <- c(0, max(1 / seTE, na.rm = TRUE))
   if (is.null(ylim)) ylim <- c(min(c(-2, zscore), na.rm = TRUE),
                                max(c( 2, zscore), na.rm = TRUE))
-
+  ##
   plot(1 / seTE, zscore,
        xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
        axes = axes, type = "n", ...)
@@ -135,7 +162,7 @@ radial.meta <- function(x,
       text(1 / seTE, zscore, labels = text, cex = cex, col = col)
   }
 
-  if (fixed) {
+  if (common) {
     lmcomb <- lm(zscore ~ I(1 / seTE) - 1)
     abline(lmcomb, lty = 4)
     if (!is.null(level)) {
@@ -163,7 +190,7 @@ radial.default <- function(x, y,
                            xlab = "Inverse of standard error",
                            ylab = "Standardised treatment effect (z-score)",
                            ##
-                           fixed = TRUE,
+                           common = TRUE,
                            ##
                            axes = TRUE,
                            ##
@@ -177,13 +204,10 @@ radial.default <- function(x, y,
   ## (1) Check essential arguments
   ##
   ##
-  k.All <- length(x)
-  ##
   chknumeric(x)
   chknumeric(y)
   ##
-  fun <- "radial"
-  chklength(y, k.All, fun)
+  chklength(y, length(x), "x")
   
   
   ##
@@ -201,7 +225,7 @@ radial.default <- function(x, y,
   ##
   radial(m, xlim = xlim, ylim = ylim,
          xlab = xlab, ylab = ylab,
-         fixed = fixed, axes = axes,
+         common = common, axes = axes,
          pch = pch, text = text,
          cex = cex, col = col, level = level, ...)
   

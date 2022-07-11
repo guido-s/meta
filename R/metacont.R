@@ -1,7 +1,7 @@
 #' Meta-analysis of continuous outcome data
 #' 
 #' @description
-#' Calculation of fixed and random effects estimates for meta-analyses
+#' Calculation of common and random effects estimates for meta-analyses
 #' with continuous outcome data; inverse variance weighting is used
 #' for pooling.
 #' 
@@ -19,8 +19,8 @@
 #' @param exclude An optional vector specifying studies to exclude
 #'   from meta-analysis, however, to include in printouts and forest
 #'   plots.
-#' @param id An optional vector specifying which estimates come from
-#'   the same study resulting in the use of a three-level
+#' @param cluster An optional vector specifying which estimates come
+#'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
@@ -63,8 +63,8 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
-#' @param fixed A logical indicating whether a fixed effect / common
-#'   effect meta-analysis should be conducted.
+#' @param common A logical indicating whether a common effect
+#'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
 #' @param overall A logical indicating whether overall summaries
@@ -92,8 +92,8 @@
 #'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
+#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+#'   \code{"PL"}, or \code{""}, can be abbreviated.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -108,14 +108,14 @@
 #'   means (\code{sm="ROM"}) should be back transformed in printouts
 #'   and plots. If TRUE (default), results will be presented as ratio
 #'   of means; otherwise log ratio of means will be shown.
-#' @param text.fixed A character string used in printouts and forest
-#'   plot to label the pooled fixed effect estimate.
+#' @param text.common A character string used in printouts and forest
+#'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#' @param text.w.common A character string used to label weights of
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
@@ -159,6 +159,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param id Deprecated argument (replaced by 'cluster').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -172,7 +173,7 @@
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
-#' Calculation of fixed and random effects estimates for meta-analyses
+#' Calculation of common and random effects estimates for meta-analyses
 #' with continuous outcome data; inverse variance weighting is used
 #' for pooling.
 #' 
@@ -232,7 +233,7 @@
 #' Meta-analysis of ratio of means -- also called response ratios --
 #' is described in Hedges et al. (1999) and Friedrich et al. (2008).
 #' Calculations are conducted on the log scale and list elements
-#' \code{TE}, \code{TE.fixed}, and \code{TE.random} contain the
+#' \code{TE}, \code{TE.common}, and \code{TE.random} contain the
 #' logarithm of the ratio of means. In printouts and plots these
 #' values are back transformed if argument \code{backtransf = TRUE}.
 #' }
@@ -262,7 +263,7 @@
 #' }
 #' 
 #' Instead the methods described in Wan et al. (2014) are used if
-#' argument \code{method.mean = "Wan"}):
+#' argument \code{method.mean = "Wan"}:
 #' \itemize{
 #' \item equation (10) if sample size, median, interquartile range and 
 #'   range are available,
@@ -335,7 +336,7 @@
 #' \item t-distribution (\code{method.ci = "t"}).
 #' }
 #' 
-#' Note, this choice does not affect the results of the fixed effect
+#' Note, this choice does not affect the results of the common effect
 #' and random effects meta-analysis.
 #' }
 #' 
@@ -363,17 +364,17 @@
 #' The following methods to calculate a confidence interval for
 #' \eqn{\tau^2} and \eqn{\tau} are available.
 #' \tabular{ll}{
-#' \bold{Argument}\tab \bold{Method} \cr 
+#' \bold{Argument}\tab \bold{Method} \cr
 #' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
 #' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
 #' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
 #' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
-#'  three-level meta-analysis model \cr
-#' \tab (Van den Noortgate et al., 2013)
+#'   three-level meta-analysis \cr
+#'  \tab (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
 #' }
-#' See \code{\link{metagen}} for more information on these methods. No
-#' confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-#' if \code{method.tau.ci = ""}.
+#' 
+#' See \code{\link{metagen}} for more information on these methods.
 #' }
 #' 
 #' \subsection{Hartung-Knapp method}{
@@ -393,7 +394,7 @@
 #' the variance estimate from the classic random effects model with
 #' the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
 #' alternative approach is to use the wider confidence interval of
-#' classic fixed or random effects meta-analysis and the HK method
+#' classic common or random effects meta-analysis and the HK method
 #' (Wiksten et al., 2016; Jackson et al., 2017).
 #'
 #' Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
@@ -448,14 +449,14 @@
 #' 
 #' \subsection{Presentation of meta-analysis results}{
 #' 
-#' Internally, both fixed effect and random effects models are
+#' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
-#' \code{fixed} and \code{random}. Accordingly, the estimate
+#' \code{common} and \code{random}. Accordingly, the estimate
 #' for the random effects model can be extracted from component
 #' \code{TE.random} of an object of class \code{"meta"} even if
 #' argument \code{random = FALSE}. However, all functions in R
 #' package \bold{meta} will adequately consider the values for
-#' \code{fixed} and \code{random}. E.g. function
+#' \code{common} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{random = FALSE}.
 #' }
@@ -472,13 +473,14 @@
 #'
 #' \item{n.e, mean.e, sd.e,}{As defined above.}
 #' \item{n.c, mean.c, sd.c,}{As defined above.}
-#' \item{studlab, exclude, sm, method.ci,}{As defined above.}
+#' \item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
 #' \item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
 #' \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 #' \item{method.mean, method.sd,}{As defined above.}
-#' \item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As defined above.}
+#' \item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As
+#'   defined above.}
 #' \item{level, level.ma,}{As defined above.}
-#' \item{fixed, random,}{As defined above.}
+#' \item{common, random,}{As defined above.}
 #' \item{overall, overall.hetstat,}{As defined above.}
 #' \item{pooledvar, method.smd, sd.glass,}{As defined above.}
 #' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
@@ -494,14 +496,14 @@
 #'   individual studies.}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies.}
-#' \item{w.fixed, w.random}{Weight of individual studies (in fixed and
-#'   random effects model).}
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
-#'   standard error (fixed effect model).}
-#' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-#'   limits (fixed effect model).}
-#' \item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
-#'   overall treatment effect (fixed effect model).}
+#' \item{w.common, w.random}{Weight of individual studies (in common
+#'   effect and random effects model).}
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect and
+#'   standard error (common effect model).}
+#' \item{lower.common, upper.common}{Lower and upper confidence interval
+#'   limits (common effect model).}
+#' \item{statistic.common, pval.common}{Statistic and p-value for test of
+#'   overall treatment effect (common effect model).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect
 #'   and standard error (random effects model).}
 #' \item{lower.random, upper.random}{Lower and upper confidence
@@ -513,7 +515,10 @@
 #'   interval.}
 #' \item{lower.predict, upper.predict}{Lower and upper limits of
 #'   prediction interval.}
-#' \item{k}{Number of studies combined in meta-analysis.}
+#' \item{k}{Number of estimates combined in meta-analysis.}
+#' \item{k.study}{Number of studies combined in meta-analysis.}
+#' \item{k.all}{Number of all studies.}
+#' \item{k.TE}{Number of studies with estimable effects.}
 #' \item{Q}{Heterogeneity statistic Q.}
 #' \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 #' \item{pval.Q}{P-value of heterogeneity test.}
@@ -538,14 +543,14 @@
 #' \item{method}{Pooling method: \code{"Inverse"}.}
 #' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
 #'   missing.}
-#' \item{TE.fixed.w, seTE.fixed.w}{Estimated treatment effect and
-#'   standard error in subgroups (fixed effect model) - if
+#' \item{TE.common.w, seTE.common.w}{Estimated treatment effect and
+#'   standard error in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
-#'   interval limits in subgroups (fixed effect model) - if
+#' \item{lower.common.w, upper.common.w}{Lower and upper confidence
+#'   interval limits in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
-#' \item{statistic.fixed.w, pval.fixed.w}{Statistics and p-values for
-#'   test of treatment effect in subgroups (fixed effect model) - if
+#' \item{statistic.common.w, pval.common.w}{Statistics and p-values for
+#'   test of treatment effect in subgroups (common effect model) - if
 #'   \code{subgroup} is not missing.}
 #' \item{TE.random.w, seTE.random.w}{Estimated treatment effect and
 #'   standard error in subgroups (random effects model) - if
@@ -556,8 +561,8 @@
 #' \item{statistic.random.w, pval.random.w}{Statistics and p-values
 #'   for test of treatment effect in subgroups (random effects model)
 #'   - if \code{subgroup} is not missing.}
-#' \item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-#'   random effects model) - if \code{subgroup} is not missing.}
+#' \item{w.common.w, w.random.w}{Weight of subgroups (in common effect
+#'   and random effects model) - if \code{subgroup} is not missing.}
 #' \item{df.hakn.w}{Degrees of freedom for test of treatment effect
 #'   for Hartung-Knapp method in subgroups - if \code{subgroup} is not
 #'   missing and \code{hakn = TRUE}.}
@@ -569,29 +574,29 @@
 #'   \code{subgroup} is not missing.}
 #' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
 #'   is not missing.}
-#' \item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-#'   (based on fixed effect model) - if \code{subgroup} is not missing.}
+#' \item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
+#'   (based on common effect model) - if \code{subgroup} is not missing.}
 #' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing (only calculated if argument \code{tau.common} is TRUE).}
 #' \item{df.Q.w}{Degrees of freedom for test of overall within
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
+#' \item{pval.Q.w.common}{P-value of within subgroups heterogeneity
+#'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
 #'   not missing.}
-#' \item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-#'   Q (based on fixed effect model) - if \code{subgroup} is not
+#' \item{Q.b.common}{Overall between subgroups heterogeneity statistic
+#'   Q (based on common effect model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
 #'   Q (based on random effects model) - if \code{subgroup} is not
 #'   missing.}
 #' \item{df.Q.b}{Degrees of freedom for test of overall between
 #'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on fixed effect model) - if \code{subgroup} is
+#' \item{pval.Q.b.common}{P-value of between subgroups heterogeneity
+#'   statistic Q (based on common effect model) - if \code{subgroup} is
 #'   not missing.}
 #' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
 #'   statistic Q (based on random effects model) - if \code{subgroup} is
@@ -796,7 +801,8 @@
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL, id = NULL,
+                     data = NULL, subset = NULL, exclude = NULL,
+                     cluster = NULL,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -813,10 +819,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      method.ci = gs("method.ci.cont"),
                      level = gs("level"), level.ma = gs("level.ma"),
-                     fixed = gs("fixed"),
+                     common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
-                     overall = fixed | random,
-                     overall.hetstat = fixed | random,
+                     overall = common | random,
+                     overall.hetstat = common | random,
                      ##
                      hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau = gs("method.tau"),
@@ -831,10 +837,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      backtransf = gs("backtransf"),
                      ##
-                     text.fixed = gs("text.fixed"),
+                     text.common = gs("text.common"),
                      text.random = gs("text.random"),
                      text.predict = gs("text.predict"),
-                     text.w.fixed = gs("text.w.fixed"),
+                     text.w.common = gs("text.w.common"),
                      text.w.random = gs("text.w.random"),
                      ##
                      title = gs("title"), complab = gs("complab"),
@@ -849,7 +855,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
                      ##
-                     byvar,
+                     byvar, id,
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
                      ##
@@ -870,16 +876,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
-  missing.id <- missing(id)
-  if (is.null(method.tau.ci))
-    if (method.tau == "DL")
-      method.tau.ci <- "J"
-    else if (!missing.id)
-      method.tau.ci <- "PL"
-    else
-      method.tau.ci <- "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
-  ##
   chklogical(tau.common)
   ##
   chklogical(prediction)
@@ -888,14 +884,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   method.bias <-
     setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
   ##
-  if (!is.null(text.fixed))
-    chkchar(text.fixed, length = 1)
+  if (!is.null(text.common))
+    chkchar(text.common, length = 1)
   if (!is.null(text.random))
     chkchar(text.random, length = 1)
   if (!is.null(text.predict))
     chkchar(text.predict, length = 1)
-  if (!is.null(text.w.fixed))
-    chkchar(text.w.fixed, length = 1)
+  if (!is.null(text.w.common))
+    chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
   ##
@@ -925,9 +921,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed",
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
                       warn.deprecated)
-  chklogical(fixed)
+  common <- deprecated(common, missing.common, args, "fixed",
+                      warn.deprecated)
+  chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
@@ -968,8 +967,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (nulldata)
     data <- sfsp
   ##
-  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', and 'id'
-  ## from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c' from data:
   ##
   missing.mean.e <- missing(mean.e)
   missing.sd.e <- missing(sd.e)
@@ -987,9 +985,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   missing.q3.c <- missing(q3.c)
   missing.min.c <- missing(min.c)
   missing.max.c <- missing(max.c)
-  ##
-  if (!missing.id & is.null(id))
-    missing.id <- TRUE
   ##
   if (missing.mean.e & missing.median.e)
     stop("Provide either argument 'mean.e' or 'median.e'.",
@@ -1044,9 +1039,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   else
     sd.c <- rep(NA, k.All)
   ##
-  id <- catch("id", mc, data, sfsp)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset' and 'exclude' from data:
+  ## Catch 'studlab', 'subgroup', 'subset', 'exclude', and
+  ## 'cluster' from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
@@ -1065,6 +1059,24 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
+  ##
+  missing.cluster <- missing(cluster)
+  cluster <- catch("cluster", mc, data, sfsp)
+  missing.id <- missing(id)
+  id <- catch("id", mc, data, sfsp)
+  ##
+  cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
+                         warn.deprecated)
+  with.cluster <- !is.null(cluster)
+  ##
+  if (is.null(method.tau.ci))
+    if (with.cluster)
+      method.tau.ci <- "PL"
+    else if (method.tau == "DL")
+      method.tau.ci <- "J"
+     else
+      method.tau.ci <- "QP"
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   ## Catch 'median.e', 'q1.e', 'q3.e', 'min.e', 'max.e', 'median.c',
   ## 'q1.c', 'q3.c', 'min.c', 'max.c', 'approx.mean.e', 'approx.sd.e',
@@ -1133,8 +1145,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklength(mean.c, k.All, arg)
   chklength(sd.c, k.All, arg)
   chklength(studlab, k.All, arg)
-  if (!missing.id)
-    chklength(id, k.All, arg)
+  if (with.cluster)
+    chklength(cluster, k.All, arg)
   ##
   if (!missing.median.e)
     chklength(median.e, k.All, arg)
@@ -1284,8 +1296,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!missing.id)
-      data$.id <- id
+    if (with.cluster)
+      data$.id <- data$.cluster <- cluster
   }
   
   
@@ -1302,9 +1314,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     mean.c <- mean.c[subset]
     sd.c <- sd.c[subset]
     studlab <- studlab[subset]
-    ##
-    if (!missing.id)
-      id <- id[subset]
     ##
     exclude <- exclude[subset]
     ##
@@ -1351,9 +1360,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## No meta-analysis for a single study
   ##
   if (k.all == 1) {
-    fixed  <- FALSE
+    common <- FALSE
     random <- FALSE
-    prediction  <- FALSE
+    prediction <- FALSE
     overall <- FALSE
     overall.hetstat <- FALSE
   }
@@ -1737,7 +1746,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     seTE[is.na(TE)] <- NA
     ##
     if (method.ci == "t")
-      ci.study <- ci(TE, seTE, df = n.e + n.c - 2)
+      ci.study <- ci(TE, seTE, level = level, df = n.e + n.c - 2)
   }
   else if (sm == "SMD") {
     J <- function(x)
@@ -1835,17 +1844,27 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   if (sm == "SMD")
     TE[sel] <- NA
+  
+  
   ##
-  ## No three-level meta-analysis conducted if variable 'id' contains
-  ## different values for each estimate
   ##
-  multi.level <- FALSE
+  ## (10) Additional checks for three-level model
   ##
+  ##
+  three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  if (!missing.id && length(unique(id[sel.ni])) != length(id[sel.ni]))
-    multi.level <- TRUE
   ##
-  if (multi.level) {
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (with.cluster &&
+      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+    three.level <- TRUE
+  ##
+  if (three.level) {
+    common <- FALSE
+    ##
     if (!(method.tau %in% c("REML", "ML"))) {
       if (!missing(method.tau))
         warning("For three-level model, argument 'method.tau' set to \"REML\".",
@@ -1865,17 +1884,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (11) Do meta-analysis
   ##
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               id = id,
+               cluster = cluster,
                ##
                sm = sm,
                level = level,
                level.ma = level.ma,
-               fixed = fixed,
+               common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
@@ -1893,9 +1912,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                ##
                backtransf = backtransf,
                ##
-               text.fixed = text.fixed, text.random = text.random,
+               text.common = text.common, text.random = text.random,
                text.predict = text.predict,
-               text.w.fixed = text.w.fixed, text.w.random = text.w.random,
+               text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
                label.e = label.e, label.c = label.c,
@@ -2014,12 +2033,23 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
     ##
-    if (!tau.common)
+    if (!tau.common) {
       res <- c(res, subgroup(res))
+      if (res$three.level) {
+        res$Q.b.random <- NA
+        res$df.Q.b <- NA
+        res$pval.Q.b.random <- NA
+      }
+    }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
-    else
-      res <- c(res, subgroup(res, hcc$tau.resid))
+    else {
+      if (res$three.level)
+        res <- c(res, subgroup(res, NULL,
+                               factor(res$subgroup, bylevs(res$subgroup))))
+      else
+        res <- c(res, subgroup(res, hcc$tau.resid))
+    }
     ##
     if (!tau.common || !is.null(tau.preset)) {
       res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
@@ -2063,19 +2093,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$n.w <- NULL
     res$time.e.w <- NULL
     res$time.c.w <- NULL
-  }
-  ##
-  ## Backward compatibility
-  ##
-  res$comb.fixed <- fixed
-  res$comb.random <- random
-  res$level.comb <- level.ma
-  ##
-  if (by) {
-    res$byvar <- subgroup
-    res$bylab <- subgroup.name
-    res$print.byvar <- print.subgroup.name
-    res$byseparator <- sep.subgroup
   }
   ##
   class(res) <- c(fun, "meta")

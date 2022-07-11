@@ -11,27 +11,27 @@
   ylim = NULL,
   xlab = NULL,
   ylab = NULL,
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
   axes = TRUE,
   pch = if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
   text = NULL,
   cex = 1,
-  lty.fixed = 2,
+  lty.common = 2,
   lty.random = 9,
   lwd = 1,
-  lwd.fixed = lwd,
+  lwd.common = lwd,
   lwd.random = lwd,
   col = "black",
   bg = "darkgray",
-  col.fixed = "black",
+  col.common = "black",
   col.random = "black",
   log,
   yaxis,
   contour.levels = NULL,
   col.contour,
   ref = ifelse(is.relative.effect(x$sm), 1, 0),
-  level = if (fixed | random) x$level else NULL,
+  level = if (common | random) x$level else NULL,
   studlab = FALSE,
   cex.studlab = 0.8,
   pos.studlab = 2,
@@ -41,6 +41,7 @@
   col.ref = "black",
   lty.ref.triangle = 5,
   backtransf = x$backtransf,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -55,8 +56,8 @@
 
 \item{ylab}{A label for the y-axis.}
 
-\item{fixed}{A logical indicating whether the fixed effect / common
-effect estimate should be plotted.}
+\item{common}{A logical indicating whether the common effect
+estimate should be plotted.}
 
 \item{random}{A logical indicating whether the random effects
 estimate should be plotted.}
@@ -71,15 +72,15 @@ instead of plotting symbol.}
 
 \item{cex}{The magnification to be used for plotting symbol.}
 
-\item{lty.fixed}{Line type (fixed effect estimate).}
+\item{lty.common}{Line type (common effect estimate).}
 
 \item{lty.random}{Line type (random effects estimate).}
 
 \item{lwd}{The line width for confidence intervals (if \code{level}
 is not \code{NULL}).}
 
-\item{lwd.fixed}{The line width for fixed effect estimate (if
-\code{fixed} is not \code{NULL}).}
+\item{lwd.common}{The line width for common effect estimate (if
+\code{common} is not \code{NULL}).}
 
 \item{lwd.random}{The line width for random effects estimate (if
 \code{random} is not \code{NULL}).}
@@ -89,7 +90,7 @@ is not \code{NULL}).}
 \item{bg}{A vector with background colour of plotting symbols (only
 used if \code{pch} in \code{21:25}).}
 
-\item{col.fixed}{Colour of line representing fixed effect estimate.}
+\item{col.common}{Colour of line representing common effect estimate.}
 
 \item{col.random}{Colour of line representing random effects
 estimate.}
@@ -148,7 +149,10 @@ transformed in funnel plots. If \code{backtransf=TRUE}, results
 for \code{sm="OR"} are printed as odds ratios rather than log
 odds ratios, for example.}
 
-\item{\dots}{Additional graphical arguments (ignored at the
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{\dots}{Additional arguments (to catch deprecated arguments).
 moment).}
 }
 \description{
@@ -158,13 +162,13 @@ produced to assess causes of funnel plot asymmetry.
 }
 \details{
 A funnel plot (Light & Pillemer, 1984) is drawn in the active
-graphics window. If \code{fixed} is TRUE, the estimate of the fixed
-effect model is plotted as a vertical line. Similarly, if
+graphics window. If \code{common} is TRUE, the estimate of the
+common effect model is plotted as a vertical line. Similarly, if
 \code{random} is TRUE, the estimate of the random effects model is
 plotted. If \code{level} is not NULL, the corresponding approximate
-confidence limits are drawn around the fixed effect estimate (if
-\code{fixed} is TRUE) or the random effects estimate (if
-\code{random} is TRUE and \code{fixed} is FALSE).
+confidence limits are drawn around the common effect estimate (if
+\code{common} is TRUE) or the random effects estimate (if
+\code{random} is TRUE and \code{common} is FALSE).
 
 In the funnel plot, the standard error of the treatment estimates
 is plotted on the y-axis by default (\code{yaxis = "se"}) which is
@@ -197,17 +201,17 @@ oldpar <- par(mfrow = c(2, 2))
 #
 funnel(m1)
 
-# Funnel plot with confidence intervals, fixed effect estimate and
+# Funnel plot with confidence intervals, common effect estimate and
 # contours
 #
-cc <- funnel(m1, fixed = TRUE,
+cc <- funnel(m1, common = TRUE,
              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
 legend(0.05, 0.05,
   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
 
 # Contour-enhanced funnel plot with user-chosen colours
 #
-funnel(m1, fixed = TRUE,
+funnel(m1, common = TRUE,
   level = 0.95, contour = c(0.9, 0.95, 0.99),
   col.contour = c("darkgreen", "green", "lightgreen"),
   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)

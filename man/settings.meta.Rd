@@ -204,14 +204,14 @@ metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 # Forest plot using RevMan 5 style
 #
 settings.meta("revman5")
-forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
+forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
   label.left = "Favours A", label.right = "Favours B",
   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Forest plot using JAMA style
 #
 settings.meta("jama")
-forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
+forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
   label.left = "Favours A", label.right = "Favours B",
   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
@@ -219,8 +219,8 @@ forest(metagen(1:3, 2:4 / 10, sm = "MD", fixed = FALSE),
 # (especially useful if upper confidence limit can be negative)
 #
 settings.meta(CIseparator = " - ")
-forest(metagen(-(1:3), 2:4 / 10, sm="MD", fixed=FALSE),
-  label.left="Favours A", label.right="Favours B",
+forest(metagen(-(1:3), 2:4 / 10, sm = "MD", common = FALSE),
+  label.left = "Favours A", label.right = "Favours B",
   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Use old settings

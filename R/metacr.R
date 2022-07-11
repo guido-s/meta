@@ -19,7 +19,7 @@
 #'   individual studies.
 #' @param level.ma The level used to calculate confidence intervals
 #'   for pooled estimates.
-#' @param fixed A logical indicating whether a fixed effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -55,14 +55,14 @@
 #'   printed as odds ratios rather than log odds ratios and results
 #'   for \code{sm="ZCOR"} are printed as correlations rather than
 #'   Fisher's z transformed correlations, for example.
-#' @param text.fixed A character string used in printouts and forest
-#'   plot to label the pooled fixed effect estimate.
+#' @param text.common A character string used in printouts and forest
+#'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
 #'   plot to label the pooled random effects estimate.
 #' @param text.predict A character string used in printouts and forest
 #'   plot to label the prediction interval.
-#' @param text.w.fixed A character string used to label weights of
-#'   fixed effect model.
+#' @param text.w.common A character string used to label weights of
+#'   common effect model.
 #' @param text.w.random A character string used to label weights of
 #'   random effects model.
 #' @param title Title of meta-analysis / systematic review.
@@ -73,6 +73,8 @@
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
 #'   frequencies).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
@@ -147,7 +149,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    method, sm,
                    ##
                    level = gs("level"), level.ma = gs("level.ma"),
-                   fixed, random,
+                   common, random,
                    ##
                    hakn = FALSE,
                    method.tau = "DL",
@@ -164,16 +166,17 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    test.subgroup,
                    prediction.subgroup = gs("prediction.subgroup"),
                    ##
-                   text.fixed = gs("text.fixed"),
+                   text.common = gs("text.common"),
                    text.random = gs("text.random"),
                    text.predict = gs("text.predict"),
-                   text.w.fixed = gs("text.w.fixed"),
+                   text.w.common = gs("text.w.common"),
                    text.w.random = gs("text.w.random"),
                    ##
                    title, complab, outclab,
                    ##
                    keepdata = gs("keepdata"),
                    warn = FALSE,
+                   warn.deprecated = gs("warn.deprecated"),
                    ...) {
   
   
@@ -194,6 +197,18 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   else
     chkchar(outcome.no, length = 1)
   ##
+  chklogical(warn.deprecated)
+  args <- list(...)
+  ##
+  missing.common <- missing(common)
+  missing.fixed <- is.na(argid(names(args), "fixed"))
+  if (!missing.fixed) {
+    common <-
+      deprecated(common, missing.common, args, "fixed",
+                 warn.deprecated)
+    missing.common <- FALSE
+  }
+  ##
   chklevel(level)
   chklevel(level.ma)
   ##
@@ -213,18 +228,28 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chklogical(backtransf)
   ##
-  if (!is.null(text.fixed))
-    chkchar(text.fixed, length = 1)
+  text.common <-
+    deprecated(text.common, missing(text.common), args, "text.fixed",
+               warn.deprecated)
+  if (!is.null(text.common))
+    chkchar(text.common, length = 1)
+  ##
   if (!is.null(text.random))
     chkchar(text.random, length = 1)
   if (!is.null(text.predict))
     chkchar(text.predict, length = 1)
-  if (!is.null(text.w.fixed))
-    chkchar(text.w.fixed, length = 1)
+  ##
+  text.w.common <-
+    deprecated(text.w.common, missing(text.w.common), args, "text.w.fixed",
+               warn.deprecated)
+  if (!is.null(text.w.common))
+    chkchar(text.w.common, length = 1)
+  ##
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
   ##
   chklogical(keepdata)
+  chklogical(warn)
   
   
   ##
@@ -278,8 +303,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   if (sm == "PETO_OR")
     sm <- "OR"
   ##
-  if (missing(fixed))
-    fixed  <- unique(x$fixed[sel])
+  if (missing.common)
+    common <- unique(x$common[sel])
   ##
   if (missing(random))
     random <- unique(x$random[sel])
@@ -339,7 +364,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   dropnames <- c("comp.no", "outcome.no", "group.no",
                  "overall", "test.subgroup",
-                 "type", "method", "sm", "model", "fixed", "random",
+                 "type", "method", "sm", "model", "common", "random",
                  "outclab", "k",
                  "event.e.pooled", "n.e.pooled",
                  "event.c.pooled", "n.c.pooled",
@@ -365,7 +390,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      fixed = fixed, random = random,
+                      common = common, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
@@ -379,9 +404,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction.subgroup = prediction.subgroup,
                       backtransf = backtransf,
                       ##
-                      text.fixed = text.fixed, text.random = text.random,
+                      text.common = text.common, text.random = text.random,
                       text.predict = text.predict,
-                      text.w.fixed = text.w.fixed,
+                      text.w.common = text.w.common,
                       text.w.random = text.w.random,
                       ##
                       title = title,
@@ -395,7 +420,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      fixed = fixed, random = random,
+                      common = common, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
@@ -409,9 +434,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction.subgroup = prediction.subgroup,
                       backtransf = backtransf,
                       ##
-                      text.fixed = text.fixed, text.random = text.random,
+                      text.common = text.common, text.random = text.random,
                       text.predict = text.predict,
-                      text.w.fixed = text.w.fixed,
+                      text.w.common = text.w.common,
                       text.w.random = text.w.random,
                       ##
                       title = title,
@@ -428,7 +453,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      n.c, mean.c, sd.c,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
-                     fixed = fixed, random = random,
+                     common = common, random = random,
                      hakn = hakn,
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
@@ -441,9 +466,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      test.subgroup = test.subgroup,
                      prediction.subgroup = prediction.subgroup,
                      ##
-                     text.fixed = text.fixed, text.random = text.random,
+                     text.common = text.common, text.random = text.random,
                      text.predict = text.predict,
-                     text.w.fixed = text.w.fixed,
+                     text.w.common = text.w.common,
                      text.w.random = text.w.random,
                      ##
                      title = title,
@@ -456,7 +481,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -470,9 +495,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction.subgroup = prediction.subgroup,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,
@@ -485,7 +510,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(TE, seTE,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -502,9 +527,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     n.c = n.c,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,
@@ -517,7 +542,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -531,9 +556,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction.subgroup = prediction.subgroup,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,
@@ -554,7 +579,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      fixed = fixed, random = random,
+                      common = common, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
@@ -563,9 +588,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       overall = overall,
                       backtransf = backtransf,
                       ##
-                      text.fixed = text.fixed, text.random = text.random,
+                      text.common = text.common, text.random = text.random,
                       text.predict = text.predict,
-                      text.w.fixed = text.w.fixed,
+                      text.w.common = text.w.common,
                       text.w.random = text.w.random,
                       ##
                       title = title,
@@ -579,7 +604,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         m1 <- metabin(event.e, n.e, event.c, n.c,
                       sm = sm, method = method, studlab = studlab,
                       data = x[sel, varnames],
-                      fixed = fixed, random = random,
+                      common = common, random = random,
                       hakn = hakn,
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
@@ -588,9 +613,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       overall = overall,
                       backtransf = backtransf,
                       ##
-                      text.fixed = text.fixed, text.random = text.random,
+                      text.common = text.common, text.random = text.random,
                       text.predict = text.predict,
-                      text.w.fixed = text.w.fixed,
+                      text.w.common = text.w.common,
                       text.w.random = text.w.random,
                       ##
                       title = title,
@@ -607,7 +632,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      n.c, mean.c, sd.c,
                      sm = sm, studlab = studlab,
                      data = x[sel, varnames],
-                     fixed = fixed, random = random,
+                     common = common, random = random,
                      hakn = hakn,
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
@@ -615,9 +640,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      prediction = prediction, level.predict = level.predict,
                      overall = overall,
                      ##
-                     text.fixed = text.fixed, text.random = text.random,
+                     text.common = text.common, text.random = text.random,
                      text.predict = text.predict,
-                     text.w.fixed = text.w.fixed,
+                     text.w.common = text.w.common,
                      text.w.random = text.w.random,
                      ##
                      title = title,
@@ -630,7 +655,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -639,9 +664,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     overall = overall,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,
@@ -654,7 +679,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(TE, seTE,
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -665,9 +690,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     n.c = n.c,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,
@@ -680,7 +705,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       m1 <- metagen(O.E / V, sqrt(1 / V),
                     sm = sm, studlab = studlab,
                     data = x[sel, varnames],
-                    fixed = fixed, random = random,
+                    common = common, random = random,
                     hakn = hakn,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
@@ -689,9 +714,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     overall = overall,
                     backtransf = backtransf,
                     ##
-                    text.fixed = text.fixed, text.random = text.random,
+                    text.common = text.common, text.random = text.random,
                     text.predict = text.predict,
-                    text.w.fixed = text.w.fixed,
+                    text.w.common = text.w.common,
                     text.w.random = text.w.random,
                     ##
                     title = title,

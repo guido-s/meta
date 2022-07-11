@@ -166,3 +166,46 @@ ciWilsonScore <- function(event, n, level, correct = FALSE) {
        statistic = NA, p = NA, level = level,
        df = NA, null.effect = NA)
 }
+
+
+ciPoisson <- function(event, time, level, null.effect) {
+  chknumeric(event, 0)
+  chknumeric(time, 0, zero = TRUE)
+  chklevel(level)
+  chknumeric(null.effect, min = 0, max = 1, length = 1)
+  ##
+  if (length(event) == 1 & length(time) > 1)
+    event <- rep(event, length(time))
+  else if (length(event) > 1 & length(time) == 1)
+    time <- rep(time, length(event))
+  else
+    if (length(event) != length(time))
+      stop("Arguments 'event' and 'time' must be of same length.",
+           call. = FALSE)
+  ##
+  k <- length(event)
+  lower <- upper <- statistic <- pval <- rep(NA, k)
+  ##
+  for (i in seq_len(k)) {
+    if (!is.na(event[i] & !is.na(time[i]))) {
+      cint <-
+        poisson.test(event[i], time[i], conf.level = level,
+                     r = if (!is.na(null.effect)) null.effect else 1)
+      ##
+      lower[i] <- cint$conf.int[[1]]
+      upper[i] <- cint$conf.int[[2]]
+      if (!is.na(null.effect))
+        pval[i] <- cint$p.value
+    }
+    else {
+      lower[i] <- NA
+      upper[i] <- NA
+      pval[i] <- NA
+    }
+  }
+  ##
+  list(event = event, time = time,
+       rate = event / time, lower = lower, upper = upper,
+       statistic = statistic, p = pval, level = level,
+       df = NA, null.effect = null.effect)
+}

@@ -64,7 +64,7 @@
 #'   row is printed between results for subgroups.
 #' @param smlab A label for the summary measurex (printed at top of
 #'   figure).
-#' @param calcwidth.pooled A logical indicating whether text for fixed
+#' @param calcwidth.pooled A logical indicating whether text for common
 #'   effect and random effects model should be considered to calculate
 #'   width of the column with study labels.
 #' @param warn.deprecated A logical indicating whether warnings should
@@ -99,8 +99,8 @@
 #' Argument \code{hetstat} can be a character string to specify where
 #' to print heterogeneity information:
 #' \itemize{
-#' \item row with results for fixed effect model (\code{hetstat =
-#' "fixed"}),
+#' \item row with results for common effect model (\code{hetstat =
+#' "common"}),
 #' \item row with results for random effects model (\code{hetstat =
 #' "random"}),
 #' \item rows with 'study' information (\code{hetstat = "study"}).
@@ -186,6 +186,7 @@ forest.metabind <- function(x,
   ##
   ##
   chkclass(x, "metabind")
+  x <- updateversion(x)
   ##
   chklogical(overall)
   chklogical(subgroup)
@@ -215,6 +216,10 @@ forest.metabind <- function(x,
     if (list(...)[["hetstat"]])
       stop("Argument 'hetstat' must be FALSE for metabind objects.")
   ##
+  idx <- charmatch(tolower(addargs), "common", nomatch = NA)
+  if (any(!is.na(idx)) && length(idx) > 0)
+    stop("Argument 'common' cannot be used with metabind objects.")
+  ##
   idx <- charmatch(tolower(addargs), "fixed", nomatch = NA)
   if (any(!is.na(idx)) && length(idx) > 0)
     stop("Argument 'fixed' cannot be used with metabind objects.")
@@ -237,7 +242,8 @@ forest.metabind <- function(x,
   
   x$k.w.orig <- x$k.w
   
-  x$k.w <- x$k.all.w <- as.vector(table(x$data$name)[unique(x$data$name)])
+  x$k.w <- x$k.study.w <- x$k.all.w <- x$k.TE.w <-
+    as.vector(table(x$data$name)[unique(x$data$name)])
   
   
   missing.leftcols <- missing(leftcols)
@@ -309,9 +315,9 @@ forest.metabind <- function(x,
   ## Set test for interaction
   ##
   if (any(x$is.subgroup)) {
-    if (x$fixed) {
-      x$data$Q.b <- x$data$Q.b.fixed
-      x$data$pval.Q.b <- x$data$pval.Q.b.fixed
+    if (x$common) {
+      x$data$Q.b <- x$data$Q.b.common
+      x$data$pval.Q.b <- x$data$pval.Q.b.common
     }
     else {
       x$data$Q.b <- x$data$Q.b.random
@@ -366,13 +372,18 @@ forest.metabind <- function(x,
   
   
   if (missing(smlab))
-    if (length(unique(x$pooled)) == 1)
-      smlab <- paste0(if (x$fixed)
-                        "Fixed Effect Model"
-                      else
-                        "Random Effects Model",
+    if (length(unique(x$pooled)) == 1) {
+      text.common <- gs("text.common")
+      text.random <- gs("text.random")
+      if (text.common == "Common effect model")
+        text.common <- "Common Effect Model"
+      if (text.random == "Random effects model")
+        text.random <- "Random Effects Model"
+      ##
+      smlab <- paste0(if (x$common) text.common else text.random,
                       if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
                         paste0("\n(", xlab(x$sm, x$backtransf), ")"))
+    }
     else
       smlab <- xlab(x$sm, x$backtransf)
   

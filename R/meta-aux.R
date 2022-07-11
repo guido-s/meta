@@ -87,7 +87,7 @@ catchvar <- function(varname, x, mf) {
                     enclos = sys.frame(sys.parent())),
         silent = TRUE)
   ##
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     res <- eval(mf[[match(varname, names(mf))]],
                 x$data, enclos = NULL)
   }

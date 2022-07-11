@@ -8,7 +8,7 @@
 #' @param x An object of class \code{summary.meta}
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
-#' @param fixed A logical indicating whether a fixed effect
+#' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
@@ -137,7 +137,7 @@
 
 print.summary.meta <- function(x,
                                sortvar,
-                               fixed = x$x$fixed,
+                               common = x$x$common,
                                random = x$x$random,
                                details = FALSE, ma = TRUE,
                                overall = x$overall,
@@ -185,7 +185,7 @@ print.summary.meta <- function(x,
   ##
   k.all <- length(x$TE)
   ##
-  x.meta <- x$x
+  x.meta <- updateversion(x$x)
   
   
   ##
@@ -199,7 +199,7 @@ print.summary.meta <- function(x,
     try(sortvar <-
           catch("sortvar", mc, x.meta, sfsp),
         silent = TRUE)
-  if (class(error) == "try-error") {
+  if (inherits(error, "try-error")) {
     sortvar <- catch("sortvar", mc, x$data,  NULL)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
@@ -304,9 +304,11 @@ print.summary.meta <- function(x,
   ##
   args  <- list(...)
   ##
-  fixed <- replaceNULL(fixed, x$comb.fixed)
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed", FALSE)
-  chklogical(fixed)
+  missing.common <- missing(common)
+  common <- replaceNULL(common, x$comb.common)
+  common <- deprecated(common, missing.common, args, "comb.fixed", FALSE)
+  common <- deprecated(common, missing.common, args, "fixed", FALSE)
+  chklogical(common)
   ##
   random <- replaceNULL(random, x$comb.random)
   random <- deprecated(random, missing(random), args, "comb.random", FALSE)
@@ -358,13 +360,13 @@ print.summary.meta <- function(x,
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
   ##
-  if (is.null(x$text.w.fixed))
-    text.w.fixed <- "%W(fixed)"
+  if (is.null(x$text.w.common))
+    text.w.common <- paste0("%W(", gs("text.w.common"), ")")
   else
-    text.w.fixed <- paste0("%W(", x$text.w.fixed, ")")
+    text.w.common <- paste0("%W(", x$text.w.common, ")")
   ##
   if (is.null(x$text.w.random))
-    text.w.random <- "%W(random)"
+    text.w.random <- paste0("%W(", gs("text.w.random"), ")")
   else
     text.w.random <- paste0("%W(", x$text.w.random, ")")
   ##
@@ -372,7 +374,7 @@ print.summary.meta <- function(x,
   subgroup.name <- replaceNULL(x$subgroup.name, x$bylab)
   ##
   by <- !is.null(subgroup.name)
-  id <- !is.null(x$three.level) && x$three.level
+  three.level <- !is.null(x$three.level) && x$three.level
   
   
   ##
@@ -438,7 +440,7 @@ print.summary.meta <- function(x,
     }
     else if (inherits(x, "metacont")) {
       res <- cbind(n.e = formatN(x$n.e, digits = 0,
-                                      "NA", big.mark = big.mark),
+                                 "NA", big.mark = big.mark),
                    mean.e = formatN(round(x$mean.e, digits), digits,
                                     "NA", big.mark = big.mark),
                    sd.e = formatN(round(x$sd.e, digits.se), digits.se,
@@ -532,8 +534,8 @@ print.summary.meta <- function(x,
                                   "NA", big.mark = big.mark))
     }
     ##
-    if (id)
-      res <- cbind(res, id = as.character(x$id))
+    if (three.level)
+      res <- cbind(res, cluster = as.character(x$cluster))
     ##
     if (by)
       res <- cbind(res, subgroup = as.character(subgroup))
@@ -558,7 +560,10 @@ print.summary.meta <- function(x,
   ## (5) Print results for individual studies
   ##
   ##
-  if (k.all == 1 & !inherits(x, "metaprop")) {
+  if (k.all == 1 &&
+      !(inherits(x, c("metaprop", "metarate")) |
+        (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+         !is.zero(x$TE - x$TE.common)))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -576,13 +581,17 @@ print.summary.meta <- function(x,
     uppTE <- x$upper
     method.ci <- x$method.ci
     ##
-    if (inherits(x, "metaprop") & !backtransf) {
+    if (inherits(x, c("metaprop", "metarate")) & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
       uppTE <- ciTE$upper
       ##
       method.ci <- "NAsm"
     }
+    if (k.all == 1 &&
+        inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        !is.zero(x$TE - x$TE.common))
+      method.ci <- "!RR.Cochrane"
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
@@ -601,6 +610,9 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
+      ##
+      else if (inherits(x, "metarate"))
+        TE <- x$event / x$time
       else {
         TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, warn.backtransf)
         lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, warn.backtransf)
@@ -625,11 +637,11 @@ print.summary.meta <- function(x,
     uppTE <- round(uppTE, digits)
     ##
     if (!metainf.metacum) {
-      if (fixed)
-        if (!all(is.na(x$w.fixed)) && sum(x$w.fixed) > 0)
-          w.fixed.p <- round(100 * x$w.fixed / sum(x$w.fixed, na.rm = TRUE),
+      if (common)
+        if (!all(is.na(x$w.common)) && sum(x$w.common) > 0)
+          w.common.p <- round(100 * x$w.common / sum(x$w.common, na.rm = TRUE),
                              digits.weight)
-        else w.fixed.p <- x$w.fixed
+        else w.common.p <- x$w.common
       ##
       if (random)
         if (!is.null(x$w.random) & !all(is.na(x$w.random)) &&
@@ -670,15 +682,15 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
-          cat("Influential analysis (Fixed effect model)\n")
+          cat(paste0("Influential analysis (", gs("text.common"), ")\n"))
         else
-          cat("Influential analysis (Random effects model)\n")
+          cat(paste0("Influential analysis (", gs("text.random"), ")\n"))
       }
       else if (inherits(x, "metacum")) {
         if (!is.random)
-          cat("Cumulative meta-analysis (Fixed effect model)\n")
+          cat(paste0("Cumulative meta-analysis (", gs("text.common"), ")\n"))
         else
-          cat("Cumulative meta-analysis (Random effects model)\n")
+          cat(paste0("Cumulative meta-analysis (", gs("text.random"), ")\n"))
       }
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
@@ -702,9 +714,9 @@ print.summary.meta <- function(x,
                 IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
-      show.w.fixed  <-
+      show.w.common  <-
         (overall | by) & !mb.glmm &
-        (fixed && !all(is.na(w.fixed.p)))
+        (common && !all(is.na(w.common.p)))
       show.w.random <-
         (overall | by) & !mb.glmm &
         (random && !all(is.na(w.random.p)))
@@ -715,13 +727,13 @@ print.summary.meta <- function(x,
                                     big.mark = big.mark),
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
-                   if (show.w.fixed)
-                     formatN(w.fixed.p, digits.weight,
+                   if (show.w.common)
+                     formatN(w.common.p, digits.weight,
                              big.mark = big.mark),
                    if (show.w.random)
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
-                   if (id) as.character(x$id),
+                   if (three.level) as.character(x$cluster),
                    if (by) as.character(subgroup),
                    if (show.imor) round(x$IMOR.e, 4),
                    if (show.imor) round(x$IMOR.c, 4),
@@ -761,21 +773,37 @@ print.summary.meta <- function(x,
             method.ci.details <-
               paste0("Simple approximation confidence interval with ",
                      "continuity correction:\n\n")
+          else if (method.ci == "Poisson")
+            method.ci.details <-
+              "Exact Poisson confidence interval for individual studies:\n\n"
           else if (method.ci == "t")
             method.ci.details <-
               "Confidence interval based on t-distribution:\n\n"
+          else if (method.ci == "!RR.Cochrane")
+            method.ci.details <-
+              paste0("Continuity correction of 1*incr for sample sizes\n",
+                     "(Hartung & Knapp, 2001, Stat Med, equation (18)):\n\n")
+          ##
           if (method.ci != "NAsm") {
-            catobsev(x$n, type = "n")
-            catobsev(x$event, type = "e", addrow = TRUE)
-            x.meta$n <- x.meta$event <- NA
+            if (method.ci == "!RR.Cochrane") {
+              catobsev(x$n.e + x$n.c, type = "n")
+              catobsev(x$event.e + x$event.c, type = "e", addrow = TRUE)
+              x.meta$n.e <- x.meta$event.e <-
+                x.meta$n.c <- x.meta$event.c <- NA
+            }
+            else {
+              catobsev(x$n, type = "n")
+              catobsev(x$event, type = "e", addrow = TRUE)
+              x.meta$n <- x.meta$event <- NA
+            }
             ##
             cat(method.ci.details)
             dimnames(res) <-
-              list("",
+              list(x$studlab,
                    c(sm.lab, ci.lab,
-                     if (show.w.fixed) text.w.fixed,
+                     if (show.w.common) text.w.common,
                      if (show.w.random) text.w.random,
-                     if (id) "id",
+                     if (three.level) "cluster",
                      if (by) subgroup.name,
                      if (!is.null(x$exclude)) "exclude",
                      if (method.ci == "CP" & (any(!is.na(x$pval)))) "p-value")
@@ -784,8 +812,12 @@ print.summary.meta <- function(x,
             cat("\n")
           }
         }
-        if (ma)
-          cat("Normal approximation confidence interval:")
+        if (ma) {
+          if (inherits(x, c("metaprop", "metarate")))
+            cat("Normal approximation confidence interval:")
+          else if (!is.null(method.ci) && method.ci == "!RR.Cochrane")
+            cat("Mantel-Haenszel method:")
+        }
         else {
           if (!(method.ci %in% c("t", "NAsm"))) {
             if (pscale != 1)
@@ -819,9 +851,9 @@ print.summary.meta <- function(x,
         dimnames(res) <-
           list(x$studlab,
                c(sm.lab, ci.lab,
-                 if (show.w.fixed) text.w.fixed,
+                 if (show.w.common) text.w.common,
                  if (show.w.random) text.w.random,
-                 if (id) "id",
+                 if (three.level) "cluster",
                  if (by) subgroup.name,
                  if (show.imor) "IMOR.e",
                  if (show.imor) "IMOR.c",
@@ -853,7 +885,7 @@ print.summary.meta <- function(x,
       print.meta(x.meta,
                  header = FALSE,
                  digits = digits,
-                 fixed = fixed, random = random,
+                 common = common, random = random,
                  overall = overall,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,

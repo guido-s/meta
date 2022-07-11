@@ -13,14 +13,40 @@
 
 updateversion <- function(x) {
   ##
-  ## Update older meta objects
+  ## Update older meta objects - see gs("major.update"), gs("minor.update")
   ##
-  if (!is.null(x$version))
-    meta.version <- as.numeric(unlist(strsplit(x$version, "-"))[1])
-  if (is.null(x$version) || meta.version < gs("version.update"))
+  if (update_needed(x$version))
     x <- update(x, warn = FALSE, warn.deprecated = FALSE)
   ##
   x
+}
+
+
+update_needed <- function(version,
+                          major = gs("major.update"),
+                          minor = gs("minor.update"),
+                          verbose = FALSE) {
+  if (is.null(version)) {
+    version <- 0.1
+    major.cur <- 0
+    minor.cur <- 1
+  }
+  else {
+    version <- unlist(strsplit(version, "-")[1])
+    major.cur <-
+      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[1])
+    minor.cur <-
+      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[2])
+  }
+  ##
+  res <-
+    ifelse(major.cur < major,
+           TRUE, ifelse(major.cur > major,
+                        FALSE, minor.cur < minor))
+  if (res & verbose)
+    message(paste0("Update to meta, version ", major, ".", minor))
+  ##
+  res
 }
 
 
@@ -276,16 +302,18 @@ setVar <- function(var = NULL, arg = NULL) {
 ## List of internal settings
 ##
 argslist.internal <-
-  c("comb.fixed", "comb.random", "level.comb", "digits.zval",
+  c("fixed", "comb.fixed", "comb.random", "level.comb", "digits.zval",
     "print.byvar", "byseparator",
     "Wan2014.Table1", "Wan2014.Table2",
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
-    "ci4cont", "ci4prop",
+    "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
     "meth4tau", "meth4tau.ci",
     "adhoc4hakn",
     "meth4bias", "meth4bias.old",
-    "version.update")
+    "meth4incr",
+    "text.fixed", "text.w.fixed",
+    "major.update", "minor.update")
 ##
 setOption("argslist.internal", argslist.internal)
 ##
@@ -301,6 +329,7 @@ setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
 ##
 setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
+setOption("ci4rate", c("NAsm", "Poisson"))
 ##
 setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
 setOption("meth4inc", c("Inverse", "MH", "Cochran", "GLMM"))
@@ -316,28 +345,31 @@ setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
                          "Harbord", "Peters", "Deeks",
                          "Pustejovsky", "Macaskill"))
 ##
-setOption("version.update", 5.0)
+setOption("meth4incr", c("only0", "if0all", "all"))
+##
+setOption("major.update", 5)
+setOption("minor.update", 5)
 ##
 ## List of arguments that can be changed by user
 ##
 argslist <-
-  c("level", "level.ma", "fixed", "random",
+  c("level", "level.ma", "common", "random",
     "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
     "prediction", "level.predict",
     "method.bias",
-    "text.fixed", "text.random", "text.predict",
-    "text.w.fixed", "text.w.random",
+    "text.common", "text.random", "text.predict",
+    "text.w.common", "text.w.random",
     "title", "complab",
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "warn", "warn.deprecated",
     "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
-    "incr", "allincr", "addincr",
+    "incr", "method.incr", "allincr", "addincr",
     "method", "allstudies", "MH.exact",
     "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
-    "method.ci.cont", "method.ci.prop",
+    "method.ci.cont", "method.ci.prop", "method.ci.rate",
     "label.e", "label.c", "label.left", "label.right",
     "layout",
     "test.overall", "test.subgroup", "prediction.subgroup",
@@ -358,6 +390,7 @@ setOption("argslist", argslist)
 setOption("level", 0.95)
 setOption("level.ma", 0.95)
 setOption("level.comb", 0.95)
+setOption("common", TRUE)
 setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
@@ -370,9 +403,11 @@ setOption("tau.common", FALSE)
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
 setOption("method.bias", "Egger")
+setOption("text.common", "Common effect model")
 setOption("text.fixed", "Common effect model")
 setOption("text.random", "Random effects model")
 setOption("text.predict", "Prediction interval")
+setOption("text.w.common", "common")
 setOption("text.w.fixed", "common")
 setOption("text.w.random", "random")
 setOption("title", "")
@@ -389,7 +424,7 @@ setOption("test.subgroup", TRUE)
 setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
-setOption("warn.deprecated", TRUE)
+setOption("warn.deprecated", FALSE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
@@ -429,6 +464,7 @@ setOption("smrate", "IRLN")
 ## Settings for R functions metabin, metainc, metaprop
 ##
 setOption("incr", 0.5)
+setOption("method.incr", "only0")
 setOption("allincr", FALSE)
 setOption("addincr", FALSE)
 ##
@@ -453,6 +489,10 @@ setOption("method.ci.cont", "z")
 ## Additional setting for R function metaprop
 ##
 setOption("method.ci.prop", "CP")
+##
+## Additional setting for R function metarate
+##
+setOption("method.ci.rate", "NAsm")
 ##
 ## Settings for R functions comparing two treatments
 ##

@@ -12,7 +12,7 @@ metacr(
   sm,
   level = gs("level"),
   level.ma = gs("level.ma"),
-  fixed,
+  common,
   random,
   hakn = FALSE,
   method.tau = "DL",
@@ -25,16 +25,17 @@ metacr(
   backtransf = gs("backtransf"),
   test.subgroup,
   prediction.subgroup = gs("prediction.subgroup"),
-  text.fixed = gs("text.fixed"),
+  text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
-  text.w.fixed = gs("text.w.fixed"),
+  text.w.common = gs("text.w.common"),
   text.w.random = gs("text.w.random"),
   title,
   complab,
   outclab,
   keepdata = gs("keepdata"),
   warn = FALSE,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -61,7 +62,7 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for pooled estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect
+\item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
@@ -110,8 +111,8 @@ results of test for subgroup differences.}
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
 
-\item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+\item{text.common}{A character string used in printouts and forest
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -119,8 +120,8 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -137,6 +138,9 @@ should be kept in meta object.}
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if \code{incr} is added to studies with zero cell
 frequencies).}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional arguments (to catch deprecated arguments).}
 }

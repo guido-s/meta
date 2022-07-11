@@ -26,8 +26,8 @@
 #' @aliases print.meta cilayout
 #' 
 #' @param x An object of class \code{meta}.
-#' @param fixed A logical indicating whether results for fixed effect
-#'   meta-analysis should be printed.
+#' @param common A logical indicating whether results for common
+#'   effect meta-analysis should be printed.
 #' @param random A logical indicating whether results for random
 #'   effects meta-analysis should be printed.
 #' @param prediction A logical indicating whether a prediction
@@ -42,9 +42,9 @@
 #'   level.
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
-#' @param test.subgroup.fixed A logical value indicating whether to
-#'   print results of test for subgroup differences (based on fixed
-#'   effect / common effect model).
+#' @param test.subgroup.common A logical value indicating whether to
+#'   print results of test for subgroup differences (based on common
+#'   effect model).
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
@@ -141,6 +141,8 @@
 #'   bracket and lower confidence limit should be printed.
 #' @param upper.blank A logical indicating whether blanks between
 #'   separator and upper confidence limit should be printed.
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param \dots Additional arguments (passed on to \code{prmatrix}).
 #' 
 #' @rdname print.meta
@@ -149,14 +151,14 @@
 
 
 print.meta <- function(x,
-                       fixed = x$fixed,
+                       common = x$common,
                        random = x$random,
                        prediction = x$prediction,
                        overall = x$overall,
                        overall.hetstat = x$overall.hetstat,
                        ##
                        test.subgroup = x$test.subgroup,
-                       test.subgroup.fixed = test.subgroup & fixed,
+                       test.subgroup.common = test.subgroup & common,
                        test.subgroup.random = test.subgroup & random,
                        prediction.subgroup = x$prediction.subgroup,
                        ##
@@ -201,6 +203,7 @@ print.meta <- function(x,
                        details.methods = TRUE,
                        ##
                        warn.backtransf = FALSE,
+                       warn.deprecated = gs("warn.deprecated"),
                        ...) {
   
   
@@ -247,6 +250,8 @@ print.meta <- function(x,
   chkchar(text.I2, length = 1)
   chkchar(text.Rb, length = 1)
   chklogical(warn.backtransf)
+  chklogical(warn.deprecated)
+  ##
   is.prop <- is.prop(x$sm)
   is.rate <- is.rate(x$sm)
   ##
@@ -265,7 +270,7 @@ print.meta <- function(x,
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
-  chklogical(fixed)
+  chklogical(common)
   chklogical(random)
   chklogical(prediction)
   overall <- replaceNULL(overall, TRUE)
@@ -276,8 +281,8 @@ print.meta <- function(x,
   if (is.na(test.subgroup))
     test.subgroup <- FALSE
   chklogical(test.subgroup)
-  test.subgroup.fixed <- replaceNULL(test.subgroup.fixed, test.subgroup)
-  chklogical(test.subgroup.fixed)
+  test.subgroup.common <- replaceNULL(test.subgroup.common, test.subgroup)
+  chklogical(test.subgroup.common)
   test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
   chklogical(test.subgroup.random)
   ##
@@ -296,8 +301,12 @@ print.meta <- function(x,
   ##
   args  <- list(...)
   ##
-  fixed <- deprecated(fixed, missing(fixed), args, "comb.fixed", FALSE)
-  chklogical(fixed)
+  missing.common <- missing(common)
+  common <- deprecated(common, missing.common, args, "comb.fixed",
+                       warn.deprecated)
+  common <- deprecated(common, missing.common, args, "fixed",
+                       warn.deprecated)
+  chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random", FALSE)
   chklogical(random)
@@ -314,11 +323,13 @@ print.meta <- function(x,
                FALSE)
   ##
   nchar.subgroup <-
-    deprecated(nchar.subgroup, missing(nchar.subgroup), args, "nchar.subgroup")
+    deprecated(nchar.subgroup, missing(nchar.subgroup), args, "nchar.subgroup",
+               warn.deprecated)
   chknumeric(nchar.subgroup, min = 1, length = 1)
   ##
   backtransf <-
-    deprecated(backtransf, missing(backtransf), args, "logscale")
+    deprecated(backtransf, missing(backtransf), args, "logscale",
+               warn.deprecated)
   if (is.untransformed(x$sm))
     backtransf <- TRUE
   chklogical(backtransf)
@@ -354,11 +365,12 @@ print.meta <- function(x,
   bip <- inherits(x, c("metabin", "metainc", "metaprop", "metarate"))
   metabin <- inherits(x, "metabin")
   metaprop <- inherits(x, "metaprop")
+  metarate <- inherits(x, "metarate")
   ##
   print.ci <- attr(x, ".print.study.results.")
   if (!is.null(print.ci) && print.ci) {
     method.ci <- x$method.ci
-    if (metaprop & !backtransf)
+    if ((metaprop | metarate) & !backtransf)
       method.ci <- "NAsm"
   }
   else
@@ -425,13 +437,14 @@ print.meta <- function(x,
   ##
   if (by)
     bylevs <- ifelse(nchar(x$bylevs) > nchar.subgroup,
-                     paste0(substring(x$bylevs, 1, nchar.subgroup - 4), " ..."),
+                     paste0(substring(x$bylevs, 1, nchar.subgroup - 4),
+                            " ..."),
                      x$bylevs)
   ##
-  if (is.null(x$text.fixed))
-    text.fixed <- gs("text.fixed")
+  if (is.null(x$text.common))
+    text.common <- gs("text.common")
   else
-    text.fixed <- x$text.fixed
+    text.common <- x$text.common
   ##
   if (is.null(x$text.random))
     text.random <- gs("text.random")
@@ -443,12 +456,12 @@ print.meta <- function(x,
   else
     text.predict <- x$text.predict
   ##
-  if (substring(text.fixed, 1, 5) %in% c("Fixed", "Commo", "Rando")) {
-    text.fixed.br <- tolower(text.fixed)
+  if (substring(text.common, 1, 5) %in% c("Fixed", "Commo", "Rando")) {
+    text.common.br <- tolower(text.common)
     text.random.br <- tolower(text.random)
   }
   else {
-    text.fixed.br <- text.fixed
+    text.common.br <- text.common
     text.random.br <- text.random
   }
   ##
@@ -460,11 +473,11 @@ print.meta <- function(x,
   ## (4) Set and backtransform results of meta-analysis
   ##
   ##
-  TE.fixed <- x$TE.fixed
-  lowTE.fixed <- x$lower.fixed
-  uppTE.fixed <- x$upper.fixed
-  pTE.fixed <- x$pval.fixed
-  sTE.fixed <- x$statistic.fixed
+  TE.common <- x$TE.common
+  lowTE.common <- x$lower.common
+  uppTE.common <- x$upper.common
+  pTE.common <- x$pval.common
+  sTE.common <- x$statistic.common
   ##
   TE.random <- x$TE.random
   lowTE.random <- x$lower.random
@@ -490,10 +503,10 @@ print.meta <- function(x,
   }
   ##
   if (by) {
-    TE.fixed.w      <- x$TE.fixed.w
-    lowTE.fixed.w   <- x$lower.fixed.w
-    uppTE.fixed.w   <- x$upper.fixed.w
-    pval.fixed.w    <- x$pval.fixed.w
+    TE.common.w      <- x$TE.common.w
+    lowTE.common.w   <- x$lower.common.w
+    uppTE.common.w   <- x$upper.common.w
+    pval.common.w    <- x$pval.common.w
     harmonic.mean.w <- x$n.harmonic.mean.w
     ##
     TE.random.w     <- x$TE.random.w
@@ -504,8 +517,8 @@ print.meta <- function(x,
     lowTE.predict.w <- x$lower.predict.w
     uppTE.predict.w <- x$upper.predict.w
     ##
-    Q.b.fixed <- x$Q.b.fixed
-    Q.w.fixed <- x$Q.w.fixed
+    Q.b.common <- x$Q.b.common
+    Q.w.common <- x$Q.w.common
     Q.b.random <- x$Q.b.random
     Q.w.random <- x$Q.w.random
     ##
@@ -514,8 +527,8 @@ print.meta <- function(x,
     df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
     df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
     ##
-    pval.Q.b.fixed  <- replaceNULL(x$pval.Q.b.fixed, pvalQ(Q.b.fixed, df.Q.b))
-    pval.Q.w.fixed  <- replaceNULL(x$pval.Q.w.fixed, pvalQ(Q.w.fixed, df.Q.w))
+    pval.Q.b.common  <- replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b))
+    pval.Q.w.common  <- replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
     pval.Q.b.random <- replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
     pval.Q.w.random <- replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w))
   }
@@ -534,15 +547,15 @@ print.meta <- function(x,
         harmonic.mean <- 1 / mean(1 / x$n)
     }
     ##
-    TE.fixed    <- backtransf(TE.fixed, sm, "mean",
-                              harmonic.mean,
-                              warn = overall & fixed & warn.backtransf)
-    lowTE.fixed <- backtransf(lowTE.fixed, sm, "lower",
-                              harmonic.mean,
-                              warn = overall & fixed & warn.backtransf)
-    uppTE.fixed <- backtransf(uppTE.fixed, sm, "upper",
-                              harmonic.mean,
-                              warn = overall & fixed & warn.backtransf)
+    TE.common    <- backtransf(TE.common, sm, "mean",
+                               harmonic.mean,
+                               warn = overall & common & warn.backtransf)
+    lowTE.common <- backtransf(lowTE.common, sm, "lower",
+                               harmonic.mean,
+                               warn = overall & common & warn.backtransf)
+    uppTE.common <- backtransf(uppTE.common, sm, "upper",
+                               harmonic.mean,
+                               warn = overall & common & warn.backtransf)
     ##
     TE.random <- backtransf(TE.random, sm, "mean",
                             harmonic.mean,
@@ -562,18 +575,18 @@ print.meta <- function(x,
                                 warn = overall & prediction & warn.backtransf)
     ##
     if (by) {
-      TE.fixed.w     <- backtransf(TE.fixed.w, sm, "mean",
-                                   harmonic.mean.w,
-                                   warn = overall & fixed &
-                                     warn.backtransf)
-      lowTE.fixed.w  <- backtransf(lowTE.fixed.w, sm, "lower",
-                                   harmonic.mean.w,
-                                   warn = overall & fixed &
-                                     warn.backtransf)
-      uppTE.fixed.w  <- backtransf(uppTE.fixed.w, sm, "upper",
-                                   harmonic.mean.w,
-                                   warn = overall & fixed &
-                                     warn.backtransf)
+      TE.common.w     <- backtransf(TE.common.w, sm, "mean",
+                                    harmonic.mean.w,
+                                    warn = overall & common &
+                                      warn.backtransf)
+      lowTE.common.w  <- backtransf(lowTE.common.w, sm, "lower",
+                                    harmonic.mean.w,
+                                    warn = overall & common &
+                                      warn.backtransf)
+      uppTE.common.w  <- backtransf(uppTE.common.w, sm, "upper",
+                                    harmonic.mean.w,
+                                    warn = overall & common &
+                                      warn.backtransf)
       ##
       TE.random.w    <- backtransf(TE.random.w, sm, "mean",
                                    harmonic.mean.w,
@@ -608,9 +621,9 @@ print.meta <- function(x,
     else if (is.rate | sm == "IRD")
       scale <- irscale
     ##
-    TE.fixed    <- scale * TE.fixed
-    lowTE.fixed <- scale * lowTE.fixed
-    uppTE.fixed <- scale * uppTE.fixed
+    TE.common    <- scale * TE.common
+    lowTE.common <- scale * lowTE.common
+    uppTE.common <- scale * uppTE.common
     ##
     TE.random    <- scale * TE.random
     lowTE.random <- scale * lowTE.random
@@ -620,9 +633,9 @@ print.meta <- function(x,
     uppTE.predict <- scale * uppTE.predict
     ##
     if (by) {
-      TE.fixed.w    <- scale * TE.fixed.w
-      lowTE.fixed.w <- scale * lowTE.fixed.w
-      uppTE.fixed.w <- scale * uppTE.fixed.w
+      TE.common.w    <- scale * TE.common.w
+      lowTE.common.w <- scale * lowTE.common.w
+      uppTE.common.w <- scale * uppTE.common.w
       ##   
       TE.random.w    <- scale * TE.random.w
       lowTE.random.w <- scale * lowTE.random.w
@@ -637,10 +650,10 @@ print.meta <- function(x,
   ##
   ## Round and round ...
   ##
-  TE.fixed    <- round(TE.fixed, digits)
-  lowTE.fixed <- round(lowTE.fixed, digits)
-  uppTE.fixed <- round(uppTE.fixed, digits)
-  sTE.fixed <- round(sTE.fixed, digits.stat)
+  TE.common    <- round(TE.common, digits)
+  lowTE.common <- round(lowTE.common, digits)
+  uppTE.common <- round(uppTE.common, digits)
+  sTE.common <- round(sTE.common, digits.stat)
   ##
   TE.random    <- round(TE.random, digits)
   lowTE.random <- round(lowTE.random, digits)
@@ -652,9 +665,9 @@ print.meta <- function(x,
   uppTE.predict <- round(uppTE.predict, digits)
   ##
   if (by) {
-    TE.fixed.w     <- round(TE.fixed.w, digits)
-    lowTE.fixed.w  <- round(lowTE.fixed.w, digits)
-    uppTE.fixed.w  <- round(uppTE.fixed.w, digits)
+    TE.common.w     <- round(TE.common.w, digits)
+    lowTE.common.w  <- round(lowTE.common.w, digits)
+    uppTE.common.w  <- round(uppTE.common.w, digits)
     ##
     TE.random.w    <- round(TE.random.w, digits)
     lowTE.random.w <- round(lowTE.random.w, digits)
@@ -711,7 +724,7 @@ print.meta <- function(x,
   ##
   sel.n <- inherits(x, c("metacor", "metaprop", "metamean", "metarate"))
   ##
-  sel.ev <- inherits(x, "metaprop")
+  sel.ev <- inherits(x, c("metaprop", "metarate"))
   
   
   ##
@@ -749,16 +762,16 @@ print.meta <- function(x,
         catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
     }
     ##
-    res <- cbind(formatN(TE.fixed, digits, "NA",
+    res <- cbind(formatN(TE.common, digits, "NA",
                          big.mark = big.mark),
-                 formatCI(formatN(lowTE.fixed, digits, "NA",
+                 formatCI(formatN(lowTE.common, digits, "NA",
                                   big.mark = big.mark),
-                          formatN(uppTE.fixed, digits, "NA",
+                          formatN(uppTE.common, digits, "NA",
                                   big.mark = big.mark)),
                  if (null.given)
-                   formatN(sTE.fixed, digits.stat, big.mark = big.mark),
+                   formatN(sTE.common, digits.stat, big.mark = big.mark),
                  if (null.given)
-                   formatPT(pTE.fixed, digits = digits.pval,
+                   formatPT(pTE.common, digits = digits.pval,
                             scientific = scientific.pval,
                             zero = zero.pval, JAMA = JAMA.pval))
     dimnames(res) <- list(x$studlab,
@@ -770,7 +783,7 @@ print.meta <- function(x,
     if (details.methods)
       catmeth(class = class(x),
               method =
-                if (!metaprop | (overall & (fixed | random)) |
+                if (!(metaprop | metarate) | (overall & (common | random)) |
                     overall.hetstat | by)
                   x$method else "NoMA",
               sm = sm,
@@ -812,14 +825,14 @@ print.meta <- function(x,
     if (header & is.metamiss)
       cat("\n")
     ##
-    if (overall & (fixed | random | prediction)) {
+    if (overall & (common | random | prediction)) {
       if (!inherits(x, "trimfill")) {
         if (x$method == "MH" &&
             (inherits(x, c("metabin", "metainc")) &
-             fixed & sm %in% c("RD", "IRD") &
+             common & sm %in% c("RD", "IRD") &
              (!is.null(x$k.MH) == 1 && k != x$k.MH)))
           cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
-                     " (", text.fixed.br, "), k = ",
+                     " (", text.common.br, "), k = ",
                      format(k, big.mark = big.mark),
                      " (", text.random.br, ")\n"))
         else {
@@ -855,26 +868,26 @@ print.meta <- function(x,
           catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
       }
       ##
-      res <- cbind(formatN(c(if (fixed) TE.fixed,
+      res <- cbind(formatN(c(if (common) TE.common,
                              if (random) TE.random,
                              if (prediction) NA),
                            digits, "NA",
                            big.mark = big.mark),
-                   formatCI(formatN(c(if (fixed) lowTE.fixed,
+                   formatCI(formatN(c(if (common) lowTE.common,
                                       if (random) lowTE.random,
                                       if (prediction) lowTE.predict),
                                     digits, "NA", big.mark = big.mark),
-                            formatN(c(if (fixed) uppTE.fixed,
+                            formatN(c(if (common) uppTE.common,
                                       if (random) uppTE.random,
                                       if (prediction) uppTE.predict),
                                     digits, "NA", big.mark = big.mark)),
                    if (null.given)
-                     formatN(c(if (fixed) sTE.fixed,
+                     formatN(c(if (common) sTE.common,
                                if (random) sTE.random,
                                if (prediction) NA),
                              digits = digits.stat, big.mark = big.mark),
                    if (null.given)
-                     formatPT(c(if (fixed) pTE.fixed,
+                     formatPT(c(if (common) pTE.common,
                                 if (random) pTE.random,
                                 if (prediction) NA),
                               digits = digits.pval,
@@ -886,11 +899,11 @@ print.meta <- function(x,
           res[dim(res)[1], 3:4] <- ""
       }
       if (!is.null(x$hakn) && x$hakn) {
-        if (fixed & random)
+        if (common & random)
           zlab <- "z|t"
-        else if (fixed & !random)
+        else if (common & !random)
           zlab <- "z"
-        else if (!fixed & random)
+        else if (!common & random)
           zlab <- "t"
       }
       else
@@ -905,7 +918,7 @@ print.meta <- function(x,
                                       round(100 * x$level.predict, 1),
                                       "%-PI)"))
       ##
-      dimnames(res) <- list(c(if (fixed) text.fixed,
+      dimnames(res) <- list(c(if (common) text.common,
                               if (random) text.random,
                               if (prediction) lab.predict),
                             c(sm.lab, ci.lab,
@@ -993,7 +1006,7 @@ print.meta <- function(x,
       ##
       if (by & !is.metabind) {
         ##
-        Q.resid <- x$Q.w.fixed
+        Q.resid <- x$Q.w.common
         k.resid <- x$df.Q.w + 1
         ##
         if (print.H) {
@@ -1036,7 +1049,7 @@ print.meta <- function(x,
       ##
       ## Test of heterogeneity
       ##
-      if (fixed | random) {
+      if (common | random) {
         if (k > 1) {
           if (!is.glmm) {
             Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
@@ -1083,16 +1096,16 @@ print.meta <- function(x,
       else
         anaunit <- "subgroups"
       ##
-      if (fixed) {
+      if (common) {
         ##
-        ## Subgroup analysis based on fixed effect model
+        ## Subgroup analysis based on common effect model
         ##
         Tdata <- cbind(format(k.w, big.mark = big.mark),
-                       formatN(TE.fixed.w, digits, "NA",
+                       formatN(TE.common.w, digits, "NA",
                                big.mark = big.mark),
-                       formatCI(formatN(lowTE.fixed.w, digits, "NA",
+                       formatCI(formatN(lowTE.common.w, digits, "NA",
                                         big.mark = big.mark),
-                                formatN(uppTE.fixed.w, digits, "NA",
+                                formatN(uppTE.common.w, digits, "NA",
                                         big.mark = big.mark)),
                        formatN(round(Q.w, digits.Q), digits.Q,
                                big.mark = big.mark),
@@ -1137,7 +1150,7 @@ print.meta <- function(x,
                    if (is.metabind & length(unique(x$pooled)) != 1)
                      ":\n"
                    else
-                     paste0(" (", text.fixed.br, "):\n")))
+                     paste0(" (", text.common.br, "):\n")))
         ##
         prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
         ##
@@ -1152,14 +1165,14 @@ print.meta <- function(x,
           Q.lab <- "Q"
         }
         ##
-        if (test.subgroup.fixed & !is.metabind) {
+        if (test.subgroup.common & !is.metabind) {
           cat(paste0("\nTest for subgroup differences (",
-                     text.fixed.br, "):\n"))
+                     text.common.br, "):\n"))
           if (x$method == "MH") {
-            Qdata <- cbind(formatN(round(Q.b.fixed, digits.Q), digits.Q, "NA",
+            Qdata <- cbind(formatN(round(Q.b.common, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
                            formatN(dfs.b, digits = 0, big.mark = big.mark),
-                           formatPT(pval.Q.b.fixed,
+                           formatPT(pval.Q.b.common,
                                     digits = digits.pval.Q,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval))
@@ -1168,12 +1181,12 @@ print.meta <- function(x,
             prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
           }
           else {
-            Qs  <- c(Q.b.fixed, Q.w.fixed)
+            Qs  <- c(Q.b.common, Q.w.common)
             dfs <- c(dfs.b, formatN(df.Q.w, digits = 0, big.mark = big.mark))
             Q.lab <-
               ifelse(is.glmm && Q.lab == "F", "F/Q", Q.lab)
             ##
-            pvals <- c(pval.Q.b.fixed, pval.Q.w.fixed)
+            pvals <- c(pval.Q.b.common, pval.Q.w.common)
             Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
                            dfs,
@@ -1209,14 +1222,14 @@ print.meta <- function(x,
                                        digits = digits.tau,
                                        big.mark = big.mark,
                                        noblanks = TRUE)),
-                       if (!fixed)
+                       if (!common)
                          formatN(round(Q.w, digits.Q), digits.Q,
                                  big.mark = big.mark),
-                       if (!fixed & print.I2)
+                       if (!common & print.I2)
                          ifelse(is.na(I2.w),
                                 "--",
                                 paste0(formatN(I2.w, digits.I2), "%")),
-                       if (!fixed & print.Rb)
+                       if (!common & print.Rb)
                          ifelse(is.na(Rb.w),
                                 "--",
                                 paste0(formatN(Rb.w, digits.I2,
@@ -1232,9 +1245,9 @@ print.meta <- function(x,
                                     "  m" else "  k",
                                   sm.lab, ci.lab,
                                   text.tau2, text.tau,
-                                  if (!fixed) "Q",
-                                  if (!fixed & print.I2) text.I2,
-                                  if (!fixed & print.Rb) text.Rb)
+                                  if (!common) "Q",
+                                  if (!common & print.I2) text.I2,
+                                  if (!common & print.Rb) text.Rb)
                                 )
         ##
         cat(paste0("\nResults for ", anaunit,
@@ -1314,17 +1327,17 @@ print.meta <- function(x,
     ##
     ## Print information on meta-analysis method:
     ##
-    if (details.methods & (fixed | random | prediction))
+    if (details.methods & (common | random | prediction))
       catmeth(class = class(x),
               method =
-                if ((overall & (fixed | random)) |
+                if ((overall & (common | random)) |
                     overall.hetstat | by)
                   x$method else "NoMA",
               method.tau =
                 if ((overall & random) | overall.hetstat | by)
                   x$method.tau else NULL,
               sm =
-                if ((overall & (fixed | random)) |
+                if ((overall & (common | random)) |
                     overall.hetstat | by)
                   sm else "",
               k.all = k.all,

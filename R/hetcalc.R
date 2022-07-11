@@ -1,7 +1,7 @@
 hetcalc <- function(TE, seTE,
                     method.tau, method.tau.ci,
                     TE.tau, level.hetstats, subgroup, control,
-                    id = NULL) {
+                    cluster = NULL) {
   
   Ccalc <- function(x) {
     res <- (sum(x, na.rm = TRUE) -
@@ -17,21 +17,31 @@ hetcalc <- function(TE, seTE,
   sel.noInf <- !is.infinite(TE) & !is.infinite(seTE)
   TE <- TE[sel.noInf]
   seTE <- seTE[sel.noInf]
-  if (!is.null(id))
-    id <- id[sel.noInf]
+  if (!is.null(cluster))
+    cluster <- cluster[sel.noInf]
   if (by)
     subgroup <- subgroup[sel.noInf]
   ##
   sel.noNA <- !(is.na(TE) | is.na(seTE))
   TE <- TE[sel.noNA]
   seTE <- seTE[sel.noNA]
-  if (!is.null(id))
-    id <- id[sel.noNA]
+  if (!is.null(cluster))
+    cluster <- cluster[sel.noNA]
   if (by)
     subgroup <- subgroup[sel.noNA]
   ##
   noHet <- all(!sel.noNA) || sum(sel.noNA) < 2
   allNA <- all(!sel.noNA)
+  ##
+  three.level <- FALSE
+  ##
+  ## Only conduct three-level meta-analysis if variable 'cluster'
+  ## contains duplicate values after removing inestimable study
+  ## results standard errors
+  ##
+  if (!is.null(cluster) &&
+      length(unique(cluster)) != length(cluster))
+    three.level <- TRUE
   
   
   ##
@@ -41,10 +51,10 @@ hetcalc <- function(TE, seTE,
     ##
     ## Mantel-Haenszel estimator to calculate Q and tau (like RevMan 5)
     ##
-    w.fixed <- 1 / seTE^2
-    w.fixed[is.na(w.fixed)] <- 0
+    w.common <- 1 / seTE^2
+    w.common[is.na(w.common)] <- 0
     ##
-    Q <- sum(w.fixed * (TE - TE.tau)^2, na.rm = TRUE)
+    Q <- sum(w.common * (TE - TE.tau)^2, na.rm = TRUE)
     df.Q <- sum(!is.na(seTE)) - 1
     pval.Q <- pvalQ(Q, df.Q)
     ##
@@ -53,7 +63,7 @@ hetcalc <- function(TE, seTE,
     else if (round(Q, digits = 18) <= df.Q)
       tau2 <- 0
     else
-      tau2 <- (Q - df.Q) / Ccalc(w.fixed)
+      tau2 <- (Q - df.Q) / Ccalc(w.common)
     ##
     se.tau2 <- lower.tau2 <- upper.tau2 <- NA
     tau <- sqrt(tau2)
@@ -79,37 +89,41 @@ hetcalc <- function(TE, seTE,
       sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
     }
     else {
-      if (is.null(id)) {
+      if (!three.level) {
         mf0 <- runNN(rma.uni,
                      list(yi = TE, sei = seTE, method = method.tau,
                           control = control))
         ##
         tau2 <- mf0$tau2
         se.tau2 <- mf0$se.tau2
+        ## Calculate Cochran's Q
+        w <- 1 / seTE^2
+        Q <- sum(w * (TE - weighted.mean(TE, w))^2)
       }
       else {
         idx <- seq_along(TE)
         mf0 <-
           runNN(rma.mv,
                 list(yi = TE, V = seTE^2, method = method.tau,
-                     random = as.call(~ 1 | id / idx),
+                     random = as.call(~ 1 | cluster / idx),
                      control = control,
-                     data = data.frame(id, idx)),
+                     data = data.frame(cluster, idx)),
                 warn = FALSE)
         ##
         tau2 <- mf0$sigma2
         se.tau2 <- NA
+        ##
+        Q <- mf0$QE
       }
       ##
       tau <- sqrt(tau2)
       ##
-      Q <- mf0$QE
       df.Q <- mf0$k - mf0$p
       pval.Q <- pvalQ(Q, df.Q)
       ##
       if (df.Q < 2)
         method.tau.ci <- ""
-      else if (!is.null(id) & method.tau.ci != "")
+      else if (three.level & method.tau.ci != "")
         method.tau.ci <- "PL"
       ##
       ## Confidence interal for overall result
@@ -143,7 +157,7 @@ hetcalc <- function(TE, seTE,
     if (is.numeric(subgroup))
       subgroup <- as.factor(subgroup)
     ##
-    if (is.null(id)) {
+    if (!three.level) {
       if (length(unique(subgroup)) == 1)
         mf1 <-
           runNN(rma.uni,
@@ -182,18 +196,18 @@ hetcalc <- function(TE, seTE,
         mf1 <-
           runNN(rma.mv,
                 list(yi = TE, V = seTE^2, method = method.tau,
-                     random = as.call(~ 1 | id / idx),
+                     random = as.call(~ 1 | cluster / idx),
                      control = control,
-                     data = data.frame(id, idx)),
+                     data = data.frame(cluster, idx)),
                 warn = FALSE)
       else {
         mf1 <-
           try(
             runNN(rma.mv,
                   list(yi = TE, V = seTE^2, method = method.tau,
-                       random = as.call(~ 1 | id / idx),
+                       random = as.call(~ 1 | cluster / idx),
                        mods = as.call(~ subgroup), control = control,
-                       data = data.frame(TE, seTE, subgroup, id, idx)),
+                       data = data.frame(TE, seTE, subgroup, cluster, idx)),
                   warn = FALSE),
             silent = TRUE)
         ##
@@ -206,9 +220,9 @@ hetcalc <- function(TE, seTE,
               runNN(rma.mv,
                     list(yi = TE, V = seTE^2,
                          method = "FE",
-                         random = as.call(~ 1 | id / idx),
+                         random = as.call(~ 1 | cluster / idx),
                          mods = as.call(~ subgroup), control = control,
-                         data = data.frame(TE, seTE, subgroup, id, idx)),
+                         data = data.frame(TE, seTE, subgroup, cluster, idx)),
                     warn = FALSE)
           }
           else
@@ -227,7 +241,7 @@ hetcalc <- function(TE, seTE,
     ##
     if (df.Q < 2 || useFE)
       method.tau.ci <- ""
-    else if (!is.null(id) & method.tau.ci != "")
+    else if (three.level & method.tau.ci != "")
       method.tau.ci <- "PL"
     ##
     ## Confidence interal for residual heterogeneity

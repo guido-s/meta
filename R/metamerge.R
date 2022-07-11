@@ -9,12 +9,12 @@
 #' @param meta1 First meta-analysis object (see Details).
 #' @param meta2 Second meta-analysis object (see Details).
 #' @param pooled1 A character string indicating whether results of
-#'   fixed effect or random effects model should be considered for
-#'   first meta-analysis. Either \code{"fixed"} or \code{"random"},
+#'   common effect or random effects model should be considered for
+#'   first meta-analysis. Either \code{"common"} or \code{"random"},
 #'   can be abbreviated.
 #' @param pooled2 A character string indicating whether results of
-#'   fixed effect or random effects model should be considered for
-#'   second meta-analysis. Either \code{"fixed"} or \code{"random"},
+#'   common effect or random effects model should be considered for
+#'   second meta-analysis. Either \code{"common"} or \code{"random"},
 #'   can be abbreviated.
 #' @param text.pooled1 A character string used in printouts and forest
 #'   plot to label the estimate from the first meta-analysis.
@@ -35,13 +35,13 @@
 #' 
 #' @details
 #' In R package \bold{meta}, objects of class \code{"meta"} contain
-#' results of both a fixed effect and random effects
+#' results of both a common effect and random effects
 #' meta-analysis. This function enables the user to keep the results
 #' of one of these models and to add results from a second
 #' meta-analysis or a sensitivity analysis.
 #'
 #' Applications of this function include printing and plotting results
-#' of the fixed effect or random effects meta-analysis and the
+#' of the common effect or random effects meta-analysis and the
 #' \itemize{
 #' \item Hartung-Knapp method (see argument \code{hakn} in
 #'   \code{\link{metagen}}),
@@ -87,14 +87,14 @@
 #'   individual studies (first meta-analysis).}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies (first meta-analysis.}
-#' \item{w.fixed}{Weight of individual studies (first meta-analysis).}
+#' \item{w.common}{Weight of individual studies (first meta-analysis).}
 #' \item{w.random}{Weight of individual studies (second
 #'   meta-analysis).}
-#' \item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
+#' \item{TE.common, seTE.common}{Estimated overall treatment effect and
 #'   standard error (first meta-analysis).}
-#' \item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+#' \item{lower.common, upper.common}{Lower and upper confidence interval
 #'   limits (first meta-analysis).}
-#' \item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+#' \item{statistic.common, pval.common}{Statistic and p-value for test of
 #'   overall treatment effect (first meta-analysis).}
 #' \item{TE.random, seTE.random}{Estimated overall treatment effect and
 #'   standard error (second meta-analysis).}
@@ -117,7 +117,7 @@
 #'   (first and second meta-analysis).}
 #' \item{lower.tau, upper.tau}{Lower and upper limit of confidence
 #'   interval(s) for \eqn{\tau} (first and second meta-analysis).}
-#' \item{text.fixed}{Label for the first meta-analysis.}
+#' \item{text.common}{Label for the first meta-analysis.}
 #' \item{text.random}{Label for the second meta-analysis.}
 #'
 #' See \code{\link{metagen}} for information on other list
@@ -131,7 +131,7 @@
 #' data(Fleiss1993cont)
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "MD", fixed = FALSE,
+#'   data = Fleiss1993cont, sm = "MD", common = FALSE,
 #'   text.random = "Classic random effects", text.w.random = "RE")
 #' #
 #' # Use Hartung-Knapp method
@@ -143,7 +143,7 @@
 #' #
 #' m12 <- metamerge(m1, m2)
 #' m12
-#' forest(m12, rightcols = c("effect", "ci", "w.fixed"))
+#' forest(m12, rightcols = c("effect", "ci", "w.common"))
 #'
 #' # Show results for DerSimonian-Laird and REML estimate of
 #' # between-study variance
@@ -162,12 +162,12 @@
 #' #
 #' m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'   studlab = paste(study, year), sm = "OR", random = FALSE,
-#'   text.fixed = "MH method", text.w.fixed = "MH")
+#'   text.common = "MH method", text.w.common = "MH")
 #' #
 #' # Peto method
 #' #
-#' m6 <- update(m5, method = "Peto", text.fixed = "Peto method",
-#'   text.w.fixed = "Peto")
+#' m6 <- update(m5, method = "Peto", text.common = "Peto method",
+#'   text.w.common = "Peto")
 #' #
 #' # Merge results (show individual results for MH method)
 #' #
@@ -222,18 +222,22 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   is.limit <- inherits(meta2, "limitmeta")
   is.robu <- inherits(meta2, "robu")
   ##
-  if (!missing(pooled1))
-    pooled1 <- setchar(pooled1, c("fixed", "random"))
+  if (!missing(pooled1)) {
+    pooled1 <- setchar(pooled1, c("common", "random", "fixed"))
+    pooled1[pooled1 == "fixed"] <- "common"
+  }
   else
-    pooled1 <- ifelse(meta1$random, "random", "fixed")
+    pooled1 <- ifelse(meta1$random, "random", "common")
   ##
-  if (!missing(pooled2))
-    pooled2 <- setchar(pooled2, c("fixed", "random"))
+  if (!missing(pooled2)) {
+    pooled2 <- setchar(pooled2, c("common", "random", "fixed"))
+    pooled2[pooled2 == "fixed"] <- "common"
+  }
   else {
     if (is.copas | is.limit | is.robu)
       pooled2 <- "random"
     else
-      pooled2 <- ifelse(meta2$random, "random", "fixed")
+      pooled2 <- ifelse(meta2$random, "random", "common")
   }
   ##
   if (!missing(text.pooled1))
@@ -312,7 +316,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   
   
   ##
-  ## Result of first meta-analysis is saved in list elements for fixed
+  ## Result of first meta-analysis is saved in list elements for common
   ## effect model
   ##
   if (pooled1 == "random" && !is.null(meta1$hakn) && meta1$hakn)
@@ -323,39 +327,39 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   if (pooled1 == "random") {
     if (!missing(text.pooled1))
-      res$text.fixed <- text.pooled1
+      res$text.common <- text.pooled1
     else
-      res$text.fixed <- meta1$text.random
+      res$text.common <- meta1$text.random
     ##
     if (!missing(text.w.pooled1))
-      res$text.w.fixed <- text.w.pooled1
+      res$text.w.common <- text.w.pooled1
     else
-      res$text.w.fixed <- meta1$text.w.random
+      res$text.w.common <- meta1$text.w.random
     ##
     res$detail.tau <- meta1$detail.tau
     ##
-    res$TE.fixed <- meta1$TE.random
-    res$seTE.fixed <- meta1$seTE.random
-    res$lower.fixed <- meta1$lower.random
-    res$upper.fixed <- meta1$upper.random
-    res$statistic.fixed <- meta1$statistic.random
-    res$pval.fixed <- meta1$pval.random
-    res$w.fixed <- meta1$w.random
+    res$TE.common <- meta1$TE.random
+    res$seTE.common <- meta1$seTE.random
+    res$lower.common <- meta1$lower.random
+    res$upper.common <- meta1$upper.random
+    res$statistic.common <- meta1$statistic.random
+    res$pval.common <- meta1$pval.random
+    res$w.common <- meta1$w.random
     ##
     if (!is.null(meta1$subgroup)) {
-      res$TE.fixed.w <- meta1$TE.random.w
-      res$seTE.fixed.w <- meta1$seTE.random.w
-      res$lower.fixed.w <- meta1$lower.random.w
-      res$upper.fixed.w <- meta1$upper.random.w
-      res$statistic.fixed.w <- meta1$statistic.random.w
-      res$pval.fixed.w <- meta1$pval.random.w
-      res$w.fixed.w <- meta1$w.random.w
+      res$TE.common.w <- meta1$TE.random.w
+      res$seTE.common.w <- meta1$seTE.random.w
+      res$lower.common.w <- meta1$lower.random.w
+      res$upper.common.w <- meta1$upper.random.w
+      res$statistic.common.w <- meta1$statistic.random.w
+      res$pval.common.w <- meta1$pval.random.w
+      res$w.common.w <- meta1$w.random.w
       ##
-      res$Q.w.fixed <- meta1$Q.w.random
-      res$pval.Q.w.fixed <- meta1$pval.Q.w.random
+      res$Q.w.common <- meta1$Q.w.random
+      res$pval.Q.w.common <- meta1$pval.Q.w.random
       ##
-      res$Q.b.fixed <- meta1$Q.b.random
-      res$pval.Q.b.fixed <- meta1$pval.Q.b.random
+      res$Q.b.common <- meta1$Q.b.random
+      res$pval.Q.b.common <- meta1$pval.Q.b.random
     }
   }
   
@@ -405,53 +409,53 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     ##
     res$w.random <- meta2$data.full$r.weights
   }
-  else if (pooled2 == "fixed") {
+  else if (pooled2 == "common") {
     if (!missing(text.pooled2))
       res$text.random <- text.pooled2
     else {
       if (inherits(meta2, "trimfill"))
         res$text.random <-
-          paste(meta2$text.fixed, "(trim-and-fill)")
+          paste(meta2$text.common, "(trim-and-fill)")
       else
-        res$text.random <- meta2$text.fixed
+        res$text.random <- meta2$text.common
     }
     ##
     if (!missing(text.w.pooled2))
       res$text.w.random <- text.w.pooled2
     else
-      res$text.w.random <- meta2$text.w.fixed
+      res$text.w.random <- meta2$text.w.common
     ##
-    res$TE.random <- meta2$TE.fixed
-    res$seTE.random <- meta2$seTE.fixed
-    res$lower.random <- meta2$lower.fixed
-    res$upper.random <- meta2$upper.fixed
-    res$statistic.random <- meta2$statistic.fixed
-    res$pval.random <- meta2$pval.fixed
+    res$TE.random <- meta2$TE.common
+    res$seTE.random <- meta2$seTE.common
+    res$lower.random <- meta2$lower.common
+    res$upper.random <- meta2$upper.common
+    res$statistic.random <- meta2$statistic.common
+    res$pval.random <- meta2$pval.common
     ##
     if (!inherits(meta1, "trimfill") & inherits(meta2, "trimfill"))
-      res$w.random <- meta2$w.fixed[seq_along(res$w.random)]
+      res$w.random <- meta2$w.common[seq_along(res$w.random)]
     else if (inherits(meta1, "trimfill") & !inherits(meta2, "trimfill")) {
       res$w.random[res$w.random != 0] <- 0
-      res$w.random[seq_along(meta2$w.fixed)] <-
-        meta2$w.fixed
+      res$w.random[seq_along(meta2$w.common)] <-
+        meta2$w.common
     }
     else
-      res$w.random <- meta2$w.fixed
+      res$w.random <- meta2$w.common
     ##
     if (!is.null(meta2$subgroup)) {
-      res$TE.random.w <- meta2$TE.fixed.w
-      res$seTE.random.w <- meta2$seTE.fixed.w
-      res$lower.random.w <- meta2$lower.fixed.w
-      res$upper.random.w <- meta2$upper.fixed.w
-      res$statistic.random.w <- meta2$statistic.fixed.w
-      res$pval.random.w <- meta2$pval.fixed.w
-      res$w.random.w <- meta2$w.fixed.w
+      res$TE.random.w <- meta2$TE.common.w
+      res$seTE.random.w <- meta2$seTE.common.w
+      res$lower.random.w <- meta2$lower.common.w
+      res$upper.random.w <- meta2$upper.common.w
+      res$statistic.random.w <- meta2$statistic.common.w
+      res$pval.random.w <- meta2$pval.common.w
+      res$w.random.w <- meta2$w.common.w
       ##
-      res$Q.w.random <- meta2$Q.w.fixed
-      res$pval.Q.w.random <- meta2$pval.Q.w.fixed
+      res$Q.w.random <- meta2$Q.w.common
+      res$pval.Q.w.random <- meta2$pval.Q.w.common
       ##
-      res$Q.b.random <- meta2$Q.b.fixed
-      res$pval.Q.b.random <- meta2$pval.Q.b.fixed
+      res$Q.b.random <- meta2$Q.b.common
+      res$pval.Q.b.random <- meta2$pval.Q.b.common
     }
   }
   else {
@@ -542,7 +546,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$Q.Cochrane <-
       if (meta1$Q.Cochrane == meta2$Q.Cochrane) meta1$Q.Cochrane else FALSE
   ##
-  if (pooled1 == "fixed" & pooled2 == "fixed") {
+  if (pooled1 == "common" & pooled2 == "common") {
     res$overall.hetstat <- FALSE
     ##
     res$method.tau <- ""
@@ -556,7 +560,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$se.tau <- NA
   }
   ##
-  if (pooled1 == "fixed" & pooled2 == "random") {
+  if (pooled1 == "common" & pooled2 == "random") {
     res$method.tau <- meta2$method.tau
     res$method.tau.ci <- meta2$method.tau.ci    
     ##
@@ -634,13 +638,13 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
           res$method.tau <- ""
         }
         ##
-      if (meta1$method.tau.ci != meta2$method.tau.ci) {
-        if (res$detail.tau == "")
-          res$detail.tau <- meta1$method.tau.ci
-        if (meta2$detail.tau == "")
-          meta2$detail.tau <- meta2$method.tau.ci
-        res$method.tau.ci <- ""
-      }
+        if (meta1$method.tau.ci != meta2$method.tau.ci) {
+          if (res$detail.tau == "")
+            res$detail.tau <- meta1$method.tau.ci
+          if (meta2$detail.tau == "")
+            meta2$detail.tau <- meta2$method.tau.ci
+          res$method.tau.ci <- ""
+        }
         ##
         res$tau <- c(res$tau, meta2$tau)
         res$lower.tau <- c(res$lower.tau, meta2$lower.tau)
@@ -655,11 +659,16 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     }
   }
   ##
-  res$fixed <- res$random <- TRUE
+  res$common <- res$random <- TRUE
   res$backtransf <- backtransf
   ##
   res$pooled1 <- pooled1
   res$pooled2 <- pooled2
+  ##
+  ## Backward compatibility
+  ##
+  res$comb.fixed <- res$fixed <- res$common
+  res$comb.random <- res$random
   ##
   class(res) <- c(class(res), "metamerge")
   ##

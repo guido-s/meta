@@ -166,11 +166,11 @@ or2smd <- function(lnOR, selnOR, studlab,
   ##  
   if (method == "HH") {
     smd <- lnOR * sqrt(3) / pi
-    se.smd <- sqrt(selnOR^2 * 3 / pi^2)
+    se.smd <- selnOR * sqrt(3) / pi
   }
   else if (method == "CS") {
     smd <- lnOR / 1.65
-    se.smd <- sqrt(selnOR^2 / 1.65)
+    se.smd <- selnOR / 1.65
   }
   
   
@@ -181,7 +181,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
                      level = mdat$level, level.ma = mdat$level.ma,
-                     fixed = mdat$fixed,
+                     common = mdat$common,
                      random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
@@ -202,7 +202,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
                      level = mdat$level, level.ma = mdat$level.ma,
-                     fixed = mdat$fixed,
+                     common = mdat$common,
                      random = mdat$random,
                      hakn = mdat$hakn, method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,

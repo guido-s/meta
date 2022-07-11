@@ -107,7 +107,7 @@ baujat.meta <- function(x,
                         ylab = "Influence on overall result",
                         pch = 21, cex = 1, col = "black", bg = "darkgray",
                         studlab = TRUE, cex.studlab = 0.8,
-                        pos.studlab = 2, offset = 0.5,
+                        pos.studlab, offset = 0.5,
                         xmin = 0, ymin = 0,
                         grid = TRUE, col.grid = "lightgray",
                         lty.grid = "dotted", lwd.grid = par("lwd"),
@@ -140,7 +140,11 @@ baujat.meta <- function(x,
   chknumeric(yscale)
   chknumeric(cex)
   chknumeric(cex.studlab)
-  pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
+  missing.pos.studlab <- missing(pos.studlab)
+  if (!missing.pos.studlab) {
+    pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
+    chknumeric(pos.studlab, min = 1, max = 4)
+  }
   chknumeric(offset)
   chknumeric(xmin)
   chknumeric(ymin)
@@ -154,35 +158,48 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  TE.fixed <- metagen(TE, seTE, exclude = x$exclude,
-                      method.tau.ci = "")$TE.fixed
+  TE.common <- metagen(TE, seTE, exclude = x$exclude,
+                       method.tau.ci = "")$TE.common
   k <- x$k
   ##
   if (is.logical(studlab)) {
     if (studlab)
-      studlab <- x$studlab
+      labels.studlab <- x$studlab
     else
-      studlab <- rep("", length(TE))
+      labels.studlab <- rep("", length(TE))
+  }
+  else if (is.numeric(studlab)) {
+    labels.studlab <- x$studlab
   }
   else {
-    studlab <- as.character(studlab)
-    if (length(studlab) != length(TE))
+    labels.studlab <- as.character(studlab)
+    if (length(labels.studlab) != length(TE))
       stop("Length of argument 'studlab' must be the same as ",
            "number of studies in meta-analysis.")
   }
-  
-  
-  m.inf <- metainf(x, pooled = "fixed")
-  TE.inf <- m.inf$TE[1:length(TE)]
-  seTE.inf <- m.inf$seTE[1:length(TE)]
   ##
-  ys <- (TE.inf - TE.fixed)^2 / seTE.inf^2
+  if (!missing.pos.studlab) {
+    if (length(pos.studlab) > 1)
+      chklength(pos.studlab, TE,
+                text = paste("Length of argument 'pos.studlab' must be",
+                             "the same as number of studies",
+                             "in meta-analysis."))
+    else
+      pos.studlab <- rep(pos.studlab, length(TE))
+  }
+  
+  
+  m.inf <- metainf(x, pooled = "common")
+  TE.inf <- m.inf$TE[seq_along(TE)]
+  seTE.inf <- m.inf$seTE[seq_along(TE)]
+  ##
+  ys <- (TE.inf - TE.common)^2 / seTE.inf^2
   ys <- ys * yscale
   ##  
-  xs <- (TE - TE.fixed)^2 / seTE^2
+  xs <- (TE - TE.common)^2 / seTE^2
   ##
   if (!is.null(x$exclude))
-    xs[x$exclude] <- 0
+    xs[x$exclude] <- NA
   
   
   if (missing(xlim))
@@ -197,11 +214,20 @@ baujat.meta <- function(x,
   ## limits
   ##
   if (!missing(xmin) & !missing(ymin))
-    studlab[xs < xmin & ys < ymin] <- ""
+    labels.studlab[xs < xmin & ys < ymin] <- ""
   else if (!missing(xmin) & missing(ymin))
-    studlab[xs < xmin] <- ""
+    labels.studlab[xs < xmin] <- ""
   else if (missing(xmin) & !missing(ymin))
-    studlab[ys < ymin] <- ""
+    labels.studlab[ys < ymin] <- ""
+  ##
+  if (is.numeric(studlab)) {
+    if (length(studlab) == 1)
+      labels.studlab[xs < studlab] <- ""
+    else if (length(studlab) == 2) {
+      labels.studlab[xs < studlab[1]] <- ""
+      labels.studlab[ys < studlab[2]] <- ""
+    }
+  }
   
   
   plot(xs, ys,
@@ -212,8 +238,10 @@ baujat.meta <- function(x,
     grid(col = col.grid, lty = lty.grid, lwd = lwd.grid)
   ##
   points(xs, ys, pch = pch, cex = cex, col = col, bg = bg)
-  ##  
-  text(xs, ys, labels = studlab, cex = cex.studlab,
+  ##
+  if (missing.pos.studlab)
+    pos.studlab <- ifelse(xs > mean(xlim), 2, 4)
+  text(xs, ys, labels = labels.studlab, cex = cex.studlab,
        pos = pos.studlab, offset = offset)
   
   

@@ -36,7 +36,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 48, nrow = n.bylevs)
+  res.w <- matrix(NA, ncol = 50, nrow = n.bylevs)
   add.w <- matrix("", ncol =  2, nrow = n.bylevs)
   j <- 0
   ##
@@ -53,16 +53,18 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                       allincr = x$allincr,
-                       addincr = x$addincr,
+                       method.incr = x$method.incr,
                        allstudies = x$allstudies,
                        MH.exact = x$MH.exact,
                        RR.Cochrane = x$RR.Cochrane,
                        Q.Cochrane = x$Q.Cochrane,
                        level = x$level, level.ma = x$level.ma,
+                       common = x$common, random = x$random,
                        hakn = x$hakn,
                        adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
@@ -79,9 +81,11 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         x$sd.c[sel],
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
-                        id = if (!is.null(x$id)) x$id[sel] else NULL,
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         sm = x$sm, pooledvar = x$pooledvar,
                         level = x$level, level.ma = x$level.ma,
+                        common = x$common, random = x$random,
                         hakn = x$hakn,
                         adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
@@ -95,7 +99,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        level = x$level, level.ma = x$level.ma,
+                       common = x$common, random = x$random,
                        hakn = x$hakn,
                        adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
@@ -109,8 +116,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
-                       id = if (!is.null(x$id)) x$id[sel] else NULL,
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        level = x$level, level.ma = x$level.ma,
+                       common = x$common, random = x$random,
                        hakn = x$hakn,
                        adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
@@ -126,12 +135,14 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
+                       cluster =
+                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                       allincr = x$allincr,
-                       addincr = x$addincr,
+                       method.incr = x$method.incr,
                        level = x$level, level.ma = x$level.ma,
+                       common = x$common, random = x$random,
                        hakn = x$hakn,
                        adhoc.hakn = x$adhoc.hakn,
                        method.tau = x$method.tau,
@@ -146,7 +157,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
+                        common = x$common, random = x$random,
                         hakn = x$hakn,
                         adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
@@ -161,10 +175,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                        allincr = x$allincr,
-                        addincr = x$addincr,
+                        method.incr = x$method.incr,
+                        common = x$common, random = x$random,
                         hakn = x$hakn,
                         adhoc.hakn = x$adhoc.hakn,
                         method = x$method,
@@ -180,10 +196,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
+                        cluster =
+                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         level = x$level, level.ma = x$level.ma,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                        allincr = x$allincr,
-                        addincr = x$addincr,
+                        method.incr = x$method.incr,
+                        common = x$common, random = x$random,
                         hakn = x$hakn,
                         adhoc.hakn = x$adhoc.hakn,
                         method.tau = x$method.tau,
@@ -199,8 +217,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     n.tau <- length(meta1$tau)
     n.tau.ci <- length(meta1$lower.tau)
     ##
-    res.w[j,] <- c(meta1$TE.fixed,                            #  1
-                   meta1$seTE.fixed,                          #  2
+    res.w[j,] <- c(meta1$TE.common,                           #  1
+                   meta1$seTE.common,                         #  2
                    meta1$Q,                                   #  3
                    meta1$k,                                   #  4
                    length(meta1$TE),                          #  5
@@ -225,7 +243,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    meta1$upper.tau,                           # 24-25
                    if (n.tau.ci == 1) NA,                     #
                    1 / mean(1 / x$n[sel]),                    # 26
-                   sum(x$w.fixed[sel]),                       # 27
+                   sum(x$w.common[sel]),                      # 27
                    sum(x$w.random[sel]),                      # 28
                    if (bin.inc) sumNA(meta1$event.e) else NA, # 29
                    if (bin.cont.gen) sumNA(meta1$n.e) else NA,# 30
@@ -239,14 +257,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    meta1$Rb,                                  # 38
                    meta1$lower.Rb,                            # 39
                    meta1$upper.Rb,                            # 40
-                   meta1$lower.fixed,                         # 41
-                   meta1$upper.fixed,                         # 42
-                   meta1$statistic.fixed,                     # 41
-                   meta1$pval.fixed,                          # 42
+                   meta1$lower.common,                        # 41
+                   meta1$upper.common,                        # 42
+                   meta1$statistic.common,                    # 41
+                   meta1$pval.common,                         # 42
                    meta1$lower.random,                        # 45
                    meta1$upper.random,                        # 46
                    meta1$statistic.random,                    # 47
-                   meta1$pval.random                          # 48
+                   meta1$pval.random,                         # 48
+                   meta1$k.study,                             # 49
+                   meta1$k.TE                                 # 50
                    )
     ##
     if (n.tau.ci == 1)
@@ -255,8 +275,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                       )
   }
   ##
-  TE.fixed.w    <- res.w[, 1]
-  seTE.fixed.w  <- res.w[, 2]
+  TE.common.w   <- res.w[, 1]
+  seTE.common.w <- res.w[, 2]
   Q.w           <- res.w[, 3]
   k.w           <- res.w[, 4]
   k.all.w       <- res.w[, 5]
@@ -298,7 +318,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   n.harmonic.mean.w <- res.w[, 26]
   ##
-  w.fixed.w  <- res.w[, 27]
+  w.common.w <- res.w[, 27]
   w.random.w <- res.w[, 28]
   ##
   event.e.w <- res.w[, 29]
@@ -316,15 +336,18 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   Rb.w.low <- res.w[, 39]
   Rb.w.upp <- res.w[, 40]
   ##
-  lower.fixed.w <- res.w[, 41]
-  upper.fixed.w <- res.w[, 42]
-  statistic.fixed.w <- res.w[, 43]
-  pval.fixed.w <- res.w[, 44]
+  lower.common.w <- res.w[, 41]
+  upper.common.w <- res.w[, 42]
+  statistic.common.w <- res.w[, 43]
+  pval.common.w <- res.w[, 44]
   ##
   lower.random.w <- res.w[, 45]
   upper.random.w <- res.w[, 46]
   statistic.random.w <- res.w[, 47]
   pval.random.w <- res.w[, 48]
+  ##
+  k.study.w <- res.w[, 49]
+  k.TE.w <- res.w[, 50]
   ##
   ## Three-level model with common tau-squared
   ##
@@ -332,29 +355,29 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     mod <- as.call(~ subgroup.rma - 1)
     mod.Q <- as.call(~ subgroup.rma)
     ##
-    no.with.id <- x$id
-    runID <- seq_along(no.with.id)
+    cluster <- x$cluster
+    runID <- seq_along(cluster)
     ##
     mv.random <-
       runNN(rma.mv,
             list(yi = x$TE, V = x$seTE^2,
                  mods = mod,
-                 random = as.call(~ 1 | no.with.id / runID),
+                 random = as.call(~ 1 | cluster / runID),
                  method = x$method.tau,
                  test = ifelse(x$hakn, "t", "z"),
                  level = 100 * x$level.ma,
-                 data = data.frame(subgroup.rma, no.with.id, runID)))
+                 data = data.frame(subgroup.rma, cluster, runID)))
     ##
     mv.random.Q <-
       suppressWarnings(
         runNN(rma.mv,
               list(yi = x$TE, V = x$seTE^2,
                    mods = mod.Q,
-                   random = as.call(~ 1 | no.with.id / runID),
+                   random = as.call(~ 1 | cluster / runID),
                    method = x$method.tau,
                    test = ifelse(x$hakn, "t", "z"),
                    level = 100 * x$level.ma,
-                   data = data.frame(subgroup.rma, no.with.id, runID))))
+                   data = data.frame(subgroup.rma, cluster, runID))))
     ##
     if (length(TE.random.w) != length(as.numeric(mv.random$b))) {
       TE.random.w[!is.na(TE.random.w)] <- as.numeric(mv.random$b)
@@ -382,17 +405,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     Rb.w.low <- rep_len(NA, n.bylevs)
     Rb.w.upp <- rep_len(NA, n.bylevs)
     ##
-    ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.ma)
+    ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
     if (!is.null(x$hakn) && x$hakn)
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
     else
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
     ##
-    lower.fixed.w <- ci.fixed.w$lower
-    upper.fixed.w <- ci.fixed.w$upper
-    statistic.fixed.w <- ci.fixed.w$statistic
-    pval.fixed.w <- ci.fixed.w$p
+    lower.common.w <- ci.common.w$lower
+    upper.common.w <- ci.common.w$upper
+    statistic.common.w <- ci.common.w$statistic
+    pval.common.w <- ci.common.w$p
     ##
     lower.random.w <- ci.random.w$lower
     upper.random.w <- ci.random.w$upper
@@ -407,7 +430,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     mod.Q <- as.call(~ subgroup.rma)
     ##
     if (prop) {
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(xi = x$event, ni = x$n,
                    mods = mod,
@@ -430,7 +453,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       ##
       ## Test for subgroup differences
       ##
-      glmm.fixed.Q <-
+      glmm.common.Q <-
         suppressWarnings(
           runNN(rma.glmm,
                 list(xi = x$event, ni = x$n,
@@ -456,7 +479,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     }
     ##
     else if (rate) {
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(xi = x$event, ti = x$time,
                    mods = mod,
@@ -479,7 +502,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       ##
       ## Test for subgroup differences
       ##
-      glmm.fixed.Q <-
+      glmm.common.Q <-
         suppressWarnings(
           runNN(rma.glmm,
                 list(xi = x$event, ti = x$time,
@@ -505,7 +528,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     }
     ##
     else if (inc) {
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(x1i = x$event.e, t1i = x$time.e,
                    x2i = x$event.c, t2i = x$time.c,
@@ -532,7 +555,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       ##
       ## Test for subgroup differences
       ##
-      glmm.fixed.Q <-
+      glmm.common.Q <-
         suppressWarnings(
           runNN(rma.glmm,
                 list(x1i = x$event.e, t1i = x$time.e,
@@ -562,7 +585,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     }
     ##
     else if (bin) {
-      glmm.fixed <-
+      glmm.common <-
         runNN(rma.glmm,
               list(ai = x$event.e, n1i = x$n.e,
                    ci = x$event.c, n2i = x$n.c,
@@ -589,7 +612,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       ##
       ## Test for subgroup differences
       ##
-      glmm.fixed.Q <-
+      glmm.common.Q <-
         suppressWarnings(
           runNN(rma.glmm,
                 list(ai = x$event.e, n1i = x$n.e,
@@ -618,15 +641,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                      ...)))
     }
     ##
-    if (length(TE.fixed.w) != length(as.numeric(glmm.fixed$b))) {
-      TE.fixed.w[!is.na(TE.fixed.w)] <- as.numeric(glmm.fixed$b)
-      seTE.fixed.w[!is.na(seTE.fixed.w)] <- as.numeric(glmm.fixed$se)
+    if (length(TE.common.w) != length(as.numeric(glmm.common$b))) {
+      TE.common.w[!is.na(TE.common.w)] <- as.numeric(glmm.common$b)
+      seTE.common.w[!is.na(seTE.common.w)] <- as.numeric(glmm.common$se)
       TE.random.w[!is.na(TE.random.w)] <- as.numeric(glmm.random$b)
       seTE.random.w[!is.na(seTE.random.w)] <- as.numeric(glmm.random$se)
     }
     else {
-      TE.fixed.w   <- as.numeric(glmm.fixed$b)
-      seTE.fixed.w <- as.numeric(glmm.fixed$se)
+      TE.common.w   <- as.numeric(glmm.common$b)
+      seTE.common.w <- as.numeric(glmm.common$se)
       TE.random.w   <- as.numeric(glmm.random$b)
       seTE.random.w <- as.numeric(glmm.random$se)
     }
@@ -648,17 +671,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     Rb.w.low <- rep_len(NA, n.bylevs)
     Rb.w.upp <- rep_len(NA, n.bylevs)
     ##
-    ci.fixed.w  <- ci(TE.fixed.w, seTE.fixed.w, x$level.ma)
+    ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
     if (!is.null(x$hakn) && x$hakn)
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
     else
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
     ##
-    lower.fixed.w <- ci.fixed.w$lower
-    upper.fixed.w <- ci.fixed.w$upper
-    statistic.fixed.w <- ci.fixed.w$statistic
-    pval.fixed.w <- ci.fixed.w$p
+    lower.common.w <- ci.common.w$lower
+    upper.common.w <- ci.common.w$upper
+    statistic.common.w <- ci.common.w$statistic
+    pval.common.w <- ci.common.w$p
     ##
     lower.random.w <- ci.random.w$lower
     upper.random.w <- ci.random.w$upper
@@ -669,44 +692,44 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ## Tests for subgroup differences
   ##
   if (x$method == "GLMM" & !missing(subgroup.rma)) {
-    Q.w.fixed <- glmm.fixed.Q$QE.Wld
-    df.Q.w <- glmm.fixed.Q$QE.df
-    pval.Q.w.fixed  <- glmm.fixed.Q$QEp.Wld
+    Q.w.common <- glmm.common.Q$QE.Wld
+    df.Q.w <- glmm.common.Q$QE.df
+    pval.Q.w.common  <- glmm.common.Q$QEp.Wld
     ##
-    Q.b.fixed  <- glmm.fixed.Q$QM
+    Q.b.common  <- glmm.common.Q$QM
     Q.b.random <- glmm.random.Q$QM
     ##
-    df.Q.b <- glmm.fixed.Q$QMdf
+    df.Q.b <- glmm.common.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
     ##
-    pval.Q.b.fixed  <- glmm.fixed.Q$QMp
+    pval.Q.b.common  <- glmm.common.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
   }
   else if (three.level && !missing(subgroup.rma)) {
-    Q.w.fixed <- NA
+    Q.w.common <- NA
     df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
-    pval.Q.w.fixed <- NA
+    pval.Q.w.common <- NA
     ##
-    Q.b.fixed  <- NA
+    Q.b.common  <- NA
     Q.b.random <- mv.random.Q$QM
     ##
     df.Q.b <- mv.random.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
     ##
-    pval.Q.b.fixed  <- NA
+    pval.Q.b.common  <- NA
     pval.Q.b.random <- mv.random.Q$QMp
   }
   else {
-    Q.w.fixed <- sum(Q.w, na.rm = TRUE)
+    Q.w.common <- sum(Q.w, na.rm = TRUE)
     df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
-    pval.Q.w.fixed  <- pvalQ(Q.w.fixed, df.Q.w)
+    pval.Q.w.common  <- pvalQ(Q.w.common, df.Q.w)
     ##
-    Q.b.fixed  <- metagen(TE.fixed.w, seTE.fixed.w, method.tau = "DL")$Q
+    Q.b.common  <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
     Q.b.random <- metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
     ##
     df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
     ##
-    pval.Q.b.fixed  <- pvalQ(Q.b.fixed, df.Q.b)
+    pval.Q.b.common  <- pvalQ(Q.b.common, df.Q.b)
     pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
   }
   ##
@@ -730,14 +753,14 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   
   res <- list(bylevs = bylevs,
               ##
-              TE.fixed.w = TE.fixed.w,
-              seTE.fixed.w = seTE.fixed.w,
-              lower.fixed.w = lower.fixed.w,
-              upper.fixed.w = upper.fixed.w,
-              statistic.fixed.w = statistic.fixed.w,
-              zval.fixed.w = statistic.fixed.w,
-              pval.fixed.w = pval.fixed.w,
-              w.fixed.w = w.fixed.w,
+              TE.common.w = TE.common.w,
+              seTE.common.w = seTE.common.w,
+              lower.common.w = lower.common.w,
+              upper.common.w = upper.common.w,
+              statistic.common.w = statistic.common.w,
+              zval.common.w = statistic.common.w,
+              pval.common.w = pval.common.w,
+              w.common.w = w.common.w,
               ##
               TE.random.w = TE.random.w,
               seTE.random.w = seTE.random.w,
@@ -767,7 +790,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               event.w = event.w,
               ##
               k.w = k.w,
+              k.study.w = k.study.w,
               k.all.w = k.all.w,
+              k.TE.w = k.TE.w,
               Q.w = Q.w,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
@@ -806,18 +831,34 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               lower.Rb.w = Rb.w.low,
               upper.Rb.w = Rb.w.upp,
               ##
-              Q.w.fixed = Q.w.fixed,
+              Q.w.common = Q.w.common,
               Q.w.random = NA,
               df.Q.w = df.Q.w,
-              pval.Q.w.fixed = pval.Q.w.fixed,
+              pval.Q.w.common = pval.Q.w.common,
               pval.Q.w.random = NA,
               ##
-              Q.b.fixed = Q.b.fixed,
+              Q.b.common = Q.b.common,
               Q.b.random = Q.b.random,
               df.Q.b = df.Q.b,
-              pval.Q.b.fixed = pval.Q.b.fixed,
+              pval.Q.b.common = pval.Q.b.common,
               pval.Q.b.random = pval.Q.b.random
               )
+  ##
+  ## Backward compatibility
+  ##
+  res$TE.fixed.w <- res$TE.common.w
+  res$seTE.fixed.w <- res$seTE.common.w
+  res$lower.fixed.w <- res$lower.common.w
+  res$upper.fixed.w <- res$upper.common.w
+  res$statistic.fixed.w <- res$statistic.common.w
+  res$pval.fixed.w <- res$pval.common.w
+  res$zval.fixed.w <- res$zval.common.w
+  res$w.fixed.w <- res$w.common.w
+  ##
+  res$Q.w.fixed <- res$Q.w.common
+  res$pval.Q.w.fixed <- res$pval.Q.w.common
+  res$Q.b.fixed <- res$Q.b.common
+  res$pval.Q.b.fixed <- res$pval.Q.b.common
   
   
   res

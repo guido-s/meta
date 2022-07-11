@@ -12,9 +12,9 @@
   ylim,
   xlab = NULL,
   ylab = NULL,
-  TE.fixed = x$TE.fixed,
+  TE.common = x$TE.common,
   TE.random = x$TE.random,
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
   backtransf = x$backtransf,
   axes = TRUE,
@@ -24,11 +24,11 @@
   col = "black",
   bg = "lightgray",
   lwd = 1,
-  lwd.fixed = lwd,
+  lwd.common = lwd,
   lwd.random = lwd,
-  lty.fixed = 2,
+  lty.common = 2,
   lty.random = 9,
-  col.fixed = col,
+  col.common = col,
   col.random = col,
   nulleffect = TRUE,
   lwd.nulleffect = lwd,
@@ -40,6 +40,12 @@
   pos.studlab = 2,
   label.e = x$label.e,
   label.c = x$label.c,
+  warn.deprecated = gs("warn.deprecated"),
+  TE.fixed,
+  fixed,
+  lwd.fixed,
+  lty.fixed,
+  col.fixed,
   ...
 )
 
@@ -50,9 +56,9 @@
   ylim,
   xlab = NULL,
   ylab = NULL,
-  TE.fixed = NULL,
+  TE.common = NULL,
   TE.random = NULL,
-  fixed = !is.null(TE.fixed),
+  common = !is.null(TE.common),
   random = !is.null(TE.random),
   backtransf = TRUE,
   axes = TRUE,
@@ -62,11 +68,11 @@
   col = "black",
   bg = "lightgray",
   lwd = 1,
-  lwd.fixed = lwd,
+  lwd.common = lwd,
   lwd.random = lwd,
-  lty.fixed = 2,
+  lty.common = 2,
   lty.random = 9,
-  col.fixed = col,
+  col.common = col,
   col.random = col,
   nulleffect = TRUE,
   lwd.nulleffect = lwd,
@@ -78,6 +84,12 @@
   pos.studlab = 2,
   label.e = NULL,
   label.c = NULL,
+  warn.deprecated = gs("warn.deprecated"),
+  TE.fixed,
+  fixed,
+  lwd.fixed,
+  lty.fixed,
+  col.fixed,
   ...
 )
 }
@@ -93,14 +105,14 @@ coordinates of points of the L'Abbé plot.}
 
 \item{ylab}{A label for the y-axis.}
 
-\item{TE.fixed}{A numeric or vector specifying combined fixed
+\item{TE.common}{A numeric or vector specifying combined common
 effect estimate(s).}
 
 \item{TE.random}{A numeric or vector specifying combined random
 effects estimate(s).}
 
-\item{fixed}{A logical indicating whether the fixed effect estimate
-should be plotted.}
+\item{common}{A logical indicating whether the common effect
+estimate should be plotted.}
 
 \item{random}{A logical indicating whether the random effects
 estimate should be plotted.}
@@ -125,17 +137,17 @@ used if \code{pch} in \code{21:25}).}
 
 \item{lwd}{The line width.}
 
-\item{lwd.fixed}{The line width(s) for fixed effect estimate(s) (if
-\code{fixed} is not \code{NULL} or \code{FALSE}).}
+\item{lwd.common}{The line width(s) for common effect estimate(s)
+(if \code{common} is not \code{NULL} or \code{FALSE}).}
 
 \item{lwd.random}{The line width(s) for random effects estimate(s)
 (if \code{random} is not \code{NULL} or \code{FALSE}).}
 
-\item{lty.fixed}{Line type(s) for fixed effect estimate(s).}
+\item{lty.common}{Line type(s) for common effect estimate(s).}
 
 \item{lty.random}{Line type(s) for random effects estimate(s).}
 
-\item{col.fixed}{Colour of line(s) for fixed effect estimate(s).}
+\item{col.common}{Colour of line(s) for common effect estimate(s).}
 
 \item{col.random}{Colour of line(s) for random effects estimate(s).}
 
@@ -153,9 +165,9 @@ i.e., \code{"RD"}, \code{"RR"}, \code{"OR"}, or \code{"ASD"}.}
 plotting symbols or a character string indicating which type of
 plotting symbols is to be used for individual treatment
 estimates. One of missing (see Details), \code{"same"},
-\code{"fixed"}, or \code{"random"}, can be abbreviated. Plot
+\code{"common"}, or \code{"random"}, can be abbreviated. Plot
 symbols have the same size for all studies or represent study
-weights from fixed effect or random effects model.}
+weights from common effect or random effects model.}
 
 \item{studlab}{A logical indicating whether study labels should be
 printed in the graph. A vector with study labels can also be
@@ -169,6 +181,19 @@ provided (must be of same length as \code{x$event.e} then).}
 \item{label.e}{Label for experimental group.}
 
 \item{label.c}{Label for control group.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{TE.fixed}{Deprecated argument (replaced by 'TE.common').}
+
+\item{fixed}{Deprecated argument (replaced by 'common').}
+
+\item{lwd.fixed}{Deprecated argument (replaced by 'lwd.common').}
+
+\item{lty.fixed}{Deprecated argument (replaced by 'lty.common').}
+
+\item{col.fixed}{Deprecated argument (replaced by 'col.common').}
 
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
@@ -195,16 +220,16 @@ summary measure (\code{sm = "OR"}), log probabilities for \code{sm
 = "RR"}, and arcsine-transformed probabilities for \code{sm =
 "ASD"}.
 
-If \code{fixed} is TRUE, the estimate of the fixed effect / common
-effct model is plotted as a line. If \code{random} is TRUE, the
-estimate of the random effects model is plotted as a line.
+If \code{common} is TRUE, the estimate of the common effct model is
+plotted as a line. If \code{random} is TRUE, the estimate of the
+random effects model is plotted as a line.
 
 Information from object \code{x} is utilised if argument
-\code{weight} is missing. Weights from the fixed effect model are
-used (\code{weight = "fixed"}) if argument \code{x$fixed} is
+\code{weight} is missing. Weights from the common effect model are
+used (\code{weight = "common"}) if argument \code{x$common} is
 \code{TRUE}; weights from the random effects model are used
 (\code{weight = "random"}) if argument \code{x$random} is
-\code{TRUE} and \code{x$fixed} is \code{FALSE}.
+\code{TRUE} and \code{x$common} is \code{FALSE}.
 }
 \examples{
 data(Olkin1995)
@@ -235,15 +260,15 @@ labbe(m1, sm = "OR", backtransf = FALSE)
 #
 mycols <- c("blue", "yellow", "green", "red", "green", "yellow", "blue")
 labbe(m1, sm = "OR", random = FALSE,
-  TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-  col.fixed = mycols, lwd.fixed = 2)
+  TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+  col.common = mycols, lwd.common = 2)
 
 # L'Abbe plot on log odds scale with coloured lines for various
 # treatment effects (defined as log odds ratios)
 #
 labbe(m1, sm = "OR", random = FALSE, backtransf = FALSE,
-  TE.fixed = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
-  col.fixed = mycols, lwd.fixed = 2)
+  TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
+  col.common = mycols, lwd.common = 2)
 
 }
 \references{

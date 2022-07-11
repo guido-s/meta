@@ -7,13 +7,14 @@
 #' @aliases nnt nnt.default nnt.meta
 #' 
 #' @param x An object of class \code{meta}, or estimated treatment
-#'   effect, i.e., risk difference(s), risk ratio(s), or odds ratio(s).
+#'   effect, i.e., risk difference(s), risk ratio(s), or odds
+#'   ratio(s).
 #' @param p.c Baseline risk (control group event probability).
 #' @param sm Summary measure.
 #' @param lower Lower confidence interval limit.
 #' @param upper Upper confidence interval limit.
-#' @param fixed A logical indicating whether NNTs should be
-#'   calculated based on fixed effect estimate.
+#' @param common A logical indicating whether NNTs should be
+#'   calculated based on common effect estimate.
 #' @param random A logical indicating whether NNTs should be
 #'   calculated based on random effects estimate.
 #' @param digits Minimal number of significant digits, see
@@ -21,7 +22,7 @@
 #' @param digits.prop Minimal number of significant digits for
 #'   proportions, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
-#' @param \dots Additional arguments (ignored at the moment).
+#' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
 #' The number needed to treat (NNT) can be easily computed from an
@@ -87,7 +88,7 @@ nnt <- function(x, ...)
 
 
 nnt.meta <- function(x, p.c,
-                     fixed = x$fixed,
+                     common = x$common,
                      random = x$random, ...) {
   
   
@@ -123,7 +124,9 @@ nnt.meta <- function(x, p.c,
   ##
   ## (3) Check other arguments
   ##
-  chklogical(fixed)
+  args  <- list(...)
+  common <- deprecated(common, missing(common), args, "fixed", FALSE)
+  chklogical(common)
   chklogical(random)
   
   
@@ -132,13 +135,13 @@ nnt.meta <- function(x, p.c,
   ##
   res <- list()
   ##
-  if (fixed) {
-    res$nnt.fixed <- data.frame(p.c = p.c, NNT = NA,
+  if (common) {
+    res$nnt.common <- data.frame(p.c = p.c, NNT = NA,
                                 lower.NNT = NA, upper.NNT = NA)
     ##
-    res$TE.fixed    <- x$TE.fixed
-    res$lower.fixed <- x$lower.fixed
-    res$upper.fixed <- x$upper.fixed
+    res$TE.common    <- x$TE.common
+    res$lower.common <- x$lower.common
+    res$upper.common <- x$upper.common
   }
   ##
   if (random) {
@@ -151,10 +154,10 @@ nnt.meta <- function(x, p.c,
   }
   ##
   if (x$sm == "RD") {
-    if (fixed) {
-      res$nnt.fixed$NNT       <- -1 / res$TE.fixed
-      res$nnt.fixed$lower.NNT <- -1 / res$lower.fixed
-      res$nnt.fixed$upper.NNT <- -1 / res$upper.fixed
+    if (common) {
+      res$nnt.common$NNT       <- -1 / res$TE.common
+      res$nnt.common$lower.NNT <- -1 / res$lower.common
+      res$nnt.common$upper.NNT <- -1 / res$upper.common
     }
     ##
     if (random) {
@@ -165,10 +168,10 @@ nnt.meta <- function(x, p.c,
   }
   ##
   else if (x$sm == "RR") {
-    if (fixed) {
-      res$nnt.fixed$NNT       <- logRR2NNT(res$TE.fixed, p.c)
-      res$nnt.fixed$lower.NNT <- logRR2NNT(res$lower.fixed, p.c)
-      res$nnt.fixed$upper.NNT <- logRR2NNT(res$upper.fixed, p.c)
+    if (common) {
+      res$nnt.common$NNT       <- logRR2NNT(res$TE.common, p.c)
+      res$nnt.common$lower.NNT <- logRR2NNT(res$lower.common, p.c)
+      res$nnt.common$upper.NNT <- logRR2NNT(res$upper.common, p.c)
     }
     ##
     if (random) {
@@ -179,10 +182,10 @@ nnt.meta <- function(x, p.c,
   }
   ##
   else if (x$sm == "OR") {
-    if (fixed) {
-      res$nnt.fixed$NNT       <- logOR2NNT(res$TE.fixed, p.c)
-      res$nnt.fixed$lower.NNT <- logOR2NNT(res$lower.fixed, p.c)
-      res$nnt.fixed$upper.NNT <- logOR2NNT(res$upper.fixed, p.c)
+    if (common) {
+      res$nnt.common$NNT       <- logOR2NNT(res$TE.common, p.c)
+      res$nnt.common$lower.NNT <- logOR2NNT(res$lower.common, p.c)
+      res$nnt.common$upper.NNT <- logOR2NNT(res$upper.common, p.c)
     }
     ##
     if (random) {
@@ -193,11 +196,13 @@ nnt.meta <- function(x, p.c,
   }
   ##
   res$sm <- x$sm
-  res$fixed <- fixed
+  res$common <- common
   res$random <- random
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
+  ##
+  res$fixed <- common
   ##
   class(res) <- "nnt.meta"
   
@@ -317,7 +322,7 @@ nnt.default <- function(x, p.c, sm, lower, upper, ...) {
 
 
 print.nnt.meta <- function(x,
-                           fixed = x$fixed,
+                           common = x$common,
                            random = x$random,
                            digits = gs("digits"),
                            digits.prop = gs("digits.prop"),
@@ -334,29 +339,33 @@ print.nnt.meta <- function(x,
   ##
   ## (2) Check arguments
   ##
-  chklogical(fixed)
+  args  <- list(...)
+  common <- deprecated(common, missing(common), args, "fixed", FALSE)
+  if (is.null(common) & !is.null(x$fixed))
+    common <- x$fixed
+  chklogical(common)
   chklogical(random)
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
 
 
-  if (fixed) {
-    cat(paste0(gs("text.fixed"), ": \n\n"))
-    x$nnt.fixed$p.c <- formatN(round(x$nnt.fixed$p.c, digits.prop),
+  if (common) {
+    cat(paste0(gs("text.common"), ": \n\n"))
+    x$nnt.common$p.c <- formatN(round(x$nnt.common$p.c, digits.prop),
                                digits.prop, big.mark = big.mark)
     ##
-    x$nnt.fixed$NNT <- formatN(round(x$nnt.fixed$NNT, digits),
+    x$nnt.common$NNT <- formatN(round(x$nnt.common$NNT, digits),
                                digits, big.mark = big.mark)
     ##
-    x$nnt.fixed$lower.NNT <- formatN(round(x$nnt.fixed$lower.NNT, digits),
+    x$nnt.common$lower.NNT <- formatN(round(x$nnt.common$lower.NNT, digits),
                                      digits, big.mark = big.mark)
     ##
-    x$nnt.fixed$upper.NNT <- formatN(round(x$nnt.fixed$upper.NNT, digits),
+    x$nnt.common$upper.NNT <- formatN(round(x$nnt.common$upper.NNT, digits),
                                      digits, big.mark = big.mark)
     ##
-    prmatrix(x$nnt.fixed, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$nnt.fixed)))
+    prmatrix(x$nnt.common, quote = FALSE, right = TRUE,
+             rowlab = rep("", nrow(x$nnt.common)))
     if (random)
       cat("\n")
   }
@@ -376,7 +385,7 @@ print.nnt.meta <- function(x,
                                       digits, big.mark = big.mark)
     ##
     prmatrix(x$nnt.random, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$nnt.fixed)))
+             rowlab = rep("", nrow(x$nnt.common)))
   }
   
   

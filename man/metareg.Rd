@@ -39,7 +39,7 @@ be included in the meta-regression model.}
 \code{\link[metafor]{rma.uni}}.}
 }
 \value{
-An object of class \code{c("metareg", "rma.uni","rma")}. Please
+An object of class \code{c("metareg", "rma.uni", "rma")}. Please
 look at the help page of R function \code{\link[metafor]{rma.uni}}
 for more details on the output from this function.
 
@@ -98,7 +98,7 @@ metareg(m1)
 
 # Do meta-regression for covariate region
 #
-mu2 <- update(m1, subgroup = region, tau.common = TRUE, fixed = FALSE)
+mu2 <- update(m1, subgroup = region, tau.common = TRUE, common = FALSE)
 metareg(mu2)
 
 # Same result for

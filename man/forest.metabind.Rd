@@ -117,7 +117,7 @@ row is printed between results for subgroups.}
 \item{smlab}{A label for the summary measurex (printed at top of
 figure).}
 
-\item{calcwidth.pooled}{A logical indicating whether text for fixed
+\item{calcwidth.pooled}{A logical indicating whether text for common
 effect and random effects model should be considered to calculate
 width of the column with study labels.}
 
@@ -158,8 +158,8 @@ to specify columns which should use default labels.
 Argument \code{hetstat} can be a character string to specify where
 to print heterogeneity information:
 \itemize{
-\item row with results for fixed effect model (\code{hetstat =
-"fixed"}),
+\item row with results for common effect model (\code{hetstat =
+"common"}),
 \item row with results for random effects model (\code{hetstat =
 "random"}),
 \item rows with 'study' information (\code{hetstat = "study"}).

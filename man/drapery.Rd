@@ -17,13 +17,13 @@ drapery(
   cex.labels = 0.7,
   subset.labels,
   srt.labels,
-  fixed = x$fixed,
+  common = x$common,
   random = x$random,
-  lty.fixed = 1,
-  lwd.fixed = max(3, lwd.study),
-  col.fixed = "blue",
+  lty.common = 1,
+  lwd.common = max(3, lwd.study),
+  col.common = "blue",
   lty.random = 1,
-  lwd.random = lwd.fixed,
+  lwd.random = lwd.common,
   col.random = "red",
   sign = NULL,
   lty.sign = 1,
@@ -47,11 +47,16 @@ drapery(
   xlim,
   ylim,
   lwd.max = 2.5,
-  lwd.study.weight = if (random) "random" else "fixed",
+  lwd.study.weight = if (random) "random" else "common",
   at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
   plot = TRUE,
+  warn.deprecated = gs("warn.deprecated"),
+  fixed,
+  lwd.fixed,
+  lty.fixed,
+  col.fixed,
   ...
 )
 }
@@ -90,17 +95,17 @@ be shown in the drapery plot.}
 \item{srt.labels}{A numerical vector or single numeric (between 0
 and 90) specifying the angle to rotate study labels; see Details.}
 
-\item{fixed}{A logical indicating whether to show result for the
-fixed effect / common effect model.}
+\item{common}{A logical indicating whether to show result for the
+common effect model.}
 
 \item{random}{A logical indicating whether to show result for the
 random effects model.}
 
-\item{lty.fixed}{Line type for fixed effect meta-analysis.}
+\item{lty.common}{Line type for common effect meta-analysis.}
 
-\item{lwd.fixed}{Line width for fixed effect meta-analysis.}
+\item{lwd.common}{Line width for common effect meta-analysis.}
 
-\item{col.fixed}{Colour of lines for fixed effect meta-analysis.}
+\item{col.common}{Colour of lines for common effect meta-analysis.}
 
 \item{lty.random}{Line type for random effects meta-analysis.}
 
@@ -166,7 +171,7 @@ x-axis.}
 
 \item{lwd.study.weight}{A character string indicating whether to
 determine line width for individual studies using weights from
-fixed effect (\code{"fixed"}) or random effects model
+common effect (\code{"common"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
 
@@ -178,6 +183,17 @@ test statistic functions.}
 \item{mar}{Physical plot margin, see \code{\link{par}}.}
 
 \item{plot}{A logical indicating whether to generate a figure.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{fixed}{Deprecated argument (replaced by 'common').}
+
+\item{lwd.fixed}{Deprecated argument (replaced by 'lwd.common').}
+
+\item{lty.fixed}{Deprecated argument (replaced by 'lty.common').}
+
+\item{col.fixed}{Deprecated argument (replaced by 'col.common').}
 
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
@@ -232,7 +248,7 @@ degrees if at least one study label has more than three characters;
 otherwise labels are not rotated.
 
 If \code{labels = "studlab"}, labels are rotated by -45 degrees for
-studies with a treatment estimate below the fixed effect estimate
+studies with a treatment estimate below the common effect estimate
 and otherwise by 45 degrees.
 }
 \examples{

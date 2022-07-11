@@ -24,13 +24,13 @@ metamerge(
 \item{meta2}{Second meta-analysis object (see Details).}
 
 \item{pooled1}{A character string indicating whether results of
-fixed effect or random effects model should be considered for
-first meta-analysis. Either \code{"fixed"} or \code{"random"},
+common effect or random effects model should be considered for
+first meta-analysis. Either \code{"common"} or \code{"random"},
 can be abbreviated.}
 
 \item{pooled2}{A character string indicating whether results of
-fixed effect or random effects model should be considered for
-second meta-analysis. Either \code{"fixed"} or \code{"random"},
+common effect or random effects model should be considered for
+second meta-analysis. Either \code{"common"} or \code{"random"},
 can be abbreviated.}
 
 \item{text.pooled1}{A character string used in printouts and forest
@@ -66,14 +66,14 @@ functions. The following list elements have a different meaning:
   individual studies (first meta-analysis).}
 \item{statistic, pval}{Statistic and p-value for test of treatment
   effect for individual studies (first meta-analysis.}
-\item{w.fixed}{Weight of individual studies (first meta-analysis).}
+\item{w.common}{Weight of individual studies (first meta-analysis).}
 \item{w.random}{Weight of individual studies (second
   meta-analysis).}
-\item{TE.fixed, seTE.fixed}{Estimated overall treatment effect and
+\item{TE.common, seTE.common}{Estimated overall treatment effect and
   standard error (first meta-analysis).}
-\item{lower.fixed, upper.fixed}{Lower and upper confidence interval
+\item{lower.common, upper.common}{Lower and upper confidence interval
   limits (first meta-analysis).}
-\item{statistic.fixed, pval.fixed}{Statistic and p-value for test of
+\item{statistic.common, pval.common}{Statistic and p-value for test of
   overall treatment effect (first meta-analysis).}
 \item{TE.random, seTE.random}{Estimated overall treatment effect and
   standard error (second meta-analysis).}
@@ -96,7 +96,7 @@ functions. The following list elements have a different meaning:
   (first and second meta-analysis).}
 \item{lower.tau, upper.tau}{Lower and upper limit of confidence
   interval(s) for \eqn{\tau} (first and second meta-analysis).}
-\item{text.fixed}{Label for the first meta-analysis.}
+\item{text.common}{Label for the first meta-analysis.}
 \item{text.random}{Label for the second meta-analysis.}
 
 See \code{\link{metagen}} for information on other list
@@ -110,13 +110,13 @@ meta-analysis with and without using the Hartung-Knapp method.
 }
 \details{
 In R package \bold{meta}, objects of class \code{"meta"} contain
-results of both a fixed effect and random effects
+results of both a common effect and random effects
 meta-analysis. This function enables the user to keep the results
 of one of these models and to add results from a second
 meta-analysis or a sensitivity analysis.
 
 Applications of this function include printing and plotting results
-of the fixed effect or random effects meta-analysis and the
+of the common effect or random effects meta-analysis and the
 \itemize{
 \item Hartung-Knapp method (see argument \code{hakn} in
   \code{\link{metagen}}),
@@ -156,7 +156,7 @@ individual study results.
 data(Fleiss1993cont)
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "MD", fixed = FALSE,
+  data = Fleiss1993cont, sm = "MD", common = FALSE,
   text.random = "Classic random effects", text.w.random = "RE")
 #
 # Use Hartung-Knapp method
@@ -168,7 +168,7 @@ m2 <- update(m1, hakn = TRUE,
 #
 m12 <- metamerge(m1, m2)
 m12
-forest(m12, rightcols = c("effect", "ci", "w.fixed"))
+forest(m12, rightcols = c("effect", "ci", "w.common"))
 
 # Show results for DerSimonian-Laird and REML estimate of
 # between-study variance
@@ -187,12 +187,12 @@ data(Fleiss1993bin)
 #
 m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
   studlab = paste(study, year), sm = "OR", random = FALSE,
-  text.fixed = "MH method", text.w.fixed = "MH")
+  text.common = "MH method", text.w.common = "MH")
 #
 # Peto method
 #
-m6 <- update(m5, method = "Peto", text.fixed = "Peto method",
-  text.w.fixed = "Peto")
+m6 <- update(m5, method = "Peto", text.common = "Peto method",
+  text.w.common = "Peto")
 #
 # Merge results (show individual results for MH method)
 #

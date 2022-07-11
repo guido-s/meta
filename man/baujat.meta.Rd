@@ -18,7 +18,7 @@
   bg = "darkgray",
   studlab = TRUE,
   cex.studlab = 0.8,
-  pos.studlab = 2,
+  pos.studlab,
   offset = 0.5,
   xmin = 0,
   ymin = 0,

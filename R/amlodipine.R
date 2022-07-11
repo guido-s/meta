@@ -38,26 +38,28 @@
 #' @examples
 #' data(amlodipine)
 #' 
-#' m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
-#'   data = amlodipine, studlab = study)
+#' m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+#'   n.plac, mean.plac, sqrt(var.plac),
+#'   data = amlodipine, studlab = study,
+#'   method.tau = "DL")
 #' m.hakn <- update(m, hakn = TRUE)
 #' 
 #' # Same results for mean difference as in Table III in Hartung and
 #' # Knapp (2001)
 #' #
-#' vars.fixed <- c("TE.fixed", "lower.fixed", "upper.fixed")
+#' vars.common <- c("TE.common", "lower.common", "upper.common")
 #' vars.random <- c("TE.random", "lower.random", "upper.random")
 #' #
-#' res.fixed <- as.data.frame(m[vars.fixed])
-#' names(res.fixed) <- vars.random
+#' res.common <- as.data.frame(m[vars.common])
+#' names(res.common) <- vars.random
 #' #
-#' res.md <- rbind(res.fixed,
+#' res.md <- rbind(res.common,
 #'   as.data.frame(m[vars.random]),
 #'   as.data.frame(m.hakn[vars.random]))
 #' #
 #' res.md <- round(res.md, 5)
 #' #
-#' row.names(res.md) <- c("FE", "RE", "RE (HaKn)")
+#' row.names(res.md) <- c("CE", "RE", "RE (HaKn)")
 #' names(res.md) <- c("Absolute difference", "CI lower", "CI upper")
 #' #
 #' res.md

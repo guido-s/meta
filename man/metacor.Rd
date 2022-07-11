@@ -11,13 +11,14 @@ metacor(
   data = NULL,
   subset = NULL,
   exclude = NULL,
+  cluster = NULL,
   sm = gs("smcor"),
   level = gs("level"),
   level.ma = gs("level.ma"),
-  fixed = gs("fixed"),
+  common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
-  overall = fixed | random,
-  overall.hetstat = fixed | random,
+  overall = common | random,
+  overall.hetstat = common | random,
   hakn = gs("hakn"),
   adhoc.hakn = gs("adhoc.hakn"),
   method.tau = gs("method.tau"),
@@ -30,10 +31,10 @@ metacor(
   null.effect = 0,
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
-  text.fixed = gs("text.fixed"),
+  text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
-  text.w.fixed = gs("text.w.fixed"),
+  text.w.common = gs("text.w.common"),
   text.w.random = gs("text.w.random"),
   title = gs("title"),
   complab = gs("complab"),
@@ -68,6 +69,10 @@ be used.}
 from meta-analysis, however, to include in printouts and forest
 plots.}
 
+\item{cluster}{An optional vector specifying which estimates come
+from the same cluster resulting in the use of a three-level
+meta-analysis model.}
+
 \item{sm}{A character string indicating which summary measure
 (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
 studies.}
@@ -78,8 +83,8 @@ individual studies.}
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
 
-\item{fixed}{A logical indicating whether a fixed effect / common
-effect meta-analysis should be conducted.}
+\item{common}{A logical indicating whether a common effect
+meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
@@ -110,8 +115,8 @@ square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
+\code{"PL"}, or \code{""}, can be abbreviated.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -142,8 +147,8 @@ transformed in printouts and plots. If TRUE (default), results
 will be presented as correlations; otherwise Fisher's z
 transformed correlations will be shown.}
 
-\item{text.fixed}{A character string used in printouts and forest
-plot to label the pooled fixed effect estimate.}
+\item{text.common}{A character string used in printouts and forest
+plot to label the pooled common effect estimate.}
 
 \item{text.random}{A character string used in printouts and forest
 plot to label the pooled random effects estimate.}
@@ -151,8 +156,8 @@ plot to label the pooled random effects estimate.}
 \item{text.predict}{A character string used in printouts and forest
 plot to label the prediction interval.}
 
-\item{text.w.fixed}{A character string used to label weights of
-fixed effect model.}
+\item{text.w.common}{A character string used to label weights of
+common effect model.}
 
 \item{text.w.random}{A character string used to label weights of
 random effects model.}
@@ -200,9 +205,9 @@ is passed on to \code{\link[metafor]{rma.uni}}.}
 An object of class \code{c("metacor", "meta")} with corresponding
 \code{print}, \code{summary}, and \code{forest} functions. The
 object is a list containing the following components:
-\item{cor, n, studlab, exclude,}{As defined above.}
+\item{cor, n, studlab, exclude, cluster,}{As defined above.}
 \item{sm, level, level.ma,}{As defined above.}
-\item{fixed, random,}{As defined above.}
+\item{common, random,}{As defined above.}
 \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
 \item{tau.preset, TE.tau, method.bias,}{As defined above.}
 \item{method.bias, tau.common, title, complab, outclab,}{As defined
@@ -215,15 +220,15 @@ object is a list containing the following components:
   individual studies.}
 \item{zval, pval}{z-value and p-value for test of effect in
   individual studies.}
-\item{w.fixed, w.random}{Weight of individual studies (in fixed and
-  random effects model).}
-\item{TE.fixed, seTE.fixed}{Estimated overall effect (Fisher's z
+\item{w.common, w.random}{Weight of individual studies (in common
+  effect and random effects model).}
+\item{TE.common, seTE.common}{Estimated overall effect (Fisher's z
   transformation of correlation or correlation) and standard error
-  (fixed effect model).}
-\item{lower.fixed, upper.fixed}{Lower and upper confidence interval
-  limits (fixed effect model).}
-\item{statistic.fixed, pval.fixed}{z-value and p-value for test of
-  overall effect (fixed effect model).}
+  (common effect model).}
+\item{lower.common, upper.common}{Lower and upper confidence interval
+  limits (common effect model).}
+\item{statistic.common, pval.common}{z-value and p-value for test of
+  overall effect (common effect model).}
 \item{TE.random, seTE.random}{Estimated overall effect (Fisher's z
   transformation of correlation or correlation) and standard error
   (random effects model).}
@@ -237,7 +242,10 @@ object is a list containing the following components:
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic Q.}
 \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 \item{pval.Q}{P-value of heterogeneity test.}
@@ -262,14 +270,14 @@ object is a list containing the following components:
 \item{method}{Pooling method: \code{"Inverse"}.}
 \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
   missing.}
-\item{TE.fixed.w, seTE.fixed.w}{Estimated effect and
-  standard error in subgroups (fixed effect model) - if
+\item{TE.common.w, seTE.common.w}{Estimated effect and
+  standard error in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
-\item{lower.fixed.w, upper.fixed.w}{Lower and upper confidence
-  interval limits in subgroups (fixed effect model) - if
+\item{lower.common.w, upper.common.w}{Lower and upper confidence
+  interval limits in subgroups (common effect model) - if
   \code{subgroup} is not missing.}
-\item{statistic.fixed.w, pval.fixed.w}{z-value and p-value for test
-  of effect in subgroups (fixed effect model) - if \code{subgroup} is
+\item{statistic.common.w, pval.common.w}{z-value and p-value for test
+  of effect in subgroups (common effect model) - if \code{subgroup} is
   not missing.}
 \item{TE.random.w, seTE.random.w}{Estimated effect and standard
   error in subgroups (random effects model) - if \code{subgroup} is
@@ -280,8 +288,8 @@ object is a list containing the following components:
 \item{statistic.random.w, pval.random.w}{z-value or t-value and
   corresponding p-value for test of effect in subgroups (random
   effects model) - if \code{subgroup} is not missing.}
-\item{w.fixed.w, w.random.w}{Weight of subgroups (in fixed and
-  random effects model) - if \code{subgroup} is not missing.}
+\item{w.common.w, w.random.w}{Weight of subgroups (in common effect
+  and random effects model) - if \code{subgroup} is not missing.}
 \item{df.hakn.w}{Degrees of freedom for test of effect for
   Hartung-Knapp method in subgroups - if \code{subgroup} is not
   missing and \code{hakn = TRUE}.}
@@ -293,29 +301,29 @@ object is a list containing the following components:
   \code{subgroup} is not missing.}
 \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
   is not missing.}
-\item{Q.w.fixed}{Overall within subgroups heterogeneity statistic Q
-  (based on fixed effect model) - if \code{subgroup} is not missing.}
+\item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
+  (based on common effect model) - if \code{subgroup} is not missing.}
 \item{Q.w.random}{Overall within subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing (only calculated if argument \code{tau.common} is TRUE).}
 \item{df.Q.w}{Degrees of freedom for test of overall within
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.w.fixed}{P-value of within subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.w.common}{P-value of within subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
   not missing.}
-\item{Q.b.fixed}{Overall between subgroups heterogeneity statistic
-  Q (based on fixed effect model) - if \code{subgroup} is not
+\item{Q.b.common}{Overall between subgroups heterogeneity statistic
+  Q (based on common effect model) - if \code{subgroup} is not
   missing.}
 \item{Q.b.random}{Overall between subgroups heterogeneity statistic
   Q (based on random effects model) - if \code{subgroup} is not
   missing.}
 \item{df.Q.b}{Degrees of freedom for test of overall between
   subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.b.fixed}{P-value of between subgroups heterogeneity
-  statistic Q (based on fixed effect model) - if \code{subgroup} is
+\item{pval.Q.b.common}{P-value of between subgroups heterogeneity
+  statistic Q (based on common effect model) - if \code{subgroup} is
   not missing.}
 \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
   statistic Q (based on random effects model) - if \code{subgroup} is
@@ -342,12 +350,12 @@ object is a list containing the following components:
   object.}
 }
 \description{
-Calculation of fixed effect / common effect and random effects
-estimates for meta-analyses with correlations; inverse variance
-weighting is used for pooling.
+Calculation of common effect and random effects estimates for
+meta-analyses with correlations; inverse variance weighting is used
+for pooling.
 }
 \details{
-Fixed effect and random effects meta-analysis of correlations based
+Common effect and random effects meta-analysis of correlations based
 either on Fisher's z transformation of correlations (\code{sm =
 "ZCOR"}) or direct combination of (untransformed) correlations
 (\code{sm = "COR"}) (see Cooper et al., p264-5 and p273-4).  Only
@@ -389,14 +397,17 @@ estimators.
 The following methods to calculate a confidence interval for
 \eqn{\tau^2} and \eqn{\tau} are available.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method
+\bold{Argument}\tab \bold{Method} \cr
+\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
+  three-level meta-analysis \cr
+ \tab (Van den Noortgate et al., 2013) \cr
+\code{method.tau.ci = ""}\tab No confidence interval
 }
-See \code{\link{metagen}} for more information on these methods. No
-confidence intervals for \eqn{\tau^2} and \eqn{\tau} are calculated
-if \code{method.tau.ci = ""}.
+
+See \code{\link{metagen}} for more information on these methods.
 }
 
 \subsection{Hartung-Knapp method}{
@@ -416,7 +427,7 @@ Wiksten et al., 2016). In such cases, an
 the variance estimate from the classic random effects model with
 the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
 alternative approach is to use the wider confidence interval of
-classic fixed or random effects meta-analysis and the HK method
+classic common or random effects meta-analysis and the HK method
 (Wiksten et al., 2016; Jackson et al., 2017).
 
 Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
@@ -471,14 +482,14 @@ Meta-analysis results are the same for both arguments.
 
 \subsection{Presentation of meta-analysis results}{
 
-Internally, both fixed effect and random effects models are
+Internally, both common effect and random effects models are
 calculated regardless of values choosen for arguments
-\code{fixed} and \code{random}. Accordingly, the estimate
+\code{common} and \code{random}. Accordingly, the estimate
 for the random effects model can be extracted from component
 \code{TE.random} of an object of class \code{"meta"} even if
 argument \code{random = FALSE}. However, all functions in R
 package \bold{meta} will adequately consider the values for
-\code{fixed} and \code{random}. E.g. functions
+\code{common} and \code{random}. E.g. functions
 \code{\link{print.meta}} and \code{\link{forest.meta}} will not
 print results for the random effects model if \code{random =
 FALSE}.
@@ -571,6 +582,11 @@ A comparison of heterogeneity variance estimators in simulated
 random-effects meta-analyses.
 \emph{Research Synthesis Methods},
 \bold{10}, 83--98
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Three-level meta-analysis of dependent effect sizes.
+\emph{Behavior Research Methods},
+\bold{45}, 576--94
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.
