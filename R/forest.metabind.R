@@ -242,7 +242,8 @@ forest.metabind <- function(x,
   
   x$k.w.orig <- x$k.w
   
-  x$k.w <- x$k.all.w <- as.vector(table(x$data$name)[unique(x$data$name)])
+  x$k.w <- x$k.study.w <- x$k.all.w <- x$k.TE.w <-
+    as.vector(table(x$data$name)[unique(x$data$name)])
   
   
   missing.leftcols <- missing(leftcols)
@@ -371,13 +372,18 @@ forest.metabind <- function(x,
   
   
   if (missing(smlab))
-    if (length(unique(x$pooled)) == 1)
-      smlab <- paste0(if (x$common)
-                        gs("text.common")
-                      else
-                        gs("text.random"),
+    if (length(unique(x$pooled)) == 1) {
+      text.common <- gs("text.common")
+      text.random <- gs("text.random")
+      if (text.common == "Common effect model")
+        text.common <- "Common Effect Model"
+      if (text.random == "Random effects model")
+        text.random <- "Random Effects Model"
+      ##
+      smlab <- paste0(if (x$common) text.common else text.random,
                       if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
                         paste0("\n(", xlab(x$sm, x$backtransf), ")"))
+    }
     else
       smlab <- xlab(x$sm, x$backtransf)
   

@@ -497,7 +497,10 @@
 #'   interval.}
 #' \item{lower.predict, upper.predict}{Lower and upper limits of
 #'   prediction interval.}
-#' \item{k}{Number of studies combined in meta-analysis.}
+#' \item{k}{Number of estimates combined in meta-analysis.}
+#' \item{k.study}{Number of studies combined in meta-analysis.}
+#' \item{k.all}{Number of all studies.}
+#' \item{k.TE}{Number of studies with estimable effects.}
 #' \item{Q}{Heterogeneity statistic Q.}
 #' \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 #' \item{pval.Q}{P-value of heterogeneity test.}
@@ -1907,8 +1910,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               Q.CMH = Q.CMH, df.Q.CMH = 1, pval.Q.CMH = pvalQ(Q.CMH, 1),
               print.CMH = print.CMH,
               incr.e = incr.e, incr.c = incr.c,
-              k.MH = if (method == "MH") sum(w.common > 0) else NA,
-              k.all = k.all)
+              k.MH = if (method == "MH") sum(w.common > 0) else NA)
   ##
   ## Add meta-analysis results
   ## (after removing unneeded list elements)

@@ -276,7 +276,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          ##
                          title = m.i$title,
                          complab = m.i$complab,
-                         outclab = if (missing.outclab) m.i$outclab else outclab,
+                         outclab =
+                           if (missing.outclab) m.i$outclab else outclab,
                          label.e = m.i$label.e,
                          label.c = m.i$label.c,
                          label.left = m.i$label.left,
@@ -385,7 +386,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
       n.c.w = sum(replaceNULL(m.i$n.c)),
       ##
       k.w = m.i$k,
-      k.all.w = length(m.i$TE),
+      k.study.w = m.i$k.study,
+      k.all.w = m.i$k.all,
+      k.TE.w = m.i$k.TE,
       ##
       Q.w = if (!sel.r) NA else m.i$Q,
       df.Q.w = if (!sel.r) NA else m.i$df.Q,
@@ -439,7 +442,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            t.harmonic.mean = m.i$t.harmonic.mean.w,
                            ##
                            k = m.i$k.w,
+                           k.study = m.i$k.study.w,
                            k.all = m.i$k.all.w,
+                           k.TE = m.i$k.TE.w,
                            Q = m.i$Q.w,
                            df.Q = m.i$k.w - 1,
                            pval.Q = pvalQ(m.i$Q.w, m.i$k.w - 1),
@@ -482,7 +487,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                              1 / mean(1 / replaceNULL(m.i$time)),
                            ##
                            k = m.i$k,
-                           k.all = length(m.i$TE),
+                           k.study = m.i$k.study,
+                           k.all = m.i$k.all,
+                           k.TE = m.i$k.TE,
                            Q = m.i$Q,
                            df.Q = m.i$df.Q,
                            pval.Q = pvalQ(m.i$Q, m.i$df.Q),
@@ -538,7 +545,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
                             upper.predict = m.i$upper.predict,
                             ##
                             k = m.i$k,
-                            k.all = length(m.i$TE),
+                            k.study = m.i$k.study,
+                            k.all = m.i$k.all,
+                            k.TE = m.i$k.TE,
                             ##
                             Q = m.i$Q,
                             df.Q = m.i$df.Q,
@@ -794,7 +803,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
   res$upper.predict <- makeunique(res$upper.predict)
   ##
   res$k <- makeunique(res$k)
+  res$k.study <- makeunique(res$k.study)
   res$k.all <- makeunique(res$k.all)
+  res$k.TE <- makeunique(res$k.TE)
   ##
   res$Q <- makeunique(res$Q)
   res$df.Q <- makeunique(res$df.Q, 0)
@@ -865,7 +876,6 @@ metabind <- function(..., name = NULL, pooled = NULL,
   ##
   res$pooled <- pooled
   res$is.limit.copas <- is.limit.copas
-  if (FALSE) {
   ##
   ## Backward compatibility
   ##
@@ -886,11 +896,11 @@ metabind <- function(..., name = NULL, pooled = NULL,
   res$text.fixed <- res$text.common
   res$text.w.fixed <- res$text.w.common
   ##
-  if (by) {
-    res$byvar <- subgroup
-    res$bylab <- subgroup.name
-    res$print.byvar <- print.subgroup.name
-    res$byseparator <- sep.subgroup
+  if (!is.null(res$subgroup)) {
+    res$byvar <- res$subgroup
+    res$bylab <- res$subgroup.name
+    res$print.byvar <- res$print.subgroup.name
+    res$byseparator <- res$sep.subgroup
     ##
     res$TE.fixed.w <- res$TE.common.w
     res$seTE.fixed.w <- res$seTE.common.w
@@ -905,7 +915,6 @@ metabind <- function(..., name = NULL, pooled = NULL,
     res$pval.Q.w.fixed <- res$pval.Q.w.common
     res$Q.b.fixed <- res$Q.b.common
     res$pval.Q.b.fixed <- res$pval.Q.b.common
-  }
   }
   
   

@@ -189,6 +189,8 @@
 #'   frequencies).
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
+#' @param verbose A logical indicating whether to print information on
+#'   updates of older meta versions.
 #' @param control An optional list to control the iterative process to
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
@@ -319,6 +321,7 @@ update.meta <- function(object,
                         n.iter.max = object$n.iter.max,
                         ##
                         warn = FALSE, warn.deprecated = gs("warn.deprecated"),
+                        verbose = FALSE,
                         ##
                         control = object$control,
                         ...) {
@@ -340,12 +343,9 @@ update.meta <- function(object,
   metaprop <- inherits(object, "metaprop")
   metarate <- inherits(object, "metarate")
   ##
-  if (is.null(object$version))
-    meta.version <- 0.1
-  else
-    meta.version <- as.numeric(unlist(strsplit(object$version, "-"))[1])
+  chklogical(verbose)
   ##
-  if (meta.version < 3.2) {
+  if (update_needed(object$version, 3, 2, verbose)) {
     ##
     ## Changes for meta objects with version < 3.2
     ##
@@ -390,7 +390,7 @@ update.meta <- function(object,
     }
   }
   ##
-  if (meta.version < 4.8) {
+  if (update_needed(object$version, 4, 8, verbose)) {
     ##
     ## Changes for meta objects with version < 4.8
     ##
@@ -404,7 +404,7 @@ update.meta <- function(object,
         object$k.MH <- NA
   }
   ##
-  if (meta.version < 5.0) {
+  if (update_needed(object$version, 5, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 5.0
     ##
@@ -419,27 +419,26 @@ update.meta <- function(object,
       object$sep.subgroup <- object$byseparator
     }
   }
-  ##
-  if (meta.version < 5.5) {
+  if (update_needed(object$version, 5, 5, verbose)) {
     ##
     ## Changes for meta objects with version < 5.5
     ##
-    res$common <- res$fixed
-    res$w.common <- res$w.fixed
+    object$common <- object$fixed
+    object$w.common <- object$w.fixed
     ##
-    res$TE.common <- res$TE.fixed
-    res$seTE.common <- res$seTE.fixed
-    res$lower.common <- res$lower.fixed
-    res$upper.common <- res$upper.fixed
-    res$statistic.common <- res$statistic.fixed
-    res$pval.common <- res$pval.fixed
-    res$zval.common <- res$zval.fixed
+    object$TE.common <- object$TE.fixed
+    object$seTE.common <- object$seTE.fixed
+    object$lower.common <- object$lower.fixed
+    object$upper.common <- object$upper.fixed
+    object$statistic.common <- object$statistic.fixed
+    object$pval.common <- object$pval.fixed
+    object$zval.common <- object$zval.fixed
     ##
-    res$text.common <- res$text.fixed
-    res$text.w.common <- res$text.w.fixed
+    object$text.common <- object$text.fixed
+    object$text.w.common <- object$text.w.fixed
     ##
-    if (!is.null(res$pooled) && res$pooled == "fixed")
-      res$pooled <- "common"
+    if (!is.null(object$pooled) && object$pooled == "fixed")
+      object$pooled <- "common"
     ##
     if (!is.null(object$byvar)) {
       object$TE.common.w <- object$TE.fixed.w
@@ -520,7 +519,8 @@ update.meta <- function(object,
     chkchar(sep.subgroup, length = 1)
   ##
   test.subgroup <- replaceNULL(test.subgroup, gs("test.subgroup"))
-  prediction.subgroup <- replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
+  prediction.subgroup <-
+    replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
   ##
   missing.method.incr <- missing(method.incr)
   addincr <-

@@ -76,6 +76,7 @@
   n.iter.max = object$n.iter.max,
   warn = FALSE,
   warn.deprecated = gs("warn.deprecated"),
+  verbose = FALSE,
   control = object$control,
   ...
 )
@@ -337,6 +338,9 @@ frequencies).}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
+
+\item{verbose}{A logical indicating whether to print information on
+updates of older meta versions.}
 
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument

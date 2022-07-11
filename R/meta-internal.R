@@ -13,14 +13,40 @@
 
 updateversion <- function(x) {
   ##
-  ## Update older meta objects
+  ## Update older meta objects - see gs("major.update"), gs("minor.update")
   ##
-  if (!is.null(x$version))
-    meta.version <- as.numeric(unlist(strsplit(x$version, "-"))[1])
-  if (is.null(x$version) || meta.version < gs("version.update"))
+  if (update_needed(x$version))
     x <- update(x, warn = FALSE, warn.deprecated = FALSE)
   ##
   x
+}
+
+
+update_needed <- function(version,
+                          major = gs("major.update"),
+                          minor = gs("minor.update"),
+                          verbose = FALSE) {
+  if (is.null(version)) {
+    version <- 0.1
+    major.cur <- 0
+    minor.cur <- 1
+  }
+  else {
+    version <- unlist(strsplit(version, "-")[1])
+    major.cur <-
+      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[1])
+    minor.cur <-
+      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[2])
+  }
+  ##
+  res <-
+    ifelse(major.cur < major,
+           TRUE, ifelse(major.cur > major,
+                        FALSE, minor.cur < minor))
+  if (res & verbose)
+    message(paste0("Update to meta, version ", major, ".", minor))
+  ##
+  res
 }
 
 
@@ -287,7 +313,7 @@ argslist.internal <-
     "meth4bias", "meth4bias.old",
     "meth4incr",
     "text.fixed", "text.w.fixed",
-    "version.update")
+    "major.update", "minor.update")
 ##
 setOption("argslist.internal", argslist.internal)
 ##
@@ -321,7 +347,8 @@ setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
 ##
 setOption("meth4incr", c("only0", "if0all", "all"))
 ##
-setOption("version.update", 5.0)
+setOption("major.update", 5)
+setOption("minor.update", 5)
 ##
 ## List of arguments that can be changed by user
 ##

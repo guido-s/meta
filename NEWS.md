@@ -42,6 +42,9 @@
   for individual studies in metacont() and metamean() if argument
   'method.ci = "t"'
 
+* Show correct studies in forest plot with subgroups and missing
+  treatment effects if argument 'allstudies = FALSE'
+
 * Show points in bubble plot of meta-regression with GLMM
 
 ### User-visible changes
@@ -78,6 +81,13 @@
 * metarate():
   - list elements 'lower' and 'upper' contain untransformed confidence
     limits for individual studies
+
+* New internal function update_needed() to check whether update of
+  meta object is needed
+
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop() and metarate():
+  - new list element 'k.TE' with number of estimable effects
 
 
 ## meta, version 5.2-0 (2022-02-04)

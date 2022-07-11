@@ -1538,7 +1538,7 @@ forest.meta <- function(x,
     try(sortvar <- catch("sortvar", mc, x, sfsp),
         silent = TRUE)
   if (inherits(error, "try-error")) {
-    sortvar <- catch("sortvar", mc, x$data, NULL)
+    sortvar <- catch("sortvar", mc, x$data, sfsp)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -3262,7 +3262,7 @@ forest.meta <- function(x,
     stop("Missing values in 'subgroup'")
   ##
   if (allstudies)
-    sel <- 1:k.all
+    sel <- rep_len(TRUE, k.all)
   else
     sel <- !is.na(x$TE)
   ##
@@ -4959,13 +4959,16 @@ forest.meta <- function(x,
     t.harmonic.mean.w <- x$t.harmonic.mean.w[o.w]
     ##
     k.all.w <- x$k.all.w[o.w]
+    k.study.w <- x$k.study.w[o.w]
     k.w <- x$k.w[o.w]
+    k.TE.w <- x$k.TE.w[o.w]
+    ##
     subgroup.logical <- subgroup.logical[o.w]
     subgroup.hetstat.logical <- subgroup.hetstat.logical[o.w]
     prediction.subgroup.logical <- prediction.subgroup.logical[o.w]
     ##
     if (allstudies)
-      sel.w <- seq_along(k.w)
+      sel.w <- rep_len(TRUE, length(k.all.w))
     else
       sel.w <- k.w > 0
     if (x$hakn)
@@ -5018,7 +5021,10 @@ forest.meta <- function(x,
     t.harmonic.mean.w <- t.harmonic.mean.w[sel.w]
     ##
     k.all.w <- k.all.w[sel.w]
+    k.study.w <- k.study.w[sel.w]
     k.w <- k.w[sel.w]
+    k.TE.w <- k.TE.w[sel.w]
+    ##
     subgroup.logical <- subgroup.logical[sel.w]
     subgroup.hetstat.logical <- subgroup.hetstat.logical[sel.w]
     prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
@@ -7231,7 +7237,7 @@ forest.meta <- function(x,
       if (allstudies)
         k.i <- k.all.w[i]
       else
-        k.i <- k.w[i]
+        k.i <- k.TE.w[i]
       ##
       k <- k + k.i
       ##

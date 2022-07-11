@@ -555,7 +555,10 @@
 #' \item{lower.predict, upper.predict}{Lower and upper limits of
 #'   prediction interval.}
 #' \item{null.effect}{As defined above.}
-#' \item{k}{Number of studies combined in meta-analysis.}
+#' \item{k}{Number of estimates combined in meta-analysis.}
+#' \item{k.study}{Number of studies combined in meta-analysis.}
+#' \item{k.all}{Number of all studies.}
+#' \item{k.TE}{Number of studies with estimable effects.}
 #' \item{Q}{Heterogeneity statistic.}
 #' \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 #' \item{pval.Q}{P-value of heterogeneity test.}
@@ -1061,9 +1064,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
-                      warn.deprecated)
+                       warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
-                      warn.deprecated)
+                       warn.deprecated)
   chklogical(common)
   ##
   random <- deprecated(random, missing(random), args, "comb.random",
@@ -1957,11 +1960,11 @@ metagen <- function(TE, seTE, studlab,
       ##
       m4 <-
         runNN(rma.mv,
-               list(yi = TE.4, V = seTE.4^2,
-                    method = method.tau, test = ifelse(hakn, "t", "z"),
-                    random = as.call(~ 1 | cluster.4 / idx.4),
-                    control = control,
-                    data = data.frame(cluster.4, idx.4)))
+              list(yi = TE.4, V = seTE.4^2,
+                   method = method.tau, test = ifelse(hakn, "t", "z"),
+                   random = as.call(~ 1 | cluster.4 / idx.4),
+                   control = control,
+                   data = data.frame(cluster.4, idx.4)))
       ##
       w.random <- rep_len(NA, length(TE))
       w.random[sel.4] <- weights(m4, type = "rowsum")
@@ -2127,7 +2130,7 @@ metagen <- function(TE, seTE, studlab,
               lower.predict = p.lower, upper.predict = p.upper,
               level.predict = level.predict,
               ##
-              k = k, k.study = k.study, k.all = k.all,
+              k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
               Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
               tau2 = hc$tau2, se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,

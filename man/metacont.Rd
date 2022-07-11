@@ -335,7 +335,8 @@ object is a list containing the following components:
 \item{median.e, q1.e, q3.e, min.e, max.e,}{As defined above.}
 \item{median.c, q1.c, q3.c, min.c, max.c,}{As defined above.}
 \item{method.mean, method.sd,}{As defined above.}
-\item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As defined above.}
+\item{approx.mean.e, approx.sd.e, approx.mean.c, approx.sd.c,}{As
+  defined above.}
 \item{level, level.ma,}{As defined above.}
 \item{common, random,}{As defined above.}
 \item{overall, overall.hetstat,}{As defined above.}
@@ -372,7 +373,10 @@ object is a list containing the following components:
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic Q.}
 \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 \item{pval.Q}{P-value of heterogeneity test.}

@@ -36,7 +36,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 48, nrow = n.bylevs)
+  res.w <- matrix(NA, ncol = 50, nrow = n.bylevs)
   add.w <- matrix("", ncol =  2, nrow = n.bylevs)
   j <- 0
   ##
@@ -264,7 +264,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    meta1$lower.random,                        # 45
                    meta1$upper.random,                        # 46
                    meta1$statistic.random,                    # 47
-                   meta1$pval.random                          # 48
+                   meta1$pval.random,                         # 48
+                   meta1$k.study,                             # 49
+                   meta1$k.TE                                 # 50
                    )
     ##
     if (n.tau.ci == 1)
@@ -343,6 +345,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   upper.random.w <- res.w[, 46]
   statistic.random.w <- res.w[, 47]
   pval.random.w <- res.w[, 48]
+  ##
+  k.study.w <- res.w[, 49]
+  k.TE.w <- res.w[, 50]
   ##
   ## Three-level model with common tau-squared
   ##
@@ -785,7 +790,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               event.w = event.w,
               ##
               k.w = k.w,
+              k.study.w = k.study.w,
               k.all.w = k.all.w,
+              k.TE.w = k.TE.w,
               Q.w = Q.w,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##

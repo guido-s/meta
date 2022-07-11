@@ -81,11 +81,12 @@ weights.meta <- function(object,
   args  <- list(...)
   chklogical(warn.deprecated)
   ##
+  missing.common <- missing(common)
   common <-
-    deprecated(common, missing(common), args, "comb.fixed",
+    deprecated(common, missing.common, args, "comb.fixed",
                warn.deprecated)
   common <-
-    deprecated(common, missing(common), args, "fixed",
+    deprecated(common, missing.common, args, "fixed",
                warn.deprecated)
   ##
   random <-

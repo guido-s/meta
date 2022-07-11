@@ -352,7 +352,10 @@ object is a list containing the following components:
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
 \item{null.effect}{As defined above.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic.}
 \item{df.Q}{Degrees of freedom for heterogeneity statistic.}
 \item{pval.Q}{P-value of heterogeneity test.}

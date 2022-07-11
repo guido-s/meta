@@ -293,7 +293,10 @@ object is a list containing the following components:
   interval.}
 \item{lower.predict, upper.predict}{Lower and upper limits of
   prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
+\item{k}{Number of estimates combined in meta-analysis.}
+\item{k.study}{Number of studies combined in meta-analysis.}
+\item{k.all}{Number of all studies.}
+\item{k.TE}{Number of studies with estimable effects.}
 \item{Q}{Heterogeneity statistic.}
 \item{tau2}{Between-study variance \eqn{\tau^2}.}
 \item{se.tau2}{Standard error of \eqn{\tau^2}.}
