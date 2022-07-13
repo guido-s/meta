@@ -308,7 +308,7 @@ argslist.internal <-
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
     "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
-    "meth4tau", "meth4tau.ci",
+    "meth4tau", "meth4tau.ci", "meth4i2",
     "adhoc4hakn",
     "meth4bias", "meth4bias.old",
     "meth4incr",
@@ -338,6 +338,7 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 ##
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
+setOption("meth4i2", c("q", "tau"))
 setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
 ##
 setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
@@ -354,7 +355,9 @@ setOption("minor.update", 5)
 ##
 argslist <-
   c("level", "level.ma", "common", "random",
-    "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
+    "hakn", "adhoc.hakn",
+    "method.tau", "method.tau.ci", "tau.common",
+    "method.i2",
     "prediction", "level.predict",
     "method.bias",
     "text.common", "text.random", "text.predict",
@@ -400,6 +403,7 @@ setOption("adhoc.hakn", "")
 setOption("method.tau", "REML")
 setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
+setOption("method.i2", "q")
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
 setOption("method.bias", "Egger")

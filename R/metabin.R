@@ -1887,7 +1887,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ## Estimate common tau-squared across subgroups
     hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (Q.Cochrane & method == "MH") TE.common else TE.tau,
-                   level.ma, subgroup, control)
+                   level.ma,
+                   subgroup, control)
   }
   
   

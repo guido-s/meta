@@ -1,3 +1,21 @@
+## meta, version 5.5-1 (2022-mm-dd)
+
+### Bug fixes
+
+* forest.meta():
+  - do not print label for subgroups with no information to print,
+    e.g., if argument 'study.results = FALSE', for subgroups with only
+    one or no study contributing to pooled estimate in the subgroup
+  - do not show empty row before label on x-axis (argument 'xlab') if
+    argument 'label.left' or 'label.right' is provided for
+    meta-analysis without reference value (argument 'ref'), e.g.,
+    meta-analysis of single means or proportions
+
+* metareg():
+  - use Paule-Mandel estimator if used in meta-analysis (instead of
+    REML estimator)
+
+
 ## meta, version 5.5-0 (2022-07-11)
 
 ### Major changes

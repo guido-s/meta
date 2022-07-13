@@ -1876,8 +1876,9 @@ forest.meta <- function(x,
   ##
   hetstat.pooled <- ""
   if (is.character(hetstat)) {
-    hetstat.pooled <- setchar(hetstat, c("common", "random", "study", "fixed"))
-    hetstat.pooled[hetstat.pooled == "fixed"] <- "common"
+    hetstat <- setchar(hetstat, c("common", "random", "study", "fixed"))
+    hetstat[hetstat == "fixed"] <- "common"
+    hetstat.pooled <- hetstat
     if (!metabind & hetstat.pooled == "study") {
       warning("Argument 'hetstat = \"study\"' ",
               "only considered for 'metabind' objects.")
@@ -2537,7 +2538,7 @@ forest.meta <- function(x,
                     newline = !revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
   ##
-  print.label <- label.left != "" | label.right != "" & !is.na(ref)
+  print.label <- (label.left != "" | label.right != "") & !is.na(ref)
   if (print.label & !bottom.lr) {
     if (!smlab.null)
       warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
@@ -5044,7 +5045,7 @@ forest.meta <- function(x,
     sel.by.random        <- 3 + 1 * n.by + seq_len(n.by)
     sel.by.predict       <- 3 + 2 * n.by + seq_len(n.by)
     sel.by.het           <- 3 + 3 * n.by + seq_len(n.by)
-    sel.by.effect.common  <- 3 + 4 * n.by + seq_len(n.by)
+    sel.by.effect.common <- 3 + 4 * n.by + seq_len(n.by)
     sel.by.effect.random <- 3 + 5 * n.by + seq_len(n.by)
     sel.by <- c(sel.by.common, sel.by.random, sel.by.predict, sel.by.het,
                 sel.by.effect.common, sel.by.effect.random)
@@ -7314,7 +7315,16 @@ forest.meta <- function(x,
       else
         yTE.w.effect.random[i] <- NA
       ##
-      if (addrow.subgroups)
+      y.w.i <- c(yTE.w.common[i], yTE.w.random[i], yTE.w.predict[i],
+                 yTE.w.hetstat[i], yTE.w.effect.common[i], yTE.w.effect.random[i])
+      ##
+      if (!study.results & !any(!is.na(y.w.i))) {
+        yBylab[i] <- NA
+        if (print.subgroup.labels)
+          j <- j - 1
+      }
+      ##
+      if (!is.na(yBylab[i]) & addrow.subgroups)
         j <- j + 1
     }
     ##
@@ -7531,7 +7541,7 @@ forest.meta <- function(x,
   ##
   yTE <- yHead + yTE + addrow
   ##
-  yTE.common  <- yHead + yTE.common + addrow
+  yTE.common <- yHead + yTE.common + addrow
   yTE.random <- yHead + yTE.random + addrow
   yPredict   <- yHead + yPredict + addrow
   ##
@@ -8440,8 +8450,9 @@ forest.meta <- function(x,
                             yStats), na.rm = TRUE)
   }
   ##
-  ymin.line <- overall.hetstat + test.overall.common + test.overall.random +
-    resid.hetstat + test.subgroup.common + test.subgroup.random +
+  ymin.line <- overall.hetstat + test.overall.common +
+    test.overall.random + resid.hetstat + test.subgroup.common +
+    test.subgroup.random +
     (1 - missing.text.addline1) + (1 - missing.text.addline2) +
     addrows.below.overall
   ##
@@ -8452,7 +8463,7 @@ forest.meta <- function(x,
     ymin.line <- ymin.line + 1
   }
   ##
-  ymin.common  <- spacing * (ymin.line + prediction + random + 0.5)
+  ymin.common <- spacing * (ymin.line + prediction + random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
   ymin.ref    <- spacing * (ymin.line + (!(overall | overall.hetstat) & addrow))
   ##

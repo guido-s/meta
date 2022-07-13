@@ -73,6 +73,8 @@ RevMan 5 settings, in detail:
   \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
+\code{method.i2} \tab "q" \tab only available method in RevMan 5
+  \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
 \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
 \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr

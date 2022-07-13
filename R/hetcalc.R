@@ -1,6 +1,7 @@
-hetcalc <- function(TE, seTE,
-                    method.tau, method.tau.ci,
-                    TE.tau, level.hetstats, subgroup, control,
+hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
+                    TE.tau,
+                    level,
+                    subgroup, control,
                     cluster = NULL) {
   
   Ccalc <- function(x) {
@@ -272,12 +273,12 @@ hetcalc <- function(TE, seTE,
   ##
   ## Heterogeneity measures
   ##
-  H  <- calcH(Q, df.Q, level.hetstats)
-  I2 <- isquared(Q, df.Q, level.hetstats)
+  H  <- calcH(Q, df.Q, level)
+  I2 <- isquared(Q, df.Q, level)
   ##
   if (by) {
-    H.resid <- calcH(Q.resid, df.Q.resid, level.hetstats)
-    I2.resid <- isquared(Q.resid, df.Q.resid, level.hetstats)
+    H.resid <- calcH(Q.resid, df.Q.resid, level)
+    I2.resid <- isquared(Q.resid, df.Q.resid, level)
   }
   ##
   ## Confidence interval for tau2 and tau

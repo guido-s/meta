@@ -248,12 +248,6 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
   ##
-  if (method.tau == "PM") {
-    warning("Meta-regresion method not available for method.tau = \"PM\". ",
-            "Using REML method instead (method.tau = \"REML\").")
-    method.tau <- "REML"
-  }
-  ##
   chklogical(hakn)
   ##
   chklevel(level.ma)

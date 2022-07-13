@@ -65,6 +65,8 @@
 #'   \cr
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
 #'   subgroups \cr
+#' \code{method.i2} \tab "q" \tab only available method in RevMan 5
+#'   \cr
 #' \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
 #' \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
 #' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
@@ -393,6 +395,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("method.tau", "REML")
     setOption("method.tau.ci", NULL)
     setOption("tau.common", FALSE)
+    setOption("method.i2", "q")
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
     setOption("test.subgroup", TRUE)
@@ -588,6 +591,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("method.tau         ")
     catarg("method.tau.ci      ")
     catarg("tau.common         ")
+    ##catarg("method.i2          ")
     catarg("prediction         ")
     catarg("level.predict      ")
     catarg("test.subgroup      ")
@@ -708,6 +712,7 @@ settings.meta <- function(..., quietly = TRUE) {
     idmethod.tau <- argid(names.all, "method.tau")
     idmethod.tau.ci <- argid(names.all, "method.tau.ci")
     idtau.common <- argid(names.all, "tau.common")
+    idmethod.i2 <- argid(names.all, "method.i2")
     idprediction <- argid(names.all, "prediction")
     idlevel.predict <- argid(names.all, "level.predict")
     idmethod.bias <- argid(names.all, "method.bias")
@@ -838,6 +843,11 @@ settings.meta <- function(..., quietly = TRUE) {
       tau.common <- args[[idtau.common]]
       chklogical(tau.common)
       setOption("tau.common", tau.common)
+    }
+    if (!is.na(idmethod.i2)) {
+      method.i2 <- args[[idmethod.i2]]
+      method.i2 <- setchar(method.i2, gs("meth4i2"))
+      setOption("method.i2", method.i2)
     }
     if (!is.na(idprediction)) {
       prediction <- args[[idprediction]]
