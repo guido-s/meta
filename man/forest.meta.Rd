@@ -844,7 +844,7 @@ columns on right side of forest plot.}
 \item{spacing}{A numeric determining line spacing in a forest plot.}
 
 \item{addrow}{A logical value indicating whether an empty row is
-printed above and below study results.}
+printed above study results.}
 
 \item{addrow.overall}{A logical value indicating whether an empty
 row is printed above overall meta-analysis results.}
@@ -1275,7 +1275,8 @@ are taken into account:
 \item Squares representing individual study results are printed in
   darkblue (\code{col.square}, \code{col.square.lines})
 \item Between-study variance \eqn{\tau^2} is not printed
-\item Empty rows are omitted (\code{addrow})
+\item Empty rows are omitted (\code{addrow}, \code{addrow.overall},
+  \code{addrow.subgroups})
 \item Label "Source" is printed instead of "Study" (\code{leftlabs})
 \item P-values are printed without leading zeros (\code{zero.pval})
 \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
@@ -1468,7 +1469,7 @@ forest(m2, sortvar = -TE, common = FALSE)
 
 # Print only subgroup results
 #
-forest(m2, layout = "subgroup", addrows = NULL)
+forest(m2, layout = "subgroup")
 
 # Print only subgroup results (and consider text for tests of
 # subgroup differences in width of subgroup column)

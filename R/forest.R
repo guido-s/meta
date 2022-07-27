@@ -440,7 +440,7 @@
 #'   columns on right side of forest plot.
 #' @param spacing A numeric determining line spacing in a forest plot.
 #' @param addrow A logical value indicating whether an empty row is
-#'   printed above and below study results.
+#'   printed above study results.
 #' @param addrow.overall A logical value indicating whether an empty
 #'   row is printed above overall meta-analysis results.
 #' @param addrow.subgroups A logical value indicating whether an empty
@@ -839,7 +839,8 @@
 #' \item Squares representing individual study results are printed in
 #'   darkblue (\code{col.square}, \code{col.square.lines})
 #' \item Between-study variance \eqn{\tau^2} is not printed
-#' \item Empty rows are omitted (\code{addrow})
+#' \item Empty rows are omitted (\code{addrow}, \code{addrow.overall},
+#'   \code{addrow.subgroups})
 #' \item Label "Source" is printed instead of "Study" (\code{leftlabs})
 #' \item P-values are printed without leading zeros (\code{zero.pval})
 #' \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
@@ -1052,7 +1053,7 @@
 #' 
 #' # Print only subgroup results
 #' #
-#' forest(m2, layout = "subgroup", addrows = NULL)
+#' forest(m2, layout = "subgroup")
 #' 
 #' # Print only subgroup results (and consider text for tests of
 #' # subgroup differences in width of subgroup column)
@@ -1426,10 +1427,11 @@ forest.meta <- function(x,
                 "time.e", "time.c",
                 "effect", "ci",
                 "effect.ci",
-                "w.fixed", "w.common", "w.random")
+                "w.fixed", "w.common", "w.random",
+                "pval")
   ##
   if (metainf.metacum)
-    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
+    colnames <- c(colnames, "tau2", "tau", "I2")
   ##
   ## If any of the following list elements is NULL, these 'special'
   ## variable names are searched for in original data set (i.e., list
@@ -2039,13 +2041,19 @@ forest.meta <- function(x,
   chknumeric(spacing, length = 1)
   ##
   missing.text.addline1 <- missing(text.addline1)
-  if (!missing.text.addline1)
+  if (!missing.text.addline1) {
     chkchar(text.addline1)
+    if (text.addline1 == "")
+      missing.text.addline1 <- TRUE
+  }
   else
     text.addline1 <- ""
   missing.text.addline2 <- missing(text.addline2)
-  if (!missing.text.addline2)
+  if (!missing.text.addline2) {
     chkchar(text.addline2)
+    if (text.addline2 == "")
+      missing.text.addline2 <- TRUE
+  }
   else
     text.addline2 <- ""
   ##
@@ -2055,8 +2063,11 @@ forest.meta <- function(x,
     chklogical(addrow)
   else
     addrow <- !revman5.jama
-  if (!missing(addrow.overall))
+  if (!missing(addrow.overall)) {
     chklogical(addrow.overall)
+    if (!(overall & (common | random | prediction)))
+      addrow.overall <- FALSE
+  }
   else
     addrow.overall <- !jama & overall & (common | random | prediction)
   if (!missing(addrow.subgroups))
@@ -2806,10 +2817,11 @@ forest.meta <- function(x,
                   paste(sm.lab, ci.lab.bracket),
                 text.w.common,
                 text.w.common,
-                text.w.random)
+                text.w.random,
+                "P-value")
   ##
   if (metainf.metacum)
-    labnames <- c(labnames, "P-value", "Tau2", "Tau", "I2")
+    labnames <- c(labnames, "Tau2", "Tau", "I2")
   ##
   if (newcols) {
     ##
@@ -3219,7 +3231,7 @@ forest.meta <- function(x,
     x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
     x$t.harmonic.mean <- rev(rev(x$t.harmonic.mean)[-(1:2)])
     ##
-    x$pval.overall <- rev(x$pval)[1]
+    x$pval.common <- x$pval.random <- rev(x$pval)[1]
     x$tau2.overall <- rev(x$tau2)[1]
     x$tau.overall <- rev(x$tau)[1]
     x$I2.overall <- rev(x$I2)[1]
@@ -3298,8 +3310,9 @@ forest.meta <- function(x,
   x$n.harmonic.mean <- x$n.harmonic.mean[sel]
   x$t.harmonic.mean <- x$t.harmonic.mean[sel]
   ##
+  x$pval <- x$pval[sel]
+  ##
   if (metainf.metacum) {
-    x$pval <- x$pval[sel]
     x$tau2 <- x$tau2[sel]
     x$tau <- x$tau[sel]
     x$I2 <- x$I2[sel]
@@ -3360,8 +3373,9 @@ forest.meta <- function(x,
     x$n.harmonic.mean <- x$n.harmonic.mean[o]
     x$t.harmonic.mean <- x$t.harmonic.mean[o]
     ##
+    x$pval <- x$pval[o]
+    ##
     if (metainf.metacum) {
-      x$pval <- x$pval[o]
       x$tau2 <- x$tau2[o]
       x$tau <- x$tau[o]
       x$I2 <- x$I2[o]
@@ -4620,25 +4634,23 @@ forest.meta <- function(x,
   ## Label of test for overall effect
   ##
   ##
-  if (test.overall.common | test.overall.random) {
-    pvals.overall <- formatPT(c(x$pval.common, x$pval.random),
-                              lab = TRUE, labval = "",
-                              digits = digits.pval,
-                              zero = zero.pval, JAMA = JAMA.pval,
-                              scientific = scientific.pval,
-                              lab.NA = "NA")
-    statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
-                                  digits.stat, "NA", big.mark = big.mark)
-    ##
-    ## Remove superfluous spaces
-    ##
-    pvals.overall <- rmSpace(pvals.overall, end = TRUE)
-    ##
-    while(any(grepl("  ", pvals.overall)))
-      pvals.overall <- gsub("  ", " ", pvals.overall)
-    while(any(grepl("  ", statistics.overall)))
-      statistics.overall <- gsub("  ", " ", statistics.overall)
-  }
+  pvals.overall <- formatPT(c(x$pval.common, x$pval.random),
+                            lab = TRUE, labval = "",
+                            digits = digits.pval,
+                            zero = zero.pval, JAMA = JAMA.pval,
+                            scientific = scientific.pval,
+                            lab.NA = "NA")
+  statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
+                                digits.stat, "NA", big.mark = big.mark)
+  ##
+  ## Remove superfluous spaces
+  ##
+  pvals.overall <- rmSpace(pvals.overall, end = TRUE)
+  ##
+  while(any(grepl("  ", pvals.overall)))
+    pvals.overall <- gsub("  ", " ", pvals.overall)
+  while(any(grepl("  ", statistics.overall)))
+    statistics.overall <- gsub("  ", " ", statistics.overall)
   ##
   if (test.overall.common) {
     if (print.stat) {
@@ -5706,26 +5718,23 @@ forest.meta <- function(x,
     ##
     ## Label of test for effect in subgroups
     ##
-    if (any(test.effect.subgroup.common.logical) |
-        any(test.effect.subgroup.random.logical)) {
-      pvals.effect.w <- formatPT(c(pval.common.w, pval.random.w),
-                                 lab = TRUE, labval = "",
-                                 digits = digits.pval,
-                                 zero = zero.pval, JAMA = JAMA.pval,
-                                 scientific = scientific.pval,
-                                 lab.NA = "NA")
-      statistics.effect.w <- formatN(c(statistic.common.w, statistic.random.w),
-                                     digits.stat, "NA", big.mark = big.mark)
-      ##
-      ## Remove superfluous spaces
-      ##
+    pvals.effect.w <- formatPT(c(pval.common.w, pval.random.w),
+                               lab = TRUE, labval = "",
+                               digits = digits.pval,
+                               zero = zero.pval, JAMA = JAMA.pval,
+                               scientific = scientific.pval,
+                               lab.NA = "NA")
+    statistics.effect.w <- formatN(c(statistic.common.w, statistic.random.w),
+                                   digits.stat, "NA", big.mark = big.mark)
+    ##
+    ## Remove superfluous spaces
+    ##
       pvals.effect.w <- rmSpace(pvals.effect.w, end = TRUE)
-      ##
-      while(any(grepl("  ", pvals.effect.w)))
-        pvals.effect.w <- gsub("  ", " ", pvals.effect.w)
-      while(any(grepl("  ", statistics.effect.w)))
-        statistics.effect.w <- gsub("  ", " ", statistics.effect.w)
-    }
+    ##
+    while(any(grepl("  ", pvals.effect.w)))
+      pvals.effect.w <- gsub("  ", " ", pvals.effect.w)
+    while(any(grepl("  ", statistics.effect.w)))
+      statistics.effect.w <- gsub("  ", " ", statistics.effect.w)
     ##
     if (any(test.effect.subgroup.common.logical)) {
       text.effect.subgroup.common <- vector("list", n.by)
@@ -7151,20 +7160,25 @@ forest.meta <- function(x,
   if (by)
     cor.format[sel.by] <- ""
   ##
+  ## P-value of effect
+  ##
+  pval.format <-
+    formatPT(c(x$pval.common, x$pval.random, NA, x$pval),
+             digits = digits.pval,
+             big.mark = big.mark,
+             lab = FALSE, labval = "",
+             zero = zero.pval, JAMA = JAMA.pval,
+             scientific = scientific.pval,
+             lab.NA = lab.NA)
+  pval.format[3] <- ""
+  ##
   ## Leave-one-out / cumulative meta-analysis
   ##
   if (metainf.metacum) {
-    pval.format <-  c(x$pval.overall, x$pval.overall, NA, x$pval)
     tau2.format <-  c(x$tau2.overall, x$tau2.overall, NA, x$tau2)
     tau.format <-  c(x$tau.overall, x$tau.overall, NA, x$tau)
     I2.format <-  c(x$I2.overall, x$I2.overall, NA, x$I2)
     ##
-    pval.format <-  formatPT(pval.format, digits = digits.pval,
-                             big.mark = big.mark,
-                             lab = FALSE, labval = "",
-                             zero = zero.pval, JAMA = JAMA.pval,
-                             scientific = scientific.pval,
-                             lab.NA = lab.NA)
     tau2.format <-  formatPT(tau2.format, digits = digits.tau2,
                              big.mark = big.mark,
                              lab = FALSE, labval = "",
@@ -7178,7 +7192,7 @@ forest.meta <- function(x,
     ##
     ## Print nothing for lines with prediction interval
     ##
-    pval.format[3] <- tau2.format[3] <- tau.format[3] <- I2.format[3] <- ""
+    tau2.format[3] <- tau.format[3] <- I2.format[3] <- ""
   }
   ##
   ##
@@ -7468,68 +7482,68 @@ forest.meta <- function(x,
   yText.addline2 <- NA
   ##
   if (common & random & overall) {
-    yTE.common  <- yNext
+    yTE.common <- yNext
     yTE.random <- yNext + 1
-    yNext      <- yNext + 2
+    yNext <- yNext + 2
   }
   ##
   else if (common & !random & overall) {
     yTE.common <- yNext
-    yNext     <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   else if (!common & random & overall) {
     yTE.random <- yNext
-    yNext      <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   else if (!common & !random & pooled.totals & overall) {
     yTE.common  <- yNext
-    yNext      <- yNext + 1
+    yNext <- yNext + 1
     if (missing(text.common))
       text.common <- "Overall"
   }
   ##
   if (prediction & overall) {
     yPredict <- yNext
-    yNext    <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   yNext <- yNext + addrows.below.overall
   ##
   if (overall.hetstat) {
     yHetstat <- yNext
-    yNext    <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (resid.hetstat) {
     yResidHetstat <- yNext
-    yNext  <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (test.overall.common) {
     yOverall.common <- yNext
-    yNext          <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (test.overall.random) {
     yOverall.random <- yNext
-    yNext           <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (test.subgroup.common) {
     ySubgroup.common <- yNext
-    yNext           <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (test.subgroup.random) {
     ySubgroup.random <- yNext
-    yNext            <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (!missing.text.addline1) {
     yText.addline1 <- yNext
-    yNext      <- yNext + 1
+    yNext <- yNext + 1
   }
   ##
   if (!missing.text.addline2)
@@ -7543,13 +7557,13 @@ forest.meta <- function(x,
   ##
   yTE.common <- yHead + yTE.common + addrow
   yTE.random <- yHead + yTE.random + addrow
-  yPredict   <- yHead + yPredict + addrow
+  yPredict   <- yHead + yPredict   + addrow
   ##
   yHetstat <- yHead + yHetstat + addrow
   yResidHetstat <- yHead + yResidHetstat + addrow
-  yOverall.common  <- yHead + yOverall.common + addrow
+  yOverall.common <- yHead + yOverall.common + addrow
   yOverall.random <- yHead + yOverall.random + addrow
-  ySubgroup.common  <- yHead + ySubgroup.common + addrow
+  ySubgroup.common <- yHead + ySubgroup.common + addrow
   ySubgroup.random <- yHead + ySubgroup.random + addrow
   yText.addline1 <- yHead + yText.addline1 + addrow
   yText.addline2 <- yHead + yText.addline2 + addrow
@@ -7728,9 +7742,10 @@ forest.meta <- function(x,
   col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs,
                           fontfamily)
   ##
+  col.pval <- formatcol(labs[["lab.pval"]], pval.format, yS, just.c, fcs,
+                        fontfamily)
+  ##
   if (metainf.metacum) {
-    col.pval <- formatcol(labs[["lab.pval"]], pval.format, yS, just.c, fcs,
-                          fontfamily)
     col.tau2 <- formatcol(labs[["lab.tau2"]], tau2.format, yS, just.c, fcs,
                           fontfamily)
     col.tau <- formatcol(labs[["lab.tau"]], tau.format, yS, just.c, fcs,
@@ -7788,9 +7803,10 @@ forest.meta <- function(x,
   col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs,
                                fontfamily)
   ##
+  col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
+                             fontfamily)
+  ##
   if (metainf.metacum) {
-    col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
-                               fontfamily)
     col.tau2.calc <- formatcol(longer.tau2, tau2.format, yS, just.c, fcs,
                                fontfamily)
     col.tau.calc <- formatcol(longer.tau, tau.format, yS, just.c, fcs,
@@ -7798,8 +7814,6 @@ forest.meta <- function(x,
     col.I2.calc <- formatcol(longer.I2, I2.format, yS, just.c, fcs,
                                fontfamily)
   }
-  ##
-  ##
   ##
   col.forest <- list(eff = TEs.exclude,
                      low = lowTEs.exclude,
@@ -7890,8 +7904,9 @@ forest.meta <- function(x,
   cols[["col.time.e"]] <- col.time.e
   cols[["col.time.c"]] <- col.time.c
   ##
+  cols[["col.pval"]] <- col.pval
+  ##
   if (metainf.metacum) {
-    cols[["col.pval"]] <- col.pval
     cols[["col.tau2"]] <- col.tau2
     cols[["col.tau"]] <- col.tau
     cols[["col.I2"]] <- col.I2
@@ -7916,8 +7931,9 @@ forest.meta <- function(x,
   cols.calc[["col.time.e"]] <- col.time.e.calc
   cols.calc[["col.time.c"]] <- col.time.c.calc
   ##
+  cols.calc[["col.pval"]] <- col.pval.calc
+  ##
   if (metainf.metacum) {
-    cols.calc[["col.pval"]] <- col.pval.calc
     cols.calc[["col.tau2"]] <- col.tau2.calc
     cols.calc[["col.tau"]] <- col.tau.calc
     cols.calc[["col.I2"]] <- col.I2.calc
@@ -8450,18 +8466,40 @@ forest.meta <- function(x,
                             yStats), na.rm = TRUE)
   }
   ##
-  ymin.line <- overall.hetstat + test.overall.common +
-    test.overall.random + resid.hetstat + test.subgroup.common +
-    test.subgroup.random +
-    (1 - missing.text.addline1) + (1 - missing.text.addline2) +
-    addrows.below.overall
+  ## Determine minimal value on y-axis for lines of common / random
+  ## effect estimate or reference line
   ##
-  ymin.line <- ymin.line + (overall & ymin.line == 0 &
-                            !(!addrow.overall | !addrow))
-  if (hetstat %in% c("common", "random") &
-      (!missing.text.addline1 | !missing.text.addline2)) {
-    ymin.line <- ymin.line + 1
+  n.lines <- sum(!is.na(yStats))
+  ymin.line <- max(addrow | addrow.overall,
+                   n.lines + (n.lines > 0) * addrows.below.overall)
+  ##
+  if (!by) {
+    if (overall & (common | random | prediction)) {
+      if (ymin.line == addrows.below.overall & !(!addrow.overall | !addrow))
+        ymin.line <- ymin.line + 1
+      ##
+      if ((!missing.text.addline1 | !missing.text.addline2) &
+          (!missing.text.addline1 + !missing.text.addline2) == n.lines &
+          !(!addrow.overall | !addrow))
+        ymin.line <- ymin.line + 1
+      ##
+      if (addrow.overall & !addrow & n.lines == 0)
+        ymin.line <- ymin.line - 1
+    }
+    ##
+    if (!overall & addrow & n.lines == 0)
+      ymin.line <- ymin.line - 1
   }
+  else {
+    if (!overall & !overall.hetstat & addrow &
+        ((n.lines > !missing.text.addline1 + !missing.text.addline2) |
+         n.lines == 0))
+      ymin.line <- ymin.line - 1
+  }
+  ##
+  if (hetstat %in% c("common", "random") &
+      (!missing.text.addline1 | !missing.text.addline2))
+    ymin.line <- ymin.line + 1
   ##
   ymin.common <- spacing * (ymin.line + prediction + random + 0.5)
   ymin.random <- spacing * (ymin.line + prediction + 0.5)
