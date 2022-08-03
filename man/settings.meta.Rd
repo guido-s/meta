@@ -68,22 +68,25 @@ The last setting uses the default settings of R package
 RevMan 5 settings, in detail:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab FALSE \tab method not available in RevMan 5 \cr
+\code{method.random.ci} \tab "DL" \tab only available method in RevMan 5 \cr
 \code{method.tau} \tab "DL" \tab only available method in RevMan 5
   \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
-\code{method.i2} \tab "q" \tab only available method in RevMan 5
-  \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
 \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
 \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
+\code{prediction} \tab FALSE \tab no prediction interval \cr
 \code{test.overall} \tab TRUE \tab print information on test of
   overall effect \cr
+\code{test.subgroup} \tab TRUE \tab print information on test for
+  subgroup differences \cr
+\code{test.effect.subgroup} \tab TRUE \tab print information on
+  test for effect in subgroups \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
-\code{digits.tau2} \tab 2 \tab number of digits for tau-squared \cr
+\code{digits.tau2} \tab 3 \tab number of digits for tau-squared \cr
 \code{digits.tau} \tab 4 \tab number of digits for square root of
   tau-squared \cr
 \code{CIbracket}, \tab "[" \tab \cr
@@ -97,8 +100,13 @@ JAMA settings:
 \code{layout} \tab "JAMA" \tab layout for forest plots \cr
 \code{test.overall} \tab TRUE \tab print information on test of
   overall effect \cr
+\code{test.subgroup} \tab FALSE \tab print information on test for
+  subgroup differences \cr
+\code{test.effect.subgroup} \tab FALSE \tab print information on
+  test for effect in subgroups \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
+\code{digits.pval} \tab 3 \tab number of digits for p-values \cr
 \code{CIbracket}, \tab "(" \tab \cr
 \code{CIseparator} \tab "-" \tab print confidence intervals as
   "\code{(.-.)}" \cr
@@ -111,14 +119,14 @@ JAMA settings:
 IQWiG, General Methods 5 settings:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
+\code{method.random.ci} \tab "HK" \tab Hartung-Knapp method \cr
 \code{prediction} \tab TRUE \tab Prediction interval \cr
 }
 
 IQWiG, General Methods 6 settings:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
+\code{method.random.ci} \tab "HK" \tab Hartung-Knapp method \cr
 \code{adhoc.hakn} \tab "ci" \tab \emph{ad hoc} variance correction \cr
 \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
   between-study variance \cr

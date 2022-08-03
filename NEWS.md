@@ -1,4 +1,28 @@
-## meta, version 5.5-1 (2022-mm-dd)
+## meta, version 5.6-0 (2022-mm-dd)
+
+### Major changes
+
+* Kenward-Roger method implemented to estimate confidence or
+  prediction interval [(Partlett & Riley,
+  2017)](https://doi.org/10.1002/sim.7140)
+
+* Bootstrap approach implemented to calculate prediction interval
+  [(Nagashima et al., 2019)](https://doi.org/10.1177/0962280218773520)
+
+* Defaults for appearance of forest plots can be defined for the R
+  session
+
+* R package **pimeta** added to suggested packages in order to
+  calculate bootstrap approach for prediction interval
+
+* New argument 'method.random.ci' replaces argument 'hakn' to select
+  method to calculate confidence interval for random effects estimate
+
+* Major update of help pages:
+  - help page for *meta-package* revised (content of details of
+    meta-analysis functions moved to this help page)
+  - new help page *meta-object* describing content of meta-analysis
+    functions (content moved from individual help pages)
 
 ### Bug fixes
 
@@ -14,6 +38,24 @@
 * metareg():
   - use Paule-Mandel estimator if used in meta-analysis (instead of
     REML estimator)
+
+### User-visible changes
+
+* Argument 'hakn' replaced by 'method.random.ci' in functions
+  metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop() and metarate()
+
+* New argument 'method.predict' in functions metabin(), metacont(),
+  metacor(), metagen(), metainc(), metamean(), metaprop() and
+  metarate()
+
+* settings.meta():
+  - several new arguments added to define defaults for forest plots;
+    see printout of command settings.meta(print = TRUE)
+
+* forest.meta():
+  - argument 'col.by' has been renamed to 'col.subgroup',
+  - argument 'bysort' has been renamed to 'sort.subgroup'
 
 
 ## meta, version 5.5-0 (2022-07-11)

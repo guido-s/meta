@@ -25,12 +25,22 @@ is.installed.package <- function(pkg, func, argument, value,
               value, "\"'\n  ",
               "(R command: 'install.packages(\"", pkg, "\")').")
     else
-      if (missing(func))
-        stop(oldmsg,
-             "Please ", oldinst, "install library '", pkg,
-             "'\n       ",
-             "(R command: 'install.packages(\"", pkg, "\")').",
-             call. = FALSE)
+      if (missing(func)) {
+        if (missing(argument) | missing(value))
+          stop(oldmsg,
+               "Please ", oldinst, "install library '", pkg,
+               "'\n       ",
+               "(R command: 'install.packages(\"", pkg, "\")').",
+               call. = FALSE)
+        else
+          stop(oldmsg,
+               "Please ", oldinst, "install library '", pkg,
+               "' in order to use argument '", argument, " = \"",
+               value,
+               "\"'\n       ",
+               "(R command: 'install.packages(\"", pkg, "\")').",
+               call. = FALSE)
+      }
       else
         stop(oldmsg,
              "Please ", oldinst, "install library '", pkg,

@@ -52,7 +52,8 @@
 #' and forest plots if argument \code{irscale} is not equal to 1.
 #' 
 #' @return
-#' An object of classes \code{summary.meta} and \code{meta}.
+#' An object of classes \code{summary.meta} and \code{meta} (see
+#' \code{\link{meta-object}}.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -130,7 +131,7 @@ summary.meta <- function(object, ...) {
   ## (3) Results for individual studies
   ##
   ##
-  object$df <- replaceNULL(object$df, NA)
+  object$df <- replaceNULL(object$df, Inf)
   method.ci <- replaceNULL(object$method.ci, "")
   object$statistic <- replaceNULL(object$statistic, object$zval)
   ##
@@ -173,7 +174,7 @@ summary.meta <- function(object, ...) {
                statistic = object$statistic.random,
                p = object$pval.random,
                level = object$level.ma,
-               df = if (!is.null(object$df.hakn)) object$df.hakn else NA)
+               df = object$df.random)
   if (metaprop)
     ci.r$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
@@ -186,7 +187,7 @@ summary.meta <- function(object, ...) {
                statistic = NA,
                p = NA,
                level = object$level.predict,
-               df = object$k - 2)
+               df = object$df.predict)
   
   
   ##
@@ -208,7 +209,7 @@ summary.meta <- function(object, ...) {
   ##
   if (length(object$subgroup) > 0) {
     ##
-    n.by <- length(object$bylevs)
+    n.subgroups <- length(object$subgroup.levels)
     ##
     ci.common.w <- list(TE = object$TE.common.w,
                         seTE = object$seTE.common.w,
@@ -229,17 +230,17 @@ summary.meta <- function(object, ...) {
                         statistic = object$statistic.random.w,
                         p = object$pval.random.w,
                         level = object$level.ma,
-                        df = object$df.hakn.w,
+                        df = object$df.random.w,
                         harmonic.mean = object$n.harmonic.mean.w)
     ##
-    ci.predict.w <- list(TE = rep(NA, n.by),
+    ci.predict.w <- list(TE = rep(NA, n.subgroups),
                          seTE = object$seTE.predict.w,
                          lower = object$lower.predict.w,
                          upper = object$upper.predict.w,
-                         statistic = rep(NA, n.by),
-                         p = rep(NA, n.by),
+                         statistic = rep(NA, n.subgroups),
+                         p = rep(NA, n.subgroups),
                          level = object$level.predict,
-                         df = object$k.w - 2,
+                         df = object$df.predict.w,
                          harmonic.mean = object$n.harmonic.mean.w)
     ##
     if (metarate)

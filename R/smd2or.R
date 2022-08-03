@@ -51,8 +51,8 @@
 #' is a vector.
 #' 
 #' @return
-#' An object of class \code{"meta"} and \code{"metagen"}; see
-#' \code{\link{metagen}}.
+#' An object of class \code{c("metagen", "meta")} with corresponding
+#' generic functions (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #'

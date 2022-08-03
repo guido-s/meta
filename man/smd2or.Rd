@@ -50,8 +50,8 @@ and plots.}
 meta-analysis object).}
 }
 \value{
-An object of class \code{"meta"} and \code{"metagen"}; see
-\code{\link{metagen}}.
+An object of class \code{c("metagen", "meta")} with corresponding
+generic functions (see \code{\link{meta-object}}).
 }
 \description{
 Conversion from standardised mean difference to log odds ratio

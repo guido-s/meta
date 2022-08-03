@@ -134,7 +134,7 @@
 #' 
 #' # Use Hartung-Knapp method
 #' #
-#' mu3 <- update(mu2, hakn = TRUE)
+#' mu3 <- update(mu2, method.random.ci = "HK")
 #' mu3
 #' metareg(mu3, intercept = FALSE)
 #' 
@@ -142,7 +142,8 @@
 
 
 metareg <- function(x, formula, method.tau = x$method.tau,
-                    hakn = x$hakn, level.ma = x$level.ma,
+                    hakn = x$method.random.ci == "HK",
+                    level.ma = x$level.ma,
                     intercept = TRUE, ...) {
 
   if ("data" %in% names(list(...))) {

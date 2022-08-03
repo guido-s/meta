@@ -65,8 +65,8 @@
 #' @param text.predict.w A character string to label the prediction
 #'   interval within subgroups, or a character vector of same length
 #'   as number of subgroups with corresponging labels.
-#' @param bysort A logical indicating whether groups should be ordered
-#'   alphabetically.
+#' @param sort.subgroup A logical indicating whether groups should be
+#'   ordered alphabetically.
 #' @param pooled.totals A logical indicating whether total number of
 #'   observations should be given in the figure.
 #' @param pooled.events A logical indicating whether total number of
@@ -84,7 +84,7 @@
 #' @param smlab.pos A numeric specifying the center of the label for
 #'   the summary measure.
 #' @param xlim The x limits (min,max) of the plot, or the character
-#'   "s" to produce symmetric forest plots.
+#'   string "symmetric" to produce symmetric forest plots.
 #' @param allstudies A logical indicating whether studies with
 #'   inestimable treatment effects should be included in the forest
 #'   plot.
@@ -203,7 +203,7 @@
 #' @param col.predict Background colour of prediction interval.
 #' @param col.predict.lines Colour of outer lines of prediction
 #'   interval.
-#' @param col.by The colour to print information on subgroups.
+#' @param col.subgroup The colour to print information on subgroups.
 #' @param col.label.right The colour for label on right side of null
 #'   effect.
 #' @param col.label.left The colour for label on left side of null
@@ -743,7 +743,7 @@
 #' summaries are printed. By default, only subgroup results based on
 #' at least two studies are printed which is identical to use argument
 #' \code{subgroup = k.w > 1}. The order of the logical vector
-#' corresponds to the order of subgroups in list element 'bylevs' of a
+#' corresponds to the order of subgroups in list element 'subgroup.levels' of a
 #' meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
 #' used to show results for all subgroups (including those with a
 #' single study).
@@ -1082,8 +1082,10 @@ forest.meta <- function(x,
                         overall = x$overall,
                         text.common = x$text.common,
                         text.random = x$text.random,
-                        lty.common = 2, lty.random = 3,
-                        col.common = "black", col.random = "black",
+                        lty.common = gs("lty.common"),
+                        lty.random = gs("lty.random"),
+                        col.common = gs("col.common"),
+                        col.random = gs("col.random"),
                         text.w.common = x$text.w.common,
                         text.w.random = x$text.w.random,
                         ##
@@ -1101,12 +1103,13 @@ forest.meta <- function(x,
                         text.common.w = text.common,
                         text.random.w = text.random,
                         text.predict.w = text.predict,
-                        bysort = FALSE,
+                        sort.subgroup = gs("sort.subgroup"),
                         ##
                         pooled.totals = common | random,
-                        pooled.events = FALSE, pooled.times = FALSE,
+                        pooled.events = gs("pooled.events"),
+                        pooled.times = gs("pooled.times"),
                         ##
-                        study.results = TRUE,
+                        study.results = gs("study.results"),
                         ##
                         xlab = "", xlab.pos,
                         smlab = NULL, smlab.pos, xlim = "symmetric",
@@ -1120,9 +1123,11 @@ forest.meta <- function(x,
                         ref =
                           ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
                         ##
-                        lower.equi = NA, upper.equi = NA,
-                        lty.equi = 1, col.equi = "blue",
-                        fill.equi = "transparent",
+                        lower.equi = gs("lower.equi"),
+                        upper.equi = gs("upper.equi"),
+                        lty.equi = gs("lty.equi"),
+                        col.equi = gs("col.equi"),
+                        fill.equi = gs("fill.equi"),
                         ##
                         leftcols = NULL, rightcols = NULL,
                         leftlabs = NULL, rightlabs = NULL,
@@ -1135,64 +1140,67 @@ forest.meta <- function(x,
                         ##
                         label.right = x$label.right,
                         label.left = x$label.left,
-                        bottom.lr = TRUE,
+                        bottom.lr = gs("bottom.lr"),
                         ##
-                        lab.NA = ".", lab.NA.effect, lab.NA.weight = "--",
+                        lab.NA = gs("lab.NA"),
+                        lab.NA.effect = gs("lab.NA.effect"),
+                        lab.NA.weight = gs("lab.NA.weight"),
                         ##
-                        lwd = 1,
+                        lwd = gs("lwd"),
                         ##
                         at = NULL,
                         label = TRUE,
                         ##
-                        type.study = "square",
-                        type.common = "diamond",
+                        type.study = gs("type.study"),
+                        type.common = gs("type.common"),
                         type.random = type.common,
                         type.subgroup =
                           ifelse(study.results, "diamond", "square"),
                         type.subgroup.common = type.subgroup,
                         type.subgroup.random = type.subgroup,
                         ##
-                        col.study = "black",
-                        col.square = "gray",
+                        col.study = gs("col.study"),
+                        col.square = gs("col.square"),
                         col.square.lines = col.square,
                         ##
-                        col.inside = "white",
+                        col.inside = gs("col.inside"),
                         col.inside.common = col.inside,
                         col.inside.random = col.inside,
                         ##
-                        col.diamond = "gray",
+                        col.diamond = gs("col.diamond"),
                         col.diamond.common = col.diamond,
                         col.diamond.random = col.diamond,
-                        col.diamond.lines = "black",
+                        col.diamond.lines = gs("col.diamond.lines"),
                         col.diamond.lines.common = col.diamond.lines,
                         col.diamond.lines.random = col.diamond.lines,
                         ##
-                        col.predict = "red",
-                        col.predict.lines = "black",
+                        col.predict = gs("col.predict"),
+                        col.predict.lines = gs("col.predict.lines"),
                         ##
-                        col.by = "darkgray",
+                        col.subgroup = gs("col.subgroup"),
                         ##
-                        col.label.right = "black",
-                        col.label.left = "black",
+                        col.label.right = gs("col.label.right"),
+                        col.label.left = gs("col.label.left"),
                         ##
                         hetstat = common | random | overall.hetstat,
                         overall.hetstat = x$overall.hetstat,
-                        hetlab = "Heterogeneity: ",
-                        resid.hetstat,
-                        resid.hetlab = "Residual heterogeneity: ",
-                        print.I2,
-                        print.I2.ci = FALSE,
-                        print.tau2,
-                        print.tau2.ci = FALSE,
-                        print.tau = FALSE,
-                        print.tau.ci = FALSE,
-                        print.Q = FALSE,
-                        print.pval.Q,
-                        print.Rb = FALSE,
-                        print.Rb.ci = FALSE,
-                        text.subgroup.nohet = "not applicable",
+                        hetlab = gs("hetlab"),
+                        resid.hetstat = gs("resid.hetstat"),
+                        resid.hetlab = gs("resid.hetlab"),
                         ##
-                        LRT = FALSE,
+                        print.I2 = gs("forest.I2"),
+                        print.I2.ci = gs("forest.I2.ci"),
+                        print.tau2 = gs("forest.tau2"),
+                        print.tau2.ci = gs("forest.tau2.ci"),
+                        print.tau = gs("forest.tau"),
+                        print.tau.ci = gs("forest.tau.ci"),
+                        print.Q = gs("forest.Q"),
+                        print.pval.Q = gs("forest.pval.Q"),
+                        print.Rb = gs("forest.Rb"),
+                        print.Rb.ci = gs("forest.Rb.ci"),
+                        text.subgroup.nohet = gs("text.subgroup.nohet"),
+                        ##
+                        LRT = gs("LRT"),
                         ##
                         test.overall = gs("test.overall"),
                         test.overall.common = common & overall & test.overall,
@@ -1201,13 +1209,13 @@ forest.meta <- function(x,
                         label.test.overall.common,
                         label.test.overall.random,
                         ##
-                        print.stat = TRUE,
+                        print.stat = gs("forest.stat"),
                         ##
                         test.subgroup = x$test.subgroup,
                         test.subgroup.common = test.subgroup & common,
                         test.subgroup.random = test.subgroup & random,
                         prediction.subgroup = x$prediction.subgroup,
-                        print.Q.subgroup = TRUE,
+                        print.Q.subgroup = gs("forest.Q.subgroup"),
                         label.test.subgroup.common,
                         label.test.subgroup.random,
                         ##
@@ -1220,50 +1228,50 @@ forest.meta <- function(x,
                         text.addline1,
                         text.addline2,
                         ##
-                        fontsize = 12,
-                        fontfamily = NULL,
+                        fontsize = gs("fontsize"),
+                        fontfamily = gs("fontfamily"),
                         fs.heading = fontsize,
-                        fs.common,
-                        fs.random,
-                        fs.predict,
-                        fs.common.labels,
-                        fs.random.labels,
-                        fs.predict.labels,
+                        fs.common = gs("fs.common"),
+                        fs.random = gs("fs.random"),
+                        fs.predict = gs("fs.predict"),
+                        fs.common.labels = gs("fs.common.labels"),
+                        fs.random.labels = gs("fs.random.labels"),
+                        fs.predict.labels = gs("fs.predict.labels"),
                         fs.study = fontsize,
                         fs.study.labels = fs.study,
-                        fs.hetstat,
-                        fs.test.overall,
-                        fs.test.subgroup,
-                        fs.test.effect.subgroup,
-                        fs.addline,
+                        fs.hetstat = gs("fs.hetstat"),
+                        fs.test.overall = gs("fs.test.overall"),
+                        fs.test.subgroup = gs("fs.test.subgroup"),
+                        fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
+                        fs.addline = gs("fs.addline"),
                         fs.axis = fontsize,
                         fs.smlab = fontsize,
                         fs.xlab = fontsize,
                         fs.lr = fontsize,
                         ##
                         ff.heading = "bold",
-                        ff.common,
-                        ff.random,
-                        ff.predict,
-                        ff.common.labels,
-                        ff.random.labels,
-                        ff.predict.labels,
+                        ff.common = gs("ff.common"),
+                        ff.random = gs("ff.random"),
+                        ff.predict = gs("ff.predict"),
+                        ff.common.labels = gs("ff.common.labels"),
+                        ff.random.labels = gs("ff.random.labels"),
+                        ff.predict.labels = gs("ff.predict.labels"),
                         ff.study = "plain",
                         ff.study.labels = ff.study,
-                        ff.hetstat,
-                        ff.test.overall,
-                        ff.test.subgroup,
-                        ff.test.effect.subgroup,
-                        ff.addline,
-                        ff.axis = "plain",
-                        ff.smlab = "bold",
-                        ff.xlab = "plain",
-                        ff.lr = "plain",
+                        ff.hetstat = gs("ff.hetstat"),
+                        ff.test.overall = gs("ff.test.overall"),
+                        ff.test.subgroup = gs("ff.test.subgroup"),
+                        ff.test.effect.subgroup = gs("ff.test.effect.subgroup"),
+                        ff.addline = gs("ff.addline"),
+                        ff.axis = gs("ff.axis"),
+                        ff.smlab = gs("ff.smlab"),
+                        ff.xlab = gs("ff.xlab"),
+                        ff.lr = gs("ff.lr"),
                         ##
                         squaresize = 0.8 / spacing,
                         ##
                         plotwidth = if (layout == "JAMA") "8cm" else "6cm",
-                        colgap = "2mm",
+                        colgap = gs("colgap"),
                         colgap.left = colgap,
                         colgap.right = colgap,
                         colgap.studlab = colgap.left,
@@ -1276,23 +1284,23 @@ forest.meta <- function(x,
                           (overall | !is.null(x$subgroup)),
                         calcwidth.common = calcwidth.pooled,
                         calcwidth.random = calcwidth.pooled,
-                        calcwidth.predict = FALSE,
-                        calcwidth.hetstat = FALSE,
-                        calcwidth.tests  = FALSE,
-                        calcwidth.subgroup = FALSE,
-                        calcwidth.addline = FALSE,
+                        calcwidth.predict = gs("calcwidth.predict"),
+                        calcwidth.hetstat = gs("calcwidth.hetstat"),
+                        calcwidth.tests  = gs("calcwidth.tests"),
+                        calcwidth.subgroup = gs("calcwidth.subgroup"),
+                        calcwidth.addline = gs("calcwidth.addline"),
                         ##
                         just = if (layout == "JAMA") "left" else "right",
-                        just.studlab = "left",
-                        just.addcols = "center",
+                        just.studlab = gs("just.studlab"),
+                        just.addcols = gs("just.addcols"),
                         just.addcols.left = just.addcols,
                         just.addcols.right = just.addcols,
                         ##
-                        spacing = 1,
-                        addrow,
-                        addrow.overall,
-                        addrow.subgroups,
-                        addrows.below.overall = 0,
+                        spacing = gs("spacing"),
+                        addrow = gs("addrow"),
+                        addrow.overall = gs("addrow.overall"),
+                        addrow.subgroups = gs("addrow.subgroups"),
+                        addrows.below.overall = gs("addrows.below.overall"),
                         ##
                         new = TRUE,
                         ##
@@ -1369,7 +1377,7 @@ forest.meta <- function(x,
   by <- !is.null(x$subgroup)
   ##
   if (by)
-    n.by <- length(x$bylevs)
+    n.by <- length(x$subgroup.levels)
   else
     n.by <- 0
   ##
@@ -1767,7 +1775,11 @@ forest.meta <- function(x,
     chklogical(print.subgroup.name)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup)
-  chklogical(bysort)
+  ##
+  sort.subgroup <- deprecated(sort.subgroup, missing(sort.subgroup),
+                              args, "bysort", warn.deprecated)
+  chklogical(sort.subgroup)
+  ##
   chklogical(pooled.totals)
   chklogical(pooled.events)
   chklogical(pooled.times)
@@ -1812,7 +1824,7 @@ forest.meta <- function(x,
   ##
   chklogical(bottom.lr)
   chkchar(lab.NA)
-  if (missing(lab.NA.effect))
+  if (is.null(lab.NA.effect))
     if (metainf.metacum)
       lab.NA.effect <- lab.NA
     else
@@ -1826,13 +1838,16 @@ forest.meta <- function(x,
   chkcolor(col.predict)
   chkcolor(col.predict.lines)
   ##
+  col.subgroup <- deprecated(col.subgroup, missing(col.subgroup), args,
+                             "col.by", warn.deprecated)
+  ##
   missing.hetstat <- missing(hetstat)
   missing.overall.hetstat <- missing(overall.hetstat)
   ##
   overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
   chklogical(overall.hetstat)
   ##
-  if (missing(print.I2))
+  if (is.null(print.I2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.I2 <- TRUE
     else
@@ -1842,7 +1857,7 @@ forest.meta <- function(x,
   ##
   chklogical(print.I2.ci)
   ##
-  if (missing(print.tau2))
+  if (is.null(print.tau2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.tau2 <- TRUE
     else
@@ -1861,7 +1876,7 @@ forest.meta <- function(x,
   ##
   chklogical(print.Q)
   ##
-  if (missing(print.pval.Q))
+  if (is.null(print.pval.Q))
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.pval.Q <- TRUE
     else
@@ -1917,7 +1932,7 @@ forest.meta <- function(x,
   }
   ##
   chkchar(hetlab)
-  if (!missing(resid.hetstat))
+  if (!is.null(resid.hetstat))
     chklogical(resid.hetstat)
   else {
     if (overall && (is.character(hetstat) || hetstat) && !LRT &&
@@ -1959,9 +1974,9 @@ forest.meta <- function(x,
   if (!missing.fs.common)
     chknumeric(fs.common, length = 1)
   ##
-  if (!missing(fs.random))
+  if (!is.null(fs.random))
     chknumeric(fs.random, length = 1)
-  if (!missing(fs.predict))
+  if (!is.null(fs.predict))
     chknumeric(fs.predict, length = 1)
   ##
   missing.fs.common.labels <- missing(fs.common.labels)
@@ -1976,23 +1991,23 @@ forest.meta <- function(x,
   if (!missing.fs.common.labels)
     chknumeric(fs.common.labels, length = 1)
   ##
-  if (!missing(fs.random.labels))
+  if (!is.null(fs.random.labels))
     chknumeric(fs.random.labels, length = 1)
-  if (!missing(fs.predict.labels))
+  if (!is.null(fs.predict.labels))
     chknumeric(fs.predict.labels, length = 1)
-  if (!missing(fs.study))
+  if (!is.null(fs.study))
     chknumeric(fs.study, length = 1)
-  if (!missing(fs.study.labels))
+  if (!is.null(fs.study.labels))
     chknumeric(fs.study.labels, length = 1)
-  if (!missing(fs.hetstat))
+  if (!is.null(fs.hetstat))
     chknumeric(fs.hetstat, length = 1)
-  if (!missing(fs.test.overall))
+  if (!is.null(fs.test.overall))
     chknumeric(fs.test.overall, length = 1)
-  if (!missing(fs.test.subgroup))
+  if (!is.null(fs.test.subgroup))
     chknumeric(fs.test.subgroup, length = 1)
-  if (!missing(fs.test.effect.subgroup))
+  if (!is.null(fs.test.effect.subgroup))
     chknumeric(fs.test.effect.subgroup, length = 1)
-  if (!missing(fs.addline))
+  if (!is.null(fs.addline))
     chknumeric(fs.addline, length = 1)
   chknumeric(fs.axis, length = 1)
   chknumeric(fs.smlab, length = 1)
@@ -2059,18 +2074,18 @@ forest.meta <- function(x,
   ##
   ## Check and set additional empty rows in forest plot
   ##
-  if (!missing(addrow))
+  if (!is.null(addrow))
     chklogical(addrow)
   else
     addrow <- !revman5.jama
-  if (!missing(addrow.overall)) {
+  if (!is.null(addrow.overall)) {
     chklogical(addrow.overall)
     if (!(overall & (common | random | prediction)))
       addrow.overall <- FALSE
   }
   else
     addrow.overall <- !jama & overall & (common | random | prediction)
-  if (!missing(addrow.subgroups))
+  if (!is.null(addrow.subgroups))
     chklogical(addrow.subgroups)
   else
     addrow.subgroups <- !jama
@@ -2466,7 +2481,7 @@ forest.meta <- function(x,
   ##
   ## Add space for heterogeneity statistics (if needed)
   ##
-  if (!missing(addrows.below.overall) & is.null(addrows.below.overall)) {
+  if (is.null(addrows.below.overall)) {
     addrows.below.overall <- 0
     ##
     if (layout == "JAMA")
@@ -3332,12 +3347,12 @@ forest.meta <- function(x,
     exclude <- x$exclude[sel]
   ##
   if (sort | by) {
-    if (bysort)
-      bylevs <- sort(x$bylevs)
+    if (sort.subgroup)
+      subgroup.levels <- sort(x$subgroup.levels)
     else
-      bylevs <- x$bylevs
+      subgroup.levels <- x$subgroup.levels
     ##
-    subgroup.factor <- factor(subgroup, levels = bylevs)
+    subgroup.factor <- factor(subgroup, levels = subgroup.levels)
     o <- order(subgroup.factor, sortvar)
     ##
     x$cluster <- x$cluster[o]
@@ -4920,7 +4935,7 @@ forest.meta <- function(x,
   if (by) {
     k.w.hetstat <- if (metabind) x$k.w.orig else x$k.w
     ##
-    o.w <- order(factor(x$bylevs, levels = bylevs))
+    o.w <- order(factor(x$subgroup.levels, levels = subgroup.levels))
     k.w.hetstat <- k.w.hetstat[o.w]
     if (x$hakn)
       df.hakn.w <- x$df.hakn.w[o.w]
@@ -5042,8 +5057,8 @@ forest.meta <- function(x,
     subgroup.hetstat.logical <- subgroup.hetstat.logical[sel.w]
     prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
     ##
-    bylevs <- bylevs[sel.w]
-    n.by <- length(bylevs)
+    subgroup.levels <- subgroup.levels[sel.w]
+    n.by <- length(subgroup.levels)
     ##
     ## Do not consider limits of prediction intervals in subgroups to
     ## format confidence limits
@@ -5066,7 +5081,7 @@ forest.meta <- function(x,
     if (!metainf.metacum & common) {
       if (!overall) {
         i <- 0
-        for (bylev.i in bylevs) {
+        for (bylev.i in subgroup.levels) {
           i <- i + 1
           sel.i <- subgroup == bylev.i
           x$w.common[sel.i] <- x$w.common[sel.i] / w.common.w[i]
@@ -5103,7 +5118,7 @@ forest.meta <- function(x,
     if (!metainf.metacum & random) {
       if (!overall) {
         i <- 0
-        for (bylev.i in bylevs) {
+        for (bylev.i in subgroup.levels) {
           i <- i + 1
           sel.i <- subgroup == bylev.i
           x$w.random[sel.i] <- x$w.random[sel.i] / w.random.w[i]
@@ -6648,8 +6663,8 @@ forest.meta <- function(x,
   if (by) {
     ##
     subgroup.name <-
-      bylabel(subgroup.name, bylevs, print.subgroup.name, sep.subgroup,
-              big.mark = big.mark)
+      bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
+              sep.subgroup, big.mark = big.mark)
     ##
     wrong.common <- FALSE
     wrong.random <- FALSE
@@ -7654,33 +7669,33 @@ forest.meta <- function(x,
       ## Subgroup labels:
       col.studlab$labels[[n.summaries + i]] <-
         tg(subgroup.name[i], xpos.s, just.s,
-           fs.head, ff.head, fontfamily, col.by)
+           fs.head, ff.head, fontfamily, col.subgroup)
       ## Common effect estimates:
       col.studlab$labels[[n.summaries + 1 * n.by + i]] <-
         tg(text.common.w[[i]], xpos.s, just.s,
-           fs.common.labels, ff.common.labels, fontfamily, col.by)
+           fs.common.labels, ff.common.labels, fontfamily, col.subgroup)
       ## Random effects estimates:
       col.studlab$labels[[n.summaries + 2 * n.by + i]] <-
         tg(text.random.w[[i]], xpos.s, just.s,
-           fs.random.labels, ff.random.labels, fontfamily, col.by)
+           fs.random.labels, ff.random.labels, fontfamily, col.subgroup)
       ## Prediction interval:
       col.studlab$labels[[n.summaries + 3 * n.by + i]] <-
         tg(text.predict.w[[i]], xpos.s, just.s,
-           fs.predict.labels, ff.predict.labels, fontfamily, col.by)
+           fs.predict.labels, ff.predict.labels, fontfamily, col.subgroup)
       ## Heterogeneity statistics:
       col.studlab$labels[[n.summaries + 4 * n.by + i]] <-
         tg(hetstat.w[[i]], xpos.s, just.s,
-           fs.hetstat, ff.hetstat, fontfamily, col.by)
+           fs.hetstat, ff.hetstat, fontfamily, col.subgroup)
       ## Test for effect in subgroup (common effect model):
       col.studlab$labels[[n.summaries + 5 * n.by + i]] <-
         tg(text.effect.subgroup.common[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
-           fontfamily, col.by)
+           fontfamily, col.subgroup)
       ## Test for effect in subgroup (random effects model):
       col.studlab$labels[[n.summaries + 6 * n.by + i]] <-
         tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
-           fontfamily, col.by)
+           fontfamily, col.subgroup)
     }
   }
   ##
@@ -7689,7 +7704,7 @@ forest.meta <- function(x,
               fs.common = fs.common, ff.common = ff.common,
               fs.random = fs.random, ff.random = ff.random,
               fs.predict = fs.predict, ff.predict = ff.predict,
-              by = by, n.by = n.by, col.by = col.by)
+              by = by, n.by = n.by, col.subgroup = col.subgroup)
   ##
   col.effect <- formatcol(labs[["lab.effect"]], effect.format,
                           yS, just.c, fcs, fontfamily)

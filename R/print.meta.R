@@ -286,7 +286,7 @@ print.meta <- function(x,
   test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
   chklogical(test.subgroup.random)
   ##
-  prediction.subgroup <- replaceNULL(prediction.subgroup, TRUE)
+  prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
   if (is.na(prediction.subgroup))
     prediction.subgroup <- FALSE
   chklogical(prediction.subgroup)
@@ -396,13 +396,19 @@ print.meta <- function(x,
   if (by) {
     k.w <- x$k.w
     ##
-    prediction.w <- prediction.subgroup & k.w >= 3
+    if (is.null(x$method.predict) || x$method.predict == "S")
+      prediction.w <- prediction.subgroup
+    else
+      prediction.w <- prediction.subgroup & !is.na(x$df.predict.w)
+    ##
     prediction.w[is.na(prediction.w)] <- FALSE
     prediction.w <- any(prediction.w)
   }
   ##
-  prediction <- prediction & k >= 3
-  if (is.na(prediction))
+  if (!(is.null(x$method.predict) || x$method.predict == "S"))
+    prediction <- prediction & !is.na(x$df.predict)
+  ##    
+  if (is.null(prediction) || is.na(prediction))
     prediction <- FALSE
   ##
   sm.lab <- sm
@@ -436,10 +442,11 @@ print.meta <- function(x,
     x$tau.common <- FALSE
   ##
   if (by)
-    bylevs <- ifelse(nchar(x$bylevs) > nchar.subgroup,
-                     paste0(substring(x$bylevs, 1, nchar.subgroup - 4),
-                            " ..."),
-                     x$bylevs)
+    subgroup.levels <-
+      ifelse(nchar(x$subgroup.levels) > nchar.subgroup,
+             paste0(substring(x$subgroup.levels, 1, nchar.subgroup - 4),
+                    " ..."),
+             x$subgroup.levels)
   ##
   if (is.null(x$text.common))
     text.common <- gs("text.common")
@@ -898,7 +905,8 @@ print.meta <- function(x,
         if (null.given)
           res[dim(res)[1], 3:4] <- ""
       }
-      if (!is.null(x$hakn) && x$hakn) {
+      if (!is.null(x$method.random.ci) &&
+          x$method.random.ci %in% c("HK", "KR")) {
         if (common & random)
           zlab <- "z|t"
         else if (common & !random)
@@ -1010,24 +1018,27 @@ print.meta <- function(x,
         k.resid <- x$df.Q.w + 1
         ##
         if (print.H) {
-          H.resid <- round(x$H.resid, digits.H)
-          lowH.resid <- round(x$lower.H.resid, digits.H)
-          uppH.resid <- round(x$upper.H.resid, digits.H)
+          H.resid <- round(replaceNULL(x$H.resid), digits.H)
+          lowH.resid <- round(replaceNULL(x$lower.H.resid), digits.H)
+          uppH.resid <- round(replaceNULL(x$upper.H.resid), digits.H)
         }
         if (print.I2) {
-          I2.resid <- round(100 * x$I2.resid, digits.I2)
-          lowI2.resid <- round(100 * x$lower.I2.resid, digits.I2)
-          uppI2.resid <- round(100 * x$upper.I2.resid, digits.I2)
+          I2.resid <- round(100 * replaceNULL(x$I2.resid), digits.I2)
+          lowI2.resid <- round(100 * replaceNULL(x$lower.I2.resid), digits.I2)
+          uppI2.resid <- round(100 * replaceNULL(x$upper.I2.resid), digits.I2)
           print.I2.ci <-
-            ((Q.resid  > k.resid & k.resid >= 2) |
-             (Q.resid <= k.resid & k.resid > 2)) &
-            !(is.na(lowI2.resid) | is.na(uppI2.resid))
+            ((replaceNULL(Q.resid) > replaceNULL(k.resid) &
+              replaceNULL(k.resid) >= 2) |
+             (replaceNULL(Q.resid) <= replaceNULL(k.resid) &
+              replaceNULL(k.resid) > 2)) &
+            !(is.na(replaceNULL(lowI2.resid)) |
+              is.na(replaceNULL(uppI2.resid)))
           ##
           if (is.na(print.I2.ci))
             print.I2.ci <- FALSE
         }
         ##
-        if (!is.na(I2.resid)) {
+        if (!is.na(replaceNULL(I2.resid))) {
           cat("\nQuantifying residual heterogeneity:\n")
           ##
           cathet(k.resid, 
@@ -1131,7 +1142,7 @@ print.meta <- function(x,
                                          noblanks = TRUE))
                        )
         ##
-        bylab.txt <- bylabel(subgroup.name, bylevs,
+        bylab.txt <- bylabel(subgroup.name, subgroup.levels,
                              print.subgroup.name, sep.subgroup,
                              big.mark = big.mark)
         ##
@@ -1236,7 +1247,7 @@ print.meta <- function(x,
                                                big.mark = big.mark), "%"))
                        )
         ##
-        bylab.txt <- bylabel(subgroup.name, bylevs,
+        bylab.txt <- bylabel(subgroup.name, subgroup.levels,
                              print.subgroup.name, sep.subgroup,
                              big.mark = big.mark)
         ##
@@ -1314,7 +1325,7 @@ print.meta <- function(x,
                                         big.mark = big.mark)))
         ##
         bylab.txt <-
-          bylabel(subgroup.name, bylevs,
+          bylabel(subgroup.name, subgroup.levels,
                   print.subgroup.name, sep.subgroup,
                   big.mark = big.mark)
         lab.predict <- paste0(round(100 * x$level.predict, 1), "%-PI")
@@ -1327,6 +1338,12 @@ print.meta <- function(x,
     ##
     ## Print information on meta-analysis method:
     ##
+    if (!random)
+      x$method.random.ci <- "DL"
+    if (is.null(x$method.random.ci) || x$method.random.ci != "HK")
+      x$adhoc.hakn <- ""
+    if (!(prediction | prediction.subgroup))
+      x$method.predict <- ""
     if (details.methods & (common | random | prediction))
       catmeth(class = class(x),
               method =
@@ -1341,9 +1358,11 @@ print.meta <- function(x,
                     overall.hetstat | by)
                   sm else "",
               k.all = k.all,
-              hakn = !is.null(x$hakn) && (x$hakn & random),
-              adhoc.hakn = !is.null(x$adhoc.hakn) &&
-                (!is.null(x$seTE.random.hakn.orig) & x$adhoc.hakn != ""),
+              method.random.ci = x$method.random.ci,
+              df.random = x$df.random,
+              adhoc.hakn = x$adhoc.hakn,
+              method.predict = x$method.predict,
+              df.predict = x$df.predict,
               tau.common = by & x$tau.common,
               tau.preset = x$tau.preset,
               sparse = ifelse(bip, x$sparse, FALSE),

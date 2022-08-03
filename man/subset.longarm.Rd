@@ -15,7 +15,7 @@ keep: missing values are taken as false.}
 \item{\dots}{Additional arguments.}
 }
 \value{
-A longarm object is returned.
+A \code{\link{longarm}} object is returned.
 }
 \description{
 The \code{subset} method returns a subset of a longarm object.

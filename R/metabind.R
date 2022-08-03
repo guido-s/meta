@@ -33,8 +33,7 @@
 #' 
 #' @return
 #' An object of class \code{c("metabind", "meta")} with corresponding
-#' \code{print}, \code{summary}, and \code{forest} functions. See
-#' \code{\link{metagen}} for more information on list elements.
+#' generic functions (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -263,7 +262,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          level.predict = m.i$level.predict,
                          common = m.i$common,
                          random = m.i$random,
-                         hakn = m.i$hakn,
+                         method.random.ci = m.i$method.random.ci,
                          method.tau = m.i$method.tau,
                          tau.preset = replaceNULL(m.i$tau.preset),
                          TE.tau = replaceNULL(m.i$TE.tau),
@@ -288,8 +287,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          warn = replaceNULL(m.i$warn, FALSE),
                          ##
                          backtransf = m.i$backtransf,
-                         pscale = m.i$pscale,
-                         irscale = m.i$irscale,
+                         pscale = replaceNULL(m.i$pscale, 1),
+                         irscale = replaceNULL(m.i$irscale, 1),
                          irunit = replaceNULL(m.i$ir.unit),
                          ##
                          stringsAsFactors = FALSE)
@@ -421,25 +420,27 @@ metabind <- function(..., name = NULL, pooled = NULL,
       pval.Q.b.common.i  <- m.i$pval.Q.b.common
       pval.Q.b.random.i <- m.i$pval.Q.b.random
       ##
-      n.bylevs.i <- length(m.i$k.w) - 1
+      n.levs.i <- length(m.i$k.w) - 1
       ##
-      if (n.bylevs.i > 0) {
-        Q.b.common.i <- c(Q.b.common.i, rep(NA, n.bylevs.i))
-        Q.b.random.i <- c(Q.b.random.i, rep(NA, n.bylevs.i))
-        df.Q.b.i <- c(df.Q.b.i, rep(NA, n.bylevs.i))
-        pval.Q.b.common.i <- c(pval.Q.b.common.i, rep(NA, n.bylevs.i))
-        pval.Q.b.random.i <- c(pval.Q.b.random.i, rep(NA, n.bylevs.i))
+      if (n.levs.i > 0) {
+        Q.b.common.i <- c(Q.b.common.i, rep(NA, n.levs.i))
+        Q.b.random.i <- c(Q.b.random.i, rep(NA, n.levs.i))
+        df.Q.b.i <- c(df.Q.b.i, rep(NA, n.levs.i))
+        pval.Q.b.common.i <- c(pval.Q.b.common.i, rep(NA, n.levs.i))
+        pval.Q.b.random.i <- c(pval.Q.b.random.i, rep(NA, n.levs.i))
       }
       ##
       data.i <- data.frame(name = name[i],
-                           bylevs = m.i$bylevs,
+                           subgroup.levels = m.i$subgroup.levels,
                            ##
                            n.e = replaceNULL(m.i$n.e.w),
                            n.c = replaceNULL(m.i$n.c.w),
                            df.hakn = replaceNULL(m.i$df.hakn.w),
                            ##
-                           n.harmonic.mean = m.i$n.harmonic.mean.w,
-                           t.harmonic.mean = m.i$t.harmonic.mean.w,
+                           n.harmonic.mean =
+                             replaceNULL(m.i$n.harmonic.mean.w),
+                           t.harmonic.mean =
+                             replaceNULL(m.i$t.harmonic.mean.w),
                            ##
                            k = m.i$k.w,
                            k.study = m.i$k.study.w,
@@ -475,7 +476,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
     }
     else
       data.i <- data.frame(name = name[i],
-                           bylevs = "overall",
+                           subgroup.levels = "overall",
                            ##
                            n.e = sum(replaceNULL(m.i$n.e)),
                            n.c = sum(replaceNULL(m.i$n.c)),
@@ -694,8 +695,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
   for (i in n.i) {
     m.i <- args[[i]]
     ##
-    study.i <- data.frame(studlab = replaceNULL(m.i$bylevs, "overall"),
-                          stringsAsFactors = FALSE)
+    study.i <-
+      data.frame(studlab = replaceNULL(m.i$subgroup.levels, "overall"),
+                 stringsAsFactors = FALSE)
     ##
     if (is.subgroup[i]) {
       study.i$n.e <- replaceNULL(m.i$n.e.w)
@@ -856,7 +858,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
   
   if (!is.null(res$subgroup)) {
     res$subgroup.name <- "meta-analysis"
-    res$bylevs <- unique(res$subgroup)
+    res$subgroup.levels <- unique(res$subgroup)
     res$w.common <- rep(0, length(res$w.common))
     res$w.common.w <- rep(0, length(res$w.common.w))
     res$w.random <- rep(0, length(res$w.random))

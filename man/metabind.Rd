@@ -27,8 +27,7 @@ printed as odds ratios rather than log odds ratios, for example.}
 }
 \value{
 An object of class \code{c("metabind", "meta")} with corresponding
-\code{print}, \code{summary}, and \code{forest} functions. See
-\code{\link{metagen}} for more information on list elements.
+generic functions (see \code{\link{meta-object}}).
 }
 \description{
 This function can be used to combine meta-analysis objects and is,

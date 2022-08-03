@@ -3,16 +3,14 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   
   subgroup <- x$subgroup
   ##
-  bylevs <- bylevs(subgroup)
-  n.bylevs <- length(bylevs)
-  
-  
+  subgroup.levels <- bylevs(subgroup)
+  n.subgroup.levels <- length(subgroup.levels)
+  ##
   if (!(length(subgroup) > 0)) {
     warning("Argument 'subgroup' is missing.")
     return(NULL)
   }
-  
-  
+  ##
   bin  <- inherits(x, "metabin")
   cont <- inherits(x, "metacont")
   cor  <- inherits(x, "metacor")
@@ -27,8 +25,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   cor.prop.mean <- cor | prop | mean
   ##
   three.level <- !is.null(x$three.level) && x$three.level
-  
-  
+  ##
   sumNA <- function(x)
     if (all(is.na(x)))
       NA
@@ -36,11 +33,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 50, nrow = n.bylevs)
-  add.w <- matrix("", ncol =  2, nrow = n.bylevs)
+  ##
+  ##
+  ## (1) Subgroup analysis without common tau2
+  ##
+  ##
+  res.w <- matrix(NA, ncol = 57, nrow = n.subgroup.levels)
+  add.w <- matrix("", ncol =  2, nrow = n.subgroup.levels)
   j <- 0
   ##
-  for (i in bylevs) {
+  for (i in subgroup.levels) {
     j <- j+1
     sel <- subgroup == i
     ##
@@ -266,7 +268,14 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    meta1$statistic.random,                    # 47
                    meta1$pval.random,                         # 48
                    meta1$k.study,                             # 49
-                   meta1$k.TE                                 # 50
+                   meta1$k.TE,                                # 50
+                   meta1$df.random,                           # 51
+                   meta1$df.hakn,                             # 52
+                   meta1$seTE.predict,                        # 53
+                   meta1$lower.predict,                       # 54
+                   meta1$upper.predict,                       # 55
+                   meta1$df.predict,                          # 56
+                   meta1$df.kero                              # 57
                    )
     ##
     if (n.tau.ci == 1)
@@ -349,7 +358,35 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   k.study.w <- res.w[, 49]
   k.TE.w <- res.w[, 50]
   ##
-  ## Three-level model with common tau-squared
+  df.random.w <- res.w[, 51]
+  df.hakn.w <- res.w[, 52]
+  ##
+  seTE.predict.w <- res.w[, 53]
+  lower.predict.w <- res.w[, 54]
+  upper.predict.w <- res.w[, 55]
+  df.predict.w <- res.w[, 56]
+  ##
+  df.kero.w <- res.w[, 57]
+  ##
+  ## Tests for subgroup differences
+  ##
+  Q.w.common <- sum(Q.w, na.rm = TRUE)
+  df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
+  pval.Q.w.common <- pvalQ(Q.w.common, df.Q.w)
+  ##
+  Q.b.common <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
+  Q.b.random <- metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
+  ##
+  df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
+  ##
+  pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b)
+  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
+  
+  
+  ##
+  ##
+  ## (2) Subgroup analysis with common tau-squared (three-level model)
+  ##
   ##
   if (three.level && !missing(subgroup.rma)) {
     mod <- as.call(~ subgroup.rma - 1)
@@ -388,22 +425,22 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       seTE.random.w <- as.numeric(mv.random$se)
     }
     ##
-    tau2.w <- rep_len(sum(mv.random$sigma2), n.bylevs)
-    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
-    tau.w <- rep_len(sqrt(sum(mv.random$sigma2)), n.bylevs)
-    lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
-    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
+    tau2.w <- rep_len(sum(mv.random$sigma2), n.subgroup.levels)
+    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.subgroup.levels)
+    tau.w <- rep_len(sqrt(sum(mv.random$sigma2)), n.subgroup.levels)
+    lower.tau.w <- upper.tau.w <- rep_len(NA, n.subgroup.levels)
+    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.subgroup.levels)
     ##
     tau2.1.w <- tau2.w
-    tau2.2.w <- rep_len(NA, n.bylevs)
+    tau2.2.w <- rep_len(NA, n.subgroup.levels)
     lower.tau2.1.w <- lower.tau2.w
-    lower.tau2.2.w <- rep_len(NA, n.bylevs)
+    lower.tau2.2.w <- rep_len(NA, n.subgroup.levels)
     upper.tau2.1.w <- upper.tau2.w
-    upper.tau2.2.w <- rep_len(NA, n.bylevs)
+    upper.tau2.2.w <- rep_len(NA, n.subgroup.levels)
     ##
-    Rb.w     <- rep_len(NA, n.bylevs)
-    Rb.w.low <- rep_len(NA, n.bylevs)
-    Rb.w.upp <- rep_len(NA, n.bylevs)
+    Rb.w     <- rep_len(NA, n.subgroup.levels)
+    Rb.w.low <- rep_len(NA, n.subgroup.levels)
+    Rb.w.upp <- rep_len(NA, n.subgroup.levels)
     ##
     ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
@@ -421,9 +458,48 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     upper.random.w <- ci.random.w$upper
     statistic.random.w <- ci.random.w$statistic
     pval.random.w <- ci.random.w$p
+    ##
+    ## Tests for subgroup differences
+    ##
+    Q.w.common <- NA
+    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
+    pval.Q.w.common <- NA
+    ##
+    Q.b.common <- NA
+    Q.b.random <- mv.random.Q$QM
+    ##
+    df.Q.b <- mv.random.Q$QMdf
+    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
+    ##
+    pval.Q.b.common <- NA
+    pval.Q.b.random <- mv.random.Q$QMp
+    ##
+    ## Prediction interval
+    ##
+    seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
+    df.predict.w <- k.w - 2
+    ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, df.predict.w)
+    ##
+    lower.predict.w <- ci.p.w$lower
+    upper.predict.w <- ci.p.w$upper
+    ##
+    lower.predict.w[k.w < 3] <- NA
+    upper.predict.w[k.w < 3] <- NA
+    ##
+    ## Degrees of freedom of Hartung-Knapp method
+    ##
+    df.random.w <- df.hakn.w <- k.w - 1
+    if (!x$hakn) {
+      df.random.w[!is.na(df.random.w)] <- NA
+      df.hakn.w[!is.na(df.hakn.w)] <- NA
+    }
   }
+  
+  
   ##
-  ## GLMM with common tau-squared
+  ##
+  ## (3) Subgroup analysis with common tau-squared (GLMM)
+  ##
   ##
   if (x$method == "GLMM" & !missing(subgroup.rma)) {
     mod <- as.call(~ subgroup.rma - 1)
@@ -654,22 +730,22 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       seTE.random.w <- as.numeric(glmm.random$se)
     }
     ##
-    tau2.w <- rep_len(glmm.random$tau2, n.bylevs)
-    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
-    tau.w <- rep_len(sqrt(glmm.random$tau2), n.bylevs)
-    lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
-    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
+    tau2.w <- rep_len(glmm.random$tau2, n.subgroup.levels)
+    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.subgroup.levels)
+    tau.w <- rep_len(sqrt(glmm.random$tau2), n.subgroup.levels)
+    lower.tau.w <- upper.tau.w <- rep_len(NA, n.subgroup.levels)
+    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.subgroup.levels)
     ##
     tau2.1.w <- tau2.w
-    tau2.2.w <- rep_len(NA, n.bylevs)
+    tau2.2.w <- rep_len(NA, n.subgroup.levels)
     lower.tau2.1.w <- lower.tau2.w
-    lower.tau2.2.w <- rep_len(NA, n.bylevs)
+    lower.tau2.2.w <- rep_len(NA, n.subgroup.levels)
     upper.tau2.1.w <- upper.tau2.w
-    upper.tau2.2.w <- rep_len(NA, n.bylevs)
+    upper.tau2.2.w <- rep_len(NA, n.subgroup.levels)
     ##
-    Rb.w     <- rep_len(NA, n.bylevs)
-    Rb.w.low <- rep_len(NA, n.bylevs)
-    Rb.w.upp <- rep_len(NA, n.bylevs)
+    Rb.w     <- rep_len(NA, n.subgroup.levels)
+    Rb.w.low <- rep_len(NA, n.subgroup.levels)
+    Rb.w.upp <- rep_len(NA, n.subgroup.levels)
     ##
     ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
@@ -687,112 +763,63 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     upper.random.w <- ci.random.w$upper
     statistic.random.w <- ci.random.w$statistic
     pval.random.w <- ci.random.w$p
-  }
-  ##
-  ## Tests for subgroup differences
-  ##
-  if (x$method == "GLMM" & !missing(subgroup.rma)) {
+    ##
+    ## Tests for subgroup differences
+    ##
     Q.w.common <- glmm.common.Q$QE.Wld
     df.Q.w <- glmm.common.Q$QE.df
-    pval.Q.w.common  <- glmm.common.Q$QEp.Wld
+    pval.Q.w.common <- glmm.common.Q$QEp.Wld
     ##
-    Q.b.common  <- glmm.common.Q$QM
+    Q.b.common <- glmm.common.Q$QM
     Q.b.random <- glmm.random.Q$QM
     ##
     df.Q.b <- glmm.common.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
     ##
-    pval.Q.b.common  <- glmm.common.Q$QMp
+    pval.Q.b.common <- glmm.common.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
   }
-  else if (three.level && !missing(subgroup.rma)) {
-    Q.w.common <- NA
-    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
-    pval.Q.w.common <- NA
-    ##
-    Q.b.common  <- NA
-    Q.b.random <- mv.random.Q$QM
-    ##
-    df.Q.b <- mv.random.Q$QMdf
-    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
-    ##
-    pval.Q.b.common  <- NA
-    pval.Q.b.random <- mv.random.Q$QMp
-  }
-  else {
-    Q.w.common <- sum(Q.w, na.rm = TRUE)
-    df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
-    pval.Q.w.common  <- pvalQ(Q.w.common, df.Q.w)
-    ##
-    Q.b.common  <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
-    Q.b.random <- metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
-    ##
-    df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
-    ##
-    pval.Q.b.common  <- pvalQ(Q.b.common, df.Q.b)
-    pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
-  }
-  ##
-  ## Prediction interval
-  ##
-  seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
-  ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, k.w - 2)
-  ##
-  p.lower.w <- ci.p.w$lower
-  p.upper.w <- ci.p.w$upper
-  ##
-  p.lower.w[k.w < 3] <- NA
-  p.upper.w[k.w < 3] <- NA
-  ##
-  ## Degrees of freedom of Hartung-Knapp method
-  ##
-  df.hakn.w <- k.w - 1
-  if (!x$hakn)
-    df.hakn.w[!is.na(df.hakn.w)] <- NA
   
   
-  res <- list(bylevs = bylevs,
-              ##
-              TE.common.w = TE.common.w,
-              seTE.common.w = seTE.common.w,
-              lower.common.w = lower.common.w,
-              upper.common.w = upper.common.w,
-              statistic.common.w = statistic.common.w,
-              zval.common.w = statistic.common.w,
-              pval.common.w = pval.common.w,
-              w.common.w = w.common.w,
-              ##
-              TE.random.w = TE.random.w,
-              seTE.random.w = seTE.random.w,
-              lower.random.w = lower.random.w,
-              upper.random.w = upper.random.w,
-              statistic.random.w = statistic.random.w,
-              zval.random.w = statistic.random.w,
-              pval.random.w = pval.random.w,
-              w.random.w = w.random.w,
-              ##
-              seTE.predict.w = seTE.predict.w,
-              lower.predict.w = p.lower.w, upper.predict.w = p.upper.w,
-              ##
-              df.hakn.w = df.hakn.w,
-              w.random.w = w.random.w,
-              ##
-              n.harmonic.mean.w = n.harmonic.mean.w,
-              t.harmonic.mean.w = t.harmonic.mean.w,
-              ##
-              event.e.w = event.e.w,
-              time.e.w = time.e.w,
-              n.e.w = n.e.w,
-              event.c.w = event.c.w,
-              time.c.w = time.c.w,
-              n.c.w = n.c.w,
-              n.w = n.w,
-              event.w = event.w,
+  ##
+  ##
+  ## (4) Return list with results of subgroup analysis
+  ##
+  ##
+  res <- list(subgroup.levels = subgroup.levels,
               ##
               k.w = k.w,
               k.study.w = k.study.w,
               k.all.w = k.all.w,
               k.TE.w = k.TE.w,
+              n.w = n.w,
+              event.w = event.w,
+              ##
+              TE.common.w = TE.common.w,
+              seTE.common.w = seTE.common.w,
+              statistic.common.w = statistic.common.w,
+              pval.common.w = pval.common.w,
+              lower.common.w = lower.common.w,
+              upper.common.w = upper.common.w,
+              w.common.w = w.common.w,
+              ##
+              TE.random.w = TE.random.w,
+              seTE.random.w = seTE.random.w,
+              statistic.random.w = statistic.random.w,
+              pval.random.w = pval.random.w,
+              df.random.w = df.random.w,
+              lower.random.w = lower.random.w,
+              upper.random.w = upper.random.w,
+              w.random.w = w.random.w,
+              ##
+              df.hakn.w = df.hakn.w,
+              df.kero.w = df.kero.w,
+              ##
+              seTE.predict.w = seTE.predict.w,
+              df.predict.w = df.predict.w,
+              lower.predict.w = lower.predict.w,
+              upper.predict.w = upper.predict.w,
+              ##
               Q.w = Q.w,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
@@ -804,20 +831,6 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               upper.tau.w = upper.tau.w,
               sign.lower.tau.w = sign.lower.tau.w,
               sign.upper.tau.w = sign.upper.tau.w,
-              ##
-              tau2.1.w = tau2.1.w,
-              lower.tau2.1.w = lower.tau2.1.w,
-              upper.tau2.1.w = upper.tau2.1.w,
-              tau.1.w = tau.1.w,
-              lower.tau.1.w = lower.tau.1.w,
-              upper.tau.1.w = upper.tau.1.w,
-              ##
-              tau2.2.w = tau2.2.w,
-              lower.tau2.2.w = lower.tau2.2.w,
-              upper.tau2.2.w = upper.tau2.2.w,
-              tau.2.w = tau.2.w,
-              lower.tau.2.w = lower.tau.2.w,
-              upper.tau.2.w = upper.tau.2.w,
               ##
               H.w = H.w,
               lower.H.w = H.w.low,
@@ -844,6 +857,41 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               pval.Q.b.random = pval.Q.b.random
               )
   ##
+  ## Three-level model
+  ##
+  if (three.level) {
+    res$tau2.1.w <- tau2.1.w
+    res$lower.tau2.1.w <- lower.tau2.1.w
+    res$upper.tau2.1.w <- upper.tau2.1.w
+    res$tau.1.w <- tau.1.w
+    res$lower.tau.1.w <- lower.tau.1.w
+    res$upper.tau.1.w <- upper.tau.1.w
+    res$tau2.2.w <- tau2.2.w
+    res$lower.tau2.2.w <- lower.tau2.2.w
+    res$upper.tau2.2.w <- upper.tau2.2.w
+    res$tau.2.w <- tau.2.w
+    res$lower.tau.2.w <- lower.tau.2.w
+    res$upper.tau.2.w <- upper.tau.2.w
+  }
+  ##
+  ## No general list elements
+  ##
+  res$n.e.w <- n.e.w
+  res$n.c.w <- n.c.w
+  res$n.harmonic.mean.w <- n.harmonic.mean.w
+  ##
+  res$event.e.w <- event.e.w
+  res$event.c.w <- event.c.w
+  ##
+  res$time.e.w <- time.e.w
+  res$time.c.w <- time.c.w
+  res$t.harmonic.mean.w <- t.harmonic.mean.w
+  ##
+  ## Deprecated list elements
+  ##
+  res$zval.common.w <- statistic.common.w
+  res$zval.random.w <- statistic.random.w
+  ##
   ## Backward compatibility
   ##
   res$TE.fixed.w <- res$TE.common.w
@@ -859,6 +907,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   res$pval.Q.w.fixed <- res$pval.Q.w.common
   res$Q.b.fixed <- res$Q.b.common
   res$pval.Q.b.fixed <- res$pval.Q.b.common
+  ##
+  res$bylevs <- res$subgroup.levels
   
   
   res

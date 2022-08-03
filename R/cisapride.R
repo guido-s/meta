@@ -40,9 +40,9 @@
 #'   method = "Inverse", method.tau = "DL",
 #'   studlab = study, method.incr = "all")
 #' 
-#' m.or.hakn <- update(m.or, hakn = TRUE)
+#' m.or.hakn <- update(m.or, method.random.ci = "HK")
 #' m.rr <- update(m.or, sm = "RR")
-#' m.rr.hakn <- update(m.or, sm = "RR", hakn = TRUE)
+#' m.rr.hakn <- update(m.or, sm = "RR", method.random.ci = "HK")
 #'
 #' vars.common <- c("TE.common", "lower.common", "upper.common")
 #' vars.random <- c("TE.random", "lower.random", "upper.random")

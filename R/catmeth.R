@@ -2,8 +2,11 @@ catmeth <- function(method,
                     method.tau = NULL,
                     sm = "",
                     k.all,
-                    hakn = FALSE,
-                    adhoc.hakn = FALSE,
+                    method.random.ci = "DL",
+                    df.random = NA,
+                    adhoc.hakn = "",
+                    method.predict = "",
+                    df.predict = NA,
                     class = "",
                     tau.common = FALSE,
                     tau.preset = NULL,
@@ -323,16 +326,61 @@ catmeth <- function(method,
         lab.method.tau <- paste0(lab.method.tau, lab.tau.ci)
       }
       ##
-      if (hakn) {
-        lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"
-        if (adhoc.hakn)
-          lab.hakn <- paste0(lab.hakn,
-                             "\n  (with ad hoc variance correction)")
+      if (is.null(method.random.ci))
+        method.random.ci <- ""
+      if (method.random.ci == "HK") {
+        lab.random.ci <-
+          paste0("\n- Hartung-Knapp adjustment for ",
+                 "random effects model (df = ",
+                 df.random, ")")
+        if (adhoc.hakn != "")
+          lab.random.ci <-
+            paste0(lab.random.ci,
+                   "\n  (with ad hoc ",
+                   if (adhoc.hakn == "se")
+                     "variance correction"
+                   else if (adhoc.hakn == "iqwig6")
+                     "variance correction, IQWiG, general methods 6"
+                   else if (adhoc.hakn == "ci")
+                     "correction based on confidence limits",
+                   ")")
+      }
+      else if (method.random.ci == "KR") {
+        lab.random.ci <-
+          paste0("\n- Kenward-Roger adjustment for ",
+                 "random effects model (df = ",
+                 round(df.random, 4), ")")
       }
       else
-        lab.hakn <- ""
+        lab.random.ci <- ""
       ##      
-      lab.method.details <- paste0(lab.method.tau, lab.hakn)
+      lab.method.details <- paste0(lab.method.tau, lab.random.ci)
+      ##
+      if (is.null(method.predict))
+        method.predict <- ""
+      if (method.predict == "HTS") {
+        lab.predict <-
+          paste0("\n- Prediction interval based on t-distribution (df = ",
+                 df.predict, ")")
+      }
+      else if (method.predict == "KR") {
+        lab.predict <-
+          paste0("\n- Predicton interval with Kenward-Roger adjustment (df = ",
+                 round(df.predict, 4), ")")
+      }
+      else if (method.predict == "NNF") {
+        lab.predict <-
+          paste0("\n- Boot-strap prediction interval (df = ",
+                 round(df.predict, 4), ")")
+      }
+      else if (method.predict == "S") {
+        lab.predict <-
+          "\n- Prediction interval based on standard normal distribution"
+      }
+      else
+        lab.predict <- ""
+      ##      
+      lab.method.details <- paste0(lab.method.details, lab.predict)
     }
   }
   ##

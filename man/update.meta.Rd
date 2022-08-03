@@ -26,14 +26,15 @@
   random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
-  hakn = object$hakn,
+  method.random.ci = object$method.random.ci,
   adhoc.hakn = object$adhoc.hakn,
+  method.predict = object$method.predict,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
-  prediction = object$prediction,
+  prediction = object$prediction | !missing(method.predict),
   level.predict = object$level.predict,
   null.effect = object$null.effect,
   method.bias = object$method.bias,
@@ -160,25 +161,28 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{hakn}{A logical indicating whether the method by Hartung and
-Knapp should be used to adjust test statistics and confidence
-intervals.}
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate. Either \code{"DL"}, \code{"HK"}, or
+\code{"KR"} (see \code{\link{metagen}}), can be abbreviated.}
 
 \item{adhoc.hakn}{A character string indicating whether an \emph{ad
 hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate.}
+arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{metagen}}).}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval. Either, \code{"HTS"},
+\code{"KR"}, \code{"NNF"}, or \code{"S"} (see
+\code{\link{metagen}}), can be abbreviated.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-\code{"HE"}, or \code{"EB"}, can be abbreviated. See function
-\code{\link{metagen}}.}
+square root \eqn{\tau} (see \code{\link{metagen}}).}
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, can
-be abbreviated.}
+\eqn{\tau} (see \code{\link{metagen}}).}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -353,7 +357,7 @@ is passed on to \code{\link[metafor]{rma.uni}} or
 An object of class \code{"meta"} and \code{"metabin"},
 \code{"metacont"}, \code{"metacor"}, \code{"metainc"},
 \code{"metagen"}, \code{"metamean"}, \code{"metaprop"}, or
-\code{"metarate"}.
+\code{"metarate"} (see \code{\link{meta-object}}).
 }
 \description{
 Update an existing meta-analysis object.

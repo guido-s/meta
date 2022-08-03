@@ -16,11 +16,13 @@
   level.ma = x$level.ma,
   common = FALSE,
   random = TRUE,
-  hakn = x$hakn,
+  method.random.ci = x$method.random.ci,
+  adhoc.hakn = x$adhoc.hakn,
   method.tau = x$method.tau,
   method.tau.ci = x$method.tau.ci,
   prediction = x$prediction,
   level.predict = x$level.predict,
+  method.predict = x$method.predict,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -43,7 +45,7 @@
   level.ma = level,
   common = FALSE,
   random = TRUE,
-  hakn = FALSE,
+  method.random.ci = "DL",
   method.tau = "DL",
   method.tau.ci = if (method.tau == "DL") "J" else "QP",
   prediction = FALSE,
@@ -90,26 +92,32 @@ meta-analysis should be conducted.}
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
-\item{hakn}{A logical indicating whether the method by Hartung and
-Knapp should be used to adjust test statistics and confidence
-intervals.}
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn}{A character string indicating whether an \emph{ad
+hoc} variance correction should be applied in the case of an
+arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+square root \eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -150,74 +158,8 @@ summary measure, e.g., \code{"RD"}, \code{"RR"}, \code{"OR"},
 \code{x} is of class \code{meta}.}
 }
 \value{
-An object of class \code{c("metagen", "meta", "trimfill")}. The
-object is a list containing the following components:
-\item{studlab, sm, left, ma.common, type, n.iter.max}{As defined
-  above.}
-\item{level, level.ma, level.predict}{As defined above.}
-\item{common, random, prediction}{As defined above.}
-\item{hakn, method.tau, method.tau.ci,}{As defined above.}
-\item{TE, seTE}{Estimated treatment effect and standard error of
-  individual studies.}
-\item{lower, upper}{Lower and upper confidence interval limits for
-  individual studies.}
-\item{statistic, pval}{Statistic and p-value for test of treatment
-  effect for individual studies.}
-\item{w.common, w.random}{Weight of individual studies (in common
-  effect and random effects model).}
-\item{TE.common, seTE.common}{Estimated overall treatment effect and
-  standard error (common effect model).}
-\item{TE.random, seTE.random}{Estimated overall treatment effect
-  and standard error (random effects model).}
-\item{seTE.predict}{Standard error utilised for prediction
-  interval.}
-\item{lower.predict, upper.predict}{Lower and upper limits of
-  prediction interval.}
-\item{k}{Number of studies combined in meta-analysis.}
-\item{Q}{Heterogeneity statistic Q.}
-\item{tau}{Square-root of between-study variance.}
-\item{method}{Pooling method: \code{"Inverse"}.} 
-\item{call}{Function call.}
-\item{n.iter}{Actual number of iterations to estimate number of
-  missing studies.}
-\item{trimfill}{A logical vector indicating studies that have been
-  added by trim-and-fill method.}
-\item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn=TRUE}).}
-\item{title}{Title of meta-analysis / systematic review.}
-\item{complab}{Comparison label.} 
-\item{outclab}{Outcome label.}
-\item{label.e}{Label for experimental group.}
-\item{label.c}{Label for control group.}
-\item{label.left}{Graph label on left side of forest plot.}
-\item{label.right}{Graph label on right side of forest plot.}
-\item{k0}{Number of studies added by trim-and-fill.}
-\item{n.e}{Number of observations in experimental group (only for
-  object \code{x} of class \code{metabin} or \code{metacont}).}
-\item{n.c}{Number of observations in control group (only for object
-  \code{x} of class \code{metabin} or \code{metacont}).}
-\item{event.e}{Number of events in experimental group (only for
-  object \code{x} of class \code{metabin}).}
-\item{event.c}{Number of events in control group (only for object
-  \code{x} of class \code{metabin}).} 
-\item{mean.e}{Estimated mean in experimental group (only for object
-  \code{x} of class \code{metacont}).}
-\item{sd.e}{Standard deviation in experimental group (only for
-  object \code{x} of class \code{metacont}).}
-\item{mean.c}{Estimated mean in control group (only for object
-  \code{x} of class \code{metacont}).} 
-\item{sd.c}{Standard deviation in control group (only for object
-  \code{x} of class \code{metacont}).}
-\item{n}{Number of observations (only for object \code{x} of class
-  \code{metaprop}).}
-\item{event}{Number of events (only for object \code{x} of class
-  \code{metaprop}).}
-\item{cor}{Corelation (only for object \code{x} of class
-  \code{metacor}).} 
-\item{class.x}{Main class of object \code{x} (e.g. 'metabin' or
-  'metacont').}
-\item{version}{Version of R package \bold{meta} used to create
-  object.}
+An object of class \code{c("trimfill", "metagen", "meta")} with
+corresponding generic functions (see \code{\link{meta-object}}).
 }
 \description{
 Trim-and-fill method for estimating and adjusting for the number

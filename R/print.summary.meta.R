@@ -695,13 +695,16 @@ print.summary.meta <- function(x,
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
       ## Print information on summary method:
+      if (!is.random)
+        x$method.random.ci <- "DL"
       if (details.methods)
         catmeth(class = class(x),
                 method = x$method,
                 method.tau = x$method.tau,
                 sm = sm,
                 k.all = k.all,
-                hakn = is.random & x$hakn,
+                method.random.ci = x$method.random.ci,
+                df.random = x$df.random,
                 tau.preset = x$tau.preset,
                 method.smd = x$method.smd,
                 sd.glass = x$sd.glass,

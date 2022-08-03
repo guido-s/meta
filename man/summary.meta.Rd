@@ -12,7 +12,8 @@
 \item{\dots}{Additional arguments (ignored).}
 }
 \value{
-An object of classes \code{summary.meta} and \code{meta}.
+An object of classes \code{summary.meta} and \code{meta} (see
+\code{\link{meta-object}}.
 }
 \description{
 Summary method for objects of class \code{meta}.

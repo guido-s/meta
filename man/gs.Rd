@@ -23,9 +23,10 @@ settings is printed using the command
 \code{settings.meta("print")}.
 }
 \examples{
-# Get default setting for Hartung-Knapp method
+# Get default setting for confidence interval of random effects
+# model
 #
-gs("hakn")
+gs("method.random.ci")
 
 # Get default setting for summary measure in metabin()
 #

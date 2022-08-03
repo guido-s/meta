@@ -11,6 +11,7 @@ catarg <- function(x, newline = TRUE, end = "") {
     cat(paste0(xname, ' = "', .settings[[x]], '"', end, '\n'))
   else
     cat(paste0(xname, ' = ', .settings[[x]], end, "\n"))
+  ##
   invisible(NULL)
 }
 
@@ -68,4 +69,92 @@ specificSettings <- function(args, new, setting, quietly = FALSE) {
       cat(paste0("\n** ", setting, " already in used (R package meta). **\n\n"))
     } 
   }
+}
+
+
+setcharacter <- function(argname, args, set = NULL, length = 1,
+                         NULL.ok = FALSE) {
+  id <- argid(names(args), argname)
+  ##
+  if (!is.na(id)) {
+    val <- args[[id]]
+    ##
+    if (NULL.ok & is.null(val)) {
+      setOption(argname, val)
+      return(invisible(NULL))
+    }
+    ##
+    if (!is.null(set))
+      val <- setchar(val, set)
+    else
+      chkchar(val, length = length, name = argname)
+    ##
+    setOption(argname, val)
+  }
+  ##
+  invisible(id)
+}
+
+
+setcolor <- function(argname, args) {
+  id <- argid(names(args), argname)
+  ##
+  if (!is.na(id)) {
+    val <- args[[id]]
+    chkcolor(val, name = argname)
+    setOption(argname, val)
+  }
+  ##
+  invisible(id)
+}
+
+
+setlevel <- function(argname, args) {
+  id <- argid(names(args), argname)
+  ##
+  if (!is.na(id)) {
+    val <- args[[id]]
+    chklevel(val, name = argname)
+    setOption(argname, val)
+  }
+  ##
+  invisible(id)
+}
+
+
+setlogical <- function(argname, args, NULL.ok = FALSE) {
+  id <- argid(names(args), argname)
+  ##
+  if (!is.na(id)) {
+    val <- args[[id]]
+    ##
+    if (NULL.ok & is.null(val)) {
+      setOption(argname, val)
+      return(invisible(NULL))
+    }
+    ##
+    chklogical(val, name = argname)
+    setOption(argname, val)
+  }
+  ##
+  invisible(id)
+}
+
+
+setnumeric <- function(argname, args, NULL.ok = FALSE) {
+  id <- argid(names(args), argname)
+  ##
+  if (!is.na(id)) {
+    val <- args[[id]]
+    ##
+    if (NULL.ok & is.null(val)) {
+      setOption(argname, val)
+      return(invisible(NULL))
+    }
+    ##
+    chknumeric(val, min = 0, length = 1, name = argname)
+    setOption(argname, val)
+  }
+  ##
+  invisible(id)
 }

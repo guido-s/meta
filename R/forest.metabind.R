@@ -253,7 +253,7 @@ forest.metabind <- function(x,
     if (any(x$is.subgroup))
       leftcols <- c(leftcols, "pval.Q.b")
     else {
-      x$studlab <- x$bylevs
+      x$studlab <- x$subgroup.levels
       leftcols <- c(leftcols, "tau2")
     }
   }

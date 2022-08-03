@@ -42,7 +42,7 @@
 #'   n.plac, mean.plac, sqrt(var.plac),
 #'   data = amlodipine, studlab = study,
 #'   method.tau = "DL")
-#' m.hakn <- update(m, hakn = TRUE)
+#' m.hakn <- update(m, method.random.ci = "HK")
 #' 
 #' # Same results for mean difference as in Table III in Hartung and
 #' # Knapp (2001)

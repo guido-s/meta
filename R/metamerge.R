@@ -79,8 +79,9 @@
 #' 
 #' @return
 #' An object of class \code{"meta"} and \code{"metamerge"} with
-#' corresponding \code{print}, \code{summary}, and \code{forest}
-#' functions. The following list elements have a different meaning:
+#' corresponding generic functions (see \code{\link{meta-object}}).
+#' 
+#' The following list elements have a different meaning:
 #' \item{TE, seTE, studlab}{Treatment estimate, standard error, and
 #'   study labels (first meta-analyis).}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
@@ -119,9 +120,6 @@
 #'   interval(s) for \eqn{\tau} (first and second meta-analysis).}
 #' \item{text.common}{Label for the first meta-analysis.}
 #' \item{text.random}{Label for the second meta-analysis.}
-#'
-#' See \code{\link{metagen}} for information on other list
-#' elements.
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -136,7 +134,7 @@
 #' #
 #' # Use Hartung-Knapp method
 #' #
-#' m2 <- update(m1, hakn = TRUE,
+#' m2 <- update(m1, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method", text.w.random = "HK")
 #' #
 #' # Merge results of the two meta-analyses
