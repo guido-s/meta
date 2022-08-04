@@ -1623,7 +1623,7 @@ metagen <- function(TE, seTE, studlab,
           if (method.random.ci == "KR")
             method.random.ci <- "DL"
           if (method.predict== "KR")
-            method.random.ci <- "HTS"
+            method.predict <- "HTS"
         }
         if (is.nan(df.kero)) {
           df.kero <- NA
@@ -1631,7 +1631,7 @@ metagen <- function(TE, seTE, studlab,
           if (method.random.ci == "KR")
             method.random.ci <- "DL"
           if (method.predict== "KR")
-            method.random.ci <- "HTS"
+            method.predict <- "HTS"
         }
       }
       ##

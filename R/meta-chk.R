@@ -255,11 +255,11 @@ chkdeprecated <- function(x, new, old, warn = TRUE) {
   if (depr & warn) {
     if (new.given)
       warning("Deprecated argument '", old, "' ignored as ",
-              "'", new, "' is also provided.",
+              "'", new, "' is also provided, see help(meta).",
               call. = FALSE)
     else
       warning("Use argument '", new, "' instead of '",
-              old, "' (deprecated).",
+              old, "' (deprecated), see help(meta).",
               call. = FALSE)
   }
   ##

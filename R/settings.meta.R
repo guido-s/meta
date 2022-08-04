@@ -986,7 +986,7 @@ settings.meta <- function(..., quietly = TRUE) {
     depr <- setlogical("hakn", args)
     if (na & !is.na(depr)) {
       if (gs("hakn"))
-        setOption("method.random.ci", "HTS")
+        setOption("method.random.ci", "HK")
       else
         setOption("method.random.ci", "DL")
     }
