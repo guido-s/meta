@@ -12,17 +12,9 @@
   ma.common = TRUE,
   type = "L",
   n.iter.max = 50,
-  level = x$level,
-  level.ma = x$level.ma,
   common = FALSE,
   random = TRUE,
-  method.random.ci = x$method.random.ci,
-  adhoc.hakn = x$adhoc.hakn,
-  method.tau = x$method.tau,
-  method.tau.ci = x$method.tau.ci,
   prediction = x$prediction,
-  level.predict = x$level.predict,
-  method.predict = x$method.predict,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
@@ -45,11 +37,14 @@
   level.ma = level,
   common = FALSE,
   random = TRUE,
-  method.random.ci = "DL",
-  method.tau = "DL",
+  method.random.ci = gs("method.random.ci"),
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+  method.tau = gs("method.tau"),
   method.tau.ci = if (method.tau == "DL") "J" else "QP",
   prediction = FALSE,
   level.predict = level,
+  method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   backtransf = TRUE,
   pscale = 1,
   irscale = 1,
@@ -78,46 +73,14 @@ the number of missing studies. Either \code{"L"} or \code{"R"}.}
 \item{n.iter.max}{Maximum number of iterations to estimate number
 of missing studies.}
 
-\item{level}{The level used to calculate confidence intervals for
-individual studies. If existing, \code{x$level} is used as value
-for \code{level}; otherwise 0.95 is used.}
-
-\item{level.ma}{The level used to calculate confidence interval for
-the pooled estimate. If existing, \code{x$level.ma} is used as
-value for \code{level.ma}; otherwise 0.95 is used.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
-random effects estimate (see \code{\link{meta-package}}).}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{meta-package}}).}
-
-\item{method.tau}{A character string indicating which method is
-used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau} (see \code{\link{meta-package}}).}
-
-\item{method.tau.ci}{A character string indicating which method is
-used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau} (see \code{\link{meta-package}}).}
-
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
-
-\item{level.predict}{The level used to calculate prediction
-interval for a new study.}
-
-\item{method.predict}{A character string indicating which method is
-used to calculate a prediction interval (see
-\code{\link{meta-package}}).}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -156,6 +119,42 @@ summary measure, e.g., \code{"RD"}, \code{"RR"}, \code{"OR"},
 
 \item{studlab}{An optional vector with study labels; ignored if
 \code{x} is of class \code{meta}.}
+
+\item{level}{The level used to calculate confidence intervals for
+individual studies. If existing, \code{x$level} is used as value
+for \code{level}; otherwise 0.95 is used.}
+
+\item{level.ma}{The level used to calculate confidence interval for
+the pooled estimate. If existing, \code{x$level.ma} is used as
+value for \code{level.ma}; otherwise 0.95 is used.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
+
+\item{method.tau}{A character string indicating which method is
+used to estimate the between-study variance \eqn{\tau^2} and its
+square root \eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{method.tau.ci}{A character string indicating which method is
+used to estimate the confidence interval of \eqn{\tau^2} and
+\eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{level.predict}{The level used to calculate prediction
+interval for a new study.}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for the
+prediction interval (see \code{\link{meta-package}}).}
 }
 \value{
 An object of class \code{c("trimfill", "metagen", "meta")} with

@@ -25,10 +25,10 @@
 #' The function can be used to either change individual settings (see
 #' Examples) or use one of the following general settings:
 #' \itemize{
-#' \item \code{settings.meta("revman5")}
-#' \item \code{settings.meta("jama")}
-#' \item \code{settings.meta("iqwig5")}
-#' \item \code{settings.meta("iqwig6")}
+#' \item \code{settings.meta("RevMan5")}
+#' \item \code{settings.meta("JAMA")}
+#' \item \code{settings.meta("IQWiG5")}
+#' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
 #' \item \code{settings.meta("meta4")}
 #' }
@@ -60,7 +60,7 @@
 #' RevMan 5 settings, in detail:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-#' \code{method.random.ci} \tab "DL" \tab only available method in RevMan 5 \cr
+#' \code{method.random.ci} \tab "classic" \tab only available method in RevMan 5 \cr
 #' \code{method.tau} \tab "DL" \tab only available method in RevMan 5
 #'   \cr
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
@@ -119,7 +119,7 @@
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{method.random.ci} \tab "HK" \tab Hartung-Knapp method \cr
-#' \code{adhoc.hakn} \tab "ci" \tab \emph{ad hoc} variance correction \cr
+#' \code{adhoc.hakn.ci} \tab "IQWiG6" \tab \emph{ad hoc} variance correction \cr
 #' \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
 #'   between-study variance \cr
 #' \code{prediction} \tab TRUE \tab Prediction interval \cr
@@ -210,14 +210,14 @@
 #' 
 #' # Forest plot using RevMan 5 style
 #' #
-#' settings.meta("revman5")
+#' settings.meta("RevMan5")
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
 #' # Forest plot using JAMA style
 #' #
-#' settings.meta("jama")
+#' settings.meta("JAMA")
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
@@ -349,6 +349,7 @@ settings.meta <- function(..., quietly = TRUE) {
     chkdeprecated(names.all, "random", "comb.random")
     ##
     chkdeprecated(names.all, "method.random.ci", "hakn")
+    chkdeprecated(names.all, "adhoc.hakn.ci", "adhoc.hakn")
     ##
     chkdeprecated(names.all, "digits.stat", "digits.zval")
     chkdeprecated(names.all, "print.subgroup.name", "print.byvar")
@@ -406,9 +407,11 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("comb.fixed", TRUE)
     setOption("random", TRUE)
     setOption("comb.random", TRUE)
-    setOption("method.random.ci", "DL")
+    setOption("method.random.ci", "classic")
     setOption("hakn", FALSE)
     setOption("adhoc.hakn", "")
+    setOption("adhoc.hakn.ci", "")
+    setOption("adhoc.hakn.pi", "")
     setOption("method.tau", "REML")
     setOption("method.tau.ci", NULL)
     setOption("tau.common", FALSE)
@@ -455,6 +458,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("big.mark", "")
     setOption("zero.pval", TRUE)
     setOption("JAMA.pval", FALSE)
+    setOption("digits.df", 4)
     setOption("print.I2", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
@@ -647,7 +651,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "digits.I2", "digits.tau2", "digits.tau",
                  "CIbracket", "CIseparator",
                  "zero.pval", "JAMA.pval"),
-        new = list(replaceNULL(args[["method.random.ci"]], "DL"),
+        new = list(replaceNULL(args[["method.random.ci"]], ""),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
@@ -693,9 +697,9 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "IQWiG6") {
-      specificSettings(args = c("method.random.ci", "adhoc.hakn",
+      specificSettings(args = c("method.random.ci", "adhoc.hakn.ci",
                                 "method.tau", "prediction"),
-                       new = list("HK", "iqwig6", "PM", TRUE),
+                       new = list("HK", "IQWiG6", "PM", TRUE),
                        setting = "IQWiG 6 settings",
                        quietly = quietly)
     }
@@ -735,7 +739,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("common             ")
     catarg("random             ")
     catarg("method.random.ci   ")
-    catarg("adhoc.hakn         ")
+    catarg("adhoc.hakn.ci      ")
+    catarg("adhoc.hakn.pi      ")
     catarg("method.tau         ")
     catarg("method.tau.ci      ")
     catarg("tau.common         ")
@@ -779,6 +784,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("big.mark           ")
     catarg("zero.pval          ")
     catarg("JAMA.pval          ")
+    catarg("digits.df          ")
     catarg("print.I2           ")
     catarg("print.H            ")
     catarg("print.Rb           ")
@@ -988,10 +994,15 @@ settings.meta <- function(..., quietly = TRUE) {
       if (gs("hakn"))
         setOption("method.random.ci", "HK")
       else
-        setOption("method.random.ci", "DL")
+        setOption("method.random.ci", "classic")
     }
     ##
-    setcharacter("adhoc.hakn", args, gs("adhoc4hakn"))
+    na <- is.na(setcharacter("adhoc.hakn.ci", args, gs("adhoc4hakn.ci")))
+    depr <- setcharacter("adhoc.hakn", args, gs("adhoc4hakn.ci"))
+    if (na & !is.na(depr))
+      setOption("adhoc.hakn.ci", args[[depr]])
+    ##
+    setcharacter("adhoc.hakn.pi", args, gs("adhoc4hakn.pi"))
     setcharacter("method.tau", args, gs("meth4tau"))
     setcharacter("method.tau.ci", args, c("J", "BJ", "QP", "PL", ""))
     setlogical("tau.common", args)
@@ -1047,6 +1058,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("big.mark", args)
     setlogical("zero.pval", args)
     setlogical("JAMA.pval", args)
+    setnumeric("digits.df", args)
     setlogical("print.I2", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
@@ -1235,21 +1247,23 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("addrow.below.overall", args)
   }
   
-  if (gs("method.predict") == "KR" & gs("method.tau") != "REML")
-    warning("Default settings for arguments 'method.tau' and ",
-            "'method.predict' do not match:\n",
-            "- Kenward-Roger method (method.predict = \"KR\") ",
-            "can only be used with\n  ",
-            "REML estimator (method.tau = \"REML\").",
-            call. = FALSE)
-  ##
-  if (gs("method.random.ci") == "KR" & gs("method.tau") != "REML")
+  
+  if (any(gs("method.random.ci") == "KR") & gs("method.tau") != "REML")
     warning("Default settings for arguments 'method.tau' and ",
             "'method.random.ci' do not match:\n",
             "- Kenward-Roger method (method.random.ci = \"KR\") ",
             "can only be used with\n  ",
             "REML estimator (method.tau = \"REML\").",
             call. = FALSE)
+  ##
+  if (any(gs("method.predict") == "KR") & gs("method.tau") != "REML")
+    warning("Default settings for arguments 'method.tau' and ",
+            "'method.predict' do not match:\n",
+            "- Kenward-Roger method (method.predict = \"KR\") ",
+            "can only be used with\n  ",
+            "REML estimator (method.tau = \"REML\").",
+            call. = FALSE)
+  
   
   invisible(oldset)
 }

@@ -37,8 +37,6 @@
 #'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.ma The level used to calculate confidence intervals
-#'   for meta-analysis estimates.
 #' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
@@ -53,18 +51,6 @@
 #'   level.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
-#' @param level.predict The level used to calculate prediction
-#'   interval for a new study.
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
-#'   random effects estimate (see \code{\link{meta-package}}).
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate (see
-#'   \code{\link{meta-package}}).
-#' @param method.predict A character string indicating which method is
-#'   used to calculate a prediction interval (see
-#'   \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -77,6 +63,23 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
+#' @param level.predict The level used to calculate prediction
+#'   interval for a new study.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -119,6 +122,7 @@
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param hakn Deprecated argument (replaced by 'method.random.ci').
+#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether the addition of
@@ -560,23 +564,29 @@ metaprop <- function(event, n, studlab,
                      ##
                      incr = gs("incr"), method.incr = gs("method.incr"),
                      ##
-                     method.ci = gs("method.ci.prop"),
-                     level = gs("level"), level.ma = gs("level.ma"),
+                     method.ci = gs("method.ci.prop"), level = gs("level"),
+                     ##
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
                      overall.hetstat = common | random,
+                     prediction = gs("prediction"),
                      ##
-                     method.random.ci = gs("method.random.ci"),
-                     adhoc.hakn = gs("adhoc.hakn"),
-                     method.tau,
+                     method.tau =
+                       ifelse(!is.na(charmatch(tolower(method), "glmm",
+                                               nomatch = NA)),
+                              "ML", gs("method.tau")),
                      method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
-                     prediction = gs("prediction") | !missing(method.predict),
+                     level.ma = gs("level.ma"),
+                     method.random.ci = gs("method.random.ci"),
+                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                     ##
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
+                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                      ##
                      null.effect = NA,
                      ##
@@ -599,7 +609,7 @@ metaprop <- function(event, n, studlab,
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
-                     byvar, hakn,
+                     byvar, hakn, adhoc.hakn,
                      ##
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
@@ -629,9 +639,6 @@ metaprop <- function(event, n, studlab,
   ##
   chklevel(level)
   ##
-  missing.adhoc.hakn <- missing(adhoc.hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
-  ##
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
@@ -644,31 +651,19 @@ metaprop <- function(event, n, studlab,
   chklevel(level.predict)
   ##
   missing.method.predict <- missing(method.predict)
-  method.predict <- setchar(method.predict, gs("meth4pi"))
+  ##
+  method.tau <-
+    setmethodtau(method.tau, missing.method.tau,
+                 method.predict, missing.method.predict)
+  method.predict <-
+    setmethodpredict(method.predict, missing.method.predict,
+                     method.tau, missing.method.tau)
+  ##
   if (method.predict == "NNF")
     is.installed.package("pimeta", argument = "method.predict", value = "NNF")
-  if (method.predict == "KR" & method.tau != "REML") {
-    if (missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.tau' set to \"REML\" as ",
-              "'method.predict' = \"KR\".",
-              call. = FALSE)
-      method.tau <- "REML"
-    }
-    else if (!missing.method.tau & missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else if (!missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else
-      method.predict <- "HTS"
-  }
+  ##
+  missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
+  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
   if (!anyNA(null.effect) | length(null.effect) != 1)
     chknumeric(null.effect, min = 0, max = 1, length = 1)
@@ -731,8 +726,14 @@ metaprop <- function(event, n, studlab,
     if (method.random.ci)
       method.random.ci <- "HK"
     else
-      method.random.ci <- "DL"
+      method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  ##
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
+  adhoc.hakn.ci <-
+    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
+  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
   ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
@@ -1182,12 +1183,20 @@ metaprop <- function(event, n, studlab,
          "available for GLMMs.",
          call. = FALSE)
   ##
-  if (is.glmm & method.random.ci == "HK" & adhoc.hakn != "") {
-    if (!missing.adhoc.hakn)
-      warning("Ad hoc variance correction for Hartung-Knapp method ",
-              "not available for GLMMs.",
+  if (is.glmm & method.random.ci == "HK" & adhoc.hakn.ci != "") {
+    if (!missing.adhoc.hakn.ci)
+      warning("Ad hoc correction for Hartung-Knapp method not ",
+              "available for GLMMs.",
               call. = FALSE)
-    adhoc.hakn <- ""
+    adhoc.hakn.ci <- ""
+  }
+  ##
+  if (is.glmm & method.predict == "HK" & adhoc.hakn.pi != "") {
+    if (!missing.adhoc.hakn.pi)
+      warning("Ad hoc Hartung-Knapp correction ffor prediction interval not ",
+              "available for GLMMs.",
+              call. = FALSE)
+    adhoc.hakn.pi <- ""
   }
   ##
   if (is.glmm) {
@@ -1212,8 +1221,8 @@ metaprop <- function(event, n, studlab,
   ##
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
   ##
-  if (k == 1 & method.random.ci != "DL")
-    method.random.ci <- "DL"
+  if (k == 1 & method.random.ci != "classic")
+    method.random.ci <- "classic"
   ##
   if (is.glmm & k > 0) {
     glmm.common <-
@@ -1237,22 +1246,25 @@ metaprop <- function(event, n, studlab,
                ##
                sm = sm,
                level = level,
-               level.ma = level.ma,
+               ##
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
+               prediction = prediction,
                ##
-               method.random.ci = method.random.ci,
-               adhoc.hakn = adhoc.hakn,
-               method.predict = method.predict,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
                ##
-               prediction = prediction,
+               level.ma = level.ma,
+               method.random.ci = method.random.ci,
+               adhoc.hakn.ci = adhoc.hakn.ci,
+               ##
                level.predict = level.predict,
+               method.predict = method.predict,
+               adhoc.hakn.pi = adhoc.hakn.pi,
                ##
                null.effect = transf.null.effect,
                ##
@@ -1392,12 +1404,12 @@ metaprop <- function(event, n, studlab,
     res$lower.predict <- ci.p$lower
     res$upper.predict <- ci.p$upper
     ##
-    res$Q <- glmm.random$QE.Wld
+    res$Q <- if (glmm.random$k > 1) glmm.random$QE.Wld else 0
     res$df.Q <- glmm.random$QE.df
     res$pval.Q <- pvalQ(res$Q, res$df.Q)
     ##
-    res$Q.LRT      <- glmm.random$QE.LRT
-    res$df.Q.LRT   <- res$df.Q
+    res$Q.LRT <- if (glmm.random$k > 1) glmm.random$QE.LRT else 0
+    res$df.Q.LRT <- res$df.Q
     res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
     ##
     if (k > 1) {

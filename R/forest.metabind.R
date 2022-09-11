@@ -169,7 +169,7 @@ forest.metabind <- function(x,
                             big.mark = gs("big.mark"),
                             ##
                             print.subgroup.labels =
-                              if (any(x$.meta$is.subgroup)) TRUE else FALSE,
+                              if (any(x$is.subgroup)) TRUE else FALSE,
                             addrow.subgroups = print.subgroup.labels,
                             ##
                             smlab,

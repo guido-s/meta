@@ -20,22 +20,23 @@ metainc(
   method.incr = gs("method.incr"),
   model.glmm = "UM.FS",
   level = gs("level"),
-  level.ma = gs("level.ma"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  method.random.ci = gs("method.random.ci"),
-  adhoc.hakn = gs("adhoc.hakn"),
+  prediction = gs("prediction"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
-  prediction = gs("prediction"),
+  level.ma = gs("level.ma"),
+  method.random.ci = gs("method.random.ci"),
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   method.bias = gs("method.bias"),
   n.e = NULL,
   n.c = NULL,
@@ -62,6 +63,7 @@ metainc(
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   hakn,
+  adhoc.hakn,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -117,9 +119,6 @@ be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.ma}{The level used to calculate confidence intervals
-for meta-analysis estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
@@ -136,14 +135,8 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
-random effects estimate (see \code{\link{meta-package}}).}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{meta-package}}).}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -157,13 +150,22 @@ used to estimate the confidence interval of \eqn{\tau^2} and
 between-study variance \eqn{\tau^2}.}
 
 \item{TE.tau}{Overall treatment effect used to estimate the
-between-study variance \eqn{\tau^2}.}
+between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
@@ -171,6 +173,10 @@ interval for a new study.}
 \item{method.predict}{A character string indicating which method is
 used to calculate a prediction interval (see
 \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{method.bias}{A character string indicating which test is to
 be used. Either \code{"Begg"}, \code{"Egger"}, or
@@ -244,6 +250,8 @@ intervals should be printed for subgroups.}
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{hakn}{Deprecated argument (replaced by 'method.random.ci').}
+
+\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -470,37 +478,10 @@ General of the United States.
 U-23 Department of Health, Education, and Welfare.
 Public Health Service Publication No. 1103.
 
-DerSimonian R & Laird N (1986):
-Meta-analysis in clinical trials.
-\emph{Controlled Clinical Trials},
-\bold{7}, 177--88
-
 Greenland S & Robins JM (1985):
 Estimation of a common effect parameter from sparse follow-up data.
 \emph{Biometrics},
 \bold{41}, 55--68
-
-Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
-A re-evaluation of random-effects meta-analysis.
-\emph{Journal of the Royal Statistical Society: Series A},
-\bold{172}, 137--59
-
-Jackson D, Law M, Rücker G, Schwarzer G (2017): 
-The Hartung-Knapp modification for random-effects meta-analysis: A
-useful refinement but are there any residual concerns?
-\emph{Statistics in Medicine},
-\bold{36}, 3923--34
-
-Knapp G & Hartung J (2003):
-Improved tests for a random effects meta-regression with a single
-covariate.
-\emph{Statistics in Medicine},
-\bold{22}, 2693--710
-
-Paule RC & Mandel J (1982):
-Consensus values and weighting factors.
-\emph{Journal of Research of the National Bureau of Standards},
-\bold{87}, 377--85
 
 Stijnen T, Hamza TH, Ozdemir P (2010):
 Random effects meta-analysis of event outcome in the framework of
@@ -518,12 +499,6 @@ Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the Metafor Package.
 \emph{Journal of Statistical Software},
 \bold{36}, 1--48
-
-Wiksten A, Rücker G, Schwarzer G (2016):
-Hartung-Knapp method is not always conservative compared with
-fixed-effect meta-analysis.
-\emph{Statistics in Medicine},
-\bold{35}, 2503--15
 }
 \seealso{
 \code{\link{meta-package}}, \code{\link{metabin}},

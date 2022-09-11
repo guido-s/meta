@@ -23,8 +23,6 @@
 #'   studies.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.ma The level used to calculate confidence intervals
-#'   for meta-analysis estimates.
 #' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
@@ -39,18 +37,6 @@
 #'   level.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
-#' @param level.predict The level used to calculate prediction
-#'   interval for a new study.
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
-#'   random effects estimate (see \code{\link{meta-package}}).
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate (see
-#'   \code{\link{meta-package}}).
-#' @param method.predict A character string indicating which method is
-#'   used to calculate a prediction interval (see
-#'   \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -59,10 +45,27 @@
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
-#' @param TE.tau Overall effect used to estimate the between-study
-#'   variance tau-squared.
+#' @param TE.tau Overall treatment effect used to estimate the
+#'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
+#' @param level.predict The level used to calculate prediction
+#'   interval for a new study.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -101,6 +104,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn.deprecated A logical indicating whether warnings should
@@ -237,23 +241,26 @@ metacor <- function(cor, n, studlab,
                     cluster = NULL,
                     ##
                     sm = gs("smcor"),
+                    level = gs("level"),
                     ##
-                    level = gs("level"), level.ma = gs("level.ma"),
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
                     overall.hetstat = common | random,
+                    prediction = gs("prediction") | !missing(method.predict),
                     ##
-                    method.random.ci = gs("method.random.ci"),
-                    adhoc.hakn = gs("adhoc.hakn"),
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     ##
-                    prediction = gs("prediction") | !missing(method.predict),
+                    level.ma = gs("level.ma"),
+                    method.random.ci = gs("method.random.ci"),
+                    adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                    ##
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
+                    adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                     ##
                     null.effect = 0,
                     ##
@@ -275,7 +282,7 @@ metacor <- function(cor, n, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
-                    byvar,
+                    byvar, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
                     warn.deprecated = gs("warn.deprecated"),
@@ -292,8 +299,6 @@ metacor <- function(cor, n, studlab,
   chknull(sm)
   chklevel(level)
   ##
-  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
-  ##
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
@@ -304,31 +309,18 @@ metacor <- function(cor, n, studlab,
   chklevel(level.predict)
   ##
   missing.method.predict <- missing(method.predict)
-  method.predict <- setchar(method.predict, gs("meth4pi"))
+  ##
+  method.tau <-
+    setmethodtau(method.tau, missing.method.tau,
+                 method.predict, missing.method.predict)
+  method.predict <-
+    setmethodpredict(method.predict, missing.method.predict,
+                     method.tau, missing.method.tau)
+  ##
   if (method.predict == "NNF")
     is.installed.package("pimeta", argument = "method.predict", value = "NNF")
-  if (method.predict == "KR" & method.tau != "REML") {
-    if (missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.tau' set to \"REML\" as ",
-              "'method.predict' = \"KR\".",
-              call. = FALSE)
-      method.tau <- "REML"
-    }
-    else if (!missing.method.tau & missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else if (!missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else
-      method.predict <- "HTS"
-  }
+  ##
+  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
   chknumeric(null.effect, length = 1)
   ##
@@ -376,8 +368,13 @@ metacor <- function(cor, n, studlab,
     if (method.random.ci)
       method.random.ci <- "HK"
     else
-      method.random.ci <- "DL"
+      method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  ##
+  adhoc.hakn.ci <-
+    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
+  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
   ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
@@ -657,22 +654,25 @@ metacor <- function(cor, n, studlab,
                ##
                sm = sm,
                level = level,
-               level.ma = level.ma,
+               ##
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
+               prediction = prediction,
                ##
-               method.random.ci = method.random.ci,
-               adhoc.hakn = adhoc.hakn,
-               method.predict = method.predict,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
                ##
-               prediction = prediction,
+               level.ma = level.ma,
+               method.random.ci = method.random.ci,
+               adhoc.hakn.ci = adhoc.hakn.ci,
+               ##
                level.predict = level.predict,
+               method.predict = method.predict,
+               adhoc.hakn.pi = adhoc.hakn.pi,
                ##
                null.effect = transf.null.effect,
                ##

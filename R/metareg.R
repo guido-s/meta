@@ -238,12 +238,36 @@ metareg <- function(x, formula, method.tau = x$method.tau,
     formula.text <- gsub("~", "", formula.text)
     formula.text <- gsub("\\\"", "", formula.text)
     formula.text <- gsub("\\\'", "", formula.text)
+    ##
+    nulldata <- is.null(x$data)
+    ##
+    for (i in as.vector(sapply(strsplit(formula.text, "+", fixed = TRUE),
+                               trimws, which = "both"))) {
+      if (".GlobalEnv" %in% find(i)) {
+        if (nulldata) {
+          if (is.null(x$data)) {
+            x$data <- data.frame(first = .GlobalEnv[[i]])
+            names(x$data) <- i
+          }
+          else
+            x$data[[i]] <- .GlobalEnv[[i]]
+        }
+        else {
+          if (isCol(x$data, i))
+            warning("R object '", i, "' found in .GlobalEnv used in ",
+                    "meta-regression instead of data from ",
+                    "meta-analysis object.")
+          x$data[[i]] <- .GlobalEnv[[i]]
+        }
+      }
+    }
+    ##
     if (!intercept)
       formula.text <- paste0(formula.text, " - 1")
     formula <- as.formula(paste("~", formula.text))
   }
-
-
+  
+  
   if (is.null(method.tau))
     method.tau <- "DL"
   ##

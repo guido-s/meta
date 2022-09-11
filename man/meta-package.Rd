@@ -49,7 +49,7 @@ provides the following statistical methods for meta-analysis.
  see description of argument \code{method.tau} below
 \item Hartung-Knapp method for random effects meta-analysis
  (Hartung & Knapp, 2001a,b), see description of arguments
- \code{method.random.ci} and \code{adhoc.hakn} below
+ \code{method.random.ci} and \code{adhoc.hakn.ci} below
 \item Kenward-Roger method for random effects meta-analysis
  (Partlett and Riley, 2017), see description of arguments
  \code{method.random.ci} and \code{method.predict} below
@@ -75,6 +75,8 @@ R packages:
   \bold{netmeta})
 \item Statistical methods for sensitivity analysis in meta-analysis
   (R package \bold{metasens})
+\item Statistical methods for meta-analysis of diagnostic accuracy
+  studies with several cutpoints (R package \bold{diagmeta})
 }
 
 In the following, more details on available and default statistical
@@ -135,7 +137,7 @@ The following methods are available in all meta-analysis functions
 to calculate a confidence interval for the random effects estimate.
 \tabular{ll}{
 \bold{Argument}\tab \bold{Method} \cr
-\code{method.random.ci = "DL"}\tab Based on standard normal
+\code{method.random.ci = "classic"}\tab Based on standard normal
   quantile \cr
 \tab (DerSimonian and Laird, 1986) (default) \cr
 \code{method.random.ci = "HK"}\tab Method by Hartung and Knapp
@@ -174,22 +176,22 @@ common or random effects meta-analysis if it is wider than the
 interval from the Hartung-Knapp method (Wiksten et al., 2016;
 Jackson et al., 2017).
 
-Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
-correction for the Hartung-Knapp (HK) method:
+Argument \code{adhoc.hakn.ci} can be used to choose the \emph{ad
+hoc} correction for the Hartung-Knapp (HK) method:
 \tabular{ll}{
 \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-\code{adhoc.hakn = ""}\tab no \emph{ad hoc} correction (default)
+\code{adhoc.hakn.ci = ""}\tab no \emph{ad hoc} correction (default)
   \cr
-\code{adhoc.hakn = "se"}\tab use variance correction if HK standard
+\code{adhoc.hakn.ci = "se"}\tab use variance correction if HK standard
  error is smaller \cr
  \tab than standard error from classic random effects
  \cr
  \tab meta-analysis (Knapp and Hartung, 2003) \cr
-\code{adhoc.hakn = "iqwig6"}\tab use variance correction if HK
+\code{adhoc.hakn.ci = "IQWiG6"}\tab use variance correction if HK
  confidence interval \cr
  \tab is narrower than CI from classic random effects model \cr
  \tab with DerSimonian-Laird estimator (IQWiG, 2022) \cr
-\code{adhoc.hakn = "ci"}\tab use wider confidence interval of
+\code{adhoc.hakn.ci = "ci"}\tab use wider confidence interval of
  classic random effects \cr
  \tab and HK meta-analysis \cr
  \tab (Hybrid method 2 in Jackson et al., 2017)
@@ -218,6 +220,8 @@ single new study.
 \bold{Argument}\tab \bold{Method} \cr
 \code{method.predict = "HTS"}\tab Based on \emph{t}-distribution
   (Higgins et al., 2009) (default) \cr
+\code{method.predict = "HK"}\tab Hartung-Knapp method (Partlett and
+  Riley, 2017) \cr
 \code{method.predict = "KR"}\tab Kenward-Roger method (Partlett and
   Riley, 2017) \cr
 \code{method.predict = "NNF"}\tab Bootstrap approach (Nagashima et
@@ -230,6 +234,17 @@ By default (\code{method.predict = "HTS"}), the prediction interval
 is based on a \emph{t}-distribution with \emph{k-2} degrees of
 freedom where \emph{k} corresponds to the number of studies in the
 meta-analysis, see equation (12) in Higgins et al. (2009).
+
+Argument \code{adhoc.hakn.pi} can be used to choose the \emph{ad
+hoc} correction for the Hartung-Knapp method:
+
+\tabular{ll}{
+\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
+\code{adhoc.hakn.pi = ""}\tab no \emph{ad hoc} correction (default)
+  \cr
+\code{adhoc.hakn.pi = "se"}\tab use variance correction if HK
+ standard error is smaller
+}
 
 The Kenward-Roger method is only available for the REML estimator
 (\code{method.tau = "REML"}) of the between-study variance
@@ -282,10 +297,10 @@ current R session.
 
 Some pre-defined general settings are available:
 \itemize{
-\item \code{settings.meta("revman5")}
-\item \code{settings.meta("jama")}
-\item \code{settings.meta("iqwig5")}
-\item \code{settings.meta("iqwig6")}
+\item \code{settings.meta("RevMan5")}
+\item \code{settings.meta("JAMA")}
+\item \code{settings.meta("IQWiG5")}
+\item \code{settings.meta("IQWiG6")}
 \item \code{settings.meta("geneexpr")}
 }
 

@@ -392,12 +392,15 @@ draw.lines <- function(x, column,
   ##
   ## Line for random effects estimate:
   ##
-  if (random & overall & !is.na(TE.random))
-    if (min <= TE.random & TE.random <= max)
-      if (!is.null(lty.random) & !is.na(TE.random))
-        grid.lines(x = unit(TE.random, "native"),
-                   y = unit(c(ymin.random, ymax), "lines"),
-                   gp = gpar(lty = lty.random, lwd = lwd, col = col.random))
+  if (random & overall)
+    for (i in seq_along(TE.random))
+      if (!is.na(TE.random[i]))
+        if (min <= TE.random[i] & TE.random[i] <= max)
+          if (!is.null(lty.random) & !is.na(TE.random[i]))
+            grid.lines(x = unit(TE.random[i], "native"),
+                       y = unit(c(ymin.random, ymax), "lines"),
+                       gp = gpar(lty = lty.random,
+                                 lwd = lwd, col = col.random))
   ##
   popViewport()
   ##
@@ -406,7 +409,8 @@ draw.lines <- function(x, column,
 
 
 formatcol <- function(x, y, rows, just = "right", settings,
-                      fontfamily) {
+                      fontfamily,
+                      n.com, n.ran, n.prd) {
   ##
   if (just == "left")
     xpos <- 0
@@ -437,41 +441,55 @@ formatcol <- function(x, y, rows, just = "right", settings,
   ##
   ## Common effect estimate:
   ##
-  res$labels[[2]] <- textGrob(y[1],
+  strt <- j <- 1
+  for (i in seq_len(n.com)) {
+    res$labels[[strt + i]] <- textGrob(y[strt - 1 + i],
                               x = xpos, just = just,
                               gp = gpar(
                                 fontsize = settings$fs.common,
                                 fontface = settings$ff.common,
                                 fontfamily = fontfamily)
                               )
+    j <- j + 1
+  }
   ##
   ## Random effects estimate:
   ##
-  res$labels[[3]] <- textGrob(y[2],
-                              x = xpos, just = just,
-                              gp = gpar(
-                                fontsize = settings$fs.random,
-                                fontface = settings$ff.random,
-                                fontfamily = fontfamily)
-                              )
+  strt <- j
+  for (i in seq_len(n.ran)) {
+    res$labels[[strt + i]] <- textGrob(y[strt - 1 + i],
+                                       x = xpos, just = just,
+                                       gp = gpar(
+                                         fontsize = settings$fs.random,
+                                         fontface = settings$ff.random,
+                                         fontfamily = fontfamily)
+                                       )
+    j <- j + 1
+  }
   ##
   ## Prediction interval:
   ##
-  res$labels[[4]] <- textGrob(y[3],
-                              x = xpos, just = just,
-                              gp = gpar(
-                                fontsize = settings$fs.predict,
-                                fontface = settings$ff.predict,
-                                fontfamily = fontfamily)
-                              )
+  strt <- j
+  for (i in seq_len(n.prd)) {
+    res$labels[[strt + i]] <- textGrob(y[strt - 1 + i],
+                                       x = xpos, just = just,
+                                       gp = gpar(
+                                         fontsize = settings$fs.predict,
+                                         fontface = settings$ff.predict,
+                                         fontfamily = fontfamily)
+                                       )
+    j <- j + 1
+  }
   ##
-  if (settings$by)
-    for (i in 1:settings$n.by) {
-      ##
-      ## Common effect estimates:
-      ##
-      res$labels[[4 + i]] <-
-        textGrob(y[3 + i],
+  if (settings$by) {
+    n.by <- settings$n.by
+    strt <- j
+    ##
+    ## Common effect estimates:
+    ##
+    for (i in seq_len(n.by * n.com)) {
+      res$labels[[strt + i]] <-
+        textGrob(y[strt - 1 + i],
                  x = xpos, just = just,
                  gp = 
                    gpar(
@@ -480,11 +498,15 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontfamily = fontfamily,
                      col = settings$col.by)
                  )
-      ##
-      ## Random effects estimates:
-      ##
-      res$labels[[4 + 1 * settings$n.by + i]] <-
-        textGrob(y[3 + 1 * settings$n.by + i],
+      j <- j + 1
+    }
+    ##
+    ## Random effects estimates:
+    ##
+    strt <- j
+    for (i in seq_len(n.by * n.ran)) {
+      res$labels[[strt + i]] <-
+        textGrob(y[strt - 1 + i],
                  x = xpos, just = just,
                  gp = 
                    gpar(
@@ -493,11 +515,15 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontfamily = fontfamily,
                      col = settings$col.by)
                  )
-      ##
-      ## Prediction interval:
-      ##
-      res$labels[[4 + 2 * settings$n.by + i]] <-
-        textGrob(y[3 + 2 * settings$n.by + i],
+      j <- j + 1
+    }
+    ##
+    ## Prediction interval:
+    ##
+    strt <- j
+    for (i in seq_len(n.by * n.prd)) {
+      res$labels[[strt + i]] <-
+        textGrob(y[strt - 1 + i],
                  x = xpos, just = just,
                  gp = 
                    gpar(
@@ -506,7 +532,9 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontfamily = fontfamily,
                      col = settings$col.by)
                  )
+      j <- j + 1
     }
+  }
   ##
   res
 }
@@ -597,3 +625,35 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
 
 wcalc <- function(x)
   max(unit(rep(1, length(x)), "grobwidth", x))
+
+
+collapsemat <- function(x) {
+  if (is.matrix(x)) {
+    res <- as.vector(x)
+    names(res) <- rep(colnames(x), rep(nrow(x), ncol(x)))
+  }
+  else
+    res <- x
+  ##
+  res
+}
+
+
+ordermat <- function(x, levs) {
+  o <- order(factor(names(x), levels = levs))
+  x[o]
+}
+
+
+selmat <- function(x, levs) {
+  o <- order(factor(names(x), levels = levs))
+  x[o]
+}
+
+
+notallNA <- function(x)
+  any(!is.na(x))
+
+
+repl <- function(x, n1, n2)
+  rep(x, rep(n1, n2))

@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 5.6-0
-Date: 2022-08-04
+Version: 6.0-0
+Date: 2022-09-11
 Depends: R (>= 4.0.0)
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2
 Suggests: BiasedUrn, pimeta
@@ -28,4 +28,4 @@ Description: User-friendly general package providing standard methods for meta-a
  - produce forest plot summarising several (subgroup) meta-analyses.
 License: GPL (>= 2)
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1

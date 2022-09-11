@@ -4,22 +4,23 @@
 #' This function can be used to merge pooled results of two
 #' meta-analyses into a single meta-analysis object. This is, for
 #' example, useful to produce a forest plot of a random-effects
-#' meta-analysis with and without using the Hartung-Knapp method.
+#' meta-analysis with different estimates of the between-study
+#' variance \eqn{\tau^2}.
 #' 
 #' @param meta1 First meta-analysis object (see Details).
 #' @param meta2 Second meta-analysis object (see Details).
 #' @param pooled1 A character string indicating whether results of
 #'   common effect or random effects model should be considered for
-#'   first meta-analysis. Either \code{"common"} or \code{"random"},
-#'   can be abbreviated.
+#'   first meta-analysis. Either \code{"both"}, \code{"common"} or
+#'   \code{"random"}, can be abbreviated.
 #' @param pooled2 A character string indicating whether results of
 #'   common effect or random effects model should be considered for
-#'   second meta-analysis. Either \code{"common"} or \code{"random"},
-#'   can be abbreviated.
+#'   second meta-analysis. Either \code{"both"}, \code{"common"} or
+#'   \code{"random"}, can be abbreviated.
 #' @param text.pooled1 A character string used in printouts and forest
-#'   plot to label the estimate from the first meta-analysis.
+#'   plot to label the estimates from the first meta-analysis.
 #' @param text.pooled2 A character string used in printouts and forest
-#'   plot to label the estimate from the second meta-analysis.
+#'   plot to label the estimates from the second meta-analysis.
 #' @param text.w.pooled1 A character string used to label weights of
 #'   the first meta-analysis.
 #' @param text.w.pooled2 A character string used to label weights of
@@ -43,8 +44,8 @@
 #' Applications of this function include printing and plotting results
 #' of the common effect or random effects meta-analysis and the
 #' \itemize{
-#' \item Hartung-Knapp method (see argument \code{hakn} in
-#'   \code{\link{metagen}}),
+#' \item Hartung-Knapp method (see argument \code{method.random.ci} in
+#'   \code{\link{meta-object}}),
 #' \item trim-and-fill method (\code{\link{trimfill}}),
 #' \item limit meta-analyis (\code{\link[metasens]{limitmeta}} from R
 #'   package \bold{metasens}),
@@ -129,13 +130,13 @@
 #' data(Fleiss1993cont)
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "MD", common = FALSE,
-#'   text.random = "Classic random effects", text.w.random = "RE")
+#'   data = Fleiss1993cont, sm = "MD",
+#'   text.random = "Random effects model (REML)", text.w.random = "DL")
 #' #
 #' # Use Hartung-Knapp method
 #' #
-#' m2 <- update(m1, method.random.ci = "HK",
-#'   text.random = "Hartung-Knapp method", text.w.random = "HK")
+#' m2 <- update(m1, method.tau = "DL", common = FALSE,
+#'   text.random = "Random effects model (DL)", text.w.random = "DL")
 #' #
 #' # Merge results of the two meta-analyses
 #' #
@@ -143,15 +144,13 @@
 #' m12
 #' forest(m12, rightcols = c("effect", "ci", "w.common"))
 #'
-#' # Show results for DerSimonian-Laird and REML estimate of
+#' # Show results for DerSimonian-Laird and Paule-Mandel estimate of
 #' # between-study variance
 #' #
-#' m3 <- update(m1,
-#'   text.random = "Random effects moded (DL)", text.w.random = "DL")
-#' m4 <- update(m1, method.tau = "REML",
-#'   text.random = "Random effects moded (REML)", text.w.random = "REML")
+#' m3 <- update(m1, method.tau = "PM",
+#'   text.random = "Random effects moded (PM)", text.w.random = "PM")
 #' #
-#' m34 <- metamerge(m3, m4)
+#' m34 <- metamerge(m2, m3)
 #' m34
 #'
 #' data(Fleiss1993bin)
@@ -187,7 +186,11 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
                       detail.tau1, detail.tau2,
                       backtransf) {
   
-  
+  ##
+  ##
+  ## (1) Check arguments
+  ##
+  ##
   chkclass(meta1, c("meta", "limitmeta", "copas"))
   if (inherits(meta1, "meta"))
     meta1 <- updateversion(meta1)
@@ -221,21 +224,33 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   is.robu <- inherits(meta2, "robu")
   ##
   if (!missing(pooled1)) {
-    pooled1 <- setchar(pooled1, c("common", "random", "fixed"))
+    pooled1 <- setchar(pooled1, c("both", "common", "random", "fixed"))
     pooled1[pooled1 == "fixed"] <- "common"
   }
   else
-    pooled1 <- ifelse(meta1$random, "random", "common")
+    pooled1 <-
+      if (meta1$common & meta1$random)
+        "both"
+      else if (meta1$common & !meta1$random)
+        "common"
+      else
+        "random"
   ##
   if (!missing(pooled2)) {
-    pooled2 <- setchar(pooled2, c("common", "random", "fixed"))
+    pooled2 <- setchar(pooled2, c("both", "common", "random", "fixed"))
     pooled2[pooled2 == "fixed"] <- "common"
   }
   else {
     if (is.copas | is.limit | is.robu)
       pooled2 <- "random"
     else
-      pooled2 <- ifelse(meta2$random, "random", "common")
+      pooled2 <-
+        if (meta2$common & meta2$random)
+          "both"
+        else if (meta2$common & !meta2$random)
+          "common"
+        else
+          "random"
   }
   ##
   if (!missing(text.pooled1))
@@ -264,19 +279,16 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       backtransf <- FALSE
   }
   ##
-  if (is.copas)
-    meta2$detail.tau <- "copas"
-  else if (is.limit)
-    meta2$detail.tau <- "limit"
-  else if (is.robu)
-    meta2$detail.tau <- "RVE"
+  ## Check summary measures
   ##
-  if (is.null(meta1$detail.tau))
-    meta1$detail.tau <- ""
-  
-  
+  if (inherits(meta1, "metabin")) {
+    if ((meta1$sm != meta2$sm) &
+        any(c(meta1$sm, meta2$sm) %in% c("RD", "ASD")))
+      stop("Summary measures do not fit.",
+           call. = FALSE)
+  }
   ##
-  ## Check original data
+  ## Check original data (if available)
   ##
   if (!is.null(meta1$data) & !is.null(meta2$data)) {
     ##
@@ -294,210 +306,396 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     }
   }
   ##
-  ## Check summary measures
+  ## Check subgroup levels
   ##
-  if (inherits(meta1, "metabin")) {
-    if ((meta1$sm != meta2$sm) &
-        any(c(meta1$sm, meta2$sm) %in% c("RD", "ASD")))
-      stop("Summary measures do not fit.",
+  if (!is.null(meta1$subgroup.levels) &
+      !is.null(meta2$subgroup.levels)) {
+    ##
+    if (length(meta1$subgroup.levels) !=
+        length(meta2$subgroup.levels))
+      stop("Meta-analyses have different number of subgroups.",
+           call. = FALSE)
+    ##
+    if (any(meta1$subgroup.levels != meta2$subgroup.levels))
+      stop("Meta-analyses based on different subgroup-analyses.",
            call. = FALSE)
   }
   
   
   ##
-  ## Some assignments
+  ##
+  ## (2) Some assignments for Copas, Limit or Robu
+  ##
+  ##
+  if (is.copas | is.limit | is.robu) {
+    meta2$method <- "Inverse"
+    ##
+    meta2$method.random.ci <- "classic"
+    meta2$adhoc.hakn.ci <- ""
+    meta2$df.random <- Inf
+  }
+  if (is.copas) {
+    meta2$method.tau <- "ML"
+    meta2$detail.tau <- "copas"
+    ##
+    if (!missing(text.pooled2))
+      meta2$text.random <- text.pooled2
+    else
+      meta2$text.random <- "Copas selection model"
+    ##
+    if (!missing(text.w.pooled2))
+      meta2$text.w.random <- text.w.pooled2
+    else
+      meta2$text.w.random <- "Copas"
+  }
+  else if (is.limit) {
+    meta2$method.tau <- meta1$method.tau
+    meta2$detail.tau <- "limit"
+    ##
+    if (!missing(text.pooled2))
+      meta2$text.random <- text.pooled2
+    else
+      meta2$text.random <- "Limit meta-analysis"
+    ##
+    if (!missing(text.w.pooled2))
+      meta2$text.w.random <- text.w.pooled2
+    else
+      meta2$text.w.random <- "limit"
+  }
+  else if (is.robu) {
+    meta2$method.tau <- "DL"
+    meta2$detail.tau <- "RVE"
+  }
+  ##
+  if (is.copas | is.limit) {
+    ##
+    meta2$TE.random <- meta2$TE.adjust
+    meta2$seTE.random <- meta2$seTE.adjust
+    meta2$lower.random <- meta2$lower.adjust
+    meta2$upper.random <- meta2$upper.adjust
+    meta2$statistic.random <- meta2$statistic.adjust
+    meta2$pval.random <- meta2$pval.adjust
+    ##
+    meta2$w.random <- rep(0, length(meta2$w.random))
+  }
+  ##
+  if (is.robu) {
+    if (!missing(text.pooled2))
+      meta2$text.random <- text.pooled2
+    else
+      meta2$text.random <- "RVE model"
+    ##
+    if (!missing(text.w.pooled2))
+      meta2$text.w.random <- text.w.pooled2
+    else
+      meta2$text.w.random <- "RVE"
+    ##
+    meta2$TE.random <- meta2$reg_table$b.r[1]
+    meta2$seTE.random <- meta2$reg_table$SE[1]
+    meta2$lower.random <- meta2$reg_table$CI.L[1]
+    meta2$upper.random <- meta2$reg_table$CI.U[1]
+    meta2$statistic.random <- meta2$reg_table$t[1]
+    meta2$pval.random <- meta2$reg_table$prob[1]
+    ##
+    meta2$w.random <- meta2$data.full$r.weights
+  }
+  
+  
+  ##
+  ##
+  ## (3) Some more assignments
+  ##
+  ##
+  meta1$detail.tau <- replaceNULL(meta1$detail.tau, "")
   ##
   if (!missing(detail.tau1))
     meta1$detail.tau <- detail.tau1
   if (!missing(detail.tau2))
     meta2$detail.tau <- detail.tau2
+  ##
+  meta1$method.tau <- replaceNULL(meta1$method.tau, "")
+  meta1$method.tau.ci <- replaceNULL(meta1$method.tau.ci, "")
+  ##
+  meta2$method.tau <- replaceNULL(meta2$method.tau, "")
+  meta2$method.tau.ci <- replaceNULL(meta2$method.tau.ci, "")
+  ##
+  meta1$method.random.ci <- replaceNULL(meta1$method.random.ci, "")
+  meta2$method.random.ci <- replaceNULL(meta2$method.random.ci, "")
+  ##
+  meta1$df.random <- replaceNULL(meta1$df.random, NA)
+  meta2$df.random <- replaceNULL(meta2$df.random, NA)
   
   
   ##
-  ## Result of first meta-analysis is saved in list elements for common
-  ## effect model
   ##
-  if (pooled1 == "random" && !is.null(meta1$hakn) && meta1$hakn)
-    stop("Random effects meta-analysis with Hartung-Knapp method cannot be ",
-         "provided for argument 'meta1'.")
+  ## (4) Remove results from first meta-analysis
+  ##
   ##
   res <- meta1
   ##
   if (pooled1 == "random") {
-    if (!missing(text.pooled1))
-      res$text.common <- text.pooled1
-    else
-      res$text.common <- meta1$text.random
-    ##
-    if (!missing(text.w.pooled1))
-      res$text.w.common <- text.w.pooled1
-    else
-      res$text.w.common <- meta1$text.w.random
-    ##
-    res$detail.tau <- meta1$detail.tau
-    ##
-    res$TE.common <- meta1$TE.random
-    res$seTE.common <- meta1$seTE.random
-    res$lower.common <- meta1$lower.random
-    res$upper.common <- meta1$upper.random
-    res$statistic.common <- meta1$statistic.random
-    res$pval.common <- meta1$pval.random
-    res$w.common <- meta1$w.random
+    res$w.common <- NULL
+    res$TE.common <- NULL
+    res$seTE.common <- NULL
+    res$statistic.common <- NULL
+    res$pval.common <- NULL
+    res$lower.common <- NULL
+    res$upper.common <- NULL
+    res$zval.common <- NULL
+    res$text.common <- NULL
     ##
     if (!is.null(meta1$subgroup)) {
-      res$TE.common.w <- meta1$TE.random.w
-      res$seTE.common.w <- meta1$seTE.random.w
-      res$lower.common.w <- meta1$lower.random.w
-      res$upper.common.w <- meta1$upper.random.w
-      res$statistic.common.w <- meta1$statistic.random.w
-      res$pval.common.w <- meta1$pval.random.w
-      res$w.common.w <- meta1$w.random.w
+      res$TE.common.w <- NULL
+      res$seTE.common.w <- NULL
+      res$statistic.common.w <- NULL
+      res$pval.common.w <- NULL
+      res$lower.common.w <- NULL
+      res$upper.common.w <- NULL
+      res$w.common.w <- NULL
       ##
-      res$Q.w.common <- meta1$Q.w.random
-      res$pval.Q.w.common <- meta1$pval.Q.w.random
+      res$Q.w.common <- NULL
+      res$pval.Q.w.common <- NULL
       ##
-      res$Q.b.common <- meta1$Q.b.random
-      res$pval.Q.b.common <- meta1$pval.Q.b.random
+      res$Q.b.common <- NULL
+      res$pval.Q.b.common <- NULL
+    }
+  }
+  ##
+  else if (pooled1 == "common") {
+    res$w.random <- NULL
+    res$TE.random <- NULL
+    res$seTE.random <- NULL
+    res$statistic.random <- NULL
+    res$pval.random <- NULL
+    res$method.random.ci <- NULL
+    res$df.random <- NULL
+    res$lower.random <- NULL
+    res$upper.random <- NULL
+    res$zval.random <- NULL
+    res$seTE.classic <- NULL
+    res$adhoc.hakn.ci <- NULL
+    res$df.hakn <- NULL
+    res$seTE.hakn.ci <- NULL
+    res$seTE.hakn.adhoc.ci <- NULL
+    res$df.kero <- NULL
+    res$seTE.kero <- NULL
+    res$text.random <- NULL
+    ##
+    res$method.predict <- NULL
+    res$adhoc.hakn.pi <- NULL
+    res$seTE.predict <- NULL
+    res$df.predict <- NULL
+    res$lower.predict <- NULL
+    res$upper.predict <- NULL
+    res$seTE.hakn.pi <- NULL
+    res$seTE.hakn.adhoc.pi <- NULL
+    #      
+    if (!is.null(meta1$subgroup)) {
+      res$TE.random.w <- NULL
+      res$seTE.random.w <- NULL
+      res$statistic.random.w <- NULL
+      res$pval.random.w <- NULL
+      res$df.random.w <- NULL
+      res$lower.random.w <- NULL
+      res$upper.random.w <- NULL
+      res$w.random.w <- NULL
+      res$df.hakn.w <- NULL
+      res$df.kero.w <- NULL
+      ##
+      res$seTE.predict.w <- NULL
+      res$df.predict.w <- NULL
+      res$lower.predict.w <- NULL
+      res$upper.predict.w <- NULL
+      ##
+      res$Q.w.random <- NULL
+      res$pval.Q.w.random <- NULL
+      ##
+      res$Q.b.random <- NULL
+      res$pval.Q.b.random <- NULL
     }
   }
   
   
   ##
-  ## Merge results of second meta-analysis with first meta-analysis
   ##
-  if (is.copas | is.limit) {
-    if (!missing(text.pooled2))
-      res$text.random <- text.pooled2
-    else
-      res$text.random <-
-        if (is.limit) "Limit meta-analysis" else "Copas selection model"
+  ## (5) Remove results from second meta-analysis
+  ##
+  ##
+  if (pooled2 == "random") {
+    meta2$w.common <- NULL
+    meta2$TE.common <- NULL
+    meta2$seTE.common <- NULL
+    meta2$statistic.common <- NULL
+    meta2$pval.common <- NULL
+    meta2$lower.common <- NULL
+    meta2$upper.common <- NULL
+    meta2$zval.common <- NULL
+    meta2$text.common <- NULL
     ##
-    if (!missing(text.w.pooled2))
-      res$text.w.random <- text.w.pooled2
-    else
-      res$text.w.random <-
-        if (is.limit) "limit" else "Copas"
-    ##
-    res$TE.random <- meta2$TE.adjust
-    res$seTE.random <- meta2$seTE.adjust
-    res$lower.random <- meta2$lower.adjust
-    res$upper.random <- meta2$upper.adjust
-    res$statistic.random <- meta2$statistic.adjust
-    res$pval.random <- meta2$pval.adjust
-    ##
-    res$w.random <- rep(0, length(res$w.random))
+    if (!is.null(meta1$subgroup)) {
+      meta2$TE.common.w <- NULL
+      meta2$seTE.common.w <- NULL
+      meta2$statistic.common.w <- NULL
+      meta2$pval.common.w <- NULL
+      meta2$lower.common.w <- NULL
+      meta2$upper.common.w <- NULL
+      meta2$w.common.w <- NULL
+      ##
+      meta2$Q.w.common <- NULL
+      meta2$pval.Q.w.common <- NULL
+      ##
+      meta2$Q.b.common <- NULL
+      meta2$pval.Q.b.common <- NULL
+    }
   }
-  else if (is.robu) {
-    if (!missing(text.pooled2))
-      res$text.random <- text.pooled2
-    else
-      res$text.random <- "RVE model"
-    ##
-    if (!missing(text.w.pooled2))
-      res$text.w.random <- text.w.pooled2
-    else
-      res$text.w.random <- "RVE"
-    ##
-    res$TE.random <- meta2$reg_table$b.r[1]
-    res$seTE.random <- meta2$reg_table$SE[1]
-    res$lower.random <- meta2$reg_table$CI.L[1]
-    res$upper.random <- meta2$reg_table$CI.U[1]
-    res$statistic.random <- meta2$reg_table$t[1]
-    res$pval.random <- meta2$reg_table$prob[1]
-    ##
-    res$w.random <- meta2$data.full$r.weights
-  }
+  ##
   else if (pooled2 == "common") {
-    if (!missing(text.pooled2))
-      res$text.random <- text.pooled2
-    else {
-      if (inherits(meta2, "trimfill"))
-        res$text.random <-
-          paste(meta2$text.common, "(trim-and-fill)")
-      else
-        res$text.random <- meta2$text.common
-    }
+    meta2$w.random <- NULL
+    meta2$TE.random <- NULL
+    meta2$seTE.random <- NULL
+    meta2$statistic.random <- NULL
+    meta2$pval.random <- NULL
+    meta2$method.random.ci <- NULL
+    meta2$df.random <- NULL
+    meta2$lower.random <- NULL
+    meta2$upper.random <- NULL
+    meta2$zval.random <- NULL
+    meta2$seTE.classic <- NULL
+    meta2$adhoc.hakn.ci <- NULL
+    meta2$df.hakn <- NULL
+    meta2$seTE.hakn.ci <- NULL
+    meta2$seTE.hakn.adhoc.ci <- NULL
+    meta2$df.kero <- NULL
+    meta2$seTE.kero <- NULL
+    meta2$text.random <- NULL
     ##
-    if (!missing(text.w.pooled2))
-      res$text.w.random <- text.w.pooled2
-    else
-      res$text.w.random <- meta2$text.w.common
-    ##
-    res$TE.random <- meta2$TE.common
-    res$seTE.random <- meta2$seTE.common
-    res$lower.random <- meta2$lower.common
-    res$upper.random <- meta2$upper.common
-    res$statistic.random <- meta2$statistic.common
-    res$pval.random <- meta2$pval.common
-    ##
-    if (!inherits(meta1, "trimfill") & inherits(meta2, "trimfill"))
-      res$w.random <- meta2$w.common[seq_along(res$w.random)]
-    else if (inherits(meta1, "trimfill") & !inherits(meta2, "trimfill")) {
-      res$w.random[res$w.random != 0] <- 0
-      res$w.random[seq_along(meta2$w.common)] <-
-        meta2$w.common
-    }
-    else
-      res$w.random <- meta2$w.common
-    ##
+    meta2$method.predict <- NULL
+    meta2$adhoc.hakn.pi <- NULL
+    meta2$seTE.predict <- NULL
+    meta2$df.predict <- NULL
+    meta2$lower.predict <- NULL
+    meta2$upper.predict <- NULL
+    meta2$seTE.hakn.pi <- NULL
+    meta2$seTE.hakn.adhoc.pi <- NULL
+    #      
     if (!is.null(meta2$subgroup)) {
-      res$TE.random.w <- meta2$TE.common.w
-      res$seTE.random.w <- meta2$seTE.common.w
-      res$lower.random.w <- meta2$lower.common.w
-      res$upper.random.w <- meta2$upper.common.w
-      res$statistic.random.w <- meta2$statistic.common.w
-      res$pval.random.w <- meta2$pval.common.w
-      res$w.random.w <- meta2$w.common.w
+      meta2$TE.random.w <- NULL
+      meta2$seTE.random.w <- NULL
+      meta2$statistic.random.w <- NULL
+      meta2$pval.random.w <- NULL
+      meta2$df.random.w <- NULL
+      meta2$lower.random.w <- NULL
+      meta2$upper.random.w <- NULL
+      meta2$w.random.w <- NULL
+      meta2$df.hakn.w <- NULL
+      meta2$df.kero.w <- NULL
       ##
-      res$Q.w.random <- meta2$Q.w.common
-      res$pval.Q.w.random <- meta2$pval.Q.w.common
+      meta2$seTE.predict.w <- NULL
+      meta2$df.predict.w <- NULL
+      meta2$lower.predict.w <- NULL
+      meta2$upper.predict.w <- NULL
       ##
-      res$Q.b.random <- meta2$Q.b.common
-      res$pval.Q.b.random <- meta2$pval.Q.b.common
+      meta2$Q.w.random <- NULL
+      meta2$pval.Q.w.random <- NULL
+      ##
+      meta2$Q.b.random <- NULL
+      meta2$pval.Q.b.random <- NULL
     }
   }
-  else {
-    if (!missing(text.pooled2))
-      res$text.random <- text.pooled2
-    else {
-      if (inherits(meta2, "trimfill"))
-        res$text.random <-
-          paste(meta2$text.random, "(trim-and-fill)")
-      else
-        res$text.random <- meta2$text.random
-    }
+  
+  
+  ##
+  ##
+  ## (6) Merge results
+  ##
+  ##
+  if (is.null(res$w.common) & !is.null(meta2$w.common))
+    res$w.common <- meta2$w.common
+  ##
+  res$TE.common <- c(res$TE.common, meta2$TE.common)
+  res$seTE.common <- c(res$seTE.common, meta2$seTE.common)
+  res$statistic.common <- c(res$statistic.common, meta2$statistic.common)
+  res$pval.common <- c(res$pval.common, meta2$pval.common)
+  res$lower.common <- c(res$lower.common, meta2$lower.common)
+  res$upper.common <- c(res$upper.common, meta2$upper.common)
+  res$zval.common <- c(res$zval.common, meta2$zval.common)
+  res$text.common <- c(res$text.common, meta2$text.common)
+  ##
+  if (!is.null(meta1$subgroup) | !is.null(meta2$subgroup)) {
+    if (is.null(res$w.common.w) & !is.null(meta2$w.common.w))
+      res$w.common.w <- meta2$w.common.w
     ##
-    if (!missing(text.w.pooled2))
-      res$text.w.random <- text.w.pooled2
-    else
-      res$text.w.random <- meta2$text.w.random
+    res$TE.common.w <- c(res$TE.common.w, meta2$TE.common.w)
+    res$seTE.common.w <- c(res$seTE.common.w, meta2$seTE.common.w)
+    res$statistic.common.w <-
+      c(res$statistic.common.w, meta2$statistic.common.w)
+    res$pval.common.w <- c(res$pval.common.w, meta2$pval.common.w)
+    res$lower.common.w <- c(res$lower.common.w, meta2$lower.common.w)
+    res$upper.common.w <- c(res$upper.common.w, meta2$upper.common.w)
     ##
-    res$TE.random <- meta2$TE.random
-    res$seTE.random <- meta2$seTE.random
-    res$lower.random <- meta2$lower.random
-    res$upper.random <- meta2$upper.random
-    res$statistic.random <- meta2$statistic.random
-    res$pval.random <- meta2$pval.random
-    ##
-    if (!inherits(meta1, "trimfill") & inherits(meta2, "trimfill"))
-      res$w.random <- meta2$w.random[seq_along(res$w.random)]
-    else if (inherits(meta1, "trimfill") & !inherits(meta2, "trimfill")) {
-      res$w.random[res$w.random != 0] <- 0
-      res$w.random[seq_along(meta2$w.random)] <-
-        meta2$w.random
-    }
-    else
-      res$w.random <- meta2$w.random
-    ##
-    if (!is.null(meta2$subgroup)) {
-      res$TE.random.w <- meta2$TE.random.w
-      res$seTE.random.w <- meta2$seTE.random.w
-      res$lower.random.w <- meta2$lower.random.w
-      res$upper.random.w <- meta2$upper.random.w
-      res$statistic.random.w <- meta2$statistic.random.w
-      res$pval.random.w <- meta2$pval.random.w
-      res$w.random.w <- meta2$w.random.w
+    if (is.null(meta1$subgroup)) {
+      res$Q.w.common <- meta2$Q.w.common
+      res$pval.Q.w.common <- meta2$pval.Q.w.common
       ##
+      res$Q.b.common <- meta2$Q.b.common
+      res$pval.Q.b.common <- meta2$pval.Q.b.common
+    }
+  }
+  ##
+  if (is.null(res$w.random) & !is.null(meta2$w.random))
+    res$w.random <- meta2$w.random
+  ##
+  res$TE.random <- c(res$TE.random, meta2$TE.random)
+  res$seTE.random <- c(res$seTE.random, meta2$seTE.random)
+  res$statistic.random <- c(res$statistic.random, meta2$statistic.random)
+  res$pval.random <- c(res$pval.random, meta2$pval.random)
+  res$method.random.ci <- c(res$method.random.ci, meta2$method.random.ci)
+  res$df.random <- c(res$df.random, meta2$df.random)
+  res$lower.random <- c(res$lower.random, meta2$lower.random)
+  res$upper.random <- c(res$upper.random, meta2$upper.random)
+  res$zval.random <- c(res$zval.random, meta2$zval.random)
+  res$seTE.classic <- c(res$seTE.classic, meta2$seTE.classic)
+  res$adhoc.hakn.ci <- c(res$adhoc.hakn.ci, meta2$adhoc.hakn.ci)
+  res$df.hakn <- c(res$df.hakn, meta2$df.hakn)
+  res$seTE.hakn.ci <- c(res$seTE.hakn.ci, meta2$seTE.hakn.ci)
+  res$seTE.hakn.adhoc.ci <-
+    c(res$seTE.hakn.adhoc.ci, meta2$seTE.hakn.adhoc.ci)
+  res$df.kero <- c(res$df.kero, meta2$df.kero)
+  res$seTE.kero <- c(res$seTE.kero, meta2$seTE.kero)
+  res$text.random <- c(res$text.random, meta2$text.random)
+  ##
+  res$method.predict <- c(res$method.predict, meta2$method.predict)
+  res$adhoc.hakn.pi <- c(res$adhoc.hakn.pi, meta2$adhoc.hakn.pi)
+  res$seTE.predict <- c(res$seTE.predict, meta2$seTE.predict)
+  res$df.predict <- c(res$df.predict, meta2$df.predict)
+  res$lower.predict <- c(res$lower.predict, meta2$lower.predict)
+  res$upper.predict <- c(res$upper.predict, meta2$upper.predict)
+  res$seTE.hakn.pi <- c(res$seTE.hakn.pi, meta2$seTE.hakn.pi)
+  res$seTE.hakn.adhoc.pi <-
+    c(res$seTE.hakn.adhoc.pi, meta2$seTE.hakn.adhoc.pi)
+  ##      
+  if (!is.null(meta1$subgroup) | !is.null(meta2$subgroup)) {
+    if (is.null(res$w.random.w) & !is.null(meta2$w.random.w))
+      res$w.random.w <- meta2$w.random.w
+    ##
+    res$TE.random.w <- c(res$TE.random.w, meta2$TE.random.w)
+    res$seTE.random.w <- c(res$seTE.random.w, meta2$seTE.random.w)
+    res$statistic.random.w <-
+      c(res$statistic.random.w, meta2$statistic.random.w)
+    res$pval.random.w <- c(res$pval.random.w, meta2$pval.random.w)
+    res$df.random.w <- c(res$df.random.w, meta2$df.random.w)
+    res$lower.random.w <- c(res$lower.random.w, meta2$lower.random.w)
+    res$upper.random.w <- c(res$upper.random.w, meta2$upper.random.w)
+    res$w.random.w <- c(res$w.random.w, meta2$w.random.w)
+    res$df.hakn.w <- c(res$df.hakn.w, meta2$df.hakn.w)
+    res$df.kero.w <- c(res$df.kero.w, meta2$df.kero.w)
+    ##
+    res$seTE.predict.w <- c(res$seTE.predict.w, meta2$seTE.predict.w)
+    res$df.predict.w <- c(res$df.predict.w, meta2$df.predict.w)
+    res$lower.predict.w <- c(res$lower.predict.w, meta2$lower.predict.w)
+    res$upper.predict.w <- c(res$upper.predict.w, meta2$upper.predict.w)
+    ##
+    if (is.null(meta1$subgroup)) {
       res$Q.w.random <- meta2$Q.w.random
       res$pval.Q.w.random <- meta2$pval.Q.w.random
       ##
@@ -508,37 +706,14 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   
   
   ##
-  ## Additional settings
   ##
-  if (is.copas | is.limit | is.robu)
-    meta2$method <- "Inverse"
+  ## (7) More settings
+  ##
   ##
   if (!is.null(meta2$method))
     res$method <- if (meta1$method == meta2$method) meta1$method else ""
   else
     res$method <- meta1$method
-  ##
-  if (is.copas)
-    meta2$method.tau <- "ML"
-  else if (is.limit)
-    meta2$method.tau <- meta1$method.tau
-  else if (is.robu)
-    meta2$method.tau <- "DL"
-  ##
-  if (is.null(meta2$method.tau))
-    meta2$method.tau <- ""
-  ##
-  if (is.null(meta2$method.tau.ci))
-    meta2$method.tau.ci <- ""
-  ##
-  if (!is.null(meta2$hakn) && meta2$hakn) {
-    res$hakn <- meta2$hakn
-    res$adhoc.hakn <- meta2$adhoc.hakn
-    res$df.hakn <- meta2$df.hakn
-    res$seTE.hakn <- meta2$seTE.hakn
-    res$seTE.hakn.adhoc <- meta2$seTE.hakn.adhoc
-    res$seTE.classic <- meta2$seTE.classic
-  }
   ##
   if (!is.null(meta1$Q.Cochrane) & !is.null(meta2$Q.Cochrane))
     res$Q.Cochrane <-
@@ -558,7 +733,7 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     res$se.tau <- NA
   }
   ##
-  if (pooled1 == "common" & pooled2 == "random") {
+  else if (pooled1 == "common" & pooled2 %in% c("both", "random")) {
     res$method.tau <- meta2$method.tau
     res$method.tau.ci <- meta2$method.tau.ci    
     ##
@@ -590,7 +765,8 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
       res$se.tau <- meta2$se.tau
     }
   }
-  else if (pooled1 == "random" & pooled2 == "random") {
+  else if (pooled1 %in% c("both", "random") &
+           pooled2 %in% c("both", "random")) {
     if (is.copas) {
       if (res$method.tau != "ML" & res$detail.tau == "") {
         res$detail.tau <- res$method.tau
@@ -657,7 +833,14 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
     }
   }
   ##
-  res$common <- res$random <- TRUE
+  res$common <-
+    pooled1 %in% c("both", "common") |
+    pooled2 %in% c("both", "common")
+  ##
+  res$random <-
+    pooled1 %in% c("both", "random") |
+    pooled2 %in% c("both", "random")
+  ##
   res$backtransf <- backtransf
   ##
   res$pooled1 <- pooled1

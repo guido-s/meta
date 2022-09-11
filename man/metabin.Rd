@@ -15,32 +15,33 @@ metabin(
   exclude = NULL,
   cluster = NULL,
   method = ifelse(tau.common, "Inverse", gs("method")),
-  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch =
-    NA)), "OR", gs("smbin")),
+  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch = NA)),
+    "OR", gs("smbin")),
   incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
+  level = gs("level"),
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
   Q.Cochrane = gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
   model.glmm = gs("model.glmm"),
-  level = gs("level"),
-  level.ma = gs("level.ma"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  method.random.ci = gs("method.random.ci"),
-  adhoc.hakn = gs("adhoc.hakn"),
+  prediction = gs("prediction"),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
-  prediction = gs("prediction"),
+  level.ma = gs("level.ma"),
+  method.random.ci = gs("method.random.ci"),
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   method.bias = ifelse(sm == "OR", "Harbord", ifelse(sm == "DOR", "Deeks",
     gs("method.bias"))),
   backtransf = gs("backtransf"),
@@ -65,6 +66,7 @@ metabin(
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   hakn,
+  adhoc.hakn,
   print.CMH = gs("print.CMH"),
   keepdata = gs("keepdata"),
   warn = gs("warn"),
@@ -125,6 +127,9 @@ events in both groups are to be included in the meta-analysis
 (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
 or \code{"DOR"}).}
 
+\item{level}{The level used to calculate confidence intervals for
+individual studies.}
+
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
 added to cell frequencies for studies with a zero cell count to
 calculate the pooled estimate based on the Mantel-Haenszel
@@ -145,12 +150,6 @@ preparing and maintaining Cochrane reviews.}
 be used.  One of \code{"UM.FS"}, \code{"UM.RS"}, \code{"CM.EL"},
 and \code{"CM.AL"}, see Details.}
 
-\item{level}{The level used to calculate confidence intervals for
-individual studies.}
-
-\item{level.ma}{The level used to calculate confidence intervals
-for meta-analysis estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
@@ -167,14 +166,8 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
-random effects estimate (see \code{\link{meta-package}}).}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{meta-package}}).}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -188,13 +181,22 @@ used to estimate the confidence interval of \eqn{\tau^2} and
 between-study variance \eqn{\tau^2}.}
 
 \item{TE.tau}{Overall treatment effect used to estimate the
-between-study variance \eqn{\tau^2}.}
+between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
@@ -202,6 +204,10 @@ interval for a new study.}
 \item{method.predict}{A character string indicating which method is
 used to calculate a prediction interval (see
 \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{method.bias}{A character string indicating which test for
 funnel plot asymmetry is to be used. Either \code{"Begg"},
@@ -270,6 +276,8 @@ intervals should be printed for subgroups.}
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{hakn}{Deprecated argument (replaced by 'method.random.ci').}
+
+\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be

@@ -373,7 +373,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
       statistic.random.w =
         if (!sel.r) m.i$statistic.common else m.i$statistic.random,
       pval.common.w = if (!sel.r) m.i$pval.common else m.i$pval.random,
+      ##
+      df.random.w = replaceNULL(m.i$df.random),
       df.hakn.w = replaceNULL(m.i$df.hakn),
+      df.kero.w = replaceNULL(m.i$df.kero),
       w.random.w = 0, # sum(m.i$w.random),
       ##
       n.harmonic.mean.w =
@@ -394,12 +397,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
       pval.Q.w = if (!sel.r) NA else m.i$pval.Q,
       ##
       tau2.w = if (!sel.r) NA else m.i$tau2,
-      se.tau2.w = if (!sel.r) NA else m.i$se.tau2,
-      lower.tau2.w = if (!sel.r) NA else m.i$lower.tau2,
-      upper.tau2.w = if (!sel.r) NA else m.i$upper.tau2,
       tau.w = if (!sel.r) NA else m.i$tau,
-      lower.tau.w = if (!sel.r) NA else m.i$lower.tau,
-      upper.tau.w = if (!sel.r) NA else m.i$upper.tau,
       H.w = if (!sel.r) NA else m.i$H,
       lower.H.w = if (!sel.r) NA else m.i$lower.H,
       upper.H.w = if (!sel.r) NA else m.i$upper.H,
@@ -435,7 +433,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            ##
                            n.e = replaceNULL(m.i$n.e.w),
                            n.c = replaceNULL(m.i$n.c.w),
+                           ##
+                           df.random = replaceNULL(m.i$df.random.w),
                            df.hakn = replaceNULL(m.i$df.hakn.w),
+                           df.kero = replaceNULL(m.i$df.kero.w),
                            ##
                            n.harmonic.mean =
                              replaceNULL(m.i$n.harmonic.mean.w),
@@ -450,12 +451,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            df.Q = m.i$k.w - 1,
                            pval.Q = pvalQ(m.i$Q.w, m.i$k.w - 1),
                            ##
-                           tau2 = m.i$tau.w^2,
-                           lower.tau2 = m.i$lower.tau2.w,
-                           upper.tau2 = m.i$upper.tau2.w,
+                           tau2 = m.i$tau2.w,
                            tau = m.i$tau.w,
-                           lower.tau = m.i$lower.tau.w,
-                           upper.tau = m.i$upper.tau.w,
                            H = m.i$H.w,
                            lower.H = m.i$lower.H.w,
                            upper.H = m.i$upper.H.w,
@@ -480,7 +477,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
                            ##
                            n.e = sum(replaceNULL(m.i$n.e)),
                            n.c = sum(replaceNULL(m.i$n.c)),
+                           ##
+                           df.random = replaceNULL(m.i$df.random),
                            df.hakn = replaceNULL(m.i$df.hakn),
+                           df.kero = replaceNULL(m.i$df.kero),
                            ##
                            n.harmonic.mean =
                              1 / mean(1 / replaceNULL(m.i$n)),
@@ -534,7 +534,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
                             upper.random = m.i$upper.random,
                             statistic.random = m.i$statistic.random,
                             pval.random = m.i$pval.random,
+                            ##
+                            df.random = replaceNULL(m.i$df.random),
                             df.hakn = replaceNULL(m.i$df.hakn),
+                            df.kero = replaceNULL(m.i$df.kero),
                             ##
                             n.harmonic.mean.ma =
                               1 / mean(1 / replaceNULL(m.i$n)),
@@ -542,6 +545,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
                               1 / mean(1 / replaceNULL(m.i$time)),
                             ##
                             seTE.predict = m.i$seTE.predict,
+                            df.predict = m.i$df.predict,
                             lower.predict = m.i$lower.predict,
                             upper.predict = m.i$upper.predict,
                             ##
@@ -582,11 +586,13 @@ metabind <- function(..., name = NULL, pooled = NULL,
                             stringsAsFactors = FALSE)
     ##
     if (i == 1) {
+      ##print(data.i)
       data <- data.i
       overall <- overall.i
       subgroup <- subgroup.i
     }
     else {
+      ##print(data.i)
       data <- rbind(data, data.i)
       overall <- rbind(overall, overall.i)
       subgroup <- rbind(subgroup, subgroup.i)
@@ -631,7 +637,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
     overall.hetstat <- FALSE
   }
   ##
-  if (length(unique(meth$hakn)) != 1) {
+  if (length(unique(meth$method.random.ci)) != 1) {
+    meth$method.random.ci <- "classic"
     meth$hakn <- FALSE
   }
   ##
@@ -798,9 +805,13 @@ metabind <- function(..., name = NULL, pooled = NULL,
   res$upper.random <- makeunique(res$upper.random)
   res$statistic.random <- makeunique(res$statistic.random)
   res$pval.random <- makeunique(res$pval.random)
+  ##
+  res$df.random <- makeunique(res$df.random)
   res$df.hakn <- makeunique(res$df.hakn)
+  res$df.kero <- makeunique(res$df.kero)
   ##
   res$seTE.predict <- makeunique(res$seTE.predict)
+  res$df.predict <- makeunique(res$df.predict)
   res$lower.predict <- makeunique(res$lower.predict)
   res$upper.predict <- makeunique(res$upper.predict)
   ##

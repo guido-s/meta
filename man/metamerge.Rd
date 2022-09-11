@@ -25,19 +25,19 @@ metamerge(
 
 \item{pooled1}{A character string indicating whether results of
 common effect or random effects model should be considered for
-first meta-analysis. Either \code{"common"} or \code{"random"},
-can be abbreviated.}
+first meta-analysis. Either \code{"both"}, \code{"common"} or
+\code{"random"}, can be abbreviated.}
 
 \item{pooled2}{A character string indicating whether results of
 common effect or random effects model should be considered for
-second meta-analysis. Either \code{"common"} or \code{"random"},
-can be abbreviated.}
+second meta-analysis. Either \code{"both"}, \code{"common"} or
+\code{"random"}, can be abbreviated.}
 
 \item{text.pooled1}{A character string used in printouts and forest
-plot to label the estimate from the first meta-analysis.}
+plot to label the estimates from the first meta-analysis.}
 
 \item{text.pooled2}{A character string used in printouts and forest
-plot to label the estimate from the second meta-analysis.}
+plot to label the estimates from the second meta-analysis.}
 
 \item{text.w.pooled1}{A character string used to label weights of
 the first meta-analysis.}
@@ -104,7 +104,8 @@ The following list elements have a different meaning:
 This function can be used to merge pooled results of two
 meta-analyses into a single meta-analysis object. This is, for
 example, useful to produce a forest plot of a random-effects
-meta-analysis with and without using the Hartung-Knapp method.
+meta-analysis with different estimates of the between-study
+variance \eqn{\tau^2}.
 }
 \details{
 In R package \bold{meta}, objects of class \code{"meta"} contain
@@ -116,8 +117,8 @@ meta-analysis or a sensitivity analysis.
 Applications of this function include printing and plotting results
 of the common effect or random effects meta-analysis and the
 \itemize{
-\item Hartung-Knapp method (see argument \code{hakn} in
-  \code{\link{metagen}}),
+\item Hartung-Knapp method (see argument \code{method.random.ci} in
+  \code{\link{meta-object}}),
 \item trim-and-fill method (\code{\link{trimfill}}),
 \item limit meta-analyis (\code{\link[metasens]{limitmeta}} from R
   package \bold{metasens}),
@@ -154,13 +155,13 @@ individual study results.
 data(Fleiss1993cont)
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "MD", common = FALSE,
-  text.random = "Classic random effects", text.w.random = "RE")
+  data = Fleiss1993cont, sm = "MD",
+  text.random = "Random effects model (REML)", text.w.random = "DL")
 #
 # Use Hartung-Knapp method
 #
-m2 <- update(m1, method.random.ci = "HK",
-  text.random = "Hartung-Knapp method", text.w.random = "HK")
+m2 <- update(m1, method.tau = "DL", common = FALSE,
+  text.random = "Random effects model (DL)", text.w.random = "DL")
 #
 # Merge results of the two meta-analyses
 #
@@ -168,15 +169,13 @@ m12 <- metamerge(m1, m2)
 m12
 forest(m12, rightcols = c("effect", "ci", "w.common"))
 
-# Show results for DerSimonian-Laird and REML estimate of
+# Show results for DerSimonian-Laird and Paule-Mandel estimate of
 # between-study variance
 #
-m3 <- update(m1,
-  text.random = "Random effects moded (DL)", text.w.random = "DL")
-m4 <- update(m1, method.tau = "REML",
-  text.random = "Random effects moded (REML)", text.w.random = "REML")
+m3 <- update(m1, method.tau = "PM",
+  text.random = "Random effects moded (PM)", text.w.random = "PM")
 #
-m34 <- metamerge(m3, m4)
+m34 <- metamerge(m2, m3)
 m34
 
 data(Fleiss1993bin)

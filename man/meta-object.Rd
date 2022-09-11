@@ -73,13 +73,15 @@ components.
 \code{lower.random} \tab Lower confidence limit (random effects model) \cr
 \code{upper.random} \tab Upper confidence limit (random effects model) \cr
 \code{seTE.classic} \tab Standard error (classic random effects method) \cr
-\code{adhoc.hakn} \tab \emph{Ad hoc} correction for Hartung-Knapp method \cr
-\code{df.hakn} \tab Degrees of freedom for Hartung-Knapp
-  method \cr
+\code{adhoc.hakn.ci} \tab \emph{Ad hoc} correction for
+  Hartung-Knapp method (confidence interval) \cr
+\code{df.hakn} \tab Degrees of freedom for Hartung-Knapp method \cr
 \tab (if used in meta-analysis) \cr
-\code{seTE.hakn} \tab Standard error for Hartung-Knapp method \cr
-\tab (not taking \emph{ad hoc} variance correction into account) \cr
-\code{seTE.hakn.adhoc} \tab Standard error for Hartung-Knapp
+\code{seTE.hakn.ci} \tab Standard error for Hartung-Knapp method
+  \cr
+\tab (not taking \emph{ad hoc} variance correction into account)
+  \cr
+\code{seTE.hakn.adhoc.ci} \tab Standard error for Hartung-Knapp
   method \cr
 \tab (taking \emph{ad hoc} variance correction into account) \cr
 \code{df.kero} \tab Degrees of freedom for Kenward-Roger method \cr
@@ -87,12 +89,21 @@ components.
 \code{seTE.kero} \tab Standard error for Kenward-Roger
   method \cr
 \code{method.predict} \tab Method to calculate prediction interval \cr
+\code{adhoc.hakn.pi} \tab \emph{Ad hoc} correction for
+  Hartung-Knapp method (prediction interval) \cr
 \code{seTE.predict} \tab Standard error used to calculate
   prediction interval \cr
 \code{df.predict} \tab Degrees of freedom for prediction interval \cr
 \code{level.predict} \tab Level of prediction interval \cr
 \code{lower.predict} \tab Lower limit of prediction interval \cr
 \code{upper.predict} \tab Upper limit of prediction interval \cr
+\code{seTE.hakn.pi} \tab Standard error for Hartung-Knapp method
+  \cr
+\tab (not taking \emph{ad hoc} variance correction into account)
+  \cr
+\code{seTE.hakn.adhoc.pi} \tab Standard error for Hartung-Knapp
+  method \cr
+\tab (taking \emph{ad hoc} variance correction into account) \cr
 \code{Q} \tab Heterogeneity statistic \cr
 \code{df.Q} \tab Degrees of freedom for heterogeneity statistic
   \code{Q} \cr
@@ -190,11 +201,7 @@ additional components are added to the list.
 \code{Q.w} \tab Heterogeneity statistic Q in subgroups \cr
 \code{pval.Q.w} \tab P-value for test of heterogeneity in subgroups \cr
 \code{tau2.w} \tab Between-study variance \eqn{\tau^2} in subgroups \cr
-\code{lower.tau2.w} \tab Lower confidence limit for \eqn{\tau^2} in subgroups \cr
-\code{upper.tau2.w} \tab Upper confidence limit for \eqn{\tau^2} in subgroups \cr
 \code{tau.w} \tab Square-root of between-study variance \eqn{\tau} in subgroups \cr
-\code{lower.tau.w} \tab Lower confidence limit for \eqn{\tau} in subgroups \cr
-\code{upper.tau.w} \tab Upper confidence limit for \eqn{\tau} in subgroups \cr
 \code{H.w} \tab Heterogeneity statistic H in subgroups \cr
 \code{lower.H.w} \tab Lower confidence limit for H in subgroups \cr
 \code{upper.H.w} \tab Upper confidence limit for H in subgroups \cr

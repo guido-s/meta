@@ -44,7 +44,6 @@
   xlim = "symmetric",
   allstudies = TRUE,
   weight.study = NULL,
-  weight.subgroup,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
@@ -350,13 +349,6 @@ missing, \code{"same"}, \code{"common"}, or \code{"random"}, can
 be abbreviated. Plot symbols have the same size for all studies
 or represent study weights from common effect or random effects
 model.}
-
-\item{weight.subgroup}{A character string indicating weighting used
-to determine size of squares or diamonds (argument
-\code{type.subgroup}) to plot subgroup results. One of missing,
-\code{"same"}, or \code{"weight"}, can be abbreviated. Plot
-symbols have the same size for all subgroup results or represent
-subgroup weights from common effect or random effects model.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument

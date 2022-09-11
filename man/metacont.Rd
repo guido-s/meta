@@ -33,27 +33,28 @@ metacont(
   approx.sd.e,
   approx.sd.c = approx.sd.e,
   sm = gs("smcont"),
+  method.ci = gs("method.ci.cont"),
+  level = gs("level"),
   pooledvar = gs("pooledvar"),
   method.smd = gs("method.smd"),
   sd.glass = gs("sd.glass"),
   exact.smd = gs("exact.smd"),
-  method.ci = gs("method.ci.cont"),
-  level = gs("level"),
-  level.ma = gs("level.ma"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  method.random.ci = gs("method.random.ci"),
-  adhoc.hakn = gs("adhoc.hakn"),
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
-  prediction = gs("prediction") | !missing(method.predict),
+  level.ma = gs("level.ma"),
+  method.random.ci = gs("method.random.ci"),
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
   text.common = gs("text.common"),
@@ -76,6 +77,7 @@ metacont(
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   id,
+  adhoc.hakn,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -166,6 +168,13 @@ deviations in control group (see Details).}
 (\code{"MD"}, \code{"SMD"}, or \code{"ROM"}) is to be used for
 pooling of studies.}
 
+\item{method.ci}{A character string indicating which method is used
+to calculate confidence intervals for individual studies (see
+Details).}
+
+\item{level}{The level used to calculate confidence intervals for
+individual studies.}
+
 \item{pooledvar}{A logical indicating if a pooled variance should
 be used for the mean difference (\code{sm="MD"}).}
 
@@ -187,16 +196,6 @@ abbreviated.}
 be used in estimation of the standardised mean difference and its
 standard error (see Details).}
 
-\item{method.ci}{A character string indicating which method is used
-to calculate confidence intervals for individual studies (see
-Details).}
-
-\item{level}{The level used to calculate confidence intervals for
-individual studies.}
-
-\item{level.ma}{The level used to calculate confidence intervals
-for meta-analysis estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
@@ -213,14 +212,8 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
-random effects estimate (see \code{\link{meta-package}}).}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{meta-package}}).}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -239,8 +232,17 @@ between-study variance tau-squared.}
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
@@ -248,6 +250,10 @@ interval for a new study.}
 \item{method.predict}{A character string indicating which method is
 used to calculate a prediction interval (see
 \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{method.bias}{A character string indicating which test is to
 be used. Either \code{"Begg"}, \code{"Egger"}, \code{"Thompson"},
@@ -310,6 +316,8 @@ intervals should be printed for subgroups.}
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{id}{Deprecated argument (replaced by 'cluster').}
+
+\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}

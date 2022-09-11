@@ -27,8 +27,9 @@
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
   method.random.ci = object$method.random.ci,
-  adhoc.hakn = object$adhoc.hakn,
+  adhoc.hakn.ci = object$adhoc.hakn.ci,
   method.predict = object$method.predict,
+  adhoc.hakn.pi = object$adhoc.hakn.pi,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
   tau.preset = object$tau.preset,
@@ -143,7 +144,7 @@ should be used.}
 individual studies.}
 
 \item{level.ma}{The level used to calculate confidence intervals
-for pooled estimates.}
+for meta-analysis estimates.}
 
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
@@ -163,32 +164,34 @@ level.}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for
-random effects estimate. Either \code{"DL"}, \code{"HK"}, or
-\code{"KR"} (see \code{\link{metagen}}), can be abbreviated.}
+random effects estimate (see \code{\link{meta-package}}).}
 
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{metagen}}).}
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{method.predict}{A character string indicating which method is
-used to calculate a prediction interval. Either, \code{"HTS"},
-\code{"KR"}, \code{"NNF"}, or \code{"S"} (see
-\code{\link{metagen}}), can be abbreviated.}
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau} (see \code{\link{metagen}}).}
+square root \eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau} (see \code{\link{metagen}}).}
+\eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
 \item{TE.tau}{Overall treatment effect used to estimate the
-between-study variance \eqn{\tau^2}.}
+between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}

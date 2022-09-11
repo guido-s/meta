@@ -146,3 +146,39 @@ setmethodbias <- function(x, subset) {
   ##
   res
 }
+setmethodtau <- function(method.tau, missing.tau,
+                         method.predict, missing.predict,
+                         warn = TRUE) {
+  if (method.tau != "REML" & any(method.predict == "KR")) {
+    if (missing.tau & !missing.predict) {
+      if (warn)
+        warning("Argument 'method.tau' set to \"REML\" as ",
+                "'method.predict' = \"KR\".",
+                call. = FALSE)
+      ##
+      method.tau <- "REML"
+    }
+  }
+  ##
+  method.tau
+}
+setmethodpredict <- function(method.predict, missing.predict,
+                             method.tau, missing.tau,
+                             warn = TRUE) {
+  if (method.tau != "REML" & any(method.predict == "KR")) {
+    if (!missing.tau & missing.predict) {
+      method.predict[method.predict == "KR"] <- "HTS"
+    }
+    else if (!missing.tau & !missing.predict) {
+      if (warn)
+        warning("Argument 'method.predict' set to \"HTS\" instead of ",
+                "\"KR\" as 'method.tau' != \"REML\".",
+                call. = FALSE)
+      method.predict[method.predict == "KR"] <- "HTS"
+    }
+    else
+      method.predict[method.predict == "KR"] <- "HTS"
+  }
+  ##
+  method.predict
+}

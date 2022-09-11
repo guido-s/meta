@@ -1,6 +1,10 @@
-## meta, version 5.6-0 (2022-mm-dd)
+## meta, version 6.0-0 (2022-mm-dd)
 
 ### Major changes
+
+* Meta-analysis object can contain results of several random effects
+  methods, e.g., random effects meta-analysis with or without
+  Hartung-Knapp method
 
 * Kenward-Roger method implemented to estimate confidence or
   prediction interval [(Partlett & Riley,
@@ -41,13 +45,11 @@
 
 ### User-visible changes
 
-* Argument 'hakn' replaced by 'method.random.ci' in functions
-  metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
-  metaprop() and metarate()
-
-* New argument 'method.predict' in functions metabin(), metacont(),
-  metacor(), metagen(), metainc(), metamean(), metaprop() and
-  metarate()
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop() and metarate():
+  - argument 'hakn' replaced by 'method.random.ci'
+  - argument 'adhoc.hakn' replaced by 'adhoc.hakn.ci'
+  - new arguments 'method.predict' and 'adhoc.hakn.pi'
 
 * settings.meta():
   - several new arguments added to define defaults for forest plots;
@@ -57,6 +59,10 @@
   - argument 'col.by' has been renamed to 'col.subgroup',
   - argument 'bysort' has been renamed to 'sort.subgroup'
 
+* trimfill.meta():
+  - arguments 'level', 'level.ma', 'method.random.ci', 'adhoc.hakn',
+    'method.tau', 'method.tau.ci', 'level.predict', and
+    'method.predict' removed
 
 ## meta, version 5.5-0 (2022-07-11)
 

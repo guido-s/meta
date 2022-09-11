@@ -2,10 +2,11 @@ catmeth <- function(method,
                     method.tau = NULL,
                     sm = "",
                     k.all,
-                    method.random.ci = "DL",
+                    method.random.ci = "",
                     df.random = NA,
-                    adhoc.hakn = "",
+                    adhoc.hakn.ci = "",
                     method.predict = "",
+                    adhoc.hakn.pi = "",
                     df.predict = NA,
                     class = "",
                     tau.common = FALSE,
@@ -40,6 +41,7 @@ catmeth <- function(method,
                     three.level = FALSE
                     ) {
   
+  
   metabin  <- "metabin"  %in% class
   metacont <- "metacont" %in% class
   metainc  <- "metainc"  %in% class
@@ -47,9 +49,17 @@ catmeth <- function(method,
   metarate <- "metarate" %in% class
   trimfill <- "trimfill" %in% class
   metamiss <- "metamiss" %in% class
+  ##
+  allstudies <- replaceNULL(allstudies, FALSE)
+  doublezeros <- replaceNULL(doublezeros, FALSE)
+  ##
+  method.ci <- replaceNULL(method.ci, "")
+  ##
+  method.random.ci <- replaceNULL(method.random.ci, "")
+  adhoc.hakn.ci <- replaceNULL(adhoc.hakn.ci, "")
+  method.predict <- replaceNULL(method.predict, "")
+  adhoc.hakn.pi <- replaceNULL(adhoc.hakn.pi, "")
   
-  if (is.null(allstudies)) allstudies <- FALSE
-  if (is.null(doublezeros)) doublezeros <- FALSE
   
   if (sm == "ZCOR")
     sm.details <- "\n- Fisher's z transformation of correlations"
@@ -78,41 +88,39 @@ catmeth <- function(method,
   else
     sm.details <- ""
   ##
-  if (!is.null(method.ci)) {
-    if (method.ci == "CP")
-      method.ci.details <-
-        "\n- Clopper-Pearson confidence interval for individual studies"
-    else if (method.ci == "WS")
-      method.ci.details <-
-        "\n- Wilson Score confidence interval for individual studies"
-    else if (method.ci == "WSCC")
-      method.ci.details <-
-        paste0("\n- Wilson Score confidence interval with ",
-               "continuity correction\n", "  for individual studies")
-    else if (method.ci == "AC")
-      method.ci.details <-
-        "\n- Agresti-Coull confidence interval for individual studies"
-    else if (method.ci == "SA")
-      method.ci.details <-
-        "\n- Simple approximation confidence interval for individual studies"
-    else if (method.ci == "SACC")
-      method.ci.details <-
-        paste0("\n- Simple approximation confidence interval with ",
-               "continuity correction for individual studies")
-    else if (method.ci == "NAsm")
-      method.ci.details <-
-        "\n- Normal approximation confidence interval for individual studies"
-    else if (method.ci == "Poisson")
-      method.ci.details <-
-        "\n- Exact Poisson confidence interval for individual studies"
-    else if (method.ci == "t")
-      method.ci.details <-
-        "\n- Confidence interval for individual studies based on t-distribution"
-    else
-      method.ci.details <- ""
-    ##
-    sm.details <- paste0(sm.details, method.ci.details)
-  }
+  if (method.ci == "CP")
+    method.ci.details <-
+      "\n- Clopper-Pearson confidence interval for individual studies"
+  else if (method.ci == "WS")
+    method.ci.details <-
+      "\n- Wilson Score confidence interval for individual studies"
+  else if (method.ci == "WSCC")
+    method.ci.details <-
+      paste0("\n- Wilson Score confidence interval with ",
+             "continuity correction\n", "  for individual studies")
+  else if (method.ci == "AC")
+    method.ci.details <-
+      "\n- Agresti-Coull confidence interval for individual studies"
+  else if (method.ci == "SA")
+    method.ci.details <-
+      "\n- Simple approximation confidence interval for individual studies"
+  else if (method.ci == "SACC")
+    method.ci.details <-
+      paste0("\n- Simple approximation confidence interval with ",
+             "continuity correction for individual studies")
+  else if (method.ci == "NAsm")
+    method.ci.details <-
+      "\n- Normal approximation confidence interval for individual studies"
+  else if (method.ci == "Poisson")
+    method.ci.details <-
+      "\n- Exact Poisson confidence interval for individual studies"
+  else if (method.ci == "t")
+    method.ci.details <-
+      "\n- Confidence interval for individual studies based on t-distribution"
+  else
+    method.ci.details <- ""
+  ##
+  sm.details <- paste0(sm.details, method.ci.details)
   ##
   if (metacont && sm == "SMD" && !is.null(method.smd)) {
     if (method.smd == "Hedges")
@@ -326,59 +334,101 @@ catmeth <- function(method,
         lab.method.tau <- paste0(lab.method.tau, lab.tau.ci)
       }
       ##
-      if (is.null(method.random.ci))
-        method.random.ci <- ""
-      if (method.random.ci == "HK") {
+      ## Method to calculate random effects confidence interval
+      ##
+      lab.random.ci <- ""
+      ##
+      if (any(method.random.ci == "HK")) {
         lab.random.ci <-
-          paste0("\n- Hartung-Knapp adjustment for ",
+          paste0("\n- Hartung-Knapp (HK) adjustment for ",
                  "random effects model (df = ",
-                 df.random, ")")
-        if (adhoc.hakn != "")
+                 unique(df.random[method.random.ci == "HK"]), ")")
+        ##
+        if (any(adhoc.hakn.ci != ""))
           lab.random.ci <-
             paste0(lab.random.ci,
-                   "\n  (with ad hoc ",
-                   if (adhoc.hakn == "se")
-                     "variance correction"
-                   else if (adhoc.hakn == "iqwig6")
-                     "variance correction, IQWiG, general methods 6"
-                   else if (adhoc.hakn == "ci")
-                     "correction based on confidence limits",
-                   ")")
+                   "\n  (with ",
+                   if (any(method.random.ci == "HK" & adhoc.hakn.ci == ""))
+                     "and without ",
+                   "ad hoc correction)")
       }
-      else if (method.random.ci == "KR") {
+      ##
+      if (any(method.random.ci == "classic-KR")) {
         lab.random.ci <-
-          paste0("\n- Kenward-Roger adjustment for ",
-                 "random effects model (df = ",
-                 round(df.random, 4), ")")
+          paste0(lab.random.ci,
+                 "\n- Classic method instead of Kenward-Roger adjustment ",
+                 "(classic-KR) used for random effects model")
       }
-      else
-        lab.random.ci <- ""
+      ##
+      if (any(method.random.ci == "KR")) {
+        lab.random.ci <-
+          paste0(lab.random.ci,
+                 "\n- Kenward-Roger (KR) adjustment for ",
+                 "random effects model (df = ",
+                 unique(df.random[method.random.ci == "KR"]), ")")
+      }
       ##      
       lab.method.details <- paste0(lab.method.tau, lab.random.ci)
       ##
-      if (is.null(method.predict))
-        method.predict <- ""
-      if (method.predict == "HTS") {
+      ## Method to calculate prediction interval
+      ##
+      lab.predict <- ""
+      ##
+      if (any(method.predict == "HTS")) {
+        lab.predict <-
+          paste0("\n- Prediction interval based on t-distribution (HTS) ",
+                 "(df = ", unique(df.predict[method.predict == "HTS"]), ")")
+      }
+      ##
+      if (any(method.predict == "HK")) {
+        lab.predict <-
+          paste0(lab.predict,
+                 paste0("\n- Hartung-Knapp (HK) prediction interval (df = ",
+                 unique(df.predict[method.predict == "HK"]), ")"))
+        if (any(adhoc.hakn.pi != ""))
+          lab.predict <-
+            paste0(lab.predict,
+                   "\n  (with ",
+                   if (any(method.predict == "HK" &
+                           adhoc.hakn.pi == ""))
+                     "and without ",
+                   "ad hoc correction)")
+      }
+      ##
+      if (any(method.predict == "HTS-KR")) {
         lab.predict <-
           paste0("\n- Prediction interval based on t-distribution (df = ",
-                 df.predict, ")")
+                 unique(df.predict[method.predict == "HTS"]), ") instead of ",
+                 "Kenward-Roger adjustment")
       }
-      else if (method.predict == "KR") {
+      ##
+      if (any(method.predict == "KR")) {
         lab.predict <-
-          paste0("\n- Predicton interval with Kenward-Roger adjustment (df = ",
-                 round(df.predict, 4), ")")
+          paste0(lab.predict,
+                 "\n- Kenward-Roger (KR) prediction interval (df = ",
+                 unique(df.predict[method.predict == "KR"]), ")")
       }
-      else if (method.predict == "NNF") {
+      ##
+      if (any(method.predict == "HTS-KR")) {
         lab.predict <-
-          paste0("\n- Boot-strap prediction interval (df = ",
-                 round(df.predict, 4), ")")
+          paste0(lab.predict,
+                 "\n- Kenward-Roger (KR) prediction interval (df = ",
+                 unique(df.predict[method.predict == "KR"]), ")")
       }
-      else if (method.predict == "S") {
+      ##
+      if (any(method.predict == "NNF")) {
         lab.predict <-
-          "\n- Prediction interval based on standard normal distribution"
+          paste0(lab.predict,
+                 "\n- Boot-strap prediction interval (NNF) (df = ",
+                 unique(df.predict[method.predict == "NNF"]), ")")
       }
-      else
-        lab.predict <- ""
+      ##
+      if (any(method.predict == "S")) {
+        lab.predict <-
+          paste0(lab.predict,
+                 "\n- Prediction interval based on ",
+                 "standard normal distribution (S)")
+      }
       ##      
       lab.method.details <- paste0(lab.method.details, lab.predict)
     }

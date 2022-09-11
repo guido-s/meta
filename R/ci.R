@@ -95,9 +95,6 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
               lower = lower, upper = upper,
               statistic = statistic, p = pval, level = level,
               df = df, null.effect = null.effect)
-  ##
-  if (any(df != df.orig))
-    res$df.orig <- df
-
+  
   res
 }

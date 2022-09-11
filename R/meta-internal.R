@@ -307,7 +307,7 @@ argslist.internal <-
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
     "meth4tau", "meth4tau.ci", "meth4i2",
     "meth4random.ci", "meth4pi",
-    "adhoc4hakn",
+    "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
     "meth4incr",
     "text.fixed", "text.w.fixed",
@@ -337,9 +337,10 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("q", "tau"))
-setOption("meth4random.ci", c("DL", "HK", "KR"))
-setOption("meth4pi", c("HTS", "KR", "NNF", "S"))
-setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
+setOption("meth4random.ci", c("classic", "HK", "KR"))
+setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S"))
+setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
+setOption("adhoc4hakn.pi", c("", "se"))
 ##
 setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
 setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
@@ -356,7 +357,7 @@ setOption("minor.update", 6)
 argslist <-
   c("level", "level.ma", "common", "random",
     "method.random.ci", "method.predict",
-    "adhoc.hakn",
+    "adhoc.hakn.ci", "adhoc.hakn.pi",
     "method.tau", "method.tau.ci", "tau.common",
     "method.i2",
     "prediction", "level.predict",
@@ -382,6 +383,7 @@ argslist <-
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q", "digits.forest",
+    "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "print.I2", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
@@ -423,7 +425,7 @@ argslist <-
     "addrow", "addrow.overall", "addrow.subgroups", "addrow.below.overall"
     )
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
-               "hakn",
+               "hakn", "adhoc.hakn",
                "digits.zval", "print.byvar", "byseparator",
                "addincr", "allincr")
 ##
@@ -440,9 +442,11 @@ setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
 setOption("comb.random", TRUE)
-setOption("method.random.ci", "DL")
+setOption("method.random.ci", "classic")
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")
+setOption("adhoc.hakn.ci", "")
+setOption("adhoc.hakn.pi", "")
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
 setOption("method.predict", "HTS")
@@ -487,6 +491,7 @@ setOption("digits.prop", 4)
 setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
+setOption("digits.df", 4)
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)

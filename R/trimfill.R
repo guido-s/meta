@@ -40,13 +40,16 @@
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate (see
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
 #'   \code{\link{meta-package}}).
 #' @param method.predict A character string indicating which method is
 #'   used to calculate a prediction interval (see
 #'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for the
+#'   prediction interval (see \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -168,39 +171,30 @@
 
 trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                           type = "L", n.iter.max = 50,
-                          level = x$level, level.ma = x$level.ma,
+                          ##
                           common = FALSE, random = TRUE,
-                          method.random.ci = x$method.random.ci,
-                          adhoc.hakn = x$adhoc.hakn,
-                          method.tau = x$method.tau,
-                          method.tau.ci = x$method.tau.ci,
                           prediction = x$prediction,
-                          level.predict = x$level.predict,
-                          method.predict = x$method.predict,
+                          ##
                           backtransf = x$backtransf, pscale = x$pscale,
                           irscale = x$irscale, irunit = x$irunit,
                           silent = TRUE,
                           warn.deprecated = gs("warn.deprecated"),
                           ...) {
   
-  
   ##
   ##
-  ## (1) Check for meta object
+  ## (1) Check for (inadmissible) meta object
   ##
   ##
   chkclass(x, "meta")
   ##
-  if (inherits(x, "metacum"))
-    stop("Trim-and-fill method not available for an object of ",
-         "class \"metacum\"",
-         call. = FALSE)
-  if (inherits(x, "metainf"))
-    stop("Trim-and-fill method not available for an object of ",
-         "class \"metainf\"",
-         call. = FALSE)
-  ##
   x <- updateversion(x)
+  ##
+  for (i in c("trimfill", "metacum", "metainf"))
+    if (inherits(x, i))
+      stop("Trim-and-fill method not available for an object of ",
+         "class '", i, "'",
+         call. = FALSE)
   ##
   if (x$three.level)
     stop("Trim-and-fill method not available for ",
@@ -209,69 +203,26 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   
   
   ##
-  ## Check arguments
+  ##
+  ## (2) Check arguments
+  ##
   ##
   args <- list(...)
+  ##
   ma.common <- deprecated(ma.common, missing(ma.common), args, "ma.fixed",
                           warn.deprecated)
   chklogical(ma.common)
+  ##
   type <- setchar(type, c("L", "R"))
   chknumeric(n.iter.max, min = 1, length = 1)
-  ##
-  chklevel(level)
-  chklevel(level.ma)
-  chklevel(level.predict)
   ##
   common <- deprecated(common, missing(common), args, "fixed",
                        warn.deprecated)
   chklogical(common)
   chklogical(random)
-  ##
-  method.random.ci <-
-    deprecated(method.random.ci, missing(method.random.ci),
-               args, "hakn", warn.deprecated)
-  if (is.logical(method.random.ci))
-    if (method.random.ci)
-      method.random.ci <- "HK"
-    else
-      method.random.ci <- "DL"
-  method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
-  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
-  ##
-  missing.method.tau <- missing(method.tau)
-  method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
   chklogical(prediction)
-  ##
-  missing.method.predict <- missing(method.predict)
-  method.predict <- setchar(method.predict, gs("meth4pi"))
-  if (method.predict == "NNF")
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
-  if (method.predict == "KR" & method.tau != "REML") {
-    if (missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.tau' set to \"REML\" as ",
-              "'method.predict' = \"KR\".",
-              call. = FALSE)
-      method.tau <- "REML"
-    }
-    else if (!missing.method.tau & missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else if (!missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else
-      method.predict <- "HTS"
-  }
-  ##
   chklogical(backtransf)
+  ##
   sm <- x$sm
   if (!is.prop(sm))
     pscale <- 1
@@ -329,11 +280,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   
   
-  if(length(TE) != length(seTE))
-    stop("length of argument TE and seTE must be equal")
-  ##
-  if(length(TE) != length(studlab))
-    stop("length of argument TE and studlab must be equal")
   ##
   ## Exclude studies from meta-analysis
   ##
@@ -454,7 +400,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
       metagen(TE, seTE, method.tau = "DL", method.tau.ci = "")$TE.common
   else
     TE.sum <-
-      metagen(TE, seTE, method.tau = method.tau,
+      metagen(TE, seTE, method.tau = x$method.tau,
               method.tau.ci = "")$TE.random
   
   
@@ -480,7 +426,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                           method.tau = "DL", method.tau.ci = "")$TE.common
       else
         TE.sum <- metagen(TE[sel], seTE[sel],
-                          method.tau = method.tau,
+                          method.tau = x$method.tau,
                           method.tau.ci = "")$TE.random
       ##
       trim1 <- estimate.missing(TE, TE.sum, type)
@@ -498,7 +444,8 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   }
   
   
-  if (k0 > (k - 1)) k0 <- k - 1
+  if (k0 > (k - 1))
+    k0 <- k - 1
   ##
   if (k0 > 0) {
     TE.star   <- 2 * TE.sum - TE[(k - k0 + 1):k]
@@ -592,31 +539,33 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   
   if (!left)
     m <- metagen(-TE, seTE, studlab = studlab,
-                 level = level, level.ma = level.ma,
-                 method.random.ci = method.random.ci,
-                 adhoc.hakn = adhoc.hakn,
-                 method.tau = method.tau, method.tau.ci = method.tau.ci,
-                 method.predict = method.predict,
-                 prediction = prediction, level.predict = level.predict,
+                 level = x$level, level.ma = x$level.ma,
+                 method.random.ci = x$method.random.ci,
+                 adhoc.hakn.ci = x$adhoc.hakn.ci,
+                 method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                 method.predict = x$method.predict,
+                 prediction = prediction, level.predict = x$level.predict,
+                 adhoc.hakn.pi = x$adhoc.hakn.pi,
                  null.effect = transf.null.effect)
   else
     m <- metagen(TE, seTE, studlab = studlab,
-                 level = level, level.ma = level.ma,
-                 method.random.ci = method.random.ci,
-                 adhoc.hakn = adhoc.hakn,
-                 method.tau = method.tau, method.tau.ci = method.tau.ci,
-                 method.predict = method.predict,
-                 prediction = prediction, level.predict = level.predict,
+                 level = x$level, level.ma = x$level.ma,
+                 method.random.ci = x$method.random.ci,
+                 adhoc.hakn.ci = x$adhoc.hakn.ci,
+                 method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                 method.predict = x$method.predict,
+                 prediction = prediction, level.predict = x$level.predict,
+                 adhoc.hakn.pi = x$adhoc.hakn.pi,
                  null.effect = transf.null.effect)
   
   
   ##
   ## Calculate H, I-Squared, and Rb
   ##
-  Hres  <- calcH(m$Q, m$df.Q, level.ma)
-  I2res <- isquared(m$Q, m$df.Q, level.ma)
-  Rbres <- with(m,
-                Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, level.ma))
+  Hres  <- calcH(m$Q, m$df.Q, x$level.ma)
+  I2res <- isquared(m$Q, m$df.Q, x$level.ma)
+  Rbres <-
+    with(m, Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, x$level.ma))
   
   
   ##
@@ -640,40 +589,44 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     studlab.all[!exclude] <- studlab
     ##
     if (!left)
-      m.all <- metagen(-TE.all, seTE.all, studlab = studlab.all,
-                       exclude = exclude,
-                       level = level, level.ma = level.ma,
-                       method.random.ci = method.random.ci,
-                       adhoc.hakn = adhoc.hakn,
-                       method.tau = method.tau, method.tau.ci = method.tau.ci,
-                       method.predict = method.predict,
-                       prediction = prediction, level.predict = level.predict,
-                       null.effect = transf.null.effect)
+      m <- metagen(-TE.all, seTE.all, studlab = studlab.all,
+                   exclude = exclude,
+                   level = x$level, level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.predict = x$method.predict,
+                   prediction = prediction,
+                   level.predict = x$level.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   null.effect = transf.null.effect)
     else
-      m.all <- metagen(TE.all, seTE.all, studlab = studlab.all,
-                       exclude = exclude,
-                       level = level, level.ma = level.ma,
-                       method.random.ci = method.random.ci,
-                       adhoc.hakn = adhoc.hakn,
-                       method.tau = method.tau, method.tau.ci = method.tau.ci,
-                       method.predict = method.predict,
-                       prediction = prediction, level.predict = level.predict,
-                       null.effect = transf.null.effect)
+      m <- metagen(TE.all, seTE.all, studlab = studlab.all,
+                   exclude = exclude,
+                   level = x$level, level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.predict = x$method.predict,
+                   prediction = prediction,
+                   level.predict = x$level.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   null.effect = transf.null.effect)
   }
-  else
-    m.all <- m
   
   
-  res <- list(studlab = m.all$studlab,
+  res <- list(studlab = m$studlab,
               ##
               sm = sm,
               null.effect = x$null.effect,
               ##
-              TE = m.all$TE, seTE = m.all$seTE,
-              statistic = m.all$statistic, pval = m.all$pval,
-              df = rep(NA, length(m.all$TE)),
-              level = level,
-              lower = m.all$lower, upper = m.all$upper,
+              TE = m$TE, seTE = m$seTE,
+              statistic = m$statistic, pval = m$pval,
+              df = rep(NA, length(m$TE)),
+              level = x$level,
+              lower = m$lower, upper = m$upper,
               ##
               three.level = FALSE,
               cluster = NULL,
@@ -692,31 +645,46 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               backtransf = backtransf,
               ##
               method = m$method,
+              level = x$level,
               ##
-              w.common = m.all$w.common,
+              w.common = m$w.common,
               TE.common = m$TE.common, seTE.common = m$seTE.common,
               statistic.common = m$statistic.common,
               pval.common = m$pval.common,
-              level.ma = level.ma,
-              lower.common = m$lower.common, upper.common = m$upper.common,
+              level.ma = x$level.ma,
+              lower.common = m$lower.common,
+              upper.common = m$upper.common,
               ##
-              w.random = m.all$w.random,
+              w.random = m$w.random,
               TE.random = m$TE.random, seTE.random = m$seTE.random,
               statistic.random = m$statistic.random,
               pval.random = m$pval.random,
-              method.random.ci = method.random.ci,
+              method.random.ci = x$method.random.ci,
               df.random = m$df.random,
               lower.random = m$lower.random, upper.random = m$upper.random,
+              ##
+              seTE.classic = m$seTE.classic,
+              ##
+              adhoc.hakn.ci = m$adhoc.hakn.ci,
               df.hakn = m$df.hakn,
+              seTE.hakn.ci = m$seTE.hakn.ci,
+              seTE.hakn.adhoc.ci = m$seTE.hakn.adhoc.ci,
+              ##
+              df.kero = m$df.kero,
+              seTE.kero = m$seTE.kero,
               ##
               method.predict = m$method.predict,
+              adhoc.hakn.pi = m$adhoc.hakn.pi,
               seTE.predict = m$seTE.predict,
               df.predict = m$df.predict,
-              level.predict = level.predict,
+              level.predict = x$level.predict,
               lower.predict = m$lower.predict,
               upper.predict = m$upper.predict,
+              seTE.hakn.pi = m$seTE.hakn.pi,
+              seTE.hakn.adhoc.pi = m$seTE.hakn.adhoc.pi,
               ##
               Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
+              ##
               method.tau = m$method.tau,
               method.tau.ci = m$method.tau.ci,
               tau2 = m$tau2,
@@ -724,20 +692,17 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               lower.tau2 = m$lower.tau2, upper.tau2 = m$upper.tau2,
               tau = m$tau,
               lower.tau = m$lower.tau, upper.tau = m$upper.tau,
+              detail.tau = m$detail.tau,
               sign.lower.tau = m$sign.lower.tau,
               sign.upper.tau = m$sign.upper.tau,
               ##
-              H = Hres$TE,
-              lower.H = Hres$lower,
-              upper.H = Hres$upper,
+              H = Hres$TE, lower.H = Hres$lower, upper.H = Hres$upper,
               ##
-              I2 = I2res$TE,
-              lower.I2 = I2res$lower,
-              upper.I2 = I2res$upper,
+              I2 = I2res$TE, lower.I2 = I2res$lower, upper.I2 = I2res$upper,
               ##
-              Rb = Rbres$TE,
-              lower.Rb = Rbres$lower,
-              upper.Rb = Rbres$upper,
+              Rb = Rbres$TE, lower.Rb = Rbres$lower, upper.Rb = Rbres$upper,
+              ##
+              method.bias = m$method.bias,
               ##
               text.common = x$text.common,
               text.random = x$text.random,
@@ -761,7 +726,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               type = type,
               n.iter.max = n.iter.max,
               n.iter = n.iter,
+              ##
               trimfill = trimfill,
+              ##
               class.x = class(x)[1]
               )
   ##
@@ -831,11 +798,14 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              sm = "", studlab = NULL,
                              level = 0.95, level.ma = level,
                              common = FALSE, random = TRUE,
-                             method.random.ci = "DL",
-                             method.tau = "DL",
+                             method.random.ci = gs("method.random.ci"),
+                             adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                             method.tau = gs("method.tau"),
                              method.tau.ci =
                                if (method.tau == "DL") "J" else "QP",
                              prediction = FALSE, level.predict = level,
+                             method.predict = gs("method.predict"),
+                             adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                              backtransf = TRUE, pscale = 1,
                              irscale = 1, irunit = "person-years",
                              silent = TRUE, ...) {
@@ -860,7 +830,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
   else
     studlab <- seq(along = x)
   ##
-  if (is.null(sm)) sm <- ""
+  if (is.null(sm))
+    sm <- ""
   
   
   ##
@@ -869,7 +840,22 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
   ##
   ##
   m <- metagen(x, seTE, studlab = studlab, sm = sm,
-               method.tau = "DL", method.tau.ci = "")
+               level = level, level.ma = level.ma,
+               common = common, random = random,
+               ##
+               method.random.ci = method.random.ci,
+               adhoc.hakn.ci = adhoc.hakn.ci,
+               ##
+               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               ##
+               prediction = prediction,
+               method.predict = method.predict,
+               adhoc.hakn.pi = adhoc.hakn.pi,
+               level.predict = level.predict,
+               ##
+               backtransf = backtransf, pscale = pscale,
+               irscale = irscale, irunit = irunit,
+               ...)
   
   
   ##
@@ -879,13 +865,6 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
   ##
   res <- trimfill(m, left = left, ma.common = ma.common,
                   type = type, n.iter.max = n.iter.max,
-                  level = level, level.ma = level.ma,
-                  common = common, random = random,
-                  method.random.ci = method.random.ci,
-                  method.tau = method.tau, method.tau.ci = method.tau.ci,
-                  prediction = prediction, level.predict = level.predict,
-                  backtransf = backtransf, pscale = pscale,
-                  irscale = irscale, irunit = irunit,
                   silent = silent, ...)
   
   

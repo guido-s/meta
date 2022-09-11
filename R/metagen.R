@@ -49,10 +49,42 @@
 #'   level.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
+#' @param method.tau A character string indicating which method is
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param tau.preset Prespecified value for the square root of the
+#'   between-study variance \eqn{\tau^2}.
+#' @param TE.tau Overall treatment effect used to estimate the
+#'   between-study variance tau-squared.
+#' @param tau.common A logical indicating whether tau-squared should
+#'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
 #' @param level.predict The level used to calculate prediction
 #'   interval for a new study.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
+#' @param method.bias A character string indicating which test is to
+#'   be used. Either \code{"Begg"}, \code{"Egger"}, or
+#'   \code{"Thompson"}, can be abbreviated. See function
+#'   \code{\link{metabias}}.
 #' @param n.e Number of observations in experimental group (or total
 #'   sample size in study).
 #' @param n.c Number of observations in control group.
@@ -84,33 +116,6 @@
 #'   estimate (see Details).
 #' @param approx.seTE Approximation method to estimate standard error
 #'   (see Details).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
-#'   random effects estimate (see \code{\link{meta-package}}).
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate (see
-#'   \code{\link{meta-package}}).
-#' @param method.predict A character string indicating which method is
-#'   used to calculate a prediction interval (see
-#'   \code{\link{meta-package}}).
-#' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2} and its
-#'   square root \eqn{\tau} (see \code{\link{meta-package}}).
-#' @param method.tau.ci A character string indicating which method is
-#'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau} (see \code{\link{meta-package}}).
-#' @param tau.preset Prespecified value for the square root of the
-#'   between-study variance \eqn{\tau^2}.
-#' @param TE.tau Overall treatment effect used to estimate the
-#'   between-study variance tau-squared.
-#' @param tau.common A logical indicating whether tau-squared should
-#'   be the same across subgroups.
-#' @param detail.tau Detail on between-study variance estimate.
-#' @param method.bias A character string indicating which test is to
-#'   be used. Either \code{"Begg"}, \code{"Egger"}, or
-#'   \code{"Thompson"}, can be abbreviated. See function
-#'   \code{\link{metabias}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE} (default), results for \code{sm = "OR"} are printed as odds
@@ -159,6 +164,7 @@
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param id Deprecated argument (replaced by 'cluster').
+#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -552,24 +558,27 @@ metagen <- function(TE, seTE, studlab,
                     sm = "",
                     ##
                     method.ci = if (missing(df)) "z" else "t",
-                    level = gs("level"), level.ma = gs("level.ma"),
+                    level = gs("level"),
+                    ##
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
                     overall.hetstat = common | random,
-                    ##
-                    method.random.ci = gs("method.random.ci"),
-                    adhoc.hakn = gs("adhoc.hakn"),
-                    ##
                     prediction = gs("prediction") | !missing(method.predict),
-                    level.predict = gs("level.predict"),
-                    method.predict = gs("method.predict"),
                     ##
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     detail.tau = "",
+                    ##
+                    level.ma = gs("level.ma"),
+                    method.random.ci = gs("method.random.ci"),
+                    adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                    ##
+                    level.predict = gs("level.predict"),
+                    method.predict = gs("method.predict"),
+                    adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                     ##
                     null.effect = 0,
                     ##
@@ -605,7 +614,7 @@ metagen <- function(TE, seTE, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
-                    byvar, id,
+                    byvar, id, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
                     warn = gs("warn"),
@@ -630,7 +639,6 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklevel(level)
   ##
-  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
@@ -642,30 +650,18 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.method.predict <- missing(method.predict)
   method.predict <- setchar(method.predict, gs("meth4pi"))
-  if (method.predict == "NNF")
+  ##
+  method.tau <-
+    setmethodtau(method.tau, missing.method.tau,
+                 method.predict, missing.method.predict)
+  method.predict <-
+    setmethodpredict(method.predict, missing.method.predict,
+                     method.tau, missing.method.tau)
+  ##
+  if (any(method.predict == "NNF"))
     is.installed.package("pimeta", argument = "method.predict", value = "NNF")
-  if (method.predict == "KR" & method.tau != "REML") {
-    if (missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.tau' set to \"REML\" as ",
-              "'method.predict' = \"KR\".",
-              call. = FALSE)
-      method.tau <- "REML"
-    }
-    else if (!missing.method.tau & missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else if (!missing.method.tau & !missing.method.predict) {
-      warning("Argument 'method.predict' set to \"HTS\" as ",
-              "'method.tau' != \"REML\".",
-              call. = FALSE)
-      method.predict <- "HTS"
-    }
-    else
-      method.predict <- "HTS"
-  }
+  ##
+  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
   chknumeric(null.effect, length = 1)
   ##
@@ -690,9 +686,9 @@ metagen <- function(TE, seTE, studlab,
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
-    chkchar(text.random, length = 1)
+    chkchar(text.random)
   if (!is.null(text.predict))
-    chkchar(text.predict, length = 1)
+    chkchar(text.predict)
   if (!is.null(text.w.common))
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
@@ -732,8 +728,13 @@ metagen <- function(TE, seTE, studlab,
     if (method.random.ci)
       method.random.ci <- "HK"
     else
-      method.random.ci <- "DL"
+      method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  ##
+  adhoc.hakn.ci <-
+    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
+  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
   ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
@@ -1118,9 +1119,15 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (k.all == 1) {
     common <- FALSE
+    ##
     random <- FALSE
+    method.random.ci <- "classic"
+    adhoc.hakn.ci <- ""
+    ##
     prediction <- FALSE
     method.predict <- "HTS"
+    adhoc.hakn.pi <- ""
+    ##
     overall <- FALSE
     overall.hetstat <- FALSE
   }
@@ -1509,11 +1516,14 @@ metagen <- function(TE, seTE, studlab,
   else
     k.study <- k
   ##
-  seTE.hakn <- seTE.hakn.adhoc <- seTE.kero <- NULL
+  seTE.hakn.ci <- seTE.hakn.adhoc.ci <-
+    seTE.hakn.pi <- seTE.hakn.adhoc.pi <-
+      seTE.kero <- NA
   ##
-  ci.p <- list(seTE = NA, lower = NA, upper = NA, df = NA)
+  pi <- list(seTE = NA, lower = NA, upper = NA, df = NA)
   ##
-  df.random <- df.predict <- df.hakn <- df.kero <- NA
+  df.random <- df.predict <-
+    df.hakn <- df.hakn.ci <- df.hakn.pi <- df.kero <- NA
   ##
   if (k == 0) {
     TE.common <- seTE.common <-
@@ -1524,7 +1534,12 @@ metagen <- function(TE, seTE, studlab,
     TE.random <- seTE.random <-
       lower.random <- upper.random <-
         statistic.random <- pval.random <- NA
+    seTE.classic <- seTE.random
     w.random <- rep(0, k.all)
+    ##
+    seTE.predict <- df.predict <-
+      lower.predict <- upper.predict <-
+        seTE.hakn.pi <- seTE.hakn.adhoc.pi <- NA
     ##
     hc <- list(tau2 = NA, se.tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
                tau = NA, lower.tau = NA, upper.tau = NA,
@@ -1541,11 +1556,15 @@ metagen <- function(TE, seTE, studlab,
   else {
     ## At least two studies to perform Hartung-Knapp or Kenward-Roger
     ## method
-    if (k == 1 & method.random.ci %in% c("HK", "KR"))
-      method.random.ci <- "DL"
-    ##
-    if (k == 1 & method.predict == "KR")
-      method.predict <- "HTS"
+    if (k == 1) {
+      method.random.ci <-
+        ifelse(method.random.ci %in% c("HK", "KR"), "classic",
+               method.random.ci)
+      ##
+      method.predict <- 
+        ifelse(method.predict %in% c("HK", "KR"), "HTS",
+               method.predict)
+    }
     ##
     ## Estimate tau-squared
     ##
@@ -1606,9 +1625,11 @@ metagen <- function(TE, seTE, studlab,
       TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
       seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
       ##
+      seTE.classic <- seTE.random
+      ##
       ## Kenward-Roger method for confidence or prediction interval
       ##
-      if (method.random.ci == "KR" | method.predict == "KR") {
+      if (any(method.random.ci == "KR") | any(method.predict == "KR")) {
         kr <- kenwardroger(w.random)
         seTE.kero <- kr$se
         df.kero <- kr$df
@@ -1618,120 +1639,236 @@ metagen <- function(TE, seTE, studlab,
         is.nan.kero <- is.nan(seTE.kero)
         ##
         if (is.nan.kero) {
-          seTE.kero <- seTE.random
-          ##
-          if (method.random.ci == "KR")
-            method.random.ci <- "DL"
-          if (method.predict== "KR")
-            method.predict <- "HTS"
+          method.random.ci[method.random.ci == "KR"] <- "classic-KR"
+          method.predict[method.predict == "KR"] <- "HTS-KR"
         }
+        ##
         if (is.nan(df.kero)) {
-          df.kero <- NA
-          ##
-          if (method.random.ci == "KR")
-            method.random.ci <- "DL"
-          if (method.predict== "KR")
-            method.predict <- "HTS"
+          method.random.ci[method.random.ci == "KR"] <- "classic-KR"
+          method.predict[method.predict == "KR"] <- "HTS-KR"
         }
       }
+      ##
+      ## Hartung-Knapp method for confidence or prediction interval
+      ##
+      df.hakn <- k - 1
+      q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
+      ##
+      seTE.hakn.ci <- seTE.hakn.adhoc.ci <-
+        seTE.hakn.pi <- seTE.hakn.adhoc.pi <-
+          sqrt(q / sum(w.random))
       ##
       ## Confidence interval for random effects model
       ##
-      if (method.random.ci == "HK") {
-        ## alpha <- (1 - level.ma) / 2
-        df.hakn <- k - 1
-        q <- 1 / (k - 1) * sum(w.random * (TE - TE.random)^2, na.rm = TRUE)
-        ##
-        seTE.hakn <- seTE.hakn.adhoc <- sqrt(q / sum(w.random))
-        ##
-        if (adhoc.hakn == "se") {
-          ##
-          ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
-          ## i.e., if q < 1
-          ##
-          if (q < 1)
-            seTE.hakn.adhoc <- seTE.random
-          else
-            adhoc.hakn <- ""
-        }
-        else if (adhoc.hakn == "ci") {
-          ##
-          ## Use wider confidence interval, i.e., confidence interval
-          ## from classic random effects meta-analysis if CI_HK is
-          ## smaller
-          ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
-          ##
-          ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
-          ci.re <- ci(TE.random, seTE.random, level = level.ma)
-          ##
-          width.hk <- ci.hk$upper - ci.hk$lower
-          width.re <- ci.re$upper - ci.re$lower
-          ##
-          if (width.hk < width.re) {
-            seTE.hakn.adhoc <- seTE.random
-            df.hakn <- NA
-          }
-          else
-            adhoc.hakn <- ""
-        }
-        else if (adhoc.hakn == "iqwig6") {
-          ##
-          ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
-          ##
-          ci.hk <- ci(TE.random, seTE.hakn, level = level.ma, df = df.hakn)
-          ##
-          m.dl <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "",
-                          hakn = FALSE)
-          ci.dl <- ci(m.dl$TE.random, m.dl$seTE.random, level = level.ma)
-          ##
-          width.hk <- ci.hk$upper - ci.hk$lower
-          width.dl <- ci.dl$upper - ci.dl$lower
-          ##
-          if (width.hk < width.dl)
-            seTE.hakn.adhoc <- seTE.random
-          else
-            adhoc.hakn <- ""
-        }
-        ##
-        ci.r <- ci(TE.random, seTE.hakn.adhoc, level = level.ma, df = df.hakn,
-                   null.effect = null.effect)
-      }
-      else if (method.random.ci == "KR") {
-        ci.r <- ci(TE.random, seTE.kero, level = level.ma, df = df.kero,
-                   null.effect = null.effect)
-      }
-      else
-        ci.r <- ci(TE.random, seTE.random, level = level.ma,
-                   null.effect = null.effect)
+      ci.r <- as.data.frame(ci(1, NA, level = 0.99999))
       ##
+      if (length(adhoc.hakn.ci) == 1) {
+        adhoc.hakn.ci <- ifelse(method.random.ci == "HK", adhoc.hakn.ci, "")
+      }
+      else if (length(adhoc.hakn.ci) == sum(method.random.ci == "HK")) {
+        adho <- rep("", length(method.random.ci))
+        adho[method.random.ci == "HK"] <- adhoc.hakn.ci
+        adhoc.hakn.ci <- adho
+      }
+      else if (length(method.random.ci) == 1 && method.random.ci == "HK") {
+        method.random.ci <- rep("HK", length(adhoc.hakn.ci))
+      }
+      else if (length(adhoc.hakn.ci) != length(method.random.ci))
+        stop("Argument 'adhoc.hakn.ci' must be of same length as ",
+             "'method.random.ci' or number of meta-analyses with ",
+             "Hartung-Knapp method",
+             call. = FALSE)
+      ##
+      seTE.hakn.adhoc.ci <- rep(seTE.hakn.adhoc.ci, length(method.random.ci))
+      df.hakn.ci <- rep(df.hakn, length(method.random.ci))
+      ##
+      for (i in seq_along(method.random.ci)) {
+        if (method.random.ci[i] %in% c("classic", "classic-KR")) {
+          ci.r.i <- ci(TE.random, seTE.classic, level = level.ma,
+                       null.effect = null.effect)
+          ##
+          seTE.hakn.adhoc.ci[i] <- NA
+        }
+        else if (method.random.ci[i] == "HK") {
+          if (adhoc.hakn.ci[i] == "se") {
+            ##
+            ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
+            ## i.e., if q < 1
+            ##
+            if (q < 1)
+              seTE.hakn.adhoc.ci[i] <- seTE.classic
+          }
+          else if (adhoc.hakn.ci[i] == "ci") {
+            ##
+            ## Use wider confidence interval, i.e., confidence interval
+            ## from classic random effects meta-analysis if CI_HK is
+            ## smaller
+            ## (Wiksten et al., 2016; Jackson et al., 2017, hybrid 2)
+            ##
+            ci.hk <-
+              ci(TE.random, seTE.hakn.ci, level = level.ma, df = df.hakn.ci[i])
+            ci.re <-
+              ci(TE.random, seTE.classic, level = level.ma)
+            ##
+            width.hk <- ci.hk$upper - ci.hk$lower
+            width.re <- ci.re$upper - ci.re$lower
+            ##
+            if (width.hk < width.re) {
+              seTE.hakn.adhoc.ci[i] <- seTE.classic
+              df.hakn.ci[i] <- NA
+            }
+          }
+          else if (adhoc.hakn.ci[i] == "iqwig6") {
+            ##
+            ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
+            ##
+            ci.hk <-
+              ci(TE.random, seTE.hakn.ci, level = level.ma, df = df.hakn.ci[i])
+            ##
+            m.dl <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "",
+                            method.random.ci = "classic")
+            ci.dl <- ci(m.dl$TE.random, m.dl$seTE.classic, level = level.ma)
+            ##
+            width.hk <- ci.hk$upper - ci.hk$lower
+            width.dl <- ci.dl$upper - ci.dl$lower
+            ##
+            if (width.hk < width.dl)
+              seTE.hakn.adhoc.ci[i] <- seTE.classic
+          }
+          ##
+          ci.r.i <- ci(TE.random, seTE.hakn.adhoc.ci[i],
+                       level = level.ma, df = df.hakn.ci[i],
+                       null.effect = null.effect)
+        }
+        else if (method.random.ci[i] == "KR") {
+          ci.r.i <- ci(TE.random, seTE.kero, level = level.ma, df = df.kero,
+                       null.effect = null.effect)
+        }
+        ##
+        ci.r <- rbind(ci.r, as.data.frame(ci.r.i))
+      }
+      ##
+      ci.r <- ci.r[-1, ]
+      ##
+      seTE.random <- ci.r$seTE
       lower.random <- ci.r$lower
       upper.random <- ci.r$upper
       df.random <- ci.r$df
       statistic.random <- ci.r$statistic
       pval.random <- ci.r$p
       ##
+      if (missing(text.random) ||
+          (length(text.random) == 1 & length(method.random.ci) > 1)) {
+        text.random <-
+          ifelse(method.random.ci == "classic",
+                 text.random,
+          ifelse(method.random.ci %in% c("KR", "classic-KR"),
+                 paste0(text.random, " (", method.random.ci, ")"),
+                 paste0(text.random, " (HK")))
+        text.random <-
+          paste0(text.random,
+                 ifelse(method.random.ci != "HK",
+                        "",
+                 ifelse(adhoc.hakn.ci == "",
+                        ")",
+                        paste0("-", toupper(substring(adhoc.hakn.ci, 1, 2)),
+                               ")"))))
+      }
+      ##
       ## Prediction interval
       ##
-      if (k >= 3 &&
-          method.predict == "HTS" |
-          (method.predict == "KR" & is.na(df.kero))) {
-        ci.p <- ci(TE.random, sqrt(seTE.random^2 + tau2.calc),
-                   level.predict, k - 2)
+      pi <- as.data.frame(ci(1, NA, level = 0.99999))
+      ##
+      if (length(adhoc.hakn.pi) == 1) {
+        adhoc.hakn.pi <- ifelse(method.predict == "HK", adhoc.hakn.pi, "")
       }
-      else if (method.predict == "KR" & df.kero > 2) {
-        ci.p <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
-                   level.predict, df.kero - 1)
+      else if (length(adhoc.hakn.pi) == sum(method.predict == "HK")) {
+        adho <- rep("", length(method.predict))
+        adho[method.predict == "HK"] <- adhoc.hakn.pi
+        adhoc.hakn.pi <- adho
       }
-      else if (method.predict == "NNF") {
-        res.pima <- pimeta::pima(TE[!exclude], seTE[!exclude], method = "boot",
-                                 alpha = 1 - level.predict)
+      else if (length(method.predict) == 1 && method.predict == "HK") {
+        method.predict <- rep("HK", length(adhoc.hakn.pi))
+      }
+      else if (length(adhoc.hakn.pi) != length(method.predict)) {
+        stop("Argument 'adhoc.hakn.pi' must be of same length as ",
+             "'method.predict' or number of prediction intervals using ",
+             "Hartung-Knapp method",
+             call. = FALSE)
+      }
+      ##
+      seTE.hakn.adhoc.pi <- rep(seTE.hakn.adhoc.pi, length(method.predict))
+      df.hakn.pi <- rep(df.hakn, length(method.predict))
+      ##
+      for (i in seq_along(method.predict)) {
+        if (method.predict[i] == "HK" && df.hakn.pi[i] > 1) {
+          if (adhoc.hakn.pi[i] == "se") {
+            ##
+            ## Variance correction if SE_HK < SE_notHK (Knapp and
+            ## Hartung, 2003), i.e., if q < 1
+            ##
+            if (q < 1)
+              seTE.hakn.adhoc.pi[i] <- seTE.classic
+          }
+          ##
+          pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
+                     level = level.predict, df = df.hakn.pi[i] - 1)
+        }
+        else if (method.predict[i] %in% c("HTS", "HTS-KR") & k > 2) {
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
+                     level.predict, k - 2)
+        }
+        else if (method.predict[i] == "KR" & df.kero > 1) {
+          pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
+                     level.predict, df.kero - 1)
+        }
+        else if (method.predict[i] == "NNF") {
+          res.pima <- pimeta::pima(TE[!exclude], seTE[!exclude],
+                                   method = "boot",
+                                   alpha = 1 - level.predict)
+          ##
+          pi.i <- as.data.frame(ci(1, NA, level = level.predict))
+          pi.i$seTE <-NA
+          pi.i$lower <- res.pima$lpi
+          pi.i$upper <- res.pima$upi
+          pi.i$df <- res.pima$nup
+        }
+        else if (method.predict[i] == "S")
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc), level.predict)
+        else if (method.predict[i] == "KR")
+          pi.i <- ci(TE.random, NA, level.predict, df.kero - 1)
+        else if (method.predict[i] == "HTS")
+          pi.i <- ci(TE.random, NA, level.predict, k - 2)
+        else
+          pi.i <- ci(TE.random, NA, level.predict)
         ##
-        ci.p <- list(seTE = NA,
-                     lower = res.pima$lpi, upper = res.pima$upi,
-                     df = res.pima$nup)
+        pi <- rbind(pi, as.data.frame(pi.i))
       }
-      else if (method.predict == "S") {
-        ci.p <- ci(TE.random, sqrt(seTE.random^2 + tau2.calc), level.predict)
+      ##
+      pi <- pi[-1, ]
+      ##
+      seTE.predict <- pi$seTE
+      lower.predict <- pi$lower
+      upper.predict <- pi$upper
+      df.predict <- pi$df
+      ##
+      if (missing(text.predict) ||
+          (length(text.predict) == 1 & length(method.predict) > 1)) {
+        text.predict <-
+          ifelse(method.predict == "HTS",
+                 text.predict,
+                 paste0(text.predict, " (", method.predict))
+        text.predict <-
+          paste0(text.predict,
+                 ifelse(method.predict %in% c("KR", "NNF", "S"),
+                        ")", ""))
+        text.predict <-
+          paste0(text.predict,
+                 ifelse(method.predict != "HK",
+                        "",
+                 ifelse(adhoc.hakn.pi == "",
+                        ")",
+                        paste0("-", toupper(adhoc.hakn.pi), ")"))))
       }
     }
     else {
@@ -1774,7 +1911,7 @@ metagen <- function(TE, seTE, studlab,
       w.random[is.na(w.random)] <- 0
       ##
       TE.random <- m4$b
-      seTE.random <- m4$se
+      seTE.classic <- seTE.random <- m4$se
       ##
       tau2.calc <- sum(m4$tau2)
       ##
@@ -1788,21 +1925,21 @@ metagen <- function(TE, seTE, studlab,
       if (method.random.ci == "HK")
         df.random <- df.hakn <- k - 1
       else
-        df.random <- NA
+        df.random <- df.hakn <- NA
       ##
       ## No adhoc method for three-level models
       ##
-      if (!missing(adhoc.hakn) && adhoc.hakn != "") {
+      if (!missing(adhoc.hakn.ci) && adhoc.hakn.ci != "") {
         warning("Ad hoc variance correction not implemented ",
                 "for three-level model.",
                 call. = FALSE)
-        adhoc.hakn <- ""
+        adhoc.hakn.ci <- ""
       }
       ##
       ## Prediction interval
       ##
       if (method.predict == "S")
-        ci.p <- ci(TE.random, sqrt(seTE.random^2 + tau2.calc),
+        pi <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
                    level.predict)
       else {
         if (k >= 3) {
@@ -1811,10 +1948,15 @@ metagen <- function(TE, seTE, studlab,
           if (method.predict != "HTS")
             method.predict <- "HTS"
           ##
-          ci.p <- ci(TE.random, sqrt(seTE.random^2 + tau2.calc),
+          pi <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
                      level.predict, k - 2)
         }
       }
+      ##
+      seTE.predict <- pi$seTE
+      lower.predict <- pi$lower
+      upper.predict <- pi$upper
+      df.predict <- pi$df
     }
   }
   
@@ -1826,39 +1968,13 @@ metagen <- function(TE, seTE, studlab,
   ##
   
   ##
-  ## Prediction interval
-  ##
-  seTE.predict <- ci.p$seTE
-  lower.predict <- ci.p$lower
-  upper.predict <- ci.p$upper
-  df.predict <- ci.p$df
-  ##
   ## Calculate Rb (but not for three-level model)
   ##
   if (length(tau2.calc) == 1)
-    Rbres <- Rb(seTE[!is.na(seTE)], seTE.random,
+    Rbres <- Rb(seTE[!is.na(seTE)], seTE.classic,
                 tau2.calc, hc$Q, hc$df.Q, level.ma)
   else
     Rbres <- list(TE = NA, lower = NA, upper = NA)
-  ##
-  ## Standard error used to calculate random effects confidence
-  ## interval for Hartung-Knapp or Kenward-Roger method (not
-  ## three-level model)
-  ##
-  seTE.classic <- seTE.random
-  ##
-  if (!three.level) {
-    if (method.random.ci == "HK")
-      seTE.random <- seTE.hakn.adhoc
-    else if (method.random.ci == "KR") {
-      seTE.classic <- seTE.random
-      ##
-      if (!is.nan.kero)
-        seTE.random <- seTE.kero
-      else 
-        seTE.kero <- NaN
-    }
-  }
   
   
   ##
@@ -1898,6 +2014,7 @@ metagen <- function(TE, seTE, studlab,
               backtransf = backtransf,
               ##
               method = "Inverse",
+              ##
               w.common = w.common,
               TE.common = TE.common, seTE.common = seTE.common,
               statistic.common = statistic.common, pval.common = pval.common,
@@ -1905,7 +2022,8 @@ metagen <- function(TE, seTE, studlab,
               lower.common = lower.common, upper.common = upper.common,
               ##
               w.random = w.random,
-              TE.random = TE.random, seTE.random = seTE.random,
+              TE.random = rep_len(TE.random, length(seTE.random)),
+              seTE.random = seTE.random,
               statistic.random = statistic.random, pval.random = pval.random,
               method.random.ci = method.random.ci,
               df.random = df.random,
@@ -1913,20 +2031,27 @@ metagen <- function(TE, seTE, studlab,
               ##
               seTE.classic = seTE.classic,
               ##
-              adhoc.hakn = adhoc.hakn,
-              df.hakn = if (method.random.ci == "HK") df.hakn else NA,
-              seTE.hakn = seTE.hakn,
-              seTE.hakn.adhoc = seTE.hakn.adhoc,
+              adhoc.hakn.ci = adhoc.hakn.ci,
+              df.hakn.ci =
+                if (any(method.random.ci == "HK")) df.hakn.ci else NA,
+              seTE.hakn.ci = seTE.hakn.ci,
+              seTE.hakn.adhoc.ci = seTE.hakn.adhoc.ci,
               ##
-              df.kero = if (method.random.ci == "KR" |
-                            method.predict == "KR") df.kero else NA,
+              df.kero = if (any(method.random.ci == "KR") |
+                            any(method.predict == "KR")) df.kero else NA,
               seTE.kero = seTE.kero,
               ##
               method.predict = method.predict,
+              adhoc.hakn.pi = adhoc.hakn.pi,
+              df.hakn.pi = if (any(method.predict == "HK")) df.hakn.pi else NA,
+              ##
               seTE.predict = seTE.predict,
               df.predict = df.predict,
               level.predict = level.predict,
-              lower.predict = lower.predict, upper.predict = upper.predict,
+              lower.predict = lower.predict,
+              upper.predict = upper.predict,
+              seTE.hakn.pi = seTE.hakn.pi,
+              seTE.hakn.adhoc.pi = seTE.hakn.adhoc.pi,
               ##
               Q = hc$Q, df.Q = hc$df.Q, pval.Q = hc$pval.Q,
               ##
@@ -1935,7 +2060,8 @@ metagen <- function(TE, seTE, studlab,
               method.tau.ci = hc$method.tau.ci,
               tau2 = hc$tau2, se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
-              tau = hc$tau, lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
+              tau = hc$tau,
+              lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
               tau.preset = tau.preset,
               TE.tau =
                 if (!missing(TE.tau) & method.tau == "DL") TE.tau else NULL,
@@ -1980,7 +2106,7 @@ metagen <- function(TE, seTE, studlab,
               version = packageDescription("meta")$Version,
               ## Deprecated list elements
               zval = ci.study$statistic,
-              hakn = method.random.ci == "HK",
+              hakn = any(method.random.ci == "HK"),
               zval.common = statistic.common,
               zval.random = statistic.random
               )
@@ -2079,6 +2205,10 @@ metagen <- function(TE, seTE, studlab,
   ##
   res$text.fixed <- res$text.common
   res$text.w.fixed <- res$text.w.common
+  ##
+  res$df.hakn <- res$df.hakn.ci
+  res$seTE.hakn <- res$seTE.hakn.ci
+  res$seTE.hakn.adhoc <- res$seTE.hakn.adhoc.ci
   ##
   if (by) {
     res$byvar <- subgroup

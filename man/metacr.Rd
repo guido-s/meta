@@ -11,17 +11,18 @@ metacr(
   method,
   sm,
   level = gs("level"),
-  level.ma = gs("level.ma"),
   common,
   random,
-  method.random.ci = "DL",
-  adhoc.hakn = "",
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = "DL",
   method.tau.ci = gs("method.tau.ci"),
   tau.common = FALSE,
-  prediction = gs("prediction") | !missing(method.predict),
+  level.ma = gs("level.ma"),
+  method.random.ci = "classic",
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   swap.events,
   logscale,
   backtransf = gs("backtransf"),
@@ -61,23 +62,14 @@ be used for pooling of studies.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.ma}{The level used to calculate confidence intervals
-for pooled estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
-random effects estimate (see \code{\link{meta-package}}).}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate (see
-\code{\link{meta-package}}).}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -90,16 +82,28 @@ used to estimate the confidence interval of \eqn{\tau^2} and
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
 
 \item{method.predict}{A character string indicating which method is
-used to calculate a prediction interval. Either, \code{"HTS"},
-\code{"KR"}, \code{"NNF"}, or \code{"S"} (see
-\code{\link{meta-package}}), can be abbreviated.}
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{swap.events}{A logical indicating whether events and
 non-events should be interchanged.}
