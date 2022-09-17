@@ -33,58 +33,275 @@
 #'  \item Bubble plot to display the result of a meta-regression
 #'   (\code{\link{bubble.metareg}})
 #' }
+#' \item Three-level meta-analysis model (Van den Noortgate et al.,
+#'   2013)
+#' \item Generalised linear mixed models (GLMMs) for binary and count
+#'   data (Stijnen et al., 2010) (\code{\link{metabin}},
+#'   \code{\link{metainc}}, \code{\link{metaprop}}, and
+#'   \code{\link{metarate}})
+#' \item Various estimators for the between-study variance
+#'  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
+#'  see description of argument \code{method.tau} below
+#' \item Hartung-Knapp method for random effects meta-analysis
+#'  (Hartung & Knapp, 2001a,b), see description of arguments
+#'  \code{method.random.ci} and \code{adhoc.hakn.ci} below
+#' \item Kenward-Roger method for random effects meta-analysis
+#'  (Partlett and Riley, 2017), see description of arguments
+#'  \code{method.random.ci} and \code{method.predict} below
+#' \item Prediction interval for the treatment effect of a new study
+#'  (Higgins et al., 2009; Partlett and Riley, 2017; Nagashima et al.,
+#'  2019), see description of argument \code{method.predict} below
 #' \item Statistical tests for funnel plot asymmetry
 #'  (\code{\link{metabias.meta}}, \code{\link{metabias.rm5}}) and
 #'  trim-and-fill method (\code{\link{trimfill.meta}},
 #'  \code{\link{trimfill.default}}) to evaluate bias in meta-analysis
+#' \item Meta-regression (\code{\link{metareg}})
 #' \item Cumulative meta-analysis (\code{\link{metacum}}) and
 #'   leave-one-out meta-analysis (\code{\link{metainf}})
-#' \item Meta-regression (\code{\link{metareg}})
-#' \item Import data from Review Manager 5 (\code{\link{read.rm5}});
+#' \item Import data from Review Manager 5 (\code{\link{read.rm5}}),
 #'   see also \code{\link{metacr}} to conduct meta-analysis for a
 #'   single comparison and outcome from a Cochrane review
-#' \item Prediction interval for the treatment effect of a new study
-#'  (Higgins et al., 2009); see argument \code{prediction} in
-#'  meta-analysis functions, e.g., \code{\link{metagen}}
-#' \item Hartung-Knapp method for random effects meta-analysis
-#'  (Hartung & Knapp, 2001a,b); see argument \code{hakn} in
-#'  meta-analysis functions, e.g., \code{\link{metagen}}
-#' \item Various estimators for the between-study variance
-#'  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
-#'  see argument \code{method.tau} in meta-analysis functions, e.g.,
-#'  \code{\link{metagen}}
-#' \item Generalised linear mixed models (\code{\link{metabin}},
-#'   \code{\link{metainc}}, \code{\link{metaprop}}, and
-#'   \code{\link{metarate}})
 #' }
 #' 
-#' The following more advanced statistical methods are provided by
-#' add-on R packages:
+#' Additional statistical meta-analysis methods are provided by add-on
+#' R packages:
 #' \itemize{
 #' \item Frequentist methods for network meta-analysis (R package
 #'   \bold{netmeta})
-#' \item Advanced methods to model and adjust for bias in
-#'   meta-analysis (R package \bold{metasens})
+#' \item Statistical methods for sensitivity analysis in meta-analysis
+#'   (R package \bold{metasens})
+#' \item Statistical methods for meta-analysis of diagnostic accuracy
+#'   studies with several cutpoints (R package \bold{diagmeta})
 #' }
 #' 
-#' Results of several meta-analyses can be combined with
-#' \code{\link{metabind}}. This is, for example, useful to generate a
-#' forest plot with results of subgroup analyses.
+#' In the following, more details on available and default statistical
+#' meta-analysis methods are provided. In addition, R function
+#' \code{\link{settings.meta}} is briefly described which can be used
+#' to change the default settings.
 #' 
-#' See \code{\link{settings.meta}} to learn how to print and specify
-#' default meta-analysis methods used during your R session. For
-#' example, the function can be used to specify general settings:
+#' \subsection{Estimation of between-study variance}{
+#' 
+#' The following methods are available in all meta-analysis functions
+#' to estimate the between-study variance \eqn{\tau^2}.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr 
+#' \code{method.tau = "REML"}
+#'  \tab Restricted maximum-likelihood estimator (Viechtbauer, 2005) \cr
+#' \tab (default) \cr
+#' \code{method.tau = "PM"}
+#'  \tab Paule-Mandel estimator (Paule and Mandel, 1982) \cr
+#' \code{method.tau = "DL"}
+#'  \tab DerSimonian-Laird estimator (DerSimonian and Laird, 1986) \cr
+#' \code{method.tau = "ML"}
+#'  \tab Maximum-likelihood estimator (Viechtbauer, 2005) \cr
+#' \code{method.tau = "HS"}
+#'  \tab Hunter-Schmidt estimator (Hunter and Schmidt, 2015) \cr
+#' \code{method.tau = "SJ"}
+#'  \tab Sidik-Jonkman estimator (Sidik and Jonkman, 2005) \cr
+#' \code{method.tau = "HE"}
+#'  \tab Hedges estimator (Hedges and Olkin, 1985) \cr
+#' \code{method.tau = "EB"}
+#'  \tab Empirical Bayes estimator (Morris, 1983)
+#' }
+#'
+#' For GLMMs, only the maximum-likelihood method is available.
+#' 
+#' Historically, the DerSimonian-Laird method was the de facto
+#' standard to estimate the between-study variance \eqn{\tau^2} and is
+#' the default in some software packages including Review Manager 5
+#' (RevMan 5) and R package \bold{meta}, version 4 and below. However,
+#' its role has been challenged and especially the REML and
+#' Paule-Mandel estimators have been recommended (Veroniki et al.,
+#' 2016; Langan et al., 2019). Accordingly, the currenct default in R
+#' package \bold{meta} is the REML estimator.
+#' 
+#' The following R command could be used to employ the Paule-Mandel
+#' instead of the REML estimator in all meta-analyses of the current R
+#' session:
 #' \itemize{
-#' \item \code{settings.meta("revman5")}
-#' \item \code{settings.meta("jama")}
-#' \item \code{settings.meta("iqwig5")}
-#' \item \code{settings.meta("iqwig6")}
+#' \item \code{settings.meta(method.tau = "PM")}
+#' }
+#' 
+#' Other estimators for \eqn{\tau^2} could be selected in a similar
+#' way.
+#' }
+#' 
+#' \subsection{Confidence interval for random effects estimate}{
+#'
+#' The following methods are available in all meta-analysis functions
+#' to calculate a confidence interval for the random effects estimate.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr
+#' \code{method.random.ci = "classic"}\tab Based on standard normal
+#'   quantile \cr
+#' \tab (DerSimonian and Laird, 1986) (default) \cr
+#' \code{method.random.ci = "HK"}\tab Method by Hartung and Knapp
+#'   (2001a/b) \cr
+#' \code{method.random.ci = "KR"}\tab Kenward-Roger method (Partlett and
+#'   Riley, 2017)
+#' }
+#' 
+#' DerSimonian and Laird (1986) introduced the classic random effects
+#' model using a quantile of the standard normal distribution to
+#' calculate a confidence interval for the random effects
+#' estimate. This method implicitly assumes that the weights in the
+#' random effects meta-analysis are not estimated but
+#' given. Particularly, the uncertainty in the estimation of the
+#' between-study variance \eqn{\tau^2} is ignored.
+#'
+#' Hartung and Knapp (2001a,b) proposed an alternative method for
+#' random effects meta-analysis based on a refined variance estimator
+#' for the treatment estimate and a quantile of a
+#' \emph{t}-distribution with \emph{k-1} degrees of freedom where
+#' \emph{k} corresponds to the number of studies in the
+#' meta-analysis.
+#'
+#' Simulation studies (Hartung and Knapp, 2001a,b; IntHout et al.,
+#' 2014; Langan et al., 2019) show improved coverage probabilities
+#' compared to the classic random effects method. However, in rare
+#' settings with very homogeneous treatment estimates, the
+#' Hartung-Knapp variance estimate can be arbitrarily small resulting
+#' in a very narrow confidence interval (Knapp and Hartung, 2003;
+#' Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
+#' correction has been proposed by utilising the variance estimate
+#' from the classic random effects model with the Hartung-Knapp method
+#' (Knapp and Hartung, 2003; IQWiQ, 2022). An alternative \emph{ad
+#' hoc} approach is to use the confidence interval of the classic
+#' common or random effects meta-analysis if it is wider than the
+#' interval from the Hartung-Knapp method (Wiksten et al., 2016;
+#' Jackson et al., 2017).
+#'
+#' Argument \code{adhoc.hakn.ci} can be used to choose the \emph{ad
+#' hoc} correction for the Hartung-Knapp (HK) method:
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
+#' \code{adhoc.hakn.ci = ""}\tab no \emph{ad hoc} correction (default)
+#'   \cr
+#' \code{adhoc.hakn.ci = "se"}\tab use variance correction if HK standard
+#'  error is smaller \cr
+#'  \tab than standard error from classic random effects
+#'  \cr
+#'  \tab meta-analysis (Knapp and Hartung, 2003) \cr
+#' \code{adhoc.hakn.ci = "IQWiG6"}\tab use variance correction if HK
+#'  confidence interval \cr
+#'  \tab is narrower than CI from classic random effects model \cr
+#'  \tab with DerSimonian-Laird estimator (IQWiG, 2022) \cr
+#' \code{adhoc.hakn.ci = "ci"}\tab use wider confidence interval of
+#'  classic random effects \cr
+#'  \tab and HK meta-analysis \cr
+#'  \tab (Hybrid method 2 in Jackson et al., 2017)
+#' }
+#'
+#' The Kenward-Roger method is only available for the REML estimator
+#' (\code{method.tau = "REML"}) of the between-study variance
+#' \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
+#' adjusted variance estimate for the random effects
+#' estimate. Furthermore, a quantile of a \emph{t}-distribution with
+#' adequately modified degrees of freedom is used to calculate the
+#' confidence interval.
+#'
+#' For GLMMs, the Kenward-Roger method is not available, but a method
+#' similar to Knapp and Hartung (2003) is implemented, see description
+#' of argument \code{tdist} in \code{\link[metafor]{rma.glmm}}, and
+#' the \emph{ad hoc} variance correction is not available.
+#' }
+#' 
+#' \subsection{Prediction interval}{
+#'
+#' The following methods are available in all meta-analysis functions
+#' to calculate a prediction interval for the treatment effect in a
+#' single new study.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr
+#' \code{method.predict = "HTS"}\tab Based on \emph{t}-distribution
+#'   (Higgins et al., 2009) (default) \cr
+#' \code{method.predict = "HK"}\tab Hartung-Knapp method (Partlett and
+#'   Riley, 2017) \cr
+#' \code{method.predict = "KR"}\tab Kenward-Roger method (Partlett and
+#'   Riley, 2017) \cr
+#' \code{method.predict = "NNF"}\tab Bootstrap approach (Nagashima et
+#'   al., 2019) \cr
+#' \code{method.predict = "S"}\tab Based on standard normal quantile
+#'   (Skipka, 2006)
+#' }
+#'
+#' By default (\code{method.predict = "HTS"}), the prediction interval
+#' is based on a \emph{t}-distribution with \emph{k-2} degrees of
+#' freedom where \emph{k} corresponds to the number of studies in the
+#' meta-analysis, see equation (12) in Higgins et al. (2009).
+#'
+#' Argument \code{adhoc.hakn.pi} can be used to choose the \emph{ad
+#' hoc} correction for the Hartung-Knapp method:
+#' 
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
+#' \code{adhoc.hakn.pi = ""}\tab no \emph{ad hoc} correction (default)
+#'   \cr
+#' \code{adhoc.hakn.pi = "se"}\tab use variance correction if HK
+#'  standard error is smaller
+#' }
+#'
+#' The Kenward-Roger method is only available for the REML estimator
+#' (\code{method.tau = "REML"}) of the between-study variance
+#' \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
+#' adjusted variance estimate for the random effects
+#' estimate. Furthermore, a quantile of a \emph{t}-distribution with
+#' adequately modified degrees of freedom minus 1 is used to calculate
+#' the prediction interval.
+#'
+#' The bootstrap approach is only available if R package \bold{pimeta}
+#' is installed (Nagashima et al., 2019). Internally, the
+#' \code{\link[pimeta]{pima}} function is called with argument
+#' \code{method = "boot"}.
+#' 
+#' The method of Skipka (2006) ignores the uncertainty in the
+#' estimation of the between-study variance \eqn{\tau^2} and thus has
+#' too narrow limits for meta-analyses with a small number of studies.
+#' }
+#'
+#' \subsection{Confidence interval for the between-study variance}{
+#'
+#' The following methods are available in all meta-analysis functions
+#' to calculate a confidence interval for \eqn{\tau^2} and \eqn{\tau}.
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{Method} \cr 
+#' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
+#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
+#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
+#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for three-level \cr
+#'  \tab meta-analysis model (Van den Noortgate et al., 2013) \cr
+#' \code{method.tau.ci = ""}\tab No confidence interval
+#' }
+#' The first three methods have been recommended by Veroniki et
+#' al. (2016). By default, the Jackson method is used for the
+#' DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
+#' method for all other estimators of \eqn{\tau^2}.
+#'
+#' The Profile-Likelihood method is the only method available for the
+#' three-level meta-analysis model.
+#' 
+#' For GLMMs, no confidence intervals for \eqn{\tau^2} and \eqn{\tau}
+#' are calculated.
+#' }
+#'
+#' \subsection{Change default settings for R session}{
+#'
+#' R function \code{\link{settings.meta}} can be used to change the
+#' previously described and several other default settings for the
+#' current R session.
+#' 
+#' Some pre-defined general settings are available:
+#' \itemize{
+#' \item \code{settings.meta("RevMan5")}
+#' \item \code{settings.meta("JAMA")}
+#' \item \code{settings.meta("IQWiG5")}
+#' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
 #' }
 #' 
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+#' \url{https://training.cochrane.org/online-learning/core-software/revman})
 #' and specifies to use a RevMan 5 layout in forest plots.
 #'
 #' The second command can be used to generate forest plots following
@@ -102,22 +319,40 @@
 #' The last setting can be used to print p-values in scientific
 #' notation and to suppress the calculation of confidence intervals
 #' for the between-study variance.
+#'
+#' See \code{\link{settings.meta}} for more details on these
+#' pre-defined general settings.
 #' 
-#' In addition, \code{\link{settings.meta}} can be used to change
-#' individual settings. For example, the following R command specifies
-#' the use of the Hartung-Knapp and Paule-Mandel methods, and the
-#' printing of prediction intervals in the current R session for any
-#' meta-analysis generated after execution of this command:
+#' In addition, \code{\link{settings.meta}} can be used to define
+#' individual settings for the current R session. For example, the
+#' following R command specifies the use of Hartung-Knapp and
+#' Paule-Mandel method, and the printing of prediction intervals for
+#' any meta-analysis generated after execution of this command:
 #' \itemize{
-#' \item \code{settings.meta(hakn=TRUE, method.tau="PM", prediction=TRUE)}
+#' \item \code{settings.meta(method.random.ci = "HK", method.tau =
+#'   "PM", prediction = TRUE)}
 #' }
-#' 
-#' Type \code{help(package = "meta")} for a listing of R functions and
-#' datasets available in \bold{meta}.
-#' 
+#' }
+#'
+#' @note
 #' Balduzzi et al. (2019) is the preferred citation in publications
 #' for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of
 #' this publication.
+#' 
+#' Type \code{help(package = "meta")} for a listing of all R functions
+#' and datasets available in \bold{meta}. For example, results of
+#' several meta-analyses can be combined with \code{\link{metabind}}
+#' which is useful to generate a forest plot with results of several
+#' subgroup analyses.
+#' 
+#' R package \bold{meta} imports R functions from \bold{metafor}
+#' (Viechtbauer, 2010) to
+#' \itemize{
+#' \item estimate the between-study variance \eqn{\tau^2},
+#' \item conduct meta-regression,
+#' \item estimate three-level models,
+#' \item estimate generalised linear mixed models.
+#' }
 #' 
 #' To report problems and bugs
 #' \itemize{
@@ -129,18 +364,6 @@
 #' 
 #' The development version of \bold{meta} is available on GitHub
 #' \url{https://github.com/guido-s/meta/}.
-#'
-#' @note
-#' R package \bold{meta} imports R functions from \bold{metafor}
-#' (Viechtbauer, 2010) to
-#' \itemize{
-#' \item estimate the between-study variance \eqn{\tau^2},
-#' \item conduct meta-regression,
-#' \item estimate three-level models (Van den Noortgate et al., 2013),
-#' \item estimate generalised linear mixed models (Stijnen et al.,
-#'   2010).
-#'
-#' }
 #' 
 #' @name meta-package
 #' 
@@ -156,6 +379,17 @@
 #' \emph{Evidence-Based Mental Health},
 #' \bold{22}, 153--160
 #' 
+#' Biggerstaff BJ, Jackson D (2008):
+#' The exact distribution of Cochran’s heterogeneity statistic in
+#' one-way random effects meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{27}, 6093--110
+#'
+#' DerSimonian R & Laird N (1986):
+#' Meta-analysis in clinical trials.
+#' \emph{Controlled Clinical Trials},
+#' \bold{7}, 177--88
+#' 
 #' Hartung J, Knapp G (2001a):
 #' On tests of the overall treatment effect in meta-analysis with
 #' normally distributed responses.
@@ -168,10 +402,56 @@
 #' \emph{Statistics in Medicine},
 #' \bold{20}, 3875--89
 #' 
+#' Hedges LV & Olkin I (1985):
+#' \emph{Statistical methods for meta-analysis}.
+#' San Diego, CA: Academic Press
+#' 
 #' Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
 #' A re-evaluation of random-effects meta-analysis.
 #' \emph{Journal of the Royal Statistical Society: Series A},
 #' \bold{172}, 137--59
+#' 
+#' Hunter JE & Schmidt FL (2015):
+#' \emph{Methods of Meta-Analysis: Correcting Error and Bias in
+#' Research Findings} (Third edition).
+#' Thousand Oaks, CA: Sage
+#' 
+#' IntHout J, Ioannidis JPA, Borm GF (2014):
+#' The Hartung-Knapp-Sidik-Jonkman method for random effects
+#' meta-analysis is straightforward and considerably outperforms the
+#' standard DerSimonian-Laird method.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{14}, 25
+#' 
+#' IQWiG (2022):
+#' General Methods: Version 6.1.
+#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+#'
+#' Jackson D (2013):
+#' Confidence intervals for the between-study variance in random
+#' effects meta-analysis using generalised Cochran heterogeneity
+#' statistics.
+#' \emph{Research Synthesis Methods},
+#' \bold{4}, 220--229
+#'
+#' Jackson D, Law M, Rücker G, Schwarzer G (2017): 
+#' The Hartung-Knapp modification for random-effects meta-analysis: A
+#' useful refinement but are there any residual concerns?
+#' \emph{Statistics in Medicine},
+#' \bold{36}, 3923--34
+#' 
+#' Knapp G & Hartung J (2003):
+#' Improved tests for a random effects meta-regression with a single
+#' covariate.
+#' \emph{Statistics in Medicine},
+#' \bold{22}, 2693--710
+#'
+#' Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
+#' Kontopantelis E, et al. (2019):
+#' A comparison of heterogeneity variance estimators in simulated
+#' random-effects meta-analyses.
+#' \emph{Research Synthesis Methods},
+#' \bold{10}, 83--98
 #' 
 #' Schwarzer G (2007):
 #' meta: An R package for meta-analysis.
@@ -181,6 +461,12 @@
 #' Schwarzer G, Carpenter JR and Rücker G (2015):
 #' \emph{Meta-Analysis with R (Use-R!)}.
 #' Springer International Publishing, Switzerland
+#'
+#' Skipka G (2006):
+#' The inclusion of the estimated inter-study variation into forest
+#' plots for random effects meta-analysis - a suggestion for a
+#' graphical representation [abstract].
+#' \emph{XIV Cochrane Colloquium, Dublin}, 23-26.
 #' 
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
@@ -188,7 +474,7 @@
 #' data.
 #' \emph{Statistics in Medicine},
 #' \bold{29}, 3046--67
-#'
+#' 
 #' Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
 #' et al. (2016):
 #' Methods to estimate the between-study variance and its uncertainty
@@ -201,10 +487,28 @@
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
 #' 
+#' Viechtbauer W (2005):
+#' Bias and efficiency of meta-analytic variance estimators in the
+#' random-effects model.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{30}, 261--93
+#' 
+#' Viechtbauer W (2007):
+#' Confidence intervals for the amount of heterogeneity in
+#' meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{26}, 37--52
+#' 
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
+#' 
+#' Wiksten A, Rücker G, Schwarzer G (2016):
+#' Hartung-Knapp method is not always conservative compared with
+#' fixed-effect meta-analysis.
+#' \emph{Statistics in Medicine},
+#' \bold{35}, 2503--15
 #'
 #' @keywords package
 #'
@@ -222,7 +526,7 @@
 #'   weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion head tail
+#'   getFromNamespace packageDescription packageVersion head tail find
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma

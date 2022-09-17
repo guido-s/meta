@@ -26,7 +26,7 @@
   digits.I2 = max(gs("digits.I2") - 1, 0),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
-  print.subgroup.labels = if (any(x$.meta$is.subgroup)) TRUE else FALSE,
+  print.subgroup.labels = if (any(x$is.subgroup)) TRUE else FALSE,
   addrow.subgroups = print.subgroup.labels,
   smlab,
   calcwidth.pooled = overall,

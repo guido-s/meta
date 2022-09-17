@@ -330,13 +330,15 @@ print.summary.meta <- function(x,
   ##
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  mb.glmm <- inherits(x, "metabind") | x$method == "GLMM"
+  mb.glmm <- inherits(x, "metabind") | any(x$method == "GLMM")
   ##
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
   sm <- x$sm
   ##
   sm.lab <- sm
+  ##
+  method.random.ci <- replaceNULL(x$method.random.ci, "")
   ##
   if (backtransf) {
     if (sm == "ZCOR")
@@ -652,6 +654,27 @@ print.summary.meta <- function(x,
     }
     ##
     if (metainf.metacum) {
+      if (is.null(x$text.common))
+        text.common <- gs("text.common")
+      else
+        text.common <- x$text.common
+      ##
+      if (is.null(x$text.random))
+        text.random <- gs("text.random")
+      else
+        text.random <- x$text.random
+      ##
+      if (any(substring(text.common, 1, 5) %in% c("Fixed", "Commo"))) {
+        text.common <- gsub("Fixed", "fixed", text.common)
+        text.common <- gsub("Common", "common", text.common)
+        text.common <- gsub("Effect", "effect", text.common)
+      }
+      ##
+      if (any(substring(text.random, 1, 5) %in% c("Rando"))) {
+        text.random <- gsub("Random", "random", text.random)
+        text.random <- gsub("Effect", "effect", text.random)
+      }
+      ##
       is.random <- x$pooled == "random"
       ##
       I2 <- formatN(round(100 * x$I2, digits.I2), digits.I2, "")
@@ -682,26 +705,29 @@ print.summary.meta <- function(x,
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
-          cat(paste0("Influential analysis (", gs("text.common"), ")\n"))
+          cat(paste0("Influential analysis (", text.common, ")\n"))
         else
-          cat(paste0("Influential analysis (", gs("text.random"), ")\n"))
+          cat(paste0("Influential analysis (", text.random, ")\n"))
       }
       else if (inherits(x, "metacum")) {
         if (!is.random)
-          cat(paste0("Cumulative meta-analysis (", gs("text.common"), ")\n"))
+          cat(paste0("Cumulative meta-analysis (", text.common, ")\n"))
         else
-          cat(paste0("Cumulative meta-analysis (", gs("text.random"), ")\n"))
+          cat(paste0("Cumulative meta-analysis (", text.random, ")\n"))
       }
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
       ## Print information on summary method:
+      if (!is.random)
+        method.random.ci <- "classic"
       if (details.methods)
         catmeth(class = class(x),
                 method = x$method,
                 method.tau = x$method.tau,
                 sm = sm,
                 k.all = k.all,
-                hakn = is.random & x$hakn,
+                method.random.ci = method.random.ci,
+                df.random = x$df.random[length(x$df.random)],
                 tau.preset = x$tau.preset,
                 method.smd = x$method.smd,
                 sd.glass = x$sd.glass,

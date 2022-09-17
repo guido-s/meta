@@ -48,8 +48,8 @@
 #' is a vector.
 #' 
 #' @return
-#' An object of class \code{"meta"} and \code{"metagen"}; see
-#' \code{\link{metagen}}.
+#' An object of class \code{c("metagen", "meta")} with corresponding
+#' generic functions (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #'
@@ -176,51 +176,99 @@ or2smd <- function(lnOR, selnOR, studlab,
   
   if (is.meta) {
     if (is.null(mdat$subgroup))
-      res <- metagen(smd, se.smd, sm = "SMD",
+      res <- metagen(smd, se.smd, studlab = mdat$studlab,
                      data = mdat,
-                     studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
+                     cluster = mdat$cluster,
+                     ##
+                     sm = "SMD",
+                     ##
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
-                     hakn = mdat$hakn, method.tau = mdat$method.tau,
+                     overall = mdat$overall,
+                     overall.hetstat = mdat$overall.hetstat,
+                     ##
+                     method.random.ci = mdat$method.random.ci,
+                     adhoc.hakn.ci = mdat$adhoc.hakn.ci,
+                     ##
+                     prediction = mdat$prediction,
+                     method.predict = mdat$method.predict,
+                     adhoc.hakn.pi = mdat$adhoc.hakn.pi,
+                     level.predict = mdat$level.predict,
+                     ##
+                     method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
-                     prediction = mdat$prediction,
-                     level.predict = mdat$level.predict,
+                     detail.tau = mdat$detail.tau,
+                     ##
                      null.effect = 0,
+                     ##
                      method.bias = mdat$method.bias,
+                     ##
+                     text.common = mdat$text.common,
+                     text.random = mdat$text.random,
+                     text.predict = mdat$text.predict,
+                     text.w.common = mdat$text.w.common,
+                     text.w.random = mdat$text.w.random,
+                     ##
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
-                     label.c = mdat$label.c, label.e = mdat$label.e,
+                     label.e = mdat$label.e, label.c = mdat$label.c,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
+                     ##
                      control = mdat$control)
     else
-      res <- metagen(smd, se.smd, sm = "SMD",
+      res <- metagen(smd, se.smd, studlab = mdat$studlab,
                      data = mdat,
-                     studlab = mdat$studlab,
                      subset = mdat$subset, exclude = mdat$exclude,
+                     cluster = mdat$cluster,
+                     ##
+                     sm = "SMD",
+                     ##
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
-                     hakn = mdat$hakn, method.tau = mdat$method.tau,
+                     overall = mdat$overall,
+                     overall.hetstat = mdat$overall.hetstat,
+                     ##
+                     method.random.ci = mdat$method.random.ci,
+                     adhoc.hakn.ci = mdat$adhoc.hakn.ci,
+                     ##
+                     prediction = mdat$prediction,
+                     method.predict = mdat$method.predict,
+                     adhoc.hakn.pi = mdat$adhoc.hakn.pi,
+                     level.predict = mdat$level.predict,
+                     ##
+                     method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      tau.common = mdat$tau.common,
-                     prediction = mdat$prediction,
-                     level.predict = mdat$level.predict,
+                     detail.tau = mdat$detail.tau,
+                     ##
                      null.effect = 0,
+                     ##
                      method.bias = mdat$method.bias,
+                     ##
+                     text.common = mdat$text.common,
+                     text.random = mdat$text.random,
+                     text.predict = mdat$text.predict,
+                     text.w.common = mdat$text.w.common,
+                     text.w.random = mdat$text.w.random,
+                     ##
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
-                     label.c = mdat$label.c,
-                     label.e = mdat$label.e,
+                     label.e = mdat$label.e, label.c = mdat$label.c,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
+                     ##
                      subgroup = mdat$subgroup,
                      subgroup.name = mdat$subgroup.name,
                      print.subgroup.name = mdat$print.subgroup.name,
                      sep.subgroup = mdat$sep.subgroup,
+                     test.subgroup = mdat$test.subgroup,
+                     prediction.subgroup = mdat$prediction.subgroup,
+                     ##
                      control = mdat$control)
   }
   else {
@@ -232,6 +280,8 @@ or2smd <- function(lnOR, selnOR, studlab,
                    data = dat, subset = subset, exclude = exclude,
                    sm = "SMD", ...)
   }
+  ##
+  res$method.or2smd <- method
   
   
   res

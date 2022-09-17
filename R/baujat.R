@@ -71,14 +71,19 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' 
+#'
+#' # Only consider first ten studies
 #' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'   data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year))
+#'   data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year),
+#'   subset = 1:10)
 #' 
 #' # Generate Baujat plot
 #' baujat(m1)
 #'
 #' \dontrun{
+#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'   data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year))
+#' 
 #' # Do not print study labels if the x-value is smaller than 4 and
 #' # the y-value is smaller than 1
 #' baujat(m1, yscale = 10, xmin = 4, ymin = 1)

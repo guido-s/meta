@@ -10,10 +10,15 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (length && length(x) != length)
-    stop("Argument '", name, "' must be a character vector of length ",
-         length, ".",
-         call. = FALSE)
+  if (length && length(x) != length) {
+    if (length == 1)
+      stop("Argument '", name, "' must be a character string.",
+           call. = FALSE)
+    else
+      stop("Argument '", name, "' must be a character vector of length ",
+           length, ".",
+           call. = FALSE)
+  }
   ##
   if (length == 1) {
     if (!is.null(nchar) && !(nchar(x) %in% nchar))
@@ -245,9 +250,18 @@ argid <- function(x, value) {
 }
 chkdeprecated <- function(x, new, old, warn = TRUE) {
   depr <- !is.na(argid(x, old))
-  if (depr & warn)
-    warning("Deprecated argument '", old, "' ignored. ",
-            "Use argument '", new, "' instead.",
-            call. = FALSE)
+  new.given <- !is.na(argid(x, new))
+  ##
+  if (depr & warn) {
+    if (new.given)
+      warning("Deprecated argument '", old, "' ignored as ",
+              "'", new, "' is also provided, see help(meta).",
+              call. = FALSE)
+    else
+      warning("Use argument '", new, "' instead of '",
+              old, "' (deprecated), see help(meta).",
+              call. = FALSE)
+  }
+  ##
   invisible(depr)
 }

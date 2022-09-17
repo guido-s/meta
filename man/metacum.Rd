@@ -4,7 +4,7 @@
 \alias{metacum}
 \title{Cumulative meta-analysis}
 \usage{
-metacum(x, pooled, sortvar)
+metacum(x, pooled, sortvar, no = 1)
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
@@ -15,11 +15,15 @@ Details), \code{"common"}, or \code{"random"}, can be abbreviated.}
 
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
+
+\item{no}{A numeric specifying which meta-analysis results to
+consider.}
 }
 \value{
-An object of class \code{c("metacum", "meta")} with corresponding
-\code{print}, and \code{forest} functions. The object is a list
-containing the following components:
+An object of class \code{"meta"} and \code{"metacum"} with
+corresponding generic functions (see \code{\link{meta-object}}).
+
+The following list elements have a different meaning:
 \item{TE, seTE}{Estimated treatment effect and standard error of
   pooled estimate in cumulative meta-analyses.}
 \item{lower, upper}{Lower and upper confidence interval limits.}
@@ -27,41 +31,9 @@ containing the following components:
 \item{pval}{P-value for test of overall effect.}
 \item{studlab}{Study label describing addition of studies.}
 \item{w}{Sum of weights from common effect or random effects model.}
-\item{I2}{Heterogeneity statistic I\eqn{^2}.}
-\item{Rb}{Heterogeneity statistic R\eqn{_b}.}
-\item{tau}{Square-root of between-study variance.}
-\item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn = TRUE}).}
-\item{sm}{Summary measure.}
-\item{method}{Method used for pooling.}
-\item{k}{Number of studies combined in meta-analysis.}
-\item{pooled}{As defined above.}
-\item{common}{A logical indicating whether analysis is based on
-  common effect model.}
-\item{random}{A logical indicating whether analysis is based
-  on random effects model.}
 \item{TE.common, seTE.common}{Value is \code{NA}.}
 \item{TE.random, seTE.random}{Value is \code{NA}.}
 \item{Q}{Value is \code{NA}.}
-\item{level.ma}{The level used to calculate confidence intervals
-  for pooled estimates.}
-\item{hakn}{A logical indicating whether the method by Hartung and
-  Knapp is used to adjust test statistics and confidence
-  intervals.}
-\item{adhoc.hakn}{A character string indicating whether \emph{ad
-  hoc} variance correction should be used for Hartung-Knapp
-  method.}
-\item{method.tau}{A character string indicating which method is
-  used to estimate the between-study variance \eqn{\tau^2}.}
-\item{tau.preset}{Prespecified value for the square root of the
-  between-study variance \eqn{\tau^2}.}
-\item{TE.tau}{Overall treatment effect used to estimate the
-  between-study variance \eqn{\tau^2}.}
-\item{n.harmonic.mean}{Harmonic mean of number of observations (for
-  back transformation of Freeman-Tukey Double arcsine
-  transformation).}
-\item{version}{Version of R package \bold{meta} used to create
-  object.}
 }
 \description{
 Performs a cumulative meta-analysis.

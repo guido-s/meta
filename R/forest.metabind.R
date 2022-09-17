@@ -169,7 +169,7 @@ forest.metabind <- function(x,
                             big.mark = gs("big.mark"),
                             ##
                             print.subgroup.labels =
-                              if (any(x$.meta$is.subgroup)) TRUE else FALSE,
+                              if (any(x$is.subgroup)) TRUE else FALSE,
                             addrow.subgroups = print.subgroup.labels,
                             ##
                             smlab,
@@ -253,7 +253,7 @@ forest.metabind <- function(x,
     if (any(x$is.subgroup))
       leftcols <- c(leftcols, "pval.Q.b")
     else {
-      x$studlab <- x$bylevs
+      x$studlab <- x$subgroup.levels
       leftcols <- c(leftcols, "tau2")
     }
   }

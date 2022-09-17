@@ -15,21 +15,23 @@ metagen(
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
-  level.ma = gs("level.ma"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  hakn = gs("hakn"),
-  adhoc.hakn = gs("adhoc.hakn"),
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
   detail.tau = "",
-  prediction = gs("prediction"),
+  level.ma = gs("level.ma"),
+  method.random.ci = gs("method.random.ci"),
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
+  method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   null.effect = 0,
   method.bias = gs("method.bias"),
   n.e = NULL,
@@ -72,6 +74,7 @@ metagen(
   prediction.subgroup = gs("prediction.subgroup"),
   byvar,
   id,
+  adhoc.hakn,
   keepdata = gs("keepdata"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
@@ -112,9 +115,6 @@ Details.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.ma}{The level used to calculate confidence intervals
-for meta-analysis estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
@@ -131,26 +131,16 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{hakn}{A logical indicating whether method by Hartung and
-Knapp should be used to adjust test statistics and confidence
-intervals.}
-
-\item{adhoc.hakn}{A character string indicating whether an \emph{ad
-hoc} variance correction should be applied in the case of an
-arbitrarily small Hartung-Knapp variance estimate. Either
-\code{""}, \code{"se"}, \code{"ci"}, or \code{"iqwig6"} (see
-Details), can be abbreviated.}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+square root \eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
-\code{"PL"}, or \code{""}, can be abbreviated.}
+\eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
@@ -163,11 +153,28 @@ be the same across subgroups.}
 
 \item{detail.tau}{Detail on between-study variance estimate.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{null.effect}{A numeric value specifying the effect under the
 null hypothesis.}
@@ -296,6 +303,8 @@ intervals should be printed for subgroups.}
 
 \item{id}{Deprecated argument (replaced by 'cluster').}
 
+\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
@@ -315,156 +324,7 @@ is passed on to \code{\link[metafor]{rma.uni}} or
 }
 \value{
 An object of class \code{c("metagen", "meta")} with corresponding
-\code{print}, \code{summary}, and \code{forest} functions. The
-object is a list containing the following components:
-\item{TE, seTE, studlab, exclude, n.e, n.c}{As defined above.}
-\item{cluster, sm, method.ci, level, level.ma,}{As defined above.}
-\item{common, random,}{As defined above.}
-\item{overall, overall.hetstat,}{As defined above.}
-\item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
-\item{tau.preset, TE.tau, method.bias,}{As defined above.}
-\item{tau.common, title, complab, outclab,}{As defined above.}
-\item{label.e, label.c, label.left, label.right,}{As defined
-  above.}
-\item{subgroup, subgroup.name,}{As defined above.}
-\item{print.subgroup.name, sep.subgroup, warn,}{As defined above.}
-\item{lower, upper}{Lower and upper confidence interval limits for
-  individual studies.}
-\item{statistic, pval}{Statistic and p-value for test of treatment
-  effect for individual studies.}
-\item{w.common, w.random}{Weight of individual studies (in common
-  effect and random effects model).}
-\item{TE.common, seTE.common}{Estimated overall treatment effect and
-  standard error (common effect model).}
-\item{lower.common, upper.common}{Lower and upper confidence interval
-  limits (common effect model).}
-\item{statistic.common, pval.common}{Statistic and p-value for test of
-  overall treatment effect (common effect model).}
-\item{TE.random, seTE.random}{Estimated overall treatment effect
-  and standard error (random effects model).}
-\item{lower.random, upper.random}{Lower and upper confidence
-  interval limits (random effects model).}
-\item{statistic.random, pval.random}{Statistic and p-value for test
-  of overall treatment effect (random effects model).}
-\item{prediction, level.predict}{As defined above.}
-\item{seTE.predict}{Standard error utilised for prediction
-  interval.}
-\item{lower.predict, upper.predict}{Lower and upper limits of
-  prediction interval.}
-\item{null.effect}{As defined above.}
-\item{k}{Number of estimates combined in meta-analysis.}
-\item{k.study}{Number of studies combined in meta-analysis.}
-\item{k.all}{Number of all studies.}
-\item{k.TE}{Number of studies with estimable effects.}
-\item{Q}{Heterogeneity statistic.}
-\item{df.Q}{Degrees of freedom for heterogeneity statistic.}
-\item{pval.Q}{P-value of heterogeneity test.}
-\item{tau2}{Between-study variance \eqn{\tau^2}.}
-\item{se.tau2}{Standard error of \eqn{\tau^2}.}
-\item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
-  interval for \eqn{\tau^2}.}
-\item{tau}{Square-root of between-study variance \eqn{\tau}.}
-\item{lower.tau, upper.tau}{Lower and upper limit of confidence
-  interval for \eqn{\tau}.}
-\item{H}{Heterogeneity statistic H.}
-\item{lower.H, upper.H}{Lower and upper confidence limit for
- heterogeneity statistic H.}
-\item{I2}{Heterogeneity statistic I\eqn{^2}.}
-\item{lower.I2, upper.I2}{Lower and upper confidence limit for
-  heterogeneity statistic I\eqn{^2}.}
-\item{Rb}{Heterogeneity statistic R\eqn{_b}.}
-\item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
-  heterogeneity statistic R\eqn{_b}.}
-\item{approx.TE, approx.seTE}{As defined above.}
-\item{method}{Pooling method: \code{"Inverse"}.}
-\item{df.hakn}{Degrees of freedom for test of treatment effect for
-  Hartung-Knapp method (only if \code{hakn = TRUE}).}
-\item{seTE.hakn}{Estimated standard error for Hartung-Knapp method
-  (not taking \emph{ad hoc} variance correction into account).}
-\item{seTE.hakn.adhoc}{Estimated standard error for Hartung-Knapp
-  method (taking \emph{ad hoc} variance correction into account).}
-\item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
-  missing.}
-\item{TE.common.w, seTE.common.w}{Estimated treatment effect and
-  standard error in subgroups (common effect model) - if
-  \code{subgroup} is not missing.}
-\item{lower.common.w, upper.common.w}{Lower and upper confidence
-  interval limits in subgroups (common effect model) - if
-  \code{subgroup} is not missing.}
-\item{statistic.common.w, pval.common.w}{Statistics and p-values for
-  test of treatment effect in subgroups (common effect model) - if
-  \code{subgroup} is not missing.}
-\item{TE.random.w, seTE.random.w}{Estimated treatment effect and
-  standard error in subgroups (random effects model) - if
-  \code{subgroup} is not missing.}
-\item{lower.random.w, upper.random.w}{Lower and upper confidence
-  interval limits in subgroups (random effects model) - if
-  \code{subgroup} is not missing.}
-\item{statistic.random.w, pval.random.w}{Statistics and p-values
-  for test of treatment effect in subgroups (random effects model)
-  - if \code{subgroup} is not missing.}
-\item{w.common.w, w.random.w}{Weight of subgroups (in common effect
-  and random effects model) - if \code{subgroup} is not missing.}
-\item{df.hakn.w}{Degrees of freedom for test of treatment effect
-  for Hartung-Knapp method in subgroups - if \code{subgroup} is not
-  missing and \code{hakn = TRUE}.}
-\item{n.harmonic.mean.w}{Harmonic mean of number of observations in
-  subgroups (for back transformation of Freeman-Tukey Double
-  arcsine transformation) - if \code{subgroup} is not missing.}
-\item{n.e.w}{Number of observations in experimental group in
-  subgroups - if \code{subgroup} is not missing.}
-\item{n.c.w}{Number of observations in control group in subgroups -
-  if \code{subgroup} is not missing.}
-\item{k.w}{Number of studies combined within
-  subgroups - if \code{subgroup} is not missing.}
-\item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
-  is not missing.}
-\item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
-  (based on common effect model) - if \code{subgroup} is not missing.}
-\item{Q.w.random}{Overall within subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{subgroup} is not
-  missing (only calculated if argument \code{tau.common} is TRUE).}
-\item{df.Q.w}{Degrees of freedom for test of overall within
-  subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.w.common}{P-value of within subgroups heterogeneity
-  statistic Q (based on common effect model) - if \code{subgroup} is
-  not missing.}
-\item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-  statistic Q (based on random effects model) - if \code{subgroup} is
-  not missing.}
-\item{Q.b.common}{Overall between subgroups heterogeneity statistic
-  Q (based on common effect model) - if \code{subgroup} is not
-  missing.}
-\item{Q.b.random}{Overall between subgroups heterogeneity statistic
-  Q (based on random effects model) - if \code{subgroup} is not
-  missing.}
-\item{df.Q.b}{Degrees of freedom for test of overall between
-  subgroups heterogeneity - if \code{subgroup} is not missing.}
-\item{pval.Q.b.common}{P-value of between subgroups heterogeneity
-  statistic Q (based on common effect model) - if \code{subgroup} is
-  not missing.}  \item{pval.Q.b.random}{P-value of between
-  subgroups heterogeneity statistic Q (based on random effects
-  model) - if \code{subgroup} is not missing.}
-\item{tau.w}{Square-root of between-study variance within subgroups
-  - if \code{subgroup} is not missing.}
-\item{H.w}{Heterogeneity statistic H within subgroups - if
-  \code{subgroup} is not missing.}
-\item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-  heterogeneity statistic H within subgroups - if \code{subgroup} is
-  not missing.}
-\item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-  \code{subgroup} is not missing.}
-\item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-  heterogeneity statistic I\eqn{^2} within subgroups - if \code{subgroup} is
-  not missing.}
-\item{keepdata}{As defined above.}
-\item{data}{Original data (set) used in function call (if
-  \code{keepdata = TRUE}).}
-\item{subset}{Information on subset of original data used in
-  meta-analysis (if \code{keepdata = TRUE}).}
-\item{call}{Function call.}
-\item{version}{Version of R package \bold{meta} used to create
-  object.}
+generic functions (see \code{\link{meta-object}}).
 }
 \description{
 Common effect and random effects meta-analysis based on estimates
@@ -486,6 +346,13 @@ be used to provide treatment estimates and standard errors
 directly. However, it is possible to derive these quantities from
 other information.
 
+A three-level random effects meta-analysis model (Van den Noortgate
+et al., 2013) is utilized if argument \code{cluster} is used and at
+least one cluster provides more than one estimate. Internally,
+\code{\link[metafor]{rma.mv}} is called to conduct the analysis and
+\code{\link[metafor]{weights.rma.mv}} with argument \code{type =
+"rowsum"} is used to calculate random effects weights.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -493,16 +360,6 @@ function.
 
 Furthermore, R function \code{\link{update.meta}} can be used to
 rerun a meta-analysis with different settings.
-
-\subsection{Three-level random effects meta-analysis}{
-
-A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{cluster} is used and at
-least one cluster provides more than one estimate. Internally,
-\code{\link[metafor]{rma.mv}} is called to conduct the analysis and
-\code{\link[metafor]{weights.rma.mv}} with argument \code{type =
-"rowsum"} is used to calculate random effects weights.
-}
 
 \subsection{Approximate treatment estimates}{
 
@@ -575,7 +432,7 @@ Missing standard errors can be derived from
   \code{n.c}, \code{median}, \code{min} and \code{max}).
 }
 For p-values and confidence limits, calculations are either based
-on the standard normal or \emph{t} distribution if argument
+on the standard normal or \emph{t}-distribution if argument
 \code{df} is provided. Furthermore, argument \code{level.ci} can be
 used to provide the level of the confidence interval.
 
@@ -620,7 +477,7 @@ For the mean difference (argument \code{sm = "MD"}), the confidence
 interval for individual studies can be based on the
 \itemize{
 \item standard normal distribution (\code{method.ci = "z"}), or
-\item t-distribution (\code{method.ci = "t"}).
+\item \emph{t}-distribution (\code{method.ci = "t"}).
 }
 
 By default, the first method is used if argument \code{df} is
@@ -628,112 +485,6 @@ missing and the second method otherwise.
 
 Note, this choice does not affect the results of the common effect
 and random effects meta-analysis.
-}
-
-\subsection{Estimation of between-study variance}{
-
-The following methods are available to estimate the between-study
-variance \eqn{\tau^2}.
-\tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau = "DL"}
- \tab DerSimonian-Laird estimator (DerSimonian and Laird, 1986) \cr
-\code{method.tau = "PM"}
- \tab Paule-Mandel estimator (Paule and Mandel, 1982) \cr
-\code{method.tau = "REML"}
- \tab Restricted maximum-likelihood estimator (Viechtbauer, 2005) \cr
-\code{method.tau = "ML"}
- \tab Maximum-likelihood estimator (Viechtbauer, 2005) \cr
-\code{method.tau = "HS"}
- \tab Hunter-Schmidt estimator (Hunter and Schmidt, 2015) \cr
-\code{method.tau = "SJ"}
- \tab Sidik-Jonkman estimator (Sidik and Jonkman, 2005) \cr
-\code{method.tau = "HE"}
- \tab Hedges estimator (Hedges and Olkin, 1985) \cr
-\code{method.tau = "EB"}
- \tab Empirical Bayes estimator (Morris, 1983)
-}
-
-Historically, the DerSimonian-Laird method was the de facto
-standard to estimate the between-study variance \eqn{\tau^2} and is
-still the default in many software packages including Review
-Manager 5 (RevMan 5) and R package \pkg{meta}. However, its role
-has been challenged and especially the Paule-Mandel and REML
-estimators have been recommended (Veroniki et al.,
-2016). Accordingly, the following R command can be used to use the
-Paule-Mandel estimator in all meta-analyses of the R session:
-\code{settings.meta(method.tau = "PM")}
-}
-
-\subsection{Confidence interval for the between-study variance}{
-
-The following methods to calculate a confidence interval for
-\eqn{\tau^2} and \eqn{\tau} are available.
-\tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for three-level \cr
- \tab meta-analysis model (Van den Noortgate et al., 2013) \cr
-\code{method.tau.ci = ""}\tab No confidence interval
-}
-The first three methods have been recommended by Veroniki et
-al. (2016). By default, the Jackson method is used for the
-DerSimonian-Laird estimator of \eqn{\tau^2} and the Q-profile
-method for all other estimators of \eqn{\tau^2}. The
-Profile-Likelihood method is the only method available for the
-three-level meta-analysis model.
-}
-
-\subsection{Hartung-Knapp method}{
-
-Hartung and Knapp (2001a,b) proposed an alternative method for
-random effects meta-analysis based on a refined variance estimator
-for the treatment estimate. Simulation studies (Hartung and Knapp,
-2001a,b; IntHout et al., 2014; Langan et al., 2019) show improved
-coverage probabilities compared to the classic random effects
-method. However, in rare settings with very homogeneous treatment
-estimates, the Hartung-Knapp (HK) variance estimate can be
-arbitrarily small resulting in a very narrow confidence interval
-(Knapp and Hartung, 2003; Wiksten et al., 2016). In such cases, an
-\emph{ad hoc} variance correction has been proposed by utilising
-the variance estimate from the classic random effects model with
-the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
-alternative approach is to use the wider confidence interval of
-classic common or random effects meta-analysis and the HK method
-(Wiksten et al., 2016; Jackson et al., 2017).
-
-Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
-method:
-\tabular{ll}{
-\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-\code{adhoc.hakn = ""}\tab not used \cr
-\code{adhoc.hakn = "se"}\tab use variance correction if HK standard
- error is smaller \cr
- \tab than standard error from classic random effects
- \cr
- \tab meta-analysis (Knapp and Hartung, 2003) \cr
-\code{adhoc.hakn = "iqwig6"}\tab use variance correction if HK
- confidence interval \cr
- \tab is narrower than CI from classic random effects model \cr
- \tab with DerSimonian-Laird estimator (IQWiG, 2020) \cr
-\code{adhoc.hakn = "ci"}\tab use wider confidence interval of
- classic random effects \cr
- \tab and HK meta-analysis \cr
- \tab (Hybrid method 2 in Jackson et al., 2017)
-}
-}
-
-\subsection{Prediction interval}{
-
-A prediction interval for the treatment effect of a new study
-(Higgins et al., 2009) is calculated if arguments \code{prediction}
-and \code{random} are \code{TRUE}. Note, the definition of
-prediction intervals varies in the literature. This function
-implements equation (12) of Higgins et al., (2009) which proposed a
-\emph{t} distribution with \emph{K-2} degrees of freedom where
-\emph{K} corresponds to the number of studies in the meta-analysis.
 }
 
 \subsection{Subgroup analysis}{
@@ -783,16 +534,18 @@ Meta-analysis results are the same for both arguments.
 \subsection{Presentation of meta-analysis results}{
 
 Internally, both common effect and random effects models are
-calculated regardless of values choosen for arguments
-\code{common} and \code{random}. Accordingly, the estimate
-for the random effects model can be extracted from component
-\code{TE.random} of an object of class \code{"meta"} even if
-argument \code{random = FALSE}. However, all functions in R
-package \bold{meta} will adequately consider the values for
-\code{common} and \code{random}. For example, functions
-\code{\link{print.meta}} and \code{\link{forest.meta}} will not
-show results for the random effects model if \code{random =
-FALSE}.
+calculated regardless of values choosen for arguments \code{common}
+and \code{random}. Accordingly, the estimate for the random effects
+model can be extracted from component \code{TE.random} of an object
+of class \code{"meta"} even if argument \code{random =
+FALSE}. However, all functions in R package \bold{meta} will
+adequately consider the values for \code{common} and
+\code{random}. For example, functions \code{\link{print.meta}} and
+\code{\link{forest.meta}} will not show results for the random
+effects model if \code{random = FALSE}.
+
+A prediction interval will only be shown if \code{prediction =
+TRUE}.
 
 Argument \code{pscale} can be used to rescale single proportions or
 risk differences, e.g. \code{pscale = 1000} means that proportions
@@ -909,89 +662,11 @@ metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
 
 }
 \references{
-Biggerstaff BJ, Jackson D (2008):
-The exact distribution of Cochran’s heterogeneity statistic in
-one-way random effects meta-analysis.
-\emph{Statistics in Medicine},
-\bold{27}, 6093--110
-
 Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 A basic introduction to fixed-effect and random-effects models for
 meta-analysis.
 \emph{Research Synthesis Methods},
 \bold{1}, 97--111
-
-Cooper H & Hedges LV (1994):
-\emph{The Handbook of Research Synthesis}.
-Newbury Park, CA: Russell Sage Foundation
-
-DerSimonian R & Laird N (1986):
-Meta-analysis in clinical trials.
-\emph{Controlled Clinical Trials},
-\bold{7}, 177--88
-
-Hedges LV & Olkin I (1985):
-\emph{Statistical methods for meta-analysis}.
-San Diego, CA: Academic Press
-
-Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
-A re-evaluation of random-effects meta-analysis.
-\emph{Journal of the Royal Statistical Society: Series A},
-\bold{172}, 137--59
-
-Hunter JE & Schmidt FL (2015):
-\emph{Methods of Meta-Analysis: Correcting Error and Bias in
-Research Findings} (Third edition).
-Thousand Oaks, CA: Sage
-
-Hartung J, Knapp G (2001a):
-On tests of the overall treatment effect in meta-analysis with
-normally distributed responses.
-\emph{Statistics in Medicine},
-\bold{20}, 1771--82
-
-Hartung J, Knapp G (2001b):
-A refined method for the meta-analysis of controlled clinical
-trials with binary outcome.
-\emph{Statistics in Medicine},
-\bold{20}, 3875--89
-
-IntHout J, Ioannidis JPA, Borm GF (2014):
-The Hartung-Knapp-Sidik-Jonkman method for random effects
-meta-analysis is straightforward and considerably outperforms the
-standard DerSimonian-Laird method.
-\emph{BMC Medical Research Methodology},
-\bold{14}, 25
-
-IQWiG (2020):
-General Methods: Version 6.0.
-\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
-
-Jackson D (2013):
-Confidence intervals for the between-study variance in random
-effects meta-analysis using generalised Cochran heterogeneity
-statistics.
-\emph{Research Synthesis Methods},
-\bold{4}, 220--229
-
-Jackson D, Law M, Rücker G, Schwarzer G (2017): 
-The Hartung-Knapp modification for random-effects meta-analysis: A
-useful refinement but are there any residual concerns?
-\emph{Statistics in Medicine},
-\bold{36}, 3923--34
-
-Knapp G & Hartung J (2003):
-Improved tests for a random effects meta-regression with a single
-covariate.
-\emph{Statistics in Medicine},
-\bold{22}, 2693--710
-
-Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
-Kontopantelis E, et al. (2019):
-A comparison of heterogeneity variance estimators in simulated
-random-effects meta-analyses.
-\emph{Research Synthesis Methods},
-\bold{10}, 83--98
 
 Luo D, Wan X, Liu J, Tong T (2018):
 Optimally estimating the sample mean from the sample size, median,
@@ -999,48 +674,10 @@ mid-range, and/or mid-quartile range.
 \emph{Statistical Methods in Medical Research},
 \bold{27}, 1785--805
 
-Morris CN (1983):
-Parametric empirical Bayes inference: Theory and applications (with
-discussion).
-\emph{Journal of the American Statistical Association}
-\bold{78}, 47--65
-
-Paule RC & Mandel J (1982):
-Consensus values and weighting factors.
-\emph{Journal of Research of the National Bureau of Standards},
-\bold{87}, 377--85
-
-\emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
-The Cochrane Collaboration, 2020
-
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the
 five-number summary.
 \emph{Research Synthesis Methods}.
-
-Sidik K & Jonkman JN (2005):
-Simple heterogeneity variance estimation for meta-analysis.
-\emph{Journal of the Royal Statistical Society: Series C (Applied Statistics)},
-\bold{54}, 367--84
-
-Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
-et al. (2016):
-Methods to estimate the between-study variance and its uncertainty
-in meta-analysis.
-\emph{Research Synthesis Methods},
-\bold{7}, 55--79 
-
-Viechtbauer W (2005):
-Bias and efficiency of meta-analytic variance estimators in the
-random-effects model.
-\emph{Journal of Educational and Behavioral Statistics},
-\bold{30}, 261--93
-
-Viechtbauer W (2007):
-Confidence intervals for the amount of heterogeneity in
-meta-analysis.
-\emph{Statistics in Medicine},
-\bold{26}, 37--52
 
 Viechtbauer W (2010):
 Conducting Meta-Analyses in R with the metafor Package.
@@ -1057,17 +694,11 @@ Estimating the sample mean and standard deviation from the sample
 size, median, range and/or interquartile range.
 \emph{BMC Medical Research Methodology},
 \bold{14}, 135
-
-Wiksten A, Rücker G, Schwarzer G (2016):
-Hartung-Knapp method is not always conservative compared with
-fixed-effect meta-analysis.
-\emph{Statistics in Medicine},
-\bold{35}, 2503--15
 }
 \seealso{
-\code{\link{update.meta}}, \code{\link{metabin}},
-  \code{\link{metacont}}, \code{\link{print.meta}},
-  \code{\link{settings.meta}}
+\code{\link{meta-package}}, \code{\link{update.meta}},
+  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{print.meta}}, \code{\link{settings.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

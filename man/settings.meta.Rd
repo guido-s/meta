@@ -33,17 +33,17 @@ meta-analysis results and to produce forest plots.
 The function can be used to either change individual settings (see
 Examples) or use one of the following general settings:
 \itemize{
-\item \code{settings.meta("revman5")}
-\item \code{settings.meta("jama")}
-\item \code{settings.meta("iqwig5")}
-\item \code{settings.meta("iqwig6")}
+\item \code{settings.meta("RevMan5")}
+\item \code{settings.meta("JAMA")}
+\item \code{settings.meta("IQWiG5")}
+\item \code{settings.meta("IQWiG6")}
 \item \code{settings.meta("geneexpr")}
 \item \code{settings.meta("meta4")}
 }
 
 The first command can be used to reproduce meta-analyses from
 Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+\url{https://training.cochrane.org/online-learning/core-software/revman})
 and specifies to use a RevMan 5 layout in forest plots.
 
 The second command can be used to generate forest plots following
@@ -68,7 +68,7 @@ The last setting uses the default settings of R package
 RevMan 5 settings, in detail:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab FALSE \tab method not available in RevMan 5 \cr
+\code{method.random.ci} \tab "classic" \tab only available method in RevMan 5 \cr
 \code{method.tau} \tab "DL" \tab only available method in RevMan 5
   \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
@@ -77,11 +77,16 @@ RevMan 5 settings, in detail:
 \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
 \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
 \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
+\code{prediction} \tab FALSE \tab no prediction interval \cr
 \code{test.overall} \tab TRUE \tab print information on test of
   overall effect \cr
+\code{test.subgroup} \tab TRUE \tab print information on test for
+  subgroup differences \cr
+\code{test.effect.subgroup} \tab TRUE \tab print information on
+  test for effect in subgroups \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
-\code{digits.tau2} \tab 2 \tab number of digits for tau-squared \cr
+\code{digits.tau2} \tab 3 \tab number of digits for tau-squared \cr
 \code{digits.tau} \tab 4 \tab number of digits for square root of
   tau-squared \cr
 \code{CIbracket}, \tab "[" \tab \cr
@@ -95,8 +100,13 @@ JAMA settings:
 \code{layout} \tab "JAMA" \tab layout for forest plots \cr
 \code{test.overall} \tab TRUE \tab print information on test of
   overall effect \cr
+\code{test.subgroup} \tab FALSE \tab print information on test for
+  subgroup differences \cr
+\code{test.effect.subgroup} \tab FALSE \tab print information on
+  test for effect in subgroups \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
+\code{digits.pval} \tab 3 \tab number of digits for p-values \cr
 \code{CIbracket}, \tab "(" \tab \cr
 \code{CIseparator} \tab "-" \tab print confidence intervals as
   "\code{(.-.)}" \cr
@@ -109,15 +119,15 @@ JAMA settings:
 IQWiG, General Methods 5 settings:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
+\code{method.random.ci} \tab "HK" \tab Hartung-Knapp method \cr
 \code{prediction} \tab TRUE \tab Prediction interval \cr
 }
 
 IQWiG, General Methods 6 settings:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{hakn} \tab TRUE \tab Hartung-Knapp method \cr
-\code{adhoc.hakn} \tab "ci" \tab \emph{ad hoc} variance correction \cr
+\code{method.random.ci} \tab "HK" \tab Hartung-Knapp method \cr
+\code{adhoc.hakn.ci} \tab "IQWiG6" \tab \emph{ad hoc} variance correction \cr
 \code{method.tau} \tab "PM" \tab Paule-Mandel estimator for
   between-study variance \cr
 \code{prediction} \tab TRUE \tab Prediction interval \cr
@@ -203,14 +213,14 @@ metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 
 # Forest plot using RevMan 5 style
 #
-settings.meta("revman5")
+settings.meta("RevMan5")
 forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
   label.left = "Favours A", label.right = "Favours B",
   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 
 # Forest plot using JAMA style
 #
-settings.meta("jama")
+settings.meta("JAMA")
 forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
   label.left = "Favours A", label.right = "Favours B",
   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")

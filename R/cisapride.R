@@ -40,9 +40,9 @@
 #'   method = "Inverse", method.tau = "DL",
 #'   studlab = study, method.incr = "all")
 #' 
-#' m.or.hakn <- update(m.or, hakn = TRUE)
+#' m.or.hk <- update(m.or, method.random.ci = "HK")
 #' m.rr <- update(m.or, sm = "RR")
-#' m.rr.hakn <- update(m.or, sm = "RR", hakn = TRUE)
+#' m.rr.hk <- update(m.or, sm = "RR", method.random.ci = "HK")
 #'
 #' vars.common <- c("TE.common", "lower.common", "upper.common")
 #' vars.random <- c("TE.random", "lower.random", "upper.random")
@@ -57,7 +57,7 @@
 #' #
 #' res.rr <- rbind(res.common.rr,
 #'   as.data.frame(m.rr[vars.random]),
-#'   as.data.frame(m.rr.hakn[vars.random]))
+#'   as.data.frame(m.rr.hk[vars.random]))
 #' #
 #' row.names(res.rr) <- c("CE", "RE", "RE (HaKn)")
 #' names(res.rr) <- c("Log risk ratio", "CI lower", "CI upper")
@@ -69,7 +69,7 @@
 #' #
 #' res.or <- rbind(res.common.or,
 #'   as.data.frame(m.or[vars.random]),
-#'   as.data.frame(m.or.hakn[vars.random]))
+#'   as.data.frame(m.or.hk[vars.random]))
 #' #
 #' row.names(res.or) <- c("CE", "RE", "RE (HaKn)")
 #' names(res.or) <- c("Log odds ratio", "CI lower", "CI upper")

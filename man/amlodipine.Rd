@@ -37,7 +37,7 @@ m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
   n.plac, mean.plac, sqrt(var.plac),
   data = amlodipine, studlab = study,
   method.tau = "DL")
-m.hakn <- update(m, hakn = TRUE)
+m.hk <- update(m, method.random.ci = "HK")
 
 # Same results for mean difference as in Table III in Hartung and
 # Knapp (2001)
@@ -50,7 +50,7 @@ names(res.common) <- vars.random
 #
 res.md <- rbind(res.common,
   as.data.frame(m[vars.random]),
-  as.data.frame(m.hakn[vars.random]))
+  as.data.frame(m.hk[vars.random]))
 #
 res.md <- round(res.md, 5)
 #

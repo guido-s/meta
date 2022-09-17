@@ -7,7 +7,7 @@
 #' @param subset A logical expression indicating elements or rows to
 #'   keep: missing values are taken as false.
 #' @param \dots Additional arguments.
-#' @return A longarm object is returned.
+#' @return A \code{\link{longarm}} object is returned.
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' @seealso \code{\link{longarm}}
 #' 

@@ -12,55 +12,14 @@
 \item{\dots}{Additional arguments (ignored).}
 }
 \value{
-An object of classes \code{summary.meta} and \code{meta}.
+An object of classes \code{summary.meta} and \code{meta} (see
+\code{\link{meta-object}}.
 }
 \description{
 Summary method for objects of class \code{meta}.
 }
 \details{
-Review Manager 5 (RevMan 5) is the current software used for
-preparing and maintaining Cochrane Reviews
-(\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
-In RevMan 5, subgroup analyses can be defined and data from a
-Cochrane review can be imported to Rusing the function
-\code{read.rm5}. If a meta-analysis is then conducted using
-function \code{metacr}, information on subgroups is available in R
-(components \code{subgroup}, \code{subgroup.name}, and
-\code{print.subgroup.name}, \code{subgroup} in an object of class
-\code{"meta"}).  Accordingly, by using function \code{metacr} there
-is no need to define subgroups in order to redo the statistical
-analysis conducted in the Cochrane review.
-
-Note, for an object of type \code{metaprop}, starting with version
-3.7-0 of meta, list elements \code{TE}, \code{lower} and
-\code{upper} in element \code{study} correspond to transformed
-proportions and confidence limits (regardless whether exact
-confidence limits are calculated; argument \code{ciexact=TRUE} in
-metaprop function). Accordingly, the following results are based on
-the same transformation defined by argument \code{sm}: list
-elements \code{TE}, \code{lower} and \code{upper} in elements
-\code{study}, \code{common}, \code{random}, \code{within.common}
-and \code{within.random}.
-
-R function cilayout can be utilised to change the layout to print
-confidence intervals (both in printout from print.meta and
-print.summary.meta function as well as in forest plots). The
-default layout is "[lower; upper]". Another popular layout is
-"(lower - upper)" which is used throughout an R session by using R
-command \code{cilayout("(", " - ")}.
-
-Argument \code{pscale} can be used to rescale single proportions or
-risk differences, e.g. \code{pscale=1000} means that proportions
-are expressed as events per 1000 observations. This is useful in
-situations with (very) low event probabilities.
-
-Argument \code{irscale} can be used to rescale single rates or rate
-differences, e.g. \code{irscale=1000} means that rates are
-expressed as events per 1000 time units, e.g. person-years. This is
-useful in situations with (very) low rates. Argument \code{irunit}
-can be used to specify the time unit used in individual studies
-(default: "person-years"). This information is printed in summaries
-and forest plots if argument \code{irscale} is not equal to 1.
+Summary method for objects of class \code{meta}.
 }
 \examples{
 data(Fleiss1993cont)

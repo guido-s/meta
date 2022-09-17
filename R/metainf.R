@@ -10,6 +10,8 @@
 #'   Details), \code{"common"} or \code{"random"}, can be abbreviated.
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
+#' @param no A numeric specifying which meta-analysis results to
+#'   consider.
 #' 
 #' @details
 #' Performs a influence analysis; pooled estimates are calculated
@@ -24,9 +26,10 @@
 #' \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' 
 #' @return
-#' An object of class \code{c("metainf", "meta")} with corresponding
-#' \code{print}, and \code{forest} functions. The object is a list
-#' containing the following components:
+#' An object of class \code{"meta"} and \code{"metainf"} with
+#' corresponding generic functions (see \code{\link{meta-object}}).
+#' 
+#' The following list elements have a different meaning:
 #' \item{TE, seTE}{Estimated treatment effect and standard error of
 #'   pooled estimate in influence analysis.}
 #' \item{lower, upper}{Lower and upper confidence interval limits.}
@@ -34,41 +37,9 @@
 #' \item{pval}{P-value for test of overall effect.}
 #' \item{studlab}{Study label describing omission of studies.}
 #' \item{w}{Sum of weights from common effect or random effects model.}
-#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
-#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
-#' \item{tau}{Square-root of between-study variance.}
-#' \item{df.hakn}{Degrees of freedom for test of treatment effect for
-#'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
-#' \item{sm}{Summary measure.}
-#' \item{method}{Method used for pooling.}
-#' \item{k}{Number of studies combined in meta-analysis.}
-#' \item{pooled}{As defined above.}
-#' \item{common}{A logical indicating whether analysis is based on
-#'   common effect model.}
-#' \item{random}{A logical indicating whether analysis is based
-#'   on random effects model.}
 #' \item{TE.common, seTE.common}{Value is \code{NA}.}
 #' \item{TE.random, seTE.random}{Value is \code{NA}.}
 #' \item{Q}{Value is \code{NA}.}
-#' \item{level.ma}{The level used to calculate confidence intervals
-#'   for pooled estimates.}
-#' \item{hakn}{A logical indicating whether the method by Hartung and
-#'   Knapp is used to adjust test statistics and confidence
-#'   intervals.}
-#' \item{adhoc.hakn}{A character string indicating whether \emph{ad
-#'   hoc} variance correction should be used for Hartung-Knapp
-#'   method.}
-#' \item{method.tau}{A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2}.}
-#' \item{tau.preset}{Prespecified value for the square root of the
-#'   between-study variance \eqn{\tau^2}.}
-#' \item{TE.tau}{Overall treatment effect used to estimate the
-#'   between-study variance \eqn{\tau^2}.}
-#' \item{n.harmonic.mean}{Harmonic mean of number of observations (for
-#'   back transformation of Freeman-Tukey Double arcsine
-#'   transformation).}
-#' \item{version}{Version of R package \bold{meta} used to create
-#'   object.}
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -106,7 +77,7 @@
 #' @export metainf
 
 
-metainf <- function(x, pooled, sortvar) {
+metainf <- function(x, pooled, sortvar, no = 1) {
   
   
   ##
@@ -151,8 +122,8 @@ metainf <- function(x, pooled, sortvar) {
   }
   sort <- !is.null(sortvar)
   if (sort && (length(sortvar) != k.all))
-    stop("Number of studies in object 'x' and argument 'sortvar' have ",
-         "different length.")
+    stop("Number of studies in object 'x' and argument 'sortvar' ",
+         "have different length.")
   if (!sort)
     sortvar <- 1:k.all
   
@@ -206,6 +177,69 @@ metainf <- function(x, pooled, sortvar) {
     exclude <- x$exclude[o]
   else
     exclude <- rep_len(FALSE, k.all)
+  ##
+  chknumeric(no, min = 1, length = 1)
+  ##
+  ## Select a single common effect or random effects models
+  ##
+  if (pooled == "common") {
+    if (no > length(x$seTE.common))
+      stop("Argument 'no' must be smaller or equal to ",
+           "number of common effect estimates.",
+           call. = FALSE)
+    ##
+    no.c <- no
+    no.r <- 1
+  }
+  else {
+    if (no > length(x$seTE.random))
+      stop("Argument 'no' must be smaller or equal to ",
+           "number of random effects estimates.",
+           call. = FALSE)
+    ##
+    no.c <- 1
+    no.r <- no
+  }
+  ##
+  x$TE.common <- x$TE.common[no.c]
+  x$seTE.common <- x$seTE.common[no.c]
+  x$statistic.common <- x$statistic.common[no.c]
+  x$pval.common <- x$pval.common[no.c]
+  x$lower.common <- x$lower.common[no.c]
+  x$upper.common <- x$upper.common[no.c]
+  x$zval.common <- x$zval.common[no.c]
+  ##
+  if (length(x$TE.random) == 1 &&
+      length(x$TE.random) != length(x$seTE.random))
+    x$TE.random <- rep_len(x$TE.random, length(x$seTE.random))
+  x$TE.random <- x$TE.random[no.r]
+  x$seTE.random <- x$seTE.random[no.r]
+  x$df.random <- x$df.random[no.r]
+  x$statistic.random <- x$statistic.random[no.r]
+  x$pval.random <- x$pval.random[no.r]
+  x$lower.random <- x$lower.random[no.r]
+  x$upper.random <- x$upper.random[no.r]
+  x$zval.random <- x$zval.random[no.r]
+  x$seTE.hakn.adhoc.ci <- x$seTE.hakn.adhoc.ci[no.r]
+  x$df.hakn.ci <- x$df.hakn.ci[no.r]
+  ##
+  x$text.random <- x$text.random[no.r]
+  x$method.random.ci <- x$method.random.ci[no.r]
+  x$adhoc.hakn.ci <- x$adhoc.hakn.ci[no.r]
+  ##
+  x$seTE.hakn.adhoc <- x$seTE.hakn.adhoc[no.r]
+  x$df.hakn <- x$df.hakn[no.r]
+  ##
+  x$lower.predict <- x$lower.predict[1]
+  x$upper.predict <- x$upper.predict[1]
+  x$seTE.predict <- x$seTE.predict[1]
+  x$df.predict <- x$df.predict[1]
+  x$seTE.hakn.adhoc.pi <- x$seTE.hakn.adhoc.pi[1]
+  x$df.hakn.pi <- x$df.hakn.pi[1]
+  ##
+  x$text.predict <- x$text.predict[1]
+  x$method.predict <- x$method.predict[1]
+  x$adhoc.hakn.pi <- x$adhoc.hakn.pi[1]
   
   
   ##
@@ -230,17 +264,19 @@ metainf <- function(x, pooled, sortvar) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
+                   ##
                    incr = incr.i, method.incr = x$method.incr,
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
-                   level.ma = x$level.ma,
-                   ##
-                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   ##
+                   level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
                    keepdata = FALSE,
                    warn = FALSE,
@@ -255,11 +291,12 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     sm = x$sm, pooledvar = x$pooledvar,
                     ##
-                    level.ma = x$level.ma,
-                    ##
-                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    level.ma = x$level.ma,
+                    method.random.ci = x$method.random.ci,
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     ##
                     keepdata = FALSE,
                     warn = FALSE,
@@ -273,11 +310,12 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    sm = x$sm, null.effect = x$null.effect,
                    ##
-                   level.ma = x$level.ma,
-                   ##
-                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   ##
+                   level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
                    keepdata = FALSE,
                    ##
@@ -290,11 +328,12 @@ metainf <- function(x, pooled, sortvar) {
                    ##
                    sm = x$sm, null.effect = x$null.effect,
                    ##
-                   level.ma = x$level.ma,
-                   ##
-                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   ##
+                   level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
                    keepdata = FALSE,
                    warn = FALSE,
@@ -312,11 +351,12 @@ metainf <- function(x, pooled, sortvar) {
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
-                   level.ma = x$level.ma,
-                   ##
-                   hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                    method.tau = x$method.tau,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   ##
+                   level.ma = x$level.ma,
+                   method.random.ci = x$method.random.ci,
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
                    keepdata = FALSE,
                    warn = FALSE,
@@ -330,11 +370,12 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     sm = x$sm, null.effect = x$null.effect,
                     ##
-                    level.ma = x$level.ma,
-                    ##
-                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    level.ma = x$level.ma,
+                    method.random.ci = x$method.random.ci,
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     ##
                     keepdata = FALSE,
                     warn = FALSE,
@@ -351,11 +392,12 @@ metainf <- function(x, pooled, sortvar) {
                     incr = incr.i, method.incr = x$method.incr,
                     method.ci = x$method.ci,
                     ##
-                    level.ma = x$level.ma,
-                    ##
-                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    level.ma = x$level.ma,
+                    method.random.ci = x$method.random.ci,
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     ##
                     keepdata = FALSE,
                     warn = FALSE,
@@ -371,11 +413,12 @@ metainf <- function(x, pooled, sortvar) {
                     ##
                     incr = incr.i, method.incr = x$method.incr,
                     ##
-                    level.ma = x$level.ma,
-                    ##
-                    hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    ##
+                    level.ma = x$level.ma,
+                    method.random.ci = x$method.random.ci,
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     ##
                     keepdata = FALSE,
                     warn = FALSE,
@@ -434,7 +477,8 @@ metainf <- function(x, pooled, sortvar) {
                       m$upper.I2,                                    # 16
                       sum(m$w.random, na.rm = TRUE),                 # 17
                       if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 18
-                      if (x$hakn) m$df.hakn else NA,                 # 19
+                      if (x$method.random.ci %in% c("HK", "KR"))     #
+                        m$df.random else NA,                         # 19
                       if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
                       m$Rb                                           # 21
                       )
@@ -463,8 +507,8 @@ metainf <- function(x, pooled, sortvar) {
   ##
   weight.i <- res.i[, 17]
   n.harmonic.mean.i <- res.i[, 18]
-  if (pooled == "random" & x$hakn)
-    df.hakn.i <- res.i[, 19]
+  if (pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
+    df.random.i <- res.i[, 19]
   t.harmonic.mean.i <- res.i[, 20]
   Rb.i <- res.i[, 21]
   ##
@@ -498,24 +542,58 @@ metainf <- function(x, pooled, sortvar) {
   ## (5) Generate R object
   ##
   ##
-  res <- list(TE = c(TE.i, NA, TE.s),
+  res <- list(studlab = studlab,
+              ##
+              sm = x$sm,
+              null.effect = x$null.effect,
+              ##
+              TE = c(TE.i, NA, TE.s),
               seTE = c(seTE.i, NA, seTE.s),
-              lower = c(lower.i, NA, lower.TE.s),
-              upper = c(upper.i, NA, upper.TE.s),
               statistic = c(statistic.i, NA, statistic.s),
               pval = c(pval.i, NA, pval.s),
-              studlab = studlab,
+              level = x$level.ma,
+              lower = c(lower.i, NA, lower.TE.s),
+              upper = c(upper.i, NA, upper.TE.s),
               ##
+              three.level = x$three.level,
+              cluster = x$cluster,
+              ##
+              k = x$k, k.study = x$k.study, k.all = x$k.all, k.TE = x$k.TE,
+              ##
+              pooled = pooled,
+              common = ifelse(pooled == "common", TRUE, FALSE),
+              random = ifelse(pooled == "random", TRUE, FALSE),
+              overall = TRUE,
+              overall.hetstat = TRUE,
+              prediction = FALSE,
+              backtransf = x$backtransf,
+              ##
+              method = x$method,
+              ##
+              w = c(weight.i, NA, w.s),
+              TE.common = NA, seTE.common = NA,
+              TE.random = NA, seTE.random = NA,
+              df.random =
+                if (pooled == "random" &
+                    x$method.random.ci %in% c("HK", "KR"))
+                  c(df.random.i, NA, x$df.random) else NULL,
+              level.ma = x$level.ma,
+              method.random.ci = x$method.random.ci,
+              adhoc.hakn.ci = x$adhoc.hakn.ci,
+              ##
+              Q = NA,
+              ##
+              method.tau = x$method.tau,
+              method.tau.ci = method.tau.ci,
               tau2 = c(tau2.i, NA, x$tau2),
+              se.tau2 = c(se.tau2.i, NA, x$se.tau2),
               lower.tau2 = c(lower.tau2.i, NA, x$lower.tau2),
               upper.tau2 = c(upper.tau2.i, NA, x$upper.tau2),
-              se.tau2 = c(se.tau2.i, NA, x$se.tau2),
-              ##
               tau = c(tau.i, NA, x$tau),
               lower.tau = c(lower.tau.i, NA, x$lower.tau),
               upper.tau = c(upper.tau.i, NA, x$upper.tau),
-              ##
-              method.tau.ci = method.tau.ci,
+              tau.preset = x$tau.preset,
+              TE.tau = x$TE.tau,
               sign.lower.tau.i = c(sign.lower.tau.i, NA, x$sign.lower.tau),
               sign.upper.tau.i = c(sign.upper.tau.i, NA, x$sign.upper.tau),
               ##
@@ -525,30 +603,9 @@ metainf <- function(x, pooled, sortvar) {
               ##
               Rb = c(Rb.i, NA, x$Rb),
               ##
-              w = c(weight.i, NA, w.s),
-              df.hakn =
-                if (pooled == "random" & x$hakn)
-                  c(df.hakn.i, NA, x$df.hakn) else NULL,
-              ##
-              sm = x$sm, method = x$method, k = x$k,
-              pooled = pooled,
-              common = ifelse(pooled == "common", TRUE, FALSE),
-              random = ifelse(pooled == "random", TRUE, FALSE),
-              TE.common = NA, seTE.common = NA,
-              TE.random = NA, seTE.random = NA,
-              null.effect = x$null.effect,
-              ##
-              Q = NA,
-              level.ma = x$level.ma,
-              hakn = x$hakn, adhoc.hakn = x$adhoc.hakn,
-              method.tau = x$method.tau,
-              tau.preset = x$tau.preset,
-              TE.tau = x$TE.tau,
               n.harmonic.mean = c(n.harmonic.mean.i, NA, 1 / mean(1 / n)),
               t.harmonic.mean = c(t.harmonic.mean.i, NA, 1 / mean(1 / time)),
-              prediction = FALSE,
               ##
-              backtransf = x$backtransf,
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
               ##
@@ -558,6 +615,8 @@ metainf <- function(x, pooled, sortvar) {
               ##
               title = x$title, complab = x$complab,
               outclab = x$outclab,
+              ##
+              no = no,
               ##
               x = x,
               ##

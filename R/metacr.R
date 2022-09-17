@@ -17,30 +17,37 @@
 #'   be used for pooling of studies.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.ma The level used to calculate confidence intervals
-#'   for pooled estimates.
 #' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
-#' @param hakn A logical indicating whether the method by Hartung and
-#'   Knapp should be used to adjust test statistics and confidence
-#'   intervals.
-#' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2} and its
-#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
-#' @param method.tau.ci A character string indicating which method is
-#'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-#'   \code{""}, can be abbreviated.
-#' @param tau.common A logical indicating whether tau-squared should
-#'   be the same across subgroups.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
+#' @param method.tau A character string indicating which method is
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param tau.common A logical indicating whether tau-squared should
+#'   be the same across subgroups.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
 #' @param level.predict The level used to calculate prediction
 #'   interval for a new study.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
 #' @param swap.events A logical indicating whether events and
 #'   non-events should be interchanged.
 #' @param logscale A logical indicating whether effect estimates are
@@ -82,10 +89,9 @@
 #' interventions. Each Cochrane Intervention review can have a
 #' variable number of comparisons. For each comparison, a variable
 #' number of outcomes can be define. For each outcome, a seperate
-#' meta-analysis is conducted. Review Manager 5 (RevMan 5) is the
-#' current software used for preparing and maintaining Cochrane
-#' Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
+#' meta-analysis is conducted. Review Manager 5 (RevMan 5) was the
+#' software used for preparing and maintaining Cochrane Reviews
+#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
 #' 
 #' This wrapper function can be used to perform meta-analysis for a
 #' single outcome of a Cochrane Intervention review. Internally, R
@@ -97,15 +103,16 @@
 #' executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
 #' 
 #' @return
-#' An object of class \code{"meta"} and \code{"metabin"},
-#' \code{"metacont"}, or \code{"metagen"} depending on outcome type
-#' utilised in Cochrane Intervention review for selected outcome.
+#' An object of class \code{"meta"} and - depending on outcome type
+#' utilised in Cochrane Intervention review for selected outcome -
+#' \code{"metabin"}, \code{"metacont"}, or \code{"metagen"} with
+#' corresponding generic functions (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{metagen}}, \code{\link{read.rm5}},
-#'   \code{\link{settings.meta}}
+#' @seealso \code{\link{meta-package}}, \code{\link{metabin}},
+#'   \code{\link{metacont}}, \code{\link{metagen}},
+#'   \code{\link{read.rm5}}, \code{\link{settings.meta}}
 #' 
 #' @references
 #' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
@@ -146,18 +153,22 @@
 
 metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
-                   method, sm,
+                   method, sm, level = gs("level"),
                    ##
-                   level = gs("level"), level.ma = gs("level.ma"),
                    common, random,
+                   prediction = gs("prediction") | !missing(method.predict),
                    ##
-                   hakn = FALSE,
                    method.tau = "DL",
                    method.tau.ci = gs("method.tau.ci"),
                    tau.common = FALSE,
                    ##
-                   prediction = gs("prediction"),
+                   level.ma = gs("level.ma"),
+                   method.random.ci = "classic",
+                   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                   ##
                    level.predict = gs("level.predict"),
+                   method.predict = gs("method.predict"),
+                   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                    ##
                    swap.events, logscale,
                    ##
@@ -212,7 +223,6 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklevel(level)
   chklevel(level.ma)
   ##
-  chklogical(hakn)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
@@ -250,6 +260,16 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chklogical(keepdata)
   chklogical(warn)
+  ##
+  method.random.ci <-
+    deprecated(method.random.ci, missing(method.random.ci),
+               args, "hakn", warn.deprecated)
+  if (is.logical(method.random.ci))
+    if (method.random.ci)
+      method.random.ci <- "HK"
+    else
+      method.random.ci <- "classic"
+  method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   
   
   ##
@@ -388,20 +408,32 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       ##
       if (swap.events)
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
-                      sm = sm, method = method, studlab = studlab,
+                      studlab = studlab,
                       data = x[sel, varnames],
+                      ##
+                      method = method, sm = sm, level = level,
+                      ##
                       common = common, random = random,
-                      hakn = hakn,
+                      overall = overall,
+                      prediction = prediction,
+                      ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.ma = level.ma,
-                      prediction = prediction, level.predict = level.predict,
-                      overall = overall,
+                      ##
+                      level.ma = level.ma,
+                      method.random.ci = method.random.ci,
+                      adhoc.hakn.ci = adhoc.hakn.ci,
+                      ##
+                      level.predict = level.predict,
+                      method.predict = method.predict,
+                      adhoc.hakn.pi = adhoc.hakn.pi,
+                      ##
                       subgroup = grplab,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       prediction.subgroup = prediction.subgroup,
+                      ##
                       backtransf = backtransf,
                       ##
                       text.common = text.common, text.random = text.random,
@@ -413,25 +445,38 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
+                      ##
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
+                      ##
                       warn = warn, keepdata = keepdata)
       else
-        m1 <- metabin(event.e, n.e, event.c, n.c,
-                      sm = sm, method = method, studlab = studlab,
+        m1 <- metabin(event.e, n.e, event.c, n.c, studlab = studlab,
                       data = x[sel, varnames],
+                      ##
+                      method = method, sm = sm, level = level,
+                      ##
                       common = common, random = random,
-                      hakn = hakn,
+                      overall = overall,
+                      prediction = prediction,
+                      ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.ma = level.ma,
-                      prediction = prediction, level.predict = level.predict,
-                      overall = overall,
+                      ##
+                      level.ma = level.ma,
+                      method.random.ci = method.random.ci,
+                      adhoc.hakn.ci = adhoc.hakn.ci,
+                      ##
+                      level.predict = level.predict,
+                      method.predict = method.predict,
+                      adhoc.hakn.pi = adhoc.hakn.pi,
+                      ##
                       subgroup = grplab,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       prediction.subgroup = prediction.subgroup,
+                      ##
                       backtransf = backtransf,
                       ##
                       text.common = text.common, text.random = text.random,
@@ -443,23 +488,34 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
+                      ##
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
+                      ##
                       warn = warn, keepdata = keepdata)
     }
     ##
     if (type == "C")
-      m1 <- metacont(n.e, mean.e, sd.e,
-                     n.c, mean.c, sd.c,
-                     sm = sm, studlab = studlab,
+      m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab = studlab,
                      data = x[sel, varnames],
+                     ##
+                     sm = sm, level = level,
+                     ##
                      common = common, random = random,
-                     hakn = hakn,
+                     overall = overall,
+                     prediction = prediction,
+                     ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
-                     level = level, level.ma = level.ma,
-                     prediction = prediction, level.predict = level.predict,
-                     overall = overall,
+                     ##
+                     level.ma = level.ma,
+                     method.random.ci = method.random.ci,
+                     adhoc.hakn.ci = adhoc.hakn.ci,
+                     ##
+                     level.predict = level.predict,
+                     method.predict = method.predict,
+                     adhoc.hakn.pi = adhoc.hakn.pi,
+                     ##
                      subgroup = grplab,
                      subgroup.name = "grp",
                      print.subgroup.name = FALSE,
@@ -475,24 +531,36 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      complab = complab, outclab = outclab,
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
+                     ##
                      keepdata = keepdata)
     ##
     if (type == "P")
-      m1 <- metagen(O.E / V, sqrt(1 / V),
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(O.E / V, sqrt(1 / V), studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     prediction.subgroup = prediction.subgroup,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -504,19 +572,30 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
-      m1 <- metagen(TE, seTE,
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(TE, seTE, studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
@@ -525,6 +604,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     n.e = n.e,
                     n.c = n.c,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -536,24 +616,36 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
-      m1 <- metagen(O.E / V, sqrt(1 / V),
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(O.E / V, sqrt(1 / V), studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     prediction.subgroup = prediction.subgroup,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -565,6 +657,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
   }
   else {
@@ -577,15 +670,26 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
       ##
       if (swap.events)
         m1 <- metabin(n.e - event.e, n.e, n.c - event.c, n.c,
-                      sm = sm, method = method, studlab = studlab,
+                      studlab = studlab,
                       data = x[sel, varnames],
+                      ##
+                      method = method, sm = sm, level = level,
+                      ##
                       common = common, random = random,
-                      hakn = hakn,
+                      overall = overall,
+                      prediction = prediction,
+                      ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.ma = level.ma,
-                      prediction = prediction, level.predict = level.predict,
-                      overall = overall,
+                      ##
+                      level.ma = level.ma,
+                      method.random.ci = method.random.ci,
+                      adhoc.hakn.ci = adhoc.hakn.ci,
+                      ##
+                      level.predict = level.predict,
+                      method.predict = method.predict,
+                      adhoc.hakn.pi = adhoc.hakn.pi,
+                      ##
                       backtransf = backtransf,
                       ##
                       text.common = text.common, text.random = text.random,
@@ -597,20 +701,32 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       complab = complab, outclab = outclab,
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
+                      ##
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
+                      ##
                       warn = warn, keepdata = keepdata)
       else
-        m1 <- metabin(event.e, n.e, event.c, n.c,
-                      sm = sm, method = method, studlab = studlab,
+        m1 <- metabin(event.e, n.e, event.c, n.c, studlab = studlab,
                       data = x[sel, varnames],
+                      ##
+                      method = method, sm = sm, level = level,
+                      ##
                       common = common, random = random,
-                      hakn = hakn,
+                      overall = overall,
+                      prediction = prediction,
+                      ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
                       tau.common = tau.common,
-                      level = level, level.ma = level.ma,
-                      prediction = prediction, level.predict = level.predict,
-                      overall = overall,
+                      ##
+                      level.ma = level.ma,
+                      method.random.ci = method.random.ci,
+                      adhoc.hakn.ci = adhoc.hakn.ci,
+                      ##
+                      level.predict = level.predict,
+                      method.predict = method.predict,
+                      adhoc.hakn.pi = adhoc.hakn.pi,
+                      ##
                       backtransf = backtransf,
                       ##
                       text.common = text.common, text.random = text.random,
@@ -628,17 +744,25 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     }
     ##
     if (type == "C")
-      m1 <- metacont(n.e, mean.e, sd.e,
-                     n.c, mean.c, sd.c,
-                     sm = sm, studlab = studlab,
+      m1 <- metacont(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab = studlab,
                      data = x[sel, varnames],
+                     ##
+                     sm = sm, level = level,
+                     ##
                      common = common, random = random,
-                     hakn = hakn,
+                     overall = overall,
+                     prediction = prediction,
+                     ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
                      tau.common = tau.common,
-                     level = level, level.ma = level.ma,
-                     prediction = prediction, level.predict = level.predict,
-                     overall = overall,
+                     ##
+                     level.ma = level.ma,
+                     method.random.ci = method.random.ci,
+                     adhoc.hakn.ci = adhoc.hakn.ci,
+                     ##
+                     level.predict = level.predict,
+                     method.predict = method.predict,
+                     adhoc.hakn.pi = adhoc.hakn.pi,
                      ##
                      text.common = text.common, text.random = text.random,
                      text.predict = text.predict,
@@ -649,19 +773,30 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      complab = complab, outclab = outclab,
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
+                     ##
                      keepdata = keepdata)
     ##
     if (type == "P")
-      m1 <- metagen(O.E / V, sqrt(1 / V),
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(O.E / V, sqrt(1 / V), studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -673,21 +808,33 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
-      m1 <- metagen(TE, seTE,
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(TE, seTE, studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     n.e = n.e,
                     n.c = n.c,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -699,19 +846,30 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
-      m1 <- metagen(O.E / V, sqrt(1 / V),
-                    sm = sm, studlab = studlab,
+      m1 <- metagen(O.E / V, sqrt(1 / V), studlab = studlab,
                     data = x[sel, varnames],
+                    ##
+                    sm = sm, level = level,
+                    ##
                     common = common, random = random,
-                    hakn = hakn,
+                    overall = overall,
+                    prediction = prediction,
+                    ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     tau.common = tau.common,
-                    level = level, level.ma = level.ma,
-                    prediction = prediction, level.predict = level.predict,
-                    overall = overall,
+                    ##
+                    level.ma = level.ma,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    ##
+                    level.predict = level.predict,
+                    method.predict = method.predict,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
+                    ##
                     backtransf = backtransf,
                     ##
                     text.common = text.common, text.random = text.random,
@@ -723,6 +881,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     complab = complab, outclab = outclab,
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
+                    ##
                     keepdata = keepdata)
   }
   

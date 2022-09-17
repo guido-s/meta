@@ -13,8 +13,8 @@ metamerge(
   text.pooled2,
   text.w.pooled1,
   text.w.pooled2,
-  detail.tau1,
-  detail.tau2,
+  label1,
+  label2,
   backtransf
 )
 }
@@ -25,19 +25,19 @@ metamerge(
 
 \item{pooled1}{A character string indicating whether results of
 common effect or random effects model should be considered for
-first meta-analysis. Either \code{"common"} or \code{"random"},
-can be abbreviated.}
+first meta-analysis. Either \code{"both"}, \code{"common"} or
+\code{"random"}, can be abbreviated.}
 
 \item{pooled2}{A character string indicating whether results of
 common effect or random effects model should be considered for
-second meta-analysis. Either \code{"common"} or \code{"random"},
-can be abbreviated.}
+second meta-analysis. Either \code{"both"}, \code{"common"} or
+\code{"random"}, can be abbreviated.}
 
 \item{text.pooled1}{A character string used in printouts and forest
-plot to label the estimate from the first meta-analysis.}
+plot to label the results from the first meta-analysis.}
 
 \item{text.pooled2}{A character string used in printouts and forest
-plot to label the estimate from the second meta-analysis.}
+plot to label the results from the second meta-analysis.}
 
 \item{text.w.pooled1}{A character string used to label weights of
 the first meta-analysis.}
@@ -45,11 +45,13 @@ the first meta-analysis.}
 \item{text.w.pooled2}{A character string used to label weights of
 the second meta-analysis.}
 
-\item{detail.tau1}{A character string used to label estimate of
-between-study variance of the first meta-analysis.}
+\item{label1}{A character string used to label estimate of
+between-study variance and heterogeneity statistics of the first
+meta-analysis.}
 
-\item{detail.tau2}{A character string used to label estimate of
-between-study variance of the second meta-analysis.}
+\item{label2}{A character string used to label estimate of
+between-study variance and heterogeneity statistics of the second
+meta-analysis.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -58,55 +60,30 @@ printed as odds ratios rather than log odds ratios, for example.}
 }
 \value{
 An object of class \code{"meta"} and \code{"metamerge"} with
-corresponding \code{print}, \code{summary}, and \code{forest}
-functions. The following list elements have a different meaning:
+corresponding generic functions (see \code{\link{meta-object}}).
+
+The following list elements have a different meaning:
 \item{TE, seTE, studlab}{Treatment estimate, standard error, and
   study labels (first meta-analyis).}
 \item{lower, upper}{Lower and upper confidence interval limits for
   individual studies (first meta-analysis).}
 \item{statistic, pval}{Statistic and p-value for test of treatment
   effect for individual studies (first meta-analysis.}
-\item{w.common}{Weight of individual studies (first meta-analysis).}
-\item{w.random}{Weight of individual studies (second
-  meta-analysis).}
-\item{TE.common, seTE.common}{Estimated overall treatment effect and
-  standard error (first meta-analysis).}
-\item{lower.common, upper.common}{Lower and upper confidence interval
-  limits (first meta-analysis).}
-\item{statistic.common, pval.common}{Statistic and p-value for test of
-  overall treatment effect (first meta-analysis).}
-\item{TE.random, seTE.random}{Estimated overall treatment effect and
-  standard error (second meta-analysis).}
-\item{lower.random, upper.random}{Lower and upper confidence interval
-  limits (second meta-analysis).}
-\item{statistic.random, pval.random}{Statistic and p-value for test of
-  overall treatment effect (second meta-analysis).}
-\item{lower.predict, upper.predict}{Lower and upper limits of
-  prediction interval (related to first meta-analysis).}
+\item{w.common}{Weights of first common effect meta-analysis.}
+\item{w.random}{Weights of first random effects meta-analysis.}
 \item{k}{Number of studies combined in first meta-analysis.}
-\item{Q}{Heterogeneity statistic (first meta-analysis).}
-\item{df.Q}{Degrees of freedom for heterogeneity statistic (first
-  meta-analysis).}
-\item{pval.Q}{P-value of heterogeneity test (first meta-analysis).}
-\item{tau2}{Between-study variance(s) \eqn{\tau^2} (first and
-  second meta-analysis).}
-\item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
-  interval(s) for \eqn{\tau^2} (first and second meta-analysis).}
-\item{tau}{Square-root of between-study variance(s) \eqn{\tau}
-  (first and second meta-analysis).}
-\item{lower.tau, upper.tau}{Lower and upper limit of confidence
-  interval(s) for \eqn{\tau} (first and second meta-analysis).}
-\item{text.common}{Label for the first meta-analysis.}
-\item{text.random}{Label for the second meta-analysis.}
 
-See \code{\link{metagen}} for information on other list
-elements.
+Furthermore, meta-analysis results of common effect or random
+effects model are taken from first meta-analysis if only random
+effects or common effects models are selected from both
+meta-analyses (arguments \code{pooled1} and \code{pooled2}).
 }
 \description{
 This function can be used to merge pooled results of two
 meta-analyses into a single meta-analysis object. This is, for
 example, useful to produce a forest plot of a random-effects
-meta-analysis with and without using the Hartung-Knapp method.
+meta-analysis with different estimates of the between-study
+variance \eqn{\tau^2}.
 }
 \details{
 In R package \bold{meta}, objects of class \code{"meta"} contain
@@ -118,8 +95,6 @@ meta-analysis or a sensitivity analysis.
 Applications of this function include printing and plotting results
 of the common effect or random effects meta-analysis and the
 \itemize{
-\item Hartung-Knapp method (see argument \code{hakn} in
-  \code{\link{metagen}}),
 \item trim-and-fill method (\code{\link{trimfill}}),
 \item limit meta-analyis (\code{\link[metasens]{limitmeta}} from R
   package \bold{metasens}),
@@ -156,13 +131,13 @@ individual study results.
 data(Fleiss1993cont)
 #
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "MD", common = FALSE,
-  text.random = "Classic random effects", text.w.random = "RE")
+  data = Fleiss1993cont, sm = "MD",
+  text.random = "Random effects model (REML)", text.w.random = "DL")
 #
-# Use Hartung-Knapp method
+# Use DerSimonian-Laird estimator of tau2
 #
-m2 <- update(m1, hakn = TRUE,
-  text.random = "Hartung-Knapp method", text.w.random = "HK")
+m2 <- update(m1, method.tau = "DL", common = FALSE,
+  text.random = "Random effects model (DL)", text.w.random = "DL")
 #
 # Merge results of the two meta-analyses
 #
@@ -170,40 +145,39 @@ m12 <- metamerge(m1, m2)
 m12
 forest(m12, rightcols = c("effect", "ci", "w.common"))
 
-# Show results for DerSimonian-Laird and REML estimate of
+# Show in addition the results for the Paule-Mandel estimate of
 # between-study variance
 #
-m3 <- update(m1,
-  text.random = "Random effects moded (DL)", text.w.random = "DL")
-m4 <- update(m1, method.tau = "REML",
-  text.random = "Random effects moded (REML)", text.w.random = "REML")
+m3 <- update(m1, method.tau = "PM",
+  text.random = "Random effects moded (PM)", text.w.random = "PM")
 #
-m34 <- metamerge(m3, m4)
-m34
+m123 <- metamerge(m12, m3, pooled2 = "random")
+m123
 
 data(Fleiss1993bin)
 #
 # Mantel-Haenszel method
 #
-m5 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+m4 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
   studlab = paste(study, year), sm = "OR", random = FALSE,
   text.common = "MH method", text.w.common = "MH")
 #
 # Peto method
 #
-m6 <- update(m5, method = "Peto", text.common = "Peto method",
+m5 <- update(m4, method = "Peto", text.common = "Peto method",
   text.w.common = "Peto")
 #
 # Merge results (show individual results for MH method)
 #
-m56 <- metamerge(m5, m6)
-m56
-forest(m56, digits = 4)
+m45 <- metamerge(m4, m5)
+summary(m45)
+forest(m45, digits = 4)
 #
 # Merge results (show individual results for Peto method)
 #
-m65 <- metamerge(m6, m5)
-m65
+m54 <- metamerge(m5, m4)
+summary(m54)
+forest(m54)
 
 }
 \seealso{

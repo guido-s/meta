@@ -44,8 +44,6 @@
 #'   Details.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.ma The level used to calculate confidence intervals
-#'   for meta-analysis estimates.
 #' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
@@ -60,31 +58,37 @@
 #'   level.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
-#' @param level.predict The level used to calculate prediction
-#'   interval for a new study.
-#' @param null.effect A numeric value specifying the effect under the
-#'   null hypothesis.
-#' @param hakn A logical indicating whether the method by Hartung and
-#'   Knapp should be used to adjust test statistics and confidence
-#'   intervals.
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate, see Details.
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
-#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-#'   \code{"HE"}, or \code{"EB"}, can be abbreviated.
+#'   square root \eqn{\tau} (see \code{\link{meta-package}}).
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, \code{"J"},
-#'   \code{"PL"}, or \code{""}, can be abbreviated.
+#'   \eqn{\tau} (see \code{\link{meta-package}}).
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
+#' @param level.predict The level used to calculate prediction
+#'   interval for a new study.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
+#' @param null.effect A numeric value specifying the effect under the
+#'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
 #'   be used. Either \code{"Begg"}, \code{"Egger"}, or
 #'   \code{"Thompson"}, can be abbreviated. See function
@@ -123,6 +127,7 @@
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
+#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -138,23 +143,17 @@
 #' @details
 #' Common effect and random effects meta-analysis of single means to
 #' calculate an overall mean; inverse variance weighting is used for
-#' pooling. The following transformations of means are implemented to
-#' calculate an overall mean:
-#' \itemize{
-#' \item Raw, i.e. untransformed, means (\code{sm = "MRAW"}, default)
-#' \item Log transformed means (\code{sm = "MLN"})
-#' }
+#' pooling. Note, you should use R function \code{\link{metacont}} to
+#' compare means of pairwise comparisons instead of using
+#' \code{metamean} for each treatment arm separately which will break
+#' randomisation in randomised controlled trials.
 #' 
-#' Note, you should use R function \code{\link{metacont}} to compare
-#' means of pairwise comparisons instead of using \code{metamean} for
-#' each treatment arm separately which will break randomisation in
-#' randomised controlled trials.
-#' 
-#' Calculations are conducted on the log scale if \code{sm =
-#' "ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
-#' \code{TE.random} contain the logarithm of means. In printouts and
-#' plots these values are back transformed if argument
-#' \code{backtransf = TRUE}.
+#' A three-level random effects meta-analysis model (Van den Noortgate
+#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' least one cluster provides more than one estimate. Internally,
+#' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
+#' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
+#' "rowsum"} is used to calculate random effects weights.
 #' 
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
@@ -163,6 +162,19 @@
 #' 
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
+#'
+#' The following transformations of means are implemented to
+#' calculate an overall mean:
+#' \itemize{
+#' \item Raw, i.e. untransformed, means (\code{sm = "MRAW"}, default)
+#' \item Log transformed means (\code{sm = "MLN"})
+#' }
+#' 
+#' Calculations are conducted on the log scale if \code{sm =
+#' "ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
+#' \code{TE.random} contain the logarithm of means. In printouts and
+#' plots these values are back transformed if argument
+#' \code{backtransf = TRUE}.
 #' 
 #' \subsection{Approximate means from sample sizes, medians and other statistics}{
 #' 
@@ -260,95 +272,6 @@
 #' }
 #' }
 #' 
-#' \subsection{Estimation of between-study variance}{
-#' 
-#' The following methods to estimate the between-study variance
-#' \eqn{\tau^2} are available:
-#' \itemize{
-#' \item DerSimonian-Laird estimator (\code{method.tau = "DL"})
-#' \item Paule-Mandel estimator (\code{method.tau = "PM"})
-#' \item Restricted maximum-likelihood estimator (\code{method.tau =
-#'   "REML"})
-#' \item Maximum-likelihood estimator (\code{method.tau = "ML"})
-#' \item Hunter-Schmidt estimator (\code{method.tau = "HS"})
-#' \item Sidik-Jonkman estimator (\code{method.tau = "SJ"})
-#' \item Hedges estimator (\code{method.tau = "HE"})
-#' \item Empirical Bayes estimator (\code{method.tau = "EB"})
-#' }
-#' See \code{\link{metagen}} for more information on these
-#' estimators.
-#' }
-#' 
-#' \subsection{Confidence interval for the between-study variance}{
-#'
-#' The following methods to calculate a confidence interval for
-#' \eqn{\tau^2} and \eqn{\tau} are available.
-#' \tabular{ll}{
-#' \bold{Argument}\tab \bold{Method} \cr
-#' \code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
-#' \code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-#' \code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-#' \code{method.tau.ci = "PL"}\tab Profile-Likelihood method for
-#'   three-level meta-analysis \cr
-#'  \tab (Van den Noortgate et al., 2013) \cr
-#' \code{method.tau.ci = ""}\tab No confidence interval
-#' }
-#' 
-#' See \code{\link{metagen}} for more information on these methods.
-#' }
-#' 
-#' \subsection{Hartung-Knapp method}{
-#' 
-#' Hartung and Knapp (2001) proposed an alternative method for random
-#' effects meta-analysis based on a refined variance estimator for the
-#' treatment estimate. Simulation studies (Hartung and Knapp, 2001;
-#' IntHout et al., 2014; Langan et al., 2019) show improved coverage
-#' probabilities compared to the classic random effects
-#' method.
-#'
-#' In rare settings with very homogeneous treatment estimates, the
-#' Hartung-Knapp variance estimate can be arbitrarily small resulting
-#' in a very narrow confidence interval (Knapp and Hartung, 2003;
-#' Wiksten et al., 2016). In such cases, an
-#' \emph{ad hoc} variance correction has been proposed by utilising
-#' the variance estimate from the classic random effects model with
-#' the HK method (Knapp and Hartung, 2003; IQWiQ, 2020). An
-#' alternative approach is to use the wider confidence interval of
-#' classic common or random effects meta-analysis and the HK method
-#' (Wiksten et al., 2016; Jackson et al., 2017).
-#'
-#' Argument \code{adhoc.hakn} can be used to choose the \emph{ad hoc}
-#' method:
-#' \tabular{ll}{
-#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-#' \code{adhoc.hakn = ""}\tab not used \cr
-#' \code{adhoc.hakn = "se"}\tab use variance correction if HK standard
-#'  error is smaller \cr
-#'  \tab than standard error from classic random effects
-#'  \cr
-#'  \tab meta-analysis (Knapp and Hartung, 2003) \cr
-#' \code{adhoc.hakn = "iqwig6"}\tab use variance correction if HK
-#'  confidence interval \cr
-#'  \tab is narrower than CI from classic random effects model \cr
-#'  \tab with DerSimonian-Laird estimator (IQWiG, 2020) \cr
-#' \code{adhoc.hakn = "ci"}\tab use wider confidence interval of
-#'  classic random effects \cr
-#'  \tab and HK meta-analysis \cr
-#'  \tab (Hybrid method 2 in Jackson et al., 2017)
-#' }
-#' }
-#' 
-#' \subsection{Prediction interval}{
-#' 
-#' A prediction interval for the proportion in a new study (Higgins et
-#' al., 2009) is calculated if arguments \code{prediction} and
-#' \code{random} are \code{TRUE}. Note, the definition of
-#' prediction intervals varies in the literature. This function
-#' implements equation (12) of Higgins et al., (2009) which proposed a
-#' \emph{t} distribution with \emph{K-2} degrees of freedom where
-#' \emph{K} corresponds to the number of studies in the meta-analysis.
-#' }
-#'
 #' \subsection{Subgroup analysis}{
 #' 
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
@@ -380,6 +303,9 @@
 #' \code{\link{print.meta}} and \code{\link{forest.meta}} will not
 #' print results for the random effects model if \code{random =
 #' FALSE}.
+#'
+#' A prediction interval will only be shown if \code{prediction =
+#' TRUE}.
 #' }
 #' 
 #' @note
@@ -389,212 +315,18 @@
 #' 
 #' @return
 #' An object of class \code{c("metamean", "meta")} with corresponding
-#' \code{print}, \code{summary}, and \code{forest} functions. The
-#' object is a list containing the following components:
-#' \item{n, mean, sd,}{As defined above.}
-#' \item{studlab, exclude, cluster, sm, method.ci,}{As defined above.}
-#' \item{median, q1, q3, min, max,}{As defined above.}
-#' \item{method.mean, method.sd,}{As defined above.}
-#' \item{approx.mean, approx.sd,}{As defined above.}
-#' \item{level, level.ma,}{As defined above.}
-#' \item{common, random,}{As defined above.}
-#' \item{overall, overall.hetstat,}{As defined above.}
-#' \item{hakn, adhoc.hakn, method.tau, method.tau.ci,}{As defined above.}
-#' \item{tau.preset, TE.tau, method.bias,}{As defined above.}
-#' \item{tau.common, title, complab, outclab,}{As defined above.}
-#' \item{subgroup, subgroup.name, print.subgroup.name, sep.subgroup, warn}{As defined
-#'   above.}
-#' \item{TE, seTE}{Estimated effect (mean or log mean) and standard
-#'   error of individual studies.}
-#' \item{lower, upper}{Lower and upper confidence interval limits for
-#'   individual studies.}
-#' \item{statistic, pval}{Statistic and p-value for test of treatment
-#'   effect for individual studies.}
-#' \item{w.common, w.random}{Weight of individual studies (in common
-#'   effect and random effects model).}
-#' \item{TE.common, seTE.common}{Estimated overall effect (mean or log
-#'   mean) and standard error (common effect model).}
-#' \item{lower.common, upper.common}{Lower and upper confidence interval
-#'   limits (common effect model).}
-#' \item{statistic.common, pval.common}{Statistic and p-value for test of
-#'   overall treatment effect (common effect model).}
-#' \item{TE.random, seTE.random}{Estimated overall effect (mean or log
-#'   mean) and standard error (random effects model).}
-#' \item{lower.random, upper.random}{Lower and upper confidence
-#'   interval limits (random effects model).}
-#' \item{statistic.random, pval.random}{Statistic and p-value for test
-#'   of overall treatment effect (random effects model).}
-#' \item{prediction, level.predict}{As defined above.}
-#' \item{seTE.predict}{Standard error utilised for prediction
-#'   interval.}
-#' \item{lower.predict, upper.predict}{Lower and upper limits of
-#'   prediction interval.}
-#' \item{k}{Number of estimates combined in meta-analysis.}
-#' \item{k.study}{Number of studies combined in meta-analysis.}
-#' \item{k.all}{Number of all studies.}
-#' \item{k.TE}{Number of studies with estimable effects.}
-#' \item{Q}{Heterogeneity statistic.}
-#' \item{tau2}{Between-study variance \eqn{\tau^2}.}
-#' \item{se.tau2}{Standard error of \eqn{\tau^2}.}
-#' \item{lower.tau2, upper.tau2}{Lower and upper limit of confidence
-#'   interval for \eqn{\tau^2}.}
-#' \item{tau}{Square-root of between-study variance \eqn{\tau}.}
-#' \item{lower.tau, upper.tau}{Lower and upper limit of confidence
-#'   interval for \eqn{\tau}.}
-#' \item{H}{Heterogeneity statistic H.}
-#' \item{lower.H, upper.H}{Lower and upper confidence limit for
-#'  heterogeneity statistic H.}
-#' \item{I2}{Heterogeneity statistic I\eqn{^2}.}
-#' \item{lower.I2, upper.I2}{Lower and upper confidence limit for
-#'   heterogeneity statistic I\eqn{^2}.}
-#' \item{Rb}{Heterogeneity statistic R\eqn{_b}.}
-#' \item{lower.Rb, upper.Rb}{Lower and upper confidence limit for
-#'   heterogeneity statistic R\eqn{_b}.}
-#' \item{method}{Pooling method: \code{"Inverse"}.}
-#' \item{df.hakn}{Degrees of freedom for test of treatment effect for
-#'   Hartung-Knapp method (only if \code{hakn = TRUE}).}
-#' \item{bylevs}{Levels of grouping variable - if \code{subgroup} is not
-#'   missing.}
-#' \item{TE.common.w, seTE.common.w}{Estimated effect and standard error
-#'   in subgroups (common effect model) - if \code{subgroup} is not
-#'   missing.}
-#' \item{lower.common.w, upper.common.w}{Lower and upper confidence
-#'   interval limits in subgroups (common effect model) - if
-#'   \code{subgroup} is not missing.}
-#' \item{statistic.common.w, pval.common.w}{Statistics and p-values for
-#'   test of treatment effect in subgroups (common effect model) - if
-#'   \code{subgroup} is not missing.}
-#' \item{TE.random.w, seTE.random.w}{Estimated effect and standard
-#'   error in subgroups (random effects model) - if \code{subgroup} is
-#'   not missing.}
-#' \item{lower.random.w, upper.random.w}{Lower and upper confidence
-#'   interval limits in subgroups (random effects model) - if
-#'   \code{subgroup} is not missing.}
-#' \item{statistic.random.w, pval.random.w}{Statistics and p-values
-#'   for test of treatment effect in subgroups (random effects model)
-#'   - if \code{subgroup} is not missing.}
-#' \item{w.common.w, w.random.w}{Weight of subgroups (in common effect
-#'   and random effects model) - if \code{subgroup} is not missing.}
-#' \item{df.hakn.w}{Degrees of freedom for test of effect for
-#'   Hartung-Knapp method in subgroups - if \code{subgroup} is not
-#'   missing and \code{hakn = TRUE}.}
-#' \item{n.e.w}{Number of observations in experimental group in
-#'   subgroups - if \code{subgroup} is not missing.}
-#' \item{n.c.w}{Number of observations in control group in subgroups -
-#'   if \code{subgroup} is not missing.}
-#' \item{k.w}{Number of studies combined within subgroups - if
-#'   \code{subgroup} is not missing.}
-#' \item{k.all.w}{Number of all studies in subgroups - if \code{subgroup}
-#'   is not missing.}
-#' \item{Q.w.common}{Overall within subgroups heterogeneity statistic Q
-#'   (based on common effect model) - if \code{subgroup} is not missing.}
-#' \item{Q.w.random}{Overall within subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{subgroup} is not
-#'   missing (only calculated if argument \code{tau.common} is TRUE).}
-#' \item{df.Q.w}{Degrees of freedom for test of overall within
-#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.w.common}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on common effect model) - if \code{subgroup} is
-#'   not missing.}
-#' \item{pval.Q.w.random}{P-value of within subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{subgroup} is
-#'   not missing.}
-#' \item{Q.b.common}{Overall between subgroups heterogeneity statistic
-#'   Q (based on common effect model) - if \code{subgroup} is not
-#'   missing.}
-#' \item{Q.b.random}{Overall between subgroups heterogeneity statistic
-#'   Q (based on random effects model) - if \code{subgroup} is not
-#'   missing.}
-#' \item{df.Q.b}{Degrees of freedom for test of overall between
-#'   subgroups heterogeneity - if \code{subgroup} is not missing.}
-#' \item{pval.Q.b.common}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on common effect model) - if \code{subgroup} is
-#'   not missing.}
-#' \item{pval.Q.b.random}{P-value of between subgroups heterogeneity
-#'   statistic Q (based on random effects model) - if \code{subgroup} is
-#'   not missing.}
-#' \item{tau.w}{Square-root of between-study variance within subgroups
-#'   - if \code{subgroup} is not missing.}
-#' \item{H.w}{Heterogeneity statistic H within subgroups - if
-#'   \code{subgroup} is not missing.}
-#' \item{lower.H.w, upper.H.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic H within subgroups - if \code{subgroup} is
-#'   not missing.}
-#' \item{I2.w}{Heterogeneity statistic I\eqn{^2} within subgroups - if
-#'   \code{subgroup} is not missing.}
-#' \item{lower.I2.w, upper.I2.w}{Lower and upper confidence limit for
-#'   heterogeneity statistic I\eqn{^2} within subgroups - if \code{subgroup} is
-#'   not missing.}
-#' \item{keepdata}{As defined above.}
-#' \item{data}{Original data (set) used in function call (if
-#'   \code{keepdata = TRUE}).}
-#' \item{subset}{Information on subset of original data used in
-#'   meta-analysis (if \code{keepdata = TRUE}).}
-#' \item{call}{Function call.}
-#' \item{version}{Version of R package \bold{meta} used to create
-#'   object.}
+#' generic functions (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
-#' @seealso \code{\link{update.meta}}, \code{\link{metamean}},
-#'   \code{\link{metagen}}
+#' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
+#'   \code{\link{metamean}}, \code{\link{metagen}}
 #' 
 #' @references
-#' DerSimonian R & Laird N (1986):
-#' Meta-analysis in clinical trials.
-#' \emph{Controlled Clinical Trials},
-#' \bold{7}, 177--88
-#' 
-#' Hartung J & Knapp G (2001):
-#' On tests of the overall treatment effect in meta-analysis with
-#' normally distributed responses.
-#' \emph{Statistics in Medicine},
-#' \bold{20}, 1771--82
-#' 
-#' Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
-#' A re-evaluation of random-effects meta-analysis.
-#' \emph{Journal of the Royal Statistical Society: Series A},
-#' \bold{172}, 137--59
-#'
-#' IntHout J, Ioannidis JPA, Borm GF (2014):
-#' The Hartung-Knapp-Sidik-Jonkman method for random effects
-#' meta-analysis is straightforward and considerably outperforms the
-#' standard DerSimonian-Laird method.
-#' \emph{BMC Medical Research Methodology},
-#' \bold{14}, 25
-#' 
-#' IQWiG (2020):
-#' General Methods: Version 6.0.
-#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
-#'
-#' Jackson D, Law M, Rücker G, Schwarzer G (2017): 
-#' The Hartung-Knapp modification for random-effects meta-analysis: A
-#' useful refinement but are there any residual concerns?
-#' \emph{Statistics in Medicine},
-#' \bold{36}, 3923--34
-#' 
-#' Langan D, Higgins JPT, Jackson D, Bowden J, Veroniki AA,
-#' Kontopantelis E, et al. (2019):
-#' A comparison of heterogeneity variance estimators in simulated
-#' random-effects meta-analyses.
-#' \emph{Research Synthesis Methods},
-#' \bold{10}, 83--98
-#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
-#' Viechtbauer W (2010):
-#' Conducting Meta-Analyses in R with the Metafor Package.
-#' \emph{Journal of Statistical Software},
-#' \bold{36}, 1--48
-#' 
-#' Wiksten A, Rücker G, Schwarzer G (2016):
-#' Hartung-Knapp method is not always conservative compared with
-#' fixed-effect meta-analysis.
-#' \emph{Statistics in Medicine},
-#' \bold{35}, 2503--15
 #' 
 #' @examples
 #' m1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
@@ -627,22 +359,27 @@ metamean <- function(n, mean, sd, studlab,
                      approx.mean, approx.sd,
                      ##
                      sm = gs("smmean"),
-                     ##
                      method.ci = gs("method.ci.cont"),
-                     level = gs("level"), level.ma = gs("level.ma"),
+                     level = gs("level"),
+                     ##
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
                      overall.hetstat = common | random,
+                     prediction = gs("prediction") | !missing(method.predict),
                      ##
-                     hakn = gs("hakn"), adhoc.hakn = gs("adhoc.hakn"),
                      method.tau = gs("method.tau"),
                      method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
                      ##
-                     prediction = gs("prediction"),
+                     level.ma = gs("level.ma"),
+                     method.random.ci = gs("method.random.ci"),
+                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                     ##
                      level.predict = gs("level.predict"),
+                     method.predict = gs("method.predict"),
+                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                      ##
                      null.effect = NA,
                      ##
@@ -664,7 +401,7 @@ metamean <- function(n, mean, sd, studlab,
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
-                     byvar,
+                     byvar, adhoc.hakn,
                      ##
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
@@ -681,13 +418,28 @@ metamean <- function(n, mean, sd, studlab,
   chknull(sm)
   chklevel(level)
   ##
-  chklogical(hakn)
-  adhoc.hakn <- setchar(adhoc.hakn, gs("adhoc4hakn"))
+  missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
+  ##
+  tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  missing.method.predict <- missing(method.predict)
+  ##
+  method.tau <-
+    setmethodtau(method.tau, missing.method.tau,
+                 method.predict, missing.method.predict)
+  method.predict <-
+    setmethodpredict(method.predict, missing.method.predict,
+                     method.tau, missing.method.tau)
+  ##
+  if (method.predict == "NNF")
+    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+  ##
+  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
   chknumeric(null.effect, length = 1)
   ##
@@ -739,6 +491,21 @@ metamean <- function(n, mean, sd, studlab,
                        warn.deprecated)
   chklogical(random)
   ##
+  method.random.ci <-
+    deprecated(method.random.ci, missing(method.random.ci),
+               args, "hakn", warn.deprecated)
+  if (is.logical(method.random.ci))
+    if (method.random.ci)
+      method.random.ci <- "HK"
+    else
+      method.random.ci <- "classic"
+  method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  ##
+  adhoc.hakn.ci <-
+    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
+  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
+  ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
@@ -747,7 +514,8 @@ metamean <- function(n, mean, sd, studlab,
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
-  print.subgroup.name <- replaceNULL(print.subgroup.name, FALSE)
+  print.subgroup.name <-
+    replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
   ##
   sep.subgroup <-
@@ -1330,20 +1098,25 @@ metamean <- function(n, mean, sd, studlab,
                ##
                sm = sm,
                level = level,
-               level.ma = level.ma,
+               ##
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
+               prediction = prediction,
                ##
-               hakn = hakn, adhoc.hakn = adhoc.hakn,
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
                ##
-               prediction = prediction,
+               level.ma = level.ma,
+               method.random.ci = method.random.ci,
+               adhoc.hakn.ci = adhoc.hakn.ci,
+               ##
                level.predict = level.predict,
+               method.predict = method.predict,
+               adhoc.hakn.pi = adhoc.hakn.pi,
                ##
                null.effect = transf.null.effect,
                ##
@@ -1374,7 +1147,9 @@ metamean <- function(n, mean, sd, studlab,
   ## (11) Generate R object
   ##
   ##
-  res <- list(n = n, mean = mean, sd = sd, method.ci = method.ci)
+  res <- list(n = n, mean = mean, sd = sd,
+              method.ci = method.ci,
+              method.mean = method.mean, method.sd = method.sd)
   ##
   if (export.median)
     res$median <- median
@@ -1395,6 +1170,14 @@ metamean <- function(n, mean, sd, studlab,
   ##
   m$n.e <- NULL
   m$n.c <- NULL
+  m$pscale <- NULL
+  m$irscale <- NULL
+  m$irunit <- NULL
+  m$method.ci <- NULL
+  m$method.mean <- NULL
+  m$approx.TE <- NULL
+  m$approx.seTE <- NULL
+  ##
   m$label.e <- ""
   m$label.c <- ""
   m$label.left <- ""
@@ -1449,11 +1232,8 @@ metamean <- function(n, mean, sd, studlab,
     ##
     if (!tau.common) {
       res <- c(res, subgroup(res))
-      if (res$three.level) {
-        res$Q.b.random <- NA
-        res$df.Q.b <- NA
-        res$pval.Q.b.random <- NA
-      }
+      if (res$three.level)
+        res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))
@@ -1465,15 +1245,7 @@ metamean <- function(n, mean, sd, studlab,
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
     ##
-    if (!tau.common || !is.null(tau.preset)) {
-      res$tau2.resid <- res$lower.tau2.resid <- res$upper.tau2.resid <- NA
-      res$tau.resid <- res$lower.tau.resid <- res$upper.tau.resid <- NA
-      ##
-      res$Q.resid <- res$df.Q.resid <- res$pval.Q.resid <- NA
-      res$H.resid <- res$lower.H.resid <- res$upper.H.resid <- NA
-      res$I2.resid <- res$lower.I2.resid <- res$upper.I2.resid <- NA
-    }
-    else {
+    if (tau.common && is.null(tau.preset)) {
       res$Q.w.random <- hcc$Q.resid
       res$df.Q.w.random <- hcc$df.Q.resid
       res$pval.Q.w.random <- hcc$pval.Q.resid
@@ -1501,12 +1273,18 @@ metamean <- function(n, mean, sd, studlab,
       res$upper.I2.resid <- hcc$upper.I2.resid
     }
     ##
-    res$event.e.w <- NULL
-    res$event.c.w <- NULL
+    res$event.w <- NULL
+    ##
     res$n.e.w <- NULL
     res$n.c.w <- NULL
+    res$n.harmonic.mean.w <- NULL
+    ##
+    res$event.e.w <- NULL
+    res$event.c.w <- NULL
+    ##
     res$time.e.w <- NULL
     res$time.c.w <- NULL
+    res$t.harmonic.mean.w <- NULL
   }
   ##
   class(res) <- c(fun, "meta")

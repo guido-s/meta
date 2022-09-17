@@ -46,8 +46,6 @@
 #'   should be used.
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
-#' @param level.ma The level used to calculate confidence intervals
-#'   for pooled estimates.
 #' @param common A logical indicating whether a common effect
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
@@ -60,34 +58,39 @@
 #'   argument is useful in a meta-analysis with subgroups if
 #'   heterogeneity statistics should only be printed on subgroup
 #'   level.
-#' @param hakn A logical indicating whether the method by Hartung and
-#'   Knapp should be used to adjust test statistics and confidence
-#'   intervals.
-#' @param adhoc.hakn A character string indicating whether an \emph{ad
-#'   hoc} variance correction should be applied in the case of an
-#'   arbitrarily small Hartung-Knapp variance estimate.
-#' @param method.tau A character string indicating which method is
-#'   used to estimate the between-study variance \eqn{\tau^2} and its
-#'   square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-#'   \code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-#'   \code{"HE"}, or \code{"EB"}, can be abbreviated. See function
-#'   \code{\link{metagen}}.
-#' @param method.tau.ci A character string indicating which method is
-#'   used to estimate the confidence interval of \eqn{\tau^2} and
-#'   \eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, can
-#'   be abbreviated.
-#' @param tau.preset Prespecified value for the square root of the
-#'   between-study variance \eqn{\tau^2}.
-#' @param TE.tau Overall treatment effect used to estimate the
-#'   between-study variance \eqn{\tau^2}.
-#' @param tau.common A logical indicating whether tau-squared should
-#'   be the same across subgroups.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param level.predict The level used to calculate prediction
 #'   interval for a new study.
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
+#' @param level.ma The level used to calculate confidence intervals
+#'   for meta-analysis estimates.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   random effects estimate (see \code{\link{meta-package}}).
+#' @param adhoc.hakn.ci A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied in the case
+#'   of an arbitrarily small Hartung-Knapp variance estimate (see
+#'   \code{\link{meta-package}}).
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval (see
+#'   \code{\link{meta-package}}).
+#' @param adhoc.hakn.pi A character string indicating whether an
+#'   \emph{ad hoc} variance correction should be applied for
+#'   prediction interval (see \code{\link{meta-package}}).
+#' @param method.tau A character string indicating which method is
+#'   used to estimate the between-study variance \eqn{\tau^2} and its
+#'   square root \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param method.tau.ci A character string indicating which method is
+#'   used to estimate the confidence interval of \eqn{\tau^2} and
+#'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param tau.preset Prespecified value for the square root of the
+#'   between-study variance \eqn{\tau^2}.
+#' @param TE.tau Overall treatment effect used to estimate the
+#'   between-study variance tau-squared.
+#' @param tau.common A logical indicating whether tau-squared should
+#'   be the same across subgroups.
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
 #'   function \code{\link{metabias}.}
@@ -213,7 +216,7 @@
 #' An object of class \code{"meta"} and \code{"metabin"},
 #' \code{"metacont"}, \code{"metacor"}, \code{"metainc"},
 #' \code{"metagen"}, \code{"metamean"}, \code{"metaprop"}, or
-#' \code{"metarate"}.
+#' \code{"metarate"} (see \code{\link{meta-object}}).
 #' 
 #' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
 #' 
@@ -266,14 +269,17 @@ update.meta <- function(object,
                         random = object$random,
                         overall = object$overall,
                         overall.hetstat = object$overall.hetstat,
-                        hakn = object$hakn,
-                        adhoc.hakn = object$adhoc.hakn,
+                        method.random.ci = object$method.random.ci,
+                        adhoc.hakn.ci = object$adhoc.hakn.ci,
+                        method.predict = object$method.predict,
+                        adhoc.hakn.pi = object$adhoc.hakn.pi,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
-                        prediction = object$prediction,
+                        prediction =
+                          object$prediction | !missing(method.predict),
                         level.predict = object$level.predict,
                         null.effect = object$null.effect,
                         method.bias = object$method.bias,
@@ -412,6 +418,8 @@ update.meta <- function(object,
     object$random <- object$comb.random
     object$level.ma <- object$level.comb
     ##
+    object$detail.tau <- ""
+    ##
     if (!is.null(object$byvar)) {
       object$data$.subgroup <- object$byvar
       object$subgroup.name <- object$bylab
@@ -466,12 +474,51 @@ update.meta <- function(object,
       object$cluster <- object$id
       object$data$.cluster <- object$data$.id
   }
+  if (update_needed(object$version, 6, 0, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.0
+    ##
+    object$method.random.ci <- if (object$hakn) "HK" else "classic"
+    object$adhoc.hakn.ci <- object$adhoc.hakn.ci
+    object$df.random <- object$df.hakn
+    object$seTE.hakn.ci <- object$seTE.hakn
+    object$seTE.hakn.adhoc.ci <- object$seTE.hakn.adhoc
+    ##
+    object$method.predict <- "HTS"
+    object$adhoc.hakn.pi <- ""
+    object$df.predict <- object$k - 2
+    object$seTE.hakn.pi <- NA
+    object$seTE.hakn.adhoc.pi <- NA
+    ##
+    object$seTE.kero <- NA
+    object$df.kero <- NA
+    ##
+    if (!is.null(object$subgroup)) {
+      object$bylevs <- object$subgroup.levels
+      object$df.random.w <- object$df.hakn.w
+      object$df.predict.w <- object$k.w - 2
+      ##
+      object$seTE.hakn.ci.w <-
+        object$seTE.hakn.adhoc.ci.w <-
+          object$seTE.hakn.pi.w <-
+            object$seTE.hakn.adhoc.pi.w <- NA
+      ##
+      object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
+    }
+  }
   
   
   ##
   ##
   ## (2) Check arguments
   ##
+  ##
+  pscale <- replaceNULL(pscale, 1)
+  irscale <- replaceNULL(irscale, 1)
+  irunit <- replaceNULL(irunit, "")
+  ##
+  tau.common <- replaceNULL(tau.common, gs("tau.common"))
+  sep.subgroup <- replaceNULL(sep.subgroup, gs("sep.subgroup"))
   ##
   if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
@@ -502,6 +549,16 @@ update.meta <- function(object,
                        warn.deprecated)
   chklogical(random)
   ##
+  method.random.ci <-
+    deprecated(method.random.ci, missing(method.random.ci),
+               args, "hakn", warn.deprecated)
+  if (is.logical(method.random.ci))
+    if (method.random.ci)
+      method.random.ci <- "HK"
+    else
+      method.random.ci <- "classic"
+  method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
@@ -510,6 +567,8 @@ update.meta <- function(object,
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
+  print.subgroup.name <-
+    replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
   ##
   sep.subgroup <-
@@ -578,7 +637,8 @@ update.meta <- function(object,
                     type = type, n.iter.max = n.iter.max,
                     level = level, level.ma = level.ma,
                     common = common, random = random,
-                    hakn = hakn, adhoc.hakn = adhoc.hakn,
+                    method.random.ci = method.random.ci,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
                     prediction = prediction, level.predict = level.predict,
                     silent = TRUE,
@@ -796,7 +856,9 @@ update.meta <- function(object,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn, adhoc.hakn = adhoc.hakn,
+                 method.random.ci = method.random.ci,
+                 adhoc.hakn.ci = adhoc.hakn.ci,
+                 method.predict = method.predict,
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -855,7 +917,9 @@ update.meta <- function(object,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn, adhoc.hakn = adhoc.hakn,
+                  method.random.ci = method.random.ci,
+                  adhoc.hakn.ci = adhoc.hakn.ci,
+                  method.predict = method.predict,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -900,7 +964,9 @@ update.meta <- function(object,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn, adhoc.hakn = adhoc.hakn,
+                 method.random.ci = method.random.ci,
+                 adhoc.hakn.ci = adhoc.hakn.ci,
+                 method.predict = method.predict,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -958,7 +1024,9 @@ update.meta <- function(object,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn, adhoc.hakn = adhoc.hakn,
+                 method.random.ci = method.random.ci,
+                 adhoc.hakn.ci = adhoc.hakn.ci,
+                 method.predict = method.predict,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -1048,7 +1116,9 @@ update.meta <- function(object,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
-                 hakn = hakn, adhoc.hakn = adhoc.hakn,
+                 method.random.ci = method.random.ci,
+                 adhoc.hakn.ci = adhoc.hakn.ci,
+                 method.predict = method.predict,
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1109,7 +1179,9 @@ update.meta <- function(object,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn, adhoc.hakn = adhoc.hakn,
+                  method.random.ci = method.random.ci,
+                  adhoc.hakn.ci = adhoc.hakn.ci,
+                  method.predict = method.predict,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1175,7 +1247,9 @@ update.meta <- function(object,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn, adhoc.hakn = adhoc.hakn,
+                  method.random.ci = method.random.ci,
+                  adhoc.hakn.ci = adhoc.hakn.ci,
+                  method.predict = method.predict,
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1243,7 +1317,9 @@ update.meta <- function(object,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
                   ##
-                  hakn = hakn, adhoc.hakn = adhoc.hakn,
+                  method.random.ci = method.random.ci,
+                  adhoc.hakn.ci = adhoc.hakn.ci,
+                  method.predict = method.predict,
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,

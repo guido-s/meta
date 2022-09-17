@@ -13,7 +13,7 @@
 
 updateversion <- function(x) {
   ##
-  ## Update older meta objects - see gs("major.update"), gs("minor.update")
+  ## Update older meta objects, see gs("major.update") and gs("minor.update")
   ##
   if (update_needed(x$version))
     x <- update(x, warn = FALSE, warn.deprecated = FALSE)
@@ -32,17 +32,16 @@ update_needed <- function(version,
     minor.cur <- 1
   }
   else {
-    version <- unlist(strsplit(version, "-")[1])
-    major.cur <-
-      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[1])
-    minor.cur <-
-      as.numeric(unlist(strsplit(version, ".", fixed = TRUE))[2])
+    version <- unlist(strsplit(version, "-"))
+    divide <- unlist(strsplit(version[1], ".", fixed = TRUE))
+    major.cur <- as.numeric(divide[1])
+    minor.cur <- as.numeric(paste(divide[2], version[2], sep = "."))
   }
   ##
   res <-
     ifelse(major.cur < major,
            TRUE, ifelse(major.cur > major,
-                        FALSE, minor.cur < minor))
+                        FALSE, minor.cur < as.numeric(gsub("-", ".", minor))))
   if (res & verbose)
     message(paste0("Update to meta, version ", major, ".", minor))
   ##
@@ -63,7 +62,7 @@ cathet <- function(k,
                    Rb, lowRb, uppRb,
                    print.Rb, text.Rb,
                    big.mark,
-                   detail.tau = "") {
+                   label = "") {
   
   
   if (is.null(lower.tau2))
@@ -75,24 +74,45 @@ cathet <- function(k,
   if (is.null(upper.tau))
     upper.tau <- NA
   ##
-  if (all(is.na(lower.tau2)) && all(is.na(upper.tau2)))
+  if (all(is.na(lower.tau2) & is.na(upper.tau2)))
     print.tau2.ci <- FALSE
-  if (all(is.na(lower.tau)) && all(is.na(upper.tau)))
+  if (all(is.na(lower.tau) & all(is.na(upper.tau))))
     print.tau.ci <- FALSE
   
   
+  ## Print tau2 and tau
+  ##
   stau <- length(tau) == 1
   ##
-  if (!stau) {
-    text.tau2 <- paste(text.tau2, seq_along(tau), sep = ".")
-    text.tau <- paste(text.tau, seq_along(tau), sep = ".")
+  if (print.tau2 | print.tau) {
+    if (!stau) {
+      text.tau2 <- paste(text.tau2, seq_along(tau), sep = ".")
+      text.tau <- paste(text.tau, seq_along(tau), sep = ".")
+    }
   }
   ##
-  detail.tau <- ifelse(detail.tau != "", paste0(" (", detail.tau, ")"), "")
-  
-  
+  label <- ifelse(label != "", paste0(" (", label, ")"), "")
+  ##
+  if (print.tau2.ci) {
+    text.tau2.ci <-
+      pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
+              sign.lower.tau, sign.upper.tau)
+    text.tau2.ci[text.tau2.ci == " "] <- ""
+  }
+  else
+    text.tau2.ci <- ""
+  ##
+  if (print.tau.ci) {
+    text.tau.ci <-
+      pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
+              sign.lower.tau, sign.upper.tau)
+    text.tau.ci[text.tau.ci == " "] <- ""
+  }
+  else
+    text.tau.ci <- ""
+  ##
   cat(
-    paste(
+    paste0(
       if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
         " ",
       if (print.tau2)
@@ -101,10 +121,8 @@ cathet <- function(k,
                         digits = digits.tau2,
                         lab.NA = "NA",
                         big.mark = big.mark),
-               if (print.tau2.ci)
-                 pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
-                         sign.lower.tau, sign.upper.tau),
-               if (!print.tau) detail.tau),
+               text.tau2.ci,
+               if (!print.tau) label),
       ##
       if (print.tau)
         paste0(
@@ -114,65 +132,97 @@ cathet <- function(k,
                    digits = digits.tau,
                    lab.NA = "NA",
                    big.mark = big.mark),
-          if (print.tau.ci)
-            pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
-                    sign.lower.tau, sign.upper.tau),
-          detail.tau),
-      sep = "", collapse = "\n")
+          text.tau.ci,
+          label),
+      collapse = "\n")
   )
+  
+  
+  ## Print I2, H and Rb
+  ##
+  if (print.I2) {
+    sI2 <- length(I2) == 1
+    if (!sI2)
+      text.I2 <- paste(text.I2, seq_along(I2), sep = ".")
+  }
+  ##
+  if (print.H) {
+    text.H <- "H"
+    sH <- length(H) == 1
+    if (!sH)
+      text.H <- paste(text.H, seq_along(H), sep = ".")
+  }
+  ##  
+  if (print.Rb) {
+    sRb <- length(Rb) == 1
+    if (!sRb)
+      text.Rb <- paste(text.Rb, seq_along(Rb), sep = ".")
+  }
+  ##
+  if (print.I2)
+    cat(ifelse(print.tau2 | print.tau,
+        ifelse(!stau | print.tau2.ci | print.tau.ci |
+               (options()$width < 70 & print.I2.ci),
+               "\n", ";"),
+        ""))
   ##
   cat(
     paste0(
       if (print.I2)
         paste0(
-          ifelse(
-            print.tau2 | print.tau,
-          ifelse(!stau | print.tau2.ci | print.tau.ci |
-                 (options()$width < 70 & print.I2.ci),
-                 "\n", ";"),
-          ""),
           if (print.tau2 | print.tau)
             " ",
           text.I2, " = ",
-          if (is.na(I2))
-            "NA"
-          else
-            paste0(formatN(I2, digits.I2), "%"),
+          ifelse(is.na(I2), "NA",
+                 paste0(formatN(I2, digits.I2), "%")),
           if (print.I2.ci)
-            pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%")
+            pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%"),
+          if (!sI2 & !print.H)
+            label
         ),
       ##
       if (print.H)
         paste0(
           if (print.tau2 | print.tau | print.I2)
-            "; ",
-          "H = ",
-          if (is.na(H))
-            "NA"
-          else
-            formatN(H, digits.H, "NA", big.mark = big.mark),
-          if (!(is.na(lowH) | is.na(uppH)))
-            pasteCI(lowH, uppH, digits.H, big.mark)
-        ),
-      ##
-      if (print.Rb)
-        paste0(
-          if (print.tau2 | print.tau | print.I2 | print.H)
-            ";\n",
-          text.Rb, " = ",
-          if (is.na(Rb))
-            "NA"
-          else
-            paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%"),
-          if (!(is.na(lowRb) | is.na(uppRb)))
-            pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%")
-        ),
-      ##
-      if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
-        "\n"
+            "; " else " ",
+          text.H, " = ",
+          ifelse(is.na(H), "NA",
+                 formatN(H, digits.H, "NA", big.mark = big.mark)),
+          if (print.I2.ci & any(!is.na(lowH) & !is.na(uppH)))
+            pasteCI(lowH, uppH, digits.H, big.mark),
+          if (!sH)
+            label),
+      collapse = "\n")
     )
-  )
   
+  
+  if (print.Rb)
+    cat(ifelse(print.tau2 | print.tau | print.I2 | print.H,
+        ifelse(!stau | !sI2 | !sH |
+               print.tau2.ci | print.tau.ci |
+               print.I2.ci |
+               (options()$width < 70 & print.I2.ci),
+               "\n", ";"),
+        ""))
+  ##
+  if (print.Rb)
+    cat(
+      paste0(
+        " ",
+        text.Rb, " = ",
+        ifelse(is.na(Rb), "NA",
+               paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%")),
+        if (any(!is.na(lowRb) & !is.na(uppRb)))
+          pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%"),
+        label,
+        collapse = "\n")
+    )
+  
+  
+  ## Empty row(s)
+  ##
+  if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
+    cat("\n")
   
   invisible(NULL)
 }
@@ -302,14 +352,13 @@ setVar <- function(var = NULL, arg = NULL) {
 ## List of internal settings
 ##
 argslist.internal <-
-  c("fixed", "comb.fixed", "comb.random", "level.comb", "digits.zval",
-    "print.byvar", "byseparator",
-    "Wan2014.Table1", "Wan2014.Table2",
+  c("Wan2014.Table1", "Wan2014.Table2",
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
     "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
-    "meth4tau", "meth4tau.ci",
-    "adhoc4hakn",
+    "meth4tau", "meth4tau.ci", "meth4i2",
+    "meth4random.ci", "meth4pi",
+    "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
     "meth4incr",
     "text.fixed", "text.w.fixed",
@@ -338,7 +387,11 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 ##
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
-setOption("adhoc4hakn", c("", "se", "ci", "iqwig6"))
+setOption("meth4i2", c("q", "tau"))
+setOption("meth4random.ci", c("classic", "HK", "KR"))
+setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S"))
+setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
+setOption("adhoc4hakn.pi", c("", "se"))
 ##
 setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
 setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
@@ -348,13 +401,16 @@ setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
 setOption("meth4incr", c("only0", "if0all", "all"))
 ##
 setOption("major.update", 5)
-setOption("minor.update", 5)
+setOption("minor.update", 6)
 ##
 ## List of arguments that can be changed by user
 ##
 argslist <-
   c("level", "level.ma", "common", "random",
-    "hakn", "adhoc.hakn", "method.tau", "method.tau.ci", "tau.common",
+    "method.random.ci", "method.predict",
+    "adhoc.hakn.ci", "adhoc.hakn.pi",
+    "method.tau", "method.tau.ci", "tau.common",
+    "method.i2",
     "prediction", "level.predict",
     "method.bias",
     "text.common", "text.random", "text.predict",
@@ -365,7 +421,7 @@ argslist <-
     "keepdata", "warn", "warn.deprecated",
     "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
-    "incr", "method.incr", "allincr", "addincr",
+    "incr", "method.incr",
     "method", "allstudies", "MH.exact",
     "RR.Cochrane", "Q.Cochrane", "model.glmm", "print.CMH",
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
@@ -374,34 +430,81 @@ argslist <-
     "layout",
     "test.overall", "test.subgroup", "prediction.subgroup",
     "test.effect.subgroup",
-    "digits", "digits.se", "digits.zval", "digits.stat",
+    "digits", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q", "digits.forest",
+    "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "print.I2", "print.H", "print.Rb",
-    "text.tau2", "text.tau", "text.I2", "text.Rb"
+    "text.tau2", "text.tau", "text.I2", "text.Rb",
+    ##
+    "lty.common", "lty.random", "col.common", "col.random",
+    "sort.subgroup",
+    "pooled.events", "pooled.times", "study.results",
+    "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
+    "bottom.lr",
+    "lab.NA", "lab.NA.effect", "lab.NA.weight",
+    "lwd",
+    "type.study", "type.common",
+    "col.study", "col.square", "col.inside",
+    "col.diamond", "col.diamond.lines",
+    "col.predict", "col.predict.lines",
+    "col.subgroup", "col.label.right", "col.label.left",
+    "hetlab", "resid.hetstat", "resid.hetlab",
+    "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
+    "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
+    "forest.Rb", "forest.Rb.ci",
+    "text.subgroup.nohet",
+    "LRT",
+    "forest.stat", "forest.Q.subgroup",
+    "fontsize", "fontfamily",
+    "fs.common", "fs.random", "fs.predict",
+    "fs.common.labels", "fs.random.labels", "fs.predict.labels",
+    "fs.hetstat", "fs.test.overall", "fs.test.subgroup",
+    "fs.test.effect.subgroup", "fs.addline",
+    "ff.heading", "ff.common", "ff.random", "ff.predict",
+    "ff.common.labels", "ff.random.labels", "ff.predict.labels",
+    "ff.study", "ff.hetstat", "ff.test.overall", "ff.test.subgroup",
+    "ff.test.effect.subgroup", "ff.addline",
+    "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
+    "colgap",
+    "calcwidth.predict", "calcwidth.hetstat",
+    "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
+    "just.studlab", "just.addcols",
+    "spacing",
+    "addrow", "addrow.overall", "addrow.subgroups", "addrow.below.overall"
     )
+args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
+               "hakn", "adhoc.hakn",
+               "digits.zval", "print.byvar", "byseparator",
+               "addincr", "allincr")
 ##
-setOption("argslist", argslist)
+setOption("argslist", c(argslist, args.depr))
 ##
 ## General settings
 ##
 setOption("level", 0.95)
 setOption("level.ma", 0.95)
 setOption("level.comb", 0.95)
+##
 setOption("common", TRUE)
 setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
 setOption("comb.random", TRUE)
+setOption("method.random.ci", "classic")
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")
+setOption("adhoc.hakn.ci", "")
+setOption("adhoc.hakn.pi", "")
+setOption("prediction", FALSE)
+setOption("level.predict", 0.95)
+setOption("method.predict", "HTS")
 setOption("method.tau", "REML")
 setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
-setOption("prediction", FALSE)
-setOption("level.predict", 0.95)
+setOption("method.i2", "q")
 setOption("method.bias", "Egger")
 setOption("text.common", "Common effect model")
 setOption("text.fixed", "Common effect model")
@@ -428,8 +531,8 @@ setOption("warn.deprecated", FALSE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
-setOption("digits.zval", 2)
 setOption("digits.stat", 2)
+setOption("digits.zval", 2)
 setOption("digits.Q", 2)
 setOption("digits.tau2", 4)
 setOption("digits.tau", 4)
@@ -439,6 +542,7 @@ setOption("digits.prop", 4)
 setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
+setOption("digits.df", 4)
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
@@ -507,6 +611,116 @@ setOption("layout", "meta")
 setOption("test.overall", FALSE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
+##
+setOption("lty.common", 2)
+setOption("lty.random", 3)
+setOption("col.common", "black")
+setOption("col.random", "black")
+##
+setOption("sort.subgroup", FALSE)
+##
+setOption("pooled.events", FALSE)
+setOption("pooled.times", FALSE)
+setOption("study.results", TRUE)
+##
+setOption("lower.equi", NA)
+setOption("upper.equi", NA)
+setOption("lty.equi", 1)
+setOption("col.equi", "blue")
+setOption("fill.equi", "transparent")
+##
+setOption("bottom.lr", TRUE)
+##
+setOption("lab.NA", ".")
+setOption("lab.NA.effect", NULL)
+setOption("lab.NA.weight", "--")
+##
+setOption("lwd", 1)
+##
+setOption("type.study", "square")
+setOption("type.common", "diamond")
+##
+setOption("col.study", "black")
+setOption("col.square", "gray")
+setOption("col.inside", "white")
+setOption("col.diamond", "gray")
+setOption("col.diamond.lines", "black")
+setOption("col.predict", "red")
+setOption("col.predict.lines", "black")
+setOption("col.subgroup", "darkgray")
+setOption("col.label.right", "black")
+setOption("col.label.left", "black")
+##
+setOption("hetlab", "Heterogeneity: ")
+setOption("resid.hetstat", NULL)
+setOption("resid.hetlab", "Residual heterogeneity: ")
+##
+setOption("forest.I2", NULL)
+setOption("forest.I2.ci", FALSE)
+setOption("forest.tau2", NULL)
+setOption("forest.tau2.ci", FALSE)
+setOption("forest.tau", FALSE)
+setOption("forest.tau.ci", FALSE)
+setOption("forest.Q", FALSE)
+setOption("forest.pval.Q", NULL)
+setOption("forest.Rb", FALSE)
+setOption("forest.Rb.ci", FALSE)
+##
+setOption("text.subgroup.nohet", "not applicable")
+##
+setOption("LRT", FALSE)
+##
+setOption("forest.stat", TRUE)
+setOption("forest.Q.subgroup", TRUE)
+##
+setOption("fontsize", 12)
+setOption("fontfamily", NULL)
+setOption("fs.common", NULL)
+setOption("fs.random", NULL)
+setOption("fs.predict", NULL)
+setOption("fs.common.labels", NULL)
+setOption("fs.random.labels", NULL)
+setOption("fs.predict.labels", NULL)
+setOption("fs.hetstat", NULL)
+setOption("fs.test.overall", NULL)
+setOption("fs.test.subgroup", NULL)
+setOption("fs.test.effect.subgroup", NULL)
+setOption("fs.addline", NULL)
+##
+setOption("ff.heading", "bold")
+setOption("ff.common", NULL)
+setOption("ff.random", NULL)
+setOption("ff.predict", NULL)
+setOption("ff.common.labels", NULL)
+setOption("ff.random.labels", NULL)
+setOption("ff.predict.labels", NULL)
+setOption("ff.study", "plain")
+setOption("ff.hetstat", NULL)
+setOption("ff.test.overall", NULL)
+setOption("ff.test.subgroup", NULL)
+setOption("ff.test.effect.subgroup", NULL)
+setOption("ff.addline", NULL)
+setOption("ff.axis", "plain")
+setOption("ff.smlab", "bold")
+setOption("ff.xlab", "plain")
+setOption("ff.lr", "plain")
+##
+setOption("colgap", "2mm")
+##
+setOption("calcwidth.predict", FALSE)
+setOption("calcwidth.hetstat", FALSE)
+setOption("calcwidth.tests", FALSE)
+setOption("calcwidth.subgroup", FALSE)
+setOption("calcwidth.addline", FALSE)
+##
+setOption("just.studlab", "left")
+setOption("just.addcols", "center")
+##
+setOption("spacing", 1)
+setOption("addrow", NULL)
+setOption("addrow.overall", NULL)
+setOption("addrow.subgroups", NULL)
+setOption("addrow.below.overall", 0)
 
 
 setOption("Wan2014.Table1",

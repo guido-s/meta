@@ -1,3 +1,72 @@
+## meta, version 6.0-0 (2022-mm-dd)
+
+### Major changes
+
+* Meta-analysis object can contain results of several common effect or
+  random effects methods, e.g., random effects meta-analysis with or
+  without Hartung-Knapp method
+
+* Kenward-Roger method implemented to estimate confidence or
+  prediction interval [(Partlett & Riley,
+  2017)](https://doi.org/10.1002/sim.7140)
+
+* Bootstrap approach implemented to calculate prediction interval
+  [(Nagashima et al., 2019)](https://doi.org/10.1177/0962280218773520)
+
+* Rewrite of function metamerge() to merge pooled results of two
+  meta-analyses into a single meta-analysis object
+
+* Defaults for appearance of forest plots can be defined for the R
+  session
+
+* R package **pimeta** added to suggested packages in order to
+  calculate bootstrap approach for prediction interval
+
+* New argument 'method.random.ci' replaces argument 'hakn' to select
+  method to calculate confidence interval for random effects estimate
+
+* Major update of help pages:
+  - help page for *meta-package* revised (content of details of
+    meta-analysis functions moved to this help page)
+  - new help page *meta-object* describing content of meta-analysis
+    functions (content moved from individual help pages)
+
+### Bug fixes
+
+* forest.meta():
+  - do not print label for subgroups with no information to print,
+    e.g., if argument 'study.results = FALSE', for subgroups with only
+    one or no study contributing to pooled estimate in the subgroup
+  - do not show empty row before label on x-axis (argument 'xlab') if
+    argument 'label.left' or 'label.right' is provided for
+    meta-analysis without reference value (argument 'ref'), e.g.,
+    meta-analysis of single means or proportions
+
+* metareg():
+  - use Paule-Mandel estimator if used in meta-analysis (instead of
+    REML estimator)
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop() and metarate():
+  - argument 'hakn' replaced by 'method.random.ci'
+  - argument 'adhoc.hakn' replaced by 'adhoc.hakn.ci'
+  - new arguments 'method.predict' and 'adhoc.hakn.pi'
+
+* settings.meta():
+  - several new arguments added to define defaults for forest plots;
+    see printout of command settings.meta(print = TRUE)
+
+* forest.meta():
+  - argument 'col.by' has been renamed to 'col.subgroup',
+  - argument 'bysort' has been renamed to 'sort.subgroup'
+
+* trimfill.meta():
+  - arguments 'level', 'level.ma', 'method.random.ci', 'adhoc.hakn',
+    'method.tau', 'method.tau.ci', 'level.predict', and
+    'method.predict' removed
+
 ## meta, version 5.5-0 (2022-07-11)
 
 ### Major changes

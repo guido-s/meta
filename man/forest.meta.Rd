@@ -15,10 +15,10 @@
   overall = x$overall,
   text.common = x$text.common,
   text.random = x$text.random,
-  lty.common = 2,
-  lty.random = 3,
-  col.common = "black",
-  col.random = "black",
+  lty.common = gs("lty.common"),
+  lty.random = gs("lty.random"),
+  col.common = gs("col.common"),
+  col.random = gs("col.random"),
   text.w.common = x$text.w.common,
   text.w.random = x$text.w.random,
   prediction = x$prediction,
@@ -32,11 +32,11 @@
   text.common.w = text.common,
   text.random.w = text.random,
   text.predict.w = text.predict,
-  bysort = FALSE,
+  sort.subgroup = gs("sort.subgroup"),
   pooled.totals = common | random,
-  pooled.events = FALSE,
-  pooled.times = FALSE,
-  study.results = TRUE,
+  pooled.events = gs("pooled.events"),
+  pooled.times = gs("pooled.times"),
+  study.results = gs("study.results"),
   xlab = "",
   xlab.pos,
   smlab = NULL,
@@ -44,16 +44,15 @@
   xlim = "symmetric",
   allstudies = TRUE,
   weight.study = NULL,
-  weight.subgroup,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
   ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
-  lower.equi = NA,
-  upper.equi = NA,
-  lty.equi = 1,
-  col.equi = "blue",
-  fill.equi = "transparent",
+  lower.equi = gs("lower.equi"),
+  upper.equi = gs("upper.equi"),
+  lty.equi = gs("lty.equi"),
+  col.equi = gs("col.equi"),
+  fill.equi = gs("fill.equi"),
   leftcols = NULL,
   rightcols = NULL,
   leftlabs = NULL,
@@ -64,64 +63,64 @@
   label.c.attach = NULL,
   label.right = x$label.right,
   label.left = x$label.left,
-  bottom.lr = TRUE,
-  lab.NA = ".",
-  lab.NA.effect,
-  lab.NA.weight = "--",
-  lwd = 1,
+  bottom.lr = gs("bottom.lr"),
+  lab.NA = gs("lab.NA"),
+  lab.NA.effect = gs("lab.NA.effect"),
+  lab.NA.weight = gs("lab.NA.weight"),
+  lwd = gs("lwd"),
   at = NULL,
   label = TRUE,
-  type.study = "square",
-  type.common = "diamond",
+  type.study = gs("type.study"),
+  type.common = gs("type.common"),
   type.random = type.common,
   type.subgroup = ifelse(study.results, "diamond", "square"),
   type.subgroup.common = type.subgroup,
   type.subgroup.random = type.subgroup,
-  col.study = "black",
-  col.square = "gray",
+  col.study = gs("col.study"),
+  col.square = gs("col.square"),
   col.square.lines = col.square,
-  col.inside = "white",
+  col.inside = gs("col.inside"),
   col.inside.common = col.inside,
   col.inside.random = col.inside,
-  col.diamond = "gray",
+  col.diamond = gs("col.diamond"),
   col.diamond.common = col.diamond,
   col.diamond.random = col.diamond,
-  col.diamond.lines = "black",
+  col.diamond.lines = gs("col.diamond.lines"),
   col.diamond.lines.common = col.diamond.lines,
   col.diamond.lines.random = col.diamond.lines,
-  col.predict = "red",
-  col.predict.lines = "black",
-  col.by = "darkgray",
-  col.label.right = "black",
-  col.label.left = "black",
+  col.predict = gs("col.predict"),
+  col.predict.lines = gs("col.predict.lines"),
+  col.subgroup = gs("col.subgroup"),
+  col.label.right = gs("col.label.right"),
+  col.label.left = gs("col.label.left"),
   hetstat = common | random | overall.hetstat,
   overall.hetstat = x$overall.hetstat,
-  hetlab = "Heterogeneity: ",
-  resid.hetstat,
-  resid.hetlab = "Residual heterogeneity: ",
-  print.I2,
-  print.I2.ci = FALSE,
-  print.tau2,
-  print.tau2.ci = FALSE,
-  print.tau = FALSE,
-  print.tau.ci = FALSE,
-  print.Q = FALSE,
-  print.pval.Q,
-  print.Rb = FALSE,
-  print.Rb.ci = FALSE,
-  text.subgroup.nohet = "not applicable",
-  LRT = FALSE,
+  hetlab = gs("hetlab"),
+  resid.hetstat = gs("resid.hetstat"),
+  resid.hetlab = gs("resid.hetlab"),
+  print.I2 = gs("forest.I2"),
+  print.I2.ci = gs("forest.I2.ci"),
+  print.tau2 = gs("forest.tau2"),
+  print.tau2.ci = gs("forest.tau2.ci"),
+  print.tau = gs("forest.tau"),
+  print.tau.ci = gs("forest.tau.ci"),
+  print.Q = gs("forest.Q"),
+  print.pval.Q = gs("forest.pval.Q"),
+  print.Rb = gs("forest.Rb"),
+  print.Rb.ci = gs("forest.Rb.ci"),
+  text.subgroup.nohet = gs("text.subgroup.nohet"),
+  LRT = gs("LRT"),
   test.overall = gs("test.overall"),
   test.overall.common = common & overall & test.overall,
   test.overall.random = random & overall & test.overall,
   label.test.overall.common,
   label.test.overall.random,
-  print.stat = TRUE,
+  print.stat = gs("forest.stat"),
   test.subgroup = x$test.subgroup,
   test.subgroup.common = test.subgroup & common,
   test.subgroup.random = test.subgroup & random,
   prediction.subgroup = x$prediction.subgroup,
-  print.Q.subgroup = TRUE,
+  print.Q.subgroup = gs("forest.Q.subgroup"),
   label.test.subgroup.common,
   label.test.subgroup.random,
   test.effect.subgroup = gs("test.effect.subgroup"),
@@ -131,47 +130,47 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
-  fontsize = 12,
-  fontfamily = NULL,
+  fontsize = gs("fontsize"),
+  fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
-  fs.common,
-  fs.random,
-  fs.predict,
-  fs.common.labels,
-  fs.random.labels,
-  fs.predict.labels,
+  fs.common = gs("fs.common"),
+  fs.random = gs("fs.random"),
+  fs.predict = gs("fs.predict"),
+  fs.common.labels = gs("fs.common.labels"),
+  fs.random.labels = gs("fs.random.labels"),
+  fs.predict.labels = gs("fs.predict.labels"),
   fs.study = fontsize,
   fs.study.labels = fs.study,
-  fs.hetstat,
-  fs.test.overall,
-  fs.test.subgroup,
-  fs.test.effect.subgroup,
-  fs.addline,
+  fs.hetstat = gs("fs.hetstat"),
+  fs.test.overall = gs("fs.test.overall"),
+  fs.test.subgroup = gs("fs.test.subgroup"),
+  fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
+  fs.addline = gs("fs.addline"),
   fs.axis = fontsize,
   fs.smlab = fontsize,
   fs.xlab = fontsize,
   fs.lr = fontsize,
   ff.heading = "bold",
-  ff.common,
-  ff.random,
-  ff.predict,
-  ff.common.labels,
-  ff.random.labels,
-  ff.predict.labels,
+  ff.common = gs("ff.common"),
+  ff.random = gs("ff.random"),
+  ff.predict = gs("ff.predict"),
+  ff.common.labels = gs("ff.common.labels"),
+  ff.random.labels = gs("ff.random.labels"),
+  ff.predict.labels = gs("ff.predict.labels"),
   ff.study = "plain",
   ff.study.labels = ff.study,
-  ff.hetstat,
-  ff.test.overall,
-  ff.test.subgroup,
-  ff.test.effect.subgroup,
-  ff.addline,
-  ff.axis = "plain",
-  ff.smlab = "bold",
-  ff.xlab = "plain",
-  ff.lr = "plain",
+  ff.hetstat = gs("ff.hetstat"),
+  ff.test.overall = gs("ff.test.overall"),
+  ff.test.subgroup = gs("ff.test.subgroup"),
+  ff.test.effect.subgroup = gs("ff.test.effect.subgroup"),
+  ff.addline = gs("ff.addline"),
+  ff.axis = gs("ff.axis"),
+  ff.smlab = gs("ff.smlab"),
+  ff.xlab = gs("ff.xlab"),
+  ff.lr = gs("ff.lr"),
   squaresize = 0.8/spacing,
   plotwidth = if (layout == "JAMA") "8cm" else "6cm",
-  colgap = "2mm",
+  colgap = gs("colgap"),
   colgap.left = colgap,
   colgap.right = colgap,
   colgap.studlab = colgap.left,
@@ -181,21 +180,21 @@
   calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
   calcwidth.common = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
-  calcwidth.predict = FALSE,
-  calcwidth.hetstat = FALSE,
-  calcwidth.tests = FALSE,
-  calcwidth.subgroup = FALSE,
-  calcwidth.addline = FALSE,
+  calcwidth.predict = gs("calcwidth.predict"),
+  calcwidth.hetstat = gs("calcwidth.hetstat"),
+  calcwidth.tests = gs("calcwidth.tests"),
+  calcwidth.subgroup = gs("calcwidth.subgroup"),
+  calcwidth.addline = gs("calcwidth.addline"),
   just = if (layout == "JAMA") "left" else "right",
-  just.studlab = "left",
-  just.addcols = "center",
+  just.studlab = gs("just.studlab"),
+  just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
-  spacing = 1,
-  addrow,
-  addrow.overall,
-  addrow.subgroups,
-  addrows.below.overall = 0,
+  spacing = gs("spacing"),
+  addrow = gs("addrow"),
+  addrow.overall = gs("addrow.overall"),
+  addrow.subgroups = gs("addrow.subgroups"),
+  addrows.below.overall = gs("addrows.below.overall"),
   new = TRUE,
   backtransf = x$backtransf,
   digits = gs("digits.forest"),
@@ -309,8 +308,8 @@ length as number of subgroups with corresponging labels.}
 interval within subgroups, or a character vector of same length
 as number of subgroups with corresponging labels.}
 
-\item{bysort}{A logical indicating whether groups should be ordered
-alphabetically.}
+\item{sort.subgroup}{A logical indicating whether groups should be
+ordered alphabetically.}
 
 \item{pooled.totals}{A logical indicating whether total number of
 observations should be given in the figure.}
@@ -337,7 +336,7 @@ figure).}
 the summary measure.}
 
 \item{xlim}{The x limits (min,max) of the plot, or the character
-"s" to produce symmetric forest plots.}
+string "symmetric" to produce symmetric forest plots.}
 
 \item{allstudies}{A logical indicating whether studies with
 inestimable treatment effects should be included in the forest
@@ -350,13 +349,6 @@ missing, \code{"same"}, \code{"common"}, or \code{"random"}, can
 be abbreviated. Plot symbols have the same size for all studies
 or represent study weights from common effect or random effects
 model.}
-
-\item{weight.subgroup}{A character string indicating weighting used
-to determine size of squares or diamonds (argument
-\code{type.subgroup}) to plot subgroup results. One of missing,
-\code{"same"}, or \code{"weight"}, can be abbreviated. Plot
-symbols have the same size for all subgroup results or represent
-subgroup weights from common effect or random effects model.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -506,7 +498,7 @@ diamond for random effects estimate.}
 \item{col.predict.lines}{Colour of outer lines of prediction
 interval.}
 
-\item{col.by}{The colour to print information on subgroups.}
+\item{col.subgroup}{The colour to print information on subgroups.}
 
 \item{col.label.right}{The colour for label on right side of null
 effect.}
@@ -844,7 +836,7 @@ columns on right side of forest plot.}
 \item{spacing}{A numeric determining line spacing in a forest plot.}
 
 \item{addrow}{A logical value indicating whether an empty row is
-printed above and below study results.}
+printed above study results.}
 
 \item{addrow.overall}{A logical value indicating whether an empty
 row is printed above overall meta-analysis results.}
@@ -1179,7 +1171,7 @@ number of subgroups can be provided to determine which subgroup
 summaries are printed. By default, only subgroup results based on
 at least two studies are printed which is identical to use argument
 \code{subgroup = k.w > 1}. The order of the logical vector
-corresponds to the order of subgroups in list element 'bylevs' of a
+corresponds to the order of subgroups in list element 'subgroup.levels' of a
 meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
 used to show results for all subgroups (including those with a
 single study).
@@ -1237,7 +1229,7 @@ and forest plots if argument \code{irscale} is not equal to 1.
 If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), the layout for forest plots used for
 Cochrane reviews (which are generated with Review Manager 5,
-\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+\url{https://training.cochrane.org/online-learning/core-software/revman})
 is reproduced:
 \enumerate{
 \item All columns are printed on the left side of the forest plot
@@ -1275,7 +1267,8 @@ are taken into account:
 \item Squares representing individual study results are printed in
   darkblue (\code{col.square}, \code{col.square.lines})
 \item Between-study variance \eqn{\tau^2} is not printed
-\item Empty rows are omitted (\code{addrow})
+\item Empty rows are omitted (\code{addrow}, \code{addrow.overall},
+  \code{addrow.subgroups})
 \item Label "Source" is printed instead of "Study" (\code{leftlabs})
 \item P-values are printed without leading zeros (\code{zero.pval})
 \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
@@ -1468,7 +1461,7 @@ forest(m2, sortvar = -TE, common = FALSE)
 
 # Print only subgroup results
 #
-forest(m2, layout = "subgroup", addrows = NULL)
+forest(m2, layout = "subgroup")
 
 # Print only subgroup results (and consider text for tests of
 # subgroup differences in width of subgroup column)

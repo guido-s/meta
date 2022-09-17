@@ -3,16 +3,23 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   
   subgroup <- x$subgroup
   ##
-  bylevs <- bylevs(subgroup)
-  n.bylevs <- length(bylevs)
-  
-  
+  levs <- bylevs(subgroup)
+  n.levs <- length(levs)
+  methci <- paste(x$method.random.ci,
+                  toupper(substring(x$adhoc.hakn.ci, 1, 2)),
+                  sep = "-")
+  methci <- gsub("-$", "", methci)
+  ##
+  methpi <- paste(x$method.predict,
+                  toupper(substring(x$adhoc.hakn.pi, 1, 2)),
+                  sep = "-")
+  methpi <- gsub("-$", "", methpi)
+  ##
   if (!(length(subgroup) > 0)) {
     warning("Argument 'subgroup' is missing.")
     return(NULL)
   }
-  
-  
+  ##
   bin  <- inherits(x, "metabin")
   cont <- inherits(x, "metacont")
   cor  <- inherits(x, "metacor")
@@ -27,8 +34,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   cor.prop.mean <- cor | prop | mean
   ##
   three.level <- !is.null(x$three.level) && x$three.level
-  
-  
+  ##
   sumNA <- function(x)
     if (all(is.na(x)))
       NA
@@ -36,12 +42,19 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       sum(x, na.rm = TRUE)
   
   
-  res.w <- matrix(NA, ncol = 50, nrow = n.bylevs)
-  add.w <- matrix("", ncol =  2, nrow = n.bylevs)
+  ##
+  ##
+  ## (1) Subgroup analysis without common tau2
+  ##
+  ##
+  res.i <- vector(mode = "list")
+  ##
+  res.w <- matrix(NA, ncol = 63, nrow = n.levs)
+  add.w <- matrix("", ncol =  2, nrow = n.levs)
   j <- 0
   ##
-  for (i in bylevs) {
-    j <- j+1
+  for (i in levs) {
+    j <- j + 1
     sel <- subgroup == i
     ##
     if (all(is.na(x$studlab[sel])))
@@ -55,6 +68,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       ##
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
@@ -63,14 +77,22 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        MH.exact = x$MH.exact,
                        RR.Cochrane = x$RR.Cochrane,
                        Q.Cochrane = x$Q.Cochrane,
-                       level = x$level, level.ma = x$level.ma,
-                       common = x$common, random = x$random,
-                       hakn = x$hakn,
-                       adhoc.hakn = x$adhoc.hakn,
+                       model.glmm = x$model.glmm,
+                       ##
+                       level.ma = x$level.ma,
+                       method.random.ci = x$method.random.ci,
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       ##
+                       level.predict = x$level.predict,
+                       method.predict = x$method.predict,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
+                       ##
+                       keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
     ##
@@ -83,50 +105,84 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        sm = x$sm, pooledvar = x$pooledvar,
-                        level = x$level, level.ma = x$level.ma,
-                        common = x$common, random = x$random,
-                        hakn = x$hakn,
-                        adhoc.hakn = x$adhoc.hakn,
+                        ##
+                        sm = x$sm,
+                        ##
+                        pooledvar = x$pooledvar,
+                        method.smd = x$method.smd,
+                        sd.glass = x$sd.glass,
+                        exact.smd = x$exact.smd,
+                        ##
+                        level.ma = x$level.ma,
+                        method.random.ci = x$method.random.ci,
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        ##
+                        level.predict = x$level.predict,
+                        method.predict = x$method.predict,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
-                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        tau.preset = tau.preset,
+                        TE.tau = x$TE.tau,
+                        ##
+                        keepdata = FALSE,
                         warn = x$warn,
                         control = x$control)
     ##
     else if (cor)
       meta1 <- metacor(x$cor[sel], x$n[sel],
-                       sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       level = x$level, level.ma = x$level.ma,
-                       common = x$common, random = x$random,
-                       hakn = x$hakn,
-                       adhoc.hakn = x$adhoc.hakn,
+                       ##
+                       sm = x$sm,
+                       ##
+                       level.ma = x$level.ma,
+                       method.random.ci = x$method.random.ci,
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       ##
+                       level.predict = x$level.predict,
+                       method.predict = x$method.predict,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
-                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       tau.preset = tau.preset,
+                       TE.tau = x$TE.tau,
+                       ##
                        null.effect = x$null.effect,
+                       ##
+                       keepdata = FALSE,
                        control = x$control)
     ##
     else if (gen)
       meta1 <- metagen(x$TE[sel], x$seTE[sel],
-                       sm = x$sm,
                        studlab = x$studlab[sel],
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       level = x$level, level.ma = x$level.ma,
-                       common = x$common, random = x$random,
-                       hakn = x$hakn,
-                       adhoc.hakn = x$adhoc.hakn,
+                       ##
+                       sm = x$sm,
+                       ##
+                       level.ma = x$level.ma,
+                       method.random.ci = x$method.random.ci,
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       ##
+                       level.predict = x$level.predict,
+                       method.predict = x$method.predict,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
-                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       tau.preset = tau.preset,
+                       TE.tau = x$TE.tau,
+                       ##
                        null.effect = x$null.effect,
                        n.e = x$n.e[sel], n.c = x$n.c[sel],
+                       ##
+                       keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
     ##
@@ -137,219 +193,308 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       ##
                        method = x$method,
                        sm = x$sm,
                        incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                        method.incr = x$method.incr,
-                       level = x$level, level.ma = x$level.ma,
-                       common = x$common, random = x$random,
-                       hakn = x$hakn,
-                       adhoc.hakn = x$adhoc.hakn,
+                       model.glmm = x$model.glmm,
+                       ##
+                       level.ma = x$level.ma,
+                       method.random.ci = x$method.random.ci,
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       ##
+                       level.predict = x$level.predict,
+                       method.predict = x$method.predict,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
+                       ##
+                       n.e = x$n.e[sel], n.c = x$n.c[sel],
+                       ##
+                       keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
     ##
     else if (mean)
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
-                        sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        level = x$level, level.ma = x$level.ma,
-                        common = x$common, random = x$random,
-                        hakn = x$hakn,
-                        adhoc.hakn = x$adhoc.hakn,
-                        method.tau = x$method.tau,
-                        method.tau.ci = x$method.tau.ci,
-                        tau.preset = tau.preset, TE.tau = x$TE.tau,
-                        null.effect = x$null.effect,
-                        warn = x$warn,
-                        control = x$control)
+                       ##
+                       sm = x$sm,
+                       ##
+                       level.ma = x$level.ma,
+                       method.random.ci = x$method.random.ci,
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       ##
+                       level.predict = x$level.predict,
+                       method.predict = x$method.predict,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       ##
+                       method.tau = x$method.tau,
+                       method.tau.ci = x$method.tau.ci,
+                       tau.preset = tau.preset,
+                       TE.tau = x$TE.tau,
+                       ##
+                       null.effect = x$null.effect,
+                       ##
+                       keepdata = FALSE,
+                       warn = x$warn,
+                       control = x$control)
     ##
     else if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
-                        sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        level = x$level, level.ma = x$level.ma,
+                        ##
+                        method = x$method,
+                        sm = x$sm,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
-                        common = x$common, random = x$random,
-                        hakn = x$hakn,
-                        adhoc.hakn = x$adhoc.hakn,
-                        method = x$method,
+                        ##
+                        level.ma = x$level.ma,
+                        method.random.ci = x$method.random.ci,
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        ##
+                        level.predict = x$level.predict,
+                        method.predict = x$method.predict,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
-                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        tau.preset = tau.preset,
+                        TE.tau = x$TE.tau,
+                        ##
                         null.effect = x$null.effect,
+                        ##
+                        keepdata = FALSE,
                         warn = x$warn,
                         control = x$control)
     ##
     else if (rate)
       meta1 <- metarate(x$event[sel], x$time[sel],
-                        sm = x$sm,
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        level = x$level, level.ma = x$level.ma,
+                        ##
+                        method = x$method,
+                        sm = x$sm,
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
-                        common = x$common, random = x$random,
-                        hakn = x$hakn,
-                        adhoc.hakn = x$adhoc.hakn,
+                        ##
+                        level.ma = x$level.ma,
+                        method.random.ci = x$method.random.ci,
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        ##
+                        level.predict = x$level.predict,
+                        method.predict = x$method.predict,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
-                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        tau.preset = tau.preset,
+                        TE.tau = x$TE.tau,
+                        ##
                         null.effect = x$null.effect,
+                        ##
+                        keepdata = FALSE,
                         warn = x$warn,
                         control = x$control)
     ##
     else
       stop("No meta-analysis object used for subgroup analysis.")
     ##
-    n.tau <- length(meta1$tau)
-    n.tau.ci <- length(meta1$lower.tau)
+    if (length(meta1$TE.random) == 1 &&
+        length(meta1$TE.random) != length(meta1$seTE.random))
+      meta1$TE.random <- rep_len(meta1$TE.random, length(meta1$seTE.random))
     ##
-    res.w[j,] <- c(meta1$TE.common,                           #  1
-                   meta1$seTE.common,                         #  2
-                   meta1$Q,                                   #  3
-                   meta1$k,                                   #  4
-                   length(meta1$TE),                          #  5
-                   meta1$TE.random,                           #  6
-                   meta1$seTE.random,                         #  7
-                   meta1$H,                                   #  8
-                   meta1$lower.H,                             #  9
-                   meta1$upper.H,                             # 10
-                   meta1$I2,                                  # 11
-                   meta1$lower.I2,                            # 12
-                   meta1$upper.I2,                            # 13
-                   meta1$tau2,                                # 14-15
-                   if (n.tau == 1) NA,                        #
-                   meta1$lower.tau2,                          # 16-17
-                   if (n.tau.ci == 1) NA,                     #
-                   meta1$upper.tau2,                          # 18-19
-                   if (n.tau.ci == 1) NA,                     #
-                   meta1$tau,                                 # 20-21
-                   if (n.tau == 1) NA,                        #
-                   meta1$lower.tau,                           # 22-23
-                   if (n.tau.ci == 1) NA,                     #
-                   meta1$upper.tau,                           # 24-25
-                   if (n.tau.ci == 1) NA,                     #
-                   1 / mean(1 / x$n[sel]),                    # 26
-                   sum(x$w.common[sel]),                      # 27
-                   sum(x$w.random[sel]),                      # 28
-                   if (bin.inc) sumNA(meta1$event.e) else NA, # 29
-                   if (bin.cont.gen) sumNA(meta1$n.e) else NA,# 30
-                   if (bin.inc) sumNA(meta1$event.c) else NA, # 31
-                   if (bin.cont.gen) sumNA(meta1$n.c) else NA,# 32
-                   if (prop) sumNA(meta1$event) else NA,      # 33
-                   if (cor.prop.mean) sumNA(meta1$n) else NA, # 34
-                   if (inc) sumNA(meta1$time.e) else NA,      # 35
-                   if (inc) sumNA(meta1$time.c) else NA,      # 36
-                   1 / mean(1 / x$time[sel]),                 # 37
-                   meta1$Rb,                                  # 38
-                   meta1$lower.Rb,                            # 39
-                   meta1$upper.Rb,                            # 40
-                   meta1$lower.common,                        # 41
-                   meta1$upper.common,                        # 42
-                   meta1$statistic.common,                    # 41
-                   meta1$pval.common,                         # 42
-                   meta1$lower.random,                        # 45
-                   meta1$upper.random,                        # 46
-                   meta1$statistic.random,                    # 47
-                   meta1$pval.random,                         # 48
-                   meta1$k.study,                             # 49
-                   meta1$k.TE                                 # 50
-                   )
-    ##
-    if (n.tau.ci == 1)
-      add.w[j, ] <- c(meta1$sign.lower.tau, # 1
-                      meta1$sign.upper.tau  # 2
-                      )
+    res.i[[j]] <- list(k = meta1$k,
+                       k.study = meta1$k.study,
+                       k.all = meta1$k.all,
+                       k.TE = meta1$k.TE,
+                       ##
+                       TE.common = meta1$TE.common,
+                       seTE.common = meta1$seTE.common,
+                       statistic.common = meta1$statistic.common,
+                       pval.common = meta1$pval.common,
+                       lower.common = meta1$lower.common,
+                       upper.common = meta1$upper.common,
+                       w.common = sum(x$w.common[sel]),
+                       ##
+                       TE.random = meta1$TE.random,
+                       seTE.random = meta1$seTE.random,
+                       statistic.random = meta1$statistic.random,
+                       pval.random = meta1$pval.random,
+                       df.random = meta1$df.random,
+                       lower.random = meta1$lower.random,
+                       upper.random = meta1$upper.random,
+                       w.random = sum(x$w.random[sel]),
+                       ##
+                       seTE.classic = meta1$seTE.classic,
+                       ##
+                       df.hakn.ci = meta1$df.hakn.ci,
+                       seTE.hakn.ci = meta1$seTE.hakn.ci,
+                       seTE.hakn.adhoc.ci = meta1$seTE.hakn.adhoc.ci,
+                       ##
+                       df.kero = meta1$df.kero,
+                       seTE.kero = meta1$seTE.kero,
+                       ##
+                       seTE.predict = meta1$seTE.predict,
+                       df.predict = meta1$df.predict,
+                       lower.predict = meta1$lower.predict,
+                       upper.predict = meta1$upper.predict,
+                       ##
+                       seTE.hakn.pi = meta1$seTE.hakn.pi,
+                       seTE.hakn.adhoc.pi = meta1$seTE.hakn.adhoc.pi,
+                       ##
+                       Q = meta1$Q,
+                       ##
+                       tau2 = sum(meta1$tau2),
+                       tau = sum(meta1$tau),
+                       ##
+                       H = meta1$H,
+                       lower.H = meta1$lower.H,
+                       upper.H = meta1$upper.H,
+                       ##
+                       I2 = meta1$I2,
+                       lower.I2 = meta1$lower.I2,
+                       upper.I2 = meta1$upper.I2,
+                       ##
+                       Rb = meta1$Rb,
+                       lower.Rb = meta1$lower.Rb,
+                       upper.Rb = meta1$upper.Rb,
+                       ##
+                       event = if (prop) sumNA(meta1$event) else NA,
+                       n = if (cor.prop.mean) sumNA(meta1$n) else NA,
+                       ##
+                       event.e = if (bin.inc) sumNA(meta1$event.e) else NA,
+                       n.e = if (bin.cont.gen) sumNA(meta1$n.e) else NA,
+                       event.c = if (bin.inc) sumNA(meta1$event.c) else NA,
+                       n.c = if (bin.cont.gen) sumNA(meta1$n.c) else NA,
+                       ##
+                       time.e = if (inc) sumNA(meta1$time.e) else NA,
+                       time.c = if (inc) sumNA(meta1$time.c) else NA,
+                       ##
+                       n.harmonic.mean = 1 / mean(1 / x$n[sel]),
+                       t.harmonic.mean = 1 / mean(1 / x$time[sel]))
   }
   ##
-  TE.common.w   <- res.w[, 1]
-  seTE.common.w <- res.w[, 2]
-  Q.w           <- res.w[, 3]
-  k.w           <- res.w[, 4]
-  k.all.w       <- res.w[, 5]
-  TE.random.w   <- res.w[, 6]
-  seTE.random.w <- res.w[, 7]
+  k.w <- extrVec(res.i, "k", levs)
+  k.study.w <- extrVec(res.i, "k.study", levs)
+  k.all.w <- extrVec(res.i, "k.all", levs)
+  k.TE.w <- extrVec(res.i, "k.TE", levs)
   ##
-  H.w     <- res.w[, 8]
-  H.w.low <- res.w[, 9]
-  H.w.upp <- res.w[, 10]
+  TE.common.w <- extrVec(res.i, "TE.common", levs)
+  seTE.common.w <- extrVec(res.i, "seTE.common", levs)
+  statistic.common.w <- extrVec(res.i, "statistic.common", levs)
+  pval.common.w <- extrVec(res.i, "pval.common", levs)
+  lower.common.w <- extrVec(res.i, "lower.common", levs)
+  upper.common.w <- extrVec(res.i, "upper.common", levs)
+  w.common.w <- extrVec(res.i, "w.common", levs)
   ##
-  I2.w     <- res.w[, 11]
-  I2.w.low <- res.w[, 12]
-  I2.w.upp <- res.w[, 13]
+  TE.random.w <- extrMat(res.i, "TE.random", levs, methci)    
+  seTE.random.w <- extrMat(res.i, "seTE.random", levs, methci)
+  if (is.matrix(TE.random.w)) {
+    TE.random.w <- as.vector(TE.random.w[, 1])
+    names(TE.random.w) <- rownames(seTE.random.w)
+  }
+  statistic.random.w <- extrMat(res.i, "statistic.random", levs, methci)
+  pval.random.w <- extrMat(res.i, "pval.random", levs, methci)
+  df.random.w <- extrMat(res.i, "df.random", levs, methci)
+  lower.random.w <- extrMat(res.i, "lower.random", levs, methci)
+  upper.random.w <- extrMat(res.i, "upper.random", levs, methci)
+  w.random.w <- extrVec(res.i, "w.random", levs)
   ##
-  tau2.1.w <- res.w[, 14]
-  tau2.2.w <- res.w[, 15]
-  lower.tau2.1.w <- res.w[, 16]
-  lower.tau2.2.w <- res.w[, 17]
-  upper.tau2.1.w <- res.w[, 18]
-  upper.tau2.2.w <- res.w[, 19]
+  seTE.classic.w <- extrVec(res.i, "seTE.classic", levs)
   ##
-  tau.1.w <- res.w[, 20]
-  tau.2.w <- res.w[, 21]
-  lower.tau.1.w <- res.w[, 22]
-  lower.tau.2.w <- res.w[, 23]
-  upper.tau.1.w <- res.w[, 24]
-  upper.tau.2.w <- res.w[, 25]
+  df.hakn.ci.w <- extrMat(res.i, "df.hakn.ci", levs, methci)
+  seTE.hakn.ci.w <- extrVec(res.i, "seTE.hakn.ci", levs)
+  seTE.hakn.adhoc.ci.w <- extrMat(res.i, "seTE.hakn.adhoc.ci", levs, methci)
   ##
-  tau2.w <- ifelse(is.na(tau2.2.w), tau2.1.w, tau2.1.w + tau2.2.w)
-  lower.tau2.w <- ifelse(is.na(tau2.2.w), lower.tau2.1.w, NA)
-  upper.tau2.w <- ifelse(is.na(tau2.2.w), upper.tau2.1.w, NA)
+  df.kero.w <- extrVec(res.i, "df.kero", levs)
+  seTE.kero.w <- extrVec(res.i, "seTE.kero", levs)
   ##
-  tau.w <- ifelse(is.na(tau2.2.w), tau.1.w, sqrt(tau.1.w^2 + tau.2.w^2))
-  lower.tau.w <- ifelse(is.na(tau2.2.w), lower.tau.1.w, NA)
-  upper.tau.w <- ifelse(is.na(tau2.2.w), upper.tau.1.w, NA)
+  seTE.predict.w <- extrMat(res.i, "seTE.predict", levs, methpi)
+  df.predict.w <- extrMat(res.i, "df.predict", levs, methpi)
+  lower.predict.w <- extrMat(res.i, "lower.predict", levs, methpi)
+  upper.predict.w <- extrMat(res.i, "upper.predict", levs, methpi)
   ##
-  sign.lower.tau.w <- add.w[, 1]
-  sign.upper.tau.w <- add.w[, 2]
+  seTE.hakn.pi.w <- extrVec(res.i, "seTE.hakn.pi", levs)
+  seTE.hakn.adhoc.pi.w <- extrMat(res.i, "seTE.hakn.adhoc.pi", levs, methpi)
   ##
-  n.harmonic.mean.w <- res.w[, 26]
+  Q.w <- extrVec(res.i, "Q", levs)
   ##
-  w.common.w <- res.w[, 27]
-  w.random.w <- res.w[, 28]
+  tau2.w <- extrVec(res.i, "tau2", levs)
+  tau.w <- extrVec(res.i, "tau", levs)
   ##
-  event.e.w <- res.w[, 29]
-  n.e.w     <- res.w[, 30]
-  event.c.w <- res.w[, 31]
-  n.c.w     <- res.w[, 32]
-  event.w   <- res.w[, 33]
-  n.w       <- res.w[, 34]
+  H.w <- extrVec(res.i, "H", levs)
+  lower.H.w <- extrVec(res.i, "lower.H", levs)
+  upper.H.w <- extrVec(res.i, "upper.H", levs)
   ##
-  time.e.w <- res.w[, 35]
-  time.c.w <- res.w[, 36]
-  t.harmonic.mean.w <- res.w[, 37]
+  I2.w <- extrVec(res.i, "I2", levs)
+  lower.I2.w <- extrVec(res.i, "lower.I2", levs)
+  upper.I2.w <- extrVec(res.i, "upper.I2", levs)
   ##
-  Rb.w     <- res.w[, 38]
-  Rb.w.low <- res.w[, 39]
-  Rb.w.upp <- res.w[, 40]
+  Rb.w <- extrVec(res.i, "Rb", levs)
+  lower.Rb.w <- extrVec(res.i, "lower.Rb", levs)
+  upper.Rb.w <- extrVec(res.i, "upper.Rb", levs)
   ##
-  lower.common.w <- res.w[, 41]
-  upper.common.w <- res.w[, 42]
-  statistic.common.w <- res.w[, 43]
-  pval.common.w <- res.w[, 44]
+  event.w <- extrVec(res.i, "event", levs)
+  n.w <- extrVec(res.i, "n", levs)
   ##
-  lower.random.w <- res.w[, 45]
-  upper.random.w <- res.w[, 46]
-  statistic.random.w <- res.w[, 47]
-  pval.random.w <- res.w[, 48]
+  event.e.w <- extrVec(res.i, "event.e", levs)
+  n.e.w <- extrVec(res.i, "n.e", levs)
+  event.c.w <- extrVec(res.i, "event.c", levs)
+  n.c.w <- extrVec(res.i, "n.c", levs)
   ##
-  k.study.w <- res.w[, 49]
-  k.TE.w <- res.w[, 50]
+  time.e.w <- extrVec(res.i, "time.e", levs)
+  time.c.w <- extrVec(res.i, "time.c", levs)
   ##
-  ## Three-level model with common tau-squared
+  n.harmonic.mean.w <- extrVec(res.i, "n.harmonic.mean", levs)
+  t.harmonic.mean.w <- extrVec(res.i, "t.harmonic.mean", levs)
+  ##
+  ## Tests for subgroup differences
+  ##
+  Q.w.common <- sum(Q.w, na.rm = TRUE)
+  df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
+  pval.Q.w.common <- pvalQ(Q.w.common, df.Q.w)
+  ##
+  Q.b.common <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
+  ##
+  if (is.matrix(seTE.random.w)) {
+    n.random <- ncol(seTE.random.w)
+    Q.b.random <- rep(NA, n.random)
+    names(Q.b.random) <- colnames(seTE.random.w)
+    for (i in seq_len(n.random))
+      Q.b.random[i] <-
+        metagen(TE.random.w, seTE.random.w[, i], method.tau = "DL")$Q
+  }
+  else {
+    n.random <- 1
+    Q.b.random <-
+      metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
+  }
+  ##
+  df.Q.b <- if (x$k == 0) 0 else x$k - 1 - sum((k.w - 1)[!is.na(Q.w)])
+  df.Q.b.common <- df.Q.b
+  df.Q.b.random <- rep(df.Q.b, n.random)
+  ##
+  pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
+  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b.random)
+  
+  
+  ##
+  ##
+  ## (2) Subgroup analysis with common tau-squared (three-level model)
+  ##
   ##
   if (three.level && !missing(subgroup.rma)) {
     mod <- as.call(~ subgroup.rma - 1)
@@ -364,7 +509,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                  mods = mod,
                  random = as.call(~ 1 | cluster / runID),
                  method = x$method.tau,
-                 test = ifelse(x$hakn, "t", "z"),
+                 test = ifelse(x$method.random.ci == "HK", "t", "z"),
                  level = 100 * x$level.ma,
                  data = data.frame(subgroup.rma, cluster, runID)))
     ##
@@ -375,7 +520,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    mods = mod.Q,
                    random = as.call(~ 1 | cluster / runID),
                    method = x$method.tau,
-                   test = ifelse(x$hakn, "t", "z"),
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    data = data.frame(subgroup.rma, cluster, runID))))
     ##
@@ -388,26 +533,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       seTE.random.w <- as.numeric(mv.random$se)
     }
     ##
-    tau2.w <- rep_len(sum(mv.random$sigma2), n.bylevs)
-    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
-    tau.w <- rep_len(sqrt(sum(mv.random$sigma2)), n.bylevs)
-    lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
-    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
+    tau2.w <- rep_len(sum(mv.random$sigma2), n.levs)
+    tau.w <- sqrt(tau2.w)
     ##
-    tau2.1.w <- tau2.w
-    tau2.2.w <- rep_len(NA, n.bylevs)
-    lower.tau2.1.w <- lower.tau2.w
-    lower.tau2.2.w <- rep_len(NA, n.bylevs)
-    upper.tau2.1.w <- upper.tau2.w
-    upper.tau2.2.w <- rep_len(NA, n.bylevs)
-    ##
-    Rb.w     <- rep_len(NA, n.bylevs)
-    Rb.w.low <- rep_len(NA, n.bylevs)
-    Rb.w.upp <- rep_len(NA, n.bylevs)
+    Rb.w     <- rep_len(NA, n.levs)
+    Rb.w.low <- rep_len(NA, n.levs)
+    Rb.w.upp <- rep_len(NA, n.levs)
     ##
     ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
-    if (!is.null(x$hakn) && x$hakn)
+    if (!is.null(x$method.random.ci == "HK") && x$method.random.ci == "HK")
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
     else
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
@@ -421,9 +556,50 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     upper.random.w <- ci.random.w$upper
     statistic.random.w <- ci.random.w$statistic
     pval.random.w <- ci.random.w$p
+    ##
+    ## Tests for subgroup differences
+    ##
+    Q.w.common <- NA
+    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
+    pval.Q.w.common <- NA
+    ##
+    Q.b.common <- NA
+    Q.b.random <- mv.random.Q$QM
+    ##
+    df.Q.b <- mv.random.Q$QMdf
+    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
+    df.Q.b.common <- NA
+    df.Q.b.random <- df.Q.b
+    ##
+    pval.Q.b.common <- NA
+    pval.Q.b.random <- mv.random.Q$QMp
+    ##
+    ## Prediction interval
+    ##
+    seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
+    df.predict.w <- k.w - 2
+    ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, df.predict.w)
+    ##
+    lower.predict.w <- ci.p.w$lower
+    upper.predict.w <- ci.p.w$upper
+    ##
+    lower.predict.w[k.w < 3] <- NA
+    upper.predict.w[k.w < 3] <- NA
+    ##
+    ## Degrees of freedom of Hartung-Knapp method
+    ##
+    df.random.w <- df.hakn.ci.w <- k.w - 1
+    if (!x$method.random.ci == "HK") {
+      df.random.w[!is.na(df.random.w)] <- NA
+      df.hakn.ci.w[!is.na(df.hakn.ci.w)] <- NA
+    }
   }
+  
+  
   ##
-  ## GLMM with common tau-squared
+  ##
+  ## (3) Subgroup analysis with common tau-squared (GLMM)
+  ##
   ##
   if (x$method == "GLMM" & !missing(subgroup.rma)) {
     mod <- as.call(~ subgroup.rma - 1)
@@ -434,7 +610,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
         runNN(rma.glmm,
               list(xi = x$event, ni = x$n,
                    mods = mod,
-                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   method = "FE",
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "PLO",
                    data = data.frame(subgroup.rma),
@@ -445,7 +622,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               list(xi = x$event, ni = x$n,
                    mods = mod,
                    method = x$method.tau,
-                   test = ifelse(x$hakn, "t", "z"),
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "PLO",
                    data = data.frame(subgroup.rma),
@@ -459,7 +636,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                 list(xi = x$event, ni = x$n,
                      mods = mod.Q,
                      method = "FE",
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "PLO",
                      data = data.frame(subgroup.rma),
@@ -471,7 +648,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                 list(xi = x$event, ni = x$n,
                      mods = mod.Q,
                      method = x$method.tau,
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "PLO",
                      data = data.frame(subgroup.rma),
@@ -483,7 +660,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
         runNN(rma.glmm,
               list(xi = x$event, ti = x$time,
                    mods = mod,
-                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   method = "FE",
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "IRLN", control = x$control,
                    data = data.frame(subgroup.rma),
@@ -494,7 +672,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               list(xi = x$event, ti = x$time,
                    mods = mod,
                    method = x$method.tau,
-                   test = ifelse(x$hakn, "t", "z"),
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "IRLN", control = x$control,
                    data = data.frame(subgroup.rma),
@@ -508,7 +686,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                 list(xi = x$event, ti = x$time,
                      mods = mod.Q,
                      method = "FE",
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "IRLN", control = x$control,
                      data = data.frame(subgroup.rma),
@@ -520,7 +698,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                 list(xi = x$event, ti = x$time,
                      mods = mod.Q,
                      method = x$method.tau,
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "IRLN", control = x$control,
                      data = data.frame(subgroup.rma),
@@ -533,7 +711,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               list(x1i = x$event.e, t1i = x$time.e,
                    x2i = x$event.c, t2i = x$time.c,
                    mods = mod,
-                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   method = "FE",
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    model = x$model.glmm,
                    level = 100 * x$level.ma,
                    measure = "IRR", control = x$control,
@@ -547,7 +726,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    mods = mod,
                    method = x$method.tau,
                    model = x$model.glmm,
-                   test = ifelse(x$hakn, "t", "z"),
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "IRR", control = x$control,
                    data = data.frame(subgroup.rma),
@@ -562,7 +741,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                      x2i = x$event.c, t2i = x$time.c,
                      mods = mod.Q,
                      method = "FE",
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      model = x$model.glmm,
                      level = 100 * x$level.ma,
                      measure = "IRR", control = x$control,
@@ -577,7 +756,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                      mods = mod.Q,
                      method = x$method.tau,
                      model = x$model.glmm,
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "IRR", control = x$control,
                      data = data.frame(subgroup.rma),
@@ -590,7 +769,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               list(ai = x$event.e, n1i = x$n.e,
                    ci = x$event.c, n2i = x$n.c,
                    mods = mod,
-                   method = "FE", test = ifelse(x$hakn, "t", "z"),
+                   method = "FE",
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    model = x$model.glmm,
                    level = 100 * x$level.ma,
                    measure = "OR", control = x$control,
@@ -604,7 +784,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                    mods = mod,
                    method = x$method.tau,
                    model = x$model.glmm,
-                   test = ifelse(x$hakn, "t", "z"),
+                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
                    level = 100 * x$level.ma,
                    measure = "OR", control = x$control,
                    data = data.frame(subgroup.rma),
@@ -619,7 +799,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                      ci = x$event.c, n2i = x$n.c,
                      mods = mod.Q,
                      method = "FE",
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      model = x$model.glmm,
                      level = 100 * x$level.ma,
                      measure = "OR", control = x$control,
@@ -634,7 +814,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                      mods = mod.Q,
                      method = x$method.tau,
                      model = x$model.glmm,
-                     test = ifelse(x$hakn, "t", "z"),
+                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
                      level = 100 * x$level.ma,
                      measure = "OR", control = x$control,
                      data = data.frame(subgroup.rma),
@@ -654,26 +834,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       seTE.random.w <- as.numeric(glmm.random$se)
     }
     ##
-    tau2.w <- rep_len(glmm.random$tau2, n.bylevs)
-    lower.tau2.w <- upper.tau2.w <- rep_len(NA, n.bylevs)
-    tau.w <- rep_len(sqrt(glmm.random$tau2), n.bylevs)
-    lower.tau.w <- upper.tau.w <- rep_len(NA, n.bylevs)
-    sign.lower.tau.w <- sign.upper.tau.w <- rep_len("", n.bylevs)
+    tau2.w <- rep_len(glmm.random$tau2, n.levs)
+    tau.w <- sqrt(tau2.w)
     ##
-    tau2.1.w <- tau2.w
-    tau2.2.w <- rep_len(NA, n.bylevs)
-    lower.tau2.1.w <- lower.tau2.w
-    lower.tau2.2.w <- rep_len(NA, n.bylevs)
-    upper.tau2.1.w <- upper.tau2.w
-    upper.tau2.2.w <- rep_len(NA, n.bylevs)
-    ##
-    Rb.w     <- rep_len(NA, n.bylevs)
-    Rb.w.low <- rep_len(NA, n.bylevs)
-    Rb.w.upp <- rep_len(NA, n.bylevs)
+    Rb.w     <- rep_len(NA, n.levs)
+    Rb.w.low <- rep_len(NA, n.levs)
+    Rb.w.upp <- rep_len(NA, n.levs)
     ##
     ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
     ##
-    if (!is.null(x$hakn) && x$hakn)
+    if (!is.null(x$method.random.ci == "HK") && x$method.random.ci == "HK")
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
     else
       ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
@@ -687,149 +857,90 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     upper.random.w <- ci.random.w$upper
     statistic.random.w <- ci.random.w$statistic
     pval.random.w <- ci.random.w$p
-  }
-  ##
-  ## Tests for subgroup differences
-  ##
-  if (x$method == "GLMM" & !missing(subgroup.rma)) {
+    ##
+    ## Tests for subgroup differences
+    ##
     Q.w.common <- glmm.common.Q$QE.Wld
     df.Q.w <- glmm.common.Q$QE.df
-    pval.Q.w.common  <- glmm.common.Q$QEp.Wld
+    pval.Q.w.common <- glmm.common.Q$QEp.Wld
     ##
-    Q.b.common  <- glmm.common.Q$QM
+    Q.b.common <- glmm.common.Q$QM
     Q.b.random <- glmm.random.Q$QM
     ##
     df.Q.b <- glmm.common.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
+    df.Q.b.common <- df.Q.b
+    df.Q.b.random <- df.Q.b
     ##
-    pval.Q.b.common  <- glmm.common.Q$QMp
+    pval.Q.b.common <- glmm.common.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
   }
-  else if (three.level && !missing(subgroup.rma)) {
-    Q.w.common <- NA
-    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
-    pval.Q.w.common <- NA
-    ##
-    Q.b.common  <- NA
-    Q.b.random <- mv.random.Q$QM
-    ##
-    df.Q.b <- mv.random.Q$QMdf
-    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
-    ##
-    pval.Q.b.common  <- NA
-    pval.Q.b.random <- mv.random.Q$QMp
-  }
-  else {
-    Q.w.common <- sum(Q.w, na.rm = TRUE)
-    df.Q.w <- sum((k.w - 1)[!is.na(Q.w)])
-    pval.Q.w.common  <- pvalQ(Q.w.common, df.Q.w)
-    ##
-    Q.b.common  <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
-    Q.b.random <- metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
-    ##
-    df.Q.b <- ifelse(x$k == 0, 0, x$k - 1 - sum((k.w - 1)[!is.na(Q.w)]))
-    ##
-    pval.Q.b.common  <- pvalQ(Q.b.common, df.Q.b)
-    pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
-  }
-  ##
-  ## Prediction interval
-  ##
-  seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
-  ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, k.w - 2)
-  ##
-  p.lower.w <- ci.p.w$lower
-  p.upper.w <- ci.p.w$upper
-  ##
-  p.lower.w[k.w < 3] <- NA
-  p.upper.w[k.w < 3] <- NA
-  ##
-  ## Degrees of freedom of Hartung-Knapp method
-  ##
-  df.hakn.w <- k.w - 1
-  if (!x$hakn)
-    df.hakn.w[!is.na(df.hakn.w)] <- NA
   
   
-  res <- list(bylevs = bylevs,
-              ##
-              TE.common.w = TE.common.w,
-              seTE.common.w = seTE.common.w,
-              lower.common.w = lower.common.w,
-              upper.common.w = upper.common.w,
-              statistic.common.w = statistic.common.w,
-              zval.common.w = statistic.common.w,
-              pval.common.w = pval.common.w,
-              w.common.w = w.common.w,
-              ##
-              TE.random.w = TE.random.w,
-              seTE.random.w = seTE.random.w,
-              lower.random.w = lower.random.w,
-              upper.random.w = upper.random.w,
-              statistic.random.w = statistic.random.w,
-              zval.random.w = statistic.random.w,
-              pval.random.w = pval.random.w,
-              w.random.w = w.random.w,
-              ##
-              seTE.predict.w = seTE.predict.w,
-              lower.predict.w = p.lower.w, upper.predict.w = p.upper.w,
-              ##
-              df.hakn.w = df.hakn.w,
-              w.random.w = w.random.w,
-              ##
-              n.harmonic.mean.w = n.harmonic.mean.w,
-              t.harmonic.mean.w = t.harmonic.mean.w,
-              ##
-              event.e.w = event.e.w,
-              time.e.w = time.e.w,
-              n.e.w = n.e.w,
-              event.c.w = event.c.w,
-              time.c.w = time.c.w,
-              n.c.w = n.c.w,
-              n.w = n.w,
-              event.w = event.w,
+  ##
+  ##
+  ## (4) Return list with results of subgroup analysis
+  ##
+  ##
+  res <- list(subgroup.levels = levs,
               ##
               k.w = k.w,
               k.study.w = k.study.w,
               k.all.w = k.all.w,
               k.TE.w = k.TE.w,
+              n.w = n.w,
+              event.w = event.w,
+              ##
+              TE.common.w = TE.common.w,
+              seTE.common.w = seTE.common.w,
+              statistic.common.w = statistic.common.w,
+              pval.common.w = pval.common.w,
+              lower.common.w = lower.common.w,
+              upper.common.w = upper.common.w,
+              w.common.w = w.common.w,
+              ##
+              TE.random.w = TE.random.w,
+              seTE.random.w = seTE.random.w,
+              statistic.random.w = statistic.random.w,
+              pval.random.w = pval.random.w,
+              df.random.w = df.random.w,
+              lower.random.w = lower.random.w,
+              upper.random.w = upper.random.w,
+              w.random.w = w.random.w,
+              ##
+              seTE.classic.w = seTE.classic.w,
+              ##
+              df.hakn.ci.w = df.hakn.ci.w,
+              seTE.hakn.ci.w = seTE.hakn.ci.w,
+              seTE.hakn.adhoc.ci.w = seTE.hakn.adhoc.ci.w,
+              ##
+              df.kero.w = df.kero.w,
+              seTE.kero.w = seTE.kero.w,
+              ##
+              seTE.predict.w = seTE.predict.w,
+              df.predict.w = df.predict.w,
+              lower.predict.w = lower.predict.w,
+              upper.predict.w = upper.predict.w,
+              seTE.hakn.pi.w = seTE.hakn.pi.w,
+              seTE.hakn.adhoc.pi.w = seTE.hakn.adhoc.pi.w,
+              ##
               Q.w = Q.w,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
               tau2.w = tau2.w,
-              lower.tau2.w = lower.tau2.w,
-              upper.tau2.w = upper.tau2.w,
               tau.w = tau.w,
-              lower.tau.w = lower.tau.w,
-              upper.tau.w = upper.tau.w,
-              sign.lower.tau.w = sign.lower.tau.w,
-              sign.upper.tau.w = sign.upper.tau.w,
-              ##
-              tau2.1.w = tau2.1.w,
-              lower.tau2.1.w = lower.tau2.1.w,
-              upper.tau2.1.w = upper.tau2.1.w,
-              tau.1.w = tau.1.w,
-              lower.tau.1.w = lower.tau.1.w,
-              upper.tau.1.w = upper.tau.1.w,
-              ##
-              tau2.2.w = tau2.2.w,
-              lower.tau2.2.w = lower.tau2.2.w,
-              upper.tau2.2.w = upper.tau2.2.w,
-              tau.2.w = tau.2.w,
-              lower.tau.2.w = lower.tau.2.w,
-              upper.tau.2.w = upper.tau.2.w,
               ##
               H.w = H.w,
-              lower.H.w = H.w.low,
-              upper.H.w = H.w.upp,
+              lower.H.w = lower.H.w,
+              upper.H.w = upper.H.w,
               ##
               I2.w = I2.w,
-              lower.I2.w = I2.w.low,
-              upper.I2.w = I2.w.upp,
+              lower.I2.w = lower.I2.w,
+              upper.I2.w = upper.I2.w,
               ##
               Rb.w = Rb.w,
-              lower.Rb.w = Rb.w.low,
-              upper.Rb.w = Rb.w.upp,
+              lower.Rb.w = lower.Rb.w,
+              upper.Rb.w = upper.Rb.w,
               ##
               Q.w.common = Q.w.common,
               Q.w.random = NA,
@@ -840,9 +951,29 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               Q.b.common = Q.b.common,
               Q.b.random = Q.b.random,
               df.Q.b = df.Q.b,
+              df.Q.b.common = df.Q.b.common,
+              df.Q.b.random = df.Q.b.random,
               pval.Q.b.common = pval.Q.b.common,
               pval.Q.b.random = pval.Q.b.random
               )
+  ##
+  ## No general list elements
+  ##
+  res$n.e.w <- n.e.w
+  res$n.c.w <- n.c.w
+  res$n.harmonic.mean.w <- n.harmonic.mean.w
+  ##
+  res$event.e.w <- event.e.w
+  res$event.c.w <- event.c.w
+  ##
+  res$time.e.w <- time.e.w
+  res$time.c.w <- time.c.w
+  res$t.harmonic.mean.w <- t.harmonic.mean.w
+  ##
+  ## Deprecated list elements
+  ##
+  res$zval.common.w <- statistic.common.w
+  res$zval.random.w <- statistic.random.w
   ##
   ## Backward compatibility
   ##
@@ -859,6 +990,11 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   res$pval.Q.w.fixed <- res$pval.Q.w.common
   res$Q.b.fixed <- res$Q.b.common
   res$pval.Q.b.fixed <- res$pval.Q.b.common
+  ##
+  res$bylevs <- res$subgroup.levels
+  ##
+  res$seTE.hakn.w <- res$seTE.hakn.ci.w
+  res$seTE.hakn.adhoc.w <- res$seTE.hakn.adhoc.ci.w
   
   
   res

@@ -42,23 +42,24 @@
 ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
   
   chklevel(level)
-  
   alpha <- 1 - level
+  
+  df.orig <- df
   
   if (is.null(df)) {
     lower  <- TE - qnorm(1 - alpha / 2) * seTE
     upper  <- TE + qnorm(1 - alpha / 2) * seTE
     statistic <- (TE - null.effect) / seTE
     pval   <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
-    df <- NA
+    ##
+    df <- Inf
+    df.orig <- "NULL"
   }
   else {
-    df[df <= 0] <- NA
-    ##
     statistic <- (TE - null.effect) / seTE
     ##
     if (length(df) == 1) {
-      if (is.na(df)) {
+      if (is.na(df) || df <= 0) {
         lower <- TE - qnorm(1 - alpha / 2) * seTE
         upper <- TE + qnorm(1 - alpha / 2) * seTE
         ##
@@ -72,6 +73,8 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
       }
     }
     else {
+      sel0 <- df <= 0
+      df[sel0] <- NA
       lower <- ifelse(!is.na(df),
                       TE - qt(1 - alpha / 2, df = df) * seTE,
                       TE - qnorm(1 - alpha / 2) * seTE)
@@ -82,14 +85,16 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
       pval <- ifelse(!is.na(df),
                      2 * pt(abs(statistic), df = df, lower.tail = FALSE),
                      2 * pnorm(abs(statistic), lower.tail = FALSE))
+      ##
+      df[sel0] <- df.orig[sel0]
     }
-    ##
-    df[is.na(df)] <- 0
+    df[is.na(df)] <- Inf
   }
-
-  list(TE = TE, seTE = seTE,
-       lower = lower, upper = upper,
-       statistic = statistic, p = pval, level = level,
-       df = df, null.effect = null.effect,
-       z = statistic)
+  
+  res <- list(TE = TE, seTE = seTE,
+              lower = lower, upper = upper,
+              statistic = statistic, p = pval, level = level,
+              df = df, null.effect = null.effect)
+  
+  res
 }

@@ -11,15 +11,18 @@ metacr(
   method,
   sm,
   level = gs("level"),
-  level.ma = gs("level.ma"),
   common,
   random,
-  hakn = FALSE,
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = "DL",
   method.tau.ci = gs("method.tau.ci"),
   tau.common = FALSE,
-  prediction = gs("prediction"),
+  level.ma = gs("level.ma"),
+  method.random.ci = "classic",
+  adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
+  method.predict = gs("method.predict"),
+  adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   swap.events,
   logscale,
   backtransf = gs("backtransf"),
@@ -59,38 +62,48 @@ be used for pooling of studies.}
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
 
-\item{level.ma}{The level used to calculate confidence intervals
-for pooled estimates.}
-
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
 
 \item{random}{A logical indicating whether a random effects
 meta-analysis should be conducted.}
 
-\item{hakn}{A logical indicating whether the method by Hartung and
-Knapp should be used to adjust test statistics and confidence
-intervals.}
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
-square root \eqn{\tau}. Either \code{"DL"}, \code{"PM"},
-\code{"REML"}, \code{"ML"}, \code{"HS"}, \code{"SJ"},
-\code{"HE"}, or \code{"EB"}, can be abbreviated.}
+square root \eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
-\eqn{\tau}. Either \code{"QP"}, \code{"BJ"}, or \code{"J"}, or
-\code{""}, can be abbreviated.}
+\eqn{\tau} (see \code{\link{meta-package}}).}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{level.ma}{The level used to calculate confidence intervals
+for meta-analysis estimates.}
+
+\item{method.random.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+random effects estimate (see \code{\link{meta-package}}).}
+
+\item{adhoc.hakn.ci}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied in the case
+of an arbitrarily small Hartung-Knapp variance estimate (see
+\code{\link{meta-package}}).}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval (see
+\code{\link{meta-package}}).}
+
+\item{adhoc.hakn.pi}{A character string indicating whether an
+\emph{ad hoc} variance correction should be applied for
+prediction interval (see \code{\link{meta-package}}).}
 
 \item{swap.events}{A logical indicating whether events and
 non-events should be interchanged.}
@@ -145,9 +158,10 @@ be printed if deprecated arguments are used.}
 \item{\dots}{Additional arguments (to catch deprecated arguments).}
 }
 \value{
-An object of class \code{"meta"} and \code{"metabin"},
-\code{"metacont"}, or \code{"metagen"} depending on outcome type
-utilised in Cochrane Intervention review for selected outcome.
+An object of class \code{"meta"} and - depending on outcome type
+utilised in Cochrane Intervention review for selected outcome -
+\code{"metabin"}, \code{"metacont"}, or \code{"metagen"} with
+corresponding generic functions (see \code{\link{meta-object}}).
 }
 \description{
 Wrapper function to perform meta-analysis for a single outcome of a
@@ -158,10 +172,9 @@ Cochrane Intervention reviews are based on the comparison of two
 interventions. Each Cochrane Intervention review can have a
 variable number of comparisons. For each comparison, a variable
 number of outcomes can be define. For each outcome, a seperate
-meta-analysis is conducted. Review Manager 5 (RevMan 5) is the
-current software used for preparing and maintaining Cochrane
-Reviews
-(\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
+meta-analysis is conducted. Review Manager 5 (RevMan 5) was the
+software used for preparing and maintaining Cochrane Reviews
+(\url{https://training.cochrane.org/online-learning/core-software/revman}).
 
 This wrapper function can be used to perform meta-analysis for a
 single outcome of a Cochrane Intervention review. Internally, R
@@ -208,9 +221,9 @@ settings.meta(oldset)
 The Cochrane Collaboration, 2020
 }
 \seealso{
-\code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{metagen}}, \code{\link{read.rm5}},
-  \code{\link{settings.meta}}
+\code{\link{meta-package}}, \code{\link{metabin}},
+  \code{\link{metacont}}, \code{\link{metagen}},
+  \code{\link{read.rm5}}, \code{\link{settings.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

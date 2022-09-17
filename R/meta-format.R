@@ -4,17 +4,17 @@
 ## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 ## License: GPL (>= 2)
 ##
-bylabel <- function(subgroup.name, bylevs, print.subgroup.name,
+bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
                     sep.subgroup, big.mark = "") {
   if (print.subgroup.name) {
     if (length(subgroup.name) == 0 || subgroup.name == "")
-      res <- format(bylevs, big.mark = big.mark)
+      res <- format(subgroup.levels, big.mark = big.mark)
     else
       res <- paste0(subgroup.name, sep.subgroup,
-                    format(bylevs, big.mark = big.mark))
+                    format(subgroup.levels, big.mark = big.mark))
   }
   else
-    res <- format(bylevs, big.mark = big.mark)
+    res <- format(subgroup.levels, big.mark = big.mark)
   ##
   res
 }
@@ -214,17 +214,33 @@ formatCI <- function(lower, upper,
   ##
   res
 }
-formatN <- function(x, digits = 2, text.NA = "--", big.mark = "") {
+formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
+                    format.whole.numbers = TRUE) {
   
   outdec <- options()$OutDec
   
-  res <- format(ifelse(is.na(x),
-                       text.NA,
-                       formatC(x, decimal.mark = outdec,
-                               format = "f", digits = digits,
-                               big.mark = big.mark)
-                       )
-                )
+  
+  if (format.whole.numbers) {
+    res <- format(ifelse(is.na(x),
+                         text.NA,
+                         formatC(x, decimal.mark = outdec,
+                                 format = "f", digits = digits,
+                                 big.mark = big.mark)
+                         )
+                  )
+  }
+  else {
+    res <- format(ifelse(is.na(x),
+                         text.NA,
+                  ifelse(is.wholenumber(x),
+                         x,
+                         formatC(x, decimal.mark = outdec,
+                                 format = "f", digits = digits,
+                                 big.mark = big.mark)
+                         )
+                  )
+                  )
+  }
   ##
   res <-  rmSpace(res, end = TRUE)
   ##

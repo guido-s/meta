@@ -134,7 +134,7 @@
 #' 
 #' # Use Hartung-Knapp method
 #' #
-#' mu3 <- update(mu2, hakn = TRUE)
+#' mu3 <- update(mu2, method.random.ci = "HK")
 #' mu3
 #' metareg(mu3, intercept = FALSE)
 #' 
@@ -142,7 +142,8 @@
 
 
 metareg <- function(x, formula, method.tau = x$method.tau,
-                    hakn = x$hakn, level.ma = x$level.ma,
+                    hakn = x$method.random.ci == "HK",
+                    level.ma = x$level.ma,
                     intercept = TRUE, ...) {
 
   if ("data" %in% names(list(...))) {
@@ -237,22 +238,40 @@ metareg <- function(x, formula, method.tau = x$method.tau,
     formula.text <- gsub("~", "", formula.text)
     formula.text <- gsub("\\\"", "", formula.text)
     formula.text <- gsub("\\\'", "", formula.text)
+    ##
+    nulldata <- is.null(x$data)
+    ##
+    for (i in as.vector(sapply(strsplit(formula.text, "+", fixed = TRUE),
+                               trimws, which = "both"))) {
+      if (".GlobalEnv" %in% find(i)) {
+        if (nulldata) {
+          if (is.null(x$data)) {
+            x$data <- data.frame(first = .GlobalEnv[[i]])
+            names(x$data) <- i
+          }
+          else
+            x$data[[i]] <- .GlobalEnv[[i]]
+        }
+        else {
+          if (isCol(x$data, i))
+            warning("R object '", i, "' found in .GlobalEnv used in ",
+                    "meta-regression instead of data from ",
+                    "meta-analysis object.")
+          x$data[[i]] <- .GlobalEnv[[i]]
+        }
+      }
+    }
+    ##
     if (!intercept)
       formula.text <- paste0(formula.text, " - 1")
     formula <- as.formula(paste("~", formula.text))
   }
-
-
+  
+  
   if (is.null(method.tau))
     method.tau <- "DL"
   ##
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
-  ##
-  if (method.tau == "PM") {
-    warning("Meta-regresion method not available for method.tau = \"PM\". ",
-            "Using REML method instead (method.tau = \"REML\").")
-    method.tau <- "REML"
-  }
   ##
   chklogical(hakn)
   ##

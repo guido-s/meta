@@ -45,8 +45,8 @@ convert log odds ratios to standardised mean differences. Either
 meta-analysis object).}
 }
 \value{
-An object of class \code{"meta"} and \code{"metagen"}; see
-\code{\link{metagen}}.
+An object of class \code{c("metagen", "meta")} with corresponding
+generic functions (see \code{\link{meta-object}}).
 }
 \description{
 Conversion from log odds ratio to standardised mean difference

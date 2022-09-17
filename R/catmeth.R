@@ -2,8 +2,12 @@ catmeth <- function(method,
                     method.tau = NULL,
                     sm = "",
                     k.all,
-                    hakn = FALSE,
-                    adhoc.hakn = FALSE,
+                    method.random.ci = "",
+                    df.random = NA,
+                    adhoc.hakn.ci = "",
+                    method.predict = "",
+                    adhoc.hakn.pi = "",
+                    df.predict = NA,
                     class = "",
                     tau.common = FALSE,
                     tau.preset = NULL,
@@ -37,6 +41,7 @@ catmeth <- function(method,
                     three.level = FALSE
                     ) {
   
+  
   metabin  <- "metabin"  %in% class
   metacont <- "metacont" %in% class
   metainc  <- "metainc"  %in% class
@@ -44,9 +49,17 @@ catmeth <- function(method,
   metarate <- "metarate" %in% class
   trimfill <- "trimfill" %in% class
   metamiss <- "metamiss" %in% class
+  ##
+  allstudies <- replaceNULL(allstudies, FALSE)
+  doublezeros <- replaceNULL(doublezeros, FALSE)
+  ##
+  method.ci <- replaceNULL(method.ci, "")
+  ##
+  method.random.ci <- replaceNULL(method.random.ci, "")
+  adhoc.hakn.ci <- replaceNULL(adhoc.hakn.ci, "")
+  method.predict <- replaceNULL(method.predict, "")
+  adhoc.hakn.pi <- replaceNULL(adhoc.hakn.pi, "")
   
-  if (is.null(allstudies)) allstudies <- FALSE
-  if (is.null(doublezeros)) doublezeros <- FALSE
   
   if (sm == "ZCOR")
     sm.details <- "\n- Fisher's z transformation of correlations"
@@ -75,41 +88,39 @@ catmeth <- function(method,
   else
     sm.details <- ""
   ##
-  if (!is.null(method.ci)) {
-    if (method.ci == "CP")
-      method.ci.details <-
-        "\n- Clopper-Pearson confidence interval for individual studies"
-    else if (method.ci == "WS")
-      method.ci.details <-
-        "\n- Wilson Score confidence interval for individual studies"
-    else if (method.ci == "WSCC")
-      method.ci.details <-
-        paste0("\n- Wilson Score confidence interval with ",
-               "continuity correction\n", "  for individual studies")
-    else if (method.ci == "AC")
-      method.ci.details <-
-        "\n- Agresti-Coull confidence interval for individual studies"
-    else if (method.ci == "SA")
-      method.ci.details <-
-        "\n- Simple approximation confidence interval for individual studies"
-    else if (method.ci == "SACC")
-      method.ci.details <-
-        paste0("\n- Simple approximation confidence interval with ",
-               "continuity correction for individual studies")
-    else if (method.ci == "NAsm")
-      method.ci.details <-
-        "\n- Normal approximation confidence interval for individual studies"
-    else if (method.ci == "Poisson")
-      method.ci.details <-
-        "\n- Exact Poisson confidence interval for individual studies"
-    else if (method.ci == "t")
-      method.ci.details <-
-        "\n- Confidence interval for individual studies based on t-distribution"
-    else
-      method.ci.details <- ""
-    ##
-    sm.details <- paste0(sm.details, method.ci.details)
-  }
+  if (method.ci == "CP")
+    method.ci.details <-
+      "\n- Clopper-Pearson confidence interval for individual studies"
+  else if (method.ci == "WS")
+    method.ci.details <-
+      "\n- Wilson Score confidence interval for individual studies"
+  else if (method.ci == "WSCC")
+    method.ci.details <-
+      paste0("\n- Wilson Score confidence interval with ",
+             "continuity correction\n", "  for individual studies")
+  else if (method.ci == "AC")
+    method.ci.details <-
+      "\n- Agresti-Coull confidence interval for individual studies"
+  else if (method.ci == "SA")
+    method.ci.details <-
+      "\n- Simple approximation confidence interval for individual studies"
+  else if (method.ci == "SACC")
+    method.ci.details <-
+      paste0("\n- Simple approximation confidence interval with ",
+             "continuity correction for individual studies")
+  else if (method.ci == "NAsm")
+    method.ci.details <-
+      "\n- Normal approximation confidence interval for individual studies"
+  else if (method.ci == "Poisson")
+    method.ci.details <-
+      "\n- Exact Poisson confidence interval for individual studies"
+  else if (method.ci == "t")
+    method.ci.details <-
+      "\n- Confidence interval for individual studies based on t-distribution"
+  else
+    method.ci.details <- ""
+  ##
+  sm.details <- paste0(sm.details, method.ci.details)
   ##
   if (metacont && sm == "SMD" && !is.null(method.smd)) {
     if (method.smd == "Hedges")
@@ -142,10 +153,10 @@ catmeth <- function(method,
   }
   ##
   if (metabin | metainc | metaprop | metarate) {
-    txtCC <- !(method == "MH" & MH.exact & k.all == 1)
-    txtCC.ind <- (method == "MH" & MH.exact) | method == "GLMM"
+    txtCC <- !(any(method == "MH") & MH.exact & all(k.all == 1))
+    txtCC.ind <- (any(method == "MH") & MH.exact) | any(method == "GLMM")
     ##
-    if (!(sm == "ASD" | method == "Peto")) {
+    if (!(sm == "ASD" | any(method == "Peto"))) {
       if (addincr) {
         if (all(incr == "TACC") && txtCC)
           sm.details <-
@@ -208,7 +219,7 @@ catmeth <- function(method,
         ##
         if (allstudies & doublezeros)
           sm.details <-
-            paste(sm.details,
+            paste0(sm.details,
                   "\n- Studies with double zeros included in meta-analysis")
       }
     }
@@ -256,154 +267,291 @@ catmeth <- function(method,
   }
   
   
-  lab.method.details <- ""
   ##
-  if (is.null(method.tau))
-    lab.method.tau <- ""
-  else {
-    if (!is.null(tau.preset)) {
-      tau.preset <- formatPT(tau.preset, lab = TRUE, labval = text.tau,
-                             digits = digits.tau,
-                             lab.NA = "NA",
-                             big.mark = big.mark)
-      ##
-      lab.method.tau <-
-        paste0("\n- Preset square root of between-study variance: ", tau.preset)
-      ##
-      lab.method.details <- lab.method.tau
-    }
-    else {
-      i.lab.method.tau <-
-        charmatch(method.tau, c(gs("meth4tau"), ""), nomatch = NA)
-      ##
-      lab.method.tau <-
-        c("\n- DerSimonian-Laird estimator",
-          "\n- Paule-Mandel estimator",
-          "\n- Restricted maximum-likelihood estimator",
-          "\n- Maximum-likelihood estimator",
-          "\n- Hunter-Schmidt estimator",
-          "\n- Sidik-Jonkman estimator",
-          "\n- Hedges estimator",
-          "\n- Empirical Bayes estimator",
-          "")[i.lab.method.tau]
-      if (lab.method.tau != "")
-        lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
-      ##
-      if (lab.method.tau != "" & tau.common)
-        lab.method.tau <-
-          paste0(lab.method.tau,
-                 if (options()$width <= 70 || i.lab.method.tau == 3)
-                   "\n  " else " ",
-                 "(assuming common ", text.tau2,
-                 " in subgroups)")
-      ##
-      if (lab.method.tau != "" & metabin & Q.Cochrane)
-        lab.method.tau <-
-          paste0(lab.method.tau,
-                 "\n- Mantel-Haenszel estimator used in ",
-                 "calculation of Q and ", text.tau2,
-                 if (options()$width > 70)
-                   " (like RevMan 5)"
-                 else
-                   "\n  (like RevMan 5)")
-      ##
-      if (print.tau.ci & method.tau.ci %in% c("QP", "BJ", "J", "PL")) {
-        i.lab.tau.ci <-
-          charmatch(method.tau.ci, c("QP", "BJ", "J", "PL"), nomatch = NA)
-        ##
-        lab.tau.ci <-
-          paste("\n-",
-                 c("Q-Profile method",
-                   "Biggerstaff and Jackson method",
-                   "Jackson method",
-                   "Profile-Likelihood method")[i.lab.tau.ci],
-                 "for confidence interval of",
-                 text.tau2, "and", text.tau)
-        ##
-        lab.method.tau <- paste0(lab.method.tau, lab.tau.ci)
-      }
-      ##
-      if (hakn) {
-        lab.hakn <- "\n- Hartung-Knapp adjustment for random effects model"
-        if (adhoc.hakn)
-          lab.hakn <- paste0(lab.hakn,
-                             "\n  (with ad hoc variance correction)")
-      }
-      else
-        lab.hakn <- ""
-      ##      
-      lab.method.details <- paste0(lab.method.tau, lab.hakn)
-    }
-  }
+  ## Methods to estimate tau2
   ##
-  imeth <-
-    charmatch(method,
-              c("MH", "Peto", "Inverse", "Cochran", "SSW", "GLMM",
-                "NoMA", ""),
-              nomatch = NA)
+  lab.method.tau <- ""
   ##
-  if ((metabin|metainc) & imeth == 1 & (sparse | addincr))
-    if (MH.exact | metainc)
-      lab.method.details <-
-        paste0(" (without continuity correction)", lab.method.details)
-  if (three.level)
-    lab.method.details <-
-      paste0(" (three-level model)", lab.method.details)
-  ##
-  if (metacont && !is.null(pooledvar) && pooledvar)
-    lab.method.details <-
-      paste0(" (with pooled variance for individual studies)",
-             lab.method.details)
-  ##
-  method <- c("\n- Mantel-Haenszel method",
-              "\n- Peto method",
-              "\n- Inverse variance method",
-              "\n- Cochran method",
-              "\n- Sample size method",
-              "GLMM",
-              "",
-              "")[imeth]
-  ##
-  if (method == "GLMM") {
-    
-    i.model.glmm <- charmatch(model.glmm,
-                              c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
+  if (!is.null(tau.preset)) {
+    tau.preset <- formatPT(tau.preset, lab = TRUE, labval = text.tau,
+                           digits = digits.tau,
+                           lab.NA = "NA",
+                           big.mark = big.mark)
     ##
-    if (metabin)
-      method <-
-        c("\n- Logistic regression model (fixed study effects)",
-          "\n- Mixed-effects logistic regression model (random study effects)",
-          paste("\n- Generalised linear mixed model",
-                "(conditional Hypergeometric-Normal)"),
-          paste("\n- Generalised linear mixed model",
-                "(conditional Binomial-Normal)")
-          )[i.model.glmm]
-    else if (metainc)
-      method <-
-        c("\n- Poisson regression model (fixed study effects)",
-          "\n- Mixed-effects Poisson regression model (random study effects)",
-          "\n- Generalised linear mixed model (conditional Poisson-Normal)"
-          )[i.model.glmm]
-    else if (metaprop)
-      method <- "\n- Random intercept logistic regression model"
-    else if (metarate)
-      method <- "\n- Random intercept Poisson regression model"
+    lab.method.tau <-
+      paste0("\n- Preset square root of between-study variance: ", tau.preset)
+  }
+  else {
+    if (any(method.tau == "DL"))
+      lab.method.tau <- "\n- DerSimonian-Laird estimator"
+    ##
+    if (any(method.tau == "PM"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Paule-Mandel estimator")
+    ##
+    if (any(method.tau == "REML"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Restricted maximum-likelihood estimator")
+    ##
+    if (any(method.tau == "ML"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Maximum-likelihood estimator")
+    ##
+    if (any(method.tau == "HS"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Hunter-Schmidt estimator")
+    ##
+    if (any(method.tau == "SJ"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Sidik-Jonkman estimator")
+    ##
+    if (any(method.tau == "HE"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Hedges estimator")
+    ##
+    if (any(method.tau == "EB"))
+      lab.method.tau <-
+        paste0(lab.method.tau, "\n- Empirical Bayes estimator")
+    ##
+    if (any(lab.method.tau != "")) {
+      lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
+      if (tau.common)
+        lab.method.tau <-
+          paste0(lab.method.tau,
+                 "\n  (assuming common ", text.tau2, " in subgroups)")
+    }
+    ##
+    if (any(method.tau == "DL") & metabin & Q.Cochrane)
+      lab.method.tau <-
+        paste0(lab.method.tau,
+               "\n- Mantel-Haenszel estimator used in ",
+               "calculation of Q and ", text.tau2,
+               if (options()$width > 70)
+                 " (like RevMan 5)"
+               else
+                 "\n  (like RevMan 5)")
+  }
+
+  
+  ##
+  ## Methods to calculate confidence interval for tau2
+  ##
+  lab.tau.ci <- ""
+  ##
+  if (print.tau.ci) {
+    if (any(method.tau.ci == "QP"))
+      lab.tau.ci <- "\n- Q-Profile method"
+    ##
+    if (any(method.tau.ci == "BJ"))
+      lab.tau.ci <-
+        paste0(lab.tau.ci, "\n- Biggerstaff and Jackson method")
+    ##
+    if (any(method.tau.ci == "J"))
+      lab.tau.ci <-
+        paste0(lab.tau.ci, "\n- Jackson method")
+    ##
+    if (any(method.tau.ci == "PL"))
+      lab.tau.ci <-
+        paste0(lab.tau.ci, "\n- Profile-Likelihood method")
+    ##
+    lab.tau.ci <-
+      paste(lab.tau.ci,
+            "for confidence interval of", text.tau2, "and", text.tau)
+  }
+  
+  
+  ##
+  ## Method to calculate random effects confidence interval
+  ##
+  lab.random.ci <- ""
+  ##
+  if (any(method.random.ci == "HK")) {
+    lab.random.ci <-
+      paste0("\n- Hartung-Knapp (HK) adjustment for ",
+             "random effects model (df = ",
+             rmSpace(unique(df.random[method.random.ci == "HK"])),
+             ")")
+    ##
+    if (any(adhoc.hakn.ci != ""))
+      lab.random.ci <-
+        paste0(lab.random.ci,
+               "\n  (with ",
+               if (any(method.random.ci == "HK" & adhoc.hakn.ci == ""))
+                 "and without ",
+               "ad hoc correction)")
   }
   ##
-  method <- paste0(method, lab.method.details)
+  if (any(method.random.ci == "classic-KR")) {
+    lab.random.ci <-
+      paste0(lab.random.ci,
+             "\n- Classic method instead of Kenward-Roger adjustment ",
+             "(classic-KR) used for random effects model")
+  }
   ##
-  if (k.all > 1) {
-    if (method != "")
-      cat(paste0("\nDetails on meta-analytical method:", method))
+  if (any(method.random.ci == "KR")) {
+    lab.random.ci <-
+      paste0(lab.random.ci,
+             "\n- Kenward-Roger (KR) adjustment for ",
+             "random effects model (df = ",
+             rmSpace(unique(df.random[method.random.ci == "KR"])),
+             ")")
+  }
+  
+  
+  ##
+  ## Method to calculate prediction interval
+  ##
+  lab.predict <- ""
+  ##
+  if (any(method.predict == "HTS")) {
+    lab.predict <-
+      paste0("\n- Prediction interval based on t-distribution (HTS) ",
+             "(df = ",
+             rmSpace(unique(df.predict[method.predict == "HTS"])),
+             ")")
+  }
+  ##
+  if (any(method.predict == "HK")) {
+    lab.predict <-
+      paste0(lab.predict,
+             paste0("\n- Hartung-Knapp (HK) prediction interval (df = ",
+                    rmSpace(unique(df.predict[method.predict == "HK"])),
+                    ")"))
+    if (any(adhoc.hakn.pi != ""))
+      lab.predict <-
+        paste0(lab.predict,
+               "\n  (with ",
+               if (any(method.predict == "HK" &
+                       adhoc.hakn.pi == ""))
+                 "and without ",
+               "ad hoc correction)")
+  }
+  ##
+  if (any(method.predict == "HTS-KR")) {
+    lab.predict <-
+      paste0("\n- Prediction interval based on t-distribution (df = ",
+             rmSpace(unique(df.predict[method.predict == "HTS"])),
+             ") instead of ",
+             "Kenward-Roger adjustment")
+  }
+  ##
+  if (any(method.predict == "KR")) {
+    lab.predict <-
+      paste0(lab.predict,
+             "\n- Kenward-Roger (KR) prediction interval (df = ",
+             rmSpace(unique(df.predict[method.predict == "KR"])),
+             ")")
+  }
+  ##
+  if (any(method.predict == "HTS-KR")) {
+    lab.predict <-
+      paste0(lab.predict,
+             "\n- Kenward-Roger (KR) prediction interval (df = ",
+             rmSpace(unique(df.predict[method.predict == "KR"])),
+             ")")
+  }
+  ##
+  if (any(method.predict == "NNF")) {
+    lab.predict <-
+      paste0(lab.predict,
+             "\n- Boot-strap prediction interval (NNF) (df = ",
+             rmSpace(unique(df.predict[method.predict == "NNF"])),
+             ")")
+  }
+  ##
+  if (any(method.predict == "S")) {
+    lab.predict <-
+      paste0(lab.predict,
+             "\n- Prediction interval based on ",
+                 "standard normal distribution (S)")
+  }
+  
+  
+  ##
+  ## Meta-analysis method
+  ##
+  lab.method <- ""
+  ##
+  if (any(method == "MH")) {
+    lab.method <- "\n- Mantel-Haenszel method"
+    if ((metabin | metainc) & (sparse | addincr) & MH.exact)
+      lab.method <-
+        paste(lab.method, "(without continuity correction)")
+  }
+  ##
+  if (any(method == "Peto"))
+    lab.method <- paste0(lab.method, "\n- Peto method")
+  ##
+  if (any(method == "Inverse")) {
+    lab.method <-
+      paste0(lab.method, "\n- Inverse variance method")
+    if (three.level)
+      lab.method <-
+        paste(lab.method, "(three-level model)")
+    if (metacont && !is.null(pooledvar) && pooledvar)
+      lab.method <-
+        paste(lab.method,
+              "(with pooled variance for individual studies)")
+  }
+  ##
+  if (any(method == "Cochran"))
+    lab.method <- paste0(lab.method, "\n- Cochran method")
+  ##
+  if (any(method == "SSW"))
+    lab.method <- paste0(lab.method, "\n- Sample size method")
+  ##
+  if (any(method == "GLMM")) {
+    if (metabin)
+      lab.method <-
+        paste0(lab.method,
+               if (any(model.glmm == "UM.FS"))
+                 "\n- Logistic regression model (fixed study effects)",
+               if (any(model.glmm == "UM.RS"))
+                 paste("\n- Mixed-effects logistic regression model",
+                       "(random study effects)"),
+               if (any(model.glmm == "CM.EL"))
+                 paste("\n- Generalised linear mixed model",
+                       "(conditional Hypergeometric-Normal)"),
+               if (any(model.glmm == "CM.AL"))
+                 paste("\n- Generalised linear mixed model",
+                       "(conditional Binomial-Normal)"))
+    else if (metainc)
+      lab.method <-
+        paste0(lab.method,
+               if (any(model.glmm == "UM.FS"))
+                 "\n- Poisson regression model (fixed study effects)",
+               if (any(model.glmm == "UM.RS"))
+                 paste("\n- Mixed-effects Poisson regression model",
+                       "(random study effects)"),
+               if (any(model.glmm == "CM.EL"))
+                 paste("\n- Generalised linear mixed model",
+                       "(conditional Poisson-Normal)"))
+    else if (metaprop)
+      lab.method <-
+        paste0(lab.method,
+               "\n- Random intercept logistic regression model")
+    else if (metarate)
+      lab.method <-
+        paste0(lab.method,
+               "\n- Random intercept Poisson regression model")
+  }
+  
+  
+  details <-
+    paste0(lab.method, lab.method.tau, lab.tau.ci, lab.random.ci, lab.predict)
+  ##
+  if (any(k.all > 1)) {
+    if (details != "")
+      cat(paste0("\nDetails on meta-analytical method:", details))
     ##
     if (trimfill)
       cat("\n- Trim-and-fill method to adjust for funnel plot asymmetry")
   }
   else {
-    if (method != "" | sm.details != "")
+    if (details != "" | sm.details != "")
       cat("\nDetails:")
-    if (method != "")
-      cat(method)
+    if (details != "")
+      cat(details)
   }
   ##
   if (metamiss) {
@@ -439,7 +587,7 @@ catmeth <- function(method,
   ##
   if (sm.details != "")
     cat(paste0(sm.details, "\n"))
-  else if (method != "")
+  else if (details != "")
     cat("\n")
   
   

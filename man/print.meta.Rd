@@ -39,6 +39,7 @@
   big.mark = gs("big.mark"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
+  digits.df = gs("digits.df"),
   print.tau2 = TRUE,
   print.tau = TRUE,
   print.I2 = gs("print.I2"),
@@ -178,6 +179,9 @@ printed with a leading zero.}
 \item{JAMA.pval}{A logical specifying whether p-values for test of
 overall effect should be printed according to JAMA reporting
 standards.}
+
+\item{digits.df}{Minimal number of significant digits for
+degrees of freedom.}
 
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}
