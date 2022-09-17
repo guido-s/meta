@@ -1,4 +1,4 @@
-xsvec <- function(x, varname, levs) {
+extrVec <- function(x, varname, levs) {
   res <- sapply(x, "[", varname)
   ##
   if (max(sapply(res, length)) == 0)
@@ -14,7 +14,7 @@ xsvec <- function(x, varname, levs) {
   stop("List element '", varname, "' does not contain single values.",
          call. = FALSE)
 }
-xsmat <- function(x, varname, clab, rlab) {
+extrMat <- function(x, varname, clab, rlab) {
   res <- sapply(x, "[", varname)
   ##
   if (max(sapply(res, length)) == 0)
@@ -32,7 +32,7 @@ xsmat <- function(x, varname, clab, rlab) {
     res <- matrix(unlist(res), nrow = length(rlab))
     rownames(res) <- rlab
     colnames(res) <- clab
-    return(res)
+    return(t(res))
   }
   ##
   print(res)

@@ -75,8 +75,8 @@ components.
 \code{seTE.classic} \tab Standard error (classic random effects method) \cr
 \code{adhoc.hakn.ci} \tab \emph{Ad hoc} correction for
   Hartung-Knapp method (confidence interval) \cr
-\code{df.hakn} \tab Degrees of freedom for Hartung-Knapp method \cr
-\tab (if used in meta-analysis) \cr
+\code{df.hakn.ci} \tab Degrees of freedom for Hartung-Knapp method
+  \cr \tab (if used in meta-analysis) \cr
 \code{seTE.hakn.ci} \tab Standard error for Hartung-Knapp method
   \cr
 \tab (not taking \emph{ad hoc} variance correction into account)
@@ -91,6 +91,8 @@ components.
 \code{method.predict} \tab Method to calculate prediction interval \cr
 \code{adhoc.hakn.pi} \tab \emph{Ad hoc} correction for
   Hartung-Knapp method (prediction interval) \cr
+\code{df.hakn.ci} \tab Degrees of freedom for Hartung-Knapp method
+  \cr \tab (prediction interval) \cr
 \code{seTE.predict} \tab Standard error used to calculate
   prediction interval \cr
 \code{df.predict} \tab Degrees of freedom for prediction interval \cr
@@ -191,13 +193,28 @@ additional components are added to the list.
 \code{lower.random.w} \tab Lower confidence limit in subgroups (random effects model) \cr
 \code{upper.random.w} \tab Upper confidence limit in subgroups (random effects model) \cr
 \code{w.random.w} \tab Total weight in subgroups (random effects model) \cr
-\code{df.hakn.w} \tab Degrees of freedom for Hartung-Knapp
+\code{seTE.classic.w} \tab Standard error (classic random effects method) \cr
+\code{df.hakn.ci.w} \tab Degrees of freedom for Hartung-Knapp
+  method in subgroups \cr
+\code{seTE.hakn.ci.w} \tab Standard error for Hartung-Knapp method in subgroups
+  \cr
+\tab (not taking \emph{ad hoc} variance correction into account)
+  \cr
+\code{seTE.hakn.adhoc.ci.w} \tab Standard error for Hartung-Knapp
   method in subgroups \cr
 \code{df.kero.w} \tab Degrees of freedom for Kenward-Roger method in subgroups \cr 
+\code{seTE.kero.w} \tab Standard error for Kenward-Roger
+  method in subgroups \cr
 \code{seTE.predict.w} \tab Standard error for prediction interval in subgroups \cr
 \code{df.predict.w} \tab Degrees of freedom for prediction interval in subgroups \cr
 \code{lower.predict.w} \tab Lower limit of prediction interval in subgroups \cr
 \code{upper.predict.w} \tab Upper limit of prediction interval in subgroups \cr
+\code{seTE.hakn.pi.w} \tab Standard error for Hartung-Knapp method in subgroups (prediction intervals)
+  \cr
+\tab (not taking \emph{ad hoc} variance correction into account)
+  \cr
+\code{seTE.hakn.adhoc.pi.w} \tab Standard error for Hartung-Knapp
+  method in subgroups (prediction intervals) \cr
 \code{Q.w} \tab Heterogeneity statistic Q in subgroups \cr
 \code{pval.Q.w} \tab P-value for test of heterogeneity in subgroups \cr
 \code{tau2.w} \tab Between-study variance \eqn{\tau^2} in subgroups \cr
@@ -223,12 +240,14 @@ additional components are added to the list.
   heterogeneity (random effects model) \cr
 \code{Q.b.common} \tab Between-groups heterogeneity statistic
   Q (common effect model) \cr
-\code{Q.b.random} \tab Between-groups heterogeneity statistic
-  Q (random effects model) \cr
-\code{df.Q.b} \tab Degrees of freedom for \code{Q.b.common} and
-  \code{Q.b.random} \cr
+\code{df.Q.b.common} \tab Degrees of freedom for \code{Q.b.common}
+  \cr
 \code{pval.Q.b.common} \tab P-value of test for subgroup
   differences (common effect model) \cr
+\code{Q.b.random} \tab Between-groups heterogeneity statistic
+  Q (random effects model) \cr
+\code{df.Q.b.random} \tab Degrees of freedom for \code{Q.b.random}
+  \cr
 \code{pval.Q.b.random} \tab P-value of test for subgroup
   differences (random effects model)
 }

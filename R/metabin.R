@@ -1963,11 +1963,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (!tau.common) {
       res <- c(res, subgroup(res))
-      if (res$three.level) {
-        res$Q.b.random <- NA
-        res$df.Q.b <- NA
-        res$pval.Q.b.random <- NA
-      }
+      if (res$three.level)
+        res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))

@@ -35,7 +35,7 @@
 #'
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+#' \url{https://training.cochrane.org/online-learning/core-software/revman})
 #' and specifies to use a RevMan 5 layout in forest plots.
 #'
 #' The second command can be used to generate forest plots following
@@ -651,7 +651,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "digits.I2", "digits.tau2", "digits.tau",
                  "CIbracket", "CIseparator",
                  "zero.pval", "JAMA.pval"),
-        new = list(replaceNULL(args[["method.random.ci"]], ""),
+        new = list(replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),

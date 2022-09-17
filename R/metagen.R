@@ -830,6 +830,8 @@ metagen <- function(TE, seTE, studlab,
   if (!missing.median)
     chknull(median)
   ##
+  missing.n.e <- missing(n.e)
+  missing.n.c <- missing(n.c)
   n.e <- catch("n.e", mc, data, sfsp)
   n.c <- catch("n.c", mc, data, sfsp)
   ##
@@ -1054,6 +1056,10 @@ metagen <- function(TE, seTE, studlab,
       data$.approx.TE <- approx.TE
     if (!missing.approx.seTE)
       data$.approx.seTE <- approx.seTE
+    if (!missing.n.e)
+      data$.n.e <- n.e
+    if (!missing.n.c)
+      data$.n.c <- n.c
   }
   
   
@@ -1989,6 +1995,33 @@ metagen <- function(TE, seTE, studlab,
                  df = if (method.ci == "t") df else NULL,
                  null.effect = null.effect)
   ##
+  if (length(seTE.random) > 1) {
+    methci <- paste(method.random.ci,
+                    toupper(substring(adhoc.hakn.ci, 1, 2)),
+                    sep = "-")
+    methci <- gsub("-$", "", methci)
+    ##
+    names(seTE.random) <-
+      names(statistic.random) <- names(pval.random) <-
+      names(df.random) <- names(lower.random) <- names(upper.random) <-
+      names(adhoc.hakn.ci) <- names(df.hakn.ci) <-
+      names(seTE.hakn.adhoc.ci) <-
+      methci
+  }
+  ##
+  if (length(lower.predict) > 1) {
+    methpi <- paste(method.predict,
+                    toupper(substring(adhoc.hakn.pi, 1, 2)),
+                    sep = "-")
+    methpi <- gsub("-$", "", methpi)
+    ##
+    names(seTE.predict) <- names(df.predict) <-
+      names(lower.predict) <- names(upper.predict) <-
+      names(adhoc.hakn.pi) <- names(df.hakn.pi) <-
+      names(seTE.hakn.adhoc.pi) <-
+      methpi
+  }
+  ##
   res <- list(studlab = studlab,
               ##
               sm = sm,
@@ -2016,18 +2049,23 @@ metagen <- function(TE, seTE, studlab,
               method = "Inverse",
               ##
               w.common = w.common,
-              TE.common = TE.common, seTE.common = seTE.common,
-              statistic.common = statistic.common, pval.common = pval.common,
+              TE.common = TE.common,
+              seTE.common = seTE.common,
+              statistic.common = statistic.common,
+              pval.common = pval.common,
               level.ma = level.ma,
-              lower.common = lower.common, upper.common = upper.common,
+              lower.common = lower.common,
+              upper.common = upper.common,
               ##
               w.random = w.random,
-              TE.random = rep_len(TE.random, length(seTE.random)),
+              TE.random = TE.random,
               seTE.random = seTE.random,
-              statistic.random = statistic.random, pval.random = pval.random,
+              statistic.random = statistic.random,
+              pval.random = pval.random,
               method.random.ci = method.random.ci,
               df.random = df.random,
-              lower.random = lower.random, upper.random = upper.random,
+              lower.random = lower.random,
+              upper.random = upper.random,
               ##
               seTE.classic = seTE.classic,
               ##
@@ -2127,11 +2165,8 @@ metagen <- function(TE, seTE, studlab,
     ##
     if (!tau.common) {
       res <- c(res, subgroup(res))
-      if (three.level) {
-        res$Q.b.random <- NA
-        res$df.Q.b <- NA
-        res$pval.Q.b.random <- NA
-      }
+      if (res$three.level)
+        res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
       res <- c(res, subgroup(res, tau.preset))

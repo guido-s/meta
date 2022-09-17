@@ -301,7 +301,7 @@
 #' 
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+#' \url{https://training.cochrane.org/online-learning/core-software/revman})
 #' and specifies to use a RevMan 5 layout in forest plots.
 #'
 #' The second command can be used to generate forest plots following
@@ -526,7 +526,7 @@
 #'   weights
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion head tail
+#'   getFromNamespace packageDescription packageVersion head tail find
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma

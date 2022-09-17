@@ -52,9 +52,9 @@ Cochrane review
 This function can be used to conduct a test for funnel plot
 asymmetry for all or selected meta-analyses in a Cochrane Review.
 
-Review Manager 5 (RevMan 5) is the current software used for
-preparing and maintaining Cochrane Reviews
-(\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman}).
+Review Manager 5 (RevMan 5) was the software used for preparing and
+maintaining Cochrane Reviews
+(\url{https://training.cochrane.org/online-learning/core-software/revman}).
 In RevMan 5, subgroup analyses can be defined and data from a
 Cochrane review can be imported to R using the function
 \code{read.rm5}.

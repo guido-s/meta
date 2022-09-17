@@ -167,3 +167,28 @@ runNN <- function(func, args, warn = TRUE) {
   else
     suppressWarnings(do.call(func, args))
 }
+setNA3 <- function(x) {
+  res <- x
+  ##
+  res$Q.b.random <- NA
+  res$df.Q.b <- NA
+  res$df.Q.b.random <- NA
+  res$pval.Q.b.random <- NA
+  ##
+  res
+}
+mismatch <- function(x, y, var) {
+  x <- x$data[[var]]
+  y <- y$data[[var]]
+  ##
+  bothnull <- is.null(x) & is.null(y)
+  ##
+  if (bothnull)
+    return(FALSE)
+  else {
+    if (!is.null(x) & !is.null(y))
+      return(any(x != y))
+    else
+      return(TRUE)
+  }
+}

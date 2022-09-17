@@ -62,7 +62,7 @@ cathet <- function(k,
                    Rb, lowRb, uppRb,
                    print.Rb, text.Rb,
                    big.mark,
-                   detail.tau = "") {
+                   label = "") {
   
   
   if (is.null(lower.tau2))
@@ -74,24 +74,45 @@ cathet <- function(k,
   if (is.null(upper.tau))
     upper.tau <- NA
   ##
-  if (all(is.na(lower.tau2)) && all(is.na(upper.tau2)))
+  if (all(is.na(lower.tau2) & is.na(upper.tau2)))
     print.tau2.ci <- FALSE
-  if (all(is.na(lower.tau)) && all(is.na(upper.tau)))
+  if (all(is.na(lower.tau) & all(is.na(upper.tau))))
     print.tau.ci <- FALSE
   
   
+  ## Print tau2 and tau
+  ##
   stau <- length(tau) == 1
   ##
-  if (!stau) {
-    text.tau2 <- paste(text.tau2, seq_along(tau), sep = ".")
-    text.tau <- paste(text.tau, seq_along(tau), sep = ".")
+  if (print.tau2 | print.tau) {
+    if (!stau) {
+      text.tau2 <- paste(text.tau2, seq_along(tau), sep = ".")
+      text.tau <- paste(text.tau, seq_along(tau), sep = ".")
+    }
   }
   ##
-  detail.tau <- ifelse(detail.tau != "", paste0(" (", detail.tau, ")"), "")
-  
-  
+  label <- ifelse(label != "", paste0(" (", label, ")"), "")
+  ##
+  if (print.tau2.ci) {
+    text.tau2.ci <-
+      pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
+              sign.lower.tau, sign.upper.tau)
+    text.tau2.ci[text.tau2.ci == " "] <- ""
+  }
+  else
+    text.tau2.ci <- ""
+  ##
+  if (print.tau.ci) {
+    text.tau.ci <-
+      pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
+              sign.lower.tau, sign.upper.tau)
+    text.tau.ci[text.tau.ci == " "] <- ""
+  }
+  else
+    text.tau.ci <- ""
+  ##
   cat(
-    paste(
+    paste0(
       if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
         " ",
       if (print.tau2)
@@ -100,10 +121,8 @@ cathet <- function(k,
                         digits = digits.tau2,
                         lab.NA = "NA",
                         big.mark = big.mark),
-               if (print.tau2.ci)
-                 pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
-                         sign.lower.tau, sign.upper.tau),
-               if (!print.tau) detail.tau),
+               text.tau2.ci,
+               if (!print.tau) label),
       ##
       if (print.tau)
         paste0(
@@ -113,65 +132,97 @@ cathet <- function(k,
                    digits = digits.tau,
                    lab.NA = "NA",
                    big.mark = big.mark),
-          if (print.tau.ci)
-            pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
-                    sign.lower.tau, sign.upper.tau),
-          detail.tau),
-      sep = "", collapse = "\n")
+          text.tau.ci,
+          label),
+      collapse = "\n")
   )
+  
+  
+  ## Print I2, H and Rb
+  ##
+  if (print.I2) {
+    sI2 <- length(I2) == 1
+    if (!sI2)
+      text.I2 <- paste(text.I2, seq_along(I2), sep = ".")
+  }
+  ##
+  if (print.H) {
+    text.H <- "H"
+    sH <- length(H) == 1
+    if (!sH)
+      text.H <- paste(text.H, seq_along(H), sep = ".")
+  }
+  ##  
+  if (print.Rb) {
+    sRb <- length(Rb) == 1
+    if (!sRb)
+      text.Rb <- paste(text.Rb, seq_along(Rb), sep = ".")
+  }
+  ##
+  if (print.I2)
+    cat(ifelse(print.tau2 | print.tau,
+        ifelse(!stau | print.tau2.ci | print.tau.ci |
+               (options()$width < 70 & print.I2.ci),
+               "\n", ";"),
+        ""))
   ##
   cat(
     paste0(
       if (print.I2)
         paste0(
-          ifelse(
-            print.tau2 | print.tau,
-          ifelse(!stau | print.tau2.ci | print.tau.ci |
-                 (options()$width < 70 & print.I2.ci),
-                 "\n", ";"),
-          ""),
           if (print.tau2 | print.tau)
             " ",
           text.I2, " = ",
-          if (is.na(I2))
-            "NA"
-          else
-            paste0(formatN(I2, digits.I2), "%"),
+          ifelse(is.na(I2), "NA",
+                 paste0(formatN(I2, digits.I2), "%")),
           if (print.I2.ci)
-            pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%")
+            pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%"),
+          if (!sI2 & !print.H)
+            label
         ),
       ##
       if (print.H)
         paste0(
           if (print.tau2 | print.tau | print.I2)
-            "; ",
-          "H = ",
-          if (is.na(H))
-            "NA"
-          else
-            formatN(H, digits.H, "NA", big.mark = big.mark),
-          if (!(is.na(lowH) | is.na(uppH)))
-            pasteCI(lowH, uppH, digits.H, big.mark)
-        ),
-      ##
-      if (print.Rb)
-        paste0(
-          if (print.tau2 | print.tau | print.I2 | print.H)
-            ";\n",
-          text.Rb, " = ",
-          if (is.na(Rb))
-            "NA"
-          else
-            paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%"),
-          if (!(is.na(lowRb) | is.na(uppRb)))
-            pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%")
-        ),
-      ##
-      if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
-        "\n"
+            "; " else " ",
+          text.H, " = ",
+          ifelse(is.na(H), "NA",
+                 formatN(H, digits.H, "NA", big.mark = big.mark)),
+          if (print.I2.ci & any(!is.na(lowH) & !is.na(uppH)))
+            pasteCI(lowH, uppH, digits.H, big.mark),
+          if (!sH)
+            label),
+      collapse = "\n")
     )
-  )
   
+  
+  if (print.Rb)
+    cat(ifelse(print.tau2 | print.tau | print.I2 | print.H,
+        ifelse(!stau | !sI2 | !sH |
+               print.tau2.ci | print.tau.ci |
+               print.I2.ci |
+               (options()$width < 70 & print.I2.ci),
+               "\n", ";"),
+        ""))
+  ##
+  if (print.Rb)
+    cat(
+      paste0(
+        " ",
+        text.Rb, " = ",
+        ifelse(is.na(Rb), "NA",
+               paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%")),
+        if (any(!is.na(lowRb) & !is.na(uppRb)))
+          pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%"),
+        label,
+        collapse = "\n")
+    )
+  
+  
+  ## Empty row(s)
+  ##
+  if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
+    cat("\n")
   
   invisible(NULL)
 }

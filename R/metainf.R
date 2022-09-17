@@ -183,7 +183,7 @@ metainf <- function(x, pooled, sortvar, no = 1) {
   ## Select a single common effect or random effects models
   ##
   if (pooled == "common") {
-    if (no > length(x$TE.common))
+    if (no > length(x$seTE.common))
       stop("Argument 'no' must be smaller or equal to ",
            "number of common effect estimates.",
            call. = FALSE)
@@ -192,7 +192,7 @@ metainf <- function(x, pooled, sortvar, no = 1) {
     no.r <- 1
   }
   else {
-    if (no > length(x$TE.random))
+    if (no > length(x$seTE.random))
       stop("Argument 'no' must be smaller or equal to ",
            "number of random effects estimates.",
            call. = FALSE)
@@ -209,6 +209,9 @@ metainf <- function(x, pooled, sortvar, no = 1) {
   x$upper.common <- x$upper.common[no.c]
   x$zval.common <- x$zval.common[no.c]
   ##
+  if (length(x$TE.random) == 1 &&
+      length(x$TE.random) != length(x$seTE.random))
+    x$TE.random <- rep_len(x$TE.random, length(x$seTE.random))
   x$TE.random <- x$TE.random[no.r]
   x$seTE.random <- x$seTE.random[no.r]
   x$df.random <- x$df.random[no.r]

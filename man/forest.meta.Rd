@@ -1229,7 +1229,7 @@ and forest plots if argument \code{irscale} is not equal to 1.
 If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), the layout for forest plots used for
 Cochrane reviews (which are generated with Review Manager 5,
-\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+\url{https://training.cochrane.org/online-learning/core-software/revman})
 is reproduced:
 \enumerate{
 \item All columns are printed on the left side of the forest plot

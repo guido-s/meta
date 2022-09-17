@@ -312,6 +312,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     else
       stop("No meta-analysis object used for subgroup analysis.")
     ##
+    if (length(meta1$TE.random) == 1 &&
+        length(meta1$TE.random) != length(meta1$seTE.random))
+      meta1$TE.random <- rep_len(meta1$TE.random, length(meta1$seTE.random))
+    ##
     res.i[[j]] <- list(k = meta1$k,
                        k.study = meta1$k.study,
                        k.all = meta1$k.all,
@@ -383,75 +387,79 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        t.harmonic.mean = 1 / mean(1 / x$time[sel]))
   }
   ##
-  k.w <- xsvec(res.i, "k", levs)
-  k.study.w <- xsvec(res.i, "k.study", levs)
-  k.all.w <- xsvec(res.i, "k.all", levs)
-  k.TE.w <- xsvec(res.i, "k.TE", levs)
+  k.w <- extrVec(res.i, "k", levs)
+  k.study.w <- extrVec(res.i, "k.study", levs)
+  k.all.w <- extrVec(res.i, "k.all", levs)
+  k.TE.w <- extrVec(res.i, "k.TE", levs)
   ##
-  TE.common.w <- xsvec(res.i, "TE.common", levs)
-  seTE.common.w <- xsvec(res.i, "seTE.common", levs)
-  statistic.common.w <- xsvec(res.i, "statistic.common", levs)
-  pval.common.w <- xsvec(res.i, "pval.common", levs)
-  lower.common.w <- xsvec(res.i, "lower.common", levs)
-  upper.common.w <- xsvec(res.i, "upper.common", levs)
-  w.common.w <- xsvec(res.i, "w.common", levs)
+  TE.common.w <- extrVec(res.i, "TE.common", levs)
+  seTE.common.w <- extrVec(res.i, "seTE.common", levs)
+  statistic.common.w <- extrVec(res.i, "statistic.common", levs)
+  pval.common.w <- extrVec(res.i, "pval.common", levs)
+  lower.common.w <- extrVec(res.i, "lower.common", levs)
+  upper.common.w <- extrVec(res.i, "upper.common", levs)
+  w.common.w <- extrVec(res.i, "w.common", levs)
   ##
-  TE.random.w <- xsmat(res.i, "TE.random", levs, methci)
-  seTE.random.w <- xsmat(res.i, "seTE.random", levs, methci)
-  statistic.random.w <- xsmat(res.i, "statistic.random", levs, methci)
-  pval.random.w <- xsmat(res.i, "pval.random", levs, methci)
-  df.random.w <- xsmat(res.i, "df.random", levs, methci)
-  lower.random.w <- xsmat(res.i, "lower.random", levs, methci)
-  upper.random.w <- xsmat(res.i, "upper.random", levs, methci)
-  w.random.w <- xsvec(res.i, "w.random", levs)
+  TE.random.w <- extrMat(res.i, "TE.random", levs, methci)    
+  seTE.random.w <- extrMat(res.i, "seTE.random", levs, methci)
+  if (is.matrix(TE.random.w)) {
+    TE.random.w <- as.vector(TE.random.w[, 1])
+    names(TE.random.w) <- rownames(seTE.random.w)
+  }
+  statistic.random.w <- extrMat(res.i, "statistic.random", levs, methci)
+  pval.random.w <- extrMat(res.i, "pval.random", levs, methci)
+  df.random.w <- extrMat(res.i, "df.random", levs, methci)
+  lower.random.w <- extrMat(res.i, "lower.random", levs, methci)
+  upper.random.w <- extrMat(res.i, "upper.random", levs, methci)
+  w.random.w <- extrVec(res.i, "w.random", levs)
   ##
-  seTE.classic.w <- xsvec(res.i, "seTE.classic", levs)
+  seTE.classic.w <- extrVec(res.i, "seTE.classic", levs)
   ##
-  df.hakn.ci.w <- xsmat(res.i, "df.hakn.ci", levs, methci)
-  seTE.hakn.ci.w <- xsvec(res.i, "seTE.hakn.ci", levs)
-  seTE.hakn.adhoc.ci.w <- xsmat(res.i, "seTE.hakn.adhoc.ci", levs, methci)
+  df.hakn.ci.w <- extrMat(res.i, "df.hakn.ci", levs, methci)
+  seTE.hakn.ci.w <- extrVec(res.i, "seTE.hakn.ci", levs)
+  seTE.hakn.adhoc.ci.w <- extrMat(res.i, "seTE.hakn.adhoc.ci", levs, methci)
   ##
-  df.kero.w <- xsvec(res.i, "df.kero", levs)
-  seTE.kero.w <- xsvec(res.i, "seTE.kero", levs)
+  df.kero.w <- extrVec(res.i, "df.kero", levs)
+  seTE.kero.w <- extrVec(res.i, "seTE.kero", levs)
   ##
-  seTE.predict.w <- xsmat(res.i, "seTE.predict", levs, methpi)
-  df.predict.w <- xsmat(res.i, "df.predict", levs, methpi)
-  lower.predict.w <- xsmat(res.i, "lower.predict", levs, methpi)
-  upper.predict.w <- xsmat(res.i, "upper.predict", levs, methpi)
+  seTE.predict.w <- extrMat(res.i, "seTE.predict", levs, methpi)
+  df.predict.w <- extrMat(res.i, "df.predict", levs, methpi)
+  lower.predict.w <- extrMat(res.i, "lower.predict", levs, methpi)
+  upper.predict.w <- extrMat(res.i, "upper.predict", levs, methpi)
   ##
-  seTE.hakn.pi.w <- xsvec(res.i, "seTE.hakn.pi", levs)
-  seTE.hakn.adhoc.pi.w <- xsmat(res.i, "seTE.hakn.adhoc.pi", levs, methpi)
+  seTE.hakn.pi.w <- extrVec(res.i, "seTE.hakn.pi", levs)
+  seTE.hakn.adhoc.pi.w <- extrMat(res.i, "seTE.hakn.adhoc.pi", levs, methpi)
   ##
-  Q.w <- xsvec(res.i, "Q", levs)
+  Q.w <- extrVec(res.i, "Q", levs)
   ##
-  tau2.w <- xsvec(res.i, "tau2", levs)
-  tau.w <- xsvec(res.i, "tau", levs)
+  tau2.w <- extrVec(res.i, "tau2", levs)
+  tau.w <- extrVec(res.i, "tau", levs)
   ##
-  H.w <- xsvec(res.i, "H", levs)
-  lower.H.w <- xsvec(res.i, "lower.H", levs)
-  upper.H.w <- xsvec(res.i, "upper.H", levs)
+  H.w <- extrVec(res.i, "H", levs)
+  lower.H.w <- extrVec(res.i, "lower.H", levs)
+  upper.H.w <- extrVec(res.i, "upper.H", levs)
   ##
-  I2.w <- xsvec(res.i, "I2", levs)
-  lower.I2.w <- xsvec(res.i, "lower.I2", levs)
-  upper.I2.w <- xsvec(res.i, "upper.I2", levs)
+  I2.w <- extrVec(res.i, "I2", levs)
+  lower.I2.w <- extrVec(res.i, "lower.I2", levs)
+  upper.I2.w <- extrVec(res.i, "upper.I2", levs)
   ##
-  Rb.w <- xsvec(res.i, "Rb", levs)
-  lower.Rb.w <- xsvec(res.i, "lower.Rb", levs)
-  upper.Rb.w <- xsvec(res.i, "upper.Rb", levs)
+  Rb.w <- extrVec(res.i, "Rb", levs)
+  lower.Rb.w <- extrVec(res.i, "lower.Rb", levs)
+  upper.Rb.w <- extrVec(res.i, "upper.Rb", levs)
   ##
-  event.w <- xsvec(res.i, "event", levs)
-  n.w <- xsvec(res.i, "n", levs)
+  event.w <- extrVec(res.i, "event", levs)
+  n.w <- extrVec(res.i, "n", levs)
   ##
-  event.e.w <- xsvec(res.i, "event.e", levs)
-  n.e.w <- xsvec(res.i, "n.e", levs)
-  event.c.w <- xsvec(res.i, "event.c", levs)
-  n.c.w <- xsvec(res.i, "n.c", levs)
+  event.e.w <- extrVec(res.i, "event.e", levs)
+  n.e.w <- extrVec(res.i, "n.e", levs)
+  event.c.w <- extrVec(res.i, "event.c", levs)
+  n.c.w <- extrVec(res.i, "n.c", levs)
   ##
-  time.e.w <- xsvec(res.i, "time.e", levs)
-  time.c.w <- xsvec(res.i, "time.c", levs)
+  time.e.w <- extrVec(res.i, "time.e", levs)
+  time.c.w <- extrVec(res.i, "time.c", levs)
   ##
-  n.harmonic.mean.w <- xsvec(res.i, "n.harmonic.mean", levs)
-  t.harmonic.mean.w <- xsvec(res.i, "t.harmonic.mean", levs)
+  n.harmonic.mean.w <- extrVec(res.i, "n.harmonic.mean", levs)
+  t.harmonic.mean.w <- extrVec(res.i, "t.harmonic.mean", levs)
   ##
   ## Tests for subgroup differences
   ##
@@ -460,17 +468,27 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   pval.Q.w.common <- pvalQ(Q.w.common, df.Q.w)
   ##
   Q.b.common <- metagen(TE.common.w, seTE.common.w, method.tau = "DL")$Q
-  if (is.vector(TE.random.w))
+  ##
+  if (is.matrix(seTE.random.w)) {
+    n.random <- ncol(seTE.random.w)
+    Q.b.random <- rep(NA, n.random)
+    names(Q.b.random) <- colnames(seTE.random.w)
+    for (i in seq_len(n.random))
+      Q.b.random[i] <-
+        metagen(TE.random.w, seTE.random.w[, i], method.tau = "DL")$Q
+  }
+  else {
+    n.random <- 1
     Q.b.random <-
       metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
-  else
-    Q.b.random <-
-      metagen(TE.random.w[1, ], seTE.random.w, method.tau = "DL")$Q
+  }
   ##
   df.Q.b <- if (x$k == 0) 0 else x$k - 1 - sum((k.w - 1)[!is.na(Q.w)])
+  df.Q.b.common <- df.Q.b
+  df.Q.b.random <- rep(df.Q.b, n.random)
   ##
-  pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b)
-  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b)
+  pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
+  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b.random)
   
   
   ##
@@ -550,6 +568,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     ##
     df.Q.b <- mv.random.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
+    df.Q.b.common <- NA
+    df.Q.b.random <- df.Q.b
     ##
     pval.Q.b.common <- NA
     pval.Q.b.random <- mv.random.Q$QMp
@@ -849,6 +869,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     ##
     df.Q.b <- glmm.common.Q$QMdf
     df.Q.b <- df.Q.b[!is.na(df.Q.b)]
+    df.Q.b.common <- df.Q.b
+    df.Q.b.random <- df.Q.b
     ##
     pval.Q.b.common <- glmm.common.Q$QMp
     pval.Q.b.random <- glmm.random.Q$QMp
@@ -929,6 +951,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               Q.b.common = Q.b.common,
               Q.b.random = Q.b.random,
               df.Q.b = df.Q.b,
+              df.Q.b.common = df.Q.b.common,
+              df.Q.b.random = df.Q.b.random,
               pval.Q.b.common = pval.Q.b.common,
               pval.Q.b.random = pval.Q.b.random
               )

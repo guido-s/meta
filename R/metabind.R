@@ -26,10 +26,11 @@
 #' various meta-analysis methods or to generate a forest plot with
 #' results of several subgroup analyses (see Examples).
 #'
-#' Individual study results are not retained with
-#' \code{metabind}. This is possible using R function
-#' \code{\link{metamerge}} which, however, can only be used to combine
-#' results of two meta-analyses.
+#' Individual study results are not retained with \code{metabind} as
+#' the function allows to combine meta-analyses from different data
+#' sets (e.g., with randomized or observational studies). This is
+#' possible using R function \code{\link{metamerge}} which can be used
+#' to combine results of two meta-analyses of the same dataset.
 #' 
 #' @return
 #' An object of class \code{c("metabind", "meta")} with corresponding

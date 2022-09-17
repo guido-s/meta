@@ -500,6 +500,9 @@ print.meta <- function(x,
   TE.random <- x$TE.random
   lowTE.random <- x$lower.random
   uppTE.random <- x$upper.random
+  if (length(TE.random) == 1 &&
+      length(TE.random) != length(lowTE.random))
+    TE.random <- rep_len(TE.random, length(lowTE.random))
   ##
   lowTE.predict <- x$lower.predict
   uppTE.predict <- x$upper.predict
@@ -514,7 +517,7 @@ print.meta <- function(x,
     pval.Q.CMH <- replaceNULL(x$pval.Q.CMH, pvalQ(Q.CMH, df.Q.CMH))
   }
   ##
-  if (x$method == "GLMM") {
+  if (any(x$method == "GLMM")) {
     Q.LRT <- x$Q.LRT
     df.Q.LRT <- replaceNULL(x$df.Q.LRT, df.Q)
     pval.Q.LRT <- replaceNULL(x$pval.Q.LRT, pvalQ(Q.LRT, df.Q.LRT))
@@ -531,6 +534,15 @@ print.meta <- function(x,
     uppTE.random.w <- x$upper.random.w
     pval.random.w  <- x$pval.random.w
     ##
+    if (!is.matrix(TE.random.w) & is.matrix(lowTE.random.w)) {
+      TE.random.w <-
+        matrix(TE.random.w,
+               nrow = nrow(lowTE.random.w),
+               ncol = ncol(lowTE.random.w))
+      rownames(TE.random.w) <- rownames(lowTE.random.w)
+      colnames(TE.random.w) <- colnames(lowTE.random.w)
+    }
+    ##
     lowTE.predict.w <- x$lower.predict.w
     uppTE.predict.w <- x$upper.predict.w
     ##
@@ -545,10 +557,15 @@ print.meta <- function(x,
     ##
     df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
     df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
+    df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
     ##
-    pval.Q.b.common <- replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b))
+    pval.Q.b.common <-
+      replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
     pval.Q.w.common <- replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
-    pval.Q.b.random <- replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
+    ##
+    pval.Q.b.random <-
+      replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random))
     pval.Q.w.random <- replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w))
   }
   ##
@@ -720,10 +737,9 @@ print.meta <- function(x,
     uppI2 <- round(100 * x$upper.I2, digits.I2)
     print.I2.ci <- ((Q > k & k >= 2) | (Q <= k & k > 2)) &
       !(is.na(lowI2) | is.na(uppI2))
-    if (is.na(print.I2.ci))
-      print.I2.ci <- FALSE
-    if (print.I2.ci && all(lowI2 == uppI2))
-      print.I2.ci <- FALSE
+    print.I2.ci[is.na(print.I2.ci)] <- FALSE
+    print.I2.ci <- print.I2.ci & !(lowI2 == uppI2)
+    print.I2.ci <- any(print.I2.ci)
   }
   else
     print.I2.ci <- FALSE
@@ -739,7 +755,7 @@ print.meta <- function(x,
   }
   ##
   three.level <- if (is.null(x$three.level)) FALSE else x$three.level
-  is.glmm <- x$method == "GLMM"
+  is.glmm <- any(x$method == "GLMM")
   ##
   sel.n <- inherits(x, c("metacor", "metaprop", "metamean", "metarate"))
   ##
@@ -759,11 +775,11 @@ print.meta <- function(x,
     crtitle(x)
   }
   ##
-  if (is.na(k.all)) {
+  if (all(is.na(k.all))) {
     ## Do nothing
     return(invisible(NULL))
   }
-  else if (k.all == 1) {
+  else if (all(k.all == 1)) {
     ##
     ## Print results for a single study
     ##
@@ -831,10 +847,6 @@ print.meta <- function(x,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
               three.level = three.level)
   }
-  else if (is.na(k)) {
-    ## Do nothing
-    return(invisible(NULL))
-  }
   else {
     ##
     ##
@@ -844,152 +856,158 @@ print.meta <- function(x,
     if (header & is.metamiss)
       cat("\n")
     ##
-    if (overall & (common | random | prediction)) {
-      if (!inherits(x, "trimfill")) {
-        if (x$method == "MH" &&
-            (inherits(x, c("metabin", "metainc")) &
-             common & sm %in% c("RD", "IRD") &
-             (!is.null(x$k.MH) == 1 && k != x$k.MH)))
-          cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
-                     " (", text.common.br, "), k = ",
-                     format(k, big.mark = big.mark),
-                     " (", text.random.br, ")\n"))
-        else {
-          if (k.study != k) {
-            cat(paste0("Number of studies combined: n = ",
-                       format(x$k.study, big.mark = big.mark), "\n"))
-            cat(paste0("Number of estimates combined: k = ",
-                       format(k, big.mark = big.mark), "\n"))
+    if (all(!is.na(k))) {
+      if (overall & (common | random | prediction)) {
+        if (!inherits(x, "trimfill")) {
+          if (any(x$method == "MH") &&
+              (inherits(x, c("metabin", "metainc")) &
+               common & sm %in% c("RD", "IRD") &
+               (!is.null(x$k.MH) == 1 && k != x$k.MH)))
+            cat(paste0("Number of studies combined:   k.MH = ", x$k.MH,
+                       " (", text.common.br[1], "), k = ",
+                       format(k, big.mark = big.mark),
+                       " (", text.random.br[1], ")\n",
+                       collapse = ""))
+          else {
+            if (any(k.study != k)) {
+              cat(paste0("Number of studies combined: n = ",
+                         format(x$k.study, big.mark = big.mark), "\n",
+                         collapse = ""))
+              cat(paste0("Number of estimates combined: k = ",
+                         format(k, big.mark = big.mark), "\n",
+                         collapse = ""))
+            }
+            else
+              cat(paste0("Number of studies combined: k = ",
+                         format(k, big.mark = big.mark), "\n",
+                         collapse = ""))
           }
-          else
-            cat(paste0("Number of studies combined: k = ",
-                       format(k, big.mark = big.mark), "\n"))
         }
-      }
-      else
-        cat(paste0("Number of studies combined: k = ",
-                   format(k, big.mark = big.mark),
-                   " (with ",
-                   format(x$k0, big.mark = big.mark),
-                   " added studies)\n"))
-      ##
-      if (!is.metabind) {
-        if (is.metamiss)
-          cat("\n")
-        else if (sel.n)
-          catobsev(x$n, type = "n")
         else
-          catobsev(x$n.e, x$n.c, type = "n")
+          cat(paste0("Number of studies combined: k = ",
+                     format(k, big.mark = big.mark),
+                     " (with ",
+                     format(x$k0, big.mark = big.mark),
+                     " added studies)\n",
+                     collapse = ""))
         ##
-        if (sel.ev)
-          catobsev(x$event, type = "e", addrow = TRUE)
-        else if (!is.metamiss)
-          catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
-      }
-      ##
-      res <- cbind(formatN(c(if (common) TE.common,
-                             if (random) TE.random,
-                             if (prediction)
-                               rep(NA, length(lowTE.predict))),
-                           digits, "NA",
-                           big.mark = big.mark),
-                   formatCI(formatN(c(if (common) lowTE.common,
-                                      if (random) lowTE.random,
-                                      if (prediction) lowTE.predict),
-                                    digits, "NA", big.mark = big.mark),
-                            formatN(c(if (common) uppTE.common,
-                                      if (random) uppTE.random,
-                                      if (prediction) uppTE.predict),
-                                    digits, "NA", big.mark = big.mark)),
-                   if (null.given)
-                     formatN(c(if (common) sTE.common,
-                               if (random) sTE.random,
+        if (!is.metabind) {
+          if (is.metamiss)
+            cat("\n")
+          else if (sel.n)
+            catobsev(x$n, type = "n")
+          else
+            catobsev(x$n.e, x$n.c, type = "n")
+          ##
+          if (sel.ev)
+            catobsev(x$event, type = "e", addrow = TRUE)
+          else if (!is.metamiss)
+            catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
+        }
+        ##
+        res <- cbind(formatN(c(if (common) TE.common,
+                               if (random) TE.random,
                                if (prediction)
                                  rep(NA, length(lowTE.predict))),
-                             digits = digits.stat, big.mark = big.mark),
-                   if (null.given)
-                     formatPT(c(if (common) pTE.common,
-                                if (random) pTE.random,
-                                if (prediction)
-                                  rep(NA, length(lowTE.predict))),
-                              digits = digits.pval,
-                              scientific = scientific.pval,
-                              zero = zero.pval, JAMA = JAMA.pval))
-      if (prediction) {
-        seq <- (nrow(res) - length(lowTE.predict) + 1):nrow(res)
-        res[seq, 1] <- ""
-        if (null.given)
-          res[seq, 3:4] <- ""
-      }
-      ##
-      if (any(method.random.ci %in% c("HK", "KR"))) {
-        if (common & random)
-          zlab <- "z|t"
-        else if (common & !random)
-          zlab <- "z"
-        else if (!common & random)
-          zlab <- "t"
-      }
-      else
-        zlab <- "z"
-      ##
-      if (prediction)
-        if (x$level.ma == x$level.predict)
-          lab.predict <- text.predict
-        else
-          lab.predict <- paste(text.predict,
-                               paste0("(",
-                                      round(100 * x$level.predict, 1),
-                                      "%-PI)"))
-      ##
-      dimnames(res) <- list(c(if (common) text.common,
-                              if (random) text.random,
-                              if (prediction) lab.predict),
-                            c(sm.lab, ci.lab,
-                              if (null.given) zlab,
-                              if (null.given) "p-value"))
-      prmatrix(res, quote = FALSE, right = TRUE, ...)
-      ##
-      if (metabin && print.CMH) {
-        Qdata <- cbind(formatN(round(Q.CMH, digits.Q), digits.Q, "NA",
-                               big.mark = big.mark),
-                       df.Q.CMH,
-                       formatPT(pval.Q.CMH,
-                                digits = digits.pval.Q,
+                             digits, "NA",
+                             big.mark = big.mark),
+                     formatCI(formatN(c(if (common) lowTE.common,
+                                        if (random) lowTE.random,
+                                        if (prediction) lowTE.predict),
+                                      digits, "NA", big.mark = big.mark),
+                              formatN(c(if (common) uppTE.common,
+                                        if (random) uppTE.random,
+                                        if (prediction) uppTE.predict),
+                                      digits, "NA", big.mark = big.mark)),
+                     if (null.given)
+                       formatN(c(if (common) sTE.common,
+                                 if (random) sTE.random,
+                                 if (prediction)
+                                   rep(NA, length(lowTE.predict))),
+                               digits = digits.stat, big.mark = big.mark),
+                     if (null.given)
+                       formatPT(c(if (common) pTE.common,
+                                  if (random) pTE.random,
+                                  if (prediction)
+                                    rep(NA, length(lowTE.predict))),
+                                digits = digits.pval,
                                 scientific = scientific.pval,
                                 zero = zero.pval, JAMA = JAMA.pval))
-        dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+        if (prediction) {
+          seq <- (nrow(res) - length(lowTE.predict) + 1):nrow(res)
+          res[seq, 1] <- ""
+          if (null.given)
+            res[seq, 3:4] <- ""
+        }
         ##
-        cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
-        prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
-      }
-    }
-    else {
-      if (k.study != k) {
-        cat(paste0("Number of studies: ",
-                   if (is.netpairwise) "k" else "n", " = ",
-                   format(x$k.study, big.mark = big.mark), "\n"))
-        cat(paste0("Number of ",
-                   if (is.netpairwise)
-                     "pairwise comparisons: m = " else "estimates: k = ",
-                   format(k, big.mark = big.mark), "\n"))
-      }
-      else
-        cat(paste0("Number of studies: k = ",
-                   format(k, big.mark = big.mark), "\n"))
-      ##
-      if (!is.metabind) {
-        if (is.metamiss)
-          cat("\n")
-        else if (sel.n)
-          catobsev(x$n, type = "n")
+        if (any(method.random.ci %in% c("HK", "KR"))) {
+          if (common & random)
+            zlab <- "z|t"
+          else if (common & !random)
+            zlab <- "z"
+          else if (!common & random)
+            zlab <- "t"
+        }
         else
-          catobsev(x$n.e, x$n.c, type = "n")
+          zlab <- "z"
         ##
-        if (sel.ev)
-          catobsev(x$event, type = "e")
-        else if (!is.metamiss)
-          catobsev(x$event.e, x$event.c, type = "e")
+        if (prediction)
+          if (x$level.ma == x$level.predict)
+            lab.predict <- text.predict
+          else
+            lab.predict <-
+              paste0(text.predict,
+                    " (", round(100 * x$level.predict, 1), "%-PI)")
+        ##
+        dimnames(res) <- list(c(if (common) text.common,
+                                if (random) text.random,
+                                if (prediction) lab.predict),
+                              c(sm.lab, ci.lab,
+                                if (null.given) zlab,
+                                if (null.given) "p-value"))
+        prmatrix(res, quote = FALSE, right = TRUE, ...)
+        ##
+        if (metabin && print.CMH) {
+          Qdata <- cbind(formatN(round(Q.CMH, digits.Q), digits.Q, "NA",
+                                 big.mark = big.mark),
+                         df.Q.CMH,
+                         formatPT(pval.Q.CMH,
+                                  digits = digits.pval.Q,
+                                  scientific = scientific.pval,
+                                  zero = zero.pval, JAMA = JAMA.pval))
+          dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+          ##
+          cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
+          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+        }
+      }
+      else {
+        if (any(k.study != k)) {
+          cat(paste0("Number of studies: ",
+                     if (is.netpairwise) "k" else "n", " = ",
+                     format(x$k.study, big.mark = big.mark), "\n"))
+          cat(paste0("Number of ",
+                     if (is.netpairwise)
+                       "pairwise comparisons: m = " else "estimates: k = ",
+                     format(k, big.mark = big.mark), "\n"))
+        }
+        else
+          cat(paste0("Number of studies: k = ",
+                     format(k, big.mark = big.mark), "\n"))
+        ##
+        if (!is.metabind) {
+          if (is.metamiss)
+            cat("\n")
+          else if (sel.n)
+            catobsev(x$n, type = "n")
+          else
+            catobsev(x$n.e, x$n.c, type = "n")
+          ##
+          if (sel.ev)
+            catobsev(x$event, type = "e")
+          else if (!is.metamiss)
+            catobsev(x$event.e, x$event.c, type = "e")
+        }
       }
     }
     ##
@@ -999,17 +1017,20 @@ print.meta <- function(x,
       cat("\nQuantifying heterogeneity:\n")
       ##
       print.tau2.ci <-
-        print.tau2 & all(!(is.na(x$lower.tau2) | is.na(x$upper.tau2)))
+        print.tau2 & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
           (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
         print.tau2.ci <- FALSE
       ##
       print.tau.ci <-
-        print.tau & all(!(is.na(x$lower.tau) | is.na(x$upper.tau)))
+        print.tau & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
           (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
         print.tau.ci <- FALSE
       ##
+      label <- x$detail.tau
+      if (is.null(label))
+        label <- x$label.merge
       ##
       cathet(k,
              x$tau2, x$lower.tau2, x$upper.tau2,
@@ -1024,7 +1045,7 @@ print.meta <- function(x,
              Rb, lowRb, uppRb,
              print.Rb, text.Rb,
              big.mark,
-             if (is.null(x$detail.tau)) "" else x$detail.tau)
+             if (is.null(label)) "" else label)
       ##
       ## Print information on residual heterogeneity
       ##
@@ -1057,6 +1078,10 @@ print.meta <- function(x,
         if (!is.na(replaceNULL(I2.resid))) {
           cat("\nQuantifying residual heterogeneity:\n")
           ##
+          label <- x$detail.tau
+          if (is.null(label))
+            label <- x$label.merge
+          ##
           cathet(k.resid, 
                  x$tau2.resid, x$lower.tau2.resid, x$upper.tau2.resid,
                  x$tau.common, print.tau2.ci, text.tau2, digits.tau2,
@@ -1070,15 +1095,29 @@ print.meta <- function(x,
                  NA, NA, NA,
                  FALSE, text.Rb,
                  big.mark,
-                 if (is.null(x$detail.tau)) "" else x$detail.tau)
+                 if (is.null(label)) "" else label)
         }
       }
       ##
       ## Test of heterogeneity
       ##
       if (common | random) {
-        if (k > 1) {
+        if (all(k > 1)) {
           if (!is.glmm) {
+            if (length(Q) > 1) {
+              if (!is.null(x$label) && length(x$label) == length(Q))
+                rownames.Q <- x$label
+              else if (length(text.common) == length(Q))
+                rownames.Q <- text.common
+              else
+                rownames.Q <- rep("", length(Q))
+            }
+            else
+              rownames.Q <- rep("", length(Q))
+            ##
+            sel <- rownames.Q != ""
+            rownames.Q[sel] <- paste0(" ", rownames.Q[sel])
+            ##
             Qdata <- cbind(formatN(round(Q, digits.Q), digits.Q, "NA",
                                    big.mark = big.mark),
                            format(df.Q, big.mark = big.mark),
@@ -1086,7 +1125,7 @@ print.meta <- function(x,
                                     digits = digits.pval.Q,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval))
-            dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+            dimnames(Qdata) <- list(rownames.Q, c("Q", "d.f.", "p-value"))
           }
           else {
             Qdata <- cbind(formatN(round(c(Q, Q.LRT), digits.Q), digits.Q, "NA",
@@ -1129,21 +1168,22 @@ print.meta <- function(x,
         ##
         if (is.vector(TE.common.w)) {
           nam <- names(TE.common.w)
-          TE.common.w <- matrix(TE.common.w, nrow = 1)
-          lowTE.common.w <- matrix(lowTE.common.w, nrow = 1)
-          uppTE.common.w <- matrix(uppTE.common.w, nrow = 1)
+          TE.common.w <- matrix(TE.common.w, ncol = 1)
+          lowTE.common.w <- matrix(lowTE.common.w, ncol = 1)
+          uppTE.common.w <- matrix(uppTE.common.w, ncol = 1)
           ##
-          colnames(TE.common.w) <- colnames(lowTE.common.w) <-
-            colnames(uppTE.common.w) <- nam
+          if (!is.null(nam))
+            rownames(TE.common.w) <- rownames(lowTE.common.w) <-
+              rownames(uppTE.common.w) <- nam
         }
         ##
-        for (i in seq_len(nrow(TE.common.w))) {
+        for (i in seq_len(ncol(TE.common.w))) {
           Tdata <- cbind(format(k.w, big.mark = big.mark),
-                         formatN(TE.common.w[i, ], digits, "NA",
+                         formatN(TE.common.w[, i], digits, "NA",
                                  big.mark = big.mark),
-                         formatCI(formatN(lowTE.common.w[i, ], digits, "NA",
+                         formatCI(formatN(lowTE.common.w[, i], digits, "NA",
                                           big.mark = big.mark),
-                                  formatN(uppTE.common.w[i, ], digits, "NA",
+                                  formatN(uppTE.common.w[, i], digits, "NA",
                                           big.mark = big.mark)),
                          formatN(round(Q.w, digits.Q), digits.Q,
                                  big.mark = big.mark),
@@ -1191,51 +1231,55 @@ print.meta <- function(x,
                        paste0(" (", text.common.br[i], "):\n")))
           ##
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
-        }
-        ##
-        if (is.glmm & length(df.Q.b) > 1) {
-          dfs.b <-
-            rmSpace(paste(formatN(df.Q.b, digits = 0, big.mark = big.mark),
-                          collapse = ", "), end = TRUE)
-          Q.lab <- "F"
-        }
-        else {
-          dfs.b <- formatN(df.Q.b, digits = 0, big.mark = big.mark)
-          Q.lab <- "Q"
-        }
-        ##
-        if (test.subgroup.common & !is.metabind) {
-          cat(paste0("\nTest for subgroup differences (",
-                     text.common.br, "):\n"))
-          if (x$method == "MH") {
-            Qdata <- cbind(formatN(round(Q.b.common, digits.Q), digits.Q, "NA",
-                                   big.mark = big.mark),
-                           formatN(dfs.b, digits = 0, big.mark = big.mark),
-                           formatPT(pval.Q.b.common,
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval,
-                                    zero = zero.pval, JAMA = JAMA.pval))
-            dimnames(Qdata) <- list("Between groups  ",
-                                    c(Q.lab, "d.f.", "p-value"))
-            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          ##
+          if (is.glmm & length(df.Q.b.common) > 1) {
+            dfs.b <-
+              rmSpace(paste(formatN(df.Q.b.common, digits = 0,
+                                    big.mark = big.mark),
+                            collapse = ", "), end = TRUE)
+            Q.lab <- "F"
           }
           else {
-            Qs  <- c(Q.b.common, Q.w.common)
-            dfs <- c(dfs.b, formatN(df.Q.w, digits = 0, big.mark = big.mark))
-            Q.lab <-
-              ifelse(is.glmm && Q.lab == "F", "F/Q", Q.lab)
-            ##
-            pvals <- c(pval.Q.b.common, pval.Q.w.common)
-            Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
-                                   big.mark = big.mark),
-                           dfs,
-                           formatPT(pvals,
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval,
-                                    zero = zero.pval, JAMA = JAMA.pval))
-            dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                    c(Q.lab, "d.f.", "p-value"))
-            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            dfs.b <- formatN(df.Q.b.common, digits = 0, big.mark = big.mark)
+            Q.lab <- "Q"
+          }
+          ##
+          if (test.subgroup.common & !is.metabind) {
+            cat(paste0("\nTest for subgroup differences (",
+                       text.common.br[i], "):\n"))
+            if (any(x$method == "MH")) {
+              Qdata <- cbind(formatN(round(Q.b.common[i], digits.Q),
+                                     digits.Q, "NA",
+                                     big.mark = big.mark),
+                             formatN(dfs.b[i], digits = 0,
+                                     big.mark = big.mark),
+                             formatPT(pval.Q.b.common[i],
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
+              dimnames(Qdata) <- list("Between groups  ",
+                                      c(Q.lab, "d.f.", "p-value"))
+              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            }
+            else {
+              Qs  <- c(Q.b.common, Q.w.common)
+              dfs <- c(dfs.b[i],
+                       formatN(df.Q.w, digits = 0, big.mark = big.mark))
+              Q.lab <-
+                ifelse(is.glmm && Q.lab == "F", "F/Q", Q.lab)
+              ##
+              pvals <- c(pval.Q.b.common, pval.Q.w.common)
+              Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
+                                     big.mark = big.mark),
+                             dfs,
+                             formatPT(pvals,
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
+              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                      c(Q.lab, "d.f.", "p-value"))
+              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            }
           }
         }
       }
@@ -1246,21 +1290,22 @@ print.meta <- function(x,
         ##
         if (is.vector(TE.random.w)) {
           nam <- names(TE.random.w)
-          TE.random.w <- matrix(TE.random.w, nrow = 1)
-          lowTE.random.w <- matrix(lowTE.random.w, nrow = 1)
-          uppTE.random.w <- matrix(uppTE.random.w, nrow = 1)
+          TE.random.w <- matrix(TE.random.w, ncol = 1)
+          lowTE.random.w <- matrix(lowTE.random.w, ncol = 1)
+          uppTE.random.w <- matrix(uppTE.random.w, ncol = 1)
           ##
-          colnames(TE.random.w) <- colnames(lowTE.random.w) <-
-            colnames(uppTE.random.w) <- nam
+          if (!is.null(nam))
+            rownames(TE.random.w) <- rownames(lowTE.random.w) <-
+              rownames(uppTE.random.w) <- nam
         }
         ##
-        for (i in seq_len(nrow(TE.random.w))) {
+        for (i in seq_len(ncol(TE.random.w))) {
           Tdata <- cbind(format(k.w, big.mark = big.mark),
-                         formatN(TE.random.w[i, ], digits, "NA",
+                         formatN(TE.random.w[, i], digits, "NA",
                                  big.mark = big.mark),
-                         formatCI(formatN(lowTE.random.w[i, ], digits, "NA",
+                         formatCI(formatN(lowTE.random.w[, i], digits, "NA",
                                           big.mark = big.mark),
-                                  formatN(uppTE.random.w[i, ], digits, "NA",
+                                  formatN(uppTE.random.w[, i], digits, "NA",
                                           big.mark = big.mark)),
                          if (i == 1)
                            ifelse(k.w == 1 & !x$tau.common, "--",
@@ -1310,52 +1355,54 @@ print.meta <- function(x,
                        paste0(" (", text.random.br[i], "):\n")))
           ##
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
-        }
-        ##
-        if ((three.level | is.glmm) & length(df.Q.b) > 1) {
-          dfs.b <-
-            rmSpace(paste(formatN(df.Q.b, digits = 0, big.mark = big.mark),
-                          collapse = ", "), end = TRUE)
-          Q.lab <- "F"
-        }
-          else {
-          dfs.b <- formatN(df.Q.b, digits = 0, big.mark = big.mark)
-          Q.lab <- "Q"
-        }
-        ##
-        if (test.subgroup.random & !is.metabind & !is.na(Q.b.random)) {
-          cat(paste0("\nTest for subgroup differences (",
-                     if (i > 1) tolower(gs("text.random")) else text.random.br,
-                     "):\n"))
-          if (is.na(Q.w.random)) {
-            Qdata <- cbind(formatN(round(Q.b.random, digits.Q), digits.Q,
-                                   "NA", big.mark = big.mark),
-                               formatN(dfs.b, digits = 0, big.mark = big.mark),
-                           formatPT(pval.Q.b.random,
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval,
-                                    zero = zero.pval, JAMA = JAMA.pval))
-            dimnames(Qdata) <- list("Between groups  ",
-                                    c(Q.lab, "d.f.", "p-value"))
+          ##
+          if ((three.level | is.glmm) & length(df.Q.b.random) > 1) {
+            dfs.b <-
+              rmSpace(paste(formatN(df.Q.b.random, digits = 0,
+                                    big.mark = big.mark),
+                            collapse = ", "), end = TRUE)
+            Q.lab <- "F"
           }
           else {
-            Qs  <- c(Q.b.random, Q.w.random)
-            dfs <- c(dfs.b, formatN(df.Q.w, digits = 0, big.mark = big.mark))
-            Q.lab <-
-              ifelse((three.level | is.glmm) && Q.lab == "F", "F/Q", Q.lab)
-            ##
-            pvals <- c(pval.Q.b.random, pval.Q.w.random)
-            Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
-                                   big.mark = big.mark),
-                           dfs,
-                           formatPT(pvals,
-                                    digits = digits.pval.Q,
-                                    scientific = scientific.pval,
-                                    zero = zero.pval, JAMA = JAMA.pval))
-                dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                        c(Q.lab, "d.f.", "p-value"))
+            dfs.b <- formatN(df.Q.b.random, digits = 0, big.mark = big.mark)
+            Q.lab <- "Q"
           }
-          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          ##
+          if (test.subgroup.random & !is.metabind & !is.na(Q.b.random[i])) {
+            cat(paste0("\nTest for subgroup differences (",
+                       text.random.br[i],
+                       "):\n"))
+            if (is.na(Q.w.random)) {
+              Qdata <- cbind(formatN(round(Q.b.random[i], digits.Q), digits.Q,
+                                     "NA", big.mark = big.mark),
+                             formatN(dfs.b[i], digits = 0, big.mark = big.mark),
+                             formatPT(pval.Q.b.random[i],
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
+              dimnames(Qdata) <- list("Between groups  ",
+                                      c(Q.lab, "d.f.", "p-value"))
+            }
+            else {
+              Qs  <- c(Q.b.random[i], Q.w.random[i])
+              dfs <- c(dfs.b[i],
+                       formatN(df.Q.w, digits = 0, big.mark = big.mark))
+              Q.lab <-
+                ifelse((three.level | is.glmm) && Q.lab == "F", "F/Q", Q.lab)
+              ##
+              pvals <- c(pval.Q.b.random, pval.Q.w.random)
+              Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
+                                     big.mark = big.mark),
+                             dfs,
+                             formatPT(pvals,
+                                      digits = digits.pval.Q,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval))
+              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
+                                      c(Q.lab, "d.f.", "p-value"))
+            }
+            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          }
         }
       }
       ##
@@ -1365,16 +1412,16 @@ print.meta <- function(x,
         ##
         if (is.vector(TE.common.w)) {
           nam <- names(TE.common.w)
-          lowTE.predict.w <- matrix(lowTE.predict.w, nrow = 1)
-          uppTE.predict.w <- matrix(uppTE.predict.w, nrow = 1)
+          lowTE.predict.w <- matrix(lowTE.predict.w, ncol = 1)
+          uppTE.predict.w <- matrix(uppTE.predict.w, ncol = 1)
           ##
-         colnames(lowTE.predict.w) <- colnames(uppTE.predict.w) <- nam
-          }
+          rownames(lowTE.predict.w) <- rownames(uppTE.predict.w) <- nam
+        }
         ##
-        for (i in seq_len(nrow(lowTE.predict.w))) {
-          Pdata <- cbind(formatCI(formatN(lowTE.predict.w[i, ], digits, "NA",
+        for (i in seq_len(ncol(lowTE.predict.w))) {
+          Pdata <- cbind(formatCI(formatN(lowTE.predict.w[, i], digits, "NA",
                                           big.mark = big.mark),
-                                  formatN(uppTE.predict.w[i, ], digits, "NA",
+                                  formatN(uppTE.predict.w[, i], digits, "NA",
                                           big.mark = big.mark)))
           ##
           bylab.txt <-

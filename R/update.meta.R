@@ -502,7 +502,9 @@ update.meta <- function(object,
         object$seTE.hakn.adhoc.ci.w <-
           object$seTE.hakn.pi.w <-
             object$seTE.hakn.adhoc.pi.w <- NA
-    } 
+      ##
+      object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
+    }
   }
   
   

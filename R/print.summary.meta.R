@@ -330,7 +330,7 @@ print.summary.meta <- function(x,
   ##
   ##
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  mb.glmm <- inherits(x, "metabind") | x$method == "GLMM"
+  mb.glmm <- inherits(x, "metabind") | any(x$method == "GLMM")
   ##
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##

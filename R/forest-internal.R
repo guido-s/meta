@@ -381,16 +381,18 @@ draw.lines <- function(x, column,
                y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd))
   ##
-  ## Line for common effect estimate:
+  ## Line for common effect estimate(s):
   ##
-  if (common & overall & !is.na(TE.common))
-    if (min <= TE.common & TE.common <= max)
-      if (!is.null(lty.common))
-        grid.lines(x = unit(TE.common, "native"),
-                   y = unit(c(ymin.common, ymax), "lines"),
-                   gp = gpar(lty = lty.common, lwd = lwd, col = col.common))
+  if (common & overall)
+    for (i in seq_along(TE.common))
+      if (!is.na(TE.common[i]))
+        if (min <= TE.common[i] & TE.common[i] <= max)
+          if (!is.null(lty.common))
+            grid.lines(x = unit(TE.common[i], "native"),
+                       y = unit(c(ymin.common, ymax), "lines"),
+                       gp = gpar(lty = lty.common, lwd = lwd, col = col.common))
   ##
-  ## Line for random effects estimate:
+  ## Line for random effects estimate(s):
   ##
   if (random & overall)
     for (i in seq_along(TE.random))
@@ -629,8 +631,8 @@ wcalc <- function(x)
 
 collapsemat <- function(x) {
   if (is.matrix(x)) {
-    res <- as.vector(x)
-    names(res) <- rep(colnames(x), rep(nrow(x), ncol(x)))
+    res <- as.vector(t(x))
+    names(res) <- rep(rownames(x), rep(ncol(x), nrow(x)))
   }
   else
     res <- x

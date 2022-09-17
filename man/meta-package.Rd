@@ -306,7 +306,7 @@ Some pre-defined general settings are available:
 
 The first command can be used to reproduce meta-analyses from
 Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-\url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+\url{https://training.cochrane.org/online-learning/core-software/revman})
 and specifies to use a RevMan 5 layout in forest plots.
 
 The second command can be used to generate forest plots following

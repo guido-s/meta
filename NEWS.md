@@ -2,9 +2,9 @@
 
 ### Major changes
 
-* Meta-analysis object can contain results of several random effects
-  methods, e.g., random effects meta-analysis with or without
-  Hartung-Knapp method
+* Meta-analysis object can contain results of several common effect or
+  random effects methods, e.g., random effects meta-analysis with or
+  without Hartung-Knapp method
 
 * Kenward-Roger method implemented to estimate confidence or
   prediction interval [(Partlett & Riley,
@@ -12,6 +12,9 @@
 
 * Bootstrap approach implemented to calculate prediction interval
   [(Nagashima et al., 2019)](https://doi.org/10.1177/0962280218773520)
+
+* Rewrite of function metamerge() to merge pooled results of two
+  meta-analyses into a single meta-analysis object
 
 * Defaults for appearance of forest plots can be defined for the R
   session

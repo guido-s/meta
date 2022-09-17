@@ -795,7 +795,7 @@
 #' If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 #' \code{rightcols} are \code{NULL}), the layout for forest plots used for
 #' Cochrane reviews (which are generated with Review Manager 5,
-#' \url{https://training.cochrane.org/online-learning/core-software-cochrane-reviews/revman})
+#' \url{https://training.cochrane.org/online-learning/core-software/revman})
 #' is reproduced:
 #' \enumerate{
 #' \item All columns are printed on the left side of the forest plot
@@ -1375,7 +1375,17 @@ forest.meta <- function(x,
     lower.common.w <- collapsemat(x$lower.common.w)
     upper.common.w <- collapsemat(x$upper.common.w)
     ##
-    TE.random.w <- collapsemat(x$TE.random.w)
+    if (!is.matrix(x$TE.random.w) & is.matrix(x$seTE.random.w)) {
+      TE.random.w <-
+        collapsemat(matrix(x$TE.random.w,
+                           nrow = nrow(x$seTE.random.w),
+                           ncol = ncol(x$seTE.random.w),
+                           dimnames = list(rownames(x$seTE.random.w),
+                                           colnames(x$seTE.random.w))))
+    }
+    else
+      TE.random.w <- collapsemat(x$TE.random.w)
+    ##
     lower.random.w <- collapsemat(x$lower.random.w)
     upper.random.w <- collapsemat(x$upper.random.w)
     statistic.random.w <- collapsemat(x$statistic.random.w)
@@ -1815,7 +1825,7 @@ forest.meta <- function(x,
     chklogical(overall.hetstat)
   ##
   chklogical(LRT)
-  if (LRT & x$method != "GLMM") {
+  if (LRT & all(x$method != "GLMM")) {
     warning("Likelihood-Ratio test of heterogeneity only ",
             "available for generalized linear mixed models.")
     LRT <- FALSE
@@ -2238,7 +2248,7 @@ forest.meta <- function(x,
   ##
   ##
   n.com <- max(length(x$TE.common), 1)
-  n.ran <- max(length(x$TE.random), 1)
+  n.ran <- max(length(x$seTE.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
   ##
   prediction <- prediction &
@@ -2520,8 +2530,10 @@ forest.meta <- function(x,
     if (layout == "JAMA")
       addrows.below.overall <- 3
     else if (layout == "meta" & (metacor | metagen) &
-             overall.hetstat &
-             missing.leftcols & !calcwidth.hetstat)
+             missing.leftcols &
+             (overall.hetstat | test.overall.common |
+              test.overall.random) &
+             !(calcwidth.hetstat | calcwidth.tests))
       addrows.below.overall <- 2
     else if (layout %in% c("meta", "subgroup") &
              (test.subgroup.common & test.subgroup.random) &
@@ -3142,7 +3154,7 @@ forest.meta <- function(x,
     ##
     if (revman5) {
       ##
-      if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
+      if (!metainf.metacum & overall & study.results & !any(x$method == "GLMM")) {
         if (common)
           leftcols <- c(leftcols, "w.common")
         if (random)
@@ -3159,7 +3171,7 @@ forest.meta <- function(x,
   if (is.null(rightcols) && rsel) {
     rightcols <- c("effect", "ci")
     ##
-    if (!metainf.metacum & overall & study.results & !x$method == "GLMM") {
+    if (!metainf.metacum & overall & study.results & !any(x$method == "GLMM")) {
       if (common)
         rightcols <- c(rightcols, "w.common")
       if (random)
@@ -3507,6 +3519,8 @@ forest.meta <- function(x,
     TE.random <- x$TE.random
     lowTE.random <- x$lower.random
     uppTE.random <- x$upper.random
+    if (n.ran > 1)
+      TE.random <- rep(TE.random, n.ran)
     ##
     lowTE.predict <- x$lower.predict
     uppTE.predict <- x$upper.predict
@@ -3641,14 +3655,15 @@ forest.meta <- function(x,
                scientific = scientific.pval,
                lab.NA = "NA")
     ##
-    hetstat.Rb <-
-      paste0(hetseparator,
-             formatN(100 * Rb, digits.I2, "NA", big.mark = big.mark),
-             "%",
-             if (print.Rb.ci & !(is.na(lowRb) | is.na(uppRb)))
-               pasteCI(100 * lowRb, 100 * uppRb,
-                       digits.I2, big.mark,
-                       text.NA = lab.NA, unit = "%"))
+    if (print.Rb)
+      hetstat.Rb <-
+        paste0(hetseparator,
+               formatN(100 * Rb, digits.I2, "NA", big.mark = big.mark),
+               "%",
+               if (print.Rb.ci && !(is.na(lowRb) | is.na(uppRb)))
+                 pasteCI(100 * lowRb, 100 * uppRb,
+                         digits.I2, big.mark,
+                         text.NA = lab.NA, unit = "%"))
     ##
     ## Remove superfluous spaces
     ##
@@ -3660,8 +3675,9 @@ forest.meta <- function(x,
       hetstat.Q <- gsub("  ", " ", hetstat.Q)
     while(grepl("  ", hetstat.pval.Q))
       hetstat.pval.Q <- gsub("  ", " ", hetstat.pval.Q)
-    while(grepl("  ", hetstat.Rb))
-      hetstat.Rb <- gsub("  ", " ", hetstat.Rb)
+    if (print.Rb)
+      while(grepl("  ", hetstat.Rb))
+        hetstat.Rb <- gsub("  ", " ", hetstat.Rb)
     ##
     if (revman5)
       hetstat.overall <- substitute(paste(hl,
@@ -8366,9 +8382,11 @@ forest.meta <- function(x,
             else if (rightcols.new[i] == "tau")
               tmp.r <- formatPT(tmp.r, digits = digits.tau,
                                 big.mark = big.mark)
-            else if (rightcols.new[i] == "I2")
-              tmp.r <-
-                paste0(formatN(100 * tmp.r, digits.I2, "NA"), "%")
+            else if (rightcols.new[i] == "I2") {
+              format.r <- formatN(100 * tmp.r, digits.I2, lab.NA)
+              tmp.r <- ifelse(format.r == lab.NA, lab.NA,
+                              paste0(format.r, "%"))
+            }
             else
               tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
                                text.NA = "", big.mark = big.mark)
@@ -8433,9 +8451,11 @@ forest.meta <- function(x,
             else if (leftcols.new[i] == "tau")
               tmp.l <- formatPT(tmp.l, digits = digits.tau,
                                 big.mark = big.mark)
-            else if (leftcols.new[i] == "I2")
-              tmp.l <-
-                paste0(formatN(100 * tmp.l, digits.I2, "NA"), "%")
+            else if (leftcols.new[i] == "I2") {
+              format.l <- formatN(100 * tmp.l, digits.I2, lab.NA)
+              tmp.l <- ifelse(format.l == lab.NA, lab.NA,
+                              paste0(format.l, "%"))
+            }
             else
               tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
                                text.NA = "", big.mark = big.mark)
@@ -8741,53 +8761,76 @@ forest.meta <- function(x,
   ## Exclude lines with summary measures from calculation of column
   ## width for study labels
   ##
+  del.lines <- NULL
+  ##
+  if (!calcwidth.common)
+    del.lines <- 1 + seq_len(n.com)
+  ##
+  if (!calcwidth.random)
+    del.lines <-
+      c(del.lines, 1 + n.com + seq_len(n.ran))
+  ##
+  if (!calcwidth.predict)
+    del.lines <-
+      c(del.lines, 1 + n.com + n.ran + seq_len(n.prd))
+  ##
+  if (!calcwidth.hetstat)
+      del.lines <-
+        c(del.lines, 1 + n.com + n.ran + n.prd + 1:2)
+  ##
+  if (!calcwidth.tests)
+    del.lines <-
+      c(del.lines, 1 + n.com + n.ran + n.prd + 2 + 1:4)
+  ##
+  if (!calcwidth.addline)
+    del.lines <-
+      c(del.lines, 1 + n.com + n.ran + n.prd + 2 + 4 + 1:2)
+  ##
   if (by) {
-    del.lines <- NULL
-    ## del.lines <-
-    ##   c(if (!calcwidth.common)  # CE
-    ##       1 + seq.com,
-    ##     if (!calcwidth.random)  # RE
-    ##       1 + seq.com + seq.ran,
-    ##     if (!calcwidth.predict) # PI
-    ##       1 + seq.com + seq.ran + seq.prd,
-    ##     if (!calcwidth.hetstat) # heterogeneity
-    ##       1 + seq.com + seq.ran + seq.prd + 1:2,
-    ##     if (!calcwidth.tests)   # tests
-    ##       1 + seq.com + seq.ran + seq.prd + 2 + 1:3,
-    ##     if (!calcwidth.addline) # additional lines
-    ##       1 + seq.com + seq.ran + seq.prd + 2 + 3 + 1:2
-    ##     ##
-    ##     ## Subgroups
-    ##     ##
-    ##     ## if (!calcwidth.subgroup)
-    ##     ##   n.summaries + 0 * n.by + seq_len(n.by), # Labels
-    ##     ## if (!calcwidth.common)              # CE
-    ##     ##   n.summaries + 1 * n.by + seq_len(n.by),
-    ##     ## if (!calcwidth.random)             # RE
-    ##     ##   n.summaries + 2 * n.by + seq_len(n.by),
-    ##     ## if (!calcwidth.predict)            # PI
-    ##     ##   n.summaries + 3 * n.by + seq_len(n.by),
-    ##     ## if (!calcwidth.hetstat)            # heterogeneity statistic
-    ##     ##   n.summaries + 4 * n.by + seq_len(n.by),
-    ##     ## if (!calcwidth.tests)              # test for effect (CE)
-    ##     ##   n.summaries + 5 * n.by + seq_len(n.by),
-    ##     ## if (!calcwidth.tests)              # test for effect (RE)
-    ##     ##   n.summaries + 6 * n.by + seq_len(n.by)
-    ##     )
+    if (!calcwidth.subgroup)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_len(n.by))
+    ##
+    if (!calcwidth.common)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          seq_len(n.by * n.com))
+    ##
+    if (!calcwidth.random)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          n.by * n.com + seq_len(n.by * n.ran))
+    ##
+    if (!calcwidth.predict)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          n.by * n.com + n.by * n.ran + seq_len(n.by * n.prd))
+    ##
+    if (!calcwidth.hetstat)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          n.by * n.com + n.by * n.ran + n.by * n.prd +
+          seq_len(n.by))
+    ## test for effect (CE)
+    if (!calcwidth.tests)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          n.by * n.com + n.by * n.ran + n.by * n.prd +
+          n.by + seq_len(n.by))
+    ## test for effect (RE)
+    if (!calcwidth.tests)
+      del.lines <-
+        c(del.lines,
+          1 + n.com + n.ran + n.prd + 2 + 4 + 2 + n.by +
+          n.by * n.com + n.by * n.ran + n.by * n.prd +
+          n.by + n.by + seq_len(n.by))
   }
-  else
-    del.lines <- c(if (!calcwidth.common)   # CE
-                     2,
-                   if (!calcwidth.random)  # RE
-                     3,
-                   if (!calcwidth.predict) # PI
-                     4,
-                   if (!calcwidth.hetstat) # heterogeneity
-                     5:6,
-                   if (!calcwidth.tests)   # tests
-                     7:10,
-                   if (!calcwidth.addline) # additional lines
-                     11:12)
   ##
   if (lsel) {
     for (i in seq_along(leftcols)) {
@@ -8969,27 +9012,33 @@ forest.meta <- function(x,
         else if (metabin) {
           if (leftcols[i] == "col.n.e" & just.c == "right")
             add.text(col.label.e, j)
-          else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.event.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.e, j)
         }
         else if (metacont) {
           if (leftcols[i] == "col.sd.e" & just.c == "right")
             add.text(col.label.e, j)
-          else if (leftcols[i] == "col.mean.e" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.mean.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.e, j)
         }
         else if (metainc) {
           if (leftcols[i] == "col.time.e" & just.c == "right")
             add.text(col.label.e, j)
-          else if (leftcols[i] == "col.event.e" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.event.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.e, j)
         }
         else if (metamean) {
-          if (revman5 & leftcols[i] == "col.n.e" & just.c == "right")
+          if (revman5 & leftcols[i] == "col.n.e" &
+              just.c == "right")
             add.text(col.label.e, j)
-          else if (!revman5 & leftcols[i] == "col.sd.e" & just.c == "right")
+          else if (!revman5 & leftcols[i] == "col.sd.e" &
+                   just.c == "right")
             add.text(col.label.e, j)
-          else if (leftcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.sd.e" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.e, j)
         }
         ##
@@ -9000,19 +9049,22 @@ forest.meta <- function(x,
         else if (metabin) {
           if (leftcols[i] == "col.n.c" & just.c == "right")
             add.text(col.label.c, j)
-          else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.event.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.c, j)
         }
         else if (metacont) {
           if (leftcols[i] == "col.sd.c" & just.c == "right")
             add.text(col.label.c, j)
-          else if (leftcols[i] == "col.mean.c" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.mean.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.c, j)
         }
         else if (metainc) {
           if (leftcols[i] == "col.time.c" & just.c == "right")
             add.text(col.label.c, j)
-          else if (leftcols[i] == "col.event.c" & just.c %in% c("left", "center"))
+          else if (leftcols[i] == "col.event.c" &
+                   just.c %in% c("left", "center"))
             add.text(col.label.c, j)
         }
         ##
