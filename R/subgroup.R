@@ -31,7 +31,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   bin.cont.gen <- bin | cont | gen
   bin.inc <- bin | inc
-  cor.prop.mean <- cor | prop | mean
+  cor.prop.mean.rate <- cor | prop | mean | rate
   ##
   three.level <- !is.null(x$three.level) && x$three.level
   ##
@@ -303,6 +303,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##
+                        n = if (!is.null(x$n)) x$n[sel] else NULL,
+                        ##
                         null.effect = x$null.effect,
                         ##
                         keepdata = FALSE,
@@ -373,7 +375,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        upper.Rb = meta1$upper.Rb,
                        ##
                        event = if (prop) sumNA(meta1$event) else NA,
-                       n = if (cor.prop.mean) sumNA(meta1$n) else NA,
+                       n = if (cor.prop.mean.rate) sumNA(meta1$n) else NA,
                        ##
                        event.e = if (bin.inc) sumNA(meta1$event.e) else NA,
                        n.e = if (bin.cont.gen) sumNA(meta1$n.e) else NA,

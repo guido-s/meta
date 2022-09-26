@@ -2889,7 +2889,8 @@ forest.meta <- function(x,
       if (missing(rightlabs)) {
         rightlabs.new <- rightcols.new
         ##
-        if ((metacor | metaprop | metamean) & any(rightcols.new == "n"))
+        if ((metacor | metaprop | metamean | metarate) &
+            any(rightcols.new == "n"))
           rightlabs.new[rightlabs.new == "n"] <- "Total"
         ##
         if (metamean & any(rightcols.new == "mean"))
@@ -2950,7 +2951,8 @@ forest.meta <- function(x,
       if (missing(leftlabs)) {
         leftlabs.new <- leftcols.new
         ##
-        if ((metacor | metaprop | metamean) & any(leftcols.new == "n"))
+        if ((metacor | metaprop | metamean | metarate) &
+            any(leftcols.new == "n"))
           leftlabs.new[leftlabs.new == "n"] <- "Total"
           ##
         if (metamean & any(leftcols.new == "mean"))
@@ -3251,6 +3253,8 @@ forest.meta <- function(x,
         rightcols[rightcols == "time"] <- "time.e"
       if (any(rightcols == "event"))
         rightcols[rightcols == "event"] <- "event.e"
+      if (any(rightcols == "n"))
+        rightcols[rightcols == "n"] <- "n.e"
     }
     ##
     if (!is.null(leftcols)) {
@@ -3258,6 +3262,8 @@ forest.meta <- function(x,
         leftcols[leftcols == "time"] <- "time.e"
       if (any(leftcols == "event"))
         leftcols[leftcols == "event"] <- "event.e"
+      if (any(leftcols == "n"))
+        leftcols[leftcols == "n"] <- "n.e"
     }
   }
   ##
@@ -5040,7 +5046,11 @@ forest.meta <- function(x,
     w.random.w <- x$w.random.w[o.w]
     e.e.w <- if (metaprop | metarate) x$event.w[o.w] else x$event.e.w[o.w]
     t.e.w <- if (metainc | metarate) x$time.e.w[o.w] else NAs.by
-    n.e.w <- if (metacor | metaprop | metamean) x$n.w[o.w] else x$n.e.w[o.w]
+    n.e.w <-
+      if (metacor | metaprop | metamean | metarate)
+        x$n.w[o.w]
+      else
+        x$n.e.w[o.w]
     e.c.w <- x$event.c.w[o.w]
     t.c.w <- if (metainc) x$time.c.w[o.w] else NAs.by
     n.c.w <- x$n.c.w[o.w]

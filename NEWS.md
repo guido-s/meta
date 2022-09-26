@@ -1,3 +1,16 @@
+## meta, version 6.0-1 (2022-mm-dd)
+
+### Bug fixes
+
+* forest.meta():
+  - no error for subgroup meta-analysis conducted with metarate()
+    using argument 'n' to specify the sample size
+
+* metarate():
+  - calculate number of observations in subgroups if argument 'n' is
+    provided
+
+
 ## meta, version 6.0-0 (2022-09-17)
 
 ### Major changes
