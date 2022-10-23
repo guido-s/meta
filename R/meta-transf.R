@@ -60,6 +60,7 @@ asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
   
   res
 }
+##
 asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
   
   ##
@@ -188,10 +189,16 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
   }
   res
 }
+##
 logit2p <- function(x)
   1 / (1 + exp(-x))
+##
+lnVR2VE <- function(x)
+  100 * (1 - exp(x))
+##
 z2cor <- function(x)
   tanh(x)
+##
 backtransf <- function(x, sm, value, n, warn = FALSE) {
   
   ##
@@ -220,6 +227,9 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
   ##
   else if (sm == "IRFT")
     res <- asin2ir(x, n, value = value, warn = warn)
+  ##
+  else if (sm == "VE")
+    res <- lnVR2VE(x)
   ##
   else
     res <- x
@@ -280,5 +290,48 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
 
   res
 }
+
+
+cor2z <- function(x)
+  0.5 * log((1 + x) / (1 - x))
+##
+p2asin <- function(x)
+  asin(sqrt(x))
+##
 p2logit <- function(x)
   qlogis(x)
+##
+VE2lnVR <- function(x)
+  log(1 - x / 100)
+##
+transf <- function(x, sm) {
+  
+  ##
+  ## Do nothing if all values are NA
+  ## 
+  if (all(is.na(x)))
+    return(x)
+  
+  if (is.relative.effect(sm) | is.log.effect(sm))
+    res <- log(x)
+  ##
+  else if (sm == "ZCOR")
+    res <- cor2z(x)
+  ##
+  else if (sm == "PLOGIT")
+    res <- p2logit(x)
+  ##
+  else if (sm == "PAS")
+    res <- p2asin(x)
+  ##
+  else if (sm == "IRS")
+    res <- sqrt(x)
+  ##
+  else if (sm == "VE")
+    res <- VE2lnVR(x)
+  ##
+  else
+    res <- x
+  
+  res
+}

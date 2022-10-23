@@ -479,6 +479,8 @@
 #' @param digits.time Minimal number of significant digits for times;
 #'   only applies to \code{\link{metainc}} and \code{\link{metarate}}
 #'   objects.
+#' @param digits.TE Minimal number of significant digits for list
+#'   element 'TE'.
 #' @param digits.addcols A vector or scalar with minimal number of
 #'   significant digits for additional columns.
 #' @param digits.addcols.left A vector or scalar with minimal number
@@ -1314,6 +1316,8 @@ forest.meta <- function(x,
                         digits.cor = digits,
                         digits.time = digits,
                         ##
+                        digits.TE = gs("digits.TE.forest"),
+                        ##
                         digits.addcols = digits,
                         digits.addcols.right = digits.addcols,
                         digits.addcols.left = digits.addcols,
@@ -2006,6 +2010,9 @@ forest.meta <- function(x,
   missing.digits.time <- missing(digits.time)
   if (!missing.digits.time)
     chknumeric(digits.time, min = 0, length = 1)
+  missing.digits.TE <- missing(digits.TE)
+  if (!missing.digits.TE)
+    chknumeric(digits.TE, min = 0, length = 1)
   missing.addcols.left <-
     missing(digits.addcols) & missing(digits.addcols.left)
   missing.addcols.right <-
@@ -6104,9 +6111,9 @@ forest.meta <- function(x,
         else
           npft.w <- n.harmonic.mean.w
         ##
-        TE.w     <- backtransf(TE.w, sm, "mean", npft.w)
-        lowTE.w  <- backtransf(lowTE.w, sm, "lower", npft.w)
-        uppTE.w  <- backtransf(uppTE.w, sm, "upper", npft.w)
+        TE.w    <- backtransf(TE.w, sm, "mean", npft.w)
+        lowTE.w <- backtransf(lowTE.w, sm, "lower", npft.w)
+        uppTE.w <- backtransf(uppTE.w, sm, "upper", npft.w)
       }
     }
     ##
@@ -6158,6 +6165,33 @@ forest.meta <- function(x,
       TE.w    <- irscale * TE.w
       lowTE.w <- irscale * lowTE.w
       uppTE.w <- irscale * uppTE.w
+    }
+  }
+  ##
+  ## Switch lower and upper limit for VE if results have been
+  ## backtransformed
+  ##
+  if (backtransf & sm == "VE") {
+    tmp.l <- lowTE
+    lowTE <- uppTE
+    uppTE <- tmp.l
+    ##
+    tmp.l <- lowTE.common
+    lowTE.common <- uppTE.common
+    uppTE.common <- tmp.l
+    ##
+    tmp.l <- lowTE.random
+    lowTE.random <- uppTE.random
+    uppTE.random <- tmp.l
+    ##
+    tmp.l <- lowTE.predict
+    lowTE.predict <- uppTE.predict
+    uppTE.predict <- tmp.l
+    ##
+    if (by) {
+      tmp.l <- lowTE.w
+      lowTE.w <- uppTE.w
+      uppTE.w <- tmp.l
     }
   }
   ##
@@ -6894,7 +6928,7 @@ forest.meta <- function(x,
                         uppTE.exclude)
     ##
     TEs.study <- c(blanks, blanks.w,
-                   formatN(TE.orig, digits, lab.NA, big.mark = big.mark))
+                   formatN(TE.orig, digits.TE, lab.NA, big.mark = big.mark))
     ##
     seTEs.study <- c(blanks, blanks.w,
                      formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
@@ -6978,7 +7012,7 @@ forest.meta <- function(x,
                         uppTE.predict, uppTE.exclude)
     ##
     TEs.study <- c(blanks,
-                   formatN(TE.orig, digits, lab.NA, big.mark = big.mark))
+                   formatN(TE.orig, digits.TE, lab.NA, big.mark = big.mark))
     seTEs.study <- c(blanks,
                      formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
     ##

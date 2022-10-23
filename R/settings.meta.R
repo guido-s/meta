@@ -440,6 +440,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
     setOption("warn.deprecated", FALSE)
+    setOption("untransf", FALSE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
@@ -520,6 +521,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("test.overall", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
+    setOption("digits.TE.forest", 4)
     ##
     setOption("lty.common", 2)
     setOption("lty.random", 3)
@@ -833,6 +835,9 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("exact.smd ")
     catarg("method.ci.cont")
     ##
+    cat("\n* Additional settings for metagen() *\n")
+    catarg("untransf ")
+    ##
     cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci.prop")
     ##
@@ -851,6 +856,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("test.effect.subgroup   ")
     catarg("digits.forest          ",
            end = "\n  (argument 'digits' in forest.meta())")
+    catarg("digits.TE.forest          ",
+           end = "\n  (argument 'digits.TE' in forest.meta())")
     ##
     catarg("lty.common             ")
     catarg("lty.random             ")
@@ -1104,6 +1111,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("exact.smd", args)
     setcharacter("method.ci.cont", args, gs("ci4cont"))
     ##
+    ## R function metagen
+    ##
+    setlogical("untransf", args)
+    ##
     ## R function metaprop
     ##
     setcharacter("smprop", args, gs("sm4prop"))
@@ -1135,6 +1146,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("prediction.subgroup", args)
     setlogical("test.effect.subgroup", args)
     setnumeric("digits.forest", args)
+    setnumeric("digits.TE.forest", args)
     ##
     setnumeric("lty.common", args)
     setnumeric("lty.random", args)

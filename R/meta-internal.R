@@ -419,7 +419,7 @@ argslist <-
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "warn", "warn.deprecated",
-    "backtransf",
+    "untransf", "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
     "method", "allstudies", "MH.exact",
@@ -433,7 +433,8 @@ argslist <-
     "digits", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
-    "digits.pval", "digits.pval.Q", "digits.forest",
+    "digits.pval", "digits.pval.Q",
+    "digits.forest", "digits.TE.forest",
     "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "print.I2", "print.H", "print.Rb",
@@ -528,6 +529,7 @@ setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("warn.deprecated", FALSE)
+setOption("untransf", FALSE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
@@ -611,6 +613,7 @@ setOption("layout", "meta")
 setOption("test.overall", FALSE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
+setOption("digits.TE.forest", 4)
 ##
 setOption("lty.common", 2)
 setOption("lty.random", 3)

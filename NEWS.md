@@ -1,4 +1,12 @@
-## meta, version 6.0-1 (2022-mm-dd)
+## meta, version 6.1-0 (2022-mm-dd)
+
+### Major changes
+
+* Meta-analysis of *Vaccine Effectiveness* implemented for generic
+  inverse variance method (argument 'sm = "VE"' in metagen())
+
+* Untransformed values can be provided for treatment estimates and
+  confidence limits in metagen(), see argument 'untransf'
 
 ### Bug fixes
 
@@ -9,6 +17,26 @@
 * metarate():
   - calculate number of observations in subgroups if argument 'n' is
     provided
+
+* settings.meta():
+  - argument name 'addrows.below.overall' not 'addrow.below.overall'
+
+### User-visible changes
+
+* metagen() and settings.meta():
+  - new argument 'untransf'
+
+* forest.meta():
+  - new argument 'digits.TE' to specify number of digits for
+    transformed treatment estimates (list element 'TE')
+
+* settings.meta():
+  - new argument 'digits.TE.forest' to set default for argument
+    'digits.TE' in forest.meta()
+
+### Internal changes
+
+* New internal functions cor2z() and p2asin()
 
 
 ## meta, version 6.0-0 (2022-09-17)

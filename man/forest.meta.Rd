@@ -211,6 +211,7 @@
   digits.sd = digits.se,
   digits.cor = digits,
   digits.time = digits,
+  digits.TE = gs("digits.TE.forest"),
   digits.addcols = digits,
   digits.addcols.right = digits.addcols,
   digits.addcols.left = digits.addcols,
@@ -900,6 +901,9 @@ correlations; only applies to \code{\link{metacor}} objects.}
 \item{digits.time}{Minimal number of significant digits for times;
 only applies to \code{\link{metainc}} and \code{\link{metarate}}
 objects.}
+
+\item{digits.TE}{Minimal number of significant digits for list
+element 'TE'.}
 
 \item{digits.addcols}{A vector or scalar with minimal number of
 significant digits for additional columns.}

@@ -116,6 +116,13 @@
 #'   estimate (see Details).
 #' @param approx.seTE Approximation method to estimate standard error
 #'   (see Details).
+#' @param untransf A logical indicating whether inputs for arguments
+#'   \code{TE}, \code{lower} and \code{upper} are on the original
+#'   scale instead of already appropriately transformed to conduct the
+#'   meta-analysis. If \code{untransf = FALSE} (default), inputs are
+#'   expected to be log odds ratios instead of odds ratios for
+#'   \code{sm = "OR"} and Fisher's z transformed correlations instead
+#'   of correlations for \code{sm = "ZCOR"}, for example.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE} (default), results for \code{sm = "OR"} are printed as odds
@@ -164,7 +171,8 @@
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param id Deprecated argument (replaced by 'cluster').
-#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
+#' @param adhoc.hakn Deprecated argument (replaced by
+#'   'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -593,6 +601,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     approx.TE, approx.seTE,
                     ##
+                    untransf = gs("untransf"),
                     backtransf = gs("backtransf"),
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
@@ -667,6 +676,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   method.bias <- setmethodbias(method.bias)
   ##
+  chklogical(untransf)
   chklogical(backtransf)
   if (!is.prop(sm))
     pscale <- 1
@@ -793,6 +803,21 @@ metagen <- function(TE, seTE, studlab,
   median <- catch("median", mc, data, sfsp)
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
+  ##
+  if (untransf) {
+    if (!missing.TE)
+      TE <- transf(TE, sm)
+    if (!missing.lower)
+      lower <- transf(lower, sm)
+    if (!missing.upper)
+      upper <- transf(upper, sm)
+    if (sm == "VE" &&
+        !missing.lower & !missing.upper) {
+      tmp.l <- lower
+      lower <- upper
+      upper <- tmp.l
+    }   
+  }
   ##
   missing.cluster <- missing(cluster)
   cluster <- catch("cluster", mc, data, sfsp)

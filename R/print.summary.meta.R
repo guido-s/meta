@@ -632,6 +632,12 @@ print.summary.meta <- function(x,
         lowTE <- irscale * lowTE
         uppTE <- irscale * uppTE
       }
+      ##
+      if (sm == "VE") {
+        tmp.l <- lowTE
+        lowTE <- uppTE
+        uppTE <- tmp.l
+      }
     }
     ##
     TE <- round(TE, digits)

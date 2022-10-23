@@ -684,6 +684,39 @@ print.meta <- function(x,
     }
   }
   ##
+  ## Switch lower and upper limit for VE if results have been
+  ## backtransformed
+  ##
+  if (backtransf & sm == "VE") {
+    tmp.l <- lowTE.common
+    lowTE.common <- uppTE.common
+    uppTE.common <- tmp.l
+    ##
+    tmp.l <- lowTE.random
+    lowTE.random <- uppTE.random
+    uppTE.random <- tmp.l
+    ##
+    tmp.l <- lowTE.predict
+    lowTE.predict <- uppTE.predict
+    uppTE.predict <- tmp.l
+    ##
+    if (by) {
+      tmp.l <- lowTE.common.w
+      lowTE.common.w <- uppTE.common.w
+      uppTE.common.w <- tmp.l
+      ##   
+      tmp.l <- lowTE.random.w
+      lowTE.random.w <- uppTE.random.w
+      uppTE.random.w <- tmp.l
+      ##   
+      if (prediction.w) {
+        tmp.l <- lowTE.predict.w
+        lowTE.predict.w <- uppTE.predict.w
+        uppTE.predict.w <- tmp.l
+      }
+    }
+  }
+  ##
   ## Round and round ...
   ##
   TE.common    <- round(TE.common, digits)

@@ -596,7 +596,7 @@ metacor <- function(cor, n, studlab,
   ##
   ##
   if (sm == "ZCOR") {
-    TE   <- 0.5 * log((1 + cor) / (1 - cor))
+    TE   <- cor2z(cor)
     seTE <- sqrt(1 / (n - 3))
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
