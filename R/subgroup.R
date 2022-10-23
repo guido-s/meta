@@ -48,9 +48,6 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   ##
   res.i <- vector(mode = "list")
-  ##
-  res.w <- matrix(NA, ncol = 63, nrow = n.levs)
-  add.w <- matrix("", ncol =  2, nrow = n.levs)
   j <- 0
   ##
   for (i in levs) {

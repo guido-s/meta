@@ -473,7 +473,7 @@ argslist <-
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
     "spacing",
-    "addrow", "addrow.overall", "addrow.subgroups", "addrow.below.overall"
+    "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
@@ -720,7 +720,7 @@ setOption("spacing", 1)
 setOption("addrow", NULL)
 setOption("addrow.overall", NULL)
 setOption("addrow.subgroups", NULL)
-setOption("addrow.below.overall", 0)
+setOption("addrows.below.overall", NULL)
 
 
 setOption("Wan2014.Table1",

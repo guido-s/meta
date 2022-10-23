@@ -629,7 +629,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("addrow", NULL)
     setOption("addrow.overall", NULL)
     setOption("addrow.subgroups", NULL)
-    setOption("addrow.below.overall", 0)
+    setOption("addrows.below.overall", NULL)
   }
   
   
@@ -960,7 +960,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("addrow                 ")
     catarg("addrow.overall         ")
     catarg("addrow.subgroups       ")
-    catarg("addrow.below.overall   ")
+    catarg("addrows.below.overall  ")
   }
   
   
@@ -1244,7 +1244,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("addrow", args, TRUE)
     setlogical("addrow.overall", args, TRUE)
     setlogical("addrow.subgroups", args, TRUE)
-    setnumeric("addrow.below.overall", args)
+    setnumeric("addrows.below.overall", args)
   }
   
   
