@@ -34,6 +34,9 @@
   - new argument 'digits.TE.forest' to set default for argument
     'digits.TE' in forest.meta()
 
+* Print blank space before negative upper confidence interval limit if
+  separator is equal to "-"
+
 ### Internal changes
 
 * New internal functions cor2z() and p2asin()

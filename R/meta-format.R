@@ -204,6 +204,11 @@ formatCI <- function(lower, upper,
   if (!upper.blank)
     format.upper <- rmSpace(format.upper)
   ##
+  if (separator == "-")
+    format.upper <-
+      paste0(ifelse(substring(format.upper, 1, 1) == "-", " ", ""),
+             format.upper)
+  ##
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste0(bracket.left,
                        format.lower,
