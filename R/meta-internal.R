@@ -459,6 +459,7 @@ argslist <-
     "text.subgroup.nohet",
     "LRT",
     "forest.stat", "forest.Q.subgroup",
+    "header.line",
     "fontsize", "fontfamily",
     "fs.common", "fs.random", "fs.predict",
     "fs.common.labels", "fs.random.labels", "fs.predict.labels",
@@ -675,6 +676,8 @@ setOption("LRT", FALSE)
 ##
 setOption("forest.stat", TRUE)
 setOption("forest.Q.subgroup", TRUE)
+##
+setOption("header.line", FALSE)
 ##
 setOption("fontsize", 12)
 setOption("fontfamily", NULL)

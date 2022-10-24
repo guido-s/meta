@@ -130,6 +130,7 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
+  header.line = gs("header.line") | (layout \%in\% c("JAMA", "RevMan5")),
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -634,6 +635,9 @@ meta-analysis results).}
 
 \item{text.addline2}{Text for second additional line (below
 meta-analysis results).}
+
+\item{header.line}{A logical value indicating whether to print a
+header line.}
 
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}

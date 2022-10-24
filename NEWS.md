@@ -8,6 +8,8 @@
 * Untransformed values can be provided for treatment estimates and
   confidence limits in metagen(), see argument 'untransf'
 
+* Print header line in forest plots with JAMA or RevMan5 layout
+
 ### Bug fixes
 
 * forest.meta():
@@ -27,6 +29,7 @@
   - new argument 'untransf'
 
 * forest.meta():
+  - new argument 'header.line' to add header line
   - new argument 'digits.TE' to specify number of digits for
     transformed treatment estimates (list element 'TE')
 
@@ -40,6 +43,9 @@
 ### Internal changes
 
 * New internal functions cor2z() and p2asin()
+
+* chknumeric():
+  - new argument 'integer' to check for integer values
 
 
 ## meta, version 6.0-0 (2022-09-17)

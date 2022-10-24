@@ -293,6 +293,8 @@
 #'   meta-analysis results).
 #' @param text.addline2 Text for second additional line (below
 #'   meta-analysis results).
+#' @param header.line A logical value indicating whether to print a
+#'   header line.
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
@@ -1223,6 +1225,9 @@ forest.meta <- function(x,
                         text.addline1,
                         text.addline2,
                         ##
+                        header.line = gs("header.line") |
+                          (layout %in% c("JAMA", "RevMan5")),
+                        ##
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
                         fs.heading = fontsize,
@@ -1864,6 +1869,7 @@ forest.meta <- function(x,
   chklogical(test.subgroup.random)
   ##
   chklogical(print.Q.subgroup)
+  chklogical(header.line)
   chknumeric(fontsize, length = 1)
   chknumeric(fs.heading, length = 1)
   ##
@@ -1981,7 +1987,7 @@ forest.meta <- function(x,
   if (!is.null(addrow))
     chklogical(addrow)
   else
-    addrow <- !revman5.jama
+    addrow <- !jama
   if (!is.null(addrow.overall)) {
     chklogical(addrow.overall)
     if (!(overall & (common | random | prediction)))
@@ -2555,7 +2561,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  chknumeric(addrows.below.overall, min = 0, length = 1)
+  chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   ##
   notmiss.xlim <- !missing(xlim)
   ##
@@ -9040,6 +9046,38 @@ forest.meta <- function(x,
                           widths = x1,
                           heights = unit(spacing, "lines"))))
   ##
+  ## Add header line
+  ## 
+  if (jama)
+    hcols <- lsel * 2 * length(leftcols)
+  else
+    hcols <-
+      lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
+  ##
+  if (header.line) {
+    for (i in seq_len(hcols)) {
+      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      grid.lines(x = unit(0:1, "npc"),
+                 y = unit(ymax + 0.5 * addrow, "lines"),
+                 gp = gpar(lwd = lwd))
+      popViewport()
+    }
+  }
+  ##
+  ##
+  ## Add JAMA lines
+  ##
+  if (jama & header.line & !by) {
+    for (i in seq_len(hcols)) {
+      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      for (j in seq_len(k.all + 1 * common + 1 * random + 1 * prediction))
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(ymax + 0.5 * addrow - j, "lines"),
+                   gp = gpar(lwd = 0.5 * lwd, col = col.subgroup))
+      popViewport()
+    }
+  }
+  ##
   ## Left side of forest plot
   ##
   j <- 1
@@ -9201,7 +9239,8 @@ forest.meta <- function(x,
   draw.lines(col.forest, j,
              ref, TE.common, unique(TE.random),
              overall, common, random, prediction,
-             ymin.common, ymin.random, ymin.ref, ymax,
+             ymin.common, ymin.random, ymin.ref,
+             ymax + 0.5 * header.line * addrow,
              lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
              lower.equi, upper.equi, lty.equi, col.equi, fill.equi)
@@ -9427,7 +9466,7 @@ forest.meta <- function(x,
   ##
   popViewport()
   
-
+  
   res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
               ##
               colgap = colgap,
