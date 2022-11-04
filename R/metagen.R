@@ -2020,6 +2020,13 @@ metagen <- function(TE, seTE, studlab,
                  df = if (method.ci == "t") df else NULL,
                  null.effect = null.effect)
   ##
+  ## Keep original confidence limits
+  ##
+  if (!missing.lower)
+    ci.study$lower[!is.na(lower)] <- lower[!is.na(lower)]
+  if (!missing.upper)
+    ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
+  ##
   if (length(seTE.random) > 1) {
     methci <- paste(method.random.ci,
                     toupper(substring(adhoc.hakn.ci, 1, 2)),

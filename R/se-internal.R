@@ -13,7 +13,13 @@ TE.seTE.ci <- function(lower, upper, level = 0.95,
   chklength(upper, k, arg)
   chklength(df, k, arg)
   ##
-  if (any(lower >= upper, na.rm = TRUE))
+  if (any(lower == upper, na.rm = TRUE)) {
+    sel <- lower == upper
+    lower[sel] <- NA
+    upper[sel] <- NA
+  }
+  ##
+  if (any(lower > upper, na.rm = TRUE))
     stop("Lower limit must be smaller than upper limit.", call. = FALSE)
   ##
   chklevel(level, length = 0)

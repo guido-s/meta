@@ -2,11 +2,15 @@
 
 ### Major changes
 
-* Meta-analysis of *Vaccine Effectiveness* implemented for generic
-  inverse variance method (argument 'sm = "VE"' in metagen())
-
-* Untransformed values can be provided for treatment estimates and
-  confidence limits in metagen(), see argument 'untransf'
+* For the generic inverse variance method,
+  - meta-analysis of *Vaccine Effectiveness* implemented (argument 'sm
+    = "VE"')
+  - untransformed values can be provided for treatment estimates and
+    confidence limits, see argument 'untransf'
+  - original confidence limits for individual studies kept if
+    arguments 'lower' and 'upper' are not missing
+  - standard error set to missing if lower and upper confidence limits
+    are identical (resulted in an error)
 
 * Print header line in forest plots with JAMA or RevMan5 layout
 
