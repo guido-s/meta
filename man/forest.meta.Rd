@@ -130,7 +130,7 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
-  header.line = gs("header.line") | (layout \%in\% c("JAMA", "RevMan5")),
+  header.line,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -637,7 +637,7 @@ meta-analysis results).}
 meta-analysis results).}
 
 \item{header.line}{A logical value indicating whether to print a
-header line.}
+header line or a character string ("both", "below", "").}
 
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}

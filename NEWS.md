@@ -14,6 +14,18 @@
 
 * Print header line in forest plots with JAMA or RevMan5 layout
 
+* Methods by [McGrath et.,
+  (2020)](https://doi.org/10.1177/0962280219889080) and [Cai et.,
+  (2021)](https://doi.org/10.1177/09622802211047348) implemented to
+  approximate means and standard deviations from median and related
+  statistics
+
+* R package
+  [**estmeansd**](https://cran.r-project.org/web/packages/estmeansd/index.html)
+  added to suggested packages to provided methods by [McGrath et.,
+  (2020)](https://doi.org/10.1177/0962280219889080) and [Cai et.,
+  (2021)](https://doi.org/10.1177/09622802211047348)
+
 ### Bug fixes
 
 * forest.meta():
@@ -73,8 +85,10 @@
 * Defaults for appearance of forest plots can be defined for the R
   session
 
-* R package **pimeta** added to suggested packages in order to
-  calculate bootstrap approach for prediction interval
+* R package
+  [**pimeta**](https://cran.r-project.org/web/packages/pimeta/index.html)
+  added to suggested packages in order to calculate bootstrap approach
+  for prediction interval
 
 * New argument 'method.random.ci' replaces argument 'hakn' to select
   method to calculate confidence interval for random effects estimate

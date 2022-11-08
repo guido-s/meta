@@ -1239,7 +1239,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("forest.stat", args)
     setlogical("forest.Q.subgroup", args)
     ##
-    setlogical("header.line", args)
+    setlogical("header.line", args, ignore.other = TRUE)
+    setcharacter("header.line", args, c("both", "below", ""),
+                 ignore.other = TRUE)
     ##
     setnumeric("fontsize", args)
     setcharacter("fontfamily", args, NULL.ok = TRUE)

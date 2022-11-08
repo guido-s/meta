@@ -294,7 +294,7 @@
 #' @param text.addline2 Text for second additional line (below
 #'   meta-analysis results).
 #' @param header.line A logical value indicating whether to print a
-#'   header line.
+#'   header line or a character string ("both", "below", "").
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
@@ -1225,8 +1225,7 @@ forest.meta <- function(x,
                         text.addline1,
                         text.addline2,
                         ##
-                        header.line = gs("header.line") |
-                          (layout %in% c("JAMA", "RevMan5")),
+                        header.line,
                         ##
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
@@ -1869,7 +1868,27 @@ forest.meta <- function(x,
   chklogical(test.subgroup.random)
   ##
   chklogical(print.Q.subgroup)
-  chklogical(header.line)
+  ##
+  if (missing(header.line)) {
+    if (is.character(gs("header.line")))
+      header.line <- gs("header.line")
+    else
+      header.line <- gs("header.line") |
+        (layout %in% c("JAMA", "RevMan5"))
+  }
+  ##
+  if (is.character(header.line)) {
+    header.line.pos <- setchar(header.line, c("below", "both", ""))
+    header.line <- header.line.pos != ""
+  }
+  else {
+    chklogical(header.line)
+    if (header.line)
+      header.line.pos <- "below"
+    else
+      header.line.pos <- ""
+  }
+  ##
   chknumeric(fontsize, length = 1)
   chknumeric(fs.heading, length = 1)
   ##
@@ -8992,7 +9011,8 @@ forest.meta <- function(x,
   ##
   ## Summary label at top of forest plot
   ##
-  smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center", fs.smlab, ff.smlab,
+  smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center",
+                fs.smlab, ff.smlab,
                 fontfamily, rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
   ##
   if (newline.smlab)
@@ -9055,6 +9075,16 @@ forest.meta <- function(x,
       lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
   ##
   if (header.line) {
+    if (header.line.pos == "both") {
+      for (i in seq_len(hcols)) {
+        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(nrow + 0.5 * addrow, "lines"),
+                   gp = gpar(lwd = lwd))
+        popViewport()
+      }
+    }
+    ##
     for (i in seq_len(hcols)) {
       pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
       grid.lines(x = unit(0:1, "npc"),

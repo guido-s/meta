@@ -229,9 +229,10 @@
 #' effect measures like the odds ratio or hazard ratio).
 #'
 #' If the treatment effect is a mean it can be approximated from
-#' sample size, median, interquartile range and range. By default,
-#' methods described in Luo et al. (2018) are utilized (argument
-#' \code{method.mean = "Luo"}):
+#' sample size, median, interquartile range and range.
+#'
+#' By default, methods described in Luo et al. (2018) are utilized
+#' (argument \code{method.mean = "Luo"}):
 #' \itemize{
 #' \item equation (7) if sample size, median and range are available,
 #' \item equation (11) if sample size, median and interquartile range
@@ -248,6 +249,17 @@
 #'   are available,
 #' \item equation (10) if sample size, median, range and interquartile
 #'   range are available.
+#' }
+#'
+#' The following methods are also available to estimate means from
+#' quantiles or ranges if R package \bold{estmeansd} is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
 #' }
 #'
 #' By default, missing treatment estimates are replaced successively
@@ -304,6 +316,18 @@
 #' studies must be provided with arguments \code{n.e} and / or
 #' \code{n.c}. The total sample size is calculated as \code{n.e} +
 #' \code{n.c} if both arguments are provided.
+#'
+#' The following methods are also available to estimate standard
+#' deviations from quantiles or ranges if R package \bold{estmeansd}
+#' is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
+#' }
 #'
 #' By default, missing standard errors are replaced successively using
 #' these method, e.g., p-value before confidence limits before
@@ -438,6 +462,12 @@
 #' meta-analysis.
 #' \emph{Research Synthesis Methods},
 #' \bold{1}, 97--111
+#'
+#' Cai S, Zhou J, Pan J (2021):
+#' Estimating the sample mean and standard deviation from order
+#' statistics and sample size in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{30}, 2701--2719
 #' 
 #' Luo D, Wan X, Liu J, Tong T (2018):
 #' Optimally estimating the sample mean from the sample size, median,
@@ -445,6 +475,13 @@
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{27}, 1785--805
 #'
+#' McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+#' Data (DEPRESSD) Collaboration (2020):
+#' Estimating the sample mean and standard deviation from commonly
+#' reported quantiles in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{29}, 2520--2537
+#' 
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
 #' five-number summary.
@@ -643,8 +680,17 @@ metagen <- function(TE, seTE, studlab,
   ##
   method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
-  method.mean <- setchar(method.mean, c("Luo", "Wan"))
-  method.sd <- setchar(method.sd, c("Shi", "Wan"))
+  method.mean <-
+    setchar(method.mean, c("Luo", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  method.sd <-
+    setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  ##
+  if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.mean",
+                         value = method.mean)
+  if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.sd",
+                         value = method.sd)
   ##
   chklevel(level)
   ##
