@@ -116,10 +116,10 @@
 #'   estimate (see Details).
 #' @param approx.seTE Approximation method to estimate standard error
 #'   (see Details).
-#' @param untransf A logical indicating whether inputs for arguments
-#'   \code{TE}, \code{lower} and \code{upper} are on the original
-#'   scale instead of already appropriately transformed to conduct the
-#'   meta-analysis. If \code{untransf = FALSE} (default), inputs are
+#' @param transf A logical indicating whether inputs for arguments
+#'   \code{TE}, \code{lower} and \code{upper} are already
+#'   appropriately transformed to conduct the meta-analysis or on
+#'   the original scale. If \code{transf = TRUE} (default), inputs are
 #'   expected to be log odds ratios instead of odds ratios for
 #'   \code{sm = "OR"} and Fisher's z transformed correlations instead
 #'   of correlations for \code{sm = "ZCOR"}, for example.
@@ -638,7 +638,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     approx.TE, approx.seTE,
                     ##
-                    untransf = gs("untransf"),
+                    transf = gs("transf"),
                     backtransf = gs("backtransf"),
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
@@ -722,7 +722,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   method.bias <- setmethodbias(method.bias)
   ##
-  chklogical(untransf)
+  chklogical(transf)
   chklogical(backtransf)
   if (!is.prop(sm))
     pscale <- 1
@@ -850,7 +850,7 @@ metagen <- function(TE, seTE, studlab,
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
-  if (untransf) {
+  if (!transf) {
     if (!missing.TE)
       TE <- transf(TE, sm)
     if (!missing.lower)

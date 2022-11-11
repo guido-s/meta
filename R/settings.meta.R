@@ -442,7 +442,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
     setOption("warn.deprecated", FALSE)
-    setOption("untransf", FALSE)
+    setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
@@ -864,7 +864,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("method.ci.cont")
     ##
     cat("\n* Additional settings for metagen() *\n")
-    catarg("untransf ")
+    catarg("transf ")
     ##
     cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci.prop")
@@ -1143,7 +1143,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     ## R function metagen
     ##
-    setlogical("untransf", args)
+    setlogical("transf", args)
     ##
     ## R function metaprop
     ##

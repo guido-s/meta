@@ -419,7 +419,7 @@ argslist <-
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "warn", "warn.deprecated",
-    "untransf", "backtransf",
+    "transf", "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
     "method", "allstudies", "MH.exact",
@@ -530,7 +530,7 @@ setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("warn.deprecated", FALSE)
-setOption("untransf", FALSE)
+setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
