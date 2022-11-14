@@ -8478,7 +8478,8 @@ forest.meta <- function(x,
           formatcol(lab.new,
                     c("", "", "", rep("", length(TE.w)), tmp.r),
                     yS,
-                    if (rightcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                    if (rightcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.right[i],
@@ -8549,7 +8550,8 @@ forest.meta <- function(x,
                     c("", "", "",
                       rep("", length(TE.w)), tmp.l),
                     yS,
-                    if (leftcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+                    if (leftcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.left[i],

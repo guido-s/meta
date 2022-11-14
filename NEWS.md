@@ -36,6 +36,9 @@
   - calculate number of observations in subgroups if argument 'n' is
     provided
 
+* metabind(), forest.metabind():
+  - use correct study / method labels if no subgroup results are present
+
 * settings.meta():
   - argument name 'addrows.below.overall' not 'addrow.below.overall'
 

@@ -704,7 +704,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
     m.i <- args[[i]]
     ##
     study.i <-
-      data.frame(studlab = replaceNULL(m.i$subgroup.levels, "overall"),
+      data.frame(studlab = replaceNULL(m.i$subgroup.levels, name[i]),
                  stringsAsFactors = FALSE)
     ##
     if (is.subgroup[i]) {
@@ -884,6 +884,11 @@ metabind <- function(..., name = NULL, pooled = NULL,
     res$tau.preset <- NULL
   ##
   if (!unique.pooled) {
+    res$overall <- FALSE
+    res$overall.hetstat <- FALSE
+  }
+  ##
+  if (all(is.na(res$TE.common)) & all(is.na(res$TE.random))) {
     res$overall <- FALSE
     res$overall.hetstat <- FALSE
   }
