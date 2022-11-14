@@ -436,9 +436,12 @@ print.meta <- function(x,
         sm.lab <- "events"
     }
   }
-  else
+  else {
     if (is.relative.effect(sm))
-      sm.lab <- paste0("log", sm)
+      sm.lab <- paste0("ln", sm)
+    else if (sm == "VE")
+      sm.lab <- "lnVR"
+  }
   ##
   if (length(x$tau.common) == 0)
     x$tau.common <- FALSE

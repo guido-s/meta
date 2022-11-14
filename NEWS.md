@@ -51,6 +51,7 @@
   - new argument 'header.line' to add header line
   - new argument 'digits.TE' to specify number of digits for
     transformed treatment estimates (list element 'TE')
+  - use more informative column labels for 'TE' and 'seTE'
 
 * settings.meta():
   - new argument 'digits.TE.forest' to set default for argument

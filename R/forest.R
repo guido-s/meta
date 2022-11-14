@@ -2780,7 +2780,7 @@ forest.meta <- function(x,
   }
   else 
     if (is.relative.effect(sm))
-      sm.lab <- paste0("log", sm)
+      sm.lab <- paste0("ln", sm)
   ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <- c("Study", "Study", "Source", "Subgroup")[sel.studlab]
@@ -2894,8 +2894,18 @@ forest.meta <- function(x,
       text.w.random <- paste0("Weight\n(", text.w.random, ")")
   }
   ##
+  lab.TE <- sm
+  ##
+  if (is.relative.effect(sm))
+    lab.TE <- paste0("ln", sm)
+  else if (sm == "VE")
+    lab.TE <- "lnVR"
+  else if (sm == "")
+    lab.TE <- "TE"
+  ##
   labnames <- c(lab.studlab,
-                "TE", if (revman5) "SE" else "seTE",
+                lab.TE,
+                if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
                 "Cluster",
                 "Total", "Total", "Events", "Events",
                 "Mean", "Mean", "SD", "SD",

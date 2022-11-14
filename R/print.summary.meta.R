@@ -358,9 +358,12 @@ print.summary.meta <- function(x,
         sm.lab <- "events"
     }
   }
-  else
+  else {
     if (is.relative.effect(sm))
-      sm.lab <- paste0("log", sm)
+      sm.lab <- paste0("ln", sm)
+    else if (sm == "VE")
+      sm.lab <- "lnVR"
+  }
   ##
   if (is.null(x$text.w.common))
     text.w.common <- paste0("%W(", gs("text.w.common"), ")")
