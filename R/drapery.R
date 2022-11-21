@@ -410,7 +410,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   ##
   if (missing(xlab)) {
     xlab <- ""
-    xlab <- xlab(x$sm, backtransf = backtransf)
+    xlab <- xlab(x$sm, backtransf = backtransf,
+                   efficacy = inherits(x, c("metabin", "metainc")))
   }
   else
     chkchar(xlab, length = 1)

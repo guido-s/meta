@@ -110,8 +110,9 @@ used for pooling of studies. One of \code{"Inverse"},
 be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
-(\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"}, or
-\code{"DOR"}) is to be used for pooling of studies, see Details.}
+(\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"},
+\code{"DOR"}, or \code{"VE"}) is to be used for pooling of
+studies, see Details.}
 
 \item{incr}{Could be either a numerical value which is added to
 cell frequencies for studies with a zero cell count or the
@@ -277,7 +278,8 @@ intervals should be printed for subgroups.}
 
 \item{hakn}{Deprecated argument (replaced by 'method.random.ci').}
 
-\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+\item{adhoc.hakn}{Deprecated argument (replaced by
+'adhoc.hakn.ci').}
 
 \item{print.CMH}{A logical indicating whether result of the
 Cochran-Mantel-Haenszel test for overall effect should be
@@ -329,10 +331,15 @@ al., 2009):
 \item Risk difference (\code{sm = "RD"})
 \item Arcsine difference (\code{sm = "ASD"})
 \item Diagnostic Odds ratio (\code{sm = "DOR"})
+\item Vaccine Efficacy (\code{sm = "VE"})
 }
 
 Note, mathematically, odds ratios and diagnostic odds ratios are
-identical, however, the labels in printouts and figures differ.
+identical, however, the labels in printouts and figures
+differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
+(lnVR) are mathematical identical, however, back-transformed
+results differ as vaccine efficacy is defined as \code{VE = 100 *
+(1 - RR)}.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at

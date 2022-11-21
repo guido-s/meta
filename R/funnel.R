@@ -435,7 +435,8 @@ funnel.meta <- function(x,
     else if (sm == "PRAW")
       xlab <- "Proportion"
     else
-      xlab <- xlab(sm, FALSE)
+      xlab <- xlab(sm, FALSE,
+                   efficacy = inherits(x, c("metabin", "metainc")))
   ##
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |

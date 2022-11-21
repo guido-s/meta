@@ -2,11 +2,12 @@
 
 ### Major changes
 
+* Meta-analysis of *Vaccine Efficacy* / *Vaccine Effectiveness*
+  implemented
+
 * For the generic inverse variance method,
-  - meta-analysis of *Vaccine Effectiveness* implemented (argument 'sm
-    = "VE"')
   - untransformed values can be provided for treatment estimates and
-    confidence limits, see argument 'untransf'
+    confidence limits, see argument 'transf'
   - original confidence limits for individual studies kept if
     arguments 'lower' and 'upper' are not missing
   - standard error set to missing if lower and upper confidence limits
@@ -44,8 +45,12 @@
 
 ### User-visible changes
 
-* metagen() and settings.meta():
-  - new argument 'untransf'
+* metabin, metagen(), metainc():
+  - argument 'sm = "VE"' can be used for meta-analysis of vaccine
+    efficacy / vaccine effectiveness
+
+* metagen(), settings.meta():
+  - new argument 'transf'
 
 * forest.meta():
   - new argument 'header.line' to add header line

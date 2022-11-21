@@ -305,7 +305,7 @@ Calculations are conducted on the log scale if \code{sm =
 "ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 \code{TE.random} contain the logarithm of means. In printouts and
 plots these values are back transformed if argument
-\code{backtransf = TRUE}.
+\code{backtransf = TRUE} (default).
 
 \subsection{Approximate means from sample sizes, medians and other statistics}{
 

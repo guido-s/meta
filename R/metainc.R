@@ -29,8 +29,8 @@
 #'   \code{"Inverse"}, \code{"Cochran"}, or \code{"GLMM"} can be
 #'   abbreviated.
 #' @param sm A character string indicating which summary measure
-#'   (\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
-#'   pooling of studies, see Details.
+#'   (\code{"IRR"}, \code{"IRD"}, \code{"IRSD"}, or \code{"VE"}) is to
+#'   be used for pooling of studies, see Details.
 #' @param incr A numerical value which is added to cell frequencies
 #'   for studies with a zero cell count, see Details.
 #' @param method.incr A character string indicating which continuity
@@ -91,10 +91,11 @@
 #' @param n.e Number of observations in experimental group (optional).
 #' @param n.c Number of observations in control group (optional).
 #' @param backtransf A logical indicating whether results for
-#'   incidence rate ratio (\code{sm = "IRR"}) should be back
-#'   transformed in printouts and plots. If TRUE (default), results
-#'   will be presented as incidence rate ratios; otherwise log
-#'   incidence rate ratios will be shown.
+#'   incidence rate ratio (\code{sm = "IRR"}) and vaccine efficacy
+#'   (\code{sm = "VE"}) should be back transformed in printouts and
+#'   plots. If TRUE (default), results will be presented as incidence
+#'   rate ratios or vaccine efficacies; otherwise log incidence rate
+#'   ratios or log vaccine rate ratios will be shown.
 #' @param irscale A numeric defining a scaling factor for printing of
 #'   incidence rate differences.
 #' @param irunit A character string specifying the time unit used to
@@ -131,7 +132,8 @@
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param hakn Deprecated argument (replaced by 'method.random.ci').
-#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
+#' @param adhoc.hakn Deprecated argument (replaced by
+#'   'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -157,7 +159,13 @@
 #' \item Incidence Rate Difference (\code{sm = "IRD"})
 #' \item Square root transformed Incidence Rate Difference (\code{sm =
 #'   "IRSD"})
+#' \item Vaccine Efficacy (\code{sm = "VE"})
 #' }
+#'
+#' Note, log incidence rate ratio (lnIRR) and log vaccine ratio (lnVR)
+#' are mathematical identical, however, back-transformed results
+#' differ as vaccine efficacy is defined as \code{VE = 100 * (1 -
+#' IRR)}.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -853,6 +861,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   sel <- switch(sm,
                 IRD = event.e == 0 | event.c == 0,
                 IRR = event.e == 0 | event.c == 0,
+                VE = event.e == 0 | event.c == 0,
                 IRSD = event.e == 0 | event.c == 0)
   ##
   ## Sparse computation
@@ -870,7 +879,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   else
     incr.event <- rep(0, k.all)
   ##  
-  if (sm == "IRR") {
+  if (sm %in% c("IRR", "VE")) {
     TE <- log(((event.e + incr.event) / time.e) / ((event.c + incr.event) / time.c))
     seTE <- sqrt(1 / (event.e + incr.event) + 1 / (event.c + incr.event))
   }
@@ -933,9 +942,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## (9) Additional checks for GLMM, Peto method or SSW
   ##
   ##
-  if (is.glmm & sm != "IRR")
+  if (is.glmm & !(sm %in% c("IRR", "VE")))
     stop("Generalised linear mixed models only possible with ",
-         "argument 'sm = \"IRR\"'.",
+         "argument 'sm = \"IRR\"' or 'sm = \"VE\"'.",
          call. = FALSE)
   ##
   if (is.glmm & method.tau != "ML")
@@ -1021,7 +1030,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     N.k <- n.k + m.k
     t.k <- x.k + y.k
     ##
-    if (sm == "IRR") {
+    if (sm %in% c("IRR", "VE")) {
       D <- n.k * m.k * t.k / N.k^2
       R <- x.k * m.k / N.k
       S <- y.k * n.k / N.k
@@ -1051,7 +1060,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ## Surgeon General of the Public Health Service,
     ## Chapter 8
     ## 
-    if (sm == "IRR") {
+    if (sm %in% c("IRR", "VE")) {
       w.common <- event.c * time.e / time.c
       w.common[exclude] <- 0
       TE.common <- weighted.mean(TE, w.common)
@@ -1059,7 +1068,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
     else if (sm == "IRD") {
       warning("Cochran method only available for ",
-              "Incidence Rate Ratio (sm = \"IRR\")",
+              "Incidence Rate Ratio (sm = \"IRR\") ",
+              "and Vaccine Efficacy (sm = \"VE\")",
               call. = FALSE)
       return(NULL)
     }

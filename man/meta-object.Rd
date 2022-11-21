@@ -400,8 +400,9 @@ components.
 }
 }
 \seealso{
-\code{\link{meta-package}}, \code{\link{print.meta}},
-  \code{\link{summary.meta}}, \code{\link{forest.meta}}
+\code{\link{meta-package}}, \code{\link{meta-sm}},
+  \code{\link{print.meta}}, \code{\link{summary.meta}},
+  \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

@@ -368,10 +368,10 @@ setOption("argslist.internal", argslist.internal)
 ##
 ## Set defaults (for internal options)
 ##
-setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR"))
+setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR", "VE"))
 setOption("sm4cont", c("MD", "SMD", "ROM"))
 setOption("sm4cor", c("ZCOR", "COR"))
-setOption("sm4inc", c("IRR", "IRD", "IRSD"))
+setOption("sm4inc", c("IRR", "IRD", "IRSD", "VE"))
 setOption("sm4mean", c("MRAW", "MLN"))
 setOption("sm4prop", c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
 setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))

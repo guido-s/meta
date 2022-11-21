@@ -276,8 +276,13 @@ implemented to calculate an overall proportion:
 \item Arcsine transformation (\code{sm = "PAS"})
 \item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
 \item Log transformation (\code{sm = "PLN"})
-\item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
+\item No transformation (\code{sm = "PRAW"})
 }
+
+List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
+contain the transformed proportions. In printouts and plots these
+values are back transformed if argument \code{backtransf = TRUE}
+(default).
 
 A generalised linear mixed model (GLMM) - more specific, a random
 intercept logistic regression model - can be utilised for the

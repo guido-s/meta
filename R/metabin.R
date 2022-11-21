@@ -34,8 +34,9 @@
 #'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
 #'   be abbreviated.
 #' @param sm A character string indicating which summary measure
-#'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"}, or
-#'   \code{"DOR"}) is to be used for pooling of studies, see Details.
+#'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"},
+#'   \code{"DOR"}, or \code{"VE"}) is to be used for pooling of
+#'   studies, see Details.
 #' @param incr Could be either a numerical value which is added to
 #'   cell frequencies for studies with a zero cell count or the
 #'   character string \code{"TACC"} which stands for treatment arm
@@ -153,7 +154,8 @@
 #'   intervals should be printed for subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param hakn Deprecated argument (replaced by 'method.random.ci').
-#' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
+#' @param adhoc.hakn Deprecated argument (replaced by
+#'   'adhoc.hakn.ci').
 #' @param print.CMH A logical indicating whether result of the
 #'   Cochran-Mantel-Haenszel test for overall effect should be
 #'   printed.
@@ -185,10 +187,15 @@
 #' \item Risk difference (\code{sm = "RD"})
 #' \item Arcsine difference (\code{sm = "ASD"})
 #' \item Diagnostic Odds ratio (\code{sm = "DOR"})
+#' \item Vaccine Efficacy (\code{sm = "VE"})
 #' }
 #'
 #' Note, mathematically, odds ratios and diagnostic odds ratios are
-#' identical, however, the labels in printouts and figures differ.
+#' identical, however, the labels in printouts and figures
+#' differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
+#' (lnVR) are mathematical identical, however, back-transformed
+#' results differ as vaccine efficacy is defined as \code{VE = 100 *
+#' (1 - RR)}.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -1130,7 +1137,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       if (sm %in% c("OR", "DOR"))
         incl <- ifelse((event.c == 0   & event.e == 0) |
                        (event.c == n.c & event.e == n.e), NA, 1)
-      if (sm == "RR")
+      if (sm %in% c("RR", "VE"))
         incl <- ifelse((event.c == 0 & event.e == 0), NA, 1)
     }
   }
@@ -1301,7 +1308,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       seTE <- sqrt(1 / V)
     }
   }
-  else if (sm == "RR") {
+  else if (sm %in% c("RR", "VE")) {
     ##
     ## Cooper & Hedges (1994), p. 247-8
     ##
@@ -1534,7 +1541,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                               sum(A * D, na.rm = TRUE)) +
                             exp(TE.common)^2 * sum(C * D, na.rm = TRUE))))
     }
-    else if (sm == "RR") {
+    else if (sm %in% c("RR", "VE")) {
       ##
       ## Greenland, Robins (1985) (MH.exact == TRUE)
       ##

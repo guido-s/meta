@@ -283,6 +283,11 @@ calculate an overall rate:
 \item No transformation (\code{sm = "IR"})
 }
 
+List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
+contain the transformed incidence rates. In printouts and plots
+these values are back transformed if argument \code{backtransf =
+TRUE} (default).
+
 By default (argument \code{method = "Inverse"}), the inverse
 variance method (Borenstein et al., 2010) is used for pooling by
 calling \code{\link{metagen}} internally. A random intercept

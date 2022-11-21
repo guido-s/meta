@@ -400,10 +400,16 @@ forest.metabind <- function(x,
       ##
       smlab <- paste0(if (x$common) text.common else text.random,
                       if (x$sm != "" & xlab(x$sm, x$backtransf) != "")
-                        paste0("\n(", xlab(x$sm, x$backtransf), ")"))
+                        paste0("\n(",
+                               xlab(x$sm, x$backtransf,
+                                    efficacy = inherits(x,
+                                                        c("metabin",
+                                                          "metainc"))),
+                               ")"))
     }
     else
-      smlab <- xlab(x$sm, x$backtransf)
+      smlab <- xlab(x$sm, x$backtransf,
+                    efficacy = inherits(x, c("metabin", "metainc")))
   
   
   class(x) <- c("meta", "is.metabind")

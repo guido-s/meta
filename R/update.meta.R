@@ -1073,7 +1073,7 @@ update.meta <- function(object,
     if (!is.null(...cluster))
       method <- "Inverse"
     ##
-    if (method == "GLMM" & !missing.sm & sm != "IRR")
+    if (method == "GLMM" & !missing.sm & !(sm %in% c("IRR", "VE")))
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
     ##
     data.m <- data
@@ -1090,7 +1090,8 @@ update.meta <- function(object,
     }
     ##
     if (method == "GLMM") {
-      sm <- "IRR"
+      if (sm != "VE")
+        sm <- "IRR"
       method.tau <- "ML"
       model.glmm <- replaceNULL(model.glmm, "UM.FS")
     }

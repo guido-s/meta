@@ -1444,11 +1444,11 @@ forest(m1,
 
 # Sort by weight in common effect model
 #
-forest(m1, sortvar = 1 / w.common, random = FALSE)
+forest(m1, sortvar = w.common, random = FALSE)
 
 # Sort by decreasing weight in common effect model
 #
-forest(m1, sortvar = -1 / w.common, random = FALSE)
+forest(m1, sortvar = -w.common, random = FALSE)
 
 # Sort by size of treatment effect
 #
