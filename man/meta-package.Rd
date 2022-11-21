@@ -80,9 +80,12 @@ R packages:
 }
 
 In the following, more details on available and default statistical
-meta-analysis methods are provided. In addition, R function
+meta-analysis methods are provided and R function
 \code{\link{settings.meta}} is briefly described which can be used
-to change the default settings.
+to change the default settings. Additional information on
+meta-analysis objects and available summary measures can be found
+on the help pages \code{\link{meta-object}} and
+\code{\link{meta-sm}}.
 
 \subsection{Estimation of between-study variance}{
 
@@ -506,6 +509,9 @@ Hartung-Knapp method is not always conservative compared with
 fixed-effect meta-analysis.
 \emph{Statistics in Medicine},
 \bold{35}, 2503--15
+}
+\seealso{
+\code{\link{meta-object}}, \code{\link{meta-sm}}
 }
 \author{
 Guido Schwarzer \email{sc@imbi.uni-freiburg.de}

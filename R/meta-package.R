@@ -75,9 +75,12 @@
 #' }
 #' 
 #' In the following, more details on available and default statistical
-#' meta-analysis methods are provided. In addition, R function
+#' meta-analysis methods are provided and R function
 #' \code{\link{settings.meta}} is briefly described which can be used
-#' to change the default settings.
+#' to change the default settings. Additional information on
+#' meta-analysis objects and available summary measures can be found
+#' on the help pages \code{\link{meta-object}} and
+#' \code{\link{meta-sm}}.
 #' 
 #' \subsection{Estimation of between-study variance}{
 #' 
@@ -511,6 +514,8 @@
 #' \bold{35}, 2503--15
 #'
 #' @keywords package
+#' 
+#' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
 #' @importFrom grid arrow gpar grid.draw grid.layout grid.lines
 #'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob

@@ -58,6 +58,8 @@
     transformed treatment estimates (list element 'TE')
   - use more informative column labels for 'TE' and 'seTE'
 
+* New help page *meta-sm* summarising available summary measures
+
 * settings.meta():
   - new argument 'digits.TE.forest' to set default for argument
     'digits.TE' in forest.meta()
