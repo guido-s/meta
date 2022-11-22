@@ -1696,7 +1696,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Random effects estimate (Cooper & Hedges, 1994, p. 265, 274-5
       ##
-      w.random <- 1 / (seTE^2 + sum(tau2.calc, na.rm = TRUE))
+      w.random <- 1 / (seTE^2 + tau2.calc)
       w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
       ##
       TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
@@ -1911,7 +1911,8 @@ metagen <- function(TE, seTE, studlab,
           pi.i$df <- res.pima$nup
         }
         else if (method.predict[i] == "S")
-          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc), level.predict)
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
+                     level.predict)
         else if (method.predict[i] == "KR")
           pi.i <- ci(TE.random, NA, level.predict, df.kero - 1)
         else if (method.predict[i] == "HTS")
@@ -1990,7 +1991,7 @@ metagen <- function(TE, seTE, studlab,
       TE.random <- m4$b
       seTE.classic <- seTE.random <- m4$se
       ##
-      tau2.calc <- sum(m4$tau2)
+      tau2.calc <- sum(m4$sigma2)
       ##
       ## Confidence interval for three-level model
       ##
@@ -2017,7 +2018,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       if (method.predict == "S")
         pi <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
-                   level.predict)
+                 level.predict)
       else {
         if (k >= 3) {
           ## Use Higgins, Thompson, Spiegelhalter method for three-level
@@ -2026,7 +2027,7 @@ metagen <- function(TE, seTE, studlab,
             method.predict <- "HTS"
           ##
           pi <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
-                     level.predict, k - 2)
+                   level.predict, k - 2)
         }
       }
       ##
@@ -2220,6 +2221,9 @@ metagen <- function(TE, seTE, studlab,
               warn = warn,
               call = match.call(),
               version = packageDescription("meta")$Version,
+              ## Keep debug information
+              debug = list(tau2.calc = tau2.calc,
+                           m4 = if (three.level) m4 else NULL),
               ## Deprecated list elements
               zval = ci.study$statistic,
               hakn = any(method.random.ci == "HK"),

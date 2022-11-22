@@ -43,6 +43,10 @@
 * settings.meta():
   - argument name 'addrows.below.overall' not 'addrow.below.overall'
 
+* metagen():
+  - calculate correct prediction interval limits for three-level
+    models
+
 ### User-visible changes
 
 * metabin, metagen(), metainc():
