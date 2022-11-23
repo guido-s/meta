@@ -75,6 +75,10 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   ##
   x$data <- NULL
   
+  ## Remove debug information
+  ##
+  x$debug <- NULL
+  
   if (!is.null(x$approx.TE) && all(x$approx.TE == ""))
     x$approx.TE <- NULL
   ##
