@@ -2628,21 +2628,18 @@ forest.meta <- function(x,
   ##
   if (is.null(xlab))
     xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
-                 big.mark = big.mark,
-                 efficacy = inherits(x, c("metabin", "metainc")))
+                 big.mark = big.mark)
   ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
     if (is.rate(sm))
       smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
                     newline = !revman5.jama, revman5 = revman5,
-                    big.mark = big.mark,
-                    efficacy = inherits(x, c("metabin", "metainc")))
+                    big.mark = big.mark)
     else
       smlab <- xlab(sm, backtransf, pscale = pscale,
                     newline = !revman5.jama, revman5 = revman5,
-                    big.mark = big.mark,
-                    efficacy = inherits(x, c("metabin", "metainc")))
+                    big.mark = big.mark)
   ##
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
   if (print.label & !bottom.lr) {

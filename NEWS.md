@@ -2,7 +2,7 @@
 
 ### Major changes
 
-* Meta-analysis of *Vaccine Efficacy* / *Vaccine Effectiveness*
+* Meta-analysis of *Vaccine Efficacy* or *Vaccine Effectiveness*
   implemented
 
 * For the generic inverse variance method,
@@ -51,7 +51,7 @@
 
 * metabin, metagen(), metainc():
   - argument 'sm = "VE"' can be used for meta-analysis of vaccine
-    efficacy / vaccine effectiveness
+    efficacy or vaccine effectiveness
 
 * metagen(), settings.meta():
   - new argument 'transf'

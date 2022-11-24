@@ -187,15 +187,15 @@
 #' \item Risk difference (\code{sm = "RD"})
 #' \item Arcsine difference (\code{sm = "ASD"})
 #' \item Diagnostic Odds ratio (\code{sm = "DOR"})
-#' \item Vaccine Efficacy (\code{sm = "VE"})
+#' \item Vaccine efficacy or vaccine effectiveness (\code{sm = "VE"})
 #' }
 #'
 #' Note, mathematically, odds ratios and diagnostic odds ratios are
 #' identical, however, the labels in printouts and figures
 #' differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
 #' (lnVR) are mathematical identical, however, back-transformed
-#' results differ as vaccine efficacy is defined as \code{VE = 100 *
-#' (1 - RR)}.
+#' results differ as vaccine efficacy or effectiveness is defined as
+#' \code{VE = 100 * (1 - RR)}.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at

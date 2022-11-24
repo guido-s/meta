@@ -1,8 +1,7 @@
 xlab <- function(sm, backtransf,
                  pscale = 1, irscale = 1, irunit = "person-years",
                  newline = FALSE, revman5 = FALSE,
-                 big.mark = gs("big.mark"),
-                 efficacy = FALSE) {
+                 big.mark = gs("big.mark")) {
   
   res <- NULL
   
@@ -67,12 +66,8 @@ xlab <- function(sm, backtransf,
     else if (sm == "IRR")
       res <- paste0("Incidence Rate", newline, "Ratio")
     ##
-    else if (sm == "VE") {
-      if (efficacy)
-        res <- "Vaccine Efficacy"
-      else
-        res <- "Vaccine Effectiveness"
-    }
+    else if (sm == "VE")
+      res <- "Vaccine Eff."
     ##
     else if (is.prop(sm)) {
       if (pscale == 1)

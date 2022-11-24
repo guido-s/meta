@@ -286,13 +286,11 @@ bubble.metareg <- function(x,
   ##
   if (missing(ylab))
     if (is.relative.effect(sm))
-      ylab <- xlab(sm, backtransf,
-                   efficacy = inherits(x$.meta$x, c("metabin", "metainc")))
+      ylab <- xlab(sm, backtransf)
     else if (sm == "PRAW")
       ylab <- "Proportion"
     else
-      ylab <- xlab(sm, FALSE,
-                   efficacy = inherits(x$.meta$x, c("metabin", "metainc")))
+      ylab <- xlab(sm, FALSE)
   
   
   missing.cex <- missing(cex)

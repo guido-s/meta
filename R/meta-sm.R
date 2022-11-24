@@ -16,14 +16,14 @@
 #' \code{sm = "ASD"} \tab Arcsine difference (Rücker et al., 2009) \cr
 #' \code{sm = "DOR"} \tab Diagnostic odds ratio (Moses et al., 1993)
 #'   \cr
-#' \code{sm = "VE"} \tab Vaccine efficacy
+#' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
 #'
 #' Note, mathematically, odds ratios and diagnostic odds ratios are
 #' identical, however, the labels in printouts and figures
 #' differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
 #' (lnVR) are mathematical identical, however, back-transformed
-#' results differ as vaccine efficacy is defined as
+#' results differ as vaccine efficacy or efficacy is defined as
 #' \code{VE = 100 * (1 - RR)}.
 #'
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
@@ -73,13 +73,13 @@
 #' \code{sm = "IRD"} \tab Incidence rate difference \cr
 #' \code{sm = "IRSD"} \tab Square root transformed incidence rate
 #'   difference \cr
-#' \code{sm = "VE"} \tab Vaccine efficacy
+#' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
 #'
 #' Note, log incidence rate ratio (lnIRR) and log vaccine ratio (lnVR)
 #' are mathematical identical, however, back-transformed results
-#' differ as vaccine efficacy is defined as
-#' \code{VE = 100 * (1 - IRR)}.
+#' differ as vaccine efficacy or effectiveness is defined as \code{VE
+#' = 100 * (1 - IRR)}.
 #'
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain the transformed incidence rates. In printouts and plots
@@ -150,7 +150,7 @@
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
 #' \code{sm = "HR"} \tab Hazard ratio \cr
-#' \code{sm = "VE"} \tab Vaccine effectiveness
+#' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
 #'
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,

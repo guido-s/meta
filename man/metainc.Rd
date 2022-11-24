@@ -188,11 +188,12 @@ be used. Either \code{"Begg"}, \code{"Egger"}, or
 \item{n.c}{Number of observations in control group (optional).}
 
 \item{backtransf}{A logical indicating whether results for
-incidence rate ratio (\code{sm = "IRR"}) and vaccine efficacy
-(\code{sm = "VE"}) should be back transformed in printouts and
-plots. If TRUE (default), results will be presented as incidence
-rate ratios or vaccine efficacies; otherwise log incidence rate
-ratios or log vaccine rate ratios will be shown.}
+incidence rate ratio (\code{sm = "IRR"}) and vaccine efficacy or
+vaccine effectiveness (\code{sm = "VE"}) should be back
+transformed in printouts and plots. If TRUE (default), results
+will be presented as incidence rate ratios or vaccine efficacy /
+effectiveness; otherwise log incidence rate ratios or log vaccine
+rate ratios will be shown.}
 
 \item{irscale}{A numeric defining a scaling factor for printing of
 incidence rate differences.}
@@ -297,13 +298,13 @@ The following measures of treatment effect are available:
 \item Incidence Rate Difference (\code{sm = "IRD"})
 \item Square root transformed Incidence Rate Difference (\code{sm =
   "IRSD"})
-\item Vaccine Efficacy (\code{sm = "VE"})
+\item Vaccine efficacy or vaccine effectiveness (\code{sm = "VE"})
 }
 
 Note, log incidence rate ratio (lnIRR) and log vaccine ratio (lnVR)
 are mathematical identical, however, back-transformed results
-differ as vaccine efficacy is defined as \code{VE = 100 * (1 -
-IRR)}.
+differ as vaccine efficacy or effectiveness is defined as \code{VE
+= 100 * (1 - IRR)}.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at
