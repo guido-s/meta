@@ -3420,6 +3420,8 @@ forest.meta <- function(x,
   ##
   x$pval <- x$pval[sel]
   ##
+  x$cluster <- x$cluster[sel]
+  ##
   if (metainf.metacum) {
     x$tau2 <- x$tau2[sel]
     x$tau <- x$tau[sel]
@@ -3482,6 +3484,8 @@ forest.meta <- function(x,
     x$t.harmonic.mean <- x$t.harmonic.mean[o]
     ##
     x$pval <- x$pval[o]
+    ##
+    x$cluster <- x$cluster[o]
     ##
     if (metainf.metacum) {
       x$tau2 <- x$tau2[o]
@@ -7186,8 +7190,6 @@ forest.meta <- function(x,
     as.character.cluster <- FALSE
   ##
   if (by) {
-    cluster.format <- c(blanks.w, x$cluster)
-    ##
     if (pooled.totals) {
       Ne <- c(c(sum.n.e, NAs.com1),
               c(sum.n.e, NAs.ran1),
@@ -7250,9 +7252,6 @@ forest.meta <- function(x,
     }
   }
   else {
-    cluster.format <-
-      c(rep("", n.com), rep("", n.ran), blanks.prd, x$cluster)
-    ##
     if (pooled.totals) {
       Ne <- c(c(sum.n.e, NAs.com1),
               c(sum.n.e, NAs.ran1),
@@ -7505,6 +7504,20 @@ forest.meta <- function(x,
              scientific = scientific.pval,
              lab.NA = lab.NA)
   pval.format[all.prd] <- ""
+  ##
+  ## Cluster variable
+  ##
+  if (by)
+    cluster.format <- c(NAs.all, x$cluster)
+  else
+    cluster.format <- c(NAs, x$cluster)
+  ##
+  ## Print nothing for lines with summary results
+  ##
+  cluster.format[all.res] <- ""
+  ##
+  if (by)
+    cluster.format[sel.w] <- ""
   ##
   ## Leave-one-out / cumulative meta-analysis
   ##
@@ -8114,9 +8127,8 @@ forest.meta <- function(x,
                         n.com, n.ran, n.prd)
   ##
   col.cluster <-
-    formatcol(labs[["lab.cluster"]], cluster.format,
-              yS, if (as.character.cluster) "left" else just.c,
-              fcs, fontfamily,
+    formatcol(labs[["lab.cluster"]], cluster.format, yS,
+              if (as.character.cluster) "left" else just.c, fcs, fontfamily,
               n.com, n.ran, n.prd)
   ##
   col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs,
