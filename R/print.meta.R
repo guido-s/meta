@@ -132,9 +132,7 @@
 #'   R\eqn{_b}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param warn.backtransf A logical indicating whether a warning
-#'   should be printed if backtransformed proportions and rates are
-#'   below 0 and backtransformed proportions are above 1.
+#' @param warn.backtransf Deprecated argument (ignored).
 #' @param bracket A character with bracket symbol to print lower
 #'   confidence interval: "[", "(", "\{", "".
 #' @param separator A character string with information on separator
@@ -254,7 +252,6 @@ print.meta <- function(x,
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
   chkchar(text.Rb, length = 1)
-  chklogical(warn.backtransf)
   chklogical(warn.deprecated)
   ##
   is.prop <- is.prop(x$sm)
@@ -438,9 +435,9 @@ print.meta <- function(x,
   }
   else {
     if (is.relative.effect(sm))
-      sm.lab <- paste0("ln", sm)
+      sm.lab <- paste0("log", sm)
     else if (sm == "VE")
-      sm.lab <- "lnVR"
+      sm.lab <- "logVR"
   }
   ##
   if (length(x$tau.common) == 0)
@@ -586,67 +583,35 @@ print.meta <- function(x,
         harmonic.mean <- 1 / mean(1 / x$n)
     }
     ##
-    TE.common    <- backtransf(TE.common, sm, "mean",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
-    lowTE.common <- backtransf(lowTE.common, sm, "lower",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
-    uppTE.common <- backtransf(uppTE.common, sm, "upper",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
+    TE.common    <- backtransf(TE.common, sm, "mean", harmonic.mean)
+    lowTE.common <- backtransf(lowTE.common, sm, "lower", harmonic.mean)
+    uppTE.common <- backtransf(uppTE.common, sm, "upper", harmonic.mean)
     ##
-    TE.random <- backtransf(TE.random, sm, "mean",
-                            harmonic.mean,
-                            warn = overall & random & warn.backtransf)
-    lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                               harmonic.mean,
-                               warn = overall & random & warn.backtransf)
-    uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                               harmonic.mean,
-                               warn = overall & random & warn.backtransf)
+    TE.random <- backtransf(TE.random, sm, "mean", harmonic.mean)
+    lowTE.random <- backtransf(lowTE.random, sm, "lower", harmonic.mean)
+    uppTE.random <- backtransf(uppTE.random, sm, "upper", harmonic.mean)
     ##
-    lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                harmonic.mean,
-                                warn = overall & prediction & warn.backtransf)
-    uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                harmonic.mean,
-                                warn = overall & prediction & warn.backtransf)
+    lowTE.predict <- backtransf(lowTE.predict, sm, "lower", harmonic.mean)
+    uppTE.predict <- backtransf(uppTE.predict, sm, "upper", harmonic.mean)
     ##
     if (by) {
-      TE.common.w     <- backtransf(TE.common.w, sm, "mean",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+      TE.common.w     <- backtransf(TE.common.w, sm, "mean", harmonic.mean.w)
       lowTE.common.w  <- backtransf(lowTE.common.w, sm, "lower",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+                                    harmonic.mean.w)
       uppTE.common.w  <- backtransf(uppTE.common.w, sm, "upper",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+                                    harmonic.mean.w)
       ##
-      TE.random.w    <- backtransf(TE.random.w, sm, "mean",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+      TE.random.w    <- backtransf(TE.random.w, sm, "mean", harmonic.mean.w)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+                                   harmonic.mean.w)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+                                   harmonic.mean.w)
       ##
       if (prediction.w) {
         lowTE.predict.w <- backtransf(lowTE.predict.w, sm, "lower",
-                                      harmonic.mean.w,
-                                      warn = warn.backtransf)
+                                      harmonic.mean.w)
         uppTE.predict.w <- backtransf(uppTE.predict.w, sm, "upper",
-                                      harmonic.mean.w,
-                                      warn = warn.backtransf)
+                                      harmonic.mean.w)
       }
     }
   }

@@ -1097,13 +1097,13 @@ metaprop <- function(event, n, studlab,
     }
     ##
     else if (sm == "PAS") {
-      lower.study <- asin2p(lower.study, value = "lower", warn = FALSE)
-      upper.study <- asin2p(upper.study, value = "upper", warn = FALSE)
+      lower.study <- asin2p(lower.study, value = "lower")
+      upper.study <- asin2p(upper.study, value = "upper")
     }
     ##
     else if (sm == "PFT") {
-      lower.study <- asin2p(lower.study, n, value = "lower", warn = FALSE)
-      upper.study <- asin2p(upper.study, n, value = "upper", warn = FALSE)
+      lower.study <- asin2p(lower.study, n, value = "lower")
+      upper.study <- asin2p(upper.study, n, value = "upper")
     }
     ##
     else if (sm == "PLN") {

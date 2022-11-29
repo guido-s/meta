@@ -21,8 +21,8 @@
 #'
 #' Note, mathematically, odds ratios and diagnostic odds ratios are
 #' identical, however, the labels in printouts and figures
-#' differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
-#' (lnVR) are mathematical identical, however, back-transformed
+#' differ. Furthermore, log risk ratio (logRR) and log vaccine ratio
+#' (logVR) are mathematical identical, however, back-transformed
 #' results differ as vaccine efficacy or efficacy is defined as
 #' \code{VE = 100 * (1 - RR)}.
 #'
@@ -76,10 +76,10 @@
 #' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
 #'
-#' Note, log incidence rate ratio (lnIRR) and log vaccine ratio (lnVR)
-#' are mathematical identical, however, back-transformed results
-#' differ as vaccine efficacy or effectiveness is defined as \code{VE
-#' = 100 * (1 - IRR)}.
+#' Note, log incidence rate ratio (logIRR) and log vaccine ratio
+#' (logVR) are mathematical identical, however, back-transformed
+#' results differ as vaccine efficacy or effectiveness is defined as
+#' \code{VE = 100 * (1 - IRR)}.
 #'
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain the transformed incidence rates. In printouts and plots

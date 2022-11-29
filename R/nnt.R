@@ -169,29 +169,29 @@ nnt.meta <- function(x, p.c,
   ##
   else if (x$sm == "RR") {
     if (common) {
-      res$nnt.common$NNT       <- logRR2NNT(res$TE.common, p.c)
-      res$nnt.common$lower.NNT <- logRR2NNT(res$lower.common, p.c)
-      res$nnt.common$upper.NNT <- logRR2NNT(res$upper.common, p.c)
+      res$nnt.common$NNT       <- logRR2nnt(res$TE.common, p.c)
+      res$nnt.common$lower.NNT <- logRR2nnt(res$lower.common, p.c)
+      res$nnt.common$upper.NNT <- logRR2nnt(res$upper.common, p.c)
     }
     ##
     if (random) {
-      res$nnt.random$NNT       <- logRR2NNT(res$TE.random, p.c)
-      res$nnt.random$lower.NNT <- logRR2NNT(res$lower.random, p.c)
-      res$nnt.random$upper.NNT <- logRR2NNT(res$upper.random, p.c)
+      res$nnt.random$NNT       <- logRR2nnt(res$TE.random, p.c)
+      res$nnt.random$lower.NNT <- logRR2nnt(res$lower.random, p.c)
+      res$nnt.random$upper.NNT <- logRR2nnt(res$upper.random, p.c)
     }
   }
   ##
   else if (x$sm == "OR") {
     if (common) {
-      res$nnt.common$NNT       <- logOR2NNT(res$TE.common, p.c)
-      res$nnt.common$lower.NNT <- logOR2NNT(res$lower.common, p.c)
-      res$nnt.common$upper.NNT <- logOR2NNT(res$upper.common, p.c)
+      res$nnt.common$NNT       <- logOR2nnt(res$TE.common, p.c)
+      res$nnt.common$lower.NNT <- logOR2nnt(res$lower.common, p.c)
+      res$nnt.common$upper.NNT <- logOR2nnt(res$upper.common, p.c)
     }
     ##
     if (random) {
-      res$nnt.random$NNT       <- logOR2NNT(res$TE.random, p.c)
-      res$nnt.random$lower.NNT <- logOR2NNT(res$lower.random, p.c)
-      res$nnt.random$upper.NNT <- logOR2NNT(res$upper.random, p.c)
+      res$nnt.random$NNT       <- logOR2nnt(res$TE.random, p.c)
+      res$nnt.random$lower.NNT <- logOR2nnt(res$lower.random, p.c)
+      res$nnt.random$upper.NNT <- logOR2nnt(res$upper.random, p.c)
     }
   }
   ##
@@ -289,19 +289,19 @@ nnt.default <- function(x, p.c, sm, lower, upper, ...) {
   }
   ##
   else if (sm == "RR") {
-    res$NNT <- logRR2NNT(log(res$x), res$p.c)
+    res$NNT <- logRR2nnt(log(res$x), res$p.c)
     if (!missing.lower)
-      res$lower.NNT <- logRR2NNT(log(res$lower.x), res$p.c)
+      res$lower.NNT <- logRR2nnt(log(res$lower.x), res$p.c)
     if (!missing.upper)
-      res$upper.NNT <- logRR2NNT(log(res$upper.x), res$p.c)
+      res$upper.NNT <- logRR2nnt(log(res$upper.x), res$p.c)
   }
   ##
   else if (sm == "OR") {
-    res$NNT <- logOR2NNT(log(res$x), res$p.c)
+    res$NNT <- logOR2nnt(log(res$x), res$p.c)
     if (!missing.lower)
-      res$lower.NNT <- logOR2NNT(log(res$lower.x), res$p.c)
+      res$lower.NNT <- logOR2nnt(log(res$lower.x), res$p.c)
     if (!missing.upper)
-      res$upper.NNT <- logOR2NNT(log(res$upper.x), res$p.c)
+      res$upper.NNT <- logOR2nnt(log(res$upper.x), res$p.c)
   }
   ##
   names(res)[names(res) == "x"] <- sm
@@ -399,8 +399,8 @@ print.nnt.meta <- function(x,
 ##
 ## Auxillary R functions
 ##
-logRR2NNT <- function(logRR, p.c)
-  1 / (p.c * (1 - exp(logRR)))
+logRR2nnt <- function(x, p.c)
+  1 / (p.c * (1 - exp(x)))
 ##
-logOR2NNT <- function(logOR, p.c)
-  1 / (p.c - exp(logOR) * p.c / (1 - p.c + exp(logOR) * p.c))
+logOR2nnt <- function(x, p.c)
+  1 / (p.c - exp(x) * p.c / (1 - p.c + exp(x) * p.c))

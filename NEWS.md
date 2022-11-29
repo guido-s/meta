@@ -73,7 +73,8 @@
 
 ### Internal changes
 
-* New internal functions cor2z() and p2asin()
+* New internal functions transf(), cor2z(), p2asin(), logVR2VE() and
+  VE2logVR()
 
 * chknumeric():
   - new argument 'integer' to check for integer values

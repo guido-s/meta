@@ -214,9 +214,7 @@ R\eqn{_b}.}
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}
 
-\item{warn.backtransf}{A logical indicating whether a warning
-should be printed if backtransformed proportions and rates are
-below 0 and backtransformed proportions are above 1.}
+\item{warn.backtransf}{Deprecated argument (ignored).}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

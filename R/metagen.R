@@ -381,8 +381,8 @@
 #' standardised mean difference (\code{sm = "SMD"})). For relative
 #' effect measures, e.g., risk ratio (\code{sm = "RR"}) or odds ratio
 #' (\code{sm = "OR"}), the null effect is defined on the log scale,
-#' i.e., \emph{ln}(RR) = 0 or \emph{ln}(OR) = 0 which is equivalent to
-#' testing RR = 1 or OR = 1.
+#' i.e., \emph{log}(RR) = 0 or \emph{log}(OR) = 0 which is equivalent
+#' to testing RR = 1 or OR = 1.
 #'
 #' Use of argument \code{null.effect} is especially useful for summary
 #' measures without a "natural" null effect, i.e., in situations

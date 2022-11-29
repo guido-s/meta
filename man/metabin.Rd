@@ -336,8 +336,8 @@ al., 2009):
 
 Note, mathematically, odds ratios and diagnostic odds ratios are
 identical, however, the labels in printouts and figures
-differ. Furthermore, log risk ratio (lnRR) and log vaccine ratio
-(lnVR) are mathematical identical, however, back-transformed
+differ. Furthermore, log risk ratio (logRR) and log vaccine ratio
+(logVR) are mathematical identical, however, back-transformed
 results differ as vaccine efficacy or effectiveness is defined as
 \code{VE = 100 * (1 - RR)}.
 

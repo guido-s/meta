@@ -301,10 +301,10 @@ The following measures of treatment effect are available:
 \item Vaccine efficacy or vaccine effectiveness (\code{sm = "VE"})
 }
 
-Note, log incidence rate ratio (lnIRR) and log vaccine ratio (lnVR)
-are mathematical identical, however, back-transformed results
-differ as vaccine efficacy or effectiveness is defined as \code{VE
-= 100 * (1 - IRR)}.
+Note, log incidence rate ratio (logIRR) and log vaccine ratio
+(logVR) are mathematical identical, however, back-transformed
+results differ as vaccine efficacy or effectiveness is defined as
+\code{VE = 100 * (1 - IRR)}.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at

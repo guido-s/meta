@@ -73,9 +73,7 @@
 #'   were truncated from the printout.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param warn.backtransf A logical indicating whether a warning
-#'   should be printed if backtransformed proportions and rates are
-#'   below 0 and backtransformed proportions are above 1.
+#' @param warn.backtransf Deprecated argument (ignored).
 #' @param \dots Additional arguments (passed on to
 #'   \code{\link{print.meta}} called internally).
 #' 
@@ -222,8 +220,6 @@ print.summary.meta <- function(x,
   ##
   chklogical(details.methods)
   ##
-  chklogical(warn.backtransf)
-  ##
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
   else
@@ -360,9 +356,9 @@ print.summary.meta <- function(x,
   }
   else {
     if (is.relative.effect(sm))
-      sm.lab <- paste0("ln", sm)
+      sm.lab <- paste0("log", sm)
     else if (sm == "VE")
-      sm.lab <- "lnVR"
+      sm.lab <- "logVR"
   }
   ##
   if (is.null(x$text.w.common))
@@ -576,7 +572,6 @@ print.summary.meta <- function(x,
                irscale = irscale, irunit = irunit, big.mark = big.mark,
                text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
                details.methods = details.methods,
-               warn.backtransf = warn.backtransf,
                ...)
   }
   else {
@@ -619,9 +614,9 @@ print.summary.meta <- function(x,
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
       else {
-        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, warn.backtransf)
-        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, warn.backtransf)
-        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, warn.backtransf)
+        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean)
+        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean)
+        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean)
       }
       ##
       if (is.prop(sm) | sm == "RD") {
@@ -928,7 +923,6 @@ print.summary.meta <- function(x,
                  digits.I2 = digits.I2, big.mark = big.mark,
                  text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
                  details.methods = details.methods,
-                 warn.backtransf = warn.backtransf,
                  warn.deprecated = FALSE,
                  ...)
     }

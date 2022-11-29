@@ -2780,7 +2780,7 @@ forest.meta <- function(x,
   }
   else 
     if (is.relative.effect(sm))
-      sm.lab <- paste0("ln", sm)
+      sm.lab <- paste0("log", sm)
   ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <- c("Study", "Study", "Source", "Subgroup")[sel.studlab]
@@ -2897,9 +2897,9 @@ forest.meta <- function(x,
   lab.TE <- sm
   ##
   if (is.relative.effect(sm))
-    lab.TE <- paste0("ln", sm)
+    lab.TE <- paste0("log", sm)
   else if (sm == "VE")
-    lab.TE <- "lnVR"
+    lab.TE <- "logVR"
   else if (sm == "")
     lab.TE <- "TE"
   ##
@@ -6119,25 +6119,17 @@ forest.meta <- function(x,
     ## Results of meta-analysis
     ##
     if (!is.relative.effect(sm)) {
-      TE.common    <- backtransf(TE.common, sm, "mean",
-                                npft.ma, warn = common)
-      lowTE.common <- backtransf(lowTE.common, sm, "lower",
-                                npft.ma, warn = common)
-      uppTE.common <- backtransf(uppTE.common, sm, "upper",
-                                npft.ma, warn = common)
+      TE.common    <- backtransf(TE.common, sm, "mean", npft.ma)
+      lowTE.common <- backtransf(lowTE.common, sm, "lower", npft.ma)
+      uppTE.common <- backtransf(uppTE.common, sm, "upper", npft.ma)
       ##
-      TE.random <- backtransf(TE.random, sm, "mean",
-                              npft.ma, warn = random)
-      lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                                 npft.ma, warn = random)
-      uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                                 npft.ma, warn = random)
+      TE.random <- backtransf(TE.random, sm, "mean", npft.ma)
+      lowTE.random <- backtransf(lowTE.random, sm, "lower", npft.ma)
+      uppTE.random <- backtransf(uppTE.random, sm, "upper", npft.ma)
       ##
       if (!metainf.metacum) {
-        lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                    npft.ma, warn = prediction)
-        uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                    npft.ma, warn = prediction)
+        lowTE.predict <- backtransf(lowTE.predict, sm, "lower", npft.ma)
+        uppTE.predict <- backtransf(uppTE.predict, sm, "upper", npft.ma)
       }
       ##
       if (by) {
