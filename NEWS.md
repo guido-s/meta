@@ -32,6 +32,7 @@
 * forest.meta():
   - no error for subgroup meta-analysis conducted with metarate()
     using argument 'n' to specify the sample size
+  - same square sizes for a meta-analysis without or with subgroups
 
 * metarate():
   - calculate number of observations in subgroups if argument 'n' is

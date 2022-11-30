@@ -6964,21 +6964,29 @@ forest.meta <- function(x,
     seTEs.study <- c(blanks, blanks.w,
                      formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
     ##
-    ##
-    w.commons <- c(rep(100, n.com), NAs.ran, NAs.prd,
-                   repl(w.common.w.p, n.com, n.by),
-                   NAs.ran.w, NAs.prd.w, NAs.stat.w,
+    w.commons <- c(NAs.com, NAs.ran, NAs.prd,
+                   NAs.com.w, NAs.ran.w, NAs.prd.w,
+                   NAs.stat.w,
                    w.common.p)
-    w.randoms <- c(NAs.com, rep(100, n.ran), NAs.prd,
-                   NAs.com.w,
-                   repl(w.random.w.p, n.ran, n.by),
-                   NAs.prd.w, NAs.stat.w,
+    w.randoms <- c(NAs.com, NAs.ran, NAs.prd,
+                   NAs.com.w, NAs.ran.w, NAs.prd.w,
+                   NAs.stat.w,
                    w.random.p)
     ##
+    format.w.commons <- c(rep(100, n.com), NAs.ran, NAs.prd,
+                          repl(w.common.w.p, n.com, n.by),
+                          NAs.ran.w, NAs.prd.w, NAs.stat.w,
+                          w.common.p)
+    format.w.randoms <- c(NAs.com, rep(100, n.ran), NAs.prd,
+                          NAs.com.w,
+                          repl(w.random.w.p, n.ran, n.by),
+                          NAs.prd.w, NAs.stat.w,
+                          w.random.p)
+    ##
     Wc.format <-
-      formatN(w.commons, digits.weight, text.NA = lab.NA.weight)
+      formatN(format.w.commons, digits.weight, text.NA = lab.NA.weight)
     Wr.format <-
-      formatN(w.randoms, digits.weight, text.NA = lab.NA.weight)
+      formatN(format.w.randoms, digits.weight, text.NA = lab.NA.weight)
     ##
     sel.common <- Wc.format == lab.NA.weight
     sel.random <- Wr.format == lab.NA.weight
@@ -7053,14 +7061,14 @@ forest.meta <- function(x,
     format.w.common <- formatN(c(100, w.common.p), digits.weight)
     format.w.random <- formatN(c(100, w.random.p), digits.weight)
     ##
-    Wc.format  <- c(rep(format.w.common[1], n.com),
-                         rep(lab.NA.weight, n.ran),
-                         blanks.prd,
-                        format.w.common[-1])
+    Wc.format <- c(rep(format.w.common[1], n.com),
+                   rep(lab.NA.weight, n.ran),
+                   blanks.prd,
+                   format.w.common[-1])
     Wr.format <- c(rep(lab.NA.weight, n.com),
-                        rep(format.w.random[1], n.ran),
-                        blanks.prd,
-                        format.w.random[-1])
+                   rep(format.w.random[1], n.ran),
+                   blanks.prd,
+                   format.w.random[-1])
     ##
     sel.common <- Wc.format == lab.NA.weight
     sel.random <- Wr.format == lab.NA.weight
