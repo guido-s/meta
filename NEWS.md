@@ -13,8 +13,6 @@
   - standard error set to missing if lower and upper confidence limits
     are identical (resulted in an error)
 
-* Print header line in forest plots with JAMA or RevMan5 layout
-
 * Methods by [McGrath et.,
   (2020)](https://doi.org/10.1177/0962280219889080) and [Cai et.,
   (2021)](https://doi.org/10.1177/09622802211047348) implemented to
@@ -27,12 +25,16 @@
   (2020)](https://doi.org/10.1177/0962280219889080) and [Cai et.,
   (2021)](https://doi.org/10.1177/09622802211047348)
 
+* Print header line in forest plots with JAMA or RevMan5 layout
+
 ### Bug fixes
 
 * forest.meta():
   - no error for subgroup meta-analysis conducted with metarate()
     using argument 'n' to specify the sample size
   - same square sizes for a meta-analysis without or with subgroups
+  - no error for Revman5 and JAMA layout in meta-analyses with more
+    than one random effects method
 
 * metarate():
   - calculate number of observations in subgroups if argument 'n' is
@@ -47,8 +49,15 @@
 * metagen():
   - calculate correct prediction interval limits for three-level
     models
+  - number of studies in meta-analysis equal to number of non-missing
+    estimates and standard errors (only number of non-missing standard
+    errors was considered)
 
 ### User-visible changes
+
+* All meta-analysis functions:
+  - print prediction interval(s) if argument 'method.predict' is not
+    missing
 
 * metabin, metagen(), metainc():
   - argument 'sm = "VE"' can be used for meta-analysis of vaccine
@@ -62,8 +71,14 @@
   - new argument 'digits.TE' to specify number of digits for
     transformed treatment estimates (list element 'TE')
   - use more informative column labels for 'TE' and 'seTE'
+  
+* metabin(), metainc(), metaprop() and metarate():
+  - for GLMMs, stop with error if argument 'adhoc.hakn.ci' or
+    'adhoc.hakn.pi' is unequal to ""
 
-* New help page *meta-sm* summarising available summary measures
+* nnt.meta(), nnt.default():
+  - new argument 'small.values' to specify whether small treatment
+    effects indicate a beneficial or harmful effect
 
 * settings.meta():
   - new argument 'digits.TE.forest' to set default for argument
@@ -72,6 +87,10 @@
 * Print blank space before negative upper confidence interval limit if
   separator is equal to "-"
 
+* New help page *meta-sm* summarising available summary measures
+
+* Help page of nnt() updated
+
 ### Internal changes
 
 * New internal functions transf(), cor2z(), p2asin(), logVR2VE() and
@@ -79,6 +98,14 @@
 
 * chknumeric():
   - new argument 'integer' to check for integer values
+
+* List element 'df.Q.b.random' with degrees of freedom for test of
+  subgroup differences under random effects model is a list instead of
+  a vector if more than one random effects method was used (argument
+  'method.random.ci')
+
+* Several changes for meta-analysis using generalised linear mixed or
+  three-level models
 
 
 ## meta, version 6.0-0 (2022-09-17)
@@ -1028,7 +1055,7 @@
   Germany](https://www.iqwig.de/en/about-us/methods/methods-paper/)
   
 * Do not use predict.rma() from **metafor** package to calculate
-  prediction intervals for generalized linear mixed models
+  prediction intervals for generalised linear mixed models
   
 ### User-visible changes
 
@@ -1476,7 +1503,7 @@
 * Subgroup results consider the exclusion of individual studies (bug
   fix)
 
-* For generalized linear mixed models, between-study variance set to
+* For generalised linear mixed models, between-study variance set to
   NA if only a single study is considered in meta-analysis
 
 ### Bug fixes
@@ -1496,7 +1523,7 @@
 ### User-visible changes
 
 * print.summary.meta():
-  - print information on Generalized Linear Mixed Model (GLMM) for
+  - print information on Generalised Linear Mixed Model (GLMM) for
     metarate() objects
   - print information on increments added to calculate confidence
     intervals for individual studies (for metarate() with GLMM)

@@ -22,7 +22,7 @@ metaprop(
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  prediction = gs("prediction"),
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),

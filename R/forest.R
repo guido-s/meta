@@ -2493,11 +2493,23 @@ forest.meta <- function(x,
   missing.text.random <- missing(text.random)
   if (missing.text.random | is.null(text.random)) {
     if (study.results & (x$level != x$level.ma | revman5)) {
-      if (revman5.jama)
+      if (revman5.jama) {
         text.random <- paste0("Total (",
                               if (common.random)
-                                paste0(gs("text.w.random"), " effect, "),
+                                paste0(gs("text.w.random"), " effect, "))
+        if (length(x$lower.random) > 1) {
+          meth.r <- gsub("classic", "", x$method.random.ci)
+          text.random <-
+            paste0(text.random, meth.r,
+                   ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
+                          paste0("-",
+                                 toupper(substring(x$adhoc.hakn.ci, 1, 2))),
+                          ""),
+                   ifelse(meth.r != "", ", ", ""))
+        }
+        text.random <- paste0(text.random,
                               round(x$level.ma * 100), "% CI)")
+      }
       else if (!is.null(text.random))
         text.random <- paste0(text.random, " (",
                               round(x$level.ma * 100), "%-CI)")
@@ -2508,12 +2520,38 @@ forest.meta <- function(x,
     else {
       if (revman5.jama) {
         text.random <- "Total"
-        if (common.random)
+        if (common.random || length(x$lower.random) > 1) {
           text.random <- paste0(text.random, " (", gs("text.w.random"),
-                                " effect)")
+                                " effect")
+          if (length(x$lower.random) > 1) {
+            meth.r <- gsub("classic", "", x$method.random.ci)
+            text.random <-
+              paste0(text.random,
+                     ifelse(meth.r != "", ", ", ""),
+                     meth.r,
+                     ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
+                            paste0("-",
+                                   toupper(substring(x$adhoc.hakn.ci, 1, 2))),
+                            ""))
+          }
+          text.random <- paste0(text.random, ")")
+        }
       }
-      else if (is.null(text.random))
+      else if (is.null(text.random)) {
         text.random <- gs("text.random")
+        if (length(x$lower.random) > 1) {
+          meth.r <- gsub("classic", "", x$method.random.ci)
+          text.random <-
+            paste0(text.random,
+                   ifelse(meth.r != "", "(", ""),
+                   meth.r,
+                   ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
+                          paste0("-",
+                                 toupper(substring(x$adhoc.hakn.ci, 1, 2))),
+                          ""),
+                   ifelse(meth.r != "", ")", ""))
+        }
+      }
     }
   }
   ##
@@ -3546,10 +3584,12 @@ forest.meta <- function(x,
     lowRb <- NA
     uppRb <- NA
     ##
-    Q.b.common  <- NA
+    Q.b.common <- NA
     Q.b.random <- NA
-    df.Q.b     <- NA
-    pval.Q.b.common  <- NA
+    df.Q.b <- NA
+    df.Q.b.common <- NA
+    df.Q.b.random <- NA
+    pval.Q.b.common <- NA
     pval.Q.b.random <- NA
   }
   else {
@@ -3626,13 +3666,29 @@ forest.meta <- function(x,
     uppRb <- x$upper.Rb
     ##
     if (by) {
-      Q.b.common <- x$Q.b.common
-      Q.b.random <- x$Q.b.random
       df.Q.b <- x$df.Q.b
+      df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
+      ##
+      Q.b.common <- x$Q.b.common
+      df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
       pval.Q.b.common <-
-        replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b))
-      pval.Q.b.random <-
-        replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b))
+        replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
+      ## Only consider test for subgroup differences for first random
+      ## effects meta-analysis method
+      Q.b.random <- x$Q.b.random[1]
+      if (is.list(df.Q.b.random))
+        df.Q.b.random <- df.Q.b.random[[1]]
+      ##
+      if (length(df.Q.b.random) == 1)
+        pval.Q.b.random <-
+          replaceNULL(x$pval.Q.b.random[1], pvalQ(Q.b.random, df.Q.b.random))
+      else if (length(df.Q.b.random) == 2)
+        pval.Q.b.random <-
+          replaceNULL(x$pval.Q.b.random[1],
+                      pf(Q.b.random, df.Q.b.random[1], df.Q.b.random[2],
+                         lower.tail = FALSE))
+      else
+        pval.Q.b.random <- x$pval.Q.b.random
       ##
       Q.resid <- x$Q.resid
       df.Q.resid <- x$df.Q.resid
@@ -3660,9 +3716,11 @@ forest.meta <- function(x,
       uppI2.resid <- x$upper.I2.resid
     }
     else {
-      Q.b.common  <- NA
+      Q.b.common <- NA
       Q.b.random <- NA
-      df.Q.b     <- NA
+      df.Q.b <- NA
+      df.Q.b.common <- NA
+      df.Q.b.random <- NA
     }
   }
   ##
@@ -4768,43 +4826,49 @@ forest.meta <- function(x,
   if (test.overall.common) {
     if (print.stat) {
       if (revman5)
-        text.overall.common  <- substitute(paste(tl,
-                                                Z, hetseparator, tt,
-                                                " (P", tp, ")"),
-                                          list(tl = label.test.overall.common,
-                                               hetseparator = hetseparator,
-                                               tt = statistics.overall[1],
-                                               tp = pvals.overall[1]))
+        text.overall.common <-
+          substitute(paste(tl,
+                           Z, hetseparator, tt,
+                           " (P", tp, ")"),
+                     list(tl = label.test.overall.common,
+                          hetseparator = hetseparator,
+                          tt = statistics.overall[1],
+                          tp = pvals.overall[1]))
       else if (jama)
-        text.overall.common  <- substitute(paste(tl,
-                                                italic(z), hetseparator, tt,
-                                                " (", italic(P), tp, ")"),
-                                          list(tl = label.test.overall.common,
-                                               hetseparator = hetseparator,
-                                               tt = statistics.overall[1],
-                                               tp = pvals.overall[1]))
+        text.overall.common <-
+          substitute(paste(tl,
+                           italic(z), hetseparator, tt,
+                           " (", italic(P), tp, ")"),
+                     list(tl = label.test.overall.common,
+                          hetseparator = hetseparator,
+                          tt = statistics.overall[1],
+                          tp = pvals.overall[1]))
       else
-        text.overall.common  <- substitute(paste(tl,
-                                                italic(z), hetseparator, tt,
-                                                " (", italic(p), tp, ")"),
-                                          list(tl = label.test.overall.common,
-                                               hetseparator = hetseparator,
-                                               tt = statistics.overall[1],
-                                               tp = pvals.overall[1]))
+        text.overall.common <-
+          substitute(paste(tl,
+                           italic(z), hetseparator, tt,
+                           " (", italic(p), tp, ")"),
+                     list(tl = label.test.overall.common,
+                          hetseparator = hetseparator,
+                          tt = statistics.overall[1],
+                          tp = pvals.overall[1]))
     }
     else {
       if (revman5)
-        text.overall.common  <- substitute(paste(tl, " P", tp),
-                                          list(tl = label.test.overall.common,
-                                               tp = pvals.overall[1]))
+        text.overall.common <-
+          substitute(paste(tl, " P", tp),
+                     list(tl = label.test.overall.common,
+                          tp = pvals.overall[1]))
       else if (jama)
-        text.overall.common  <- substitute(paste(tl, " ", italic(P), tp),
-                                          list(tl = label.test.overall.common,
-                                               tp = pvals.overall[1]))
+        text.overall.common <-
+          substitute(paste(tl, " ", italic(P), tp),
+                     list(tl = label.test.overall.common,
+                          tp = pvals.overall[1]))
       else
-        text.overall.common  <- substitute(paste(tl, " ", italic(p), tp),
-                                          list(tl = label.test.overall.common,
-                                               tp = pvals.overall[1]))     
+        text.overall.common <-
+          substitute(paste(tl, " ", italic(p), tp),
+                     list(tl = label.test.overall.common,
+                          tp = pvals.overall[1]))     
     }
   }
   else
@@ -4816,73 +4880,82 @@ forest.meta <- function(x,
     if (print.stat) {
       if (!hakn.kero) {
         if (revman5)
-          text.overall.random  <- substitute(paste(tl,
-                                                   Z, hetseparator, tt,
-                                                   " (P", tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2]))
+          text.overall.random <-
+            substitute(paste(tl,
+                             Z, hetseparator, tt,
+                             " (P", tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2]))
         else if (jama)
-          text.overall.random  <- substitute(paste(tl,
-                                                   italic(z), hetseparator, tt,
-                                                   " (", italic(P), tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2]))
+          text.overall.random <-
+            substitute(paste(tl,
+                             italic(z), hetseparator, tt,
+                             " (", italic(P), tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2]))
         else
-          text.overall.random  <- substitute(paste(tl,
-                                                   italic(z), hetseparator, tt,
-                                                   " (", italic(p), tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2]))
+          text.overall.random <-
+            substitute(paste(tl,
+                             italic(z), hetseparator, tt,
+                             " (", italic(p), tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2]))
       }
       else {
         if (revman5)
-          text.overall.random  <- substitute(paste(tl,
-                                                   t[df], hetseparator, tt,
-                                                   " (P", tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2],
-                                                  df = round(x$df.random, 1)))
+          text.overall.random <-
+            substitute(paste(tl,
+                             t[df], hetseparator, tt,
+                             " (P", tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2],
+                            df = round(x$df.random, 1)))
         else if (jama)
-          text.overall.random  <- substitute(paste(tl,
-                                                   italic(t)[df], hetseparator, tt,
-                                                   " (", italic(P), tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2],
-                                                  df = round(x$df.random, 1)))
+          text.overall.random <-
+            substitute(paste(tl,
+                             italic(t)[df], hetseparator, tt,
+                             " (", italic(P), tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2],
+                            df = round(x$df.random, 1)))
         else
-          text.overall.random  <- substitute(paste(tl,
-                                                   italic(t)[df], hetseparator, tt,
-                                                   " (", italic(p), tp, ")"),
-                                             list(tl = label.test.overall.random,
-                                                  hetseparator = hetseparator,
-                                                  tt = statistics.overall[2],
-                                                  tp = pvals.overall[2],
-                                                  df = round(x$df.random, 1)))
+          text.overall.random <-
+            substitute(paste(tl,
+                             italic(t)[df], hetseparator, tt,
+                             " (", italic(p), tp, ")"),
+                       list(tl = label.test.overall.random,
+                            hetseparator = hetseparator,
+                            tt = statistics.overall[2],
+                            tp = pvals.overall[2],
+                            df = round(x$df.random, 1)))
       }
     }
     else {
       if (revman5)
-        text.overall.random  <- substitute(paste(tl, " P", tp),
-                                           list(tl = label.test.overall.random,
-                                                tp = pvals.overall[2]))
+        text.overall.random <-
+          substitute(paste(tl, " P", tp),
+                     list(tl = label.test.overall.random,
+                          tp = pvals.overall[2]))
       else if (jama)
-        text.overall.random  <- substitute(paste(tl, " ", italic(P), tp),
-                                           list(tl = label.test.overall.random,
-                                                tp = pvals.overall[2]))
+        text.overall.random <-
+          substitute(paste(tl, " ", italic(P), tp),
+                     list(tl = label.test.overall.random,
+                          tp = pvals.overall[2]))
       else
-        text.overall.random  <- substitute(paste(tl, " ", italic(p), tp),
-                                           list(tl = label.test.overall.random,
-                                                tp = pvals.overall[2]))
+        text.overall.random <-
+          substitute(paste(tl, " ", italic(p), tp),
+                     list(tl = label.test.overall.random,
+                          tp = pvals.overall[2]))
     }
   }
   else
@@ -4905,7 +4978,11 @@ forest.meta <- function(x,
            gsub(" ", "", formatN(Q.bs, digits.Q, "NA", big.mark = big.mark)),
            if (!jama) ", df",
            if (!jama) hetseparator,
-           if (!jama) df.Q.b)
+           if (!jama) c(df.Q.b.common,
+                        if (length(df.Q.b.random) == 2)
+                          paste(df.Q.b.random, collapse = ", ")
+                        else
+                          df.Q.b.random))
   hetstat.Q.bs <- rmSpace(hetstat.Q.bs, end = TRUE)
   ##
   hetstat.pval.Q.bs <-
@@ -4943,7 +5020,7 @@ forest.meta <- function(x,
                      list(tl = label.test.subgroup.common,
                           tq = hetstat.Q.bs[1],
                           tp = hetstat.pval.Q.bs[1],
-                          df = df.Q.b))
+                          df = df.Q.b.common))
       else
         text.subgroup.common <-
           substitute(paste(tl,
@@ -4952,7 +5029,7 @@ forest.meta <- function(x,
                      list(tl = label.test.subgroup.common,
                           tq = hetstat.Q.bs[1],
                           tp = hetstat.pval.Q.bs[1],
-                          df = df.Q.b))
+                          df = df.Q.b.common))
     }
     else {
       if (revman5)
@@ -4978,32 +5055,64 @@ forest.meta <- function(x,
   
   if (test.subgroup.random) {
     if (print.Q.subgroup) {
-      if (revman5)
-        text.subgroup.random <-
-          substitute(paste(tl,
-                           "Chi"^2, tq,
-                           " (P", tp, ")"),
-                     list(tl = label.test.subgroup.random,
-                          tq = hetstat.Q.bs[2],
-                          tp = hetstat.pval.Q.bs[2]))
-      else if (jama)
-        text.subgroup.random <-
-          substitute(paste(tl,
-                           chi[df]^2, tq,
-                           " (", italic(P), tp, ")"),
-                     list(tl = label.test.subgroup.random,
-                          tq = hetstat.Q.bs[2],
-                          tp = hetstat.pval.Q.bs[2],
-                          df = df.Q.b))
-      else
-        text.subgroup.random <-
-          substitute(paste(tl,
-                           chi[df]^2, tq,
-                           " (", italic(p), tp, ")"),
-                     list(tl = label.test.subgroup.random,
-                          tq = hetstat.Q.bs[2],
-                          tp = hetstat.pval.Q.bs[2],
-                          df = df.Q.b))
+      if (revman5) {
+        if (length(df.Q.b.random) == 2)
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             "F", tq,
+                             " (P", tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2]))
+        else
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             "Chi"^2, tq,
+                             " (P", tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2]))
+      }
+      else if (jama) {
+        if (length(df.Q.b.random) == 2)
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             F[df], tq,
+                             " (", italic(P), tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2],
+                            df = paste(df.Q.b.random, collapse = ", ")))
+        else
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             chi[df]^2, tq,
+                             " (", italic(P), tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2],
+                            df = df.Q.b.random))          
+      }
+      else {
+        if (length(df.Q.b.random) == 2)
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             F[df], tq,
+                             " (", italic(p), tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2],
+                            df = paste(df.Q.b.random, collapse = ", ")))
+        else
+          text.subgroup.random <-
+            substitute(paste(tl,
+                             chi[df]^2, tq,
+                             " (", italic(p), tp, ")"),
+                       list(tl = label.test.subgroup.random,
+                            tq = hetstat.Q.bs[2],
+                            tp = hetstat.pval.Q.bs[2],
+                            df = df.Q.b.random))
+      }
     }
     else {
       if (revman5)

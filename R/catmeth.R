@@ -59,6 +59,9 @@ catmeth <- function(method,
   adhoc.hakn.ci <- replaceNULL(adhoc.hakn.ci, "")
   method.predict <- replaceNULL(method.predict, "")
   adhoc.hakn.pi <- replaceNULL(adhoc.hakn.pi, "")
+  ##
+  more.ci <- length(method.random.ci) > 1
+  more.pi <- length(method.predict) > 1
   
   
   if (sm == "ZCOR")
@@ -363,36 +366,59 @@ catmeth <- function(method,
   ##
   ## Method to calculate random effects confidence interval
   ##
-  lab.random.ci <- ""
-  ##
   if (any(method.random.ci == "HK")) {
-    lab.random.ci <-
-      paste0("\n- Hartung-Knapp (HK) adjustment for ",
-             "random effects model (df = ",
-             rmSpace(unique(df.random[method.random.ci == "HK"])),
-             ")")
+    if (any(method.random.ci == "HK" &
+            !(method == "GLMM" | three.level))) {
+      lab.hakn.ci <- 
+        paste0("\n- Hartung-Knapp (HK) adjustment for ",
+               "random effects model (df = ",
+               rmSpace(unique(df.random[method.random.ci == "HK"])),
+               ")")
+      ##
+      if (any(adhoc.hakn.ci != ""))
+        lab.hakn.ci <-
+          paste0(lab.hakn.ci,
+                 "\n  (with ",
+                 if (any(method.random.ci == "HK" & adhoc.hakn.ci == ""))
+                   "and without ",
+                 "ad hoc correction)")
+    }
+    else
+      lab.hakn.ci <- NULL
     ##
-    if (any(adhoc.hakn.ci != ""))
-      lab.random.ci <-
-        paste0(lab.random.ci,
-               "\n  (with ",
-               if (any(method.random.ci == "HK" & adhoc.hakn.ci == ""))
-                 "and without ",
-               "ad hoc correction)")
+    if (any(method.random.ci == "HK" & (method == "GLMM" | three.level)))
+      lab.t.ci <-
+        paste0("\n- Random effects confidence interval based on ",
+               "t-distribution ",
+               if (more.ci) "(T) ",
+               "(df = ",
+               rmSpace(unique(df.random[method.random.ci == "HK"])),
+               ")")
+    else
+      lab.t.ci <- NULL
+    ##
+    lab.random.ci <- c(lab.hakn.ci, lab.t.ci)
+    ##
+    if (is.null(lab.random.ci))
+      lab.random.ci <- ""
   }
+  else
+    lab.random.ci <- ""
   ##
   if (any(method.random.ci == "classic-KR")) {
     lab.random.ci <-
       paste0(lab.random.ci,
              "\n- Classic method instead of Kenward-Roger adjustment ",
-             "(classic-KR) used for random effects model")
+             if (more.ci) "(classic-KR) ",
+             "used for random effects model")
   }
   ##
   if (any(method.random.ci == "KR")) {
     lab.random.ci <-
       paste0(lab.random.ci,
-             "\n- Kenward-Roger (KR) adjustment for ",
-             "random effects model (df = ",
+             "\n- Kenward-Roger ",
+             if (more.ci) "(KR) ",
+             "adjustment for random effects model (df = ",
              rmSpace(unique(df.random[method.random.ci == "KR"])),
              ")")
   }
@@ -405,7 +431,8 @@ catmeth <- function(method,
   ##
   if (any(method.predict == "HTS")) {
     lab.predict <-
-      paste0("\n- Prediction interval based on t-distribution (HTS) ",
+      paste0("\n- Prediction interval based on t-distribution ",
+             if (more.pi) "(HTS) ",
              "(df = ",
              rmSpace(unique(df.predict[method.predict == "HTS"])),
              ")")
@@ -414,7 +441,9 @@ catmeth <- function(method,
   if (any(method.predict == "HK")) {
     lab.predict <-
       paste0(lab.predict,
-             paste0("\n- Hartung-Knapp (HK) prediction interval (df = ",
+             paste0("\n- Hartung-Knapp ",
+                    if (more.pi) "(HK) ",
+                    "prediction interval (df = ",
                     rmSpace(unique(df.predict[method.predict == "HK"])),
                     ")"))
     if (any(adhoc.hakn.pi != ""))
@@ -438,7 +467,9 @@ catmeth <- function(method,
   if (any(method.predict == "KR")) {
     lab.predict <-
       paste0(lab.predict,
-             "\n- Kenward-Roger (KR) prediction interval (df = ",
+             "\n- Kenward-Roger ",
+             if (more.pi) "(KR) ",
+             "prediction interval (df = ",
              rmSpace(unique(df.predict[method.predict == "KR"])),
              ")")
   }
@@ -446,7 +477,9 @@ catmeth <- function(method,
   if (any(method.predict == "HTS-KR")) {
     lab.predict <-
       paste0(lab.predict,
-             "\n- Kenward-Roger (KR) prediction interval (df = ",
+             "\n- Kenward-Roger ",
+             if (more.pi) "(KR) ",
+             "prediction interval (df = ",
              rmSpace(unique(df.predict[method.predict == "KR"])),
              ")")
   }
@@ -454,7 +487,9 @@ catmeth <- function(method,
   if (any(method.predict == "NNF")) {
     lab.predict <-
       paste0(lab.predict,
-             "\n- Boot-strap prediction interval (NNF) (df = ",
+             "\n- Boot-strap prediction interval ",
+             if (more.pi) "(NNF) ",
+             "(df = ",
              rmSpace(unique(df.predict[method.predict == "NNF"])),
              ")")
   }
@@ -463,7 +498,8 @@ catmeth <- function(method,
     lab.predict <-
       paste0(lab.predict,
              "\n- Prediction interval based on ",
-                 "standard normal distribution (S)")
+             "standard normal distribution",
+             if (more.pi) " (S)")
   }
   
   

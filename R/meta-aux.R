@@ -4,6 +4,7 @@
 ## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
 ## License: GPL (>= 2)
 ##
+
 bylevs <- function(x) {
   if (is.factor(x))
     res <- levels(factor(x))
@@ -11,6 +12,7 @@ bylevs <- function(x) {
     res <- unique(x)
   res
 }
+
 byvarname <- function(argname, matchcall) {
   ##
   ## Determine name of subgroup variable
@@ -25,12 +27,14 @@ byvarname <- function(argname, matchcall) {
   ##
   res
 }
+
 catch <- function(argname, matchcall, data, encl) {
   ##
   ## Catch value for argument
   ##
   eval(matchcall[[match(argname, names(matchcall))]], data, enclos = encl)
 }
+
 int2num <- function(x) {
   ##
   ## Convert integer to numeric
@@ -42,6 +46,7 @@ int2num <- function(x) {
   ##
   res
 }
+
 npn <- function(x) {
   ##
   ## Check for non-positive values in vector
@@ -53,11 +58,13 @@ npn <- function(x) {
   ##
   res
 }
+
 replaceNULL <- function(x, replace = NA) {
   if (is.null(x))
     return(replace)
   x
 }
+
 replaceNA <- function(x, replace = NA) {
   if (is.null(x))
     return(x)
@@ -65,6 +72,7 @@ replaceNA <- function(x, replace = NA) {
     x[is.na(x)] <- replace
   x
 }
+
 warnarg <- function(x, y, fun, cl, otherarg) {
   if (x %in% y)
     if (!missing(cl))
@@ -79,6 +87,7 @@ warnarg <- function(x, y, fun, cl, otherarg) {
   ##
   invisible(NULL)
 }
+
 catchvar <- function(varname, x, mf) {
   res <- NULL
   error <-
@@ -94,6 +103,7 @@ catchvar <- function(varname, x, mf) {
   ##
   res
 }
+
 augment <- function(x, len, fun) {
   if (length(x) > 1)
     chklength(x, len, fun)
@@ -101,11 +111,13 @@ augment <- function(x, len, fun) {
     x <- rep(x, len)
   x
 }
+
 stoponly <- function(arg, val, func)
   stop("Argument ", arg, " =\"", val, "\"",
        " only defined for meta-analysis conducted with ",
        func, ".",
        call. = FALSE)
+
 deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
   ##
   new <- deparse(substitute(newvar))
@@ -136,6 +148,7 @@ deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
   else
     return(newvar)
 }
+
 deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
   ##
   new <- deparse(substitute(newvar))
@@ -160,6 +173,7 @@ deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
     return(oldvar)
   }
 }
+
 runNN <- function(func, args, warn = TRUE) {
   args <- args[!sapply(args, is.null)]
   if (warn)
@@ -167,6 +181,7 @@ runNN <- function(func, args, warn = TRUE) {
   else
     suppressWarnings(do.call(func, args))
 }
+
 setNA3 <- function(x) {
   res <- x
   ##
@@ -177,6 +192,7 @@ setNA3 <- function(x) {
   ##
   res
 }
+
 mismatch <- function(x, y, var) {
   x <- x$data[[var]]
   y <- y$data[[var]]
@@ -191,4 +207,127 @@ mismatch <- function(x, y, var) {
     else
       return(TRUE)
   }
+}
+
+addHet <- function(x, hcc, within = TRUE) {
+  
+  res <- x
+  ##
+  if (within) {
+    res$Q.w.random <- hcc$Q.resid
+    res$df.Q.w.random <- hcc$df.Q.resid
+    res$pval.Q.w.random <- hcc$pval.Q.resid
+  }
+  ##
+  res$tau2.resid <- hcc$tau2.resid
+  res$lower.tau2.resid <- hcc$lower.tau2.resid
+  res$upper.tau2.resid <- hcc$upper.tau2.resid
+  ##
+  res$tau.resid <- hcc$tau.resid
+  res$lower.tau.resid <- hcc$lower.tau.resid
+  res$upper.tau.resid <- hcc$upper.tau.resid
+  res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
+  res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
+  ##
+  res$Q.resid <- hcc$Q.resid
+  res$df.Q.resid <- hcc$df.Q.resid
+  res$pval.Q.resid <- hcc$pval.Q.resid
+  ##
+  res$H.resid <- hcc$H.resid
+  res$lower.H.resid <- hcc$lower.H.resid
+  res$upper.H.resid <- hcc$upper.H.resid
+  ##
+  res$I2.resid <- hcc$I2.resid
+  res$lower.I2.resid <- hcc$lower.I2.resid
+  res$upper.I2.resid <- hcc$upper.I2.resid
+  ##
+  res
+}
+
+backward <- function(x) {
+  res <- x
+  ##
+  res$w.fixed <- res$w.common
+  res$TE.fixed <- res$TE.common
+  res$seTE.fixed <- res$seTE.common
+  res$lower.fixed <- res$lower.common
+  res$upper.fixed <- res$upper.common
+  res$statistic.fixed <- res$statistic.common
+  res$pval.fixed <- res$pval.common
+  res$zval.fixed <- res$zval.common
+  ##
+  res$text.fixed <- res$text.common
+  res$text.w.fixed <- res$text.w.common
+  ##
+  res$df.hakn <- res$df.hakn.ci
+  res$seTE.hakn <- res$seTE.hakn.ci
+  res$seTE.hakn.adhoc <- res$seTE.hakn.adhoc.ci
+  ##
+  if (!is.null(res$subgroup)) {
+    res$byvar <- res$subgroup
+    res$bylab <- res$subgroup.name
+    res$print.byvar <- res$print.subgroup.name
+    res$byseparator <- res$sep.subgroup
+    ##
+    res$TE.fixed.w <- res$TE.common.w
+    res$seTE.fixed.w <- res$seTE.common.w
+    res$lower.fixed.w <- res$lower.common.w
+    res$upper.fixed.w <- res$upper.common.w
+    res$statistic.fixed.w <- res$statistic.common.w
+    res$pval.fixed.w <- res$pval.common.w
+    res$zval.fixed.w <- res$zval.common.w
+    res$w.fixed.w <- res$w.common.w
+    ##
+    res$Q.w.fixed <- res$Q.w.common
+    res$pval.Q.w.fixed <- res$pval.Q.w.common
+    res$Q.b.fixed <- res$Q.b.common
+    res$pval.Q.b.fixed <- res$pval.Q.b.common
+  }
+  ##
+  if (!is.null(res$three.level) && res$three.level)
+    res$id <- res$cluster
+  ##
+  res
+}
+
+
+ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
+  res <- x
+  ##
+  if (!is.null(ci.c)) {
+    res$TE.common <- ci.c$TE
+    res$seTE.common <- ci.c$seTE
+    res$lower.common <- ci.c$lower
+    res$upper.common <- ci.c$upper
+    res$statistic.common <- ci.c$statistic
+    res$pval.common <- ci.c$p      
+    res$zval.common <- ci.c$statistic
+  }
+  ##
+  if (!is.null(ci.r)) {
+    res$TE.random <- ci.r$TE
+    res$seTE.random <- ci.r$seTE
+    res$lower.random <- ci.r$lower
+    res$upper.random <- ci.r$upper
+    res$statistic.random <- ci.r$statistic
+    res$pval.random <- ci.r$p      
+    res$zval.random <- ci.r$statistic
+  }
+  ##
+  res
+}
+
+
+setNAwithin <- function(x, condition) {
+  res <- x
+  ##
+  if (condition) {
+    res$Q.w.common <- NA
+    res$Q.w.random <- NA
+    res$df.Q.w <- NA
+    res$pval.Q.w.common <- NA
+    res$pval.Q.w.random <- NA
+  }
+  ##
+  res
 }

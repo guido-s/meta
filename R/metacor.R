@@ -331,9 +331,9 @@ metacor <- function(cor, n, studlab,
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
-    chkchar(text.random, length = 1)
+    chkchar(text.random)
   if (!is.null(text.predict))
-    chkchar(text.predict, length = 1)
+    chkchar(text.predict)
   if (!is.null(text.w.common))
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
@@ -759,39 +759,15 @@ metacor <- function(cor, n, studlab,
       res <- c(res, subgroup(res, tau.preset))
     else {
       if (res$three.level)
-        res <- c(res, subgroup(res, NULL,
-                               factor(res$subgroup, bylevs(res$subgroup))))
+        res <- c(res,
+                 subgroup(res, NULL,
+                          factor(res$subgroup, bylevs(res$subgroup))))
       else
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
     ##
-    if (tau.common && is.null(tau.preset)) {
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
-      ##
-      res$tau2.resid <- hcc$tau2.resid
-      res$lower.tau2.resid <- hcc$lower.tau2.resid
-      res$upper.tau2.resid <- hcc$upper.tau2.resid
-      ##
-      res$tau.resid <- hcc$tau.resid
-      res$lower.tau.resid <- hcc$lower.tau.resid
-      res$upper.tau.resid <- hcc$upper.tau.resid
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
-      ##
-      res$Q.resid <- hcc$Q.resid
-      res$df.Q.resid <- hcc$df.Q.resid
-      res$pval.Q.resid <- hcc$pval.Q.resid
-      ##
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-      ##
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
-    }
+    if (tau.common && is.null(tau.preset))
+      res <- addHet(res, hcc)
     ##
     res$event.w <- NULL
     ##
@@ -805,7 +781,13 @@ metacor <- function(cor, n, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
+    ##
+    res <- setNAwithin(res, res$three.level)
   }
+  ##
+  ## Backward compatibility
+  ##
+  res <- backward(res)
   ##
   class(res) <- c(fun, "meta")
   

@@ -204,9 +204,9 @@ summary.meta <- function(object, ...) {
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ## 
-    res$within.common   <- ci.common.w
-    res$within.random   <- ci.random.w
-    res$within.predict  <- ci.predict.w
+    res$within.common  <- ci.common.w
+    res$within.random  <- ci.random.w
+    res$within.predict <- ci.predict.w
     ##
     if (is.null(res$test.subgroup))
       res$test.subgroup <- TRUE

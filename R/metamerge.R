@@ -685,12 +685,10 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ## (10) Backward compatibility
   ##
   ##
-  
-  res$comb.fixed <- res$fixed <- res$common
-  res$comb.random <- res$random
-  
-  
+  res <- backward(res)
+  ##  
   class(res) <- c(class(res), "metamerge")
-  ##
+  
+  
   res
 }

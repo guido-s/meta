@@ -625,7 +625,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
                     overall.hetstat = common | random,
-                    prediction = gs("prediction"),
+                    prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau =
                       ifelse(!is.na(charmatch(tolower(method), "glmm",
@@ -713,7 +713,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is.installed.package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
@@ -728,9 +728,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
-    chkchar(text.random, length = 1)
+    chkchar(text.random)
   if (!is.null(text.predict))
-    chkchar(text.predict, length = 1)
+    chkchar(text.predict)
   if (!is.null(text.w.common))
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
@@ -781,7 +781,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (!missing(Q.Cochrane) && Q.Cochrane)
       warning("Argument 'Q.Cochrane' only considered for ",
               "Mantel-Haenszel method in combination with ",
-              "DerSimonian-Laird estimator.")
+              "DerSimonian-Laird estimator.",
+              call. = FALSE)
     Q.Cochrane <- FALSE
   }
   ##
@@ -1383,8 +1384,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
     ##
     if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing(method.tau))
-        warning("For three-level model, argument 'method.tau' set to \"REML\".",
+      if (!missing.method.tau)
+        warning("For three-level model, argument 'method.tau' set to ",
+                "\"REML\".",
                 call. = FALSE)
       method.tau <- "REML"
     }
@@ -1414,40 +1416,28 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
            "argument 'sm = \"OR\"'.")
   }
   ##
-  if (is.glmm & method.tau != "ML")
-    stop("Generalised linear mixed models only possible with ",
-         "argument 'method.tau = \"ML\"'.")
-  ##
-  if (is.glmm & method.random.ci == "KR")
-    stop("Kenward-Roger method for random effects meta-analysis not ",
-         "available for GLMMs.",
-         call. = FALSE)
-  ##
-  if (is.glmm & method.predict == "KR")
-    stop("Kenward-Roger method for prediction interval not ",
-         "available for GLMMs.",
-         call. = FALSE)
-  ##
-  if (is.glmm & method.predict == "NNF")
-    stop("Bootstrap method for prediction interval not ",
-         "available for GLMMs.",
-         call. = FALSE)
-  ##
-  if (is.glmm & method.random.ci == "HK" & adhoc.hakn.ci != "") {
-    if (!missing.adhoc.hakn.ci)
-      warning("Ad hoc correction for Hartung-Knapp method not ",
-              "available for GLMMs.",
-              call. = FALSE)
-    adhoc.hakn.ci <- ""
+  if (is.glmm) {
+    chkglmm(sm, method.tau, method.random.ci, method.predict,
+            adhoc.hakn.ci, adhoc.hakn.pi,
+            "OR")
+    ##
+    if (!is.null(TE.tau)) {
+      if (warn)
+        warning("Argument 'TE.tau' not considered for GLMM.",
+                call. = FALSE)
+      TE.tau <- NULL
+    }
+    ##
+    if (!is.null(tau.preset)) {
+      if (warn)
+        warning("Argument 'tau.preset' not considered for GLMM.",
+                call. = FALSE)
+      tau.preset <- NULL
+    }
   }
   ##
-  if (is.glmm & method.predict == "HK" & adhoc.hakn.pi != "") {
-    if (!missing.adhoc.hakn.pi)
-      warning("Ad hoc Hartung-Knapp correction ffor prediction interval not ",
-              "available for GLMMs.",
-              call. = FALSE)
-    adhoc.hakn.pi <- ""
-  }
+  if (is.glmm & model.glmm == "CM.EL")
+    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
   ## No need to add anything to cell counts for
   ##  (i)  arcsine difference as summary measure
@@ -1478,25 +1468,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                   call. = FALSE)
       }
   }
-  ##
-  if (is.glmm) {
-    if (!is.null(TE.tau)) {
-      if (warn)
-        warning("Argument 'TE.tau' not considered for GLMM.",
-                call. = FALSE)
-      TE.tau <- NULL
-    }
-    ##
-    if (!is.null(tau.preset)) {
-      if (warn)
-        warning("Argument 'tau.preset' not considered for GLMM.",
-                call. = FALSE)
-      tau.preset <- NULL
-    }
-  }
-  ##
-  if (is.glmm & model.glmm == "CM.EL")
-    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   
   
   ##
@@ -1507,10 +1478,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
   ##
-  if (k == 1 & method.random.ci == "HK")
-    method.random.ci <- "classic"
+  for (i in seq_along(method.random.ci))
+    if (k == 1 & method.random.ci[i] == "HK")
+      method.random.ci[i] <- "classic"
   ##
-  if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" & MH.exact == FALSE)
+  if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" &
+      MH.exact == FALSE)
     MH.exact <- TRUE
   ##
   if (method == "MH") {
@@ -1592,30 +1565,27 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.common[is.na(w.common)] <- 0
   }
   else if (is.glmm) {
-    zero.all <-
-      (sum(event.e[!exclude], na.rm = TRUE) == 0 &
-       sum(event.c[!exclude], na.rm = TRUE) == 0) |
-      (!any(event.e[!exclude] != n.e[!exclude]) |
-       !any(event.c[!exclude] != n.c[!exclude]))
+    list.bin <- list(ai = event.e[!exclude], n1i = n.e[!exclude],
+                     ci = event.c[!exclude], n2i = n.c[!exclude],
+                     measure = "OR", model = model.glmm)
     ##
-    if (!zero.all)
-      glmm.common <-
-        runNN(rma.glmm,
-              list(ai = event.e[!exclude], n1i = n.e[!exclude],
-                   ci = event.c[!exclude], n2i = n.c[!exclude],
-                   method = "FE",
-                   test = ifelse(method.random.ci == "HK", "t", "z"),
-                   level = 100 * level.ma,
-                   measure = "OR", model = model.glmm,
-                   control = control,
-                   ...))
-    else
-      glmm.common <- list(b = NA, se = NA,
-                          QE.Wld = NA, QE.df = NA, QE.LRT = NA,
-                          tau2 = NA, se.tau2 = NA)
+    use.random <-
+      sum(!exclude) > 1 &
+      !((sum(event.e[!exclude], na.rm = TRUE) == 0 &
+         sum(event.c[!exclude], na.rm = TRUE) == 0) |
+        (!any(event.e[!exclude] != n.e[!exclude]) |
+         !any(event.c[!exclude] != n.c[!exclude])))
     ##
-    TE.common   <- as.numeric(glmm.common$b)
-    seTE.common <- as.numeric(glmm.common$se)
+    res.glmm <-
+      runGLMM(list.bin,
+              method.tau = method.tau,
+              method.random.ci = method.random.ci,
+              level = level.ma,
+              control = list(control),
+              use.random = use.random)
+    ##
+    TE.common   <- as.numeric(res.glmm$glmm.common$b)
+    seTE.common <- as.numeric(res.glmm$glmm.common$se)
     ##
     w.common <- rep(NA, length(event.e))
   }
@@ -1738,215 +1708,47 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$addincr <- addincr
   ##
   if (method %in% c("MH", "Peto", "GLMM", "SSW")) {
-    ##
-    ci.f <- ci(TE.common, seTE.common, level = level.ma)
-    ##
-    res$TE.common <- TE.common
-    res$seTE.common <- seTE.common
+    res <- ci2meta(res, ci.c = ci(TE.common, seTE.common, level = level.ma))
     res$w.common <- w.common
-    res$lower.common <- ci.f$lower
-    res$upper.common <- ci.f$upper
-    res$statistic.common <- ci.f$statistic
-    res$pval.common <- ci.f$p
-    res$zval.common <- ci.f$statistic
   }
   ##
   if (is.glmm) {
-    ##
-    if (sum(!exclude) > 1 & !zero.all)
-      glmm.random <-
-        runNN(rma.glmm,
-              list(ai = event.e[!exclude], n1i = n.e[!exclude],
-                   ci = event.c[!exclude], n2i = n.c[!exclude],
-                   method = method.tau,
-                   test = ifelse(method.random.ci == "HK", "t", "z"),
-                   level = 100 * level.ma,
-                   measure = "OR", model = model.glmm,
-                   control = control,
-                   ...))
-    else {
-      ##
-      ## Fallback to common effect model due to small number of studies
-      ## or zero or all events in all studies
-      ##
-      glmm.random <- glmm.common
-    }
-    ##
-    TE.random   <- as.numeric(glmm.random$b)
-    seTE.random <- as.numeric(glmm.random$se)
-    ##
-    ci.r <- ci(TE.random, seTE.random, level = level.ma,
-               df = if (method.random.ci == "HK") k - 1)
-    ##
-    res$w.random <- rep(NA, length(event.e))
-    ##
-    res$TE.random <- TE.random
-    res$seTE.random <- seTE.random
-    res$lower.random <- ci.r$lower
-    res$upper.random <- ci.r$upper
-    res$statistic.random <- ci.r$statistic
-    res$pval.random <- ci.r$p
-    res$zval.random <- ci.r$statistic
-    ##
-    ## Prediction interval
-    ##
-    res$upper.predict <- res$lower.predict <- res$seTE.predict <- NA
-    ##
-    tau2.calc <- if (is.na(glmm.random$tau2)) 0 else glmm.random$tau2
-    seTE.predict <- sqrt(seTE.random^2 + tau2.calc)
-    ##
-    if (method.predict == "HTS" && k >= 3)
-      ci.p <- ci(TE.random, seTE.predict, level.predict, k - 2)
-    else if (method.predict == "S")
-      ci.p <- ci(TE.random, seTE.predict, level.predict)
-    else
-      ci.p <- list(lower = NA, upper = NA)
-    ##
-    res$seTE.predict <- seTE.predict
-    res$lower.predict <- ci.p$lower
-    res$upper.predict <- ci.p$upper
-    ##
+    res <- addGLMM(res, res.glmm)
     res$model.glmm <- model.glmm
-    ##
-    res$Q <- if (glmm.random$k > 1) glmm.random$QE.Wld else 0
-    res$df.Q <- glmm.random$QE.df
-    res$pval.Q <- pvalQ(res$Q, res$df.Q)
-    ##
-    res$Q.LRT <- if (glmm.random$k > 1) glmm.random$QE.LRT else 0
-    res$df.Q.LRT <- res$df.Q
-    res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
-    ##
-    if (k > 1) {
-      res$tau <- sqrt(glmm.random$tau2)
-      res$tau2 <- glmm.random$tau2
-      res$se.tau2 <- glmm.random$se.tau2
-    }
-    else
-      res$se.tau2 <- NA
-    ##
-    res$lower.tau2 <- NA
-    res$upper.tau2 <- NA
-    ##
-    res$lower.tau <- NA
-    res$upper.tau <- NA
-    ##
-    res$method.tau.ci <- ""
-    res$sign.lower.tau <- ""
-    res$sign.upper.tau <- ""
-    ##
-    H <- calcH(res$Q, res$df.Q, level.ma)
-    res$H <- H$TE
-    res$lower.H <- H$lower
-    res$upper.H <- H$upper
-    ##
-    I2 <- isquared(res$Q, res$df.Q, level.ma)
-    res$I2 <- I2$TE
-    res$lower.I2 <- I2$lower
-    res$upper.I2 <- I2$upper
-    ##
-    res$Rb <- NA
-    res$lower.Rb <- NA
-    res$upper.Rb <- NA
-    ##
-    res$.glmm.common  <- glmm.common
-    res$.glmm.random <- glmm.random
-    res$version.metafor <- packageDescription("metafor")$Version
     ##
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))
       if (n.subgroups > 1)
-        subgroup.glmm <- factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
-      else
-        subgroup.glmm <- NA
+        subgroup.glmm <-
+          factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
       ##
-      glmm.random.by <-
-        try(suppressWarnings(
-          runNN(rma.glmm,
-                list(ai = event.e[!exclude],
-                     n1i = n.e[!exclude],
-                     ci = event.c[!exclude],
-                     n2i = n.c[!exclude],
-                     mods =
-                       if (n.subgroups > 1)
-                         as.call(~ subgroup.glmm) else NULL,
-                     method = method.tau,
-                     test = ifelse(method.random.ci == "HK", "t", "z"),
-                     level = 100 * level.ma,
-                     measure = "OR", model = model.glmm,
-                     control = control,
-                     data = data.frame(subgroup.glmm),
-                     ...))),
-          silent = TRUE)
-      ##
-      if ("try-error" %in% class(glmm.random.by))
-        if (grepl(paste0("Number of parameters to be estimated is ",
-                         "larger than the number of observations"),
-                  glmm.random.by)) {
-          glmm.random.by <-
-            suppressWarnings(
-              runNN(rma.glmm,
-                    list(ai = event.e[!exclude],
-                         n1i = n.e[!exclude],
-                         ci = event.c[!exclude],
-                         n2i = n.c[!exclude],
-                         mods =
-                           if (n.subgroups > 1)
-                             as.call(~ subgroup.glmm) else NULL,
-                         method = "FE",
-                         test = ifelse(method.random.ci == "HK", "t", "z"),
-                         level = 100 * level.ma,
-                         measure = "OR", model = model.glmm,
-                         control = control,
-                         data = data.frame(subgroup.glmm),
-                         ...)))
-        }
-        else
-          stop(glmm.random.by)
-      ##
-      Q.r <- glmm.random.by$QE.Wld
-      df.Q.r <- glmm.random.by$k - glmm.random.by$p
-      ##
-      H.r  <- calcH(Q.r, df.Q.r, level.ma)
-      I2.r <- isquared(Q.r, df.Q.r, level.ma)
-      ##
-      hcc <- list(tau2.resid = glmm.random.by$tau2,
-                  lower.tau2.resid = NA,
-                  upper.tau2.resid = NA,
-                  ##
-                  tau.resid = sqrt(glmm.random.by$tau2),
-                  lower.tau.resid = NA,
-                  upper.tau.resid = NA,
-                  sign.lower.tau.resid = "",
-                  sign.upper.tau.resid = "",
-                  ##
-                  Q.resid = Q.r,
-                  df.Q.resid = df.Q.r,
-                  pval.Q.resid = pvalQ(Q.r, df.Q.r),
-                  ##
-                  H.resid = H.r$TE,
-                  lower.H.resid = H.r$lower,
-                  upper.H.resid = H.r$upper,
-                  ##
-                  I2.resid = I2.r$TE,
-                  lower.I2.resid = I2.r$lower,
-                  upper.I2.resid = I2.r$upper
-                  )
+      hcc <-
+        hccGLMM(
+          res,
+          runGLMM(list.bin,
+                  method.tau = method.tau,
+                  method.random.ci = method.random.ci,
+                  level = level.ma,
+                  data =
+                    if (n.subgroups > 1)
+                      list(data.frame(subgroup.glmm))
+                    else NULL,
+                  mods =
+                    if (n.subgroups > 1)
+                      as.call(~ subgroup.glmm)
+                    else
+                      NULL,
+                  control = list(control),
+                  use.random = use.random)$glmm.random[[1]]
+        )
     }
   }
   else if (method == "SSW") {
-    if (method.random.ci == "HK")
-      ci.r <- ci(TE.random, seTE.random, level = level.ma, df = m$k - 1)
-    else
-      ci.r <- ci(TE.random, seTE.random, level = level.ma)
-    ##
-    res$TE.random <- TE.random
-    res$seTE.random <- seTE.random
+    res <- ci2meta(res,
+                   ci.r = ci(TE.random, seTE.random, level = level.ma,
+                             df = ifelse(method.random.ci == "HK",
+                                         m$k - 1, Inf)))
     res$w.random <- w.random
-    res$lower.random <- ci.r$lower
-    res$upper.random <- ci.r$upper
-    res$statistic.random <- ci.r$statistic
-    res$pval.random <- ci.r$p      
-    res$zval.random <- ci.r$statistic
   }
   ##
   if (keepdata) {
@@ -1977,8 +1779,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       res <- c(res, subgroup(res, tau.preset))
     else {
       if (is.glmm)
-        res <- c(res, subgroup(res, NULL,
-                               factor(res$subgroup, bylevs(res$subgroup)), ...))
+        res <- c(res,
+                 subgroup(res, NULL,
+                          factor(res$subgroup, bylevs(res$subgroup)), ...))
       else if (res$three.level)
         res <- c(res,
                  subgroup(res, NULL,
@@ -1987,33 +1790,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
     ##
-    if (tau.common && is.null(tau.preset)) {
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
-      ##
-      res$tau2.resid <- hcc$tau2.resid
-      res$lower.tau2.resid <- hcc$lower.tau2.resid
-      res$upper.tau2.resid <- hcc$upper.tau2.resid
-      ##
-      res$tau.resid <- hcc$tau.resid
-      res$lower.tau.resid <- hcc$lower.tau.resid
-      res$upper.tau.resid <- hcc$upper.tau.resid
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
-      ##
-      res$Q.resid <- hcc$Q.resid
-      res$df.Q.resid <- hcc$df.Q.resid
-      res$pval.Q.resid <- hcc$pval.Q.resid
-      ##
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-      ##
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
-    }
+    if (tau.common && is.null(tau.preset))
+      res <- addHet(res, hcc, !is.glmm)
     ##
     res$n.w <- NULL
     res$event.w <- NULL
@@ -2023,25 +1801,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
+    ##
+    res <- setNAwithin(res, res$three.level | is.glmm)
   }
   ##
   ## Backward compatibility
   ##
-  res$TE.fixed <- res$TE.common
-  res$seTE.fixed <- res$seTE.common
-  res$w.fixed <- res$w.common
-  res$lower.fixed <- res$lower.common
-  res$upper.fixed <- res$upper.common
-  res$statistic.fixed <- res$statistic.common
-  res$pval.fixed <- res$pval.common
-  res$zval.fixed <- res$zval.common
-  ##
-  if (by) {
-    res$byvar <- subgroup
-    res$bylab <- subgroup.name
-    res$print.byvar <- print.subgroup.name
-    res$byseparator <- sep.subgroup
-  }
+  res <- backward(res)
   ##
   class(res) <- c(fun, "meta")
   
