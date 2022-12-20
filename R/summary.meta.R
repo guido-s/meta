@@ -13,7 +13,7 @@
 #' An object of classes \code{summary.meta} and \code{meta} (see
 #' \code{\link{meta-object}}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{print.summary.meta}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}}

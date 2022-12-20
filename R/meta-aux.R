@@ -1,7 +1,7 @@
 ## Auxiliary functions
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 
@@ -373,7 +373,8 @@ calcPI <- function(x) {
 }
 
 
-runMLM <- function(x, method.tau, method.random.ci, level, ...) {
+runMLM <- function(x, method.tau, method.random.ci, level,
+                   warn = TRUE, ...) {
   
   n.methci <- length(method.random.ci)
   ##
@@ -387,7 +388,7 @@ runMLM <- function(x, method.tau, method.random.ci, level, ...) {
                      test = ifelse(method.random.ci[i] == "HK", "t", "z"))
   ##
   for (i in seq_len(n.methci))
-    res[[i]] <- runNN(rma.mv, list.r[[i]])
+    res[[i]] <- runNN(rma.mv, list.r[[i]], warn = warn)
   ##
   res
 }
@@ -444,7 +445,7 @@ extrMLM <- function(x, k, len, sel,
 
 
 runGLMM <- function(x, method.tau, method.random.ci, level,
-                    use.random = TRUE, ...) {
+                    use.random = TRUE, warn = TRUE, ...) {
   
   n.methci <- length(method.random.ci)
   ##
@@ -457,12 +458,12 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
     list.r[[i]] <- c(x, list.b, method = method.tau,
                      test = ifelse(method.random.ci[i] == "HK", "t", "z"))
   ##
-  res.c <- runNN(rma.glmm, list.c)
+  res.c <- runNN(rma.glmm, list.c, warn = FALSE)
   ##
   for (i in seq_len(n.methci)) {
     if (use.random) {
       res.r[[i]] <-
-        try(runNN(rma.glmm, list.r[[i]]), silent = TRUE)
+        try(runNN(rma.glmm, list.r[[i]], warn = warn), silent = TRUE)
       if ("try-error" %in% class(res.r[[i]]))
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),

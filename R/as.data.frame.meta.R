@@ -14,7 +14,7 @@
 #' 
 #' @return A data frame is returned by the function \code{as.data.frame}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.meta}}

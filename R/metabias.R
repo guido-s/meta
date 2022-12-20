@@ -188,7 +188,7 @@
 #' \item{version}{Version of R package \bold{meta} used to create
 #'   object.}
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{funnel}}, \code{\link{funnel.meta}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},

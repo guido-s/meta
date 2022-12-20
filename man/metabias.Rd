@@ -360,5 +360,5 @@ Explaining heterogeneity in meta-analysis: a comparison of methods,
   \code{\link{metagen}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

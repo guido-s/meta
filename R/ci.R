@@ -28,7 +28,7 @@
 #' This function is primarily called from other functions of the
 #' library \code{meta}, e.g. \code{forest.meta}, \code{summary.meta}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @examples
 #' data.frame(ci(170, 10))

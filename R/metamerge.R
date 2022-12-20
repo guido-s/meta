@@ -98,7 +98,7 @@
 #' effects or common effects models are selected from both
 #' meta-analyses (arguments \code{pooled1} and \code{pooled2}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{metabind}}
 #' 

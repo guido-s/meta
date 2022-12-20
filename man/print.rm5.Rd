@@ -59,5 +59,5 @@ The Cochrane Library: http://www.cochrane-handbook.org
   \code{\link{read.rm5}}, \code{\link{metabias.rm5}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

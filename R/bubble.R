@@ -80,7 +80,7 @@
 #' For a factor or categorial covariate separate bubble plots for each
 #' group compared to the baseline group are plotted.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{metainf}}
 #' 

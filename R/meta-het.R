@@ -1,7 +1,7 @@
 ## Auxiliary functions to calculate heterogeneity measures
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {

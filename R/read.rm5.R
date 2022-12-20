@@ -154,7 +154,7 @@
 #' \item{label.right}{Graph label on right side of forest plot.}
 #' \item{complab}{Comparison label.}
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{summary.rm5}}, \code{\link{metabias.rm5}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},

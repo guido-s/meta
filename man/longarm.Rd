@@ -141,6 +141,6 @@ longarm(m, keep.internal = TRUE)
   \code{\link{metainc}}, \code{\link[netmeta]{pairwise}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{datagen}

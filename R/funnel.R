@@ -108,7 +108,7 @@
 #' distinguish the contours. Different colours can be chosen by
 #' argument \code{col.contour}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}, Petra
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}, Petra
 #'   Graham \email{pgraham@@efs.mq.edu.au}
 #' 
 #' @seealso \code{\link{metabias}}, \code{\link{metabin}},

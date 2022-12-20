@@ -101,7 +101,7 @@
 #' between 5 and infinity (Altman, 1998).
 #' }
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metagen}}
 #' 

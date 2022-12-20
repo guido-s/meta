@@ -195,6 +195,6 @@ meta-analysis.  \emph{Statistics in Medicine}, \bold{21}, 1539--58.
   \code{\link{metagen}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{print}

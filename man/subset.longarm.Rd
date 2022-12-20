@@ -35,5 +35,5 @@ subset(l1, studlab != "B")
 \code{\link{longarm}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

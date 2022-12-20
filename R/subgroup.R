@@ -539,7 +539,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
              method.random.ci = x$method.random.ci,
              level = x$level.ma,
              mods = mod,
-             control = list(x$control))
+             control = list(x$control),
+             warn = FALSE)
     ##
     ## Random effects model
     ##
@@ -624,7 +625,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
              method.random.ci = x$method.random.ci,
              level = x$level.ma,
              mods = mod.Q,
-             control = list(x$control))
+             control = list(x$control),
+             warn = FALSE)
     ##
     ## Tests for subgroup differences
     ##
@@ -718,7 +720,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               data = list(data = data.frame(subgroup.rma)),
               mods = mod,
               control = list(x$control),
-              use.random = use.random)
+              use.random = use.random,
+              warn = FALSE)
     ##
     glmm.c <- glmms$glmm.common
     glmm.r <- glmms$glmm.random
@@ -814,7 +817,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               data = list(data = data.frame(subgroup.rma)),
               mods = mod.Q,
               control = list(x$control),
-              use.random = use.random)
+              use.random = use.random,
+              warn = FALSE)
     ##
     glmm.c.Q <- glmms.Q$glmm.common
     glmm.r.Q <- glmms.Q$glmm.random

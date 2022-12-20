@@ -243,5 +243,5 @@ trim-and-fill method for selection bias in meta-analysis
   \code{\link{funnel}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

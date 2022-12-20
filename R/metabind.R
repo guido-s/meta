@@ -36,7 +36,7 @@
 #' An object of class \code{c("metabind", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}},
 #'   \code{\link{metamerge}}

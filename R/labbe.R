@@ -99,7 +99,7 @@
 #' (\code{weight = "random"}) if argument \code{x$random} is
 #' \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}
 #' 

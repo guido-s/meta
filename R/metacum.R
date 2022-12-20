@@ -39,7 +39,7 @@
 #' \item{TE.random, seTE.random}{Value is \code{NA}.}
 #' \item{Q}{Value is \code{NA}.}
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{print.meta}}

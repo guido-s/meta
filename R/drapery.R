@@ -140,8 +140,8 @@
 #' studies with a treatment estimate below the common effect estimate
 #' and otherwise by 45 degrees.
 #' 
-#' @author Gerta Rücker \email{sc@@imbi.uni-freiburg.de}, Guido
-#'   Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Gerta Rücker \email{gerta.ruecker@@uniklinik-freiburg.de}, Guido
+#'   Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest}}, \code{\link{radial}}
 #' 

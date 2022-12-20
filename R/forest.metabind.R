@@ -107,7 +107,7 @@
 #' }
 #' Otherwise, information on heterogeneity is printed in dedicated rows.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.meta}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},

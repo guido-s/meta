@@ -8,7 +8,7 @@
 #'   keep: missing values are taken as false.
 #' @param \dots Additional arguments.
 #' @return A \code{\link{longarm}} object is returned.
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' @seealso \code{\link{longarm}}
 #' 
 #' @examples

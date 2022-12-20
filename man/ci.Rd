@@ -47,5 +47,5 @@ data.frame(ci(2.2621571628, 1, df = 9))
 
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

@@ -20,7 +20,7 @@
   statistics
 
 * R package
-  [**estmeansd**](https://cran.r-project.org/web/packages/estmeansd/index.html)
+  [**estmeansd**](https://cran.r-project.org/package=estmeansd)
   added to suggested packages to provided methods by [McGrath et.,
   (2020)](https://doi.org/10.1177/0962280219889080) and [Cai et.,
   (2021)](https://doi.org/10.1177/09622802211047348)
@@ -32,7 +32,7 @@
 * forest.meta():
   - no error for subgroup meta-analysis conducted with metarate()
     using argument 'n' to specify the sample size
-  - same square sizes for a meta-analysis without or with subgroups
+  - same square sizes for a meta-analysis with or without subgroups
   - no error for Revman5 and JAMA layout in meta-analyses with more
     than one random effects method
 
@@ -91,6 +91,8 @@
 
 * Help page of nnt() updated
 
+* Change maintainer's email address
+
 ### Internal changes
 
 * New internal functions transf(), cor2z(), p2asin(), logVR2VE() and
@@ -130,7 +132,7 @@
   session
 
 * R package
-  [**pimeta**](https://cran.r-project.org/web/packages/pimeta/index.html)
+  [**pimeta**](https://cran.r-project.org/package=pimeta)
   added to suggested packages in order to calculate bootstrap approach
   for prediction interval
 

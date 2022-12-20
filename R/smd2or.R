@@ -54,7 +54,7 @@
 #' An object of class \code{c("metagen", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
 #' @seealso \code{\link{or2smd}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{metabin}}

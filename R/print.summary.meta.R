@@ -94,7 +94,7 @@
 #' (default: "person-years"). This information is printed in summaries
 #' and forest plots if argument \code{irscale} is not equal to 1.
 #'
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{summary.meta}}, \code{\link{update.meta}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},

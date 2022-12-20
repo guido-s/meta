@@ -103,5 +103,5 @@ forest(m1.taus, print.I2 = FALSE, print.pval.Q = FALSE)
   \code{\link{metamerge}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

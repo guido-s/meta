@@ -379,7 +379,7 @@
 #' \item type \code{bug.report(package = "meta")} if you do not use
 #'   RStudio,
 #' \item send an email to Guido Schwarzer
-#'   \email{sc@imbi.uni-freiburg.de} if you use RStudio.
+#'   \email{guido.schwarzer@@uniklinik-freiburg.de} if you use RStudio.
 #' }
 #' 
 #' The development version of \bold{meta} is available on GitHub
@@ -391,7 +391,7 @@
 #' 
 #' @docType package
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @references
 #' Balduzzi S, Rücker G, Schwarzer G (2019):

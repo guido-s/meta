@@ -1501,6 +1501,6 @@ A re-evaluation of random-effects meta-analysis.
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{hplot}

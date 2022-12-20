@@ -1,7 +1,7 @@
 ## Auxiliary functions to format print output
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,

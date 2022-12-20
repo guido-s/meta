@@ -56,7 +56,7 @@
 #' \item{y}{Coordinate on y-axis (influence on overall treatment
 #'   effect)}
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{metainf}}
 #' 

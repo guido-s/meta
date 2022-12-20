@@ -177,6 +177,6 @@ How should meta-regression analyses be undertaken and interpreted?
 \code{\link{metagen}}, \code{\link{metainf}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{hplot}

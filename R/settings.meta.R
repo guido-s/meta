@@ -148,7 +148,7 @@
 #' \code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
 #' can be used.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{gs}}, \code{\link{forest.meta}},
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
