@@ -1,10 +1,10 @@
 subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   
-  
   subgroup <- x$subgroup
   ##
   levs <- bylevs(subgroup)
   n.levs <- length(levs)
+  ##
   methci <- paste(x$method.random.ci,
                   toupper(substring(x$adhoc.hakn.ci, 1, 2)),
                   sep = "-")
@@ -31,9 +31,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   bin.cont.gen <- bin | cont | gen
   bin.inc <- bin | inc
-  cor.prop.mean <- cor | prop | mean
+  cor.prop.mean.rate <- cor | prop | mean | rate
   ##
-  three.level <- !is.null(x$three.level) && x$three.level
+  is.glmm <- x$method == "GLMM"
+  is.mlm <- !is.null(x$three.level) && x$three.level
   ##
   sumNA <- function(x)
     if (all(is.na(x)))
@@ -48,9 +49,6 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   ##
   res.i <- vector(mode = "list")
-  ##
-  res.w <- matrix(NA, ncol = 63, nrow = n.levs)
-  add.w <- matrix("", ncol =  2, nrow = n.levs)
   j <- 0
   ##
   for (i in levs) {
@@ -303,6 +301,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##
+                        n = if (!is.null(x$n)) x$n[sel] else NULL,
+                        ##
                         null.effect = x$null.effect,
                         ##
                         keepdata = FALSE,
@@ -373,7 +373,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        upper.Rb = meta1$upper.Rb,
                        ##
                        event = if (prop) sumNA(meta1$event) else NA,
-                       n = if (cor.prop.mean) sumNA(meta1$n) else NA,
+                       n = if (cor.prop.mean.rate) sumNA(meta1$n) else NA,
                        ##
                        event.e = if (bin.inc) sumNA(meta1$event.e) else NA,
                        n.e = if (bin.cont.gen) sumNA(meta1$n.e) else NA,
@@ -475,7 +475,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     names(Q.b.random) <- colnames(seTE.random.w)
     for (i in seq_len(n.random))
       Q.b.random[i] <-
-        metagen(TE.random.w, seTE.random.w[, i], method.tau = "DL")$Q
+        metagen(TE.random.w,
+                lower = lower.random.w[, i],
+                upper = upper.random.w[, i],
+                method.tau = "DL")$Q
   }
   else {
     n.random <- 1
@@ -483,12 +486,31 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
       metagen(TE.random.w, seTE.random.w, method.tau = "DL")$Q
   }
   ##
-  df.Q.b <- if (x$k == 0) 0 else x$k - 1 - sum((k.w - 1)[!is.na(Q.w)])
-  df.Q.b.common <- df.Q.b
-  df.Q.b.random <- rep(df.Q.b, n.random)
+  df.Q.b <- NA
+  df.Q.b.common <- NA
+  df.Q.b.random <- list()
   ##
-  pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
-  pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b.random)
+  pval.Q.b.common <- NA
+  pval.Q.b.random <- NA
+  ##
+  if (missing(subgroup.rma)) {
+    df.Q.b <- if (x$k == 0) 0 else x$k - 1 - sum((k.w - 1)[!is.na(Q.w)])
+    df.Q.b.common <- df.Q.b
+    pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
+    ##
+    if (n.random > 1) {
+      pval.Q.b.random <- NA
+      df.Q.b.random <- vector("list", n.random)
+      for (i in seq_len(n.random)) {
+        df.Q.b.random[[i]] <- df.Q.b
+        pval.Q.b.random[i] <- pvalQ(Q.b.random[i], df.Q.b.random[[i]])
+      }
+    }
+    else {
+      df.Q.b.random <- df.Q.b
+      pval.Q.b.random <- pvalQ(Q.b.random, df.Q.b.random)
+    }
+  }
   
   
   ##
@@ -496,103 +518,133 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ## (2) Subgroup analysis with common tau-squared (three-level model)
   ##
   ##
-  if (three.level && !missing(subgroup.rma)) {
+  if (!missing(subgroup.rma) && is.mlm) {
+    n.methci <- length(x$method.random.ci)
+    ##
     mod <- as.call(~ subgroup.rma - 1)
     mod.Q <- as.call(~ subgroup.rma)
     ##
-    cluster <- x$cluster
-    runID <- seq_along(cluster)
+    if (is.null(x$exclude))
+      x$exclude <- rep(FALSE, length(x$TE))
     ##
-    mv.random <-
-      runNN(rma.mv,
-            list(yi = x$TE, V = x$seTE^2,
-                 mods = mod,
-                 random = as.call(~ 1 | cluster / runID),
-                 method = x$method.tau,
-                 test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                 level = 100 * x$level.ma,
-                 data = data.frame(subgroup.rma, cluster, runID)))
+    list.mlm <- list(yi = x$TE[!x$exclude], V = x$seTE[!x$exclude]^2)
     ##
-    mv.random.Q <-
-      suppressWarnings(
-        runNN(rma.mv,
-              list(yi = x$TE, V = x$seTE^2,
-                   mods = mod.Q,
-                   random = as.call(~ 1 | cluster / runID),
-                   method = x$method.tau,
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   data = data.frame(subgroup.rma, cluster, runID))))
+    mlm <-
+      runMLM(c(list.mlm,
+               list(data = 
+                      data.frame(subgroup.rma = subgroup.rma,
+                                 cluster = x$cluster[!x$exclude],
+                                 idx = seq_along(x$cluster)[!x$exclude]))),
+             method.tau = x$method.tau,
+             method.random.ci = x$method.random.ci,
+             level = x$level.ma,
+             mods = mod,
+             control = list(x$control),
+             warn = FALSE)
     ##
-    if (length(TE.random.w) != length(as.numeric(mv.random$b))) {
-      TE.random.w[!is.na(TE.random.w)] <- as.numeric(mv.random$b)
-      seTE.random.w[!is.na(seTE.random.w)] <- as.numeric(mv.random$se)
+    ## Random effects model
+    ##
+    sel.r <- !is.na(TE.random.w)
+    TE.random.w[sel.r] <- as.numeric(mlm[[1]]$b)
+    seTE.random.w[sel.r] <- as.numeric(mlm[[1]]$se)
+    ##
+    if (n.methci == 1) {
+      lower.random.w[sel.r] <- as.numeric(mlm[[1]]$ci.lb)
+      upper.random.w[sel.r] <- as.numeric(mlm[[1]]$ci.ub)
+      statistic.random.w[sel.r] <- as.numeric(mlm[[1]]$zval)
+      pval.random.w[sel.r] <- as.numeric(mlm[[1]]$pval)
     }
     else {
-      TE.random.w   <- as.numeric(mv.random$b)
-      seTE.random.w <- as.numeric(mv.random$se)
+      for (i in seq_len(n.methci)) {
+        lower.random.w[sel.r, i] <- as.numeric(mlm[[i]]$ci.lb)
+        upper.random.w[sel.r, i] <- as.numeric(mlm[[i]]$ci.ub)
+        statistic.random.w[sel.r, i] <- as.numeric(mlm[[i]]$zval)
+        pval.random.w[sel.r, i] <- as.numeric(mlm[[i]]$pval)
+      }
     }
     ##
-    tau2.w <- rep_len(sum(mv.random$sigma2), n.levs)
+    ## Heterogeneity measures
+    ##
+    tau2.w <- rep_len(sum(mlm[[1]]$sigma2), n.levs)
     tau.w <- sqrt(tau2.w)
     ##
-    Rb.w     <- rep_len(NA, n.levs)
-    Rb.w.low <- rep_len(NA, n.levs)
-    Rb.w.upp <- rep_len(NA, n.levs)
-    ##
-    ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
-    ##
-    if (!is.null(x$method.random.ci == "HK") && x$method.random.ci == "HK")
-      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
-    else
-      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
-    ##
-    lower.common.w <- ci.common.w$lower
-    upper.common.w <- ci.common.w$upper
-    statistic.common.w <- ci.common.w$statistic
-    pval.common.w <- ci.common.w$p
-    ##
-    lower.random.w <- ci.random.w$lower
-    upper.random.w <- ci.random.w$upper
-    statistic.random.w <- ci.random.w$statistic
-    pval.random.w <- ci.random.w$p
-    ##
-    ## Tests for subgroup differences
-    ##
-    Q.w.common <- NA
-    df.Q.w <- mv.random.Q$k.eff - mv.random.Q$p.eff
-    pval.Q.w.common <- NA
-    ##
-    Q.b.common <- NA
-    Q.b.random <- mv.random.Q$QM
-    ##
-    df.Q.b <- mv.random.Q$QMdf
-    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
-    df.Q.b.common <- NA
-    df.Q.b.random <- df.Q.b
-    ##
-    pval.Q.b.common <- NA
-    pval.Q.b.random <- mv.random.Q$QMp
+    upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
     ## Prediction interval
     ##
+    tau2.calc <- if (is.na(sum(mlm[[1]]$sigma2))) 0 else tau2.w
     seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
-    df.predict.w <- k.w - 2
-    ci.p.w <- ci(TE.random.w, seTE.predict.w, x$level.predict, df.predict.w)
     ##
-    lower.predict.w <- ci.p.w$lower
-    upper.predict.w <- ci.p.w$upper
+    n.methpi <- length(x$method.predict)
     ##
-    lower.predict.w[k.w < 3] <- NA
-    upper.predict.w[k.w < 3] <- NA
-    ##
-    ## Degrees of freedom of Hartung-Knapp method
-    ##
-    df.random.w <- df.hakn.ci.w <- k.w - 1
-    if (!x$method.random.ci == "HK") {
-      df.random.w[!is.na(df.random.w)] <- NA
-      df.hakn.ci.w[!is.na(df.hakn.ci.w)] <- NA
+    for (i in seq_len(n.methpi)) {
+      df.i <-
+        ifelse(x$method.predict[i] == "HTS" & k.w >= 3, k.w - 2,
+        ifelse(x$method.predict[i] == "S", Inf, NA))
+      ##
+      ci.p <- ci(TE.random.w, seTE.predict.w, x$level.predict, df = df.i)
+      ##
+      if (n.methpi == 1) {
+        lower.predict.w <- ci.p$lower
+        upper.predict.w <- ci.p$upper
+      }
+      else {
+        lower.predict.w[, i] <- ci.p$lower
+        upper.predict.w[, i] <- ci.p$upper
+      }
+      ##
+      sel.p <-
+        !(x$method.predict[i] == "HTS" & k.w >= 3 | x$method.predict[i] == "S")
+      if (n.methpi == 1) {
+        lower.predict.w[sel.p] <- NA
+        upper.predict.w[sel.p] <- NA
+      }
+      else {
+        lower.predict.w[sel.p, i] <- NA
+        upper.predict.w[sel.p, i] <- NA
+      }
     }
+    ##
+    seTE.predict <- seTE.predict.w
+    lower.predict <- lower.predict.w
+    upper.predict <- upper.predict.w
+    ##
+    if (length(x$method.predict) > 1)
+      names(lower.predict) <- names(upper.predict) <-
+        methpi
+    ##
+    ## Test for subgroup differences
+    ##
+    mlm.Q <-
+      runMLM(c(list.mlm,
+               list(data = 
+                      data.frame(subgroup.rma = subgroup.rma,
+                                 cluster = x$cluster[!x$exclude],
+                                 idx = seq_along(x$cluster)[!x$exclude]))),
+             method.tau = x$method.tau,
+             method.random.ci = x$method.random.ci,
+             level = x$level.ma,
+             mods = mod.Q,
+             control = list(x$control),
+             warn = FALSE)
+    ##
+    ## Tests for subgroup differences
+    ##
+    for (i in seq_len(n.methci)) {
+      Q.b.random[i] <- mlm.Q[[i]]$QM
+      df.i <- mlm.Q[[i]]$QMdf
+      df.Q.b.random[[i]] <- df.i[!is.na(df.i)]
+      pval.Q.b.random[i] <- mlm.Q[[i]]$QMp
+      ##
+      if (n.methci == 1)
+        df.Q.b.random <- df.Q.b.random[[1]]
+    }
+    ##
+    Q.w.common <- NA
+    Q.w.random <- NA
+    df.Q.w <- NA
+    pval.Q.w.common <- NA
+    pval.Q.w.random <- NA
   }
   
   
@@ -601,279 +653,197 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ## (3) Subgroup analysis with common tau-squared (GLMM)
   ##
   ##
-  if (x$method == "GLMM" & !missing(subgroup.rma)) {
+  if (!missing(subgroup.rma) && is.glmm) {
+    n.methci <- length(x$method.random.ci)
+    ##
     mod <- as.call(~ subgroup.rma - 1)
     mod.Q <- as.call(~ subgroup.rma)
     ##
+    if (is.null(x$exclude))
+      x$exclude <- rep(FALSE, length(x$TE))
+    ##
     if (prop) {
-      glmm.common <-
-        runNN(rma.glmm,
-              list(xi = x$event, ni = x$n,
-                   mods = mod,
-                   method = "FE",
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "PLO",
-                   data = data.frame(subgroup.rma),
-                   ...))
+      list.glmm <-
+        list(xi = x$event[!x$exclude], ni = x$n[!x$exclude],
+             measure = "PLO")
       ##
-      glmm.random <-
-        runNN(rma.glmm,
-              list(xi = x$event, ni = x$n,
-                   mods = mod,
-                   method = x$method.tau,
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "PLO",
-                   data = data.frame(subgroup.rma),
-                   ...))
-      ##
-      ## Test for subgroup differences
-      ##
-      glmm.common.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(xi = x$event, ni = x$n,
-                     mods = mod.Q,
-                     method = "FE",
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "PLO",
-                     data = data.frame(subgroup.rma),
-                     ...)))
-      ##
-      glmm.random.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(xi = x$event, ni = x$n,
-                     mods = mod.Q,
-                     method = x$method.tau,
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "PLO",
-                     data = data.frame(subgroup.rma),
-                     ...)))
+      use.random <-
+        sum(!x$exclude) > 1 &
+        sum(x$event[!x$exclude], na.rm = TRUE) > 0 &
+        any(x$event[!x$exclude] != x$n[!x$exclude])
     }
     ##
     else if (rate) {
-      glmm.common <-
-        runNN(rma.glmm,
-              list(xi = x$event, ti = x$time,
-                   mods = mod,
-                   method = "FE",
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "IRLN", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
+      list.glmm <-
+        list(xi = x$event[!x$exclude], ti = x$time[!x$exclude],
+             measure = "IRLN")
       ##
-      glmm.random <-
-        runNN(rma.glmm,
-              list(xi = x$event, ti = x$time,
-                   mods = mod,
-                   method = x$method.tau,
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "IRLN", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
-      ##
-      ## Test for subgroup differences
-      ##
-      glmm.common.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(xi = x$event, ti = x$time,
-                     mods = mod.Q,
-                     method = "FE",
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "IRLN", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
-      ##
-      glmm.random.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(xi = x$event, ti = x$time,
-                     mods = mod.Q,
-                     method = x$method.tau,
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "IRLN", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
+      use.random <-
+        sum(!x$exclude) > 1 &
+        sum(x$event[!x$exclude], na.rm = TRUE) > 0 &
+        any(x$event[!x$exclude] != x$time[!x$exclude])
     }
     ##
     else if (inc) {
-      glmm.common <-
-        runNN(rma.glmm,
-              list(x1i = x$event.e, t1i = x$time.e,
-                   x2i = x$event.c, t2i = x$time.c,
-                   mods = mod,
-                   method = "FE",
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   model = x$model.glmm,
-                   level = 100 * x$level.ma,
-                   measure = "IRR", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
+      list.glmm <-
+        list(x1i = x$event.e[!x$exclude], t1i = x$time.e[!x$exclude],
+             x2i = x$event.c[!x$exclude], t2i = x$time.c[!x$exclude],
+             measure = "IRR", model = x$model.glmm)
       ##
-      glmm.random <-
-        runNN(rma.glmm,
-              list(x1i = x$event.e, t1i = x$time.e,
-                   x2i = x$event.c, t2i = x$time.c,
-                   mods = mod,
-                   method = x$method.tau,
-                   model = x$model.glmm,
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "IRR", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
-      ##
-      ## Test for subgroup differences
-      ##
-      glmm.common.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(x1i = x$event.e, t1i = x$time.e,
-                     x2i = x$event.c, t2i = x$time.c,
-                     mods = mod.Q,
-                     method = "FE",
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     model = x$model.glmm,
-                     level = 100 * x$level.ma,
-                     measure = "IRR", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
-      ##
-      glmm.random.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(x1i = x$event.e, t1i = x$time.e,
-                     x2i = x$event.c, t2i = x$time.c,
-                     mods = mod.Q,
-                     method = x$method.tau,
-                     model = x$model.glmm,
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "IRR", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
+      use.random <-
+        sum(!x$exclude) > 1 &
+        !((sum(x$event.e[!x$exclude], na.rm = TRUE) == 0 &
+           sum(x$event.c[!x$exclude], na.rm = TRUE) == 0) |
+          (!any(x$event.e[!x$exclude] != x$time.e[!x$exclude]) |
+           !any(x$event.c[!x$exclude] != x$time.c[!x$exclude])))
     }
     ##
     else if (bin) {
-      glmm.common <-
-        runNN(rma.glmm,
-              list(ai = x$event.e, n1i = x$n.e,
-                   ci = x$event.c, n2i = x$n.c,
-                   mods = mod,
-                   method = "FE",
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   model = x$model.glmm,
-                   level = 100 * x$level.ma,
-                   measure = "OR", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
+      list.glmm <-
+        list(ai = x$event.e[!x$exclude], n1i = x$n.e[!x$exclude],
+             ci = x$event.c[!x$exclude], n2i = x$n.c[!x$exclude],
+             measure = "OR", model = x$model.glmm)
       ##
-      glmm.random <-
-        runNN(rma.glmm,
-              list(ai = x$event.e, n1i = x$n.e,
-                   ci = x$event.c, n2i = x$n.c,
-                   mods = mod,
-                   method = x$method.tau,
-                   model = x$model.glmm,
-                   test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                   level = 100 * x$level.ma,
-                   measure = "OR", control = x$control,
-                   data = data.frame(subgroup.rma),
-                   ...))
-      ##
-      ## Test for subgroup differences
-      ##
-      glmm.common.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(ai = x$event.e, n1i = x$n.e,
-                     ci = x$event.c, n2i = x$n.c,
-                     mods = mod.Q,
-                     method = "FE",
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     model = x$model.glmm,
-                     level = 100 * x$level.ma,
-                     measure = "OR", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
-      ##
-      glmm.random.Q <-
-        suppressWarnings(
-          runNN(rma.glmm,
-                list(ai = x$event.e, n1i = x$n.e,
-                     ci = x$event.c, n2i = x$n.c,
-                     mods = mod.Q,
-                     method = x$method.tau,
-                     model = x$model.glmm,
-                     test = ifelse(x$method.random.ci == "HK", "t", "z"),
-                     level = 100 * x$level.ma,
-                     measure = "OR", control = x$control,
-                     data = data.frame(subgroup.rma),
-                     ...)))
+      use.random <-
+        sum(!x$exclude) > 1 &
+        !((sum(x$event.e[!x$exclude], na.rm = TRUE) == 0 &
+           sum(x$event.c[!x$exclude], na.rm = TRUE) == 0) |
+          (!any(x$event.e[!x$exclude] != x$n.e[!x$exclude]) |
+           !any(x$event.c[!x$exclude] != x$n.c[!x$exclude])))
     }
     ##
-    if (length(TE.common.w) != length(as.numeric(glmm.common$b))) {
-      TE.common.w[!is.na(TE.common.w)] <- as.numeric(glmm.common$b)
-      seTE.common.w[!is.na(seTE.common.w)] <- as.numeric(glmm.common$se)
-      TE.random.w[!is.na(TE.random.w)] <- as.numeric(glmm.random$b)
-      seTE.random.w[!is.na(seTE.random.w)] <- as.numeric(glmm.random$se)
+    glmms <-
+      runGLMM(list.glmm,
+              method.tau = x$method.tau,
+              method.random.ci = x$method.random.ci,
+              level = x$level.ma,
+              data = list(data = data.frame(subgroup.rma)),
+              mods = mod,
+              control = list(x$control),
+              use.random = use.random,
+              warn = FALSE)
+    ##
+    glmm.c <- glmms$glmm.common
+    glmm.r <- glmms$glmm.random
+    ##
+    ## Common effect model
+    ##
+    sel.c <- !is.na(TE.common.w)
+    TE.common.w[sel.c] <- as.numeric(glmm.c$b)
+    seTE.common.w[sel.c] <- as.numeric(glmm.c$se)
+    lower.common.w[sel.c] <- as.numeric(glmm.c$ci.lb)
+    upper.common.w[sel.c] <- as.numeric(glmm.c$ci.ub)
+    statistic.common.w[sel.c] <- as.numeric(glmm.c$zval)
+    pval.common.w[sel.c] <- as.numeric(glmm.c$pval)
+    ##
+    ## Random effects model
+    ##
+    sel.r <- !is.na(TE.random.w)
+    TE.random.w[sel.r] <- as.numeric(glmm.r[[1]]$b)
+    seTE.random.w[sel.r] <- as.numeric(glmm.r[[1]]$se)
+    ##
+    if (n.methci == 1) {
+      lower.random.w[sel.r] <- as.numeric(glmm.r[[1]]$ci.lb)
+      upper.random.w[sel.r] <- as.numeric(glmm.r[[1]]$ci.ub)
+      statistic.random.w[sel.r] <- as.numeric(glmm.r[[1]]$zval)
+      pval.random.w[sel.r] <- as.numeric(glmm.r[[1]]$pval)
     }
     else {
-      TE.common.w   <- as.numeric(glmm.common$b)
-      seTE.common.w <- as.numeric(glmm.common$se)
-      TE.random.w   <- as.numeric(glmm.random$b)
-      seTE.random.w <- as.numeric(glmm.random$se)
+      for (i in seq_len(n.methci)) {
+        lower.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$ci.lb)
+        upper.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$ci.ub)
+        statistic.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$zval)
+        pval.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$pval)
+      }
     }
     ##
-    tau2.w <- rep_len(glmm.random$tau2, n.levs)
+    ## Heterogeneity measures
+    ##
+    tau2.w <- rep_len(glmm.r[[1]]$tau2, n.levs)
     tau.w <- sqrt(tau2.w)
     ##
-    Rb.w     <- rep_len(NA, n.levs)
-    Rb.w.low <- rep_len(NA, n.levs)
-    Rb.w.upp <- rep_len(NA, n.levs)
+    upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
-    ci.common.w  <- ci(TE.common.w, seTE.common.w, x$level.ma)
+    ## Prediction interval
     ##
-    if (!is.null(x$method.random.ci == "HK") && x$method.random.ci == "HK")
-      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma, df = k.w - 1)
-    else
-      ci.random.w <- ci(TE.random.w, seTE.random.w, x$level.ma)
+    tau2.calc <- if (is.na(glmm.r[[1]]$tau2)) 0 else tau2.w
+    seTE.predict.w <- sqrt(seTE.random.w^2 + tau2.w)
     ##
-    lower.common.w <- ci.common.w$lower
-    upper.common.w <- ci.common.w$upper
-    statistic.common.w <- ci.common.w$statistic
-    pval.common.w <- ci.common.w$p
+    n.methpi <- length(x$method.predict)
     ##
-    lower.random.w <- ci.random.w$lower
-    upper.random.w <- ci.random.w$upper
-    statistic.random.w <- ci.random.w$statistic
-    pval.random.w <- ci.random.w$p
+    for (i in seq_len(n.methpi)) {
+      df.i <-
+        ifelse(x$method.predict[i] == "HTS" & k.w >= 3, k.w - 2,
+        ifelse(x$method.predict[i] == "S", Inf, NA))
+      ##
+      ci.p <- ci(TE.random.w, seTE.predict.w, x$level.predict, df = df.i)
+      ##
+      if (n.methpi == 1) {
+        lower.predict.w <- ci.p$lower
+        upper.predict.w <- ci.p$upper
+      }
+      else {
+        lower.predict.w[, i] <- ci.p$lower
+        upper.predict.w[, i] <- ci.p$upper
+      }
+      ##
+      sel.p <-
+        !(x$method.predict[i] == "HTS" & k.w >= 3 | x$method.predict[i] == "S")
+      if (n.methpi == 1) {
+        lower.predict.w[sel.p] <- NA
+        upper.predict.w[sel.p] <- NA
+      }
+      else {
+        lower.predict.w[sel.p, i] <- NA
+        upper.predict.w[sel.p, i] <- NA
+      }
+    }
+    ##
+    seTE.predict <- seTE.predict.w
+    lower.predict <- lower.predict.w
+    upper.predict <- upper.predict.w
+    ##
+    if (length(x$method.predict) > 1)
+      names(lower.predict) <- names(upper.predict) <-
+        methpi
+    ##
+    ## Test for subgroup differences
+    ##
+    glmms.Q <-
+      runGLMM(list.glmm,
+              method.tau = x$method.tau,
+              method.random.ci = x$method.random.ci,
+              level = x$level.ma,
+              data = list(data = data.frame(subgroup.rma)),
+              mods = mod.Q,
+              control = list(x$control),
+              use.random = use.random,
+              warn = FALSE)
+    ##
+    glmm.c.Q <- glmms.Q$glmm.common
+    glmm.r.Q <- glmms.Q$glmm.random
     ##
     ## Tests for subgroup differences
     ##
-    Q.w.common <- glmm.common.Q$QE.Wld
-    df.Q.w <- glmm.common.Q$QE.df
-    pval.Q.w.common <- glmm.common.Q$QEp.Wld
+    Q.b.common <- glmm.c.Q$QM
+    df.Q.b.common <- glmm.c.Q$QMdf[!is.na(glmm.c.Q$QMdf)]
+    pval.Q.b.common <- glmm.c.Q$QMp
     ##
-    Q.b.common <- glmm.common.Q$QM
-    Q.b.random <- glmm.random.Q$QM
+    for (i in seq_len(n.methci)) {
+      Q.b.random[i] <- glmm.r.Q[[i]]$QM
+      df.i <- glmm.r.Q[[i]]$QMdf
+      df.Q.b.random[[i]] <- df.i[!is.na(df.i)]
+      pval.Q.b.random[i] <- glmm.r.Q[[i]]$QMp
+      ##
+      if (n.methci == 1)
+        df.Q.b.random <- df.Q.b.random[[1]]
+    }
     ##
-    df.Q.b <- glmm.common.Q$QMdf
-    df.Q.b <- df.Q.b[!is.na(df.Q.b)]
-    df.Q.b.common <- df.Q.b
-    df.Q.b.random <- df.Q.b
-    ##
-    pval.Q.b.common <- glmm.common.Q$QMp
-    pval.Q.b.random <- glmm.random.Q$QMp
+    Q.w.common <- NA
+    Q.w.random <- NA
+    df.Q.w <- NA
+    pval.Q.w.common <- NA
+    pval.Q.w.random <- NA
   }
   
   
@@ -995,7 +965,6 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   ##
   res$seTE.hakn.w <- res$seTE.hakn.ci.w
   res$seTE.hakn.adhoc.w <- res$seTE.hakn.adhoc.ci.w
-  
   
   res
 }

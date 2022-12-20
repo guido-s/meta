@@ -118,7 +118,7 @@
 #' An object of class \code{c("trimfill", "metagen", "meta")} with
 #' corresponding generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{metabias}},
 #'   \code{\link{funnel}}
@@ -761,26 +761,14 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   ## Backward compatibility
   ##
-  res$fixed <- res$common
-  ##
-  res$w.fixed <- res$w.common
-  res$TE.fixed <- res$TE.common
-  res$seTE.fixed <- res$seTE.common
-  res$lower.fixed <- res$lower.common
-  res$upper.fixed <- res$upper.common
-  res$statistic.fixed <- res$statistic.common
-  res$pval.fixed <- res$pval.common
-  res$zval.fixed <- res$zval.common
+  res <- backward(res)
   ##
   res$ma.fixed <- res$ma.common
-  res$text.fixed <- res$text.common
-  res$text.w.fixed <- res$text.w.common
-  ##
   res$hakn <- m$hakn
-  
-  
+  ##  
   class(res) <- c("metagen", "meta", "trimfill")
-  ##
+  
+  
   res
 }
 

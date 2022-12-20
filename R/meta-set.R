@@ -1,7 +1,7 @@
 ## Auxiliary functions to set arguments
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 setchar <- function(x, val, text, list = FALSE, name = NULL,

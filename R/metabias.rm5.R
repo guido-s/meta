@@ -38,7 +38,7 @@
 #' 
 #' The R function \code{\link{metacr}} is called internally.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabias}}, \code{\link{metacr}},
 #'   \code{\link{read.rm5}}, \code{\link{summary.rm5}}

@@ -108,7 +108,7 @@
 #' \code{"metabin"}, \code{"metacont"}, or \code{"metagen"} with
 #' corresponding generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},

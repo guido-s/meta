@@ -24,7 +24,7 @@ metainc(
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  prediction = gs("prediction"),
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),
@@ -102,8 +102,8 @@ used for pooling of studies. One of \code{"MH"},
 abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
-(\code{"IRR"}, \code{"IRD"} or \code{"IRSD"}) is to be used for
-pooling of studies, see Details.}
+(\code{"IRR"}, \code{"IRD"}, \code{"IRSD"}, or \code{"VE"}) is to
+be used for pooling of studies, see Details.}
 
 \item{incr}{A numerical value which is added to cell frequencies
 for studies with a zero cell count, see Details.}
@@ -188,10 +188,12 @@ be used. Either \code{"Begg"}, \code{"Egger"}, or
 \item{n.c}{Number of observations in control group (optional).}
 
 \item{backtransf}{A logical indicating whether results for
-incidence rate ratio (\code{sm = "IRR"}) should be back
+incidence rate ratio (\code{sm = "IRR"}) and vaccine efficacy or
+vaccine effectiveness (\code{sm = "VE"}) should be back
 transformed in printouts and plots. If TRUE (default), results
-will be presented as incidence rate ratios; otherwise log
-incidence rate ratios will be shown.}
+will be presented as incidence rate ratios or vaccine efficacy /
+effectiveness; otherwise log incidence rate ratios or log vaccine
+rate ratios will be shown.}
 
 \item{irscale}{A numeric defining a scaling factor for printing of
 incidence rate differences.}
@@ -251,7 +253,8 @@ intervals should be printed for subgroups.}
 
 \item{hakn}{Deprecated argument (replaced by 'method.random.ci').}
 
-\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+\item{adhoc.hakn}{Deprecated argument (replaced by
+'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -295,7 +298,13 @@ The following measures of treatment effect are available:
 \item Incidence Rate Difference (\code{sm = "IRD"})
 \item Square root transformed Incidence Rate Difference (\code{sm =
   "IRSD"})
+\item Vaccine efficacy or vaccine effectiveness (\code{sm = "VE"})
 }
+
+Note, log incidence rate ratio (logIRR) and log vaccine ratio
+(logVR) are mathematical identical, however, back-transformed
+results differ as vaccine efficacy or effectiveness is defined as
+\code{VE = 100 * (1 - IRR)}.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -505,5 +514,5 @@ Conducting Meta-Analyses in R with the Metafor Package.
   \code{\link{update.meta}}, \code{\link{print.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

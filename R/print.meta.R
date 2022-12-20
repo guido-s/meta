@@ -132,9 +132,7 @@
 #'   R\eqn{_b}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param warn.backtransf A logical indicating whether a warning
-#'   should be printed if backtransformed proportions and rates are
-#'   below 0 and backtransformed proportions are above 1.
+#' @param warn.backtransf Deprecated argument (ignored).
 #' @param bracket A character with bracket symbol to print lower
 #'   confidence interval: "[", "(", "\{", "".
 #' @param separator A character string with information on separator
@@ -254,7 +252,6 @@ print.meta <- function(x,
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
   chkchar(text.Rb, length = 1)
-  chklogical(warn.backtransf)
   chklogical(warn.deprecated)
   ##
   is.prop <- is.prop(x$sm)
@@ -436,9 +433,12 @@ print.meta <- function(x,
         sm.lab <- "events"
     }
   }
-  else
+  else {
     if (is.relative.effect(sm))
       sm.lab <- paste0("log", sm)
+    else if (sm == "VE")
+      sm.lab <- "logVR"
+  }
   ##
   if (length(x$tau.common) == 0)
     x$tau.common <- FALSE
@@ -583,67 +583,35 @@ print.meta <- function(x,
         harmonic.mean <- 1 / mean(1 / x$n)
     }
     ##
-    TE.common    <- backtransf(TE.common, sm, "mean",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
-    lowTE.common <- backtransf(lowTE.common, sm, "lower",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
-    uppTE.common <- backtransf(uppTE.common, sm, "upper",
-                               harmonic.mean,
-                               warn = overall & common & warn.backtransf)
+    TE.common    <- backtransf(TE.common, sm, "mean", harmonic.mean)
+    lowTE.common <- backtransf(lowTE.common, sm, "lower", harmonic.mean)
+    uppTE.common <- backtransf(uppTE.common, sm, "upper", harmonic.mean)
     ##
-    TE.random <- backtransf(TE.random, sm, "mean",
-                            harmonic.mean,
-                            warn = overall & random & warn.backtransf)
-    lowTE.random <- backtransf(lowTE.random, sm, "lower",
-                               harmonic.mean,
-                               warn = overall & random & warn.backtransf)
-    uppTE.random <- backtransf(uppTE.random, sm, "upper",
-                               harmonic.mean,
-                               warn = overall & random & warn.backtransf)
+    TE.random <- backtransf(TE.random, sm, "mean", harmonic.mean)
+    lowTE.random <- backtransf(lowTE.random, sm, "lower", harmonic.mean)
+    uppTE.random <- backtransf(uppTE.random, sm, "upper", harmonic.mean)
     ##
-    lowTE.predict <- backtransf(lowTE.predict, sm, "lower",
-                                harmonic.mean,
-                                warn = overall & prediction & warn.backtransf)
-    uppTE.predict <- backtransf(uppTE.predict, sm, "upper",
-                                harmonic.mean,
-                                warn = overall & prediction & warn.backtransf)
+    lowTE.predict <- backtransf(lowTE.predict, sm, "lower", harmonic.mean)
+    uppTE.predict <- backtransf(uppTE.predict, sm, "upper", harmonic.mean)
     ##
     if (by) {
-      TE.common.w     <- backtransf(TE.common.w, sm, "mean",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+      TE.common.w     <- backtransf(TE.common.w, sm, "mean", harmonic.mean.w)
       lowTE.common.w  <- backtransf(lowTE.common.w, sm, "lower",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+                                    harmonic.mean.w)
       uppTE.common.w  <- backtransf(uppTE.common.w, sm, "upper",
-                                    harmonic.mean.w,
-                                    warn = overall & common &
-                                      warn.backtransf)
+                                    harmonic.mean.w)
       ##
-      TE.random.w    <- backtransf(TE.random.w, sm, "mean",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+      TE.random.w    <- backtransf(TE.random.w, sm, "mean", harmonic.mean.w)
       lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+                                   harmonic.mean.w)
       uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   harmonic.mean.w,
-                                   warn = overall & random &
-                                     warn.backtransf)
+                                   harmonic.mean.w)
       ##
       if (prediction.w) {
         lowTE.predict.w <- backtransf(lowTE.predict.w, sm, "lower",
-                                      harmonic.mean.w,
-                                      warn = warn.backtransf)
+                                      harmonic.mean.w)
         uppTE.predict.w <- backtransf(uppTE.predict.w, sm, "upper",
-                                      harmonic.mean.w,
-                                      warn = warn.backtransf)
+                                      harmonic.mean.w)
       }
     }
   }
@@ -680,6 +648,39 @@ print.meta <- function(x,
       if (prediction.w) {
         lowTE.predict.w <- scale * lowTE.predict.w
         uppTE.predict.w <- scale * uppTE.predict.w
+      }
+    }
+  }
+  ##
+  ## Switch lower and upper limit for VE if results have been
+  ## backtransformed
+  ##
+  if (backtransf & sm == "VE") {
+    tmp.l <- lowTE.common
+    lowTE.common <- uppTE.common
+    uppTE.common <- tmp.l
+    ##
+    tmp.l <- lowTE.random
+    lowTE.random <- uppTE.random
+    uppTE.random <- tmp.l
+    ##
+    tmp.l <- lowTE.predict
+    lowTE.predict <- uppTE.predict
+    uppTE.predict <- tmp.l
+    ##
+    if (by) {
+      tmp.l <- lowTE.common.w
+      lowTE.common.w <- uppTE.common.w
+      uppTE.common.w <- tmp.l
+      ##   
+      tmp.l <- lowTE.random.w
+      lowTE.random.w <- uppTE.random.w
+      uppTE.random.w <- tmp.l
+      ##   
+      if (prediction.w) {
+        tmp.l <- lowTE.predict.w
+        lowTE.predict.w <- uppTE.predict.w
+        uppTE.predict.w <- tmp.l
       }
     }
   }
@@ -1232,7 +1233,7 @@ print.meta <- function(x,
           ##
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
-          if (is.glmm & length(df.Q.b.common) > 1) {
+          if (length(df.Q.b.common) > 1) {
             dfs.b <-
               rmSpace(paste(formatN(df.Q.b.common, digits = 0,
                                     big.mark = big.mark),
@@ -1247,7 +1248,7 @@ print.meta <- function(x,
           if (test.subgroup.common & !is.metabind) {
             cat(paste0("\nTest for subgroup differences (",
                        text.common.br[i], "):\n"))
-            if (any(x$method == "MH")) {
+            if (any(x$method == "MH") | is.na(Q.w.common)) {
               Qdata <- cbind(formatN(round(Q.b.common[i], digits.Q),
                                      digits.Q, "NA",
                                      big.mark = big.mark),
@@ -1257,7 +1258,7 @@ print.meta <- function(x,
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval,
                                       zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list("Between groups  ",
+              dimnames(Qdata) <- list("Between groups",
                                       c(Q.lab, "d.f.", "p-value"))
               prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
             }
@@ -1265,8 +1266,8 @@ print.meta <- function(x,
               Qs  <- c(Q.b.common, Q.w.common)
               dfs <- c(dfs.b[i],
                        formatN(df.Q.w, digits = 0, big.mark = big.mark))
-              Q.lab <-
-                ifelse(is.glmm && Q.lab == "F", "F/Q", Q.lab)
+              if (is.glmm & Q.lab == "F")
+                Q.lab <- "F/Q"
               ##
               pvals <- c(pval.Q.b.common, pval.Q.w.common)
               Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
@@ -1299,7 +1300,12 @@ print.meta <- function(x,
               rownames(uppTE.random.w) <- nam
         }
         ##
-        for (i in seq_len(ncol(TE.random.w))) {
+        n.random <- ncol(TE.random.w)
+        ##
+        if (!is.list(df.Q.b.random))
+          df.Q.b.random <- list(df.Q.b.random)
+        ##
+        for (i in seq_len(n.random)) {
           Tdata <- cbind(format(k.w, big.mark = big.mark),
                          formatN(TE.random.w[, i], digits, "NA",
                                  big.mark = big.mark),
@@ -1356,15 +1362,17 @@ print.meta <- function(x,
           ##
           prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
           ##
-          if ((three.level | is.glmm) & length(df.Q.b.random) > 1) {
+          df.i <- df.Q.b.random[[i]]
+          ##
+          if (length(df.i) > 1) {
             dfs.b <-
-              rmSpace(paste(formatN(df.Q.b.random, digits = 0,
+              rmSpace(paste(formatN(df.i, digits = 0,
                                     big.mark = big.mark),
                             collapse = ", "), end = TRUE)
             Q.lab <- "F"
           }
           else {
-            dfs.b <- formatN(df.Q.b.random, digits = 0, big.mark = big.mark)
+            dfs.b <- formatN(df.i, digits = 0, big.mark = big.mark)
             Q.lab <- "Q"
           }
           ##
@@ -1375,22 +1383,22 @@ print.meta <- function(x,
             if (is.na(Q.w.random)) {
               Qdata <- cbind(formatN(round(Q.b.random[i], digits.Q), digits.Q,
                                      "NA", big.mark = big.mark),
-                             formatN(dfs.b[i], digits = 0, big.mark = big.mark),
+                             formatN(dfs.b, digits = 0, big.mark = big.mark),
                              formatPT(pval.Q.b.random[i],
                                       digits = digits.pval.Q,
                                       scientific = scientific.pval,
                                       zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list("Between groups  ",
+              dimnames(Qdata) <- list("Between groups",
                                       c(Q.lab, "d.f.", "p-value"))
             }
             else {
               Qs  <- c(Q.b.random[i], Q.w.random[i])
-              dfs <- c(dfs.b[i],
+              dfs <- c(dfs.b,
                        formatN(df.Q.w, digits = 0, big.mark = big.mark))
               Q.lab <-
                 ifelse((three.level | is.glmm) && Q.lab == "F", "F/Q", Q.lab)
               ##
-              pvals <- c(pval.Q.b.random, pval.Q.w.random)
+              pvals <- c(pval.Q.b.random[i], pval.Q.w.random)
               Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
                                      big.mark = big.mark),
                              dfs,

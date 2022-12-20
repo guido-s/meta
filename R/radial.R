@@ -36,7 +36,7 @@
 #' \code{level} is not NULL, the corresponding confidence limits are
 #' drawn.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabias}}, \code{\link{metabin}},
 #'   \code{\link{metagen}}, \code{\link{funnel}}

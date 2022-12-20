@@ -199,6 +199,6 @@ The Cochrane Collaboration, 2020
   \code{\link{print.rm5}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{datagen}

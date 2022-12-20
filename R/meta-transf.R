@@ -1,10 +1,11 @@
 ## Auxiliary functions to (back-)transform effect measures
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
-asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
+
+asin2ir <- function(x, time = NULL, value = "mean") {
   
   ##
   ## Do nothing if all values are NA
@@ -19,28 +20,6 @@ asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
   minimum <- 0.5 * (sqrt(0 / time) + sqrt((0 + 1) / time))
   ##
   sel0 <- x < minimum
-  
-  
-  ##
-  ## Check for (impossible) negative values
-  ##
-  if (any(sel0, na.rm = TRUE)) {
-    if (warn)
-      warning("Too small value for ",
-              if (length(x) > 1)
-                "at least one ",
-              if (value == "mean")
-                paste0("transformed proportion using Freeman-Tukey double ",
-                       "arcsine transformation.\n  Rate set to 0."),
-              if (value == "lower")
-                paste0("lower confidence limit using Freeman-Tukey double ",
-                       "arcsine transformation.",
-                       "\n  Lower confidence limit set to 0."),
-              if (value == "upper")
-                paste0("upper confidence limit using Freeman-Tukey double ",
-                       "arcsine transformation.",
-                       "\n  Upper confidence limit set to 0."))
-  }
   
   
   res <- rep(NA, length(x))
@@ -60,7 +39,9 @@ asin2ir <- function(x, time = NULL, value = "mean", warn = TRUE) {
   
   res
 }
-asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
+
+
+asin2p <- function(x, n = NULL, value = "mean") {
   
   ##
   ## Do nothing if all values are NA
@@ -84,83 +65,6 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
   ##
   sel0 <- x < minimum
   sel1 <- x > maximum
-  
-  
-  ##
-  ## Check for (impossible) negative values
-  ##
-  if (any(sel0, na.rm = TRUE)) {
-    if (is.null(n)) {
-      if (warn)
-        warning("Negative value for ",
-                if (length(x) > 1)
-                  "at least one ",
-                if (value == "mean")
-                  paste0("transformed proportion using arcsine transformation.",
-                         "\n  Proportion set to 0."),
-                if (value == "lower")
-                  paste0("lower confidence limit using arcsine transformation.",
-                         "\n  Lower confidence limit set to 0."),
-                if (value == "upper")
-                  paste0("upper confidence limit using arcsine transformation.",
-                         "\n  Upper confidence limit set to 0."))
-    }
-    else {
-      if (warn)
-        warning("Too small value for ",
-                if (length(x) > 1)
-                  "at least one ",
-                if (value == "mean")
-                  paste0("transformed proportion using Freeman-Tukey double ",
-                         "arcsine transformation.\n  Proportion set to 0."),
-                if (value == "lower")
-                  paste0("lower confidence limit using Freeman-Tukey double ",
-                         "arcsine transformation.",
-                         "\n  Lower confidence limit set to 0."),
-                if (value == "upper")
-                  paste0("upper confidence limit using Freeman-Tukey double ",
-                         "arcsine transformation.",
-                         "\n  Upper confidence limit set to 0."))
-    }
-  }
-  
-  ##
-  ## Check for (impossible) large values
-  ##
-  if (any(sel1, na.rm = TRUE)) {
-    if (is.null(n)) {
-      if (warn)
-        warning("Too large value for ",
-                if (length(x) > 1)
-                  "at least one ",
-                if (value == "mean")
-                  paste0("transformed proportion using arcsine transformation.",
-                         "\n  Proportion set to 1."),
-                if (value == "lower")
-                  paste0("lower confidence limit using arcsine transformation.",
-                         "\n  Lower confidence limit set to 1."),
-                if (value == "upper")
-                  paste0("upper confidence limit using arcsine transformation.",
-                         "\n  Upper confidence limit set to 1."))
-    }
-    else {
-      if (warn)
-        warning("Too large value for ",
-                if (length(x) > 1)
-                  "at least one ",
-                if (value == "mean")
-                  paste0("transformed proportion using Freeman-Tukey double ",
-                         "arcsine transformation.\n  Proportion set to 1."),
-                if (value == "lower")
-                  paste0("lower confidence limit using Freeman-Tukey double ",
-                         "arcsine transformation.",
-                         "\n  Lower confidence limit set to 1."),
-                if (value == "upper")
-                  paste0("upper confidence limit using Freeman-Tukey double ",
-                         "arcsine transformation.",
-                         "\n  Upper confidence limit set to 1."))
-    }
-  }
   
   
   res <- rep(NA, length(x))
@@ -188,11 +92,21 @@ asin2p <- function(x, n = NULL, value = "mean", warn = TRUE) {
   }
   res
 }
+
+
 logit2p <- function(x)
   1 / (1 + exp(-x))
+
+
+logVR2VE <- function(x)
+  100 * (1 - exp(x))
+
+
 z2cor <- function(x)
   tanh(x)
-backtransf <- function(x, sm, value, n, warn = FALSE) {
+
+
+backtransf <- function(x, sm, value, n) {
   
   ##
   ## Do nothing if all values are NA
@@ -210,16 +124,19 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     res <- logit2p(x)
   ##
   else if (sm == "PAS")
-    res <- asin2p(x, value = value, warn = warn)
+    res <- asin2p(x, value = value)
   ##
   else if (sm == "PFT")
-    res <- asin2p(x, n, value = value, warn = warn)
+    res <- asin2p(x, n, value = value)
   ##
   else if (sm == "IRS")
     res <- x^2
   ##
   else if (sm == "IRFT")
-    res <- asin2ir(x, n, value = value, warn = warn)
+    res <- asin2ir(x, n, value = value)
+  ##
+  else if (sm == "VE")
+    res <- logVR2VE(x)
   ##
   else
     res <- x
@@ -228,16 +145,6 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     sel0 <- res[!is.na(res)] < 0 & value == "lower"
     sel1 <- res[!is.na(res)] > 1 & value == "upper"
     ##
-    if (warn & any(sel0 | sel1, na.rm = TRUE))
-      warning("Negative value for ",
-              if (length(x) > 1)
-                "at least one ",
-              if (value == "lower")
-                paste0("lower confidence limit of raw proportions.",
-                       "\n  Lower confidence limit set to 0."),
-              if (value == "upper")
-                paste0("upper confidence limit of raw proportions.",
-                       "\n  Upper confidence limit set to 1."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
     else if (any(sel1, na.rm = TRUE) & value == "upper")
@@ -248,16 +155,6 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
     sel0 <- res[!is.na(res)] < 0 & value == "lower"
     sel1 <- res[!is.na(res)] > 1 & value == "upper"
     ##
-    if (warn & any(sel0 | sel1, na.rm = TRUE))
-      warning("Negative value for ",
-              if (length(x) > 1)
-                "at least one ",
-              if (value == "lower")
-                paste0("lower confidence limit using log transformation for ",
-                       "proportions.\n  Lower confidence limit set to 0."),
-              if (value == "upper")
-                paste0("upper confidence limit using log transformation for ",
-                       "proportions.\n  Upper confidence limit set to 1."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
     else if (any(sel1, na.rm = TRUE) & value == "upper")
@@ -267,18 +164,59 @@ backtransf <- function(x, sm, value, n, warn = FALSE) {
   if (sm == "IR") {
     sel0 <- res[!is.na(res)] < 0 & value == "lower"
     ##
-    if (warn & any(sel0, na.rm = TRUE))
-      warning("Negative value for ",
-              if (length(x) > 1)
-                "at least one ",
-              if (value == "lower")
-                paste0("lower confidence limit of incidence rates.",
-                       "\n  Lower confidence limit set to 0."))
     if (any(sel0, na.rm = TRUE) & value == "lower")
       res[sel0] <- 0
   }
 
   res
 }
+
+
+cor2z <- function(x)
+  0.5 * log((1 + x) / (1 - x))
+
+
+p2asin <- function(x)
+  asin(sqrt(x))
+
+
 p2logit <- function(x)
   qlogis(x)
+
+
+VE2logVR <- function(x)
+  log(1 - x / 100)
+
+
+transf <- function(x, sm) {
+  
+  ##
+  ## Do nothing if all values are NA
+  ## 
+  if (all(is.na(x)))
+    return(x)
+  
+  if (is.relative.effect(sm) | is.log.effect(sm))
+    res <- log(x)
+  ##
+  else if (sm == "ZCOR")
+    res <- cor2z(x)
+  ##
+  else if (sm == "PLOGIT")
+    res <- p2logit(x)
+  ##
+  else if (sm == "PAS")
+    res <- p2asin(x)
+  ##
+  else if (sm == "IRS")
+    res <- sqrt(x)
+  ##
+  else if (sm == "VE")
+    res <- VE2logVR(x)
+  ##
+  else
+    res <- x
+  
+  res
+}
+

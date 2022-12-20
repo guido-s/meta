@@ -368,10 +368,10 @@ setOption("argslist.internal", argslist.internal)
 ##
 ## Set defaults (for internal options)
 ##
-setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR"))
+setOption("sm4bin", c("OR", "RD", "RR", "ASD", "DOR", "VE"))
 setOption("sm4cont", c("MD", "SMD", "ROM"))
 setOption("sm4cor", c("ZCOR", "COR"))
-setOption("sm4inc", c("IRR", "IRD", "IRSD"))
+setOption("sm4inc", c("IRR", "IRD", "IRSD", "VE"))
 setOption("sm4mean", c("MRAW", "MLN"))
 setOption("sm4prop", c("PLOGIT", "PLN", "PRAW", "PAS", "PFT"))
 setOption("sm4rate", c("IR", "IRLN", "IRS", "IRFT"))
@@ -419,7 +419,7 @@ argslist <-
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "warn", "warn.deprecated",
-    "backtransf",
+    "transf", "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
     "method", "allstudies", "MH.exact",
@@ -433,7 +433,8 @@ argslist <-
     "digits", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
-    "digits.pval", "digits.pval.Q", "digits.forest",
+    "digits.pval", "digits.pval.Q",
+    "digits.forest", "digits.TE.forest",
     "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "print.I2", "print.H", "print.Rb",
@@ -458,6 +459,7 @@ argslist <-
     "text.subgroup.nohet",
     "LRT",
     "forest.stat", "forest.Q.subgroup",
+    "header.line",
     "fontsize", "fontfamily",
     "fs.common", "fs.random", "fs.predict",
     "fs.common.labels", "fs.random.labels", "fs.predict.labels",
@@ -473,7 +475,7 @@ argslist <-
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
     "spacing",
-    "addrow", "addrow.overall", "addrow.subgroups", "addrow.below.overall"
+    "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
@@ -528,6 +530,7 @@ setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
 setOption("warn", TRUE)
 setOption("warn.deprecated", FALSE)
+setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
 setOption("digits.se", 4)
@@ -611,6 +614,7 @@ setOption("layout", "meta")
 setOption("test.overall", FALSE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
+setOption("digits.TE.forest", 4)
 ##
 setOption("lty.common", 2)
 setOption("lty.random", 3)
@@ -673,6 +677,8 @@ setOption("LRT", FALSE)
 setOption("forest.stat", TRUE)
 setOption("forest.Q.subgroup", TRUE)
 ##
+setOption("header.line", FALSE)
+##
 setOption("fontsize", 12)
 setOption("fontfamily", NULL)
 setOption("fs.common", NULL)
@@ -720,7 +726,7 @@ setOption("spacing", 1)
 setOption("addrow", NULL)
 setOption("addrow.overall", NULL)
 setOption("addrow.subgroups", NULL)
-setOption("addrow.below.overall", 0)
+setOption("addrows.below.overall", NULL)
 
 
 setOption("Wan2014.Table1",

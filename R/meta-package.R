@@ -75,9 +75,12 @@
 #' }
 #' 
 #' In the following, more details on available and default statistical
-#' meta-analysis methods are provided. In addition, R function
+#' meta-analysis methods are provided and R function
 #' \code{\link{settings.meta}} is briefly described which can be used
-#' to change the default settings.
+#' to change the default settings. Additional information on
+#' meta-analysis objects and available summary measures can be found
+#' on the help pages \code{\link{meta-object}} and
+#' \code{\link{meta-sm}}.
 #' 
 #' \subsection{Estimation of between-study variance}{
 #' 
@@ -156,20 +159,36 @@
 #' \emph{k} corresponds to the number of studies in the
 #' meta-analysis.
 #'
+#' The Kenward-Roger method is only available for the REML estimator
+#' (\code{method.tau = "REML"}) of the between-study variance
+#' \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
+#' adjusted variance estimate for the random effects
+#' estimate. Furthermore, a quantile of a \emph{t}-distribution with
+#' adequately modified degrees of freedom is used to calculate the
+#' confidence interval.
+#'
+#' For GLMMs and three-level models, the Kenward-Roger method is not
+#' available, but a method similar to Knapp and Hartung (2003) is used
+#' if \code{method.random.ci = "HK"}. For this method, the variance
+#' estimator is not modified, however, a quantile of a
+#' \emph{t}-distribution with \emph{k-1} degrees of freedom is used;
+#' see description of argument \code{test} in
+#' \code{\link[metafor]{rma.glmm}} and \code{\link[metafor]{rma.mv}}.
+#' 
 #' Simulation studies (Hartung and Knapp, 2001a,b; IntHout et al.,
-#' 2014; Langan et al., 2019) show improved coverage probabilities
-#' compared to the classic random effects method. However, in rare
-#' settings with very homogeneous treatment estimates, the
-#' Hartung-Knapp variance estimate can be arbitrarily small resulting
-#' in a very narrow confidence interval (Knapp and Hartung, 2003;
-#' Wiksten et al., 2016). In such cases, an \emph{ad hoc} variance
-#' correction has been proposed by utilising the variance estimate
-#' from the classic random effects model with the Hartung-Knapp method
-#' (Knapp and Hartung, 2003; IQWiQ, 2022). An alternative \emph{ad
-#' hoc} approach is to use the confidence interval of the classic
-#' common or random effects meta-analysis if it is wider than the
-#' interval from the Hartung-Knapp method (Wiksten et al., 2016;
-#' Jackson et al., 2017).
+#' 2014; Langan et al., 2019) show improved coverage probabilities of
+#' the Hartung-Knapp method compared to the classic random effects
+#' method. However, in rare settings with very homogeneous treatment
+#' estimates, the Hartung-Knapp variance estimate can be arbitrarily
+#' small resulting in a very narrow confidence interval (Knapp and
+#' Hartung, 2003; Wiksten et al., 2016). In such cases, an \emph{ad
+#' hoc} variance correction has been proposed by utilising the
+#' variance estimate from the classic random effects model with the
+#' Hartung-Knapp method (Knapp and Hartung, 2003; IQWiQ, 2022). An
+#' alternative \emph{ad hoc} approach is to use the confidence
+#' interval of the classic common or random effects meta-analysis if
+#' it is wider than the interval from the Hartung-Knapp method
+#' (Wiksten et al., 2016; Jackson et al., 2017).
 #'
 #' Argument \code{adhoc.hakn.ci} can be used to choose the \emph{ad
 #' hoc} correction for the Hartung-Knapp (HK) method:
@@ -191,19 +210,9 @@
 #'  \tab and HK meta-analysis \cr
 #'  \tab (Hybrid method 2 in Jackson et al., 2017)
 #' }
-#'
-#' The Kenward-Roger method is only available for the REML estimator
-#' (\code{method.tau = "REML"}) of the between-study variance
-#' \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
-#' adjusted variance estimate for the random effects
-#' estimate. Furthermore, a quantile of a \emph{t}-distribution with
-#' adequately modified degrees of freedom is used to calculate the
-#' confidence interval.
-#'
-#' For GLMMs, the Kenward-Roger method is not available, but a method
-#' similar to Knapp and Hartung (2003) is implemented, see description
-#' of argument \code{tdist} in \code{\link[metafor]{rma.glmm}}, and
-#' the \emph{ad hoc} variance correction is not available.
+#' 
+#' For GLMMs and three-level models, the \emph{ad hoc} variance
+#' corrections are not available.
 #' }
 #' 
 #' \subsection{Prediction interval}{
@@ -230,17 +239,6 @@
 #' freedom where \emph{k} corresponds to the number of studies in the
 #' meta-analysis, see equation (12) in Higgins et al. (2009).
 #'
-#' Argument \code{adhoc.hakn.pi} can be used to choose the \emph{ad
-#' hoc} correction for the Hartung-Knapp method:
-#' 
-#' \tabular{ll}{
-#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-#' \code{adhoc.hakn.pi = ""}\tab no \emph{ad hoc} correction (default)
-#'   \cr
-#' \code{adhoc.hakn.pi = "se"}\tab use variance correction if HK
-#'  standard error is smaller
-#' }
-#'
 #' The Kenward-Roger method is only available for the REML estimator
 #' (\code{method.tau = "REML"}) of the between-study variance
 #' \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
@@ -257,6 +255,28 @@
 #' The method of Skipka (2006) ignores the uncertainty in the
 #' estimation of the between-study variance \eqn{\tau^2} and thus has
 #' too narrow limits for meta-analyses with a small number of studies.
+#'
+#' For GLMMs and three-level models, the Kenward-Roger method and the
+#' bootstrap approach are not available, but a method similar to Knapp
+#' and Hartung (2003) is used if \code{method.random.ci = "HK"}. For
+#' this method, the variance estimator is not modified, however, a
+#' quantile of a \emph{t}-distribution with \emph{k-2} degrees of
+#' freedom is used; see description of argument \code{test} in
+#' \code{\link[metafor]{rma.glmm}} and \code{\link[metafor]{rma.mv}}.
+#'
+#' Argument \code{adhoc.hakn.pi} can be used to choose the \emph{ad
+#' hoc} correction for the Hartung-Knapp method:
+#' 
+#' \tabular{ll}{
+#' \bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
+#' \code{adhoc.hakn.pi = ""}\tab no \emph{ad hoc} correction (default)
+#'   \cr
+#' \code{adhoc.hakn.pi = "se"}\tab use variance correction if HK
+#'  standard error is smaller
+#' }
+#' 
+#' For GLMMs and three-level models, the \emph{ad hoc} variance
+#' corrections are not available.
 #' }
 #'
 #' \subsection{Confidence interval for the between-study variance}{
@@ -359,7 +379,7 @@
 #' \item type \code{bug.report(package = "meta")} if you do not use
 #'   RStudio,
 #' \item send an email to Guido Schwarzer
-#'   \email{sc@imbi.uni-freiburg.de} if you use RStudio.
+#'   \email{guido.schwarzer@@uniklinik-freiburg.de} if you use RStudio.
 #' }
 #' 
 #' The development version of \bold{meta} is available on GitHub
@@ -371,7 +391,7 @@
 #' 
 #' @docType package
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @references
 #' Balduzzi S, Rücker G, Schwarzer G (2019):
@@ -511,6 +531,8 @@
 #' \bold{35}, 2503--15
 #'
 #' @keywords package
+#' 
+#' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
 #' @importFrom grid arrow gpar grid.draw grid.layout grid.lines
 #'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob
@@ -521,7 +543,7 @@
 #' @importFrom graphics abline axis box mtext lines par plot points
 #'   polygon text
 #' 
-#' @importFrom stats as.formula binom.test coef cor lm pchisq pnorm
+#' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
 #'   weights
 #'

@@ -73,7 +73,7 @@ specificSettings <- function(args, new, setting, quietly = FALSE) {
 
 
 setcharacter <- function(argname, args, set = NULL, length = 1,
-                         NULL.ok = FALSE) {
+                         NULL.ok = FALSE, ignore.other = FALSE) {
   id <- argid(names(args), argname)
   ##
   if (!is.na(id)) {
@@ -83,6 +83,9 @@ setcharacter <- function(argname, args, set = NULL, length = 1,
       setOption(argname, val)
       return(invisible(NULL))
     }
+    ##
+    if (!is.character(val) & ignore.other)
+      return(invisible(id))
     ##
     if (!is.null(set))
       val <- setchar(val, set)
@@ -122,7 +125,8 @@ setlevel <- function(argname, args) {
 }
 
 
-setlogical <- function(argname, args, NULL.ok = FALSE) {
+setlogical <- function(argname, args, NULL.ok = FALSE,
+                       ignore.other = FALSE) {
   id <- argid(names(args), argname)
   ##
   if (!is.na(id)) {
@@ -132,6 +136,9 @@ setlogical <- function(argname, args, NULL.ok = FALSE) {
       setOption(argname, val)
       return(invisible(NULL))
     }
+    ##
+    if (!is.logical(val) & ignore.other)
+      return(invisible(id))
     ##
     chklogical(val, name = argname)
     setOption(argname, val)

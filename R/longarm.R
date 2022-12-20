@@ -86,7 +86,7 @@
 #' @return
 #' A data frame in long arm-based format.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metainc}}, \code{\link[netmeta]{pairwise}}

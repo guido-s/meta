@@ -18,7 +18,7 @@
 #'   information.
 #' @param \dots Additional arguments (ignored at the moment).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.meta}}
 #' 

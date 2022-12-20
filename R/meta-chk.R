@@ -1,9 +1,10 @@
 ## Auxiliary functions to check function arguments
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
+
 chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
   if (!missing(single) && single)
     length <- 1
@@ -53,6 +54,7 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
              call. = FALSE)
   }
 }
+
 chkclass <- function(x, class, name = NULL) {
   ##
   ## Check class of R object
@@ -76,6 +78,7 @@ chkclass <- function(x, class, name = NULL) {
   ##
   invisible(NULL)
 }
+
 chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
   if (!missing(single) && single)
     length <- 1
@@ -90,6 +93,7 @@ chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
     stop("Argument '", name, "' must be a character or numeric vector.",
          call. = FALSE)
 }
+
 chklength <- function(x, k.all, fun = "", text, name = NULL) {
   ##
   ## Check length of vector
@@ -123,6 +127,7 @@ chklength <- function(x, k.all, fun = "", text, name = NULL) {
   ##
   invisible(NULL)
 }
+
 chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
   if (!missing(single) && single)
     length <- 1
@@ -154,6 +159,7 @@ chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
   ##
   invisible(NULL)
 }
+
 chklogical <- function(x, name = NULL) {
   ##
   ## Check whether argument is logical
@@ -169,6 +175,7 @@ chklogical <- function(x, name = NULL) {
   ##
   invisible(NULL)
 }
+
 chkmiss <- function(x, name = NULL) {
   ##
   ## Check for missing values
@@ -182,6 +189,7 @@ chkmiss <- function(x, name = NULL) {
   ##
   invisible(NULL)
 }
+
 chknull <- function(x, name = NULL) {
   ##
   ## Check whether argument is NULL
@@ -194,8 +202,9 @@ chknull <- function(x, name = NULL) {
   ##
   invisible(NULL)
 }
+
 chknumeric <- function(x, min, max, zero = FALSE, length = 0,
-                       name = NULL, single = FALSE) {
+                       name = NULL, single = FALSE, integer = FALSE) {
   if (!missing(single) && single)
     length <- 1
   ##
@@ -239,8 +248,18 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
     stop("Argument '", name, "' must be between ",
          min, " and ", max, ".", call. = FALSE)
   ##
+  if (integer && any(!is.wholenumber(x))) {
+    if (length(x) == 1)
+      stop("Argument '", name, "' must be an integer.",
+           call. = FALSE)
+    else
+      stop("Argument '", name, "' may only contain integers.",
+           call. = FALSE)
+  }
+  ##
   invisible(NULL)
 }
+
 argid <- function(x, value) {
   if (any(x == value))
     res <- seq(along = x)[x == value]
@@ -248,6 +267,7 @@ argid <- function(x, value) {
     res <- NA
   res
 }
+
 chkdeprecated <- function(x, new, old, warn = TRUE) {
   depr <- !is.na(argid(x, old))
   new.given <- !is.na(argid(x, new))
@@ -264,4 +284,46 @@ chkdeprecated <- function(x, new, old, warn = TRUE) {
   }
   ##
   invisible(depr)
+}
+
+chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
+                    adhoc.hakn.ci, adhoc.hakn.pi,
+                    sm.allowed) {
+  
+  if (!(sm %in% sm.allowed))
+    stop("Generalised linear mixed models only possible with ",
+         "argument 'sm = \"", paste0(sm.allowed, collapse = ", "), "\"'.",
+         call. = FALSE)
+  ##
+  if (method.tau != "ML")
+    stop("Generalised linear mixed models only possible with ",
+         "argument 'method.tau = \"ML\"'.",
+         call. = FALSE)
+  ##
+  if (any(method.random.ci == "KR"))
+    stop("Kenward-Roger method for random effects meta-analysis not ",
+         "available for GLMMs.",
+         call. = FALSE)
+  ##
+  if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
+    stop("Hartung-Knapp method with ad hoc correction not ",
+         "available for GLMMs.",
+         call. = FALSE)
+  ##
+  if (any(method.predict == "KR"))
+    stop("Kenward-Roger method for prediction interval not ",
+         "available for GLMMs.",
+         call. = FALSE)
+  ##
+  if (any(method.predict == "NNF"))
+    stop("Bootstrap method for prediction interval not ",
+         "available for GLMMs.",
+         call. = FALSE)
+  ##
+  if (any(method.predict == "HK")) 
+    stop("Hartung-Knapp method for prediction interval not ",
+         "available for GLMMs; use 'method.predict = \"HTS\".",
+         call. = FALSE)
+
+  return(invisible(NULL))
 }

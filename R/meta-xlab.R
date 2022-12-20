@@ -66,6 +66,9 @@ xlab <- function(sm, backtransf,
     else if (sm == "IRR")
       res <- paste0("Incidence Rate", newline, "Ratio")
     ##
+    else if (sm == "VE")
+      res <- "Vaccine Eff."
+    ##
     else if (is.prop(sm)) {
       if (pscale == 1)
         res <- ""
@@ -108,6 +111,9 @@ xlab <- function(sm, backtransf,
     ##
     else if (sm == "ZCOR")
       res <- paste0("Fisher's z transformed", newline, "correlation")
+    ##
+    else if (sm == "VE")
+      res <- "Log Vaccine Ratio"
     ##
     else if (sm == "PFT")
       res <- paste0("Freeman-Tukey Double Arcsine", newline,

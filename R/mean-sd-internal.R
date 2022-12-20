@@ -32,15 +32,45 @@ mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   ##
   ## Estimation of mean
   ##
-  if (tolower(method.mean) == "luo") {
+  if (method.mean == "Luo") {
     ## Luo et al. (2018), equation (15)
     mean <-
       (0.7 + 0.39 / n) * (q1 + q3) / 2 +
       (0.3 - 0.39 / n) * median
   }
-  else if (tolower(method.mean) == "wan") {
+  else if (method.mean == "Wan") {
     ## Wan et al. (2014), equation (14)
     mean <- (q1 + median + q3) / 3
+  }
+  else if (method.mean == "Cai") {
+    ## Cai et al. (2021)
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::mln.mean.sd(q1.val = q1[i],
+                               med.val = median[i],
+                               q3.val = q3[i],
+                               n = n[i])$est.mean
+  }
+  else if (method.mean == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::qe.mean.sd(q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              n = n[i])$est.mean
+  }
+  else if (method.mean == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::bc.mean.sd(q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              n = n[i])$est.mean
   }
   else
     mean <- NA
@@ -50,10 +80,42 @@ mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   ## Estimation of standard deviation
   ## Wan et al. (2014), equations (15) and (16)
   ##
-  sd <- (q3 - q1) /
-    ifelse(n > 201, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
-           gs("Wan2014.Table2")[ceiling(0.25 * (n - 1))])
-  
+  if (method.mean %in% c("Luo", "Wan")) {
+    sd <- (q3 - q1) /
+      ifelse(n > 201, 2 * qnorm((0.75 * n - 0.125) / (n + 0.25)),
+             gs("Wan2014.Table2")[ceiling(0.25 * (n - 1))])
+  }
+  else if (method.mean == "Cai") {
+    ## Cai et al. (2021)
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::mln.mean.sd(q1.val = q1[i],
+                               med.val = median[i],
+                               q3.val = q3[i],
+                               n = n[i])$est.sd
+  }
+  else if (method.mean == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::qe.mean.sd(q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              n = n[i])$est.sd
+  }
+  else if (method.mean == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::bc.mean.sd(q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              n = n[i])$est.sd
+  }
+
   
   ##
   ## Calculation of standard error
@@ -67,6 +129,8 @@ mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   ##
   res
 }
+
+
 mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
                               method.mean = "Luo", method.sd = "Shi") {
   
@@ -120,31 +184,67 @@ mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
   ##
   ## Estimation of mean
   ##
-  if (tolower(method.mean) == "luo") {
+  if (method.mean == "Luo") {
     ## Luo et al. (2018), equation (15)
     mean <-
       2.2 / (2.2 + n^0.75) * (min + max) / 2 +
       (0.7 - 0.72 / n^0.55) * (q1 + q3) / 2 +
       (0.3 + 0.72 / n^0.55 - 2.2 / (2.2 + n^0.75)) * median
   }
-  else if (tolower(method.mean) == "wan") {
+  else if (method.mean == "Wan") {
     ## Wan et al. (2014), equation (10)
     mean <- (min + 2 * q1 + 2 * median + 2 * q3 + max) / 8
   }
+  else if (method.mean == "Cai") {
+    ## Cai et al. (2021)
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::mln.mean.sd(min.val = min[i],
+                               q1.val = q1[i],
+                               med.val = median[i],
+                               q3.val = q3[i],
+                               max.val = max[i],
+                               n = n[i])$est.mean
+  }
+  else if (method.mean == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::qe.mean.sd(min.val = min[i],
+                              q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              max.val = max[i],
+                              n = n[i])$est.mean
+  }
+  else if (method.mean == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::bc.mean.sd(min.val = min[i],
+                              q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              max.val = max[i],
+                              n = n[i])$est.mean
+  }
   else
-    mean <- NA
+    mean <- rep_len(NA, k)
   
   
   ##
   ## Estimation of standard deviation
   ##
-  if (tolower(method.sd) == "shi") {
+  if (method.sd == "Shi") {
     ## Shi et al. (2020), equation (11)
     theta1 <- (2 + 0.14 * n^0.6) * qnorm((n - 0.375) / (n + 0.25))
     theta2 <- (2 + 2 / (0.07 * n^0.6)) * qnorm((0.75 * n - 0.125) / (n + 0.25))
     sd <- (max - min) / theta1 + (q3 - q1) / theta2
   }
-  else if (tolower(method.sd) == "wan") {
+  else if (method.sd == "Wan") {
     ## Wan et al. (2014), equations (12) and (13)
     ##
     sd <- 0.5 * (
@@ -154,8 +254,44 @@ mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
                          gs("Wan2014.Table2")[ceiling(0.25 * (n - 1))])
     )
   }
+  else if (method.sd == "Cai") {
+    ## Cai et al. (2021)
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::mln.mean.sd(min.val = min[i],
+                               q1.val = q1[i],
+                               med.val = median[i],
+                               q3.val = q3[i],
+                               max.val = max[i],
+                               n = n[i])$est.sd
+  }
+  else if (method.sd == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::qe.mean.sd(min.val = min[i],
+                              q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              max.val = max[i],
+                              n = n[i])$est.sd
+  }
+  else if (method.sd == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::bc.mean.sd(min.val = min[i],
+                              q1.val = q1[i],
+                              med.val = median[i],
+                              q3.val = q3[i],
+                              max.val = max[i],
+                              n = n[i])$est.sd
+  }
   else
-    sd <- NA
+    sd <- rep_len(NA, k)
   
   
   ##
@@ -170,6 +306,8 @@ mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
   ##
   res
 }
+
+
 mean.sd.range <- function(n, median, min, max, method.mean = "Luo") {
   
   
@@ -207,28 +345,90 @@ mean.sd.range <- function(n, median, min, max, method.mean = "Luo") {
   ##
   ## Estimation of mean
   ##
-  if (tolower(method.mean) == "luo") {
+  if (method.mean == "Luo") {
     ## Luo et al. (2018), equation (15)
     mean <-
       4 / (4 + n^0.75) * (min + max) / 2 +
       n^0.75 / (4 + n^0.75) * median
   }
-  else if (tolower(method.mean) == "wan") {
+  else if (method.mean == "Wan") {
     ## Wan et al. (2014), equation (2)
     mean <- (min + 2 * median + max) / 4 +
       ifelse(is.na(n), 0, (min - 2 * median + max) / (4 * n))
   }
+  else if (method.mean == "Cai") {
+    ## Cai et al. (2021)
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::mln.mean.sd(min.val = min[i],
+                               med.val = median[i],
+                               max.val = max[i],
+                               n = n[i])$est.mean
+  }
+  else if (method.mean == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::qe.mean.sd(min.val = min[i],
+                              med.val = median[i],
+                              max.val = max[i],
+                              n = n[i])$est.mean
+  }
+  else if (method.mean == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    mean <- vector("numeric", k)
+    for (i in seq_len(k))
+      mean[i] <-
+        estmeansd::bc.mean.sd(min.val = min[i],
+                              med.val = median[i],
+                              max.val = max[i],
+                              n = n[i])$est.mean
+  }
   else
-    mean <- NA
+    mean <- rep_len(NA, k)
   
   
   ##
   ## Estimation of standard deviation
   ## Wan et al. (2014), equations (7) and (9)
   ##
-  sd <- (max - min) /
-    ifelse(n > 50, 2 * qnorm((n - 0.375) / (n + 0.25)),
-           gs("Wan2014.Table1")[n])
+  if (method.mean %in% c("Luo", "Wan")) {
+    sd <- (max - min) /
+      ifelse(n > 50, 2 * qnorm((n - 0.375) / (n + 0.25)),
+             gs("Wan2014.Table1")[n])
+  }
+  else if (method.mean == "Cai") {
+    ## Cai et al. (2021)
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::mln.mean.sd(min.val = min[i],
+                               med.val = median[i],
+                               max.val = max[i],
+                               n = n[i])$est.sd
+  }
+  else if (method.mean == "QE-McGrath") {
+    ## McGrath et al. (2020), QE method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::qe.mean.sd(min.val = min[i],
+                              med.val = median[i],
+                              max.val = max[i],
+                              n = n[i])$est.sd
+  }
+  else if (method.mean == "BC-McGrath") {
+    ## McGrath et al. (2020), BC method
+    sd <- vector("numeric", k)
+    for (i in seq_len(k))
+      sd[i] <-
+        estmeansd::bc.mean.sd(min.val = min[i],
+                              med.val = median[i],
+                              max.val = max[i],
+                              n = n[i])$est.sd
+  }
   
   
   ##

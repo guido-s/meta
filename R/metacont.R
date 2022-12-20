@@ -284,6 +284,17 @@
 #' \item equation (2) if sample size, median and range are available.
 #' }
 #'
+#' The following methods are also available to estimate means from
+#' quantiles or ranges if R package \bold{estmeansd} is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
+#' }
+#'
 #' By default, missing means are replaced successively using
 #' interquartile ranges and ranges (if available), interquartile
 #' ranges (if available) and finally ranges. Arguments
@@ -325,6 +336,18 @@
 #' size, either equation (12) or (13) is used. If only the
 #' interquartile range or range is available, equations (15) / (16)
 #' and (7) / (9) in Wan et al. (2014) are used, respectively.
+#'
+#' The following methods are also available to estimate standard
+#' deviations from quantiles or ranges if R package \bold{estmeansd}
+#' is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
+#' }
 #'
 #' By default, missing standard deviations are replaced successively
 #' using these method, i.e., interquartile ranges and ranges are used
@@ -396,7 +419,7 @@
 #' An object of class \code{c("metacont", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metabin}}, \code{\link{metagen}}
@@ -405,6 +428,12 @@
 #' Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
 #' \emph{Introduction to Meta-Analysis}.
 #' Chichester: Wiley
+#'
+#' Cai S, Zhou J, Pan J (2021):
+#' Estimating the sample mean and standard deviation from order
+#' statistics and sample size in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{30}, 2701--2719
 #' 
 #' Cohen J (1988):
 #' \emph{Statistical Power Analysis for the Behavioral Sciences
@@ -439,6 +468,13 @@
 #' mid-range, and/or mid-quartile range.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{27}, 1785--805
+#'
+#' McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+#' Data (DEPRESSD) Collaboration (2020):
+#' Estimating the sample mean and standard deviation from commonly
+#' reported quantiles in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{29}, 2520--2537
 #' 
 #' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 #' The Cochrane Collaboration, 2020
@@ -619,9 +655,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
-    chkchar(text.random, length = 1)
+    chkchar(text.random)
   if (!is.null(text.predict))
-    chkchar(text.predict, length = 1)
+    chkchar(text.predict)
   if (!is.null(text.w.common))
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
@@ -636,8 +672,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     method.ci <- "z"
   method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
-  method.mean <- setchar(method.mean, c("Luo", "Wan"))
-  method.sd <- setchar(method.sd, c("Shi", "Wan"))
+  method.mean <-
+    setchar(method.mean, c("Luo", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  method.sd <-
+    setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  ##
+  if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.mean",
+                         value = method.mean)
+  if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.sd",
+                         value = method.sd)
   ##
   chklogical(pooledvar)
   method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
@@ -1807,33 +1852,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
     ##
-    if (tau.common && is.null(tau.preset)) {
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
-      ##
-      res$tau2.resid <- hcc$tau2.resid
-      res$lower.tau2.resid <- hcc$lower.tau2.resid
-      res$upper.tau2.resid <- hcc$upper.tau2.resid
-      ##
-      res$tau.resid <- hcc$tau.resid
-      res$lower.tau.resid <- hcc$lower.tau.resid
-      res$upper.tau.resid <- hcc$upper.tau.resid
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
-      ##
-      res$Q.resid <- hcc$Q.resid
-      res$df.Q.resid <- hcc$df.Q.resid
-      res$pval.Q.resid <- hcc$pval.Q.resid
-      ##
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-      ##
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
-    }
+    if (tau.common && is.null(tau.preset))
+      res <- addHet(res, hcc)
     ##
     res$n.w <- NULL
     res$event.w <- NULL
@@ -1846,7 +1866,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
+    ##
+    res <- setNAwithin(res, res$three.level)
   }
+  ##
+  ## Backward compatibility
+  ##
+  res <- backward(res)
   ##
   class(res) <- c(fun, "meta")
   

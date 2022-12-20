@@ -401,10 +401,11 @@
 #' 
 #' @aliases meta-object
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{meta-package}}, \code{\link{print.meta}},
-#'   \code{\link{summary.meta}}, \code{\link{forest.meta}}
+#' @seealso \code{\link{meta-package}}, \code{\link{meta-sm}},
+#'   \code{\link{print.meta}}, \code{\link{summary.meta}},
+#'   \code{\link{forest.meta}}
 #'
 #' @keywords list
 

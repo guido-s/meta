@@ -305,7 +305,7 @@ Calculations are conducted on the log scale if \code{sm =
 "ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 \code{TE.random} contain the logarithm of means. In printouts and
 plots these values are back transformed if argument
-\code{backtransf = TRUE}.
+\code{backtransf = TRUE} (default).
 
 \subsection{Approximate means from sample sizes, medians and other statistics}{
 
@@ -338,6 +338,17 @@ argument \code{method.mean = "Wan"}:
 \item equation (14) if sample size, median and interquartile range
   are available,
 \item equation (2) if sample size, median and range are available.
+}
+
+The following methods are also available to estimate means from
+quantiles or ranges if R package \bold{estmeansd} is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
 }
 
 By default, missing means are replaced successively using
@@ -379,6 +390,18 @@ argument \code{method.sd = "Wan"} and, depending on the sample
 size, either equation (12) or (13) is used. If only the
 interquartile range or range is available, equations (15) / (16)
 and (7) / (9) in Wan et al. (2014) are used, respectively.
+
+The following methods are also available to estimate standard
+deviations from quantiles or ranges if R package \bold{estmeansd}
+is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
+}
 
 By default, missing standard deviations are replaced successively
 using these method, i.e., interquartile ranges and ranges are used
@@ -465,15 +488,46 @@ update(m2, null.effect = 2, backtransf = FALSE)
 
 }
 \references{
-Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+Cai S, Zhou J, Pan J (2021):
+Estimating the sample mean and standard deviation from order
+statistics and sample size in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{30}, 2701--2719
+
+Luo D, Wan X, Liu J, Tong T (2018):
+Optimally estimating the sample mean from the sample size, median,
+mid-range, and/or mid-quartile range.
+\emph{Statistical Methods in Medical Research},
+\bold{27}, 1785--805
+
+McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+Data (DEPRESSD) Collaboration (2020):
+Estimating the sample mean and standard deviation from commonly
+reported quantiles in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{29}, 2520--2537
+
+Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
+Optimally estimating the sample standard deviation from the
+five-number summary.
+\emph{Research Synthesis Methods}.
+
+Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca
+J (2013):
 Three-level meta-analysis of dependent effect sizes.
 \emph{Behavior Research Methods},
 \bold{45}, 576--94
+
+Wan X, Wang W, Liu J, Tong T (2014):
+Estimating the sample mean and standard deviation from the sample
+size, median, range and/or interquartile range.
+\emph{BMC Medical Research Methodology},
+\bold{14}, 135
 }
 \seealso{
 \code{\link{meta-package}}, \code{\link{update.meta}},
   \code{\link{metamean}}, \code{\link{metagen}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

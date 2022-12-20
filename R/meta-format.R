@@ -1,7 +1,7 @@
 ## Auxiliary functions to format print output
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
@@ -203,6 +203,11 @@ formatCI <- function(lower, upper,
     format.lower <- rmSpace(format.lower)
   if (!upper.blank)
     format.upper <- rmSpace(format.upper)
+  ##
+  if (separator == "-")
+    format.upper <-
+      paste0(ifelse(substring(format.upper, 1, 1) == "-", " ", ""),
+             format.upper)
   ##
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste0(bracket.left,

@@ -451,6 +451,17 @@ argument \code{method.mean = "Wan"}:
 \item equation (2) if sample size, median and range are available.
 }
 
+The following methods are also available to estimate means from
+quantiles or ranges if R package \bold{estmeansd} is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
+}
+
 By default, missing means are replaced successively using
 interquartile ranges and ranges (if available), interquartile
 ranges (if available) and finally ranges. Arguments
@@ -492,6 +503,18 @@ argument \code{method.sd = "Wan"} and, depending on the sample
 size, either equation (12) or (13) is used. If only the
 interquartile range or range is available, equations (15) / (16)
 and (7) / (9) in Wan et al. (2014) are used, respectively.
+
+The following methods are also available to estimate standard
+deviations from quantiles or ranges if R package \bold{estmeansd}
+is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
+}
 
 By default, missing standard deviations are replaced successively
 using these method, i.e., interquartile ranges and ranges are used
@@ -608,6 +631,12 @@ Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
 \emph{Introduction to Meta-Analysis}.
 Chichester: Wiley
 
+Cai S, Zhou J, Pan J (2021):
+Estimating the sample mean and standard deviation from order
+statistics and sample size in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{30}, 2701--2719
+
 Cohen J (1988):
 \emph{Statistical Power Analysis for the Behavioral Sciences
   (second ed.)}.
@@ -642,6 +671,13 @@ mid-range, and/or mid-quartile range.
 \emph{Statistical Methods in Medical Research},
 \bold{27}, 1785--805
 
+McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+Data (DEPRESSD) Collaboration (2020):
+Estimating the sample mean and standard deviation from commonly
+reported quantiles in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{29}, 2520--2537
+
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 The Cochrane Collaboration, 2020
 
@@ -673,5 +709,5 @@ cluster-randomized trials, with applications to meta-analysis.
   \code{\link{metabin}}, \code{\link{metagen}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

@@ -174,7 +174,7 @@
 #' "ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 #' \code{TE.random} contain the logarithm of means. In printouts and
 #' plots these values are back transformed if argument
-#' \code{backtransf = TRUE}.
+#' \code{backtransf = TRUE} (default).
 #' 
 #' \subsection{Approximate means from sample sizes, medians and other statistics}{
 #' 
@@ -207,6 +207,17 @@
 #' \item equation (14) if sample size, median and interquartile range
 #'   are available,
 #' \item equation (2) if sample size, median and range are available.
+#' }
+#'
+#' The following methods are also available to estimate means from
+#' quantiles or ranges if R package \bold{estmeansd} is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
 #' }
 #'
 #' By default, missing means are replaced successively using
@@ -248,6 +259,18 @@
 #' size, either equation (12) or (13) is used. If only the
 #' interquartile range or range is available, equations (15) / (16)
 #' and (7) / (9) in Wan et al. (2014) are used, respectively.
+#'
+#' The following methods are also available to estimate standard
+#' deviations from quantiles or ranges if R package \bold{estmeansd}
+#' is installed:
+#' \itemize{
+#' \item Method for Unknown Non-Normal Distributions (MLN) approach
+#'   (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+#' \item Quantile Estimation (QE) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "QE-McGrath"})),
+#' \item Box-Cox (BC) method (McGrath et al. (2020),
+#'   argument \code{method.mean = "BC-McGrath"})).
+#' }
 #'
 #' By default, missing standard deviations are replaced successively
 #' using these method, i.e., interquartile ranges and ranges are used
@@ -317,16 +340,47 @@
 #' An object of class \code{c("metamean", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metamean}}, \code{\link{metagen}}
 #' 
 #' @references
-#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
+#' Cai S, Zhou J, Pan J (2021):
+#' Estimating the sample mean and standard deviation from order
+#' statistics and sample size in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{30}, 2701--2719
+#' 
+#' Luo D, Wan X, Liu J, Tong T (2018):
+#' Optimally estimating the sample mean from the sample size, median,
+#' mid-range, and/or mid-quartile range.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{27}, 1785--805
+#'
+#' McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+#' Data (DEPRESSD) Collaboration (2020):
+#' Estimating the sample mean and standard deviation from commonly
+#' reported quantiles in meta-analysis.
+#' \emph{Statistical Methods in Medical Research},
+#' \bold{29}, 2520--2537
+#' 
+#' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
+#' Optimally estimating the sample standard deviation from the
+#' five-number summary.
+#' \emph{Research Synthesis Methods}.
+#' 
+#' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca
+#' J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
+#'
+#' Wan X, Wang W, Liu J, Tong T (2014):
+#' Estimating the sample mean and standard deviation from the sample
+#' size, median, range and/or interquartile range.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{14}, 135
 #' 
 #' @examples
 #' m1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
@@ -448,9 +502,9 @@ metamean <- function(n, mean, sd, studlab,
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
-    chkchar(text.random, length = 1)
+    chkchar(text.random)
   if (!is.null(text.predict))
-    chkchar(text.predict, length = 1)
+    chkchar(text.predict)
   if (!is.null(text.w.common))
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
@@ -466,8 +520,17 @@ metamean <- function(n, mean, sd, studlab,
     method.ci <- "z"
   method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
-  method.mean <- setchar(method.mean, c("Luo", "Wan"))
-  method.sd <- setchar(method.sd, c("Shi", "Wan"))
+  method.mean <-
+    setchar(method.mean, c("Luo", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  method.sd <-
+    setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
+  ##
+  if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.mean",
+                         value = method.mean)
+  if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
+    is.installed.package("estmeansd", argument = "method.sd",
+                         value = method.sd)
   ##
   chklogical(warn)
   ##
@@ -1239,39 +1302,15 @@ metamean <- function(n, mean, sd, studlab,
       res <- c(res, subgroup(res, tau.preset))
     else {
       if (res$three.level)
-        res <- c(res, subgroup(res, NULL,
-                               factor(res$subgroup, bylevs(res$subgroup))))
+        res <- c(res,
+                 subgroup(res, NULL,
+                          factor(res$subgroup, bylevs(res$subgroup))))
       else
         res <- c(res, subgroup(res, hcc$tau.resid))
     }
     ##
-    if (tau.common && is.null(tau.preset)) {
-      res$Q.w.random <- hcc$Q.resid
-      res$df.Q.w.random <- hcc$df.Q.resid
-      res$pval.Q.w.random <- hcc$pval.Q.resid
-      ##
-      res$tau2.resid <- hcc$tau2.resid
-      res$lower.tau2.resid <- hcc$lower.tau2.resid
-      res$upper.tau2.resid <- hcc$upper.tau2.resid
-      ##
-      res$tau.resid <- hcc$tau.resid
-      res$lower.tau.resid <- hcc$lower.tau.resid
-      res$upper.tau.resid <- hcc$upper.tau.resid
-      res$sign.lower.tau.resid <- hcc$sign.lower.tau.resid
-      res$sign.upper.tau.resid <- hcc$sign.upper.tau.resid
-      ##
-      res$Q.resid <- hcc$Q.resid
-      res$df.Q.resid <- hcc$df.Q.resid
-      res$pval.Q.resid <- hcc$pval.Q.resid
-      ##
-      res$H.resid <- hcc$H.resid
-      res$lower.H.resid <- hcc$lower.H.resid
-      res$upper.H.resid <- hcc$upper.H.resid
-      ##
-      res$I2.resid <- hcc$I2.resid
-      res$lower.I2.resid <- hcc$lower.I2.resid
-      res$upper.I2.resid <- hcc$upper.I2.resid
-    }
+    if (tau.common && is.null(tau.preset))
+      res <- addHet(res, hcc)
     ##
     res$event.w <- NULL
     ##
@@ -1285,7 +1324,13 @@ metamean <- function(n, mean, sd, studlab,
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
+    ##
+    res <- setNAwithin(res, res$three.level)
   }
+  ##
+  ## Backward compatibility
+  ##
+  res <- backward(res)
   ##
   class(res) <- c(fun, "meta")
   

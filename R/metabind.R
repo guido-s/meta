@@ -36,7 +36,7 @@
 #' An object of class \code{c("metabind", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}},
 #'   \code{\link{metamerge}}
@@ -704,7 +704,7 @@ metabind <- function(..., name = NULL, pooled = NULL,
     m.i <- args[[i]]
     ##
     study.i <-
-      data.frame(studlab = replaceNULL(m.i$subgroup.levels, "overall"),
+      data.frame(studlab = replaceNULL(m.i$subgroup.levels, name[i]),
                  stringsAsFactors = FALSE)
     ##
     if (is.subgroup[i]) {
@@ -888,50 +888,18 @@ metabind <- function(..., name = NULL, pooled = NULL,
     res$overall.hetstat <- FALSE
   }
   ##
+  if (all(is.na(res$TE.common)) & all(is.na(res$TE.random))) {
+    res$overall <- FALSE
+    res$overall.hetstat <- FALSE
+  }
+  ##
   res$pooled <- pooled
   res$is.limit.copas <- is.limit.copas
   ##
   ## Backward compatibility
   ##
-  res$fixed <- res$common
-  res$comb.fixed <- res$common
-  res$comb.random <- res$random
-  res$level.comb <- res$level.ma
-  ##
-  res$w.fixed <- res$w.common
-  res$TE.fixed <- res$TE.common
-  res$seTE.fixed <- res$seTE.common
-  res$lower.fixed <- res$lower.common
-  res$upper.fixed <- res$upper.common
-  res$statistic.fixed <- res$statistic.common
-  res$pval.fixed <- res$pval.common
-  res$zval.fixed <- res$zval.common
-  ##
-  res$text.fixed <- res$text.common
-  res$text.w.fixed <- res$text.w.common
-  ##
-  if (!is.null(res$subgroup)) {
-    res$byvar <- res$subgroup
-    res$bylab <- res$subgroup.name
-    res$print.byvar <- res$print.subgroup.name
-    res$byseparator <- res$sep.subgroup
-    ##
-    res$TE.fixed.w <- res$TE.common.w
-    res$seTE.fixed.w <- res$seTE.common.w
-    res$lower.fixed.w <- res$lower.common.w
-    res$upper.fixed.w <- res$upper.common.w
-    res$statistic.fixed.w <- res$statistic.common.w
-    res$pval.fixed.w <- res$pval.common.w
-    res$zval.fixed.w <- res$zval.common.w
-    res$w.fixed.w <- res$w.common.w
-    ##
-    res$Q.w.fixed <- res$Q.w.common
-    res$pval.Q.w.fixed <- res$pval.Q.w.common
-    res$Q.b.fixed <- res$Q.b.common
-    res$pval.Q.b.fixed <- res$pval.Q.b.common
-  }
-  
-  
+  res <- backward(res)
+  ##  
   class(res) <- c("metabind", "meta")
   
   

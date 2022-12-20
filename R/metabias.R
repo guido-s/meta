@@ -188,7 +188,7 @@
 #' \item{version}{Version of R package \bold{meta} used to create
 #'   object.}
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{funnel}}, \code{\link{funnel.meta}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},
@@ -466,7 +466,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         ##
         ## Begg und Mazumdar (1994), Biometrics, 50, 1088-1101
         ##
-        m <- metagen(TE, seTE, method.tau.ci = "")
+        m <- metagen(TE, seTE, method.tau = "DL", method.tau.ci = "")
         TE.common <- m$TE.common
         seTE.common <- m$seTE.common
         ##
@@ -481,7 +481,9 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         ##
         if (inherits(x, "metabin")) {
           TE.MH <- metabin(x$event.e, x$n.e, x$event.c, x$n.c,
-                           sm = "OR", method = "MH", warn = FALSE)$TE.common
+                           sm = "OR", method = "MH",
+                           method.tau = "DL", method.tau.ci = "",
+                           warn = FALSE)$TE.common
           ##
           n.. <- n.e + n.c
           n11 <- event.e

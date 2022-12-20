@@ -50,6 +50,7 @@ metagen(
   method.sd = "Shi",
   approx.TE,
   approx.seTE,
+  transf = gs("transf"),
   backtransf = gs("backtransf"),
   pscale = 1,
   irscale = 1,
@@ -231,6 +232,14 @@ estimate (see Details).}
 \item{approx.seTE}{Approximation method to estimate standard error
 (see Details).}
 
+\item{transf}{A logical indicating whether inputs for arguments
+\code{TE}, \code{lower} and \code{upper} are already
+appropriately transformed to conduct the meta-analysis or on
+the original scale. If \code{transf = TRUE} (default), inputs are
+expected to be log odds ratios instead of odds ratios for
+\code{sm = "OR"} and Fisher's z transformed correlations instead
+of correlations for \code{sm = "ZCOR"}, for example.}
+
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If \code{backtransf =
 TRUE} (default), results for \code{sm = "OR"} are printed as odds
@@ -303,7 +312,8 @@ intervals should be printed for subgroups.}
 
 \item{id}{Deprecated argument (replaced by 'cluster').}
 
-\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+\item{adhoc.hakn}{Deprecated argument (replaced by
+'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -379,9 +389,10 @@ center of the confidence interval (on the log scale for relative
 effect measures like the odds ratio or hazard ratio).
 
 If the treatment effect is a mean it can be approximated from
-sample size, median, interquartile range and range. By default,
-methods described in Luo et al. (2018) are utilized (argument
-\code{method.mean = "Luo"}):
+sample size, median, interquartile range and range.
+
+By default, methods described in Luo et al. (2018) are utilized
+(argument \code{method.mean = "Luo"}):
 \itemize{
 \item equation (7) if sample size, median and range are available,
 \item equation (11) if sample size, median and interquartile range
@@ -398,6 +409,17 @@ argument \code{method.mean = "Wan"}:
   are available,
 \item equation (10) if sample size, median, range and interquartile
   range are available.
+}
+
+The following methods are also available to estimate means from
+quantiles or ranges if R package \bold{estmeansd} is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
 }
 
 By default, missing treatment estimates are replaced successively
@@ -455,6 +477,18 @@ studies must be provided with arguments \code{n.e} and / or
 \code{n.c}. The total sample size is calculated as \code{n.e} +
 \code{n.c} if both arguments are provided.
 
+The following methods are also available to estimate standard
+deviations from quantiles or ranges if R package \bold{estmeansd}
+is installed:
+\itemize{
+\item Method for Unknown Non-Normal Distributions (MLN) approach
+  (Cai et al. (2021), argument \code{method.mean = "Cai"}),
+\item Quantile Estimation (QE) method (McGrath et al. (2020),
+  argument \code{method.mean = "QE-McGrath"})),
+\item Box-Cox (BC) method (McGrath et al. (2020),
+  argument \code{method.mean = "BC-McGrath"})).
+}
+
 By default, missing standard errors are replaced successively using
 these method, e.g., p-value before confidence limits before
 interquartile range and range. Argument \code{approx.seTE} can be
@@ -507,8 +541,8 @@ effect measures like the mean difference (\code{sm = "MD"}) or
 standardised mean difference (\code{sm = "SMD"})). For relative
 effect measures, e.g., risk ratio (\code{sm = "RR"}) or odds ratio
 (\code{sm = "OR"}), the null effect is defined on the log scale,
-i.e., \emph{ln}(RR) = 0 or \emph{ln}(OR) = 0 which is equivalent to
-testing RR = 1 or OR = 1.
+i.e., \emph{log}(RR) = 0 or \emph{log}(OR) = 0 which is equivalent
+to testing RR = 1 or OR = 1.
 
 Use of argument \code{null.effect} is especially useful for summary
 measures without a "natural" null effect, i.e., in situations
@@ -668,11 +702,24 @@ meta-analysis.
 \emph{Research Synthesis Methods},
 \bold{1}, 97--111
 
+Cai S, Zhou J, Pan J (2021):
+Estimating the sample mean and standard deviation from order
+statistics and sample size in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{30}, 2701--2719
+
 Luo D, Wan X, Liu J, Tong T (2018):
 Optimally estimating the sample mean from the sample size, median,
 mid-range, and/or mid-quartile range.
 \emph{Statistical Methods in Medical Research},
 \bold{27}, 1785--805
+
+McGrath S, Zhao X, Steele R, et al. and the DEPRESsion Screening
+Data (DEPRESSD) Collaboration (2020):
+Estimating the sample mean and standard deviation from commonly
+reported quantiles in meta-analysis.
+\emph{Statistical Methods in Medical Research},
+\bold{29}, 2520--2537
 
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the
@@ -701,5 +748,5 @@ size, median, range and/or interquartile range.
   \code{\link{print.meta}}, \code{\link{settings.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

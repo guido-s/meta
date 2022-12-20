@@ -1,7 +1,7 @@
 ## Auxiliary functions to calculate heterogeneity measures
 ##
 ## Package: meta
-## Author: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {
@@ -64,13 +64,13 @@ calcH <- function(Q, df, level) {
       H <- NA
     ##
     selogH <- ifelse(Q > k,
-                     ifelse(k >= 2,
-                            0.5 * (log(Q) - log(k - 1)) /
-                            (sqrt(2 * Q) - sqrt(2 * k - 3)),
-                            NA),
-                     ifelse(k > 2,
-                            sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)^2))),
-                            NA))
+              ifelse(k >= 2,
+                     0.5 * (log(Q) - log(k - 1)) /
+                     (sqrt(2 * Q) - sqrt(2 * k - 3)),
+                     NA),
+              ifelse(k > 2,
+                     sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)^2))),
+                     NA))
   }
   else {
     H <- NA

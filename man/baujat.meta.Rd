@@ -150,6 +150,6 @@ Application to a meta-analysis of 65 trials.
 \code{\link{metagen}}, \code{\link{metainf}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{hplot}

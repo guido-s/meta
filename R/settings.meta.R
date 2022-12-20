@@ -83,7 +83,8 @@
 #'   tau-squared \cr
 #' \code{CIbracket}, \tab "[" \tab \cr
 #' \code{CIseparator} \tab ", " \tab print confidence intervals as
-#'   "\code{[., .]}"
+#'   "\code{[., .]}" \cr
+#' \code{header.line}, \tab TRUE \tab print header line
 #' }
 #'
 #' JAMA settings:
@@ -105,7 +106,8 @@
 #' \code{zero.pval}, \tab TRUE \tab print p-values with leading zero
 #' \cr
 #' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
-#'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01)
+#'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr
+#' \code{header.line}, \tab TRUE \tab print header line
 #' }
 #' 
 #' IQWiG, General Methods 5 settings:
@@ -146,7 +148,7 @@
 #' \code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
 #' can be used.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{gs}}, \code{\link{forest.meta}},
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
@@ -440,6 +442,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
     setOption("warn.deprecated", FALSE)
+    setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
     setOption("digits.se", 4)
@@ -520,6 +523,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("test.overall", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
+    setOption("digits.TE.forest", 4)
     ##
     setOption("lty.common", 2)
     setOption("lty.random", 3)
@@ -582,6 +586,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("forest.stat", TRUE)
     setOption("forest.Q.subgroup", TRUE)
     ##
+    setOption("header.line", FALSE)
+    ##
     setOption("fontsize", 12)
     setOption("fontfamily", NULL)
     setOption("fs.common", NULL)
@@ -629,7 +635,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("addrow", NULL)
     setOption("addrow.overall", NULL)
     setOption("addrow.subgroups", NULL)
-    setOption("addrow.below.overall", 0)
+    setOption("addrows.below.overall", NULL)
   }
   
   
@@ -650,7 +656,8 @@ settings.meta <- function(..., quietly = TRUE) {
                  "test.subgroup", "test.effect.subgroup",
                  "digits.I2", "digits.tau2", "digits.tau",
                  "CIbracket", "CIseparator",
-                 "zero.pval", "JAMA.pval"),
+                 "zero.pval", "JAMA.pval",
+                 "text.common", "text.w.common", "header.line"),
         new = list(replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["tau.common"]], FALSE),
@@ -668,7 +675,10 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["CIbracket"]], "["),
                    replaceNULL(args[["CIseparator"]], ", "),
                    replaceNULL(args[["zero.pval"]], FALSE),
-                   replaceNULL(args[["JAMA.pval"]], FALSE)
+                   replaceNULL(args[["JAMA.pval"]], FALSE),
+                   replaceNULL(args[["text.common"]], "Fixed effect model"),
+                   replaceNULL(args[["text.w.common"]], "fixed"),
+                   replaceNULL(args[["header.line"]], TRUE)
                    ),
         setting = "RevMan 5 settings",
         quietly = quietly)
@@ -679,19 +689,28 @@ settings.meta <- function(..., quietly = TRUE) {
                                 "test.subgroup", "test.effect.subgroup",
                                 "digits.I2", "digits.pval",
                                 "CIbracket", "CIseparator",
-                                "zero.pval", "JAMA.pval"),
-                       new = list("JAMA", TRUE,
-                                  FALSE, FALSE,
-                                  0, 3,
-                                  "(", "-",
-                                  FALSE, TRUE),
+                                "zero.pval", "JAMA.pval",
+                                "header.line"),
+                       new = list("JAMA",
+                                  replaceNULL(args[["test.overall"]], TRUE),
+                                  replaceNULL(args[["test.subgroup"]], FALSE),
+                                  replaceNULL(args[["test.effect.subgroup"]], FALSE),
+                                  replaceNULL(args[["digits.I2"]], 0),
+                                  replaceNULL(args[["digits.pval"]], 3),
+                                  replaceNULL(args[["CIbracket"]], "("),
+                                  replaceNULL(args[["CIseparator"]], "-"),
+                                  replaceNULL(args[["zero.pval"]], FALSE),
+                                  replaceNULL(args[["JAMA.pval"]], TRUE),
+                                  replaceNULL(args[["header.line"]], TRUE)),
                        setting = "JAMA settings",
                        quietly = quietly)
     }
     ##
     else if (setting == "IQWiG5") {
       specificSettings(args = c("method.random.ci", "prediction"),
-                       new = list("HK", TRUE),
+                       new = list(replaceNULL(args[["method.random.ci"]],
+                                              "HK"),
+                                  replaceNULL(args[["prediction"]], TRUE)),
                        setting = "IQWiG 5 settings",
                        quietly = quietly)
     }
@@ -699,7 +718,12 @@ settings.meta <- function(..., quietly = TRUE) {
     else if (setting == "IQWiG6") {
       specificSettings(args = c("method.random.ci", "adhoc.hakn.ci",
                                 "method.tau", "prediction"),
-                       new = list("HK", "IQWiG6", "PM", TRUE),
+                       new = list(replaceNULL(args[["method.random.ci"]],
+                                              "HK"),
+                                  replaceNULL(args[["adhoc.hakn.ci"]],
+                                              "IQWiG6"),
+                                  replaceNULL(args[["method.tau"]], "PM"),
+                                  replaceNULL(args[["prediction"]], TRUE)),
                        setting = "IQWiG 6 settings",
                        quietly = quietly)
     }
@@ -708,9 +732,14 @@ settings.meta <- function(..., quietly = TRUE) {
       specificSettings(args = c("method.tau", "exact.smd",
                                 "text.common", "text.w.common",
                                 "warn.deprecated"),
-                       new = list("DL", FALSE,
-                                  "Fixed effect model", "fixed",
-                                  FALSE),
+                       new = list(replaceNULL(args[["method.tau"]], "DL"),
+                                  replaceNULL(args[["exact.smd"]], FALSE),
+                                  replaceNULL(args[["text.common"]],
+                                              "Fixed effect model"),
+                                  replaceNULL(args[["text.w.common"]],
+                                              "fixed"),
+                                  replaceNULL(args[["warn.deprecated"]],
+                                              FALSE)),
                        setting =
                          "settings from meta, version 4 or below",
                        quietly = quietly)
@@ -718,7 +747,8 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     else if (setting == "geneexpr") {
       specificSettings(args = c("scientific.pval", "method.tau.ci"),
-                       new = list(TRUE, ""),
+                       new = list(replaceNULL(args[["scientific.pval"]], TRUE),
+                                  replaceNULL(args[["method.tau.ci"]], "")),
                        setting = "Settings for gene expression data",
                        quietly = quietly)
     }
@@ -833,6 +863,9 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("exact.smd ")
     catarg("method.ci.cont")
     ##
+    cat("\n* Additional settings for metagen() *\n")
+    catarg("transf ")
+    ##
     cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci.prop")
     ##
@@ -851,6 +884,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("test.effect.subgroup   ")
     catarg("digits.forest          ",
            end = "\n  (argument 'digits' in forest.meta())")
+    catarg("digits.TE.forest          ",
+           end = "\n  (argument 'digits.TE' in forest.meta())")
     ##
     catarg("lty.common             ")
     catarg("lty.random             ")
@@ -913,6 +948,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("forest.stat            ")
     catarg("forest.Q.subgroup      ")
     ##
+    catarg("header.line            ")
+    ##
     catarg("fontsize               ")
     catarg("fontfamily             ")
     catarg("fs.common              ")
@@ -960,7 +997,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("addrow                 ")
     catarg("addrow.overall         ")
     catarg("addrow.subgroups       ")
-    catarg("addrow.below.overall   ")
+    catarg("addrows.below.overall  ")
   }
   
   
@@ -1104,6 +1141,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("exact.smd", args)
     setcharacter("method.ci.cont", args, gs("ci4cont"))
     ##
+    ## R function metagen
+    ##
+    setlogical("transf", args)
+    ##
     ## R function metaprop
     ##
     setcharacter("smprop", args, gs("sm4prop"))
@@ -1135,6 +1176,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("prediction.subgroup", args)
     setlogical("test.effect.subgroup", args)
     setnumeric("digits.forest", args)
+    setnumeric("digits.TE.forest", args)
     ##
     setnumeric("lty.common", args)
     setnumeric("lty.random", args)
@@ -1197,6 +1239,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("forest.stat", args)
     setlogical("forest.Q.subgroup", args)
     ##
+    setlogical("header.line", args, ignore.other = TRUE)
+    setcharacter("header.line", args, c("both", "below", ""),
+                 ignore.other = TRUE)
+    ##
     setnumeric("fontsize", args)
     setcharacter("fontfamily", args, NULL.ok = TRUE)
     setnumeric("fs.common", args, TRUE)
@@ -1244,7 +1290,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("addrow", args, TRUE)
     setlogical("addrow.overall", args, TRUE)
     setlogical("addrow.subgroups", args, TRUE)
-    setnumeric("addrow.below.overall", args)
+    setnumeric("addrows.below.overall", args)
   }
   
   

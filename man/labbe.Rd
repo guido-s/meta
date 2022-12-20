@@ -292,6 +292,6 @@ Meta-analysis in clinical research.
 \code{\link{metabin}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{hplot}

@@ -13,7 +13,7 @@
 #' An object of classes \code{summary.meta} and \code{meta} (see
 #' \code{\link{meta-object}}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{print.summary.meta}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}}
@@ -204,9 +204,9 @@ summary.meta <- function(object, ...) {
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
     ## 
-    res$within.common   <- ci.common.w
-    res$within.random   <- ci.random.w
-    res$within.predict  <- ci.predict.w
+    res$within.common  <- ci.common.w
+    res$within.random  <- ci.random.w
+    res$within.predict <- ci.predict.w
     ##
     if (is.null(res$test.subgroup))
       res$test.subgroup <- TRUE

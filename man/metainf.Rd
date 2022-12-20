@@ -85,5 +85,5 @@ Newbury Park, CA: Russell Sage Foundation
   \code{\link{print.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

@@ -113,5 +113,5 @@ Meta-analysis of screening and diagnostic tests.
   \code{\link{metagen}}, \code{\link{metacont}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

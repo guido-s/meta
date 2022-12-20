@@ -15,7 +15,7 @@
 #' @param data An optional data frame containing the study
 #'   information.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{labels.meta}}, \code{\link{forest.meta}}
 #' 

@@ -22,7 +22,7 @@ metaprop(
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
   overall.hetstat = common | random,
-  prediction = gs("prediction"),
+  prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),
@@ -276,8 +276,13 @@ implemented to calculate an overall proportion:
 \item Arcsine transformation (\code{sm = "PAS"})
 \item Freeman-Tukey Double arcsine transformation (\code{sm = "PFT"})
 \item Log transformation (\code{sm = "PLN"})
-\item Raw, i.e. untransformed, proportions (\code{sm = "PRAW"})
+\item No transformation (\code{sm = "PRAW"})
 }
+
+List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
+contain the transformed proportions. In printouts and plots these
+values are back transformed if argument \code{backtransf = TRUE}
+(default).
 
 A generalised linear mixed model (GLMM) - more specific, a random
 intercept logistic regression model - can be utilised for the
@@ -670,5 +675,5 @@ The arcsine is asinine: the analysis of proportions in ecology.
   \code{\link{print.meta}}, \code{\link{forest.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

@@ -1,16 +1,16 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 6.0-0
-Date: 2022-09-17
+Version: 6.1-0
+Date: 2022-12-20
 Depends: R (>= 4.0.0)
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2
-Suggests: BiasedUrn, pimeta
+Suggests: BiasedUrn, pimeta, estmeansd
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
-                  email = "sc@imbi.uni-freiburg.de",
+                  email = "guido.schwarzer@uniklinik-freiburg.de",
                   comment = c(ORCID = "0000-0001-6214-9087"))
 Author: Guido Schwarzer [cre, aut] (<https://orcid.org/0000-0001-6214-9087>)
-Maintainer: Guido Schwarzer <sc@imbi.uni-freiburg.de>
+Maintainer: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
 URL: https://github.com/guido-s/meta/ https://link.springer.com/book/10.1007/978-3-319-21416-0
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker <DOI:10.1007/978-3-319-21416-0>, "Meta-Analysis with R" (2015):
  - common effect and random effects meta-analysis;
@@ -28,4 +28,4 @@ Description: User-friendly general package providing standard methods for meta-a
  - produce forest plot summarising several (subgroup) meta-analyses.
 License: GPL (>= 2)
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2

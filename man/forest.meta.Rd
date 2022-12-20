@@ -130,6 +130,7 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
+  header.line,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -211,6 +212,7 @@
   digits.sd = digits.se,
   digits.cor = digits,
   digits.time = digits,
+  digits.TE = gs("digits.TE.forest"),
   digits.addcols = digits,
   digits.addcols.right = digits.addcols,
   digits.addcols.left = digits.addcols,
@@ -634,6 +636,9 @@ meta-analysis results).}
 \item{text.addline2}{Text for second additional line (below
 meta-analysis results).}
 
+\item{header.line}{A logical value indicating whether to print a
+header line or a character string ("both", "below", "").}
+
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
 
@@ -900,6 +905,9 @@ correlations; only applies to \code{\link{metacor}} objects.}
 \item{digits.time}{Minimal number of significant digits for times;
 only applies to \code{\link{metainc}} and \code{\link{metarate}}
 objects.}
+
+\item{digits.TE}{Minimal number of significant digits for list
+element 'TE'.}
 
 \item{digits.addcols}{A vector or scalar with minimal number of
 significant digits for additional columns.}
@@ -1436,11 +1444,11 @@ forest(m1,
 
 # Sort by weight in common effect model
 #
-forest(m1, sortvar = 1 / w.common, random = FALSE)
+forest(m1, sortvar = w.common, random = FALSE)
 
 # Sort by decreasing weight in common effect model
 #
-forest(m1, sortvar = -1 / w.common, random = FALSE)
+forest(m1, sortvar = -w.common, random = FALSE)
 
 # Sort by size of treatment effect
 #
@@ -1493,6 +1501,6 @@ A re-evaluation of random-effects meta-analysis.
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
 \keyword{hplot}

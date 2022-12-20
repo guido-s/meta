@@ -57,5 +57,5 @@ Quantifying heterogeneity in a meta-analysis.
   \code{\link{metacont}}, \code{\link{metagen}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }

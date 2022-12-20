@@ -218,7 +218,7 @@
 #' \code{"metagen"}, \code{"metamean"}, \code{"metaprop"}, or
 #' \code{"metarate"} (see \code{\link{meta-object}}).
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metacor}}, \code{\link{metagen}},
@@ -348,6 +348,14 @@ update.meta <- function(object,
   metamean <- inherits(object, "metamean")
   metaprop <- inherits(object, "metaprop")
   metarate <- inherits(object, "metarate")
+  ##
+  missing.method.random.ci <- missing(method.random.ci)
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
+  missing.text.random <- missing(text.random)
+  ##
+  missing.method.predict <- missing(method.predict)
+  missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
+  missing.text.predict <- missing(text.predict)
   ##
   chklogical(verbose)
   ##
@@ -545,12 +553,13 @@ update.meta <- function(object,
                       warn.deprecated)
   chklogical(common)
   ##
-  random <- deprecated(random, missing(random), args, "comb.random",
+  missing.random <- missing(random)
+  random <- deprecated(random, missing.random, args, "comb.random",
                        warn.deprecated)
   chklogical(random)
   ##
   method.random.ci <-
-    deprecated(method.random.ci, missing(method.random.ci),
+    deprecated(method.random.ci, missing.method.random.ci,
                args, "hakn", warn.deprecated)
   if (is.logical(method.random.ci))
     if (method.random.ci)
@@ -688,7 +697,7 @@ update.meta <- function(object,
   ##
   ## Catch argument 'subset'
   ##
-  missing.subset  <- missing(subset)
+  missing.subset <- missing(subset)
   ##
   if (!missing.subset)
     subset <- catch("subset", mc, data, sfsp)
@@ -785,6 +794,81 @@ update.meta <- function(object,
   ##
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
+  ##
+  ## Check variables for random effects model(s)
+  ##
+  if (!(missing.method.random.ci & missing.adhoc.hakn.ci) & missing.random)
+    random <- TRUE
+  ##
+  if (!missing.method.random.ci) {
+    if (missing.adhoc.hakn.ci)
+      adhoc.hakn.ci <- rep("", length(method.random.ci))
+    else if (length(method.random.ci) != length(adhoc.hakn.ci))
+      stop("Arguments 'method.random.ci' and 'adhoc.hakn.ci' must be of ",
+           "same length.",
+           call. = FALSE)
+  }
+  if (!missing.adhoc.hakn.ci) {
+    if (missing.method.random.ci)
+      missing.method.random.ci <- rep("HK", length(adhoc.hakn.ci))
+    else if (length(method.random.ci) != length(adhoc.hakn.ci))
+      stop("Arguments 'method.random.ci' and 'adhoc.hakn.ci' must be of ",
+           "same length.",
+           call. = FALSE)
+  }
+  ##
+  if (!missing.method.random.ci | !missing.text.random) {
+    if (length(method.random.ci) != length(text.random)) {
+      if (!missing.method.random.ci) {
+        warning("Setting argument 'text.random' to default as number of ",
+                "random effects \n   methods changed by ",
+                "argument 'method.random.ci'.",
+                call. = FALSE)
+        text.random <- gs("text.random")
+      }
+      if (!missing.text.random)
+        stop("Argument 'text.random' must be of same length as \n   ",
+             "number of random effects methods specified by setting for ",
+             "'method.random.ci'.",
+             call. = FALSE)
+    }
+  }
+  ##
+  ## Check variables for prediction interval(s)
+  ##
+  if (!missing.method.predict) {
+    if (missing.adhoc.hakn.pi)
+      adhoc.hakn.pi <- rep("", length(method.predict))
+    else if (length(method.predict) != length(adhoc.hakn.pi))
+      stop("Arguments 'method.predict' and 'adhoc.hakn.pi' must be of ",
+           "same length.",
+           call. = FALSE)
+  }
+  if (!missing.adhoc.hakn.pi) {
+    if (missing.method.predict)
+      missing.method.predict <- rep("HK", length(adhoc.hakn.pi))
+    else if (length(method.predict) != length(adhoc.hakn.pi))
+      stop("Arguments 'method.predict' and 'adhoc.hakn.pi' must be of ",
+           "same length.",
+           call. = FALSE)
+  }
+  ##
+  if (!missing.method.predict | !missing.text.predict) {
+    if (length(method.predict) != length(text.predict)) {
+      if (!missing.method.predict) {
+        warning("Setting argument 'text.predict' to default as number of ",
+                "prediction intervals \n   changed by ",
+                "argument 'method.predict'.",
+                call. = FALSE)
+        text.predict <- gs("text.predict")
+      }
+      if (!missing.text.predict)
+        stop("Argument 'text.predict' must be of same length as \n   ",
+             "number of prediction intervals specified by setting for ",
+             "'method.predict'.",
+             call. = FALSE)
+    }
+  }
   
   
   ##
@@ -1073,7 +1157,7 @@ update.meta <- function(object,
     if (!is.null(...cluster))
       method <- "Inverse"
     ##
-    if (method == "GLMM" & !missing.sm & sm != "IRR")
+    if (method == "GLMM" & !missing.sm & !(sm %in% c("IRR", "VE")))
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
     ##
     data.m <- data
@@ -1090,7 +1174,8 @@ update.meta <- function(object,
     }
     ##
     if (method == "GLMM") {
-      sm <- "IRR"
+      if (sm != "VE")
+        sm <- "IRR"
       method.tau <- "ML"
       model.glmm <- replaceNULL(model.glmm, "UM.FS")
     }

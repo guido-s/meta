@@ -107,7 +107,7 @@
 #' }
 #' Otherwise, information on heterogeneity is printed in dedicated rows.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.meta}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
@@ -253,7 +253,6 @@ forest.metabind <- function(x,
     if (any(x$is.subgroup))
       leftcols <- c(leftcols, "pval.Q.b")
     else {
-      x$studlab <- x$subgroup.levels
       leftcols <- c(leftcols, "tau2")
     }
   }
@@ -267,6 +266,12 @@ forest.metabind <- function(x,
     ##
     if ("tau2" %in% rightcols & "tau2" %in% leftcols)
       leftcols <- leftcols[leftcols != "tau2"]
+    ##
+    if ("Q" %in% rightcols & "Q" %in% leftcols)
+      leftcols <- leftcols[leftcols != "Q"]
+    ##
+    if ("pval.Q" %in% rightcols & "pval.Q" %in% leftcols)
+      leftcols <- leftcols[leftcols != "pval.Q"]
   }
   ##
   label.studlab <- ifelse(any(x$is.subgroup), "Subgroup", "Method")
@@ -293,6 +298,8 @@ forest.metabind <- function(x,
       newlab(leftcols, leftlabs, "tau", "Between-study\nSD")
     leftlabs <-
       newlab(leftcols, leftlabs, "pval.Q.b", "Interaction\nP-value")
+    leftlabs <-
+      newlab(leftcols, leftlabs, "pval.Q", "P-value")
   }
   ##
   if (missing(rightlabs))
@@ -308,6 +315,8 @@ forest.metabind <- function(x,
       newlab(rightcols, rightlabs, "tau", "Between-study\nSD")
     rightlabs <-
       newlab(rightcols, rightlabs, "pval.Q.b", "Interaction\nP-value")
+    rightlabs <-
+      newlab(rightcols, rightlabs, "pval.Q", "P-value")
   }
   
   
@@ -337,6 +346,15 @@ forest.metabind <- function(x,
                                 scientific = scientific.pval,
                                 lab.NA = lab.NA)
     x$data$pval.Q.b <- rmSpace(x$data$pval.Q.b)
+  }
+  else {
+    x$data$Q <- round(x$data$Q, digits.Q)
+    x$data$pval.Q <- formatPT(x$data$pval.Q,
+                              lab = FALSE,
+                              digits = digits.pval.Q,
+                              scientific = scientific.pval,
+                              lab.NA = lab.NA)
+    x$data$pval.Q <- rmSpace(x$data$pval.Q)
   }
   ##
   x$data$tau2 <- formatPT(x$data$tau2, digits = digits.tau2,

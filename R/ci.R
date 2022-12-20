@@ -28,7 +28,7 @@
 #' This function is primarily called from other functions of the
 #' library \code{meta}, e.g. \code{forest.meta}, \code{summary.meta}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @examples
 #' data.frame(ci(170, 10))
@@ -47,10 +47,10 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
   df.orig <- df
   
   if (is.null(df)) {
-    lower  <- TE - qnorm(1 - alpha / 2) * seTE
-    upper  <- TE + qnorm(1 - alpha / 2) * seTE
+    lower <- TE - qnorm(1 - alpha / 2) * seTE
+    upper <- TE + qnorm(1 - alpha / 2) * seTE
     statistic <- (TE - null.effect) / seTE
-    pval   <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
+    pval <- 2 * pnorm(abs(statistic), lower.tail = FALSE)
     ##
     df <- Inf
     df.orig <- "NULL"
@@ -73,7 +73,7 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
       }
     }
     else {
-      sel0 <- df <= 0
+      sel0 <- is.na(df) | df <= 0
       df[sel0] <- NA
       lower <- ifelse(!is.na(df),
                       TE - qt(1 - alpha / 2, df = df) * seTE,
@@ -88,6 +88,7 @@ ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
       ##
       df[sel0] <- df.orig[sel0]
     }
+    ##
     df[is.na(df)] <- Inf
   }
   

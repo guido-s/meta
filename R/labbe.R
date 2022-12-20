@@ -99,7 +99,7 @@
 #' (\code{weight = "random"}) if argument \code{x$random} is
 #' \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' 
-#' @author Guido Schwarzer \email{sc@@imbi.uni-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}
 #' 
@@ -362,9 +362,9 @@ labbe.metabin <- function(x,
       xlab <- paste0("Event rate (", label.c, ")")
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          xlab <- paste0("ln (odds) ", label.c)
+          xlab <- paste0("log(odds) ", label.c)
         else if (sm == "RR")
-          xlab <- paste0("ln (event rate) ", label.c)
+          xlab <- paste0("log(event rate) ", label.c)
         else if (sm == "ASD")
           xlab <- paste0("Arcsin-transformed event rate (", label.c, ")")
     }
@@ -372,9 +372,9 @@ labbe.metabin <- function(x,
       xlab <- "Event rate (Control)"
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          xlab <- "ln (odds) Control"
+          xlab <- "log(odds) Control"
         else if (sm == "RR")
-          xlab <- "ln (event rate) Control"
+          xlab <- "log(event rate) Control"
         else if (sm == "ASD")
           xlab <- "Arcsin-transformed event rate (Control)"
     }
@@ -385,9 +385,9 @@ labbe.metabin <- function(x,
       ylab <- paste0("Event rate (", label.e, ")")
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          ylab <- paste0("ln (odds) ", label.e)
+          ylab <- paste0("log(odds) ", label.e)
         else if (sm == "RR")
-          ylab <- paste0("ln (event rate) ", label.e)
+          ylab <- paste0("log(event rate) ", label.e)
         else if (sm == "ASD")
           ylab <- paste0("Arcsin-transformed event rate (", label.e, ")")
     }
@@ -395,9 +395,9 @@ labbe.metabin <- function(x,
       ylab <- "Event rate (Experimental)"
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          ylab <- "ln (odds) Experimental"
+          ylab <- "log(odds) Experimental"
         else if (sm == "RR")
-          ylab <- "ln (event rate) Experimental"
+          ylab <- "log(event rate) Experimental"
         else if (sm == "ASD")
           ylab <- "Arcsin-transformed event rate (Experimental)"
     }
@@ -674,9 +674,9 @@ labbe.default <- function(x, y,
       xlab <- paste0("Event rate (", label.c, ")")
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          xlab <- paste0("ln (odds) ", label.c)
+          xlab <- paste0("log(odds) ", label.c)
         else if (sm == "RR")
-          xlab <- paste0("ln (event rate) ", label.c)
+          xlab <- paste0("log(event rate) ", label.c)
         else if (sm == "ASD")
           xlab <- paste0("Arcsin-transformed event rate (", label.c, ")")
     }
@@ -684,9 +684,9 @@ labbe.default <- function(x, y,
       xlab <- "Event rate (Control)"
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          xlab <- "ln (odds) Control"
+          xlab <- "log(odds) Control"
         else if (sm == "RR")
-          xlab <- "ln (event rate) Control"
+          xlab <- "log(event rate) Control"
         else if (sm == "ASD")
           xlab <- "Arcsin-transformed event rate (Control)"
     }
@@ -697,9 +697,9 @@ labbe.default <- function(x, y,
       ylab <- paste0("Event rate (", label.e, ")")
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          ylab <- paste0("ln (odds) ", label.e)
+          ylab <- paste0("log(odds) ", label.e)
         else if (sm == "RR")
-          ylab <- paste0("ln (event rate) ", label.e)
+          ylab <- paste0("log(event rate) ", label.e)
         else if (sm == "ASD")
           ylab <- paste0("Arcsin-transformed event rate (", label.e, ")")
     }
@@ -707,9 +707,9 @@ labbe.default <- function(x, y,
       ylab <- "Event rate (Experimental)"
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
-          ylab <- "ln (odds) Experimental"
+          ylab <- "log(odds) Experimental"
         else if (sm == "RR")
-          ylab <- "ln (event rate) Experimental"
+          ylab <- "log(event rate) Experimental"
         else if (sm == "ASD")
           ylab <- "Arcsin-transformed event rate (Experimental)"
     }

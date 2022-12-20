@@ -251,7 +251,7 @@ choice of axis.
   \code{\link{metagen}}, \code{\link{radial}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}, Petra
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}, Petra
   Graham \email{pgraham@efs.mq.edu.au}
 }
 \keyword{hplot}

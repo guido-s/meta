@@ -91,7 +91,8 @@ RevMan 5 settings, in detail:
   tau-squared \cr
 \code{CIbracket}, \tab "[" \tab \cr
 \code{CIseparator} \tab ", " \tab print confidence intervals as
-  "\code{[., .]}"
+  "\code{[., .]}" \cr
+\code{header.line}, \tab TRUE \tab print header line
 }
 
 JAMA settings:
@@ -113,7 +114,8 @@ JAMA settings:
 \code{zero.pval}, \tab TRUE \tab print p-values with leading zero
 \cr
 \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
-  (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01)
+  (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr
+\code{header.line}, \tab TRUE \tab print header line
 }
 
 IQWiG, General Methods 5 settings:
@@ -243,5 +245,5 @@ settings.meta(oldset)
   \code{\link{print.meta}}, \code{\link{labels.meta}}
 }
 \author{
-Guido Schwarzer \email{sc@imbi.uni-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
 }
