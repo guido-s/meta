@@ -1,4 +1,4 @@
-## meta, version 6.1-0 (2022-mm-dd)
+## meta, version 6.1-0 (2022-12-20)
 
 ### Major changes
 
