@@ -74,12 +74,13 @@ harmful NNTs (Altman, 1998).
 
 NNTs can be easily computed from an estimated risk difference (RD),
 risk ratio (RR), or odds ratio (OR) and a given baseline risk
-(Higgins et al., 2022, section 15.4.4). Accordlingly, NNTs can be
-calculated for meta-analyses generated with \code{\link{metabin}}
-or \code{\link{metagen}} if argument \code{sm} was equal to
-\code{"RD"}, \code{"RR"}, or \code{"OR"}. It is also possible to
-provide only estimated treatment effects and baseline risks (see
-Examples).
+(Higgins et al., 2022, section 15.4.4). It is also possible to
+calculate NNTs from hazard ratios (HR) (Altman & Andersen,
+1999). Accordlingly, NNTs can be calculated for meta-analyses
+generated with \code{\link{metabin}} or \code{\link{metagen}} if
+argument \code{sm} was equal to \code{"RD"}, \code{"RR"},
+\code{"OR"}, or \code{"HR"}. It is also possible to provide only
+estimated treatment effects and baseline risks (see Examples).
 
 The baseline risk can be specified using argument \code{p.c}. If
 this argument is missing, the minimum, mean, and maximum of the
@@ -122,10 +123,10 @@ confidence limits of the summary measure using the same formulae as
 for the NNT (Higgins et al., 2022, section 15.4.4).
 
 A peculiar problem arises if the confidence interval for the
-summary measure includes the null effect (i.e., RR = 1, OR = 1, or
-RD = 0). In this case the confidence interval for the NNT contains
-both NNTB and NNTH values and it seemingly does not include the
-estimated NNT.
+summary measure includes the null effect (i.e., RR = 1, OR = 1, HR
+= 1, or RD = 0). In this case the confidence interval for the NNT
+contains both NNTB and NNTH values and it seemingly does not
+include the estimated NNT.
 
 As described above, a positive NNT value corresponds to an NNTB and
 the absolute value of a negative NNT is equal to an
@@ -159,6 +160,12 @@ Altman DG (1998):
 Confidence intervals for the number needed to treat.
 \emph{British Medical Journal},
 \bold{317}, 1309--12
+
+Altman DG, Andersen PK (1999):
+Calculating the Number Needed to Treat for Trials Where the Outcome
+Is Time to an Event
+\emph{British Medical Journal},
+\bold{319}, 1492--95
 
 Cook RJ, Sackett DL (1995):
 The Number Needed to Treat: A Clinically Useful Measure of

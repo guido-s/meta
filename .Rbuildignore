@@ -3,5 +3,5 @@ README.md
 .*[.]Rproj
 .Rproj.user
 roxygen2.*[.]R
-.gitignore
-.git
+^cran-comments\.md$
+^CRAN-SUBMISSION$

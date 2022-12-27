@@ -1,3 +1,15 @@
+## meta, version 6.1-1 (2023-mm-dd)
+
+### User-visible changes
+
+* nnt.meta(), print.nnt.meta():
+  - NNTs for hazard ratios can be calculated following [Altman &
+    Andersen (1999)](https://doi.org/10.1136/bmj.319.7223.1492)
+  - print sensible confidence interval for NNTs if treatment effect is
+    non-significant [(Altman,
+    1998)](https://doi.org/10.1136/bmj.317.7168.1309)
+
+
 ## meta, version 6.1-0 (2022-12-20)
 
 ### Major changes
