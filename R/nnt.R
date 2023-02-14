@@ -41,12 +41,13 @@
 #'
 #' NNTs can be easily computed from an estimated risk difference (RD),
 #' risk ratio (RR), or odds ratio (OR) and a given baseline risk
-#' (Higgins et al., 2022, section 15.4.4). Accordlingly, NNTs can be
-#' calculated for meta-analyses generated with \code{\link{metabin}}
-#' or \code{\link{metagen}} if argument \code{sm} was equal to
-#' \code{"RD"}, \code{"RR"}, or \code{"OR"}. It is also possible to
-#' provide only estimated treatment effects and baseline risks (see
-#' Examples).
+#' (Higgins et al., 2022, section 15.4.4). It is also possible to
+#' calculate NNTs from hazard ratios (HR) (Altman & Andersen,
+#' 1999). Accordlingly, NNTs can be calculated for meta-analyses
+#' generated with \code{\link{metabin}} or \code{\link{metagen}} if
+#' argument \code{sm} was equal to \code{"RD"}, \code{"RR"},
+#' \code{"OR"}, or \code{"HR"}. It is also possible to provide only
+#' estimated treatment effects and baseline risks (see Examples).
 #'
 #' The baseline risk can be specified using argument \code{p.c}. If
 #' this argument is missing, the minimum, mean, and maximum of the
@@ -89,10 +90,10 @@
 #' for the NNT (Higgins et al., 2022, section 15.4.4).
 #'
 #' A peculiar problem arises if the confidence interval for the
-#' summary measure includes the null effect (i.e., RR = 1, OR = 1, or
-#' RD = 0). In this case the confidence interval for the NNT contains
-#' both NNTB and NNTH values and it seemingly does not include the
-#' estimated NNT.
+#' summary measure includes the null effect (i.e., RR = 1, OR = 1, HR
+#' = 1, or RD = 0). In this case the confidence interval for the NNT
+#' contains both NNTB and NNTH values and it seemingly does not
+#' include the estimated NNT.
 #'
 #' As described above, a positive NNT value corresponds to an NNTB and
 #' the absolute value of a negative NNT is equal to an
@@ -111,6 +112,12 @@
 #' \emph{British Medical Journal},
 #' \bold{317}, 1309--12
 #'
+#' Altman DG, Andersen PK (1999):
+#' Calculating the Number Needed to Treat for Trials Where the Outcome
+#' Is Time to an Event
+#' \emph{British Medical Journal},
+#' \bold{319}, 1492--95
+#' 
 #' Cook RJ, Sackett DL (1995):
 #' The Number Needed to Treat: A Clinically Useful Measure of
 #' Treatment Effect.
@@ -177,11 +184,12 @@ nnt.meta <- function(x, p.c,
   chkclass(x, "meta")
   x <- updateversion(x)
   ##
-  if (!(x$sm %in% c("RD", "RR", "OR")))
+  if (!(x$sm %in% c("RD", "RR", "OR", "HR")))
     stop("Calculation of NNTs only possible for risk difference, ",
-         "risk ratio, or odds ratio as summary measure (argument 'sm').")
+         "risk ratio, odds ratio, or hazard ratio as summary measure ",
+         "(argument 'sm').")
   
-
+  
   ##
   ## (2) Check / set baseline risks
   ##
@@ -197,8 +205,11 @@ nnt.meta <- function(x, p.c,
         if (!all(p.c == 0))
           p.c <- p.c[p.c != 0]
       }
-      else
+      else {
         p.c <- seq(0.1, 0.9, by = 0.1)
+        if (x$sm == "HR")
+          p.c <- rev(p.c)
+      }
     }
   }
   ##
@@ -218,6 +229,12 @@ nnt.meta <- function(x, p.c,
   ##
   if (missing.common & !common & !random & x$k == 1)
     common <- TRUE
+  ##
+  if (missing.common & x$k == 0 & x$k.all == 1 &
+      all(is.na(x$TE.common)) & any(!is.na(x$TE))) {
+    common <- TRUE
+    x$TE.common <- x$TE
+  }
   
   
   ##
@@ -285,6 +302,20 @@ nnt.meta <- function(x, p.c,
     }
   }
   ##
+  else if (x$sm == "HR") {
+    if (common) {
+      res$nnt.common$NNT <- logHR2nnt(res$TE.common, p.c)
+      res$nnt.common$lower.NNT <- logHR2nnt(res$lower.common, p.c)
+      res$nnt.common$upper.NNT <- logHR2nnt(res$upper.common, p.c)
+    }
+    ##
+    if (random) {
+      res$nnt.random$NNT <- logHR2nnt(res$TE.random, p.c)
+      res$nnt.random$lower.NNT <- logHR2nnt(res$lower.random, p.c)
+      res$nnt.random$upper.NNT <- logHR2nnt(res$upper.random, p.c)
+    }
+  }
+  ##
   ## Switch direction and lower and upper limits
   ##
   if (small.values == "bad") {
@@ -307,6 +338,8 @@ nnt.meta <- function(x, p.c,
   res$sm <- x$sm
   res$common <- common
   res$random <- random
+  ##
+  res$level.ma <- x$level.ma
   ##
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
@@ -341,7 +374,7 @@ nnt.default <- function(x, p.c, sm, lower, upper,
   if (missing(sm))
     stop("Argument 'sm' is mandatory.")
   ##
-  sm <- setchar(sm, c("RD", "RR", "OR"))
+  sm <- setchar(sm, c("RD", "RR", "OR", "HR"))
   ##
   if (missing(p.c)) {
     if (sm == "RD")
@@ -379,9 +412,8 @@ nnt.default <- function(x, p.c, sm, lower, upper,
   ##
   ## (2) Calculate NNTs
   ##
-  res <- data.frame(p.c = p.c,
-                    NNT = NA, lower.NNT = NA, upper.NNT = NA,
-                    x = x)
+  res <- data.frame(x = x, p.c = p.c,
+                    NNT = NA, lower.NNT = NA, upper.NNT = NA)
   ##
   if (missing.lower)
     res$lower.NNT <- NULL
@@ -417,9 +449,24 @@ nnt.default <- function(x, p.c, sm, lower, upper,
       res$upper.NNT <- logOR2nnt(log(res$upper.x), res$p.c)
   }
   ##
+  else if (sm == "HR") {
+    res$NNT <- logHR2nnt(log(res$x), res$p.c)
+    if (!missing.lower)
+      res$lower.NNT <- logHR2nnt(log(res$lower.x), res$p.c)
+    if (!missing.upper)
+      res$upper.NNT <- logHR2nnt(log(res$upper.x), res$p.c)
+  }
+  ##
   names(res)[names(res) == "x"] <- sm
   names(res)[names(res) == "lower.x"] <- paste0("lower.", sm)
   names(res)[names(res) == "upper.x"] <- paste0("upper.", sm)
+  ##
+  ## Remove baseline probability for risk difference
+  ##
+  if (sm == "RD")
+    res[["p.c"]] <- NULL
+  else if (sm == "HR")
+    names(res)[names(res) == "p.c"] <- "Surv.c"
   ##
   ## Switch direction and lower and upper limits
   ##
@@ -473,44 +520,209 @@ print.nnt.meta <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
-
-
+  
+  
+  ci.lab <- paste0(round(100 * replaceNULL(x$level.ma), 1), "%-CI")
+  p.lab <- if (x$sm == "HR") "Surv.c" else "p.c"
+  
+  
   if (common) {
-    cat(paste0(gs("text.common"), ": \n\n"))
-    x$nnt.common$p.c <- formatN(round(x$nnt.common$p.c, digits.prop),
-                                digits.prop, big.mark = big.mark)
+    cat(paste0("Number needed to treat (",
+               tolower(gs("text.common")), "): \n\n"))
     ##
-    x$nnt.common$NNT <- formatN(round(x$nnt.common$NNT, digits),
-                                digits, big.mark = big.mark)
+    nnt.common <- cbind(TE = x$TE.common, x$nnt.common)
+    if (x$sm != "RD")
+      nnt.common$TE <- exp(nnt.common$TE)
     ##
-    x$nnt.common$lower.NNT <- formatN(round(x$nnt.common$lower.NNT, digits),
-                                      digits, big.mark = big.mark)
+    ci.nnt <-
+      sum(!is.na(x$lower.common)) > 0 & sum(!is.na(x$upper.common)) > 0
     ##
-    x$nnt.common$upper.NNT <- formatN(round(x$nnt.common$upper.NNT, digits),
-                                      digits, big.mark = big.mark)
+    sign <-
+      all(x$lower.common[!is.na(x$lower.common)] > 0) |
+      all(x$upper.common[!is.na(x$upper.common)] < 0)
     ##
-    prmatrix(x$nnt.common, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$nnt.common)))
+    nnt.common$p.c <- formatN(round(nnt.common$p.c, digits.prop),
+                              digits.prop, big.mark = big.mark)
+    ##
+    if (all(nnt.common$NNT < 0)) {
+      lab.nnt <- "NNTH"
+      lab.nnt2 <- "NNTB"
+      ##
+      nnt.common$NNT <- -nnt.common$NNT
+      tmp.u <- -nnt.common$upper.NNT
+      nnt.common$upper.NNT <- -nnt.common$lower.NNT
+      nnt.common$lower.NNT <- tmp.u
+    }
+    else if (all(nnt.common$NNT > 0)) {
+      lab.nnt <- "NNTB"
+      lab.nnt2 <- "NNTH"
+    }
+    else {
+      lab.nnt <- "NNT"
+      lab.nnt2 <- "NNT2"
+    }
+    ##
+    nnt.common$TE <-
+      formatN(round(nnt.common$TE, digits),
+              digits, big.mark = big.mark)
+    ##
+    nnt.common$NNT <- formatN(round(nnt.common$NNT, digits),
+                              digits, big.mark = big.mark)
+    ##
+    if (sign) {
+      nnt.common$lower.NNT <-
+        formatCI(formatN(round(nnt.common$lower.NNT, digits),
+                         digits, big.mark = big.mark),
+                 formatN(round(nnt.common$upper.NNT, digits),
+                         digits, big.mark = big.mark))
+      nnt.common$upper.NNT <- NULL
+      ##
+      colnames(nnt.common) <- c(x$sm, p.lab, lab.nnt, ci.lab)
+      ##
+      if (!ci.nnt)
+        nnt.common <- nnt.common[, -4]
+      ##
+      prmatrix(nnt.common, quote = FALSE, right = TRUE,
+               rowlab = rep("", nrow(nnt.common)))
+    }
+    else {
+      bracktype <- setchar(gs("CIbracket"), c("[", "(", "{", ""))
+      if (bracktype == "[") {
+        bracketLeft <- paste0("[", lab.nnt, " ")
+        bracketRight <- "]"
+      }
+      else if (bracktype == "(") {
+        bracketLeft <- paste0("(", lab.nnt, " ")
+        bracketRight <- ")"
+      }
+      else if (bracktype == "{") {
+        bracketLeft <- paste0("{", lab.nnt, " ")
+        bracketRight <- "}"
+      }
+      else if (bracktype == "") {
+        bracketLeft <- paste0("", lab.nnt, " ")
+        bracketRight <- ""
+      }
+      ##
+      nnt.common$lower.NNT <-
+        formatCI(formatN(round(nnt.common$lower.NNT, digits),
+                         digits, big.mark = big.mark),
+                 formatN(round(-nnt.common$upper.NNT, digits),
+                         digits, big.mark = big.mark),
+                 bracket.left = bracketLeft,
+                 bracket.right = bracketRight,
+                 separator = paste0(" to Inf to ", lab.nnt2, " "))
+      nnt.common$upper.NNT <- NULL
+      ##
+      colnames(nnt.common) <- c(x$sm, p.lab, lab.nnt, ci.lab)
+      ##
+      if (!ci.nnt)
+        nnt.common <- nnt.common[, -4]
+      ##
+      prmatrix(nnt.common, quote = FALSE, right = TRUE,
+               rowlab = rep("", nrow(nnt.common)))
+    }
+    ##
     if (random)
       cat("\n")
   }
   ##
   if (random) {
-    cat(paste0(gs("text.random"), ": \n\n"))
-    x$nnt.random$p.c <- formatN(round(x$nnt.random$p.c, digits.prop),
-                                digits.prop, big.mark = big.mark)
+    cat(paste0("Number needed to treat (",
+               tolower(gs("text.random")), "): \n\n"))
     ##
-    x$nnt.random$NNT <- formatN(round(x$nnt.random$NNT, digits),
-                                digits, big.mark = big.mark)
+    nnt.random <- cbind(TE = x$TE.random, x$nnt.random)
+    if (x$sm != "RD")
+      nnt.random$TE <- exp(nnt.random$TE)
     ##
-    x$nnt.random$lower.NNT <- formatN(round(x$nnt.random$lower.NNT, digits),
-                                      digits, big.mark = big.mark)
+    ci.nnt <-
+      sum(!is.na(x$lower.random)) > 0 & sum(!is.na(x$upper.random)) > 0
     ##
-    x$nnt.random$upper.NNT <- formatN(round(x$nnt.random$upper.NNT, digits),
-                                      digits, big.mark = big.mark)
+    sign <-
+      all(x$lower.random[!is.na(x$lower.random)] > 0) |
+      all(x$upper.random[!is.na(x$upper.random)] < 0)
     ##
-    prmatrix(x$nnt.random, quote = FALSE, right = TRUE,
-             rowlab = rep("", nrow(x$nnt.common)))
+    nnt.random$p.c <- formatN(round(nnt.random$p.c, digits.prop),
+                              digits.prop, big.mark = big.mark)
+    ##
+    if (all(nnt.random$NNT < 0)) {
+      lab.nnt <- "NNTH"
+      lab.nnt2 <- "NNTB"
+      ##
+      nnt.random$NNT <- -nnt.random$NNT
+      tmp.u <- -nnt.random$upper.NNT
+      nnt.random$upper.NNT <- -nnt.random$lower.NNT
+      nnt.random$lower.NNT <- tmp.u
+    }
+    else if (all(nnt.random$NNT > 0)) {
+      lab.nnt <- "NNTB"
+      lab.nnt2 <- "NNTH"
+    }
+    else {
+      lab.nnt <- "NNT"
+      lab.nnt2 <- "NNT2"
+    }
+    ##
+    nnt.random$TE <-
+      formatN(round(nnt.random$TE, digits),
+              digits, big.mark = big.mark)
+    ##
+    nnt.random$NNT <- formatN(round(nnt.random$NNT, digits),
+                              digits, big.mark = big.mark)
+    ##
+    if (sign) {
+      nnt.random$lower.NNT <-
+        formatCI(formatN(round(nnt.random$lower.NNT, digits),
+                         digits, big.mark = big.mark),
+                 formatN(round(nnt.random$upper.NNT, digits),
+                         digits, big.mark = big.mark))
+      nnt.random$upper.NNT <- NULL
+      ##
+      colnames(nnt.random) <- c(x$sm, p.lab, lab.nnt, ci.lab)
+      ##
+      if (!ci.nnt)
+        nnt.random <- nnt.random[, -4]
+      ##
+      prmatrix(nnt.random, quote = FALSE, right = TRUE,
+               rowlab = rep("", nrow(nnt.random)))
+    }
+    else {
+      bracktype <- setchar(gs("CIbracket"), c("[", "(", "{", ""))
+      if (bracktype == "[") {
+        bracketLeft <- paste0("[", lab.nnt, " ")
+        bracketRight <- "]"
+      }
+      else if (bracktype == "(") {
+        bracketLeft <- paste0("(", lab.nnt, " ")
+        bracketRight <- ")"
+      }
+      else if (bracktype == "{") {
+        bracketLeft <- paste0("{", lab.nnt, " ")
+        bracketRight <- "}"
+      }
+      else if (bracktype == "") {
+        bracketLeft <- paste0("", lab.nnt, " ")
+        bracketRight <- ""
+      }
+      ##
+      nnt.random$lower.NNT <-
+        formatCI(formatN(round(nnt.random$lower.NNT, digits),
+                         digits, big.mark = big.mark),
+                 formatN(round(-nnt.random$upper.NNT, digits),
+                         digits, big.mark = big.mark),
+                 bracket.left = bracketLeft,
+                 bracket.right = bracketRight,
+                 separator = paste0(" to Inf to ", lab.nnt2, " "))
+      nnt.random$upper.NNT <- NULL
+      ##
+      colnames(nnt.random) <- c(x$sm, p.lab, lab.nnt, ci.lab)
+      ##
+      if (!ci.nnt)
+        nnt.random <- nnt.random[, -4]
+      ##
+      prmatrix(nnt.random, quote = FALSE, right = TRUE,
+               rowlab = rep("", nrow(nnt.random)))
+    }
   }
   
   
@@ -529,3 +741,6 @@ logRR2nnt <- function(x, p.c)
 ##
 logOR2nnt <- function(x, p.c)
   1 / (p.c - exp(x) * p.c / (1 - p.c + exp(x) * p.c))
+##
+logHR2nnt <- function(x, Surv.c)
+  1 / (Surv.c^exp(x) - Surv.c)

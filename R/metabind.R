@@ -133,6 +133,9 @@ metabind <- function(..., name = NULL, pooled = NULL,
       return(metamerge(args[[1]]))
     else if (inherits(args[[1]], "meta"))
       return(args[[1]])
+    else if (inherits(args[[1]], "netpairwise"))
+      stop("Elements of argument '...' may not be of class 'netpairwise'.",
+           call. = FALSE)
     else if (!is.list(args[[1]]))
       stop("All elements of argument '...' must be of class 'meta', ",
            "'limitmeta', or 'copas'.",
@@ -159,6 +162,10 @@ metabind <- function(..., name = NULL, pooled = NULL,
   for (i in n.i) {
     if (inherits(args[[i]], "metabind"))
       stop("Elements of argument '...' may not be of class 'metabind'.",
+           call. = FALSE)
+    ##
+    if (inherits(args[[i]], "netpairwise"))
+      stop("Elements of argument '...' may not be of class 'netpairwise'.",
            call. = FALSE)
     ##
     if (inherits(args[[i]], "meta")) {

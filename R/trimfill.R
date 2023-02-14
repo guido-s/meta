@@ -187,18 +187,13 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Trim-and-fill method",
+              c("trimfill", "metacum", "metainf", "netpairwise"))
   ##
   x <- updateversion(x)
   ##
-  for (i in c("trimfill", "metacum", "metainf"))
-    if (inherits(x, i))
-      stop("Trim-and-fill method not available for an object of ",
-         "class '", i, "'",
-         call. = FALSE)
-  ##
   if (x$three.level)
-    stop("Trim-and-fill method not available for ",
-         "three-level model",
+    stop("Trim-and-fill method not available for three-level model.",
          call. = FALSE)
   
   

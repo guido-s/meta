@@ -1,14 +1,12 @@
 citHeader("To cite package 'meta' in publications use:")
 
-citEntry(
-  entry   = "Article",
+bibentry("Article",
   title   = "How to perform a meta-analysis with {R}: a practical tutorial",
-  author  = personList(as.person("Sara Balduzzi"), as.person("Gerta Rücker"), as.person("Guido Schwarzer")),
+  author  = c("Sara Balduzzi", "Gerta Rücker", "Guido Schwarzer"),
   journal = "Evidence-Based Mental Health",
   year    = "2019",
   number  = "22",
   pages    = "153--160",
-
   textVersion = paste("Balduzzi S, Rücker G, Schwarzer G (2019),",
                       "How to perform a meta-analysis with R: a practical tutorial,",
                       "Evidence-Based Mental Health; 22: 153-160.")

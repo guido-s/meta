@@ -218,14 +218,9 @@ funnel.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Funnel plot")
+  ##
   x.name <- deparse(substitute(x))
-  ##
-  if (inherits(x, "metacum"))
-    stop("Funnel plot not meaningful for object of class \"metacum\"")
-  ##
-  if (inherits(x, "metainf"))
-    stop("Funnel plot not meaningful for object of class \"metainf\"")
-  ##
   x <- updateversion(x)
   
   

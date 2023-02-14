@@ -127,6 +127,14 @@
 #' 
 #' Other estimators for \eqn{\tau^2} could be selected in a similar
 #' way.
+#'
+#' Note, for binary outcomes, two variants of the DerSimonian-Laird
+#' estimator are available if the Mantel-Haenszel method is used for
+#' pooling. If argument \code{Q.Cochrane = TRUE} (default), the
+#' heterogeneity statistic Q is based on the Mantel-Haenszel instead
+#' of the inverse variance estimator under the common effect
+#' model. This is the estimator for \eqn{\tau^2} implemented in RevMan
+#' 5.
 #' }
 #' 
 #' \subsection{Confidence interval for random effects estimate}{

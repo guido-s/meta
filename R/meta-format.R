@@ -171,27 +171,28 @@ formatCI <- function(lower, upper,
   if (!missing(bracket.right))
     chkchar(bracket.right, length = 1)
   ##
-  bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
-  ##
-  if (bracktype == "[") {
-    bracketLeft <- "["
-    bracketRight <- "]"
-  }
-  else if (bracktype == "(") {
-    bracketLeft <- "("
-    bracketRight <- ")"
-  }
-  else if (bracktype == "{") {
-    bracketLeft <- "{"
-    bracketRight <- "}"
-  }
-  else if (bracktype == "") {
-    bracketLeft <- ""
-    bracketRight <- ""
-  }
-  ##
-  if (missing(bracket.left))
+  if (missing(bracket.left)) {
+    bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
+    ##
+    if (bracktype == "[") {
+      bracketLeft <- "["
+      bracketRight <- "]"
+    }
+    else if (bracktype == "(") {
+      bracketLeft <- "("
+      bracketRight <- ")"
+    }
+    else if (bracktype == "{") {
+      bracketLeft <- "{"
+      bracketRight <- "}"
+    }
+    else if (bracktype == "") {
+      bracketLeft <- ""
+      bracketRight <- ""
+    }
+    ##
     bracket.left <- bracketLeft
+  }
   ##
   if (missing(bracket.right))
     bracket.right <- bracketRight
@@ -247,7 +248,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
                   )
   }
   ##
-  res <-  rmSpace(res, end = TRUE)
+  res <- rmSpace(res, end = TRUE)
   ##
   res
 }

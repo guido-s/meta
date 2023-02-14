@@ -72,9 +72,8 @@ chkclass <- function(x, class, name = NULL) {
                     ', or ', '"', class[n.class], '"')
   ##
   if (!inherits(x, class))
-    stop("Argument '", name,
-         "' must be an object of class \"",
-         text.class, "\".", call. = FALSE)
+    stop("Argument '", name, "' must be an object of class ", text.class, ".",
+         call. = FALSE)
   ##
   invisible(NULL)
 }
@@ -325,5 +324,24 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
          "available for GLMMs; use 'method.predict = \"HTS\".",
          call. = FALSE)
 
+  return(invisible(NULL))
+}
+
+chksuitable <- function(x, method,
+                        classes =
+                          c("metacum", "metainf",
+                            "netpairwise"),
+                        addtext = NULL) {
+  if (missing(addtext)) {
+    addtext <- rep("", length(classes))
+    addtext[classes == "netpairwise"] <-
+      " without argument 'separate = TRUE'"
+  }
+  for (i in seq_along(classes))
+    if (inherits(x, classes[i]))
+      stop(method, " not suitable for an object of class \"",
+           classes[i], "\"", addtext[i], ".",
+           call. = FALSE)
+  ##
   return(invisible(NULL))
 }

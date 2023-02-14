@@ -190,6 +190,10 @@ metamerge <- function(meta1, meta2, pooled1, pooled2,
   ##
   chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
   ##
+  if (inherits(meta1, "netpairwise") | inherits(meta2, "netpairwise"))
+    stop("R objects of class 'netpairwise' cannot be merged.",
+         call. = FALSE)
+  ##
   if (inherits(meta2, "meta"))
     meta2 <- updateversion(meta2)
   ##

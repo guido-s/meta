@@ -138,13 +138,15 @@
 #' mu3
 #' metareg(mu3, intercept = FALSE)
 #' 
-#' @export metareg
+#' @rdname metareg
+#' @method metareg meta
+#' @export
 
 
-metareg <- function(x, formula, method.tau = x$method.tau,
-                    hakn = x$method.random.ci == "HK",
-                    level.ma = x$level.ma,
-                    intercept = TRUE, ...) {
+metareg.meta <- function(x, formula, method.tau = x$method.tau,
+                         hakn = x$method.random.ci == "HK",
+                         level.ma = x$level.ma,
+                         intercept = TRUE, ...) {
 
   if ("data" %in% names(list(...))) {
     warning("Please note, argument 'data' has been renamed to 'x' ",
@@ -168,6 +170,8 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Meta-regression", "netpairwise")
+  ##
   x <- updateversion(x)
   
   
@@ -460,3 +464,28 @@ metareg <- function(x, formula, method.tau = x$method.tau,
   
   res
 }
+
+
+
+
+
+#' @rdname metareg
+#' @export metareg
+
+
+metareg <- function(x, ...) 
+  UseMethod("metareg")
+
+
+
+
+
+#' @rdname metareg
+#' @method metareg default
+#' @export
+
+
+metareg.default <- function(x, ...)
+  stop("Meta-regression not available for an object of class '",
+       class(x)[1], "'.",
+       call. = FALSE)

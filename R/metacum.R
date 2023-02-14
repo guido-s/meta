@@ -11,6 +11,7 @@
 #'   studies (must be of same length as \code{x$TE}).
 #' @param no A numeric specifying which meta-analysis results to
 #'   consider.
+#' @param \dots Additional arguments (ignored).
 #' 
 #' @details
 #' A cumulative meta-analysis is performed. Studies are included
@@ -71,10 +72,12 @@
 #'   data = Fleiss1993cont, sm = "SMD")
 #' metacum(m3)
 #' 
-#' @export metacum
+#' @rdname metacum
+#' @method metacum meta
+#' @export
 
 
-metacum <- function(x, pooled, sortvar, no = 1) {
+metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   
   
   ##
@@ -83,6 +86,8 @@ metacum <- function(x, pooled, sortvar, no = 1) {
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Cumulative meta-analysis", "netpairwise")
+  ##
   x <- updateversion(x)
   ##
   k.all <- length(x$TE)
@@ -646,3 +651,28 @@ metacum <- function(x, pooled, sortvar, no = 1) {
   
   res
 }
+
+
+
+
+
+#' @rdname metacum
+#' @export metacum
+
+
+metacum <- function(x, ...) 
+  UseMethod("metacum")
+
+
+
+
+
+#' @rdname metacum
+#' @method metacum default
+#' @export
+
+
+metacum.default <- function(x, ...)
+  stop("Cumulative meta-analysis not available for an object of class '",
+       class(x)[1], "'.",
+       call. = FALSE)

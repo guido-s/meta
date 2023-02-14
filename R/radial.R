@@ -93,8 +93,10 @@ radial.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Radial plot")
+  ##
   x <- updateversion(x)
-  ##  
+  ##
   TE <- x$TE
   seTE <- x$seTE
   
