@@ -126,13 +126,8 @@ baujat.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
-  ##
-  if (inherits(x, "metacum"))
-    stop("Baujat plot not meaningful for object of class \"metacum\"")
-  if (inherits(x, "metainf"))
-    stop("Baujat plot not meaningful for object of class \"metainf\"")
-  if (inherits(x, "trimfill"))
-    stop("Baujat plot not meaningful for object of class \"trimfill\"")
+  chksuitable(x, "Baujat plot",
+              c("trimfill", "metacum", "metainf", "netpairwise"))
   ##
   x <- updateversion(x)
   

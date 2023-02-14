@@ -881,12 +881,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     incr.event <- rep(0, k.all)
   ##  
   if (sm %in% c("IRR", "VE")) {
-    TE <- log(((event.e + incr.event) / time.e) / ((event.c + incr.event) / time.c))
+    TE <- log(((event.e + incr.event) / time.e) /
+              ((event.c + incr.event) / time.c))
     seTE <- sqrt(1 / (event.e + incr.event) + 1 / (event.c + incr.event))
   }
   else if (sm == "IRD") {
     TE <- event.e / time.e - event.c / time.c
-    seTE <- sqrt((event.e + incr.event) / time.e^2 + (event.c + incr.event) / time.c^2)
+    seTE <- sqrt((event.e + incr.event) / time.e^2 +
+                 (event.c + incr.event) / time.c^2)
   }
   else if (sm == "IRSD") {
     TE <- sqrt(event.e / time.e) - sqrt(event.c / time.c)

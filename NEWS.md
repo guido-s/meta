@@ -1,4 +1,9 @@
-## meta, version 6.1-1 (2023-mm-dd)
+## meta, version 6.2-0 (2023-mm-dd)
+
+### Major changes
+
+* New function trimfill.rm5() to conduct trim-and-fill method for all
+  or selected meta-analyses of a Cochrane review
 
 ### User-visible changes
 
@@ -8,6 +13,13 @@
   - print sensible confidence interval for NNTs if treatment effect is
     non-significant [(Altman,
     1998)](https://doi.org/10.1136/bmj.317.7168.1309)
+
+### Internal changes
+
+* Use generic functions for cumulative meta-analysis (metacum),
+  leave-one-out meta-analysis (metainf) and meta-regression (metareg)
+
+* New internal function chksuitable() to check for suitable classes
 
 
 ## meta, version 6.1-0 (2022-12-20)

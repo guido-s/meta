@@ -1,24 +1,23 @@
-#' Cochrane review: detailed summary of meta-analyses
+#' Cochrane review: trim-and-fill method
 #' 
 #' @description
-#' Calculate and print a detailed summary of all meta-analyses in a
-#' Cochrane review.
 #' 
-#' @param object An object of class \code{rm5}.
-#' @param x An object of class \code{summary.rm5}.
+#' Conduct trim-and-fill analysis for all meta-analyses in a Cochrane
+#' review.
+#' 
+#' @param x An object of class \code{rm5} or \code{trimfill.rm5}.
 #' @param comp.no Comparison number.
 #' @param outcome.no Outcome number.
 #' @param ... Additional arguments (passed on to \code{metacr}).
 #' 
 #' @details
-#' This function can be used to redo all or selected meta-analyses of
-#' a Cochrane Review.
+#' This function can be used to conduct a trim-and-fill analysis for
+#' all or selected meta-analyses in a Cochrane review.
 #' 
 #' Review Manager 5 (RevMan 5) was the software used for preparing and
 #' maintaining Cochrane Reviews
 #' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' In RevMan 5, subgroup analyses can be defined and data from a
-#' Cochrane review can be imported to R using the function
+#' Data from a Cochrane review can be imported to R using the function
 #' \code{read.rm5}.
 #' 
 #' The R function \code{\link{metacr}} is called internally.
@@ -41,24 +40,25 @@
 #' filename <- system.file("extdata", "Fleiss1993_CR.csv", package = "meta")
 #' Fleiss1993_CR <- read.rm5(filename)
 #' 
-#' # Print summary results for all meta-analysis
+#' # Conduct trim-and-fill analysis
 #' #
-#' summary(Fleiss1993_CR)
+#' trimfill(Fleiss1993_CR)
 #' 
-#' # Print summary results only for second outcome of first comparison
+#' # Conduct trim-and-fill analysis only for second outcome of first
+#' # comparison
 #' #
-#' summary(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
+#' trimfill(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 #' 
-#' @method summary rm5
+#' @method trimfill rm5
 #' @export
 
 
-summary.rm5 <- function(object, comp.no, outcome.no, ...) {
+trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
   
-  chkclass(object, "rm5")
-  ##  
+  chkclass(x, "rm5")
+  ##
   if (missing(comp.no))
-    comp.no <- unique(object$comp.no)
+    comp.no <- unique(x$comp.no)
   ##
   res <- list()
   ##
@@ -66,18 +66,22 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
   ##
   for (i in comp.no) {
     if (missing(outcome.no))
-      jj <- unique(object$outcome.no[object$comp.no == i])
+      jj <- unique(x$outcome.no[x$comp.no == i])
     else
       jj <- outcome.no
-    ##
     for (j in jj) {
-      res[[n]] <- summary(metacr(object, i, j, ...))
       ##
-      n <- n + 1
+      m1 <- metacr(x, i, j, ...)
+      ##
+      if (!is.na(m1$TE.common) & is.null(m1$subgroup)) {
+        tf1 <- res[[n]] <- trimfill(m1)
+        ##
+        n <- n + 1
+      }
     }
   }
   ##
-  class(res) <- "summary.rm5"
+  class(res) <- "trimfill.rm5"
   
   res
 }
@@ -86,14 +90,14 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
 
 
 
-#' @rdname summary.rm5
-#' @method print summary.rm5
+#' @rdname trimfill.rm5
+#' @method print trimfill.rm5
 #' @export
 
 
-print.summary.rm5 <- function(x, ...) {
+print.trimfill.rm5 <- function(x, ...) {
   
-  chkclass(x, "summary.rm5")
+  chkclass(x, "trimfill.rm5")
   ##
   n <- 1
   ##
@@ -105,6 +109,6 @@ print.summary.rm5 <- function(x, ...) {
     ##
     n <- n + 1
   }
-  
+  ##
   invisible(NULL)
 }

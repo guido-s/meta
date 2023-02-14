@@ -12,6 +12,7 @@
 #'   studies (must be of same length as \code{x$TE}).
 #' @param no A numeric specifying which meta-analysis results to
 #'   consider.
+#' @param \dots Additional arguments (ignored).
 #' 
 #' @details
 #' Performs a influence analysis; pooled estimates are calculated
@@ -74,10 +75,12 @@
 #'   data = Fleiss1993cont, sm = "SMD")
 #' metainf(m3)
 #' 
-#' @export metainf
+#' @rdname metainf
+#' @method metainf meta
+#' @export
 
 
-metainf <- function(x, pooled, sortvar, no = 1) {
+metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
   
   
   ##
@@ -86,6 +89,8 @@ metainf <- function(x, pooled, sortvar, no = 1) {
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Leave-one-out method", "netpairwise")
+  ##
   x <- updateversion(x)
   ##
   k.all <- length(x$TE)
@@ -644,3 +649,28 @@ metainf <- function(x, pooled, sortvar, no = 1) {
   
   res
 }
+
+
+
+
+
+#' @rdname metainf
+#' @export metainf
+
+
+metainf <- function(x, ...) 
+  UseMethod("metainf")
+
+
+
+
+
+#' @rdname metainf
+#' @method metainf default
+#' @export
+
+
+metainf.default <- function(x, ...)
+  stop("Leave-one-out method not available for an object of class '",
+       class(x)[1], "'.",
+       call. = FALSE)

@@ -316,18 +316,10 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   ##
   chkclass(x, "meta")
+  chksuitable(x, "Test for funnel plot asymmetry")
+  ##
   x <- updateversion(x)
   x.name <- deparse(substitute(x))
-  ##  
-  if (inherits(x, "metacum"))
-    stop("Test for funnel plot asymmetry not meaningful for ",
-         "object of class \"metacum\".",
-         call. = FALSE)
-  ##
-  if (inherits(x, "metainf"))
-    stop("Test for funnel plot asymmetry not meaningful for ",
-         "object of class \"metainf\".",
-         call. = FALSE)
   
   
   ##
