@@ -1065,6 +1065,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     n.c <- n.c[subset]
     studlab <- studlab[subset]
     ##
+    cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
     if (length(incr) > 1)

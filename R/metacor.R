@@ -547,6 +547,7 @@ metacor <- function(cor, n, studlab,
     n   <- n[subset]
     studlab <- studlab[subset]
     ##
+    cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
     if (by)

@@ -1,3 +1,16 @@
+## meta, version 6.2-1 (2023-mm-dd)
+
+### Bug fixes
+
+* forest.meta():
+  - correct order of cluster variable for three-level meta-analysis
+    with subgroups or use of argument 'sortvar'
+
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate():
+  - recognise argument 'subset' for three-level meta-analysis
+
+
 ## meta, version 6.2-0 (2023-02-14)
 
 ### Major changes
