@@ -728,6 +728,7 @@ metarate <- function(event, time, studlab,
     if (!is.null(n))
       n <- n[subset]
     ##
+    cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
     if (length(incr) > 1)

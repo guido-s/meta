@@ -794,6 +794,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     time.c <- time.c[subset]
     studlab <- studlab[subset]
     ##
+    cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
     if (length(incr) > 1)

@@ -3523,8 +3523,6 @@ forest.meta <- function(x,
     ##
     x$pval <- x$pval[o]
     ##
-    x$cluster <- x$cluster[o]
-    ##
     if (metainf.metacum) {
       x$tau2 <- x$tau2[o]
       x$tau <- x$tau[o]

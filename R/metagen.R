@@ -676,7 +676,13 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  chknull(sm)
+  sm <- replaceNULL(sm, "")
+  sm <- setchar(sm,
+                unique(c(gs("sm4bin"), gs("sm4cont"), gs("sm4cor"),
+                         gs("sm4inc"), gs("sm4mean"),
+                         gs("sm4prop"), gs("sm4rate"), "")),
+                stop.at.error = FALSE, return.NULL = FALSE,
+                nchar.equal = TRUE)
   ##
   method.ci <- setchar(method.ci, gs("ci4cont"))
   ##
@@ -1781,8 +1787,8 @@ metagen <- function(TE, seTE, studlab,
         else if (method.random.ci[i] == "HK") {
           if (adhoc.hakn.ci[i] == "se") {
             ##
-            ## Variance correction if SE_HK < SE_notHK (Knapp and Hartung, 2003),
-            ## i.e., if q < 1
+            ## Variance correction if SE_HK < SE_notHK
+            ## (Knapp and Hartung, 2003), i.e., if q < 1
             ##
             if (q < 1)
               seTE.hakn.adhoc.ci[i] <- seTE.classic
@@ -1807,7 +1813,7 @@ metagen <- function(TE, seTE, studlab,
               df.hakn.ci[i] <- NA
             }
           }
-          else if (adhoc.hakn.ci[i] == "iqwig6") {
+          else if (adhoc.hakn.ci[i] == "IQWiG6") {
             ##
             ## Variance correction if CI_HK < CI_DL (IQWiG, 2020)
             ##

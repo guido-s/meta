@@ -832,6 +832,7 @@ metamean <- function(n, mean, sd, studlab,
     sd <- sd[subset]
     studlab <- studlab[subset]
     ##
+    cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
     if (!missing.median)

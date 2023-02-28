@@ -23,6 +23,7 @@ metacr(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  Q.Cochrane,
   swap.events,
   logscale,
   backtransf = gs("backtransf"),
@@ -105,6 +106,10 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
+estimate is used in the calculation of the heterogeneity
+statistic Q which is implemented in RevMan 5.}
+
 \item{swap.events}{A logical indicating whether events and
 non-events should be interchanged.}
 
@@ -159,7 +164,7 @@ be printed if deprecated arguments are used.}
 }
 \value{
 An object of class \code{"meta"} and - depending on outcome type
-utilised in Cochrane Intervention review for selected outcome -
+utilised in Cochrane intervention review for selected outcome -
 \code{"metabin"}, \code{"metacont"}, or \code{"metagen"} with
 corresponding generic functions (see \code{\link{meta-object}}).
 }
@@ -168,8 +173,8 @@ Wrapper function to perform meta-analysis for a single outcome of a
 Cochrane Intervention review.
 }
 \details{
-Cochrane Intervention reviews are based on the comparison of two
-interventions. Each Cochrane Intervention review can have a
+Cochrane intervention reviews are based on the comparison of two
+interventions. Each Cochrane intervention review can have a
 variable number of comparisons. For each comparison, a variable
 number of outcomes can be define. For each outcome, a seperate
 meta-analysis is conducted. Review Manager 5 (RevMan 5) was the
@@ -177,7 +182,7 @@ software used for preparing and maintaining Cochrane Reviews
 (\url{https://training.cochrane.org/online-learning/core-software/revman}).
 
 This wrapper function can be used to perform meta-analysis for a
-single outcome of a Cochrane Intervention review. Internally, R
+single outcome of a Cochrane intervention review. Internally, R
 functions \code{\link{metabin}}, \code{\link{metacont}}, and
 \code{\link{metagen}} are called - depending on the definition of
 the outcome in RevMan 5.

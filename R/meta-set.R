@@ -5,7 +5,10 @@
 ## License: GPL (>= 2)
 ##
 setchar <- function(x, val, text, list = FALSE, name = NULL,
-                    stop.at.error = TRUE, addtext = "") {
+                    stop.at.error = TRUE, addtext = "",
+                    return.NULL = TRUE, nchar.equal = FALSE) {
+  val <- unique(val)
+  ##
   if (is.null(name))
     name <- deparse(substitute(x))
   nval <- length(val)
@@ -53,18 +56,34 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       ##
       if (stop.at.error)
         stop(first, name, "' must be ", vlist, addtext, ".", call. = FALSE)
-      else
-        return(NULL)
+      else {
+        if (return.NULL)
+          return(NULL)
+        else
+          return(x)
+      }
     }
     else {
       if (stop.at.error)
         stop(first, name, "' ", text, ".", call. = FALSE)
-      else
-        return(NULL)
+      else {
+        if (return.NULL)
+          return(NULL)
+        else
+          return(x)
+      }
     }
   }
   ##
-  val[idx]
+  if (is.null(x))
+    return(NULL)
+  else
+    res <- val[idx]
+  ##
+  if (nchar.equal && nchar(res) != nchar(x))
+    res <- x
+  ##
+  res
 }
 setstudlab <- function(x, k) {
   ##

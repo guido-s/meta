@@ -48,6 +48,9 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param Q.Cochrane A logical indicating if the Mantel-Haenszel
+#'   estimate is used in the calculation of the heterogeneity
+#'   statistic Q which is implemented in RevMan 5.
 #' @param swap.events A logical indicating whether events and
 #'   non-events should be interchanged.
 #' @param logscale A logical indicating whether effect estimates are
@@ -85,8 +88,8 @@
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
-#' Cochrane Intervention reviews are based on the comparison of two
-#' interventions. Each Cochrane Intervention review can have a
+#' Cochrane intervention reviews are based on the comparison of two
+#' interventions. Each Cochrane intervention review can have a
 #' variable number of comparisons. For each comparison, a variable
 #' number of outcomes can be define. For each outcome, a seperate
 #' meta-analysis is conducted. Review Manager 5 (RevMan 5) was the
@@ -94,7 +97,7 @@
 #' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
 #' 
 #' This wrapper function can be used to perform meta-analysis for a
-#' single outcome of a Cochrane Intervention review. Internally, R
+#' single outcome of a Cochrane intervention review. Internally, R
 #' functions \code{\link{metabin}}, \code{\link{metacont}}, and
 #' \code{\link{metagen}} are called - depending on the definition of
 #' the outcome in RevMan 5.
@@ -104,7 +107,7 @@
 #' 
 #' @return
 #' An object of class \code{"meta"} and - depending on outcome type
-#' utilised in Cochrane Intervention review for selected outcome -
+#' utilised in Cochrane intervention review for selected outcome -
 #' \code{"metabin"}, \code{"metacont"}, or \code{"metagen"} with
 #' corresponding generic functions (see \code{\link{meta-object}}).
 #' 
@@ -170,7 +173,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    method.predict = gs("method.predict"),
                    adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                    ##
-                   swap.events, logscale,
+                   Q.Cochrane, swap.events, logscale,
                    ##
                    backtransf = gs("backtransf"),
                    ##
@@ -232,6 +235,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklogical(prediction)
   chklevel(level.predict)
   chklogical(prediction.subgroup)
+  ##
+  missing.Q.Cochrane <- missing(Q.Cochrane)
+  if (!missing.Q.Cochrane)
+    chklogical(Q.Cochrane)
   ##
   if (!missing(swap.events))
     chklogical(swap.events)
@@ -396,7 +403,8 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   varnames <- names(x)[!(names(x) %in% dropnames)]
   ##
-  Q.Cochrane <- if (method == "MH" & method.tau == "DL") TRUE else FALSE
+  if (missing.Q.Cochrane)
+    Q.Cochrane <- if (method == "MH" & method.tau == "DL") TRUE else FALSE
   ##
   if (length(unique(x$group.no[sel])) > 1) {
     if (type == "D") {

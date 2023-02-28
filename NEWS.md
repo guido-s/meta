@@ -1,3 +1,36 @@
+## meta, version 6.2-1 (2023-02-28)
+
+### Bug fixes
+
+* forest.meta():
+  - correct order of cluster variable for three-level meta-analysis
+    with subgroups or use of argument 'sortvar'
+
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate():
+  - recognise argument 'subset' for three-level meta-analysis
+
+* *Ad hoc* variance correction for Hartung-Knapp method was not used
+  for argument 'adhoc.hakn = "IQWiG6"' (bug was introduced in
+  **meta**, version 6.0-0)
+
+### User-visible changes
+
+* metacr():
+  - new argument 'Q.Cochrane'
+
+* metareg():
+  - using the regression formula as first unnamed argument will result
+    in an error not a warning
+
+### Internal changes
+
+* metagen(): check argument 'sm' for known summary measures in lower
+  case
+
+* setchar(): new arguments 'return.NULL' and 'nchar.equal'
+
+
 ## meta, version 6.2-0 (2023-02-14)
 
 ### Major changes
@@ -2939,14 +2972,14 @@ trimfill.default, trimfill.meta:
 
 * Function metacont:
   - studies with missing treatment estimate get zero weight in
-  meta-analysis
+    meta-analysis
 
 * Functions metabin, metacont, metacor, metacr, metagen, metainc, metaprop:
   - default values changed according to R function settings.meta
 
 * Function metareg:
-  - use argument method.tau="REML" if this argument is equal to "PM" for
-  meta-analysis object
+  - use argument method.tau = "REML" if this argument is equal to "PM"
+    for meta-analysis object
 
 * Several help pages updated.
 
