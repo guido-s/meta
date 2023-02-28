@@ -91,11 +91,11 @@ Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
   data = Fleiss1993cont, sm = "MD")
 \dontrun{
-# Warnings due to wrong ordering of arguments (order has changed
-# with version 3.0-0 of R package meta)
+# Error due to wrong ordering of arguments (order has changed in
+# R package meta, version 3.0-0)
 #
-metareg(~ region, m1)
-metareg(~ region, data = m1)
+try(metareg(~ region, m1))
+try(metareg(~ region, data = m1))
 
 # Warning as no information on covariate is available
 #

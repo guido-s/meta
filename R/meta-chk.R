@@ -1,7 +1,7 @@
 ## Auxiliary functions to check function arguments
 ##
 ## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 
