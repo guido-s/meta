@@ -1,3 +1,28 @@
+## meta, version 6.3-0 (2023-mm-dd)
+
+### Major changes
+
+* Seed can be specified in meta-analysis functions to calculate
+  reproducible bootstrap prediction intervals
+
+* Baujat plot can be used to evaluate influence of studies on random
+  effects estimate
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metacr(), metainc(), metamean(),
+  metaprop(), metarate(), update.meta():
+  - new arguments 'seed.predict' and 'seed.predict.subgroup'
+  - print an error message if bootstrap prediction interval is
+    requested for three-level model
+
+* trimfill.default():
+  - new argument 'seed.predict'
+
+* baujat.meta():
+  - new argument 'pooled'
+
+
 ## meta, version 6.2-1 (2023-02-28)
 
 ### Bug fixes

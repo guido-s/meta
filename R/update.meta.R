@@ -79,6 +79,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -168,6 +170,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param id Deprecated argument (replaced by 'cluster').
 #' @param print.CMH A logical indicating whether result of the
@@ -273,6 +278,7 @@ update.meta <- function(object,
                         adhoc.hakn.ci = object$adhoc.hakn.ci,
                         method.predict = object$method.predict,
                         adhoc.hakn.pi = object$adhoc.hakn.pi,
+                        seed.predict = object$seed.predict,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
                         tau.preset = object$tau.preset,
@@ -316,6 +322,8 @@ update.meta <- function(object,
                         sep.subgroup = object$sep.subgroup,
                         test.subgroup = object$test.subgroup,
                         prediction.subgroup = object$prediction.subgroup,
+                        seed.predict.subgroup = object$seed.predict.subgroup,
+                        ##
                         byvar, id,
                         ##
                         print.CMH = object$print.CMH,
@@ -513,6 +521,14 @@ update.meta <- function(object,
       ##
       object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
     }
+  }
+  if (update_needed(object$version, 6, 3, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.3
+    ##
+    object$seed.predict <- NULL
+    if (!is.null(object$byvar))
+      object$seed.predict.subgroup <- NULL
   }
   
   
@@ -943,6 +959,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -967,6 +986,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
@@ -1004,6 +1024,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1025,6 +1048,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1051,6 +1075,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -1073,6 +1100,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn.deprecated = FALSE,
@@ -1111,6 +1139,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -1137,6 +1168,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1204,6 +1236,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1230,6 +1265,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1267,6 +1303,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1290,6 +1329,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1335,6 +1375,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1359,6 +1402,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1405,6 +1449,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1428,6 +1475,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,

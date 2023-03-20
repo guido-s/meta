@@ -1,4 +1,5 @@
-subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
+subgroup <- function(x, tau.preset = NULL, subgroup.rma,
+                     seed = NULL, ...) {
   
   subgroup <- x$subgroup
   ##
@@ -18,6 +19,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
   if (!(length(subgroup) > 0)) {
     warning("Argument 'subgroup' is missing.")
     return(NULL)
+  }
+  ##
+  if (!is.null(seed) & any(x$method.predict %in% "NNF")) {
+    if (length(seed) == 1)
+      seed <- rep_len(seed, n.levs)
+    chknumeric(seed, length = n.levs, name = "seed.predict.subgroup")
   }
   ##
   bin  <- inherits(x, "metabin")
@@ -58,6 +65,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
     if (all(is.na(x$studlab[sel])))
       stop("No data available for subgroup = ", i)
     ##
+    if (!is.null(seed))
+      seed.i <- seed[j]
+    else
+      seed.i <- NULL
     ##
     if (bin)
       meta1 <- metabin(x$event.e[sel], x$n.e[sel],
@@ -84,6 +95,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        level.predict = x$level.predict,
                        method.predict = x$method.predict,
                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       seed.predict = seed.i,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
@@ -118,6 +130,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         level.predict = x$level.predict,
                         method.predict = x$method.predict,
                         adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        seed.predict = seed.i,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
@@ -144,6 +157,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        level.predict = x$level.predict,
                        method.predict = x$method.predict,
                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       seed.predict = seed.i,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
@@ -171,6 +185,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        level.predict = x$level.predict,
                        method.predict = x$method.predict,
                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       seed.predict = seed.i,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
@@ -205,6 +220,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        level.predict = x$level.predict,
                        method.predict = x$method.predict,
                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       seed.predict = seed.i,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
@@ -233,6 +249,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                        level.predict = x$level.predict,
                        method.predict = x$method.predict,
                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       seed.predict = seed.i,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
@@ -264,6 +281,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         level.predict = x$level.predict,
                         method.predict = x$method.predict,
                         adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        seed.predict = seed.i,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
@@ -295,6 +313,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
                         level.predict = x$level.predict,
                         method.predict = x$method.predict,
                         adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        seed.predict = seed.i,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
@@ -924,7 +943,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma, ...) {
               df.Q.b.common = df.Q.b.common,
               df.Q.b.random = df.Q.b.random,
               pval.Q.b.common = pval.Q.b.common,
-              pval.Q.b.random = pval.Q.b.random
+              pval.Q.b.random = pval.Q.b.random,
+              ##
+              seed.predict.subgroup = seed
               )
   ##
   ## No general list elements

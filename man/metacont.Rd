@@ -55,6 +55,7 @@ metacont(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
   text.common = gs("text.common"),
@@ -75,6 +76,7 @@ metacont(
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   byvar,
   id,
   adhoc.hakn,
@@ -255,6 +257,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{method.bias}{A character string indicating which test is to
 be used. Either \code{"Begg"}, \code{"Egger"}, \code{"Thompson"},
 or \code{"Pustejovsky"} (see \code{\link{metabias}}), can be
@@ -312,6 +317,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 

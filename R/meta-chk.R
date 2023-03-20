@@ -327,6 +327,33 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
   return(invisible(NULL))
 }
 
+chkmlm <- function(method.tau, missing.method.tau,
+                   method.predict,
+                   by, tau.common, missing.tau.common,
+                   method = "Inverse", missing.method = FALSE) {
+  
+  if (method != "Inverse" & !missing.method)
+    warning("Inverse variance method used in three-level model.",
+            call. = FALSE)
+  ##
+  if (!(method.tau %in% c("REML", "ML")) & !missing.method.tau)
+    warning("For three-level model, argument 'method.tau' set to ",
+            "\"REML\".",
+            call. = FALSE)
+  ##
+  if (any(method.predict == "NNF"))
+    stop("Bootstrap method for prediction interval not ",
+         "available for three-level models.",
+         call. = FALSE)
+  ##
+  if (by & !tau.common & !missing.tau.common)
+    warning("For three-level model, argument 'tau.common' set to ",
+            "\"TRUE\".",
+            call. = FALSE)
+  
+  return(invisible(NULL))
+}
+
 chksuitable <- function(x, method,
                         classes =
                           c("metacum", "metainf",

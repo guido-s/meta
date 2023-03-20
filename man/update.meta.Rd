@@ -30,6 +30,7 @@
   adhoc.hakn.ci = object$adhoc.hakn.ci,
   method.predict = object$method.predict,
   adhoc.hakn.pi = object$adhoc.hakn.pi,
+  seed.predict = object$seed.predict,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
   tau.preset = object$tau.preset,
@@ -68,6 +69,7 @@
   sep.subgroup = object$sep.subgroup,
   test.subgroup = object$test.subgroup,
   prediction.subgroup = object$prediction.subgroup,
+  seed.predict.subgroup = object$seed.predict.subgroup,
   byvar,
   id,
   print.CMH = object$print.CMH,
@@ -178,6 +180,9 @@ used to calculate a prediction interval (see
 \item{adhoc.hakn.pi}{A character string indicating whether an
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
+
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
 
 \item{method.tau}{A character string indicating which method is
 used to estimate the between-study variance \eqn{\tau^2} and its
@@ -311,6 +316,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
