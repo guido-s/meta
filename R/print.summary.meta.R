@@ -184,6 +184,9 @@ print.summary.meta <- function(x,
   k.all <- length(x$TE)
   ##
   x.meta <- updateversion(x$x)
+  ##
+  fbt <- x$x$func.backtransf
+  abt <- x$x$args.backtransf
   
   
   ##
@@ -614,9 +617,9 @@ print.summary.meta <- function(x,
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
       else {
-        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean)
-        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean)
-        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean)
+        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, fbt, abt)
+        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, fbt, abt)
+        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, fbt, abt)
       }
       ##
       if (is.prop(sm) | sm == "RD") {
@@ -741,7 +744,10 @@ print.summary.meta <- function(x,
                 digits = digits, digits.tau = digits.tau,
                 text.tau = text.tau, text.tau2 = text.tau2,
                 method.miss = x$method.miss,
-                IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c)
+                IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
+                backtransf = backtransf,
+                func.transf = x$func.transf,
+                func.backtransf = x$func.backtransf)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
       show.w.common  <-

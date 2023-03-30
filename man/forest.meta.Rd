@@ -47,7 +47,7 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
-  ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+  ref,
   lower.equi = gs("lower.equi"),
   upper.equi = gs("upper.equi"),
   lty.equi = gs("lty.equi"),

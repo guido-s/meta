@@ -51,8 +51,12 @@ metagen(
   method.sd = "Shi",
   approx.TE,
   approx.seTE,
-  transf = gs("transf"),
-  backtransf = gs("backtransf"),
+  transf = gs("transf") & missing(func.transf),
+  backtransf = gs("backtransf") | !missing(func.backtransf),
+  func.transf,
+  func.backtransf,
+  args.transf,
+  args.backtransf,
   pscale = 1,
   irscale = 1,
   irunit = "person-years",
@@ -251,6 +255,17 @@ TRUE} (default), results for \code{sm = "OR"} are printed as odds
 ratios rather than log odds ratios and results for \code{sm =
 "ZCOR"} are printed as correlations rather than Fisher's z
 transformed correlations, for example.}
+
+\item{func.transf}{A function used to transform inputs for
+arguments \code{TE}, \code{lower} and \code{upper}.}
+
+\item{func.backtransf}{A function used to back-transform results.}
+
+\item{args.transf}{An optional list to provide additional arguments
+to \code{func.transf}.}
+
+\item{args.backtransf}{An optional list to provide additional
+arguments to \code{func.backtransf}.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -657,10 +672,29 @@ HR <- c(0.55, 0.92, 0.79, 1.18)
 lower.HR <- c(0.28, 0.79, 0.59, 0.64)
 upper.HR <- c(1.09, 1.08, 1.05, 2.17)
 #
-# Input must be log hazard ratios, not hazard ratios
+# Hazard ratios and confidence intervals as input
 #
-metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-  studlab = study, sm = "HR")
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "HR", transf = FALSE))
+#
+# Same result with log hazard ratios as input
+#
+summary(metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
+  studlab = study, sm = "HR"))
+#
+# Again, same result using an unknown summary measure and
+# arguments 'func.transf' and 'func.backtransf'
+#
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "Hazard ratio",
+  func.transf = log, func.backtransf = exp))
+#
+# Finally, same result only providing argument 'func.transf' as the
+# back-transformation for the logarithm is known
+#
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "Hazard ratio",
+  func.transf = log))
 
 # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 # show them in printouts and forest plots

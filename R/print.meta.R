@@ -232,6 +232,9 @@ print.meta <- function(x,
   ##
   method.random.ci <- replaceNULL(x$method.random.ci, "")
   method.predict <- replaceNULL(x$method.predict, "")
+  ##
+  fbt <- x$func.backtransf
+  abt <- x$args.backtransf
   
   
   ##
@@ -628,35 +631,45 @@ print.meta <- function(x,
         harmonic.mean <- 1 / mean(1 / x$n)
     }
     ##
-    TE.common    <- backtransf(TE.common, sm, "mean", harmonic.mean)
-    lowTE.common <- backtransf(lowTE.common, sm, "lower", harmonic.mean)
-    uppTE.common <- backtransf(uppTE.common, sm, "upper", harmonic.mean)
+    TE.common <-
+      backtransf(TE.common, sm, "mean", harmonic.mean, fbt, abt)
+    lowTE.common <-
+      backtransf(lowTE.common, sm, "lower", harmonic.mean, fbt, abt)
+    uppTE.common <-
+      backtransf(uppTE.common, sm, "upper", harmonic.mean, fbt, abt)
     ##
-    TE.random <- backtransf(TE.random, sm, "mean", harmonic.mean)
-    lowTE.random <- backtransf(lowTE.random, sm, "lower", harmonic.mean)
-    uppTE.random <- backtransf(uppTE.random, sm, "upper", harmonic.mean)
+    TE.random <-
+      backtransf(TE.random, sm, "mean", harmonic.mean, fbt, abt)
+    lowTE.random <-
+      backtransf(lowTE.random, sm, "lower", harmonic.mean, fbt, abt)
+    uppTE.random <-
+      backtransf(uppTE.random, sm, "upper", harmonic.mean, fbt, abt)
     ##
-    lowTE.predict <- backtransf(lowTE.predict, sm, "lower", harmonic.mean)
-    uppTE.predict <- backtransf(uppTE.predict, sm, "upper", harmonic.mean)
+    lowTE.predict <-
+      backtransf(lowTE.predict, sm, "lower", harmonic.mean, fbt, abt)
+    uppTE.predict <-
+      backtransf(uppTE.predict, sm, "upper", harmonic.mean, fbt, abt)
     ##
     if (by) {
-      TE.common.w     <- backtransf(TE.common.w, sm, "mean", harmonic.mean.w)
-      lowTE.common.w  <- backtransf(lowTE.common.w, sm, "lower",
-                                    harmonic.mean.w)
+      TE.common.w <-
+        backtransf(TE.common.w, sm, "mean", harmonic.mean.w, fbt, abt)
+      lowTE.common.w <-
+        backtransf(lowTE.common.w, sm, "lower", harmonic.mean.w, fbt, abt)
       uppTE.common.w  <- backtransf(uppTE.common.w, sm, "upper",
                                     harmonic.mean.w)
       ##
-      TE.random.w    <- backtransf(TE.random.w, sm, "mean", harmonic.mean.w)
-      lowTE.random.w <- backtransf(lowTE.random.w, sm, "lower",
-                                   harmonic.mean.w)
-      uppTE.random.w <- backtransf(uppTE.random.w, sm, "upper",
-                                   harmonic.mean.w)
+      TE.random.w <-
+        backtransf(TE.random.w, sm, "mean", harmonic.mean.w, fbt, abt)
+      lowTE.random.w <-
+        backtransf(lowTE.random.w, sm, "lower", harmonic.mean.w, fbt, abt)
+      uppTE.random.w <-
+        backtransf(uppTE.random.w, sm, "upper", harmonic.mean.w, fbt, abt)
       ##
       if (prediction.w) {
-        lowTE.predict.w <- backtransf(lowTE.predict.w, sm, "lower",
-                                      harmonic.mean.w)
-        uppTE.predict.w <- backtransf(uppTE.predict.w, sm, "upper",
-                                      harmonic.mean.w)
+        lowTE.predict.w <-
+          backtransf(lowTE.predict.w, sm, "lower", harmonic.mean.w, fbt, abt)
+        uppTE.predict.w <-
+          backtransf(uppTE.predict.w, sm, "upper", harmonic.mean.w, fbt, abt)
       }
     }
   }
@@ -891,7 +904,10 @@ print.meta <- function(x,
               text.tau = text.tau, text.tau2 = text.tau2,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
-              three.level = three.level)
+              three.level = three.level,
+              backtransf = backtransf,
+              func.transf = x$func.transf,
+              func.backtransf = x$func.backtransf)
   }
   else {
     ##
@@ -1551,7 +1567,10 @@ print.meta <- function(x,
               method.miss = x$method.miss,
               IMOR.e = x$IMOR.e, IMOR.c = x$IMOR.c,
               three.level =
-                if (is.null(x$three.level)) FALSE else x$three.level)
+                if (is.null(x$three.level)) FALSE else x$three.level,
+              backtransf = backtransf,
+              func.transf = x$func.transf,
+              func.backtransf = x$func.backtransf)
   }
   
   

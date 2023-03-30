@@ -131,6 +131,13 @@
 #'   ratios rather than log odds ratios and results for \code{sm =
 #'   "ZCOR"} are printed as correlations rather than Fisher's z
 #'   transformed correlations, for example.
+#' @param func.transf A function used to transform inputs for
+#'   arguments \code{TE}, \code{lower} and \code{upper}.
+#' @param func.backtransf A function used to back-transform results.
+#' @param args.transf An optional list to provide additional arguments
+#'   to \code{func.transf}.
+#' @param args.backtransf An optional list to provide additional
+#'   arguments to \code{func.backtransf}.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -551,10 +558,29 @@
 #' lower.HR <- c(0.28, 0.79, 0.59, 0.64)
 #' upper.HR <- c(1.09, 1.08, 1.05, 2.17)
 #' #
-#' # Input must be log hazard ratios, not hazard ratios
+#' # Hazard ratios and confidence intervals as input
 #' #
-#' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-#'   studlab = study, sm = "HR")
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "HR", transf = FALSE))
+#' #
+#' # Same result with log hazard ratios as input
+#' #
+#' summary(metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
+#'   studlab = study, sm = "HR"))
+#' #
+#' # Again, same result using an unknown summary measure and
+#' # arguments 'func.transf' and 'func.backtransf'
+#' #
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "Hazard ratio",
+#'   func.transf = log, func.backtransf = exp))
+#' #
+#' # Finally, same result only providing argument 'func.transf' as the
+#' # back-transformation for the logarithm is known
+#' #
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "Hazard ratio",
+#'   func.transf = log))
 #'
 #' # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 #' # show them in printouts and forest plots
@@ -644,8 +670,12 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     approx.TE, approx.seTE,
                     ##
-                    transf = gs("transf"),
-                    backtransf = gs("backtransf"),
+                    transf = gs("transf") & missing(func.transf),
+                    backtransf = gs("backtransf") | !missing(func.backtransf),
+                    func.transf,
+                    func.backtransf,
+                    args.transf,
+                    args.backtransf,
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
                     ##
@@ -742,6 +772,68 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(transf)
   chklogical(backtransf)
+  ##
+  missing.func.transf <- missing(func.transf)
+  missing.args.transf <- missing(args.transf)
+  missing.func.backtransf <- missing(func.backtransf)
+  missing.args.backtransf <- missing(args.backtransf)
+  ##
+  if (!missing.func.transf) {
+    chkfunc(func.transf)
+    func.transf <- deparse(substitute(func.transf))
+  }
+  else
+    func.transf <- NULL
+  ##
+  if (!missing.args.transf)
+    chklist(args.transf)
+  else
+    args.transf <- NULL
+  ##
+  if (!missing.func.backtransf) {
+    chkfunc(func.backtransf)    
+    func.backtransf <- deparse(substitute(func.backtransf))
+  }
+  else
+    func.backtransf <- NULL
+  ##
+  if (!missing.args.backtransf)
+    chklist(args.backtransf)    
+  else
+    args.backtransf <- NULL
+  ##
+  if (is.null(func.transf) & !is.null(args.transf)) {
+    warning("Argument 'args.transf' ignored as argument ",
+            "'func.transf' is ",
+            if (missing.func.transf) "missing." else "NULL.",
+            call. = FALSE)
+    args.transf <- NULL
+  }
+  ##
+  if (is.null(func.backtransf) & !is.null(args.backtransf)) {
+    warning("Argument 'args.backtransf' ignored as argument ",
+            "'func.backtransf' is ",
+            if (missing.func.backtransf) "missing." else "NULL.",
+            call. = FALSE)
+    args.backtransf <- NULL
+  }
+  ##
+  if (!is.null(func.transf) & is.null(func.backtransf)) {
+    if (func.transf == "log" & is.null(args.transf))
+      func.backtransf <- "exp"
+    else if (func.transf == "cor2z" & is.null(args.transf))
+      func.backtransf <- "z2cor"
+    else if (func.transf == "p2logit" & is.null(args.transf))
+      func.backtransf <- "logit2p"
+    else if (func.transf == "p2asin" & is.null(args.transf))
+      func.backtransf <- "asin2p"
+    else if (func.transf == "VE2logVR" & is.null(args.transf))
+      func.backtransf <- "logVR2VE"
+    else
+      stop("Argument 'func.backtransf' must be specified.",
+           call. = FALSE)
+  }
+  ##
   if (!is.prop(sm))
     pscale <- 1
   chknumeric(pscale, length = 1)
@@ -871,18 +963,32 @@ metagen <- function(TE, seTE, studlab,
   upper <- catch("upper", mc, data, sfsp)
   ##
   if (!transf) {
-    if (!missing.TE)
-      TE <- transf(TE, sm)
-    if (!missing.lower)
-      lower <- transf(lower, sm)
-    if (!missing.upper)
-      upper <- transf(upper, sm)
-    if (sm == "VE" &&
-        !missing.lower & !missing.upper) {
+    if (!missing.TE) {
+      TE.orig <- TE
+      TE <- transf(TE, sm, func.transf, args.transf)
+    }
+    if (!missing.lower) {
+      lower.orig <- lower
+      lower <- transf(lower, sm, func.transf, args.transf)
+    }
+    if (!missing.upper) {
+      upper.orig <- upper
+      upper <- transf(upper, sm, func.transf, args.transf)
+    }
+    if (sm == "VE" && !missing.lower & !missing.upper) {
       tmp.l <- lower
       lower <- upper
       upper <- tmp.l
+      ##
+      tmp.l <- lower.orig
+      lower.orig <- upper.orig
+      upper.orig <- tmp.l
     }   
+  }
+  else {
+    TE.orig <- NULL
+    lower.orig <- NULL
+    upper.orig <- NULL
   }
   ##
   missing.cluster <- missing(cluster)
@@ -1127,30 +1233,44 @@ metagen <- function(TE, seTE, studlab,
       data$.pval <- pval
     if (!missing.df)
       data$.df <- df
+    ##
     if (!missing.lower)
       data$.lower <- lower
     if (!missing.upper)
       data$.upper <- upper
     if (!missing.lower | !missing.upper)
       data$.level.ci <- level.ci
+    ##
     if (!missing.median)
       data$.median <- median
     if (!missing.q1)
       data$.q1 <- q1
     if (!missing.q3)
       data$.q3 <- q3
+    ##
     if (!missing.min)
       data$.min <- min
     if (!missing.max)
       data$.max <- max
+    ##
     if (!missing.approx.TE)
       data$.approx.TE <- approx.TE
     if (!missing.approx.seTE)
       data$.approx.seTE <- approx.seTE
+    ##
     if (!missing.n.e)
       data$.n.e <- n.e
     if (!missing.n.c)
       data$.n.c <- n.c
+    ##
+    if (!is.null(TE.orig))
+      data$.TE.orig <- TE.orig
+    ##
+    if (!is.null(lower.orig))
+      data$.lower.orig <- lower.orig
+    ##
+    if (!is.null(upper.orig))
+      data$.upper.orig <- upper.orig
   }
   
   
@@ -2156,7 +2276,12 @@ metagen <- function(TE, seTE, studlab,
               common = common,
               random = random,
               prediction = prediction,
+              transf = transf,
               backtransf = backtransf,
+              func.transf = func.transf,
+              func.backtransf = func.backtransf,
+              args.transf = args.transf,
+              args.backtransf = args.backtransf,
               ##
               method = "Inverse",
               ##

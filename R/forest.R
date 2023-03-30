@@ -1117,8 +1117,7 @@ forest.meta <- function(x,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         ##
-                        ref =
-                          ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+                        ref,
                         ##
                         lower.equi = gs("lower.equi"),
                         upper.equi = gs("upper.equi"),
@@ -1365,6 +1364,11 @@ forest.meta <- function(x,
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
      metaprop | metarate | metainf.metacum)
+  ##
+  ftr <- x$func.transf
+  atr <- x$args.transf
+  fbt <- x$func.backtransf
+  abt <- x$args.backtransf
   
   
   ##
@@ -1713,7 +1717,19 @@ forest.meta <- function(x,
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
-  chknumeric(ref, length = 1)
+  missing.ref <- missing(ref)
+  ##
+  log.xaxis <-
+    backtransf & (is.relative.effect(sm) | (!is.null(fbt) && fbt == "exp"))
+  ##
+  if (missing.ref) {
+    ref <- 0
+    if (log.xaxis)
+      ref <- 1
+  }
+  else
+    chknumeric(ref, length = 1)
+  ##
   chknumeric(lower.equi, length = 1)
   chknumeric(upper.equi, length = 1)
   if (!is.na(lower.equi) && !is.na(upper.equi) && lower.equi > upper.equi)
@@ -2640,16 +2656,13 @@ forest.meta <- function(x,
   else if (just.cols == "right")
     xpos.c <- 1
   ##
-  log.xaxis <- FALSE
-  ##
-  if (missing(ref) && (is.prop(sm) | is.rate(sm) | is.mean(sm)))
+  if (missing.ref && (is.prop(sm) | is.rate(sm) | is.mean(sm)))
     ref <- NA
   ##
-  if (backtransf & is.relative.effect(sm)) {
+  if (log.xaxis) {
     ref <- log(ref)
     lower.equi <- log(lower.equi)
     upper.equi <- log(upper.equi)
-    log.xaxis <- TRUE
   }
   ##
   if (!backtransf & !missing(pscale) & pscale != 1 & !is.untransformed(sm)) {
@@ -2821,7 +2834,7 @@ forest.meta <- function(x,
       sm.lab <- "Mean"
   }
   else 
-    if (is.relative.effect(sm))
+    if (log.xaxis)
       sm.lab <- paste0("log", sm)
   ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
@@ -2938,10 +2951,16 @@ forest.meta <- function(x,
   ##
   lab.TE <- sm
   ##
-  if (is.relative.effect(sm))
+  if (log.xaxis | sm == "VE")
     lab.TE <- paste0("log", sm)
-  else if (sm == "VE")
-    lab.TE <- "logVR"
+  else if (!log.xaxis & !is.null(ftr)) {
+    lab.TE <-
+      paste0(ftr, "(", sm,
+             if (!is.null(atr) && length(names(atr)) >= 1)
+               paste0(", ",
+                      paste0(names(atr), "=", paste(atr), collapse = ", ")),
+             ")")
+  }
   else if (sm == "")
     lab.TE <- "TE"
   ##
@@ -6225,26 +6244,28 @@ forest.meta <- function(x,
       TE <- x$event.e / x$time.e
     }
     ## Relative effect measures will be back transformed later
-    else if (!is.relative.effect(sm)) {
-      TE <- backtransf(TE, sm, "mean", npft)
-      lowTE <- backtransf(lowTE, sm, "lower", npft)
-      uppTE <- backtransf(uppTE, sm, "upper", npft)
+    else if (!log.xaxis) {
+      TE <- backtransf(TE, sm, "mean", npft, fbt, abt)
+      lowTE <- backtransf(lowTE, sm, "lower", npft, fbt, abt)
+      uppTE <- backtransf(uppTE, sm, "upper", npft, fbt, abt)
     }
     ##
     ## Results of meta-analysis
     ##
-    if (!is.relative.effect(sm)) {
-      TE.common    <- backtransf(TE.common, sm, "mean", npft.ma)
-      lowTE.common <- backtransf(lowTE.common, sm, "lower", npft.ma)
-      uppTE.common <- backtransf(uppTE.common, sm, "upper", npft.ma)
+    if (!log.xaxis) {
+      TE.common    <- backtransf(TE.common, sm, "mean", npft.ma, fbt, abt)
+      lowTE.common <- backtransf(lowTE.common, sm, "lower", npft.ma, fbt, abt)
+      uppTE.common <- backtransf(uppTE.common, sm, "upper", npft.ma, fbt, abt)
       ##
-      TE.random <- backtransf(TE.random, sm, "mean", npft.ma)
-      lowTE.random <- backtransf(lowTE.random, sm, "lower", npft.ma)
-      uppTE.random <- backtransf(uppTE.random, sm, "upper", npft.ma)
+      TE.random <- backtransf(TE.random, sm, "mean", npft.ma, fbt, abt)
+      lowTE.random <- backtransf(lowTE.random, sm, "lower", npft.ma, fbt, abt)
+      uppTE.random <- backtransf(uppTE.random, sm, "upper", npft.ma, fbt, abt)
       ##
       if (!metainf.metacum) {
-        lowTE.predict <- backtransf(lowTE.predict, sm, "lower", npft.ma)
-        uppTE.predict <- backtransf(uppTE.predict, sm, "upper", npft.ma)
+        lowTE.predict <-
+          backtransf(lowTE.predict, sm, "lower", npft.ma, fbt, abt)
+        uppTE.predict <-
+          backtransf(uppTE.predict, sm, "upper", npft.ma, fbt, abt)
       }
       ##
       if (by) {
@@ -6253,9 +6274,9 @@ forest.meta <- function(x,
         else
           npft.w <- n.harmonic.mean.w
         ##
-        TE.w    <- backtransf(TE.w, sm, "mean", npft.w)
-        lowTE.w <- backtransf(lowTE.w, sm, "lower", npft.w)
-        uppTE.w <- backtransf(uppTE.w, sm, "upper", npft.w)
+        TE.w    <- backtransf(TE.w, sm, "mean", npft.w, fbt, abt)
+        lowTE.w <- backtransf(lowTE.w, sm, "lower", npft.w, fbt, abt)
+        uppTE.w <- backtransf(uppTE.w, sm, "upper", npft.w, fbt, abt)
       }
     }
     ##
@@ -7205,7 +7226,7 @@ forest.meta <- function(x,
   ##
   ## Treatment effect and confidence interval
   ##
-  if (backtransf & is.relative.effect(sm)) {
+  if (backtransf & log.xaxis) {
     effect.format <-
       formatN(exp(TEs), digits, lab.NA.effect, big.mark = big.mark)
     ci.format <-
@@ -7834,7 +7855,7 @@ forest.meta <- function(x,
   ##
   ##
   if (notmiss.xlim && is.numeric(xlim[1]))
-    if (is.relative.effect(sm))
+    if (log.xaxis)
       xlim <- log(xlim)
   ##
   if (is.null(xlim)) {

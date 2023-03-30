@@ -38,7 +38,10 @@ catmeth <- function(method,
                     text.tau = gs("text.tau"),
                     text.tau2 = gs("text.tau2"),
                     method.miss, IMOR.e, IMOR.c,
-                    three.level = FALSE
+                    three.level = FALSE,
+                    backtransf = FALSE,
+                    func.transf = NULL,
+                    func.backtransf = NULL
                     ) {
   
   
@@ -268,6 +271,19 @@ catmeth <- function(method,
                            format(null.effect, scientific = FALSE,
                                   big.mark = big.mark))
   }
+  
+  
+  ##
+  ## User specified transformatoin and back-transformation
+  ##
+  if (!is.null(func.transf))
+    sm.details <- paste0(sm.details,
+                         "\n- User-specified transformation: ", func.transf)
+  ##
+  if (backtransf & !is.null(func.backtransf))
+    sm.details <- paste0(sm.details,
+                         "\n- User-specified back-transformation: ",
+                         func.backtransf)
   
   
   ##

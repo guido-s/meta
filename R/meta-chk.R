@@ -93,6 +93,19 @@ chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
          call. = FALSE)
 }
 
+chkfunc <- function(x, name = NULL) {
+  ##
+  ## Check whether argument is a function
+  ##
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  ##
+  if (!is.null(x) && !is.function(x))
+    stop("Argument '", name, "' must be a function.", call. = FALSE)
+  ##
+  invisible(NULL)
+}
+
 chklength <- function(x, k.all, fun = "", text, name = NULL) {
   ##
   ## Check length of vector
@@ -155,6 +168,19 @@ chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
   if (any(x <= 0, na.rm = TRUE) | any(x >= 1, na.rm = TRUE))
     stop("Argument '", name, "' must be a numeric between 0 and 1.",
          call. = FALSE)
+  ##
+  invisible(NULL)
+}
+
+chklist <- function(x, name = NULL) {
+  ##
+  ## Check whether argument is a list
+  ##
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  ##
+  if (!is.null(x) && !is.list(x))
+    stop("Argument '", name, "' must be a list.", call. = FALSE)
   ##
   invisible(NULL)
 }
