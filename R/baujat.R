@@ -270,8 +270,7 @@ baujat.meta <- function(x,
        pos = pos.studlab, offset = offset)
   
   
-  res <- data.frame(x = xs, y = ys)
-  row.names(res) <- x$studlab
+  res <- data.frame(studlab = x$studlab, x = xs, y = ys)
   attr(res, "pooled") <- pooled
   
   

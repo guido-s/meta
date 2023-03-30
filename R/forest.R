@@ -1596,16 +1596,20 @@ forest.meta <- function(x,
   if (!sort)
     sortvar <- 1:K.all
   ##
+  missing.subgroup <- missing(subgroup)
+  missing.subgroup.hetstat <- missing(subgroup.hetstat)
+  missing.prediction.subgroup <- missing(prediction.subgroup)
+  ##
   if (!by) {
-    if (!missing(subgroup))
+    if (!missing.subgroup)
       warning("Argument 'subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(subgroup.hetstat))
+    if (!missing.subgroup.hetstat)
       warning("Argument 'subgroup.hetstat' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(prediction.subgroup))
+    if (!missing.prediction.subgroup)
       warning("Argument 'prediction.subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
@@ -2287,7 +2291,7 @@ forest.meta <- function(x,
     any(!is.na(x$lower.predict) & !is.na(x$upper.predict))
   ##
   if (by) {
-    if (!missing(subgroup) & !metabind)
+    if (!missing.subgroup & !metabind)
       subgroup <- catch("subgroup", mc, x, sfsp)
     ##
     if (length(subgroup) == 1)
@@ -2301,7 +2305,7 @@ forest.meta <- function(x,
     }
     chklogical(subgroup[1])
     ##
-    if (!missing(subgroup.hetstat) & !metabind)
+    if (!missing.subgroup.hetstat & !metabind)
       subgroup.hetstat <- catch("subgroup.hetstat", mc, x, sfsp)
     ##
     if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
@@ -2319,7 +2323,7 @@ forest.meta <- function(x,
       subgroup.hetstat.logical <- subgroup.hetstat
     }
     ##
-    if (!missing(prediction.subgroup) & !metabind)
+    if (!missing.prediction.subgroup & !metabind)
       prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
     ##
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
@@ -2328,8 +2332,8 @@ forest.meta <- function(x,
       if (is.matrix(x$lower.predict.w))
         prediction.subgroup.logical <-
           prediction.subgroup &
-          apply(x$lower.predict.w, 2, notallNA) &
-          apply(x$upper.predict.w, 2, notallNA)
+          apply(x$lower.predict.w, 1, notallNA) &
+          apply(x$upper.predict.w, 1, notallNA)
       else {
         prediction.subgroup.logical <-
           prediction.subgroup &

@@ -48,8 +48,9 @@
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (based on random
 #'   effects model).
-#' @param prediction.subgroup A logical indicating whether prediction
-#'   intervals should be printed for subgroups.
+#' @param prediction.subgroup A single logical or logical vector
+#'   indicating whether / which prediction intervals should be printed
+#'   for subgroups.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
@@ -223,12 +224,23 @@ print.meta <- function(x,
   ##
   is.metabind <- inherits(x, "metabind")
   is.netpairwise <- inherits(x, "netpairwise")
+  ##
+  by <- !is.null(x$subgroup)
+  ##
+  if (by)
+    n.by <- length(x$subgroup.levels)
+  ##
+  method.random.ci <- replaceNULL(x$method.random.ci, "")
+  method.predict <- replaceNULL(x$method.predict, "")
   
   
   ##
   ##
   ## (2) Check and set other arguments
   ##
+  ##
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
@@ -288,10 +300,51 @@ print.meta <- function(x,
   test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
   chklogical(test.subgroup.random)
   ##
-  prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
-  if (is.na(prediction.subgroup))
-    prediction.subgroup <- FALSE
-  chklogical(prediction.subgroup)
+  missing.prediction.subgroup <- missing(prediction.subgroup)
+  ##
+  if (by) {
+    if (!missing.prediction.subgroup)
+      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+    prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+    ##
+    if (length(prediction.subgroup) == 1) {
+      if (is.matrix(x$lower.predict.w)) {
+        prediction.subgroup.logical <-
+          prediction.subgroup &
+          apply(x$lower.predict.w, 1, notallNA) &
+          apply(x$upper.predict.w, 1, notallNA)
+      }
+      else {
+        prediction.subgroup.logical <-
+          prediction.subgroup &
+          notallNA(x$lower.predict.w) &
+          notallNA(x$upper.predict.w)
+        prediction.subgroup.logical <-
+          rep(prediction.subgroup.logical, n.by)
+      }
+    }
+    else {
+      chklength(prediction.subgroup, n.by,
+                text = paste("Length of argument 'prediction.subgroup' must be",
+                             "equal to 1 or number of subgroups."))
+      prediction.subgroup.logical <- prediction.subgroup
+    }
+    chklogical(prediction.subgroup.logical[1])
+    ##
+    if (missing.prediction.subgroup) {
+      if (any(method.predict %in% c("", "S")))
+        prediction.w <- prediction.subgroup.logical
+      else
+        prediction.w <- prediction.subgroup.logical & !is.na(x$df.predict.w)
+    }
+    else
+      prediction.w <- prediction.subgroup.logical
+    ##
+    prediction.w[is.na(prediction.w)] <- FALSE
+    prediction.w <- any(prediction.w) & !is.metabind
+  }
+  else
+    prediction.w <- FALSE
   ##
   if (!is.null(print.CMH))
     chklogical(print.CMH)
@@ -347,10 +400,15 @@ print.meta <- function(x,
     irscale <- 1
   }
   ##
-  by <- !is.null(subgroup.name)
   if (by) {
     chklogical(print.subgroup.name)
     chkchar(sep.subgroup)
+  }
+  else {
+    if (!missing.prediction.subgroup)
+      warning("Argument 'prediction.subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
   }
   
   
@@ -378,9 +436,6 @@ print.meta <- function(x,
   else
     method.ci <- NULL
   ##
-  method.random.ci <- replaceNULL(x$method.random.ci, "")
-  method.predict <- replaceNULL(x$method.predict, "")
-  ##
   null.effect <- x$null.effect
   null.given <- !is.null(null.effect) && !is.na(null.effect)
   ##
@@ -396,18 +451,6 @@ print.meta <- function(x,
       null.effect <- sqrt(null.effect)
     else if (sm == "ZCOR")
       null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
-  }
-  ##
-  if (by) {
-    k.w <- x$k.w
-    ##
-    if (any(method.predict %in% c("", "S")))
-      prediction.w <- prediction.subgroup
-    else
-      prediction.w <- prediction.subgroup & !is.na(x$df.predict.w)
-    ##
-    prediction.w[is.na(prediction.w)] <- FALSE
-    prediction.w <- any(prediction.w)
   }
   ##    
   if (is.null(prediction) || is.na(prediction))
@@ -524,6 +567,8 @@ print.meta <- function(x,
   }
   ##
   if (by) {
+    k.w <- x$k.w
+    ##
     TE.common.w    <- x$TE.common.w
     lowTE.common.w <- x$lower.common.w
     uppTE.common.w <- x$upper.common.w
@@ -1414,12 +1459,12 @@ print.meta <- function(x,
         }
       }
       ##
-      if (prediction.w & !is.metabind) {
+      if (prediction.w) {
         ##
         ## Prediction intervals for subgroups
         ##
-        if (is.vector(TE.common.w)) {
-          nam <- names(TE.common.w)
+        if (is.vector(lowTE.predict.w)) {
+          nam <- names(lowTE.predict.w)
           lowTE.predict.w <- matrix(lowTE.predict.w, ncol = 1)
           uppTE.predict.w <- matrix(uppTE.predict.w, ncol = 1)
           ##
@@ -1439,6 +1484,8 @@ print.meta <- function(x,
           lab.predict <- paste0(round(100 * x$level.predict, 1), "%-PI")
           dimnames(Pdata) <- list(bylab.txt, lab.predict)
           ##
+          Pdata <- Pdata[prediction.subgroup.logical, , drop = FALSE]
+          ##
           cat(paste0("\n", text.predict[i], " for subgroups:\n"))
           prmatrix(Pdata, quote = FALSE, right = TRUE, ...)
         }
@@ -1450,7 +1497,7 @@ print.meta <- function(x,
     if (!random)
       method.random.ci <- ""
     ##
-    if (!(prediction | prediction.subgroup))
+    if (!(prediction | prediction.w))
       method.predict <- ""
     ##
     if (details.methods & (common | random | prediction))
