@@ -55,6 +55,9 @@
 
 * setchar(): new arguments 'return.NULL' and 'nchar.equal'
 
+* New branch 'release' on GitHub starting with **meta**, version
+  6.2-1
+
 
 ## meta, version 6.2-0 (2023-02-14)
 
