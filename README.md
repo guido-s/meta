@@ -45,9 +45,9 @@ remotes::install_github("guido-s/meta", ref = "develop")
 ### Bug Reports:
 
 You can report bugs on GitHub under
-[Issues](https://github.com/guido-s/meta/issues).
+[Issues](https://github.com/guido-s/meta/issues)
 
-or using the R command
+or by using the R command
 
 ```r
 bug.report(package = "meta")
