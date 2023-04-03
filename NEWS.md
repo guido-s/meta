@@ -8,11 +8,17 @@
 * Baujat plot can be used to evaluate influence of studies on random
   effects estimate
 
+* Additional thresholds can be specified to plot vertical lines in
+  forest plots, e.g., to mark large, moderate and small effects
+
 ### Bug fixes
 
 * metabias():
   - do not conduct test for funnel plot asymmetry for three-level
     model (the test did not consider the cluster structure)
+
+* forest.meta():
+  - header line was concealed by equivalence region
 
 ### User-visible changes
 
@@ -27,6 +33,11 @@
 
 * baujat.meta():
   - new argument 'pooled'
+
+* forest.meta():
+  - arguments 'lower.equi' and 'upper.equi' can be numeric vectors
+  - new arguments 'fill.lower.equi' and 'fill.upper.equi' to specify
+    fill colour(s) for lower or upper limits
 
 
 ## meta, version 6.2-1 (2023-02-28)

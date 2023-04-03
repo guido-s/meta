@@ -109,14 +109,27 @@
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
 #' @param lower.equi A numerical giving the lower limit of equivalence
-#'   to be plotted as a line in the forest plot. No line is plotted if
-#'   argument \code{lower.equi} is equal to \code{NA}.
+#'   to be plotted as a line in the forest plot. Or a vector to
+#'   provide several limits, e.g., for large, moderate and small
+#'   effects. No line is plotted if argument \code{lower.equi} is
+#'   equal to \code{NA}.
 #' @param upper.equi A numerical giving the upper limit of equivalence
-#'   to be plotted as a line in the forest plot. No line is plotted if
-#'   argument \code{upper.equi} is equal to \code{NA}.
+#'   to be plotted as a line in the forest plot. Or a vector to
+#'   provide several limits, e.g., for small, moderate and large
+#'   effects. No line is plotted if argument \code{upper.equi} is
+#'   equal to \code{NA}.
 #' @param lty.equi Line type (limits of equivalence).
 #' @param col.equi Line colour (limits of equivalence).
-#' @param fill.equi Colour of area between limits of equivalence.
+#' @param fill.equi Colour(s) for area between limits of equivalence
+#'   or more general limits.
+#' @param fill.lower.equi Colour of area between lower limit(s) and
+#'   reference value. Can be equal to the number of lower limits or
+#'   the number of limits plus 1 (in this case the the region between
+#'   minimum and smallest limit is also filled).
+#' @param fill.upper.equi Colour of area between reference value and
+#'   upper limit(s). Can be equal to the number of upper limits or the
+#'   number of limits plus 1 (in this case the region between largest
+#'   limit and maximum is also filled).
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be printed on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -916,6 +929,18 @@
 #' forest(m1)
 #' dev.off()
 #' 
+#' # Define equivalence limits: 0.75 and 1 / 0.75
+#' #
+#' forest(m1, layout = "RevMan5", common = FALSE,
+#'   lower.equi = 0.75, upper.equi = 1 / 0.75, fill.equi = "lightgray")
+#' 
+#' # Fill areas with beneficial and detrimental effects
+#' #
+#' forest(m1, layout = "RevMan5", common = FALSE,
+#'   lower.equi = 0.75, upper.equi = 1 / 0.75,
+#'   fill.lower.equi = c("green", "lightgray"),
+#'   fill.upper.equi = c("lightgray", "red"))
+#' 
 #' # Conduct subgroup meta-analysis
 #' #
 #' m2 <- update(m1,
@@ -1124,6 +1149,8 @@ forest.meta <- function(x,
                         lty.equi = gs("lty.equi"),
                         col.equi = gs("col.equi"),
                         fill.equi = gs("fill.equi"),
+                        fill.lower.equi = fill.equi,
+                        fill.upper.equi = rev(fill.equi),
                         ##
                         leftcols = NULL, rightcols = NULL,
                         leftlabs = NULL, rightlabs = NULL,
@@ -1730,10 +1757,45 @@ forest.meta <- function(x,
   else
     chknumeric(ref, length = 1)
   ##
-  chknumeric(lower.equi, length = 1)
-  chknumeric(upper.equi, length = 1)
-  if (!is.na(lower.equi) && !is.na(upper.equi) && lower.equi > upper.equi)
-    stop("Value for 'lower.equi' must be smaller than 'upper.equi'.")
+  chknumeric(lower.equi)
+  chknumeric(upper.equi)
+  ##
+  if (all(is.na(lower.equi)))
+    max.lower.equi <- NA
+  else
+    max.lower.equi <- max(lower.equi, na.rm = TRUE)
+  ##
+  if (all(is.na(upper.equi)))
+    min.upper.equi <- NA
+  else
+    min.upper.equi <- min(upper.equi, na.rm = TRUE)
+  ##
+  if (!is.na(max.lower.equi) && !is.na(min.upper.equi) &&
+      max.lower.equi > min.upper.equi)
+    stop("Value", if (length(lower.equi) > 1) "s " else " ",
+         "of 'lower.equi' must be smaller than 'upper.equi'.",
+         call. = FALSE)
+  ##
+  if (any(lower.equi != sort(lower.equi), na.rm = TRUE))
+    stop("Values of 'lower.equi' must be increasing.",
+         call. = FALSE)
+  ##
+  if (any(upper.equi != sort(upper.equi), na.rm = TRUE))
+    stop("Values of 'upper.equi' must be increasing.",
+         call. = FALSE)
+  ##
+  if (!is.null(fill.lower.equi) & !is.na(max.lower.equi))
+    if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
+      stop("Number of fill colours must be equal to the number of values ",
+           "for 'lower.equi' or +1.",
+           call. = FALSE)
+  ##
+  if (!is.null(fill.upper.equi) & !is.na(min.upper.equi))
+    if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
+      stop("Number of fill colours must be equal to the number of values ",
+           "for 'upper.equi' or +1.",
+           call. = FALSE)
+  ##
   chknumeric(lty.equi)
   chkcolor(col.equi)
   ##
@@ -9222,48 +9284,6 @@ forest.meta <- function(x,
                           widths = x1,
                           heights = unit(spacing, "lines"))))
   ##
-  ## Add header line
-  ## 
-  if (jama)
-    hcols <- lsel * 2 * length(leftcols)
-  else
-    hcols <-
-      lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
-  ##
-  if (header.line) {
-    if (header.line.pos == "both") {
-      for (i in seq_len(hcols)) {
-        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow + 0.5 * addrow, "lines"),
-                   gp = gpar(lwd = lwd))
-        popViewport()
-      }
-    }
-    ##
-    for (i in seq_len(hcols)) {
-      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
-      grid.lines(x = unit(0:1, "npc"),
-                 y = unit(ymax + 0.5 * addrow, "lines"),
-                 gp = gpar(lwd = lwd))
-      popViewport()
-    }
-  }
-  ##
-  ##
-  ## Add JAMA lines
-  ##
-  if (jama & header.line & !by) {
-    for (i in seq_len(hcols)) {
-      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
-      for (j in seq_len(k.all + 1 * common + 1 * random + 1 * prediction))
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(ymax + 0.5 * addrow - j, "lines"),
-                   gp = gpar(lwd = 0.5 * lwd, col = col.subgroup))
-      popViewport()
-    }
-  }
-  ##
   ## Left side of forest plot
   ##
   j <- 1
@@ -9429,7 +9449,8 @@ forest.meta <- function(x,
              ymax + 0.5 * header.line * addrow,
              lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
-             lower.equi, upper.equi, lty.equi, col.equi, fill.equi)
+             lower.equi, upper.equi, lty.equi, col.equi,
+             fill.lower.equi, fill.upper.equi)
   ##
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, fontfamily, lwd,
@@ -9651,7 +9672,54 @@ forest.meta <- function(x,
   }
   ##
   popViewport()
-  
+  ##
+  ## Add header line
+  ## 
+  pushViewport(viewport(layout = grid.layout(
+                          nrow,
+                          length(x1),
+                          widths = x1,
+                          heights = unit(spacing, "lines"))))
+  ##
+  if (jama)
+    hcols <- lsel * 2 * length(leftcols)
+  else
+    hcols <-
+      lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
+  ##
+  if (header.line) {
+    if (header.line.pos == "both") {
+      for (i in seq_len(hcols)) {
+        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(nrow + 0.5 * addrow, "lines"),
+                   gp = gpar(lwd = lwd))
+        popViewport()
+      }
+    }
+    ##
+    for (i in seq_len(hcols)) {
+      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      grid.lines(x = unit(0:1, "npc"),
+                 y = unit(ymax + 0.5 * addrow, "lines"),
+                 gp = gpar(lwd = lwd))
+      popViewport()
+    }
+  }
+  ##
+  ## Add JAMA lines
+  ##
+  if (jama & header.line & !by) {
+    for (i in seq_len(hcols)) {
+      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      for (j in seq_len(k.all + 1 * common + 1 * random + 1 * prediction))
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(ymax + 0.5 * addrow - j, "lines"),
+                   gp = gpar(lwd = 0.5 * lwd, col = col.subgroup))
+      popViewport()
+    }
+  }
+
   
   res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
               ##
