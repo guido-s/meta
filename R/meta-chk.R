@@ -390,11 +390,16 @@ chksuitable <- function(x, method,
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
+  ##
   for (i in seq_along(classes))
     if (inherits(x, classes[i]))
       stop(method, " not suitable for an object of class \"",
            classes[i], "\"", addtext[i], ".",
            call. = FALSE)
+  ##
+  if (!is.null(x$three.level) && x$three.level)
+    stop(method, " not implemented for three-level model.",
+         call. = FALSE)
   ##
   return(invisible(NULL))
 }

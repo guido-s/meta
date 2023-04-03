@@ -8,6 +8,12 @@
 * Baujat plot can be used to evaluate influence of studies on random
   effects estimate
 
+### Bug fixes
+
+* metabias():
+  - do not conduct test for funnel plot asymmetry for three-level
+    model (the test did not consider the cluster structure)
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metacr(), metainc(), metamean(),
@@ -55,8 +61,7 @@
 
 * setchar(): new arguments 'return.NULL' and 'nchar.equal'
 
-* New branch 'release' on GitHub starting with **meta**, version
-  6.2-1
+* New branch 'release' on GitHub starting with **meta**, version 6.2-1
 
 
 ## meta, version 6.2-0 (2023-02-14)
