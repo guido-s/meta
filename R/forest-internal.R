@@ -342,7 +342,8 @@ draw.lines <- function(x, column,
                        lwd, lty.common, lty.random, col.common, col.random,
                        min, max,
                        lower.equi, upper.equi,
-                       lty.equi, col.equi, fill.equi) {
+                       lty.equi, col.equi,
+                       fill.lower.equi, fill.upper.equi) {
   ##
   if (min > max) {
     min <- x$range[2]
@@ -355,24 +356,69 @@ draw.lines <- function(x, column,
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
   ##
-  ## Add equivalence region
+  ## Add equivalence region(s)
   ##
-  if ((!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max)) &
-      (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max)))
-    grid.polygon(x = unit(c(lower.equi, upper.equi,
-                            upper.equi, lower.equi), "native"),
-                 y = unit(c(ymin.ref, ymin.ref, ymax, ymax), "lines"),
-                 gp = gpar(lwd = lwd, col = fill.equi, fill = fill.equi))
+  if (!is.na(ref) && (min <= ref & ref <= max) && any(!is.na(lower.equi))) {
+    ##
+    n.lower.equi <- sum(!is.na(lower.equi))
+    n.fill.lower.equi <- length(fill.lower.equi)
+    ##
+    if (n.lower.equi < n.fill.lower.equi) {
+      addline <- FALSE
+      lower.equi <- c(min, lower.equi)
+    }
+    else
+      addline <- TRUE
+    ##
+    for (i in seq_along(lower.equi)) {
+      if ((!is.na(lower.equi[i]) &&
+           (min <= lower.equi[i] & lower.equi[i] <= ref))) {
+        ##
+        grid.polygon(x = unit(c(lower.equi[i], ref,
+                                ref, lower.equi[i]), "native"),
+                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax), "lines"),
+                     gp = gpar(lwd = lwd, col = fill.lower.equi[i],
+                               fill = fill.lower.equi[i]))
+        ##
+        if (!(i == 1 & !addline))
+          grid.lines(x = unit(lower.equi[i], "native"),
+                     y = unit(c(ymin.ref, ymax), "lines"),
+                     gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+      }
+    }
+  }
   ##
-  if (!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max))
-    grid.lines(x = unit(lower.equi, "native"),
-               y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
-  ##
-  if (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max))
-    grid.lines(x = unit(upper.equi, "native"),
-               y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+  j <- 0
+  if (!is.na(ref) && (min <= ref & ref <= max) && any(!is.na(upper.equi))) {
+    ##
+    n.upper.equi <- sum(!is.na(upper.equi))
+    n.fill.upper.equi <- length(fill.upper.equi)
+    ##
+    if (n.upper.equi < n.fill.upper.equi) {
+      addline <- FALSE
+      upper.equi <- c(upper.equi, max)
+    }
+    else
+      addline <- TRUE
+    ##
+    for (i in rev(seq_along(upper.equi))) {
+      j <- j + 1
+      if ((!is.na(upper.equi[i]) &&
+           (ref <= upper.equi[i] & upper.equi[i] <= max))) {
+        ##
+        grid.polygon(x = unit(c(upper.equi[i], ref,
+                                ref, upper.equi[i]), "native"),
+                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax), "lines"),
+                     gp = gpar(lwd = lwd, col = fill.upper.equi[i],
+                               fill = fill.upper.equi[i]))
+        ##
+        if (!(j == 1 & !addline))
+          grid.lines(x = unit(upper.equi[i], "native"),
+                     y = unit(c(ymin.ref, ymax), "lines"),
+                     gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+      }
+    }
+  }
   ##
   ## Reference line:
   ##
