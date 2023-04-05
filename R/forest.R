@@ -941,6 +941,21 @@
 #'   fill.lower.equi = c("green", "lightgray"),
 #'   fill.upper.equi = c("lightgray", "red"))
 #' 
+#' # Define thresholds for small, moderate and large effects
+#' # and use hcl.colors() to define colours to fill areas
+#' #
+#' thresholds <- c(0.25, 0.5, 0.75)
+#' n.cols <- length(thresholds) + 1
+#' forest(m1, layout = "RevMan5", common = FALSE,
+#'   label.right = "Undesirable effect", 
+#'   label.left = "Desirable effect", 
+#'   lty.equi = 3, col.equi = "darkgray",
+#'   lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
+#'   fill.lower.equi =
+#'     hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+#'   fill.upper.equi =
+#'     hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
+#' 
 #' # Conduct subgroup meta-analysis
 #' #
 #' m2 <- update(m1,
@@ -1750,9 +1765,13 @@ forest.meta <- function(x,
     backtransf & (is.relative.effect(sm) | (!is.null(fbt) && fbt == "exp"))
   ##
   if (missing.ref) {
-    ref <- 0
-    if (log.xaxis)
+    if (is.prop(sm) | is.rate(sm) | is.mean(sm))
+      ref <- NA
+    else if (log.xaxis)
       ref <- 1
+    else
+      ref <- 0
+    ##
   }
   else
     chknumeric(ref, length = 1)
@@ -1762,13 +1781,25 @@ forest.meta <- function(x,
   ##
   if (all(is.na(lower.equi)))
     max.lower.equi <- NA
-  else
+  else {
     max.lower.equi <- max(lower.equi, na.rm = TRUE)
+    ##
+    if (!is.na(ref) && any(lower.equi[!is.na(lower.equi)] > ref))
+      stop("All values provided for argument 'lower.equi' must be ",
+           "smaller than reference value of ", ref, ".",
+           call. = FALSE)
+  }
   ##
   if (all(is.na(upper.equi)))
     min.upper.equi <- NA
-  else
+  else {
     min.upper.equi <- min(upper.equi, na.rm = TRUE)
+    ##
+    if (!is.na(ref) && any(upper.equi[!is.na(upper.equi)] < ref))
+      stop("All values provided for argument 'upper.equi' must be ",
+           "larger than reference value of ", ref, ".",
+           call. = FALSE)
+  }
   ##
   if (!is.na(max.lower.equi) && !is.na(min.upper.equi) &&
       max.lower.equi > min.upper.equi)
@@ -1784,14 +1815,18 @@ forest.meta <- function(x,
     stop("Values of 'upper.equi' must be increasing.",
          call. = FALSE)
   ##
-  if (!is.null(fill.lower.equi) & !is.na(max.lower.equi))
-    if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
+  if (!is.na(max.lower.equi))
+    if (length(fill.lower.equi) == 1 & sum(!is.na(lower.equi)) > 1)
+      fill.lower.equi <- rep(fill.lower.equi, sum(!is.na(lower.equi)))
+    else if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'lower.equi' or +1.",
            call. = FALSE)
   ##
-  if (!is.null(fill.upper.equi) & !is.na(min.upper.equi))
-    if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
+  if (!is.na(min.upper.equi))
+    if (length(fill.upper.equi) == 1 & sum(!is.na(upper.equi)) > 1)
+      fill.upper.equi <- rep(fill.upper.equi, sum(!is.na(upper.equi)))
+    else if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'upper.equi' or +1.",
            call. = FALSE)
@@ -2717,9 +2752,6 @@ forest.meta <- function(x,
     xpos.c <- 0.5
   else if (just.cols == "right")
     xpos.c <- 1
-  ##
-  if (missing.ref && (is.prop(sm) | is.rate(sm) | is.mean(sm)))
-    ref <- NA
   ##
   if (log.xaxis) {
     ref <- log(ref)

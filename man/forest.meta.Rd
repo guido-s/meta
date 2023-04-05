@@ -1363,6 +1363,21 @@ forest(m1, layout = "RevMan5", common = FALSE,
   fill.lower.equi = c("green", "lightgray"),
   fill.upper.equi = c("lightgray", "red"))
 
+# Define thresholds for small, moderate and large effects
+# and use hcl.colors() to define colours to fill areas
+#
+thresholds <- c(0.25, 0.5, 0.75)
+n.cols <- length(thresholds) + 1
+forest(m1, layout = "RevMan5", common = FALSE,
+  label.right = "Undesirable effect", 
+  label.left = "Desirable effect", 
+  lty.equi = 3, col.equi = "darkgray",
+  lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
+  fill.lower.equi =
+    hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+  fill.upper.equi =
+    hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
+
 # Conduct subgroup meta-analysis
 #
 m2 <- update(m1,
