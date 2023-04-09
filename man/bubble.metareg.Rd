@@ -148,7 +148,7 @@ Fleiss1993cont$age <- c(55, 65, 52, 65, 58)
 Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 
 m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "MD")
+  data = Fleiss1993cont, sm = "SMD")
 
 mr1 <- metareg(m1, region)
 mr1

@@ -106,7 +106,7 @@
 #' data(Fleiss1993cont)
 #' #
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "MD",
+#'   data = Fleiss1993cont, sm = "SMD",
 #'   text.random = "Random effects model (REML)", text.w.random = "DL")
 #' #
 #' # Use DerSimonian-Laird estimator of tau2

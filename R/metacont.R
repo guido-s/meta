@@ -534,7 +534,8 @@
 #' update(m1, exact.smd = TRUE)
 #' 
 #' data(amlodipine)
-#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
+#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+#'   n.plac, mean.plac, sqrt(var.plac),
 #'   data = amlodipine, studlab = study)
 #' m2
 #' 
