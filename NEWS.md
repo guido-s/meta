@@ -19,6 +19,10 @@
 
 * forest.meta():
   - header line was concealed by equivalence region
+  - error if argument 'resid.hetstat = TRUE' was used for subgroup
+    meta-analysis without common between-study variance estimate in
+    subgroups (argument 'tau.common = FALSE' in meta-analysis
+    functions)
 
 ### User-visible changes
 

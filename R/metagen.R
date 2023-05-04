@@ -962,6 +962,10 @@ metagen <- function(TE, seTE, studlab,
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
+  TE.orig <- NULL
+  lower.orig <- NULL
+  upper.orig <- NULL
+  ##
   if (!transf) {
     if (!missing.TE) {
       TE.orig <- TE
@@ -984,11 +988,6 @@ metagen <- function(TE, seTE, studlab,
       lower.orig <- upper.orig
       upper.orig <- tmp.l
     }   
-  }
-  else {
-    TE.orig <- NULL
-    lower.orig <- NULL
-    upper.orig <- NULL
   }
   ##
   missing.cluster <- missing(cluster)

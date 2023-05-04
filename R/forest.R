@@ -2797,11 +2797,16 @@ forest.meta <- function(x,
     smlab <- ""
   }
   ##
-  if (!by) {
+  if (!by)
     addrow.subgroups <- FALSE
-    if (!missing(resid.hetstat) && resid.hetstat)
+  ##
+  if (resid.hetstat &&
+      (!by || (by && is.null(x$tau.common) || !x$tau.common))) {
+    if (!missing(resid.hetstat))
       warning("Information on residual heterogeneity only added to ",
-              "forest plot of meta-analysis with subgroups",
+              "forest plot of meta-analysis with subgroups ",
+              "assuming common estimator for between-study heterogeneity ",
+              "(argument 'tau.common = TRUE' in meta-analysis functions)",
               call. = FALSE)
     resid.hetstat <- FALSE
   }
