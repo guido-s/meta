@@ -30,7 +30,7 @@
   yaxis,
   contour.levels = NULL,
   col.contour,
-  ref = ifelse(is.relative.effect(x$sm), 1, 0),
+  ref = ifelse(is_relative_effect(x$sm), 1, 0),
   level = if (common | random) x$level else NULL,
   studlab = FALSE,
   cex.studlab = 0.8,

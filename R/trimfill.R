@@ -190,7 +190,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
-              c("trimfill", "metacum", "metainf", "netpairwise"))
+              c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   ##
@@ -221,14 +221,14 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   chklogical(backtransf)
   ##
   sm <- x$sm
-  if (!is.prop(sm))
+  if (!is_prop(sm))
     pscale <- 1
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is.rate(sm))
+  if (!is_rate(sm))
     irscale <- 1
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
@@ -267,7 +267,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   if (sm %in% c("PFT", "PAS"))
     transf.null.effect <- asin(sqrt(null.effect))
-  else if (is.log.effect(sm))
+  else if (is_log_effect(sm))
     transf.null.effect <- log(null.effect)
   else if (sm == c("PLOGIT"))
     transf.null.effect <- log(null.effect / (1 - null.effect))
@@ -662,6 +662,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               backtransf = backtransf,
               ##
               method = m$method,
+              method.random = m$method.random,
               level = x$level,
               ##
               w.common = m$w.common,

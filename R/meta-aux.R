@@ -5,6 +5,9 @@
 ## License: GPL (>= 2)
 ##
 
+allNA <- function(x)
+  all(is.na(x))
+
 bylevs <- function(x) {
   if (is.factor(x))
     res <- levels(factor(x))
@@ -28,11 +31,16 @@ byvarname <- function(argname, matchcall) {
   res
 }
 
-catch <- function(argname, matchcall, data, encl) {
-  ##
-  ## Catch value for argument
-  ##
+catch <- function(argname, matchcall, data, encl)
   eval(matchcall[[match(argname, names(matchcall))]], data, enclos = encl)
+
+catch2 <- function(x, varname, return = NULL, fromobject = FALSE) {
+  if (!is.null(x[[varname]]) & fromobject)
+    return(x[[varname]])
+  else if (isCol(x$data, paste0(".", varname)))
+    return(x$data[[paste0(".", varname)]])
+  else
+    return(return)
 }
 
 int2num <- function(x) {
@@ -70,6 +78,14 @@ replaceNA <- function(x, replace = NA) {
     return(x)
   else
     x[is.na(x)] <- replace
+  x
+}
+
+replaceVal <- function(x, old, new) {
+  if (is.null(x))
+    return(x)
+  else
+    x[x == old] <- new
   x
 }
 
@@ -284,7 +300,7 @@ backward <- function(x) {
     res$pval.Q.b.fixed <- res$pval.Q.b.common
   }
   ##
-  if (!is.null(res$three.level) && res$three.level)
+  if (!is.null(res$three.level) && any(res$three.level))
     res$id <- res$cluster
   ##
   res
@@ -550,24 +566,29 @@ addGLMM <- function(x, glmm) {
   ## Heterogeneity measures
   ##
   gr1 <- glmm.random[[1]]
-  res$Q <- if (gr1$k > 1) gr1$QE.Wld else 0
-  res$df.Q <- gr1$QE.df
-  res$pval.Q <- pvalQ(res$Q, res$df.Q)
   ##
-  res$Q.LRT <- if (gr1$k > 1) gr1$QE.LRT else 0
-  res$df.Q.LRT <- res$df.Q
-  res$pval.Q.LRT <- pvalQ(res$Q.LRT, res$df.Q.LRT)
+  Q <- if (gr1$k > 1) gr1$QE.Wld else 0
+  df.Q <- gr1$QE.df
+  pval.Q <- pvalQ(Q, df.Q)
+  ##
+  Q.LRT <- if (gr1$k > 1) gr1$QE.LRT else 0
+  pval.Q.LRT <- pvalQ(Q.LRT, df.Q)
+  ##
+  res$Q <- c(Q, Q.LRT)
+  res$df.Q <- c(df.Q, df.Q)
+  res$pval.Q <- c(pval.Q, pval.Q.LRT)
+  names(res$Q) <- c("Wald", "LRT")
   ##
   res$upper.tau <- res$lower.tau <- res$upper.tau2 <- res$lower.tau2 <- NA
   ##
   res$sign.upper.tau <- res$sign.lower.tau <- res$method.tau.ci <- ""
   ##
-  H <- calcH(res$Q, res$df.Q, level.ma)
+  H <- calcH(Q, df.Q, level.ma)
   res$H <- H$TE
   res$lower.H <- H$lower
   res$upper.H <- H$upper
   ##
-  I2 <- isquared(res$Q, res$df.Q, level.ma)
+  I2 <- isquared(Q, df.Q, level.ma)
   res$I2 <- I2$TE
   res$lower.I2 <- I2$lower
   res$upper.I2 <- I2$upper
@@ -616,4 +637,31 @@ hccGLMM <- function(x, glmm) {
        lower.I2.resid = I2.r$lower,
        upper.I2.resid = I2.r$upper
        )
+}
+
+calcPercent <- function(x)
+  100 * x / sum(x, na.rm = TRUE)
+
+cond <- function(x, only.finite = TRUE) {
+  if (is.null(x))
+    return(x)
+  ##
+  if (only.finite)
+    x <- x[is.finite(x)]
+  ##
+  paste(unique(x), collapse = ", ")
+}
+
+setNA_ifnot <- function(x, y, unequal) {
+  if (is.null(x) | is.null(y))
+    return(x)
+  else
+    return(ifelse(y != unequal, NA, x))
+}
+
+list2mat <- function(x) {
+  if (is.list(x))
+    return(do.call("cbind", x))
+  else
+    return(x)
 }

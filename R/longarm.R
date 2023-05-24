@@ -20,6 +20,10 @@
 #' @param data An optional data frame containing the study
 #'   information.
 #' @param studlab A vector with study labels (optional).
+#' @param id1 Last character(s) of variable names for additional
+#'   variables of first treatment group.
+#' @param id2 Last character(s) of variable names for additional
+#'   variables of second treatment group.
 #' @param append A logical indicating if data frame provided in
 #'   argument 'data' should be returned.
 #' @param keep.duplicated A logical indicating if duplicated rows
@@ -109,6 +113,8 @@ longarm <- function(treat1, treat2,
                     mean1, sd1, mean2, sd2,
                     time1, time2,
                     data = NULL, studlab,
+                    id1 = NULL,
+                    id2 = NULL,
                     append = TRUE,
                     keep.duplicated = FALSE,
                     keep.internal = FALSE) {  
@@ -131,6 +137,8 @@ longarm <- function(treat1, treat2,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
+  ##
+  both <- character(0)
   ##
   if (nulldata)
     data <- sfsp
@@ -305,6 +313,7 @@ longarm <- function(treat1, treat2,
     sd2 <- catch("sd2", mc, data, sfsp)
     time1 <- catch("time1", mc, data, sfsp)
     time2 <- catch("time2", mc, data, sfsp)
+    ##
     if (missing.treat2)
       stop("Argument 'treat2' mandatory.")
     ##
@@ -353,6 +362,34 @@ longarm <- function(treat1, treat2,
            "- event1, n1, event2, n2 (binary outcome)\n  ",
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
+    ##
+    ## Catch additional variables
+    ##
+    addvars <- list()
+    ##
+    if (!is.null(id1) & !is.null(id2) & !nulldata) {
+      chklength(id1, 1)
+      chklength(id2, 1)
+      ##
+      ext1 <- paste0(id1, "$")
+      ext2 <- paste0(id2, "$")
+      ##
+      vars1 <- names(data)[grepl(ext1, names(data))]
+      vars2 <- names(data)[grepl(ext2, names(data))]
+      ##
+      vars1 <- gsub(ext1, "", vars1)
+      vars2 <- gsub(ext2, "", vars2)
+      ##
+      j <- 0
+      for (i in seq_along(vars1)) {
+        if (vars1[i] %in% vars2) {
+          j <- j + 1
+          both[j] <- vars1[i]
+        }
+      }
+    }
+    ##
+    ## Keep data set
     ##
     if (nulldata) {
       data <-
@@ -421,6 +458,16 @@ longarm <- function(treat1, treat2,
     studlab <- seq_len(k.all)
     data$.studlab <- studlab
   }
+  ##
+  if (length(both) > 0) {
+    bothlist <- list()
+    for (i in seq_along(both)) {
+      bothlist[[i]] <-
+        data.frame(var1 = data[[paste0(both[i], id1)]],
+                   var2 = data[[paste0(both[i], id2)]])
+      names(bothlist)[[i]] <- both[i]
+    }
+  }
   
   
   ##
@@ -479,6 +526,13 @@ longarm <- function(treat1, treat2,
   ##
   if (!keep.duplicated)
     dat.l <- dat.l[!duplicated(dat.l[, nam]), ]
+  ##
+  if (length(both) > 0) {
+    for (var.i in both) {
+      if (!(var.i %in% names(dat.l)))
+        dat.l[[var.i]] <- addvars2long(bothlist[[var.i]])
+    }
+  }
   ##
   if (append) {
     allnames <- names(dat.l)

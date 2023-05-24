@@ -138,7 +138,7 @@ baujat.meta <- function(x,
   ##
   chkclass(x, "meta")
   chksuitable(x, "Baujat plot",
-              c("trimfill", "metacum", "metainf", "netpairwise"))
+              c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   

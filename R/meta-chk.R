@@ -273,7 +273,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
     stop("Argument '", name, "' must be between ",
          min, " and ", max, ".", call. = FALSE)
   ##
-  if (integer && any(!is.wholenumber(x))) {
+  if (integer && any(!is_wholenumber(x))) {
     if (length(x) == 1)
       stop("Argument '", name, "' must be an integer.",
            call. = FALSE)
@@ -384,7 +384,8 @@ chksuitable <- function(x, method,
                         classes =
                           c("metacum", "metainf",
                             "netpairwise"),
-                        addtext = NULL) {
+                        addtext = NULL,
+                        check.mlm = TRUE) {
   if (missing(addtext)) {
     addtext <- rep("", length(classes))
     addtext[classes == "netpairwise"] <-
@@ -397,9 +398,10 @@ chksuitable <- function(x, method,
            classes[i], "\"", addtext[i], ".",
            call. = FALSE)
   ##
-  if (!is.null(x$three.level) && x$three.level)
-    stop(method, " not implemented for three-level model.",
-         call. = FALSE)
+  if (check.mlm)
+    if (!is.null(x$three.level) && any(x$three.level))
+      stop(method, " not implemented for three-level model.",
+           call. = FALSE)
   ##
   return(invisible(NULL))
 }

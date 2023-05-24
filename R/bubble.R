@@ -178,7 +178,7 @@ bubble.metareg <- function(x,
   sm <- m1$sm
   
   
-  if (backtransf & is.relative.effect(sm)) {
+  if (backtransf & is_relative_effect(sm)) {
     log <- "y"
     TE <- exp(TE)
   }
@@ -186,9 +186,9 @@ bubble.metareg <- function(x,
     log <- ""
   ##
   if (missing(ref)) {
-    if (is.prop(sm) | is.rate(sm) | is.mean(sm))
+    if (is_prop(sm) | is_rate(sm) | is_mean(sm))
       ref <- NA
-    else if (is.relative.effect(sm) & backtransf)
+    else if (is_relative_effect(sm) & backtransf)
       ref <- 1
     else
       ref <- 0
@@ -285,7 +285,7 @@ bubble.metareg <- function(x,
     ylim <- range(ys)
   ##
   if (missing(ylab))
-    if (is.relative.effect(sm))
+    if (is_relative_effect(sm))
       ylab <- xlab(sm, backtransf)
     else if (sm == "PRAW")
       ylab <- "Proportion"

@@ -117,7 +117,7 @@ backtransf <- function(x, sm, value, n, func = NULL, args = NULL) {
   if (!is.null(func))
     res <- do.call(func, c(list(x), args))
   ##
-  else if (is.relative.effect(sm) | is.log.effect(sm))
+  else if (is_relative_effect(sm) | is_log_effect(sm))
     res <- exp(x)
   ##
   else if (sm == "ZCOR")
@@ -202,7 +202,7 @@ transf <- function(x, sm, func = NULL, args = NULL) {
   if (!is.null(func))
     res <- do.call(func, c(list(x), args))
   ##
-  else if (is.relative.effect(sm) | is.log.effect(sm))
+  else if (is_relative_effect(sm) | is_log_effect(sm))
     res <- log(x)
   ##
   else if (sm == "ZCOR")

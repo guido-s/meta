@@ -51,6 +51,7 @@
   text.Rb = gs("text.Rb"),
   details.methods = TRUE,
   warn.backtransf = FALSE,
+  func.backtransf = x$func.backtransf,
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
@@ -216,6 +217,8 @@ R\eqn{_b}.}
 statistical methods should be printed.}
 
 \item{warn.backtransf}{Deprecated argument (ignored).}
+
+\item{func.backtransf}{A function used to back-transform results.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

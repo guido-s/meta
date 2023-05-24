@@ -444,7 +444,7 @@ metarate <- function(event, time, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -456,7 +456,7 @@ metarate <- function(event, time, studlab,
   chklogical(backtransf)
   ##
   chknumeric(irscale, length = 1)
-  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
     irscale <- 1
@@ -780,7 +780,7 @@ metarate <- function(event, time, studlab,
   ## Check for whole numbers
   ##
   if (method.ci != "NAsm") {
-    if (any(!is.wholenumber(event), na.rm = TRUE)) {
+    if (any(!is_wholenumber(event), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
               "(argument method.ci = \"NAsm\") used as\n",
               "at least one number of events contains a non-integer value.",
@@ -1058,6 +1058,7 @@ metarate <- function(event, time, studlab,
   ##
   if (is.glmm & k > 0) {
     res$method <- "GLMM"
+    res$method.random <- "GLMM"
     ##
     list.rate <-
       list(xi = event[!exclude], ti = time[!exclude], measure = "IRLN")

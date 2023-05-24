@@ -1760,12 +1760,13 @@ forest.meta <- function(x,
     chkchar(irunit)
   ##
   missing.ref <- missing(ref)
-  ##
+  ## Use logarithmic x-axis?
+  ## (for back-transformed relative effect measures)
   log.xaxis <-
-    backtransf & (is.relative.effect(sm) | (!is.null(fbt) && fbt == "exp"))
+    backtransf & (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
   ##
   if (missing.ref) {
-    if (is.prop(sm) | is.rate(sm) | is.mean(sm))
+    if (is_prop(sm) | is_rate(sm) | is_mean(sm))
       ref <- NA
     else if (log.xaxis)
       ref <- 1
@@ -2552,7 +2553,7 @@ forest.meta <- function(x,
   ##
   subgroup <- x$subgroup
   ##
-  three.level <- !is.null(x$three.level) && x$three.level
+  three.level <- !is.null(x$three.level) && any(x$three.level)
   ##
   if (!by) {
     common.random <- common & random
@@ -2582,100 +2583,107 @@ forest.meta <- function(x,
   }
   ##
   if (missing.text.common | is.null(text.common)) {
-    if (study.results & (x$level != x$level.ma | revman5)) {
-      if (revman5.jama)
-        text.common <- paste0("Total (",
-                             if (common.random)
-                               paste0(gs("text.w.common"), " effect, "),
-                             round(x$level.ma * 100), "% CI)")
-      else if (!is.null(text.common))
-        text.common <- paste0(text.common, " (",
-                             round(x$level.ma * 100), "%-CI)")
-      else
-        text.common <- paste0(gs("text.common"), " (",
-                             round(x$level.ma * 100), "%-CI)")
-    }
-    else {
-      if (revman5.jama) {
-        text.common <- "Total"
-        if (common.random)
-          text.common <- paste0(text.common, " (", gs("text.w.common"),
-                               " effect)")
+    if (is.null(text.common) || length(text.common) == 1) {
+      if (study.results & (x$level != x$level.ma | revman5)) {
+        if (revman5.jama)
+          text.common <- paste0("Total (",
+                                if (common.random)
+                                  paste0(gs("text.w.common"), " effect, "),
+                                round(x$level.ma * 100), "% CI)")
+        else if (!is.null(text.common))
+          text.common <- paste0(text.common, " (",
+                                round(x$level.ma * 100), "%-CI)")
+        else
+          text.common <- paste0(gs("text.common"), " (",
+                                round(x$level.ma * 100), "%-CI)")
       }
-      else if (is.null(text.common))
-        text.common <- gs("text.common")
+      else {
+        if (revman5.jama) {
+          text.common <- "Total"
+          if (common.random)
+            text.common <- paste0(text.common, " (", gs("text.w.common"),
+                                  " effect)")
+        }
+        else if (is.null(text.common))
+          text.common <- gs("text.common")
+      }
     }
   }
   ##
   missing.text.random <- missing(text.random)
   if (missing.text.random | is.null(text.random)) {
-    if (study.results & (x$level != x$level.ma | revman5)) {
-      if (revman5.jama) {
-        text.random <- paste0("Total (",
-                              if (common.random)
-                                paste0(gs("text.w.random"), " effect, "))
-        if (length(x$lower.random) > 1) {
-          meth.r <- gsub("classic", "", x$method.random.ci)
-          text.random <-
-            paste0(text.random, meth.r,
-                   ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
-                          paste0("-",
-                                 toupper(substring(x$adhoc.hakn.ci, 1, 2))),
-                          ""),
-                   ifelse(meth.r != "", ", ", ""))
+    if (is.null(text.random) || length(text.random) == 1) {
+      if (study.results & (x$level != x$level.ma | revman5)) {
+        if (revman5.jama) {
+          text.random <- paste0("Total (",
+                                if (common.random)
+                                  paste0(gs("text.w.random"), " effect, "))
+          if (length(x$lower.random) > 1) {
+            meth.r <- gsub("classic", "", x$method.random.ci)
+            text.random <-
+              paste0(text.random, meth.r,
+                     ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
+                            paste0("-",
+                                   toupper(substring(x$adhoc.hakn.ci, 1, 2))),
+                            ""),
+                     ifelse(meth.r != "", ", ", ""))
+          }
+          text.random <- paste0(text.random,
+                                round(x$level.ma * 100), "% CI)")
         }
-        text.random <- paste0(text.random,
-                              round(x$level.ma * 100), "% CI)")
+        else if (!is.null(text.random))
+          text.random <- paste0(text.random, " (",
+                                round(x$level.ma * 100), "%-CI)")
+        else
+          text.random <- paste0(gs("text.random"), " (",
+                                round(x$level.ma * 100), "%-CI)")
       }
-      else if (!is.null(text.random))
-        text.random <- paste0(text.random, " (",
-                              round(x$level.ma * 100), "%-CI)")
-      else
-        text.random <- paste0(gs("text.random"), " (",
-                              round(x$level.ma * 100), "%-CI)")
-    }
-    else {
-      if (revman5.jama) {
-        text.random <- "Total"
-        if (common.random || length(x$lower.random) > 1) {
-          text.random <- paste0(text.random, " (", gs("text.w.random"),
-                                " effect")
+      else {
+        if (revman5.jama) {
+          text.random <- "Total"
+          if (common.random || length(x$lower.random) > 1) {
+            text.random <- paste0(text.random, " (", gs("text.w.random"),
+                                  " effect")
+            if (length(x$lower.random) > 1) {
+              meth.r <- gsub("classic", "", x$method.random.ci)
+              text.random <-
+                paste0(text.random,
+                       ifelse(meth.r != "", ", ", ""),
+                       meth.r,
+                       ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
+                              paste0("-",
+                                     toupper(substring(x$adhoc.hakn.ci, 1, 2))),
+                              ""))
+            }
+            text.random <- paste0(text.random, ")")
+          }
+        }
+        else if (is.null(text.random)) {
+          text.random <- gs("text.random")
           if (length(x$lower.random) > 1) {
             meth.r <- gsub("classic", "", x$method.random.ci)
             text.random <-
               paste0(text.random,
-                     ifelse(meth.r != "", ", ", ""),
+                     ifelse(meth.r != "", "(", ""),
                      meth.r,
                      ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
                             paste0("-",
                                    toupper(substring(x$adhoc.hakn.ci, 1, 2))),
-                            ""))
+                            ""),
+                     ifelse(meth.r != "", ")", ""))
           }
-          text.random <- paste0(text.random, ")")
-        }
-      }
-      else if (is.null(text.random)) {
-        text.random <- gs("text.random")
-        if (length(x$lower.random) > 1) {
-          meth.r <- gsub("classic", "", x$method.random.ci)
-          text.random <-
-            paste0(text.random,
-                   ifelse(meth.r != "", "(", ""),
-                   meth.r,
-                   ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
-                          paste0("-",
-                                 toupper(substring(x$adhoc.hakn.ci, 1, 2))),
-                          ""),
-                   ifelse(meth.r != "", ")", ""))
         }
       }
     }
   }
   ##
+  if (length(text.random) == 1 & n.ran > 1)
+    text.random <- rep(text.random, n.ran)
+  ##
   missing.text.predict <- missing(text.predict)
   if (missing.text.predict | is.null(text.predict)) {
     if (is.null(text.predict))
-      text.predict <- "Prediction interval"
+      text.predict <- rep("Prediction interval", n.prd)
     if (!(length(x$level.predict) == 0) &&
         (study.results & (x$level != x$level.predict |
                           x$level.ma != x$level.predict)))
@@ -2759,7 +2767,7 @@ forest.meta <- function(x,
     upper.equi <- log(upper.equi)
   }
   ##
-  if (!backtransf & !missing(pscale) & pscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & !missing(pscale) & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
@@ -2767,7 +2775,7 @@ forest.meta <- function(x,
   if (!backtransf & pscale != 1)
     pscale <- 1
   ##
-  if (!backtransf & !missing(irscale) & irscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & !missing(irscale) & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -2781,7 +2789,7 @@ forest.meta <- function(x,
   ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
-    if (is.rate(sm))
+    if (is_rate(sm))
       smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
                     newline = !revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
@@ -2915,13 +2923,13 @@ forest.meta <- function(x,
   if (backtransf) {
     if (sm == "ZCOR")
       sm.lab <- "COR"
-    else if (is.prop(sm)) {
+    else if (is_prop(sm)) {
       if (pscale == 1)
         sm.lab <- "Proportion"
       else
         sm.lab <- "Events"
     }
-    else if (is.rate(sm)) {
+    else if (is_rate(sm)) {
       if (irscale == 1)
         sm.lab <- "Rate"
       else
@@ -2932,9 +2940,8 @@ forest.meta <- function(x,
     else if (sm == "MLN")
       sm.lab <- "Mean"
   }
-  else 
-    if (log.xaxis)
-      sm.lab <- paste0("log", sm)
+  else if (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
+    sm.lab <- paste0("log", sm)
   ##
   sel.studlab <- pmatch(layout, c("meta", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <- c("Study", "Study", "Source", "Subgroup")[sel.studlab]
@@ -3015,7 +3022,7 @@ forest.meta <- function(x,
         lab.model <- ""
       ##
       if (smlab.null)
-        smlab <- paste0(smlab, "\n", lab.method, ", ", lab.model, ci.lab)
+        smlab <- paste0(smlab, "\n", lab.method[1], ", ", lab.model, ci.lab)
     }
   }
   ##
@@ -3570,8 +3577,16 @@ forest.meta <- function(x,
   x$lower <- x$lower[sel]
   x$upper <- x$upper[sel]
   ##
-  x$w.common <- x$w.common[sel]
-  x$w.random <- x$w.random[sel]
+  if (is.matrix(x$w.common))
+    x$w.common <- x$w.common[sel, , drop = FALSE]
+  else
+    x$w.common <- x$w.common[sel]
+  ##
+  if (is.matrix(x$w.random))
+    x$w.random <- x$w.random[sel, , drop = FALSE]
+  else
+    x$w.random <- x$w.random[sel]
+  ##
   studlab <- studlab[sel]
   type.study <- type.study[sel]
   ##
@@ -3635,8 +3650,16 @@ forest.meta <- function(x,
     x$lower <- x$lower[o]
     x$upper <- x$upper[o]
     ##
-    x$w.common  <- x$w.common[o]
-    x$w.random <- x$w.random[o]
+    if (is.matrix(x$w.common))
+      x$w.common <- x$w.common[o, , drop = FALSE]
+    else
+      x$w.common <- x$w.common[o]
+    ##
+    if (is.matrix(x$w.random))
+      x$w.random <- x$w.random[o, , drop = FALSE]
+    else
+      x$w.random <- x$w.random[o]
+    ##
     studlab  <- studlab[o]
     type.study  <- type.study[o]
     ##
@@ -3731,7 +3754,7 @@ forest.meta <- function(x,
     TE.random <- x$TE.random
     lowTE.random <- x$lower.random
     uppTE.random <- x$upper.random
-    if (n.ran > 1)
+    if (n.ran > 1 && length(TE.random) == 1)
       TE.random <- rep(TE.random, n.ran)
     ##
     lowTE.predict <- x$lower.predict
@@ -3740,9 +3763,18 @@ forest.meta <- function(x,
     if (LRT)
       Q <- x$Q.LRT
     else
-      Q <- x$Q
-    df.Q <- x$df.Q
-    pval.Q <- replaceNULL(x$pval.Q, pvalQ(Q, df.Q))
+      Q <- unlist(x$Q)
+    ##
+    df.Q <- unlist(x$df.Q)
+    pval.Q <- replaceNULL(unlist(x$pval.Q), pvalQ(Q, df.Q))
+    ##
+    ## Keep the first heterogeneity statistics
+    ##
+    if (length(Q) > 1) {
+      Q <- Q[1]
+      df.Q <- df.Q[1]
+      pval.Q <- pval.Q[1]
+    }
     ##
     tau2 <- x$tau2
     lower.tau2 <- x$lower.tau2
@@ -3754,9 +3786,16 @@ forest.meta <- function(x,
     }
     ##
     if (length(tau2) > 1) {
-      tau2 <- sum(tau2)
-      lower.tau2 <- NA
-      upper.tau2 <- NA
+      if (three.level) {
+        tau2 <- sum(tau2)
+        lower.tau2 <- NA
+        upper.tau2 <- NA
+      }
+      else {
+        tau2 <- tau2[1]
+        lower.tau2 <- lower.tau2[1]
+        upper.tau2 <- upper.tau2[1]
+      }
     }
     ##
     tau <- x$tau
@@ -3764,9 +3803,16 @@ forest.meta <- function(x,
     upper.tau <- x$upper.tau
     ##
     if (length(tau) > 1) {
-      tau <- sqrt(sum(tau^2))
-      lower.tau <- NA
-      upper.tau <- NA
+      if (three.level) {
+        tau <- sqrt(sum(tau^2))
+        lower.tau2 <- NA
+        upper.tau2 <- NA
+      }
+      else {
+        tau <- tau[1]
+        lower.tau <- lower.tau[1]
+        upper.tau <- upper.tau[1]
+      }
     }
     ##
     sign.lower.tau <- x$sign.lower.tau
@@ -3777,13 +3823,25 @@ forest.meta <- function(x,
       sign.lower.tau <- sign.upper.tau <- ""
     }
     ##
-    I2 <- x$I2
-    lowI2 <- x$lower.I2
-    uppI2 <- x$upper.I2
+    I2 <- unlist(x$I2)
+    lowI2 <- unlist(x$lower.I2)
+    uppI2 <- unlist(x$upper.I2)
     ##
-    Rb <- x$Rb
-    lowRb <- x$lower.Rb
-    uppRb <- x$upper.Rb
+    if (length(I2) > 1) {
+      I2 <- I2[1]
+      lowI2 <- lowI2[1]
+      uppI2 <- uppI2[1]
+    }
+    ##
+    Rb <- unlist(x$Rb)
+    lowRb <- unlist(x$lower.Rb)
+    uppRb <- unlist(x$upper.Rb)
+    ##
+    if (length(Rb) > 1) {
+      Rb <- Rb[1]
+      lowRb <- lowRb[1]
+      uppRb <- uppRb[1]
+    }
     ##
     if (by) {
       df.Q.b <- x$df.Q.b
@@ -3851,7 +3909,7 @@ forest.meta <- function(x,
     hetstat.I2 <-
       paste0(hetseparator,
              formatN(100 * I2, digits.I2, "NA"), "%",
-             if (print.I2.ci & !(is.na(lowI2) | is.na(uppI2)))
+             if (print.I2.ci && !(is.na(lowI2) | is.na(uppI2)))
                pasteCI(100 * lowI2, 100 * uppI2,
                        digits.I2, big.mark,
                        text.NA = lab.NA, unit = "%"))
@@ -3859,14 +3917,14 @@ forest.meta <- function(x,
     hetstat.tau2 <-
       paste0(formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau2.ci & !(is.na(lower.tau2) | is.na(upper.tau2)))
+             if (print.tau2.ci && !(is.na(lower.tau2) | is.na(upper.tau2)))
                pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     ##
     hetstat.tau <-
       paste0(formatPT(tau, digits = digits.tau, big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau.ci & !(is.na(lower.tau) | is.na(upper.tau)))
+             if (print.tau.ci && !(is.na(lower.tau) | is.na(upper.tau)))
                pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     ##
@@ -4382,7 +4440,7 @@ forest.meta <- function(x,
     hetstat.I2.resid <-
       paste0(hetseparator,
              formatN(100 * I2.resid, digits.I2, "NA"), "%",
-             if (print.I2.ci & !(is.na(lowI2.resid) | is.na(uppI2.resid)))
+             if (print.I2.ci && !(is.na(lowI2.resid) | is.na(uppI2.resid)))
                pasteCI(100 * lowI2.resid, 100 * uppI2.resid,
                        digits.I2, big.mark,
                        text.NA = lab.NA, unit = "%"))
@@ -4390,7 +4448,7 @@ forest.meta <- function(x,
     hetstat.tau2.resid <-
       paste0(formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau2.ci &
+             if (print.tau2.ci &&
                  !(is.na(lower.tau2.resid) | is.na(upper.tau2.resid)))
                pasteCI(lower.tau2.resid, upper.tau2.resid, digits.tau2,
                        big.mark,
@@ -4398,7 +4456,7 @@ forest.meta <- function(x,
     hetstat.tau.resid <-
       paste0(formatPT(tau.resid, digits = digits.tau, big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau.ci &
+             if (print.tau.ci &&
                  !(is.na(lower.tau.resid) | is.na(upper.tau.resid)))
                pasteCI(lower.tau.resid, upper.tau.resid, digits.tau,
                        big.mark,
@@ -6342,7 +6400,7 @@ forest.meta <- function(x,
     else if (metarate) {
       TE <- x$event.e / x$time.e
     }
-    ## Relative effect measures will be back transformed later
+    ##
     else if (!log.xaxis) {
       TE <- backtransf(TE, sm, "mean", npft, fbt, abt)
       lowTE <- backtransf(lowTE, sm, "lower", npft, fbt, abt)
@@ -6381,7 +6439,7 @@ forest.meta <- function(x,
     ##
     ## Apply argument 'pscale' to proportions / risk differences
     ##
-    if (is.prop(sm) | sm == "RD") {
+    if (is_prop(sm) | sm == "RD") {
       TE <- pscale * TE
       lowTE <- pscale * lowTE
       uppTE <- pscale * uppTE
@@ -6407,7 +6465,7 @@ forest.meta <- function(x,
   ##
   ## Apply argument 'irscale' to rates / incidence rate differences
   ##
-  if (is.rate(sm) | sm == "IRD") {
+  if (is_rate(sm) | sm == "IRD") {
     TE <- irscale * TE
     lowTE <- irscale * lowTE
     uppTE <- irscale * uppTE
@@ -6504,10 +6562,14 @@ forest.meta <- function(x,
     if (by & !overall)
       w.common.p <- round(100 * x$w.common, digits.weight)
     else {
-      if (!all(is.na(x$w.common)) && sum(x$w.common) > 0)
-        w.common.p <-
-          round(100 * x$w.common / sum(x$w.common, na.rm = TRUE),
-                digits.weight)
+      if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
+        if (is.matrix(x$w.common))
+          w.common.p <-
+            round(apply(x$w.common, 2, calcPercent), digits.weight)
+        else
+          w.common.p <-
+            round(calcPercent(x$w.common), digits.weight)
+      }
       else
         w.common.p <- x$w.common
     }
@@ -6515,10 +6577,14 @@ forest.meta <- function(x,
     if (by & !overall)
       w.random.p <- round(100 * x$w.random, digits.weight)
     else {
-      if (!all(is.na(x$w.random)) && sum(x$w.random) > 0)
-        w.random.p <-
-          round(100 * x$w.random / sum(x$w.random, na.rm = TRUE),
-                digits.weight)
+      if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
+        if (is.matrix(x$w.random))
+          w.random.p <-
+            round(apply(x$w.random, 2, calcPercent), digits.weight)
+        else
+          w.random.p <-
+            round(calcPercent(x$w.random), digits.weight)
+      }
       else
         w.random.p <- x$w.random
     }
@@ -6527,6 +6593,11 @@ forest.meta <- function(x,
     w.common.p <- rep(NA, length(TE))
     w.random.p <- rep(NA, length(TE))
   }
+  ##
+  if (is.matrix(w.common.p))
+    w.common.p <- as.vector(w.common.p[, 1])
+  if (is.matrix(w.random.p))
+    w.random.p <- as.vector(w.random.p[, 1])
   
   
   ##
@@ -7577,13 +7648,13 @@ forest.meta <- function(x,
   Ee.format <- formatN(Ee, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   Ec.format <- formatN(Ec, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   ##
-  if (all(is.wholenumber(Te), na.rm = TRUE) & missing.digits.time)
+  if (all(is_wholenumber(Te), na.rm = TRUE) & missing.digits.time)
     Te.format <-
       formatN(Te, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
     Te.format <- formatN(Te, digits.time, lab.NA, big.mark = big.mark)
   ##
-  if (all(is.wholenumber(Tc), na.rm = TRUE) & missing.digits.time)
+  if (all(is_wholenumber(Tc), na.rm = TRUE) & missing.digits.time)
     Tc.format <-
       formatN(Tc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
@@ -7621,6 +7692,27 @@ forest.meta <- function(x,
       Ee.format[all.ran.w] <- Ec.format[all.ran.w] <- ""
       Te.format[all.ran.w] <- Tc.format[all.ran.w] <- ""
     }
+  }
+  ##
+  ## Print nothing in lines for second, third etc. common effect or
+  ## random effects model
+  ##
+  Ne.format[emp.com] <- Nc.format[emp.com] <- ""
+  Ee.format[emp.com] <- Ec.format[emp.com] <- ""
+  Te.format[emp.com] <- Tc.format[emp.com] <- ""
+  ##
+  Ne.format[emp.ran] <- Nc.format[emp.ran] <- ""
+  Ee.format[emp.ran] <- Ec.format[emp.ran] <- ""
+  Te.format[emp.ran] <- Tc.format[emp.ran] <- ""
+  ##
+  if (by) {
+    Ne.format[emp.com.w] <- Nc.format[emp.com.w] <- ""
+    Ee.format[emp.com.w] <- Ec.format[emp.com.w] <- ""
+    Te.format[emp.com.w] <- Tc.format[emp.com.w] <- ""
+    ##
+    Ne.format[emp.ran.w] <- Nc.format[emp.ran.w] <- ""
+    Ee.format[emp.ran.w] <- Ec.format[emp.ran.w] <- ""
+    Te.format[emp.ran.w] <- Tc.format[emp.ran.w] <- ""
   }
   ##
   ## Only print total number of events if pooled.events is TRUE
@@ -7665,14 +7757,14 @@ forest.meta <- function(x,
   digits.R <- options()$digits
   ##
   if (is.null(digits.mean)) {
-    if (all(is.wholenumber(Me), na.rm = TRUE))
+    if (all(is_wholenumber(Me), na.rm = TRUE))
       Me.format <-
         formatN(Me, digits = 0, text.NA = lab.NA, big.mark = big.mark)
     else
       Me.format <-
         formatN(Me, digits = digits.R, text.NA = lab.NA, big.mark = big.mark)
     ##
-    if (all(is.wholenumber(Mc), na.rm = TRUE))
+    if (all(is_wholenumber(Mc), na.rm = TRUE))
       Mc.format <-
         formatN(Mc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
     else
@@ -7684,14 +7776,14 @@ forest.meta <- function(x,
     Mc.format <- formatN(Mc, digits.mean, lab.NA, big.mark = big.mark)
   }
   if (is.null(digits.sd)) {
-    if (all(is.wholenumber(Se), na.rm = TRUE))
+    if (all(is_wholenumber(Se), na.rm = TRUE))
       Se.format <-
         formatN(Se, digits = 0, text.NA = lab.NA, big.mark = big.mark)
     else
       Se.format <-
         formatN(Se, digits = digits.R, text.NA = lab.NA, big.mark = big.mark)
     ##
-    if (all(is.wholenumber(Sc), na.rm = TRUE))
+    if (all(is_wholenumber(Sc), na.rm = TRUE))
       Sc.format <-
         formatN(Sc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
     else
@@ -8069,9 +8161,9 @@ forest.meta <- function(x,
   if (missing(smlab.pos))
     smlab.pos <- mean(xlim)
   ##
-  yTE.common  <- NA
-  yTE.random <- NA
-  yPredict <- NA
+  yTE.common  <- rep(NA, n.com)
+  yTE.random <- rep(NA, n.ran)
+  yPredict <- rep(NA, n.prd)
   yHetstat <- NA
   yResidHetstat <- NA
   yOverall.common  <- NA
@@ -8691,7 +8783,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (missing.addcols.right &
-                   all(is.wholenumber(tmp.r), na.rm = TRUE))
+                   all(is_wholenumber(tmp.r), na.rm = TRUE))
             tmp.r <- formatN(tmp.r, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
@@ -8761,7 +8853,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
           else if (missing.addcols.left &
-                   all(is.wholenumber(tmp.l), na.rm = TRUE))
+                   all(is_wholenumber(tmp.l), na.rm = TRUE))
             tmp.l <- formatN(tmp.l, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
@@ -8836,7 +8928,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
           else if (missing.addcols.left &
-                   all(is.wholenumber(tmp.r), na.rm = TRUE))
+                   all(is_wholenumber(tmp.r), na.rm = TRUE))
             tmp.r <- formatN(tmp.r, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.r)) {
@@ -8911,7 +9003,7 @@ forest.meta <- function(x,
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
           else if (missing.addcols.left &
-                   all(is.wholenumber(tmp.l), na.rm = TRUE))
+                   all(is_wholenumber(tmp.l), na.rm = TRUE))
             tmp.l <- formatN(tmp.l, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
           else if (is.numeric(tmp.l)) {
@@ -9749,7 +9841,8 @@ forest.meta <- function(x,
   if (jama & header.line & !by) {
     for (i in seq_len(hcols)) {
       pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
-      for (j in seq_len(k.all + 1 * common + 1 * random + 1 * prediction))
+      for (j in seq_len(k.all + n.com * common + n.ran * random +
+                        n.prd * prediction))
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(ymax + 0.5 * addrow - j, "lines"),
                    gp = gpar(lwd = 0.5 * lwd, col = col.subgroup))

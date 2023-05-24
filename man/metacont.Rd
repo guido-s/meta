@@ -178,7 +178,8 @@ Details).}
 individual studies.}
 
 \item{pooledvar}{A logical indicating if a pooled variance should
-be used for the mean difference (\code{sm="MD"}).}
+be used for the mean difference (\code{sm="MD"}) or ratio of
+means (\code{sm="ROM"}).}
 
 \item{method.smd}{A character string indicating which method is
 used to estimate the standardised mean difference
@@ -326,7 +327,8 @@ be of same length as the number of subgroups.}
 
 \item{id}{Deprecated argument (replaced by 'cluster').}
 
-\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+\item{adhoc.hakn}{Deprecated argument (replaced by
+'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -486,7 +488,8 @@ arm:
 }
 }
 
-\subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
+\subsection{Approximate standard deviations from sample sizes,
+medians and other statistics}{
 
 Missing standard deviations in the experimental group (analogously
 for the control group) can be derived from

@@ -379,7 +379,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         x$TE[sel] <- log(x$TE[sel])
     }
     else {
-      if ((type == "I" & method != "Peto") & is.relative.effect(sm)) {
+      if ((type == "I" & method != "Peto") & is_relative_effect(sm)) {
         warning("Assuming that values for 'TE' are on log scale. ",
                 "Please use argument 'logscale = FALSE' if ",
                 "values are on natural scale.",

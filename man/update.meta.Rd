@@ -11,7 +11,7 @@
   studlab,
   exclude,
   cluster,
-  method = object$method,
+  method,
   sm = object$sm,
   incr,
   method.incr = object$method.incr,
@@ -36,7 +36,7 @@
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
-  prediction = object$prediction | !missing(method.predict),
+  prediction = object$prediction,
   level.predict = object$level.predict,
   null.effect = object$null.effect,
   method.bias = object$method.bias,
@@ -58,6 +58,14 @@
   label.right = object$label.right,
   n.e = object$n.e,
   n.c = object$n.c,
+  method.mean = object$method.mean,
+  method.sd = object$method.sd,
+  approx.mean.e = object$approx.mean.e,
+  approx.mean.c = object$approx.mean.c,
+  approx.sd.e = object$approx.sd.e,
+  approx.sd.c = object$approx.sd.c,
+  approx.mean = object$approx.mean,
+  approx.sd = object$approx.sd,
   pooledvar = object$pooledvar,
   method.smd = object$method.smd,
   sd.glass = object$sd.glass,
@@ -103,44 +111,44 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{method}{A character string indicating which method is to be
-used for pooling of studies; see \code{\link{metabin}} and
-\code{\link{metainc}} function for admissible values.}
+used for pooling of studies (see \code{\link{metabin}},
+\code{\link{metainc}}, \code{\link{metaprop}} and
+\code{\link{metarate}}).}
 
 \item{sm}{A character string indicating which summary measure is
 used for pooling.}
 
-\item{incr}{Either a numerical value or vector which can be added
-to each cell frequency for studies with a zero cell count or the
-character string \code{"TA"} which stands for treatment arm
-continuity correction.}
+\item{incr}{Information on increment added to cell frequencies of
+studies with zero cell counts (see \code{\link{metabin}},
+\code{\link{metainc}}, \code{\link{metaprop}} and
+\code{\link{metarate}}).}
 
 \item{method.incr}{A character string indicating which continuity
-correction method should be used (\code{"only0"},
-\code{"if0all"}, or \code{"all"}).}
+correction method should be used (see \code{\link{metabin}},
+\code{\link{metainc}}, \code{\link{metaprop}} and
+\code{\link{metarate}}).}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
-(applies only if \code{sm} is equal to \code{"RR"} or
-\code{"OR"}).}
+(applies only to \code{\link{metabin}} object with \code{sm}
+equal to \code{"RR"} or \code{"OR"}).}
 
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
 added to all cell frequencies for studies with a zero cell count
 to calculate the pooled estimate based on the Mantel-Haenszel
-method.}
+method (applies only to \code{\link{metabin}} object).}
 
-\item{RR.Cochrane}{A logical indicating if 2*\code{incr} instead of
-1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
-with a zero cell. This is used in RevMan 5, the program for
-preparing and maintaining Cochrane reviews.}
+\item{RR.Cochrane}{A logical indicating which method to use as
+continuity correction for the risk ratio (see
+\code{\link{metabin}}).}
 
-\item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
-estimate is used in the calculation of the heterogeneity
-statistic Q which is implemented in RevMan 5, the program for
-preparing and maintaining Cochrane reviews.}
+\item{Q.Cochrane}{A logical indicating which method to use to
+calculate the heterogeneity statistic Q (see
+\code{\link{metabin}}).}
 
 \item{model.glmm}{A character string indicating which GLMM model
-should be used.}
+should be used (see \code{\link{metabin}} and
+\code{\link{metainc}}).}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
@@ -263,21 +271,46 @@ random effects model.}
 
 \item{label.right}{Graph label on right side of forest plot.}
 
-\item{n.e}{Number of observations in experimental group. (only for
-metagen object)}
+\item{n.e}{Number of observations in experimental group (only for
+\code{\link{metagen}} object).}
 
-\item{n.c}{Number of observations in control group. (only for
-metagen object)}
+\item{n.c}{Number of observations in control group (only for
+metagen object).}
+
+\item{method.mean}{A character string indicating which method to
+use to approximate the mean from the median and other statistics
+(see \code{\link{metacont}} and \code{\link{metamean}}).}
+
+\item{method.sd}{A character string indicating which method to use
+to approximate the standard deviation from sample size, median,
+interquartile range and range (see \code{\link{metacont}} and
+\code{\link{metamean}}).}
+
+\item{approx.mean.e}{Approximation method to estimate means in
+experimental group (see \code{\link{metacont}}).}
+
+\item{approx.mean.c}{Approximation method to estimate means in
+control group (see \code{\link{metacont}}).}
+
+\item{approx.sd.e}{Approximation method to estimate standard
+deviations in experimental group (see \code{\link{metacont}}).}
+
+\item{approx.sd.c}{Approximation method to estimate standard
+deviations in control group (see \code{\link{metacont}}).}
+
+\item{approx.mean}{Approximation method to estimate means (see
+\code{\link{metamean}}).}
+
+\item{approx.sd}{Approximation method to estimate standard
+deviations (see \code{\link{metamean}}).}
 
 \item{pooledvar}{A logical indicating if a pooled variance should
-be used for the mean difference (only for metacont object with
-\code{sm = "MD"}).}
+be used for the mean difference or ratio of means (see
+\code{\link{metacont}}).}
 
 \item{method.smd}{A character string indicating which method is
-used to estimate the standardised mean difference (only for
-metacont object with \code{sm = "SMD"}). Either \code{"Hedges"}
-for Hedges' g (default), \code{"Cohen"} for Cohen's d, or
-\code{"Glass"} for Glass' delta, can be abbreviated.}
+used to estimate the standardised mean difference (see
+\code{\link{metacont}}).}
 
 \item{sd.glass}{A character string indicating which standard
 deviation is used in the denominator for Glass' method to

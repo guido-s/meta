@@ -316,7 +316,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Test for funnel plot asymmetry")
+  chksuitable(x, "Test for funnel plot asymmetry", "metamerge")
   ##
   x <- updateversion(x)
   x.name <- deparse(substitute(x))
@@ -340,12 +340,13 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   method.bias <- setmethodbias(method.bias)
   ##
   if (method.bias %in% c("Begg", "Schwarzer"))
-    method <- paste0("Rank correlation test of funnel plot asymmetry",
-                     if (correct == TRUE) " (with continuity correction)")
+    lab.method <-
+      paste0("Rank correlation test of funnel plot asymmetry",
+             if (correct == TRUE) " (with continuity correction)")
   else if (method.bias == "Deeks")
-    method <- "Funnel plot test for diagnostic odds ratios"
+    lab.method <- "Funnel plot test for diagnostic odds ratios"
   else
-    method <- "Linear regression test of funnel plot asymmetry"
+    lab.method <- "Linear regression test of funnel plot asymmetry"
   ##
   chklogical(plotit)
   chklogical(correct)
@@ -444,7 +445,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     ##
     ## Check whether standard errors differ
     ##
-    if (method.bias %in%c("Begg", "Egger", "Thompson",
+    if (method.bias %in% c("Begg", "Egger", "Thompson",
                            "Macaskill", "Pustejovsky"))
       if (length(unique(seTE)) == 1)
         stop("Test for small-study effects not feasible as ",
@@ -651,7 +652,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     }
     
     
-    res$method <- method
+    res$method <- lab.method
     ##
     res$var.model <- ifelse(method.bias %in% c("Begg", "Schwarzer"),
                             "",

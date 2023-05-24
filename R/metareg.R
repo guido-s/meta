@@ -170,7 +170,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Meta-regression", "netpairwise")
+  chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   

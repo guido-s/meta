@@ -730,10 +730,10 @@ metagen <- function(TE, seTE, studlab,
     setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
   ##
   if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.mean",
+    is_installed_package("estmeansd", argument = "method.mean",
                          value = method.mean)
   if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.sd",
+    is_installed_package("estmeansd", argument = "method.sd",
                          value = method.sd)
   ##
   chklevel(level)
@@ -759,7 +759,7 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
@@ -834,7 +834,7 @@ metagen <- function(TE, seTE, studlab,
            call. = FALSE)
   }
   ##
-  if (!is.prop(sm))
+  if (!is_prop(sm))
     pscale <- 1
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
@@ -842,7 +842,7 @@ metagen <- function(TE, seTE, studlab,
             call. = FALSE)
     pscale <- 1
   }
-  if (!is.rate(sm))
+  if (!is_rate(sm))
     irscale <- 1
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
@@ -2220,13 +2220,19 @@ metagen <- function(TE, seTE, studlab,
   if (!missing.upper)
     ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
   ##
-  if (length(seTE.random) > 1) {
+  if (length(lower.random) > 1) {
     methci <- paste(method.random.ci,
                     toupper(substring(adhoc.hakn.ci, 1, 2)),
                     sep = "-")
     methci <- gsub("-$", "", methci)
     ##
-    names(seTE.random) <-
+    if (length(TE.random) == 1)
+      TE.random <- rep(TE.random, length(lower.random))
+    ##
+    if (length(seTE.random) == 1)
+      seTE.random <- rep(seTE.random, length(lower.random))
+    ##
+    names(TE.random) <- names(seTE.random) <-
       names(statistic.random) <- names(pval.random) <-
       names(df.random) <- names(lower.random) <- names(upper.random) <-
       methci
@@ -2283,6 +2289,7 @@ metagen <- function(TE, seTE, studlab,
               args.backtransf = args.backtransf,
               ##
               method = "Inverse",
+              method.random = "Inverse",
               ##
               w.common = w.common,
               TE.common = TE.common,
@@ -2332,7 +2339,8 @@ metagen <- function(TE, seTE, studlab,
               method.tau = method.tau,
               control = control,
               method.tau.ci = hc$method.tau.ci,
-              tau2 = hc$tau2, se.tau2 = hc$se.tau2,
+              tau2 = hc$tau2,
+              se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
               tau = hc$tau,
               lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
@@ -2442,6 +2450,32 @@ metagen <- function(TE, seTE, studlab,
     ##
     res <- setNAwithin(res, res$three.level)
   }
+  ##
+  ## Add names to tau2 & rest (if necessary)
+  ##
+  if (length(res$tau2) > 1)
+    names(res$tau2) <- res$detail.tau
+  ##
+  if (length(res$tau) > 1)
+    names(res$tau) <- res$detail.tau
+  ##
+  if (length(res$tau2.resid) > 1)
+    names(res$tau2.resid) <- res$detail.tau
+  ##
+  if (length(res$tau.resid) > 1)
+    names(res$tau.resid) <- res$detail.tau
+  ##
+  ## Unset variables for prediction intervals
+  ##
+  res$method.predict <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           "", res$method.predict)
+  res$df.predict <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           NA, res$df.predict)
+  res$adhoc.hakn.pi <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           "", res$adhoc.hakn.pi)
   ##
   ## Backward compatibility
   ##

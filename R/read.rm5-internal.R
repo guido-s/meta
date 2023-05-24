@@ -1166,7 +1166,7 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   res$label.left <- as.character(res$label.left)
   res$label.right <- as.character(res$label.right)
   ##
-  ## sel.rel <- is.relative.effect(res$sm)
+  ## sel.rel <- is_relative_effect(res$sm)
   ## res$TE[sel.rel] <- log(res$TE[sel.rel])
   ## res$lower.TE[sel.rel] <- log(res$lower.TE[sel.rel])
   ## res$upper.TE[sel.rel] <- log(res$upper.TE[sel.rel])

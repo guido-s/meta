@@ -238,7 +238,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   else {
     res <- format(ifelse(is.na(x),
                          text.NA,
-                  ifelse(is.wholenumber(x),
+                  ifelse(is_wholenumber(x),
                          x,
                          formatC(x, decimal.mark = outdec,
                                  format = "f", digits = digits,

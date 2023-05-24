@@ -493,7 +493,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -1123,7 +1123,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   res <- list(event.e = event.e, time.e = time.e,
               event.c = event.c, time.c = time.c,
-              method = method,
+              method = method, method.random = method,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
@@ -1134,6 +1134,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## (after removing unneeded list elements)
   ##
   m$method <- NULL
+  m$method.random <- NULL
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1253,6 +1254,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
+  ##
+  ## Mantel-Haenszel and Cochran method are common effect methods
+  ##
+  if (res$method.random %in% c("MH", "Cochran"))
+    res$method.random <- "Inverse"
   ##
   ## Backward compatibility
   ##

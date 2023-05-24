@@ -500,7 +500,7 @@ metamean <- function(n, mean, sd, studlab,
                      method.tau, missing.method.tau)
   ##
   if (method.predict == "NNF")
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
@@ -535,10 +535,10 @@ metamean <- function(n, mean, sd, studlab,
     setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
   ##
   if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.mean",
+    is_installed_package("estmeansd", argument = "method.mean",
                          value = method.mean)
   if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.sd",
+    is_installed_package("estmeansd", argument = "method.sd",
                          value = method.sd)
   ##
   chklogical(warn)
@@ -618,7 +618,6 @@ metamean <- function(n, mean, sd, studlab,
   ##
   missing.mean <- missing(mean)
   missing.sd <- missing(sd)
-  ##
   missing.median <- missing(median)
   missing.q1 <- missing(q1)
   missing.q3 <- missing(q3)
@@ -689,11 +688,19 @@ metamean <- function(n, mean, sd, studlab,
   ##
   max <- catch("max", mc, data, sfsp)
   ##
+  avail.median <- !(missing.median || is.null(median))
+  avail.q1 <- !(missing.q1 || is.null(q1))
+  avail.q3 <- !(missing.q3 || is.null(q3))
+  avail.min <- !(missing.min || is.null(min))
+  avail.max <- !(missing.max || is.null(max))
+  ##
   missing.approx.mean <- missing(approx.mean)
   approx.mean <- catch("approx.mean", mc, data, sfsp)
+  avail.approx.mean <- !(missing.approx.mean || is.null(approx.mean))
   ##
   missing.approx.sd <- missing(approx.sd)
   approx.sd <- catch("approx.sd", mc, data, sfsp)
+  avail.approx.sd <- !(missing.approx.sd || is.null(approx.sd))
   
   
   ##
@@ -707,18 +714,18 @@ metamean <- function(n, mean, sd, studlab,
   if (with.cluster)
     chklength(cluster, k.All, fun)
   ##
-  if (!missing.median)
+  if (avail.median)
     chklength(median, k.All, fun)
-  if (!missing.q1)
+  if (avail.q1)
     chklength(q1, k.All, fun)
-  if (!missing.q3)
+  if (avail.q3)
     chklength(q3, k.All, fun)
-  if (!missing.min)
+  if (avail.min)
     chklength(min, k.All, fun)
-  if (!missing.max)
+  if (avail.max)
     chklength(max, k.All, fun)
   ##
-  if (!missing.approx.mean) {
+  if (avail.approx.mean) {
     if (length(approx.mean) == 1)
       rep_len(approx.mean, k.All)
     else
@@ -727,7 +734,7 @@ metamean <- function(n, mean, sd, studlab,
     approx.mean <- setchar(approx.mean, c("", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.approx.sd) {
+  if (avail.approx.sd) {
     if (length(approx.sd) == 1)
       rep_len(approx.sd, k.All)
     else
@@ -795,19 +802,19 @@ metamean <- function(n, mean, sd, studlab,
     data$.sd <- sd
     data$.studlab <- studlab
     ##
-    if (!missing.median)
+    if (avail.median)
       data$.median <- median
-    if (!missing.q1)
+    if (avail.q1)
       data$.q1 <- q1
-    if (!missing.q3)
+    if (avail.q3)
       data$.q3 <- q3
-    if (!missing.min)
+    if (avail.min)
       data$.min <- min
-    if (!missing.max)
+    if (avail.max)
       data$.max <- max
-    if (!missing.approx.mean)
+    if (avail.approx.mean)
       data$.approx.mean <- approx.mean
-    if (!missing.approx.sd)
+    if (avail.approx.sd)
       data$.approx.sd <- approx.sd
     ##
     if (by)
@@ -844,19 +851,19 @@ metamean <- function(n, mean, sd, studlab,
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
-    if (!missing.median)
+    if (avail.median)
       median <- median[subset]
-    if (!missing.q1)
+    if (avail.q1)
       q1 <- q1[subset]
-    if (!missing.q3)
+    if (avail.q3)
       q3 <- q3[subset]
-    if (!missing.min)
+    if (avail.min)
       min <- min[subset]
-    if (!missing.max)
+    if (avail.max)
       max <- max[subset]
-    if (!missing.approx.mean)
+    if (avail.approx.mean)
       approx.mean <- approx.mean[subset]
-    if (!missing.approx.sd)
+    if (avail.approx.sd)
       approx.sd <- approx.sd[subset]
     ##
     if (by)
@@ -886,15 +893,15 @@ metamean <- function(n, mean, sd, studlab,
   chknumeric(mean)
   chknumeric(sd)
   ##
-  if (!missing.median)
+  if (avail.median)
     chknumeric(median)
-  if (!missing.q1)
+  if (avail.q1)
     chknumeric(q1)
-  if (!missing.q3)
+  if (avail.q3)
     chknumeric(q3)
-  if (!missing.min)
+  if (avail.min)
     chknumeric(min)
-  if (!missing.max)
+  if (avail.max)
     chknumeric(max)
   ##
   ## Recode integer as numeric:
@@ -903,15 +910,15 @@ metamean <- function(n, mean, sd, studlab,
   mean <- int2num(mean)
   sd   <- int2num(sd)
   ##
-  if (!missing.median)
+  if (avail.median)
     median <- int2num(median)
-  if (!missing.q1)
+  if (avail.q1)
     q1 <- int2num(q1)
-  if (!missing.q3)
+  if (avail.q3)
     q3 <- int2num(q3)
-  if (!missing.min)
+  if (avail.min)
     min <- int2num(min)
-  if (!missing.max)
+  if (avail.max)
     max <- int2num(max)
   ##
   if (by) {
@@ -940,9 +947,9 @@ metamean <- function(n, mean, sd, studlab,
     ## (a) Use IQR and range
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median &
+        avail.q1 & avail.q3 &
+        avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.mean[j] <- "iqr.range"
@@ -954,7 +961,7 @@ metamean <- function(n, mean, sd, studlab,
     ## (b) Use IQR
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+    if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.mean[j] <- "iqr"
       mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
@@ -964,7 +971,7 @@ metamean <- function(n, mean, sd, studlab,
     ## (c) Use range
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.mean[j] <- "range"
       mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
@@ -1011,9 +1018,9 @@ metamean <- function(n, mean, sd, studlab,
     ## (a) Use IQR and range
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median &
+        avail.q1 & avail.q3 &
+        avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.sd[j] <- "iqr.range"
@@ -1026,7 +1033,7 @@ metamean <- function(n, mean, sd, studlab,
     ## (b) Use IQR
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+    if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3)
       approx.sd[j] <- "iqr"
       sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
@@ -1035,7 +1042,7 @@ metamean <- function(n, mean, sd, studlab,
     ## (c) Use range
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(min) & !is.na(max)
       approx.sd[j] <- "range"
       sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
@@ -1218,13 +1225,13 @@ metamean <- function(n, mean, sd, studlab,
   ##
   if (export.median)
     res$median <- median
-  if (!missing.q1)
+  if (avail.q1)
     res$q1 <- q1
-  if (!missing.q3)
+  if (avail.q3)
     res$q3 <- q3
-  if (!missing.min)
+  if (avail.min)
     res$min <- min
-  if (!missing.max)
+  if (avail.max)
     res$max <- max
   ##
   res$approx.sd <- approx.sd

@@ -51,7 +51,8 @@
 #' \code{random} \tab Print results for random effects meta-analysis \cr
 #' \code{prediction} \tab Print prediction interval \cr
 #' \code{backtransf} \tab Back transform results in printouts and plots \cr
-#' \code{method} \tab Meta-analysis method \cr
+#' \code{method} \tab Meta-analysis method (common effect model) \cr
+#' \code{method.random} \tab Meta-analysis method (random effects model) \cr
 #' \code{w.common} \tab Weights for common effect model (individual studies) \cr
 #' \code{TE.common} \tab Estimated overall effect (common effect model) \cr
 #' \code{seTE.common} \tab Standard error of overall effect (common effect model) \cr

@@ -723,7 +723,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -1432,7 +1432,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   if (is.glmm & model.glmm == "CM.EL")
-    is.installed.package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
+    is_installed_package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   ##
   ## No need to add anything to cell counts for
   ##  (i)  arcsine difference as summary measure
@@ -1664,7 +1664,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
-              method = method,
+              method = method, method.random = method,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
@@ -1681,6 +1681,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (after removing unneeded list elements)
   ##
   m$method <- NULL
+  m$method.random <- NULL
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1802,6 +1803,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
+  ##
+  ## Mantel-Haenszel method is common effect method
+  ##
+  if (res$method.random == "MH")
+    res$method.random <- "Inverse"
   ##
   ## Backward compatibility
   ##

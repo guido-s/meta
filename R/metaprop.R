@@ -674,7 +674,7 @@ metaprop <- function(event, n, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -687,7 +687,7 @@ metaprop <- function(event, n, studlab,
   chklogical(backtransf)
   ##
   chknumeric(pscale, length = 1)
-  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
     pscale <- 1
@@ -995,14 +995,14 @@ metaprop <- function(event, n, studlab,
   ## Check for whole numbers
   ##
   if (method.ci != "NAsm") {
-    if (any(!is.wholenumber(event), na.rm = TRUE)) {
+    if (any(!is_wholenumber(event), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
               "(argument method.ci = \"NAsm\") used as\n",
               "at least one number of events contains a non-integer value.",
               call. = FALSE)
       method.ci <- "NAsm"
     }
-    else if (any(!is.wholenumber(n), na.rm = TRUE)) {
+    else if (any(!is_wholenumber(n), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
               "(argument method.ci = \"NAsm\") used as\n",
               "at least one sample size contains a non-integer value.",
@@ -1303,6 +1303,7 @@ metaprop <- function(event, n, studlab,
   ##
   if (is.glmm & k > 0) {
     res$method <- "GLMM"
+    res$method.random <- "GLMM"
     ##
     list.prop <- list(xi = event[!exclude], ni = n[!exclude], measure = "PLO")
     ##

@@ -462,7 +462,8 @@ draw.lines <- function(x, column,
         if (xmin <= TE.common[i] & TE.common[i] <= xmax)
           if (!is.null(lty.common))
             grid.lines(x = unit(TE.common[i], "native"),
-                       y = unit(c(ymin.common, ymax), "lines"),
+                       y = unit(c(ymin.common + length(TE.common) - i, ymax),
+                                "lines"),
                        gp = gpar(lty = lty.common, lwd = lwd, col = col.common))
   ##
   ## Line for random effects estimate(s):
@@ -473,7 +474,8 @@ draw.lines <- function(x, column,
         if (xmin <= TE.random[i] & TE.random[i] <= xmax)
           if (!is.null(lty.random) & !is.na(TE.random[i]))
             grid.lines(x = unit(TE.random[i], "native"),
-                       y = unit(c(ymin.random, ymax), "lines"),
+                       y = unit(c(ymin.random + length(TE.random) - i, ymax),
+                                "lines"),
                        gp = gpar(lty = lty.random,
                                  lwd = lwd, col = col.random))
   ##
