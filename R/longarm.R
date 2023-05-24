@@ -21,9 +21,9 @@
 #'   information.
 #' @param studlab A vector with study labels (optional).
 #' @param id1 Last character(s) of variable names for additional
-#'   variables of first treatment group.
-#' @param id2 Last character(s) of variable names for additional
-#'   variables of second treatment group.
+#'   variables with group specific information for first treatment.
+#' @param id1 Last character(s) of variable names for additional
+#'   variables with group specific information for second treatment.
 #' @param append A logical indicating if data frame provided in
 #'   argument 'data' should be returned.
 #' @param keep.duplicated A logical indicating if duplicated rows
@@ -137,8 +137,6 @@ longarm <- function(treat1, treat2,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
-  both <- character(0)
   ##
   if (nulldata)
     data <- sfsp
@@ -363,32 +361,6 @@ longarm <- function(treat1, treat2,
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
     ##
-    ## Catch additional variables
-    ##
-    addvars <- list()
-    ##
-    if (!is.null(id1) & !is.null(id2) & !nulldata) {
-      chklength(id1, 1)
-      chklength(id2, 1)
-      ##
-      ext1 <- paste0(id1, "$")
-      ext2 <- paste0(id2, "$")
-      ##
-      vars1 <- names(data)[grepl(ext1, names(data))]
-      vars2 <- names(data)[grepl(ext2, names(data))]
-      ##
-      vars1 <- gsub(ext1, "", vars1)
-      vars2 <- gsub(ext2, "", vars2)
-      ##
-      j <- 0
-      for (i in seq_along(vars1)) {
-        if (vars1[i] %in% vars2) {
-          j <- j + 1
-          both[j] <- vars1[i]
-        }
-      }
-    }
-    ##
     ## Keep data set
     ##
     if (nulldata) {
@@ -458,16 +430,6 @@ longarm <- function(treat1, treat2,
     studlab <- seq_len(k.all)
     data$.studlab <- studlab
   }
-  ##
-  if (length(both) > 0) {
-    bothlist <- list()
-    for (i in seq_along(both)) {
-      bothlist[[i]] <-
-        data.frame(var1 = data[[paste0(both[i], id1)]],
-                   var2 = data[[paste0(both[i], id2)]])
-      names(bothlist)[[i]] <- both[i]
-    }
-  }
   
   
   ##
@@ -527,10 +489,40 @@ longarm <- function(treat1, treat2,
   if (!keep.duplicated)
     dat.l <- dat.l[!duplicated(dat.l[, nam]), ]
   ##
-  if (length(both) > 0) {
-    for (var.i in both) {
-      if (!(var.i %in% names(dat.l)))
-        dat.l[[var.i]] <- addvars2long(bothlist[[var.i]])
+  ## Catch additional variables with group specific information
+  ##
+  if (!is.null(id1) & !is.null(id2) & !is.null(data)) {
+    chklength(id1, 1)
+    chklength(id2, 1)
+    ##
+    ext1 <- paste0(id1, "$")
+    ext2 <- paste0(id2, "$")
+    ##
+    vars1 <- gsub(ext1, "", names(data)[grepl(ext1, names(data))])
+    vars2 <- gsub(ext2, "", names(data)[grepl(ext2, names(data))])
+    ##
+    j <- 0
+    both <- character(0)
+    for (i in seq_along(vars1)) {
+      if (vars1[i] %in% vars2) {
+        j <- j + 1
+        both[j] <- vars1[i]
+      }
+    }
+    ##
+    if (length(both) > 0) {
+      bothlist <- list()
+      for (i in seq_along(both)) {
+        bothlist[[i]] <-
+          data.frame(var1 = data[[paste0(both[i], id1)]],
+                     var2 = data[[paste0(both[i], id2)]])
+        names(bothlist)[[i]] <- both[i]
+      }
+      ##
+      for (var.i in both) {
+        if (!(var.i %in% names(dat.l)))
+          dat.l[[var.i]] <- addvars2long(bothlist[[var.i]])
+      }
     }
   }
   ##
