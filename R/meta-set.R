@@ -207,3 +207,10 @@ setmethodpredict <- function(method.predict, missing.predict,
   ##
   method.predict
 }
+
+setVal <- function(data, varname, default = NULL) {
+  if (isCol(data, varname))
+    return(data[[varname]])
+  else
+    return(default)
+}

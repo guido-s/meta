@@ -231,6 +231,8 @@ bubble.metareg <- function(x,
   ##
   if (covar.name %in% names(x$.meta$x$data))
     covar <- x$.meta$x$data[[covar.name]]
+  else if (covar.name %in% names(x$.meta$x))
+    covar <- x$.meta$x[[covar.name]]
   else if (".subgroup" %in% names(x$.meta$x$data))
     covar <- x$.meta$x$data[[".subgroup"]]
   else

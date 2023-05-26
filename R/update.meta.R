@@ -578,13 +578,20 @@ update.meta <- function(object,
     ##
     if (metacont) {
       object$data$.approx.mean.e <-
-        replaceNULL(object$data$.approx.mean.e, object$approx.mean.e)
+        setVal(object$data, ".approx.mean.e", object$approx.mean.e)
       object$data$.approx.mean.c <-
-        replaceNULL(object$data$.approx.mean.c, object$approx.mean.c)
+        setVal(object$data, ".approx.mean.c", object$approx.mean.c)
       object$data$.approx.sd.e <-
-        replaceNULL(object$data$.approx.sd.e, object$approx.sd.e)
+        setVal(object$data, ".approx.sd.e", object$approx.sd.e)
       object$data$.approx.sd.c <-
-        replaceNULL(object$data$.approx.sd.c, object$approx.sd.c)
+        setVal(object$data, ".approx.sd.c", object$approx.sd.c)
+    }
+    ##
+    if (metamean) {
+      object$data$.approx.mean <-
+        setVal(object$data, ".approx.mean", object$approx.mean)
+      object$data$.approx.sd <-
+        setVal(object$data, ".approx.sd", object$approx.sd)
     }
     ##
     object$hetlabel <- object$label
@@ -1090,14 +1097,41 @@ update.meta <- function(object,
     method.mean <- replaceVal(method.mean, "", "Luo")
     method.sd <- replaceVal(method.sd, "", "Shi")
     ##
-    mean.e <-
-      setNA_ifnot(object$data$.mean.e, object$data$.approx.mean.e, "")
-    mean.c <-
-      setNA_ifnot(object$data$.mean.c, object$data$.approx.mean.c, "")
-    sd.e <-
-      setNA_ifnot(object$data$.sd.e, object$data$.approx.sd.e, "")
-    sd.c <-
-      setNA_ifnot(object$data$.sd.c, object$data$.approx.sd.c, "")
+    if (!isCol(object$data, ".approx.mean.e"))
+      mean.e <- object$data$.mean.e
+    else
+      mean.e <-
+        setNA_ifnot(object$data$.mean.e, object$data$.approx.mean.e, "")
+    ##
+    if (!isCol(object$data, ".approx.mean.c"))
+      mean.c <- object$data$.mean.c
+    else
+      mean.c <-
+        setNA_ifnot(object$data$.mean.c, object$data$.approx.mean.c, "")
+    ##
+    if (!isCol(object$data, ".approx.sd.e"))
+      sd.e <- object$data$.sd.e
+    else
+      sd.e <-
+        setNA_ifnot(object$data$.sd.e, object$data$.approx.sd.e, "")
+    ##
+    if (!isCol(object$data, ".approx.sd.c"))
+      sd.c <- object$data$.sd.c
+    else
+      sd.c <-
+        setNA_ifnot(object$data$.sd.c, object$data$.approx.sd.c, "")
+    ##
+    median.e <- setVal(object$data, ".median.e")
+    q1.e <- setVal(object$data, ".q1.e")
+    q3.e <- setVal(object$data, ".q3.e")
+    min.e <- setVal(object$data, ".min.e")
+    max.e <- setVal(object$data, ".max.e")
+    ##
+    median.c <- setVal(object$data, ".median.c")
+    q1.c <- setVal(object$data, ".q1.c")
+    q3.c <- setVal(object$data, ".q3.c")
+    min.c <- setVal(object$data, ".min.c")
+    max.c <- setVal(object$data, ".max.c")
     ##
     m <- metacont(n.e = object$data$.n.e,
                   mean.e = mean.e,
@@ -1110,17 +1144,17 @@ update.meta <- function(object,
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  median.e = object$data$.median.e,
-                  q1.e = object$data$.q1.e,
-                  q3.e = object$data$.q3.e,
-                  min.e = object$data$.min.e,
-                  max.e = object$data$.max.e,
+                  median.e = median.e,
+                  q1.e = q1.e,
+                  q3.e = q3.e,
+                  min.e = min.e,
+                  max.e = max.e,
                   ##
-                  median.c = object$data$.median.c,
-                  q1.c = object$data$.q1.c,
-                  q3.c = object$data$.q3.c,
-                  min.c = object$data$.min.c,
-                  max.c = object$data$.max.c,
+                  median.c = median.c,
+                  q1.c = q1.c,
+                  q3.c = q3.c,
+                  min.c = min.c,
+                  max.c = max.c,
                   ##
                   method.mean = method.mean,
                   method.sd = method.sd,
@@ -1395,6 +1429,12 @@ update.meta <- function(object,
     method.mean <- replaceVal(method.mean, "", "Luo")
     method.sd <- replaceVal(method.sd, "", "Shi")
     ##
+    median <- setVal(object$data, ".median")
+    q1 <- setVal(object$data, ".q1")
+    q3 <- setVal(object$data, ".q3")
+    min <- setVal(object$data, ".min")
+    max <- setVal(object$data, ".max")
+    ##
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
@@ -1403,11 +1443,11 @@ update.meta <- function(object,
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  median = object$data$.median,
-                  q1 = object$data$.q1,
-                  q3 = object$data$.q3,
-                  min = object$data$.min,
-                  max = object$data$.max,
+                  median = median,
+                  q1 = q1,
+                  q3 = q3,
+                  min = min,
+                  max = max,
                   ##
                   method.mean = method.mean,
                   method.sd = method.sd,

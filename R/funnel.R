@@ -218,7 +218,7 @@ funnel.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Funnel plot", "metamerge")
+  chksuitable(x, "Funnel plot", "metamerge", check.mlm = FALSE)
   ##
   x.name <- deparse(substitute(x))
   x <- updateversion(x)

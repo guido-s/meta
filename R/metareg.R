@@ -170,7 +170,8 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"))
+  chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"),
+               check.mlm = FALSE)
   ##
   x <- updateversion(x)
   
@@ -329,6 +330,8 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     ## Three-level model
     ##
     if (three.level) {
+      ##
+      dataset$.idx <- seq_len(nrow(dataset))
       ##
       res <-
         runNN(rma.mv,

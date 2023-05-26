@@ -22,7 +22,7 @@
 #' @param studlab A vector with study labels (optional).
 #' @param id1 Last character(s) of variable names for additional
 #'   variables with group specific information for first treatment.
-#' @param id1 Last character(s) of variable names for additional
+#' @param id2 Last character(s) of variable names for additional
 #'   variables with group specific information for second treatment.
 #' @param append A logical indicating if data frame provided in
 #'   argument 'data' should be returned.
