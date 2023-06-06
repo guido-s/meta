@@ -19,6 +19,8 @@ longarm(
   time2,
   data = NULL,
   studlab,
+  id1 = NULL,
+  id2 = NULL,
   append = TRUE,
   keep.duplicated = FALSE,
   keep.internal = FALSE
@@ -54,6 +56,12 @@ or pairwise object (see Details).}
 information.}
 
 \item{studlab}{A vector with study labels (optional).}
+
+\item{id1}{Last character(s) of variable names for additional
+variables with group specific information for first treatment.}
+
+\item{id2}{Last character(s) of variable names for additional
+variables with group specific information for second treatment.}
 
 \item{append}{A logical indicating if data frame provided in
 argument 'data' should be returned.}

@@ -2,6 +2,7 @@ README.md
 .travis.yml
 .*[.]Rproj
 .Rproj.user
+.github
 roxygen2.*[.]R
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$

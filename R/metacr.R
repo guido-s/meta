@@ -48,6 +48,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param Q.Cochrane A logical indicating if the Mantel-Haenszel
 #'   estimate is used in the calculation of the heterogeneity
 #'   statistic Q which is implemented in RevMan 5.
@@ -59,6 +61,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If
 #'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
@@ -172,6 +177,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    level.predict = gs("level.predict"),
                    method.predict = gs("method.predict"),
                    adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                   seed.predict = NULL,
                    ##
                    Q.Cochrane, swap.events, logscale,
                    ##
@@ -179,6 +185,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    test.subgroup,
                    prediction.subgroup = gs("prediction.subgroup"),
+                   seed.predict.subgroup = NULL,
                    ##
                    text.common = gs("text.common"),
                    text.random = gs("text.random"),
@@ -235,6 +242,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklogical(prediction)
   chklevel(level.predict)
   chklogical(prediction.subgroup)
+  if (!is.null(seed.predict))
+    chknumeric(seed.predict)
+  if (!is.null(seed.predict.subgroup))
+    chknumeric(seed.predict.subgroup)
   ##
   missing.Q.Cochrane <- missing(Q.Cochrane)
   if (!missing.Q.Cochrane)
@@ -368,7 +379,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
         x$TE[sel] <- log(x$TE[sel])
     }
     else {
-      if ((type == "I" & method != "Peto") & is.relative.effect(sm)) {
+      if ((type == "I" & method != "Peto") & is_relative_effect(sm)) {
         warning("Assuming that values for 'TE' are on log scale. ",
                 "Please use argument 'logscale = FALSE' if ",
                 "values are on natural scale.",
@@ -435,12 +446,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       level.predict = level.predict,
                       method.predict = method.predict,
                       adhoc.hakn.pi = adhoc.hakn.pi,
+                      seed.predict = seed.predict,
                       ##
                       subgroup = grplab,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       prediction.subgroup = prediction.subgroup,
+                      seed.predict.subgroup = seed.predict.subgroup,
                       ##
                       backtransf = backtransf,
                       ##
@@ -478,12 +491,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       level.predict = level.predict,
                       method.predict = method.predict,
                       adhoc.hakn.pi = adhoc.hakn.pi,
+                      seed.predict = seed.predict,
                       ##
                       subgroup = grplab,
                       subgroup.name = "grp",
                       print.subgroup.name = FALSE,
                       test.subgroup = test.subgroup,
                       prediction.subgroup = prediction.subgroup,
+                      seed.predict.subgroup = seed.predict.subgroup,
                       ##
                       backtransf = backtransf,
                       ##
@@ -523,12 +538,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      level.predict = level.predict,
                      method.predict = method.predict,
                      adhoc.hakn.pi = adhoc.hakn.pi,
+                     seed.predict = seed.predict,
                      ##
                      subgroup = grplab,
                      subgroup.name = "grp",
                      print.subgroup.name = FALSE,
                      test.subgroup = test.subgroup,
                      prediction.subgroup = prediction.subgroup,
+                     seed.predict.subgroup = seed.predict.subgroup,
                      ##
                      text.common = text.common, text.random = text.random,
                      text.predict = text.predict,
@@ -562,12 +579,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     prediction.subgroup = prediction.subgroup,
+                    seed.predict.subgroup = seed.predict.subgroup,
                     ##
                     backtransf = backtransf,
                     ##
@@ -603,12 +622,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     prediction.subgroup = prediction.subgroup,
+                    seed.predict.subgroup = seed.predict.subgroup,
                     ##
                     n.e = n.e,
                     n.c = n.c,
@@ -647,12 +668,14 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     subgroup = grplab,
                     subgroup.name = "grp",
                     print.subgroup.name = FALSE,
                     test.subgroup = test.subgroup,
                     prediction.subgroup = prediction.subgroup,
+                    seed.predict.subgroup = seed.predict.subgroup,
                     ##
                     backtransf = backtransf,
                     ##
@@ -697,6 +720,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       level.predict = level.predict,
                       method.predict = method.predict,
                       adhoc.hakn.pi = adhoc.hakn.pi,
+                      seed.predict = seed.predict,
                       ##
                       backtransf = backtransf,
                       ##
@@ -734,6 +758,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       level.predict = level.predict,
                       method.predict = method.predict,
                       adhoc.hakn.pi = adhoc.hakn.pi,
+                      seed.predict = seed.predict,
                       ##
                       backtransf = backtransf,
                       ##
@@ -771,6 +796,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      level.predict = level.predict,
                      method.predict = method.predict,
                      adhoc.hakn.pi = adhoc.hakn.pi,
+                     seed.predict = seed.predict,
                      ##
                      text.common = text.common, text.random = text.random,
                      text.predict = text.predict,
@@ -804,6 +830,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     backtransf = backtransf,
                     ##
@@ -839,6 +866,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     n.e = n.e,
                     n.c = n.c,
@@ -877,6 +905,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     level.predict = level.predict,
                     method.predict = method.predict,
                     adhoc.hakn.pi = adhoc.hakn.pi,
+                    seed.predict = seed.predict,
                     ##
                     backtransf = backtransf,
                     ##

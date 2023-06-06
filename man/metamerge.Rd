@@ -2,20 +2,50 @@
 % Please edit documentation in R/metamerge.R
 \name{metamerge}
 \alias{metamerge}
-\title{Merge pooled results of two meta-analyses}
+\title{Merge results of two meta-analyses on the same data set}
 \usage{
 metamerge(
   meta1,
   meta2,
+  common1 = meta1$common,
+  random1 = meta1$random,
+  prediction1 = meta1$prediction,
+  common2 = meta2$common,
+  random2 = meta2$random,
+  prediction2 = meta2$prediction,
+  text.pooled1 = "",
+  text.pooled2 = "",
+  text.w.pooled1 = "",
+  text.w.pooled2 = "",
+  label1 = "",
+  label2 = "",
+  hetlabel1 = label1,
+  hetlabel2 = label2,
+  taulabel1 = label1,
+  taulabel2 = label2,
+  text.common1 = text.pooled1,
+  text.common2 = text.pooled2,
+  text.random1 = text.pooled1,
+  text.random2 = text.pooled2,
+  text.predict1 = text.pooled1,
+  text.predict2 = text.pooled2,
+  text.w.common1 = text.w.pooled1,
+  text.w.common2 = text.w.pooled2,
+  text.w.random1 = text.w.pooled1,
+  text.w.random2 = text.w.pooled2,
+  keep = FALSE,
+  keep.Q = keep,
+  keep.I2 = keep.Q,
+  keep.w = keep,
+  common = common1 | common2,
+  random = random1 | random2,
+  overall = common | random,
+  overall.hetstat = common | random,
+  prediction = prediction1 | prediction2,
+  backtransf,
+  warn.deprecated = gs("warn.deprecated"),
   pooled1,
-  pooled2,
-  text.pooled1,
-  text.pooled2,
-  text.w.pooled1,
-  text.w.pooled2,
-  label1,
-  label2,
-  backtransf
+  pooled2
 )
 }
 \arguments{
@@ -23,15 +53,23 @@ metamerge(
 
 \item{meta2}{Second meta-analysis object (see Details).}
 
-\item{pooled1}{A character string indicating whether results of
-common effect or random effects model should be considered for
-first meta-analysis. Either \code{"both"}, \code{"common"} or
-\code{"random"}, can be abbreviated.}
+\item{common1}{A logical indicating whether results of common
+effect model should be considered for first meta-analysis.}
 
-\item{pooled2}{A character string indicating whether results of
-common effect or random effects model should be considered for
-second meta-analysis. Either \code{"both"}, \code{"common"} or
-\code{"random"}, can be abbreviated.}
+\item{random1}{A logical indicating whether results of random
+effects model should be considered for first meta-analysis.}
+
+\item{prediction1}{A logical indicating whether prediction interval
+should be considered for first meta-analysis.}
+
+\item{common2}{A logical indicating whether results of common
+effect model should be considered for second meta-analysis.}
+
+\item{random2}{A logical indicating whether results of random
+effects model should be considered for second meta-analysis.}
+
+\item{prediction2}{A logical indicating whether prediction interval
+should be considered for second meta-analysis.}
 
 \item{text.pooled1}{A character string used in printouts and forest
 plot to label the results from the first meta-analysis.}
@@ -40,23 +78,117 @@ plot to label the results from the first meta-analysis.}
 plot to label the results from the second meta-analysis.}
 
 \item{text.w.pooled1}{A character string used to label weights of
-the first meta-analysis.}
+the first meta-analysis; can be of same length as the number of
+pooled estimates requested in argument \code{pooled1}.}
 
 \item{text.w.pooled2}{A character string used to label weights of
-the second meta-analysis.}
+the second meta-analysis; can be of same length as the number of
+pooled estimates requested in argument \code{pooled1}.}
 
-\item{label1}{A character string used to label estimate of
-between-study variance and heterogeneity statistics of the first
+\item{label1}{Default setting for arguments 'hetlabel1' and
+'taulabel1'.}
+
+\item{label2}{Default setting for arguments 'hetlabel2' and
+'taulabel2'.}
+
+\item{hetlabel1}{A character string used to label heterogeneity
+statistics of the first meta-analysis.}
+
+\item{hetlabel2}{A character string used to label heterogeneity
+statistics of the second meta-analysis.}
+
+\item{taulabel1}{A character string used to label estimate of
+between-study variance of the first meta-analysis.}
+
+\item{taulabel2}{A character string used to label estimate of
+between-study variance of the second meta-analysis.}
+
+\item{text.common1}{A character string used in printouts and forest
+plot to label results for common effect models from the first
 meta-analysis.}
 
-\item{label2}{A character string used to label estimate of
-between-study variance and heterogeneity statistics of the second
+\item{text.common2}{A character string used in printouts and forest
+plot to label results for common effect models from the second
 meta-analysis.}
+
+\item{text.random1}{A character string used in printouts and forest
+plot to label results for random effects models from the first
+meta-analysis.}
+
+\item{text.random2}{A character string used in printouts and forest
+plot to label results for random effects models from the second
+meta-analysis.}
+
+\item{text.predict1}{A character string used in printouts and
+forest plot to label prediction interval from the first
+meta-analysis.}
+
+\item{text.predict2}{A character string used in printouts and
+forest plot to label prediction interval from the second
+meta-analysis.}
+
+\item{text.w.common1}{A character string used to label common
+effect weights of the first meta-analysis; can be of same length
+as the number of common effect estimates.}
+
+\item{text.w.common2}{A character string used to label common
+effect weights of the second meta-analysis; can be of same length
+as the number of common effect estimates.}
+
+\item{text.w.random1}{A character string used to label random
+effects weights of the first meta-analysis; can be of same length
+as the number of random effects estimates.}
+
+\item{text.w.random2}{A character string used to label random
+effects weights of the second meta-analysis; can be of same
+length as the number of random effects estimates.}
+
+\item{keep}{A logical indicating whether to keep additional
+information from second meta-analysis.}
+
+\item{keep.Q}{A logical indicating whether heterogeneity statistic
+Q of second meta-analysis should be kept or ignored.}
+
+\item{keep.I2}{A logical indicating whether heterogeneity statistic
+I2 of second meta-analysis should be kept or ignored.}
+
+\item{keep.w}{A logical indicating whether weights of the second
+meta-analysis should be kept or ignored.}
+
+\item{common}{A logical indicating whether results of common effect
+meta-analyses should be reported.}
+
+\item{random}{A logical indicating whether results of random
+effects meta-analyses should be reported.}
+
+\item{overall}{A logical indicating whether overall summaries
+should be reported.}
+
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons.}
+
+\item{prediction}{A logical indicating whether prediction intervals
+should be reported.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
 \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
 printed as odds ratios rather than log odds ratios, for example.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
+
+\item{pooled1}{Deprecated argument (replaced by 'common1',
+'random1', 'prediction1'). A character string indicating whether
+results of common effect or random effects model should be
+considered for first meta-analysis. Either \code{"both"},
+\code{"common"} or \code{"random"}, can be abbreviated.}
+
+\item{pooled2}{Deprecated argument (replaced by 'common2',
+'random2', 'prediction2'). A character string indicating whether
+results of common effect or random effects model should be
+considered for second meta-analysis. Either \code{"both"},
+\code{"common"} or \code{"random"}, can be abbreviated.}
 }
 \value{
 An object of class \code{"meta"} and \code{"metamerge"} with
@@ -69,9 +201,42 @@ The following list elements have a different meaning:
   individual studies (first meta-analysis).}
 \item{statistic, pval}{Statistic and p-value for test of treatment
   effect for individual studies (first meta-analysis.}
-\item{w.common}{Weights of first common effect meta-analysis.}
-\item{w.random}{Weights of first random effects meta-analysis.}
-\item{k}{Number of studies combined in first meta-analysis.}
+\item{w.common}{Vector or matrix with common effect weights.}
+\item{w.random}{Vector or matrix with random effects weights.}
+\item{k}{Vector with number of estimates (same length as number of
+  common effect and random effects estimates).}
+\item{k.study}{Vector with number of studies (same length as
+  number of common effect and random effects estimates).}
+\item{k.all}{Vector with total number of studies (same length as
+  number of common effect and random effects estimates).}
+\item{k.TE}{Vector with number of studies with estimable effects
+  (same length as number of common effect and random effects
+  estimates).}
+\item{k.MH}{Vector with number of studies combined with
+  Mantel-Haenszel method (same length as number of common effect
+  and random effects estimates).}
+\item{TE.common}{Vector with common effect estimates.}
+\item{seTE.common}{Vector with standard errors of common effect
+  estimates.}
+\item{lower.common}{Vector with lower confidence limits (common
+  effect model).}
+\item{upper.common}{Vector with upper confidence limits (common
+  effect model).}
+\item{statistic.common}{Vector with test statistics for test of
+  overall effect (common effect model).}
+\item{pval.common}{Vector with p-value of test for overall effect
+  (common effect model).}
+\item{TE.random}{Vector with random effects estimates.}
+\item{seTE.random}{Vector with standard errors of random effects
+  estimates.}
+\item{lower.random}{Vector with lower confidence limits (random
+  effects model).}
+\item{upper.random}{Vector with upper confidence limits (random
+  effects model).}
+\item{statistic.random}{Vector with test statistics for test of
+  overall effect (random effects model).}
+\item{pval.random}{Vector with p-value of test for overall effect
+  (random effects model).}
 
 Furthermore, meta-analysis results of common effect or random
 effects model are taken from first meta-analysis if only random
@@ -79,18 +244,17 @@ effects or common effects models are selected from both
 meta-analyses (arguments \code{pooled1} and \code{pooled2}).
 }
 \description{
-This function can be used to merge pooled results of two
-meta-analyses into a single meta-analysis object. This is, for
-example, useful to produce a forest plot of a random-effects
-meta-analysis with different estimates of the between-study
-variance \eqn{\tau^2}.
+This function can be used to merge results of two meta-analyses
+into a single meta-analysis object if they are based on the same
+data set. This is, for example, useful to produce a forest plot of
+a random-effects meta-analysis with different estimates of the
+between-study variance \eqn{\tau^2}.
 }
 \details{
 In R package \bold{meta}, objects of class \code{"meta"} contain
-results of both a common effect and random effects
-meta-analysis. This function enables the user to keep the results
-of one of these models and to add results from a second
-meta-analysis or a sensitivity analysis.
+results of both common effect and random effects
+meta-analyses. This function enables the user to merge the results
+of two meta-analysis object if they are based on the same data set.
 
 Applications of this function include printing and plotting results
 of the common effect or random effects meta-analysis and the
@@ -104,84 +268,151 @@ of the common effect or random effects meta-analysis and the
   (\code{\link[robumeta]{robu}} from R package \bold{robumeta}).
 }
 
-The first argument must be an object created by a meta-analysis
-function, e.g., \code{\link{metagen}} or \code{\link{metabin}}. It
-is also possible to provide an object created with
-\code{\link[metasens]{limitmeta}} or
-\code{\link[metasens]{copas}}. In this case, arguments \code{meta2}
-and \code{pooled2} will be ignored.
+The first argument (\code{meta1}) must be an object created by a
+meta-analysis function (see \code{\link{meta-object}}). If an
+object created with \code{\link[metasens]{limitmeta}} or
+\code{\link[metasens]{copas}} is provided as the first argument,
+this object will be returned, i.e., argument \code{meta2} will be
+ignored.
 
 The second meta-analysis could be an object created by a
 meta-analysis function or with \code{\link{trimfill}},
 \code{\link[metasens]{limitmeta}}, \code{\link[metasens]{copas}},
 or \code{\link[robumeta]{robu}}.
 
-The created meta-analysis object only contains the study results
-from the first meta-analysis which are shown in printouts and
-forest plots. This only makes a difference for meta-analysis
-methods where individual study results differ, e.g.,
-Mantel-Haenszel and Peto method for binary outcomes (see
-\code{\link{metabin}}).
+The created meta-analysis object only contains the study results,
+i.e., estimated effects and confidence intervals, from the first
+meta-analysis which are shown in printouts and forest plots. This
+only makes a difference for meta-analysis methods where individual
+study results differ, e.g., Mantel-Haenszel and Peto method for
+binary outcomes (see \code{\link{metabin}}).
+
+R function \code{\link{metaadd}} can be used to add pooled results
+from any (external) meta-analysis.
 
 R function \code{\link{metabind}} can be used to print and plot the
-results of more than two meta-analyses, however, without showing
-individual study results.
+results of several meta-analyses without the restriction that the
+same data set has to be used. Accordingly, individual study results
+are ignored.
 }
 \examples{
-data(Fleiss1993cont)
-#
-m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "MD",
-  text.random = "Random effects model (REML)", text.w.random = "DL")
-#
-# Use DerSimonian-Laird estimator of tau2
-#
-m2 <- update(m1, method.tau = "DL", common = FALSE,
-  text.random = "Random effects model (DL)", text.w.random = "DL")
-#
-# Merge results of the two meta-analyses
-#
-m12 <- metamerge(m1, m2)
-m12
-forest(m12, rightcols = c("effect", "ci", "w.common"))
-
-# Show in addition the results for the Paule-Mandel estimate of
-# between-study variance
-#
-m3 <- update(m1, method.tau = "PM",
-  text.random = "Random effects moded (PM)", text.w.random = "PM")
-#
-m123 <- metamerge(m12, m3, pooled2 = "random")
-m123
+# Print results with more significant digits
+oldset <- settings.meta(digits = 6, digits.stat = 4, digits.pval = 6,
+                        digits.Q = 6, digits.I2 = 4, digits.H = 4)
+oldopts <- options(width = 120)
 
 data(Fleiss1993bin)
-#
+
 # Mantel-Haenszel method
-#
-m4 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-  studlab = paste(study, year), sm = "OR", random = FALSE,
-  text.common = "MH method", text.w.common = "MH")
-#
+m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+  studlab = paste(study, year), sm = "OR",
+  text.common = "Mantel-Haenszel method", text.w.common = "MH",
+  text.random = "Random effects model (IV)", text.w.random = "RE-IV")
+
 # Peto method
-#
-m5 <- update(m4, method = "Peto", text.common = "Peto method",
-  text.w.common = "Peto")
-#
-# Merge results (show individual results for MH method)
-#
-m45 <- metamerge(m4, m5)
-summary(m45)
-forest(m45, digits = 4)
-#
+m2 <- update(m1, method = "Peto",
+  text.common = "Peto method", text.w.common = "Peto",
+  text.random = "Random effects model (Peto)", text.w.random = "RE-Peto")
+
+# Inverse variance method
+m3 <- update(m2, method = "Inverse", random = FALSE,
+  text.common = "Inverse-variance method", text.w.common = "IV")
+
+# Merge results from MH and Peto method
+# - show individual results for MH method (as this is the first meta-analysis)
+# - keep all additional information from Peto meta-analysis (i.e.,
+#   weights, Q statistic and I2 statistic)
+m12 <- metamerge(m1, m2,
+  taulabel1 = "REML-IV", taulabel2 = "REML-Peto",
+  hetlabel1 = "MH/IV", hetlabel2 = "Peto",
+  keep = TRUE)
+m12
+
+# Add results from inverse variance method
+# - keep weights from IV meta-analysis
+# - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
+#   as inverse variance method is used for sm = "MH" under random
+#   effects model
+m123 <- metamerge(m12, m3, keep.w = TRUE)
+summary(m123)
+\dontrun{
+forest(m123, digits = 6)
+
 # Merge results (show individual results for Peto method)
-#
-m54 <- metamerge(m5, m4)
-summary(m54)
-forest(m54)
+m21 <- metamerge(m2, m1,
+  taulabel1 = "REML-Peto", taulabel2 = "REML-IV",
+  hetlabel1 = "Peto", hetlabel2 = "MH/IV",
+  keep = TRUE)
+m213 <- metamerge(m21, m3, keep.w = TRUE)
+summary(m213)
+
+# Random effects method using ML estimator for between-study variance tau2
+m4 <- update(m1, common = FALSE, method.tau = "ML",
+  text.random = "Random effects model (ML)", text.w.random = "RE-ML")
+
+# Use DerSimonian-Laird estimator for tau2
+m5 <- update(m4, method.tau = "DL",
+  text.random = "Random effects model (DL)", text.w.random = "RE-DL")
+
+# Use Paule-Mandel estimator for tau2
+m6 <- update(m4, method.tau = "PM",
+  text.random = "Random effects model (PM)", text.w.random = "RE-PM")
+
+# Merge random effects results for ML and DL estimators
+# - keep weights for DL estimator (which are different from ML)
+m45 <- metamerge(m4, m5, taulabel1 = "ML", taulabel2 = "DL",
+   keep.w = TRUE)
+summary(m45)
+
+# Add results for PM estimator
+# - keep weights
+m456 <- metamerge(m45, m6, taulabel2 = "PM", keep.w = TRUE)
+summary(m456)
+
+m123456 <- metamerge(m123, m456)
+m123456
+
+# Use Hartung-Knapp confidence intervals
+# - do not keep information on Q, I2 and weights
+m7 <- update(m4, method.random.ci = "HK",
+  text.random = "Hartung-Knapp method (REML)")
+m8 <- update(m5, method.random.ci = "HK",
+  text.random = "Hartung-Knapp method (DL)")
+m9 <- update(m6, method.random.ci = "HK",
+  text.random = "Hartung-Knapp method (PM)")
+
+# Merge results for Hartung-Knapp method (with REML and DL estimator)
+# - RE weights for REML estimator are shown
+m78 <- metamerge(m7, m8)
+summary(m78)
+
+m789 <- metamerge(m78, m9)
+summary(m789)
+
+# Merge everything
+m1to9 <- metamerge(metamerge(m123, m456, keep.w = TRUE), m789)
+summary(m1to9)
+
+m10 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+  studlab = paste(study, year), sm = "OR", method = "GLMM",
+  text.common = "Common effect model (GLMM)",
+  text.random = "Random effects model (GLMM)")
+
+m.all <- metamerge(m1to9, m10, keep.Q = TRUE,
+  taulabel2 = "ML-GLMM", hetlabel2 = "GLMM")
+summary(m.all)
+
+forest(m.all, layout = "JAMA")
+forest(m.all)
+}
+
+settings.meta(oldset)
+options(oldopts)
 
 }
 \seealso{
-\code{\link{metagen}}, \code{\link{metabind}}
+\code{\link{metagen}}, \code{\link{metabind}},
+  \code{\link{metaadd}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

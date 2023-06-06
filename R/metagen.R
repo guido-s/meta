@@ -79,6 +79,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -118,8 +120,8 @@
 #'   (see Details).
 #' @param transf A logical indicating whether inputs for arguments
 #'   \code{TE}, \code{lower} and \code{upper} are already
-#'   appropriately transformed to conduct the meta-analysis or on
-#'   the original scale. If \code{transf = TRUE} (default), inputs are
+#'   appropriately transformed to conduct the meta-analysis or on the
+#'   original scale. If \code{transf = TRUE} (default), inputs are
 #'   expected to be log odds ratios instead of odds ratios for
 #'   \code{sm = "OR"} and Fisher's z transformed correlations instead
 #'   of correlations for \code{sm = "ZCOR"}, for example.
@@ -129,6 +131,13 @@
 #'   ratios rather than log odds ratios and results for \code{sm =
 #'   "ZCOR"} are printed as correlations rather than Fisher's z
 #'   transformed correlations, for example.
+#' @param func.transf A function used to transform inputs for
+#'   arguments \code{TE}, \code{lower} and \code{upper}.
+#' @param func.backtransf A function used to back-transform results.
+#' @param args.transf An optional list to provide additional arguments
+#'   to \code{func.transf}.
+#' @param args.backtransf An optional list to provide additional
+#'   arguments to \code{func.backtransf}.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -169,6 +178,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param id Deprecated argument (replaced by 'cluster').
 #' @param adhoc.hakn Deprecated argument (replaced by
@@ -546,10 +558,29 @@
 #' lower.HR <- c(0.28, 0.79, 0.59, 0.64)
 #' upper.HR <- c(1.09, 1.08, 1.05, 2.17)
 #' #
-#' # Input must be log hazard ratios, not hazard ratios
+#' # Hazard ratios and confidence intervals as input
 #' #
-#' metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-#'   studlab = study, sm = "HR")
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "HR", transf = FALSE))
+#' #
+#' # Same result with log hazard ratios as input
+#' #
+#' summary(metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
+#'   studlab = study, sm = "HR"))
+#' #
+#' # Again, same result using an unknown summary measure and
+#' # arguments 'func.transf' and 'func.backtransf'
+#' #
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "Hazard ratio",
+#'   func.transf = log, func.backtransf = exp))
+#' #
+#' # Finally, same result only providing argument 'func.transf' as the
+#' # back-transformation for the logarithm is known
+#' #
+#' summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+#'   studlab = study, sm = "Hazard ratio",
+#'   func.transf = log))
 #'
 #' # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 #' # show them in printouts and forest plots
@@ -624,6 +655,7 @@ metagen <- function(TE, seTE, studlab,
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                    seed.predict = NULL,
                     ##
                     null.effect = 0,
                     ##
@@ -638,8 +670,12 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     approx.TE, approx.seTE,
                     ##
-                    transf = gs("transf"),
-                    backtransf = gs("backtransf"),
+                    transf = gs("transf") & missing(func.transf),
+                    backtransf = gs("backtransf") | !missing(func.backtransf),
+                    func.transf,
+                    func.backtransf,
+                    args.transf,
+                    args.backtransf,
                     pscale = 1,
                     irscale = 1, irunit = "person-years",
                     ##
@@ -660,6 +696,8 @@ metagen <- function(TE, seTE, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
+                    seed.predict.subgroup = NULL,
+                    ##
                     byvar, id, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
@@ -692,10 +730,10 @@ metagen <- function(TE, seTE, studlab,
     setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
   ##
   if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.mean",
+    is_installed_package("estmeansd", argument = "method.mean",
                          value = method.mean)
   if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.sd",
+    is_installed_package("estmeansd", argument = "method.sd",
                          value = method.sd)
   ##
   chklevel(level)
@@ -703,6 +741,7 @@ metagen <- function(TE, seTE, studlab,
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
+  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   ##
@@ -720,9 +759,12 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
+  ##
+  if (!is.null(seed.predict))
+    chknumeric(seed.predict, length = 1)
   ##
   chknumeric(null.effect, length = 1)
   ##
@@ -730,7 +772,69 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(transf)
   chklogical(backtransf)
-  if (!is.prop(sm))
+  ##
+  missing.func.transf <- missing(func.transf)
+  missing.args.transf <- missing(args.transf)
+  missing.func.backtransf <- missing(func.backtransf)
+  missing.args.backtransf <- missing(args.backtransf)
+  ##
+  if (!missing.func.transf) {
+    chkfunc(func.transf)
+    func.transf <- deparse(substitute(func.transf))
+  }
+  else
+    func.transf <- NULL
+  ##
+  if (!missing.args.transf)
+    chklist(args.transf)
+  else
+    args.transf <- NULL
+  ##
+  if (!missing.func.backtransf) {
+    chkfunc(func.backtransf)    
+    func.backtransf <- deparse(substitute(func.backtransf))
+  }
+  else
+    func.backtransf <- NULL
+  ##
+  if (!missing.args.backtransf)
+    chklist(args.backtransf)    
+  else
+    args.backtransf <- NULL
+  ##
+  if (is.null(func.transf) & !is.null(args.transf)) {
+    warning("Argument 'args.transf' ignored as argument ",
+            "'func.transf' is ",
+            if (missing.func.transf) "missing." else "NULL.",
+            call. = FALSE)
+    args.transf <- NULL
+  }
+  ##
+  if (is.null(func.backtransf) & !is.null(args.backtransf)) {
+    warning("Argument 'args.backtransf' ignored as argument ",
+            "'func.backtransf' is ",
+            if (missing.func.backtransf) "missing." else "NULL.",
+            call. = FALSE)
+    args.backtransf <- NULL
+  }
+  ##
+  if (!is.null(func.transf) & is.null(func.backtransf)) {
+    if (func.transf == "log" & is.null(args.transf))
+      func.backtransf <- "exp"
+    else if (func.transf == "cor2z" & is.null(args.transf))
+      func.backtransf <- "z2cor"
+    else if (func.transf == "p2logit" & is.null(args.transf))
+      func.backtransf <- "logit2p"
+    else if (func.transf == "p2asin" & is.null(args.transf))
+      func.backtransf <- "asin2p"
+    else if (func.transf == "VE2logVR" & is.null(args.transf))
+      func.backtransf <- "logVR2VE"
+    else
+      stop("Argument 'func.backtransf' must be specified.",
+           call. = FALSE)
+  }
+  ##
+  if (!is_prop(sm))
     pscale <- 1
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
@@ -738,7 +842,7 @@ metagen <- function(TE, seTE, studlab,
             call. = FALSE)
     pscale <- 1
   }
-  if (!is.rate(sm))
+  if (!is_rate(sm))
     irscale <- 1
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
@@ -858,18 +962,42 @@ metagen <- function(TE, seTE, studlab,
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
+  avail.TE <- !(missing.TE || is.null(TE))
+  avail.median <- !(missing.median || is.null(median))
+  avail.lower <- !(missing.lower || is.null(lower))
+  avail.upper <- !(missing.upper || is.null(upper))
+  ##
+  if (!avail.TE & !avail.median & (!avail.lower | !avail.upper))
+    stop("Treatment estimates missing. ",
+         "Provide either argument 'TE' or 'median', ",
+         "or arguments 'lower' and 'upper'.",
+         call. = FALSE)
+  ##
+  TE.orig <- NULL
+  lower.orig <- NULL
+  upper.orig <- NULL
+  ##
   if (!transf) {
-    if (!missing.TE)
-      TE <- transf(TE, sm)
-    if (!missing.lower)
-      lower <- transf(lower, sm)
-    if (!missing.upper)
-      upper <- transf(upper, sm)
-    if (sm == "VE" &&
-        !missing.lower & !missing.upper) {
+    if (avail.TE) {
+      TE.orig <- TE
+      TE <- transf(TE, sm, func.transf, args.transf)
+    }
+    if (avail.lower) {
+      lower.orig <- lower
+      lower <- transf(lower, sm, func.transf, args.transf)
+    }
+    if (avail.upper) {
+      upper.orig <- upper
+      upper <- transf(upper, sm, func.transf, args.transf)
+    }
+    if (sm == "VE" && avail.lower & avail.upper) {
       tmp.l <- lower
       lower <- upper
       upper <- tmp.l
+      ##
+      tmp.l <- lower.orig
+      lower.orig <- upper.orig
+      upper.orig <- tmp.l
     }   
   }
   ##
@@ -887,27 +1015,22 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.method.tau.ci <- missing(method.tau.ci)
   ##
-  k.All <- if (!missing.TE)
+  k.All <- if (avail.TE)
              length(TE)
-           else if (!missing.median)
+           else if (avail.median)
              length(median)
-           else if (!missing.lower)
+           else if (avail.lower)
              length(lower)
-           else
+           else if (avail.upper)
              length(upper)
+           else
+             NA
   ##
-  if (!missing.TE)
-    chknull(TE)
-  else
+  if (!avail.TE)
     TE <- rep_len(NA, k.All)
   ##
-  if (!missing.seTE)
-    chknull(seTE)
-  else
+  if (missing.seTE)
     seTE <- rep_len(NA, k.All)
-  ##
-  if (!missing.median)
-    chknull(median)
   ##
   missing.n.e <- missing(n.e)
   missing.n.c <- missing(n.c)
@@ -939,30 +1062,38 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.pval <- missing(pval)
   pval <- catch("pval", mc, data, sfsp)
+  avail.pval <- !(missing.pval || is.null(pval))
   ##
   missing.df <- missing(df)
   df <- catch("df", mc, data, sfsp)
+  avail.df <- !(missing.df || is.null(df))
   ##
   if (!missing(level.ci))
     level.ci <- catch("level.ci", mc, data, sfsp)
   ##
   missing.q1 <- missing(q1)
   q1 <- catch("q1", mc, data, sfsp)
+  avail.q1 <- !(missing.q1 || is.null(q1))
   ##
   missing.q3 <- missing(q3)
   q3 <- catch("q3", mc, data, sfsp)
+  avail.q3 <- !(missing.q3 || is.null(q3))
   ##
   missing.min <- missing(min)
   min <- catch("min", mc, data, sfsp)
+  avail.min <- !(missing.min || is.null(min))
   ##
   missing.max <- missing(max)
   max <- catch("max", mc, data, sfsp)
+  avail.max <- !(missing.max || is.null(max))
   ##
   missing.approx.TE <- missing(approx.TE)
   approx.TE <- catch("approx.TE", mc, data, sfsp)
+  avail.approx.TE <- !(missing.approx.TE || is.null(approx.TE))
   ##
   missing.approx.seTE <- missing(approx.seTE)
   approx.seTE <- catch("approx.seTE", mc, data, sfsp)
+  avail.approx.seTE <- !(missing.approx.seTE || is.null(approx.seTE))
   
   
   ##
@@ -971,7 +1102,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  arg <- if (!missing.TE) "TE" else "median"
+  arg <- if (avail.TE) "TE" else "median"
   chklength(seTE, k.All, arg)
   chklength(studlab, k.All, arg)
   ##
@@ -1002,7 +1133,7 @@ metagen <- function(TE, seTE, studlab,
   if (with.cluster)
     chklength(cluster, k.All, arg)
   ##
-  if (!missing.approx.TE) {
+  if (avail.approx.TE) {
     if (length(approx.TE) == 1)
       rep_len(approx.TE, k.All)
     else
@@ -1011,7 +1142,7 @@ metagen <- function(TE, seTE, studlab,
     approx.TE <- setchar(approx.TE, c("", "ci", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.approx.seTE) {
+  if (avail.approx.seTE) {
     if (length(approx.seTE) == 1)
       rep_len(approx.seTE, k.All)
     else
@@ -1021,27 +1152,27 @@ metagen <- function(TE, seTE, studlab,
                            c("", "pval", "ci", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.pval)
+  if (avail.pval)
     chklength(pval, k.All, arg)
-  if (!missing.df)
+  if (avail.df)
     chklength(df, k.All, arg)
-  if (!missing.lower)
+  if (avail.lower)
     chklength(lower, k.All, arg)
-  if (!missing.upper)
+  if (avail.upper)
     chklength(upper, k.All, arg)
   if (length(level.ci) == 1)
     level.ci <- rep_len(level.ci, k.All)
   else
     chklength(level.ci, k.All, arg)
-  if (!missing.median)
+  if (avail.median)
     chklength(median, k.All, arg)
-  if (!missing.q1)
+  if (avail.q1)
     chklength(q1, k.All, arg)
-  if (!missing.q3)
+  if (avail.q3)
     chklength(q3, k.All, arg)
-  if (!missing.min)
+  if (avail.min)
     chklength(min, k.All, arg)
-  if (!missing.max)
+  if (avail.max)
     chklength(max, k.All, arg)
   
   
@@ -1111,34 +1242,48 @@ metagen <- function(TE, seTE, studlab,
       data$.idx <- idx
     }
     ##
-    if (!missing.pval)
+    if (avail.pval)
       data$.pval <- pval
-    if (!missing.df)
+    if (avail.df)
       data$.df <- df
-    if (!missing.lower)
+    ##
+    if (avail.lower)
       data$.lower <- lower
-    if (!missing.upper)
+    if (avail.upper)
       data$.upper <- upper
-    if (!missing.lower | !missing.upper)
+    if (avail.lower | avail.upper)
       data$.level.ci <- level.ci
-    if (!missing.median)
+    ##
+    if (avail.median)
       data$.median <- median
-    if (!missing.q1)
+    if (avail.q1)
       data$.q1 <- q1
-    if (!missing.q3)
+    if (avail.q3)
       data$.q3 <- q3
-    if (!missing.min)
+    ##
+    if (avail.min)
       data$.min <- min
-    if (!missing.max)
+    if (avail.max)
       data$.max <- max
-    if (!missing.approx.TE)
+    ##
+    if (avail.approx.TE)
       data$.approx.TE <- approx.TE
-    if (!missing.approx.seTE)
+    if (avail.approx.seTE)
       data$.approx.seTE <- approx.seTE
+    ##
     if (!missing.n.e)
       data$.n.e <- n.e
     if (!missing.n.c)
       data$.n.c <- n.c
+    ##
+    if (!is.null(TE.orig))
+      data$.TE.orig <- TE.orig
+    ##
+    if (!is.null(lower.orig))
+      data$.lower.orig <- lower.orig
+    ##
+    if (!is.null(upper.orig))
+      data$.upper.orig <- upper.orig
   }
   
   
@@ -1168,28 +1313,28 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(n.c))
       n.c <- n.c[subset]
     ##
-    if (!missing.pval)
+    if (avail.pval)
       pval <- pval[subset]
-    if (!missing.df)
+    if (avail.df)
       df <- df[subset]
-    if (!missing.lower)
+    if (avail.lower)
       lower <- lower[subset]
-    if (!missing.upper)
+    if (avail.upper)
       upper <- upper[subset]
     level.ci <- level.ci[subset]
-    if (!missing.median)
+    if (avail.median)
       median <- median[subset]
-    if (!missing.q1)
+    if (avail.q1)
       q1 <- q1[subset]
-    if (!missing.q3)
+    if (avail.q3)
       q3 <- q3[subset]
-    if (!missing.min)
+    if (avail.min)
       min <- min[subset]
-    if (!missing.max)
+    if (avail.max)
       max <- max[subset]
-    if (!missing.approx.TE)
+    if (avail.approx.TE)
       approx.TE <- approx.TE[subset]
-    if (!missing.approx.seTE)
+    if (avail.approx.seTE)
       approx.seTE <- approx.seTE[subset]
   }
   ##
@@ -1229,16 +1374,16 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (missing.approx.seTE) {
+  if (!avail.approx.seTE) {
     approx.seTE <- rep_len("", length(TE))
     ##
     ## Use confidence limits
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.lower & !missing.upper) {
+    if (any(sel.NA) & avail.lower & avail.upper) {
       j <- sel.NA & !is.na(lower) & !is.na(upper)
       approx.seTE[j] <- "ci"
-      if (missing.df)
+      if (!avail.df)
         seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
       else
         seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
@@ -1247,10 +1392,10 @@ metagen <- function(TE, seTE, studlab,
     ## Use p-values
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.pval) {
+    if (any(sel.NA) & avail.pval) {
       j <- sel.NA & !is.na(TE) & !is.na(pval)
       approx.seTE[j] <- "pval"
-      if (missing.df)
+      if (!avail.df)
         seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
       else
         seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
@@ -1259,23 +1404,22 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR and range
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.seTE[j] <- "iqr.range"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
       else
-        seTE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
     }
@@ -1283,33 +1427,33 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.seTE[j] <- "iqr"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
       else
-        seTE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
     }
     ##
     ## Use range
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.seTE[j] <- "range"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j])$se
+        seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j])$se
+        seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
       else
-        seTE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j],
+        seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                  min[j], max[j])$se
     }
   }
@@ -1319,13 +1463,13 @@ metagen <- function(TE, seTE, studlab,
       j <- j + 1
       ##
       if (i == "ci") {
-        if (missing.df)
+        if (!avail.df)
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
         else
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
       }
       else if (i == "pval") {
-        if (missing.df)
+        if (!avail.df)
           seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
         else
           seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
@@ -1335,15 +1479,15 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
         else
-          seTE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
       }
@@ -1352,22 +1496,22 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
         else
-          seTE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
       }
       else if (i == "range") {
         if (is.null(n.e) & is.null(n.c))
           stop("Sample size needed if argument 'approx.seTE' = \"range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j])$se
+          seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j])$se
+          seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
         else
-          seTE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j],
+          seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                    min[j], max[j])$se
       }
     }
@@ -1380,13 +1524,13 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (missing.approx.TE) {
+  if (!avail.approx.TE) {
     approx.TE <- rep_len("", length(TE))
     ##
     ## Use confidence limits
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.lower & !missing.upper) {
+    if (any(sel.NA) & avail.lower & avail.upper) {
       j <- sel.NA & !is.na(lower) & !is.na(upper)
       approx.TE[j] <- "ci"
       TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
@@ -1395,57 +1539,56 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR and range
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.TE[j] <- "iqr.range"
       if (is.null(n.c))
-        TE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
     }
     ##
     ## Use IQR
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.TE[j] <- "iqr"
       if (is.null(n.c))
-        TE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+        TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+        TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                              method.mean)$mean
     }
     ##
     ## Use range
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.TE[j] <- "range"
       if (is.null(n.c))
-        TE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
                                method.mean)$mean
       else
-        TE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
                                method.mean)$mean
     }
   }
@@ -1461,13 +1604,13 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          TE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+          TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else if (i == "iqr") {
         if (is.null(n.e) & is.null(n.c))
@@ -1475,13 +1618,13 @@ metagen <- function(TE, seTE, studlab,
                call. = FALSE)
         else if (is.null(n.c))
           TE[j] <-
-            mean.sd.iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+            mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
         else if (is.null(n.e))
           TE[j] <-
-            mean.sd.iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+            mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
         else
           TE[j] <-
-            mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+            mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                         method.mean)$mean
       }
       else if (i == "range") {
@@ -1490,13 +1633,13 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.TE' = \"range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          TE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else if (is.null(n.e))
-          TE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else
-          TE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
                                  method.mean)$mean
       }
     }
@@ -1567,13 +1710,13 @@ metagen <- function(TE, seTE, studlab,
   }
   ##
   if (three.level) {
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing.method.tau)
-        warning("For three-level model, argument 'method.tau' set to ",
-                "\"REML\".",
-                call. = FALSE)
+    chkmlm(method.tau, missing.method.tau, method.predict,
+           by, tau.common, missing.tau.common)
+    ##
+    common <- FALSE
+    ##
+    if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
-    }
   }
   ##
   if (by) {
@@ -1920,7 +2063,8 @@ metagen <- function(TE, seTE, studlab,
         else if (method.predict[i] == "NNF") {
           res.pima <- pimeta::pima(TE[!exclude], seTE[!exclude],
                                    method = "boot",
-                                   alpha = 1 - level.predict)
+                                   alpha = 1 - level.predict,
+                                   seed = seed.predict)
           ##
           pi.i <- as.data.frame(ci(1, NA, level = level.predict))
           pi.i$seTE <-NA
@@ -2083,18 +2227,24 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Keep original confidence limits
   ##
-  if (!missing.lower)
+  if (avail.lower)
     ci.study$lower[!is.na(lower)] <- lower[!is.na(lower)]
-  if (!missing.upper)
+  if (avail.upper)
     ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
   ##
-  if (length(seTE.random) > 1) {
+  if (length(lower.random) > 1) {
     methci <- paste(method.random.ci,
                     toupper(substring(adhoc.hakn.ci, 1, 2)),
                     sep = "-")
     methci <- gsub("-$", "", methci)
     ##
-    names(seTE.random) <-
+    if (length(TE.random) == 1)
+      TE.random <- rep(TE.random, length(lower.random))
+    ##
+    if (length(seTE.random) == 1)
+      seTE.random <- rep(seTE.random, length(lower.random))
+    ##
+    names(TE.random) <- names(seTE.random) <-
       names(statistic.random) <- names(pval.random) <-
       names(df.random) <- names(lower.random) <- names(upper.random) <-
       methci
@@ -2143,9 +2293,15 @@ metagen <- function(TE, seTE, studlab,
               common = common,
               random = random,
               prediction = prediction,
+              transf = transf,
               backtransf = backtransf,
+              func.transf = func.transf,
+              func.backtransf = func.backtransf,
+              args.transf = args.transf,
+              args.backtransf = args.backtransf,
               ##
               method = "Inverse",
+              method.random = "Inverse",
               ##
               w.common = w.common,
               TE.common = TE.common,
@@ -2195,7 +2351,8 @@ metagen <- function(TE, seTE, studlab,
               method.tau = method.tau,
               control = control,
               method.tau.ci = hc$method.tau.ci,
-              tau2 = hc$tau2, se.tau2 = hc$se.tau2,
+              tau2 = hc$tau2,
+              se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
               tau = hc$tau,
               lower.tau = hc$lower.tau, upper.tau = hc$upper.tau,
@@ -2238,6 +2395,8 @@ metagen <- function(TE, seTE, studlab,
               approx.TE = approx.TE,
               approx.seTE = approx.seTE,
               ##
+              seed.predict = seed.predict,
+              ##
               warn = warn,
               call = match.call(),
               version = packageDescription("meta")$Version,
@@ -2266,19 +2425,21 @@ metagen <- function(TE, seTE, studlab,
     res$prediction.subgroup <- prediction.subgroup
     ##
     if (!tau.common) {
-      res <- c(res, subgroup(res))
+      res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
         res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
-      res <- c(res, subgroup(res, tau.preset))
+      res <-
+        c(res, subgroup(res, tau.preset, seed = seed.predict.subgroup))
     else {
       if (three.level)
         res <- c(res,
                  subgroup(res, NULL,
                           factor(res$subgroup, bylevs(res$subgroup))))
       else
-        res <- c(res, subgroup(res, hcc$tau.resid))
+        res <-
+          c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
     ##
     if (tau.common && is.null(tau.preset))
@@ -2301,6 +2462,32 @@ metagen <- function(TE, seTE, studlab,
     ##
     res <- setNAwithin(res, res$three.level)
   }
+  ##
+  ## Add names to tau2 & rest (if necessary)
+  ##
+  if (length(res$tau2) > 1)
+    names(res$tau2) <- res$detail.tau
+  ##
+  if (length(res$tau) > 1)
+    names(res$tau) <- res$detail.tau
+  ##
+  if (length(res$tau2.resid) > 1)
+    names(res$tau2.resid) <- res$detail.tau
+  ##
+  if (length(res$tau.resid) > 1)
+    names(res$tau.resid) <- res$detail.tau
+  ##
+  ## Unset variables for prediction intervals
+  ##
+  res$method.predict <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           "", res$method.predict)
+  res$df.predict <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           NA, res$df.predict)
+  res$adhoc.hakn.pi <-
+    ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
+           "", res$adhoc.hakn.pi)
   ##
   ## Backward compatibility
   ##

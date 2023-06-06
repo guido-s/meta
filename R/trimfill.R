@@ -50,6 +50,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for the
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -188,7 +190,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
-              c("trimfill", "metacum", "metainf", "netpairwise"))
+              c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   ##
@@ -219,14 +221,14 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   chklogical(backtransf)
   ##
   sm <- x$sm
-  if (!is.prop(sm))
+  if (!is_prop(sm))
     pscale <- 1
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is.rate(sm))
+  if (!is_rate(sm))
     irscale <- 1
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
@@ -265,7 +267,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   if (sm %in% c("PFT", "PAS"))
     transf.null.effect <- asin(sqrt(null.effect))
-  else if (is.log.effect(sm))
+  else if (is_log_effect(sm))
     transf.null.effect <- log(null.effect)
   else if (sm == c("PLOGIT"))
     transf.null.effect <- log(null.effect / (1 - null.effect))
@@ -533,24 +535,34 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   
   
   if (!left)
-    m <- metagen(-TE, seTE, studlab = studlab,
-                 level = x$level, level.ma = x$level.ma,
+    m <- metagen(-TE, seTE, studlab = studlab, level = x$level,
+                 ##
+                 level.ma = x$level.ma,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
+                 ##
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                 ##
                  method.predict = x$method.predict,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
+                 seed.predict = x$seed.predict,
+                 ##
                  null.effect = transf.null.effect)
   else
-    m <- metagen(TE, seTE, studlab = studlab,
-                 level = x$level, level.ma = x$level.ma,
+    m <- metagen(TE, seTE, studlab = studlab, level = x$level,
+                 ##
+                 level.ma = x$level.ma,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
+                 ##
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                 ##
                  method.predict = x$method.predict,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
+                 seed.predict = x$seed.predict,
+                 ##
                  null.effect = transf.null.effect)
   
   
@@ -585,29 +597,39 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     ##
     if (!left)
       m <- metagen(-TE.all, seTE.all, studlab = studlab.all,
-                   exclude = exclude,
-                   level = x$level, level.ma = x$level.ma,
+                   exclude = exclude, level = x$level,
+                   ##
+                   level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
+                   ##
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
+                   ##
                    method.predict = x$method.predict,
                    prediction = prediction,
                    level.predict = x$level.predict,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   seed.predict = x$seed.predict,
+                   ##
                    null.effect = transf.null.effect)
     else
       m <- metagen(TE.all, seTE.all, studlab = studlab.all,
-                   exclude = exclude,
-                   level = x$level, level.ma = x$level.ma,
+                   exclude = exclude, level = x$level,
+                   ##
+                   level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
+                   ##
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
+                   ##
                    method.predict = x$method.predict,
                    prediction = prediction,
                    level.predict = x$level.predict,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   seed.predict = x$seed.predict,
+                   ##
                    null.effect = transf.null.effect)
   }
   
@@ -640,6 +662,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               backtransf = backtransf,
               ##
               method = m$method,
+              method.random = m$method.random,
               level = x$level,
               ##
               w.common = m$w.common,
@@ -677,6 +700,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               upper.predict = m$upper.predict,
               seTE.hakn.pi = m$seTE.hakn.pi,
               seTE.hakn.adhoc.pi = m$seTE.hakn.adhoc.pi,
+              seed.predict = m$seed.predict,
               ##
               Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
               ##
@@ -781,14 +805,19 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              sm = "", studlab = NULL,
                              level = 0.95, level.ma = level,
                              common = FALSE, random = TRUE,
+                             ##
                              method.random.ci = gs("method.random.ci"),
                              adhoc.hakn.ci = gs("adhoc.hakn.ci"),
+                             ##
                              method.tau = gs("method.tau"),
                              method.tau.ci =
                                if (method.tau == "DL") "J" else "QP",
+                             ##
                              prediction = FALSE, level.predict = level,
                              method.predict = gs("method.predict"),
                              adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                             seed.predict = NULL,
+                             ##
                              backtransf = TRUE, pscale = 1,
                              irscale = 1, irunit = "person-years",
                              silent = TRUE, ...) {
@@ -835,6 +864,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                level.predict = level.predict,
+               seed.predict = seed.predict,
                ##
                backtransf = backtransf, pscale = pscale,
                irscale = irscale, irunit = irunit,

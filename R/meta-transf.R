@@ -106,7 +106,7 @@ z2cor <- function(x)
   tanh(x)
 
 
-backtransf <- function(x, sm, value, n) {
+backtransf <- function(x, sm, value, n, func = NULL, args = NULL) {
   
   ##
   ## Do nothing if all values are NA
@@ -114,7 +114,10 @@ backtransf <- function(x, sm, value, n) {
   if (all(is.na(x)))
     return(x)
   
-  if (is.relative.effect(sm) | is.log.effect(sm))
+  if (!is.null(func))
+    res <- do.call(func, c(list(x), args))
+  ##
+  else if (is_relative_effect(sm) | is_log_effect(sm))
     res <- exp(x)
   ##
   else if (sm == "ZCOR")
@@ -188,15 +191,18 @@ VE2logVR <- function(x)
   log(1 - x / 100)
 
 
-transf <- function(x, sm) {
+transf <- function(x, sm, func = NULL, args = NULL) {
   
   ##
   ## Do nothing if all values are NA
   ## 
   if (all(is.na(x)))
     return(x)
-  
-  if (is.relative.effect(sm) | is.log.effect(sm))
+
+  if (!is.null(func))
+    res <- do.call(func, c(list(x), args))
+  ##
+  else if (is_relative_effect(sm) | is_log_effect(sm))
     res <- log(x)
   ##
   else if (sm == "ZCOR")

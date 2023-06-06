@@ -49,6 +49,110 @@ update_needed <- function(version,
 }
 
 
+taudat <- function(tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
+                   tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
+                   sign.lower, sign.upper) {
+  dat <- data.frame(tau, tau2)
+  ##
+  if (print.tau.ci) {
+    dat$lower.tau <- round(lower.tau, digits.tau)
+    dat$upper.tau <- round(upper.tau, digits.tau)
+  }
+  ##
+  if (print.tau2.ci) {
+    dat$lower.tau2 <- round(lower.tau2, digits.tau2)
+    dat$upper.tau2 <- round(upper.tau2, digits.tau2)
+  }
+  ##
+  if (!is.null(names(tau)))
+    dat$names <- names(tau)
+  ##
+  if (!is.null(sign.lower))
+    dat$sign.lower <- sign.lower
+  if (!is.null(sign.upper))
+    dat$sign.upper <- sign.upper
+  ##
+  dat <- unique(dat)
+  dat
+}
+
+
+hetdat <- function(I2, lowI2, uppI2, print.I2, print.I2.ci, digits.I2,
+                   H, lowH, uppH, print.H, digits.H,
+                   Rb, lowRb, uppRb, print.Rb) {
+  dat <- data.frame()
+  ##
+  if (print.I2) {
+    if (nrow(dat) == 0)
+      dat <- data.frame(I2 = round(I2, digits.I2))
+    else
+      dat$I2 <- round(I2, digits.I2)
+    ##
+    if (print.I2.ci) {
+      dat$lowI2 <- round(lowI2, digits.I2)
+      dat$uppI2 <- round(uppI2, digits.I2)
+    }
+  }
+  ##
+  if (print.H) {
+    if (nrow(dat) == 0)
+      dat <- data.frame(H = round(H, digits.H))
+    else
+      dat$H <- round(H, digits.H)
+    ##
+    if (print.I2.ci) {
+      dat$lowH <- round(lowH, digits.H)
+      dat$uppH <- round(uppH, digits.H)
+    }
+  }
+  ##
+  if (print.Rb) {
+    if (nrow(dat) == 0)
+      dat <- data.frame(Rb = round(Rb, digits.I2))
+    else
+      dat$Rb <- round(Rb, digits.I2)
+    ##
+    if (print.I2.ci) {
+      dat$lowRb <- round(lowRb, digits.I2)
+      dat$uppRb <- round(uppRb, digits.I2)
+    }
+  }
+  ##
+  if (!is.null(names(I2)))
+    dat$names <- names(I2)
+  else if (!is.null(names(H)))
+    dat$names <- names(H)
+  else if (!is.null(names(Rb)))
+    dat$names <- names(Rb)
+  ##
+  dat <- unique(dat)
+  dat
+}
+
+
+qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
+  if (length(Q) > 1) {
+    if (!is.null(names(Q)))
+      rownames.Q <- names(Q)
+    else if (!is.null(hetlabel) && length(hetlabel) == length(Q))
+      rownames.Q <- hetlabel
+    else if (length(text.common) == length(Q))
+      rownames.Q <- text.common
+    else
+      rownames.Q <- rep("", length(Q))
+  }
+  else
+    rownames.Q <- rep("", length(Q))
+  ##
+  sel <- rownames.Q != ""
+  rownames.Q[sel] <- paste0(" ", rownames.Q[sel])
+  ##
+  dat <- data.frame(Q, df.Q, pval.Q, names = rownames.Q)
+  dat <- unique(dat)
+  dat
+}
+
+
 cathet <- function(k,
                    tau2, lower.tau2, upper.tau2,
                    print.tau2, print.tau2.ci, text.tau2, digits.tau2,
@@ -61,8 +165,7 @@ cathet <- function(k,
                    print.H, digits.H,
                    Rb, lowRb, uppRb,
                    print.Rb, text.Rb,
-                   big.mark,
-                   label = "") {
+                   big.mark) {
   
   
   if (is.null(lower.tau2))
@@ -82,21 +185,36 @@ cathet <- function(k,
   
   ## Print tau2 and tau
   ##
-  stau <- length(tau) == 1
+  dtau <- taudat(tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
+                 tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
+                 sign.lower.tau, sign.upper.tau)
+  ##
+  ntau <- nrow(dtau)
   ##
   if (print.tau2 | print.tau) {
-    if (!stau) {
-      text.tau2 <- paste(text.tau2, seq_along(tau), sep = ".")
-      text.tau <- paste(text.tau, seq_along(tau), sep = ".")
+    if (ntau > 1) {
+      text.tau2 <- paste(text.tau2, seq_len(ntau), sep = ".")
+      text.tau <- paste(text.tau, seq_len(ntau), sep = ".")
     }
   }
   ##
-  label <- ifelse(label != "", paste0(" (", label, ")"), "")
+  label.tau <-
+    if (ntau > 1)
+      ifelse(dtau$names == "", "", paste0(" (", dtau$names, ")"))
+    else
+      ""
+  ##
+  label.I2 <-
+    if (length(I2) > 1)
+      ifelse(names(I2) == "", "", paste0(" (", names(I2), ")"))
+    else
+      ""
   ##
   if (print.tau2.ci) {
     text.tau2.ci <-
-      pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
-              sign.lower.tau, sign.upper.tau)
+      pasteCI(dtau$lower.tau2, dtau$upper.tau2,
+              digits.tau2, big.mark,
+              dtau$sign.lower, dtau$sign.upper)
     text.tau2.ci[text.tau2.ci == " "] <- ""
   }
   else
@@ -104,8 +222,9 @@ cathet <- function(k,
   ##
   if (print.tau.ci) {
     text.tau.ci <-
-      pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
-              sign.lower.tau, sign.upper.tau)
+      pasteCI(dtau$lower.tau, dtau$upper.tau,
+              digits.tau, big.mark,
+              dtau$sign.lower, dtau$sign.upper)
     text.tau.ci[text.tau.ci == " "] <- ""
   }
   else
@@ -116,52 +235,55 @@ cathet <- function(k,
       if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
         " ",
       if (print.tau2)
-        paste0(formatPT(tau^2,
+        paste0(formatPT(dtau$tau2,
                         lab = TRUE, labval = text.tau2,
                         digits = digits.tau2,
                         lab.NA = "NA",
                         big.mark = big.mark),
                text.tau2.ci,
-               if (!print.tau) label),
+               if (!print.tau) label.tau),
       ##
       if (print.tau)
         paste0(
           if (print.tau2) "; " else "",
-          formatPT(tau,
+          formatPT(dtau$tau,
                    lab = TRUE, labval = text.tau,
                    digits = digits.tau,
                    lab.NA = "NA",
                    big.mark = big.mark),
           text.tau.ci,
-          label),
+          label.tau),
       collapse = "\n")
   )
   
   
   ## Print I2, H and Rb
   ##
+  dhet <- hetdat(I2, lowI2, uppI2, print.I2, print.I2.ci, digits.I2,
+                 H, lowH, uppH, print.H, digits.H,
+                 Rb, lowRb, uppRb, print.Rb)
+  ##
+  nhet <- nrow(dhet)
+  ##
   if (print.I2) {
-    sI2 <- length(I2) == 1
-    if (!sI2)
-      text.I2 <- paste(text.I2, seq_along(I2), sep = ".")
+    if (nhet > 1)
+      text.I2 <- paste(text.I2, seq_len(nhet), sep = ".")
   }
   ##
   if (print.H) {
     text.H <- "H"
-    sH <- length(H) == 1
-    if (!sH)
-      text.H <- paste(text.H, seq_along(H), sep = ".")
+    if (nhet > 1)
+      text.H <- paste(text.H, seq_len(nhet), sep = ".")
   }
   ##  
   if (print.Rb) {
-    sRb <- length(Rb) == 1
-    if (!sRb)
-      text.Rb <- paste(text.Rb, seq_along(Rb), sep = ".")
+    if (nhet > 1)
+      text.Rb <- paste(text.Rb, seq_len(nhet), sep = ".")
   }
   ##
   if (print.I2)
     cat(ifelse(print.tau2 | print.tau,
-        ifelse(!stau | print.tau2.ci | print.tau.ci |
+        ifelse(ntau > 1 | print.tau2.ci | print.tau.ci |
                (options()$width < 70 & print.I2.ci),
                "\n", ";"),
         ""))
@@ -173,12 +295,12 @@ cathet <- function(k,
           if (print.tau2 | print.tau)
             " ",
           text.I2, " = ",
-          ifelse(is.na(I2), "NA",
-                 paste0(formatN(I2, digits.I2), "%")),
+          ifelse(is.na(dhet$I2), "NA",
+                 paste0(formatN(dhet$I2, digits.I2), "%")),
           if (print.I2.ci)
-            pasteCI(lowI2, uppI2, digits.I2, big.mark, unit = "%"),
-          if (!sI2 & !print.H)
-            label
+            pasteCI(dhet$lowI2, dhet$uppI2, digits.I2, big.mark, unit = "%"),
+          if (nhet > 1 & !print.H)
+            label.I2
         ),
       ##
       if (print.H)
@@ -186,19 +308,18 @@ cathet <- function(k,
           if (print.tau2 | print.tau | print.I2)
             "; " else " ",
           text.H, " = ",
-          ifelse(is.na(H), "NA",
-                 formatN(H, digits.H, "NA", big.mark = big.mark)),
+          ifelse(is.na(dhet$H), "NA",
+                 formatN(dhet$H, digits.H, "NA", big.mark = big.mark)),
           if (print.I2.ci & any(!is.na(lowH) & !is.na(uppH)))
-            pasteCI(lowH, uppH, digits.H, big.mark),
-          if (!sH)
-            label),
+            pasteCI(dhet$lowH, dhet$uppH, digits.H, big.mark),
+          if (nhet > 1)
+            label.I2),
       collapse = "\n")
     )
   
-  
   if (print.Rb)
     cat(ifelse(print.tau2 | print.tau | print.I2 | print.H,
-        ifelse(!stau | !sI2 | !sH |
+        ifelse(ntau > 1 | nhet > 1 |
                print.tau2.ci | print.tau.ci |
                print.I2.ci |
                (options()$width < 70 & print.I2.ci),
@@ -210,11 +331,11 @@ cathet <- function(k,
       paste0(
         " ",
         text.Rb, " = ",
-        ifelse(is.na(Rb), "NA",
-               paste0(formatN(Rb, digits.I2, big.mark = big.mark), "%")),
-        if (any(!is.na(lowRb) & !is.na(uppRb)))
-          pasteCI(lowRb, uppRb, digits.I2, big.mark, unit = "%"),
-        label,
+        ifelse(is.na(dhet$Rb), "NA",
+               paste0(formatN(dhet$Rb, digits.I2, big.mark = big.mark), "%")),
+        if (any(!is.na(dhet$lowRb) & !is.na(dhet$uppRb)))
+          pasteCI(dhet$lowRb, dhet$uppRb, digits.I2, big.mark, unit = "%"),
+        label.I2,
         collapse = "\n")
     )
   

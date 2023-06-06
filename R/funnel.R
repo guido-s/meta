@@ -196,7 +196,7 @@ funnel.meta <- function(x,
                         log, yaxis,
                         contour.levels = NULL, col.contour,
                         ##
-                        ref = ifelse(is.relative.effect(x$sm), 1, 0),
+                        ref = ifelse(is_relative_effect(x$sm), 1, 0),
                         ##
                         level = if (common | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
@@ -218,7 +218,7 @@ funnel.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Funnel plot")
+  chksuitable(x, "Funnel plot", "metamerge", check.mlm = FALSE)
   ##
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
@@ -322,7 +322,7 @@ funnel.meta <- function(x,
   sm <- x$sm
   ##
   if (missing(log))
-    if (backtransf & is.relative.effect(sm))
+    if (backtransf & is_relative_effect(sm))
       log <- "x"
     else
       log <- ""
@@ -334,7 +334,7 @@ funnel.meta <- function(x,
   ##
   seTE.max <- max(seTE, na.rm = TRUE)
   ##
-  if (is.relative.effect(sm))
+  if (is_relative_effect(sm))
     ref <- log(ref)
   ##
   ref.contour <- ref
@@ -365,7 +365,7 @@ funnel.meta <- function(x,
                    1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
   }
   ##
-  if (backtransf & is.relative.effect(sm)) {
+  if (backtransf & is_relative_effect(sm)) {
     TE <- exp(TE)
     TE.common <- exp(TE.common)
     TE.random <- exp(TE.random)
@@ -425,7 +425,7 @@ funnel.meta <- function(x,
   ## x-axis: labels / xlim
   ##
   if (is.null(xlab))
-    if (is.relative.effect(sm))
+    if (is_relative_effect(sm))
       xlab <- xlab(sm, backtransf)
     else if (sm == "PRAW")
       xlab <- "Proportion"
@@ -494,7 +494,7 @@ funnel.meta <- function(x,
       ##
       ciContour <- ci(ref.contour, seTE.cont, i)
       ##
-      if (backtransf & is.relative.effect(sm)) {
+      if (backtransf & is_relative_effect(sm)) {
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)

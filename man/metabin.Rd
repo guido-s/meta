@@ -42,6 +42,7 @@ metabin(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   method.bias = ifelse(sm == "OR", "Harbord", ifelse(sm == "DOR", "Deeks",
     gs("method.bias"))),
   backtransf = gs("backtransf"),
@@ -64,6 +65,7 @@ metabin(
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   byvar,
   hakn,
   adhoc.hakn,
@@ -210,6 +212,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{method.bias}{A character string indicating which test for
 funnel plot asymmetry is to be used. Either \code{"Begg"},
 \code{"Egger"}, \code{"Thompson"}, \code{"Schwarzer"},
@@ -273,6 +278,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 

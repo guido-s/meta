@@ -47,12 +47,14 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
-  ref = ifelse(backtransf & is.relative.effect(x$sm), 1, 0),
+  ref,
   lower.equi = gs("lower.equi"),
   upper.equi = gs("upper.equi"),
   lty.equi = gs("lty.equi"),
   col.equi = gs("col.equi"),
   fill.equi = gs("fill.equi"),
+  fill.lower.equi = fill.equi,
+  fill.upper.equi = rev(fill.equi),
   leftcols = NULL,
   rightcols = NULL,
   leftlabs = NULL,
@@ -370,18 +372,33 @@ a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
 
 \item{lower.equi}{A numerical giving the lower limit of equivalence
-to be plotted as a line in the forest plot. No line is plotted if
-argument \code{lower.equi} is equal to \code{NA}.}
+to be plotted as a line in the forest plot. Or a vector to
+provide several limits, e.g., for large, moderate and small
+effects. No line is plotted if argument \code{lower.equi} is
+equal to \code{NA}.}
 
 \item{upper.equi}{A numerical giving the upper limit of equivalence
-to be plotted as a line in the forest plot. No line is plotted if
-argument \code{upper.equi} is equal to \code{NA}.}
+to be plotted as a line in the forest plot. Or a vector to
+provide several limits, e.g., for small, moderate and large
+effects. No line is plotted if argument \code{upper.equi} is
+equal to \code{NA}.}
 
 \item{lty.equi}{Line type (limits of equivalence).}
 
 \item{col.equi}{Line colour (limits of equivalence).}
 
-\item{fill.equi}{Colour of area between limits of equivalence.}
+\item{fill.equi}{Colour(s) for area between limits of equivalence
+or more general limits.}
+
+\item{fill.lower.equi}{Colour of area between lower limit(s) and
+reference value. Can be equal to the number of lower limits or
+the number of limits plus 1 (in this case the the region between
+minimum and smallest limit is also filled).}
+
+\item{fill.upper.equi}{Colour of area between reference value and
+upper limit(s). Can be equal to the number of upper limits or the
+number of limits plus 1 (in this case the region between largest
+limit and maximum is also filled).}
 
 \item{leftcols}{A character vector specifying (additional) columns
 to be printed on the left side of the forest plot or a logical
@@ -1333,6 +1350,33 @@ forest(m1, layout = "RevMan5", common = FALSE,
 pdf("forest-m1.pdf", width = 10, height = 3)
 forest(m1)
 dev.off()
+
+# Define equivalence limits: 0.75 and 1 / 0.75
+#
+forest(m1, layout = "RevMan5", common = FALSE,
+  lower.equi = 0.75, upper.equi = 1 / 0.75, fill.equi = "lightgray")
+
+# Fill areas with beneficial and detrimental effects
+#
+forest(m1, layout = "RevMan5", common = FALSE,
+  lower.equi = 0.75, upper.equi = 1 / 0.75,
+  fill.lower.equi = c("green", "lightgray"),
+  fill.upper.equi = c("lightgray", "red"))
+
+# Define thresholds for small, moderate and large effects
+# and use hcl.colors() to define colours to fill areas
+#
+thresholds <- c(0.25, 0.5, 0.75)
+n.cols <- length(thresholds) + 1
+forest(m1, layout = "RevMan5", common = FALSE,
+  label.right = "Undesirable effect", 
+  label.left = "Desirable effect", 
+  lty.equi = 3, col.equi = "darkgray",
+  lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
+  fill.lower.equi =
+    hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+  fill.upper.equi =
+    hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
 
 # Conduct subgroup meta-analysis
 #

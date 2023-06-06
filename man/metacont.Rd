@@ -55,6 +55,7 @@ metacont(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
   text.common = gs("text.common"),
@@ -75,6 +76,7 @@ metacont(
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   byvar,
   id,
   adhoc.hakn,
@@ -176,7 +178,8 @@ Details).}
 individual studies.}
 
 \item{pooledvar}{A logical indicating if a pooled variance should
-be used for the mean difference (\code{sm="MD"}).}
+be used for the mean difference (\code{sm="MD"}) or ratio of
+means (\code{sm="ROM"}).}
 
 \item{method.smd}{A character string indicating which method is
 used to estimate the standardised mean difference
@@ -255,6 +258,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{method.bias}{A character string indicating which test is to
 be used. Either \code{"Begg"}, \code{"Egger"}, \code{"Thompson"},
 or \code{"Pustejovsky"} (see \code{\link{metabias}}), can be
@@ -313,11 +319,16 @@ results of test for subgroup differences.}
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
 
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
+
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
 \item{id}{Deprecated argument (replaced by 'cluster').}
 
-\item{adhoc.hakn}{Deprecated argument (replaced by 'adhoc.hakn.ci').}
+\item{adhoc.hakn}{Deprecated argument (replaced by
+'adhoc.hakn.ci').}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
@@ -477,7 +488,8 @@ arm:
 }
 }
 
-\subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
+\subsection{Approximate standard deviations from sample sizes,
+medians and other statistics}{
 
 Missing standard deviations in the experimental group (analogously
 for the control group) can be derived from
@@ -609,7 +621,8 @@ update(m1, method.smd = "Glass", sd.glass = "experimental")
 update(m1, exact.smd = TRUE)
 
 data(amlodipine)
-m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo), n.plac, mean.plac, sqrt(var.plac),
+m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+  n.plac, mean.plac, sqrt(var.plac),
   data = amlodipine, studlab = study)
 m2
 

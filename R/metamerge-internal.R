@@ -105,7 +105,7 @@ samedata <- function(x, y) {
 
 samesm <- function(x, y) {
   if (!is.null(x$sm) & !is.null(y$sm)) {
-    if (is.relative.effect(x$sm) != is.relative.effect(y$sm))
+    if (is_relative_effect(x$sm) != is_relative_effect(y$sm))
       stop("Summary measures used in meta-analyses do not fit.",
            call. = FALSE)
   }
@@ -139,9 +139,11 @@ samesubgroups <- function(x, y) {
 }
 
 
-updateobj <- function(x, text, missing.text,
-                      text.w, missing.text.w,
-                      label, missing.label) {  
+updateobj <- function(x,
+                      text.common, text.random, text.predict,
+                      text.w.common, text.w.random,
+                      hetlabel, taulabel) {
+  
   is.copas <- inherits(x, "copas")
   is.limit <- inherits(x, "limitmeta")
   is.robu <- inherits(x, "robu")
@@ -149,31 +151,36 @@ updateobj <- function(x, text, missing.text,
   ##
   res <- x
   ##
-  if (!missing.label) {
-    res$label <- label
-    res$detail.tau <- label
-  }
+  if (is.null(x$hetlabel) || all(x$hetlabel == ""))
+    res$hetlabel <- hetlabel
+  ##
+  if (all(x$detail.tau == ""))
+    res$detail.tau <- taulabel
   ##
   ## Act upon ordinary meta-analysis object
   ##
   if (!(is.copas | is.limit | is.robu | is.trimfill)) {
-    if (!missing.text) {
-      res$text.common <- text
-      res$text.random <- text
-    } 
+    if (text.common != "")
+      res$text.common <- text.common
+    if (text.random != "")
+      res$text.random <- text.random
+    if (text.predict != "")
+      res$text.predict <- text.predict
     ##
-    if (!missing.text.w) {
-      res$text.common <- text.w
-      res$text.random <- text.w
-    }
+    if (text.w.common != "")
+      res$text.w.common <- text.w.common
+    if (text.w.random != "")
+      res$text.w.random <- text.w.random
     ##
-    return(x)
+    return(res)
   }
   ##
   ## Other objects
   ##
+  res$text.predict <- ""
+  ##
   if (is.copas | is.limit | is.robu) {
-    res$method <- "Inverse"
+    res$method.random <- "Inverse"
     ##
     res$method.random.ci <- "classic"
     res$adhoc.hakn.ci <- ""
@@ -189,13 +196,16 @@ updateobj <- function(x, text, missing.text,
     res$seTE.hakn.pi <- NULL
     res$seTE.hakn.adhoc.pi <- NULL
   }
+  ##
   if (is.copas) {
-    res$method.tau <- "ML"
+    res$TE.random <- res$TE.adjust
+    res$seTE.random <- res$seTE.adjust
+    res$lower.random <- res$lower.adjust
+    res$upper.random <- res$upper.adjust
+    res$statistic.random <- res$statistic.adjust
+    res$pval.random <- res$pval.adjust
     ##
-    if (missing.label) {
-      res$detail.tau <- "copas"
-      res$label <- "copas"
-    }
+    res$w.random <- rep(0, length(res$w.random))
     ##
     res$tau <- res$tau.adjust
     res$lower.tau <- NA
@@ -205,39 +215,57 @@ updateobj <- function(x, text, missing.text,
     res$upper.tau2 <- NA
     res$se.tau <- NA
     ##
-    if (!missing.text)
-      res$text.random <- text
+    res$method.tau <- "ML"
+    ##
+    if (hetlabel == "")
+      res$hetlabel <- "copas"
+    if (taulabel == "")
+      res$detail.tau <- "copas"
+    ##
+    if (text.random != "")
+      res$text.random <- text.random
     else
       res$text.random <- "Copas selection model"
     ##
-    if (!missing.text.w)
-      res$text.w.random <- text.w
+    if (text.w.random != "")
+      res$text.w.random <- text.w.random
     else
       res$text.w.random <- "Copas"
   }
   else if (is.limit) {
-    if (missing.label) {
-      res$detail.tau <- "limit"
-      res$label <- "limit"
-    }
+    res$TE.random <- res$TE.adjust
+    res$seTE.random <- res$seTE.adjust
+    res$lower.random <- res$lower.adjust
+    res$upper.random <- res$upper.adjust
+    res$statistic.random <- res$statistic.adjust
+    res$pval.random <- res$pval.adjust
     ##
-    if (!missing.text)
-      res$text.random <- text
+    res$w.random <- rep(0, length(res$w.random))
+    ##
+    if (hetlabel == "")
+      res$hetlabel <- "limit"
+    if (taulabel == "")
+      res$detail.tau <- "limit"
+    ##
+    if (text.random != "")
+      res$text.random <- text.random
     else
       res$text.random <- "Limit meta-analysis"
     ##
-    if (!missing.text.w)
-      res$text.w.random <- text.w
+    if (text.w.random != "")
+      res$text.w.random <- text.w.random
     else
       res$text.w.random <- "limit"
   }
   else if (is.robu) {
-    res$method.tau <- "DL"
+    res$TE.random <- res$reg_table$b.r[1]
+    res$seTE.random <- res$reg_table$SE[1]
+    res$lower.random <- res$reg_table$CI.L[1]
+    res$upper.random <- res$reg_table$CI.U[1]
+    res$statistic.random <- res$reg_table$t[1]
+    res$pval.random <- res$reg_table$prob[1]
     ##
-    if (missing.label) {
-      res$detail.tau <- "RVE"
-      res$label <- "RVE"
-    }
+    res$w.random <- res$data.full$r.weights
     ##
     res$level.ma <- 0.95
     res$tau <- sqrt(res$mod_info$tau.sq)
@@ -247,63 +275,49 @@ updateobj <- function(x, text, missing.text,
     res$lower.tau2 <- NA
     res$upper.tau2 <- NA
     res$se.tau <- NA
-  }
-  else if (is.trimfill) {
-    if (missing.label) {
-      res$detail.tau <- "trim-fill"
-      res$label <- "trim-fill"
-    }
     ##
-    if (!missing.text) {
-      res$text.common <- text
-      res$text.random <- text
-    } 
-    else {
-      res$text.common <- "Trim-and-fill method (CE)"
-      res$text.random <- "Trim-and-fill method (RE)"
-    }
+    res$method.tau <- "DL"
     ##
-    if (!missing.text.w) {
-      res$text.common <- text.w
-      res$text.random <- text.w
-    }
-    else {
-      res$text.w.common <- "trim-fill"
-      res$text.w.random <- "trim-fill"
-    }
-  }
-  ##
-  if (is.copas | is.limit) {
+    if (hetlabel == "")
+      res$hetlabel <- "RVE"
+    if (taulabel == "")
+      res$detail.tau <- "RVE"
     ##
-    res$TE.random <- res$TE.adjust
-    res$seTE.random <- res$seTE.adjust
-    res$lower.random <- res$lower.adjust
-    res$upper.random <- res$upper.adjust
-    res$statistic.random <- res$statistic.adjust
-    res$pval.random <- res$pval.adjust
-    ##
-    res$w.random <- rep(0, length(res$w.random))
-  }
-  ##
-  if (is.robu) {
-    if (!missing.text)
-      res$text.random <- text
+    if (text.random != "")
+      res$text.random <- text.random
     else
       res$text.random <- "RVE model"
     ##
-    if (!missing.text.w)
-      res$text.w.random <- text.w
+    if (text.w.random != "")
+      res$text.w.random <- text.w.random
     else
       res$text.w.random <- "RVE"
+  }
+  else if (is.trimfill) {
+    if (hetlabel == "")
+      res$hetlabel <- "TF"
+    if (taulabel == "")
+      res$detail.tau <- "TF"
     ##
-    res$TE.random <- res$reg_table$b.r[1]
-    res$seTE.random <- res$reg_table$SE[1]
-    res$lower.random <- res$reg_table$CI.L[1]
-    res$upper.random <- res$reg_table$CI.U[1]
-    res$statistic.random <- res$reg_table$t[1]
-    res$pval.random <- res$reg_table$prob[1]
+    if (text.common != "")
+      res$text.common <- text.common
+    else
+      res$text.common <- "Trim-and-fill method (CE)"
     ##
-    res$w.random <- res$data.full$r.weights
+    if (text.random != "")
+      res$text.random <- text.random
+    else
+      res$text.random <- "Trim-and-fill method (RE)"
+    ##
+    if (text.w.common != "")
+      res$text.w.common <- text.w.common
+    else
+      res$text.w.common <- "trim-fill"
+    ##
+    if (text.w.random != "")
+      res$text.w.random <- text.w.random
+    else
+      res$text.w.random <- "trim-fill"
   }
   
   res
@@ -311,6 +325,8 @@ updateobj <- function(x, text, missing.text,
 
 dropcommon <- function(x, dropsubgroup) {
   res <- x
+  ##
+  res$method <- NULL
   ##
   res$w.common <- NULL
   res$TE.common <- NULL
@@ -321,6 +337,8 @@ dropcommon <- function(x, dropsubgroup) {
   res$upper.common <- NULL
   res$zval.common <- NULL
   res$text.common <- NULL
+  ##
+  res$k.MH <- NULL
   ##
   if (missing(dropsubgroup))
     dropsubgroup <- !is.null(res$subgroup)
@@ -361,6 +379,8 @@ dropcommon <- function(x, dropsubgroup) {
 droprandom <- function(x, dropsubgroup) {
   res <- x
   ##
+  res$method.random <- NULL
+  ##
   res$w.random <- NULL
   res$TE.random <- NULL
   res$seTE.random <- NULL
@@ -370,6 +390,7 @@ droprandom <- function(x, dropsubgroup) {
   res$df.random <- NULL
   res$lower.random <- NULL
   res$upper.random <- NULL
+  res$zval.random <- NULL
   ##
   res$seTE.classic <- NULL
   ##
@@ -383,7 +404,10 @@ droprandom <- function(x, dropsubgroup) {
   ##
   res$text.random <- NULL
   ##
-  res$zval.random <- NULL
+  res$cluster <- FALSE
+  res$three.level <- FALSE
+  ##
+  res$k.study <- NULL
   ##
   if (missing(dropsubgroup))
     dropsubgroup <- !is.null(res$subgroup)
@@ -427,7 +451,6 @@ droppredict <- function(x) {
   res$df.hakn.pi <- NULL
   res$seTE.predict <- NULL
   res$df.predict <- NULL
-  res$level.predict <- NULL
   res$lower.predict <- NULL
   res$upper.predict <- NULL
   res$seTE.hakn.pi <- NULL
@@ -443,5 +466,69 @@ droppredict <- function(x) {
     res$seTE.hakn.adhoc.pi.w <- NULL
   }
   ##
+  res
+}
+
+
+mergevars <- function(x, y, name.x = NULL, name.y = NULL,
+                      replace = NULL) {
+  n1 <- length(x)
+  n2 <- length(y)
+  ##
+  if (!is.null(name.x) & !is.null(name.y)) {
+    if (is.null(names(x)))
+      names(x) <- rep(name.x, n1)
+    else if (any(name.x != "") & any(name.x != names(x)))
+      names(x) <- paste(name.x, names(x), sep = "-")
+    ##
+    if (is.null(names(y)))
+      names(y) <- rep(name.y, n2)
+    else if (any(name.y != "") & any(name.y != names(y)))
+      names(y) <- paste(name.y, names(y), sep = "-")
+  }
+  if (!is.null(replace)) {
+    x <- replaceNULL(x, rep(replace, n1))
+    y <- replaceNULL(y, rep(replace, n2))
+  }
+  ##
+  if (n1 > 1 | n2 > 1)
+    res <- list(x, y)
+  else
+    res <- c(x, y)
+  ##
+  res
+}
+
+
+expandmerge <- function(x, y, nc1 = 0, nr1 = 0, nc2 = 0, nr2 = 0) {
+  n1 <- nc1 + nr1
+  n2 <- nc2 + nr2
+  ##
+  if ((is.null(x) & is.null(y)))
+    return(NULL)
+  else if (length(x) == n1 & length(y) == n2)
+    return(c(x[seq_len(nc1)], y[seq_len(nc2)],
+             x[nc1 + seq_len(nr1)], y[nc2 + seq_len(nr2)]))
+  ##
+  if (length(x) == 1 & n1 > 1)
+    x <- rep(x, n1)
+  if (length(y) == 1 & n2 > 1)
+    y <- rep(y, n2)
+  ##
+  if (length(x) == 0) {
+    if (is.character(y))
+      x <- rep_len("", n1)
+    else
+      x <- rep_len(NA, n1)
+  }
+  if (length(y) == 0) {
+    if (is.character(x))
+      y <- rep_len("", n2)
+    else
+      y <- rep_len(NA, n2)
+  }
+  ##
+  res <- c(x[seq_len(nc1)], y[seq_len(nc2)],
+           x[nc1 + seq_len(nr1)], y[nc2 + seq_len(nr2)])
   res
 }

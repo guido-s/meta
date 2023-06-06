@@ -258,7 +258,10 @@
 #' The bootstrap approach is only available if R package \bold{pimeta}
 #' is installed (Nagashima et al., 2019). Internally, the
 #' \code{\link[pimeta]{pima}} function is called with argument
-#' \code{method = "boot"}.
+#' \code{method = "boot"}. Argument \code{seed.predict} can be used to
+#' get a reproducible bootstrap prediction interval and argument
+#' \code{seed.predict.subgroup} for reproducible bootstrap prediction
+#' intervals in subgroups.
 #' 
 #' The method of Skipka (2006) ignores the uncertainty in the
 #' estimation of the between-study variance \eqn{\tau^2} and thus has

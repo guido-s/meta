@@ -84,6 +84,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param method.bias A character string indicating which test is to
 #'   be used. Either \code{"Begg"}, \code{"Egger"}, or
 #'   \code{"Thompson"}, can be abbreviated. See function
@@ -131,6 +133,11 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param prediction.subgroup A logical indicating whether prediction
+#'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param hakn Deprecated argument (replaced by 'method.random.ci').
 #' @param adhoc.hakn Deprecated argument (replaced by
@@ -413,6 +420,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                    seed.predict = NULL,
                     ##
                     method.bias = gs("method.bias"),
                     ##
@@ -438,6 +446,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
+                    seed.predict.subgroup = NULL,
+                    ##
                     byvar, hakn, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
@@ -465,6 +475,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
+  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   ##
@@ -482,7 +493,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -914,31 +925,16 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
+    chkmlm(method.tau, missing.method.tau, method.predict,
+           by, tau.common, missing.tau.common,
+           method, missing.method)
+    ##
     common <- FALSE
+    method <- "Inverse"
+    is.glmm <- FALSE
     ##
-    if (method != "Inverse") {
-      if (!missing.method)
-        warning("Inverse variance method used in three-level model.",
-                call. = FALSE)
-      method <- "Inverse"
-      is.glmm <- FALSE
-    }
-    ##
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing.method.tau)
-        warning("For three-level model, argument 'method.tau' set to ",
-                "\"REML\".",
-                call. = FALSE)
+    if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
-    }
-    ##
-    if (by & !tau.common) {
-      if (!missing(tau.common))
-        warning("For three-level model, argument 'tau.common' set to ",
-                "\"TRUE\".",
-                call. = FALSE)
-      tau.common <- TRUE
-    }
   }
   
   
@@ -1093,6 +1089,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
+               seed.predict = seed.predict,
                ##
                method.bias = method.bias,
                ##
@@ -1126,7 +1123,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   res <- list(event.e = event.e, time.e = time.e,
               event.c = event.c, time.c = time.c,
-              method = method,
+              method = method, method.random = method,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
@@ -1137,6 +1134,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ## (after removing unneeded list elements)
   ##
   m$method <- NULL
+  m$method.random <- NULL
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1219,12 +1217,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$tau.common <- tau.common
     ##
     if (!tau.common) {
-      res <- c(res, subgroup(res))
+      res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
         res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
-      res <- c(res, subgroup(res, tau.preset))
+      res <-
+        c(res, subgroup(res, tau.preset, seed = seed.predict.subgroup))
     else {
       if (is.glmm)
         res <- c(res,
@@ -1235,7 +1234,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                  subgroup(res, NULL,
                           factor(res$subgroup, bylevs(res$subgroup))))
       else
-        res <- c(res, subgroup(res, hcc$tau.resid))
+        res <-
+          c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
     ##
     if (tau.common && is.null(tau.preset))
@@ -1254,6 +1254,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
+  ##
+  ## Mantel-Haenszel and Cochran method are common effect methods
+  ##
+  if (res$method.random %in% c("MH", "Cochran"))
+    res$method.random <- "Inverse"
   ##
   ## Backward compatibility
   ##

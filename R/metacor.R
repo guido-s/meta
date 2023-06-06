@@ -66,6 +66,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -103,6 +105,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
@@ -261,6 +266,7 @@ metacor <- function(cor, n, studlab,
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                    seed.predict = NULL,
                     ##
                     null.effect = 0,
                     ##
@@ -282,6 +288,8 @@ metacor <- function(cor, n, studlab,
                     sep.subgroup = gs("sep.subgroup"),
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
+                    seed.predict.subgroup = NULL,
+                    ##
                     byvar, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
@@ -302,6 +310,7 @@ metacor <- function(cor, n, studlab,
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
+  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   ##
@@ -318,7 +327,7 @@ metacor <- function(cor, n, studlab,
                      method.tau, missing.method.tau)
   ##
   if (method.predict == "NNF")
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
@@ -625,22 +634,13 @@ metacor <- function(cor, n, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
+    chkmlm(method.tau, missing.method.tau, method.predict,
+           by, tau.common, missing.tau.common)
+    ##
     common <- FALSE
     ##
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing(method.tau))
-        warning("For three-level model, argument 'method.tau' set to \"REML\".",
-                call. = FALSE)
+    if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
-    }
-    ##
-    if (by & !tau.common) {
-      if (!missing(tau.common))
-        warning("For three-level model, argument 'tau.common' set to ",
-                "\"TRUE\".",
-                call. = FALSE)
-      tau.common <- TRUE
-    }
   }
   
   
@@ -674,6 +674,7 @@ metacor <- function(cor, n, studlab,
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
+               seed.predict = seed.predict,
                ##
                null.effect = transf.null.effect,
                ##
@@ -752,19 +753,21 @@ metacor <- function(cor, n, studlab,
     res$tau.common <- tau.common
     ##
     if (!tau.common) {
-      res <- c(res, subgroup(res))
+      res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
         res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
-      res <- c(res, subgroup(res, tau.preset))
+      res <-
+        c(res, subgroup(res, tau.preset, seed = seed.predict.subgroup))
     else {
       if (res$three.level)
         res <- c(res,
                  subgroup(res, NULL,
                           factor(res$subgroup, bylevs(res$subgroup))))
       else
-        res <- c(res, subgroup(res, hcc$tau.resid))
+        res <-
+          c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
     ##
     if (tau.common && is.null(tau.preset))

@@ -39,9 +39,12 @@
 #'
 #' @examples
 #' data(Fleiss1993cont)
+#' # Note, the following command uses the bias-corrected version of
+#' # Hedges' g. Accordingly, results differ from Fleiss (1993), section 3,
+#' # using the uncorrected version of Hedges' g.
 #' metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, studlab = paste(study, year),
-#'   random = FALSE)
+#'   random = FALSE, sm = "SMD")
 
 
 NULL
