@@ -53,7 +53,8 @@ components.
 \code{random} \tab Print results for random effects meta-analysis \cr
 \code{prediction} \tab Print prediction interval \cr
 \code{backtransf} \tab Back transform results in printouts and plots \cr
-\code{method} \tab Meta-analysis method \cr
+\code{method} \tab Meta-analysis method (common effect model) \cr
+\code{method.random} \tab Meta-analysis method (random effects model) \cr
 \code{w.common} \tab Weights for common effect model (individual studies) \cr
 \code{TE.common} \tab Estimated overall effect (common effect model) \cr
 \code{seTE.common} \tab Standard error of overall effect (common effect model) \cr
@@ -397,6 +398,44 @@ components.
 \code{n.iter} \tab Number of iterations \cr
 \code{trimfill} \tab Filled studies (individual studies) \cr
 \code{class.x} \tab Primary class of meta-analysis object
+}
+
+An object created with \code{\link{metamerge}} has the additional
+class \code{"metamerge"}. Furthermore, the following components
+have a different meaning:
+
+\tabular{ll}{
+\code{k} \tab Vector with number of estimates \cr
+\code{k.study} \tab Vector with number of studies \cr
+\code{k.all} \tab Vector with total number of studies \cr
+\code{k.TE} \tab Vector with number of studies with estimable
+  effects \cr
+\code{k.MH} \tab Vector with number of studies combined with
+  Mantel-Haenszel method \cr
+\code{TE.common} \tab Vector with common effect estimates \cr
+\code{seTE.common} \tab Vector with standard errors of common effect
+  estimates \cr
+\code{lower.common} \tab Vector with lower confidence limits (common
+  effect model) \cr
+\code{upper.common} \tab Vector with upper confidence limits (common
+  effect model) \cr
+\code{statistic.common} \tab Vector with test statistics for test of
+  overall effect (common effect model) \cr
+\code{pval.common} \tab Vector with p-value of test for overall effect
+  (common effect model) \cr
+\code{TE.random} \tab Vector with random effects estimates \cr
+\code{seTE.random} \tab Vector with standard errors of random effects
+  estimates \cr
+\code{lower.random} \tab Vector with lower confidence limits (random
+  effects model) \cr
+\code{upper.random} \tab Vector with upper confidence limits (random
+  effects model) \cr
+\code{statistic.random} \tab Vector with test statistics for test of
+  overall effect (random effects model) \cr
+\code{pval.random} \tab Vector with p-value of test for overall effect
+  (random effects model) \cr
+\code{w.common} \tab Vector or matrix with common effect weights \cr
+\code{w.random} \tab Vector or matrix with random effects weights
 }
 }
 \seealso{

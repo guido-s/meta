@@ -1,4 +1,4 @@
-is.installed.package <- function(pkg, func, argument, value,
+is_installed_package <- function(pkg, func, argument, value,
                                  chksettings = FALSE, stop = TRUE,
                                  version = NULL) {
   

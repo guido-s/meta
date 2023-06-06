@@ -51,6 +51,7 @@
   text.Rb = gs("text.Rb"),
   details.methods = TRUE,
   warn.backtransf = FALSE,
+  func.backtransf = x$func.backtransf,
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
@@ -95,8 +96,9 @@ effect model).}
 print results of test for subgroup differences (based on random
 effects model).}
 
-\item{prediction.subgroup}{A logical indicating whether prediction
-intervals should be printed for subgroups.}
+\item{prediction.subgroup}{A single logical or logical vector
+indicating whether / which prediction intervals should be printed
+for subgroups.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results
@@ -215,6 +217,8 @@ R\eqn{_b}.}
 statistical methods should be printed.}
 
 \item{warn.backtransf}{Deprecated argument (ignored).}
+
+\item{func.backtransf}{A function used to back-transform results.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

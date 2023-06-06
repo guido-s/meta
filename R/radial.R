@@ -93,7 +93,7 @@ radial.meta <- function(x,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Radial plot")
+  chksuitable(x, "Radial plot", "metamerge", check.mlm = FALSE)
   ##
   x <- updateversion(x)
   ##

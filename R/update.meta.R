@@ -14,36 +14,36 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param method A character string indicating which method is to be
-#'   used for pooling of studies; see \code{\link{metabin}} and
-#'   \code{\link{metainc}} function for admissible values.
+#'   used for pooling of studies (see \code{\link{metabin}},
+#'   \code{\link{metainc}}, \code{\link{metaprop}} and
+#'   \code{\link{metarate}}).
 #' @param sm A character string indicating which summary measure is
 #'   used for pooling.
-#' @param incr Either a numerical value or vector which can be added
-#'   to each cell frequency for studies with a zero cell count or the
-#'   character string \code{"TA"} which stands for treatment arm
-#'   continuity correction.
+#' @param incr Information on increment added to cell frequencies of
+#'   studies with zero cell counts (see \code{\link{metabin}},
+#'   \code{\link{metainc}}, \code{\link{metaprop}} and
+#'   \code{\link{metarate}}).
 #' @param method.incr A character string indicating which continuity
-#'   correction method should be used (\code{"only0"},
-#'   \code{"if0all"}, or \code{"all"}).
+#'   correction method should be used (see \code{\link{metabin}},
+#'   \code{\link{metainc}}, \code{\link{metaprop}} and
+#'   \code{\link{metarate}}).
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
-#'   (applies only if \code{sm} is equal to \code{"RR"} or
-#'   \code{"OR"}).
+#'   (applies only to \code{\link{metabin}} object with \code{sm}
+#'   equal to \code{"RR"} or \code{"OR"}).
 #' @param MH.exact A logical indicating if \code{incr} is not to be
 #'   added to all cell frequencies for studies with a zero cell count
 #'   to calculate the pooled estimate based on the Mantel-Haenszel
-#'   method.
-#' @param RR.Cochrane A logical indicating if 2*\code{incr} instead of
-#'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-#'   calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
-#'   with a zero cell. This is used in RevMan 5, the program for
-#'   preparing and maintaining Cochrane reviews.
-#' @param Q.Cochrane A logical indicating if the Mantel-Haenszel
-#'   estimate is used in the calculation of the heterogeneity
-#'   statistic Q which is implemented in RevMan 5, the program for
-#'   preparing and maintaining Cochrane reviews.
+#'   method (applies only to \code{\link{metabin}} object).
+#' @param RR.Cochrane A logical indicating which method to use as
+#'   continuity correction for the risk ratio (see
+#'   \code{\link{metabin}}).
+#' @param Q.Cochrane A logical indicating which method to use to
+#'   calculate the heterogeneity statistic Q (see
+#'   \code{\link{metabin}}).
 #' @param model.glmm A character string indicating which GLMM model
-#'   should be used.
+#'   should be used (see \code{\link{metabin}} and
+#'   \code{\link{metainc}}).
 #' @param level The level used to calculate confidence intervals for
 #'   individual studies.
 #' @param common A logical indicating whether a common effect
@@ -79,6 +79,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param method.tau A character string indicating which method is
 #'   used to estimate the between-study variance \eqn{\tau^2} and its
 #'   square root \eqn{\tau} (see \code{\link{meta-package}}).
@@ -127,18 +129,39 @@
 #' @param label.c Label for control group.
 #' @param label.left Graph label on left side of forest plot.
 #' @param label.right Graph label on right side of forest plot.
-#' @param n.e Number of observations in experimental group. (only for
-#'   metagen object)
-#' @param n.c Number of observations in control group. (only for
-#'   metagen object)
+#' @param n.e Number of observations in experimental group (only for
+#'   \code{\link{metagen}} object).
+#' @param n.c Number of observations in control group (only for
+#'   metagen object).
+#' @param method.mean A character string indicating which method to
+#'   use to approximate the mean from the median and other statistics
+#'   (see \code{\link{metacont}} and \code{\link{metamean}}).
+#' @param method.sd A character string indicating which method to use
+#'   to approximate the standard deviation from sample size, median,
+#'   interquartile range and range (see \code{\link{metacont}} and
+#'   \code{\link{metamean}}).
+#' @param approx.mean.e Approximation method to estimate means in
+#'   experimental group (see \code{\link{metacont}}).
+#' @param approx.mean.c Approximation method to estimate means in
+#'   control group (see \code{\link{metacont}}).
+#' @param approx.sd.e Approximation method to estimate standard
+#'   deviations in experimental group (see \code{\link{metacont}}).
+#' @param approx.sd.c Approximation method to estimate standard
+#'   deviations in control group (see \code{\link{metacont}}).
+#' @param approx.mean Approximation method to estimate means (see
+#'   \code{\link{metamean}}).
+#' @param approx.sd Approximation method to estimate standard
+#'   deviations (see \code{\link{metamean}}).
+#' @param approx.TE Approximation method to estimate treatment
+#'   estimate (see \code{\link{metagen}}).
+#' @param approx.seTE Approximation method to estimate standard error
+#'   (see \code{\link{metagen}}).
 #' @param pooledvar A logical indicating if a pooled variance should
-#'   be used for the mean difference (only for metacont object with
-#'   \code{sm = "MD"}).
+#'   be used for the mean difference or ratio of means (see
+#'   \code{\link{metacont}}).
 #' @param method.smd A character string indicating which method is
-#'   used to estimate the standardised mean difference (only for
-#'   metacont object with \code{sm = "SMD"}). Either \code{"Hedges"}
-#'   for Hedges' g (default), \code{"Cohen"} for Cohen's d, or
-#'   \code{"Glass"} for Glass' delta, can be abbreviated.
+#'   used to estimate the standardised mean difference (see
+#'   \code{\link{metacont}}).
 #' @param sd.glass A character string indicating which standard
 #'   deviation is used in the denominator for Glass' method to
 #'   estimate the standardised mean difference (only for metacont
@@ -168,6 +191,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param id Deprecated argument (replaced by 'cluster').
 #' @param print.CMH A logical indicating whether result of the
@@ -254,7 +280,7 @@ update.meta <- function(object,
                         data = object$data,
                         subset, studlab, exclude, cluster,
                         ##
-                        method = object$method,
+                        method,
                         sm = object$sm,
                         incr,
                         method.incr = object$method.incr,
@@ -273,13 +299,13 @@ update.meta <- function(object,
                         adhoc.hakn.ci = object$adhoc.hakn.ci,
                         method.predict = object$method.predict,
                         adhoc.hakn.pi = object$adhoc.hakn.pi,
+                        seed.predict = object$seed.predict,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
-                        prediction =
-                          object$prediction | !missing(method.predict),
+                        prediction = object$prediction,
                         level.predict = object$level.predict,
                         null.effect = object$null.effect,
                         method.bias = object$method.bias,
@@ -304,6 +330,21 @@ update.meta <- function(object,
                         label.right = object$label.right,
                         n.e = object$n.e,
                         n.c = object$n.c,
+                        ##
+                        method.mean = object$method.mean,
+                        method.sd = object$method.sd,
+                        ##
+                        approx.mean.e = object$approx.mean.e,
+                        approx.mean.c = object$approx.mean.c,
+                        approx.sd.e = object$approx.sd.e,
+                        approx.sd.c = object$approx.sd.c,
+                        ##
+                        approx.mean = object$approx.mean,
+                        approx.sd = object$approx.sd,
+                        ##
+                        approx.TE = object$approx.TE,
+                        approx.seTE = object$approx.seTE,
+                        ##
                         pooledvar = object$pooledvar,
                         method.smd = object$method.smd,
                         sd.glass = object$sd.glass,
@@ -316,6 +357,8 @@ update.meta <- function(object,
                         sep.subgroup = object$sep.subgroup,
                         test.subgroup = object$test.subgroup,
                         prediction.subgroup = object$prediction.subgroup,
+                        seed.predict.subgroup = object$seed.predict.subgroup,
+                        ##
                         byvar, id,
                         ##
                         print.CMH = object$print.CMH,
@@ -339,6 +382,7 @@ update.meta <- function(object,
   ##
   ##
   chkclass(object, "meta")
+  chksuitable(object, "Update", "metamerge", check.mlm = FALSE)
   ##
   metabin  <- inherits(object, "metabin")
   metacont <- inherits(object, "metacont")
@@ -514,12 +558,78 @@ update.meta <- function(object,
       object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
     }
   }
+  if (update_needed(object$version, 6, 5, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.5
+    ##
+    if (length(object$TE.random) == 1 & length(object$lower.random) > 1) {
+      object$TE.random <- rep(object$TE.random, length(object$lower.random))
+      names(object$TE.random) <- names(object$lower.random)
+    }
+    ##
+    if (length(object$seTE.random) == 1 & length(object$lower.random) > 1) {
+      object$seTE.random <- rep(object$seTE.random, length(object$lower.random))
+      names(object$seTE.random) <- names(object$lower.random)
+    }
+    ##
+    object$method.random <- object$method
+    object$method.random[object$method.random %in% c("MH", "Cochran")] <-
+      "Inverse"
+    ##
+    if (!is.null(object$Q.LRT)) {
+      object$Q <- c(object$Q, object$Q.LRT)
+      object$df.Q <- c(object$df.Q, object$df.Q.LRT)
+      object$pval.Q <- c(object$pval.Q, object$pval.Q.LRT)
+      names(object$Q) <- c("Wald", "LRT")
+    }
+    ##
+    if (metacont) {
+      object$data$.approx.mean.e <-
+        setVal(object$data, ".approx.mean.e", object$approx.mean.e)
+      object$data$.approx.mean.c <-
+        setVal(object$data, ".approx.mean.c", object$approx.mean.c)
+      object$data$.approx.sd.e <-
+        setVal(object$data, ".approx.sd.e", object$approx.sd.e)
+      object$data$.approx.sd.c <-
+        setVal(object$data, ".approx.sd.c", object$approx.sd.c)
+    }
+    ##
+    if (metamean) {
+      object$data$.approx.mean <-
+        setVal(object$data, ".approx.mean", object$approx.mean)
+      object$data$.approx.sd <-
+        setVal(object$data, ".approx.sd", object$approx.sd)
+    }
+    ##
+    if (metagen) {
+      object$data$.approx.TE <-
+        setVal(object$data, ".approx.TE", object$approx.TE)
+      object$data$.approx.seTE <-
+        setVal(object$data, ".approx.seTE", object$approx.seTE)
+    }
+    ##
+    object$hetlabel <- object$label
+    ##
+    if (length(object$tau) > 1)
+      names(object$tau) <- object$detail.tau
+    if (length(object$tau2) > 1)
+      names(object$tau2) <- object$detail.tau
+    if (length(object$I2) > 1)
+      names(object$I2) <- object$detail.tau
+    ##
+    object$seed.predict <- NULL
+    if (!is.null(object$byvar))
+      object$seed.predict.subgroup <- NULL
+  }
   
   
   ##
   ##
   ## (2) Check arguments
   ##
+  ##
+  if (missing(method))
+    method <- object$method
   ##
   pscale <- replaceNULL(pscale, 1)
   irscale <- replaceNULL(irscale, 1)
@@ -528,11 +638,11 @@ update.meta <- function(object,
   tau.common <- replaceNULL(tau.common, gs("tau.common"))
   sep.subgroup <- replaceNULL(sep.subgroup, gs("sep.subgroup"))
   ##
-  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!backtransf & irscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -697,40 +807,24 @@ update.meta <- function(object,
   ##
   ## Catch argument 'subset'
   ##
-  missing.subset <- missing(subset)
-  ##
-  if (!missing.subset)
+  if (!missing(subset))
     subset <- catch("subset", mc, data, sfsp)
-  else {
-    if (!is.null(object$subset))
-      subset <- object$subset
-    else if (isCol(object$data, ".subset"))
-      subset <- object$data$.subset
-    else
-      subset <- NULL
-  }
+  else
+    subset <- catch2(object, "subset", fromobject = TRUE)
   ##
   ## Catch argument 'studlab'
   ##
-  missing.studlab <- missing(studlab)
-  ##
-  if (!missing.studlab)
+  if (!missing(studlab))
     studlab <- catch("studlab", mc, data, sfsp)
-  else if (isCol(object$data, ".studlab"))
-    studlab <- object$data$.studlab
   else
-    studlab <- NULL
+    studlab <- catch2(object, "studlab")
   ##
   ## Catch argument 'exclude'
   ##
-  missing.exclude <- missing(exclude)
-  ##
-  if (!missing.exclude)
+  if (!missing(exclude))
     exclude <- catch("exclude", mc, data, sfsp)
-  else if (isCol(object$data, ".exclude"))
-    exclude <- object$data$.exclude
   else
-    exclude <- NULL
+    exclude <- catch2(object, "exclude")
   ##
   ## Catch argument 'cluster'
   ##
@@ -746,10 +840,8 @@ update.meta <- function(object,
     ##
     data$.cluster <- ...cluster
   }
-  else if (isCol(object$data, ".cluster"))
-    ...cluster <- object$data$.cluster
   else
-    ...cluster <- NULL
+    ...cluster <- catch2(object, "cluster")
   ##
   ## Catch argument 'incr'
   ##
@@ -757,12 +849,36 @@ update.meta <- function(object,
   ##
   if (!missing.incr)
     incr <- catch("incr", mc, data, sfsp)
-  else {
-    if (isCol(object$data, ".incr"))
-      incr <- object$data$.incr
-    else
-      incr <- gs("incr")
-  }
+  else
+    incr <- catch2(object, "incr", gs("incr"))
+  ##
+  ## Catch argument 'approx.mean.e'
+  ##
+  if (!missing(approx.mean.e))
+    approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
+  else
+    approx.mean.e <- catch2(object, "approx.mean.e")
+  ##
+  ## Catch argument 'approx.mean.c'
+  ##
+  if (!missing(approx.mean.c))
+    approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
+  else
+    approx.mean.c <- catch2(object, "approx.mean.c")
+  ##
+  ## Catch argument 'approx.sd.e'
+  ##
+  if (!missing(approx.sd.e))
+    approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
+  else
+    approx.sd.e <- catch2(object, "approx.sd.e")
+  ##
+  ## Catch argument 'approx.sd.c'
+  ##
+  if (!missing(approx.sd.c))
+    approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
+  else
+    approx.sd.c <- catch2(object, "approx.sd.c")
   ##
   ## Catch argument 'subgroup'
   ##
@@ -876,6 +992,9 @@ update.meta <- function(object,
   ## (6) Update meta object
   ##
   ##
+  method.predict <- replaceVal(method.predict, "", gs("method.predict"))
+  missing.method.bias <- missing(method.bias)
+  ##                               
   if (metabin) {
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))
@@ -917,16 +1036,19 @@ update.meta <- function(object,
         !(sm %in% c("OR", "RR", "RD", "DOR")))
       Q.Cochrane <- FALSE
     ##
+    if (sm == "DOR" & missing.method.bias)
+      method.bias <- "Deeks"
+    else if (sm == "OR" & missing.method.bias)
+      method.bias <- "Harbord"
+    ##
     m <- metabin(event.e = object$data$.event.e,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
                  n.c = object$data$.n.c,
-                 ##
                  studlab = studlab,
-                 exclude = exclude,
-                 cluster = ...cluster,
                  ##
-                 data = data, subset = subset,
+                 data = data, subset = subset, exclude = exclude,
+                 cluster = ...cluster,
                  ##
                  method = method,
                  sm = sm,
@@ -943,6 +1065,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -967,6 +1092,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  print.CMH = print.CMH,
                  ##
                  keepdata = keepdata,
@@ -978,19 +1104,79 @@ update.meta <- function(object,
   ##
   if (metacont) {
     method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
+    pooledvar <- replaceNA(pooledvar, gs("pooledvar"))
+    method.smd <- replaceVal(method.smd, "", gs("method.smd"))
+    sd.glass <- replaceVal(sd.glass, "", gs("sd.glass"))
+    exact.smd <- replaceNA(exact.smd, gs("exact.smd"))
+    method.mean <- replaceVal(method.mean, "", "Luo")
+    method.sd <- replaceVal(method.sd, "", "Shi")
+    ##
+    if (!isCol(object$data, ".approx.mean.e"))
+      mean.e <- object$data$.mean.e
+    else
+      mean.e <-
+        setNA_ifnot(object$data$.mean.e, object$data$.approx.mean.e, "")
+    ##
+    if (!isCol(object$data, ".approx.mean.c"))
+      mean.c <- object$data$.mean.c
+    else
+      mean.c <-
+        setNA_ifnot(object$data$.mean.c, object$data$.approx.mean.c, "")
+    ##
+    if (!isCol(object$data, ".approx.sd.e"))
+      sd.e <- object$data$.sd.e
+    else
+      sd.e <-
+        setNA_ifnot(object$data$.sd.e, object$data$.approx.sd.e, "")
+    ##
+    if (!isCol(object$data, ".approx.sd.c"))
+      sd.c <- object$data$.sd.c
+    else
+      sd.c <-
+        setNA_ifnot(object$data$.sd.c, object$data$.approx.sd.c, "")
+    ##
+    median.e <- setVal(object$data, ".median.e")
+    q1.e <- setVal(object$data, ".q1.e")
+    q3.e <- setVal(object$data, ".q3.e")
+    min.e <- setVal(object$data, ".min.e")
+    max.e <- setVal(object$data, ".max.e")
+    ##
+    median.c <- setVal(object$data, ".median.c")
+    q1.c <- setVal(object$data, ".q1.c")
+    q3.c <- setVal(object$data, ".q3.c")
+    min.c <- setVal(object$data, ".min.c")
+    max.c <- setVal(object$data, ".max.c")
     ##
     m <- metacont(n.e = object$data$.n.e,
-                  mean.e = object$data$.mean.e,
-                  sd.e = object$data$.sd.e,
-                  n.c = object$data$.n.c,
-                  mean.c = object$data$.mean.c,
-                  sd.c = object$data$.sd.c,
-                  ##
+                  mean.e = mean.e,
+                  sd.e = sd.e,
+                  n.c = n.c,
+                  mean.c = mean.c,
+                  sd.c = sd.c,
                   studlab = studlab,
-                  exclude = exclude,
+                  ##
+                  data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  data = data, subset = subset,
+                  median.e = median.e,
+                  q1.e = q1.e,
+                  q3.e = q3.e,
+                  min.e = min.e,
+                  max.e = max.e,
+                  ##
+                  median.c = median.c,
+                  q1.c = q1.c,
+                  q3.c = q3.c,
+                  min.c = min.c,
+                  max.c = max.c,
+                  ##
+                  method.mean = method.mean,
+                  method.sd = method.sd,
+                  ##
+                  approx.mean.e = approx.mean.e,
+                  approx.mean.c = approx.mean.c,
+                  approx.sd.e = approx.sd.e,
+                  approx.sd.c = approx.sd.c,
                   ##
                   sm = sm, pooledvar = pooledvar,
                   method.smd = method.smd, sd.glass = sd.glass,
@@ -1004,6 +1190,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1025,6 +1214,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1035,15 +1225,12 @@ update.meta <- function(object,
   if (metacor)
     m <- metacor(cor = object$data$.cor,
                  n = object$data$.n,
-                 ##
                  studlab = studlab,
-                 exclude = exclude,
+                 ##
+                 data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster,
                  ##
-                 data = data, subset = subset,
-                 ##
                  sm = sm,
-                 ##
                  level = level, level.ma = level.ma,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
@@ -1051,6 +1238,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -1073,6 +1263,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn.deprecated = FALSE,
@@ -1084,6 +1275,12 @@ update.meta <- function(object,
     add.e <- FALSE
     add.c <- FALSE
     ##
+    method.mean <- replaceNULL(method.mean, "Luo")
+    method.sd <- replaceNULL(method.sd, "Shi")
+    ##
+    method.mean <- replaceVal(method.mean, "", "Luo")
+    method.sd <- replaceVal(method.sd, "", "Shi")
+    ##
     if ("n.e" %in% names(data)) {
       add.e <- TRUE
       data.m <- data.m[, names(data.m) != "n.e"]
@@ -1093,17 +1290,32 @@ update.meta <- function(object,
       data.m <- data.m[, names(data.m) != "n.c"]
     }
     ##
+    median <- setVal(object$data, ".median")
+    q1 <- setVal(object$data, ".q1")
+    q3 <- setVal(object$data, ".q3")
+    min <- setVal(object$data, ".min")
+    max <- setVal(object$data, ".max")
+    ##
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
-                 ##
                  studlab = studlab,
-                 exclude = exclude,
+                 ##
+                 data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster,
                  ##
-                 data = data.m, subset = subset,
+                 median = median,
+                 q1 = q1,
+                 q3 = q3,
+                 min = min,
+                 max = max,
+                 ##
+                 method.mean = method.mean,
+                 method.sd = method.sd,
+                 ##
+                 approx.TE = approx.TE,
+                 approx.seTE = approx.seTE,
                  ##
                  sm = sm,
-                 ##
                  level = level, level.ma = level.ma,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
@@ -1111,6 +1323,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
@@ -1137,6 +1352,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1184,12 +1400,10 @@ update.meta <- function(object,
                  time.e = object$data$.time.e,
                  event.c = object$data$.event.c,
                  time.c = object$data$.time.c,
-                 ##
                  studlab = studlab,
-                 exclude = exclude,
-                 cluster = ...cluster,
                  ##
-                 data = data, subset = subset,
+                 data = data, subset = subset, exclude = exclude,
+                 cluster = ...cluster,
                  ##
                  method = method,
                  sm = sm,
@@ -1204,6 +1418,9 @@ update.meta <- function(object,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,
+                 adhoc.hakn.pi = adhoc.hakn.pi,
+                 seed.predict = seed.predict,
+                 ##
                  method.tau = method.tau,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1230,6 +1447,7 @@ update.meta <- function(object,
                  sep.subgroup = sep.subgroup,
                  test.subgroup = test.subgroup,
                  prediction.subgroup = prediction.subgroup,
+                 seed.predict.subgroup = seed.predict.subgroup,
                  ##
                  keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
@@ -1246,19 +1464,36 @@ update.meta <- function(object,
   ##
   if (metamean) {
     method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
+    method.mean <- replaceVal(method.mean, "", "Luo")
+    method.sd <- replaceVal(method.sd, "", "Shi")
+    ##
+    median <- setVal(object$data, ".median")
+    q1 <- setVal(object$data, ".q1")
+    q3 <- setVal(object$data, ".q3")
+    min <- setVal(object$data, ".min")
+    max <- setVal(object$data, ".max")
     ##
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
-                  ##
                   studlab = studlab,
-                  exclude = exclude,
+                  ##
+                  data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  data = data, subset = subset,
+                  median = median,
+                  q1 = q1,
+                  q3 = q3,
+                  min = min,
+                  max = max,
+                  ##
+                  method.mean = method.mean,
+                  method.sd = method.sd,
+                  ##
+                  approx.mean = approx.mean,
+                  approx.sd = approx.sd,
                   ##
                   sm = sm,
-                  ##
                   method.ci = method.ci,
                   level = level, level.ma = level.ma,
                   common = common, random = random,
@@ -1267,6 +1502,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
@@ -1290,6 +1528,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1315,12 +1554,10 @@ update.meta <- function(object,
     ##
     m <- metaprop(event = object$data$.event,
                   n = object$data$.n,
-                  ##
                   studlab = studlab,
-                  exclude = exclude,
-                  cluster = ...cluster,
                   ##
-                  data = data, subset = subset,
+                  data = data, subset = subset, exclude = exclude,
+                  cluster = ...cluster,
                   ##
                   method = method,
                   sm = sm,
@@ -1335,6 +1572,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1359,6 +1599,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
@@ -1386,13 +1627,12 @@ update.meta <- function(object,
     ##
     m <- metarate(event = object$data$.event,
                   time = object$data$.time,
-                  ##
                   studlab = studlab,
-                  exclude = exclude,
+                  ##
+                  data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  data = data, subset = subset, method = method,
-                  ##
+                  method = method,
                   sm = sm,
                   incr = incr,
                   method.incr = method.incr,
@@ -1405,6 +1645,9 @@ update.meta <- function(object,
                   method.random.ci = method.random.ci,
                   adhoc.hakn.ci = adhoc.hakn.ci,
                   method.predict = method.predict,
+                  adhoc.hakn.pi = adhoc.hakn.pi,
+                  seed.predict = seed.predict,
+                  ##
                   method.tau = method.tau,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
@@ -1428,6 +1671,7 @@ update.meta <- function(object,
                   sep.subgroup = sep.subgroup,
                   test.subgroup = test.subgroup,
                   prediction.subgroup = prediction.subgroup,
+                  seed.predict.subgroup = seed.predict.subgroup,
                   ##
                   keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,

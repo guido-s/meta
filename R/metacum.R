@@ -86,7 +86,7 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Cumulative meta-analysis", "netpairwise")
+  chksuitable(x, "Cumulative meta-analysis", c("metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   ##
@@ -296,7 +296,8 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    sm = x$sm, pooledvar = x$pooledvar,
+                    sm = x$sm,
+                    pooledvar = replaceNA(x$pooledvar, gs("pooledvar")),
                     ##
                     method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
@@ -573,9 +574,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
               overall = TRUE,
               overall.hetstat = TRUE,
               prediction = FALSE,
+              method.predict = x$method.predict,
               backtransf = x$backtransf,
               ##
               method = x$method,
+              method.random = x$method.random,
               ##
               w = c(weight.i, NA, w.s),
               TE.common = NA, seTE.common = NA,

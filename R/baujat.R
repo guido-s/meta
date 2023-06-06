@@ -34,6 +34,9 @@
 #' @param lwd.grid The line width for grid lines.
 #' @param pty A character specifying type of plot region (see
 #'   \code{\link{par}}).
+#' @param pooled A character string indicating whether a common effect
+#'   or random effects model is used for pooling. Either missing (see
+#'   Details), \code{"common"} or \code{"random"}, can be abbreviated.
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
 #'
@@ -45,6 +48,13 @@
 #' y-axis the standardised difference of the overall treatment effect
 #' with and without each study is plotted; this quantity describes the
 #' influence of each study on the overal treatment effect.
+#' 
+#' Information from object \code{x} is utilised if argument
+#' \code{pooled} is missing. A common effect model is assumed
+#' (\code{pooled="common"}) if argument \code{x$common} is
+#' \code{TRUE}; a random effects model is assumed
+#' (\code{pooled="random"}) if argument \code{x$random} is
+#' \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' 
 #' Internally, the \code{\link{metainf}} function is used to calculate
 #' the values on the y-axis.
@@ -117,6 +127,7 @@ baujat.meta <- function(x,
                         grid = TRUE, col.grid = "lightgray",
                         lty.grid = "dotted", lwd.grid = par("lwd"),
                         pty = "s",
+                        pooled,
                         ...) {
   
   
@@ -127,7 +138,7 @@ baujat.meta <- function(x,
   ##
   chkclass(x, "meta")
   chksuitable(x, "Baujat plot",
-              c("trimfill", "metacum", "metainf", "netpairwise"))
+              c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   
@@ -145,6 +156,16 @@ baujat.meta <- function(x,
     pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
     chknumeric(pos.studlab, min = 1, max = 4)
   }
+  ##
+  if (!missing(pooled)) {
+    pooled <- setchar(pooled, c("common", "random", "fixed"))
+    pooled[pooled == "fixed"] <- "common"
+  }
+  else
+    if (!x$common & x$random)
+      pooled <- "random"
+    else
+      pooled <- "common"
   chknumeric(offset)
   chknumeric(xmin)
   chknumeric(ymin)
@@ -158,8 +179,12 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  TE.common <- metagen(TE, seTE, exclude = x$exclude,
-                       method.tau.ci = "")$TE.common
+  ##
+  if (pooled == "random")
+    TE.s <- x$TE.random
+  else
+    TE.s <- x$TE.common
+  ##
   k <- x$k
   ##
   if (is.logical(studlab)) {
@@ -189,14 +214,14 @@ baujat.meta <- function(x,
   }
   
   
-  m.inf <- metainf(x, pooled = "common")
+  m.inf <- metainf(x, pooled = pooled)
   TE.inf <- m.inf$TE[seq_along(TE)]
   seTE.inf <- m.inf$seTE[seq_along(TE)]
   ##
-  ys <- (TE.inf - TE.common)^2 / seTE.inf^2
+  ys <- (TE.inf - TE.s)^2 / seTE.inf^2
   ys <- ys * yscale
   ##  
-  xs <- (TE - TE.common)^2 / seTE^2
+  xs <- (TE - TE.s)^2 / seTE^2
   ##
   if (!is.null(x$exclude))
     xs[x$exclude] <- NA
@@ -245,7 +270,8 @@ baujat.meta <- function(x,
        pos = pos.studlab, offset = offset)
   
   
-  res <- data.frame(x = xs, y = ys)
+  res <- data.frame(studlab = x$studlab, x = xs, y = ys)
+  attr(res, "pooled") <- pooled
   
   
   invisible(res)

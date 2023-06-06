@@ -27,6 +27,7 @@
   lty.grid = "dotted",
   lwd.grid = par("lwd"),
   pty = "s",
+  pooled,
   ...
 )
 }
@@ -81,6 +82,10 @@ plot.}
 \item{pty}{A character specifying type of plot region (see
 \code{\link{par}}).}
 
+\item{pooled}{A character string indicating whether a common effect
+or random effects model is used for pooling. Either missing (see
+Details), \code{"common"} or \code{"random"}, can be abbreviated.}
+
 \item{\dots}{Graphical arguments as in \code{par} may also be
 passed as arguments.}
 }
@@ -102,6 +107,13 @@ each study to the overall heterogeneity statistic (see list object
 y-axis the standardised difference of the overall treatment effect
 with and without each study is plotted; this quantity describes the
 influence of each study on the overal treatment effect.
+
+Information from object \code{x} is utilised if argument
+\code{pooled} is missing. A common effect model is assumed
+(\code{pooled="common"}) if argument \code{x$common} is
+\code{TRUE}; a random effects model is assumed
+(\code{pooled="random"}) if argument \code{x$random} is
+\code{TRUE} and \code{x$common} is \code{FALSE}.
 
 Internally, the \code{\link{metainf}} function is used to calculate
 the values on the y-axis.

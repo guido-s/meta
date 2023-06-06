@@ -1,4 +1,4 @@
-mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
+mean_sd_iqr <- function(n, median, q1, q3, method.mean = "Luo") {
   
   
   ##
@@ -131,7 +131,7 @@ mean.sd.iqr <- function(n, median, q1, q3, method.mean = "Luo") {
 }
 
 
-mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
+mean_sd_iqr_range <- function(n, median, q1, q3, min, max,
                               method.mean = "Luo", method.sd = "Shi") {
   
   
@@ -308,7 +308,7 @@ mean.sd.iqr.range <- function(n, median, q1, q3, min, max,
 }
 
 
-mean.sd.range <- function(n, median, min, max, method.mean = "Luo") {
+mean_sd_range <- function(n, median, min, max, method.mean = "Luo") {
   
   
   ##

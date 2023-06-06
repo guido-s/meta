@@ -69,7 +69,7 @@ xlab <- function(sm, backtransf,
     else if (sm == "VE")
       res <- "Vaccine Eff."
     ##
-    else if (is.prop(sm)) {
+    else if (is_prop(sm)) {
       if (pscale == 1)
         res <- ""
       else
@@ -78,7 +78,7 @@ xlab <- function(sm, backtransf,
                       newline, "observations")
     }
     ##
-    else if (is.rate(sm)) {
+    else if (is_rate(sm)) {
       if (irscale == 1)
         res <- "Incidence Rate"
       else

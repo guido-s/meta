@@ -1,8 +1,11 @@
-extrVec <- function(x, varname, levs) {
+extrVec <- function(x, varname, levs, first = FALSE) {
   res <- sapply(x, "[", varname)
   ##
   if (max(sapply(res, length)) == 0)
     return(NULL)
+  ##
+  if (first)
+    res <- lapply(res, first)
   ##
   if (length(res[[1]]) == 1) {
     res <- unlist(res)
@@ -14,6 +17,7 @@ extrVec <- function(x, varname, levs) {
   stop("List element '", varname, "' does not contain single values.",
          call. = FALSE)
 }
+
 extrMat <- function(x, varname, clab, rlab) {
   res <- sapply(x, "[", varname)
   ##
@@ -39,6 +43,7 @@ extrMat <- function(x, varname, clab, rlab) {
   stop("Wrong number of labels for list element '", varname, "'.",
        call. = FALSE)
 }
+
 addNAs <- function(x, max) {
   if (length(x) == 0)
     return(rep(NA, max))
@@ -47,3 +52,6 @@ addNAs <- function(x, max) {
   else
     return(x)
 }
+
+first <- function(x)
+  x[1]

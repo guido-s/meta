@@ -87,6 +87,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -126,6 +128,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
@@ -434,6 +439,7 @@ metamean <- function(n, mean, sd, studlab,
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
                      adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                     seed.predict = NULL,
                      ##
                      null.effect = NA,
                      ##
@@ -455,6 +461,8 @@ metamean <- function(n, mean, sd, studlab,
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
+                     seed.predict.subgroup = NULL,
+                     ##
                      byvar, adhoc.hakn,
                      ##
                      keepdata = gs("keepdata"),
@@ -475,6 +483,7 @@ metamean <- function(n, mean, sd, studlab,
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
+  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   ##
@@ -491,7 +500,7 @@ metamean <- function(n, mean, sd, studlab,
                      method.tau, missing.method.tau)
   ##
   if (method.predict == "NNF")
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   ##
@@ -526,10 +535,10 @@ metamean <- function(n, mean, sd, studlab,
     setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
   ##
   if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.mean",
+    is_installed_package("estmeansd", argument = "method.mean",
                          value = method.mean)
   if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
-    is.installed.package("estmeansd", argument = "method.sd",
+    is_installed_package("estmeansd", argument = "method.sd",
                          value = method.sd)
   ##
   chklogical(warn)
@@ -609,7 +618,6 @@ metamean <- function(n, mean, sd, studlab,
   ##
   missing.mean <- missing(mean)
   missing.sd <- missing(sd)
-  ##
   missing.median <- missing(median)
   missing.q1 <- missing(q1)
   missing.q3 <- missing(q3)
@@ -680,11 +688,19 @@ metamean <- function(n, mean, sd, studlab,
   ##
   max <- catch("max", mc, data, sfsp)
   ##
+  avail.median <- !(missing.median || is.null(median))
+  avail.q1 <- !(missing.q1 || is.null(q1))
+  avail.q3 <- !(missing.q3 || is.null(q3))
+  avail.min <- !(missing.min || is.null(min))
+  avail.max <- !(missing.max || is.null(max))
+  ##
   missing.approx.mean <- missing(approx.mean)
   approx.mean <- catch("approx.mean", mc, data, sfsp)
+  avail.approx.mean <- !(missing.approx.mean || is.null(approx.mean))
   ##
   missing.approx.sd <- missing(approx.sd)
   approx.sd <- catch("approx.sd", mc, data, sfsp)
+  avail.approx.sd <- !(missing.approx.sd || is.null(approx.sd))
   
   
   ##
@@ -698,18 +714,18 @@ metamean <- function(n, mean, sd, studlab,
   if (with.cluster)
     chklength(cluster, k.All, fun)
   ##
-  if (!missing.median)
+  if (avail.median)
     chklength(median, k.All, fun)
-  if (!missing.q1)
+  if (avail.q1)
     chklength(q1, k.All, fun)
-  if (!missing.q3)
+  if (avail.q3)
     chklength(q3, k.All, fun)
-  if (!missing.min)
+  if (avail.min)
     chklength(min, k.All, fun)
-  if (!missing.max)
+  if (avail.max)
     chklength(max, k.All, fun)
   ##
-  if (!missing.approx.mean) {
+  if (avail.approx.mean) {
     if (length(approx.mean) == 1)
       rep_len(approx.mean, k.All)
     else
@@ -718,7 +734,7 @@ metamean <- function(n, mean, sd, studlab,
     approx.mean <- setchar(approx.mean, c("", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.approx.sd) {
+  if (avail.approx.sd) {
     if (length(approx.sd) == 1)
       rep_len(approx.sd, k.All)
     else
@@ -786,19 +802,19 @@ metamean <- function(n, mean, sd, studlab,
     data$.sd <- sd
     data$.studlab <- studlab
     ##
-    if (!missing.median)
+    if (avail.median)
       data$.median <- median
-    if (!missing.q1)
+    if (avail.q1)
       data$.q1 <- q1
-    if (!missing.q3)
+    if (avail.q3)
       data$.q3 <- q3
-    if (!missing.min)
+    if (avail.min)
       data$.min <- min
-    if (!missing.max)
+    if (avail.max)
       data$.max <- max
-    if (!missing.approx.mean)
+    if (avail.approx.mean)
       data$.approx.mean <- approx.mean
-    if (!missing.approx.sd)
+    if (avail.approx.sd)
       data$.approx.sd <- approx.sd
     ##
     if (by)
@@ -835,19 +851,19 @@ metamean <- function(n, mean, sd, studlab,
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     ##
-    if (!missing.median)
+    if (avail.median)
       median <- median[subset]
-    if (!missing.q1)
+    if (avail.q1)
       q1 <- q1[subset]
-    if (!missing.q3)
+    if (avail.q3)
       q3 <- q3[subset]
-    if (!missing.min)
+    if (avail.min)
       min <- min[subset]
-    if (!missing.max)
+    if (avail.max)
       max <- max[subset]
-    if (!missing.approx.mean)
+    if (avail.approx.mean)
       approx.mean <- approx.mean[subset]
-    if (!missing.approx.sd)
+    if (avail.approx.sd)
       approx.sd <- approx.sd[subset]
     ##
     if (by)
@@ -877,15 +893,15 @@ metamean <- function(n, mean, sd, studlab,
   chknumeric(mean)
   chknumeric(sd)
   ##
-  if (!missing.median)
+  if (avail.median)
     chknumeric(median)
-  if (!missing.q1)
+  if (avail.q1)
     chknumeric(q1)
-  if (!missing.q3)
+  if (avail.q3)
     chknumeric(q3)
-  if (!missing.min)
+  if (avail.min)
     chknumeric(min)
-  if (!missing.max)
+  if (avail.max)
     chknumeric(max)
   ##
   ## Recode integer as numeric:
@@ -894,15 +910,15 @@ metamean <- function(n, mean, sd, studlab,
   mean <- int2num(mean)
   sd   <- int2num(sd)
   ##
-  if (!missing.median)
+  if (avail.median)
     median <- int2num(median)
-  if (!missing.q1)
+  if (avail.q1)
     q1 <- int2num(q1)
-  if (!missing.q3)
+  if (avail.q3)
     q3 <- int2num(q3)
-  if (!missing.min)
+  if (avail.min)
     min <- int2num(min)
-  if (!missing.max)
+  if (avail.max)
     max <- int2num(max)
   ##
   if (by) {
@@ -931,34 +947,34 @@ metamean <- function(n, mean, sd, studlab,
     ## (a) Use IQR and range
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median &
+        avail.q1 & avail.q3 &
+        avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.mean[j] <- "iqr.range"
       ##
-      mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+      mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
     }
     ##
     ## (b) Use IQR
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+    if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.mean[j] <- "iqr"
-      mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+      mean[j] <- mean_sd_iqr(n[j], median[j], q1[j], q3[j],
                              method.mean)$mean
     }
     ##
     ## (c) Use range
     ##
     sel.NA <- is.na(mean)
-    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.mean[j] <- "range"
-      mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+      mean[j] <- mean_sd_range(n[j], median[j], min[j], max[j],
                                method.mean)$mean
     }
   }
@@ -968,13 +984,13 @@ metamean <- function(n, mean, sd, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range")
-        mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+        mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
       else if (i == "iqr")
-        mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+        mean[j] <- mean_sd_iqr(n[j], median[j], q1[j], q3[j],
                                method.mean)$mean
       else if (i == "range")
-        mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+        mean[j] <- mean_sd_range(n[j], median[j], min[j], max[j],
                                  method.mean)$mean
     }
   }
@@ -1002,14 +1018,14 @@ metamean <- function(n, mean, sd, studlab,
     ## (a) Use IQR and range
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median &
+        avail.q1 & avail.q3 &
+        avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.sd[j] <- "iqr.range"
       ##
-      sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+      sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                  min[j], max[j],
                                  method.sd = method.sd)$sd
     }
@@ -1017,19 +1033,19 @@ metamean <- function(n, mean, sd, studlab,
     ## (b) Use IQR
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median & !missing.q1 & !missing.q3) {
+    if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3)
       approx.sd[j] <- "iqr"
-      sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+      sd[j] <- mean_sd_iqr(n[j], median.sd[j], q1[j], q3[j])$sd
     }
     ##
     ## (c) Use range
     ##
     sel.NA <- is.na(sd)
-    if (any(sel.NA) & !missing.median & !missing.min & !missing.max) {
+    if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(min) & !is.na(max)
       approx.sd[j] <- "range"
-      sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+      sd[j] <- mean_sd_range(n[j], median.sd[j], min[j], max[j])$sd
     }
   }
   else {
@@ -1038,13 +1054,13 @@ metamean <- function(n, mean, sd, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range")
-        sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+        sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                    min[j], max[j],
                                    method.sd = method.sd)$sd
       else if (i == "iqr")
-        sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+        sd[j] <- mean_sd_iqr(n[j], median.sd[j], q1[j], q3[j])$sd
       else if (i == "range")
-        sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+        sd[j] <- mean_sd_range(n[j], median.sd[j], min[j], max[j])$sd
     }
   }
   ##
@@ -1132,22 +1148,13 @@ metamean <- function(n, mean, sd, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
+    chkmlm(method.tau, missing.method.tau, method.predict,
+           by, tau.common, missing.tau.common)
+    ##
     common <- FALSE
     ##
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing(method.tau))
-        warning("For three-level model, argument 'method.tau' set to \"REML\".",
-                call. = FALSE)
+    if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
-    }
-    ##
-    if (by & !tau.common) {
-      if (!missing(tau.common))
-        warning("For three-level model, argument 'tau.common' set to ",
-                "\"TRUE\".",
-                call. = FALSE)
-      tau.common <- TRUE
-    }
   }
   
   
@@ -1181,6 +1188,7 @@ metamean <- function(n, mean, sd, studlab,
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
+               seed.predict = seed.predict,
                ##
                null.effect = transf.null.effect,
                ##
@@ -1217,13 +1225,13 @@ metamean <- function(n, mean, sd, studlab,
   ##
   if (export.median)
     res$median <- median
-  if (!missing.q1)
+  if (avail.q1)
     res$q1 <- q1
-  if (!missing.q3)
+  if (avail.q3)
     res$q3 <- q3
-  if (!missing.min)
+  if (avail.min)
     res$min <- min
-  if (!missing.max)
+  if (avail.max)
     res$max <- max
   ##
   res$approx.sd <- approx.sd
@@ -1295,19 +1303,21 @@ metamean <- function(n, mean, sd, studlab,
     res$tau.common <- tau.common
     ##
     if (!tau.common) {
-      res <- c(res, subgroup(res))
+      res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
         res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
-      res <- c(res, subgroup(res, tau.preset))
+      res <-
+        c(res, subgroup(res, tau.preset, seed = seed.predict.subgroup))
     else {
       if (res$three.level)
         res <- c(res,
                  subgroup(res, NULL,
                           factor(res$subgroup, bylevs(res$subgroup))))
       else
-        res <- c(res, subgroup(res, hcc$tau.resid))
+        res <-
+          c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
     ##
     if (tau.common && is.null(tau.preset))

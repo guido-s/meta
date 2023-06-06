@@ -23,12 +23,14 @@ metacr(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   Q.Cochrane,
   swap.events,
   logscale,
   backtransf = gs("backtransf"),
   test.subgroup,
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
@@ -106,6 +108,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
 estimate is used in the calculation of the heterogeneity
 statistic Q which is implemented in RevMan 5.}
@@ -128,6 +133,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{text.common}{A character string used in printouts and forest
 plot to label the pooled common effect estimate.}

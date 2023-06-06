@@ -75,7 +75,7 @@
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "MD")
+#'   data = Fleiss1993cont, sm = "SMD")
 #' \dontrun{
 #' # Error due to wrong ordering of arguments (order has changed in
 #' # R package meta, version 3.0-0)
@@ -170,7 +170,8 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Meta-regression", "netpairwise")
+  chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"),
+               check.mlm = FALSE)
   ##
   x <- updateversion(x)
   
@@ -329,6 +330,8 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     ## Three-level model
     ##
     if (three.level) {
+      ##
+      dataset$.idx <- seq_len(nrow(dataset))
       ##
       res <-
         runNN(rma.mv,

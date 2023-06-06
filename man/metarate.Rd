@@ -35,6 +35,7 @@ metarate(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   null.effect = NA,
   method.bias = gs("method.bias"),
   backtransf = gs("backtransf"),
@@ -54,6 +55,7 @@ metarate(
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   byvar,
   hakn,
   adhoc.hakn,
@@ -168,6 +170,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{null.effect}{A numeric value specifying the effect under the
 null hypothesis.}
 
@@ -227,6 +232,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 

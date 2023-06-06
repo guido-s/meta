@@ -32,6 +32,7 @@ metagen(
   level.predict = gs("level.predict"),
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   null.effect = 0,
   method.bias = gs("method.bias"),
   n.e = NULL,
@@ -50,8 +51,12 @@ metagen(
   method.sd = "Shi",
   approx.TE,
   approx.seTE,
-  transf = gs("transf"),
-  backtransf = gs("backtransf"),
+  transf = gs("transf") & missing(func.transf),
+  backtransf = gs("backtransf") | !missing(func.backtransf),
+  func.transf,
+  func.backtransf,
+  args.transf,
+  args.backtransf,
   pscale = 1,
   irscale = 1,
   irunit = "person-years",
@@ -73,6 +78,7 @@ metagen(
   sep.subgroup = gs("sep.subgroup"),
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
+  seed.predict.subgroup = NULL,
   byvar,
   id,
   adhoc.hakn,
@@ -177,6 +183,9 @@ used to calculate a prediction interval (see
 \emph{ad hoc} variance correction should be applied for
 prediction interval (see \code{\link{meta-package}}).}
 
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
+
 \item{null.effect}{A numeric value specifying the effect under the
 null hypothesis.}
 
@@ -234,8 +243,8 @@ estimate (see Details).}
 
 \item{transf}{A logical indicating whether inputs for arguments
 \code{TE}, \code{lower} and \code{upper} are already
-appropriately transformed to conduct the meta-analysis or on
-the original scale. If \code{transf = TRUE} (default), inputs are
+appropriately transformed to conduct the meta-analysis or on the
+original scale. If \code{transf = TRUE} (default), inputs are
 expected to be log odds ratios instead of odds ratios for
 \code{sm = "OR"} and Fisher's z transformed correlations instead
 of correlations for \code{sm = "ZCOR"}, for example.}
@@ -246,6 +255,17 @@ TRUE} (default), results for \code{sm = "OR"} are printed as odds
 ratios rather than log odds ratios and results for \code{sm =
 "ZCOR"} are printed as correlations rather than Fisher's z
 transformed correlations, for example.}
+
+\item{func.transf}{A function used to transform inputs for
+arguments \code{TE}, \code{lower} and \code{upper}.}
+
+\item{func.backtransf}{A function used to back-transform results.}
+
+\item{args.transf}{An optional list to provide additional arguments
+to \code{func.transf}.}
+
+\item{args.backtransf}{An optional list to provide additional
+arguments to \code{func.backtransf}.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -307,6 +327,10 @@ results of test for subgroup differences.}
 
 \item{prediction.subgroup}{A logical indicating whether prediction
 intervals should be printed for subgroups.}
+
+\item{seed.predict.subgroup}{A numeric vector providing seeds to
+calculate bootstrap prediction intervals within subgroups. Must
+be of same length as the number of subgroups.}
 
 \item{byvar}{Deprecated argument (replaced by 'subgroup').}
 
@@ -648,10 +672,29 @@ HR <- c(0.55, 0.92, 0.79, 1.18)
 lower.HR <- c(0.28, 0.79, 0.59, 0.64)
 upper.HR <- c(1.09, 1.08, 1.05, 2.17)
 #
-# Input must be log hazard ratios, not hazard ratios
+# Hazard ratios and confidence intervals as input
 #
-metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
-  studlab = study, sm = "HR")
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "HR", transf = FALSE))
+#
+# Same result with log hazard ratios as input
+#
+summary(metagen(log(HR), lower = log(lower.HR), upper = log(upper.HR),
+  studlab = study, sm = "HR"))
+#
+# Again, same result using an unknown summary measure and
+# arguments 'func.transf' and 'func.backtransf'
+#
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "Hazard ratio",
+  func.transf = log, func.backtransf = exp))
+#
+# Finally, same result only providing argument 'func.transf' as the
+# back-transformation for the logarithm is known
+#
+summary(metagen(HR, lower = lower.HR, upper = upper.HR,
+  studlab = study, sm = "Hazard ratio",
+  func.transf = log))
 
 # Exclude MRC-1 and MRC-2 studies from meta-analysis, however,
 # show them in printouts and forest plots

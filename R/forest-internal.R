@@ -340,43 +340,116 @@ draw.lines <- function(x, column,
                        overall, common, random, prediction,
                        ymin.common, ymin.random, ymin.ref, ymax,
                        lwd, lty.common, lty.random, col.common, col.random,
-                       min, max,
+                       xmin, xmax,
                        lower.equi, upper.equi,
-                       lty.equi, col.equi, fill.equi) {
+                       lty.equi, col.equi,
+                       fill.lower.equi, fill.upper.equi) {
   ##
-  if (min > max) {
-    min <- x$range[2]
-    max <- x$range[1]
+  if (xmin > xmax) {
+    xmin <- x$range[2]
+    xmax <- x$range[1]
   }
   else {
-    min <- x$range[1]
-    max <- x$range[2]
+    xmin <- x$range[1]
+    xmax <- x$range[2]
   }
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
   ##
-  ## Add equivalence region
+  ## Add equivalence region(s)
   ##
-  if ((!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max)) &
-      (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max)))
-    grid.polygon(x = unit(c(lower.equi, upper.equi,
-                            upper.equi, lower.equi), "native"),
-                 y = unit(c(ymin.ref, ymin.ref, ymax, ymax), "lines"),
-                 gp = gpar(lwd = lwd, col = fill.equi, fill = fill.equi))
+  if (is.na(ref) & any(!is.na(lower.equi)) & any(!is.na(upper.equi)))
+    ref.equi <- min(lower.equi, na.rm = TRUE) +
+      0.5 * (max(upper.equi, na.rm = TRUE) - min(lower.equi, na.rm = TRUE))
+  else
+    ref.equi <- ref
   ##
-  if (!is.na(lower.equi) && (min <= lower.equi & lower.equi <= max))
-    grid.lines(x = unit(lower.equi, "native"),
-               y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+  if (!is.na(ref.equi) && (xmin <= ref.equi & ref.equi <= xmax) &&
+      any(!is.na(lower.equi))) {
+    ##
+    n.lower.equi <- sum(!is.na(lower.equi))
+    n.fill.lower.equi <- length(fill.lower.equi)
+    ##
+    if (n.lower.equi < n.fill.lower.equi) {
+      firstline <- FALSE
+      lower.equi <- c(xmin, lower.equi, ref.equi)
+    }
+    else {
+      firstline <- TRUE
+      lower.equi <- c(lower.equi, ref.equi)
+    }
+    ##
+    n.lo <- length(lower.equi[-1])
+    ##
+    for (i in seq_len(n.lo)) {
+      if (!is.na(lower.equi[i]) && !is.na(lower.equi[i + 1]) &&
+          ((xmin <= lower.equi[i] & lower.equi[i] <= lower.equi[i + 1]) &
+           (lower.equi[i + 1] <= xmax))) {
+        ##
+        grid.polygon(x = unit(c(lower.equi[i], lower.equi[i + 1],
+                                lower.equi[i + 1], lower.equi[i]), "native"),
+                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                              "lines"),
+                     gp = gpar(lwd = lwd, col = "transparent",
+                               fill = fill.lower.equi[i]))
+      }
+    }
+    ##
+    for (i in seq_len(n.lo)) {
+      if (!(i == 1 & !firstline) &
+          !is.na(lower.equi[i]) && !is.na(lower.equi[i + 1]) &&
+          ((xmin <= lower.equi[i] & lower.equi[i] <= lower.equi[i + 1]) &
+           (lower.equi[i + 1] <= xmax)))
+        grid.lines(x = unit(lower.equi[i], "native"),
+                   y = unit(c(ymin.ref, ymax), "lines"),
+                   gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+    }
+  }
   ##
-  if (!is.na(upper.equi) && (min <= upper.equi & upper.equi <= max))
-    grid.lines(x = unit(upper.equi, "native"),
-               y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+  if (!is.na(ref.equi) && (xmin <= ref.equi & ref.equi <= xmax) &&
+      any(!is.na(upper.equi))) {
+    ##
+    n.upper.equi <- sum(!is.na(upper.equi))
+    n.fill.upper.equi <- length(fill.upper.equi)
+    ##
+    if (n.upper.equi < n.fill.upper.equi) {
+      lastline <- FALSE
+      upper.equi <- c(ref.equi, upper.equi, xmax)
+    }
+    else {
+      lastline <- TRUE
+      upper.equi <- c(ref.equi, upper.equi)
+    }
+    ##
+    n.up <- length(upper.equi[-1])
+    ##
+    for (i in seq_len(n.up)) {
+      if (!is.na(upper.equi[i]) && !is.na(upper.equi[i + 1]) &&
+          ((xmin <= upper.equi[i] & upper.equi[i] <= upper.equi[i + 1]) &
+           (upper.equi[i + 1] <= xmax))) {
+        ##
+        grid.polygon(x = unit(c(upper.equi[i], upper.equi[i + 1],
+                                upper.equi[i + 1], upper.equi[i]), "native"),
+                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                              "lines"),
+                     gp = gpar(lwd = lwd, col = "transparent",
+                               fill = fill.upper.equi[i]))
+      }
+    }
+    ##
+    for (i in seq_len(n.up)) {
+      if ((i != n.up | (i == n.up & lastline)) &
+          !is.na(upper.equi[i + 1]) &&
+          (xmin <= upper.equi[i + 1] & upper.equi[i + 1] <= xmax))
+          grid.lines(x = unit(upper.equi[i + 1], "native"),
+                     y = unit(c(ymin.ref, ymax), "lines"),
+                     gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+    }
+  }
   ##
   ## Reference line:
   ##
-  if (!is.na(ref) && (min <= ref & ref <= max))
+  if (!is.na(ref) && (xmin <= ref & ref <= xmax))
     grid.lines(x = unit(ref, "native"),
                y = unit(c(ymin.ref, ymax), "lines"),
                gp = gpar(lwd = lwd))
@@ -386,10 +459,11 @@ draw.lines <- function(x, column,
   if (common & overall)
     for (i in seq_along(TE.common))
       if (!is.na(TE.common[i]))
-        if (min <= TE.common[i] & TE.common[i] <= max)
+        if (xmin <= TE.common[i] & TE.common[i] <= xmax)
           if (!is.null(lty.common))
             grid.lines(x = unit(TE.common[i], "native"),
-                       y = unit(c(ymin.common, ymax), "lines"),
+                       y = unit(c(ymin.common + length(TE.common) - i, ymax),
+                                "lines"),
                        gp = gpar(lty = lty.common, lwd = lwd, col = col.common))
   ##
   ## Line for random effects estimate(s):
@@ -397,10 +471,11 @@ draw.lines <- function(x, column,
   if (random & overall)
     for (i in seq_along(TE.random))
       if (!is.na(TE.random[i]))
-        if (min <= TE.random[i] & TE.random[i] <= max)
+        if (xmin <= TE.random[i] & TE.random[i] <= xmax)
           if (!is.null(lty.random) & !is.na(TE.random[i]))
             grid.lines(x = unit(TE.random[i], "native"),
-                       y = unit(c(ymin.random, ymax), "lines"),
+                       y = unit(c(ymin.random + length(TE.random) - i, ymax),
+                                "lines"),
                        gp = gpar(lty = lty.random,
                                  lwd = lwd, col = col.random))
   ##
@@ -498,7 +573,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.common,
                      fontface = settings$ff.common,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }
@@ -515,7 +590,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.random,
                      fontface = settings$ff.random,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }
@@ -532,7 +607,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.predict,
                      fontface = settings$ff.predict,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }

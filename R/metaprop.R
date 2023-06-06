@@ -80,6 +80,8 @@
 #' @param adhoc.hakn.pi A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied for
 #'   prediction interval (see \code{\link{meta-package}}).
+#' @param seed.predict A numeric value used as seed to calculate
+#'   bootstrap prediction interval (see \code{\link{meta-package}}).
 #' @param null.effect A numeric value specifying the effect under the
 #'   null hypothesis.
 #' @param method.bias A character string indicating which test is to
@@ -120,6 +122,9 @@
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
 #'   intervals should be printed for subgroups.
+#' @param seed.predict.subgroup A numeric vector providing seeds to
+#'   calculate bootstrap prediction intervals within subgroups. Must
+#'   be of same length as the number of subgroups.
 #' @param byvar Deprecated argument (replaced by 'subgroup').
 #' @param hakn Deprecated argument (replaced by 'method.random.ci').
 #' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
@@ -592,6 +597,7 @@ metaprop <- function(event, n, studlab,
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
                      adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+                     seed.predict = NULL,
                      ##
                      null.effect = NA,
                      ##
@@ -614,6 +620,8 @@ metaprop <- function(event, n, studlab,
                      sep.subgroup = gs("sep.subgroup"),
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
+                     seed.predict.subgroup = NULL,
+                     ##
                      byvar, hakn, adhoc.hakn,
                      ##
                      keepdata = gs("keepdata"),
@@ -666,7 +674,7 @@ metaprop <- function(event, n, studlab,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
-    is.installed.package("pimeta", argument = "method.predict", value = "NNF")
+    is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -679,7 +687,7 @@ metaprop <- function(event, n, studlab,
   chklogical(backtransf)
   ##
   chknumeric(pscale, length = 1)
-  if (!backtransf & pscale != 1 & !is.untransformed(sm)) {
+  if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
     pscale <- 1
@@ -987,14 +995,14 @@ metaprop <- function(event, n, studlab,
   ## Check for whole numbers
   ##
   if (method.ci != "NAsm") {
-    if (any(!is.wholenumber(event), na.rm = TRUE)) {
+    if (any(!is_wholenumber(event), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
               "(argument method.ci = \"NAsm\") used as\n",
               "at least one number of events contains a non-integer value.",
               call. = FALSE)
       method.ci <- "NAsm"
     }
-    else if (any(!is.wholenumber(n), na.rm = TRUE)) {
+    else if (any(!is_wholenumber(n), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
               "(argument method.ci = \"NAsm\") used as\n",
               "at least one sample size contains a non-integer value.",
@@ -1140,31 +1148,16 @@ metaprop <- function(event, n, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
+    chkmlm(method.tau, missing.method.tau, method.predict,
+           by, tau.common, missing.tau.common,
+           method, missing.method)
+    ##
     common <- FALSE
+    method <- "Inverse"
+    is.glmm <- FALSE
     ##
-    if (method != "Inverse") {
-      if (!missing.method)
-        warning("Inverse variance method used in three-level model.",
-                call. = FALSE)
-      method <- "Inverse"
-      is.glmm <- FALSE
-    }
-    ##
-    if (!(method.tau %in% c("REML", "ML"))) {
-      if (!missing.method.tau)
-        warning("For three-level model, argument 'method.tau' set to ",
-                "\"REML\".",
-                call. = FALSE)
+    if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
-    }
-    ##
-    if (by & !tau.common) {
-      if (!missing.tau.common)
-        warning("For three-level model, argument 'tau.common' set to ",
-                "\"TRUE\".",
-                call. = FALSE)
-      tau.common <- TRUE
-    }
   }
   
   
@@ -1230,6 +1223,7 @@ metaprop <- function(event, n, studlab,
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
+               seed.predict = seed.predict,
                ##
                null.effect = transf.null.effect,
                ##
@@ -1309,6 +1303,7 @@ metaprop <- function(event, n, studlab,
   ##
   if (is.glmm & k > 0) {
     res$method <- "GLMM"
+    res$method.random <- "GLMM"
     ##
     list.prop <- list(xi = event[!exclude], ni = n[!exclude], measure = "PLO")
     ##
@@ -1383,12 +1378,13 @@ metaprop <- function(event, n, studlab,
     res$tau.common <- tau.common
     ##
     if (!tau.common) {
-      res <- c(res, subgroup(res))
+      res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
         res <- setNA3(res)
     }
     else if (!is.null(tau.preset))
-      res <- c(res, subgroup(res, tau.preset))
+      res <-
+        c(res, subgroup(res, tau.preset, seed = seed.predict.subgroup))
     else {
       if (is.glmm)
         res <- c(res,
@@ -1399,7 +1395,8 @@ metaprop <- function(event, n, studlab,
                  subgroup(res, NULL,
                           factor(res$subgroup, bylevs(res$subgroup))))
       else
-        res <- c(res, subgroup(res, hcc$tau.resid))
+        res <-
+          c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
     ##
     if (tau.common && is.null(tau.preset))

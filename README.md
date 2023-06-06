@@ -44,13 +44,13 @@ remotes::install_github("guido-s/meta", ref = "develop")
 
 ### Bug Reports:
 
+You can report bugs on GitHub under
+[Issues](https://github.com/guido-s/meta/issues)
+
+or by using the R command
+
 ```r
 bug.report(package = "meta")
 ```
 
-The bug.report function is not supported in RStudio. Please send an
-email to Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de> if
-you use RStudio.
-
-You can also report bugs on GitHub under
-[Issues](https://github.com/guido-s/meta/issues/).
+(which is not supported in RStudio).

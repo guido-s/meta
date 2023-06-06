@@ -45,6 +45,7 @@
   level.predict = level,
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
+  seed.predict = NULL,
   backtransf = TRUE,
   pscale = 1,
   irscale = 1,
@@ -155,6 +156,9 @@ used to calculate a prediction interval (see
 \item{adhoc.hakn.pi}{A character string indicating whether an
 \emph{ad hoc} variance correction should be applied for the
 prediction interval (see \code{\link{meta-package}}).}
+
+\item{seed.predict}{A numeric value used as seed to calculate
+bootstrap prediction interval (see \code{\link{meta-package}}).}
 }
 \value{
 An object of class \code{c("trimfill", "metagen", "meta")} with

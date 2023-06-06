@@ -4,6 +4,7 @@
 ## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
+
 bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
                     sep.subgroup, big.mark = "") {
   if (print.subgroup.name) {
@@ -18,6 +19,7 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
   ##
   res
 }
+
 crtitle <- function(x) {
   tl <- options()$width - 12
   newline <- FALSE
@@ -53,106 +55,7 @@ crtitle <- function(x) {
   if (newline)
     cat("\n")
 }
-format.NA <- function(x, digits = 2, text.NA = "--", big.mark = "") {
-  
-  warning("Use of function format.NA() from R package meta is deprecated; ",
-          "use instead formatN().")
-  
-  outdec <- options()$OutDec
-  
-  res <- format(ifelse(is.na(x),
-                       text.NA,
-                       formatC(x, decimal.mark = outdec,
-                               format = "f", digits = digits,
-                               big.mark = big.mark)
-                       )
-                )
-  ##
-  res <-  rmSpace(res, end = TRUE)
-  ##
-  res
-}
-format.p <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
-                     digits = 4, zero = TRUE, scientific = FALSE,
-                     lab.NA = "--", big.mark = "") {
-  
-  warning("Use of function format.p() from R package meta is deprecated; ",
-          "use instead formatPT().")
-  
-  if (is.null(x))
-    return("")
-  
-  outdec <- options()$OutDec
-  
-  n.zeros <- digits - 1
-  n.zeros[n.zeros < 0] <- 0
-  
-  if (!scientific) {
-    if (lab)
-      res <- format(ifelse(is.na(x) | is.nan(x),
-                           paste(labval, "=", lab.NA),
-                    ifelse(x == 0,
-                           paste(labval, "= 0"),
-                    ifelse(x < 1 / 10^digits,
-                           paste0(labval, " < 0", outdec,
-                                  paste(rep("0",
-                                            n.zeros), collapse = ""),
-                                  "1"),
-                           paste(paste(labval, "="),
-                                 formatC(round(x, digits),
-                                         decimal.mark = outdec,
-                                         big.mark = big.mark,
-                                         format = "f", digits = digits)
-                                 )
-                           )
-                    )
-                    )
-                    )
-    else
-      res <- format(ifelse(is.na(x) | is.nan(x),
-                           lab.NA,
-                    ifelse(x == 0,
-                           0,
-                    ifelse(x < 1 / 10^digits,
-                           paste0("< 0", outdec,
-                                  paste(rep("0", n.zeros), collapse = ""),
-                                  "1"),
-                           formatC(round(x, digits),
-                                   decimal.mark = outdec,
-                                   big.mark = big.mark,
-                                   format = "f", digits = digits)
-                           )
-                    )
-                    ),
-                    justify = "right")
-  }
-  else {
-    if (lab)
-      res <- format(ifelse(is.na(x) | is.nan(x),
-                           paste(labval, "=", lab.NA),
-                           paste(labval, "=",
-                                 formatC(x, decimal.mark = outdec,
-                                         big.mark = big.mark,
-                                         format = "e", digits = digits)
-                                 )
-                           )
-                    )
-    else
-      res <- formatC(x, decimal.mark = outdec,
-                     big.mark = big.mark, format = "e", digits = digits)
-  }
-  ##
-  if (noblanks)
-    res <- gsub(" ", "", res)
-  if (!zero)
-    res <- gsub("0\\.", "\\.", res)
-  ##
-  ## Treat NaNs as NAs
-  ##
-  res[grep("NaN", res)] <- lab.NA
-  
-  res
-}
+
 formatCI <- function(lower, upper,
                      bracket.left = gs("CIbracket"),
                      separator = gs("CIseparator"),
@@ -220,6 +123,7 @@ formatCI <- function(lower, upper,
   ##
   res
 }
+
 formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
                     format.whole.numbers = TRUE) {
   
@@ -238,7 +142,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   else {
     res <- format(ifelse(is.na(x),
                          text.NA,
-                  ifelse(is.wholenumber(x),
+                  ifelse(is_wholenumber(x),
                          x,
                          formatC(x, decimal.mark = outdec,
                                  format = "f", digits = digits,
@@ -252,6 +156,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   ##
   res
 }
+
 formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "",
@@ -388,6 +293,7 @@ formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
   
   res
 }
+
 p.ci <- function(lower, upper, rmspace = TRUE,
                  bracket.left = gs("CIbracket"),
                  separator = gs("CIseparator"),
@@ -453,6 +359,7 @@ p.ci <- function(lower, upper, rmspace = TRUE,
   ##
   res
 }
+
 pasteCI <- function(lower, upper, digits, big.mark,
                     sign.lower = "", sign.upper = "", text.NA = "NA",
                     unit = "")
@@ -463,6 +370,7 @@ pasteCI <- function(lower, upper, digits, big.mark,
                   paste0(sign.upper,
                          formatN(upper, digits, big.mark = big.mark,
                                  text.NA = text.NA), unit)))
+
 rmSpace <- function(x, end = FALSE, pat = " ") {
   
   if (!end) {

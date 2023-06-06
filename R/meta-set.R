@@ -4,6 +4,7 @@
 ## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
+
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE) {
@@ -85,6 +86,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
   ##
   res
 }
+
 setstudlab <- function(x, k) {
   ##
   ## Set study labels
@@ -101,6 +103,7 @@ setstudlab <- function(x, k) {
   ##
   x
 }
+
 setunit <- function(x) {
   xname <- deparse(substitute(x))
   
@@ -146,6 +149,7 @@ setunit <- function(x) {
   
   res
 }
+
 setmethodbias <- function(x, subset) {
   oldmethod <- setchar(x, gs("meth4bias.old"),
                        stop.at.error = FALSE)
@@ -165,6 +169,7 @@ setmethodbias <- function(x, subset) {
   ##
   res
 }
+
 setmethodtau <- function(method.tau, missing.tau,
                          method.predict, missing.predict,
                          warn = TRUE) {
@@ -181,6 +186,7 @@ setmethodtau <- function(method.tau, missing.tau,
   ##
   method.tau
 }
+
 setmethodpredict <- function(method.predict, missing.predict,
                              method.tau, missing.tau,
                              warn = TRUE) {
@@ -200,4 +206,11 @@ setmethodpredict <- function(method.predict, missing.predict,
   }
   ##
   method.predict
+}
+
+setVal <- function(data, varname, default = NULL) {
+  if (isCol(data, varname))
+    return(data[[varname]])
+  else
+    return(default)
 }

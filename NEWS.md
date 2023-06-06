@@ -1,3 +1,92 @@
+## meta, version 6.5-0 (2023-mm-dd)
+
+### Major changes
+
+* In R function metamerge(), user can decide whether to keep or ignore
+  information from second meta-analysis on study weights and
+  heterogeneity statistics
+
+* New function metaadd() to add pooled results from external analysis
+  to meta-analysis object
+
+* Function update.meta() considers arguments 'method.mean' and 'method.sd'
+
+* Variables with group specific information can be merged into a
+  single variable in longarm()
+
+* Additional thresholds can be specified to plot vertical lines in
+  forest plots, e.g., to mark large, moderate and small effects
+
+* Baujat plot can be used to evaluate influence of studies on random
+  effects estimate
+
+* Seed can be specified in meta-analysis functions to calculate
+  reproducible bootstrap prediction intervals
+
+### User-visible changes
+
+* metamerge():
+  - new arguments 'common1', 'random1', 'prediction1', 'common2',
+    'random2', 'prediction2' to specify whether to keep common effect
+    results, random effects results or prediction interval from first
+    or second meta-analysis
+  - new arguments 'keep', 'keep.Q', 'keep.I2' and 'keep.w' to
+    determine whether additional information from second meta-analysis
+    should be kept
+  - new arguments 'common', 'random', 'prediction', 'overall' and
+    'overall.hetstat' to specify which results to print
+  - new arguments 'hetlabel1', 'hetlabel2', 'text.common1',
+    'text.common2', 'text.random1', 'text.random2', 'text.predict1'
+    and 'text.predict2' to label results from first or second
+    meta-analysis
+
+* longarm():
+  - new arguments 'id1' and 'id2' to specify last character(s) of
+    variable names with group specific information
+
+### Bug fixes
+
+* metabias():
+  - do not conduct test for funnel plot asymmetry for three-level
+    model (the test did not consider the cluster structure)
+
+* forest.meta():
+  - header line was concealed by equivalence region
+  - error if argument 'resid.hetstat = TRUE' was used for subgroup
+    meta-analysis without common between-study variance estimate in
+    subgroups (argument 'tau.common = FALSE' in meta-analysis
+    functions)
+
+* read.rm5():
+  - fix bug for error message *"In gsub("\x80", "EUR", txt) : unable
+    to translate '<80>' to a wide string"* due to change in default
+    settings in R function gsub()
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metacr(), metainc(), metamean(),
+  metaprop(), metarate(), update.meta():
+  - new arguments 'seed.predict' and 'seed.predict.subgroup'
+  - print an error message if bootstrap prediction interval is
+    requested for three-level model
+
+* trimfill.default():
+  - new argument 'seed.predict'
+
+* baujat.meta():
+  - new argument 'pooled'
+
+* forest.meta():
+  - arguments 'lower.equi' and 'upper.equi' can be numeric vectors
+  - new arguments 'fill.lower.equi' and 'fill.upper.equi' to specify
+    fill colour(s) for lower or upper limits
+
+### Internal changes
+
+* full rewrite of function catmeth() to print details on meta-analysis
+  methods
+
+
 ## meta, version 6.2-1 (2023-02-28)
 
 ### Bug fixes
@@ -29,6 +118,8 @@
   case
 
 * setchar(): new arguments 'return.NULL' and 'nchar.equal'
+
+* New branch 'release' on GitHub starting with **meta**, version 6.2-1
 
 
 ## meta, version 6.2-0 (2023-02-14)

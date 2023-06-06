@@ -93,6 +93,19 @@ chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
          call. = FALSE)
 }
 
+chkfunc <- function(x, name = NULL) {
+  ##
+  ## Check whether argument is a function
+  ##
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  ##
+  if (!is.null(x) && !is.function(x))
+    stop("Argument '", name, "' must be a function.", call. = FALSE)
+  ##
+  invisible(NULL)
+}
+
 chklength <- function(x, k.all, fun = "", text, name = NULL) {
   ##
   ## Check length of vector
@@ -155,6 +168,19 @@ chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
   if (any(x <= 0, na.rm = TRUE) | any(x >= 1, na.rm = TRUE))
     stop("Argument '", name, "' must be a numeric between 0 and 1.",
          call. = FALSE)
+  ##
+  invisible(NULL)
+}
+
+chklist <- function(x, name = NULL) {
+  ##
+  ## Check whether argument is a list
+  ##
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  ##
+  if (!is.null(x) && !is.list(x))
+    stop("Argument '", name, "' must be a list.", call. = FALSE)
   ##
   invisible(NULL)
 }
@@ -247,7 +273,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
     stop("Argument '", name, "' must be between ",
          min, " and ", max, ".", call. = FALSE)
   ##
-  if (integer && any(!is.wholenumber(x))) {
+  if (integer && any(!is_wholenumber(x))) {
     if (length(x) == 1)
       stop("Argument '", name, "' must be an integer.",
            call. = FALSE)
@@ -327,20 +353,54 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
   return(invisible(NULL))
 }
 
+chkmlm <- function(method.tau, missing.method.tau,
+                   method.predict,
+                   by, tau.common, missing.tau.common,
+                   method = "Inverse", missing.method = FALSE) {
+  
+  if (method != "Inverse" & !missing.method)
+    warning("Inverse variance method used in three-level model.",
+            call. = FALSE)
+  ##
+  if (!(method.tau %in% c("REML", "ML")) & !missing.method.tau)
+    warning("For three-level model, argument 'method.tau' set to ",
+            "\"REML\".",
+            call. = FALSE)
+  ##
+  if (any(method.predict == "NNF"))
+    stop("Bootstrap method for prediction interval not ",
+         "available for three-level models.",
+         call. = FALSE)
+  ##
+  if (by & !tau.common & !missing.tau.common)
+    warning("For three-level model, argument 'tau.common' set to ",
+            "\"TRUE\".",
+            call. = FALSE)
+  
+  return(invisible(NULL))
+}
+
 chksuitable <- function(x, method,
                         classes =
                           c("metacum", "metainf",
                             "netpairwise"),
-                        addtext = NULL) {
+                        addtext = NULL,
+                        check.mlm = TRUE) {
   if (missing(addtext)) {
     addtext <- rep("", length(classes))
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
+  ##
   for (i in seq_along(classes))
     if (inherits(x, classes[i]))
       stop(method, " not suitable for an object of class \"",
            classes[i], "\"", addtext[i], ".",
+           call. = FALSE)
+  ##
+  if (check.mlm)
+    if (!is.null(x$three.level) && any(x$three.level))
+      stop(method, " not implemented for three-level model.",
            call. = FALSE)
   ##
   return(invisible(NULL))

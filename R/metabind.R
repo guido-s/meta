@@ -50,7 +50,7 @@
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
 #' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "MD")
+#'   data = Fleiss1993cont, sm = "SMD")
 #'
 #' # Conduct two subgroup analyses
 #' #
@@ -96,7 +96,6 @@
 
 metabind <- function(..., name = NULL, pooled = NULL,
                      backtransf = NULL, outclab = NULL) {
-  
   
   missing.name <- missing(name)
   missing.pooled <- missing(pooled)
@@ -265,12 +264,15 @@ metabind <- function(..., name = NULL, pooled = NULL,
     ##
     meth.i <- data.frame(sm = m.i$sm,
                          method = m.i$method,
+                         method.random = m.i$method.random,
+                         three.level = replaceNULL(m.i$three.level, NA),
                          level = m.i$level.ma,
                          level.ma = m.i$level.ma,
                          level.predict = m.i$level.predict,
                          common = m.i$common,
                          random = m.i$random,
                          method.random.ci = m.i$method.random.ci,
+                         adhoc.hakn.ci = m.i$adhoc.hakn.ci,
                          method.tau = m.i$method.tau,
                          tau.preset = replaceNULL(m.i$tau.preset),
                          TE.tau = replaceNULL(m.i$TE.tau),
@@ -278,6 +280,8 @@ metabind <- function(..., name = NULL, pooled = NULL,
                          prediction = m.i$prediction,
                          prediction.subgroup =
                            replaceNULL(m.i$prediction.subgroup, FALSE),
+                         method.predict = m.i$method.predict,
+                         adhoc.hakn.pi = m.i$adhoc.hakn.pi,
                          method.bias = "",
                          null.effect = m.i$null.effect,
                          ##
@@ -641,6 +645,12 @@ metabind <- function(..., name = NULL, pooled = NULL,
   ##
   if (length(unique(meth$method)) != 1) {
     meth$method <- ""
+    show.studies <- FALSE
+    overall.hetstat <- FALSE
+  }
+  ##
+  if (length(unique(meth$method.random)) != 1) {
+    meth$method.random <- ""
     show.studies <- FALSE
     overall.hetstat <- FALSE
   }
