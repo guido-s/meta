@@ -145,13 +145,13 @@
 #' study results differ, e.g., Mantel-Haenszel and Peto method for
 #' binary outcomes (see \code{\link{metabin}}).
 #'
-#' R function \code{\link{metaadd}} can be used to add results from a
-#' (a pooled results , e.g., from an external analysis.
+#' R function \code{\link{metaadd}} can be used to add pooled results
+#' from any (external) meta-analysis.
 #'
 #' R function \code{\link{metabind}} can be used to print and plot the
 #' results of several meta-analyses without the restriction that the
-#' same data set has to been used. Accordingly, individual study
-#' results are ignored.
+#' same data set has to be used. Accordingly, individual study results
+#' are ignored.
 #' 
 #' @return
 #' An object of class \code{"meta"} and \code{"metamerge"} with
@@ -165,9 +165,42 @@
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
 #'   effect for individual studies (first meta-analysis.}
 #' \item{w.common}{Vector or matrix with common effect weights.}
-#' \item{w.common}{Vector or matrix with random effects weights.}
-#' \item{k}{Number of studies combined in first meta-analysis.}
-#'
+#' \item{w.random}{Vector or matrix with random effects weights.}
+#' \item{k}{Vector with number of estimates (same length as number of
+#'   common effect and random effects estimates).}
+#' \item{k.study}{Vector with number of studies (same length as
+#'   number of common effect and random effects estimates).}
+#' \item{k.all}{Vector with total number of studies (same length as
+#'   number of common effect and random effects estimates).}
+#' \item{k.TE}{Vector with number of studies with estimable effects
+#'   (same length as number of common effect and random effects
+#'   estimates).}
+#' \item{k.MH}{Vector with number of studies combined with
+#'   Mantel-Haenszel method (same length as number of common effect
+#'   and random effects estimates).}
+#' \item{TE.common}{Vector with common effect estimates.}
+#' \item{seTE.common}{Vector with standard errors of common effect
+#'   estimates.}
+#' \item{lower.common}{Vector with lower confidence limits (common
+#'   effect model).}
+#' \item{upper.common}{Vector with upper confidence limits (common
+#'   effect model).}
+#' \item{statistic.common}{Vector with test statistics for test of
+#'   overall effect (common effect model).}
+#' \item{pval.common}{Vector with p-value of test for overall effect
+#'   (common effect model).}
+#' \item{TE.random}{Vector with random effects estimates.}
+#' \item{seTE.random}{Vector with standard errors of random effects
+#'   estimates.}
+#' \item{lower.random}{Vector with lower confidence limits (random
+#'   effects model).}
+#' \item{upper.random}{Vector with upper confidence limits (random
+#'   effects model).}
+#' \item{statistic.random}{Vector with test statistics for test of
+#'   overall effect (random effects model).}
+#' \item{pval.random}{Vector with p-value of test for overall effect
+#'   (random effects model).}
+#' 
 #' Furthermore, meta-analysis results of common effect or random
 #' effects model are taken from first meta-analysis if only random
 #' effects or common effects models are selected from both

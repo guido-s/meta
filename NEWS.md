@@ -57,6 +57,11 @@
     subgroups (argument 'tau.common = FALSE' in meta-analysis
     functions)
 
+* read.rm5():
+  - fix bug for error message *"In gsub("\x80", "EUR", txt) : unable
+    to translate '<80>' to a wide string"* due to change in default
+    settings in R function gsub()
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metacr(), metainc(), metamean(),

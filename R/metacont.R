@@ -1283,7 +1283,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         !is.na(min.e) & !is.na(max.e)
       approx.mean.e[j] <- "iqr.range"
       ##
-      mean.e[j] <- mean.sd.iqr.range(n.e[j], median.e[j], q1.e[j], q3.e[j],
+      mean.e[j] <- mean_sd_iqr_range(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                      min.e[j], max.e[j], method.mean)$mean
     }
     ##
@@ -1296,7 +1296,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.e & !is.na(median.e) & !is.na(q1.e) & !is.na(q3.e)
       approx.mean.e[j] <- "iqr"
-      mean.e[j] <- mean.sd.iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
+      mean.e[j] <- mean_sd_iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                method.mean)$mean
     }
     ##
@@ -1309,7 +1309,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.e & !is.na(median.e) & !is.na(min.e) & !is.na(max.e)
       approx.mean.e[j] <- "range"
-      mean.e[j] <- mean.sd.range(n.e[j], median.e[j], min.e[j], max.e[j],
+      mean.e[j] <- mean_sd_range(n.e[j], median.e[j], min.e[j], max.e[j],
                                  method.mean)$mean
     }
   }
@@ -1320,17 +1320,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       if (i == "iqr.range") {
         method.mean.used <- TRUE
-        mean.e[j] <- mean.sd.iqr.range(n.e[j], median.e[j], q1.e[j], q3.e[j],
+        mean.e[j] <- mean_sd_iqr_range(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                        min.e[j], max.e[j], method.mean)$mean
       }
       else if (i == "iqr") {
         method.mean.used <- TRUE
-        mean.e[j] <- mean.sd.iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
+        mean.e[j] <- mean_sd_iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                  method.mean)$mean
       }
       else if (i == "range") {
         method.mean.used <- TRUE
-        mean.e[j] <- mean.sd.range(n.e[j], median.e[j], min.e[j], max.e[j],
+        mean.e[j] <- mean_sd_range(n.e[j], median.e[j], min.e[j], max.e[j],
                                    method.mean)$mean
       }
     }
@@ -1350,7 +1350,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         !is.na(min.c) & !is.na(max.c)
       approx.mean.c[j] <- "iqr.range"
       ##
-      mean.c[j] <- mean.sd.iqr.range(n.c[j], median.c[j], q1.c[j], q3.c[j],
+      mean.c[j] <- mean_sd_iqr_range(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                      min.c[j], max.c[j], method.mean)$mean
     }
     ##
@@ -1363,7 +1363,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.c & !is.na(median.c) & !is.na(q1.c) & !is.na(q3.c)
       approx.mean.c[j] <- "iqr"
-      mean.c[j] <- mean.sd.iqr(n.c[j], median.c[j], q1.c[j], q3.c[j],
+      mean.c[j] <- mean_sd_iqr(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                method.mean)$mean
     }
     ##
@@ -1376,7 +1376,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.c & !is.na(median.c) & !is.na(min.c) & !is.na(max.c)
       approx.mean.c[j] <- "range"
-      mean.c[j] <- mean.sd.range(n.c[j], median.c[j], min.c[j], max.c[j],
+      mean.c[j] <- mean_sd_range(n.c[j], median.c[j], min.c[j], max.c[j],
                                  method.mean)$mean
     }
   }
@@ -1387,17 +1387,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       if (i == "iqr.range") {
         method.mean.used <- TRUE
-        mean.c[j] <- mean.sd.iqr.range(n.c[j], median.c[j], q1.c[j], q3.c[j],
+        mean.c[j] <- mean_sd_iqr_range(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                        min.c[j], max.c[j], method.mean)$mean
       }
       else if (i == "iqr") {
         method.mean.used <- TRUE
-        mean.c[j] <- mean.sd.iqr(n.c[j], median.c[j], q1.c[j], q3.c[j],
+        mean.c[j] <- mean_sd_iqr(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                  method.mean)$mean
       }
       else if (i == "range") {
         method.mean.used <- TRUE
-        mean.c[j] <- mean.sd.range(n.c[j], median.c[j], min.c[j], max.c[j],
+        mean.c[j] <- mean_sd_range(n.c[j], median.c[j], min.c[j], max.c[j],
                                    method.mean)$mean
       }
     }
@@ -1439,7 +1439,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         !is.na(min.e) & !is.na(max.e)
       approx.sd.e[j] <- "iqr.range"
       ##
-      sd.e[j] <- mean.sd.iqr.range(n.e[j], median.e.sd[j], q1.e[j], q3.e[j],
+      sd.e[j] <- mean_sd_iqr_range(n.e[j], median.e.sd[j], q1.e[j], q3.e[j],
                                    min.e[j], max.e[j],
                                    method.sd = method.sd)$sd
     }
@@ -1453,7 +1453,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.e & !is.na(median.e.sd) & !is.na(q1.e) & !is.na(q3.e)
       approx.sd.e[j] <- "iqr"
-      sd.e[j] <- mean.sd.iqr(n.e[j], median.e.sd[j], q1.e[j], q3.e[j])$sd
+      sd.e[j] <- mean_sd_iqr(n.e[j], median.e.sd[j], q1.e[j], q3.e[j])$sd
     }
     ##
     ## (c) Use range
@@ -1465,7 +1465,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.e & !is.na(median.e.sd) & !is.na(min.e) & !is.na(max.e)
       approx.sd.e[j] <- "range"
-      sd.e[j] <- mean.sd.range(n.e[j], median.e.sd[j], min.e[j], max.e[j])$sd
+      sd.e[j] <- mean_sd_range(n.e[j], median.e.sd[j], min.e[j], max.e[j])$sd
     }
   }
   else {
@@ -1475,17 +1475,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       if (i == "iqr.range") {
         method.sd.used <- TRUE
-        sd.e[j] <- mean.sd.iqr.range(n.e[j], median.e.sd[j], q1.e[j], q3.e[j],
+        sd.e[j] <- mean_sd_iqr_range(n.e[j], median.e.sd[j], q1.e[j], q3.e[j],
                                      min.e[j], max.e[j],
                                      method.sd = method.sd)$sd
       }
       else if (i == "iqr") {
         method.sd.used <- TRUE
-        sd.e[j] <- mean.sd.iqr(n.e[j], median.e.sd[j], q1.e[j], q3.e[j])$sd
+        sd.e[j] <- mean_sd_iqr(n.e[j], median.e.sd[j], q1.e[j], q3.e[j])$sd
       }
       else if (i == "range") {
         method.sd.used <- TRUE
-        sd.e[j] <- mean.sd.range(n.e[j], median.e.sd[j], min.e[j], max.e[j])$sd
+        sd.e[j] <- mean_sd_range(n.e[j], median.e.sd[j], min.e[j], max.e[j])$sd
       }
     }
   }
@@ -1515,7 +1515,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
         !is.na(min.c) & !is.na(max.c)
       approx.sd.c[j] <- "iqr.range"
       ##
-      sd.c[j] <- mean.sd.iqr.range(n.c[j], median.c.sd[j], q1.c[j], q3.c[j],
+      sd.c[j] <- mean_sd_iqr_range(n.c[j], median.c.sd[j], q1.c[j], q3.c[j],
                                    min.c[j], max.c[j],
                                    method.sd = method.sd)$sd
     }
@@ -1529,7 +1529,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.c & !is.na(median.c.sd) & !is.na(q1.c) & !is.na(q3.c)
       approx.sd.c[j] <- "iqr"
-      sd.c[j] <- mean.sd.iqr(n.c[j], median.c.sd[j], q1.c[j], q3.c[j])$sd
+      sd.c[j] <- mean_sd_iqr(n.c[j], median.c.sd[j], q1.c[j], q3.c[j])$sd
     }
     ##
     ## (c) Use range
@@ -1541,7 +1541,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       j <- sel.NA.c & !is.na(median.c.sd) & !is.na(min.c) & !is.na(max.c)
       approx.sd.c[j] <- "range"
-      sd.c[j] <- mean.sd.range(n.c[j], median.c.sd[j], min.c[j], max.c[j])$sd
+      sd.c[j] <- mean_sd_range(n.c[j], median.c.sd[j], min.c[j], max.c[j])$sd
     }
   }
   else {
@@ -1551,17 +1551,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       ##
       if (i == "iqr.range") {
         method.sd.used <- TRUE
-        sd.c[j] <- mean.sd.iqr.range(n.c[j], median.c[j], q1.c[j], q3.c[j],
+        sd.c[j] <- mean_sd_iqr_range(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                      min.c[j], max.c[j],
                                      method.sd = method.sd)$sd
       }
       else if (i == "iqr") {
         method.sd.used <- TRUE
-        sd.c[j] <- mean.sd.iqr(n.c[j], median.c.sd[j], q1.c[j], q3.c[j])$sd
+        sd.c[j] <- mean_sd_iqr(n.c[j], median.c.sd[j], q1.c[j], q3.c[j])$sd
       }
       else if (i == "range") {
         method.sd.used <- TRUE
-        sd.c[j] <- mean.sd.range(n.c[j], median.c.sd[j], min.c[j], max.c[j])$sd
+        sd.c[j] <- mean_sd_range(n.c[j], median.c.sd[j], min.c[j], max.c[j])$sd
       }
     }
   }

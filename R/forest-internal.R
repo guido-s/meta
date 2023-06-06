@@ -573,7 +573,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.common,
                      fontface = settings$ff.common,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }
@@ -590,7 +590,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.random,
                      fontface = settings$ff.random,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }
@@ -607,7 +607,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontsize = settings$fs.predict,
                      fontface = settings$ff.predict,
                      fontfamily = fontfamily,
-                     col = settings$col.by)
+                     col = settings$col.subgroup)
                  )
       j <- j + 1
     }

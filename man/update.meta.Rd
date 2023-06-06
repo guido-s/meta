@@ -66,6 +66,8 @@
   approx.sd.c = object$approx.sd.c,
   approx.mean = object$approx.mean,
   approx.sd = object$approx.sd,
+  approx.TE = object$approx.TE,
+  approx.seTE = object$approx.seTE,
   pooledvar = object$pooledvar,
   method.smd = object$method.smd,
   sd.glass = object$sd.glass,
@@ -303,6 +305,12 @@ deviations in control group (see \code{\link{metacont}}).}
 
 \item{approx.sd}{Approximation method to estimate standard
 deviations (see \code{\link{metamean}}).}
+
+\item{approx.TE}{Approximation method to estimate treatment
+estimate (see \code{\link{metagen}}).}
+
+\item{approx.seTE}{Approximation method to estimate standard error
+(see \code{\link{metagen}}).}
 
 \item{pooledvar}{A logical indicating if a pooled variance should
 be used for the mean difference or ratio of means (see

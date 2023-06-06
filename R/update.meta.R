@@ -152,6 +152,10 @@
 #'   \code{\link{metamean}}).
 #' @param approx.sd Approximation method to estimate standard
 #'   deviations (see \code{\link{metamean}}).
+#' @param approx.TE Approximation method to estimate treatment
+#'   estimate (see \code{\link{metagen}}).
+#' @param approx.seTE Approximation method to estimate standard error
+#'   (see \code{\link{metagen}}).
 #' @param pooledvar A logical indicating if a pooled variance should
 #'   be used for the mean difference or ratio of means (see
 #'   \code{\link{metacont}}).
@@ -337,6 +341,9 @@ update.meta <- function(object,
                         ##
                         approx.mean = object$approx.mean,
                         approx.sd = object$approx.sd,
+                        ##
+                        approx.TE = object$approx.TE,
+                        approx.seTE = object$approx.seTE,
                         ##
                         pooledvar = object$pooledvar,
                         method.smd = object$method.smd,
@@ -592,6 +599,13 @@ update.meta <- function(object,
         setVal(object$data, ".approx.mean", object$approx.mean)
       object$data$.approx.sd <-
         setVal(object$data, ".approx.sd", object$approx.sd)
+    }
+    ##
+    if (metagen) {
+      object$data$.approx.TE <-
+        setVal(object$data, ".approx.TE", object$approx.TE)
+      object$data$.approx.seTE <-
+        setVal(object$data, ".approx.seTE", object$approx.seTE)
     }
     ##
     object$hetlabel <- object$label
@@ -1261,6 +1275,12 @@ update.meta <- function(object,
     add.e <- FALSE
     add.c <- FALSE
     ##
+    method.mean <- replaceNULL(method.mean, "Luo")
+    method.sd <- replaceNULL(method.sd, "Shi")
+    ##
+    method.mean <- replaceVal(method.mean, "", "Luo")
+    method.sd <- replaceVal(method.sd, "", "Shi")
+    ##
     if ("n.e" %in% names(data)) {
       add.e <- TRUE
       data.m <- data.m[, names(data.m) != "n.e"]
@@ -1270,12 +1290,30 @@ update.meta <- function(object,
       data.m <- data.m[, names(data.m) != "n.c"]
     }
     ##
+    median <- setVal(object$data, ".median")
+    q1 <- setVal(object$data, ".q1")
+    q3 <- setVal(object$data, ".q3")
+    min <- setVal(object$data, ".min")
+    max <- setVal(object$data, ".max")
+    ##
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster,
+                 ##
+                 median = median,
+                 q1 = q1,
+                 q3 = q3,
+                 min = min,
+                 max = max,
+                 ##
+                 method.mean = method.mean,
+                 method.sd = method.sd,
+                 ##
+                 approx.TE = approx.TE,
+                 approx.seTE = approx.seTE,
                  ##
                  sm = sm,
                  level = level, level.ma = level.ma,

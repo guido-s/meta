@@ -962,24 +962,35 @@ metagen <- function(TE, seTE, studlab,
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
+  avail.TE <- !(missing.TE || is.null(TE))
+  avail.median <- !(missing.median || is.null(median))
+  avail.lower <- !(missing.lower || is.null(lower))
+  avail.upper <- !(missing.upper || is.null(upper))
+  ##
+  if (!avail.TE & !avail.median & (!avail.lower | !avail.upper))
+    stop("Treatment estimates missing. ",
+         "Provide either argument 'TE' or 'median', ",
+         "or arguments 'lower' and 'upper'.",
+         call. = FALSE)
+  ##
   TE.orig <- NULL
   lower.orig <- NULL
   upper.orig <- NULL
   ##
   if (!transf) {
-    if (!missing.TE) {
+    if (avail.TE) {
       TE.orig <- TE
       TE <- transf(TE, sm, func.transf, args.transf)
     }
-    if (!missing.lower) {
+    if (avail.lower) {
       lower.orig <- lower
       lower <- transf(lower, sm, func.transf, args.transf)
     }
-    if (!missing.upper) {
+    if (avail.upper) {
       upper.orig <- upper
       upper <- transf(upper, sm, func.transf, args.transf)
     }
-    if (sm == "VE" && !missing.lower & !missing.upper) {
+    if (sm == "VE" && avail.lower & avail.upper) {
       tmp.l <- lower
       lower <- upper
       upper <- tmp.l
@@ -1004,27 +1015,22 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.method.tau.ci <- missing(method.tau.ci)
   ##
-  k.All <- if (!missing.TE)
+  k.All <- if (avail.TE)
              length(TE)
-           else if (!missing.median)
+           else if (avail.median)
              length(median)
-           else if (!missing.lower)
+           else if (avail.lower)
              length(lower)
-           else
+           else if (avail.upper)
              length(upper)
+           else
+             NA
   ##
-  if (!missing.TE)
-    chknull(TE)
-  else
+  if (!avail.TE)
     TE <- rep_len(NA, k.All)
   ##
-  if (!missing.seTE)
-    chknull(seTE)
-  else
+  if (missing.seTE)
     seTE <- rep_len(NA, k.All)
-  ##
-  if (!missing.median)
-    chknull(median)
   ##
   missing.n.e <- missing(n.e)
   missing.n.c <- missing(n.c)
@@ -1056,30 +1062,38 @@ metagen <- function(TE, seTE, studlab,
   ##
   missing.pval <- missing(pval)
   pval <- catch("pval", mc, data, sfsp)
+  avail.pval <- !(missing.pval || is.null(pval))
   ##
   missing.df <- missing(df)
   df <- catch("df", mc, data, sfsp)
+  avail.df <- !(missing.df || is.null(df))
   ##
   if (!missing(level.ci))
     level.ci <- catch("level.ci", mc, data, sfsp)
   ##
   missing.q1 <- missing(q1)
   q1 <- catch("q1", mc, data, sfsp)
+  avail.q1 <- !(missing.q1 || is.null(q1))
   ##
   missing.q3 <- missing(q3)
   q3 <- catch("q3", mc, data, sfsp)
+  avail.q3 <- !(missing.q3 || is.null(q3))
   ##
   missing.min <- missing(min)
   min <- catch("min", mc, data, sfsp)
+  avail.min <- !(missing.min || is.null(min))
   ##
   missing.max <- missing(max)
   max <- catch("max", mc, data, sfsp)
+  avail.max <- !(missing.max || is.null(max))
   ##
   missing.approx.TE <- missing(approx.TE)
   approx.TE <- catch("approx.TE", mc, data, sfsp)
+  avail.approx.TE <- !(missing.approx.TE || is.null(approx.TE))
   ##
   missing.approx.seTE <- missing(approx.seTE)
   approx.seTE <- catch("approx.seTE", mc, data, sfsp)
+  avail.approx.seTE <- !(missing.approx.seTE || is.null(approx.seTE))
   
   
   ##
@@ -1088,7 +1102,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  arg <- if (!missing.TE) "TE" else "median"
+  arg <- if (avail.TE) "TE" else "median"
   chklength(seTE, k.All, arg)
   chklength(studlab, k.All, arg)
   ##
@@ -1119,7 +1133,7 @@ metagen <- function(TE, seTE, studlab,
   if (with.cluster)
     chklength(cluster, k.All, arg)
   ##
-  if (!missing.approx.TE) {
+  if (avail.approx.TE) {
     if (length(approx.TE) == 1)
       rep_len(approx.TE, k.All)
     else
@@ -1128,7 +1142,7 @@ metagen <- function(TE, seTE, studlab,
     approx.TE <- setchar(approx.TE, c("", "ci", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.approx.seTE) {
+  if (avail.approx.seTE) {
     if (length(approx.seTE) == 1)
       rep_len(approx.seTE, k.All)
     else
@@ -1138,27 +1152,27 @@ metagen <- function(TE, seTE, studlab,
                            c("", "pval", "ci", "iqr.range", "iqr", "range"))
   }
   ##
-  if (!missing.pval)
+  if (avail.pval)
     chklength(pval, k.All, arg)
-  if (!missing.df)
+  if (avail.df)
     chklength(df, k.All, arg)
-  if (!missing.lower)
+  if (avail.lower)
     chklength(lower, k.All, arg)
-  if (!missing.upper)
+  if (avail.upper)
     chklength(upper, k.All, arg)
   if (length(level.ci) == 1)
     level.ci <- rep_len(level.ci, k.All)
   else
     chklength(level.ci, k.All, arg)
-  if (!missing.median)
+  if (avail.median)
     chklength(median, k.All, arg)
-  if (!missing.q1)
+  if (avail.q1)
     chklength(q1, k.All, arg)
-  if (!missing.q3)
+  if (avail.q3)
     chklength(q3, k.All, arg)
-  if (!missing.min)
+  if (avail.min)
     chklength(min, k.All, arg)
-  if (!missing.max)
+  if (avail.max)
     chklength(max, k.All, arg)
   
   
@@ -1228,33 +1242,33 @@ metagen <- function(TE, seTE, studlab,
       data$.idx <- idx
     }
     ##
-    if (!missing.pval)
+    if (avail.pval)
       data$.pval <- pval
-    if (!missing.df)
+    if (avail.df)
       data$.df <- df
     ##
-    if (!missing.lower)
+    if (avail.lower)
       data$.lower <- lower
-    if (!missing.upper)
+    if (avail.upper)
       data$.upper <- upper
-    if (!missing.lower | !missing.upper)
+    if (avail.lower | avail.upper)
       data$.level.ci <- level.ci
     ##
-    if (!missing.median)
+    if (avail.median)
       data$.median <- median
-    if (!missing.q1)
+    if (avail.q1)
       data$.q1 <- q1
-    if (!missing.q3)
+    if (avail.q3)
       data$.q3 <- q3
     ##
-    if (!missing.min)
+    if (avail.min)
       data$.min <- min
-    if (!missing.max)
+    if (avail.max)
       data$.max <- max
     ##
-    if (!missing.approx.TE)
+    if (avail.approx.TE)
       data$.approx.TE <- approx.TE
-    if (!missing.approx.seTE)
+    if (avail.approx.seTE)
       data$.approx.seTE <- approx.seTE
     ##
     if (!missing.n.e)
@@ -1299,28 +1313,28 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(n.c))
       n.c <- n.c[subset]
     ##
-    if (!missing.pval)
+    if (avail.pval)
       pval <- pval[subset]
-    if (!missing.df)
+    if (avail.df)
       df <- df[subset]
-    if (!missing.lower)
+    if (avail.lower)
       lower <- lower[subset]
-    if (!missing.upper)
+    if (avail.upper)
       upper <- upper[subset]
     level.ci <- level.ci[subset]
-    if (!missing.median)
+    if (avail.median)
       median <- median[subset]
-    if (!missing.q1)
+    if (avail.q1)
       q1 <- q1[subset]
-    if (!missing.q3)
+    if (avail.q3)
       q3 <- q3[subset]
-    if (!missing.min)
+    if (avail.min)
       min <- min[subset]
-    if (!missing.max)
+    if (avail.max)
       max <- max[subset]
-    if (!missing.approx.TE)
+    if (avail.approx.TE)
       approx.TE <- approx.TE[subset]
-    if (!missing.approx.seTE)
+    if (avail.approx.seTE)
       approx.seTE <- approx.seTE[subset]
   }
   ##
@@ -1360,16 +1374,16 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (missing.approx.seTE) {
+  if (!avail.approx.seTE) {
     approx.seTE <- rep_len("", length(TE))
     ##
     ## Use confidence limits
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.lower & !missing.upper) {
+    if (any(sel.NA) & avail.lower & avail.upper) {
       j <- sel.NA & !is.na(lower) & !is.na(upper)
       approx.seTE[j] <- "ci"
-      if (missing.df)
+      if (!avail.df)
         seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
       else
         seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
@@ -1378,10 +1392,10 @@ metagen <- function(TE, seTE, studlab,
     ## Use p-values
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.pval) {
+    if (any(sel.NA) & avail.pval) {
       j <- sel.NA & !is.na(TE) & !is.na(pval)
       approx.seTE[j] <- "pval"
-      if (missing.df)
+      if (!avail.df)
         seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
       else
         seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
@@ -1390,23 +1404,22 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR and range
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.seTE[j] <- "iqr.range"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
       else
-        seTE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                      min[j], max[j],
                                      method.sd = method.sd)$se
     }
@@ -1414,33 +1427,33 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.seTE[j] <- "iqr"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
       else
-        seTE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+        seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
     }
     ##
     ## Use range
     ##
     sel.NA <- is.na(seTE)
-    if (any(sel.NA) & !missing.median &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.seTE[j] <- "range"
       if (is.null(n.c))
-        seTE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j])$se
+        seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
       else if (is.null(n.e))
-        seTE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j])$se
+        seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
       else
-        seTE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j],
+        seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                  min[j], max[j])$se
     }
   }
@@ -1450,13 +1463,13 @@ metagen <- function(TE, seTE, studlab,
       j <- j + 1
       ##
       if (i == "ci") {
-        if (missing.df)
+        if (!avail.df)
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
         else
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
       }
       else if (i == "pval") {
-        if (missing.df)
+        if (!avail.df)
           seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
         else
           seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
@@ -1466,15 +1479,15 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
         else
-          seTE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+          seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
       }
@@ -1483,22 +1496,22 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
         else
-          seTE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+          seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
       }
       else if (i == "range") {
         if (is.null(n.e) & is.null(n.c))
           stop("Sample size needed if argument 'approx.seTE' = \"range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          seTE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j])$se
+          seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
         else if (is.null(n.e))
-          seTE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j])$se
+          seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
         else
-          seTE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j],
+          seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                    min[j], max[j])$se
       }
     }
@@ -1511,13 +1524,13 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (missing.approx.TE) {
+  if (!avail.approx.TE) {
     approx.TE <- rep_len("", length(TE))
     ##
     ## Use confidence limits
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.lower & !missing.upper) {
+    if (any(sel.NA) & avail.lower & avail.upper) {
       j <- sel.NA & !is.na(lower) & !is.na(upper)
       approx.TE[j] <- "ci"
       TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
@@ -1526,57 +1539,56 @@ metagen <- function(TE, seTE, studlab,
     ## Use IQR and range
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.TE[j] <- "iqr.range"
       if (is.null(n.c))
-        TE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
     }
     ##
     ## Use IQR
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.q1 & !missing.q3 &
+    if (any(sel.NA) &
+        avail.median & avail.q1 & avail.q3 &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.TE[j] <- "iqr"
       if (is.null(n.c))
-        TE[j] <- mean.sd.iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+        TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+        TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                              method.mean)$mean
     }
     ##
     ## Use range
     ##
     sel.NA <- is.na(TE)
-    if (any(sel.NA) & !missing.median &
-        !missing.min & !missing.max &
+    if (any(sel.NA) &
+        avail.median & avail.min & avail.max &
         !(is.null(n.e) & is.null(n.c))) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.TE[j] <- "range"
       if (is.null(n.c))
-        TE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
                                method.mean)$mean
       else
-        TE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j], min[j], max[j],
+        TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
                                method.mean)$mean
     }
   }
@@ -1592,13 +1604,13 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          TE[j] <- mean.sd.iqr.range(n.e[j], median[j], q1[j], q3[j],
+          TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
       else if (is.null(n.e))
-        TE[j] <- mean.sd.iqr.range(n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else
-        TE[j] <- mean.sd.iqr.range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
       else if (i == "iqr") {
         if (is.null(n.e) & is.null(n.c))
@@ -1606,13 +1618,13 @@ metagen <- function(TE, seTE, studlab,
                call. = FALSE)
         else if (is.null(n.c))
           TE[j] <-
-            mean.sd.iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+            mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
         else if (is.null(n.e))
           TE[j] <-
-            mean.sd.iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+            mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
         else
           TE[j] <-
-            mean.sd.iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+            mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
                         method.mean)$mean
       }
       else if (i == "range") {
@@ -1621,13 +1633,13 @@ metagen <- function(TE, seTE, studlab,
           stop("Sample size needed if argument 'approx.TE' = \"range\".",
                call. = FALSE)
         else if (is.null(n.c))
-          TE[j] <- mean.sd.range(n.e[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else if (is.null(n.e))
-          TE[j] <- mean.sd.range(n.c[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else
-          TE[j] <- mean.sd.range(n.e[j] + n.c[j], median[j], min[j], max[j],
+          TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
                                  method.mean)$mean
       }
     }
@@ -2215,9 +2227,9 @@ metagen <- function(TE, seTE, studlab,
   ##
   ## Keep original confidence limits
   ##
-  if (!missing.lower)
+  if (avail.lower)
     ci.study$lower[!is.na(lower)] <- lower[!is.na(lower)]
-  if (!missing.upper)
+  if (avail.upper)
     ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
   ##
   if (length(lower.random) > 1) {

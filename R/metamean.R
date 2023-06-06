@@ -954,7 +954,7 @@ metamean <- function(n, mean, sd, studlab,
         !is.na(min) & !is.na(max)
       approx.mean[j] <- "iqr.range"
       ##
-      mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+      mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
     }
     ##
@@ -964,7 +964,7 @@ metamean <- function(n, mean, sd, studlab,
     if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
       approx.mean[j] <- "iqr"
-      mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+      mean[j] <- mean_sd_iqr(n[j], median[j], q1[j], q3[j],
                              method.mean)$mean
     }
     ##
@@ -974,7 +974,7 @@ metamean <- function(n, mean, sd, studlab,
     if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
       approx.mean[j] <- "range"
-      mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+      mean[j] <- mean_sd_range(n[j], median[j], min[j], max[j],
                                method.mean)$mean
     }
   }
@@ -984,13 +984,13 @@ metamean <- function(n, mean, sd, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range")
-        mean[j] <- mean.sd.iqr.range(n[j], median[j], q1[j], q3[j],
+        mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
       else if (i == "iqr")
-        mean[j] <- mean.sd.iqr(n[j], median[j], q1[j], q3[j],
+        mean[j] <- mean_sd_iqr(n[j], median[j], q1[j], q3[j],
                                method.mean)$mean
       else if (i == "range")
-        mean[j] <- mean.sd.range(n[j], median[j], min[j], max[j],
+        mean[j] <- mean_sd_range(n[j], median[j], min[j], max[j],
                                  method.mean)$mean
     }
   }
@@ -1025,7 +1025,7 @@ metamean <- function(n, mean, sd, studlab,
         !is.na(min) & !is.na(max)
       approx.sd[j] <- "iqr.range"
       ##
-      sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+      sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                  min[j], max[j],
                                  method.sd = method.sd)$sd
     }
@@ -1036,7 +1036,7 @@ metamean <- function(n, mean, sd, studlab,
     if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3)
       approx.sd[j] <- "iqr"
-      sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+      sd[j] <- mean_sd_iqr(n[j], median.sd[j], q1[j], q3[j])$sd
     }
     ##
     ## (c) Use range
@@ -1045,7 +1045,7 @@ metamean <- function(n, mean, sd, studlab,
     if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(min) & !is.na(max)
       approx.sd[j] <- "range"
-      sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+      sd[j] <- mean_sd_range(n[j], median.sd[j], min[j], max[j])$sd
     }
   }
   else {
@@ -1054,13 +1054,13 @@ metamean <- function(n, mean, sd, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range")
-        sd[j] <- mean.sd.iqr.range(n[j], median.sd[j], q1[j], q3[j],
+        sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                    min[j], max[j],
                                    method.sd = method.sd)$sd
       else if (i == "iqr")
-        sd[j] <- mean.sd.iqr(n[j], median.sd[j], q1[j], q3[j])$sd
+        sd[j] <- mean_sd_iqr(n[j], median.sd[j], q1[j], q3[j])$sd
       else if (i == "range")
-        sd[j] <- mean.sd.range(n[j], median.sd[j], min[j], max[j])$sd
+        sd[j] <- mean_sd_range(n[j], median.sd[j], min[j], max[j])$sd
     }
   }
   ##
