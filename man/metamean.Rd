@@ -13,6 +13,7 @@ metamean(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   median,
   q1,
   q3,
@@ -91,6 +92,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{median}{Median (used to estimate the mean and standard
 deviation).}

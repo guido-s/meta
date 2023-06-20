@@ -22,6 +22,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
 #' @param q1.e First quartile in experimental group (used to estimate
@@ -560,7 +561,7 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -632,6 +633,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   sm <- setchar(sm, gs("sm4cont"))
@@ -1762,7 +1765,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

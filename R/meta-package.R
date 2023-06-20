@@ -563,7 +563,7 @@
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest to.long
+#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc
 #'
 #' @importFrom lme4 glmer
 #'

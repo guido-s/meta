@@ -414,6 +414,7 @@ metamerge <- function(meta1, meta2,
     random2 <- TRUE
     prediction2 <- FALSE
     meta2$three.level <- FALSE
+    meta2$rho <- NA
     ##
     keep <- FALSE
     keep.Q <- FALSE
@@ -921,6 +922,8 @@ metamerge <- function(meta1, meta2,
   res$three.level <-
     expandmerge(meta1$three.level, meta2$three.level,
                 ncom1, nran1, ncom2, nran2)
+  res$rho <-
+    expandmerge(meta1$rho, meta2$rho, nr1 = nran1, nr2 = nran2)
   if (!random1 & random2)
     res$cluster <- meta2$cluster
   ##

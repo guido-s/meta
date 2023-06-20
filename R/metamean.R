@@ -19,6 +19,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param median Median (used to estimate the mean and standard
 #'   deviation).
 #' @param q1 First quartile (used to estimate the mean and standard
@@ -411,7 +412,8 @@
 
 metamean <- function(n, mean, sd, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                     data = NULL, subset = NULL, exclude = NULL,
+                     cluster = NULL, rho = 0,
                      ##
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
@@ -476,6 +478,8 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   chklevel(level)
@@ -1165,7 +1169,7 @@ metamean <- function(n, mean, sd, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

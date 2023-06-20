@@ -13,6 +13,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies (see \code{\link{metabin}},
 #'   \code{\link{metainc}}, \code{\link{metaprop}} and
@@ -279,6 +280,7 @@
 update.meta <- function(object, 
                         data = object$data,
                         subset, studlab, exclude, cluster,
+                        rho = object$rho,
                         ##
                         method,
                         sm = object$sm,
@@ -620,6 +622,12 @@ update.meta <- function(object,
     object$seed.predict <- NULL
     if (!is.null(object$byvar))
       object$seed.predict.subgroup <- NULL
+  }
+  if (update_needed(object$version, 6, 6, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.6
+    ##
+    object$rho <- 0
   }
   
   
@@ -1156,7 +1164,7 @@ update.meta <- function(object,
                   studlab = studlab,
                   ##
                   data = data, subset = subset, exclude = exclude,
-                  cluster = ...cluster,
+                  cluster = ...cluster, rho = rho,
                   ##
                   median.e = median.e,
                   q1.e = q1.e,
@@ -1301,7 +1309,7 @@ update.meta <- function(object,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
-                 cluster = ...cluster,
+                 cluster = ...cluster, rho = rho,
                  ##
                  median = median,
                  q1 = q1,

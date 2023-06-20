@@ -494,6 +494,10 @@
 #' @param digits.time Minimal number of significant digits for times;
 #'   only applies to \code{\link{metainc}} and \code{\link{metarate}}
 #'   objects.
+#' @param digits.n Minimal number of significant digits for sample
+#'   sizes.
+#' @param digits.event Minimal number of significant digits for event
+#'   numbers.
 #' @param digits.TE Minimal number of significant digits for list
 #'   element 'TE'.
 #' @param digits.addcols A vector or scalar with minimal number of
@@ -1361,6 +1365,9 @@ forest.meta <- function(x,
                         digits.cor = digits,
                         digits.time = digits,
                         ##
+                        digits.n = 0,
+                        digits.event = 0,
+                        ##
                         digits.TE = gs("digits.TE.forest"),
                         ##
                         digits.addcols = digits,
@@ -2093,6 +2100,8 @@ forest.meta <- function(x,
   chklogical(calcwidth.tests)
   chklogical(calcwidth.subgroup)
   chklogical(calcwidth.addline)
+  ##
+  missing.just <- missing(just)
   just.cols <- setchar(just, c("right", "center", "left"))
   just.studlab <- setchar(just.studlab, c("right", "center", "left"))
   just.addcols <- setchar(just.addcols, c("right", "center", "left"))
@@ -2153,6 +2162,8 @@ forest.meta <- function(x,
   missing.digits.time <- missing(digits.time)
   if (!missing.digits.time)
     chknumeric(digits.time, min = 0, length = 1)
+  chknumeric(digits.n, min = 0, length = 1)
+  chknumeric(digits.event, min = 0, length = 1)
   missing.digits.TE <- missing(digits.TE)
   if (!missing.digits.TE)
     chknumeric(digits.TE, min = 0, length = 1)
@@ -7643,10 +7654,14 @@ forest.meta <- function(x,
                              paste0("TE", seq_len(k.all))),
                      Ne, notfirst))
   }
-  Ne.format <- formatN(Ne, digits = 0, text.NA = lab.NA, big.mark = big.mark)
-  Nc.format <- formatN(Nc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
-  Ee.format <- formatN(Ee, digits = 0, text.NA = lab.NA, big.mark = big.mark)
-  Ec.format <- formatN(Ec, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+  Ne.format <-
+    formatN(Ne, digits = digits.n, text.NA = lab.NA, big.mark = big.mark)
+  Nc.format <-
+    formatN(Nc, digits = digits.n, text.NA = lab.NA, big.mark = big.mark)
+  Ee.format <-
+    formatN(Ee, digits = digits.event, text.NA = lab.NA, big.mark = big.mark)
+  Ec.format <-
+    formatN(Ec, digits = digits.event, text.NA = lab.NA, big.mark = big.mark)
   ##
   if (all(is_wholenumber(Te), na.rm = TRUE) & missing.digits.time)
     Te.format <-
@@ -8441,7 +8456,8 @@ forest.meta <- function(x,
   ##
   col.effect.ci <-
     formatcol(labs[["lab.effect.ci"]], effect.ci.format, yS,
-              if (revman5) "center" else just.c, fcs, fontfamily,
+              if (revman5 & missing.just) "center" else just.c,
+              fcs, fontfamily,
               n.com, n.ran, n.prd)
   ##
   col.w.common  <- formatcol(labs[["lab.w.common"]], Wc.format, yS,

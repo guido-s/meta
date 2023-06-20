@@ -25,6 +25,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -629,7 +630,7 @@
 metagen <- function(TE, seTE, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
-                    cluster = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     sm = "",
                     ##
@@ -747,6 +748,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   chklogical(prediction)
   chklevel(level.predict)
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   missing.method.predict <- missing(method.predict)
   method.predict <- setchar(method.predict, gs("meth4pi"))
@@ -1809,7 +1812,8 @@ metagen <- function(TE, seTE, studlab,
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci,
                   TE.tau, level.ma,
-                  control = control, cluster = cluster[!exclude])
+                  control = control,
+                  cluster = cluster[!exclude], rho = rho)
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
@@ -1817,7 +1821,8 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, method.tau.ci,
                      TE.tau, level.ma,
                      subgroup = subgroup,
-                     control = control, cluster = cluster[!exclude])
+                     control = control,
+                     cluster = cluster[!exclude], rho = rho)
     }
     ##
     ## Different calculations for three-level models
@@ -2127,7 +2132,10 @@ metagen <- function(TE, seTE, studlab,
       ##
       sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
       ##
-      list.mlm <- list(yi = TE[sel.4], V = seTE[sel.4]^2)
+      list.mlm <- list(yi = TE[sel.4],
+                       V = vcalc(vi = seTE[sel.4]^2,
+                                 cluster = cluster[sel.4],
+                                 obs = idx[sel.4], rho = rho))
              
       ##
       m4 <- runMLM(c(list.mlm,
@@ -2284,7 +2292,7 @@ metagen <- function(TE, seTE, studlab,
               lower = ci.study$lower, upper = ci.study$upper,
               ##
               three.level = three.level,
-              cluster = cluster,
+              cluster = cluster, rho = rho,
               ##
               k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
               ##

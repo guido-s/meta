@@ -29,6 +29,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
 #'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
@@ -608,7 +609,8 @@
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
@@ -691,6 +693,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
@@ -1596,7 +1600,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

@@ -20,6 +20,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param n Number of observations.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
@@ -345,7 +346,7 @@
 metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      n = NULL,
                      ##
                      method = "Inverse",
@@ -412,6 +413,8 @@ metarate <- function(event, time, studlab,
   ##
   ## (1) Check and set arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
   chknull(sm)
@@ -958,7 +961,7 @@ metarate <- function(event, time, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

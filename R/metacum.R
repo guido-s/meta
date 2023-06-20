@@ -564,7 +564,7 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
               upper = c(upper.i, NA, upper.TE.s),
               ##
               three.level = x$three.level,
-              cluster = x$cluster,
+              cluster = x$cluster, rho = x$rho,
               ##
               k = x$k, k.study = x$k.study, k.all = x$k.all, k.TE = x$k.TE,
               ##

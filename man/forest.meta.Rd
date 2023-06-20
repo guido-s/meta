@@ -214,6 +214,8 @@
   digits.sd = digits.se,
   digits.cor = digits,
   digits.time = digits,
+  digits.n = 0,
+  digits.event = 0,
   digits.TE = gs("digits.TE.forest"),
   digits.addcols = digits,
   digits.addcols.right = digits.addcols,
@@ -922,6 +924,12 @@ correlations; only applies to \code{\link{metacor}} objects.}
 \item{digits.time}{Minimal number of significant digits for times;
 only applies to \code{\link{metainc}} and \code{\link{metarate}}
 objects.}
+
+\item{digits.n}{Minimal number of significant digits for sample
+sizes.}
+
+\item{digits.event}{Minimal number of significant digits for event
+numbers.}
 
 \item{digits.TE}{Minimal number of significant digits for list
 element 'TE'.}

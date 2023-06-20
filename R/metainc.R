@@ -24,6 +24,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"MH"},
 #'   \code{"Inverse"}, \code{"Cochran"}, or \code{"GLMM"} can be
@@ -391,7 +392,8 @@
 
 metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     method = if (sm == "IRSD") "Inverse" else "MH",
                     sm = gs("sminc"),
@@ -462,6 +464,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   sm <- setchar(sm, gs("sm4inc"))
@@ -1066,7 +1070,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

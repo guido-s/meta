@@ -13,6 +13,8 @@ gm <- function(x, digits = 4) {
     x$tau <- rep(x$tau, nran)
   if (length(x$three.level) == 1 && x$three.level)
     x$tau <- sqrt(sum(x$tau^2))
+  if (length(x$rho) == 1 & nran > 1)
+    x$rho <- rep(x$rho, nran)
   ##
   if (length(x$method.predict) == 1 && nprd > 1)
     x$method.predict <- rep(x$method.predict, nprd)
@@ -36,7 +38,9 @@ gm <- function(x, digits = 4) {
                   ##
                   method.random.ci = c(rep("", ncom), method.random.ci),
                   df.random = c(rep(NA, ncom), unlist(df.random)),
-                  adhoc.hakn.ci = c(rep("", ncom), adhoc.hakn.ci))),
+                  adhoc.hakn.ci = c(rep("", ncom), adhoc.hakn.ci),
+                  ##
+                  rho = c(rep(0, ncom), x$rho))),
          pred =
            with(x,
                 data.frame(method.predict = method.predict))

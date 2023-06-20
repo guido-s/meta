@@ -18,6 +18,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
 #'   studies.
@@ -243,7 +244,7 @@
 metacor <- function(cor, n, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
-                    cluster = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     sm = gs("smcor"),
                     level = gs("level"),
@@ -303,6 +304,8 @@ metacor <- function(cor, n, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   chklevel(level)
@@ -651,7 +654,7 @@ metacor <- function(cor, n, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

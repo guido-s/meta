@@ -20,6 +20,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
 #'   \code{"GLMM"}, can be abbreviated.
@@ -567,7 +568,7 @@
 metaprop <- function(event, n, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      method,
                      ##
                      sm = gs("smprop"),
@@ -636,6 +637,8 @@ metaprop <- function(event, n, studlab,
   ##
   ## (1) Check and set arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
   if (missing.method)
@@ -1200,7 +1203,7 @@ metaprop <- function(event, n, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

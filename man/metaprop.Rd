@@ -12,6 +12,7 @@ metaprop(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   method,
   sm = gs("smprop"),
   incr = gs("incr"),
@@ -85,6 +86,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"} and

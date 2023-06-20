@@ -12,6 +12,7 @@ metagen(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -110,6 +111,8 @@ plots (see Details).}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},

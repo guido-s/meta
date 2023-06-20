@@ -12,6 +12,7 @@ metacor(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   sm = gs("smcor"),
   level = gs("level"),
   common = gs("common"),
@@ -77,6 +78,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of

@@ -1,3 +1,30 @@
+## meta, version 6.6-0 (2023-mm-dd)
+
+### Major changes
+
+* Within-cluster correlation can be specified for three-level model
+  (by default, rho = 0)
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate(), update.meta():
+  - new argument 'rho' to specify within-cluster correlation in
+    three-level model
+
+* forest.meta():
+  - new argument 'digits.n' and 'digits.event' to specify the number
+    of significant digits for sample sizes and number of events
+  - justification of results for effect + confidence interval can be
+    specified by argument 'just' if argument 'layout = "RevMan5"'
+
+### Internal changes
+
+* Use of vcalc() from R package **metafor** to calculate the
+  variance-covariance matrix in three-level model with within-cluster
+  correlation not equal to 0
+
+
 ## meta, version 6.5-0 (2023-06-06)
 
 ### Major changes

@@ -96,9 +96,9 @@ catmeth <- function(x,
     ##
     vars <-
       if (metacont)
-        c("three.level", "pooledvar")
+        c("three.level", "rho", "pooledvar")
       else
-        "three.level"
+        c("three.level", "rho")
     ##      
     dat.iv <-
       unique(meth[meth$model %in% selmod & meth$method == "Inverse",
@@ -108,7 +108,15 @@ catmeth <- function(x,
       details <- paste0(
         details,
         "\n- Inverse variance method",
-        if (dat.iv$three.level[i]) " (three-level model)" else "",
+        if (dat.iv$three.level[i])
+          paste0(" (three-level model",
+                 if (length(unique(dat.iv$rho)) > 1 ||
+                     any(dat.iv$rho != 0))
+                   paste0(", rho = ", dat.iv$rho[i], ")")
+                 else
+                   ")")
+        else
+          "",
       if (metacont && !is.na(dat.iv$pooledvar[i]) && dat.iv$pooledvar[i])
         " (with pooled variance for individual studies)" else "")
     }
