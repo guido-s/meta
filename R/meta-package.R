@@ -545,9 +545,10 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
-#' @importFrom grid arrow gpar grid.draw grid.layout grid.lines
-#'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob
-#'   popViewport pushViewport viewport unit unit.c convertX
+#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
+#'   grid.lines grid.newpage grid.polygon grid.rect grid.text
+#'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
+#'   convertX
 #'
 #' @importFrom grDevices gray gray.colors
 #'

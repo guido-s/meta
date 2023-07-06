@@ -205,11 +205,14 @@ draw.ci.predict <- function(lower.predict, upper.predict,
 }
 
 
-draw.ci.square <- function(TE, lower, upper,
-                           size, min, max,
-                           lwd,
-                           col, col.square,
-                           col.square.lines, col.inside) {
+draw.ci <- function(TE, lower, upper,
+                    size, min, max,
+                    lwd,
+                    col,
+                    col.square, col.square.lines,
+                    col.circle, col.circle.lines,
+                    col.inside,
+                    type) {
   ##
   if (min > max) {
     tmp <- min
@@ -234,19 +237,23 @@ draw.ci.square <- function(TE, lower, upper,
   ##
   if (!is.na(TE) && (TE >= min & TE <= max)) {
     if (!is.na(size) && size > 0 && !is.na(lower) && !is.na(upper)) {
-      grid.rect(x = unit(TE, "native"),
-                width = unit(size, "snpc"),
-                height = unit(size, "snpc"),
-                gp = gpar(fill = col.square, col = col.square.lines))
-      grid.lines(x = unit(c(TE, TE), "native"),
-                 y = unit(c(0.4, 0.6), "npc"),
-                 gp = gpar(col = TElineCol, lwd = lwd))
+      if (type == "square") {
+        grid.rect(x = unit(TE, "native"),
+                  width = unit(size, "snpc"),
+                  height = unit(size, "snpc"),
+                  gp = gpar(fill = col.square, col = col.square.lines))
+        ##
+        grid.lines(x = unit(c(TE, TE), "native"),
+                   y = unit(c(0.4, 0.6), "npc"),
+                   gp = gpar(col = TElineCol, lwd = lwd))
+      }
     }
     else
       grid.lines(x = unit(c(TE, TE), "native"),
                  y = unit(c(0.4, 0.6), "npc"),
                  gp = gpar(col = TElineCol, lwd = lwd))
   }
+  ##
   if (!is.na(TE)) {
     ##
     ## Draw lines in colour "col.inside" if totally inside rect
@@ -296,6 +303,19 @@ draw.ci.square <- function(TE, lower, upper,
     }
   }
   ##
+  if (!is.na(TE) && (TE >= min & TE <= max)) {
+    if (!is.na(size) && size > 0 && !is.na(lower) && !is.na(upper)) {
+      if (type == "circle")
+        grid.circle(x = unit(TE, "native"), y = unit(0.5, "npc"),
+                    r = unit(size / 2, "snpc"),
+                    gp = gpar(fill = col.circle, col = col.circle.lines))
+    }
+    else
+      grid.lines(x = unit(c(TE, TE), "native"),
+                 y = unit(c(0.4, 0.6), "npc"),
+                 gp = gpar(col = TElineCol, lwd = lwd))
+  }
+  ##
   invisible(NULL)
 }
 
@@ -310,12 +330,15 @@ draw.forest <- function(x, column) {
                             layout.pos.col = column,
                             xscale = x$range))
       ##
-      if (x$type[i] == "square")
-        draw.ci.square(x$eff[i], x$low[i], x$upp[i],
-                       x$sizes[i], x$range[1], x$range[2],
-                       x$lwd,
-                       x$col[i], x$col.square[i],
-                       x$col.square.lines[i], x$col.inside[i])
+      if (x$type[i] %in% c("square", "circle"))
+        draw.ci(x$eff[i], x$low[i], x$upp[i],
+                x$sizes[i], x$range[1], x$range[2],
+                x$lwd,
+                x$col[i],
+                x$col.square[i], x$col.square.lines[i],
+                x$col.circle[i], x$col.circle.lines[i],
+                x$col.inside[i],
+                type = x$type[i])
       ##
       else if (x$type[i] == "diamond")
         draw.ci.diamond(x$eff[i], x$low[i], x$upp[i],

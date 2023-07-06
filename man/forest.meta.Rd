@@ -81,6 +81,8 @@
   col.study = gs("col.study"),
   col.square = gs("col.square"),
   col.square.lines = col.square,
+  col.circle = gs("col.circle"),
+  col.circle.lines = col.circle,
   col.inside = gs("col.inside"),
   col.inside.common = col.inside,
   col.inside.random = col.inside,
@@ -483,6 +485,12 @@ confidence limits.}
 in the meta-analysis.}
 
 \item{col.square.lines}{The colour for the outer lines of squares
+reflecting study's weight in the meta-analysis.}
+
+\item{col.circle}{The colour for circles reflecting study weights
+in the meta-analysis.}
+
+\item{col.circle.lines}{The colour for the outer lines of circles
 reflecting study's weight in the meta-analysis.}
 
 \item{col.inside}{The colour for individual study results and

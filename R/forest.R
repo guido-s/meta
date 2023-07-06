@@ -194,6 +194,10 @@
 #'   in the meta-analysis.
 #' @param col.square.lines The colour for the outer lines of squares
 #'   reflecting study's weight in the meta-analysis.
+#' @param col.circle The colour for circles reflecting study weights
+#'   in the meta-analysis.
+#' @param col.circle.lines The colour for the outer lines of circles
+#'   reflecting study's weight in the meta-analysis.
 #' @param col.diamond The colour of diamonds representing the results
 #'   for common effect and random effects models.
 #' @param col.diamond.common The colour of diamonds for common effect
@@ -1204,6 +1208,8 @@ forest.meta <- function(x,
                         col.study = gs("col.study"),
                         col.square = gs("col.square"),
                         col.square.lines = col.square,
+                        col.circle = gs("col.circle"),
+                        col.circle.lines = col.circle,
                         ##
                         col.inside = gs("col.inside"),
                         col.inside.common = col.inside,
@@ -1842,14 +1848,18 @@ forest.meta <- function(x,
   chknumeric(lty.equi)
   chkcolor(col.equi)
   ##
-  type.study <- setchar(type.study, c("square", "diamond", "predict"))
-  type.common <- setchar(type.common, c("square", "diamond", "predict"))
-  type.random <- setchar(type.random, c("square", "diamond", "predict"))
-  type.subgroup <- setchar(type.subgroup, c("square", "diamond", "predict"))
-  type.subgroup.common <- setchar(type.subgroup.common,
-                                 c("square", "diamond", "predict"))
-  type.subgroup.random <- setchar(type.subgroup.random,
-                                  c("square", "diamond", "predict"))
+  type.study <-
+    setchar(type.study, c("square", "diamond", "predict", "circle"))
+  type.common <-
+    setchar(type.common, c("square", "diamond", "predict", "circle"))
+  type.random <-
+    setchar(type.random, c("square", "diamond", "predict", "circle"))
+  type.subgroup <-
+    setchar(type.subgroup, c("square", "diamond", "predict", "circle"))
+  type.subgroup.common <-
+    setchar(type.subgroup.common, c("square", "diamond", "predict", "circle"))
+  type.subgroup.random <-
+    setchar(type.subgroup.random, c("square", "diamond", "predict", "circle"))
   ##
   chklogical(bottom.lr)
   chkchar(lab.NA)
@@ -2401,6 +2411,18 @@ forest.meta <- function(x,
     col.square.lines <- rep(col.square.lines, K.all)
   else
     chklength(col.square.lines, K.all, fun)
+  ##
+  miss.col.circle <- missing(col.circle)
+  miss.col.circle.lines <- missing(col.circle.lines)
+  if (length(col.circle) == 1)
+    col.circle <- rep(col.circle, K.all)
+  else
+    chklength(col.circle, K.all, fun)
+  ##
+  if (length(col.circle.lines) == 1)
+    col.circle.lines <- rep(col.circle.lines, K.all)
+  else
+    chklength(col.circle.lines, K.all, fun)
   
   
   ##
@@ -2985,10 +3007,17 @@ forest.meta <- function(x,
       ff.lr <- "bold"
     if (xlab == "")
       xlab <- paste0(sm.lab, " (", ci.lab, ")")
+    ##
     if (miss.col.square)
       col.square <- rep("darkblue", K.all)
     if (miss.col.square.lines)
       col.square.lines <- rep("darkblue", K.all)
+    ##
+    if (miss.col.circle)
+      col.circle <- rep("darkblue", K.all)
+    if (miss.col.circle.lines)
+      col.circle.lines <- rep("darkblue", K.all)
+    ##
     if (missing.col.diamond.common)
       col.diamond.common <- "lightblue"
     if (missing(col.diamond.random))
@@ -3015,6 +3044,24 @@ forest.meta <- function(x,
         else
           col.square.lines <- rep("red", K.all)
       }
+      ##
+      if (miss.col.circle) {
+        if (metacont | metamean)
+          col.circle <- rep("green", K.all)
+        else if (metabin)
+          col.circle <- rep("blue", K.all)
+        else
+          col.circle <- rep("red", K.all)
+      }
+      if (miss.col.circle.lines) {
+        if (metacont | metamean)
+          col.circle.lines <- rep("green", K.all)
+        else if (metabin)
+          col.circle.lines <- rep("darkblue", K.all)
+        else
+          col.circle.lines <- rep("red", K.all)
+      }
+      ##
       if (missing.col.diamond.common)
         col.diamond.common <- "black"
       if (missing(col.diamond.random))
@@ -3620,6 +3667,8 @@ forest.meta <- function(x,
   col.study <- col.study[sel]
   col.square <- col.square[sel]
   col.square.lines <- col.square.lines[sel]
+  col.circle <- col.circle[sel]
+  col.circle.lines <- col.circle.lines[sel]
   ##
   col.inside <- col.inside[sel]
   ##
@@ -3691,6 +3740,8 @@ forest.meta <- function(x,
     col.study <- col.study[o]
     col.square <- col.square[o]
     col.square.lines <- col.square.lines[o]
+    col.circle <- col.circle[o]
+    col.circle.lines <- col.circle.lines[o]
     ##
     col.inside <- col.inside[o]
     ##
@@ -8622,7 +8673,8 @@ forest.meta <- function(x,
                      upp = uppTEs.exclude,
                      rows = yS[-1],
                      ##
-                     ## "square"  - normal confidence interval
+                     ## "square"  - normal confidence interval with square
+                     ## "circle"  - normal confidence interval with circle
                      ## "diamond" - meta-analysis diamond
                      ## "predict" - prediction interval
                      ##
@@ -8633,6 +8685,9 @@ forest.meta <- function(x,
                      col.square.lines =
                        c(col.diamond.lines.pooled, col.square.lines),
                      col.inside = c(col.inside.pooled, col.inside),
+                     col.circle = c(col.diamond.pooled, col.circle),
+                     col.circle.lines =
+                       c(col.diamond.lines.pooled, col.circle.lines),
                      ##
                      col.diamond = c(col.diamond.pooled, col.square),
                      col.diamond.lines =

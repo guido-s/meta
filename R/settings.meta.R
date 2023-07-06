@@ -555,6 +555,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setOption("col.study", "black")
     setOption("col.square", "gray")
+    setOption("col.circle", "royalblue")
     setOption("col.inside", "white")
     setOption("col.diamond", "gray")
     setOption("col.diamond.lines", "black")
@@ -917,6 +918,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     catarg("col.study              ")
     catarg("col.square             ")
+    catarg("col.circle             ")
     catarg("col.inside             ")
     catarg("col.diamond            ")
     catarg("col.diamond.lines      ")
@@ -1208,6 +1210,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setcolor("col.study", args)
     setcolor("col.square", args)
+    setcolor("col.circle", args)
     setcolor("col.inside", args)
     setcolor("col.diamond", args)
     setcolor("col.diamond.lines", args)

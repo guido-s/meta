@@ -569,7 +569,7 @@ argslist <-
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
     "lwd",
     "type.study", "type.common",
-    "col.study", "col.square", "col.inside",
+    "col.study", "col.square", "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
     "col.subgroup", "col.label.right", "col.label.left",
@@ -767,6 +767,7 @@ setOption("type.common", "diamond")
 ##
 setOption("col.study", "black")
 setOption("col.square", "gray")
+setOption("col.circle", "royalblue")
 setOption("col.inside", "white")
 setOption("col.diamond", "gray")
 setOption("col.diamond.lines", "black")

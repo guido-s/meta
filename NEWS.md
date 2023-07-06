@@ -13,6 +13,11 @@
     three-level model
 
 * forest.meta():
+  - point estimates can be plotted as circles instead of squares or
+    diamonds (arguments 'type.study', 'type.common', 'type.random',
+    'type.subgroup', 'type.subgroup.common', 'type.subgroup.random')
+  - new arguments 'col.circle' and 'col.circle.lines' to define the
+    colour of circles
   - new argument 'digits.n' and 'digits.event' to specify the number
     of significant digits for sample sizes and number of events
   - justification of results for effect + confidence interval can be
