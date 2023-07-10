@@ -391,8 +391,8 @@ forest plot).}
 to graphics function (argument 'height' cannot be provided as the
 height is calculated internally; use instead argument 'rows.gr').}
 
-\item{dev.off}{A logical to specify whether graphics file should be
-shut down, i.e., whether file should be created.}
+\item{dev.off}{A logical to specify whether current graphics device
+should be shut down, i.e., whether file should be stored.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if

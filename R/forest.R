@@ -114,8 +114,8 @@
 #' @param args.gr List with additional graphical parameters passed on
 #'   to graphics function (argument 'height' cannot be provided as the
 #'   height is calculated internally; use instead argument 'rows.gr').
-#' @param dev.off A logical to specify whether graphics file should be
-#'   shut down, i.e., whether file should be created.
+#' @param dev.off A logical to specify whether current graphics device
+#'   should be shut down, i.e., whether file should be stored.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -10068,7 +10068,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  if ((!is.null(file) | !is.null(func.gr)) && dev.off)
+  if (dev.off)
     invisible(dev.off())
   
   
