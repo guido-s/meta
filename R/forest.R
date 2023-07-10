@@ -1,8 +1,8 @@
 #' Forest plot to display the result of a meta-analysis
 #' 
 #' @description
-#' Draws a forest plot in the active graphics window (using grid
-#' graphics system).
+#' Draw a forest plot (using grid graphics system) in the active
+#' graphics window or store the forest plot in a file.
 #' 
 #' @aliases forest forest.meta
 #' 
@@ -105,6 +105,17 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g., person-years.
+#' @param file File name.
+#' @param width Width of graphics file.
+#' @param rows.gr Additional rows in forest plot to change height of
+#'   graphics file (e.g., in order to add a title at the top of the
+#'   forest plot).
+#' @param func.gr Name of graphics function, e.g., \code{\link{pdf}}.
+#' @param args.gr List with additional graphical parameters passed on
+#'   to graphics function (argument 'height' cannot be provided as the
+#'   height is calculated internally; use instead argument 'rows.gr').
+#' @param dev.off A logical to specify whether graphics file should be
+#'   shut down, i.e., whether file should be created.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -528,12 +539,45 @@
 #' @details
 #' A forest plot, also called confidence interval plot, is drawn in
 #' the active graphics window. The forest functions in R package
-#' \bold{meta} are based on the grid graphics system. In order to
-#' print the forest plot, resize the graphics window and either use
-#' \code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-#' possibility is to create a file using \code{\link{pdf}},
-#' \code{\link{png}}, or \code{\link{svg}} and to specify the width and
-#' height of the graphic (see Examples).
+#' \bold{meta} are based on the grid graphics system. Resize the
+#' graphics windows if the forest plot is too large or too small for
+#' the graphics window. Alternatively, save the forest plot in a file.
+#' 
+#' \subsection{Saving forest plots}{
+#' 
+#' A forest plot can be directly stored in a file using argument
+#' \code{file} or specifying the R function for the graphics device
+#' driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
+#' only the filename is provided, the extension is checked and matched
+#' against the most common graphics device drivers.
+#' 
+#' \tabular{ll}{
+#' \bold{Extension} \tab \bold{Graphics device} \cr
+#' \code{.pdf} \tab \code{\link{pdf}} \cr
+#' \code{.ps} \tab \code{\link{postscript}} \cr
+#' \code{.svg} \tab \code{\link{svg}} \cr
+#' \code{.bmp} \tab \code{\link{bmp}} \cr
+#' \code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
+#' \code{.png} \tab \code{\link{png}} \cr
+#' \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
+#' }
+#'
+#' The height of the graphics device is automatically determined if
+#' the forest plot is saved to a file. Argument \code{rows.gr} can be
+#' used to increase or decrease the number of rows shown in the forest
+#' plot (either to show missing information or to remove
+#' whitespace). The width of the graphics device can be specified with
+#' argument \code{width}, see, for example, \code{\link{pdf}} or
+#' \code{\link{jpeg}}. Other arguments of graphics device functions
+#' can be provided as a list in argument \code{args.gr}.
+#'
+#' Alternatively, the (resized) graphics window can be stored to a
+#' file using either \code{\link{dev.copy2eps}} or
+#' \code{\link{dev.copy2pdf}}. It is also possible to manually create
+#' a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
+#' \code{\link{svg}} and to specify the width and height of the
+#' graphic (see Examples).
+#' }
 #' 
 #' \subsection{Default layout for studies and pooled effects}{
 #' 
@@ -931,9 +975,24 @@
 #' 
 #' 
 #' \dontrun{
-#' # Create a PDF file forest-m1.pdf with the forest plot
+#' # Create PDF files with the forest plot
 #' #
-#' pdf("forest-m1.pdf", width = 10, height = 3)
+#' # - specify filename (R function pdf() is used due to extension .pdf)
+#' # - height of the figure is automatically determined
+#' # - width is set to 10 inches
+#' forest(m1, file = "forest-m1-1.pdf", width = 10)
+#' #
+#' # - specify graphics device function
+#' #   (filename "Rplots.pdf" used, see help page of R function pdf())
+#' # - height of the figure is automatically determined
+#' # - width is set to 10 inches
+#' # - set title for PDF file
+#' # - set background of forest plot
+#' forest(m1, func.gr = pdf, width = 10,
+#'   args.gr = list(title = "My Forest Plot", bg = "green"))
+#' #
+#' # - manually specify the height of the figure
+#' pdf("forest-m1-2.pdf", width = 10, height = 3)
 #' forest(m1)
 #' dev.off()
 #' 
@@ -1164,6 +1223,10 @@ forest.meta <- function(x,
                         weight.study = NULL,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
+                        ##
+                        file = NULL, width = NULL, rows.gr = NULL,
+                        func.gr = NULL, args.gr = NULL,
+                        dev.off = NULL,
                         ##
                         ref,
                         ##
@@ -1771,6 +1834,29 @@ forest.meta <- function(x,
     irscale <- 1
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
+  ##
+  if (!is.null(file))
+    chkchar(file, length = 1)
+  ##
+  if (!is.null(width))
+    chknumeric(width, min = 0, zero = TRUE, length = 1)
+  ##
+  if (!is.null(rows.gr))
+    chknumeric(rows.gr, length = 1)
+  else
+    rows.gr <- 0
+  ##
+  if (!is.null(args.gr))
+    chklist(args.gr)
+  ##
+  if (!is.null(dev.off))
+    chklogical(dev.off)
+  else
+    dev.off <-
+      if (!is.null(file) | !is.null(func.gr))
+        TRUE
+      else
+        FALSE
   ##
   missing.ref <- missing(ref)
   ## Use logarithmic x-axis?
@@ -9475,6 +9561,67 @@ forest.meta <- function(x,
   ## (14) Generate forest plot
   ##
   ##
+  if (!is.null(file) | !is.null(func.gr)) {
+    if (is.null(func.gr)) {
+      if (grepl("pdf$", tolower(file)))
+        func.gr <- "pdf"
+      else if (grepl("ps$", tolower(file)))
+        func.gr <- "postscript"
+      else if (grepl("svg$", tolower(file)))
+        func.gr <- "svg"
+      else if (grepl("bmp$", tolower(file)))
+        func.gr <- "bmp"
+      else if (grepl("jpg$", tolower(file)) |
+               grepl("jpeg$", tolower(file)))
+        func.gr <- "jpeg"
+      else if (grepl("png$", tolower(file)))
+        func.gr <- "png"
+      else if (grepl("tif$", tolower(file)) |
+               grepl("tiff$", tolower(file)))
+        func.gr <- "tiff"
+      else
+        stop("Argument 'file' has unknown file extension; either provide ",
+             "admissible file extension\n  (\".pdf\", \".ps\", \".svg\", ",
+             "\".bmp\", \".jpg\", \".png\", \"tif\") or ",
+             "\n  graphics function (argument 'func.gr').")
+      ##
+      type.gr <- func.gr
+    }
+    else
+      type.gr <- deparse(substitute(func.gr))
+    ##
+    figheight <- gh(type.gr, rows.gr,
+                    ##
+                    n.stud,
+                    lowTE.common, lowTE.random, lowTE.predict,
+                    x$subgroup, subgroup.levels,
+                    lower.common.w, lower.random.w, lower.predict.w,
+                    ##
+                    common, random, overall,
+                    prediction, overall.hetstat,
+                    study.results,
+                    ##
+                    layout, spacing,
+                    ##
+                    xlab, xlab.add, label.right, label.left, bottom.lr,
+                    ##
+                    prediction.subgroup, subgroup.hetstat,
+                    test.overall.common, test.overall.random,
+                    test.subgroup.common, test.subgroup.random,
+                    ##
+                    text.addline1, text.addline2,
+                    ##
+                    addrow, addrow.overall,
+                    addrow.subgroups, addrows.below.overall,
+                    ##
+                    c(leftcols, rightcols), labs,
+                    text.w.common, text.w.random)
+    ##
+    args.gr.all <-
+      c(list(file = file, height = figheight, width = width), args.gr)
+    runNN(func.gr, args.gr.all)
+  }
+  ##
   if (new)
     grid.newpage()
   ##
@@ -9920,7 +10067,10 @@ forest.meta <- function(x,
       popViewport()
     }
   }
-
+  ##
+  if ((!is.null(file) | !is.null(func.gr)) && dev.off)
+    invisible(dev.off())
+  
   
   res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
               ##

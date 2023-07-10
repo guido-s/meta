@@ -757,3 +757,179 @@ notallNA <- function(x)
 
 repl <- function(x, n1, n2)
   rep(x, rep(n1, n2))
+
+
+gh <- function(type.gr, rows.gr,
+               ##
+               n.stud,
+               lower.common, lower.random, lower.predict,
+               subgroup, subgroup.levels,
+               lower.common.w, lower.random.w, lower.predict.w,
+               ##
+               common, random, overall,
+               prediction, overall.hetstat,
+               study.results,
+               ##
+               layout, spacing,
+               ##
+               xlab, xlab.add, label.right, label.left, bottom.lr,
+               ##
+               prediction.subgroup, subgroup.hetstat,
+               test.overall.common, test.overall.random,
+               test.subgroup.common, test.subgroup.random,
+               ##
+               text.addline1, text.addline2,
+               ##
+               addrow, addrow.overall,
+               addrow.subgroups, addrows.below.overall,
+               ##
+               cols, labs,
+               text.w.common, text.w.random) {
+  
+  
+  ##
+  ## (1) Determine height per row
+  ##
+  if (grepl("bmp$", tolower(type.gr)) ||
+      grepl("jpg$", tolower(type.gr)) ||
+      grepl("jpeg$", tolower(type.gr)) ||
+      grepl("png$", tolower(type.gr)) ||
+      grepl("tif$", tolower(type.gr)) ||
+      grepl("tiff$", tolower(type.gr)))
+    height_per_row <- 480 / 33
+  else
+    height_per_row <-  7 / 35
+  ##
+  ## (2) Column labels
+  ##
+  labs <- unlist(labs)
+  if (any(grepl("col.w.common", cols)))
+    labs <- c(labs, text.w.common)
+  if (any(grepl("col.w.random", cols)))
+    labs <- c(labs, text.w.random)
+  ##
+  rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
+  ##
+  ## (2) Study results
+  ##
+  rows_studies <-
+    if (!study.results)
+      0
+    else
+      n.stud
+  ##
+  ## (3) Meta-analysis results
+  ##
+  if (overall)
+    rows_overall <-
+      1L * addrow.overall +
+      1L * common * length(lower.common) +
+      1L * random * length(lower.random) +
+      1L * prediction * length(lower.predict)
+  else
+    rows_overall <- 1L * addrow.overall
+  ##
+  ## (4) Text below meta-analysis results
+  ##
+  rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
+    test.overall.common + test.overall.random +
+    test.subgroup.common + test.subgroup.random +
+    1L * (text.addline1 != "") +
+    1L * (text.addline2 != "") #+ 0.25 * study.results
+  ## 
+  ## (5) Information below confidence interval plot
+  ##
+  rows_xlab <-
+    if (xlab == "")
+      0
+    else
+      2
+  ##
+  rows_xlab.add <-
+    if (xlab.add == "")
+      0
+    else
+      2
+  ##
+  rows_xlab <- rows_xlab + rows_xlab.add
+  ##
+  if (!bottom.lr) {
+    rows_label.left <- 0
+    rows_label.right <- 0
+  }
+  else {
+    rows_label.left <-
+      if (is.null(label.left) || label.left == "")
+        0
+      else if (!grepl("\n", label.left))
+        2
+      else
+        4
+    ##
+    rows_label.right <-
+      if (is.null(label.right) || label.right == "")
+        0
+      else if (!grepl("\n", label.right))
+        2
+      else
+        4
+  }
+  ##
+  rows_label <- max(c(rows_label.left, rows_label.right))
+  ##
+  rows_below_forest <- 2 + rows_xlab + rows_label
+  ##
+  ## (6) Subgroup results
+  ##
+  if (is.null(subgroup))
+    rows_subgroups <- 0
+  else {
+    n.subgr <- length(subgroup.levels)
+    ##
+    rows_subgroups_common <- common * n.subgr
+    rows_subgroups_random <- random * n.subgr
+    ##
+    rows_subgroups_predict <- 
+      if (is.vector(prediction.subgroup))
+        sum(prediction.subgroup)
+      else
+        prediction.subgroup * n.subgr
+    ##
+    rows_subgroups_hetstat <- 
+      if (length(subgroup.hetstat) > 1)
+        sum(subgroup.hetstat)
+      else
+        subgroup.hetstat * n.subgr
+    ##
+    if (is.matrix(lower.common.w))
+      rows_subgroups_common <- rows_subgroups_common * nrow(lower.common.w)
+    ##
+    if (is.matrix(lower.random.w))
+      rows_subgroups_random <- rows_subgroups_random * nrow(lower.random.w)
+    ##
+    if (is.matrix(lower.predict.w))
+      rows_subgroups_predict <- rows_subgroup_predict * nrow(lower.predict.w)
+    ##
+    rows_subgroups <-
+      n.subgr + # Labels
+      addrow.subgroups * (n.subgr - 1) +
+      rows_subgroups_common + rows_subgroups_random + 
+      rows_subgroups_predict + rows_subgroups_hetstat
+  }
+  ##
+  ## (7) Determine total height of graphics device
+  ##
+  total_rows <-
+    rows_column_labels +
+    rows_studies +
+    rows_overall +
+    max(rows_below_overall_labels, rows_below_forest) +
+    rows_subgroups +
+    rows.gr +
+    1
+  ##
+  total_height <- height_per_row * spacing * total_rows
+  
+  
+  return(total_height)
+}

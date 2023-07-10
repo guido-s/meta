@@ -47,6 +47,12 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
+  file = NULL,
+  width = NULL,
+  rows.gr = NULL,
+  func.gr = NULL,
+  args.gr = NULL,
+  dev.off = NULL,
   ref,
   lower.equi = gs("lower.equi"),
   upper.equi = gs("upper.equi"),
@@ -370,6 +376,23 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
+
+\item{file}{File name.}
+
+\item{width}{Width of graphics file.}
+
+\item{rows.gr}{Additional rows in forest plot to change height of
+graphics file (e.g., in order to add a title at the top of the
+forest plot).}
+
+\item{func.gr}{Name of graphics function, e.g., \code{\link{pdf}}.}
+
+\item{args.gr}{List with additional graphical parameters passed on
+to graphics function (argument 'height' cannot be provided as the
+height is calculated internally; use instead argument 'rows.gr').}
+
+\item{dev.off}{A logical to specify whether graphics file should be
+shut down, i.e., whether file should be created.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -972,18 +995,51 @@ be printed if deprecated arguments are used.}
 \item{\dots}{Additional graphical arguments.}
 }
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draw a forest plot (using grid graphics system) in the active
+graphics window or store the forest plot in a file.
 }
 \details{
 A forest plot, also called confidence interval plot, is drawn in
 the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width and
-height of the graphic (see Examples).
+\bold{meta} are based on the grid graphics system. Resize the
+graphics windows if the forest plot is too large or too small for
+the graphics window. Alternatively, save the forest plot in a file.
+
+\subsection{Saving forest plots}{
+
+A forest plot can be directly stored in a file using argument
+\code{file} or specifying the R function for the graphics device
+driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
+only the filename is provided, the extension is checked and matched
+against the most common graphics device drivers.
+
+\tabular{ll}{
+\bold{Extension} \tab \bold{Graphics device} \cr
+\code{.pdf} \tab \code{\link{pdf}} \cr
+\code{.ps} \tab \code{\link{postscript}} \cr
+\code{.svg} \tab \code{\link{svg}} \cr
+\code{.bmp} \tab \code{\link{bmp}} \cr
+\code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
+\code{.png} \tab \code{\link{png}} \cr
+\code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
+}
+
+The height of the graphics device is automatically determined if
+the forest plot is saved to a file. Argument \code{rows.gr} can be
+used to increase or decrease the number of rows shown in the forest
+plot (either to show missing information or to remove
+whitespace). The width of the graphics device can be specified with
+argument \code{width}, see, for example, \code{\link{pdf}} or
+\code{\link{jpeg}}. Other arguments of graphics device functions
+can be provided as a list in argument \code{args.gr}.
+
+Alternatively, the (resized) graphics window can be stored to a
+file using either \code{\link{dev.copy2eps}} or
+\code{\link{dev.copy2pdf}}. It is also possible to manually create
+a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
+\code{\link{svg}} and to specify the width and height of the
+graphic (see Examples).
+}
 
 \subsection{Default layout for studies and pooled effects}{
 
@@ -1361,9 +1417,24 @@ forest(m1, layout = "RevMan5", common = FALSE,
 
 
 \dontrun{
-# Create a PDF file forest-m1.pdf with the forest plot
+# Create PDF files with the forest plot
 #
-pdf("forest-m1.pdf", width = 10, height = 3)
+# - specify filename (R function pdf() is used due to extension .pdf)
+# - height of the figure is automatically determined
+# - width is set to 10 inches
+forest(m1, file = "forest-m1-1.pdf", width = 10)
+#
+# - specify graphics device function
+#   (filename "Rplots.pdf" used, see help page of R function pdf())
+# - height of the figure is automatically determined
+# - width is set to 10 inches
+# - set title for PDF file
+# - set background of forest plot
+forest(m1, func.gr = pdf, width = 10,
+  args.gr = list(title = "My Forest Plot", bg = "green"))
+#
+# - manually specify the height of the figure
+pdf("forest-m1-2.pdf", width = 10, height = 3)
 forest(m1)
 dev.off()
 
