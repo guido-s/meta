@@ -550,7 +550,8 @@
 #'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
 #'   convertX
 #'
-#' @importFrom grDevices gray gray.colors
+#' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
+#'   postscript svg bmp jpeg png tiff
 #'
 #' @importFrom graphics abline axis box mtext lines par plot points
 #'   polygon text

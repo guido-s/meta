@@ -2,6 +2,9 @@
 
 ### Major changes
 
+* Forest plots can be directly saved in files using common graphics
+  device driver
+
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
 
@@ -13,6 +16,8 @@
     three-level model
 
 * forest.meta():
+  - new arguments 'file', 'width', 'rows.gr', 'func.gr', 'args.gr',
+    and 'dev.off' to directly store a forest plot in a file
   - point estimates can be plotted as circles instead of squares or
     diamonds (arguments 'type.study', 'type.common', 'type.random',
     'type.subgroup', 'type.subgroup.common', 'type.subgroup.random')
