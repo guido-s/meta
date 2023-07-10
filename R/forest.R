@@ -1224,7 +1224,7 @@ forest.meta <- function(x,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         ##
-                        file = NULL, width = NULL, rows.gr = NULL,
+                        file = NULL, width = gs("width"), rows.gr = NULL,
                         func.gr = NULL, args.gr = NULL,
                         dev.off = NULL,
                         ##

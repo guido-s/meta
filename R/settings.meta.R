@@ -623,6 +623,8 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     setOption("colgap", "2mm")
     ##
+    setOption("width", NULL)
+    ##
     setOption("calcwidth.predict", FALSE)
     setOption("calcwidth.hetstat", FALSE)
     setOption("calcwidth.tests", FALSE)
@@ -986,6 +988,8 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     catarg("colgap                 ")
     ##
+    catarg("width                  ")
+    ##
     catarg("calcwidth.predict      ")
     catarg("calcwidth.hetstat      ")
     catarg("calcwidth.tests        ")
@@ -1279,6 +1283,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("ff.lr", args)
     ##
     setcharacter("colgap", args)
+    ##
+    setnumeric("width", args, TRUE)
     ##
     setlogical("calcwidth.predict", args)
     setlogical("calcwidth.hetstat", args)

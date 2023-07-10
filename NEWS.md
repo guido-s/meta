@@ -28,6 +28,9 @@
   - justification of results for effect + confidence interval can be
     specified by argument 'just' if argument 'layout = "RevMan5"'
 
+* settings.meta():
+  - new argument 'width' to specify width of graphics device
+
 ### Internal changes
 
 * Use of vcalc() from R package **metafor** to calculate the

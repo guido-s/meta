@@ -48,7 +48,7 @@
   irscale = x$irscale,
   irunit = x$irunit,
   file = NULL,
-  width = NULL,
+  width = gs("width"),
   rows.gr = NULL,
   func.gr = NULL,
   args.gr = NULL,
