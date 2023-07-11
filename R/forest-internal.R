@@ -908,7 +908,7 @@ gh <- function(type.gr, rows.gr,
       rows_subgroups_random <- rows_subgroups_random * nrow(lower.random.w)
     ##
     if (is.matrix(lower.predict.w))
-      rows_subgroups_predict <- rows_subgroup_predict * nrow(lower.predict.w)
+      rows_subgroups_predict <- rows_subgroups_predict * nrow(lower.predict.w)
     ##
     rows_subgroups <-
       n.subgr + # Labels
