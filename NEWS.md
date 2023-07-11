@@ -33,6 +33,8 @@
 
 ### Internal changes
 
+* New internal function gh() to determine height of graphics file
+
 * Use of vcalc() from R package **metafor** to calculate the
   variance-covariance matrix in three-level model with within-cluster
   correlation not equal to 0
