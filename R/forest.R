@@ -9618,9 +9618,39 @@ forest.meta <- function(x,
                     text.w.common, text.w.random)
     ##
     args.gr.all <-
-      c(list(file = file, height = figheight, width = width), args.gr)
+      c(list(file = file,
+             height = figheight$total_height,
+             width = width),
+        args.gr)
     runNN(func.gr, args.gr.all)
   }
+  else
+    figheight <- gh("no_device_defined", rows.gr,
+                    ##
+                    n.stud,
+                    lowTE.common, lowTE.random, lowTE.predict,
+                    x$subgroup, subgroup.levels,
+                    lower.common.w, lower.random.w, lower.predict.w,
+                    ##
+                    common, random, overall,
+                    prediction, overall.hetstat,
+                    study.results,
+                    ##
+                    layout, spacing,
+                    ##
+                    xlab, xlab.add, label.right, label.left, bottom.lr,
+                    ##
+                    prediction.subgroup, subgroup.hetstat,
+                    test.overall.common, test.overall.random,
+                    test.subgroup.common, test.subgroup.random,
+                    ##
+                    text.addline1, text.addline2,
+                    ##
+                    addrow, addrow.overall,
+                    addrow.subgroups, addrows.below.overall,
+                    ##
+                    c(leftcols, rightcols), labs,
+                    text.w.common, text.w.random)
   ##
   if (new)
     grid.newpage()
@@ -10087,7 +10117,9 @@ forest.meta <- function(x,
               seTE.format = seTE.format,
               cluster.format = cluster.format,
               effect.format = effect.format,
-              ci.format = ci.format)
+              ci.format = ci.format,
+              ##
+              figheight = figheight)
   ##
   if (metainf.metacum) {
     res$pval.format <- pval.format
