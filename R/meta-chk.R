@@ -5,7 +5,11 @@
 ## License: GPL (>= 2)
 ##
 
-chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
+chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
+                    NULL.ok = FALSE) {
+  if (is.null(x) & NULL.ok)
+    return(invisible(NULL))
+  ##
   if (!missing(single) && single)
     length <- 1
   if (is.null(name))
@@ -53,6 +57,8 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
              " characters.",
              call. = FALSE)
   }
+  ##
+  invisible(NULL)
 }
 
 chkclass <- function(x, class, name = NULL) {
@@ -355,7 +361,6 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
 
 chkmlm <- function(method.tau, missing.method.tau,
                    method.predict,
-                   by, tau.common, missing.tau.common,
                    method = "Inverse", missing.method = FALSE) {
   
   if (method != "Inverse" & !missing.method)
@@ -371,11 +376,6 @@ chkmlm <- function(method.tau, missing.method.tau,
     stop("Bootstrap method for prediction interval not ",
          "available for three-level models.",
          call. = FALSE)
-  ##
-  if (by & !tau.common & !missing.tau.common)
-    warning("For three-level model, argument 'tau.common' set to ",
-            "\"TRUE\".",
-            call. = FALSE)
   
   return(invisible(NULL))
 }

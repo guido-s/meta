@@ -640,7 +640,11 @@ metagen <- function(TE, seTE, studlab,
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
-                    overall.hetstat = common | random,
+                    overall.hetstat =
+                      if (is.null(gs("overall.hetstat")))
+                        common | random
+                      else
+                        gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau = gs("method.tau"),
@@ -1713,8 +1717,7 @@ metagen <- function(TE, seTE, studlab,
   }
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##

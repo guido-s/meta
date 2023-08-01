@@ -367,11 +367,12 @@ catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
       ##
       cat(paste0("Number of ", txt, ": ", idx, " = ",
                  format(sum1 + sum2, big.mark = big.mark),
-                 ##" (", idx, ".e = ",
-                 ##format(sum1, big.mark = big.mark),
-                 ##", ", idx, ".c = ",
-                 ##format(sum2, big.mark = big.mark),
-                 ##")",
+                 if (type == "n")
+                   paste0(" (", idx, ".e = ",
+                          format(sum1, big.mark = big.mark),
+                          ", ", idx, ".c = ",
+                          format(sum2, big.mark = big.mark),
+                          ")"),
                  "\n"))
     }
   }
@@ -481,6 +482,7 @@ argslist.internal <-
     "meth4random.ci", "meth4pi",
     "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
+    "meth4rob",
     "meth4incr",
     "text.fixed", "text.w.fixed",
     "major.update", "minor.update")
@@ -519,6 +521,10 @@ setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
                          "Harbord", "Peters", "Deeks",
                          "Pustejovsky", "Macaskill"))
 ##
+setOption("meth4rob",
+          c("RoB1", "RoB2", "RoB2-cluster", "RoB2-crossover",
+            "ROBINS-I", "ROBINS-E"))
+##
 setOption("meth4incr", c("only0", "if0all", "all"))
 ##
 setOption("major.update", 5)
@@ -534,6 +540,8 @@ argslist <-
     "method.i2",
     "prediction", "level.predict",
     "method.bias",
+    "method.rob",
+    "overall.hetstat",
     "text.common", "text.random", "text.predict",
     "text.w.common", "text.w.random",
     "title", "complab",
@@ -548,7 +556,7 @@ argslist <-
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
     "method.ci.cont", "method.ci.prop", "method.ci.rate",
     "label.e", "label.c", "label.left", "label.right",
-    "layout",
+    "layout", "forest.details",
     "test.overall", "test.subgroup", "prediction.subgroup",
     "test.effect.subgroup",
     "digits", "digits.se", "digits.stat",
@@ -558,6 +566,7 @@ argslist <-
     "digits.forest", "digits.TE.forest",
     "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
+    "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
     "print.I2", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
     ##
@@ -630,6 +639,8 @@ setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
 setOption("method.i2", "q")
 setOption("method.bias", "Egger")
+setOption("method.rob", NULL)
+setOption("overall.hetstat", NULL)
 setOption("text.common", "Common effect model")
 setOption("text.fixed", "Common effect model")
 setOption("text.random", "Random effects model")
@@ -672,6 +683,11 @@ setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
 setOption("JAMA.pval", FALSE)
+##
+setOption("print.tau2", TRUE)
+setOption("print.tau2.ci", TRUE)
+setOption("print.tau", TRUE)
+setOption("print.tau.ci", TRUE)
 setOption("print.I2", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
@@ -733,6 +749,7 @@ setOption("label.right", "")
 ## Settings for R function forest.meta
 ##
 setOption("layout", "meta")
+setOption("forest.details", FALSE)
 setOption("test.overall", FALSE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)

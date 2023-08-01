@@ -114,9 +114,13 @@
 #'   degrees of freedom.
 #' @param print.tau2 A logical specifying whether between-study
 #'   variance \eqn{\tau^2} should be printed.
+#' @param print.tau2.ci A logical value indicating whether to print
+#'   the confidence interval of \eqn{\tau^2}.
 #' @param print.tau A logical specifying whether \eqn{\tau}, the
 #'   square root of the between-study variance \eqn{\tau^2}, should be
 #'   printed.
+#' @param print.tau.ci A logical value indicating whether to print the
+#'   confidence interval of \eqn{\tau}.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
 #' @param print.H A logical specifying whether heterogeneity statistic
@@ -194,8 +198,11 @@ print.meta <- function(x,
                        ##
                        digits.df = gs("digits.df"),
                        ##
-                       print.tau2 = TRUE,
-                       print.tau = TRUE,
+                       print.tau2 = gs("print.tau2"),
+                       print.tau2.ci = gs("print.tau2.ci"),
+                       print.tau = gs("print.tau"),
+                       print.tau.ci = gs("print.tau.ci"),
+                       ##
                        print.I2 = gs("print.I2"),
                        print.H = gs("print.H"),
                        print.Rb = gs("print.Rb"),
@@ -265,7 +272,10 @@ print.meta <- function(x,
   chklogical(JAMA.pval)
   ##
   chklogical(print.tau2)
+  chklogical(print.tau2.ci)
   chklogical(print.tau)
+  chklogical(print.tau.ci)
+  ##
   chklogical(print.I2)
   chklogical(print.H)
   chklogical(print.Rb)
@@ -539,6 +549,8 @@ print.meta <- function(x,
     text.random.br <- text.random
   ##
   ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  ##
+  details <- NULL
   
   
   ##
@@ -911,10 +923,12 @@ print.meta <- function(x,
     x$irunit <- irunit
     ##
     if (details.methods)
-      catmeth(x,
-              common, random, prediction, overall, overall.hetstat,
-              x$func.transf, backtransf, fbt,
-              big.mark, digits, digits.tau, text.tau, text.tau2)
+      details <-
+        catmeth(x,
+                common, random, prediction, overall, overall.hetstat,
+                x$func.transf, backtransf, fbt,
+                big.mark, digits, digits.tau, text.tau, text.tau2,
+                print.tau2 = FALSE)
   }
   else {
     ##
@@ -1086,13 +1100,13 @@ print.meta <- function(x,
       cat("\nQuantifying heterogeneity:\n")
       ##
       print.tau2.ci <-
-        print.tau2 & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
+        print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
           (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
         print.tau2.ci <- FALSE
       ##
       print.tau.ci <-
-        print.tau & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
+        print.tau.ci & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
           (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
         print.tau.ci <- FALSE
@@ -1486,16 +1500,19 @@ print.meta <- function(x,
     x$irscale <- irscale
     x$irunit <- irunit
     ##
-    if (details.methods & (common | random | prediction | overall.hetstat | by))
-      catmeth(x,
-              common, random, prediction, overall, overall.hetstat,
-              x$func.transf, backtransf, fbt,
-              big.mark, digits, digits.tau, text.tau, text.tau2,
-              print.tau.ci)
+    if (details.methods &
+        (common | random | prediction | overall.hetstat | by))
+      details <-
+        catmeth(x,
+                common, random, prediction, overall, overall.hetstat,
+                x$func.transf, backtransf, fbt,
+                big.mark, digits, digits.tau, text.tau, text.tau2,
+                print.tau2, print.tau2.ci,
+                print.tau, print.tau.ci)
   }
   
   
-  invisible(NULL)
+  invisible(details)
 }
 
 

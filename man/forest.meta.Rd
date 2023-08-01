@@ -37,6 +37,13 @@
   pooled.events = gs("pooled.events"),
   pooled.times = gs("pooled.times"),
   study.results = gs("study.results"),
+  rob = x$rob,
+  rob.col = NULL,
+  rob.symbols = NULL,
+  rob.attach = NULL,
+  rob.xpos = NULL,
+  rob.legend = TRUE,
+  rob.lab = "Risk of Bias",
   xlab = "",
   xlab.pos,
   smlab = NULL,
@@ -104,7 +111,7 @@
   col.label.right = gs("col.label.right"),
   col.label.left = gs("col.label.left"),
   hetstat = common | random | overall.hetstat,
-  overall.hetstat = x$overall.hetstat,
+  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
   hetlab = gs("hetlab"),
   resid.hetstat = gs("resid.hetstat"),
   resid.hetlab = gs("resid.hetlab"),
@@ -140,6 +147,7 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
+  details = gs("forest.details"),
   header.line,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
@@ -161,6 +169,9 @@
   fs.smlab = fontsize,
   fs.xlab = fontsize,
   fs.lr = fontsize,
+  fs.rob = fontsize,
+  fs.rob.symbols = fontsize,
+  fs.details = fontsize,
   ff.heading = "bold",
   ff.common = gs("ff.common"),
   ff.random = gs("ff.random"),
@@ -179,6 +190,9 @@
   ff.smlab = gs("ff.smlab"),
   ff.xlab = gs("ff.xlab"),
   ff.lr = gs("ff.lr"),
+  ff.rob = "plain",
+  ff.rob.symbols = "bold",
+  ff.details = "plain",
   squaresize = 0.8/spacing,
   plotwidth = if (layout == "JAMA") "8cm" else "6cm",
   colgap = gs("colgap"),
@@ -188,6 +202,7 @@
   colgap.forest = colgap,
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
+  colgap.rob = colgap,
   calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
   calcwidth.common = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
@@ -201,6 +216,7 @@
   just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
+  just.rob = "left",
   spacing = gs("spacing"),
   addrow = gs("addrow"),
   addrow.overall = gs("addrow.overall"),
@@ -337,6 +353,22 @@ at risk should be given in the figure.}
 \item{study.results}{A logical indicating whether results for
 individual studies should be shown in the figure (useful to only
 plot subgroup results).}
+
+\item{rob}{Risk of bias (RoB) assessment.}
+
+\item{rob.col}{Colours for RoB categories.}
+
+\item{rob.symbols}{Corresponding symbols for RoB categories.}
+
+\item{rob.attach}{A character specifying the column name to put the
+risk of bias label in table heading (default is first item).}
+
+\item{rob.xpos}{Position of risk of bias label in table heading.}
+
+\item{rob.legend}{A logical specifying whether legend with RoB
+domains should be printed.}
+
+\item{rob.lab}{Column heading for RoB assessment.}
 
 \item{xlab}{A label for the x-axis.}
 
@@ -686,6 +718,9 @@ meta-analysis results).}
 \item{text.addline2}{Text for second additional line (below
 meta-analysis results).}
 
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
+
 \item{header.line}{A logical value indicating whether to print a
 header line or a character string ("both", "below", "").}
 
@@ -747,6 +782,15 @@ in subgroups, see \code{\link{gpar}}.}
 \item{fs.lr}{The size of text of label on left and right side of
 forest plot, see \code{\link{gpar}}.}
 
+\item{fs.rob}{The size of text of risk of bias items in the legend,
+see \code{\link{gpar}}.}
+
+\item{fs.rob.symbols}{The size of risk of bias symbols, see
+\code{\link{gpar}}.}
+
+\item{fs.details}{The size of text for details on (meta-analysis)
+methods, see \code{\link{gpar}}.}
+
 \item{ff.heading}{The fontface for column headings, see
 \code{\link{gpar}}.}
 
@@ -801,6 +845,15 @@ see \code{\link{gpar}}.}
 \item{ff.lr}{The fontface of text of label on left and right side
 of forest plot, see \code{\link{gpar}}.}
 
+\item{ff.rob}{The fontface of text of risk of bias items, see
+\code{\link{gpar}}.}
+
+\item{ff.rob.symbols}{The fontface of risk of bias symbols, see
+\code{\link{gpar}}.}
+
+\item{ff.details}{The fontface for details on (meta-analysis)
+methods, see \code{\link{gpar}}.}
+
 \item{squaresize}{A numeric used to increase or decrease the size
 of squares in the forest plot.}
 
@@ -835,6 +888,10 @@ the left side of forest plot and the forest plot.}
 \item{colgap.forest.right}{Either a character string or a
 \code{\link[grid]{unit}} object specifying gap between column on
 the right side of forest plot and the forest plot.}
+
+\item{colgap.rob}{Either a character string or a
+\code{\link[grid]{unit}} object specifying gap between risk of
+bias columns.}
 
 \item{calcwidth.pooled}{A logical indicating whether text for
 common effect and random effects model should be considered to
@@ -887,6 +944,9 @@ columns on left side of forest plot.}
 columns on right side of forest plot (possible values: "left",
 "right", "center"). Can be of same length as number of additional
 columns on right side of forest plot.}
+
+\item{just.rob}{Justification of risk of bias text (possible
+values: "left", "right", "center").}
 
 \item{spacing}{A numeric determining line spacing in a forest plot.}
 
@@ -1217,6 +1277,25 @@ labels defined in the meta-analysis object are used. The columns
 where treatment labels are attached can be changed using arguments
 \code{label.e.attach} and \code{label.c.attach}.
 }
+
+\subsection{Risk of bias assessment}{
+
+A risk of bias (RoB) assessment can be shown in the forest plot by
+either providing a meta-analysis object with an RoB or providing an
+object created with \code{\link{rob}}.
+
+RoB assessments are shown as the only information on the right side
+of the forest plot. Thus, arguments \code{rightcols} and
+\code{rightlabs} should not be used. Predefined columns shown by
+default on the right side of a forest plot will be moved to the
+left side.
+
+Colours and symbols for RoB categories can be changed using
+arguments \code{rob.col} and \code{rob.symbols}. The number of
+colours or symbols must be the same as the number of categories.
+
+}
+
 
 \subsection{Information on heterogeneity and statistical tests}{
 

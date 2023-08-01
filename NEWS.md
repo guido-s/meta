@@ -2,11 +2,23 @@
 
 ### Major changes
 
-* Forest plots can be directly saved in files using common graphics
-  device driver
+* New function rob() to add risk of bias (RoB) assessment to
+  meta-analysis object
+
+* Changes for forest plots:
+  - can be directly saved to a file using common graphics device
+    drivers (height of file is determined automatically)
+  - details on meta-analysis methods can be printed
+  - risk of bias assessment automatically added for meta-analyses with
+    RoB assessment
+  - point estimates can be plotted as circles instead of squares or
+    diamonds
 
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
+  
+* Use approximate formulae for Hedges' g and Cohen's d for RevMan 5
+  settings; see help page of settings.meta()
 
 ### User-visible changes
 
@@ -15,9 +27,23 @@
   - new argument 'rho' to specify within-cluster correlation in
     three-level model
 
+* print.meta():
+  - show group sample sizes in printouts
+
+* metamerge():
+  - arguments 'label1' and 'label2' will be used to amend labels for
+    common effect or random effects model
+  - order of arguments changed
+
 * forest.meta():
   - new arguments 'file', 'width', 'rows.gr', 'func.gr', 'args.gr',
     and 'dev.off' to directly store a forest plot in a file
+  - new arguments 'rob', 'rob.col', 'rob.symbols', 'rob.attach',
+    'rob.xpos', 'rob.legend', 'fs.rob', 'fs.rob.symbols', 'ff.rob',
+    'ff.rob.symbols', 'colgap.rob' and 'just.rob' for risk of bias
+    assessment
+  - new arguments 'details', 'fs.details' and 'ff.details' to add
+    details on meta-analytical methods
   - point estimates can be plotted as circles instead of squares or
     diamonds (arguments 'type.study', 'type.common', 'type.random',
     'type.subgroup', 'type.subgroup.common', 'type.subgroup.random')
@@ -29,7 +55,12 @@
     specified by argument 'just' if argument 'layout = "RevMan5"'
 
 * settings.meta():
+  - new argument 'overall.hetstat' to specify whether to show
+    information on between-study heterogeneity
   - new argument 'width' to specify width of graphics device
+  - new arguments 'print.tau2', 'print.tau2.ci', 'print.tau' and
+    'print.tau.ci' to specify whether to show (confidence intervals
+    for) tau^2 or tau
 
 ### Internal changes
 

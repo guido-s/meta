@@ -40,8 +40,10 @@
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   digits.df = gs("digits.df"),
-  print.tau2 = TRUE,
-  print.tau = TRUE,
+  print.tau2 = gs("print.tau2"),
+  print.tau2.ci = gs("print.tau2.ci"),
+  print.tau = gs("print.tau"),
+  print.tau.ci = gs("print.tau.ci"),
   print.I2 = gs("print.I2"),
   print.H = gs("print.H"),
   print.Rb = gs("print.Rb"),
@@ -188,9 +190,15 @@ degrees of freedom.}
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}
 
+\item{print.tau2.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau^2}.}
+
 \item{print.tau}{A logical specifying whether \eqn{\tau}, the
 square root of the between-study variance \eqn{\tau^2}, should be
 printed.}
+
+\item{print.tau.ci}{A logical value indicating whether to print the
+confidence interval of \eqn{\tau}.}
 
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I\eqn{^2} should be printed.}

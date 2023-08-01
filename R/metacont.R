@@ -581,7 +581,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
-                     overall.hetstat = common | random,
+                     overall.hetstat =
+                       if (is.null(gs("overall.hetstat")))
+                         common | random
+                       else
+                         gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
                      ##
                      method.tau = gs("method.tau"),
@@ -1748,8 +1752,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##

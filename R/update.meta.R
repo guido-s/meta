@@ -1103,7 +1103,6 @@ update.meta <- function(object,
                  seed.predict.subgroup = seed.predict.subgroup,
                  print.CMH = print.CMH,
                  ##
-                 keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control,
@@ -1156,11 +1155,11 @@ update.meta <- function(object,
     max.c <- setVal(object$data, ".max.c")
     ##
     m <- metacont(n.e = object$data$.n.e,
-                  mean.e = mean.e,
-                  sd.e = sd.e,
-                  n.c = n.c,
-                  mean.c = mean.c,
-                  sd.c = sd.c,
+                  mean.e = object$data$.mean.e,
+                  sd.e = object$data$.sd.e,
+                  n.c = object$data$.n.c,
+                  mean.c = object$data$.mean.c,
+                  sd.c = object$data$.sd.c,
                   studlab = studlab,
                   ##
                   data = data, subset = subset, exclude = exclude,
@@ -1224,7 +1223,6 @@ update.meta <- function(object,
                   prediction.subgroup = prediction.subgroup,
                   seed.predict.subgroup = seed.predict.subgroup,
                   ##
-                  keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
@@ -1273,7 +1271,6 @@ update.meta <- function(object,
                  prediction.subgroup = prediction.subgroup,
                  seed.predict.subgroup = seed.predict.subgroup,
                  ##
-                 keepdata = keepdata,
                  warn.deprecated = FALSE,
                  ##
                  control = control)
@@ -1362,7 +1359,6 @@ update.meta <- function(object,
                  prediction.subgroup = prediction.subgroup,
                  seed.predict.subgroup = seed.predict.subgroup,
                  ##
-                 keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control)
@@ -1457,7 +1453,6 @@ update.meta <- function(object,
                  prediction.subgroup = prediction.subgroup,
                  seed.predict.subgroup = seed.predict.subgroup,
                  ##
-                 keepdata = keepdata,
                  warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control,
@@ -1538,7 +1533,6 @@ update.meta <- function(object,
                   prediction.subgroup = prediction.subgroup,
                   seed.predict.subgroup = seed.predict.subgroup,
                   ##
-                  keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
@@ -1609,7 +1603,6 @@ update.meta <- function(object,
                   prediction.subgroup = prediction.subgroup,
                   seed.predict.subgroup = seed.predict.subgroup,
                   ##
-                  keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control,
@@ -1681,7 +1674,6 @@ update.meta <- function(object,
                   prediction.subgroup = prediction.subgroup,
                   seed.predict.subgroup = seed.predict.subgroup,
                   ##
-                  keepdata = keepdata,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control,
@@ -1690,7 +1682,16 @@ update.meta <- function(object,
   ##  
   m$call.object <- object$call
   m$call <- match.call()
-  
+  ##
+  if (!is.null(object$rob)) {
+    if (!is.null(m$subset))
+      m$rob <- object$rob[m$subset, ]
+    else
+      m$rob <- object$rob
+  }
+  ##
+  if (!keepdata)
+    m$data <- NULL
   
   m
 }

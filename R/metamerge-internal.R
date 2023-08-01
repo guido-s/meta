@@ -139,7 +139,7 @@ samesubgroups <- function(x, y) {
 }
 
 
-updateobj <- function(x,
+updateobj <- function(x, label,
                       text.common, text.random, text.predict,
                       text.w.common, text.w.random,
                       hetlabel, taulabel) {
@@ -152,24 +152,37 @@ updateobj <- function(x,
   res <- x
   ##
   if (is.null(x$hetlabel) || all(x$hetlabel == ""))
-    res$hetlabel <- hetlabel
+    res$hetlabel <- replaceNULL(hetlabel, "")
   ##
   if (all(x$detail.tau == ""))
-    res$detail.tau <- taulabel
+    res$detail.tau <- replaceNULL(taulabel, "")
   ##
   ## Act upon ordinary meta-analysis object
   ##
   if (!(is.copas | is.limit | is.robu | is.trimfill)) {
-    if (text.common != "")
+    if (!is.null(label) & is.null(text.common))
+      res$text.common <- paste0(res$text.common, " (", label, ")")
+    else if (!is.null(text.common))
       res$text.common <- text.common
-    if (text.random != "")
+    ##
+    if (!is.null(label) & is.null(text.random))
+      res$text.random <- paste0(res$text.random, " (", label, ")")
+    else if (!is.null(text.random))
       res$text.random <- text.random
-    if (text.predict != "")
+    ##
+    if (!is.null(label) & is.null(text.predict))
+      res$text.predict <- paste0(res$text.predict, " (", label, ")")
+    else if (!is.null(text.predict))
       res$text.predict <- text.predict
     ##
-    if (text.w.common != "")
+    if (!is.null(label) & is.null(text.w.common))
+      res$text.w.common <- label
+    else if (!is.null(text.w.common))
       res$text.w.common <- text.w.common
-    if (text.w.random != "")
+    ##
+    if (!is.null(label) & is.null(text.w.random))
+      res$text.w.random <- label
+    else if (!is.null(text.w.random))
       res$text.w.random <- text.w.random
     ##
     return(res)
@@ -217,17 +230,17 @@ updateobj <- function(x,
     ##
     res$method.tau <- "ML"
     ##
-    if (hetlabel == "")
+    if (is.null(hetlabel))
       res$hetlabel <- "copas"
-    if (taulabel == "")
+    if (is.null(taulabel))
       res$detail.tau <- "copas"
     ##
-    if (text.random != "")
+    if (!is.null(text.random))
       res$text.random <- text.random
     else
       res$text.random <- "Copas selection model"
     ##
-    if (text.w.random != "")
+    if (!is.null(text.w.random))
       res$text.w.random <- text.w.random
     else
       res$text.w.random <- "Copas"
@@ -242,17 +255,17 @@ updateobj <- function(x,
     ##
     res$w.random <- rep(0, length(res$w.random))
     ##
-    if (hetlabel == "")
+    if (is.null(hetlabel))
       res$hetlabel <- "limit"
-    if (taulabel == "")
+    if (is.null(taulabel))
       res$detail.tau <- "limit"
     ##
-    if (text.random != "")
+    if (!is.null(text.random))
       res$text.random <- text.random
     else
       res$text.random <- "Limit meta-analysis"
     ##
-    if (text.w.random != "")
+    if (!is.null(text.w.random))
       res$text.w.random <- text.w.random
     else
       res$text.w.random <- "limit"
@@ -278,46 +291,52 @@ updateobj <- function(x,
     ##
     res$method.tau <- "DL"
     ##
-    if (hetlabel == "")
+    if (is.null(hetlabel))
       res$hetlabel <- "RVE"
-    if (taulabel == "")
+    if (is.null(taulabel))
       res$detail.tau <- "RVE"
     ##
-    if (text.random != "")
+    if (!is.null(text.random))
       res$text.random <- text.random
     else
       res$text.random <- "RVE model"
     ##
-    if (text.w.random != "")
+    if (!is.null(text.w.random))
       res$text.w.random <- text.w.random
     else
       res$text.w.random <- "RVE"
   }
   else if (is.trimfill) {
-    if (hetlabel == "")
+    if (is.null(hetlabel))
       res$hetlabel <- "TF"
-    if (taulabel == "")
+    if (is.null(taulabel))
       res$detail.tau <- "TF"
     ##
-    if (text.common != "")
+    if (!is.null(label) & is.null(text.common))
+      res$text.common <- paste0(res$text.common, " (", label, ")")
+    else if (!is.null(text.common))
       res$text.common <- text.common
-    else
+    else if (is.null(text.common))
       res$text.common <- "Trim-and-fill method (CE)"
     ##
-    if (text.random != "")
+    if (!is.null(label) & is.null(text.random))
+      res$text.random <- paste0(res$text.random, " (", label, ")")
+    else if (!is.null(text.random))
       res$text.random <- text.random
-    else
+    else if (is.null(text.random))
       res$text.random <- "Trim-and-fill method (RE)"
     ##
-    if (text.w.common != "")
+    if ((!is.null(label) & is.null(text.w.common)) ||
+        !is.null(text.w.common))
       res$text.w.common <- text.w.common
     else
-      res$text.w.common <- "trim-fill"
+      res$text.w.common <- "CE-TF"
     ##
-    if (text.w.random != "")
+    if ((!is.null(label) & is.null(text.w.random)) ||
+        !is.null(text.w.random))
       res$text.w.random <- text.w.random
     else
-      res$text.w.random <- "trim-fill"
+      res$text.w.random <- "RE-TF"
   }
   
   res

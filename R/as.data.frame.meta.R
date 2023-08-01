@@ -70,10 +70,15 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   ##     on the function call.
   ##
   x$call <- NULL
+  x$call.object <- NULL
   
   ## Remove data set from output
   ##
   x$data <- NULL
+  
+  ## Remove risk of bias table from output
+  ##
+  x$rob <- NULL
   
   ## Remove debug information
   ##

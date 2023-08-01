@@ -21,6 +21,10 @@
 #'   effects model should be considered for second meta-analysis.
 #' @param prediction2 A logical indicating whether prediction interval
 #'   should be considered for second meta-analysis.
+#' @param label1 Default setting for arguments 'hetlabel1' and
+#'   'taulabel1'.
+#' @param label2 Default setting for arguments 'hetlabel2' and
+#'   'taulabel2'.
 #' @param text.pooled1 A character string used in printouts and forest
 #'   plot to label the results from the first meta-analysis.
 #' @param text.pooled2 A character string used in printouts and forest
@@ -31,10 +35,6 @@
 #' @param text.w.pooled2 A character string used to label weights of
 #'   the second meta-analysis; can be of same length as the number of
 #'   pooled estimates requested in argument \code{pooled1}.
-#' @param label1 Default setting for arguments 'hetlabel1' and
-#'   'taulabel1'.
-#' @param label2 Default setting for arguments 'hetlabel2' and
-#'   'taulabel2'.
 #' @param hetlabel1 A character string used to label heterogeneity
 #'   statistics of the first meta-analysis.
 #' @param hetlabel2 A character string used to label heterogeneity
@@ -212,77 +212,94 @@
 #'   \code{\link{metaadd}}
 #' 
 #' @examples
-#' # Print results with more significant digits
+#' # Print results with more significant digits and do not show confidence
+#' # intervals for tau^2 and tau
 #' oldset <- settings.meta(digits = 6, digits.stat = 4, digits.pval = 6,
-#'                         digits.Q = 6, digits.I2 = 4, digits.H = 4)
+#'   digits.Q = 6, digits.I2 = 4, digits.H = 4,
+#'   print.tau2.ci = FALSE, print.tau.ci = FALSE)
 #' oldopts <- options(width = 120)
 #' 
 #' data(Fleiss1993bin)
 #' 
 #' # Mantel-Haenszel method
 #' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-#'   studlab = paste(study, year), sm = "OR",
-#'   text.common = "Mantel-Haenszel method", text.w.common = "MH",
-#'   text.random = "Random effects model (IV)", text.w.random = "RE-IV")
-#' 
+#'   studlab = paste(study, year), sm = "OR")
 #' # Peto method
-#' m2 <- update(m1, method = "Peto",
-#'   text.common = "Peto method", text.w.common = "Peto",
-#'   text.random = "Random effects model (Peto)", text.w.random = "RE-Peto")
-#' 
-#' # Inverse variance method
-#' m3 <- update(m2, method = "Inverse", random = FALSE,
-#'   text.common = "Inverse-variance method", text.w.common = "IV")
+#' m2 <- update(m1, method = "Peto")
+#' # Inverse variance method (only common effect model)
+#' m3 <- update(m2, method = "Inverse", random = FALSE)
 #' 
 #' # Merge results from MH and Peto method
-#' # - show individual results for MH method (as this is the first meta-analysis)
+#' # - show individual results for MH method
+#' #   (as this is the first meta-analysis)
 #' # - keep all additional information from Peto meta-analysis (i.e.,
 #' #   weights, Q statistic and I2 statistic)
 #' m12 <- metamerge(m1, m2,
-#'   taulabel1 = "REML-IV", taulabel2 = "REML-Peto",
+#'   label1 = "MH", label2 = "Peto",
+#'   text.common1 = "Mantel-Haenszel method",
+#'   text.random1 = "Random effects model (REML)",
+#'   text.common2 = "Peto method",
+#'   text.random2 = "Random effects model (REML-Peto)",
+#'   text.w.random1 = "REML", text.w.random2 = "REML-Peto",
+#'   taulabel1 = "REML", taulabel2 = "REML-Peto",
 #'   hetlabel1 = "MH/IV", hetlabel2 = "Peto",
 #'   keep = TRUE)
-#' m12
 #' 
 #' # Add results from inverse variance method
 #' # - keep weights from IV meta-analysis
 #' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #' #   as inverse variance method is used for sm = "MH" under random
 #' #   effects model
-#' m123 <- metamerge(m12, m3, keep.w = TRUE)
+#' m123 <- metamerge(m12, m3,
+#'   label2 = "IV",
+#'   text.common2 = "Inverse variance method",
+#'   keep.w = TRUE)
 #' summary(m123)
 #' \dontrun{
 #' forest(m123, digits = 6)
 #' 
 #' # Merge results (show individual results for Peto method)
 #' m21 <- metamerge(m2, m1,
-#'   taulabel1 = "REML-Peto", taulabel2 = "REML-IV",
-#'   hetlabel1 = "Peto", hetlabel2 = "MH/IV",
+#'   label2 = "MH", label1 = "Peto",
+#'   text.common2 = "Mantel-Haenszel method",
+#'   text.random2 = "Random effects model (REML)",
+#'   text.common1 = "Peto method",
+#'   text.random1 = "Random effects model (REML-Peto)",
+#'   text.w.random2 = "REML", text.w.random1 = "REML-Peto",
+#'   taulabel2 = "REML", taulabel1 = "REML-Peto",
+#'   hetlabel2 = "MH/IV", hetlabel1 = "Peto",
 #'   keep = TRUE)
-#' m213 <- metamerge(m21, m3, keep.w = TRUE)
+#' 
+#' # Add results from inverse variance method
+#' # - keep weights from IV meta-analysis
+#' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
+#' #   as inverse variance method is used for sm = "MH" under random
+#' #   effects model
+#' m213 <- metamerge(m21, m3,
+#'   label2 = "IV",
+#'   text.common2 = "Inverse variance method",
+#'   keep.w = TRUE)
 #' summary(m213)
 #' 
 #' # Random effects method using ML estimator for between-study variance tau2
-#' m4 <- update(m1, common = FALSE, method.tau = "ML",
-#'   text.random = "Random effects model (ML)", text.w.random = "RE-ML")
+#' m4 <- update(m1, common = FALSE, method.tau = "ML")
 #' 
 #' # Use DerSimonian-Laird estimator for tau2
-#' m5 <- update(m4, method.tau = "DL",
-#'   text.random = "Random effects model (DL)", text.w.random = "RE-DL")
+#' m5 <- update(m4, method.tau = "DL")
 #' 
 #' # Use Paule-Mandel estimator for tau2
-#' m6 <- update(m4, method.tau = "PM",
-#'   text.random = "Random effects model (PM)", text.w.random = "RE-PM")
+#' m6 <- update(m4, method.tau = "PM")
 #' 
 #' # Merge random effects results for ML and DL estimators
 #' # - keep weights for DL estimator (which are different from ML)
-#' m45 <- metamerge(m4, m5, taulabel1 = "ML", taulabel2 = "DL",
-#'    keep.w = TRUE)
+#' m45 <- metamerge(m4, m5, label1 = "ML", label2 = "DL",
+#'   text.w.random1 = "RE-ML", text.w.random2 = "RE-DL", keep.w = TRUE)
 #' summary(m45)
 #' 
 #' # Add results for PM estimator
 #' # - keep weights
-#' m456 <- metamerge(m45, m6, taulabel2 = "PM", keep.w = TRUE)
+#' m456 <- metamerge(m45, m6, label2 = "PM",
+#'   text.w.random2 = "RE-PM", keep.w = TRUE)
 #' summary(m456)
 #' 
 #' m123456 <- metamerge(m123, m456)
@@ -291,35 +308,32 @@
 #' # Use Hartung-Knapp confidence intervals
 #' # - do not keep information on Q, I2 and weights
 #' m7 <- update(m4, method.random.ci = "HK",
-#'   text.random = "Hartung-Knapp method (REML)")
+#'   text.random = "Hartung-Knapp method")
 #' m8 <- update(m5, method.random.ci = "HK",
-#'   text.random = "Hartung-Knapp method (DL)")
+#'   text.random = "Hartung-Knapp method")
 #' m9 <- update(m6, method.random.ci = "HK",
-#'   text.random = "Hartung-Knapp method (PM)")
+#'   text.random = "Hartung-Knapp method")
 #' 
 #' # Merge results for Hartung-Knapp method (with REML and DL estimator)
 #' # - RE weights for REML estimator are shown
-#' m78 <- metamerge(m7, m8)
+#' m78 <- metamerge(m7, m8, label1 = "ML", label2 = "DL")
 #' summary(m78)
 #' 
-#' m789 <- metamerge(m78, m9)
+#' m789 <- metamerge(m78, m9, label2 = "PM")
 #' summary(m789)
 #' 
 #' # Merge everything
 #' m1to9 <- metamerge(metamerge(m123, m456, keep.w = TRUE), m789)
 #' summary(m1to9)
 #' 
-#' m10 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-#'   studlab = paste(study, year), sm = "OR", method = "GLMM",
-#'   text.common = "Common effect model (GLMM)",
-#'   text.random = "Random effects model (GLMM)")
+#' m10 <- update(m1, method = "GLMM")
 #' 
 #' m.all <- metamerge(m1to9, m10, keep.Q = TRUE,
-#'   taulabel2 = "ML-GLMM", hetlabel2 = "GLMM")
+#'   label2 = "GLMM", taulabel2 = "ML-GLMM")
 #' summary(m.all)
 #' 
 #' forest(m.all, layout = "JAMA")
-#' forest(m.all)
+#' forest(m.all, details = TRUE)
 #' }
 #' 
 #' settings.meta(oldset)
@@ -337,12 +351,12 @@ metamerge <- function(meta1, meta2,
                       random2 = meta2$random,
                       prediction2 = meta2$prediction,
                       ##
-                      text.pooled1 = "", text.pooled2 = "",
-                      text.w.pooled1 = "", text.w.pooled2 = "",
-                      ##
-                      label1 = "", label2 = "",
+                      label1 = NULL, label2 = NULL,
                       hetlabel1 = label1, hetlabel2 = label2,
                       taulabel1 = label1, taulabel2 = label2,
+                      ##
+                      text.pooled1 = NULL, text.pooled2 = NULL,
+                      text.w.pooled1 = NULL, text.w.pooled2 = NULL,
                       ##
                       text.common1 = text.pooled1,
                       text.common2 = text.pooled2,
@@ -471,22 +485,6 @@ metamerge <- function(meta1, meta2,
   chklogical(common2)
   chklogical(random2)
   ##
-  chkchar(text.pooled1, length = 1)
-  chkchar(text.pooled2, length = 1)
-  chkchar(text.common1, length = 1)
-  chkchar(text.common2, length = 1)
-  chkchar(text.random1, length = 1)
-  chkchar(text.random2, length = 1)
-  chkchar(text.predict1, length = 1)
-  chkchar(text.predict2, length = 1)
-  ##
-  chkchar(text.w.pooled1)
-  chkchar(text.w.pooled2)
-  chkchar(text.w.common1)
-  chkchar(text.w.common2)
-  chkchar(text.w.random1)
-  chkchar(text.w.random2)
-  ##
   chklogical(keep)
   chklogical(keep.Q)
   chklogical(keep.I2)
@@ -497,12 +495,32 @@ metamerge <- function(meta1, meta2,
   missing.hetlabel2 <- missing(label2) & missing(hetlabel2)
   missing.taulabel2 <- missing(label2) & missing(taulabel2)
   ##
-  chkchar(label1, length = 1)
-  chkchar(label2, length = 1)
-  chkchar(hetlabel1, length = 1)
-  chkchar(taulabel1, length = 1)
-  chkchar(hetlabel2, length = 1)
-  chkchar(taulabel2, length = 1)
+  chkchar(label1, length = 1, NULL.ok = TRUE)
+  chkchar(label2, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(hetlabel1, length = 1, NULL.ok = TRUE)
+  chkchar(taulabel1, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(hetlabel2, length = 1, NULL.ok = TRUE)
+  chkchar(taulabel2, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(text.pooled1, length = 1, NULL.ok = TRUE)
+  chkchar(text.common1, length = 1, NULL.ok = TRUE)
+  chkchar(text.random1, length = 1, NULL.ok = TRUE)
+  chkchar(text.predict1, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(text.common2, length = 1, NULL.ok = TRUE)
+  chkchar(text.pooled2, length = 1, NULL.ok = TRUE)
+  chkchar(text.random2, length = 1, NULL.ok = TRUE)
+  chkchar(text.predict2, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(text.w.pooled1, length = 1, NULL.ok = TRUE)
+  chkchar(text.w.common1, length = 1, NULL.ok = TRUE)
+  chkchar(text.w.random1, length = 1, NULL.ok = TRUE)
+  ##
+  chkchar(text.w.pooled2, length = 1, NULL.ok = TRUE)
+  chkchar(text.w.common2, length = 1, NULL.ok = TRUE)
+  chkchar(text.w.random2, length = 1, NULL.ok = TRUE)
   ##
   chklogical(common)
   chklogical(random)
@@ -557,11 +575,13 @@ metamerge <- function(meta1, meta2,
   ##     variance meta-analysis (meta2)
   ##
   
-  meta1 <- updateobj(meta1, text.common1, text.random1, text.predict1,
+  meta1 <- updateobj(meta1, label1,
+                     text.common1, text.random1, text.predict1,
                      text.w.common1, text.w.random1,
                      hetlabel1, taulabel1)
   ##
-  meta2 <- updateobj(meta2, text.common2, text.random2, text.predict2,
+  meta2 <- updateobj(meta2, label2,
+                     text.common2, text.random2, text.predict2,
                      text.w.common2, text.w.random2,
                      hetlabel2, taulabel2)
   

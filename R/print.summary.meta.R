@@ -8,10 +8,10 @@
 #' @param x An object of class \code{summary.meta}
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
-#' @param common A logical indicating whether a common effect
-#'   meta-analysis should be conducted.
-#' @param random A logical indicating whether a random effects
-#'   meta-analysis should be conducted.
+#' @param common A logical indicating whether results of common effect
+#'   meta-analysis should be printed.
+#' @param random A logical indicating whether results of random
+#'   effects meta-analysis should be printed.
 #' @param details A logical indicating whether further details of
 #'   individual studies should be printed.
 #' @param ma A logical indicating whether the summary results of the
@@ -60,6 +60,13 @@
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
 #' @param big.mark A character used as thousands separator.
+#' @param print.tau2 A logical specifying whether between-study
+#'   variance \eqn{\tau^2} should be printed.
+#' @param print.tau A logical specifying whether \eqn{\tau}, the
+#'   square root of the between-study variance \eqn{\tau^2}, should be
+#'   printed.
+#' @param print.I2 A logical specifying whether heterogeneity
+#'   statistic I\eqn{^2} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -138,7 +145,7 @@ print.summary.meta <- function(x,
                                common = x$x$common,
                                random = x$x$random,
                                details = FALSE, ma = TRUE,
-                               overall = x$overall,
+                               overall = x$overall & ma,
                                ##
                                backtransf = x$backtransf,
                                pscale = x$pscale,
@@ -159,6 +166,10 @@ print.summary.meta <- function(x,
                                JAMA.pval = gs("JAMA.pval"),
                                ##
                                big.mark = gs("big.mark"),
+                               ##
+                               print.tau2 = gs("print.tau2"),
+                               print.tau = gs("print.tau"),
+                               print.I2 = gs("print.I2"),
                                ##
                                text.tau2 = gs("text.tau2"),
                                text.tau = gs("text.tau"),
@@ -257,6 +268,12 @@ print.summary.meta <- function(x,
   chklogical(zero.pval)
   chklogical(JAMA.pval)
   ##
+  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  ##
+  chklogical(print.tau2)
+  chklogical(print.tau)
+  chklogical(print.I2)
+  ##
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
@@ -327,8 +344,6 @@ print.summary.meta <- function(x,
   ##
   ## (3) Some additional settings
   ##
-  ##
-  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
@@ -736,12 +751,14 @@ print.summary.meta <- function(x,
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
                    pval,
-                   paste0(" ", tau2),
-                   paste0(" ", tau),
-                   paste0(" ", I2, ifelse(I2 == "", "", "%")))
+                   if (print.tau2) paste0(" ", tau2),
+                   if (print.tau) paste0(" ", tau),
+                   if (print.I2) paste0(" ", I2, ifelse(I2 == "", "", "%")))
       dimnames(res) <- list(paste0(x$studlab, "  "),
                             c(sm.lab, ci.lab, "p-value",
-                              text.tau2, text.tau, text.I2))
+                              if (print.tau2) text.tau2,
+                              if (print.tau) text.tau,
+                              if (print.I2) text.I2))
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
@@ -764,7 +781,8 @@ print.summary.meta <- function(x,
         catmeth(x,
                 common, random, x$prediction, overall, x$overall.hetstat,
                 x$func.transf, backtransf, x$func.backtransf,
-                big.mark, digits, digits.tau, text.tau, text.tau2)
+                big.mark, digits, digits.tau, text.tau, text.tau2,
+                print.tau2 = print.tau2, print.tau = print.tau)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
       show.w.common  <-
@@ -946,6 +964,7 @@ print.summary.meta <- function(x,
                  irscale = irscale, irunit = irunit,
                  digits.tau2 = digits.tau2, digits.tau = digits.tau,
                  digits.I2 = digits.I2, big.mark = big.mark,
+                 print.tau2 = print.tau2, print.tau = print.tau,
                  text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
                  details.methods = details.methods,
                  warn.deprecated = FALSE,

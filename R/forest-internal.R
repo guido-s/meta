@@ -66,6 +66,89 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
 }
 
 
+add.rob <- function(x, column, size, fs, ff, fontfamily,
+                    rob, rob.levels, rob.symbols, rob.colour, ...) {
+  ##
+  if (is.null(rob.levels)) {
+    if (is.factor(rob))
+      rob.levels <- levels(rob)
+    else
+      rob.levels <- unique(rob)
+  }
+  ##
+  n.levs <- length(rob.levels)
+  ##
+  if (is.null(rob.symbols)) {
+    if (n.levs == 3)
+      rob.symbols <- c("-", "?", "+")
+    else
+      rob.symbols <- rev(seq_len(n.levs))
+  }
+  else if (length(rob.symbols) == 1 && is.logical(rob.symbols)) {
+    if (rob.symbols) {
+      if (n.levs == 3)
+        rob.symbols <- c("-", "?", "+")
+      else
+        rob.symbols <- rev(seq_len(n.levs))
+    }
+  }
+  else if (length(rob.symbols) != n.levs)
+    stop("Wrong number of RoB symbols (argument 'rob.symbols').",
+         call. = FALSE)
+  ##
+  if (is.null(rob.colour)) {
+    if (n.levs == 3)
+      rob.colour <- c("red", "yellow", "green")
+    else
+      rob.colour <- rev(seq_len(n.levs))
+  }
+  ##
+  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols))
+    txt.rob <-
+      as.character(
+        factor(rob, levels = rob.levels, labels = rob.symbols))
+  else
+    txt.rob <- NULL
+  ##
+  col.rob <-
+    as.character(
+      factor(rob, levels = rob.levels,
+             labels = rob.colour))
+  ##
+  j <- 0
+  ##
+  for (i in 1:length(x$rows)) {
+    if (!is.na(x$rows[i])) {
+      pushViewport(viewport(layout.pos.row = x$rows[i],
+                            layout.pos.col = column, ...))
+      ##
+      if (i == 1)
+        grid.draw(x$labels[[1]])
+      else {
+        j <- j + 1
+        ##
+        grid.circle(x = unit(0.5, "npc"), y = unit(0.5, "npc"),
+                    r = unit(size / 2, "snpc"),
+                    gp = gpar(fill = col.rob[j], col = col.rob[j]))
+        ##
+        if (!is.null(txt.rob) && !is.na(txt.rob[j]))
+          grid.text(txt.rob[j],
+                    x = unit(0.5, "npc"),
+                    y = unit(if (txt.rob[j] %in% c("-", "+")) 0.58 else 0.5,
+                             "npc"),
+                    gp = gpar(fontsize = fs, fontface = ff,
+                              fontfamily = fontfamily),
+                    just = c("center", "center"))
+      }
+      ##
+      popViewport()
+    }
+  }
+  ##
+  invisible(NULL)
+}
+
+
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
                       xlim, notmiss.xlim) {
@@ -510,7 +593,8 @@ draw.lines <- function(x, column,
 
 formatcol <- function(x, y, rows, just = "right", settings,
                       fontfamily,
-                      n.com, n.ran, n.prd) {
+                      n.com, n.ran, n.prd,
+                      rob = FALSE) {
   ##
   if (just == "left")
     xpos <- 0
@@ -527,7 +611,8 @@ formatcol <- function(x, y, rows, just = "right", settings,
                          fontface = settings$ff.study,
                          fontfamily = fontfamily)
                        ),
-              rows = rows)
+              rows = rows,
+              rob = rob)
   ##
   ## Study label:
   ##
@@ -544,12 +629,12 @@ formatcol <- function(x, y, rows, just = "right", settings,
   strt <- j <- 1
   for (i in seq_len(n.com)) {
     res$labels[[strt + i]] <- textGrob(y[strt - 1 + i],
-                              x = xpos, just = just,
-                              gp = gpar(
-                                fontsize = settings$fs.common,
-                                fontface = settings$ff.common,
-                                fontfamily = fontfamily)
-                              )
+                                       x = xpos, just = just,
+                                       gp = gpar(
+                                         fontsize = settings$fs.common,
+                                         fontface = settings$ff.common,
+                                         fontfamily = fontfamily)
+                                       ) 
     j <- j + 1
   }
   ##
@@ -779,6 +864,7 @@ gh <- function(type.gr, rows.gr,
                test.subgroup.common, test.subgroup.random,
                ##
                text.addline1, text.addline2,
+               text.details, text.rob,
                ##
                addrow, addrow.overall,
                addrow.subgroups, addrows.below.overall,
@@ -831,11 +917,18 @@ gh <- function(type.gr, rows.gr,
   ##
   ## (4) Text below meta-analysis results
   ##
+  n.details <- sum(text.details != "")
+  n.rob <- sum(text.rob != "")
   rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
     test.overall.common + test.overall.random +
     test.subgroup.common + test.subgroup.random +
     1L * (text.addline1 != "") +
-    1L * (text.addline2 != "") #+ 0.25 * study.results
+    1L * (text.addline2 != "") +
+    n.details + 1L * (n.details > 0) +
+    n.rob + 1L * (n.rob > 0) +
+    1L * (n.details > 0 | n.rob > 0) +
+    2L * (n.details == 0 & n.rob == 0)
+  ## + 0.25
   ## 
   ## (5) Information below confidence interval plot
   ##

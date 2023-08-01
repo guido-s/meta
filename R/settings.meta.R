@@ -424,6 +424,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("test.subgroup", TRUE)
     setOption("prediction.subgroup", FALSE)
     setOption("method.bias", "Egger")
+    setOption("method.rob", NULL)
+    setOption("overall.hetstat", NULL)
     setOption("text.common", "Common effect model")
     setOption("text.random", "Random effects model")
     setOption("text.predict", "Prediction interval")
@@ -462,9 +464,15 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("zero.pval", TRUE)
     setOption("JAMA.pval", FALSE)
     setOption("digits.df", 4)
+    ##
+    setOption("print.tau2", TRUE)
+    setOption("print.tau2.ci", TRUE)
+    setOption("print.tau", TRUE)
+    setOption("print.tau.ci", TRUE)
     setOption("print.I2", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
+    ##
     setOption("text.tau2", "tau^2")
     setOption("text.tau", "tau")
     setOption("text.I2", "I^2")
@@ -520,6 +528,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ## R function forest.meta
     ##
     setOption("layout", "meta")
+    setOption("forest.details", FALSE)
     setOption("test.overall", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
@@ -655,6 +664,7 @@ settings.meta <- function(..., quietly = TRUE) {
       specificSettings(
         args = c("method.random.ci", "method.tau", "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
+                 "exact.smd",
                  "layout", "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
                  "digits.I2", "digits.tau2", "digits.tau",
@@ -667,6 +677,7 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
                    replaceNULL(args[["Q.Cochrane"]], TRUE),
+                   replaceNULL(args[["exact.smd"]], FALSE),
                    "RevMan5",
                    replaceNULL(args[["prediction"]], FALSE),
                    replaceNULL(args[["test.overall"]], TRUE),
@@ -784,6 +795,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("test.subgroup      ")
     catarg("prediction.subgroup")
     catarg("method.bias        ")
+    catarg("method.rob         ")
+    catarg("overall.hetstat    ")
     catarg("text.common        ")
     catarg("text.random        ")
     catarg("text.predict       ")
@@ -818,6 +831,10 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("zero.pval          ")
     catarg("JAMA.pval          ")
     catarg("digits.df          ")
+    catarg("print.tau2         ")
+    catarg("print.tau2.ci      ")
+    catarg("print.tau          ")
+    catarg("print.tau.ci       ")
     catarg("print.I2           ")
     catarg("print.H            ")
     catarg("print.Rb           ")
@@ -883,6 +900,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     cat("\n* Settings for forest.meta() *\n")
     catarg("layout                 ")
+    catarg("forest.details         ")
     catarg("test.overall           ")
     catarg("test.effect.subgroup   ")
     catarg("digits.forest          ",
@@ -1054,6 +1072,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setlevel("level.predict", args)
     setcharacter("method.predict", args, gs("meth4pi"))
     setcharacter("method.bias", args, gs("meth4bias"))
+    setcharacter("method.rob", args, gs("meth4rob"), NULL.ok = TRUE)
+    setlogical("overall.hetstat", args, NULL.ok = TRUE)
     setcharacter("text.common", args)
     setcharacter("text.random", args)
     setcharacter("text.predict", args)
@@ -1102,6 +1122,11 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("zero.pval", args)
     setlogical("JAMA.pval", args)
     setnumeric("digits.df", args)
+    ##
+    setlogical("print.tau2", args)
+    setlogical("print.tau2.ci", args)
+    setlogical("print.tau", args)
+    setlogical("print.tau.ci", args)
     setlogical("print.I2", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
@@ -1177,6 +1202,7 @@ settings.meta <- function(..., quietly = TRUE) {
     ## R function forest.meta
     ##
     setcharacter("layout", args, layouts)
+    setlogical("forest.details", args)
     setlogical("test.overall", args)
     setlogical("test.subgroup", args)
     setlogical("prediction.subgroup", args)

@@ -29,7 +29,8 @@ metabin(
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
@@ -395,7 +396,9 @@ V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 and its variance, are utilised in the random effects
 model. Accordingly, results of a random effects model using
 \code{sm = "Peto"} can be different to results from a random
-effects model using \code{sm = "MH"} or \code{sm = "Inverse"}.
+effects model using \code{sm = "MH"} or \code{sm =
+"Inverse"}. Note, the random effects estimate is based on the
+inverse variance method for all methods discussed so far.
 
 A distinctive and frequently overlooked advantage of binary
 endpoints is that individual patient data (IPD) can be extracted
@@ -403,8 +406,9 @@ from a two-by-two table.  Accordingly, statistical methods for IPD,
 i.e., logistic regression and generalised linear mixed models, can
 be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 2010; Simmonds et al., 2016). These methods are available (argument
-\code{method = "GLMM"}) for the odds ratio as summary measure by
-calling the \code{\link[metafor]{rma.glmm}} function from R package
+\code{method = "GLMM"}) for the odds ratio as summary measure for
+the common effect and random effects model by calling the
+\code{\link[metafor]{rma.glmm}} function from R package
 \bold{metafor} internally.
 
 Four different GLMMs are available for

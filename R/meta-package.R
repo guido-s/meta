@@ -545,10 +545,13 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
+#' @importFrom dplyr %>% across mutate
+#'
 #' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
 #'   grid.lines grid.newpage grid.polygon grid.rect grid.text
 #'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
 #'   convertX
+#'   grid.get grid.gget
 #'
 #' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
 #'   postscript svg bmp jpeg png tiff
