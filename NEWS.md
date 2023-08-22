@@ -8,11 +8,13 @@
 * Changes for forest plots:
   - can be directly saved to a file using common graphics device
     drivers (height of file is determined automatically)
-  - details on meta-analysis methods can be printed
+  - details on meta-analysis methods can be shown in plot
   - risk of bias assessment automatically added for meta-analyses with
     RoB assessment
   - point estimates can be plotted as circles instead of squares or
     diamonds
+  - default settings for columns on left or right side of forest plot
+    can be defined in settings.meta()
 
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
@@ -60,7 +62,10 @@
   - new argument 'width' to specify width of graphics device
   - new arguments 'print.tau2', 'print.tau2.ci', 'print.tau' and
     'print.tau.ci' to specify whether to show (confidence intervals
-    for) tau^2 or tau
+    for) tau^2 or tau in printouts
+  - new arguments 'leftcols', 'rightcols', 'leftlabs', 'rightlabs',
+    'label.e.attach' and 'label.c.attach' to changes defaults for
+    corresponding arguments in forest.meta()
 
 ### Internal changes
 

@@ -604,8 +604,8 @@ catmeth <- function(x,
       ##
       for (i in seq_len(nrow(dat.cc))) {
         method.incr.i <- dat.cc$method.incr[i]
-        incr.i <- dat.cc$incr[i]
-        sparse.i <- dat.cc$sparse[i]
+        incr.i <- !is.na(dat.cc$incr[i]) && dat.cc$incr[i]
+        sparse.i <- !is.na(dat.cc$sparse[i]) && dat.cc$sparse[i]
         k.all.i <- dat.cc$k.all[i]
         ##
         details.rr <- NULL
@@ -615,7 +615,8 @@ catmeth <- function(x,
             (dat.cc$method[i] == "MH" & dat.cc$MH.exact[i]) |
             dat.cc$method[i] == "GLMM"
           ##
-          if (dat.cc$RR.Cochrane[i] &
+          if (!is.na(dat.cc$RR.Cochrane[i]) &&
+              dat.cc$RR.Cochrane[i] &
               (method.incr.i == "all" | (sparse.i & incr.i > 0))) {
             details.rr <-
               if (width >= 70 | forest)
@@ -689,7 +690,8 @@ catmeth <- function(x,
         }
         ##
         if (metabin) {
-          if (dat.cc$allstudies[i] & dat.cc$doublezeros[i])
+          if ((!is.na(dat.cc$allstudies[i]) && dat.cc$allstudies[i]) &
+              (!is.na(dat.cc$doublezeros[i]) && dat.cc$doublezeros[i]))
             details.cc <- c(
               details.cc,
               if (k.all.i > 1)

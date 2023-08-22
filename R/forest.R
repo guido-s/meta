@@ -1293,14 +1293,16 @@ forest.meta <- function(x,
                         fill.lower.equi = fill.equi,
                         fill.upper.equi = rev(fill.equi),
                         ##
-                        leftcols = NULL, rightcols = NULL,
-                        leftlabs = NULL, rightlabs = NULL,
+                        leftcols = gs("leftcols"),
+                        rightcols = gs("rightcols"),
+                        leftlabs = gs("leftlabs"),
+                        rightlabs = gs("rightlabs"),
                         ##
                         label.e = x$label.e,
                         label.c = x$label.c,
                         ##
-                        label.e.attach = NULL,
-                        label.c.attach = NULL,
+                        label.e.attach = gs("label.e.attach"),
+                        label.c.attach = gs("label.c.attach"),
                         ##
                         label.right = x$label.right,
                         label.left = x$label.left,

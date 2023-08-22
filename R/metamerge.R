@@ -998,8 +998,29 @@ metamerge <- function(meta1, meta2,
   ##
   ##
   res <- backward(res)
+  
+  
+  ##
+  ##
+  ## (9) Set class
+  ##
+  ##
   ##  
   class(res) <- c(class(res), "metamerge")
+  ##
+  if (inherits(meta2, "trimfill"))
+    class(res) <- c(class(res), "trimfill")
+  ##
+  if (inherits(meta2, "limitmeta"))
+    class(res) <- c(class(res), "limitmeta")
+  ##
+  if (inherits(meta2, "copas"))
+    class(res) <- c(class(res), "copas")
+  ##
+  if (inherits(meta2, "robu"))
+    class(res) <- c(class(res), "robu")
+  ##
+  class(res) <- unique(class(res))
   
   
   res

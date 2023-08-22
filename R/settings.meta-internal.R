@@ -73,13 +73,19 @@ specificSettings <- function(args, new, setting, quietly = FALSE) {
 
 
 setcharacter <- function(argname, args, set = NULL, length = 1,
-                         NULL.ok = FALSE, ignore.other = FALSE) {
+                         NULL.ok = FALSE, ignore.other = FALSE,
+                         logical.ok = FALSE) {
   id <- argid(names(args), argname)
   ##
   if (!is.na(id)) {
     val <- args[[id]]
     ##
     if (NULL.ok & is.null(val)) {
+      setOption(argname, val)
+      return(invisible(NULL))
+    }
+    ##
+    if (logical.ok & is.logical(val)) {
       setOption(argname, val)
       return(invisible(NULL))
     }

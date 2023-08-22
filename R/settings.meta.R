@@ -551,6 +551,14 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("col.equi", "blue")
     setOption("fill.equi", "transparent")
     ##
+    setOption("leftcols", NULL)
+    setOption("rightcols", NULL)
+    setOption("leftlabs", NULL)
+    setOption("rightlabs", NULL)
+    ##
+    setOption("label.e.attach", NULL)
+    setOption("label.c.attach", NULL)
+    ##
     setOption("bottom.lr", TRUE)
     ##
     setOption("lab.NA", ".")
@@ -925,6 +933,14 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("col.equi               ")
     catarg("fill.equi              ")
     ##
+    catarg("leftcols               ")
+    catarg("rightcols              ")
+    catarg("leftlabs               ")
+    catarg("rightlabs              ")
+    ##
+    catarg("label.e.attach         ")
+    catarg("label.c.attach         ")
+    ##
     catarg("bottom.lr              ")
     ##
     catarg("lab.NA                 ")
@@ -1226,6 +1242,16 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("lty.equi", args)
     setcolor("col.equi", args)
     setcolor("fill.equi", args)
+    ##
+    setcharacter("leftcols", args, length = 0,
+                 NULL.ok = TRUE, logical.ok = TRUE)
+    setcharacter("rightcols", args, length = 0,
+                 NULL.ok = TRUE, logical.ok = TRUE)
+    setcharacter("leftlabs", args, length = 0, NULL.ok = TRUE)
+    setcharacter("rightlabs", args, length = 0, NULL.ok = TRUE)
+    ##
+    setcharacter("label.e.attach", args, NULL.ok = TRUE)
+    setcharacter("label.c.attach", args, NULL.ok = TRUE)
     ##
     setlogical("bottom.lr", args)
     ##

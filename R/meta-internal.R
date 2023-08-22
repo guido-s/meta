@@ -512,7 +512,7 @@ setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("q", "tau"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
-setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S"))
+setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S", ""))
 setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
 setOption("adhoc4hakn.pi", c("", "se"))
 ##
@@ -574,6 +574,8 @@ argslist <-
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
     "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
+    "leftcols", "rightcols", "leftlabs", "rightlabs", 
+    "label.e.attach", "label.c.attach",
     "bottom.lr",
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
     "lwd",
@@ -771,6 +773,14 @@ setOption("upper.equi", NA)
 setOption("lty.equi", 1)
 setOption("col.equi", "blue")
 setOption("fill.equi", "transparent")
+##
+setOption("leftcols", NULL)
+setOption("rightcols", NULL)
+setOption("leftlabs", NULL)
+setOption("rightlabs", NULL)
+##
+setOption("label.e.attach", NULL)
+setOption("label.c.attach", NULL)
 ##
 setOption("bottom.lr", TRUE)
 ##

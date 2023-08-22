@@ -273,9 +273,11 @@ rob <- function(item1,
   ##
   meta.object <- NULL
   ##
+  is.meta <- inherits(data, "meta")
+  ##
   if (nulldata)
     data <- sfsp
-  else if (inherits(data, "meta")) {
+  else if (is.meta) {
     meta.object <- data
     data <- data$data
     if (!is.null(meta.object$subset))
@@ -370,8 +372,12 @@ rob <- function(item1,
     chklength(item10, k.All, fun)
   }
   ##
-  if (is.null(studlab))
-    studlab <- seq_len(k.All)
+  if (is.null(studlab)) {
+    if (is.meta)
+      studlab <- data$.studlab
+    else
+      studlab <- seq_len(k.All)
+  }
   else
     chklength(studlab, k.All, fun)
   ##
