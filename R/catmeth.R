@@ -124,7 +124,7 @@ catmeth <- function(x,
       details <-
         paste0(details,
                "\n- Preset square root of between-study variance: ",
-               cond(tau.preset, only.finite = FALSE))
+               cond(tau.preset, only.finite = FALSE, digits = digits.tau))
     }
     ##
     method.tau <- unique(dat.mt$method.tau[is.na(dat.mt$tau.preset)])
@@ -313,7 +313,7 @@ catmeth <- function(x,
     dat.pr.hts1 <- subset(dat.pr, dat.pr$method.predict == "HTS")
     dat.pr.hk <- subset(dat.pr, dat.pr$method.predict == "HK")
     dat.pr.hts2 <- subset(dat.pr, dat.pr$method.predict == "HTS-KR")
-    dat.pr.kr <- subset(dat.pr, dat.pr$ethod.predict == "KR")
+    dat.pr.kr <- subset(dat.pr, dat.pr$method.predict == "KR")
     dat.pr.nnf <- subset(dat.pr, dat.pr$method.predict == "NNF")
     dat.pr.s <- subset(dat.pr, dat.pr$method.predict == "S")
     ##
@@ -341,7 +341,7 @@ catmeth <- function(x,
           "\n- Hartung-Knapp ",
           if (more.pi) "(HK) ",
           "prediction interval (df = ",
-          cond(dat.pr.hk$df.random),
+          cond(dat.pr.hk$df.predict),
           ")")
       ##
       if (any(dat.pr.hk$adhoc.hakn.ci != ""))
@@ -371,7 +371,7 @@ catmeth <- function(x,
           "\n- Kenward-Roger ",
           if (more.pi) "(KR) ",
           "prediction interval (df = ",
-          cond(dat.pr.kr$df.random),
+          cond(dat.pr.kr$df.predict),
           ")")
     ##
     if (nrow(dat.pr.nnf) > 0)
@@ -381,7 +381,7 @@ catmeth <- function(x,
           "\n- Boot-strap prediction interval ",
           if (more.pi) "(NNF) ",
           "(df = ",
-          cond(dat.pr.nnf$df.random),
+          cond(dat.pr.nnf$df.predict),
           ")")
     ##
     if (nrow(dat.pr.s) > 0)
@@ -389,7 +389,7 @@ catmeth <- function(x,
         paste0(
           details,
           "\n- Prediction interval based on standard normal distribution",
-          if (more.pi) "(S)")
+          if (more.pi) " (S)")
   }
   
   
@@ -604,7 +604,10 @@ catmeth <- function(x,
       ##
       for (i in seq_len(nrow(dat.cc))) {
         method.incr.i <- dat.cc$method.incr[i]
-        incr.i <- !is.na(dat.cc$incr[i]) && dat.cc$incr[i]
+        if (!is.na(dat.cc$incr[i]))
+          incr.i <- dat.cc$incr[i]
+        else
+          incr.i <- 0
         sparse.i <- !is.na(dat.cc$sparse[i]) && dat.cc$sparse[i]
         k.all.i <- dat.cc$k.all[i]
         ##

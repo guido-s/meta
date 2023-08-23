@@ -642,14 +642,14 @@ hccGLMM <- function(x, glmm) {
 calcPercent <- function(x)
   100 * x / sum(x, na.rm = TRUE)
 
-cond <- function(x, only.finite = TRUE) {
+cond <- function(x, only.finite = TRUE, digits = 2) {
   if (is.null(x))
     return(x)
   ##
   if (only.finite)
     x <- x[is.finite(x)]
   ##
-  paste(unique(x), collapse = ", ")
+  paste(unique(round(x, digits = digits)), collapse = ", ")
 }
 
 setNA_ifnot <- function(x, y, unequal) {

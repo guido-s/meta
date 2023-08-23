@@ -888,14 +888,20 @@ print.meta <- function(x,
       if (is.metamiss)
         cat("\n")
       else if (sel.n)
-        catobsev(x$n, type = "n")
+        catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+                 type = "n")
       else
-        catobsev(x$n.e, x$n.c, type = "n")
+        catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+                 if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+                 type = "n")
       ##
       if (sel.ev)
-        catobsev(x$event, type = "e", addrow = TRUE)
+        catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+                 type = "e", addrow = TRUE)
       else if (!is.metamiss)
-        catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
+        catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
+                 if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
+                 type = "e", addrow = TRUE)
     }
     ##
     res <- cbind(formatN(TE.common, digits, "NA",
@@ -978,14 +984,22 @@ print.meta <- function(x,
           if (is.metamiss)
             cat("\n")
           else if (sel.n)
-            catobsev(x$n, type = "n")
+            catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+                     type = "n")
           else
-            catobsev(x$n.e, x$n.c, type = "n")
+            catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+                     if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+                     type = "n")
           ##
           if (sel.ev)
-            catobsev(x$event, type = "e", addrow = TRUE)
+            catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+                     type = "e", addrow = TRUE)
           else if (!is.metamiss)
-            catobsev(x$event.e, x$event.c, type = "e", addrow = TRUE)
+            catobsev(if (is.null(x$exclude)) x$event.e
+                     else x$event.e[!x$exclude],
+                     if (is.null(x$exclude)) x$event.c
+                     else x$event.c[!x$exclude],
+                     type = "e", addrow = TRUE)
         }
         ##
         res <- cbind(formatN(c(if (common) TE.common,
@@ -1082,14 +1096,20 @@ print.meta <- function(x,
           if (is.metamiss)
             cat("\n")
           else if (sel.n)
-            catobsev(x$n, type = "n")
+            catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+                     type = "n")
           else
-            catobsev(x$n.e, x$n.c, type = "n")
+            catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+                     if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+                     type = "n")
           ##
           if (sel.ev)
-            catobsev(x$event, type = "e")
+            catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+                     type = "e")
           else if (!is.metamiss)
-            catobsev(x$event.e, x$event.c, type = "e")
+            catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
+                     if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
+                     type = "e")
         }
       }
     }

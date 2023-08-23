@@ -767,7 +767,8 @@ update.meta <- function(object,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
-                    prediction = prediction, level.predict = level.predict,
+                    prediction = prediction | !missing.method.predict,
+                    level.predict = level.predict,
                     silent = TRUE,
                     ...)
     ##
@@ -944,10 +945,11 @@ update.meta <- function(object,
   if (!missing.method.random.ci | !missing.text.random) {
     if (length(method.random.ci) != length(text.random)) {
       if (!missing.method.random.ci) {
-        warning("Setting argument 'text.random' to default as number of ",
-                "random effects \n   methods changed by ",
-                "argument 'method.random.ci'.",
-                call. = FALSE)
+        if (!(length(text.random) == 1 & text.random == gs("text.random")))
+          warning("Setting argument 'text.random' to default as number of ",
+                  "random effects \n   methods changed by ",
+                  "argument 'method.random.ci'.",
+                  call. = FALSE)
         text.random <- gs("text.random")
       }
       if (!missing.text.random)
@@ -980,10 +982,11 @@ update.meta <- function(object,
   if (!missing.method.predict | !missing.text.predict) {
     if (length(method.predict) != length(text.predict)) {
       if (!missing.method.predict) {
-        warning("Setting argument 'text.predict' to default as number of ",
-                "prediction intervals \n   changed by ",
-                "argument 'method.predict'.",
-                call. = FALSE)
+        if (!(length(text.predict) == 1 & text.predict == gs("text.predict")))
+          warning("Setting argument 'text.predict' to default as number of ",
+                  "prediction intervals \n   changed by ",
+                  "argument 'method.predict'.",
+                  call. = FALSE)
         text.predict <- gs("text.predict")
       }
       if (!missing.text.predict)
@@ -1081,7 +1084,8 @@ update.meta <- function(object,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  ##
-                 prediction = prediction, level.predict = level.predict,
+                 prediction = prediction | !missing.method.predict,
+                 level.predict = level.predict,
                  ##
                  method.bias = method.bias,
                  ##
@@ -1204,7 +1208,8 @@ update.meta <- function(object,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   ##
-                  prediction = prediction, level.predict = level.predict,
+                  prediction = prediction | !missing.method.predict,
+                  level.predict = level.predict,
                   ##
                   method.bias = method.bias,
                   ##
@@ -1251,7 +1256,8 @@ update.meta <- function(object,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  ##
-                 prediction = prediction, level.predict = level.predict,
+                 prediction = prediction | !missing.method.predict,
+                 level.predict = level.predict,
                  ##
                  null.effect = null.effect,
                  ##
@@ -1335,7 +1341,8 @@ update.meta <- function(object,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  ##
-                 prediction = prediction, level.predict = level.predict,
+                 prediction = prediction | !missing.method.predict,
+                 level.predict = level.predict,
                  ##
                  method.bias = method.bias,
                  ##
@@ -1430,7 +1437,8 @@ update.meta <- function(object,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  ##
-                 prediction = prediction, level.predict = level.predict,
+                 prediction = prediction | !missing.method.predict,
+                 level.predict = level.predict,
                  ##
                  method.bias = method.bias,
                  ##
@@ -1512,7 +1520,8 @@ update.meta <- function(object,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   ##
-                  prediction = prediction, level.predict = level.predict,
+                  prediction = prediction | !missing.method.predict,
+                  level.predict = level.predict,
                   ##
                   null.effect = null.effect,
                   ##
@@ -1582,7 +1591,8 @@ update.meta <- function(object,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   ##
-                  prediction = prediction, level.predict = level.predict,
+                  prediction = prediction | !missing.method.predict,
+                  level.predict = level.predict,
                   ##
                   null.effect = null.effect,
                   ##
@@ -1654,7 +1664,8 @@ update.meta <- function(object,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   ##
-                  prediction = prediction, level.predict = level.predict,
+                  prediction = prediction | !missing.method.predict,
+                  level.predict = level.predict,
                   ##
                   null.effect = null.effect,
                   ##
