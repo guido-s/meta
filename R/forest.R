@@ -7723,7 +7723,8 @@ forest.meta <- function(x,
                  text.overall.common, text.overall.random,
                  text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
-                 text.details, text.rob,
+                 if (details) text.details else NULL,
+                 if (RoB.legend) text.rob else NULL,
                  subgroup.name, text.common.w, text.random.w, text.predict.w,
                  hetstat.w,
                  unlist(text.effect.subgroup.common),
@@ -7821,7 +7822,8 @@ forest.meta <- function(x,
                  text.overall.common, text.overall.random,
                  text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
-                 text.details, text.rob,
+                 if (details) text.details else NULL,
+                 if (RoB.legend) text.rob else NULL,
                  studlab)
     ##
     TEs    <- c(TE.common, TE.random, NAs.prd, TE)
@@ -8662,12 +8664,12 @@ forest.meta <- function(x,
   if (details)
     yText.details <- rep_len(NA, length(text.details))
   else
-    yText.details <- NA
+    yText.details <- NULL
   ##
   if (RoB.legend)
     yText.rob <- rep_len(NA, length(text.rob))
   else
-    yText.rob <- NA
+    yText.rob <- NULL
   ##
   seq.com <- seq_len(n.com) - 1
   seq.ran <- seq_len(n.ran) - 1
@@ -8775,8 +8777,10 @@ forest.meta <- function(x,
   ySubgroup.random <- yHead + ySubgroup.random + addrow
   yText.addline1 <- yHead + yText.addline1 + addrow
   yText.addline2 <- yHead + yText.addline2 + addrow
-  yText.details <- yHead + yText.details + addrow
-  yText.rob <- yHead + yText.rob + addrow
+  if (details)
+    yText.details <- yHead + yText.details + addrow
+  if (RoB.legend)
+    yText.rob <- yHead + yText.rob + addrow
   ##
   yStats <- c(yHetstat,
               yResidHetstat,
@@ -8841,144 +8845,131 @@ forest.meta <- function(x,
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
                                 just.s, fs.head, ff.head, fontfamily)
   ## Common effect estimate:
-  strt <- j <- 1
+  strt <- 1
   for (i in seq_len(n.com)) {
     col.studlab$labels[[strt + i]] <-
       tg(text.common[i], xpos.s, just.s,
          fs.common.labels, ff.common.labels, fontfamily)
-    j <- j + 1
   }
   ## Random effects estimate:
-  strt <- j
+  strt <- strt + i
   for (i in seq_len(n.ran)) {
     col.studlab$labels[[strt + i]] <-
       tg(text.random[i], xpos.s, just.s,
          fs.random.labels, ff.random.labels, fontfamily)
-    j <- j + 1
   }
   ## Prediction interval:
-  strt <- j
+  strt <- strt + i
   for (i in seq_len(n.prd)) {
     col.studlab$labels[[strt + i]] <-
       tg(text.predict[i], xpos.s, just.s,
          fs.predict.labels, ff.predict.labels, fontfamily)
-    j <- j + 1
   }
   ## Heterogeneity statistics:
-  col.studlab$labels[[j + 1]] <-
+  strt <- strt + i
+  col.studlab$labels[[strt + 1]] <-
     tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
   ## Statistic for residual heterogeneity:
-  col.studlab$labels[[j + 2]] <-
+  col.studlab$labels[[strt + 2]] <-
     tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
   ## Test for overall effect (common effect model):
-  col.studlab$labels[[j + 3]] <-
+  col.studlab$labels[[strt + 3]] <-
     tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
        fontfamily)
   ## Test for overall effect (random effects model):
-  col.studlab$labels[[j + 4]] <-
+  col.studlab$labels[[strt + 4]] <-
     tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
        fontfamily)
   ## Test for subgroup differences (common effect model):
-  col.studlab$labels[[j + 5]] <-
+  col.studlab$labels[[strt + 5]] <-
     tg(text.subgroup.common, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
        fontfamily)
   ## Test for subgroup differences (random effects model):
-  col.studlab$labels[[j + 6]] <-
+  col.studlab$labels[[strt + 6]] <-
     tg(text.subgroup.random, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
        fontfamily)
   ## First additional line:
-  col.studlab$labels[[j + 7]] <-
+  col.studlab$labels[[strt + 7]] <-
     tg(text.addline1, xpos.s, just.s, fs.addline, ff.addline, fontfamily)
   ## Second additional line:
-  col.studlab$labels[[j + 8]] <-
+  col.studlab$labels[[strt + 8]] <-
     tg(text.addline2, xpos.s, just.s, fs.addline, ff.addline, fontfamily)
-  ##
-  j <- j + 8
   ## Details on meta-analysis methods:
+  strt <- strt + 8
+  i <- 0
   if (details) {
-    strt <- j
     for (i in seq_len(length(text.details))) {
       col.studlab$labels[[strt + i]] <-
         tg(text.details[[i]], xpos.s, just.s,
            if (i == 1) fs.heading else fs.details,
            if (i == 1) ff.heading else ff.details,
            fontfamily)
-      j <- j + 1
     }
   }
   ## Risk of bias:
+  strt <- strt + i
+  i <- 0
   if (RoB.legend) {
-    if (!details)
-      j <- j + 1
-    strt <- j
     for (i in seq_len(length(text.rob))) {
       col.studlab$labels[[strt + i]] <-
         tg(text.rob[i], xpos.s, just.s,
            if (i == 1) fs.heading else fs.rob,
            if (i == 1) ff.heading else ff.rob,
            fontfamily)
-      j <- j + 1
     }
   }
   ##
   if (by) {
     ## Subgroup labels:
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
         tg(subgroup.name[i], xpos.s, just.s,
            fs.head, ff.head, fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Common effect estimates:
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.com.w)) {
       col.studlab$labels[[strt + i]] <-
         tg(text.common.w[i], xpos.s, just.s,
            fs.common.labels, ff.common.labels, fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Random effects estimates:
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.ran.w)) {
       col.studlab$labels[[strt + i]] <-
         tg(text.random.w[i], xpos.s, just.s,
            fs.random.labels, ff.random.labels, fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Prediction interval:
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.prd.w)) {
       col.studlab$labels[[strt + i]] <-
         tg(text.predict.w[i], xpos.s, just.s,
            fs.predict.labels, ff.predict.labels, fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Heterogeneity statistics:
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
         tg(hetstat.w[[i]], xpos.s, just.s,
            fs.hetstat, ff.hetstat, fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Test for effect in subgroup (common effect model):
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
         tg(text.effect.subgroup.common[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
            fontfamily, col.subgroup)
-      j <- j + 1
     }
     ## Test for effect in subgroup (random effects model):
-    strt <- j
+    strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
         tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
            fontfamily, col.subgroup)
-      j <- j + 1
     }
   }
   ##

@@ -164,6 +164,10 @@
 * full rewrite of function catmeth() to print details on meta-analysis
   methods
 
+* internal functions is.wholenumber() etc. renamed to
+  *is_wholenumber()* due to new CRAN policy regarding generic
+  functions
+
 
 ## meta, version 6.2-1 (2023-02-28)
 
