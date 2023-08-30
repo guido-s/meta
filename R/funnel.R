@@ -350,19 +350,23 @@ funnel.meta <- function(x,
     ##
     ciTE.ref <- ci(ref, seTE.seq, level)
     ##
-    if ((common | random) & ref.triangle)
-      TE.xlim <- c(min(c(TE, ciTE$lower, ciTE.ref$lower),
-                       na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE$upper, ciTE.ref$upper),
-                               na.rm = TRUE))
+    if ((common | random) & ref.triangle) {
+      xlim.lower <- min(c(TE, ciTE$lower, ciTE.ref$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE$upper, ciTE.ref$upper), na.rm = TRUE)
+    }
     ##
-    else if (ref.triangle)
-      TE.xlim <- c(min(c(TE, ciTE.ref$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE.ref$upper), na.rm = TRUE))
+    else if (ref.triangle) {
+      xlim.lower <- min(c(TE, ciTE.ref$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE.ref$upper), na.rm = TRUE)
+    }
     ##
-    else
-      TE.xlim <- c(min(c(TE, ciTE$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
+    else {
+      xlim.lower <- min(c(TE, ciTE$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE$upper), na.rm = TRUE)
+    }
+    ##
+    TE.xlim <- c(xlim.lower * ifelse(xlim.lower < 0, 1.025, 1 / 1.025),
+                 xlim.upper * ifelse(xlim.upper > 0, 1.025, 1 / 1.025))
   }
   ##
   if (backtransf & is_relative_effect(sm)) {

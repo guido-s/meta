@@ -67,6 +67,12 @@
     'label.e.attach' and 'label.c.attach' to changes defaults for
     corresponding arguments in forest.meta()
 
+### Bug fixes
+
+* funnel.meta():
+  - automatically calculated limits on x-axis were to narrow for some
+    settings
+
 ### Internal changes
 
 * New internal function gh() to determine height of graphics file

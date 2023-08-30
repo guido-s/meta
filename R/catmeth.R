@@ -116,16 +116,12 @@ catmeth <- function(x,
     ##
     tau.preset <- dat.mt$tau.preset[!is.na(dat.mt$tau.preset)]
     ##
-    if (length(tau.preset) >= 1) {
-      tau.preset <-
-        formatPT(tau.preset, lab = TRUE, labval = text.tau,
-                 digits = digits.tau, lab.NA = "NA", big.mark = big.mark)
-      ##
+    if (length(tau.preset) >= 1)
       details <-
         paste0(details,
                "\n- Preset square root of between-study variance: ",
-               cond(tau.preset, only.finite = FALSE, digits = digits.tau))
-    }
+               cond(tau.preset, only.finite = FALSE, digits = digits.tau,
+                    big.mark = big.mark))
     ##
     method.tau <- unique(dat.mt$method.tau[is.na(dat.mt$tau.preset)])
     ##
