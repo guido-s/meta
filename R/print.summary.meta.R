@@ -628,9 +628,9 @@ print.summary.meta <- function(x,
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
       else {
-        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, fbt, abt)
-        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, fbt, abt)
-        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, fbt, abt)
+        TE    <- backtransf(   TE, sm, harmonic.mean, harmonic.mean, fbt, abt)
+        lowTE <- backtransf(lowTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
+        uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       }
       ##
       if (is_prop(sm) | sm == "RD") {

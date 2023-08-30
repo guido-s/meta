@@ -121,15 +121,16 @@
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
-#' Common effect and random effects meta-analysis of correlations based
-#' either on Fisher's z transformation of correlations (\code{sm =
-#' "ZCOR"}) or direct combination of (untransformed) correlations
-#' (\code{sm = "COR"}) (see Cooper et al., p264-5 and p273-4). Only
-#' few statisticians would advocate the use of untransformed
-#' correlations unless sample sizes are very large (see Cooper et al.,
-#' p265). The artificial example given below shows that the smallest
-#' study gets the largest weight if correlations are combined directly
-#' because the correlation is closest to 1.
+#' Common effect and random effects meta-analysis of correlations
+#' based either on Fisher's z transformation of correlations (\code{sm
+#' = "ZCOR"}) or direct combination of (untransformed) correlations
+#' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and
+#' p273-4). Only few statisticians would advocate the use of
+#' untransformed correlations unless sample sizes are very large (see
+#' Cooper et al., 2009, p265). The artificial example given below
+#' shows that the smallest study gets the largest weight if
+#' correlations are combined directly because the correlation is
+#' closest to 1.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at

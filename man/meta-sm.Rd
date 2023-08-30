@@ -26,17 +26,21 @@ Note, mathematically, odds ratios and diagnostic odds ratios are
 identical, however, the labels in printouts and figures
 differ. Furthermore, log risk ratio (logRR) and log vaccine ratio
 (logVR) are mathematical identical, however, back-transformed
-results differ as vaccine efficacy or efficacy is defined as
+results differ as vaccine efficacy or effectiveness is defined as
 \code{VE = 100 * (1 - RR)}.
-
-List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
-contain transformed values, e.g., log odds ratios and log risk
-ratios. In printouts and plots these values are back transformed if
-argument \code{backtransf = TRUE} (default), with exception of the
-arcsine difference where no backtransformation exists.
 
 A continuity correction is used for some summary measures in the
 case of a zero cell count (see \code{\link{metabin}}). 
+
+List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
+contain transformed values, e.g., log odds ratios, log risk ratios
+or log vaccine ratios.  In printouts and plots transformed values
+are back transformed if argument \code{backtransf = TRUE}
+(default), with exception of the arcsine difference where no
+back-transformation exists. Auxiliary function
+\code{\link{logVR2VE}} is used to back-transform log vaccine ratios
+to vaccine efficacy or effectiveness while \code{\link[base]{exp}}
+is used to back-transform log odds or risk ratios.
 }
 
 \subsection{Meta-analysis of continuous outcome data (\code{\link{metacont})}}{
@@ -52,8 +56,9 @@ available (see \code{\link{metacont}}).
 
 For the ratio of means, list elements \code{TE}, \code{TE.common},
 \code{TE.random}, etc., contain the log transformed ratio of
-means. In printouts and plots these values are back transformed if
-argument \code{backtransf = TRUE} (default).
+means. In printouts and plots these values are back transformed
+using \code{\link[base]{exp}} if argument \code{backtransf = TRUE}
+(default).
 }
 
 \subsection{Meta-analysis of correlations (\code{\link{metacor})}}{
@@ -66,7 +71,8 @@ argument \code{backtransf = TRUE} (default).
 For Fisher's z transformed correlations, list elements \code{TE},
 \code{TE.common}, \code{TE.random}, etc., contain the transformed
 correlations. In printouts and plots these values are back
-transformed if argument \code{backtransf = TRUE} (default).
+transformed using auxiliary function \code{\link{z2cor}} if
+argument \code{backtransf = TRUE} (default).
 }
 
 \subsection{Meta-analysis of incidence rates (\code{\link{metainc})}}{
@@ -87,7 +93,10 @@ results differ as vaccine efficacy or effectiveness is defined as
 List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 contain the transformed incidence rates. In printouts and plots
 these values are back transformed if argument \code{backtransf =
-TRUE} (default).
+TRUE} (default). For back-transformation, \code{\link[base]{exp}}
+is used for the incidence rate ratio, power of 2 is used for square
+root transformed rates and \code{\link{logVR2VE}} is used for
+vaccine efficacy / effectiveness.
 }
 
 \subsection{Meta-analysis of single means (\code{\link{metamean})}}{
@@ -98,10 +107,10 @@ TRUE} (default).
 }
 
 Calculations are conducted on the log scale if \code{sm =
-"ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
+"MLN"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 \code{TE.random} contain the logarithm of means. In printouts and
-plots these values are back transformed if argument
-\code{backtransf = TRUE}.
+plots these values are back transformed using
+\code{\link[base]{exp}} if argument \code{backtransf = TRUE}.
 }
 
 \subsection{Meta-analysis of single proportions (\code{\link{metaprop})}}{
@@ -122,7 +131,10 @@ implemented to calculate an overall proportion:
 List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 contain the transformed proportions. In printouts and plots these
 values are back transformed if argument \code{backtransf = TRUE}
-(default).
+(default). For back-transformation, \code{\link{logit2p}} is used
+for logit transformed proportions, \code{\link{asin2p}} is used for
+(Freeman-Tukey) arcsine transformed proportions and
+\code{\link[base]{exp}} is used for log transformed proportions.
 }
 
 \subsection{Meta-analysis of single rates (\code{\link{metarate})}}{
@@ -142,7 +154,10 @@ calculate an overall rate:
 List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 contain the transformed incidence rates. In printouts and plots
 these values are back transformed if argument \code{backtransf =
-TRUE} (default).
+TRUE} (default). For back-transformation, \code{\link[base]{exp}}
+is used for log transformed rates, power of 2 is used for square
+root transformed rates and \code{\link{asin2ir}} is used for
+Freeman-Tukey arcsine transformed rates.
 }
 
 \subsection{Generic inverse variance method (\code{\link{metagen})}}{
@@ -159,7 +174,8 @@ above mentioned summary measures:
 List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 contain transformed values, i.e., log hazard ratios and log vaccine
 ratios. In printouts and plots these values are back transformed if
-argument \code{backtransf = TRUE} (default).
+argument \code{backtransf = TRUE} (default); see also
+\link{meta-transf}.
 }
 }
 \references{
@@ -195,9 +211,9 @@ data.
 \bold{29}, 3046--67
 }
 \seealso{
-\code{\link{meta-package}}, \code{\link{meta-object}},
-  \code{\link{print.meta}}, \code{\link{summary.meta}},
-  \code{\link{forest.meta}}
+\code{\link{meta-package}}, \code{\link{meta-transf}},
+  \code{\link{meta-object}}, \code{\link{print.meta}},
+  \code{\link{summary.meta}}, \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

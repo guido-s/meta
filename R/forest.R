@@ -6881,27 +6881,27 @@ forest.meta <- function(x,
     }
     ##
     else if (!log.xaxis) {
-      TE <- backtransf(TE, sm, "mean", npft, fbt, abt)
-      lowTE <- backtransf(lowTE, sm, "lower", npft, fbt, abt)
-      uppTE <- backtransf(uppTE, sm, "upper", npft, fbt, abt)
+      TE <- backtransf(TE, sm, npft, npft, fbt, abt)
+      lowTE <- backtransf(lowTE, sm, npft, npft, fbt, abt)
+      uppTE <- backtransf(uppTE, sm, npft, npft, fbt, abt)
     }
     ##
     ## Results of meta-analysis
     ##
     if (!log.xaxis) {
-      TE.common    <- backtransf(TE.common, sm, "mean", npft.ma, fbt, abt)
-      lowTE.common <- backtransf(lowTE.common, sm, "lower", npft.ma, fbt, abt)
-      uppTE.common <- backtransf(uppTE.common, sm, "upper", npft.ma, fbt, abt)
+      TE.common    <- backtransf(TE.common, sm, npft.ma, npft.ma, fbt, abt)
+      lowTE.common <- backtransf(lowTE.common, sm, npft.ma, npft.ma, fbt, abt)
+      uppTE.common <- backtransf(uppTE.common, sm, npft.ma, npft.ma, fbt, abt)
       ##
-      TE.random <- backtransf(TE.random, sm, "mean", npft.ma, fbt, abt)
-      lowTE.random <- backtransf(lowTE.random, sm, "lower", npft.ma, fbt, abt)
-      uppTE.random <- backtransf(uppTE.random, sm, "upper", npft.ma, fbt, abt)
+      TE.random <- backtransf(TE.random, sm, npft.ma, npft.ma, fbt, abt)
+      lowTE.random <- backtransf(lowTE.random, sm, npft.ma, npft.ma, fbt, abt)
+      uppTE.random <- backtransf(uppTE.random, sm, npft.ma, npft.ma, fbt, abt)
       ##
       if (!metainf.metacum) {
         lowTE.predict <-
-          backtransf(lowTE.predict, sm, "lower", npft.ma, fbt, abt)
+          backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
         uppTE.predict <-
-          backtransf(uppTE.predict, sm, "upper", npft.ma, fbt, abt)
+          backtransf(uppTE.predict, sm, npft.ma, npft.ma, fbt, abt)
       }
       ##
       if (by) {
@@ -6910,9 +6910,9 @@ forest.meta <- function(x,
         else
           npft.w <- n.harmonic.mean.w
         ##
-        TE.w    <- backtransf(TE.w, sm, "mean", npft.w, fbt, abt)
-        lowTE.w <- backtransf(lowTE.w, sm, "lower", npft.w, fbt, abt)
-        uppTE.w <- backtransf(uppTE.w, sm, "upper", npft.w, fbt, abt)
+        TE.w    <- backtransf(TE.w, sm, npft.w, npft.w, fbt, abt)
+        lowTE.w <- backtransf(lowTE.w, sm, npft.w, npft.w, fbt, abt)
+        uppTE.w <- backtransf(uppTE.w, sm, npft.w, npft.w, fbt, abt)
       }
     }
     ##

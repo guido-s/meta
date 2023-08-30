@@ -120,6 +120,7 @@ catmeth <- function(x,
       details <-
         paste0(details,
                "\n- Preset square root of between-study variance: ",
+               text.tau, " = ",
                cond(tau.preset, only.finite = FALSE, digits = digits.tau,
                     big.mark = big.mark))
     ##
@@ -254,7 +255,7 @@ catmeth <- function(x,
           "\n- Hartung-Knapp ",
           if (more.ci) "(HK) ",
           "adjustment for random effects model (df = ",
-          cond(dat.rc.hk1$df.random),
+          cond(dat.rc.hk1$df.random, digits = 0),
           ")")
       ##
       if (any(dat.rc.hk1$adhoc.hakn.ci != ""))
@@ -273,7 +274,7 @@ catmeth <- function(x,
           "\n- Random effects confidence interval based on t-distribution ",
           if (more.ci) "(T) ",
           "(df = ",
-          cond(dat.rc.hk2$df.random),
+          cond(dat.rc.hk2$df.random, digits = 0),
           ")")
     }
     ##
@@ -327,7 +328,7 @@ catmeth <- function(x,
           "\n- Prediction interval based on t-distribution ",
           if (more.pi) "(HTS) ",
           "(df = ",
-          cond(dat.pr.hts1$df.predict),
+          cond(dat.pr.hts1$df.predict, digits = 0),
           ")")
     ##
     if (nrow(dat.pr.hk) > 0) {
@@ -337,7 +338,7 @@ catmeth <- function(x,
           "\n- Hartung-Knapp ",
           if (more.pi) "(HK) ",
           "prediction interval (df = ",
-          cond(dat.pr.hk$df.predict),
+          cond(dat.pr.hk$df.predict, digits = 0),
           ")")
       ##
       if (any(dat.pr.hk$adhoc.hakn.ci != ""))
@@ -356,7 +357,7 @@ catmeth <- function(x,
           "\n- Prediction interval based on t-distribution ",
           if (more.pi) "(HTS) ",
           "(df = ",
-          cond(dat.pr.hts2$df.predict),
+          cond(dat.pr.hts2$df.predict, digits = 0),
           ") instead of ",
           "Kenward-Roger adjustment")
     ##
@@ -377,7 +378,7 @@ catmeth <- function(x,
           "\n- Boot-strap prediction interval ",
           if (more.pi) "(NNF) ",
           "(df = ",
-          cond(dat.pr.nnf$df.predict),
+          cond(dat.pr.nnf$df.predict, digits = 0),
           ")")
     ##
     if (nrow(dat.pr.s) > 0)

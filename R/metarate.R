@@ -879,10 +879,8 @@ metarate <- function(event, time, studlab,
     }
     ##
     else if (sm == "IRFT") {
-      lower.study <-
-        asin2ir(lower.study, time, value = "lower")
-      upper.study <-
-        asin2ir(upper.study, time, value = "upper")
+      lower.study <- asin2ir(lower.study, time)
+      upper.study <- asin2ir(upper.study, time)
     }
     ##
     lower.study[lower.study < 0] <- 0

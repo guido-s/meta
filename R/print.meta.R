@@ -647,44 +647,50 @@ print.meta <- function(x,
     }
     ##
     TE.common <-
-      backtransf(TE.common, sm, "mean", harmonic.mean, fbt, abt)
+      backtransf(TE.common, sm, harmonic.mean, harmonic.mean, fbt, abt)
     lowTE.common <-
-      backtransf(lowTE.common, sm, "lower", harmonic.mean, fbt, abt)
+      backtransf(lowTE.common, sm, harmonic.mean, harmonic.mean, fbt, abt)
     uppTE.common <-
-      backtransf(uppTE.common, sm, "upper", harmonic.mean, fbt, abt)
+      backtransf(uppTE.common, sm, harmonic.mean, harmonic.mean, fbt, abt)
     ##
     TE.random <-
-      backtransf(TE.random, sm, "mean", harmonic.mean, fbt, abt)
+      backtransf(TE.random, sm, harmonic.mean, harmonic.mean, fbt, abt)
     lowTE.random <-
-      backtransf(lowTE.random, sm, "lower", harmonic.mean, fbt, abt)
+      backtransf(lowTE.random, sm, harmonic.mean, harmonic.mean, fbt, abt)
     uppTE.random <-
-      backtransf(uppTE.random, sm, "upper", harmonic.mean, fbt, abt)
+      backtransf(uppTE.random, sm, harmonic.mean, harmonic.mean, fbt, abt)
     ##
     lowTE.predict <-
-      backtransf(lowTE.predict, sm, "lower", harmonic.mean, fbt, abt)
+      backtransf(lowTE.predict, sm, harmonic.mean, harmonic.mean, fbt, abt)
     uppTE.predict <-
-      backtransf(uppTE.predict, sm, "upper", harmonic.mean, fbt, abt)
+      backtransf(uppTE.predict, sm, harmonic.mean, harmonic.mean, fbt, abt)
     ##
     if (by) {
       TE.common.w <-
-        backtransf(TE.common.w, sm, "mean", harmonic.mean.w, fbt, abt)
+        backtransf(TE.common.w, sm, harmonic.mean.w, harmonic.mean.w,
+                   fbt, abt)
       lowTE.common.w <-
-        backtransf(lowTE.common.w, sm, "lower", harmonic.mean.w, fbt, abt)
-      uppTE.common.w  <- backtransf(uppTE.common.w, sm, "upper",
-                                    harmonic.mean.w)
+        backtransf(lowTE.common.w, sm, harmonic.mean.w, harmonic.mean.w,
+                   fbt, abt)
+      uppTE.common.w  <-
+        backtransf(uppTE.common.w, sm, harmonic.mean.w, harmonic.mean.w)
       ##
       TE.random.w <-
-        backtransf(TE.random.w, sm, "mean", harmonic.mean.w, fbt, abt)
+        backtransf(TE.random.w, sm, harmonic.mean.w, harmonic.mean.w, fbt, abt)
       lowTE.random.w <-
-        backtransf(lowTE.random.w, sm, "lower", harmonic.mean.w, fbt, abt)
+        backtransf(lowTE.random.w, sm, harmonic.mean.w, harmonic.mean.w,
+                   fbt, abt)
       uppTE.random.w <-
-        backtransf(uppTE.random.w, sm, "upper", harmonic.mean.w, fbt, abt)
+        backtransf(uppTE.random.w, sm, harmonic.mean.w, harmonic.mean.w,
+                   fbt, abt)
       ##
       if (prediction.w) {
         lowTE.predict.w <-
-          backtransf(lowTE.predict.w, sm, "lower", harmonic.mean.w, fbt, abt)
+          backtransf(lowTE.predict.w, sm, harmonic.mean.w, harmonic.mean.w,
+                     fbt, abt)
         uppTE.predict.w <-
-          backtransf(uppTE.predict.w, sm, "upper", harmonic.mean.w, fbt, abt)
+          backtransf(uppTE.predict.w, sm, harmonic.mean.w, harmonic.mean.w,
+                     fbt, abt)
       }
     }
   }
@@ -952,31 +958,38 @@ print.meta <- function(x,
               (inherits(x, c("metabin", "metainc")) &
                common & sm %in% c("RD", "IRD") &
                (!is.null(x$k.MH) && any(k != x$k.MH, na.rm = TRUE))))
-            cat(paste0("Number of studies:   k.MH = ", cond(x$k.MH),
+            cat(paste0("Number of studies:   k.MH = ",
+                       cond(x$k.MH, digits = 0),
                        " (", text.common.br[1], "), k = ",
-                       format(cond(k), big.mark = big.mark),
+                       format(cond(k, digits = 0),
+                              big.mark = big.mark),
                        " (", text.random.br[1], ")\n",
                        collapse = ""))
           else {
             if (any(k.study != k, na.rm = TRUE)) {
               cat(paste0("Number of studies: n = ",
-                         format(cond(x$k.study), big.mark = big.mark), "\n",
+                         format(cond(x$k.study, digits = 0),
+                                big.mark = big.mark), "\n",
                          collapse = ""))
               cat(paste0("Number of estimates: k = ",
-                         format(cond(k), big.mark = big.mark), "\n",
+                         format(cond(k, digits = 0),
+                                big.mark = big.mark), "\n",
                          collapse = ""))
             }
             else
               cat(paste0("Number of studies: k = ",
-                         format(cond(k), big.mark = big.mark), "\n",
+                         format(cond(k, digits = 0),
+                                big.mark = big.mark), "\n",
                          collapse = ""))
           }
         }
         else
           cat(paste0("Number of studies: k = ",
-                     format(cond(k), big.mark = big.mark),
+                     format(cond(k, digits = 0),
+                            big.mark = big.mark),
                      " (with ",
-                     format(cond(x$k0), big.mark = big.mark),
+                     format(cond(x$k0, digits = 0),
+                            big.mark = big.mark),
                      " added studies)\n",
                      collapse = ""))
         ##

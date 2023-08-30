@@ -18,9 +18,12 @@
 
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
-  
+
 * Use approximate formulae for Hedges' g and Cohen's d for RevMan 5
   settings; see help page of settings.meta()
+
+* Internal functions for (back-)transformations made visible /
+  accessible to the user; see help("meta-transf")
 
 ### User-visible changes
 
@@ -66,6 +69,12 @@
   - new arguments 'leftcols', 'rightcols', 'leftlabs', 'rightlabs',
     'label.e.attach' and 'label.c.attach' to changes defaults for
     corresponding arguments in forest.meta()
+
+* R functions for transformation:
+  - transf(), cor2z(), p2asin(), p2logit(), VE2logVR()
+
+* R functions for back-transformation:
+  - backtransf(), asin2ir(), asin2p(), logit2p(), logVR2VE(), z2cor()
 
 ### Bug fixes
 
