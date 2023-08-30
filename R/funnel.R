@@ -237,6 +237,19 @@ funnel.meta <- function(x,
   chklogical(common)
   chklogical(random)
   chklogical(axes)
+  ##
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  ##
+  error <-
+    try(text <- catch("text", mc, x, sfsp),
+        silent = TRUE)
+  if (inherits(error, "try-error")) {
+    text <- catch("text", mc, x$data, sfsp)
+    if (isCol(x$data, ".subset"))
+      text <- text[x$data$.subset]
+  }
+  ##
   chknumeric(cex, length = 1)
   lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
                            warn.deprecated)
@@ -247,6 +260,25 @@ funnel.meta <- function(x,
                            warn.deprecated)
   chknumeric(lwd.common, length = 1)
   chknumeric(lwd.random, length = 1)
+  ##
+  error <-
+    try(col <- catch("col", mc, x, sfsp),
+        silent = TRUE)
+  if (inherits(error, "try-error")) {
+    col <- catch("col", mc, x$data, sfsp)
+    if (isCol(x$data, ".subset"))
+      col <- col[x$data$.subset]
+  }
+  ##
+  error <-
+    try(bg <- catch("bg", mc, x, sfsp),
+        silent = TRUE)
+  if (inherits(error, "try-error")) {
+    bg <- catch("bg", mc, x$data, sfsp)
+    if (isCol(x$data, ".subset"))
+      bg <- bg[x$data$.subset]
+  }
+  ##
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
   ##
@@ -297,6 +329,7 @@ funnel.meta <- function(x,
   chklength(seTE, k.All, fun)
   if (slab)
     chklength(studlab, k.All, fun)
+  ##
   if (!is.null(text))
     chklength(text, k.All, fun)
   ##

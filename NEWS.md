@@ -81,6 +81,10 @@
   variance-covariance matrix in three-level model with within-cluster
   correlation not equal to 0
 
+* funnel.meta(): list element of meta-analysis object can be directly
+  specified in arguments 'text', 'col' and 'bg', e.g., text = studlab
+  to use study labels instead of plotting symbols
+
 
 ## meta, version 6.5-0 (2023-06-06)
 
