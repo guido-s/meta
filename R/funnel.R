@@ -241,13 +241,15 @@ funnel.meta <- function(x,
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   ##
-  error <-
-    try(text <- catch("text", mc, x, sfsp),
-        silent = TRUE)
-  if (inherits(error, "try-error")) {
-    text <- catch("text", mc, x$data, sfsp)
-    if (isCol(x$data, ".subset"))
-      text <- text[x$data$.subset]
+  if (!missing(text)) {
+    error <-
+      try(text <- catch("text", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      text <- catch("text", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        text <- text[x$data$.subset]
+    }
   }
   ##
   chknumeric(cex, length = 1)
@@ -261,23 +263,31 @@ funnel.meta <- function(x,
   chknumeric(lwd.common, length = 1)
   chknumeric(lwd.random, length = 1)
   ##
-  error <-
-    try(col <- catch("col", mc, x, sfsp),
-        silent = TRUE)
-  if (inherits(error, "try-error")) {
-    col <- catch("col", mc, x$data, sfsp)
-    if (isCol(x$data, ".subset"))
-      col <- col[x$data$.subset]
+  if (!missing(col)) {
+    error <-
+      try(col <- catch("col", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      col <- catch("col", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        col <- col[x$data$.subset]
+    }
   }
+  if (length(col) == 1 & length(x$TE) > 1)
+    col <- rep(col, length(x$TE))
   ##
-  error <-
-    try(bg <- catch("bg", mc, x, sfsp),
-        silent = TRUE)
-  if (inherits(error, "try-error")) {
-    bg <- catch("bg", mc, x$data, sfsp)
-    if (isCol(x$data, ".subset"))
-      bg <- bg[x$data$.subset]
+  if (!missing(bg)) {
+    error <-
+      try(bg <- catch("bg", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      bg <- catch("bg", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        bg <- bg[x$data$.subset]
+    }
   }
+  if (length(bg) == 1 & length(x$TE) > 1)
+    bg <- rep(bg, length(x$TE))
   ##
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
@@ -342,6 +352,10 @@ funnel.meta <- function(x,
       studlab <- studlab[!x$exclude]
     if (!is.null(text))
       text <- text[!x$exclude]
+    if (!is.null(col))
+      col <- col[!x$exclude]
+    if (!is.null(bg))
+      bg <- bg[!x$exclude]
   }
   
   
