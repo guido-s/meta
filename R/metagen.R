@@ -780,31 +780,33 @@ metagen <- function(TE, seTE, studlab,
   chklogical(transf)
   chklogical(backtransf)
   ##
-  missing.func.transf <- missing(func.transf)
-  missing.args.transf <- missing(args.transf)
-  missing.func.backtransf <- missing(func.backtransf)
-  missing.args.backtransf <- missing(args.backtransf)
+  avail.func.transf <- !missing(func.transf) && !is.null(func.transf)
+  avail.args.transf <- !missing(args.transf) && !is.null(args.transf)
+  avail.func.backtransf <-
+    !missing(func.backtransf) && !is.null(func.backtransf)
+  avail.args.backtransf <-
+    !missing(args.backtransf) && !is.null(args.backtransf)
   ##
-  if (!missing.func.transf) {
+  if (avail.func.transf) {
     chkfunc(func.transf)
     func.transf <- deparse(substitute(func.transf))
   }
   else
     func.transf <- NULL
   ##
-  if (!missing.args.transf)
+  if (avail.args.transf)
     chklist(args.transf)
   else
     args.transf <- NULL
   ##
-  if (!missing.func.backtransf) {
+  if (avail.func.backtransf) {
     chkfunc(func.backtransf)    
     func.backtransf <- deparse(substitute(func.backtransf))
   }
   else
     func.backtransf <- NULL
   ##
-  if (!missing.args.backtransf)
+  if (avail.args.backtransf)
     chklist(args.backtransf)    
   else
     args.backtransf <- NULL
@@ -812,7 +814,7 @@ metagen <- function(TE, seTE, studlab,
   if (is.null(func.transf) & !is.null(args.transf)) {
     warning("Argument 'args.transf' ignored as argument ",
             "'func.transf' is ",
-            if (missing.func.transf) "missing." else "NULL.",
+            if (!avail.func.transf) "missing." else "NULL.",
             call. = FALSE)
     args.transf <- NULL
   }
@@ -820,7 +822,7 @@ metagen <- function(TE, seTE, studlab,
   if (is.null(func.backtransf) & !is.null(args.backtransf)) {
     warning("Argument 'args.backtransf' ignored as argument ",
             "'func.backtransf' is ",
-            if (missing.func.backtransf) "missing." else "NULL.",
+            if (!avail.func.backtransf) "missing." else "NULL.",
             call. = FALSE)
     args.backtransf <- NULL
   }
@@ -1169,7 +1171,7 @@ metagen <- function(TE, seTE, studlab,
     chklength(upper, k.All, arg)
   if (length(level.ci) == 1)
     level.ci <- rep_len(level.ci, k.All)
-  else
+  else if (!is.null(level.ci))
     chklength(level.ci, k.All, arg)
   if (avail.median)
     chklength(median, k.All, arg)
@@ -2422,6 +2424,9 @@ metagen <- function(TE, seTE, studlab,
               )
   ##
   class(res) <- c(fun, "meta")
+  ##
+  if (avail.lower | avail.upper)
+    res$level.ci <- level.ci
   ##
   ## Add results from subgroup analysis
   ##

@@ -97,12 +97,25 @@
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
 #'   function \code{\link{metabias}.}
+#' @param transf A logical indicating whether inputs for arguments
+#'   \code{TE}, \code{lower} and \code{upper} are already
+#'   appropriately transformed to conduct the meta-analysis or on the
+#'   original scale, see \code{\link{metagen}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE}, results for \code{sm = "OR"} are printed as odds ratios
 #'   rather than log odds ratios and results for \code{sm = "ZCOR"}
 #'   are printed as correlations rather than Fisher's z transformed
 #'   correlations, for example.
+#' @param func.transf A function used to transform inputs for
+#'   arguments \code{TE}, \code{lower} and \code{upper}, see
+#'   \code{\link{metagen}}.
+#' @param func.backtransf A function used to back-transform results,
+#'   see \code{\link{metagen}}.
+#' @param args.transf An optional list to provide additional arguments
+#'   to \code{func.transf}, see \code{\link{metagen}}.
+#' @param args.backtransf An optional list to provide additional
+#'   arguments to \code{func.backtransf}, see \code{\link{metagen}}.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -312,7 +325,12 @@ update.meta <- function(object,
                         null.effect = object$null.effect,
                         method.bias = object$method.bias,
                         ##
+                        transf = object$transf,
                         backtransf = object$backtransf,
+                        func.transf = object$func.transf,
+                        func.backtransf = object$func.backtransf,
+                        args.transf = object$args.transf,
+                        args.backtransf = object$args.backtransf,
                         pscale = object$pscale,
                         irscale = object$irscale,
                         irunit = object$irunit,
@@ -601,13 +619,6 @@ update.meta <- function(object,
         setVal(object$data, ".approx.mean", object$approx.mean)
       object$data$.approx.sd <-
         setVal(object$data, ".approx.sd", object$approx.sd)
-    }
-    ##
-    if (metagen) {
-      object$data$.approx.TE <-
-        setVal(object$data, ".approx.TE", object$approx.TE)
-      object$data$.approx.seTE <-
-        setVal(object$data, ".approx.seTE", object$approx.seTE)
     }
     ##
     object$hetlabel <- object$label
@@ -1301,30 +1312,12 @@ update.meta <- function(object,
       data.m <- data.m[, names(data.m) != "n.c"]
     }
     ##
-    median <- setVal(object$data, ".median")
-    q1 <- setVal(object$data, ".q1")
-    q3 <- setVal(object$data, ".q3")
-    min <- setVal(object$data, ".min")
-    max <- setVal(object$data, ".max")
-    ##
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
-                 median = median,
-                 q1 = q1,
-                 q3 = q3,
-                 min = min,
-                 max = max,
-                 ##
-                 method.mean = method.mean,
-                 method.sd = method.sd,
-                 ##
-                 approx.TE = approx.TE,
-                 approx.seTE = approx.seTE,
                  ##
                  sm = sm,
                  level = level, level.ma = level.ma,
@@ -1348,7 +1341,31 @@ update.meta <- function(object,
                  ##
                  n.e = n.e, n.c = n.c,
                  ##
-                 backtransf = backtransf, pscale = pscale,
+                 pval = setVal(object$data, ".pval"),
+                 df = setVal(object$data, ".df"),
+                 lower = setVal(object$data, ".lower"),
+                 upper = setVal(object$data, ".upper"),
+                 level.ci = setVal(object$data, ".level.ci"),
+                 ##
+                 median = setVal(object$data, ".median"),
+                 q1 = setVal(object$data, ".q1"),
+                 q3 = setVal(object$data, ".q3"),
+                 min = setVal(object$data, ".min"),
+                 max = setVal(object$data, ".max"),
+                 ##
+                 method.mean = method.mean,
+                 method.sd = method.sd,
+                 ##
+                 approx.TE = approx.TE,
+                 approx.seTE = approx.seTE,
+                 ##
+                 transf = transf,
+                 backtransf = backtransf,
+                 func.transf = func.transf,
+                 func.backtransf = func.backtransf,
+                 args.transf = args.transf,
+                 args.backtransf = args.backtransf,                 
+                 pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  ##
                  text.common = text.common, text.random = text.random,

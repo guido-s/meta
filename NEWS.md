@@ -70,6 +70,11 @@
     'label.e.attach' and 'label.c.attach' to changes defaults for
     corresponding arguments in forest.meta()
 
+* update.meta():
+  - new arguments 'transf', 'func.transf', 'args.transf',
+    'func.backtransf' and 'args.backtransf' to update meta-analysis
+    objects created with metagen()
+
 * R functions for transformation:
   - transf(), cor2z(), p2asin(), p2logit(), VE2logVR()
 
