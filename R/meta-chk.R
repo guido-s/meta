@@ -106,8 +106,14 @@ chkfunc <- function(x, name = NULL) {
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (!is.null(x) && !is.function(x))
-    stop("Argument '", name, "' must be a function.", call. = FALSE)
+  if (!is.null(x)) {
+    if (is.character(x)) {
+      if (length(find(x)) == 0)
+        stop("Function '", x, "' not available.", call. = FALSE)
+    }
+    else if (!is.function(x))
+      stop("Argument '", name, "' must be a function.", call. = FALSE)
+  }
   ##
   invisible(NULL)
 }

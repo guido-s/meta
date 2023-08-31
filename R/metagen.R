@@ -789,7 +789,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (avail.func.transf) {
     chkfunc(func.transf)
-    func.transf <- deparse(substitute(func.transf))
+    if (is.function(func.transf))
+      func.transf <- deparse(substitute(func.transf))
   }
   else
     func.transf <- NULL
@@ -801,7 +802,8 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (avail.func.backtransf) {
     chkfunc(func.backtransf)    
-    func.backtransf <- deparse(substitute(func.backtransf))
+    if (is.function(func.backtransf))
+      func.backtransf <- deparse(substitute(func.backtransf))
   }
   else
     func.backtransf <- NULL
