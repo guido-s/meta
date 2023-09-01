@@ -3062,11 +3062,21 @@ forest.meta <- function(x,
   }
   ##
   smlab.null <- is.null(smlab)
-  if (smlab.null)
-    smlab <- xlab(sm, backtransf, pscale = pscale,
-                  irscale = irscale, irunit = irunit,
-                  newline = !revman5.jama, revman5 = revman5,
-                  big.mark = big.mark)
+  if (smlab.null) {
+    if (is_rate(sm))
+      smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
+                    newline = !revman5.jama, revman5 = revman5,
+                    big.mark = big.mark)
+    else if (is_prop(sm))
+      smlab <- xlab(sm, backtransf, pscale = pscale,
+                    newline = !revman5.jama, revman5 = revman5,
+                    big.mark = big.mark)
+    else
+      smlab <- xlab(sm, backtransf, pscale = pscale,
+                    irscale = irscale, irunit = irunit,
+                    newline = !revman5.jama, revman5 = revman5,
+                    big.mark = big.mark)
+  }
   ##
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
   if (print.label & !bottom.lr) {

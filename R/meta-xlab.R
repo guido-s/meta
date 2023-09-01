@@ -39,9 +39,6 @@ xlab <- function(sm, backtransf,
                     format(irscale, scientific = FALSE, big.mark = big.mark),
                     newline, irunit)
   ##
-  else if (sm == "PRAW")
-    res <- paste0("Untransformed", newline, "Proportion")
-  ##
   else if (sm == "IR")
     res <- "Incidence Rate"
   ##
@@ -131,6 +128,9 @@ xlab <- function(sm, backtransf,
     ##
     else if (sm == "PLOGIT")
       res <- paste0("Logit Transformed", newline, "Proportion")
+    ##
+    else if (sm == "PRAW")
+      res <- paste0("Untransformed", newline, "Proportion")
     ##
     else if (sm == "IR")
       res <- "Incidence Rate"
