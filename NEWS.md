@@ -25,6 +25,10 @@
 * Internal functions for (back-)transformations made visible /
   accessible to the user; see help("meta-transf")
 
+* Argument 'pscale' or 'irscale' could be used in principle with any
+  effect measure which is useful for user-specified summary measure in
+  metagen()
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
@@ -70,10 +74,8 @@
     'label.e.attach' and 'label.c.attach' to changes defaults for
     corresponding arguments in forest.meta()
 
-* update.meta():
-  - new arguments 'transf', 'func.transf', 'args.transf',
-    'func.backtransf' and 'args.backtransf' to update meta-analysis
-    objects created with metagen()
+* bubble.meta():
+  - new arguments 'pscale' and 'irscale' added
 
 * R functions for transformation:
   - transf(), cor2z(), p2asin(), p2logit(), VE2logVR()

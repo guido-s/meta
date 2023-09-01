@@ -97,25 +97,12 @@
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
 #'   function \code{\link{metabias}.}
-#' @param transf A logical indicating whether inputs for arguments
-#'   \code{TE}, \code{lower} and \code{upper} are already
-#'   appropriately transformed to conduct the meta-analysis or on the
-#'   original scale, see \code{\link{metagen}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE}, results for \code{sm = "OR"} are printed as odds ratios
 #'   rather than log odds ratios and results for \code{sm = "ZCOR"}
 #'   are printed as correlations rather than Fisher's z transformed
 #'   correlations, for example.
-#' @param func.transf A function used to transform inputs for
-#'   arguments \code{TE}, \code{lower} and \code{upper}, see
-#'   \code{\link{metagen}}.
-#' @param func.backtransf A function used to back-transform results,
-#'   see \code{\link{metagen}}.
-#' @param args.transf An optional list to provide additional arguments
-#'   to \code{func.transf}, see \code{\link{metagen}}.
-#' @param args.backtransf An optional list to provide additional
-#'   arguments to \code{func.backtransf}, see \code{\link{metagen}}.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -325,12 +312,7 @@ update.meta <- function(object,
                         null.effect = object$null.effect,
                         method.bias = object$method.bias,
                         ##
-                        transf = object$transf,
                         backtransf = object$backtransf,
-                        func.transf = object$func.transf,
-                        func.backtransf = object$func.backtransf,
-                        args.transf = object$args.transf,
-                        args.backtransf = object$args.backtransf,
                         pscale = object$pscale,
                         irscale = object$irscale,
                         irunit = object$irunit,
@@ -545,6 +527,12 @@ update.meta <- function(object,
     if (!is.null(object$id))
       object$cluster <- object$id
       object$data$.cluster <- object$data$.id
+  }
+  if (update_needed(object$version, 6, 1, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.1
+    ##
+    object$transf <- TRUE
   }
   if (update_needed(object$version, 6, 0, verbose)) {
     ##
@@ -1157,18 +1145,6 @@ update.meta <- function(object,
       sd.c <-
         setNA_ifnot(object$data$.sd.c, object$data$.approx.sd.c, "")
     ##
-    median.e <- setVal(object$data, ".median.e")
-    q1.e <- setVal(object$data, ".q1.e")
-    q3.e <- setVal(object$data, ".q3.e")
-    min.e <- setVal(object$data, ".min.e")
-    max.e <- setVal(object$data, ".max.e")
-    ##
-    median.c <- setVal(object$data, ".median.c")
-    q1.c <- setVal(object$data, ".q1.c")
-    q3.c <- setVal(object$data, ".q3.c")
-    min.c <- setVal(object$data, ".min.c")
-    max.c <- setVal(object$data, ".max.c")
-    ##
     m <- metacont(n.e = object$data$.n.e,
                   mean.e = object$data$.mean.e,
                   sd.e = object$data$.sd.e,
@@ -1180,17 +1156,17 @@ update.meta <- function(object,
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster, rho = rho,
                   ##
-                  median.e = median.e,
-                  q1.e = q1.e,
-                  q3.e = q3.e,
-                  min.e = min.e,
-                  max.e = max.e,
+                  median.e = setVal(object$data, ".median.e"),
+                  q1.e = setVal(object$data, ".q1.e"),
+                  q3.e = setVal(object$data, ".q3.e"),
+                  min.e = setVal(object$data, ".min.e"),
+                  max.e = setVal(object$data, ".max.e"),
                   ##
-                  median.c = median.c,
-                  q1.c = q1.c,
-                  q3.c = q3.c,
-                  min.c = min.c,
-                  max.c = max.c,
+                  median.c = setVal(object$data, ".median.c"),
+                  q1.c = setVal(object$data, ".q1.c"),
+                  q3.c = setVal(object$data, ".q3.c"),
+                  min.c = setVal(object$data, ".min.c"),
+                  max.c = setVal(object$data, ".max.c"),
                   ##
                   method.mean = method.mean,
                   method.sd = method.sd,
@@ -1297,12 +1273,6 @@ update.meta <- function(object,
     add.e <- FALSE
     add.c <- FALSE
     ##
-    method.mean <- replaceNULL(method.mean, "Luo")
-    method.sd <- replaceNULL(method.sd, "Shi")
-    ##
-    method.mean <- replaceVal(method.mean, "", "Luo")
-    method.sd <- replaceVal(method.sd, "", "Shi")
-    ##
     if ("n.e" %in% names(data)) {
       add.e <- TRUE
       data.m <- data.m[, names(data.m) != "n.e"]
@@ -1353,18 +1323,20 @@ update.meta <- function(object,
                  min = setVal(object$data, ".min"),
                  max = setVal(object$data, ".max"),
                  ##
-                 method.mean = method.mean,
-                 method.sd = method.sd,
+                 method.mean =
+                   replaceVal(replaceNULL(method.mean, "Luo"), "", "Luo"),
+                 method.sd =
+                   replaceVal(replaceNULL(method.sd, "Shi"), "", "Shi"),
                  ##
                  approx.TE = approx.TE,
                  approx.seTE = approx.seTE,
                  ##
-                 transf = transf,
+                 transf = TRUE,
                  backtransf = backtransf,
-                 func.transf = func.transf,
-                 func.backtransf = func.backtransf,
-                 args.transf = args.transf,
-                 args.backtransf = args.backtransf,                 
+                 func.transf = object$func.transf,
+                 func.backtransf = object$func.backtransf,
+                 args.transf = object$args.transf,
+                 args.backtransf = object$args.backtransf,                 
                  pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  ##
@@ -1495,12 +1467,6 @@ update.meta <- function(object,
     method.mean <- replaceVal(method.mean, "", "Luo")
     method.sd <- replaceVal(method.sd, "", "Shi")
     ##
-    median <- setVal(object$data, ".median")
-    q1 <- setVal(object$data, ".q1")
-    q3 <- setVal(object$data, ".q3")
-    min <- setVal(object$data, ".min")
-    max <- setVal(object$data, ".max")
-    ##
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
@@ -1509,11 +1475,11 @@ update.meta <- function(object,
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster,
                   ##
-                  median = median,
-                  q1 = q1,
-                  q3 = q3,
-                  min = min,
-                  max = max,
+                  median = setVal(object$data, ".median"),
+                  q1 = setVal(object$data, ".q1"),
+                  q3 = setVal(object$data, ".q3"),
+                  min = setVal(object$data, ".min"),
+                  max = setVal(object$data, ".max"),
                   ##
                   method.mean = method.mean,
                   method.sd = method.sd,

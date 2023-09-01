@@ -41,12 +41,7 @@
   level.predict = object$level.predict,
   null.effect = object$null.effect,
   method.bias = object$method.bias,
-  transf = object$transf,
   backtransf = object$backtransf,
-  func.transf = object$func.transf,
-  func.backtransf = object$func.backtransf,
-  args.transf = object$args.transf,
-  args.backtransf = object$args.backtransf,
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
@@ -232,30 +227,12 @@ null hypothesis.}
 funnel plot asymmetry is to be used, can be abbreviated. See
 function \code{\link{metabias}.}}
 
-\item{transf}{A logical indicating whether inputs for arguments
-\code{TE}, \code{lower} and \code{upper} are already
-appropriately transformed to conduct the meta-analysis or on the
-original scale, see \code{\link{metagen}}.}
-
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If \code{backtransf =
 TRUE}, results for \code{sm = "OR"} are printed as odds ratios
 rather than log odds ratios and results for \code{sm = "ZCOR"}
 are printed as correlations rather than Fisher's z transformed
 correlations, for example.}
-
-\item{func.transf}{A function used to transform inputs for
-arguments \code{TE}, \code{lower} and \code{upper}, see
-\code{\link{metagen}}.}
-
-\item{func.backtransf}{A function used to back-transform results,
-see \code{\link{metagen}}.}
-
-\item{args.transf}{An optional list to provide additional arguments
-to \code{func.transf}, see \code{\link{metagen}}.}
-
-\item{args.backtransf}{An optional list to provide additional
-arguments to \code{func.backtransf}, see \code{\link{metagen}}.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument

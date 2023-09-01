@@ -845,20 +845,20 @@ metagen <- function(TE, seTE, studlab,
            call. = FALSE)
   }
   ##
-  if (!is_prop(sm))
-    pscale <- 1
+  missing.pscale <- missing(pscale)
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
-            call. = FALSE)
+    if (!missing.pscale)
+      warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
+              call. = FALSE)
     pscale <- 1
   }
-  if (!is_rate(sm))
-    irscale <- 1
+  missing.irscale <- missing(irscale)
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
-            call. = FALSE)
+    if (!missing.irscale)
+      warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
+              call. = FALSE)
     irscale <- 1
   }
   ##

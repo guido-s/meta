@@ -1954,10 +1954,12 @@ forest.meta <- function(x,
     chknumeric(pscale, length = 1)
   else
     pscale <- 1
+  ##
   if (!is.null(irscale))
     chknumeric(irscale, length = 1)
   else
     irscale <- 1
+  ##
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
@@ -2597,177 +2599,6 @@ forest.meta <- function(x,
   }
   ##
   chklogical(details)
-  ##
-  text.details <- ""
-  if (details) {
-    if (K.all == 1) {
-      text.details <-
-        catmeth(x,
-                common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
-                print.tau2 = FALSE,
-                forest = TRUE)
-    }
-    else {
-      text.details <-
-        catmeth(x,
-                common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
-                print.tau2, print.tau2.ci,
-                print.tau, print.tau.ci,
-                forest = TRUE)
-    }
-    ##
-    text.details <- unlist(strsplit(text.details, "\n"))
-    text.details <- text.details[text.details != ""]
-    ##
-    td <- vector("list", length(text.details))
-    ##
-    for (i in seq_along(text.details))
-      td[[i]] <- text.details[i]
-    ##
-    is.tau <- grepl(" for tau", td, fixed = TRUE)
-    is.tau.c <- grepl("assuming common", td, fixed = TRUE)
-    is.tau <- ifelse(is.tau & is.tau.c, FALSE, is.tau)
-    ##
-    any.tau <- sum(is.tau)
-    any.tau.c <- sum(is.tau.c)
-    ##
-    if (any.tau | any.tau.c) {
-      id.tau <- seq_along(is.tau)[is.tau]
-      id.tau.c <- seq_along(is.tau.c)[is.tau.c]
-      ##
-      if (print.tau) {
-        if (any.tau.c)
-          for (i in id.tau.c)
-            td[[i]] <-
-              gsub(" for tau (assuming common tau in subgroups)", " for ",
-                   td[[i]], fixed = TRUE)
-        ##
-        if (any.tau)
-          for (i in id.tau)
-            td[[i]] <-
-              gsub(" for tau", " for ", td[[i]], fixed = TRUE)
-      }
-      else {
-        if (any.tau.c)
-          for (i in id.tau.c)
-            td[[i]] <-
-              gsub(" for tau^2 (assuming common tau^2 in subgroups)", " for ",
-                   td[[i]], fixed = TRUE)
-        ##
-        if (any.tau)
-          for (i in id.tau)
-            td[[i]] <-
-              gsub(" for tau^2", " for ", td[[i]], fixed = TRUE)
-      }
-      ##
-      if (print.tau) {
-        if (layout == "RevMan5") {
-          if (any.tau.c)
-            for (i in id.tau.c)
-              td[[i]] <-
-                substitute(paste(txt1, txt2),
-                           list(txt1 = td[[i]],
-                                txt2 =
-                                  "Tau (assuming common Tau in subgroups)"))
-          ##
-          if (any.tau)
-            for (i in id.tau)
-              td[[i]] <-
-                substitute(paste(txt1, txt2),
-                           list(txt1 = td[[i]], txt2 = "Tau"))
-        }
-        else {
-          if (any.tau.c)
-            for (i in id.tau.c)
-              td[[i]] <-
-                substitute(paste(txt1, tau, txt2, tau, txt3),
-                           list(txt1 = td[[i]],
-                                txt2 = " (assuming common ",
-                                txt3 = " in subgroups)"))
-          ##
-          if (any.tau)
-            for (i in id.tau)
-              td[[i]] <-
-                substitute(paste(txt, tau), list(txt = td[[i]]))
-        }
-      }
-      else {
-        if (layout == "RevMan5") {
-          if (any.tau.c)
-            for (i in id.tau.c)
-              td[[i]] <-
-                substitute(paste(txt1, txt2^2, txt3, txt4^2, txt5),
-                           list(txt1 = td[[i]],
-                                txt2 = "Tau",
-                                txt3 = " (assuming common ",
-                                txt4 = "Tau",
-                                txt5 = " in subgroups)"))
-          ##
-          if (any.tau)
-            for (i in id.tau)
-              td[[i]] <-
-                substitute(paste(txt1, txt2^2),
-                           list(txt1 = td[[i]], txt2 = "Tau"))
-        }
-        else {
-          if (any.tau.c)
-            for (i in id.tau.c)
-              td[[i]] <-
-                substitute(paste(txt1, tau^2, txt2, tau^2, txt3),
-                           list(txt1 = td[[i]],
-                                txt2 = " (assuming common ",
-                                txt3 = " in subgroups)"))
-          ##
-          if (any.tau)
-            for (i in id.tau)
-              td[[i]] <-
-                substitute(paste(txt, tau^2), list(txt = td[[i]]))
-        }
-      }
-    }
-    ##
-    tau.ci.line <-
-      grepl(" of tau^2 and tau", text.details, fixed = TRUE) |
-      grepl(" of tau", text.details, fixed = TRUE) |
-      grepl(" of tau^2", text.details, fixed = TRUE)
-    ##
-    if (any(tau.ci.line)) {
-      id <- seq_along(tau.ci.line)[tau.ci.line]
-      ##
-      for (i in id) {
-        td[[i]] <- gsub(" of tau^2 and tau", " of ", td[[i]], fixed = TRUE)
-        td[[i]] <- gsub(" of tau", " of ", td[[i]], fixed = TRUE)
-        td[[i]] <- gsub(" of tau^2", " of ", td[[i]], fixed = TRUE)
-      }
-      ##
-      if (print.tau.ci) {
-        if (layout == "RevMan5")
-          for (i in id)
-            td[[i]] <-
-              substitute(paste(txt1, txt2),
-                         list(txt1 = td[[i]], txt2 = "Tau"))
-        else
-          for (i in id)
-            td[[i]] <- substitute(paste(txt1, tau), list(txt1 = td[[i]]))
-      }
-      else {
-        if (layout == "RevMan5")
-          for (i in id)
-            td[[i]] <-
-              substitute(paste(txt1, txt2^2),
-                         list(txt1 = td[[i]], txt2 = "Tau"))
-        else
-          for (i in id)
-            td[[i]] <- substitute(paste(txt1, tau^2), list(txt1 = td[[i]]))
-      }
-    }
-    ##
-    text.details <- td
-  }
   
   
   ##
@@ -3218,16 +3049,24 @@ forest.meta <- function(x,
     xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
                  big.mark = big.mark)
   ##
+  scale <- 1
+  if (pscale != 1 || irscale != 1) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale' but not ",
+           "both arguments.",
+           call. = FALSE)
+    if (pscale != 1)
+      scale <- pscale
+    else
+      scale <- irscale
+  }
+  ##
   smlab.null <- is.null(smlab)
   if (smlab.null)
-    if (is_rate(sm))
-      smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
-                    newline = !revman5.jama, revman5 = revman5,
-                    big.mark = big.mark)
-    else
-      smlab <- xlab(sm, backtransf, pscale = pscale,
-                    newline = !revman5.jama, revman5 = revman5,
-                    big.mark = big.mark)
+    smlab <- xlab(sm, backtransf, pscale = pscale,
+                  irscale = irscale, irunit = irunit,
+                  newline = !revman5.jama, revman5 = revman5,
+                  big.mark = big.mark)
   ##
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
   if (print.label & !bottom.lr) {
@@ -6837,6 +6676,180 @@ forest.meta <- function(x,
         text.effect.subgroup.random[[i]] <- ""
     }
   }
+  ##
+  x$pscale <- pscale
+  x$irscale <- irscale
+  ##
+  text.details <- ""
+  if (details) {
+    if (K.all == 1) {
+      text.details <-
+        catmeth(x,
+                common, random, prediction, overall, overall.hetstat,
+                x$func.transf, backtransf, fbt,
+                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
+                print.tau2 = FALSE,
+                forest = TRUE)
+    }
+    else {
+      text.details <-
+        catmeth(x,
+                common, random, prediction, overall, overall.hetstat,
+                x$func.transf, backtransf, fbt,
+                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
+                print.tau2, print.tau2.ci,
+                print.tau, print.tau.ci,
+                forest = TRUE)
+    }
+    ##
+    text.details <- unlist(strsplit(text.details, "\n"))
+    text.details <- text.details[text.details != ""]
+    ##
+    td <- vector("list", length(text.details))
+    ##
+    for (i in seq_along(text.details))
+      td[[i]] <- text.details[i]
+    ##
+    is.tau <- grepl(" for tau", td, fixed = TRUE)
+    is.tau.c <- grepl("assuming common", td, fixed = TRUE)
+    is.tau <- ifelse(is.tau & is.tau.c, FALSE, is.tau)
+    ##
+    any.tau <- sum(is.tau)
+    any.tau.c <- sum(is.tau.c)
+    ##
+    if (any.tau | any.tau.c) {
+      id.tau <- seq_along(is.tau)[is.tau]
+      id.tau.c <- seq_along(is.tau.c)[is.tau.c]
+      ##
+      if (print.tau) {
+        if (any.tau.c)
+          for (i in id.tau.c)
+            td[[i]] <-
+              gsub(" for tau (assuming common tau in subgroups)", " for ",
+                   td[[i]], fixed = TRUE)
+        ##
+        if (any.tau)
+          for (i in id.tau)
+            td[[i]] <-
+              gsub(" for tau", " for ", td[[i]], fixed = TRUE)
+      }
+      else {
+        if (any.tau.c)
+          for (i in id.tau.c)
+            td[[i]] <-
+              gsub(" for tau^2 (assuming common tau^2 in subgroups)", " for ",
+                   td[[i]], fixed = TRUE)
+        ##
+        if (any.tau)
+          for (i in id.tau)
+            td[[i]] <-
+              gsub(" for tau^2", " for ", td[[i]], fixed = TRUE)
+      }
+      ##
+      if (print.tau) {
+        if (layout == "RevMan5") {
+          if (any.tau.c)
+            for (i in id.tau.c)
+              td[[i]] <-
+                substitute(paste(txt1, txt2),
+                           list(txt1 = td[[i]],
+                                txt2 =
+                                  "Tau (assuming common Tau in subgroups)"))
+          ##
+          if (any.tau)
+            for (i in id.tau)
+              td[[i]] <-
+                substitute(paste(txt1, txt2),
+                           list(txt1 = td[[i]], txt2 = "Tau"))
+        }
+        else {
+          if (any.tau.c)
+            for (i in id.tau.c)
+              td[[i]] <-
+                substitute(paste(txt1, tau, txt2, tau, txt3),
+                           list(txt1 = td[[i]],
+                                txt2 = " (assuming common ",
+                                txt3 = " in subgroups)"))
+          ##
+          if (any.tau)
+            for (i in id.tau)
+              td[[i]] <-
+                substitute(paste(txt, tau), list(txt = td[[i]]))
+        }
+      }
+      else {
+        if (layout == "RevMan5") {
+          if (any.tau.c)
+            for (i in id.tau.c)
+              td[[i]] <-
+                substitute(paste(txt1, txt2^2, txt3, txt4^2, txt5),
+                           list(txt1 = td[[i]],
+                                txt2 = "Tau",
+                                txt3 = " (assuming common ",
+                                txt4 = "Tau",
+                                txt5 = " in subgroups)"))
+          ##
+          if (any.tau)
+            for (i in id.tau)
+              td[[i]] <-
+                substitute(paste(txt1, txt2^2),
+                           list(txt1 = td[[i]], txt2 = "Tau"))
+        }
+        else {
+          if (any.tau.c)
+            for (i in id.tau.c)
+              td[[i]] <-
+                substitute(paste(txt1, tau^2, txt2, tau^2, txt3),
+                           list(txt1 = td[[i]],
+                                txt2 = " (assuming common ",
+                                txt3 = " in subgroups)"))
+          ##
+          if (any.tau)
+            for (i in id.tau)
+              td[[i]] <-
+                substitute(paste(txt, tau^2), list(txt = td[[i]]))
+        }
+      }
+    }
+    ##
+    tau.ci.line <-
+      grepl(" of tau^2 and tau", text.details, fixed = TRUE) |
+      grepl(" of tau", text.details, fixed = TRUE) |
+      grepl(" of tau^2", text.details, fixed = TRUE)
+    ##
+    if (any(tau.ci.line)) {
+      id <- seq_along(tau.ci.line)[tau.ci.line]
+      ##
+      for (i in id) {
+        td[[i]] <- gsub(" of tau^2 and tau", " of ", td[[i]], fixed = TRUE)
+        td[[i]] <- gsub(" of tau", " of ", td[[i]], fixed = TRUE)
+        td[[i]] <- gsub(" of tau^2", " of ", td[[i]], fixed = TRUE)
+      }
+      ##
+      if (print.tau.ci) {
+        if (layout == "RevMan5")
+          for (i in id)
+            td[[i]] <-
+              substitute(paste(txt1, txt2),
+                         list(txt1 = td[[i]], txt2 = "Tau"))
+        else
+          for (i in id)
+            td[[i]] <- substitute(paste(txt1, tau), list(txt1 = td[[i]]))
+      }
+      else {
+        if (layout == "RevMan5")
+          for (i in id)
+            td[[i]] <-
+              substitute(paste(txt1, txt2^2),
+                         list(txt1 = td[[i]], txt2 = "Tau"))
+        else
+          for (i in id)
+            td[[i]] <- substitute(paste(txt1, tau^2), list(txt1 = td[[i]]))
+      }
+    }
+    ##
+    text.details <- td
+  }
   
   
   ##
@@ -6916,81 +6929,54 @@ forest.meta <- function(x,
       }
     }
     ##
-    ## Apply argument 'pscale' to proportions / risk differences
+    ## Apply argument 'pscale' or 'irscale'
     ##
-    if (is_prop(sm) | sm == "RD") {
-      TE <- pscale * TE
-      lowTE <- pscale * lowTE
-      uppTE <- pscale * uppTE
+    TE <- scale * TE
+    lowTE <- scale * lowTE
+    uppTE <- scale * uppTE
+    ##
+    TE.common    <- scale * TE.common
+    lowTE.common <- scale * lowTE.common
+    uppTE.common <- scale * uppTE.common
+    ##
+    TE.random    <- scale * TE.random
+    lowTE.random <- scale * lowTE.random
+    uppTE.random <- scale * uppTE.random
+    ##
+    lowTE.predict <- scale * lowTE.predict
+    uppTE.predict <- scale * uppTE.predict
+    ##
+    if (by) {
+      TE.w    <- scale * TE.w
+      lowTE.w <- scale * lowTE.w
+      uppTE.w <- scale * uppTE.w
+    }
+    ##
+    ## Switch lower and upper limit for VE if results have been
+    ## backtransformed
+    ##
+    if (sm == "VE") {
+      tmp.l <- lowTE
+      lowTE <- uppTE
+      uppTE <- tmp.l
       ##
-      TE.common    <- pscale * TE.common
-      lowTE.common <- pscale * lowTE.common
-      uppTE.common <- pscale * uppTE.common
+      tmp.l <- lowTE.common
+      lowTE.common <- uppTE.common
+      uppTE.common <- tmp.l
       ##
-      TE.random    <- pscale * TE.random
-      lowTE.random <- pscale * lowTE.random
-      uppTE.random <- pscale * uppTE.random
+      tmp.l <- lowTE.random
+      lowTE.random <- uppTE.random
+      uppTE.random <- tmp.l
       ##
-      lowTE.predict <- pscale * lowTE.predict
-      uppTE.predict <- pscale * uppTE.predict
+      tmp.l <- lowTE.predict
+      lowTE.predict <- uppTE.predict
+      uppTE.predict <- tmp.l
       ##
       if (by) {
-        TE.w    <- pscale * TE.w
-        lowTE.w <- pscale * lowTE.w
-        uppTE.w <- pscale * uppTE.w
+        tmp.l <- lowTE.w
+        lowTE.w <- uppTE.w
+        uppTE.w <- tmp.l
       }
-    }
-  }
-  ##
-  ## Apply argument 'irscale' to rates / incidence rate differences
-  ##
-  if (is_rate(sm) | sm == "IRD") {
-    TE <- irscale * TE
-    lowTE <- irscale * lowTE
-    uppTE <- irscale * uppTE
-    ##
-    TE.common    <- irscale * TE.common
-    lowTE.common <- irscale * lowTE.common
-    uppTE.common <- irscale * uppTE.common
-    ##
-    TE.random    <- irscale * TE.random
-    lowTE.random <- irscale * lowTE.random
-    uppTE.random <- irscale * uppTE.random
-    ##
-    lowTE.predict <- irscale * lowTE.predict
-    uppTE.predict <- irscale * uppTE.predict
-    ##
-    if (by) {
-      TE.w    <- irscale * TE.w
-      lowTE.w <- irscale * lowTE.w
-      uppTE.w <- irscale * uppTE.w
-    }
-  }
-  ##
-  ## Switch lower and upper limit for VE if results have been
-  ## backtransformed
-  ##
-  if (backtransf & sm == "VE") {
-    tmp.l <- lowTE
-    lowTE <- uppTE
-    uppTE <- tmp.l
-    ##
-    tmp.l <- lowTE.common
-    lowTE.common <- uppTE.common
-    uppTE.common <- tmp.l
-    ##
-    tmp.l <- lowTE.random
-    lowTE.random <- uppTE.random
-    uppTE.random <- tmp.l
-    ##
-    tmp.l <- lowTE.predict
-    lowTE.predict <- uppTE.predict
-    uppTE.predict <- tmp.l
-    ##
-    if (by) {
-      tmp.l <- lowTE.w
-      lowTE.w <- uppTE.w
-      uppTE.w <- tmp.l
     }
   }
   ##
@@ -7882,12 +7868,15 @@ forest.meta <- function(x,
   ##
   if (backtransf & log.xaxis) {
     effect.format <-
-      formatN(exp(TEs), digits, lab.NA.effect, big.mark = big.mark)
+      formatN(scale * exp(TEs / scale),
+              digits, lab.NA.effect, big.mark = big.mark)
     ci.format <-
       ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
-             formatCI(formatN(exp(lowTEs), digits = digits, text.NA = lab.NA,
+             formatCI(formatN(scale * exp(lowTEs / scale),
+                              digits = digits, text.NA = lab.NA,
                               big.mark = big.mark),
-                      formatN(exp(uppTEs), digits = digits, text.NA = lab.NA,
+                      formatN(scale * exp(uppTEs / scale),
+                              digits = digits, text.NA = lab.NA,
                               big.mark = big.mark)))
   }
   else {

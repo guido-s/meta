@@ -30,6 +30,8 @@
   col.ref = "lightgray",
   lty.ref = 1,
   lwd.ref = 1,
+  pscale = x$.meta$x$pscale,
+  irscale = x$.meta$x$irscale,
   axes = TRUE,
   box = TRUE,
   ...
@@ -98,6 +100,12 @@ argument \code{ref} is equal to \code{NA}.}
 \item{lty.ref}{The line type for the reference line.}
 
 \item{lwd.ref}{The line width for the reference line.}
+
+\item{pscale}{A numeric giving scaling factor for printing of
+probabilities.}
+
+\item{irscale}{A numeric defining a scaling factor for printing of
+incidence rates.}
 
 \item{axes}{A logical indicating whether axes should be printed.}
 

@@ -718,18 +718,30 @@ catmeth <- function(x,
   irunit <- x$irunit
   ##
   if (!is.null(pscale) && pscale != 1)
-    details <-
-      paste0(details,
-             "\n- Events per ",
-             format(pscale, scientific = FALSE, big.mark = big.mark),
-             " observations")
+    if (is_prop(sm) || sm == "RD")
+      details <-
+        paste0(details,
+               "\n- Events per ",
+               format(pscale, scientific = FALSE, big.mark = big.mark),
+               " observations")
+    else
+      details <-
+        paste0(details,
+               "\n- Scaling factor for results: ",
+               format(pscale, scientific = FALSE, big.mark = big.mark))   
   ##
   if (!is.null(irscale) && irscale != 1)
-    details <-
-      paste0(details,
-             "\n- Events per ",
-             format(irscale, scientific = FALSE, big.mark = big.mark),
-             " ", irunit)
+    if (is_rate(sm) || sm == "IRD")
+      details <-
+        paste0(details,
+               "\n- Events per ",
+               format(irscale, scientific = FALSE, big.mark = big.mark),
+               " ", irunit)
+    else
+      details <-
+        paste0(details,
+               "\n- Scaling factor for results: ",
+               format(irscale, scientific = FALSE, big.mark = big.mark))   
   ##
   null.effect <- x$null.effect
   ##

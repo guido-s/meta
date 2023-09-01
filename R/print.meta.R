@@ -288,14 +288,13 @@ print.meta <- function(x,
   is.prop <- is_prop(x$sm)
   is.rate <- is_rate(x$sm)
   ##
-  if (!(is.prop | x$sm == "RD"))
-    pscale <- 1
+  missing.pscale <- missing(pscale)
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
   else
     pscale <- 1
-  if (!is.rate & x$sm != "IRD")
-    irscale <- 1
+  ##
+  missing.irscale <- missing(irscale)
   if (!is.null(irscale))
     chknumeric(irscale, length = 1)
   else
@@ -415,11 +414,13 @@ print.meta <- function(x,
   ## Additional settings
   ##
   if (!backtransf & pscale != 1 & !is_untransformed(x$sm)) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
+    if (!missing.pscale)
+      warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   if (!backtransf & irscale != 1 & !is_untransformed(x$sm)) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
+    if (!missing.irscale)
+      warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
   ##
@@ -698,10 +699,14 @@ print.meta <- function(x,
   ## Apply argument 'pscale' to proportions / risk differences and
   ## 'irscale' to rates / incidence rate differences
   ##
-  if (is.prop | sm == "RD" | is.rate | sm == "IRD") {
-    if (is.prop | sm == "RD")
+  if (pscale != 1 || irscale != 1) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale' but not ",
+           "both arguments.",
+           call. = FALSE)
+    if (pscale != 1)
       scale <- pscale
-    else if (is.rate | sm == "IRD")
+    else
       scale <- irscale
     ##
     TE.common    <- scale * TE.common

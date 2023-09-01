@@ -242,8 +242,7 @@ print.summary.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is_rate(x$sm) & x$sm != "IRD")
-    irscale <- 1
+  ##
   if (!is.null(irscale))
     chknumeric(irscale, length = 1)
   else
@@ -252,6 +251,19 @@ print.summary.meta <- function(x,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  ##
+  scale <- 1
+  if (pscale != 1 || irscale != 1) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale' but not ",
+           "both arguments.",
+           call. = FALSE)
+    if (pscale != 1)
+      scale <- pscale
+    else
+      scale <- irscale
+  }
+  ##
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
@@ -633,17 +645,9 @@ print.summary.meta <- function(x,
         uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       }
       ##
-      if (is_prop(sm) | sm == "RD") {
-        TE <- pscale * TE
-        lowTE <- pscale * lowTE
-        uppTE <- pscale * uppTE
-      }
-      ##
-      if (is_rate(sm) | sm == "IRD") {
-        TE <- irscale * TE
-        lowTE <- irscale * lowTE
-        uppTE <- irscale * uppTE
-      }
+      TE <- scale * TE
+      lowTE <- scale * lowTE
+      uppTE <- scale * uppTE
       ##
       if (sm == "VE") {
         tmp.l <- lowTE

@@ -44,6 +44,10 @@
 #' @param col.ref Colour of the reference line.
 #' @param lty.ref The line type for the reference line.
 #' @param lwd.ref The line width for the reference line.
+#' @param pscale A numeric giving scaling factor for printing of
+#'   probabilities.
+#' @param irscale A numeric defining a scaling factor for printing of
+#'   incidence rates.
 #' @param axes A logical indicating whether axes should be printed.
 #' @param box A logical indicating whether a box should be printed.
 #' @param \dots Graphical arguments as in \code{par} may also be
@@ -135,6 +139,8 @@ bubble.metareg <- function(x,
                            backtransf = x$.meta$x$backtransf,
                            ref,
                            col.ref = "lightgray", lty.ref = 1, lwd.ref = 1,
+                           pscale = x$.meta$x$pscale,
+                           irscale = x$.meta$x$irscale,
                            axes = TRUE, box = TRUE, ...) {
   
   
@@ -162,6 +168,17 @@ bubble.metareg <- function(x,
   chklogical(backtransf)
   chknumeric(lty.ref)
   chknumeric(lwd.ref)
+  ##
+  if (!is.null(pscale))
+    chknumeric(pscale, length = 1)
+  else
+    pscale <- 1
+  ##
+  if (!is.null(irscale))
+    chknumeric(irscale, length = 1)
+  else
+    irscale <- 1
+  ##
   chklogical(axes)
   chklogical(box)
   
@@ -176,9 +193,12 @@ bubble.metareg <- function(x,
   ##
   TE <- m1$TE
   sm <- m1$sm
-  
-  
-  if (backtransf & is_relative_effect(sm)) {
+
+  log.y <- backtransf &&
+    (is_relative_effect(sm) ||
+     (!is.null(m1$func.backtransf) && m1$func.backtransf == "exp"))
+  ##
+  if (log.y) {
     log <- "y"
     TE <- exp(TE)
   }
@@ -188,7 +208,7 @@ bubble.metareg <- function(x,
   if (missing(ref)) {
     if (is_prop(sm) | is_rate(sm) | is_mean(sm))
       ref <- NA
-    else if (is_relative_effect(sm) & backtransf)
+    else if (log.y)
       ref <- 1
     else
       ref <- 0
@@ -281,18 +301,29 @@ bubble.metareg <- function(x,
       xlab = paste("Covariate", covar.name)
   
   
+  if (backtransf && (pscale != 1 || irscale != 1)) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale'",
+           call. = FALSE)
+    if (pscale != 1)
+      scale <- pscale
+    else
+      scale <- irscale
+  }
+  else
+    scale <- 1
+  ##
   ys <- TE
   ##
   if (missing(ylim))
-    ylim <- range(ys)
+    ylim <- scale * range(ys)
   ##
-  if (missing(ylab))
-    if (is_relative_effect(sm))
-      ylab <- xlab(sm, backtransf)
-    else if (sm == "PRAW")
+  if (missing(ylab)) {
+    ylab <- xlab(sm, backtransf, func.transf = m1$func.transf,
+                 func.backtransf = m1$func.backtransf)
+    if (sm == "PRAW")
       ylab <- "Proportion"
-    else
-      ylab <- xlab(sm, FALSE)
+  }
   
   
   missing.cex <- missing(cex)
@@ -391,26 +422,26 @@ bubble.metareg <- function(x,
       col.i <- cols[sel]
       bg.i <- bgs[sel]
       ##
-      plot(xs.i, ys.i,
+      plot(xs.i, scale * ys.i,
            pch = pch, cex = cexs.i,
            xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
            type = "n", axes = FALSE, log = log, ...)
       ##
       ## Add reference line
       ##
-      abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
+      abline(h = scale * ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
       ##
       ## Add regression line
       ##
       if (regline) {
         y.reg <- c(alpha, alpha + coef(x)[i])
-        if (log == "y")
-          y.reg <- exp(y.reg)
+        if (log.y == "y")
+          y.reg <- scale * exp(y.reg)
         lines(c(0, 1), y.reg, lty = lty, lwd = lwd, col = col.line)
       }
       ##
       for (j in seq_along(xs.i))
-        points(xs.i[j], ys.i[j], cex = cexs.i[j], pch = pch,
+        points(xs.i[j], scale * ys.i[j], cex = cexs.i[j], pch = pch,
                col = col.i[j], bg = bg.i[j])
       ##
       ## x-axis
@@ -423,7 +454,7 @@ bubble.metareg <- function(x,
       if (axes)
         axis(2, ...)
       ##
-      text(xs.i, ys.i, labels = studlab.i, cex = cex.studlab,
+      text(xs.i, scale * ys.i, labels = studlab.i, cex = cex.studlab,
            pos = pos.studlab, offset = offset)
       ##
       if (box)
@@ -431,14 +462,14 @@ bubble.metareg <- function(x,
     }
   }
   else {
-    plot(xs, ys,
+    plot(xs, scale * ys,
          pch = pch, cex = cexs,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          type = "n", axes = FALSE, log = log, ...)
     ##
     ## Add reference line
     ##
-    abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
+    abline(h = scale * ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
     ##
     ## Add regression line
     ##
@@ -446,12 +477,12 @@ bubble.metareg <- function(x,
       x.reg <- c(xlim[1], xlim[2])
       y.reg <- c(alpha + beta * xlim[1], alpha + beta * xlim[2])
       if (log == "y")
-        y.reg <- exp(y.reg)
+        y.reg <- scale * exp(y.reg)
       ##
       lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
     }
     ##
-    points(xs, ys, cex = cexs, pch = pch, col = cols, bg = bgs)
+    points(xs, scale * ys, cex = cexs, pch = pch, col = cols, bg = bgs)
     ##
     ## x-axis
     ##
@@ -463,7 +494,7 @@ bubble.metareg <- function(x,
     if (axes)
       axis(2, ...)
     ##
-    text(xs, ys, labels = studlab, cex = cex.studlab,
+    text(xs, scale * ys, labels = studlab, cex = cex.studlab,
          pos = pos.studlab, offset = offset)
     ##
     if (box)
