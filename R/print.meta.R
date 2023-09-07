@@ -451,12 +451,6 @@ print.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   ##
-  print.ci <- attr(x, ".print.study.results.")
-  if (!is.null(print.ci) && print.ci) {
-    if ((metaprop | metarate) & !backtransf)
-      x$method.ci <- "NAsm"
-  }
-  ##
   null.effect <- x$null.effect
   null.given <- !is.null(null.effect) && !is.na(null.effect)
   ##

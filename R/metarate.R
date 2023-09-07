@@ -868,22 +868,25 @@ metarate <- function(event, time, studlab,
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
   ##
-  if (method.ci == "NAsm") {
+  if (method.ci != "NAsm") {
     if (sm == "IRLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
+      lower.study <- log(lower.study)
+      upper.study <- log(upper.study)
     }
     else if (sm == "IRS") {
-      lower.study <- lower.study^2
-      upper.study <- upper.study^2
+      lower.study <- sqrt(lower.study)
+      upper.study <- sqrt(upper.study)
     }
     ##
     else if (sm == "IRFT") {
-      lower.study <- asin2ir(lower.study, time)
-      upper.study <- asin2ir(upper.study, time)
+      lower.ev <- time * lower.study 
+      upper.ev <- time * upper.study 
+      ##
+      lower.study <-
+        0.5 * (sqrt(lower.ev / time) + sqrt((lower.ev + 1) / time))
+      upper.study <-
+        0.5 * (sqrt(upper.ev / time) + sqrt((upper.ev + 1) / time))
     }
-    ##
-    lower.study[lower.study < 0] <- 0
   }
   
   

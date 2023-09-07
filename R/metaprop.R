@@ -500,10 +500,10 @@
 #' m4 <- update(m1, method.ci = "WSCC")
 #' m5 <- update(m1, method.ci = "CP")
 #' #
-#' lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-#'   m4$lower, NA, m5$lower), 4)
-#' upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-#'   m4$upper, NA, m5$upper), 4)
+#' lower <- round(logit2p(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
+#'   m4$lower, NA, m5$lower)), 4)
+#' upper <- round(logit2p(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
+#'   m4$upper, NA, m5$upper)), 4)
 #' #
 #' tab1 <- data.frame(
 #'   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),
@@ -1072,7 +1072,8 @@ metaprop <- function(event, n, studlab,
     transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PFT") {
-    TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
+    TE <-
+      0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
     seTE <- sqrt(1 / (4 * n + 2))
     transf.null.effect <- asin(sqrt(null.effect))
   }
@@ -1112,29 +1113,33 @@ metaprop <- function(event, n, studlab,
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
   ##
-  if (method.ci == "NAsm") {
+  if (method.ci != "NAsm") {
     if (sm == "PLOGIT") {
-      lower.study <- logit2p(lower.study)
-      upper.study <- logit2p(upper.study)
+      lower.study <- p2logit(lower.study)
+      upper.study <- p2logit(upper.study)
     }
     ##
     else if (sm == "PAS") {
-      lower.study <- asin2p(lower.study)
-      upper.study <- asin2p(upper.study)
+      lower.study <- p2asin(lower.study)
+      upper.study <- p2asin(upper.study)
     }
     ##
     else if (sm == "PFT") {
-      lower.study <- asin2p(lower.study, n)
-      upper.study <- asin2p(upper.study, n)
+      lower.ev <- n * lower.study 
+      upper.ev <- n * upper.study 
+      ##
+      lower.study <-
+        0.5 * (asin(sqrt(lower.ev / (n + 1))) +
+               asin(sqrt((lower.ev + 1) / (n + 1))))
+      upper.study <-
+        0.5 * (asin(sqrt(upper.ev / (n + 1))) +
+               asin(sqrt((upper.ev + 1) / (n + 1))))
     }
     ##
     else if (sm == "PLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
+      lower.study <- log(lower.study)
+      upper.study <- log(upper.study)
     }
-    ##
-    lower.study[lower.study < 0] <- 0
-    upper.study[upper.study > 1] <- 1
   }
   
   

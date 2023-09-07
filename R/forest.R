@@ -1220,7 +1220,6 @@
 #'
 #' @method forest meta
 #' @export
-#' @export forest.meta
 
 
 forest.meta <- function(x,
@@ -1272,7 +1271,7 @@ forest.meta <- function(x,
                         rob.lab = "Risk of Bias",
                         ##
                         xlab = "", xlab.pos,
-                        smlab = NULL, smlab.pos, xlim = "symmetric",
+                        smlab = NULL, smlab.pos, xlim,
                         ##
                         allstudies = TRUE,
                         weight.study = NULL,
@@ -2999,6 +2998,14 @@ forest.meta <- function(x,
   chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   ##
   notmiss.xlim <- !missing(xlim)
+  if (!notmiss.xlim) {
+    if (metaprop | metarate | metamean) {
+      xlim <- NULL
+      notmiss.xlim <- FALSE
+    }
+    else
+      xlim <- "symmetric"
+  }
   ##
   if (just.studlab == "left")
     xpos.s <- 0
@@ -4068,12 +4075,6 @@ forest.meta <- function(x,
     seTE <- x$seTE
     lowTE <- x$lower
     uppTE <- x$upper
-    ##
-    if ((metaprop | metarate) & !backtransf) {
-      ciTE <- ci(TE, seTE, level = level)
-      lowTE <- ciTE$lower
-      uppTE <- ciTE$upper
-    }
     ##
     TE.common <- x$TE.common
     lowTE.common <- x$lower.common
@@ -6896,15 +6897,14 @@ forest.meta <- function(x,
     ##
     ## Individual study results
     ##
-    if (metaprop) {
+    if (metaprop)
       TE <- x$event.e / x$n.e
-    }
-    else if (metarate) {
+    else if (metarate)
       TE <- x$event.e / x$time.e
-    }
-    ##
-    else if (!log.xaxis) {
+    else if (!log.xaxis)
       TE <- backtransf(TE, sm, npft, npft, fbt, abt)
+    ##
+    if (!log.xaxis) {
       lowTE <- backtransf(lowTE, sm, npft, npft, fbt, abt)
       uppTE <- backtransf(uppTE, sm, npft, npft, fbt, abt)
     }
@@ -8537,55 +8537,34 @@ forest.meta <- function(x,
       xlim <- log(xlim)
   ##
   if (is.null(xlim)) {
-    if (metaprop | metarate) {
-      xlim <- c(min(lowTEs, na.rm = TRUE),
-                max(uppTEs, na.rm = TRUE))
-      ##
-      if (!is.na(ref) && ref < xlim[1])
-        xlim[1] <- ref
-      if (!is.na(ref) && ref > xlim[2])
-        xlim[2] <- ref
-      ##
-      if (!is.na(lower.equi) && lower.equi < xlim[1])
-        xlim[1] <- lower.equi
-      if (!is.na(lower.equi) && lower.equi > xlim[2])
-        xlim[2] <- lower.equi
-      ##
-      if (!is.na(upper.equi) && upper.equi < xlim[1])
-        xlim[1] <- upper.equi
-      if (!is.na(upper.equi) && upper.equi > xlim[2])
-        xlim[2] <- upper.equi
-    }
-    else {
-      sel.low <- is.finite(lowTEs)
-      sel.upp <- is.finite(uppTEs)
-      ##
-      if (all(!sel.low))
-        minTE <- -0.5
-      else
-        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
+    sel.low <- is.finite(lowTEs)
+    sel.upp <- is.finite(uppTEs)
+    ##
+    if (all(!sel.low))
+      minTE <- -0.5
+    else
+      minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
         maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
-      ##
-      xlim <- c(minTE, maxTE)
-      ##
-      if (!is.na(ref) && ref < xlim[1])
+    ##
+    xlim <- c(minTE, maxTE)
+    ##
+    if (!is.na(ref) && ref < xlim[1])
         xlim[1] <- ref
-      if (!is.na(ref) && ref > xlim[2])
-        xlim[2] <- ref
-      ##
-      if (!is.na(lower.equi) && lower.equi < xlim[1])
-        xlim[1] <- lower.equi
-      if (!is.na(lower.equi) && lower.equi > xlim[2])
-        xlim[2] <- lower.equi
-      ##
-      if (!is.na(upper.equi) && upper.equi < xlim[1])
-        xlim[1] <- upper.equi
-      if (!is.na(upper.equi) && upper.equi > xlim[2])
-        xlim[2] <- upper.equi
-    }
+    if (!is.na(ref) && ref > xlim[2])
+      xlim[2] <- ref
+    ##
+    if (!is.na(lower.equi) && lower.equi < xlim[1])
+      xlim[1] <- lower.equi
+    if (!is.na(lower.equi) && lower.equi > xlim[2])
+      xlim[2] <- lower.equi
+    ##
+    if (!is.na(upper.equi) && upper.equi < xlim[1])
+      xlim[1] <- upper.equi
+    if (!is.na(upper.equi) && upper.equi > xlim[2])
+      xlim[2] <- upper.equi
   }
   ##
   symmetric <- FALSE
@@ -8597,30 +8576,24 @@ forest.meta <- function(x,
                            "the character string \"symmetric\""))
     symmetric <- TRUE
     ##
-    if (metaprop | metarate | metamean) {
-      xlim <- c(min(lowTEs, na.rm = TRUE),
-                max(uppTEs, na.rm = TRUE))
-    }
-    else {
-      sel.low <- is.finite(lowTEs)
-      sel.upp <- is.finite(uppTEs)
-      ##
-      if (all(!sel.low))
-        minTE <- -0.5
-      else
-        minTE <- min(lowTEs[sel.low], na.rm = TRUE)
+    sel.low <- is.finite(lowTEs)
+    sel.upp <- is.finite(uppTEs)
+    ##
+    if (all(!sel.low))
+      minTE <- -0.5
+    else
+      minTE <- min(lowTEs[sel.low], na.rm = TRUE)
       if (all(!sel.upp))
         maxTE <- 0.5
       else
         maxTE <- max(uppTEs[sel.upp], na.rm = TRUE)
-      ##
-      if (minTE < 0 & maxTE < 0)
-        xlim <- c(minTE, -minTE)
-      else if (minTE > 0 & maxTE > 0)
-        xlim <- c(-maxTE, maxTE)
-      else
-        xlim <- c(-max(abs(c(minTE, maxTE))), max(abs(c(minTE, maxTE))))
-    }
+    ##
+    if (minTE < 0 & maxTE < 0)
+      xlim <- c(minTE, -minTE)
+    else if (minTE > 0 & maxTE > 0)
+      xlim <- c(-maxTE, maxTE)
+    else
+      xlim <- c(-max(abs(c(minTE, maxTE))), max(abs(c(minTE, maxTE))))
   }
   ##
   if (!is.na(ref) &&

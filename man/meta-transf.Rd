@@ -13,7 +13,7 @@
 \alias{logit2p}
 \alias{logVR2VE}
 \alias{z2cor}
-\title{Auxiliary functions for (back-)transformations}
+\title{Auxiliary functions for (back) transformations}
 \usage{
 transf(x, sm, func = NULL, args = NULL)
 
@@ -43,18 +43,18 @@ confidence / prediction interval limit(s).}
 
 \item{sm}{Summary measure.}
 
-\item{func}{User-specified function for (back-)transformation.}
+\item{func}{User-specified function for (back) transformation.}
 
 \item{args}{Function arguments for user-specified function.}
 
-\item{n}{Sample size(s) to back-transform Freeman-Tukey transformed
+\item{n}{Sample size(s) to back transform Freeman-Tukey transformed
 proportions.}
 
-\item{time}{Time(s) to back-transform Freeman-Tukey transformed
+\item{time}{Time(s) to back transform Freeman-Tukey transformed
 incidence rates.}
 }
 \description{
-Auxiliary functions to (back-)transform effect estimates or
+Auxiliary functions to (back) transform effect estimates or
 confidence / prediction interval limit(s).
 }
 \details{
@@ -62,9 +62,9 @@ Often in a meta-analysis, effect estimates are transformed before
 calculating a weighted average. For example, the log odds ratio and
 its standard error is used instead of the odds ratio in R function
 \code{\link{metagen}}. To report the results of a meta-analysis,
-effect estimates are typically back-transformed to the original
+effect estimates are typically back transformed to the original
 scale. R package \bold{meta} provides some auxiliary functions for
-(back-)transformations.
+(back) transformations.
 
 \subsection{Transformations}{
 The following auxiliary functions are provided by R package
@@ -91,8 +91,8 @@ possible to specify a different function with arguments \code{func}
 and \code{args}.
 }
 
-\subsection{Back-transformations}{
-The following auxiliary functions are available to back-transform
+\subsection{Back transformations}{
+The following auxiliary functions are available to back transform
 effect estimates or confidence / prediction interval limits.
 
 \tabular{ll}{
@@ -108,8 +108,8 @@ Argument \code{time} is mandatory in R function \code{asin2ir}.
 
 If argument \code{n} is provided in R function \code{asin2p},
 Freeman-Tukey arcsine transformed proportions are
-back-transformed. Otherwise, arcsine transformed proportions are
-back-transformed.
+back transformed. Otherwise, arcsine transformed proportions are
+back transformed.
 
 R function \code{backtransf} is a wrapper function for the above
 and additional transformations, e.g., the exponential

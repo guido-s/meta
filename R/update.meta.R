@@ -274,7 +274,6 @@
 #' 
 #' @method update meta
 #' @export
-#' @export update.meta
 
 
 update.meta <- function(object, 
@@ -622,11 +621,63 @@ update.meta <- function(object,
     if (!is.null(object$byvar))
       object$seed.predict.subgroup <- NULL
   }
-  if (update_needed(object$version, 6, 6, verbose)) {
+  if (update_needed(object$version, 7, 0, verbose)) {
     ##
-    ## Changes for meta objects with version < 6.6
+    ## Changes for meta objects with version < 7.0
     ##
     object$rho <- 0
+    ##
+    if (inherits(object, "metaprop") & object$method.ci != "NAsm") {
+      if (object$sm == "PLOGIT") {
+        object$lower <- p2logit(object$lower)
+        object$upper <- p2logit(object$upper)
+      }
+      ##
+      else if (object$sm == "PAS") {
+        object$lower <- p2asin(object$lower)
+        object$upper <- p2asin(object$upper)
+      }
+      ##
+      else if (object$sm == "PFT") {
+        lower.ev <- object$n * object$lower 
+        upper.ev <- object$n * object$upper 
+        ##
+        object$lower <-
+          0.5 * (asin(sqrt(lower.ev / object$n)) +
+                 asin(sqrt((lower.ev + 1) / object$n)))
+        object$upper <-
+          0.5 * (asin(sqrt(upper.ev / object$n)) +
+                 asin(sqrt((upper.ev + 1) / object$n)))
+      }
+      ##
+      else if (object$sm == "PLN") {
+        object$lower <- log(object$lower)
+        object$upper <- log(object$upper)
+      }
+    }
+    ##
+    if (inherits(object, "metarate") & object$method.ci != "NAsm") {
+      if (object$sm == "IRLN") {
+        object$lower <- log(object$lower)
+        object$upper <- log(object$upper)
+      }
+      else if (object$sm == "IRS") {
+        object$lower <- sqrt(object$lower)
+        object$upper <- sqrt(object$upper)
+      }
+      ##
+      else if (object$sm == "IRFT") {
+        lower.ev <- object$time * object$lower 
+        upper.ev <- object$time * object$upper 
+        ##
+        object$lower <-
+          0.5 * (sqrt(lower.ev / object$time) +
+                 sqrt((lower.ev + 1) / object$time))
+        object$upper <-
+          0.5 * (sqrt(upper.ev / object$time) +
+                 sqrt((upper.ev + 1) / object$time))
+      }
+    }
   }
   
   
@@ -1290,10 +1341,12 @@ update.meta <- function(object,
                  cluster = ...cluster, rho = rho,
                  ##
                  sm = sm,
-                 level = level, level.ma = level.ma,
+                 method.ci = method.ci,
+                 level = level,
                  common = common, random = random,
                  overall = overall, overall.hetstat = overall.hetstat,
                  ##
+                 level.ma = level.ma,
                  method.random.ci = method.random.ci,
                  adhoc.hakn.ci = adhoc.hakn.ci,
                  method.predict = method.predict,

@@ -551,10 +551,10 @@ m3 <- update(m1, method.ci = "WS")
 m4 <- update(m1, method.ci = "WSCC")
 m5 <- update(m1, method.ci = "CP")
 #
-lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-  m4$lower, NA, m5$lower), 4)
-upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-  m4$upper, NA, m5$upper), 4)
+lower <- round(logit2p(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
+  m4$lower, NA, m5$lower)), 4)
+upper <- round(logit2p(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
+  m4$upper, NA, m5$upper)), 4)
 #
 tab1 <- data.frame(
   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),

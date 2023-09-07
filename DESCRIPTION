@@ -1,10 +1,10 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 6.6-0
-Date: 2023-09-01
+Version: 7.0-0
+Date: 2023-09-07
 Depends: R (>= 4.0.0)
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2, dplyr
-Suggests: BiasedUrn, pimeta, estmeansd
+Suggests: BiasedUrn, pimeta, estmeansd, writexl, rmarkdown, knitr
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "guido.schwarzer@uniklinik-freiburg.de",
@@ -28,4 +28,5 @@ Description: User-friendly general package providing standard methods for meta-a
  - produce forest plot summarising several (subgroup) meta-analyses.
 License: GPL (>= 2)
 Encoding: UTF-8
+VignetteBuilder: knitr
 RoxygenNote: 7.2.3

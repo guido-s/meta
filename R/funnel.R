@@ -175,7 +175,6 @@
 #'
 #' @method funnel meta
 #' @export
-#' @export funnel.meta
 
 
 funnel.meta <- function(x,

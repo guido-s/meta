@@ -1,6 +1,19 @@
-## meta, version 6.6-0 (2023-mm-dd)
+## meta, version 7.0-0 (2023-mm-dd)
 
 ### Major changes
+
+* Vignettes added
+  - *vignette("meta-workflow")* (workflow)
+  - *vignette("meta-tutorial")* (R commands from [Balduzzi et al.,
+  2019](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019))
+
+* Lower and upper confidence interval limits of individual study
+  results stored as transformed limits for meta-analysis with single
+  proportions or rates (estimates were not back transformed while CI
+  limits were back transformed which was confusing)
+
+* Internal functions for (back) transformations made visible /
+  accessible to the user; see help("meta-transf")
 
 * New function rob() to add risk of bias (RoB) assessment to
   meta-analysis object
@@ -16,14 +29,14 @@
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
 
+* New functions extract() and extract.meta() to extract meta-analysis
+  results.
+
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
 
 * Use approximate formulae for Hedges' g and Cohen's d for RevMan 5
   settings; see help page of settings.meta()
-
-* Internal functions for (back-)transformations made visible /
-  accessible to the user; see help("meta-transf")
 
 * Argument 'pscale' or 'irscale' could be used in principle with any
   effect measure which is useful for user-specified summary measure in
@@ -77,11 +90,18 @@
 * bubble.meta():
   - new arguments 'pscale' and 'irscale' added
 
+* metaprop(), metarate():
+  - list elements 'lower' and 'upper' contain the transformed lower
+    and upper confidence interval limits for individual studies
+
 * R functions for transformation:
   - transf(), cor2z(), p2asin(), p2logit(), VE2logVR()
 
-* R functions for back-transformation:
+* R functions for back transformation:
   - backtransf(), asin2ir(), asin2p(), logit2p(), logVR2VE(), z2cor()
+
+* labels.meta():
+  - R function is not exported
 
 ### Bug fixes
 
@@ -1818,7 +1838,7 @@
     meta-regression
 
 * asin2ir():
-  - back-transformation could result in (very small) negative zero
+  - back transformation could result in (very small) negative zero
     values due to imprecisions (-1e-19); these values are set to zero
     now
 
@@ -1829,7 +1849,7 @@
   - new argument 'nchar' to test the length of character string(s)
 
 * New internal function is.untransformed() to check for effect
-  measures without (back-)transformation
+  measures without (back) transformation
 
 
 ## meta, version 4.9-0 (2017-12-06)
@@ -2379,10 +2399,10 @@
   specified individually for each additional column
 
 * Calculation of Freeman-Tukey double arcsin transformation and
-  backtransformation slightly changed in meta-analysis of single
+  back transformation slightly changed in meta-analysis of single
   proportions
 
-* By default, do not print a warning if backtransformation for
+* By default, do not print a warning if back transformation for
   metaprop() and metarate() objects results in values below 0 or
   above 1 (only for proportions); note, respective values are set
   to 0 or 1
@@ -2428,7 +2448,7 @@
 * print.meta(), print.summary.meta():
   - new argument warn.backtransf to specify whether a warning should
     be printed if backtransformed proportions and rates are below 0
-    and backtransformed proportions are above 1
+    and back transformed proportions are above 1
 
 * Help pages updated:
   - forest.meta(), metabias.meta(), metabin(), metacont(), metacor(),
@@ -2438,7 +2458,7 @@
 
 ### Internal changes
 
-* New function asin2ir() to backtransform arcsine transformed
+* New function asin2ir() to back transform arcsine transformed
   incidence rates
 
 * backtransf(), catmeth(), metacum(), metainf(), subgroup(), xlab():
@@ -3569,7 +3589,7 @@ help page of R function update.meta for further details.
 ## meta, version 2.1-4 (2012-11-29)
 
 * Functions forest.meta, metacum, metainf and print.meta:
-  - modified so that backtransformation of Freeman-Tukey Double arcsine
+  - modified so that back transformation of Freeman-Tukey Double arcsine
   transformation (argument sm='PFT' in function metaprop) is
   calculated correctly for objects of class 'metacum' and 'metainf'
 
@@ -3844,7 +3864,7 @@ estimates for tau-squared (REML, ...)
    for columns by.x and by.y added
 
 * Function print.meta:
-  - modified so that back-transformed proportions are printed
+  - modified so that back transformed proportions are printed
    for individual studies if function metagen is used with
    argument sm equal to either 'PLN', 'PLOGIT', 'PAS', or 'PFT'
 
@@ -3940,8 +3960,8 @@ estimates for tau-squared (REML, ...)
    confidence intervals instead of (0,1) for objects of class metaprop  
 
 * Function metaprop:
-  - implementation of additional transformations:
-   log transformation, logit transformation, raw, i.e. untransformed, proportions
+  - implementation of additional transformations: log transformation,
+   logit transformation, raw, i.e. untransformed, proportions
   - new argument sm to choose summary measure (i.e. transformation)
   - use of argument freeman.tukey is deprecated (use argument sm instead)
 

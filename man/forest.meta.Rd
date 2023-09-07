@@ -48,7 +48,7 @@
   xlab.pos,
   smlab = NULL,
   smlab.pos,
-  xlim = "symmetric",
+  xlim,
   allstudies = TRUE,
   weight.study = NULL,
   pscale = x$pscale,

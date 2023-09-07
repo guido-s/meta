@@ -774,7 +774,8 @@ catmeth <- function(x,
   if (!is.null(details) && length(details) > 0 && details != "") {
     details <-
       paste0("\nDetails",
-             if (any(x$k.all > 1)) " on meta-analytical method",
+             if ((common | random | prediction) && any(x$k.all > 1))
+               " on meta-analytical method",
              ":", details)
     ##
     if (!forest)

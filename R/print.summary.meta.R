@@ -137,7 +137,6 @@
 #' 
 #' @method print summary.meta
 #' @export
-#' @export print.summary.meta
 
 
 print.summary.meta <- function(x,
@@ -607,7 +606,7 @@ print.summary.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    if (inherits(x, c("metaprop", "metarate")) & !backtransf) {
+    if (inherits(x, c("metaprop")) & !backtransf) {
       ciTE <- ci(TE, seTE, level = level)
       lowTE <- ciTE$lower
       uppTE <- ciTE$upper
@@ -639,11 +638,11 @@ print.summary.meta <- function(x,
       ##
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
-      else {
-        TE    <- backtransf(   TE, sm, harmonic.mean, harmonic.mean, fbt, abt)
-        lowTE <- backtransf(lowTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
-        uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
-      }
+      else
+        TE <- backtransf(TE, sm, harmonic.mean, harmonic.mean, fbt, abt)
+      ##
+      lowTE <- backtransf(lowTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
+      uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       ##
       TE <- scale * TE
       lowTE <- scale * lowTE

@@ -1,7 +1,6 @@
 #' Generic inverse variance meta-analysis
 #' 
 #' @description
-#' 
 #' Common effect and random effects meta-analysis based on estimates
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
@@ -457,7 +456,6 @@
 #' R function \code{\link[metafor]{rma.uni}} from R package
 #' \pkg{metafor} (Viechtbauer 2010) is called internally to estimate
 #' the between-study variance \eqn{\tau^2}.
-#' 
 #' 
 #' @return
 #' An object of class \code{c("metagen", "meta")} with corresponding

@@ -1,7 +1,7 @@
-#' Auxiliary functions for (back-)transformations
+#' Auxiliary functions for (back) transformations
 #' 
 #' @description
-#' Auxiliary functions to (back-)transform effect estimates or
+#' Auxiliary functions to (back) transform effect estimates or
 #' confidence / prediction interval limit(s).
 #' 
 #' @details
@@ -9,9 +9,9 @@
 #' calculating a weighted average. For example, the log odds ratio and
 #' its standard error is used instead of the odds ratio in R function
 #' \code{\link{metagen}}. To report the results of a meta-analysis,
-#' effect estimates are typically back-transformed to the original
+#' effect estimates are typically back transformed to the original
 #' scale. R package \bold{meta} provides some auxiliary functions for
-#' (back-)transformations.
+#' (back) transformations.
 #'
 #' \subsection{Transformations}{
 #' The following auxiliary functions are provided by R package
@@ -38,8 +38,8 @@
 #' and \code{args}.
 #' }
 #'
-#' \subsection{Back-transformations}{
-#' The following auxiliary functions are available to back-transform
+#' \subsection{Back transformations}{
+#' The following auxiliary functions are available to back transform
 #' effect estimates or confidence / prediction interval limits.
 #'
 #' \tabular{ll}{
@@ -55,8 +55,8 @@
 #'
 #' If argument \code{n} is provided in R function \code{asin2p},
 #' Freeman-Tukey arcsine transformed proportions are
-#' back-transformed. Otherwise, arcsine transformed proportions are
-#' back-transformed.
+#' back transformed. Otherwise, arcsine transformed proportions are
+#' back transformed.
 #'
 #' R function \code{backtransf} is a wrapper function for the above
 #' and additional transformations, e.g., the exponential
@@ -72,11 +72,11 @@
 #' @param x Numerical vector with effect estimates, lower or upper
 #'   confidence / prediction interval limit(s).
 #' @param sm Summary measure.
-#' @param func User-specified function for (back-)transformation.
+#' @param func User-specified function for (back) transformation.
 #' @param args Function arguments for user-specified function.
-#' @param n Sample size(s) to back-transform Freeman-Tukey transformed
+#' @param n Sample size(s) to back transform Freeman-Tukey transformed
 #'   proportions.
-#' @param time Time(s) to back-transform Freeman-Tukey transformed
+#' @param time Time(s) to back transform Freeman-Tukey transformed
 #'   incidence rates.
 #'
 #' @name meta-transf
@@ -208,7 +208,7 @@ backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
   ##
   else if (sm == "PFT") {
     if (missing(n))
-      stop("Argument 'n' must be provided to back-transform ",
+      stop("Argument 'n' must be provided to back transform ",
            "Freeman-Tukey transformed proportions.")
     res <- asin2p(x, n)
   }
@@ -218,7 +218,7 @@ backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
   ##
   else if (sm == "IRFT") {
     if (missing(time))
-      stop("Argument 'time' must be provided to back-transform ",
+      stop("Argument 'time' must be provided to back transform ",
            "Freeman-Tukey transformed incidence rates.")
     res <- asin2ir(x, time)
   }
