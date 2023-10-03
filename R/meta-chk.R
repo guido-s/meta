@@ -391,23 +391,35 @@ chksuitable <- function(x, method,
                           c("metacum", "metainf",
                             "netpairwise"),
                         addtext = NULL,
-                        check.mlm = TRUE) {
+                        check.mlm = TRUE,
+                        stop = TRUE,
+                        status = "suitable") {
   if (missing(addtext)) {
     addtext <- rep("", length(classes))
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
   ##
-  for (i in seq_along(classes))
-    if (inherits(x, classes[i]))
-      stop(method, " not suitable for an object of class \"",
+  func <- if (stop) stop else warning
+  ##
+  for (i in seq_along(classes)) {
+    if (inherits(x, classes[i])) {
+      func(method, " not ", status, " for an object of class \"",
            classes[i], "\"", addtext[i], ".",
            call. = FALSE)
+      ##
+      return(FALSE)
+    }
+  }
   ##
-  if (check.mlm)
-    if (!is.null(x$three.level) && any(x$three.level))
-      stop(method, " not implemented for three-level model.",
+  if (check.mlm) {
+    if (!is.null(x$three.level) && any(x$three.level)) {
+      func(method, " not implemented for three-level model.",
            call. = FALSE)
+      ##
+      return(FALSE)
+    }
+  }
   ##
-  return(invisible(NULL))
+  return(TRUE)
 }

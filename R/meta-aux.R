@@ -165,10 +165,12 @@ deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
     return(newvar)
 }
 
-deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
+deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE,
+                        oldtxt = NULL) {
   ##
   new <- deparse(substitute(newvar))
-  old <- deparse(substitute(oldvar))
+  if (is.null(oldtxt))
+    oldtxt <- deparse(substitute(oldvar))
   ##
   if (newmiss & oldmiss)
     return(newvar)
@@ -176,7 +178,7 @@ deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
     return(newvar)
   else if (!newmiss & !oldmiss) {
     if (warn)
-      warning("Deprecated argument '", old, "' ignored as ",
+      warning("Deprecated argument '", oldtxt, "' ignored as ",
               "'", new, "' is also provided.",
               call. = FALSE)
     return(newvar)
@@ -184,7 +186,7 @@ deprecated2 <- function(newvar, newmiss, oldvar, oldmiss, warn = TRUE) {
   else if (newmiss & !oldmiss) {
     if (warn)
       warning("Use argument '", new, "' instead of '",
-              old, "' (deprecated).",
+              oldtxt, "' (deprecated).",
               call. = FALSE)
     return(oldvar)
   }
@@ -660,9 +662,45 @@ setNA_ifnot <- function(x, y, unequal) {
     return(ifelse(y != unequal, NA, x))
 }
 
-list2mat <- function(x) {
-  if (is.list(x))
+list2mat <- function(x, y = NULL) {
+  if (is.list(x)) {
+    ##
+    if (!is.null(y)) {
+      for (i in seq_len(length(x)))
+        x[[i]] <- matrix(x[[i]], nrow = length(x[[i]]),
+                         ncol = ncol(y) / length(x))
+    }
+    ##
+    lnames <- names(x)
+    ##    
+    if (!is.null(dimnames(x[[1]])[[2]])) {
+      if (!is.null(y)) {
+        for (i in seq_along(lnames)) {
+          dimnames(x[[i]]) <- dimnames(y)
+        }
+      }
+      else {
+        for (i in seq_along(lnames)) {
+          dimnames(x[[i]])[[2]] <-
+            paste(lnames[i], dimnames(x[[i]])[[2]], sep = "-")
+          ##
+          dimnames(x[[i]])[[2]] <-
+            gsub("-classic$", "", dimnames(x[[i]])[[2]])
+        }
+      }
+    }
+    ##
     return(do.call("cbind", x))
+  }
+  else if (is.vector(x))
+    return(matrix(x, ncol = 1))
+  else
+    return(x)
+}
+
+list2vec <- function(x) {
+  if (is.list(x))
+    return(do.call("c", x))
   else
     return(x)
 }

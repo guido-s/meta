@@ -15,10 +15,18 @@ metamerge(
   prediction2 = meta2$prediction,
   label1 = NULL,
   label2 = NULL,
-  hetlabel1 = label1,
-  hetlabel2 = label2,
-  taulabel1 = label1,
-  taulabel2 = label2,
+  label1.common = label1,
+  label2.common = label2,
+  label1.random = label1,
+  label2.random = label2,
+  label1.predict = label1,
+  label2.predict = label2,
+  label1.subgroup = label1,
+  label2.subgroup = label2,
+  hetlabel1 = label1.random,
+  hetlabel2 = label2.random,
+  taulabel1 = label1.random,
+  taulabel2 = label2.random,
   text.pooled1 = NULL,
   text.pooled2 = NULL,
   text.w.pooled1 = NULL,
@@ -71,11 +79,29 @@ effects model should be considered for second meta-analysis.}
 \item{prediction2}{A logical indicating whether prediction interval
 should be considered for second meta-analysis.}
 
-\item{label1}{Default setting for arguments 'hetlabel1' and
-'taulabel1'.}
+\item{label1}{Default setting for arguments 'label1.common',
+'label1.random', 'label1.predict' and 'label1.subgroup'.}
 
-\item{label2}{Default setting for arguments 'hetlabel2' and
-'taulabel2'.}
+\item{label2}{Default setting for arguments 'label2.common',
+'label2.random', 'label2.predict' and 'label2.subgroup'.}
+
+\item{label1.common}{A character string ...}
+
+\item{label2.common}{A character string ...}
+
+\item{label1.random}{A character string ... (default label for
+arguments 'hetlabel1' and 'taulabel1').}
+
+\item{label2.random}{A character string ... (default label for
+arguments 'hetlabel2' and 'taulabel2').}
+
+\item{label1.predict}{A character string ...}
+
+\item{label2.predict}{A character string ...}
+
+\item{label1.subgroup}{A character string ...}
+
+\item{label2.subgroup}{A character string ...}
 
 \item{hetlabel1}{A character string used to label heterogeneity
 statistics of the first meta-analysis.}
@@ -319,17 +345,15 @@ m3 <- update(m2, method = "Inverse", random = FALSE)
 # - keep all additional information from Peto meta-analysis (i.e.,
 #   weights, Q statistic and I2 statistic)
 m12 <- metamerge(m1, m2,
-  label1 = "MH", label2 = "Peto",
+  label1 = "REML", label2 = "REML-Peto",
+  label1.common = "MH", label2.common = "Peto", 
   text.common1 = "Mantel-Haenszel method",
-  text.random1 = "Random effects model (REML)",
   text.common2 = "Peto method",
-  text.random2 = "Random effects model (REML-Peto)",
   text.w.random1 = "REML", text.w.random2 = "REML-Peto",
-  taulabel1 = "REML", taulabel2 = "REML-Peto",
   hetlabel1 = "MH/IV", hetlabel2 = "Peto",
   keep = TRUE)
 
-# Add results from inverse variance method
+# Add common effect results from inverse variance method
 # - keep weights from IV meta-analysis
 # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #   as inverse variance method is used for sm = "MH" under random
@@ -344,14 +368,11 @@ forest(m123, digits = 6)
 
 # Merge results (show individual results for Peto method)
 m21 <- metamerge(m2, m1,
-  label2 = "MH", label1 = "Peto",
-  text.common2 = "Mantel-Haenszel method",
-  text.random2 = "Random effects model (REML)",
+  label1 = "REML-Peto", label2 = "REML",
+  label1.common = "Peto", label2.common = "MH", 
+  hetlabel1 = "Peto", hetlabel2 = "MH/IV",
   text.common1 = "Peto method",
-  text.random1 = "Random effects model (REML-Peto)",
-  text.w.random2 = "REML", text.w.random1 = "REML-Peto",
-  taulabel2 = "REML", taulabel1 = "REML-Peto",
-  hetlabel2 = "MH/IV", hetlabel1 = "Peto",
+  text.common2 = "Mantel-Haenszel method",
   keep = TRUE)
 
 # Add results from inverse variance method

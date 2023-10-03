@@ -334,7 +334,7 @@ metacor <- function(cor, n, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))

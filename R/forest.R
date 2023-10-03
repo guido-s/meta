@@ -303,6 +303,12 @@
 #' @param test.subgroup.random A logical value indicating whether to
 #'   print results of test for subgroup differences (random effects
 #'   model).
+#' @param common.subgroup A single logical or logical vector
+#'   indicating whether / which common effect estimates should be
+#'   printed for subgroups.
+#' @param random.subgroup A single logical or logical vector
+#'   indicating whether / which random effects estimates should be
+#'   printed for subgroups.
 #' @param prediction.subgroup A single logical or logical vector
 #'   indicating whether / which prediction intervals should be printed
 #'   for subgroups.
@@ -449,6 +455,9 @@
 #' @param colgap.rob Either a character string or a
 #'   \code{\link[grid]{unit}} object specifying gap between risk of
 #'   bias columns.
+#' @param colgap.rob.overall Either a character string or a
+#'   \code{\link[grid]{unit}} object specifying gap before column with
+#'   overall risk of bias assessment.
 #' @param calcwidth.pooled A logical indicating whether text for
 #'   common effect and random effects model should be considered to
 #'   calculate width of the column with study labels.
@@ -799,7 +808,6 @@
 #' Colours and symbols for RoB categories can be changed using
 #' arguments \code{rob.col} and \code{rob.symbols}. The number of
 #' colours or symbols must be the same as the number of categories.
-#' 
 #' }
 #' 
 #'
@@ -862,6 +870,10 @@
 #'
 #' \itemize{
 #' \item \code{subgroup.hetstat} (heterogeneity statistic in
+#'   subgroups),
+#' \item \code{common.subgroup} (common effect estimates in
+#'   subgroups),
+#' \item \code{random.subgroup} (random effects estimates in
 #'   subgroups),
 #' \item \code{prediction.subgroup} (prediction interval in
 #'   subgroups),
@@ -975,6 +987,10 @@
 #'   (\code{leftlabs})
 #' }
 #' } 
+#'
+#' @note
+#' R function \code{.forestArgs} generates a character vector with all
+#' arguments of \code{forest.meta}.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -1219,6 +1235,7 @@
 #' }
 #'
 #' @method forest meta
+#' @export forest.meta
 #' @export
 
 
@@ -1382,7 +1399,11 @@ forest.meta <- function(x,
                         test.subgroup = x$test.subgroup,
                         test.subgroup.common = test.subgroup & common,
                         test.subgroup.random = test.subgroup & random,
+                        ##
+                        common.subgroup = common,
+                        random.subgroup = random,
                         prediction.subgroup = x$prediction.subgroup,
+                        ##
                         print.Q.subgroup = gs("forest.Q.subgroup"),
                         label.test.subgroup.common,
                         label.test.subgroup.random,
@@ -1456,7 +1477,8 @@ forest.meta <- function(x,
                         colgap.forest = colgap,
                         colgap.forest.left = colgap.forest,
                         colgap.forest.right = colgap.forest,
-                        colgap.rob = colgap,
+                        colgap.rob = "1mm",
+                        colgap.rob.overall = "2mm",
                         ##
                         calcwidth.pooled =
                           (common | random) &
@@ -1647,11 +1669,14 @@ forest.meta <- function(x,
   ##
   if (RoB.available) {
     if (!inherits(rob, "rob"))
-      stop("Argument 'rob' must be of class 'rob'.", call. = FALSE)
+      stop("Argument 'rob' must be of class \"rob\".", call. = FALSE)
     ##
     rsel <- TRUE
     ##
-    rob.labels <- colnames(rob)[colnames(rob) != "studlab"]
+    rob.labels <-
+      colnames(rob)[!(colnames(rob) %in% c("Study", "Weight"))]
+    rob.labels[rob.labels == "Overall"] <- "O"
+    ##
     rob.categories <- attr(rob, "categories")
     n.cat <- length(rob.categories)
     ##
@@ -1683,11 +1708,12 @@ forest.meta <- function(x,
            n.cat, ".",
            call. = FALSE)
     ##
-    text.rob <-
-      c("Risk of bias legend", attr(rob, "domains"))
+    text.rob <- c("Risk of bias legend", setleg(rob))
     ##
-    rob <- rob[, colnames(rob) != "studlab", drop = FALSE]
+    rob <- rob[, !(colnames(rob) %in% c("Study", "Weight")), drop = FALSE]
     ##
+    cnr <- colnames(rob)
+    colnames(rob)[colnames(rob) == "Overall"] <- "O"
     colnames(rob) <- gsub(" ", "_", paste0("RoB.", rob.labels))
     ##
     rightcols <- colnames(rob)
@@ -1845,6 +1871,8 @@ forest.meta <- function(x,
   ##
   missing.subgroup <- missing(subgroup)
   missing.subgroup.hetstat <- missing(subgroup.hetstat)
+  missing.common.subgroup <- missing(common.subgroup)
+  missing.random.subgroup <- missing(random.subgroup)
   missing.prediction.subgroup <- missing(prediction.subgroup)
   ##
   if (!by) {
@@ -1854,6 +1882,14 @@ forest.meta <- function(x,
               call. = FALSE)
     if (!missing.subgroup.hetstat)
       warning("Argument 'subgroup.hetstat' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing.common.subgroup)
+      warning("Argument 'common.subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    if (!missing.random.subgroup)
+      warning("Argument 'random.subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
     if (!missing.prediction.subgroup)
@@ -2687,33 +2723,56 @@ forest.meta <- function(x,
       subgroup.hetstat.logical <- subgroup.hetstat
     }
     ##
+    if (!missing.common.subgroup)
+      common.subgroup <- catch("common.subgroup", mc, x, sfsp)
+    ##
+    if (!missing.random.subgroup)
+      random.subgroup <- catch("random.subgroup", mc, x, sfsp)
+    ##
     if (!missing.prediction.subgroup & !metabind)
       prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
     ##
+    common.subgroup <- replaceNULL(common.subgroup, FALSE)
+    random.subgroup <- replaceNULL(random.subgroup, FALSE)
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     ##
-    if (length(prediction.subgroup) == 1) {
-      if (is.matrix(x$lower.predict.w))
-        prediction.subgroup.logical <-
-          prediction.subgroup &
-          apply(x$lower.predict.w, 1, notallNA) &
-          apply(x$upper.predict.w, 1, notallNA)
-      else {
-        prediction.subgroup.logical <-
-          prediction.subgroup &
-          notallNA(x$lower.predict.w) &
-          notallNA(x$upper.predict.w)
-        prediction.subgroup.logical <-
-          rep(prediction.subgroup.logical, n.by)
-      }
-    }
-    else {
-      chklength(prediction.subgroup, n.by,
-                text = paste("Length of argument 'prediction.subgroup' must be",
-                             "equal to 1 or number of subgroups."))
-      prediction.subgroup.logical <-
-        prediction.subgroup
-    }
+    ## if (length(prediction.subgroup) == 1) {
+    ##   if (is.matrix(x$lower.predict.w))
+    ##     prediction.subgroup.logical <-
+    ##       prediction.subgroup &
+    ##       apply(x$lower.predict.w, 1, notallNA) &
+    ##       apply(x$upper.predict.w, 1, notallNA)
+    ##   else {
+    ##     prediction.subgroup.logical <-
+    ##       prediction.subgroup &
+    ##       notallNA(x$lower.predict.w) &
+    ##       notallNA(x$upper.predict.w)
+    ##     prediction.subgroup.logical <-
+    ##       rep(prediction.subgroup.logical, n.by)
+    ##   }
+    ## }
+    ## else {
+    ##   chklength(prediction.subgroup, n.by,
+    ##             text = paste("Length of argument 'prediction.subgroup' must be",
+    ##                          "equal to 1 or number of subgroups."))
+    ##   prediction.subgroup.logical <-
+    ##     prediction.subgroup
+    ## }
+    ##
+    common.subgroup.logical <-
+      show_subgroup_results(common.subgroup, n.by,
+                            x$lower.common.w, x$upper.common.w)
+    ##
+    random.subgroup.logical <-
+      show_subgroup_results(random.subgroup, n.by,
+                            x$lower.random.w, x$upper.random.w)
+    ##
+    prediction.subgroup.logical <-
+      show_subgroup_results(prediction.subgroup, n.by,
+                            x$lower.predict.w, x$upper.predict.w)
+    ##
+    chklogical(common.subgroup[1])
+    chklogical(random.subgroup[1])
     chklogical(prediction.subgroup[1])
     ##
     if (!missing(test.effect.subgroup)) {
@@ -3115,6 +3174,7 @@ forest.meta <- function(x,
   colgap.forest.left <- setunit(colgap.forest.left)
   colgap.forest.right <- setunit(colgap.forest.right)
   colgap.rob <- setunit(colgap.rob)
+  colgap.rob.overall <- setunit(colgap.rob.overall)
   ##
   missing.label.test.overall.common <- missing(label.test.overall.common)
   missing.label.test.overall.fixed <-
@@ -4173,29 +4233,29 @@ forest.meta <- function(x,
     }
     ##
     if (by) {
-      df.Q.b <- x$df.Q.b
+      Q.b.common <- unlist(x$Q.b.common)
+      names(Q.b.common) <- colnames(lower.common.w)
+      Q.w.common <- x$Q.w.common
+      ##
+      Q.b.random <- unlist(x$Q.b.random)
+      Q.w.random <- x$Q.w.random
+      ##
+      Q.w <- x$Q.w
+      ##
+      df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
+      df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
+      df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
       df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
       ##
-      Q.b.common <- x$Q.b.common
-      df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
       pval.Q.b.common <-
         replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
-      ## Only consider test for subgroup differences for first random
-      ## effects meta-analysis method
-      Q.b.random <- x$Q.b.random[1]
-      if (is.list(df.Q.b.random))
-        df.Q.b.random <- df.Q.b.random[[1]]
+      pval.Q.w.common <-
+        replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
       ##
-      if (length(df.Q.b.random) == 1)
-        pval.Q.b.random <-
-          replaceNULL(x$pval.Q.b.random[1], pvalQ(Q.b.random, df.Q.b.random))
-      else if (length(df.Q.b.random) == 2)
-        pval.Q.b.random <-
-          replaceNULL(x$pval.Q.b.random[1],
-                      pf(Q.b.random, df.Q.b.random[1], df.Q.b.random[2],
-                         lower.tail = FALSE))
-      else
-        pval.Q.b.random <- x$pval.Q.b.random
+      pval.Q.b.random <-
+        unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
+      pval.Q.w.random <-
+        unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
       ##
       Q.resid <- x$Q.resid
       df.Q.resid <- x$df.Q.resid
@@ -4223,11 +4283,9 @@ forest.meta <- function(x,
       uppI2.resid <- x$upper.I2.resid
     }
     else {
-      Q.b.common <- NA
-      Q.b.random <- NA
-      df.Q.b <- NA
-      df.Q.b.common <- NA
-      df.Q.b.random <- NA
+      Q.b.common <- Q.b.random <- NA
+      df.Q.b <- df.Q.b.common <- df.Q.b.random <- NA
+      pval.Q.b.common <- pval.Q.b.random <- NA
     }
   }
   ##
@@ -5471,43 +5529,96 @@ forest.meta <- function(x,
   ##
   ## Label of test for subgroup differences
   ##
-  if (by) {
-    Q.bs <- c(Q.b.common, Q.b.random)
-    pval.Q.bs <- c(pval.Q.b.common, pval.Q.b.random)
+  ## if (by) {
+  ##   Q.bs <- c(Q.b.common, Q.b.random)
+  ##   pval.Q.bs <- c(pval.Q.b.common, pval.Q.b.random)
+  ## }
+  ## else {
+  ##   Q.bs <- NA
+  ##   pval.Q.bs <- NA
+  ## }
+  ##
+  ## hetstat.Q.bs <-
+  ##   paste0(hetseparator,
+  ##          gsub(" ", "", formatN(Q.bs, digits.Q, "NA", big.mark = big.mark)),
+  ##          if (!jama) ", df",
+  ##          if (!jama) hetseparator,
+  ##          if (!jama) c(df.Q.b.common,
+  ##                       if (length(df.Q.b.random) == 2)
+  ##                         paste(df.Q.b.random, collapse = ", ")
+  ##                       else
+  ##                         df.Q.b.random))
+  ##
+  
+  ##
+  if (by)
+    hetstat.Q.b.common <- hetstat.pval.Q.b.common <-
+      hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NULL
+  else
+    hetstat.Q.b.common <- hetstat.pval.Q.b.common <-
+      hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NA
+  ##
+  for (i in seq_along(Q.b.common)) {
+    hetstat.i <-
+      paste0(hetseparator,
+             gsub(" ", "",
+                  formatN(Q.b.common[i], digits.Q, "NA", big.mark = big.mark)),
+             if (!jama) ", df",
+             if (!jama) hetseparator,
+             if (!jama) df.Q.b.common[i])
+    ##
+    pval.i <-
+      paste0(formatPT(pval.Q.b.common[i],
+                      lab = TRUE, labval = "",
+                      digits = digits.pval.Q,
+                      zero = zero.pval, JAMA = JAMA.pval,
+                      scientific = scientific.pval,
+                      lab.NA = "NA"))
+    ##
+    ## Remove superfluous spaces
+    ##
+    hetstat.i <- rmSpace(hetstat.i, end = TRUE)
+    pval.i <- rmSpace(pval.i, end = TRUE)
+    ##
+    while(any(grepl("  ", hetstat.i)))
+      hetstat.i <- gsub("  ", " ", hetstat.i)
+    while(any(grepl("  ", pval.i)))
+      pval.i <- gsub("  ", " ", pval.i)
+    ##
+    hetstat.Q.b.common <- c(hetstat.Q.b.common, hetstat.i)
+    hetstat.pval.Q.b.common <- c(hetstat.pval.Q.b.common, pval.i)
   }
-  else {
-    Q.bs <- NA
-    pval.Q.bs <- NA
+  ##
+  for (i in seq_along(Q.b.random)) {
+    hetstat.i <-
+      paste0(hetseparator,
+             gsub(" ", "",
+                  formatN(Q.b.random[i], digits.Q, "NA", big.mark = big.mark)),
+             if (!jama) ", df",
+             if (!jama) hetseparator,
+             if (!jama) collapse(df.Q.b.random[[i]], quote = ""))
+    ##
+    pval.i <-
+      paste0(formatPT(pval.Q.b.random[i],
+                      lab = TRUE, labval = "",
+                      digits = digits.pval.Q,
+                      zero = zero.pval, JAMA = JAMA.pval,
+                      scientific = scientific.pval,
+                      lab.NA = "NA"))
+    ##
+    ## Remove superfluous spaces
+    ##
+    hetstat.i <- rmSpace(hetstat.i, end = TRUE)
+    pval.i <- rmSpace(pval.i, end = TRUE)
+    ##
+    while(any(grepl("  ", hetstat.i)))
+      hetstat.i <- gsub("  ", " ", hetstat.i)
+    while(any(grepl("  ", pval.i)))
+      pval.i <- gsub("  ", " ", pval.i)
+    ##
+    hetstat.Q.b.random <- c(hetstat.Q.b.random, hetstat.i)
+    hetstat.pval.Q.b.random <- c(hetstat.pval.Q.b.random, pval.i)
   }
-  ##
-  hetstat.Q.bs <-
-    paste0(hetseparator,
-           gsub(" ", "", formatN(Q.bs, digits.Q, "NA", big.mark = big.mark)),
-           if (!jama) ", df",
-           if (!jama) hetseparator,
-           if (!jama) c(df.Q.b.common,
-                        if (length(df.Q.b.random) == 2)
-                          paste(df.Q.b.random, collapse = ", ")
-                        else
-                          df.Q.b.random))
-  hetstat.Q.bs <- rmSpace(hetstat.Q.bs, end = TRUE)
-  ##
-  hetstat.pval.Q.bs <-
-    paste0(formatPT(pval.Q.bs,
-                    lab = TRUE, labval = "",
-                    digits = digits.pval.Q,
-                    zero = zero.pval, JAMA = JAMA.pval,
-                    scientific = scientific.pval,
-                    lab.NA = "NA"))
-  ##
-  ## Remove superfluous spaces
-  ##
-  hetstat.pval.Q.bs <- rmSpace(hetstat.pval.Q.bs, end = TRUE)
-  ##
-  while(any(grepl("  ", hetstat.pval.Q.bs)))
-    hetstat.pval.Q.bs <- gsub("  ", " ", hetstat.pval.Q.bs)
-  while(any(grepl("  ", hetstat.Q.bs)))
-    hetstat.Q.bs <- gsub("  ", " ", hetstat.Q.bs)
   ##
   if (test.subgroup.common) {
     if (print.Q.subgroup) {
@@ -5517,108 +5628,107 @@ forest.meta <- function(x,
                            "Chi"^2, tq,
                            " (P", tp, ")"),
                      list(tl = label.test.subgroup.common,
-                          tq = hetstat.Q.bs[1],
-                          tp = hetstat.pval.Q.bs[1]))
+                          tq = hetstat.Q.b.common[1],
+                          tp = hetstat.pval.Q.b.common[1]))
       else if (jama)
         text.subgroup.common <-
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(P), tp, ")"),
                      list(tl = label.test.subgroup.common,
-                          tq = hetstat.Q.bs[1],
-                          tp = hetstat.pval.Q.bs[1],
-                          df = df.Q.b.common))
+                          tq = hetstat.Q.b.common[1],
+                          tp = hetstat.pval.Q.b.common[1],
+                          df = df.Q.b.common[1]))
       else
         text.subgroup.common <-
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(p), tp, ")"),
                      list(tl = label.test.subgroup.common,
-                          tq = hetstat.Q.bs[1],
-                          tp = hetstat.pval.Q.bs[1],
-                          df = df.Q.b.common))
+                          tq = hetstat.Q.b.common[1],
+                          tp = hetstat.pval.Q.b.common[1],
+                          df = df.Q.b.common[1]))
     }
     else {
       if (revman5)
         text.subgroup.common <-
           substitute(paste(tl, " P", tp),
                      list(tl = label.test.subgroup.common,
-                          tp = hetstat.pval.Q.bs[1]))
+                          tp = hetstat.pval.Q.b.common[1]))
       else if (jama)
         text.subgroup.common <-
           substitute(paste(tl, " ", italic(P), tp),
                      list(tl = label.test.subgroup.common,
-                          tp = hetstat.pval.Q.bs[1]))
+                          tp = hetstat.pval.Q.b.common[1]))
       else
         text.subgroup.common <-
           substitute(paste(tl, " ", italic(p), tp),
                      list(tl = label.test.subgroup.common,
-                          tp = hetstat.pval.Q.bs[1]))
+                          tp = hetstat.pval.Q.b.common[1]))
     }
   }
   else
     text.subgroup.common <- ""
-  
-  
+  ##
   if (test.subgroup.random) {
     if (print.Q.subgroup) {
       if (revman5) {
-        if (length(df.Q.b.random) == 2)
+        if (length(df.Q.b.random[[1]]) == 2)
           text.subgroup.random <-
             substitute(paste(tl,
                              "F", tq,
                              " (P", tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2]))
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1]))
         else
           text.subgroup.random <-
             substitute(paste(tl,
                              "Chi"^2, tq,
                              " (P", tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2]))
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1]))
       }
       else if (jama) {
-        if (length(df.Q.b.random) == 2)
+        if (length(df.Q.b.random[[1]]) == 2)
           text.subgroup.random <-
             substitute(paste(tl,
                              F[df], tq,
                              " (", italic(P), tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2],
-                            df = paste(df.Q.b.random, collapse = ", ")))
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1],
+                            df = paste(df.Q.b.random[[1]], collapse = ", ")))
         else
           text.subgroup.random <-
             substitute(paste(tl,
                              chi[df]^2, tq,
                              " (", italic(P), tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2],
-                            df = df.Q.b.random))          
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1],
+                            df = df.Q.b.random[[1]]))          
       }
       else {
-        if (length(df.Q.b.random) == 2)
+        if (length(df.Q.b.random[[1]]) == 2)
           text.subgroup.random <-
             substitute(paste(tl,
                              F[df], tq,
                              " (", italic(p), tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2],
-                            df = paste(df.Q.b.random, collapse = ", ")))
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1],
+                            df = paste(df.Q.b.random[[1]], collapse = ", ")))
         else
           text.subgroup.random <-
             substitute(paste(tl,
                              chi[df]^2, tq,
                              " (", italic(p), tp, ")"),
                        list(tl = label.test.subgroup.random,
-                            tq = hetstat.Q.bs[2],
-                            tp = hetstat.pval.Q.bs[2],
-                            df = df.Q.b.random))
+                            tq = hetstat.Q.b.random[1],
+                            tp = hetstat.pval.Q.b.random[1],
+                            df = df.Q.b.random[[1]]))
       }
     }
     else {
@@ -5626,17 +5736,17 @@ forest.meta <- function(x,
         text.subgroup.random <-
           substitute(paste(tl, " P", tp),
                      list(tl = label.test.subgroup.random,
-                          tp = hetstat.pval.Q.bs[2]))
+                          tp = hetstat.pval.Q.b.random[1]))
       else if (jama)
         text.subgroup.random <-
           substitute(paste(tl, " ", italic(P), tp),
                      list(tl = label.test.subgroup.random,
-                          tp = hetstat.pval.Q.bs[2]))
+                          tp = hetstat.pval.Q.b.random[1]))
       else
         text.subgroup.random <-
           substitute(paste(tl, " ", italic(p), tp),
                      list(tl = label.test.subgroup.random,
-                          tp = hetstat.pval.Q.bs[2]))
+                          tp = hetstat.pval.Q.b.random[1]))
     }
   }
   else
@@ -5681,14 +5791,29 @@ forest.meta <- function(x,
     statistic.common.w <- ordermat(statistic.common.w, subgroup.levels)
     pval.common.w <- ordermat(pval.common.w, subgroup.levels)
     ##
+    TE.common.w <- list2vec(TE.common.w)
+    lower.common.w <- list2vec(lower.common.w)
+    upper.common.w <- list2vec(upper.common.w)
+    statistic.common.w <- list2vec(statistic.common.w)
+    pval.common.w <- list2vec(pval.common.w)
+    ##
     TE.random.w <- ordermat(TE.random.w, subgroup.levels)
     lower.random.w <- ordermat(lower.random.w, subgroup.levels)
     upper.random.w <- ordermat(upper.random.w, subgroup.levels)
     statistic.random.w <- ordermat(statistic.random.w, subgroup.levels)
     pval.random.w <- ordermat(pval.random.w, subgroup.levels)
     ##
+    TE.random.w <- list2vec(TE.random.w)
+    lower.random.w <- list2vec(lower.random.w)
+    upper.random.w <- list2vec(upper.random.w)
+    statistic.random.w <- list2vec(statistic.random.w)
+    pval.random.w <- list2vec(pval.random.w)
+    ##
     lower.predict.w <- ordermat(lower.predict.w, subgroup.levels)
     upper.predict.w <- ordermat(upper.predict.w, subgroup.levels)
+    ##
+    lower.predict.w <- list2vec(lower.predict.w)
+    upper.predict.w <- list2vec(upper.predict.w)
     ##
     Q.w <- x$Q.w[o.w]
     pval.Q.w <- x$pval.Q.w[o.w]
@@ -5701,11 +5826,24 @@ forest.meta <- function(x,
     lowRb.w <- x$lower.Rb.w[o.w]
     uppRb.w <- x$upper.Rb.w[o.w]
     ##
+    if (is.list(x$tau2.w))
+      x$tau2.w <- x$tau2.w[[1]]
+    if (is.list(x$tau.w))
+      x$tau.w <- x$tau.w[[1]]
+    ##
     tau2.w <- x$tau2.w[o.w]
     tau.w <- x$tau.w[o.w]
     ##
-    w.common.w <- x$w.common.w[o.w]
-    w.random.w <- x$w.random.w[o.w]
+    w.common.w <- collapsemat(x$w.common.w)
+    if (is.list(w.common.w))
+      w.common.w <- w.common.w[[1]]
+    ##
+    w.random.w <- collapsemat(x$w.random.w)
+    if (is.list(w.random.w))
+      w.random.w <- w.random.w[[1]]
+    ##
+    w.common.w <- collapsemat(w.common.w)[o.w]
+    w.random.w <- collapsemat(w.random.w)[o.w]
     e.e.w <- if (metaprop | metarate) x$event.w[o.w] else x$event.e.w[o.w]
     t.e.w <- if (metainc | metarate) x$time.e.w[o.w] else NAs.by
     n.e.w <-
@@ -5727,8 +5865,9 @@ forest.meta <- function(x,
     subgroup.logical <- subgroup.logical[o.w]
     subgroup.hetstat.logical <- subgroup.hetstat.logical[o.w]
     ##
-    prediction.subgroup.logical <-
-      prediction.subgroup.logical[o.w]
+    common.subgroup.logical <- common.subgroup.logical[o.w]
+    random.subgroup.logical <- random.subgroup.logical[o.w]
+    prediction.subgroup.logical <- prediction.subgroup.logical[o.w]
     ##
     ## Do (not) drop subgroups without studies in subgroup
     ## meta-analysis
@@ -5789,8 +5928,9 @@ forest.meta <- function(x,
     subgroup.logical <- subgroup.logical[sel.w]
     subgroup.hetstat.logical <- subgroup.hetstat.logical[sel.w]
     ##
-    prediction.subgroup.logical <-
-      prediction.subgroup.logical[sel.w]
+    common.subgroup.logical <- common.subgroup.logical[sel.w]
+    random.subgroup.logical <- random.subgroup.logical[sel.w]
+    prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
     ##
     subgroup.levels <- subgroup.levels[sel.w]
     ##
@@ -5823,8 +5963,16 @@ forest.meta <- function(x,
     notfirst.ran.w <- seq_len(n.ran.w)[!(seq_len(n.ran.w) %in% idx.ran.w)]
     notfirst.prd.w <- seq_len(n.prd.w)[!(seq_len(n.prd.w) %in% idx.prd.w)]
     ##
-    ## Do not consider limits of prediction intervals in subgroups to
-    ## format confidence limits
+    ## Do not consider limits of confidence or prediction intervals in
+    ## subgroups to format confidence limits
+    ##
+    sel.NA <- !repl(common.subgroup.logical, n.com, n.by)
+    lower.common.w[sel.NA] <- NA
+    upper.common.w[sel.NA] <- NA
+    ##
+    sel.NA <- !repl(random.subgroup.logical, n.ran, n.by)
+    lower.random.w[sel.NA] <- NA
+    upper.random.w[sel.NA] <- NA
     ##
     sel.NA <- !repl(prediction.subgroup.logical, n.prd, n.by)
     lower.predict.w[sel.NA] <- NA
@@ -7781,6 +7929,7 @@ forest.meta <- function(x,
                      rep(type.subgroup.random, n.ran.w),
                      rep("predict", n.prd.w),
                      blanks.stat.w)
+    ##
     col.diamond.pooled <-
       c(rep(col.diamond.common, n.com),
         rep(col.diamond.random, n.ran),
@@ -7789,6 +7938,7 @@ forest.meta <- function(x,
         rep(col.diamond.random, n.ran.w),
         rep(col.predict, n.prd.w),
         NAs.stat.w)
+    ##
     col.diamond.lines.pooled <-
       c(rep(col.diamond.lines.common, n.com),
         rep(col.diamond.lines.random, n.ran),
@@ -7797,6 +7947,7 @@ forest.meta <- function(x,
         rep(col.diamond.lines.random, n.ran.w),
         rep(col.predict.lines, n.prd.w),
         NAs.stat.w)
+    ##
     col.inside.pooled <-
       c(rep(col.inside.common, n.com),
         rep(col.inside.random, n.ran),
@@ -8441,37 +8592,38 @@ forest.meta <- function(x,
       ##
       ## Common effect model
       ##
-      if (common & subgroup.logical[i]) {
-        yTE.common.w[n.by.i * n.com + seq.com.w] <-
-          j + seq.com.w - 1
+      if (common.subgroup.logical[i] & subgroup.logical[i]) {
+        yTE.common.w[n.by.i * n.com + seq.com.w] <- j + seq.com.w - 1
         j <- j + max(seq.com.w)
       }
-      else
-        yTE.common.w[n.by.i * n.com + seq.com.w] <- NA
       ##
       ## Random effects model
       ##
-      if (random & subgroup.logical[i]) {
-        yTE.random.w[n.by.i * n.ran + seq.ran.w] <-
-          j + seq.ran.w - 1
+      if (random.subgroup.logical[i] & subgroup.logical[i]) {
+        yTE.random.w[n.by.i * n.ran + seq.ran.w] <- j + seq.ran.w - 1
         j <- j + max(seq.ran.w)
       }
-      else
-        yTE.random.w[n.by.i * n.ran + seq.ran.w] <- NA
       ##
       ## Only pooled totals
       ##
-      if (pooled.totals & subgroup.logical[i] & !(common | random)) {
-        yTE.common.w[n.by.i * n.com + seq.com.w] <-
-          j + seq.com.w - 1
+      ## cat("pooled.totals\n")
+      ## print(pooled.totals)
+      ## cat("subgroup.logical[i]\n")
+      ## print(subgroup.logical[i])
+      ## cat("common.subgroup.logical[i]\n")
+      ## print(common.subgroup.logical[i])
+      ## cat("random.subgroup.logical[i]\n")
+      ## print(random.subgroup.logical[i])
+      ##
+      if (pooled.totals & subgroup.logical[i] &
+          !(common.subgroup.logical[i] | random.subgroup.logical[i])) {
+        yTE.common.w[n.by.i * n.com + seq.com.w] <- j + seq.com.w - 1
         j <- j + max(seq.com.w)
       }
       ##
       ## Prediction interval in subgroups
       ##
-      ##yTE.predict.w[n.by.i * n.prd + seq.prd.w] <- NA
-      ##
-      if (prediction.subgroup.logical[i]) {
+      if (prediction.subgroup.logical[i] & subgroup.logical[i]) {
         yTE.predict.w[n.by.i * n.prd + seq.prd.w] <-
           j + seq.prd.w - 1
         j <- j + max(seq.prd.w)
@@ -8479,7 +8631,7 @@ forest.meta <- function(x,
       ##
       ## Heterogeneity statistics
       ##
-      if (subgroup.hetstat.logical[i]) {
+      if (subgroup.hetstat.logical[i] & subgroup.logical[i]) {
         yTE.hetstat.w[i] <- j
         j <- j + 1
       }
@@ -8488,7 +8640,7 @@ forest.meta <- function(x,
       ##
       ## Test for effect in subgroup (common effect)
       ##
-      if (test.effect.subgroup.common.logical[i]) {
+      if (test.effect.subgroup.common.logical[i] & subgroup.logical[i]) {
         yTE.effect.common.w[i] <- j
         j <- j + 1
       }
@@ -8497,7 +8649,7 @@ forest.meta <- function(x,
       ##
       ## Test for effect in subgroup (random effects)
       ##
-      if (test.effect.subgroup.random.logical[i]) {
+      if (test.effect.subgroup.random.logical[i] & subgroup.logical[i]) {
         yTE.effect.random.w[i] <- j
         j <- j + 1
       }
@@ -9843,8 +9995,12 @@ forest.meta <- function(x,
       ##
       if (RoB.available && i > 1 &&
           rightcols[i] %in% colnames(rob) &&
-          rightcols[i - 1] %in% colnames(rob))
-        colgap.right.i <- colgap.rob
+          rightcols[i - 1] %in% colnames(rob)) {
+        if (rightcols[i] == "col.RoB.O")
+          colgap.right.i <- colgap.rob.overall
+        else
+          colgap.right.i <- colgap.rob
+        }
       ##
       x1 <- unit.c(x1,
                    if (i == 1) colgap.forest.right else colgap.right.i,
@@ -10570,3 +10726,13 @@ forest.meta <- function(x,
   
   invisible(res)
 }
+
+
+
+
+
+#' @rdname forest.meta
+#' @export .forestArgs
+
+.forestArgs <- function()
+  formalArgs(forest.meta)

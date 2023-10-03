@@ -3,6 +3,7 @@
 \name{forest.meta}
 \alias{forest.meta}
 \alias{forest}
+\alias{.forestArgs}
 \title{Forest plot to display the result of a meta-analysis}
 \usage{
 \method{forest}{meta}(
@@ -136,6 +137,8 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.common = test.subgroup & common,
   test.subgroup.random = test.subgroup & random,
+  common.subgroup = common,
+  random.subgroup = random,
   prediction.subgroup = x$prediction.subgroup,
   print.Q.subgroup = gs("forest.Q.subgroup"),
   label.test.subgroup.common,
@@ -202,7 +205,8 @@
   colgap.forest = colgap,
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
-  colgap.rob = colgap,
+  colgap.rob = "1mm",
+  colgap.rob.overall = "2mm",
   calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
   calcwidth.common = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
@@ -251,6 +255,8 @@
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
+
+.forestArgs()
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
@@ -680,6 +686,14 @@ model).}
 print results of test for subgroup differences (random effects
 model).}
 
+\item{common.subgroup}{A single logical or logical vector
+indicating whether / which common effect estimates should be
+printed for subgroups.}
+
+\item{random.subgroup}{A single logical or logical vector
+indicating whether / which random effects estimates should be
+printed for subgroups.}
+
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
 for subgroups.}
@@ -892,6 +906,10 @@ the right side of forest plot and the forest plot.}
 \item{colgap.rob}{Either a character string or a
 \code{\link[grid]{unit}} object specifying gap between risk of
 bias columns.}
+
+\item{colgap.rob.overall}{Either a character string or a
+\code{\link[grid]{unit}} object specifying gap before column with
+overall risk of bias assessment.}
 
 \item{calcwidth.pooled}{A logical indicating whether text for
 common effect and random effects model should be considered to
@@ -1293,7 +1311,6 @@ left side.
 Colours and symbols for RoB categories can be changed using
 arguments \code{rob.col} and \code{rob.symbols}. The number of
 colours or symbols must be the same as the number of categories.
-
 }
 
 
@@ -1356,6 +1373,10 @@ The following arguments can be used in a similar way:
 
 \itemize{
 \item \code{subgroup.hetstat} (heterogeneity statistic in
+  subgroups),
+\item \code{common.subgroup} (common effect estimates in
+  subgroups),
+\item \code{random.subgroup} (random effects estimates in
   subgroups),
 \item \code{prediction.subgroup} (prediction interval in
   subgroups),
@@ -1469,6 +1490,10 @@ conducted:
   (\code{leftlabs})
 }
 }
+}
+\note{
+R function \code{.forestArgs} generates a character vector with all
+arguments of \code{forest.meta}.
 }
 \examples{
 data(Olkin1995)

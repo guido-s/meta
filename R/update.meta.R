@@ -383,7 +383,13 @@ update.meta <- function(object,
   ##
   ##
   chkclass(object, "meta")
-  chksuitable(object, "Update", "metamerge", check.mlm = FALSE)
+  suitable <-
+    chksuitable(object, "Update",
+                c("metabind", "metaadd", "metamerge"),
+                check.mlm = FALSE,
+                stop = FALSE, status = "possible")
+  if (!suitable)
+    return(object)
   ##
   metabin  <- inherits(object, "metabin")
   metacont <- inherits(object, "metacont")
@@ -627,7 +633,7 @@ update.meta <- function(object,
     ##
     object$rho <- 0
     ##
-    if (inherits(object, "metaprop") & object$method.ci != "NAsm") {
+    if (inherits(object, "metaprop") && object$method.ci != "NAsm") {
       if (object$sm == "PLOGIT") {
         object$lower <- p2logit(object$lower)
         object$upper <- p2logit(object$upper)
@@ -656,7 +662,7 @@ update.meta <- function(object,
       }
     }
     ##
-    if (inherits(object, "metarate") & object$method.ci != "NAsm") {
+    if (inherits(object, "metarate") && object$method.ci != "NAsm") {
       if (object$sm == "IRLN") {
         object$lower <- log(object$lower)
         object$upper <- log(object$upper)
@@ -676,6 +682,18 @@ update.meta <- function(object,
         object$upper <-
           0.5 * (sqrt(upper.ev / object$time) +
                  sqrt((upper.ev + 1) / object$time))
+      }
+      ##
+      if (inherits(object, "metabind")) {
+        x$with.subgroups <- any(x$is.subgroup)
+        ##
+        if (x$with.subgroups) {
+          x$data$Q.b.common <- x$data$Q.b
+          x$data$Q.b.random <- x$data$Q.b
+          ##
+          x$data$pval.Q.b.common <- x$data$pval.Q.b
+          x$data$pval.Q.b.random <- x$data$pval.Q.b
+        }
       }
     }
   }

@@ -214,3 +214,20 @@ setVal <- function(data, varname, default = NULL) {
   else
     return(default)
 }
+
+setsort <- function(sort, n, text) {
+  if (is.null(sort))
+    res <- seq_len(n)
+  else {
+    chklength(sort, n,
+              text = paste0("Argument '", deparse(substitute(sort)),
+                           "' must be of same length as ",
+                           "number of ", text, "."))
+    ##
+    res <- sort
+    if (!(is.numeric(res) & min(res) == 1 & max(res) == n))
+      res <- order(res)
+  }
+  ##
+  res
+}

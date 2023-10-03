@@ -2235,7 +2235,11 @@ metagen <- function(TE, seTE, studlab,
     detail.tau <- c("between cluster", "within cluster")
   ##
   ci.study <- ci(TE, seTE, level = level,
-                 df = if (method.ci == "t") df else NULL,
+                 df =
+                   if (!is.null(method.ci) && method.ci == "t")
+                     df
+                   else
+                     NULL,
                  null.effect = null.effect)
   ##
   ## Keep original confidence limits
@@ -2292,7 +2296,11 @@ metagen <- function(TE, seTE, studlab,
               TE = TE, seTE = seTE,
               statistic = ci.study$statistic,
               pval = ci.study$p,
-              df = if (method.ci == "t") df else rep_len(NA, length(TE)),
+              df =
+                if (!is.null(method.ci) && method.ci == "t")
+                  df
+                else
+                  rep_len(NA, length(TE)),
               level = level,
               lower = ci.study$lower, upper = ci.study$upper,
               ##

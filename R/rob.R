@@ -4,7 +4,8 @@
 #' Create table with risk of bias assessment or add table to existing
 #' meta-analysis
 #' 
-#' @param item1 Risk of bias item 1.
+#' @param item1 Risk of bias item 1 or a meta-analysis object of class
+#'   \code{meta} with information on risk of bias assessment.
 #' @param item2 Risk of bias item 2.
 #' @param item3 Risk of bias item 3.
 #' @param item4 Risk of bias item 4.
@@ -14,9 +15,12 @@
 #' @param item8 Risk of bias item 8.
 #' @param item9 Risk of bias item 9.
 #' @param item10 Risk of bias item 10.
+#' @param overall Overall risk of bias assess.
+#' @param weight Weight for each study.
 #' @param studlab Study labels.
-#' @param data A data frame or an object of class \code{meta}.
-#' @param method Risk of bias (RoB) tool.
+#' @param data A data frame or a meta-analysis object of class
+#'   \code{meta}.
+#' @param tool Risk of bias (RoB) tool.
 #' @param domains A character vector with names of RoB domains.
 #' @param categories Possible RoB categories.
 #' @param col Colours for RoB categories.
@@ -30,11 +34,16 @@
 #' 
 #' @details
 #' This function can be used to define a risk of bias (RoB) assessment
-#' for a meta-analysis which can be shown in a forest plot. The
-#' resulting risk of bias table contains study labels and variables
-#' for the RoB domains; variable names for RoB domains are equal to A,
-#' B, etc. The RoB table is directly returned if argument \code{data}
-#' is a data frame. The RoB table is added as a new list element 'rob'
+#' for a meta-analysis which can be shown in a forest plot or to
+#' extract the risk of bias assessment from a meta-analysis.
+#'
+#' The resulting risk of bias table contains study labels and
+#' variables for the RoB domains; variable names for RoB domains are
+#' equal to A, B, etc.
+#'
+#' The RoB table is directly returned if argument \code{data} is a
+#' data frame or argument \code{item1} is a meta-analysis with risk of
+#' bias assessment. The RoB table is added as a new list element 'rob'
 #' to a meta-analysis object if argument \code{data} is a
 #' meta-analysis.
 #'
@@ -43,15 +52,15 @@
 #' the following RoB tools.
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Risk of bias tool} \cr
-#' \code{method = "RoB1"} \tab RoB 1 tool for randomized studies \cr
-#' \code{method = "RoB2"} \tab RoB 2 tool for randomized studies \cr
-#' \code{method = "RoB2-cluster"} \tab RoB 2 tool for
+#' \code{tool = "RoB1"} \tab RoB 1 tool for randomized studies (Higgins et al., 2011) \cr
+#' \code{tool = "RoB2"} \tab RoB 2 tool for randomized studies (Higgins et al., 2019) \cr
+#' \code{tool = "RoB2-cluster"} \tab RoB 2 tool for
 #'   cluster-randomized trials \cr
-#' \code{method = "RoB2-crossover"} \tab RoB 2 tool for crossover
+#' \code{tool = "RoB2-crossover"} \tab RoB 2 tool for crossover
 #'   trials \cr
-#' \code{method = "ROBINS-I"} \tab Risk Of Bias In Non-randomized
+#' \code{tool = "ROBINS-I"} \tab Risk Of Bias In Non-randomized
 #'   Studies - of Interventions \cr
-#' \code{method = "ROBINS-E"} \tab Risk Of Bias In Non-randomized
+#' \code{tool = "ROBINS-E"} \tab Risk Of Bias In Non-randomized
 #'   Studies - of Exposures
 #' }
 #' These RoB tools are described on the website
@@ -69,6 +78,7 @@
 #'  \item Random sequence generation (selection bias)
 #'  \item Allocation concealment (selection bias)
 #'  \item Blinding of participants and personnel (performance bias)
+#'  \item Blinding of outcome assessment (detection bias)
 #'  \item Incomplete outcome data (attrition bias)
 #'  \item Selective reporting (reporting bias)
 #'  \item Other bias
@@ -142,7 +152,6 @@
 #' etc. will be used. It is also possible to modify the pre-defined
 #' domain names using argument \code{domains}.
 #'
-#' 
 #' The maximum number of bias domains / items is ten (see arguments
 #' \code{item1}, ..., \code{item10}).
 #' }
@@ -201,40 +210,40 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.meta}}, \code{\link{metagen}}
+#'
+#' @references
+#'
+#' Higgins JPT, Altman DG, Gøtzsche PC, Jüni P, Moher D, Oxman AD et
+#' al. (2011):
+#' The Cochrane Collaboration's tool for assessing risk of bias in
+#' randomised trials.
+#' \emph{British Medical Journal}, \bold{343}: d5928
+#'
+#' Higgins JPT, Savović J, Page MJ, Sterne JA on behalf of the RoB2
+#' Development Group (2019):
+#' Revised Cochrane risk-of-bias tool for randomized trials.
+#' \url{https://www.riskofbias.info/welcome/rob-2-0-tool}
 #' 
 #' @examples
-#' data(Fleiss1993cont)
-#' # Do meta-analysis (common effect and random effects model)
-#' #
-#' meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
+#' # Use RevMan 5 settings
+#' oldset <- settings.meta("RevMan5", quietly = FALSE)
 #' 
-#' # A fictive risk of bias assessment with three domains
-#' #
-#' meta2 <- rob(n.psyc > 20, mean.psyc > 5, sd.psyc > 2,
-#'   data = meta1, categories = c(FALSE, TRUE), col = c("green", "red"))
-#' forest(meta2, rob.lab = "RoB")
+#' data(caffeine)
 #' 
-#' \dontrun{
-#' # Risk of bias 1 tool (with fictive RoB assessment)
-#' set.seed(1909)
-#' Fleiss1993cont$D1 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' Fleiss1993cont$D2 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' Fleiss1993cont$D3 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' Fleiss1993cont$D4 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' Fleiss1993cont$D5 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' Fleiss1993cont$D6 <-
-#'   sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-#' meta3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
-#' meta4 <- rob(D1, D2, D3, D4, D5, D6, data = meta3, method = "rob1")
-#' forest(meta4)
-#' }
+#' m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+#'   data = caffeine, studlab = paste(study, year))
+#'
+#' # Add risk of bias assessment to meta-analysis
+#' m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+#' 
+#' # Print risk of bias assessment
+#' rob(m2)
+#' 
+#' # Forest plot with risk of bias assessment
+#' forest(m2)
+#'
+#' # Use previous settings
+#' settings.meta(oldset)
 #' 
 #' @export rob
 
@@ -250,9 +259,11 @@ rob <- function(item1,
                 item9 = NULL,
                 item10 = NULL,
                 studlab = NULL,
+                overall = NULL,
+                weight = NULL,
                 data = NULL,
                 ##
-                method = gs("method.rob"),
+                tool = gs("tool.rob"),
                 domains = NULL,
                 categories = NULL,
                 col = NULL,
@@ -279,18 +290,24 @@ rob <- function(item1,
     data <- sfsp
   else if (is.meta) {
     meta.object <- data
+    ##
     data <- data$data
     if (!is.null(meta.object$subset))
       data <- data[meta.object$subset, ]
+    ##
     if (is.null(studlab))
-      studlab <- data$.studlab
+      studlab <- data$.studlab    
   }
   ##
   ## Catch 'item1', etc.
   ##
   item1 <- catch("item1", mc, data, sfsp)
-  chknull(item1)
-  k.All <- length(item1)
+  if (!is.null(item1) && inherits(item1, "meta")) {
+    if (is.null(item1$rob))
+      return(NULL)
+    else
+      return(item1$rob)
+  }
   ##
   item2 <- catch("item2", mc, data, sfsp)
   item3 <- catch("item3", mc, data, sfsp)
@@ -301,6 +318,14 @@ rob <- function(item1,
   item8 <- catch("item8", mc, data, sfsp)
   item9 <- catch("item9", mc, data, sfsp)
   item10 <- catch("item10", mc, data, sfsp)
+  ##
+  missing.overall <- missing(overall)
+  overall <- catch("overall", mc, data, sfsp)
+  avail.overall <- !missing.overall & !is.null(overall)
+  ##
+  missing.weight <- missing(weight)
+  weight <- catch("weight", mc, data, sfsp)
+  avail.weight <- !missing.weight & !is.null(weight)
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   
@@ -313,64 +338,72 @@ rob <- function(item1,
   
   fun <- "rob"
   ##
-  if (!is.null(item2))
+  avail1 <- !is.null(item1)
+  avail2 <- !is.null(item2)
+  avail3 <- !is.null(item3)
+  avail4 <- !is.null(item4)
+  avail5 <- !is.null(item5)
+  avail6 <- !is.null(item6)
+  avail7 <- !is.null(item7)
+  avail8 <- !is.null(item8)
+  avail9 <- !is.null(item9)
+  avail10 <- !is.null(item10)
+  ##
+  if (avail1)
+    k.All <- length(item1)
+  else if (avail2)
+    k.All <- length(item2)
+  else if (avail3)
+    k.All <- length(item3)
+  else if (avail4)
+    k.All <- length(item4)
+  else if (avail5)
+    k.All <- length(item5)
+  else if (avail6)
+    k.All <- length(item6)
+  else if (avail7)
+    k.All <- length(item7)
+  else if (avail8)
+    k.All <- length(item8)
+  else if (avail9)
+    k.All <- length(item9)
+  else if (avail10)
+    k.All <- length(item10)
+  else
+    stop("No information on risk of bias domains provided.", call. = FALSE)
+  ##
+  if (avail2)
     chklength(item2, k.All, fun)
   ##
-  if (!is.null(item3)) {
-    if (is.null(item2))
-      stop("Argument 'item3' provided, but argument 'item2' is NULL.",
-           call. = FALSE)
+  if (avail3)
     chklength(item3, k.All, fun)
-  }
   ##
-  if (!is.null(item4)) {
-    if (is.null(item3))
-      stop("Argument 'item4' provided, but argument 'item3' is NULL.",
-           call. = FALSE)
+  if (avail4)
     chklength(item4, k.All, fun)
-  }
   ##
-  if (!is.null(item5)) {
-    if (is.null(item4))
-      stop("Argument 'item5' provided, but argument 'item4' is NULL.",
-           call. = FALSE)
+  if (avail5)
     chklength(item5, k.All, fun)
-  }
   ##
-  if (!is.null(item6)) {
-    if (is.null(item5))
-      stop("Argument 'item6' provided, but argument 'item5' is NULL.",
-           call. = FALSE)
+  if (avail6)
     chklength(item6, k.All, fun)
-  }
   ##
-  if (!is.null(item7)) {
-    if (is.null(item6))
-      stop("Argument 'item7' provided, but argument 'item6' is NULL.",
-           call. = FALSE)
+  if (avail7)
     chklength(item7, k.All, fun)
-  }
   ##
-  if (!is.null(item8)) {
-    if (is.null(item7))
-      stop("Argument 'item8' provided, but argument 'item7' is NULL.",
-           call. = FALSE)
+  if (avail8)
     chklength(item8, k.All, fun)
-  }
   ##
-  if (!is.null(item9)) {
-    if (is.null(item8))
-      stop("Argument 'item9' provided, but argument 'item8' is NULL.",
-           call. = FALSE)
+  if (avail9)
     chklength(item9, k.All, fun)
-  }
   ##
-  if (!is.null(item10)) {
-    if (is.null(item9))
-      stop("Argument 'item10' provided, but argument 'item9' is NULL.",
-           call. = FALSE)
+  if (avail10)
     chklength(item10, k.All, fun)
-  }
+  ##
+  if (avail.overall)
+    chklength(overall, k.All, fun)
+  ##
+  if (avail.weight & length(weight) > 1)
+    chklength(weight, k.All, fun)
   ##
   if (is.null(studlab)) {
     if (is.meta)
@@ -384,167 +417,23 @@ rob <- function(item1,
   chklogical(legend)
   chklogical(overwrite)
   ##
-  if (!is.null(method))
-    method <- setchar(method, gs("meth4rob"))
+  if (!is.null(tool))
+    tool <- setchar(tool, gs("tool4rob"))
   else
-    method <- "user-defined"
+    tool <- "user-defined"
   ##
-  is.RoB <- substring(method, 1, 3) == "RoB"
-  is.ROBINS <- substring(method, 1, 6) == "ROBINS"
-  ##
-  if (method == "RoB1")
-    dm <-
-      c("(A) Random sequence generation (selection bias)",
-        "(B) Allocation concealment (selection bias)",
-        "(C) Blinding of participants and personnel (performance bias)",
-        "(D) Incomplete outcome data (attrition bias)",
-        "(E) Selective reporting (reporting bias)",
-        "(F) Other bias")
-  else if (method == "RoB2")
-    dm <-
-      c("(A) Bias arising from the randomization process",
-        "(B) Bias due to deviations from intended intervention",
-        "(C) Bias due to missing outcome data",
-        "(D) Bias in measurement of the outcome",
-        "(E) Bias in selection of the reported result")
-  else if (method == "RoB2-cluster")
-    dm <-
-      c("(A) Bias arising from the randomization process",
-        paste("(B) Bias arising from the identification or",
-              "recruitment of participants into clusters"),
-        "(C) Bias due to deviations from intended intervention",
-        "(D) Bias due to missing outcome data",
-        "(E) Bias in measurement of the outcome",
-        "(F) Bias in selection of the reported result")
-  else if (method == "RoB2-crossover")
-    dm <-
-      c("(A) Bias arising from the randomization process",
-        "(B) Bias arising from period and carryover effects",
-        "(C) Bias due to deviations from intended intervention",
-        "(D) Bias due to missing outcome data",
-        "(E) Bias in measurement of the outcome",
-        "(F) Bias in selection of the reported result")
-  else if (method == "ROBINS-I")
-    dm <-
-      c("(A) Risk of bias due to confounding",
-        "(B) Risk of bias in selection of participants into the study",
-        "(C) Risk of bias in classification of interventions",
-        "(D) Risk of bias due to deviations from intented interventions",
-        "(E) Risk of bias due to missing outcome data",
-        "(F) Risk of bias in measurement of the outcome",
-        "(G) Risk of bias in the selection of the reported results")
-  else if (method == "ROBINS-E")
-    dm <-
-      c("(A) Risk of bias due to confounding",
-        "(B) Risk of bias arising from measurement of the exposure",
-        paste("(C) Risk of bias in selection of participants",
-              "into the study (or into the analysis)"),
-        "(D) Risk of bias due to post-exposure interventions",
-        "(E) Risk of bias due to missing data",
-        "(F) Risk of bias in measurement of the outcome",
-        "(G) Risk of bias in selection of the reported results")
-  else
-    dm <- NULL
+  is.ROBINS <- tolower(substring(tool, 1, 6)) == "robins"
+  is.RoB <- tolower(substring(tool, 1, 3)) == "rob" & !is.ROBINS
   
   
   ##
   ##
-  ## (3) Internal functions
-  ##
-  ##
-  
-  setcat <- function(x, labels) {
-    if (is.null(labels))
-      return(x)
-    ##
-    x <- setchar(x, labels)
-    factor(x, levels = labels)
-  }
-  ##
-  setdom <- function(x, method, dm, n.cols) {
-    
-    n.domains <- length(x)
-    ##
-    if (method == "user-defined") {
-      if (n.domains != n.cols)
-        stop("Number of domain names does not match number of domains.",
-             call. = FALSE)
-      else
-        return(x)
-    }
-    ##
-    if (method %in% c("RoB1", "RoB2-cluster", "RoB2-crossover")) {
-      if (n.domains != n.cols) {
-        if (n.domains == n.cols - 6) {
-          x <- paste0("(", LETTERS[6 + seq_len(n.cols - 6)], ") ", x)
-          return(c(dm, x))
-        }
-        else if (n.domains < n.cols) {
-          x <- paste0("(", LETTERS[6 + seq_len(n.cols - 6)], ") ",
-                      "Additional item ", seq_len(n.cols - 6))
-          return(c(dm, x))
-        }
-        else
-          stop("Wrong number of domains provided for '", method,
-               "' (must be ", 6, " or ", n.cols - 6, ").",
-               call. = FALSE)
-      }
-      else
-        return(x)
-    }
-    ##
-    if (method == "RoB2") {
-      if (n.domains != n.cols) {
-        if (n.domains == n.cols - 5) {
-          x <- paste0("(", LETTERS[5 + seq_len(n.cols - 5)], ") ", x)
-          return(c(dm, x))
-        }
-        else if (n.domains < n.cols) {
-          x <- paste0("(", LETTERS[5 + seq_len(n.cols - 5)], ") ",
-                      "Additional item ", seq_len(n.cols - 5))
-          return(c(dm, x))
-        }
-        else
-          stop("Wrong number of domains provided for '", method,
-               "' (must be ", 5, " or ", n.cols - 5, ").",
-               call. = FALSE)
-      }
-      else
-        return(x)
-    }
-    ##
-    if (method %in% c("ROBINS-I", "ROBINS-E")) {
-      if (n.domains != n.cols) {
-        if (n.domains == n.cols - 7) {
-          x <- paste0("(", LETTERS[7 + seq_len(n.cols - 7)], ") ", x)
-          return(c(dm, x))
-        }
-        else if (n.domains < n.cols) {
-          x <- paste0("(", LETTERS[7 + seq_len(n.cols - 7)], ") ",
-                      "Additional item ", seq_len(n.cols - 7))
-          return(c(dm, x))
-        }
-        else
-          stop("Wrong number of domains provided for '", method,
-               "' (must be ", 7, " or ", n.cols - 7, ").",
-               call. = FALSE)
-      }
-      else
-        return(x)
-    }
-    
-    x
-  }
-
-  
-  ##
-  ##
-  ## (4) Risk of bias categories
+  ## (3) Risk of bias categories
   ##
   ##
   
   if (is.null(categories)) {
-    if (method == "RoB1")
+    if (tool == "RoB1")
       categories <-
         c("Low risk of bias", "Unclear risk of bias", "High risk of bias")
     else if (is.RoB)
@@ -554,15 +443,15 @@ rob <- function(item1,
       categories <-
         c("Low risk", "Some concerns", "High risk", "Very high risk", "NI")
     else
-      stop("Argument 'categories' must be specified for unknown RoB method.",
+      stop("Argument 'categories' must be specified for unknown RoB tool.",
            call. = FALSE)
   }
   else {
     if (is.RoB & length(categories) != 3)
-      stop("Three categories must be provided if method = '", method, "'.",
+      stop("Three categories must be provided if tool = '", tool, "'.",
            call. = FALSE)
     if (is.ROBINS & length(categories) != 5)
-      stop("Five categories must be provided if method = '", method, "'.",
+      stop("Five categories must be provided if tool = '", tool, "'.",
            call. = FALSE)
   }
   ##
@@ -571,36 +460,219 @@ rob <- function(item1,
   
   ##
   ##
-  ## (5) Risk of bias table
+  ## (4) Create risk of bias table
   ##
   ##
   
-  rob <- data.frame(A = setcat(item1, categories))
-  if (!is.null(item2))
+  rob <- data.frame(Study = studlab)
+  ##
+  if (avail1)
+    rob$A <- setcat(item1, categories)
+  ##
+  if (avail2)
     rob$B <- setcat(item2, categories)
-  if (!is.null(item3))
+  ##
+  if (avail3)
     rob$C <- setcat(item3, categories)
-  if (!is.null(item4))
+  ##
+  if (avail4)
     rob$D <- setcat(item4, categories)
-  if (!is.null(item5))
+  ##
+  if (avail5)
     rob$E <- setcat(item5, categories)
-  if (!is.null(item6))
+  ##
+  if (avail6)
     rob$F <- setcat(item6, categories)
-  if (!is.null(item7))
+  ##
+  if (avail7)
     rob$G <- setcat(item7, categories)
-  if (!is.null(item8))
+  ##
+  if (avail8)
     rob$H <- setcat(item8, categories)
-  if (!is.null(item9))
+  ##
+  if (avail9)
     rob$I <- setcat(item9, categories)
-  if (!is.null(item10))
+  ##
+  if (avail10)
     rob$J <- setcat(item10, categories)
   ##
-  ##rob <- rob %>% mutate(across(colnames(rob), factor, categories))
+  domain.available <- c(avail1, avail2, avail3, avail4, avail5, avail6, avail7,
+                        avail8, avail9, avail10)
+  names(domain.available) <- paste0("D", 1:10)
   ##
-  ## RoB symbols
+  if (avail.overall)
+    rob$Overall <- setcat(overall, categories)
   ##
+  if (avail.weight && length(weight) == 1 && is.character(weight)) {
+    if (is.meta)
+      weight <- setchar(weight, c("common", "random"))
+    else
+      weight <- NULL
+  }
+  ##
+  if (!avail.weight && is.meta && meta.object$overall)
+    weight <-
+      if (meta.object$random)
+        "random"
+      else if (meta.object$common)
+        "common"
+      else
+        NULL
+  ##
+  if (!is.null(weight)) {
+    if (length(weight) == 1 && is.character(weight)) {
+      sel.w <-
+        if (is.null(meta.object$subset))
+          seq_along(meta.object$TE)
+        else
+          meta.object$subset
+      ##
+      if (weight == "random")
+        rob$Weight <- meta.object$w.random[sel.w]
+      else if (weight == "common")
+        rob$Weight <- meta.object$w.common[sel.w]
+    }
+    else
+      rob$Weight <- weight
+    ##
+    avail.weight <- TRUE
+  }
+  else
+    avail.weight <- FALSE
+  
+  
+  ##
+  ##
+  ## (4) Names for risk of bias domains
+  ##
+  ##
+  
+  if (tool == "user-defined")
+    dm <- paste("Item", 1:10)
+  else if (tool == "RoB1")
+    dm <-
+      c("Random sequence generation (selection bias)",
+        "Allocation concealment (selection bias)",
+        "Blinding of participants and personnel (performance bias)",
+        "Blinding of outcome assessment (detection bias)",
+        "Incomplete outcome data (attrition bias)",
+        "Selective reporting (reporting bias)",
+        "Other bias",
+        rep("", 10 - 7))
+  else if (tool == "RoB2")
+    dm <-
+      c("Bias arising from the randomization process",
+        "Bias due to deviations from intended intervention",
+        "Bias due to missing outcome data",
+        "Bias in measurement of the outcome",
+        "Bias in selection of the reported result",
+        rep("", 10 - 5))
+  else if (tool == "RoB2-cluster")
+    dm <-
+      c("Bias arising from the randomization process",
+        paste("Bias arising from the identification or",
+              "recruitment of participants into clusters"),
+        "Bias due to deviations from intended intervention",
+        "Bias due to missing outcome data",
+        "Bias in measurement of the outcome",
+        "Bias in selection of the reported result",
+        rep("", 10 - 6))
+  else if (tool == "RoB2-crossover")
+    dm <-
+      c("Bias arising from the randomization process",
+        "Bias arising from period and carryover effects",
+        "Bias due to deviations from intended intervention",
+        "Bias due to missing outcome data",
+        "Bias in measurement of the outcome",
+        "Bias in selection of the reported result",
+        rep("", 10 - 6))
+  else if (tool == "ROBINS-I")
+    dm <-
+      c("Risk of bias due to confounding",
+        "Risk of bias in selection of participants into the study",
+        "Risk of bias in classification of interventions",
+        "Risk of bias due to deviations from intented interventions",
+        "Risk of bias due to missing outcome data",
+        "Risk of bias in measurement of the outcome",
+        "Risk of bias in the selection of the reported results",
+        rep("", 10 - 7))
+  else if (tool == "ROBINS-E")
+    dm <-
+      c("Risk of bias due to confounding",
+        "Risk of bias arising from measurement of the exposure",
+        paste("Risk of bias in selection of participants",
+              "into the study (or into the analysis)"),
+        "Risk of bias due to post-exposure interventions",
+        "Risk of bias due to missing data",
+        "Risk of bias in measurement of the outcome",
+        "Risk of bias in selection of the reported results",
+        rep("", 10 - 7))
+  else
+    dm <- rep("", 10)
+  ##
+  if (tool %in% c("RoB1", "ROBINS-I", "ROBINS-E")) {
+    if (avail8)
+      dm[8] <- "Additional item 1"
+    ##
+    if (avail9)
+      dm[9] <- "Additional item 2"
+    ##
+    if (avail10)
+      dm[10] <- "Additional item 3"
+  }
+  else if (tool %in% c("RoB2-cluster", "RoB2-crossover")) {
+    if (avail7)
+      dm[7] <- "Additional item 1"
+    ##
+    if (avail8)
+      dm[8] <- "Additional item 2"
+    ##
+    if (avail9)
+      dm[9] <- "Additional item 3"
+    ##
+    if (avail10)
+      dm[10] <- "Additional item 4"
+  }
+  else if (tool == "RoB2") {
+    if (avail6)
+      dm[6] <- "Additional item 1"
+    ##
+    if (avail7)
+      dm[7] <- "Additional item 2"
+    ##
+    if (avail8)
+      dm[8] <- "Additional item 3"
+    ##
+    if (avail9)
+      dm[9] <- "Additional item 4"
+    ##
+    if (avail10)
+      dm[10] <- "Additional item 5"
+  }
+  ##
+  if (is.null(domains))
+    domains <- dm[domain.available]
+  ##
+  else if (tool == "user-defined") {
+    if (length(domains) != sum(domain.available))
+      stop("Number of domain names does not match number of domains.",
+           call. = FALSE)
+  }
+  else
+    domains <- setdom(dm, tool, domains, domain.available)
+  ##
+  if (avail.overall)
+    domains <- c(domains, "Overall risk of bias")
+  
+  
+  ##
+  ##
+  ## (6) Risk of bias symbols and colours
+  ##
+  ##
+  
   if (is.null(symbols)) {
-    if (method == "user-defined")
+    if (tool == "user-defined")
       symbols <- FALSE
     else {
       if (is.RoB)
@@ -614,7 +686,7 @@ rob <- function(item1,
     ##
     if (length(symbols) == 1 && is.logical(symbols)) {
       if (symbols) {
-        if (method == "user-defined")
+        if (tool == "user-defined")
           symbols <- seq_along(categories)
         else if (is.RoB)
           symbols <- c("+", "?", "-")
@@ -627,10 +699,8 @@ rob <- function(item1,
                 text = "Wrong number of RoB symbols (argument 'symbols').")
   }
   ##
-  ## RoB colours
-  ##
   if (is.null(col)) {
-    if (method == "user-defined")
+    if (tool == "user-defined")
       col <- seq_len(length(unique(unlist(rob))))
     else {
       if (is.RoB)
@@ -642,29 +712,20 @@ rob <- function(item1,
   else
     chklength(col, n.cat,
               text = "Wrong number of RoB colours (argument 'col').")
-  ##
-  ## RoB domain names
-  ##
-  if (is.null(domains)) {
-    if (method == "user-defined")
-      domains <- paste("Item", seq_len(ncol(rob)))
-    else
-      domains <- dm
-  }
-  ##
-  domains <- setdom(domains, method, dm, ncol(rob))
   
   
   ##
   ##
-  ## (6) Return risk of bias table
+  ## (7) Return risk of bias table
   ##
   ##
   
-  rob <- cbind(studlab, rob)
-  ##
-  attr(rob, "method") <- method
+  attr(rob, "tool") <- tool
   attr(rob, "domains") <- domains
+  ##
+  attr(rob, "overall") <- avail.overall
+  attr(rob, "weight") <- avail.weight
+  ##
   attr(rob, "symbols") <- symbols
   attr(rob, "col") <- col
   attr(rob, "legend") <- legend
@@ -702,12 +763,15 @@ print.rob <- function(x, legend = attr(x, "legend"), ...) {
   
   x.prt <- x
   class(x.prt) <- "data.frame"
+  
   print(x.prt, ...)
   
   if (legend) {
+    leg <- setleg(x)
+    ##
     txt.legend <-
       paste0("\nRisk of bias legend:",
-             paste0("\n", attr(x, "domains"), collapse = ""),
+             paste0("\n", leg, collapse = ""),
              "\n")
     cat(txt.legend)
   }

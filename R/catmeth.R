@@ -63,7 +63,7 @@ catmeth <- function(x,
   ##
   text.t <- ""
   ##
-  if (print.tau2)
+  if (print.tau2 | metabind)
     text.t <- text.tau2
   else if (print.tau)
     text.t <- text.tau
@@ -126,7 +126,7 @@ catmeth <- function(x,
     ##
     method.tau <- unique(dat.mt$method.tau[is.na(dat.mt$tau.preset)])
     ##
-    if ((print.tau2 | print.tau) & length(method.tau) >= 1) {
+    if ((print.tau2 | print.tau | metabind) & length(method.tau) >= 1) {
       for (mti in method.tau) {
         details <-
           paste0(details,
@@ -169,6 +169,8 @@ catmeth <- function(x,
       dat.qc <-
         unique(meth[meth$model %in% "random" & is.na(meth$tau.preset),
                     c("method.tau", "Q.Cochrane")])
+      dat.qc$Q.Cochrane <- replaceNA(dat.qc$Q.Cochrane, FALSE)
+      ##
       if (any(dat.qc$method.tau == "DL" & dat.qc$Q.Cochrane))
         details <-
           paste0(details,

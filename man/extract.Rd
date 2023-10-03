@@ -15,6 +15,7 @@
   prediction = x$prediction,
   overall = x$overall,
   subgroup,
+  prediction.subgroup = x$prediction.subgroup,
   se = FALSE,
   ci = TRUE,
   statistic = FALSE,
@@ -67,6 +68,10 @@ with subgroups if overall results should not be extracted.}
 
 \item{subgroup}{A logical indicating whether subgroup results
 should be extracted.}
+
+\item{prediction.subgroup}{A single logical or logical vector
+indicating whether / which prediction intervals should be
+extracted for subgroups.}
 
 \item{se}{A logical indicating whether standard errors should be
 extracted.}
@@ -148,6 +153,7 @@ lower \tab Lower (back transformed) confidence / prediction
   interval limit \cr
 upper \tab Upper (back transformed) confidence / prediction
   interval limit \cr
+k \tab Number of studies \cr
 df \tab Degrees of freedom for confidence / prediction intervals \cr
 statistic \tab Statistic for test of effect \cr
 pval \tab P-value for test of effect \cr

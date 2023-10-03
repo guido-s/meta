@@ -556,8 +556,8 @@
 #' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
 #'   postscript svg bmp jpeg png tiff
 #'
-#' @importFrom graphics abline axis box mtext lines par plot points
-#'   polygon text
+#' @importFrom graphics abline axis barplot box mtext lines par plot
+#'   points polygon text
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
@@ -574,6 +574,10 @@
 #'
 #' @importFrom CompQuadForm farebrother
 #'
+#' @importFrom methods formalArgs
+#' 
+#' @importFrom xml2 as_xml_document xml_attr xml_find_all xml_text
+#' 
 #' @export forest funnel baujat labbe radial trimfill
 
 

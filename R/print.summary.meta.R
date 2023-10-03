@@ -39,6 +39,8 @@
 #'   \code{print.default}.
 #' @param digits.se Minimal number of significant digits for standard
 #'   deviations and standard errors, see \code{print.default}.
+#' @param digits.stat Minimal number of significant digits for z- or
+#'   t-value of test for effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of test of treatment effect, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
@@ -153,6 +155,7 @@ print.summary.meta <- function(x,
                                ##
                                digits = gs("digits"),
                                digits.se = gs("digits.se"),
+                               digits.stat = gs("digits.stat"),
                                digits.pval = max(gs("digits.pval"), 2),
                                digits.tau2 = gs("digits.tau2"),
                                digits.tau = gs("digits.tau"),
@@ -268,6 +271,7 @@ print.summary.meta <- function(x,
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
@@ -590,7 +594,8 @@ print.summary.meta <- function(x,
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
         (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
-         !is_zero(x$TE - x$TE.common)))) {
+         !is_zero(x$TE - x$TE.common)) |
+        (inherits(x, c("metacont", "metamean")) & x$method.ci == "t"))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -814,22 +819,55 @@ print.summary.meta <- function(x,
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
-      ## Printout for a single proportion:
+      ## Printout for a single proportion, mean difference or mean:
       if (k.all == 1) {
         ##
+        print.stat <- FALSE
+        print.pval <- FALSE
+        ##
         if (!is.null(x$method.ci)) {
-          if (x$method.ci == "CP") {
+          if (x$method.ci == "t") {
+            details.ci <-
+              "Confidence interval based on t-distribution:\n\n"
+            ##
+            ## Add test statistic and p-value
+            ##
+            if (inherits(x, c("metacont", "metamean"))) {
+              if (any(!is.na(x$statistic))) {
+                res <- cbind(res,
+                             formatN(x$statistic,
+                                     digits = digits.stat,
+                                     big.mark = big.mark))
+                ##
+                print.stat <- TRUE
+              }
+              ##
+              if (any(!is.na(x$pval))) {
+                res <- cbind(res,
+                             formatPT(x$pval, digits = digits.pval,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval,
+                                      lab.NA = ""))
+                ##
+                print.pval <- TRUE
+              }
+            }
+          }            
+          else if (x$method.ci == "CP") {
             details.ci <-
               "Clopper-Pearson confidence interval:\n\n"
             ##
             ## Add p-value of binomial test
             ##
-            if (any(!is.na(x$pval)))
+            if (any(!is.na(x$pval))) {
               res <- cbind(res,
                            formatPT(x$pval, digits = digits.pval,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval,
                                     lab.NA = ""))
+              ##
+              print.pval <- TRUE
+            }
           }
           else if (x$method.ci == "WS")
             details.ci <-
@@ -850,16 +888,21 @@ print.summary.meta <- function(x,
           else if (x$method.ci == "Poisson")
             details.ci <-
               "Exact Poisson confidence interval for individual studies:\n\n"
-          else if (x$method.ci == "t")
-            details.ci <-
-              "Confidence interval based on t-distribution:\n\n"
           else if (x$method.ci == "!RR.Cochrane")
             details.ci <-
               paste0("Continuity correction of 1*incr for sample sizes\n",
                      "(Hartung & Knapp, 2001, Stat Med, equation (18)):\n\n")
           ##
           if (x$method.ci != "NAsm") {
-            if (x$method.ci == "!RR.Cochrane") {
+            if (inherits(x, "metacont")) {
+              catobsev(x$n.e + x$n.c, type = "n", addrow = TRUE)
+              x.meta$n.e <- x.meta$n.c <- NA
+            }
+            else if (inherits(x, "metamean")) {
+              catobsev(x$n, type = "n", addrow = TRUE)
+              x.meta$n <- NA
+            }
+            else if (x$method.ci == "!RR.Cochrane") {
               catobsev(x$n.e + x$n.c, type = "n")
               catobsev(x$event.e + x$event.c, type = "e", addrow = TRUE)
               x.meta$n.e <- x.meta$event.e <-
@@ -880,14 +923,15 @@ print.summary.meta <- function(x,
                      if (three.level) "cluster",
                      if (by) subgroup.name,
                      if (!is.null(x$exclude)) "exclude",
-                     if (x$method.ci == "CP" & (any(!is.na(x$pval)))) "p-value")
+                     if (print.stat) "t",
+                     if (print.pval) "p-value")
                    )
             prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n")
           }
         }
         if (ma) {
-          if (inherits(x, c("metaprop", "metarate")))
+          if (inherits(x, c("metaprop", "metarate", "metacont", "metamean")))
             cat("Normal approximation confidence interval:")
           else if (!is.null(x$method.ci) && x$method.ci == "!RR.Cochrane")
             cat("Mantel-Haenszel method:")

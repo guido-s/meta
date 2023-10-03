@@ -80,6 +80,10 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   ##
   x$rob <- NULL
   
+  ## Remove list information from metabind()
+  ##
+  x$list <- NULL
+  
   ## Remove debug information
   ##
   x$debug <- NULL

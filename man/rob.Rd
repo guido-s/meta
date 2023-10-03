@@ -17,8 +17,10 @@ rob(
   item9 = NULL,
   item10 = NULL,
   studlab = NULL,
+  overall = NULL,
+  weight = NULL,
   data = NULL,
-  method = gs("method.rob"),
+  tool = gs("tool.rob"),
   domains = NULL,
   categories = NULL,
   col = NULL,
@@ -30,7 +32,8 @@ rob(
 \method{print}{rob}(x, legend = attr(x, "legend"), ...)
 }
 \arguments{
-\item{item1}{Risk of bias item 1.}
+\item{item1}{Risk of bias item 1 or a meta-analysis object of class
+\code{meta} with information on risk of bias assessment.}
 
 \item{item2}{Risk of bias item 2.}
 
@@ -52,9 +55,14 @@ rob(
 
 \item{studlab}{Study labels.}
 
-\item{data}{A data frame or an object of class \code{meta}.}
+\item{overall}{Overall risk of bias assess.}
 
-\item{method}{Risk of bias (RoB) tool.}
+\item{weight}{Weight for each study.}
+
+\item{data}{A data frame or a meta-analysis object of class
+\code{meta}.}
+
+\item{tool}{Risk of bias (RoB) tool.}
 
 \item{domains}{A character vector with names of RoB domains.}
 
@@ -84,11 +92,16 @@ meta-analysis
 }
 \details{
 This function can be used to define a risk of bias (RoB) assessment
-for a meta-analysis which can be shown in a forest plot. The
-resulting risk of bias table contains study labels and variables
-for the RoB domains; variable names for RoB domains are equal to A,
-B, etc. The RoB table is directly returned if argument \code{data}
-is a data frame. The RoB table is added as a new list element 'rob'
+for a meta-analysis which can be shown in a forest plot or to
+extract the risk of bias assessment from a meta-analysis.
+
+The resulting risk of bias table contains study labels and
+variables for the RoB domains; variable names for RoB domains are
+equal to A, B, etc.
+
+The RoB table is directly returned if argument \code{data} is a
+data frame or argument \code{item1} is a meta-analysis with risk of
+bias assessment. The RoB table is added as a new list element 'rob'
 to a meta-analysis object if argument \code{data} is a
 meta-analysis.
 
@@ -97,15 +110,15 @@ domains of the RoB tool (using the eponymous arguments) or one of
 the following RoB tools.
 \tabular{ll}{
 \bold{Argument} \tab \bold{Risk of bias tool} \cr
-\code{method = "RoB1"} \tab RoB 1 tool for randomized studies \cr
-\code{method = "RoB2"} \tab RoB 2 tool for randomized studies \cr
-\code{method = "RoB2-cluster"} \tab RoB 2 tool for
+\code{tool = "RoB1"} \tab RoB 1 tool for randomized studies (Higgins et al., 2011) \cr
+\code{tool = "RoB2"} \tab RoB 2 tool for randomized studies (Higgins et al., 2019) \cr
+\code{tool = "RoB2-cluster"} \tab RoB 2 tool for
   cluster-randomized trials \cr
-\code{method = "RoB2-crossover"} \tab RoB 2 tool for crossover
+\code{tool = "RoB2-crossover"} \tab RoB 2 tool for crossover
   trials \cr
-\code{method = "ROBINS-I"} \tab Risk Of Bias In Non-randomized
+\code{tool = "ROBINS-I"} \tab Risk Of Bias In Non-randomized
   Studies - of Interventions \cr
-\code{method = "ROBINS-E"} \tab Risk Of Bias In Non-randomized
+\code{tool = "ROBINS-E"} \tab Risk Of Bias In Non-randomized
   Studies - of Exposures
 }
 These RoB tools are described on the website
@@ -123,6 +136,7 @@ user, the following names are used for RoB domains.
  \item Random sequence generation (selection bias)
  \item Allocation concealment (selection bias)
  \item Blinding of participants and personnel (performance bias)
+ \item Blinding of outcome assessment (detection bias)
  \item Incomplete outcome data (attrition bias)
  \item Selective reporting (reporting bias)
  \item Other bias
@@ -196,7 +210,6 @@ is not used to specify new domains, the names "Additional item 1"
 etc. will be used. It is also possible to modify the pre-defined
 domain names using argument \code{domains}.
 
-
 The maximum number of bias domains / items is ten (see arguments
 \code{item1}, ..., \code{item10}).
 }
@@ -249,39 +262,38 @@ they must be of same length as the number of categories.
 }
 }
 \examples{
-data(Fleiss1993cont)
-# Do meta-analysis (common effect and random effects model)
-#
-meta1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
+# Use RevMan 5 settings
+oldset <- settings.meta("RevMan5", quietly = FALSE)
 
-# A fictive risk of bias assessment with three domains
-#
-meta2 <- rob(n.psyc > 20, mean.psyc > 5, sd.psyc > 2,
-  data = meta1, categories = c(FALSE, TRUE), col = c("green", "red"))
-forest(meta2, rob.lab = "RoB")
+data(caffeine)
 
-\dontrun{
-# Risk of bias 1 tool (with fictive RoB assessment)
-set.seed(1909)
-Fleiss1993cont$D1 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-Fleiss1993cont$D2 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-Fleiss1993cont$D3 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-Fleiss1993cont$D4 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-Fleiss1993cont$D5 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-Fleiss1993cont$D6 <-
-  sample(c("low", "unclear", "high"), meta1$k, replace = TRUE)
-meta3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
-meta4 <- rob(D1, D2, D3, D4, D5, D6, data = meta3, method = "rob1")
-forest(meta4)
+m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+  data = caffeine, studlab = paste(study, year))
+
+# Add risk of bias assessment to meta-analysis
+m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+
+# Print risk of bias assessment
+rob(m2)
+
+# Forest plot with risk of bias assessment
+forest(m2)
+
+# Use previous settings
+settings.meta(oldset)
+
 }
+\references{
+Higgins JPT, Altman DG, Gøtzsche PC, Jüni P, Moher D, Oxman AD et
+al. (2011):
+The Cochrane Collaboration's tool for assessing risk of bias in
+randomised trials.
+\emph{British Medical Journal}, \bold{343}: d5928
 
+Higgins JPT, Savović J, Page MJ, Sterne JA on behalf of the RoB2
+Development Group (2019):
+Revised Cochrane risk-of-bias tool for randomized trials.
+\url{https://www.riskofbias.info/welcome/rob-2-0-tool}
 }
 \seealso{
 \code{\link{forest.meta}}, \code{\link{metagen}}

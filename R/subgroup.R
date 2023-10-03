@@ -528,12 +528,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
     ##
     if (n.random > 1) {
-      pval.Q.b.random <- NA
+      pval.Q.b.random <- vector("numeric", n.random)
       df.Q.b.random <- vector("list", n.random)
       for (i in seq_len(n.random)) {
         df.Q.b.random[[i]] <- df.Q.b
         pval.Q.b.random[i] <- pvalQ(Q.b.random[i], df.Q.b.random[[i]])
       }
+      ##
+      names(df.Q.b.random) <- names(pval.Q.b.random) <-
+        colnames(seTE.random.w)
     }
     else {
       df.Q.b.random <- df.Q.b

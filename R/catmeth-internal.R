@@ -12,8 +12,10 @@ methtxt <- function(x, i, random, method) {
     txt <- text_Cochran(x, i, random)
   else if (x$method[i] == "SSW")
     txt <- text_SSW(x, i, random)
+  else if (x$method[i] != "") 
+    txt <- paste("\n-", x$method[i])
   else
-    txt <- "\n- Method unclear"
+    txt <- ""
   ##
   txt
 }

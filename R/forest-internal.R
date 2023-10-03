@@ -813,6 +813,16 @@ wcalc <- function(x)
 
 
 collapsemat <- function(x) {
+  if (is.list(x)) {
+    for (i in rev(seq_len(length(x)))) {
+      if (is.null(x[[i]]))
+        x[[i]] <- NULL
+    }
+  }
+  ##
+  if (is.list(x) & length(x) == 1)
+    x <- x[[1]]
+  ##
   if (is.matrix(x)) {
     res <- as.vector(t(x))
     names(res) <- rep(rownames(x), rep(ncol(x), nrow(x)))
@@ -1026,4 +1036,23 @@ gh <- function(type.gr, rows.gr,
   res <- data.frame(total_height, total_rows, height_per_row, spacing)
   ##
   res
+}
+
+
+show_subgroup_results <- function(x, n, lower, upper) {
+  if (length(x) == 1) {
+    if (is.matrix(lower))
+      return(x &
+             apply(lower, 1, notallNA) &
+             apply(upper, 1, notallNA))
+    else
+      return(rep(x & notallNA(lower) & notallNA(upper), n))
+  }
+  else {
+    chklength(x, n,
+              text = paste0("Length of argument '",
+                            deparse(substitute(x)),
+                            "' must be equal to 1 or number of subgroups."))
+    return(x)
+  }
 }

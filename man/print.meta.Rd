@@ -24,6 +24,10 @@
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
   nchar.subgroup = 35,
+  sort.overall = NULL,
+  sort.tau = NULL,
+  sort.het = NULL,
+  sort.Q = NULL,
   header = TRUE,
   print.CMH = x$print.CMH,
   digits = gs("digits"),
@@ -135,6 +139,18 @@ between label and levels of grouping variable.}
 \item{nchar.subgroup}{A numeric specifying the number of characters
 to print from subgroup labels.}
 
+\item{sort.overall}{An optional vector used to sort meta-analysis
+results.}
+
+\item{sort.tau}{An optional vector used to sort estimators of the
+between-study heterogeneity variance.}
+
+\item{sort.het}{An optional vector used to sort heterogeneity
+statistics.}
+
+\item{sort.Q}{An optional vector used to sort test of
+heterogeneity.}
+
 \item{header}{A logical indicating whether information on title of
 meta-analysis, comparison and outcome should be printed at the
 beginning of the printout.}
@@ -184,8 +200,8 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
-\item{digits.df}{Minimal number of significant digits for
-degrees of freedom.}
+\item{digits.df}{Minimal number of significant digits for degrees
+of freedom.}
 
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}

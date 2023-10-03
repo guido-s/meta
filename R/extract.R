@@ -20,6 +20,9 @@
 #'   with subgroups if overall results should not be extracted.
 #' @param subgroup A logical indicating whether subgroup results
 #'   should be extracted.
+#' @param prediction.subgroup A single logical or logical vector
+#'   indicating whether / which prediction intervals should be
+#'   extracted for subgroups.
 #' @param backtransf A logical indicating whether extracted results
 #'   should be back transformed.
 #' @param se A logical indicating whether standard errors should be
@@ -75,6 +78,7 @@
 #'   interval limit \cr
 #' upper \tab Upper (back transformed) confidence / prediction
 #'   interval limit \cr
+#' k \tab Number of studies \cr
 #' df \tab Degrees of freedom for confidence / prediction intervals \cr
 #' statistic \tab Statistic for test of effect \cr
 #' pval \tab P-value for test of effect \cr
@@ -153,6 +157,7 @@ extract.meta <- function(x,
                          prediction = x$prediction,
                          overall = x$overall,
                          subgroup,
+                         prediction.subgroup = x$prediction.subgroup,
                          ##
                          se = FALSE,
                          ci = TRUE,
@@ -177,18 +182,66 @@ extract.meta <- function(x,
   x <- updateversion(x)
   chksuitable(x, method = "extract", classes = "metabind", check.mlm = FALSE)
   ##
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  ##
   chklogical(study.results)
   chklogical(common)
   chklogical(random)
   chklogical(prediction)
   chklogical(overall)
   ##
-  if (missing(subgroup))
+  if (missing(subgroup)) {
     subgroup <- !is.null(x$subgroup)
+    n.subgroups <- length(x$subgroup.levels)
+  }
   else {
     chklogical(subgroup)
     if (is.null(x$subgroup))
       subgroup <- FALSE
+    else
+      n.subgroups <- length(x$subgroup.levels)
+  }
+  ##
+  missing.prediction.subgroup <- missing(prediction.subgroup)
+  ##
+  if (!subgroup) {
+    if (!missing.prediction.subgroup)
+      warning("Argument 'prediction.subgroup' only considered for ",
+              "meta-analysis with subgroups.",
+              call. = FALSE)
+    ##
+    prediction.subgroup <- FALSE
+  }
+  else {
+    prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+    prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+    ##
+    if (length(prediction.subgroup) == 1) {
+      if (is.matrix(x$lower.predict.w))
+        prediction.subgroup.logical <-
+          prediction.subgroup &
+          apply(x$lower.predict.w, 1, notallNA) &
+          apply(x$upper.predict.w, 1, notallNA)
+      else {
+        prediction.subgroup.logical <-
+          prediction.subgroup &
+          notallNA(x$lower.predict.w) &
+          notallNA(x$upper.predict.w)
+        prediction.subgroup.logical <-
+          rep(prediction.subgroup.logical, n.subgroups)
+      }
+    }
+    else {
+      chklength(prediction.subgroup, n.subgroups,
+                text = paste("Length of argument 'prediction.subgroup' must be",
+                             "equal to 1 or number of subgroups."))
+    }
+    ##
+    chklogical(prediction.subgroup[1])
+    ##
+    if (length(prediction.subgroup) == 1 & n.subgroups > 1)
+      prediction.subgroup <- rep(prediction.subgroup, n.subgroups)
   }
   ##
   chklogical(se)
@@ -209,7 +262,8 @@ extract.meta <- function(x,
   chklogical(overwrite)
   
   
-  if (!study.results & !common & !random & !prediction) {
+  if (!study.results & !common & !random &
+      !prediction & !any(prediction.subgroup)) {
     warning("Nothing to extract.")
     return(NULL)
   }
@@ -221,7 +275,7 @@ extract.meta <- function(x,
   res.s <- NULL
   res.c <- res.c.w <- NULL
   res.r <- res.r.w <- NULL
-  res.p <- NULL
+  res.p <- res.p.w <- NULL
   ##
   n.s <- n.e.s <- n.c.s <- NULL
   n.c <- n.e.c <- n.c.c <- NULL
@@ -229,10 +283,9 @@ extract.meta <- function(x,
   n.r <- n.e.r <- n.c.r <- NULL
   n.r.w <- n.e.r.w <- n.c.r.w <- NULL
   n.p <- n.e.p <- n.c.p <- NULL
+  n.p.w <- n.e.p.w <- n.c.p.w <- NULL
   ##
   if (study.results) {
-    sfsp <- sys.frame(sys.parent())
-    mc <- match.call()
     error <-
       try(sortvar <-
             catch("sortvar", mc, x, sfsp),
@@ -257,6 +310,7 @@ extract.meta <- function(x,
                         se = x$seTE,
                         lower = x$lower,
                         upper = x$upper,
+                        k = NA,
                         df = if (is.null(x$df)) NA else x$df,
                         statistic = x$statistic,
                         pval = x$pval)[o, ]
@@ -281,6 +335,7 @@ extract.meta <- function(x,
                           se = x$seTE.common,
                           lower = x$lower.common,
                           upper = x$upper.common,
+                          k = x$k,
                           df = NA,
                           statistic = x$statistic.common,
                           pval = x$pval.common)
@@ -298,12 +353,15 @@ extract.meta <- function(x,
     }
     ##
     if (subgroup) {
-      res.c.w <- data.frame(studlab = x$text.common,
-                            subgroup = x$subgroup.levels,
+      rep.c <- rep(length(x$text.common), n.subgroups)
+      ##
+      res.c.w <- data.frame(studlab = rep(x$text.common, n.subgroups),
+                            subgroup = rep(x$subgroup.levels, rep.c),
                             estimate = x$TE.common.w,
                             se = as.vector(t(x$seTE.common.w)),
                             lower = as.vector(t(x$lower.common.w)),
                             upper = as.vector(t(x$upper.common.w)),
+                            k = rep(x$k.w, rep.c),
                             df = NA,
                             statistic = as.vector(t(x$statistic.common.w)),
                             pval = as.vector(t(x$pval.common.w)),
@@ -311,15 +369,15 @@ extract.meta <- function(x,
                               seq_along(as.vector(t(x$lower.common.w))))
       ##
       if (avail.n)
-        n.c.w <- x$n.w
+        n.c.w <- rep(x$n.w, rep.c)
       else if (avail.n.e & avail.n.c)
-        n.c.w <- x$n.e.w + x$n.c.w
+        n.c.w <- rep(x$n.e.w + x$n.c.w, rep.c)
       ##
       if (avail.n.e)
-        n.e.c.w <- x$n.e.w
+        n.e.c.w <- rep(x$n.e.w, rep.c)
       ##
       if (avail.n.c)
-        n.c.c.w <- x$n.c.w
+        n.c.c.w <- rep(x$n.c.w, rep.c)
     }
   }
   ##
@@ -331,6 +389,7 @@ extract.meta <- function(x,
                           se = x$seTE.random,
                           lower = x$lower.random,
                           upper = x$upper.random,
+                          k = x$k,
                           df = x$df.random,
                           statistic = x$statistic.random,
                           pval = x$pval.random)
@@ -348,12 +407,15 @@ extract.meta <- function(x,
     }
     ##
     if (subgroup) {
-      res.r.w <- data.frame(studlab = x$text.random,
-                            subgroup = x$subgroup.levels,
+      rep.r <- rep(length(x$text.random), n.subgroups)
+      ##
+      res.r.w <- data.frame(studlab = rep(x$text.random, n.subgroups),
+                            subgroup = rep(x$subgroup.levels, rep.r),
                             estimate = x$TE.random.w,
                             se = as.vector(t(x$seTE.random.w)),
                             lower = as.vector(t(x$lower.random.w)),
                             upper = as.vector(t(x$upper.random.w)),
+                            k = rep(x$k.w, rep.r),
                             df = as.vector(t(x$df.random.w)),
                             statistic = as.vector(t(x$statistic.random.w)),
                             pval = as.vector(t(x$pval.random.w)),
@@ -361,15 +423,15 @@ extract.meta <- function(x,
                               seq_along(as.vector(t(x$lower.random.w))))
       ##
       if (avail.n)
-        n.r.w <- x$n.w
+        n.r.w <- rep(x$n.w, rep.r)
       else if (avail.n.e & avail.n.c)
-        n.r.w <- x$n.e.w + x$n.c.w
+        n.r.w <- rep(x$n.e.w + x$n.c.w, rep.r)
       ##
       if (avail.n.e)
-        n.e.r.w <- x$n.e.w
+        n.e.r.w <- rep(x$n.e.w, rep.r)
       ##
       if (avail.n.c)
-        n.c.r.w <- x$n.c.w
+        n.c.r.w <- rep(x$n.c.w, rep.r)
     }
   }
   ##
@@ -381,6 +443,7 @@ extract.meta <- function(x,
                           se = NA,
                           lower = x$lower.predict,
                           upper = x$upper.predict,
+                          k = x$k,
                           df = x$df.predict,
                           statistic = NA,
                           pval = NA)
@@ -398,12 +461,46 @@ extract.meta <- function(x,
     }
   }
   ##
-  res <- rbind(res.s, res.c, res.c.w, res.r, res.r.w, res.p)
+  if (any(prediction.subgroup)) {
+    rep.p <- rep(length(x$text.predict), n.subgroups)
+    sel.p <- rep(prediction.subgroup, rep.p)
+    ##
+    res.p.w <-
+      data.frame(studlab = rep(x$text.predict, n.subgroups),
+                 subgroup = rep(x$subgroup.levels, rep.p),
+                 estimate = NA,
+                 se = NA,
+                 lower = as.vector(t(x$lower.predict.w)),
+                 upper = as.vector(t(x$upper.predict.w)),
+                 k = rep(x$k.w, rep.p),
+                 df = as.vector(t(x$df.predict.w)),
+                 statistic = NA,
+                 pval = NA,
+                 row.names =
+                   seq_along(as.vector(t(x$lower.predict.w))))[sel.p, ]
+    ##
+    if (avail.n)
+      n.p.w <- rep(x$n.w, rep.p)
+    else if (avail.n.e & avail.n.c)
+      n.p.w <- rep(x$n.e.w, rep.p) + rep(x$n.c.w, rep.p)
+    ##
+    if (avail.n.e)
+      n.e.p.w <- rep(x$n.e.w, rep.p)
+    ##
+    if (avail.n.c)
+      n.c.p.w <- rep(x$n.c.w, rep.p)
+    ##
+    n.p.w <- n.p.w[sel.p]
+    n.e.p.w <- n.e.p.w[sel.p]
+    n.c.p.w <- n.c.p.w[sel.p]
+  }
+  ##
+  res <- rbind(res.s, res.c, res.c.w, res.r, res.r.w, res.p, res.p.w)
   ##
   if (n) {
-    res$n <- c(n.s, n.c, n.c.w, n.r, n.r.w, n.p)
-    res$n.e <- c(n.e.s, n.e.c, n.e.c.w, n.e.r, n.e.r.w, n.e.p)
-    res$n.c <- c(n.c.s, n.c.c, n.c.c.w, n.c.r, n.c.r.w, n.c.p)
+    res$n <- c(n.s, n.c, n.c.w, n.r, n.r.w, n.p, n.p.w)
+    res$n.e <- c(n.e.s, n.e.c, n.e.c.w, n.e.r, n.e.r.w, n.e.p, n.e.p.w)
+    res$n.c <- c(n.c.s, n.c.c, n.c.c.w, n.c.r, n.c.r.w, n.c.p, n.c.p.w)
   }
   ##
   if (backtransf) {
@@ -415,15 +512,16 @@ extract.meta <- function(x,
                  if (common & overall)
                    rep(harmonic.mean, length(x$lower.common)),
                  if (common & subgroup)
-                   rep(x$n.harmonic.mean.w,
-                       replaceNULL(dim(x$lower.common.w), 1)),
+                   rep(x$n.harmonic.mean.w, rep.c),
                  if (random & overall)
                    rep(harmonic.mean, length(x$lower.random)),
                  if (random & subgroup)
-                   rep(x$n.harmonic.mean.w,
-                       replaceNULL(dim(x$lower.random.w), 1)),
+                   rep(x$n.harmonic.mean.w, rep.r),
                  if (prediction & overall)
-                   rep(harmonic.mean, length(x$lower.predict)))
+                   rep(harmonic.mean, length(x$lower.predict)),
+                 if (any(prediction.subgroup))
+                   rep(x$n.harmonic.mean.w, rep.p)[sel.p]
+                 )
     }
     else
       nback <- NULL
@@ -436,15 +534,16 @@ extract.meta <- function(x,
                     if (common & overall)
                       rep(harmonic.mean, length(x$lower.common)),
                     if (common & subgroup)
-                      rep(x$t.harmonic.mean.w,
-                          replaceNULL(dim(x$lower.common.w), 1)),
+                      rep(x$t.harmonic.mean.w, rep.c),
                     if (random & overall)
                       rep(harmonic.mean, length(x$lower.random)),
                     if (random & subgroup)
-                      rep(x$t.harmonic.mean.w,
-                          replaceNULL(dim(x$lower.random.w), 1)),
+                      rep(x$t.harmonic.mean.w, rep.r),
                     if (prediction & overall)
-                      rep(harmonic.mean, length(x$lower.predict)))
+                      rep(harmonic.mean, length(x$lower.predict)),
+                    if (any(prediction.subgroup))
+                      rep(x$t.harmonic.mean.w, rep.p)[sel.p]
+                    )
     }
     else
       timeback <- NULL
@@ -645,7 +744,7 @@ print.extract.meta <- function(x,
   statistic <- attr(x, "statistic")
   pval <- attr(x, "pval")
   
-  res <- x
+  res <- x[, names(x) != "studlab"]
   ##
   res$estimate <- round(res$estimate, digits = digits)
   if (ci)
@@ -660,9 +759,10 @@ print.extract.meta <- function(x,
   ##
   if (ci)
     res$lower <-
-      formatCI(
-        formatN(res$lower, digits, "", big.mark = big.mark),
-        formatN(res$upper, digits, "", big.mark = big.mark))
+      ifelse(is.na(res$lower) & is.na(res$upper), "",
+             formatCI(
+               formatN(res$lower, digits, "", big.mark = big.mark),
+               formatN(res$upper, digits, "", big.mark = big.mark)))
   ##
   if (statistic)
     res$statistic <-
@@ -671,18 +771,24 @@ print.extract.meta <- function(x,
     res$pval <- formatPT(res$pval, digits = digits.pval,
                          lab.NA = "", big.mark = big.mark)
   ##
+  if (all(is.na(res$k)))
+    res$k <- NULL
+  else
+    res$k <- formatN(res$k, 0, "", big.mark = big.mark)
+  ##
   if (!is.null(res$df))
     res$df <- ifelse(is.finite(res$df), res$df, "")
   ##
   res$upper <- NULL
   ##
-  rn <- res$studlab
   res <- as.matrix(res)
-  rownames(res) <- rn
-  res <- res[, colnames(res) != "studlab"]
   ##
-  names(res)[names(res) == "estimate"] <- sm.lab
-  names(res)[names(res) == "lower"] <- ci.lab
+  rownames(res) <- x$studlab
+  ##
+  cn <- colnames(res)
+  cn[cn == "estimate"] <- sm.lab
+  cn[cn == "lower"] <- ci.lab
+  colnames(res) <- cn
   
   crtitle(meta)
   ##

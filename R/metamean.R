@@ -507,7 +507,7 @@ metamean <- function(n, mean, sd, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -1107,7 +1107,8 @@ metamean <- function(n, mean, sd, studlab,
     seTE[is.na(TE)] <- NA
     ##
     if (method.ci == "t")
-      ci.study <- ci(TE, seTE, level = level, df = n - 1)
+      ci.study <-
+        ci(TE, seTE, level = level, df = n - 1, null.effect = null.effect)
     ##
     transf.null.effect <- null.effect
   }
@@ -1294,6 +1295,13 @@ metamean <- function(n, mean, sd, studlab,
   if (all(res$approx.sd == "")) {
     res$approx.sd <- NULL
     res$data$.approx.sd <- NULL
+  }
+  ##
+  ## Remove test statistic and p-value if null effect is missing
+  ##
+  if (is.na(null.effect)) {
+    res$statistic <- NA
+    res$pval <- NA
   }
   ##
   class(res) <- c(fun, "meta")

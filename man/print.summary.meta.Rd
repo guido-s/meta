@@ -18,6 +18,7 @@
   irunit = x$irunit,
   digits = gs("digits"),
   digits.se = gs("digits.se"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
@@ -88,6 +89,9 @@ calculate rates, e.g. person-years.}
 
 \item{digits.se}{Minimal number of significant digits for standard
 deviations and standard errors, see \code{print.default}.}
+
+\item{digits.stat}{Minimal number of significant digits for z- or
+t-value of test for effect, see \code{print.default}.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
 of test of treatment effect, see \code{print.default}.}
