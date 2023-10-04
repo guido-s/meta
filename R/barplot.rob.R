@@ -41,7 +41,7 @@
 #' rob(m2)
 #'
 #' \dontrun{
-#' # Weighted bar plot (if R package robvis is available)
+#' # Weighted bar plot (if R package robvis has been installed)
 #' barplot(rob(m2))
 #' }
 #'
@@ -89,8 +89,14 @@ barplot.rob <- function(height,
       return(invisible(NULL))
     }
     ##
-    if (is.null(rob$Weight))
+    if (is.null(rob$Weight)) {
       rob$Weight <- 1
+      if (!missing(weighted) & weighted)
+        warning("Argument 'weighted' set to FALSE as no weights are ",
+                "available.",
+                call. = FALSE)
+      weighted <- FALSE
+    }
     ##
     if (tool %in% c("RoB1", "user-defined")) {
       domains <- attr(rob, "domains")

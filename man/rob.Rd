@@ -92,12 +92,25 @@ meta-analysis
 }
 \details{
 This function can be used to define a risk of bias (RoB) assessment
-for a meta-analysis which can be shown in a forest plot or to
-extract the risk of bias assessment from a meta-analysis.
+for a meta-analysis which can be shown in a forest plot
+(\code{\link{forest.meta}}), summary weighted barplot
+(\code{\link{barplot.rob}}) or traffic light plot
+(\code{\link{traffic_light}}). It is also possible to extract the
+risk of bias assessment from a meta-analysis with RoB information.
 
-The resulting risk of bias table contains study labels and
-variables for the RoB domains; variable names for RoB domains are
-equal to A, B, etc.
+The risk of bias table contains
+
+\itemize{
+\item study labels;
+\item variables for individual RoB domains (with variable names A,
+  B, \dots);
+\item an overall RoB assessment if argument \code{overall} is
+  provided;
+\item weights for individual studies used in summary weighted
+  barplots.
+}
+Note, an overall RoB assessment is mandatory to create a summary
+weighted barplot or a traffic light plot.
 
 The RoB table is directly returned if argument \code{data} is a
 data frame or argument \code{item1} is a meta-analysis with risk of
@@ -110,16 +123,20 @@ domains of the RoB tool (using the eponymous arguments) or one of
 the following RoB tools.
 \tabular{ll}{
 \bold{Argument} \tab \bold{Risk of bias tool} \cr
-\code{tool = "RoB1"} \tab RoB 1 tool for randomized studies (Higgins et al., 2011) \cr
-\code{tool = "RoB2"} \tab RoB 2 tool for randomized studies (Higgins et al., 2019) \cr
+\code{tool = "RoB1"} \tab RoB 1 tool for randomized studies
+  (Higgins et al., 2011) \cr
+\code{tool = "RoB2"} \tab RoB 2 tool for randomized studies
+  (Sterne et al., 2019) \cr
 \code{tool = "RoB2-cluster"} \tab RoB 2 tool for
   cluster-randomized trials \cr
 \code{tool = "RoB2-crossover"} \tab RoB 2 tool for crossover
   trials \cr
 \code{tool = "ROBINS-I"} \tab Risk Of Bias In Non-randomized
   Studies - of Interventions \cr
+\tab (Sterne et al., 2016) \cr
 \code{tool = "ROBINS-E"} \tab Risk Of Bias In Non-randomized
-  Studies - of Exposures
+  Studies - of Exposures \cr
+\tab (ROBINS-E Development Group, 2023)
 }
 These RoB tools are described on the website
 \url{https://www.riskofbias.info/}.
@@ -197,8 +214,8 @@ user, the following names are used for RoB domains.
 
 \item User-defined RoB assessment:
 \enumerate{
- \item Item 1
- \item Item 2
+ \item First item
+ \item Second item
  \item \dots
 }
 }
@@ -258,7 +275,7 @@ User-defined RoB tools:
 }
 
 If colours (\code{col}) and symbols (\code{symbols}) are provided,
-they must be of same length as the number of categories. 
+they must be of the same length as the number of categories. 
 }
 }
 \examples{
@@ -290,13 +307,24 @@ The Cochrane Collaboration's tool for assessing risk of bias in
 randomised trials.
 \emph{British Medical Journal}, \bold{343}: d5928
 
-Higgins JPT, Savović J, Page MJ, Sterne JA on behalf of the RoB2
-Development Group (2019):
-Revised Cochrane risk-of-bias tool for randomized trials.
-\url{https://www.riskofbias.info/welcome/rob-2-0-tool}
+ROBINS-E Development Group (Higgins J, Morgan R, Rooney A et al.) (2023):
+Risk Of Bias In Non-randomized Studies - of Exposure (ROBINS-E)
+Available from: \url{https://www.riskofbias.info/welcome/robins-e-tool}.
+
+Sterne JA, Hernán MA, Reeves BC, Savović J, Berkman ND, Viswanathan
+M, et al. (2016):
+ROBINS-I: a tool for assessing risk of bias in non-randomised
+studies of interventions.
+\emph{British Medical Journal}, \bold{355}: i4919
+
+Sterne JAC, Savović J, Page MJ, Elbers RG, Blencowe NS, Boutron I,
+et al. (2019):
+RoB 2: a revised tool for assessing risk of bias in randomised trials.
+\emph{British Medical Journal}, \bold{366}: l4898.
 }
 \seealso{
-\code{\link{forest.meta}}, \code{\link{metagen}}
+\code{\link{forest.meta}}, \code{\link{barplot.rob}},
+  \code{\link{traffic_light}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

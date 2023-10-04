@@ -38,7 +38,7 @@
 #' rob(m2)
 #'
 #' \dontrun{
-#' # Traffic light plot (if R package robvis is available)
+#' # Traffic light plot (if R package robvis has been installed)
 #' traffic_light(rob(m2))
 #' }
 #'
