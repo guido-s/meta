@@ -12,12 +12,6 @@
   proportions or rates (estimates were not back transformed while CI
   limits were back transformed which was confusing)
 
-* Internal functions for (back) transformations made visible /
-  accessible to the user; see help("meta-transf")
-
-* New function rob() to add risk of bias (RoB) assessment to
-  meta-analysis object
-
 * Changes for forest plots:
   - can be directly saved to a file using common graphics device
     drivers (height of file is determined automatically)
@@ -29,8 +23,17 @@
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
 
+* New functions rob(), barplot.rob() and traffic_light() for risk of
+  bias assessment
+
 * New functions extract() and extract.meta() to extract meta-analysis
   results
+
+* R function metabind() can return both common effect and random
+  effects results as well as prediction intervals
+
+* Internal functions for (back) transformations made visible /
+  accessible to the user; see help("meta-transf")
 
 * Within-cluster correlation can be specified for three-level model
   (by default, rho = 0)
@@ -41,6 +44,8 @@
 * Argument 'pscale' or 'irscale' could be used in principle with any
   effect measure which is useful for user-specified summary measure in
   metagen()
+
+* R package **robvis** added to Suggests (for risk of bias assessment)
 
 ### User-visible changes
 
@@ -65,6 +70,16 @@
   - new arguments 'label1.common', 'label2.common', 'label1.random',
     'label2.random', 'label1.predict', 'label2.predict',
     'label1.subgroup', and 'label2.subgroup'
+
+* metaadd():
+  - argument 'data' can be a meta-analysis object created with R
+    package **meta**
+  - new arguments 'method.common', 'method.random', 'method.tau',
+    'method.random.ci', and 'method.predict'
+
+* metabind():
+  - new arguments 'common', 'random' and 'prediction' replacing
+    argument 'pooled'
 
 * forest.meta():
   - new arguments 'file', 'width', 'rows.gr', 'func.gr', 'args.gr',
@@ -111,12 +126,6 @@
 
 * labels.meta():
   - R function is not exported
-
-* metaadd():
-  - argument 'data' can be a meta-analysis object created with R
-    package **meta**
-  - new arguments 'method.common', 'method.random', 'method.tau',
-    'method.random.ci', and 'method.predict'
 
 ### Bug fixes
 
