@@ -319,10 +319,13 @@ metabind <- function(..., name = NULL,
     meth[[i]] <- condense(meth.list, i)
   ##
   meth$common <- replaceNULL(common, meth$common)
+  meth$common[is.limit.copas] <- FALSE
   meth$random <- replaceNULL(random, meth$random)
   meth$prediction <- replaceNULL(prediction, meth$prediction)
   ##
-  meth$common[is.limit.copas] <- FALSE
+  ## Use common effect estimate if no result is selected
+  ##
+  meth$common[!(meth$common | meth$random | meth$prediction)] <- TRUE
   ##
   ## Check whether settings are unique
   ##
@@ -353,8 +356,13 @@ metabind <- function(..., name = NULL,
   meth$overall <- with.subgroups & samedata
   meth$overall.hetstat <- with.subgroups & samedata
   ##
-  meth$common <- any(meth$common)
+  if (missing.pooled & all(meth$common) & all(!meth$random))
+    meth$common <- pooled == "onlycommon"
+  else
+    meth$common <- any(meth$common)
+  ##
   meth$random <- any(meth$random)
+  ##
   meth$prediction <- any(meth$prediction)
   ##
   meth$method.random.ci <- unique(meth$method.random.ci)
@@ -435,12 +443,6 @@ metabind <- function(..., name = NULL,
   ##
   if (length(unique(name)) != length(name))
     name <- paste0("meta", seq.meta)
-  ##
-  ## Use common effect estimate if no result is selected
-  ##
-  for (i in seq.meta)
-    if (!(args[[i]]$common | args[[i]]$random | args[[i]]$prediction))
-      common[i] <- TRUE
   ##
   ## Check if more than one common effect / random effects CI or PI is
   ## provided

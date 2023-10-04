@@ -118,6 +118,7 @@ metaadd <- function(x, type,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -165,20 +166,36 @@ metaadd <- function(x, type,
               if (data$prediction)
                 rep_len("prediction", n.prd))
     ##
-    res$tau <- c(if (res$random) res$tau, if (data$random) data$tau)
-    res$lower.tau <-
-      c(if (res$random) res$lower.tau, if (data$random) data$lower.tau)
-    res$upper.tau <-
-      c(if (res$random) res$upper.tau, if (data$random) data$upper.tau)
-    ##
-    res$tau2 <- c(if (res$random) res$tau2, if (data$random) data$tau2)
-    res$lower.tau2 <-
-      c(if (res$random) res$lower.tau2, if (data$random) data$lower.tau2)
-    res$upper.tau2 <-
-      c(if (res$random) res$upper.tau2, if (data$random) data$upper.tau2)
-    ##
     if (length(type) == 0)
       type <- "common"
+    ##
+    res$tau <-
+      c(if (res$random | !data$random) res$tau,
+        if (data$random) data$tau)
+    res$lower.tau <-
+      c(if (res$random | !data$random) res$lower.tau,
+        if (data$random) data$lower.tau)
+    res$upper.tau <-
+      c(if (res$random | !data$random) res$upper.tau,
+        if (data$random) data$upper.tau)
+    ##
+    res$tau2 <-
+      c(if (res$random | !data$random) res$tau2,
+        if (data$random) data$tau2)
+    res$lower.tau2 <-
+      c(if (res$random | !data$random) res$lower.tau2,
+        if (data$random) data$lower.tau2)
+    res$upper.tau2 <-
+      c(if (res$random | !data$random) res$upper.tau2,
+        if (data$random) data$upper.tau2)
+    ##
+    res$method.tau <-
+      c(if (res$random | !data$random) res$method.tau,
+        if (data$random) data$method.tau)
+    ##
+    res$method.tau.ci <-
+      c(if (res$random | !data$random) res$method.tau.ci,
+        if (data$random) data$method.tau.ci)
     ##
     TE <- lower <- upper <- statistic <- pval <-
       vector("numeric", length(type))
@@ -309,7 +326,14 @@ metaadd <- function(x, type,
     else
       text <- rep_len("Added result", k.all)
   }
+  
+  
   ##
+  ##
+  ## (3) Add results
+  ##
+  ##
+  
   j.c <- j.r <- j.p <- 0
   ##
   for (i in seq_along(type)) {
