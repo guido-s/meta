@@ -23,13 +23,47 @@ rob(
   tool = gs("tool.rob"),
   domains = NULL,
   categories = NULL,
+  cat1 = categories,
+  cat2 = categories,
+  cat3 = categories,
+  cat4 = categories,
+  cat5 = categories,
+  cat6 = categories,
+  cat7 = categories,
+  cat8 = categories,
+  cat9 = categories,
+  cat10 = categories,
+  cat.overall = categories,
   col = NULL,
+  col1 = col,
+  col2 = col,
+  col3 = col,
+  col4 = col,
+  col5 = col,
+  col6 = col,
+  col7 = col,
+  col8 = col,
+  col9 = col,
+  col10 = col,
+  col.overall = col,
   symbols = NULL,
+  symb1 = symbols,
+  symb2 = symbols,
+  symb3 = symbols,
+  symb4 = symbols,
+  symb5 = symbols,
+  symb6 = symbols,
+  symb7 = symbols,
+  symb8 = symbols,
+  symb9 = symbols,
+  symb10 = symbols,
+  symb.overall = symbols,
   legend = TRUE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  warn = TRUE
 )
 
-\method{print}{rob}(x, legend = attr(x, "legend"), ...)
+\method{print}{rob}(x, legend = attr(x, "legend"), details = TRUE, ...)
 }
 \arguments{
 \item{item1}{Risk of bias item 1 or a meta-analysis object of class
@@ -68,9 +102,75 @@ rob(
 
 \item{categories}{Possible RoB categories.}
 
+\item{cat1}{Possible categories for RoB item 1.}
+
+\item{cat2}{Possible categories for RoB item 2.}
+
+\item{cat3}{Possible categories for RoB item 3.}
+
+\item{cat4}{Possible categories for RoB item 4.}
+
+\item{cat5}{Possible categories for RoB item 5.}
+
+\item{cat6}{Possible categories for RoB item 6.}
+
+\item{cat7}{Possible categories for RoB item 7.}
+
+\item{cat8}{Possible categories for RoB item 8.}
+
+\item{cat9}{Possible categories for RoB item 9.}
+
+\item{cat10}{Possible categories for RoB item 10.}
+
+\item{cat.overall}{Possible categories for overall RoB.}
+
 \item{col}{Colours for RoB categories.}
 
+\item{col1}{Colours for categories for RoB item 1.}
+
+\item{col2}{Colours for categories for RoB item 2.}
+
+\item{col3}{Colours for categories for RoB item 3.}
+
+\item{col4}{Colours for categories for RoB item 4.}
+
+\item{col5}{Colours for categories for RoB item 5.}
+
+\item{col6}{Colours for categories for RoB item 6.}
+
+\item{col7}{Colours for categories for RoB item 7.}
+
+\item{col8}{Colours for categories for RoB item 8.}
+
+\item{col9}{Colours for categories for RoB item 9.}
+
+\item{col10}{Colours for categories for RoB item 10.}
+
+\item{col.overall}{Colours for categories for overall RoB.}
+
 \item{symbols}{Corresponding symbols for RoB categories.}
+
+\item{symb1}{Corresponding symbols for RoB item 1.}
+
+\item{symb2}{Corresponding symbols for RoB item 2.}
+
+\item{symb3}{Corresponding symbols for RoB item 3.}
+
+\item{symb4}{Corresponding symbols for RoB item 4.}
+
+\item{symb5}{Corresponding symbols for RoB item 5.}
+
+\item{symb6}{Corresponding symbols for RoB item 6.}
+
+\item{symb7}{Corresponding symbols for RoB item 7.}
+
+\item{symb8}{Corresponding symbols for RoB item 8.}
+
+\item{symb9}{Corresponding symbols for RoB item 9.}
+
+\item{symb10}{Corresponding symbols for RoB item 10.}
+
+\item{symb.overall}{Corresponding symbols for overall RoB.}
 
 \item{legend}{A logical specifying whether legend with RoB domains
 should be printed.}
@@ -78,9 +178,15 @@ should be printed.}
 \item{overwrite}{A logical indicating whether an existing risk of
 bias table in a meta-analysis object should be overwritten.}
 
+\item{warn}{A logical indicating whether warnings should be
+printed.}
+
 \item{x}{An object of class \code{rob}.}
 
-\item{\dots}{Additional printing arguments}
+\item{details}{A logical indicating whether to print details on
+categories and colours.}
+
+\item{\dots}{Additional printing arguments.}
 }
 \value{
 A data frame with study labels and risk of bias items and

@@ -14,7 +14,7 @@
 #' @param quote The set of quoting characters (only considered for
 #'   CSV-files). In RevMan 5 a "\"" is the default quoting character.
 #' @param title Title of Cochrane review.
-#' @param numbers.in.labels A logical indicating whether comparision
+#' @param numbers.in.labels A logical indicating whether comparison
 #'   number and outcome number should be printed at the beginning of
 #'   the comparison (argument \code{complab}) and outcome label
 #'   (argument \code{outclab}); this is the default in RevMan 5.

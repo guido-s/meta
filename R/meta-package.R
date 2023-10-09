@@ -545,7 +545,14 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
-#' @importFrom dplyr %>% across mutate
+#' @importFrom dplyr %>% across mutate all_of select rename mutate
+#'   if_else
+#'
+#' @importFrom magrittr %<>%
+#'
+#' @importFrom purrr compact
+#'
+#' @importFrom readr read_csv cols
 #'
 #' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
 #'   grid.lines grid.newpage grid.polygon grid.rect grid.text
@@ -565,6 +572,7 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find
+#'   unzip
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma

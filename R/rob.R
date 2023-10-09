@@ -23,14 +23,51 @@
 #' @param tool Risk of bias (RoB) tool.
 #' @param domains A character vector with names of RoB domains.
 #' @param categories Possible RoB categories.
+#' @param cat1 Possible categories for RoB item 1.
+#' @param cat2 Possible categories for RoB item 2.
+#' @param cat3 Possible categories for RoB item 3.
+#' @param cat4 Possible categories for RoB item 4.
+#' @param cat5 Possible categories for RoB item 5.
+#' @param cat6 Possible categories for RoB item 6.
+#' @param cat7 Possible categories for RoB item 7.
+#' @param cat8 Possible categories for RoB item 8.
+#' @param cat9 Possible categories for RoB item 9.
+#' @param cat10 Possible categories for RoB item 10.
+#' @param cat.overall Possible categories for overall RoB.
 #' @param col Colours for RoB categories.
+#' @param col1 Colours for categories for RoB item 1.
+#' @param col2 Colours for categories for RoB item 2.
+#' @param col3 Colours for categories for RoB item 3.
+#' @param col4 Colours for categories for RoB item 4.
+#' @param col5 Colours for categories for RoB item 5.
+#' @param col6 Colours for categories for RoB item 6.
+#' @param col7 Colours for categories for RoB item 7.
+#' @param col8 Colours for categories for RoB item 8.
+#' @param col9 Colours for categories for RoB item 9.
+#' @param col10 Colours for categories for RoB item 10.
+#' @param col.overall Colours for categories for overall RoB.
 #' @param symbols Corresponding symbols for RoB categories.
+#' @param symb1 Corresponding symbols for RoB item 1.
+#' @param symb2 Corresponding symbols for RoB item 2.
+#' @param symb3 Corresponding symbols for RoB item 3.
+#' @param symb4 Corresponding symbols for RoB item 4.
+#' @param symb5 Corresponding symbols for RoB item 5.
+#' @param symb6 Corresponding symbols for RoB item 6.
+#' @param symb7 Corresponding symbols for RoB item 7.
+#' @param symb8 Corresponding symbols for RoB item 8.
+#' @param symb9 Corresponding symbols for RoB item 9.
+#' @param symb10 Corresponding symbols for RoB item 10.
+#' @param symb.overall Corresponding symbols for overall RoB.
 #' @param legend A logical specifying whether legend with RoB domains
 #'   should be printed.
 #' @param overwrite A logical indicating whether an existing risk of
 #'   bias table in a meta-analysis object should be overwritten.
+#' @param warn A logical indicating whether warnings should be
+#'   printed.
 #' @param x An object of class \code{rob}.
-#' @param \dots Additional printing arguments
+#' @param details A logical indicating whether to print details on
+#'   categories and colours.
+#' @param \dots Additional printing arguments.
 #' 
 #' @details
 #' This function can be used to define a risk of bias (RoB) assessment
@@ -292,12 +329,50 @@ rob <- function(item1,
                 ##
                 tool = gs("tool.rob"),
                 domains = NULL,
+                ##
                 categories = NULL,
+                cat1 = categories,
+                cat2 = categories,
+                cat3 = categories,
+                cat4 = categories,
+                cat5 = categories,
+                cat6 = categories,
+                cat7 = categories,
+                cat8 = categories,
+                cat9 = categories,
+                cat10 = categories,
+                cat.overall = categories,
+                ##
                 col = NULL,
+                col1 = col,
+                col2 = col,
+                col3 = col,
+                col4 = col,
+                col5 = col,
+                col6 = col,
+                col7 = col,
+                col8 = col,
+                col9 = col,
+                col10 = col,
+                col.overall = col,
+                ##
                 symbols = NULL,
+                symb1 = symbols,
+                symb2 = symbols,
+                symb3 = symbols,
+                symb4 = symbols,
+                symb5 = symbols,
+                symb6 = symbols,
+                symb7 = symbols,
+                symb8 = symbols,
+                symb9 = symbols,
+                symb10 = symbols,
+                symb.overall = symbols,
+                ##
                 legend = TRUE,
                 ##
-                overwrite = FALSE) {
+                overwrite = FALSE,
+                warn = TRUE) {
   
   ##
   ##
@@ -443,14 +518,13 @@ rob <- function(item1,
   ##
   chklogical(legend)
   chklogical(overwrite)
+  chklogical(warn)
   ##
   if (!is.null(tool))
     tool <- setchar(tool, gs("tool4rob"))
   else
     tool <- "user-defined"
   ##
-  is.ROBINS <- tolower(substring(tool, 1, 6)) == "robins"
-  is.RoB <- tolower(substring(tool, 1, 3)) == "rob" & !is.ROBINS
   
   
   ##
@@ -458,31 +532,18 @@ rob <- function(item1,
   ## (3) Risk of bias categories
   ##
   ##
-  
-  if (is.null(categories)) {
-    if (tool == "RoB1")
-      categories <-
-        c("Low risk of bias", "Unclear risk of bias", "High risk of bias")
-    else if (is.RoB)
-      categories <-
-        c("Low risk of bias", "Some concerns", "High risk of bias")
-    else if (is.ROBINS)
-      categories <-
-        c("Low risk", "Some concerns", "High risk", "Very high risk", "NI")
-    else
-      stop("Argument 'categories' must be specified for unknown RoB tool.",
-           call. = FALSE)
-  }
-  else {
-    if (is.RoB & length(categories) != 3)
-      stop("Three categories must be provided if tool = '", tool, "'.",
-           call. = FALSE)
-    if (is.ROBINS & length(categories) != 5)
-      stop("Five categories must be provided if tool = '", tool, "'.",
-           call. = FALSE)
-  }
+  cat1 <- definecat(avail1, cat1, item1, tool, warn)
+  cat2 <- definecat(avail2, cat2, item2, tool, warn)
+  cat3 <- definecat(avail3, cat3, item3, tool, warn)
+  cat4 <- definecat(avail4, cat4, item4, tool, warn)
+  cat5 <- definecat(avail5, cat5, item5, tool, warn)
+  cat6 <- definecat(avail6, cat6, item6, tool, warn)
+  cat7 <- definecat(avail7, cat7, item7, tool, warn)
+  cat8 <- definecat(avail8, cat8, item8, tool, warn)
+  cat9 <- definecat(avail9, cat9, item9, tool, warn)
+  cat10 <- definecat(avail10, cat10, item10, tool, warn)
   ##
-  n.cat <- length(categories)
+  cat.overall <- definecat(avail.overall, cat.overall, overall, tool, warn)
   
   
   ##
@@ -494,41 +555,41 @@ rob <- function(item1,
   rob <- data.frame(Study = studlab)
   ##
   if (avail1)
-    rob$A <- setcat(item1, categories)
+    rob$A <- setcat(item1, cat1)
   ##
   if (avail2)
-    rob$B <- setcat(item2, categories)
+    rob$B <- setcat(item2, cat2)
   ##
   if (avail3)
-    rob$C <- setcat(item3, categories)
+    rob$C <- setcat(item3, cat3)
   ##
   if (avail4)
-    rob$D <- setcat(item4, categories)
+    rob$D <- setcat(item4, cat4)
   ##
   if (avail5)
-    rob$E <- setcat(item5, categories)
+    rob$E <- setcat(item5, cat5)
   ##
   if (avail6)
-    rob$F <- setcat(item6, categories)
+    rob$F <- setcat(item6, cat6)
   ##
   if (avail7)
-    rob$G <- setcat(item7, categories)
+    rob$G <- setcat(item7, cat7)
   ##
   if (avail8)
-    rob$H <- setcat(item8, categories)
+    rob$H <- setcat(item8, cat8)
   ##
   if (avail9)
-    rob$I <- setcat(item9, categories)
+    rob$I <- setcat(item9, cat9)
   ##
   if (avail10)
-    rob$J <- setcat(item10, categories)
+    rob$J <- setcat(item10, cat10)
   ##
   domain.available <- c(avail1, avail2, avail3, avail4, avail5, avail6, avail7,
                         avail8, avail9, avail10)
   names(domain.available) <- paste0("D", 1:10)
   ##
   if (avail.overall)
-    rob$Overall <- setcat(overall, categories)
+    rob$Overall <- setcat(overall, cat.overall)
   ##
   if (avail.weight && length(weight) == 1 && is.character(weight)) {
     if (is.meta)
@@ -694,56 +755,48 @@ rob <- function(item1,
   
   ##
   ##
-  ## (6) Risk of bias symbols and colours
+  ## (6) Risk of bias symbols
   ##
   ##
   
-  if (is.null(symbols)) {
-    if (tool == "user-defined")
-      symbols <- FALSE
-    else {
-      if (is.RoB)
-        symbols <- c("+", "?", "-")
-      else if (is.ROBINS)
-        symbols <- FALSE
-    }
-  }
-  else {
-    chkchar(symbols, nchar = 1)
-    ##
-    if (length(symbols) == 1 && is.logical(symbols)) {
-      if (symbols) {
-        if (tool == "user-defined")
-          symbols <- seq_along(categories)
-        else if (is.RoB)
-          symbols <- c("+", "?", "-")
-        else
-          symbols <- FALSE
-      }
-    }
-    else 
-      chklength(symbols, n.cat,
-                text = "Wrong number of RoB symbols (argument 'symbols').")
-  }
+  symb1 <- definesymb(avail1, symb1, cat1, tool, warn)
+  symb2 <- definesymb(avail2, symb2, cat2, tool, warn)
+  symb3 <- definesymb(avail3, symb3, cat3, tool, warn)
+  symb4 <- definesymb(avail4, symb4, cat4, tool, warn)
+  symb5 <- definesymb(avail5, symb5, cat5, tool, warn)
+  symb6 <- definesymb(avail6, symb6, cat6, tool, warn)
+  symb7 <- definesymb(avail7, symb7, cat7, tool, warn)
+  symb8 <- definesymb(avail8, symb8, cat8, tool, warn)
+  symb9 <- definesymb(avail9, symb9, cat9, tool, warn)
+  symb10 <- definesymb(avail10, symb10, cat10, tool, warn)
   ##
-  if (is.null(col)) {
-    if (tool == "user-defined")
-      col <- seq_len(length(unique(unlist(rob))))
-    else {
-      if (is.RoB)
-        col <- c("green", "yellow", "red")
-      else if (is.ROBINS)
-        col <-  c("green", "yellow", "red", "darkred", "darkgrey")
-    }
-  }
-  else
-    chklength(col, n.cat,
-              text = "Wrong number of RoB colours (argument 'col').")
+  symb.overall <-
+    definesymb(avail.overall, symb.overall, cat.overall, tool, warn)
   
   
   ##
   ##
-  ## (7) Return risk of bias table
+  ## (7) Risk of bias colours
+  ##
+  ##
+  
+  col1 <- definecol(avail1, col1, cat1, tool, warn)
+  col2 <- definecol(avail2, col2, cat2, tool, warn)
+  col3 <- definecol(avail3, col3, cat3, tool, warn)
+  col4 <- definecol(avail4, col4, cat4, tool, warn)
+  col5 <- definecol(avail5, col5, cat5, tool, warn)
+  col6 <- definecol(avail6, col6, cat6, tool, warn)
+  col7 <- definecol(avail7, col7, cat7, tool, warn)
+  col8 <- definecol(avail8, col8, cat8, tool, warn)
+  col9 <- definecol(avail9, col9, cat9, tool, warn)
+  col10 <- definecol(avail10, col10, cat10, tool, warn)
+  ##
+  col.overall <- definecol(avail.overall, col.overall, cat.overall, tool, warn)
+  
+  
+  ##
+  ##
+  ## (8) Return risk of bias table
   ##
   ##
   
@@ -753,8 +806,19 @@ rob <- function(item1,
   attr(rob, "overall") <- avail.overall
   attr(rob, "weight") <- avail.weight
   ##
-  attr(rob, "symbols") <- symbols
-  attr(rob, "col") <- col
+  attr(rob, "categories") <-
+    compact(list(cat1 = cat1, cat2 = cat2, cat3 = cat3, cat4 = cat4,
+                 cat5 = cat5, cat6 = cat6, cat7 = cat7, cat8 = cat8,
+                 cat9 = cat9, cat10 = cat10, cat.overall = cat.overall))
+  attr(rob, "symbols") <-
+    compact(list(symb1 = symb1, symb2 = symb2, symb3 = symb3, symb4 = symb4,
+                 symb5 = symb5, symb6 = symb6, symb7 = symb7, symb8 = symb8,
+                 symb9 = symb9, symb10 = symb10, symb.overall = symb.overall))
+  attr(rob, "col") <-
+    compact(list(col1 = col1, col2 = col2, col3 = col3, col4 = col4,
+                 col5 = col5, col6 = col6, col7 = col7, col8 = col8,
+                 col9 = col9, col10 = col10, col.overall = col.overall))
+  ##
   attr(rob, "legend") <- legend
   ##
   class(rob) <- c("rob", class(rob))
@@ -783,10 +847,12 @@ rob <- function(item1,
 #' @export
 
 
-print.rob <- function(x, legend = attr(x, "legend"), ...) {
+print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
 
   chkclass(x, "rob")
+  ##
   chklogical(legend)
+  chklogical(details)
   
   x.prt <- x
   class(x.prt) <- "data.frame"
@@ -794,14 +860,35 @@ print.rob <- function(x, legend = attr(x, "legend"), ...) {
   print(x.prt, ...)
   
   if (legend) {
-    leg <- setleg(x)
-    ##
-    txt.legend <-
+    cat(
       paste0("\nRisk of bias legend:",
-             paste0("\n", leg, collapse = ""),
+             paste0("\n", catleg(x), collapse = ""),
              "\n")
-    cat(txt.legend)
+    )
+    ##
+    if (details) {
+      cat(
+        paste0("\nCategories:",
+               paste0("\n", catcat(x), collapse = ""),
+               "\n")
+      )
+      ##
+      cat(
+        paste0("Colours:",
+               paste0("\n", catcol(x), collapse = ""),
+               "\n")
+      )
+      ##
+      symbols <- unique(unlist(attr(x, "symbols")))
+      if (!(length(symbols) == 1 && is.logical(symbols) && !symbols))
+      cat(
+        paste0("Symbols:",
+               paste0("\n", catsymb(x), collapse = ""),
+               "\n")
+      )        
+    }
   }
+  
   
   invisible(NULL)
 }

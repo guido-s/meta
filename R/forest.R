@@ -77,8 +77,6 @@
 #'   individual studies should be shown in the figure (useful to only
 #'   plot subgroup results).
 #' @param rob Risk of bias (RoB) assessment.
-#' @param rob.col Colours for RoB categories.
-#' @param rob.symbols Corresponding symbols for RoB categories.
 #' @param rob.attach A character specifying the column name to put the
 #'   risk of bias label in table heading (default is first item).
 #' @param rob.xpos Position of risk of bias label in table heading.
@@ -796,18 +794,16 @@
 #' \subsection{Risk of bias assessment}{
 #'
 #' A risk of bias (RoB) assessment can be shown in the forest plot by
-#' either providing a meta-analysis object with an RoB or providing an
-#' object created with \code{\link{rob}}.
+#' either using a meta-analysis object with an RoB assessment as main
+#' input or providing a suitable object created with
+#' \code{\link{rob}}. Argument \code{rob = FALSE} can be used to
+#' suppress the print of the risk of bias information.
 #'
 #' RoB assessments are shown as the only information on the right side
 #' of the forest plot. Thus, arguments \code{rightcols} and
 #' \code{rightlabs} should not be used. Predefined columns shown by
 #' default on the right side of a forest plot will be moved to the
 #' left side.
-#'
-#' Colours and symbols for RoB categories can be changed using
-#' arguments \code{rob.col} and \code{rob.symbols}. The number of
-#' colours or symbols must be the same as the number of categories.
 #' }
 #' 
 #'
@@ -1235,7 +1231,7 @@
 #' }
 #'
 #' @method forest meta
-#' @export forest.meta
+#' #@export forest.meta
 #' @export
 
 
@@ -1280,8 +1276,6 @@ forest.meta <- function(x,
                         study.results = gs("study.results"),
                         ##
                         rob = x$rob,
-                        rob.col = NULL,
-                        rob.symbols = NULL,
                         rob.attach = NULL,
                         rob.xpos = NULL,
                         rob.legend = TRUE,
@@ -1662,7 +1656,7 @@ forest.meta <- function(x,
     rsel <- FALSE
   ##
   text.rob <- ""
-  RoB.available <- !is.null(rob)
+  RoB.available <- !is.null(rob) && !(is.logical(rob) && !rob)
   chklogical(rob.legend)
   RoB.legend <- RoB.available & rob.legend
   chkchar(rob.lab, length = 1)
@@ -1678,37 +1672,10 @@ forest.meta <- function(x,
     rob.labels[rob.labels == "Overall"] <- "O"
     ##
     rob.categories <- attr(rob, "categories")
-    n.cat <- length(rob.categories)
+    rob.symbols <- attr(rob, "symbols")
+    rob.col <- attr(rob, "col")
     ##
-    if (is.null(rob.symbols))
-      rob.symbols <- attr(rob, "symbols")
-    else {
-      if (length(rob.symbols) == 1 && is.logical(rob.symbols)) {
-        if (rob.symbols) {
-          if (n.cat == 3)
-            rob.symbols <- c("-", "?", "+")
-          else
-            rob.symbols <- rev(seq_len(n.cat))
-        }
-        else
-          rob.symbols <- NULL
-      }
-      else if (length(rob.symbols) != n.cat)
-        stop("Wrong number of symbols in 'rob.symbols', must be ",
-             n.cat, ".",
-             call. = FALSE)
-      else
-        chkchar(rob.symbols, nchar = 1)
-    }
-    ##
-    if (is.null(rob.col))
-      rob.col <- attr(rob, "col")
-    else if (length(rob.col) != n.cat)
-      stop("Wrong number of colours in 'rob.col', must be ",
-           n.cat, ".",
-           call. = FALSE)
-    ##
-    text.rob <- c("Risk of bias legend", setleg(rob))
+    text.rob <- c("Risk of bias legend", catleg(rob))
     ##
     rob <- rob[, !(colnames(rob) %in% c("Study", "Weight")), drop = FALSE]
     ##
@@ -10485,12 +10452,16 @@ forest.meta <- function(x,
   ##
   ##
   if (rsel) {
+    i.rob <- 0
+    ##
     for (i in seq_along(rightcols)) {
-      if (cols[[rightcols[i]]]$rob)
+      if (cols[[rightcols[i]]]$rob) {
+        i.rob <- i.rob + 1
         add.rob(cols[[rightcols[i]]], j, 0.85, fs.rob.symbols, ff.rob.symbols,
                 fontfamily,
                 rob[[rightcols[[i]]]],
-                rob.categories, rob.symbols, rob.col)
+                rob.categories[[i.rob]], rob.symbols[[i.rob]], rob.col[[i.rob]])
+      }
       else
         add.text(cols[[rightcols[i]]], j)
       ##

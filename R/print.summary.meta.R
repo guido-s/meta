@@ -595,7 +595,7 @@ print.summary.meta <- function(x,
       !(inherits(x, c("metaprop", "metarate")) |
         (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
          !is_zero(x$TE - x$TE.common)) |
-        (inherits(x, c("metacont", "metamean")) & x$method.ci == "t"))) {
+        (inherits(x, c("metacont", "metamean")) && x$method.ci == "t"))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,

@@ -68,14 +68,18 @@ The last setting uses the default settings of R package
 RevMan 5 settings, in detail:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{method.random.ci} \tab "classic" \tab only available method in RevMan 5 \cr
+\code{method.random.ci} \tab "classic" \tab only available method
+  in RevMan 5 \cr
 \code{method.tau} \tab "DL" \tab only available method in RevMan 5
   \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
 \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
-\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
+\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity
+  statistic \cr
+\code{exact.smd} \tab FALSE \tab exact formulae for Hedges' g and
+  Cohen's d \cr
 \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
 \code{prediction} \tab FALSE \tab no prediction interval \cr
 \code{test.overall} \tab TRUE \tab print information on test of

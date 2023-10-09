@@ -27,7 +27,7 @@ CSV-files). In RevMan 5 a "\"" is the default quoting character.}
 
 \item{title}{Title of Cochrane review.}
 
-\item{numbers.in.labels}{A logical indicating whether comparision
+\item{numbers.in.labels}{A logical indicating whether comparison
 number and outcome number should be printed at the beginning of
 the comparison (argument \code{complab}) and outcome label
 (argument \code{outclab}); this is the default in RevMan 5.}

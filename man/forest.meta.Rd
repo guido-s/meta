@@ -39,8 +39,6 @@
   pooled.times = gs("pooled.times"),
   study.results = gs("study.results"),
   rob = x$rob,
-  rob.col = NULL,
-  rob.symbols = NULL,
   rob.attach = NULL,
   rob.xpos = NULL,
   rob.legend = TRUE,
@@ -361,10 +359,6 @@ individual studies should be shown in the figure (useful to only
 plot subgroup results).}
 
 \item{rob}{Risk of bias (RoB) assessment.}
-
-\item{rob.col}{Colours for RoB categories.}
-
-\item{rob.symbols}{Corresponding symbols for RoB categories.}
 
 \item{rob.attach}{A character specifying the column name to put the
 risk of bias label in table heading (default is first item).}
@@ -1299,18 +1293,16 @@ where treatment labels are attached can be changed using arguments
 \subsection{Risk of bias assessment}{
 
 A risk of bias (RoB) assessment can be shown in the forest plot by
-either providing a meta-analysis object with an RoB or providing an
-object created with \code{\link{rob}}.
+either using a meta-analysis object with an RoB assessment as main
+input or providing a suitable object created with
+\code{\link{rob}}. Argument \code{rob = FALSE} can be used to
+suppress the print of the risk of bias information.
 
 RoB assessments are shown as the only information on the right side
 of the forest plot. Thus, arguments \code{rightcols} and
 \code{rightlabs} should not be used. Predefined columns shown by
 default on the right side of a forest plot will be moved to the
 left side.
-
-Colours and symbols for RoB categories can be changed using
-arguments \code{rob.col} and \code{rob.symbols}. The number of
-colours or symbols must be the same as the number of categories.
 }
 
 

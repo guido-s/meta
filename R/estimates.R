@@ -117,11 +117,11 @@
 #' 
 #' m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #' summary(m1)
-#' extract(m1)
-#' extract(m1, backtransf = FALSE)
-#' extract(update(m1, common = FALSE, random = FALSE))
-#' extract(update(m1, prediction = TRUE))
-#' extract(update(m1, prediction = TRUE,
+#' estimates(m1)
+#' estimates(m1, backtransf = FALSE)
+#' estimates(update(m1, common = FALSE, random = FALSE))
+#' estimates(update(m1, prediction = TRUE))
+#' estimates(update(m1, prediction = TRUE,
 #'   level.ma = 0.99, level.predict = 0.9))
 #'
 #' \dontrun{
@@ -129,26 +129,26 @@
 #' # (if R package writexl is available)
 #' #
 #' fname1 <- tempfile(fileext = ".xlsx")
-#' extract(m1, path = fname1)
+#' estimates(m1, path = fname1)
 #' # An existing Excel file is not overwritten but a warning is printed
-#' extract(m1, path = fname1)
+#' estimates(m1, path = fname1)
 #' # Overwrite an existing Excel file
-#' extract(m1, path = fname1, overwrite = TRUE)
+#' estimates(m1, path = fname1, overwrite = TRUE)
 #' # Suppress message on file creation and overwrite existing file
-#' suppressMessages(extract(m1, path = fname1, overwrite = TRUE))
+#' suppressMessages(estimates(m1, path = fname1, overwrite = TRUE))
 #'
 #' # Save the extracted results in a text file
 #' fname2 <- tempfile(fileext = ".csv")
 #' fname2
-#' write.csv(extract(m1), file = fname2, row.names = FALSE)
+#' write.csv(estimates(m1), file = fname2, row.names = FALSE)
 #' }
 #'
-#' @rdname extract
-#' @method extract meta
+#' @rdname estimates
+#' @method estimates meta
 #' @export
 
 
-extract.meta <- function(x,
+estimates.meta <- function(x,
                          sortvar,
                          ##
                          study.results = TRUE,
@@ -173,14 +173,14 @@ extract.meta <- function(x,
                          digits.pval = gs("digits.pval"),
                          ##
                          writexl = !missing(path),
-                         path = "extract.xlsx",
+                         path = "estimates.xlsx",
                          overwrite = FALSE,
                          ##
                          ...) {
   
   chkclass(x, "meta")
   x <- updateversion(x)
-  chksuitable(x, method = "extract", classes = "metabind", check.mlm = FALSE)
+  chksuitable(x, method = "estimates", classes = "metabind", check.mlm = FALSE)
   ##
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -667,32 +667,32 @@ extract.meta <- function(x,
   attr(res, "digits.stat") <- digits.stat
   attr(res, "digits.pval") <- digits.pval
   ##
-  class(res) <- c("extract.meta", "extract", "data.frame")  
+  class(res) <- c("estimates.meta", "estimates", "data.frame")  
   
   res
 }
 
 
-#' @rdname extract
-#' @export extract
+#' @rdname estimates
+#' @export estimates
 
 
-extract <- function(x, ...) 
-  UseMethod("extract")
+estimates <- function(x, ...) 
+  UseMethod("estimates")
 
 
-#' @rdname extract
-#' @method print extract.meta
+#' @rdname estimates
+#' @method print estimates.meta
 #' @export
 
-print.extract.meta <- function(x,
+print.estimates.meta <- function(x,
                                digits.tau = gs("digits.tau"),
                                text.tau2 = gs("text.tau2"),
                                text.tau = gs("text.tau"),
                                big.mark = gs("big.mark"),
                                details = TRUE, ...) {
   
-  chkclass(x, "extract.meta")
+  chkclass(x, "estimates.meta")
   
   meta <- attr(x, "x")
   ##

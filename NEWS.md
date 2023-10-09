@@ -7,10 +7,21 @@
   - *vignette("meta-tutorial")* (R commands from [Balduzzi et al.,
   2019](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019))
 
+* New functions rob(), barplot.rob() and traffic_light() for risk of
+  bias assessment
+
+* New function read.cdir() to import Cochrane data package from
+  Cochrane review of interventions
+
+* New functions estimates() and estimates.meta() to extract
+  meta-analysis results
+
 * Lower and upper confidence interval limits of individual study
   results stored as transformed limits for meta-analysis with single
-  proportions or rates (estimates were not back transformed while CI
-  limits were back transformed which was confusing)
+  proportions or rates (in previous versions of **meta**, all
+  estimates were not back transformed while CI limits were back
+  transformed for individual studies and not back transformed for
+  meta-analysis results)
 
 * Changes for forest plots:
   - can be directly saved to a file using common graphics device
@@ -22,12 +33,6 @@
     diamonds
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
-
-* New functions rob(), barplot.rob() and traffic_light() for risk of
-  bias assessment
-
-* New functions extract() and extract.meta() to extract meta-analysis
-  results
 
 * R function metabind() can return both common effect and random
   effects results as well as prediction intervals

@@ -704,3 +704,28 @@ list2vec <- function(x) {
   else
     return(x)
 }
+
+
+em2sm <- function(x, type = NULL) {
+  x[x == "Odds Ratio"] <- "OR"
+  x[x == "Odds Ratio (Non-event)"] <- "OR"
+  x[x == "Peto Odds Ratio"] <- "OR"
+  x[x == "Risk Ratio"] <- "RR"
+  x[x == "Risk Difference"] <- "RD"
+  x[x == "Mean Difference"] <- "MD"
+  x[x == "Standardized Mean Difference"] <- "SMD"
+  x[x == "Std. Mean Difference"] <- "SMD"
+  x[x == "Hazard Ratio"] <- "HR"
+  ##
+  if (!is.null(type))
+    x <- ifelse(is.na(x) & type == "I", "", x)
+  ##
+  x
+}
+
+sm2meth <- function(x) {
+  x[x == "IV"] <- "Inverse"
+  x[x == "EXP_O_E_VAR"] <- "Peto"
+  ##
+  x
+}

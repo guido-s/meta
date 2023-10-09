@@ -853,7 +853,7 @@ setOption("bottom.lr", TRUE)
 ##
 setOption("lab.NA", ".")
 setOption("lab.NA.effect", NULL)
-setOption("lab.NA.weight", "--")
+setOption("lab.NA.weight", ".")
 ##
 setOption("lwd", 1)
 ##

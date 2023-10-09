@@ -7,7 +7,8 @@
 
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
-                    return.NULL = TRUE, nchar.equal = FALSE) {
+                    return.NULL = TRUE, nchar.equal = FALSE,
+                    setNA = FALSE) {
   val <- unique(val)
   ##
   if (is.null(name))
@@ -30,7 +31,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
   }
   ##
-  if (anyNA(idx) || any(idx == 0)) {
+  if ((anyNA(idx) || any(idx == 0)) && !setNA) {
     if (list)
       first <- "List element '"
     else
