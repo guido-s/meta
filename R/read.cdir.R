@@ -24,6 +24,7 @@
 #'   original data files.
 #' @param \dots Additional arguments (passed on to
 #'   \code{\link[utils]{unzip}})
+#' @param x An object of class "cdir".
 #' 
 #' @details
 #' RevMan Web is the current software used for preparing and
@@ -141,7 +142,20 @@
 #' @keywords datagen
 #' 
 #' @examples
-#' # No example available at the moment.
+#' # Locate file "Fleiss1993.zip" with Cochrane data package in
+#' # sub-directory of R package meta
+#' #
+#' filename <- system.file("extdata/Fleiss1993.zip", package = "meta")
+#' Fleiss1993_CR <- read.cdir(filename)
+#' Fleiss1993_CR
+#' 
+#' # Same result as R Command example(Fleiss1993bin):
+#' #
+#' metacr(Fleiss1993_CR)
+#' 
+#' # Same result as R Command example(Fleiss1993cont):
+#' #
+#' metacr(Fleiss1993_CR, 1, 2)
 #' 
 #' @rdname read.cdir
 #' @export read.cdir
@@ -216,11 +230,18 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   ##
   if (is.null(CD)) {
     lf <- list.files(exdir)
+    ##
     if (any(grepl("-files$", lf)))
       CD <- unlist(strsplit(lf[grep("-files$", lf)], "-"))[1]
-    else
-      CD <- "Unknown_ID"
+    else {
+      ld <- list.dirs(exdir)
+      ld <- ld[ld != exdir]
+      exdir <- ld[1]
+      lf <- list.files(exdir)
+      CD <- unlist(strsplit(lf[grep("-files$", lf)], "-"))[1]
+    }
   }
+  ##
   if (data.package)
     wd <- exdir
   else
@@ -542,6 +563,43 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       list(settings = settings.orig, datarows = datarows.orig,
            subgroup = subgroup.orig, if (rob) rob = rob.orig)
   ##
-  class(res) <- c("cdir", "data.frame")
+  class(res) <- "cdir"
   res
+}
+
+
+
+
+
+#' @rdname read.cdir
+#' @method print cdir
+#' @export
+
+
+print.cdir <- function(x, ...) {
+  
+  chkclass(x, "cdir")
+  ##
+  tl <- options()$width - 12
+  newline <- FALSE
+  ##
+  title <- attr(x$data, "title")
+  ##
+  if (!is.null(title)) {
+    if (title != "") {
+      newline <- TRUE
+      if (nchar(title) <= tl)
+        cat(paste0("Review:     ", title, "\n"))
+      else
+        cat(paste0("Review:     ", substring(title, 1, tl - 4), " ...\n"))
+    }
+  }
+  ##
+  if (!is.null(x$data$complab)) {
+    cat("Available comparisons:\n")
+    ##
+    cat(paste0(unique(x$data$complab), "\n", collapse = ""))
+  }
+  ##
+  invisible(NULL)
 }

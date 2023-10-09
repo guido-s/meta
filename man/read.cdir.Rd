@@ -2,6 +2,7 @@
 % Please edit documentation in R/read.cdir.R
 \name{read.cdir}
 \alias{read.cdir}
+\alias{print.cdir}
 \title{Import data of Cochrane intervention review}
 \usage{
 read.cdir(
@@ -17,6 +18,8 @@ read.cdir(
   keep.orig = FALSE,
   ...
 )
+
+\method{print}{cdir}(x, ...)
 }
 \arguments{
 \item{file}{The name of a file to read data values from.}
@@ -47,6 +50,8 @@ original data files.}
 
 \item{\dots}{Additional arguments (passed on to
 \code{\link[utils]{unzip}})}
+
+\item{x}{An object of class "cdir".}
 }
 \value{
 A list consisting of a data frame 'data' with the study data and
@@ -155,7 +160,20 @@ in RevMan Web using \emph{Help} - \emph{Convert a RevMan 5 file}.
 }
 }
 \examples{
-# No example available at the moment.
+# Locate file "Fleiss1993.zip" with Cochrane data package in
+# sub-directory of R package meta
+#
+filename <- system.file("extdata/Fleiss1993.zip", package = "meta")
+Fleiss1993_CR <- read.cdir(filename)
+Fleiss1993_CR
+
+# Same result as R Command example(Fleiss1993bin):
+#
+metacr(Fleiss1993_CR)
+
+# Same result as R Command example(Fleiss1993cont):
+#
+metacr(Fleiss1993_CR, 1, 2)
 
 }
 \references{

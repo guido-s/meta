@@ -1231,7 +1231,7 @@
 #' }
 #'
 #' @method forest meta
-#' #@export forest.meta
+#' @export forest.meta
 #' @export
 
 

@@ -58,9 +58,18 @@
 #' \item Meta-regression (\code{\link{metareg}})
 #' \item Cumulative meta-analysis (\code{\link{metacum}}) and
 #'   leave-one-out meta-analysis (\code{\link{metainf}})
-#' \item Import data from Review Manager 5 (\code{\link{read.rm5}}),
-#'   see also \code{\link{metacr}} to conduct meta-analysis for a
-#'   single comparison and outcome from a Cochrane review
+#' \item Import data from RevMan Web (\code{\link{read.cdir}}), RevMan
+#'   5 (\code{\link{read.rm5}}), see also \code{\link{metacr}} to
+#'   conduct meta-analysis for a single comparison and outcome from a
+#'   Cochrane review
+#' }
+#'
+#' R package \bold{meta} provides two vignettes:
+#' \itemize{
+#'  \item \code{vignette("meta-workflow")} with an overview of main
+#'    functions,
+#'  \item \code{vignette("meta-tutorial")} with up-to-date commands for
+#'    Balduzzi et al. (2019).
 #' }
 #' 
 #' Additional statistical meta-analysis methods are provided by add-on

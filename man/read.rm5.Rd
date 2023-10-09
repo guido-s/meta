@@ -187,6 +187,18 @@ metacr(Fleiss1993_CR)
 #
 metacr(Fleiss1993_CR, 1, 2)
 
+\dontrun{
+# Locate file "Fleiss1993.rm5" in sub-directory of R package meta
+#
+filename <- system.file("extdata/Fleiss1993.rm5", package = "meta")
+Fleiss1993_CR <- read.cdir(filename)
+Fleiss1993_CR
+
+# Same result as R Command example(Fleiss1993bin):
+#
+metacr(Fleiss1993_CR)
+}
+
 }
 \references{
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.

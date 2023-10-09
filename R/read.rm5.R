@@ -182,6 +182,18 @@
 #' #
 #' metacr(Fleiss1993_CR, 1, 2)
 #'
+#' \dontrun{
+#' # Locate file "Fleiss1993.rm5" in sub-directory of R package meta
+#' #
+#' filename <- system.file("extdata/Fleiss1993.rm5", package = "meta")
+#' Fleiss1993_CR <- read.cdir(filename)
+#' Fleiss1993_CR
+#' 
+#' # Same result as R Command example(Fleiss1993bin):
+#' #
+#' metacr(Fleiss1993_CR)
+#' }
+#'
 #' @importFrom xml2 as_xml_document xml_attr xml_find_all xml_text
 #' 
 #' @rdname read.rm5
