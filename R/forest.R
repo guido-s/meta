@@ -9928,8 +9928,13 @@ forest.meta <- function(x,
     else if (weight.study == "random")
       information <- sqrt(w.randoms)
     ## Square height equal to 1 for most precise study result
-    if (!all(is.na(information)))
+    if (!all(is.na(information))) {
       information <- information / max(information, na.rm = TRUE)
+      if (length(unique(type.study)) == 1 &&
+          unique(type.study) == "squarediamond")
+        information[information < 0.35 * max(information, na.rm = TRUE)] <-
+          0.35
+    }
     else
       information <- rep(0.9, length(TEs))
     ## Same / maximum polygon height for all meta-analytical results
