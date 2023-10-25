@@ -295,11 +295,44 @@ draw.ci.diamond <- function(TE, lower, upper,
       ((min <= TE & TE <= max) |
        (min <= lower & lower <= max) |
        (min <= upper & upper <= max))
-      )
-    grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
-                 y = unit(0.5 + c(0, 0.4 * size, 0, -0.4 * size), "npc"),
-                 gp = gpar(fill = col.diamond, col = col.diamond.lines,
-                           lwd = lwd))
+      ) {
+    if (min <= lower & max >= upper) {
+      grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
+                   y = unit(0.5 + c(0, 0.4 * size, 0, -0.4 * size), "npc"),
+                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                             lwd = lwd))
+    }
+    ##
+    else {
+      if (min > lower) {
+        x.min <- min
+        y.min1 <- 0.5 + -0.4 * size * (lower - min) / (lower - TE)
+        y.min2 <- 0.5 +  0.4 * size * (lower - min) / (lower - TE)
+      }
+      else {
+        x.min <- lower
+        y.min1 <- y.min2 <- 0.5
+      }
+      ##
+      if (max < upper) {
+        x.min <- max
+        y.max1 <- 0.5 +  0.4 * size * (upper - max) / (upper - TE)
+        y.max2 <- 0.5 + -0.4 * size * (upper - max) / (upper - TE)
+      }
+      else {
+        x.max <- upper
+        y.max1 <- y.max2 <- 0.5
+      }
+      ##
+      grid.polygon(x = unit(c(x.min, x.min, TE, x.max, x.max, TE, x.min),
+                            "native"),
+                   y = unit(c(y.min1, y.min2, 0.5 + 0.4 * size,
+                              y.max1, y.max2, 0.5 - 0.4 * size,
+                              y.min1), "npc"),
+                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                             lwd = lwd))
+    }
+  }
   ##
   invisible(NULL)
 }

@@ -34,8 +34,9 @@
     diamonds
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
-  - truncated prediction intervals shown if lower or upper limit is
-    outside the limits of the x-axis
+  - truncated common effect / random effects confidence intervals and
+    prediction intervals if lower / upper limit is outside the limits
+    of the x-axis
 
 * New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
   to print results according to BMJ style and formating, see, for
