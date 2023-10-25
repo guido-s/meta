@@ -352,12 +352,12 @@ draw.ci.predict <- function(lower.predict, upper.predict,
     range <- max - min
     ## Plot prediction interval only within plotting range
     if (min > lower.predict)
-      x.min <- min + range / 30
+      x.min <- min + range / 40
     else
       x.min <- lower.predict
     ##
     if (max < upper.predict)
-      x.max <- max - range / 30
+      x.max <- max - range / 40
     else
       x.max <- upper.predict
     ##
