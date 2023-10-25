@@ -356,6 +356,7 @@ metaadd <- function(x, type,
       res$method <- c(if (res$common) res$method, method.common[j.c])
       ##
       res$common <- TRUE
+      res$overall <- TRUE
     }
     ##
     if (type[i] == "random") {
@@ -386,6 +387,7 @@ metaadd <- function(x, type,
         c(if (res$random) res$df.random, NA)
       ##
       res$random <- TRUE
+      res$overall <- TRUE
     }
     ##
     if (type[i] == "prediction") {
@@ -402,6 +404,7 @@ metaadd <- function(x, type,
         c(if (res$prediction) res$method.predict, method.predict[j.p])
       ##
       res$prediction <- TRUE
+      res$overall <- TRUE
     }
   }
   ##
