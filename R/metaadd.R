@@ -340,6 +340,9 @@ metaadd <- function(x, type,
     if (type[i] == "common") {
       j.c <- j.c + 1
       ##
+      if (!res$common)
+        res$w.common[!is.na(res$w.common)] <- NA
+      ##
       res$TE.common <-
         c(if (res$common) res$TE.common, TE[i])
       res$lower.common <-
@@ -361,6 +364,9 @@ metaadd <- function(x, type,
     ##
     if (type[i] == "random") {
       j.r <- j.r + 1
+      ##
+      if (!res$random)
+        res$w.random[!is.na(res$w.random)] <- NA
       ##
       res$TE.random <-
         c(if (res$random) res$TE.random, TE[i])

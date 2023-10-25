@@ -3920,9 +3920,9 @@ forest.meta <- function(x,
       ##
       if (!metainf.metacum & overall & study.results &
           !any(x$method == "GLMM") & !metamerge) {
-        if (common)
+        if (common && !all(is.na(x$w.common)))
           leftcols <- c(leftcols, "w.common")
-        if (random)
+        if (random && !all(is.na(x$w.random)))
           leftcols <- c(leftcols, "w.random")
       }
       ##
@@ -3961,7 +3961,8 @@ forest.meta <- function(x,
       ##
       if (!metainf.metacum & overall & study.results &
           !any(x$method == "GLMM") & !metamerge) {
-        wcols <- c(if (common) "w.common", if (random) "w.random")
+        wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
+                   if (random && !all(is.na(x$w.random))) "w.random")
         ##
         if (bmj)
           rightcols <- c(wcols, rightcols)
