@@ -39,10 +39,10 @@
   pooled.times = gs("pooled.times"),
   study.results = gs("study.results"),
   rob = x$rob,
-  rob.attach = NULL,
-  rob.xpos = NULL,
+  rob.text = "Risk of Bias",
+  rob.xpos = 0,
   rob.legend = TRUE,
-  rob.lab = "Risk of Bias",
+  rob.only = FALSE,
   xlab = "",
   xlab.pos,
   smlab = NULL,
@@ -67,6 +67,7 @@
   fill.equi = gs("fill.equi"),
   fill.lower.equi = fill.equi,
   fill.upper.equi = rev(fill.equi),
+  fill = gs("fill"),
   leftcols = gs("leftcols"),
   rightcols = gs("rightcols"),
   leftlabs = gs("leftlabs"),
@@ -84,6 +85,7 @@
   lwd = gs("lwd"),
   at = NULL,
   label = TRUE,
+  col.label = gs("col.label"),
   type.study = gs("type.study"),
   type.common = gs("type.common"),
   type.random = type.common,
@@ -92,7 +94,7 @@
   type.subgroup.random = type.subgroup,
   col.study = gs("col.study"),
   col.square = gs("col.square"),
-  col.square.lines = col.square,
+  col.square.lines = gs("col.square.lines"),
   col.circle = gs("col.circle"),
   col.circle.lines = col.circle,
   col.inside = gs("col.inside"),
@@ -149,7 +151,10 @@
   text.addline1,
   text.addline2,
   details = gs("forest.details"),
+  col.lines = gs("col.lines"),
   header.line,
+  col.header.line = col.lines,
+  col.jama.line = col.subgroup,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -194,13 +199,17 @@
   ff.rob = "plain",
   ff.rob.symbols = "bold",
   ff.details = "plain",
-  squaresize = 0.8/spacing,
-  plotwidth = if (layout == "JAMA") "8cm" else "6cm",
+  squaresize = 0.9/spacing,
+  lwd.square = gs("lwd.square"),
+  lwd.diamond = gs("lwd.diamond"),
+  arrow.type = gs("arrow.type"),
+  arrow.length = gs("arrow.length"),
+  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
   colgap = gs("colgap"),
   colgap.left = colgap,
   colgap.right = colgap,
   colgap.studlab = colgap.left,
-  colgap.forest = colgap,
+  colgap.forest = gs("colgap.forest"),
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
   colgap.rob = "1mm",
@@ -218,7 +227,9 @@
   just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
-  just.rob = "left",
+  bmj.text = NULL,
+  bmj.xpos = 0,
+  bmj.sep = " / ",
   spacing = gs("spacing"),
   addrow = gs("addrow"),
   addrow.overall = gs("addrow.overall"),
@@ -236,8 +247,8 @@
   digits.tau = gs("digits.tau"),
   digits.I2 = max(gs("digits.I2") - 1, 0),
   digits.weight = gs("digits.weight"),
-  digits.mean = digits,
-  digits.sd = digits.se,
+  digits.mean = gs("digits.mean"),
+  digits.sd = gs("digits.sd"),
   digits.cor = digits,
   digits.time = digits,
   digits.n = 0,
@@ -286,13 +297,13 @@ pooled common effect estimate.}
 \item{text.random}{A character string used in the plot to label the
 pooled random effects estimate.}
 
-\item{lty.common}{Line type (pooled common effect estimate).}
+\item{lty.common}{Line type of pooled common effect estimate.}
 
-\item{lty.random}{Line type (pooled random effects estimate).}
+\item{lty.random}{Line type of pooled random effects estimate.}
 
-\item{col.common}{Line colour (pooled common effect estimate).}
+\item{col.common}{Line colour of pooled common effect estimate.}
 
-\item{col.random}{Line colour (pooled random effects estimate).}
+\item{col.random}{Line colour of pooled random effects estimate.}
 
 \item{text.w.common}{A character string used to label weights of
 common effect model.}
@@ -360,15 +371,19 @@ plot subgroup results).}
 
 \item{rob}{Risk of bias (RoB) assessment.}
 
-\item{rob.attach}{A character specifying the column name to put the
-risk of bias label in table heading (default is first item).}
+\item{rob.text}{Column heading for RoB table.}
 
-\item{rob.xpos}{Position of risk of bias label in table heading.}
+\item{rob.xpos}{A numeric specifying the horizontal position of the
+risk of bias label in RoB table heading. The value is a so called
+normalised parent coordinate in the horizontal direction (see
+\code{\link[grid]{unit}}).}
 
-\item{rob.legend}{A logical specifying whether legend with RoB
+\item{rob.legend}{A logical specifying whether a legend with RoB
 domains should be printed.}
 
-\item{rob.lab}{Column heading for RoB assessment.}
+\item{rob.only}{A logical indicating whether the risk of bias
+assessment is the only information printed on the right side of
+the forest plot.}
 
 \item{xlab}{A label for the x-axis.}
 
@@ -459,6 +474,8 @@ upper limit(s). Can be equal to the number of upper limits or the
 number of limits plus 1 (in this case the region between largest
 limit and maximum is also filled).}
 
+\item{fill}{Colour for background of confidence interval plot.}
+
 \item{leftcols}{A character vector specifying (additional) columns
 to be printed on the left side of the forest plot or a logical
 value (see Details).}
@@ -508,6 +525,8 @@ individual treatment estimates and confidence intervals.}
 \item{label}{A logical value indicating whether to draw the labels
 on the tick marks, or an expression or character vector which
 specify the labels to use. See \code{\link{grid.xaxis}}.}
+
+\item{col.label}{The colour of labels on the x-axis.}
 
 \item{type.study}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for individual
@@ -729,8 +748,14 @@ meta-analysis results).}
 \item{details}{A logical specifying whether details on statistical
 methods should be printed.}
 
+\item{col.lines}{The colour of lines.}
+
 \item{header.line}{A logical value indicating whether to print a
 header line or a character string ("both", "below", "").}
+
+\item{col.header.line}{Colour of the header line(s).}
+
+\item{col.jama.line}{Colour of the additional JAMA lines.}
 
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
@@ -865,6 +890,16 @@ methods, see \code{\link{gpar}}.}
 \item{squaresize}{A numeric used to increase or decrease the size
 of squares in the forest plot.}
 
+\item{lwd.square}{The line width of the border around squares.}
+
+\item{lwd.diamond}{The line width of the border around diamonds.}
+
+\item{arrow.type}{A character string indicating whether arrows
+printed for results outside the forest plot should be
+\code{"open"}, or \code{"closed"}, can be abbreviated.}
+
+\item{arrow.length}{The length of arrows in inches.}
+
 \item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
 "3inch", or a \code{\link[grid]{unit}} object specifying width of
 the forest plot.}
@@ -957,8 +992,15 @@ columns on right side of forest plot (possible values: "left",
 "right", "center"). Can be of same length as number of additional
 columns on right side of forest plot.}
 
-\item{just.rob}{Justification of risk of bias text (possible
-values: "left", "right", "center").}
+\item{bmj.text}{A character string used in the plot with BMJ layout
+to label the group specific information.}
+
+\item{bmj.xpos}{A numeric specifying the horizontal position of the
+BMJ label. The value is a so called normalised parent coordinate
+in the horizontal direction (see \code{\link[grid]{unit}}).}
+
+\item{bmj.sep}{A character string used to separate sample sizes
+from number of events or means / standard deviations.}
 
 \item{spacing}{A numeric determining line spacing in a forest plot.}
 
@@ -989,31 +1031,31 @@ correlations, for example.}
 effects, see \code{print.default}.}
 
 \item{digits.se}{Minimal number of significant digits for standard
-errors, see \code{print.default}.}
+errors.}
 
 \item{digits.stat}{Minimal number of significant digits for z- or
-t-statistic for test of overall effect, see \code{print.default}.}
+t-statistic for test of overall effect.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
+of overall treatment effect.}
 
 \item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
+p-value of heterogeneity test.}
 
 \item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
+heterogeneity statistic Q.}
 
 \item{digits.tau2}{Minimal number of significant digits for
-between-study variance, see \code{print.default}.}
+between-study variance.}
 
 \item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance, see \code{print.default}.}
+root of between-study variance.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
-statistic, see \code{print.default}.}
+statistic.}
 
 \item{digits.weight}{Minimal number of significant digits for
-weights, see \code{print.default}.}
+weights.}
 
 \item{digits.mean}{Minimal number of significant digits for means;
 only applies to \code{\link{metacont}} objects.}
@@ -1615,7 +1657,7 @@ forest(m1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot (in one column)
 #
-forest(m1, rightcols = c("effect.ci"))
+forest(m1, rightcols = "effect.ci")
 
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot

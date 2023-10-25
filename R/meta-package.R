@@ -557,6 +557,8 @@
 #' @importFrom dplyr %>% across mutate all_of select rename mutate
 #'   if_else
 #'
+#' @importFrom stringr str_pad
+#'
 #' @importFrom magrittr %<>%
 #'
 #' @importFrom purrr compact

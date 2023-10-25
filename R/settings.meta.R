@@ -26,6 +26,7 @@
 #' Examples) or use one of the following general settings:
 #' \itemize{
 #' \item \code{settings.meta("RevMan5")}
+#' \item \code{settings.meta("BMJ")}
 #' \item \code{settings.meta("JAMA")}
 #' \item \code{settings.meta("IQWiG5")}
 #' \item \code{settings.meta("IQWiG6")}
@@ -38,7 +39,9 @@
 #' \url{https://training.cochrane.org/online-learning/core-software/revman})
 #' and specifies to use a RevMan 5 layout in forest plots.
 #'
-#' The second command can be used to generate forest plots following
+#' The second command can be used to generate forest plots in BMJ layout.
+#'
+#' The third command can be used to generate forest plots following
 #' instructions for authors of the \emph{Journal of the American
 #' Medical Association}
 #' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
@@ -91,6 +94,26 @@
 #' \code{header.line}, \tab TRUE \tab print header line
 #' }
 #'
+#' BMJ settings:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{layout} \tab "BMJ" \tab layout for forest plots \cr
+#' \code{test.overall} \tab TRUE \tab print information on test of
+#'   overall effect \cr
+#' \code{test.subgroup} \tab FALSE \tab print information on test for
+#'   subgroup differences \cr
+#' \code{test.effect.subgroup} \tab FALSE \tab print information on
+#'   test for effect in subgroups \cr
+#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+#'   \cr
+#' \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
+#' \code{CIbracket}, \tab "(" \tab \cr
+#' \code{CIseparator} \tab " to " \tab print confidence intervals as
+#'   "\code{(. to .)}" \cr
+#' \code{hetlab}, \tab \tab "Test for heterogeneity: " \cr
+#' \code{header.line}, \tab TRUE \tab print header line
+#' }
+#'
 #' JAMA settings:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
@@ -107,7 +130,7 @@
 #' \code{CIbracket}, \tab "(" \tab \cr
 #' \code{CIseparator} \tab "-" \tab print confidence intervals as
 #'   "\code{(.-.)}" \cr
-#' \code{zero.pval}, \tab TRUE \tab print p-values with leading zero
+#' \code{zero.pval}, \tab FALSE \tab print p-values with leading zero
 #' \cr
 #' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
 #'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr
@@ -262,7 +285,8 @@ settings.meta <- function(..., quietly = TRUE) {
   ##
   ## Set internal variables
   ##
-  settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6", "geneexpr", "meta4")
+  settings <- c("RevMan5", "BMJ", "JAMA",
+                "IQWiG5", "IQWiG6", "geneexpr", "meta4")
   layouts <- c(settings[1:2], "meta")
   ##
   print.settings <- FALSE
@@ -451,6 +475,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
+    setOption("digits.mean", 4)
+    setOption("digits.sd", 4)
     setOption("digits.se", 4)
     setOption("digits.stat", 2)
     setOption("digits.zval", 2)
@@ -554,6 +580,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("lty.equi", 1)
     setOption("col.equi", "blue")
     setOption("fill.equi", "transparent")
+    setOption("fill", "transparent")
     ##
     setOption("leftcols", NULL)
     setOption("rightcols", NULL)
@@ -570,12 +597,18 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("lab.NA.weight", ".")
     ##
     setOption("lwd", 1)
+    setOption("lwd.square", 1)
+    setOption("lwd.diamond", 1)
+    ##
+    setOption("arrow.type", "open")
+    setOption("arrow.length", 0.05)
     ##
     setOption("type.study", "square")
     setOption("type.common", "diamond")
     ##
     setOption("col.study", "black")
     setOption("col.square", "gray")
+    setOption("col.square.lines", "gray")
     setOption("col.circle", "royalblue")
     setOption("col.inside", "white")
     setOption("col.diamond", "gray")
@@ -585,6 +618,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("col.subgroup", "darkgray")
     setOption("col.label.right", "black")
     setOption("col.label.left", "black")
+    ##
+    setOption("col.lines", "black")
+    setOption("col.label", "black")
     ##
     setOption("hetlab", "Heterogeneity: ")
     setOption("resid.hetstat", NULL)
@@ -643,6 +679,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("ff.lr", "plain")
     ##
     setOption("colgap", "2mm")
+    setOption("colgap.forest", "2mm")
     ##
     setOption("width", NULL)
     ##
@@ -669,41 +706,114 @@ settings.meta <- function(..., quietly = TRUE) {
   if (specific.settings) {
     ##
     ## Remember:
-    ## settings <- c("RevMan5", "JAMA", "IQWiG5", "IQWiG6",
+    ## settings <- c("BMJ", "RevMan5", "JAMA", "IQWiG5", "IQWiG6",
     ##               "geneexpr", "meta4")
     ##
-    if (setting == "RevMan5") {
+    if (setting == "BMJ") {
+      specificSettings(
+        args = c("layout", "test.overall",
+                 "test.subgroup", "test.effect.subgroup",
+                 ##
+                 "digits.I2", "digits.tau2", "digits.tau", "digits.pval",
+                 "digits.forest", "digits.mean", "digits.sd",
+                 ##
+                 "CIbracket", "CIseparator",
+                 ##
+                 "colgap.forest",
+                 ##
+                 "col.common", "col.random", "col.subgroup",
+                 "col.study", "col.square", "col.square.lines",
+                 "col.diamond", "col.diamond.lines",
+                 ##
+                 "col.lines",
+                 ##
+                 "lwd.square", "lwd.diamond",
+                 ##
+                 "arrow.type",
+                 ##
+                 "ff.lr",
+                 "zero.pval", "JAMA.pval",
+                 ##
+                 "hetlab", "header.line"),
+        new = list("BMJ",
+                   replaceNULL(args[["test.overall"]], TRUE),
+                   replaceNULL(args[["test.subgroup"]], TRUE),
+                   replaceNULL(args[["test.effect.subgroup"]], TRUE),
+                   ##
+                   replaceNULL(args[["digits.I2"]], 0),
+                   replaceNULL(args[["digits.tau2"]], 2),
+                   replaceNULL(args[["digits.tau"]], 2),
+                   replaceNULL(args[["digits.pval"]], 2),
+                   replaceNULL(args[["digits.forest"]], 2),
+                   replaceNULL(args[["digits.mean"]], 1),
+                   replaceNULL(args[["digits.sd"]], 1),
+                   ##
+                   replaceNULL(args[["CIbracket"]], "("),
+                   replaceNULL(args[["CIseparator"]], " to "),
+                   ##
+                   replaceNULL(args[["colgap.forest"]], "5mm"),
+                   ##
+                   replaceNULL(args[["col.common"]], "#6b58a6"),
+                   replaceNULL(args[["col.random"]], "#6b58a6"),
+                   replaceNULL(args[["col.subgroup"]], "black"),
+                   replaceNULL(args[["col.study"]], "#6b58a6"),
+                   replaceNULL(args[["col.square"]], "#6b58a6"),
+                   replaceNULL(args[["col.square.lines"]], "white"),
+                   replaceNULL(args[["col.diamond"]], "#6b58a6"),
+                   replaceNULL(args[["col.diamond.lines"]], "white"),
+                   ##
+                   replaceNULL(args[["col.lines"]], "#a7a9ac"),
+                   ##
+                   replaceNULL(args[["lwd.square"]], 0.5),
+                   replaceNULL(args[["lwd.diamond"]], 0.5),
+                   ##
+                   replaceNULL(args[["arrow.type"]], "closed"),
+                   ##
+                   replaceNULL(args[["ff.lr"]], "bold"),
+                   replaceNULL(args[["zero.pval"]], TRUE),
+                   replaceNULL(args[["JAMA.pval"]], TRUE),
+                   ##
+                   replaceNULL(args[["hetlab"]], "Test for heterogeneity: "),
+                   replaceNULL(args[["header.line"]], TRUE)),
+        setting = "BMJ settings",
+        quietly = quietly)
+    }
+    ##
+    else if (setting == "RevMan5") {
       specificSettings(
         args = c("method.random.ci", "method.tau", "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
                  "exact.smd",
                  "layout", "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
+                 "col.subgroup",
                  "digits.I2", "digits.tau2", "digits.tau",
                  "CIbracket", "CIseparator",
                  "zero.pval", "JAMA.pval",
-                 "text.common", "text.w.common", "header.line"),
+                 "text.common", "text.w.common",
+                 "hetlab", "header.line"),
         new = list(replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
                    replaceNULL(args[["Q.Cochrane"]], TRUE),
-                   replaceNULL(args[["exact.smd"]], FALSE),
-                   "RevMan5",
+                   replaceNULL(args[["exact.smd"]], FALSE), "RevMan5",
                    replaceNULL(args[["prediction"]], FALSE),
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
+                   replaceNULL(args[["col.subgroup"]], "black"),
                    replaceNULL(args[["digits.I2"]], 0),
                    replaceNULL(args[["digits.tau2"]], 3),
                    replaceNULL(args[["digits.tau"]], 4),
                    replaceNULL(args[["CIbracket"]], "["),
                    replaceNULL(args[["CIseparator"]], ", "),
-                   replaceNULL(args[["zero.pval"]], FALSE),
+                   replaceNULL(args[["zero.pval"]], TRUE),
                    replaceNULL(args[["JAMA.pval"]], FALSE),
                    replaceNULL(args[["text.common"]], "Fixed effect model"),
                    replaceNULL(args[["text.w.common"]], "fixed"),
+                   replaceNULL(args[["hetlab"]], "Heterogeneity: "),
                    replaceNULL(args[["header.line"]], TRUE)
                    ),
         setting = "RevMan 5 settings",
@@ -711,25 +821,27 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "JAMA") {
-      specificSettings(args = c("layout", "test.overall",
-                                "test.subgroup", "test.effect.subgroup",
-                                "digits.I2", "digits.pval",
-                                "CIbracket", "CIseparator",
-                                "zero.pval", "JAMA.pval",
-                                "header.line"),
-                       new = list("JAMA",
-                                  replaceNULL(args[["test.overall"]], TRUE),
-                                  replaceNULL(args[["test.subgroup"]], FALSE),
-                                  replaceNULL(args[["test.effect.subgroup"]], FALSE),
-                                  replaceNULL(args[["digits.I2"]], 0),
-                                  replaceNULL(args[["digits.pval"]], 3),
-                                  replaceNULL(args[["CIbracket"]], "("),
-                                  replaceNULL(args[["CIseparator"]], "-"),
-                                  replaceNULL(args[["zero.pval"]], FALSE),
-                                  replaceNULL(args[["JAMA.pval"]], TRUE),
-                                  replaceNULL(args[["header.line"]], TRUE)),
-                       setting = "JAMA settings",
-                       quietly = quietly)
+      specificSettings(
+        args = c("layout", "test.overall",
+                 "test.subgroup", "test.effect.subgroup",
+                 "digits.I2", "digits.pval",
+                 "CIbracket", "CIseparator",
+                 "zero.pval", "JAMA.pval",
+                 "hetlab", "header.line"),
+        new = list("JAMA",
+                   replaceNULL(args[["test.overall"]], TRUE),
+                   replaceNULL(args[["test.subgroup"]], FALSE),
+                   replaceNULL(args[["test.effect.subgroup"]], FALSE),
+                   replaceNULL(args[["digits.I2"]], 0),
+                   replaceNULL(args[["digits.pval"]], 3),
+                   replaceNULL(args[["CIbracket"]], "("),
+                   replaceNULL(args[["CIseparator"]], "-"),
+                   replaceNULL(args[["zero.pval"]], FALSE),
+                   replaceNULL(args[["JAMA.pval"]], TRUE),
+                   replaceNULL(args[["hetlab"]], "Heterogeneity: "),
+                   replaceNULL(args[["header.line"]], TRUE)),
+        setting = "JAMA settings",
+        quietly = quietly)
     }
     ##
     else if (setting == "IQWiG5") {
@@ -827,6 +939,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("warn.deprecated    ")
     catarg("backtransf         ")
     catarg("digits             ")
+    catarg("digits.mean        ")
+    catarg("digits.sd          ")
     catarg("digits.se          ")
     catarg("digits.stat        ")
     catarg("digits.Q           ")
@@ -937,6 +1051,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("col.equi               ")
     catarg("fill.equi              ")
     ##
+    catarg("fill                   ")
+    ##
     catarg("leftcols               ")
     catarg("rightcols              ")
     catarg("leftlabs               ")
@@ -952,12 +1068,18 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("lab.NA.weight          ")
     ##
     catarg("lwd                    ")
+    catarg("lwd.square             ")
+    catarg("lwd.diamond            ")
+    ##
+    catarg("arrow.type             ")
+    catarg("arrow.length           ")
     ##
     catarg("type.study             ")
     catarg("type.common            ")
     ##
     catarg("col.study              ")
     catarg("col.square             ")
+    catarg("col.square.lines       ")
     catarg("col.circle             ")
     catarg("col.inside             ")
     catarg("col.diamond            ")
@@ -967,6 +1089,9 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("col.subgroup           ")
     catarg("col.label.right        ")
     catarg("col.label.left         ")
+    ##
+    catarg("col.lines              ")
+    catarg("col.label              ")
     ##
     catarg("hetlab                 ")
     catarg("resid.hetstat          ")
@@ -1025,6 +1150,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("ff.lr                  ")
     ##
     catarg("colgap                 ")
+    catarg("colgap.forest          ")
     ##
     catarg("width                  ")
     ##
@@ -1121,6 +1247,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("warn.deprecated", args)
     setlogical("backtransf", args)
     setnumeric("digits", args)
+    setnumeric("digits.mean", args)
+    setnumeric("digits.sd", args)
     setnumeric("digits.se", args)
     ##
     na <- is.na(setnumeric("digits.stat", args))
@@ -1247,6 +1375,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setcolor("col.equi", args)
     setcolor("fill.equi", args)
     ##
+    setcolor("fill", args)
+    ##
     setcharacter("leftcols", args, length = 0,
                  NULL.ok = TRUE, logical.ok = TRUE)
     setcharacter("rightcols", args, length = 0,
@@ -1264,12 +1394,18 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("lab.NA.weight", args)
     ##
     setnumeric("lwd", args)
+    setnumeric("lwd.square", args)
+    setnumeric("lwd.diamond", args)
+    ##
+    setcharacter("arrow.type", args)
+    setnumeric("arrow.length", args)
     ##
     setcharacter("type.study", args, c("square", "diamond", "predict"))
     setcharacter("type.common", args, c("square", "diamond", "predict"))
     ##
     setcolor("col.study", args)
     setcolor("col.square", args)
+    setcolor("col.square.lines", args)
     setcolor("col.circle", args)
     setcolor("col.inside", args)
     setcolor("col.diamond", args)
@@ -1279,6 +1415,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setcolor("col.subgroup", args)
     setcolor("col.label.right", args)
     setcolor("col.label.left", args)
+    ##
+    setcolor("col.lines", args)
+    setcolor("col.label", args)
     ##
     setcharacter("hetlab", args)
     setlogical("resid.hetstat", args, TRUE)
@@ -1339,6 +1478,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("ff.lr", args)
     ##
     setcharacter("colgap", args)
+    setcharacter("colgap.forest", args)
     ##
     setnumeric("width", args, TRUE)
     ##

@@ -861,7 +861,7 @@ print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
   
   if (legend) {
     cat(
-      paste0("\nRisk of bias legend:",
+      paste0("\nRisk of bias domains:",
              paste0("\n", catleg(x), collapse = ""),
              "\n")
     )
@@ -874,7 +874,7 @@ print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
       )
       ##
       cat(
-        paste0("Colours:",
+        paste0("\nColours:",
                paste0("\n", catcol(x), collapse = ""),
                "\n")
       )
@@ -882,7 +882,7 @@ print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
       symbols <- unique(unlist(attr(x, "symbols")))
       if (!(length(symbols) == 1 && is.logical(symbols) && !symbols))
       cat(
-        paste0("Symbols:",
+        paste0("\nSymbols:",
                paste0("\n", catsymb(x), collapse = ""),
                "\n")
       )        

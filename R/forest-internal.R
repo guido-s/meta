@@ -24,7 +24,7 @@ add.label <- function(x, column,
 
 add.text <- function(x, column, ...) {
   ##
-  for (i in 1:length(x$rows)) {
+  for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
       pushViewport(viewport(layout.pos.row = x$rows[i],
                             layout.pos.col = column, ...))
@@ -117,7 +117,7 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
   ##
   j <- 0
   ##
-  for (i in 1:length(x$rows)) {
+  for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
       pushViewport(viewport(layout.pos.row = x$rows[i],
                             layout.pos.col = column, ...))
@@ -151,7 +151,8 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
 
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
-                      xlim, notmiss.xlim) {
+                      xlim, notmiss.xlim,
+                      col.line, col.label) {
   ##
   ## Function to draw x-axis
   ##
@@ -215,24 +216,62 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         label <- at
       at <- log(at)
     }
-    grid.xaxis(at = at, label = label,
+    ## Print x-axis labels
+    grid.xaxis(name = "xaxis1",
+               at = at, label = label,
                gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd))
+                         fontfamily = fontfamily, lwd = lwd,
+                         col = col.label, tcl = -0.1))
+    ## Print xaxis and tick marks (in different colour)
+    grid.xaxis(name = "xaxis2",
+               at = at, label = FALSE,
+               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                         fontfamily = fontfamily, lwd = lwd,
+                         col = col.line, tcl = -0.1))
   }
   else {
-    if (is.null(at))
-      grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd))
-    else
-      if ((length(label) == 1 && is.logical(label) && label) |
-          (length(label) >= 1 & !is.logical(label)))
-        grid.xaxis(at = at, label = label,
-                   gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                             fontfamily = fontfamily, lwd = lwd))
-    else
-      grid.xaxis(at = at,
+    if (is.null(at)) {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
+    else if ((length(label) == 1 && is.logical(label) && label) |
+          (length(label) >= 1 & !is.logical(label))) {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+        at = at, label = label,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        at = at, label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
+    else {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+                 at = at,
                  gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd))
+                           fontfamily = fontfamily, lwd = lwd,
+                           col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        at = at, label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
   }
   ##
   popViewport()
@@ -243,7 +282,8 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
 
 draw.ci.diamond <- function(TE, lower, upper,
                             size, min, max,
-                            col.diamond, col.diamond.lines) {
+                            col.diamond, col.diamond.lines,
+                            lwd) {
   ##
   if (min > max) {
     tmp <- min
@@ -257,8 +297,9 @@ draw.ci.diamond <- function(TE, lower, upper,
        (min <= upper & upper <= max))
       )
     grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
-                 y = unit(0.5 + c(0, 0.3 * size, 0, -0.3 * size), "npc"),
-                 gp = gpar(fill = col.diamond, col = col.diamond.lines))
+                 y = unit(0.5 + c(0, 0.4 * size, 0, -0.4 * size), "npc"),
+                 gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                           lwd = lwd))
   ##
   invisible(NULL)
 }
@@ -275,13 +316,39 @@ draw.ci.predict <- function(lower.predict, upper.predict,
   }
   ##
   if (!(is.na(lower.predict) | is.na(upper.predict))) {
+    range <- max - min
     ## Plot prediction interval only within plotting range
-    if ((min <= lower.predict & lower.predict <= max) |
-        (min <= upper.predict & upper.predict <= max))
-      grid.polygon(x = unit(c(lower.predict, lower.predict,
-                              upper.predict, upper.predict), "native"),
-                   y = unit(0.5 + size * c(-1, 1, 1, -1) / 10, "npc"),
-                   gp = gpar(fill = col.predict, col = col.predict.lines))
+    if (min > lower.predict)
+      x.min <- min + range / 30
+    else
+      x.min <- lower.predict
+    ##
+    if (max < upper.predict)
+      x.max <- max - range / 30
+    else
+      x.max <- upper.predict
+    ##
+    grid.polygon(x = unit(c(x.min, x.min, x.max, x.max), "native"),
+                 y = unit(0.5 + size * c(-1, 1, 1, -1) / 10, "npc"),
+                 gp = gpar(fill = col.predict, col = col.predict.lines))
+    ##
+    if (min > lower.predict)
+      grid.lines(x = unit(c(min, min + 0.00001), "native"),
+                 y = 0.5,
+                 gp = gpar(col = col.predict.lines,
+                           fill = col.predict),
+                 arrow = arrow(ends = "first",
+                               length = unit(0.5, "npc"),
+                               type = "closed"))
+    ##
+    if (max < upper.predict)
+      grid.lines(x = unit(c(max - 0.00001, max), "native"),
+                 y = 0.5,
+                 gp = gpar(col = col.predict.lines,
+                           fill = col.predict),
+                 arrow = arrow(ends = "last",
+                               length = unit(0.5, "npc"),
+                               type = "closed"))
   }
   ##
   invisible(NULL)
@@ -295,7 +362,9 @@ draw.ci <- function(TE, lower, upper,
                     col.square, col.square.lines,
                     col.circle, col.circle.lines,
                     col.inside,
-                    type) {
+                    type,
+                    lwd.square,
+                    arrow.type, arrow.length) {
   ##
   if (min > max) {
     tmp <- min
@@ -324,7 +393,8 @@ draw.ci <- function(TE, lower, upper,
         grid.rect(x = unit(TE, "native"),
                   width = unit(size, "snpc"),
                   height = unit(size, "snpc"),
-                  gp = gpar(fill = col.square, col = col.square.lines))
+                  gp = gpar(fill = col.square, col = col.square.lines,
+                            lwd = lwd.square))
         ##
         grid.lines(x = unit(c(TE, TE), "native"),
                    y = unit(c(0.4, 0.6), "npc"),
@@ -377,12 +447,16 @@ draw.ci <- function(TE, lower, upper,
       ##
       if (!is.na(lower) && lower < min)
         grid.lines(x = unit(c(min - 0.00001, min), "native"), y = 0.5,
-                   gp = gpar(col = lineCol, lwd = lwd),
-                   arrow = arrow(ends = "first", length = unit(0.05, "inches")))
+                   gp = gpar(col = lineCol, lwd = lwd, fill = lineCol),
+                   arrow = arrow(ends = "first",
+                                 length = unit(arrow.length, "inches"),
+                                 type = arrow.type))
       if (!is.na(upper) && upper > max)
         grid.lines(x = unit(c(max, max + 0.00001), "native"), y = 0.5,
-                   gp = gpar(col = lineCol, lwd = lwd),
-                   arrow = arrow(ends = "last", length = unit(0.05, "inches")))
+                   gp = gpar(col = lineCol, lwd = lwd, fill = lineCol),
+                   arrow = arrow(ends = "last",
+                                 length = unit(arrow.length, "inches"),
+                                 type = arrow.type))
     }
   }
   ##
@@ -392,6 +466,18 @@ draw.ci <- function(TE, lower, upper,
         grid.circle(x = unit(TE, "native"), y = unit(0.5, "npc"),
                     r = unit(size / 2, "snpc"),
                     gp = gpar(fill = col.circle, col = col.circle.lines))
+      ##
+      else if (type == "squarediamond") {
+        xmin <- convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
+                         "native", valueOnly = TRUE)
+        xmax <- convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
+                         "native", valueOnly = TRUE)
+        ##
+        grid.polygon(x = unit(c(xmin, TE, xmax, TE), "native"),
+                     y = unit(0.5 + c(0, 0.5 * size, 0, -0.5 * size), "npc"),
+                     gp = gpar(col = col.square.lines, fill = col.square,
+                               lwd = lwd.square))
+      }
     }
     else
       grid.lines(x = unit(c(TE, TE), "native"),
@@ -407,13 +493,13 @@ draw.forest <- function(x, column) {
   ##
   ## Function to plot results for individual studies and summaries
   ##
-  for (i in 1:length(x$rows)) {
+  for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
       pushViewport(viewport(layout.pos.row = x$rows[i],
                             layout.pos.col = column,
                             xscale = x$range))
       ##
-      if (x$type[i] %in% c("square", "circle"))
+      if (x$type[i] %in% c("square", "circle", "squarediamond"))
         draw.ci(x$eff[i], x$low[i], x$upp[i],
                 x$sizes[i], x$range[1], x$range[2],
                 x$lwd,
@@ -421,12 +507,15 @@ draw.forest <- function(x, column) {
                 x$col.square[i], x$col.square.lines[i],
                 x$col.circle[i], x$col.circle.lines[i],
                 x$col.inside[i],
-                type = x$type[i])
+                type = x$type[i],
+                x$lwd.square,
+                x$arrow.type, x$arrow.length)
       ##
       else if (x$type[i] == "diamond")
         draw.ci.diamond(x$eff[i], x$low[i], x$upp[i],
                         x$sizes[i], x$range[1], x$range[2],
-                        x$col.diamond[i], x$col.diamond.lines[i])
+                        x$col.diamond[i], x$col.diamond.lines[i],
+                        x$lwd.diamond)
       ##
       else if (x$type[i] == "predict")
         draw.ci.predict(x$low[i], x$upp[i],
@@ -449,7 +538,9 @@ draw.lines <- function(x, column,
                        xmin, xmax,
                        lower.equi, upper.equi,
                        lty.equi, col.equi,
-                       fill.lower.equi, fill.upper.equi) {
+                       fill.lower.equi, fill.upper.equi,
+                       fill,
+                       col.line) {
   ##
   if (xmin > xmax) {
     xmin <- x$range[2]
@@ -461,6 +552,14 @@ draw.lines <- function(x, column,
   }
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  ##
+  ## Add background colour for confidence interval plot
+  ##
+  if (!is.null(fill))
+    grid.polygon(x = unit(c(xmin, xmax, xmax, xmin), "native"),
+                 y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                          "lines"),
+                 gp = gpar(col = fill, fill = fill))
   ##
   ## Add equivalence region(s)
   ##
@@ -558,7 +657,7 @@ draw.lines <- function(x, column,
   if (!is.na(ref) && (xmin <= ref & ref <= xmax))
     grid.lines(x = unit(ref, "native"),
                y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd))
+               gp = gpar(lwd = lwd, col = col.line))
   ##
   ## Line for common effect estimate(s):
   ##
@@ -865,7 +964,7 @@ gh <- function(type.gr, rows.gr,
                prediction, overall.hetstat,
                study.results,
                ##
-               layout, spacing,
+               spacing,
                ##
                xlab, xlab.add, label.right, label.left, bottom.lr,
                ##

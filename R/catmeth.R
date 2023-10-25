@@ -658,7 +658,7 @@ catmeth <- function(x,
                   "studies "
                 else
                   "study ",
-                "with ",
+                "with",
                 if (width > 70 | forest)
                   " "
                 else

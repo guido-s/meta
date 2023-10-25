@@ -75,8 +75,12 @@ catcat <- function(x) {
     ##
     return(TRUE)
   }
-  if (unique.list(cat))
-    return(collapse(cat[[1]], collapse = ", "))
+  if (unique.list(cat)) {
+    if (suppressWarnings(all(!is.na(as.numeric(cat[[1]])))))
+      return(collapse(cat[[1]], collapse = ", ", quote = ""))
+    else
+      return(collapse(cat[[1]], collapse = ", "))
+  }
   else
     return(paste0("(", vars, ") ", lapply(cat, collapse, collapse = ", ")))
 }
@@ -99,8 +103,12 @@ catcol <- function(x) {
     ##
     return(TRUE)
   }
-  if (unique.list(col))
-    return(collapse(col[[1]], collapse = ", "))
+  if (unique.list(col)) {
+    if (suppressWarnings(all(!is.na(as.numeric(col[[1]])))))
+      return(collapse(col[[1]], collapse = ", ", quote = ""))
+    else
+      return(collapse(col[[1]], collapse = ", "))
+  }
   else
     return(paste0("(", vars, ") ",
                   lapply(col, collapse, collapse = ", ", quote = "")))
@@ -124,8 +132,12 @@ catsymb <- function(x) {
     ##
     return(TRUE)
   }
-  if (unique.list(symb))
-    return(collapse(symb[[1]], collapse = ", "))
+  if (unique.list(symb)) {
+    if (suppressWarnings(all(!is.na(as.numeric(symb[[1]])))))
+      return(collapse(symb[[1]], collapse = ", ", quote = ""))
+    else
+      return(collapse(symb[[1]], collapse = ", "))
+  }
   else
     return(paste0("(", vars, ") ",
                   lapply(symb, collapse, collapse = ", ", quote = "")))

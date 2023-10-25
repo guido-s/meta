@@ -40,7 +40,7 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
              call. = FALSE)
   }
   ##
-  if (!is.character(x))
+  if (!is.character(x) & !is.numeric(x))
     stop("Argument '", name, "' must be a character vector.")
   else {
     if (!is.null(nchar) & any(!(nchar(x) %in% nchar)))

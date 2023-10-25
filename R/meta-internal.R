@@ -626,7 +626,7 @@ argslist <-
     "layout", "forest.details",
     "test.overall", "test.subgroup", "prediction.subgroup",
     "test.effect.subgroup",
-    "digits", "digits.se", "digits.stat",
+    "digits", "digits.mean", "digits.sd", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q",
@@ -641,16 +641,19 @@ argslist <-
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
     "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
+    "fill",
     "leftcols", "rightcols", "leftlabs", "rightlabs", 
     "label.e.attach", "label.c.attach",
     "bottom.lr",
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
-    "lwd",
+    "lwd", "lwd.square", "lwd.diamond",
+    "arrow.type", "arrow.length",
     "type.study", "type.common",
-    "col.study", "col.square", "col.circle", "col.inside",
+    "col.study", "col.square", "col.square.lines", "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
     "col.subgroup", "col.label.right", "col.label.left",
+    "col.lines", "col.label",
     "hetlab", "resid.hetstat", "resid.hetlab",
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
     "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
@@ -669,7 +672,7 @@ argslist <-
     "ff.study", "ff.hetstat", "ff.test.overall", "ff.test.subgroup",
     "ff.test.effect.subgroup", "ff.addline",
     "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
-    "colgap",
+    "colgap", "colgap.forest",
     "width",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
@@ -735,6 +738,8 @@ setOption("warn.deprecated", FALSE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
+setOption("digits.mean", 4)
+setOption("digits.sd", 4)
 setOption("digits.se", 4)
 setOption("digits.stat", 2)
 setOption("digits.zval", 2)
@@ -841,6 +846,8 @@ setOption("lty.equi", 1)
 setOption("col.equi", "blue")
 setOption("fill.equi", "transparent")
 ##
+setOption("fill", "transparent")
+##
 setOption("leftcols", NULL)
 setOption("rightcols", NULL)
 setOption("leftlabs", NULL)
@@ -856,12 +863,18 @@ setOption("lab.NA.effect", NULL)
 setOption("lab.NA.weight", ".")
 ##
 setOption("lwd", 1)
+setOption("lwd.square", 1)
+setOption("lwd.diamond", 1)
+##
+setOption("arrow.type", "open")
+setOption("arrow.length", 0.05)
 ##
 setOption("type.study", "square")
 setOption("type.common", "diamond")
 ##
 setOption("col.study", "black")
 setOption("col.square", "gray")
+setOption("col.square.lines", "gray")
 setOption("col.circle", "royalblue")
 setOption("col.inside", "white")
 setOption("col.diamond", "gray")
@@ -871,6 +884,9 @@ setOption("col.predict.lines", "black")
 setOption("col.subgroup", "darkgray")
 setOption("col.label.right", "black")
 setOption("col.label.left", "black")
+##
+setOption("col.lines", "black")
+setOption("col.label", "black")
 ##
 setOption("hetlab", "Heterogeneity: ")
 setOption("resid.hetstat", NULL)
@@ -929,6 +945,7 @@ setOption("ff.xlab", "plain")
 setOption("ff.lr", "plain")
 ##
 setOption("colgap", "2mm")
+setOption("colgap.forest", "2mm")
 ##
 setOption("width", NULL)
 ##

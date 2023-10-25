@@ -24,6 +24,7 @@
   meta-analysis results)
 
 * Changes for forest plots:
+  - BMJ layout implemented (layout = "BMJ")
   - can be directly saved to a file using common graphics device
     drivers (height of file is determined automatically)
   - details on meta-analysis methods can be shown in plot
@@ -33,6 +34,13 @@
     diamonds
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
+  - truncated prediction intervals shown if lower or upper limit is
+    outside the limits of the x-axis
+
+* New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
+  to print results according to BMJ style and formating, see, for
+  example, [ BMJ
+  Medicine](https://bmjmedicine.bmj.com/bmjmedicine/wp-content/uploads/sites/66/2023/06/BMJMED-style-formatting-checklist-for-original-research-pre-acceptance-1.pdf)
 
 * R function metabind() can return both common effect and random
   effects results as well as prediction intervals
@@ -155,6 +163,7 @@
   specified in arguments 'text', 'col' and 'bg', e.g., argument 'text
   = studlab' to use study labels instead of plotting symbols
 
+* Input to chkchar() can be a numeric vector
 
 ## meta, version 6.5-0 (2023-06-06)
 
