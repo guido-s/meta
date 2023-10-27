@@ -31,6 +31,13 @@
 #'   effects model.
 #' @param method.predict A character string or vector to describe the
 #'   method(s) used for prediction intervals.
+#' @param transf A logical indicating whether inputs for arguments
+#'   \code{TE}, \code{lower} and \code{upper} are already
+#'   appropriately transformed to conduct the meta-analysis or on the
+#'   original scale. If \code{transf = TRUE} (default), inputs are
+#'   expected to be log odds ratios instead of odds ratios for
+#'   \code{sm = "OR"} and Fisher's z transformed correlations instead
+#'   of correlations for \code{sm = "ZCOR"}, for example.
 #' 
 #' @details
 #' In R package \bold{meta}, objects of class \code{"meta"} contain
@@ -92,7 +99,9 @@ metaadd <- function(x, type,
                     method.tau = "",
                     method.random.ci = "",
                     ##
-                    method.predict = "") {
+                    method.predict = "",
+                    ##
+                    transf = gs("transf")) {
   
   ##
   ##
@@ -111,6 +120,8 @@ metaadd <- function(x, type,
   missing.statistic <- missing(statistic)
   missing.pval <- missing(pval)
   missing.text <- missing(text)
+  ##
+  chklogical(transf)
   
   
   ##
@@ -326,11 +337,24 @@ metaadd <- function(x, type,
     else
       text <- rep_len("Added result", k.all)
   }
+
+  
+  ##
+  ##
+  ## (3) Transform added results
+  ##
+  ##
+  
+  if (!transf) {
+    TE <- transf(TE, x$sm, x$func.transf, x$args.transf)
+    lower <- transf(lower, x$sm, x$func.transf, x$args.transf)
+    upper <- transf(upper, x$sm, x$func.transf, x$args.transf)
+  }
   
   
   ##
   ##
-  ## (3) Add results
+  ## (4) Add results
   ##
   ##
   

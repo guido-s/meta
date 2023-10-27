@@ -315,7 +315,7 @@ draw.ci.diamond <- function(TE, lower, upper,
       }
       ##
       if (max < upper) {
-        x.min <- max
+        x.max <- max
         y.max1 <- 0.5 +  0.4 * size * (upper - max) / (upper - TE)
         y.max2 <- 0.5 + -0.4 * size * (upper - max) / (upper - TE)
       }
