@@ -55,7 +55,8 @@
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
   text.Rb = gs("text.Rb"),
-  details.methods = TRUE,
+  print.Q = gs("print.Q"),
+  details.methods = gs("details"),
   warn.backtransf = FALSE,
   func.backtransf = x$func.backtransf,
   warn.deprecated = gs("warn.deprecated"),
@@ -236,6 +237,9 @@ I\eqn{^2}.}
 
 \item{text.Rb}{Text printed to identify heterogeneity statistic
 R\eqn{_b}.}
+
+\item{print.Q}{A logical value indicating whether to print the
+results of the test of heterogeneity.}
 
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}

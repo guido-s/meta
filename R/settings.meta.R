@@ -495,6 +495,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("JAMA.pval", FALSE)
     setOption("digits.df", 4)
     ##
+    setOption("details", TRUE)
+    ##
     setOption("print.tau2", TRUE)
     setOption("print.tau2.ci", TRUE)
     setOption("print.tau", TRUE)
@@ -507,6 +509,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("text.tau", "tau")
     setOption("text.I2", "I^2")
     setOption("text.Rb", "Rb")
+    ##
+    setOption("print.Q", TRUE)
     ##
     ## R function metabin
     ##
@@ -787,6 +791,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "layout", "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
                  "col.subgroup",
+                 "digits",
                  "digits.I2", "digits.tau2", "digits.tau",
                  "CIbracket", "CIseparator",
                  "zero.pval", "JAMA.pval",
@@ -804,6 +809,7 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
                    replaceNULL(args[["col.subgroup"]], "black"),
+                   replaceNULL(args[["digits"]], 2),
                    replaceNULL(args[["digits.I2"]], 0),
                    replaceNULL(args[["digits.tau2"]], 3),
                    replaceNULL(args[["digits.tau"]], 4),
@@ -957,6 +963,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("zero.pval          ")
     catarg("JAMA.pval          ")
     catarg("digits.df          ")
+    catarg("details            ")
     catarg("print.tau2         ")
     catarg("print.tau2.ci      ")
     catarg("print.tau          ")
@@ -968,6 +975,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("text.tau           ")
     catarg("text.I2            ")
     catarg("text.Rb            ")
+    catarg("print.Q            ")
     ##
     cat(paste("\n* Default summary measure (argument 'sm' in",
                "corresponding function) *\n"))
@@ -1271,6 +1279,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("JAMA.pval", args)
     setnumeric("digits.df", args)
     ##
+    setlogical("details", args)
     setlogical("print.tau2", args)
     setlogical("print.tau2.ci", args)
     setlogical("print.tau", args)
@@ -1278,10 +1287,13 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("print.I2", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
+    ##
     setcharacter("text.tau2", args)
     setcharacter("text.tau", args)
     setcharacter("text.I2", args)
     setcharacter("text.Rb", args)
+    ##
+    setlogical("print.Q", args)
     ##
     ## R function metabin
     ##

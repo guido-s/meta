@@ -334,6 +334,7 @@
 #' \itemize{
 #' \item \code{settings.meta("RevMan5")}
 #' \item \code{settings.meta("JAMA")}
+#' \item \code{settings.meta("BMJ")}
 #' \item \code{settings.meta("IQWiG5")}
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
@@ -350,6 +351,9 @@
 #' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
 #' labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
+#'
+#' The third command can be used to generate forest plots in the current layout
+#' of the \emph{British Medical Journal}.
 #'
 #' The next two commands implement the recommendations of the
 #' Institute for Quality and Efficiency in Health Care (IQWiG),
@@ -372,6 +376,27 @@
 #' \item \code{settings.meta(method.random.ci = "HK", method.tau =
 #'   "PM", prediction = TRUE)}
 #' }
+#' }
+#'
+#' \subsection{Data sets}{
+#' The following data sets are available in R package \bold{meta}.
+#'
+#' \tabular{ll}{
+#' \bold{Data set}\tab \bold{Description} \cr
+#' \code{\link{Fleiss1993bin}}\tab Aspirin after myocardial infarction \cr
+#' \code{\link{Fleiss1993cont}}\tab Mental health treatment on medical utilisation\cr
+#' \code{\link{Olkin1995}}\tab Thrombolytic therapy after acute myocardial infarction \cr
+#' \code{\link{Pagliaro1992}}\tab Prevention of first bleeding in cirrhosis \cr
+#' \code{\link{amlodipine}}\tab Amlodipine for work capacity \cr
+#' \code{\link{caffeine}}\tab Caffeine for daytime drowsiness (Cochrane Practice review) \cr
+#' \code{\link{cisapride}}\tab Cisapride in non-ulcer dispepsia \cr
+#' \code{\link{lungcancer}}\tab Smoking example \cr
+#' \code{\link{smoking}}\tab Smoking example \cr
+#' \code{\link{woodyplants}}\tab Elevated CO$_2$ and total biomass of woody plants
+#' }
+#' 
+#' \bold{R} package \bold{metadat} has a large collection of meta-analysis data
+#' sets.
 #' }
 #'
 #' @note

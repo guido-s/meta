@@ -1199,6 +1199,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       (n.c - event.c) == 0 | event.c == 0),
                 RR = ((n.e - event.e) == 0 | event.e == 0 |
                       (n.c - event.c) == 0 | event.c == 0),
+                VE = ((n.e - event.e) == 0 | event.e == 0 |
+                      (n.c - event.c) == 0 | event.c == 0),
                 ASD = rep(FALSE, length(event.e)),
                 DOR = ((n.e - event.e) == 0 | event.e == 0 |
                        (n.c - event.c) == 0 | event.c == 0))

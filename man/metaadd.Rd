@@ -18,7 +18,8 @@ metaadd(
   method.random = "",
   method.tau = "",
   method.random.ci = "",
-  method.predict = ""
+  method.predict = "",
+  transf = gs("transf")
 )
 }
 \arguments{
@@ -60,6 +61,14 @@ effects model.}
 
 \item{method.predict}{A character string or vector to describe the
 method(s) used for prediction intervals.}
+
+\item{transf}{A logical indicating whether inputs for arguments
+\code{TE}, \code{lower} and \code{upper} are already
+appropriately transformed to conduct the meta-analysis or on the
+original scale. If \code{transf = TRUE} (default), inputs are
+expected to be log odds ratios instead of odds ratios for
+\code{sm = "OR"} and Fisher's z transformed correlations instead
+of correlations for \code{sm = "ZCOR"}, for example.}
 }
 \value{
 An object of class \code{"meta"} with corresponding generic

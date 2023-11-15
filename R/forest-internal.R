@@ -26,9 +26,13 @@ add.text <- function(x, column, ...) {
   ##
   for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
-      pushViewport(viewport(layout.pos.row = x$rows[i],
-                            layout.pos.col = column, ...))
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column, ...))
+      #
       grid.draw(x$labels[[i]])
+      #
       popViewport()
     }
   }
@@ -119,8 +123,10 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
   ##
   for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
-      pushViewport(viewport(layout.pos.row = x$rows[i],
-                            layout.pos.col = column, ...))
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column, ...))
       ##
       if (i == 1)
         grid.draw(x$labels[[1]])
@@ -156,9 +162,11 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
   ##
   ## Function to draw x-axis
   ##
-  pushViewport(viewport(layout.pos.row = max(yS, na.rm = TRUE),
-                        layout.pos.col = column,
-                        xscale = x$range))
+  pushViewport(
+    viewport(
+      layout.pos.row = max(yS, na.rm = TRUE),
+      layout.pos.col = column,
+      xscale = x$range))
   ##
   ## x-axis:
   ##
@@ -528,9 +536,11 @@ draw.forest <- function(x, column) {
   ##
   for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
-      pushViewport(viewport(layout.pos.row = x$rows[i],
-                            layout.pos.col = column,
-                            xscale = x$range))
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column,
+          xscale = x$range))
       ##
       if (x$type[i] %in% c("square", "circle", "squarediamond"))
         draw.ci(x$eff[i], x$low[i], x$upp[i],

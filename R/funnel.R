@@ -251,7 +251,7 @@ funnel.meta <- function(x,
     }
   }
   ##
-  chknumeric(cex, length = 1)
+  chknumeric(cex)
   lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
                            warn.deprecated)
   chknumeric(lty.common, length = 1)

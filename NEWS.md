@@ -24,23 +24,23 @@
   meta-analysis results)
 
 * Changes for forest plots:
-  - BMJ layout implemented (layout = "BMJ")
-  - can be directly saved to a file using common graphics device
-    drivers (height of file is determined automatically)
+  - forest plot can be directly saved to a file using common graphics
+    device drivers (height of file is determined automatically)
   - details on meta-analysis methods can be shown in plot
   - risk of bias assessment automatically added for meta-analyses with
     RoB assessment
-  - point estimates can be plotted as circles instead of squares or
-    diamonds
+  - point estimates can be plotted as circles or diamonds instead of
+    squares
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
   - truncated common effect / random effects confidence intervals and
     prediction intervals if lower / upper limit is outside the limits
     of the x-axis
+  - BMJ layout implemented (layout = "BMJ")
 
 * New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
-  to print results according to BMJ style and formating, see, for
-  example, [ BMJ
+  to print results according to BMJ style and formating checklist,
+  see, for example, [ BMJ
   Medicine](https://bmjmedicine.bmj.com/bmjmedicine/wp-content/uploads/sites/66/2023/06/BMJMED-style-formatting-checklist-for-original-research-pre-acceptance-1.pdf)
 
 * R function metabind() can return both common effect and random
@@ -61,6 +61,8 @@
 
 * R package **robvis** added to Suggests (for risk of bias assessment)
 
+* New R function plot.meta() which calls forest.meta() internally
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
@@ -73,6 +75,16 @@
   - print confidence intervals based on t- and normal distribution for
     metacont() or metamean() objects with a single study and argument
     'method.ci = "t"'
+  - new argument 'print.Q' to suppress printing of heterogeneity
+    statistic Q and test of heterogeneity
+  - default for argument 'details.methods' can be defined using
+    settings.meta()
+
+* gs():
+  - first argument can be a character vector instead of a character string
+    to get the default setting of several arguments (which would be returned
+    as a list)
+  - new argument 'unname' to return named arguments (if unname = FALSE)
 
 * metamerge():
   - can be used with object created with copas() or limitmeta() from R
@@ -151,6 +163,9 @@
   - argument 'null.effect' was ignored to calculate the test statistic
     and p-value for individual studies (list elements 'statistic' and
     'pval')
+
+* metabin():
+  - use continuity correction if sm = "VE"
 
 ### Internal changes
 

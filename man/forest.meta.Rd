@@ -3,6 +3,7 @@
 \name{forest.meta}
 \alias{forest.meta}
 \alias{forest}
+\alias{plot.meta}
 \alias{.forestArgs}
 \title{Forest plot to display the result of a meta-analysis}
 \usage{
@@ -264,6 +265,8 @@
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
+
+\method{plot}{meta}(x, ...)
 
 .forestArgs()
 }

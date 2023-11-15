@@ -10908,11 +10908,12 @@ forest.meta <- function(x,
   if (new)
     grid.newpage()
   ##
-  pushViewport(viewport(layout = grid.layout(
-                          nrow,
-                          length(x1),
-                          widths = x1,
-                          heights = unit(spacing, "lines"))))
+  pushViewport(
+    viewport(
+      layout =
+        grid.layout(
+          nrow, length(x1), widths = x1,
+          heights = unit(spacing, "lines"))))
   ##
   ## Left side of forest plot
   ##
@@ -11344,15 +11345,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  popViewport()
-  ##
   ## Add header line
-  ## 
-  pushViewport(viewport(layout = grid.layout(
-                          nrow,
-                          length(x1),
-                          widths = x1,
-                          heights = unit(spacing, "lines"))))
   ##
   if (jama)
     hcols <- lsel * 2 * length(leftcols)
@@ -11372,12 +11365,17 @@ forest.meta <- function(x,
         sel2 <- sel1
         sel1 <- sel2
       }
-      ##
+      #
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
-        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+        pushViewport(
+          viewport(
+            layout.pos.col = i,
+            xscale = col.forest$range))
+        #
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
+        #
         popViewport()
       }
     }
@@ -11397,10 +11395,15 @@ forest.meta <- function(x,
       }
       ##
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
-        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+        pushViewport(
+          viewport(
+            layout.pos.col = i,
+            xscale = col.forest$range))
+        #
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
+        #
         popViewport()
       }
     }
@@ -11409,19 +11412,29 @@ forest.meta <- function(x,
   if (header.line) {
     if (header.line.pos == "both") {
       for (i in seq_len(hcols)) {
-        pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+        pushViewport(
+          viewport(
+            layout.pos.col = i,
+            xscale = col.forest$range))
+        #
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(nrow + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd, col = col.header.line))
+        #
         popViewport()
       }
     }
     ##
     for (i in seq_len(hcols)) {
-      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      pushViewport(
+        viewport(
+          layout.pos.col = i,
+          xscale = col.forest$range))
+      #
       grid.lines(x = unit(0:1, "npc"),
                  y = unit(ymax + 0.5 * addrow, "lines"),
                  gp = gpar(lwd = lwd, col = col.header.line))
+      #
       popViewport()
     }
   }
@@ -11430,12 +11443,17 @@ forest.meta <- function(x,
   ##
   if (jama & header.line & !by) {
     for (i in seq_len(hcols)) {
-      pushViewport(viewport(layout.pos.col = i, xscale = col.forest$range))
+      pushViewport(
+        viewport(
+          layout.pos.col = i,
+          xscale = col.forest$range))
+      #
       for (j in seq_len(k.all + n.com * common + n.ran * random +
                         n.prd * prediction))
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(ymax + 0.5 * addrow - j, "lines"),
                    gp = gpar(lwd = 0.5 * lwd, col = col.jama.line))
+      #
       popViewport()
     }
   }
@@ -11476,6 +11494,18 @@ forest.meta <- function(x,
   
   invisible(res)
 }
+
+
+
+
+
+#' @rdname forest.meta
+#' @method plot meta
+#' @export
+#'
+
+plot.meta <- function(x, ...)
+  forest(x, ...)
 
 
 

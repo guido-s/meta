@@ -127,16 +127,14 @@ subgr2meta <- function(x, common, random, prediction, name) {
   res <- list(
     studlab =
       c(if (common)
-          paste(x$subgroup.levels,
-                if (random | prediction) "(common effect)"),
+          paste0(x$subgroup.levels,
+                if (random | prediction) " (common effect)"),
         if (random)
-          paste(x$subgroup.levels,
-                if (common | prediction)
-                  "(random effects)"),
+          paste0(x$subgroup.levels,
+                if (common | prediction) " (random effects)"),
         if (prediction)
-          paste(x$subgroup.levels,
-                if (common | random)
-                  "(prediction)")
+          paste0(x$subgroup.levels,
+                if (common | random) " (prediction)")
         ),
     ##
     subgroup = NA,
@@ -291,17 +289,14 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
   ##
   res$studlab <-
       c(if (common)
-          paste(x$subgroup.levels,
-                if (random | prediction)
-                  "(common effect)"),
+          paste0(x$subgroup.levels,
+                if (random | prediction) " (common effect)"),
         if (random)
-          paste(x$subgroup.levels,
-                if (common | prediction)
-                  "(random effects)"),
+          paste0(x$subgroup.levels,
+                if (common | prediction) " (random effects)"),
         if (prediction)
-          paste(x$subgroup.levels,
-                if (common | random)
-                  "(prediction)"))
+          paste0(x$subgroup.levels,
+                if (common | random) " (prediction)"))
   ##
   res$subgroup <-
     c(if (common) rep(name, n.subgr),
@@ -481,17 +476,14 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
   ##
   res$studlab <-
     c(if (common)
-        paste(name,
-              if (random | prediction)
-                "(common effect)"),
+        paste0(name,
+              if (random | prediction) " (common effect)"),
       if (random)
-        paste(name,
-              if (common | prediction)
-                "(random effects)"),
+        paste0(name,
+              if (common | prediction) " (random effects)"),
       if (prediction)
-        paste(name,
-              if (common | random)
-                "(prediction)")
+        paste0(name,
+              if (common | random) " (prediction)")
       )
   ##
   res$type <-

@@ -633,9 +633,11 @@ argslist <-
     "digits.forest", "digits.TE.forest",
     "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
+    "details",
     "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
     "print.I2", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
+    "print.Q",
     ##
     "lty.common", "lty.random", "col.common", "col.random",
     "sort.subgroup",
@@ -758,6 +760,8 @@ setOption("big.mark", "")
 setOption("zero.pval", TRUE)
 setOption("JAMA.pval", FALSE)
 ##
+setOption("details", TRUE)
+##
 setOption("print.tau2", TRUE)
 setOption("print.tau2.ci", TRUE)
 setOption("print.tau", TRUE)
@@ -769,6 +773,8 @@ setOption("text.tau2", "tau^2")
 setOption("text.tau", "tau")
 setOption("text.I2", "I^2")
 setOption("text.Rb", "Rb")
+##
+setOption("print.Q", TRUE)
 ##
 ## Default summary measure
 ##

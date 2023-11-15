@@ -8,3 +8,5 @@ roxygen2.*[.]R
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 internal-functions.md
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -143,6 +143,8 @@
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
 #'   R\eqn{_b}.
+#' @param print.Q A logical value indicating whether to print the
+#'   results of the test of heterogeneity.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param warn.backtransf Deprecated argument (ignored).
@@ -225,7 +227,9 @@ print.meta <- function(x,
                        text.I2 = gs("text.I2"),
                        text.Rb = gs("text.Rb"),
                        ##
-                       details.methods = TRUE,
+                       print.Q = gs("print.Q"),
+                       ##
+                       details.methods = gs("details"),
                        ##
                        warn.backtransf = FALSE,
                        func.backtransf = x$func.backtransf,
@@ -296,6 +300,8 @@ print.meta <- function(x,
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
   chkchar(text.Rb, length = 1)
+  chklogical(print.Q)
+  ##
   chklogical(warn.deprecated)
   ##
   is.prop <- is_prop(x$sm)
@@ -850,6 +856,9 @@ print.meta <- function(x,
       uppH <- NA
     }
   }
+  else {
+    H <- lowH <- uppH <- NULL
+  }
   ##
   if (print.I2) {
     I2 <- round(100 * unlist(x$I2), digits.I2)
@@ -1173,7 +1182,11 @@ print.meta <- function(x,
     ## Print information on heterogeneity
     ##
     if (overall.hetstat) {
-      cat("\nQuantifying heterogeneity:\n")
+      cat("\nQuantifying heterogeneity:")
+      if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
+        cat("\n")
+      else
+        cat("")
       ##
       print.tau2.ci <-
         print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
@@ -1233,7 +1246,11 @@ print.meta <- function(x,
         }
         ##
         if (!is.na(replaceNULL(I2.resid))) {
-          cat("\nQuantifying residual heterogeneity:\n")
+          cat("\nQuantifying residual heterogeneity:")
+          if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
+            cat("\n")
+          else
+            cat("")
           ##
           cathet(k.resid, 
                  x$method.tau, x$detail.tau,
@@ -1254,7 +1271,7 @@ print.meta <- function(x,
       ##
       ## Test of heterogeneity
       ##
-      if (common | random) {
+      if (print.Q & (common | random)) {
         if (any(k > 1, na.rm = TRUE)) {
           ##
           Qdat <- qdat(Q, df.Q, pval.Q, x$hetlabel, text.common)

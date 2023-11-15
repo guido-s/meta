@@ -762,7 +762,7 @@ print.summary.meta <- function(x,
                    if (print.tau2) paste0(" ", tau2),
                    if (print.tau) paste0(" ", tau),
                    if (print.I2) paste0(" ", I2, ifelse(I2 == "", "", "%")))
-      dimnames(res) <- list(paste0(x$studlab, "  "),
+      dimnames(res) <- list(x$studlab,
                             c(sm.lab, ci.lab, "p-value",
                               if (print.tau2) text.tau2,
                               if (print.tau) text.tau,
@@ -914,7 +914,6 @@ print.summary.meta <- function(x,
               x.meta$n <- x.meta$event <- NA
             }
             ##
-            cat(details.ci)
             dimnames(res) <-
               list(x$studlab,
                    c(sm.lab, ci.lab,

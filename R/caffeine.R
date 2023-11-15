@@ -1,7 +1,7 @@
 #' Caffeine for daytime drowsiness
 #' 
 #' @description
-#' Caffeine for daytime drowsiness (Cochrane Practice review) 
+#' Caffeine for daytime drowsiness (Cochrane Practice review)
 #' 
 #' @details
 #' Data come from the Cochrane Practice review on caffeine for daytime
