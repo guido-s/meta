@@ -556,6 +556,22 @@ estimates.meta <- function(x,
     if (ci)
       res$upper <- backtransf(res$upper, x$sm, nback, timeback,
                               x$func.backtransf, x$args.backtransf)
+    #
+    if (inherits(x, "metaprop") && x$pscale != 1) {
+      res$estimate <- x$pscale * res$estimate
+      if (ci) {
+        res$lower <- x$pscale * res$lower
+        res$upper <- x$pscale * res$upper
+      }
+    }
+    #
+    if (inherits(x, "metarate") && x$irscale != 1) {
+      res$estimate <- x$irscale * res$estimate
+      if (ci) {
+        res$lower <- x$irscale * res$lower
+        res$upper <- x$irscale * res$upper
+      }
+    }
   }
   ##
   res$estimate <- round(res$estimate, digits = digits)
