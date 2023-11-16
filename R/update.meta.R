@@ -633,6 +633,11 @@ update.meta <- function(object,
     ##
     object$rho <- 0
     ##
+    if (inherits(object, c("metacum", "metainf"))) {
+      object$label.e <- replaceNULL(object$label.e, "")
+      object$label.c <- replaceNULL(object$label.c, "")
+    }
+    ##
     if (inherits(object, "metaprop") && object$method.ci != "NAsm") {
       if (object$sm == "PLOGIT") {
         object$lower <- p2logit(object$lower)

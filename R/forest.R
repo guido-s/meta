@@ -1653,7 +1653,9 @@ forest.meta <- function(x,
   ##
   ##
   missing.leftcols <- missing(leftcols)
+  missing.leftlabs <- missing(leftlabs)
   missing.rightcols <- missing(rightcols)
+  missing.rightlabs <- missing(rightlabs)
   ##
   layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$subgroup)) {
@@ -3622,7 +3624,7 @@ forest.meta <- function(x,
   if (newcols) {
     ##
     if (length(rightcols.new) > 0) {
-      if (missing(rightlabs)) {
+      if (missing.rightlabs) {
         rightlabs.new <- rightcols.new
         if (RoB.available)
           rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
@@ -3686,7 +3688,7 @@ forest.meta <- function(x,
     }
     ##
     if (length(leftcols.new) > 0) {
-      if (missing(leftlabs)) {
+      if (missing.leftlabs) {
         leftlabs.new <- leftcols.new
         ##
         if ((metacor | metaprop | metamean | metarate) &
@@ -3759,6 +3761,9 @@ forest.meta <- function(x,
       leftcols <- c(leftcols, "cluster")
     ##
     if (jama) {
+      if (metainf.metacum)
+        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
+      #
       leftcols <- c(leftcols, "effect.ci")
     }
     else {
@@ -3925,6 +3930,8 @@ forest.meta <- function(x,
         if (random && !all(is.na(x$w.random)))
           leftcols <- c(leftcols, "w.random")
       }
+      else if (metainf.metacum)
+        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       ##
       leftcols <- c(leftcols, "effect.ci")
     }
@@ -3941,6 +3948,8 @@ forest.meta <- function(x,
         if (random)
           leftcols <- c(leftcols, "w.random")
       }
+      else if (metainf.metacum)
+        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       ##
       if (bmj)
         leftcols <- c(leftcols, "effect.ci")
@@ -3953,24 +3962,23 @@ forest.meta <- function(x,
   leftcols <- unique(leftcols)
   ##
   if (is.null(rightcols) && rsel) {
-    if (!metainf.metacum) {
-      if (bmj)
-        rightcols <- "effect.ci"
-      else
-        rightcols <- c("effect", "ci")
-      ##
-      if (!metainf.metacum & overall & study.results &
-          !any(x$method == "GLMM") & !metamerge) {
-        wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
-                   if (random && !all(is.na(x$w.random))) "w.random")
-        ##
-        if (bmj)
-          rightcols <- c(wcols, rightcols)
-        else
-          rightcols <- c(rightcols, wcols)
-      }
-    }
+    if (bmj)
+      rightcols <- "effect.ci"
     else
+      rightcols <- c("effect", "ci")
+    #
+    if (!metainf.metacum & overall & study.results &
+        !any(x$method == "GLMM") & !metamerge) {
+      wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
+                 if (random && !all(is.na(x$w.random))) "w.random")
+      #
+      if (bmj)
+        rightcols <- c(wcols, rightcols)
+      else
+        rightcols <- c(rightcols, wcols)
+    }
+    #
+    if (metainf.metacum)
       rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")
   }
   else if (RoB.available & rob.only &
@@ -7607,7 +7615,7 @@ forest.meta <- function(x,
   labs <- list()
   ##
   if (lsel) {
-    if (missing(leftlabs) || length(leftcols) != length(leftlabs)) {
+    if (missing.leftlabs || length(leftcols) != length(leftlabs)) {
       for (i in seq_along(leftcols)) {
         j <- match(leftcols[i], colnames)
         if (!is.na(j))
@@ -7626,7 +7634,7 @@ forest.meta <- function(x,
     }
   }
   ##
-  if (missing(rightlabs) || length(rightcols) != length(rightlabs)) {
+  if (missing.rightlabs || length(rightcols) != length(rightlabs)) {
     for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))
@@ -11483,7 +11491,12 @@ forest.meta <- function(x,
               if (bmj.bin) effect.ci.format = effect.ci.format,
               if (bmj.bin) effect.ci.format = effect.ci.format,
               ##
-              figheight = figheight)
+              figheight = figheight,
+              #
+              leftcols = leftcols,
+              leftlabs= leftlabs,
+              rightcols = rightcols,
+              rightlabs = rightlabs)
   ##
   if (metainf.metacum) {
     res$pval.format <- pval.format
