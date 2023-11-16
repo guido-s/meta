@@ -791,7 +791,7 @@ print.metabias <- function(x,
                format.pvalue,
                "\n",
                #
-               "Sample estimate: ",
+               "Bias estimate: ",
                formatN(x$estimate[1], digits, "NA", big.mark = big.mark),
                " (SE = ",
                formatN(x$estimate[2], digits.se, "NA", big.mark = big.mark),
