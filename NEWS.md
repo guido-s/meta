@@ -264,6 +264,9 @@
   - new arguments 'fill.lower.equi' and 'fill.upper.equi' to specify
     fill colour(s) for lower or upper limits
 
+* print.metabias():
+  - do not print the intercept and its standard error (nuisance parameter)
+
 ### Internal changes
 
 * full rewrite of function catmeth() to print details on meta-analysis
@@ -272,6 +275,10 @@
 * internal functions is.wholenumber() etc. renamed to
   *is_wholenumber()* due to new CRAN policy regarding generic
   functions
+
+* metabias():
+  - intercept and its standard error are no longer part of list element
+    'estimate' (nuisance parameter)
 
 
 ## meta, version 6.2-1 (2023-02-28)
