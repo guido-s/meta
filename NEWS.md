@@ -166,6 +166,9 @@
 
 * metabin():
   - use continuity correction if sm = "VE"
+  
+* metareg():
+  - error if input to argument 'formula' was the name of an R function 
 
 ### Internal changes
 

@@ -11466,9 +11466,11 @@ forest.meta <- function(x,
     }
   }
   ##
+  popViewport()
+  ##
   if (dev.off)
     invisible(dev.off())
-  
+
   
   res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
               ##
