@@ -184,6 +184,11 @@
 
 * Input to chkchar() can be a numeric vector
 
+* settings.meta(): set defaults for arguments 'forest.tau2,' 'forest.tau',
+  'forest.I2', 'forest.Q', 'forest.pval.Q', and 'forest.Rb' for BMJ, JAMA
+   and RevMan5 layout
+
+
 ## meta, version 6.5-0 (2023-06-06)
 
 ### Major changes

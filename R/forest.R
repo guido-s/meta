@@ -2181,6 +2181,8 @@ forest.meta <- function(x,
   ##
   chklogical(print.I2.ci)
   ##
+  missing.print.tau2 <- missing(print.tau2)
+  #
   if (is.null(print.tau2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.tau2 <- TRUE
@@ -2190,7 +2192,9 @@ forest.meta <- function(x,
     chklogical(print.tau2)
   ##
   chklogical(print.tau2.ci)
+  missing.print.tau <- missing(print.tau)
   chklogical(print.tau)
+  #
   chklogical(print.tau.ci)
   print.tau2.tau <- print.tau2 | print.tau
   if (print.tau2 & print.tau)
@@ -2207,7 +2211,43 @@ forest.meta <- function(x,
       print.pval.Q <- FALSE
   else
     chklogical(print.pval.Q)
-  ##
+  #
+  if (bmj & overall.hetstat) {
+    if (!print.I2)
+      warning("Heterogeneity statistic I2 printed for BMJ layout.")
+    if (!print.Q)
+      warning("Heterogeneity statistic Q printed for BMJ layout.")
+    if (!print.pval.Q)
+      warning("P-value of test for heterogeneity printed for BMJ layout.")
+    if (print.Rb)
+      warning("Heterogeneity statistic Rb not printed for BMJ layout.")
+  }
+  #
+  if (jama & overall.hetstat) {
+    if (!print.I2)
+      warning("Heterogeneity statistic I2 printed for JAMA layout.")
+    if (!print.Q)
+      warning("Heterogeneity statistic Q printed for JAMA layout.")
+    if (!print.pval.Q)
+      warning("P-value of test for heterogeneity printed for JAMA layout.")
+    if (print.Rb)
+      warning("Heterogeneity statistic Rb not printed for JAMA layout.")
+  }
+  #
+  if (revman5 && overall.hetstat) {
+    if (!print.tau2 & !print.tau)
+      warning(paste("Information on between-study variance printed for",
+                    "RevMan5 layout"))
+    if (!print.I2)
+      warning("Heterogeneity statistic I2 printed for RevMan5 layout.")
+    if (!print.Q)
+      warning("Heterogeneity statistic Q printed for RevMan5 layout.")
+    if (!print.pval.Q)
+      warning("P-value of test for heterogeneity printed for RevMan5 layout.")
+    if (print.Rb)
+      warning("Heterogeneity statistic Rb not printed for RevMan5 layout.")
+  }    
+  #
   chklogical(print.Rb)
   chklogical(print.Rb.ci)
   if (!is.logical(text.subgroup.nohet))
@@ -4570,6 +4610,8 @@ forest.meta <- function(x,
       hetstat.I2 <- gsub("  ", " ", hetstat.I2)
     while(grepl("  ", hetstat.tau2))
       hetstat.tau2 <- gsub("  ", " ", hetstat.tau2)
+    while(grepl("  ", hetstat.tau))
+      hetstat.tau <- gsub("  ", " ", hetstat.tau)
     while(grepl("  ", hetstat.Q))
       hetstat.Q <- gsub("  ", " ", hetstat.Q)
     while(grepl("  ", hetstat.pval.Q))
@@ -4579,50 +4621,147 @@ forest.meta <- function(x,
         hetstat.Rb <- gsub("  ", " ", hetstat.Rb)
     if (bmj) {
       hetstat.tau2 <- gsub(" = ", "=", hetstat.tau2)
+      hetstat.tau <- gsub(" = ", "=", hetstat.tau)
       hetstat.Q <- gsub(" = ", "=", hetstat.Q)
       hetstat.pval.Q <- gsub(" = ", "=", hetstat.pval.Q)
       hetstat.I2 <- gsub(" = ", "=", hetstat.I2)
     }
     ##
-    if (bmj)
-      hetstat.overall <- substitute(paste(hl,
-                                          tau^2, ht, "; ",
-                                          chi^2, hq,
-                                          ", P", hp,
-                                          "; ",
-                                          I^2, hi),
-                                    list(hl = hetlab,
-                                         hi = hetstat.I2,
-                                         ht = hetstat.tau2,
-                                         hq = hetstat.Q,
-                                         hp = hetstat.pval.Q,
-                                         df = df.Q))
-    else if (revman5)
-      hetstat.overall <- substitute(paste(hl,
-                                          "Tau"^2, ht, "; ",
-                                          "Chi"^2, hq,
-                                          " (",
-                                          P, hp,
-                                          "); ",
-                                          I^2, hi),
-                                    list(hl = hetlab,
-                                         hi = hetstat.I2,
-                                         ht = hetstat.tau2,
-                                         hq = hetstat.Q,
-                                         hp = hetstat.pval.Q))
-    else if (jama)
-      hetstat.overall <- substitute(paste(hl,
-                                          chi[df]^2, hq,
-                                          " (",
-                                          italic(P), hp,
-                                          "), ",
-                                          italic(I)^2, hi
-                                          ),
-                                    list(hl = hetlab,
-                                         hi = hetstat.I2,
-                                         hq = hetstat.Q,
-                                         hp = hetstat.pval.Q,
-                                         df = df.Q))
+    if (bmj) {
+      if (print.tau)
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  tau, ht, "; ",
+                  chi^2, hq,
+                  ", P", hp, "; ",
+                  I^2, hi),
+            list(hl = hetlab,
+                 ht = hetstat.tau,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 hi = hetstat.I2,
+                 df = df.Q)
+            )
+      else if (print.tau2)
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  tau^2, ht, "; ",
+                  chi^2, hq,
+                  ", P", hp, "; ",
+                  I^2, hi),
+            list(hl = hetlab,
+                 ht = hetstat.tau2,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 hi = hetstat.I2,
+                 df = df.Q)
+            )
+      else
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  chi^2, hq,
+                  ", P", hp, "; ",
+                  I^2, hi),
+            list(hl = hetlab,
+                 hi = hetstat.I2,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 df = df.Q)
+            )
+    }
+    else if (jama) {
+      if (!missing.print.tau2 | !missing.print.tau) {
+        if (print.tau)
+          hetstat.overall <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (", italic(P), hp, "), ",
+                    italic(I)^2, hi, ", ",
+                    tau, ht),
+              list(hl = hetlab,
+                   df = df.Q,
+                   hq = hetstat.Q,
+                   hp = hetstat.pval.Q,
+                   hi = hetstat.I2,
+                   ht = hetstat.tau)
+              )
+        else if (print.tau2)
+          hetstat.overall <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (", italic(P), hp, "), ",
+                    italic(I)^2, hi, ", ",
+                    tau^2, ht),
+              list(hl = hetlab,
+                   df = df.Q,
+                   hq = hetstat.Q,
+                   hp = hetstat.pval.Q,
+                   hi = hetstat.I2,
+                   ht = hetstat.tau2)
+            )
+        else
+          hetstat.overall <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (", italic(P), hp, "), ",
+                    italic(I)^2, hi),
+              list(hl = hetlab,
+                   df = df.Q,
+                   hq = hetstat.Q,
+                   hp = hetstat.pval.Q,
+                   hi = hetstat.I2)
+            )
+      }
+      else
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  chi[df]^2, hq,
+                  " (", italic(P), hp, "), ",
+                  italic(I)^2, hi),
+            list(hl = hetlab,
+                 df = df.Q,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 hi = hetstat.I2)
+          )
+    }
+    else if (revman5) {
+      if (print.tau)
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  "Tau", ht, "; ",
+                  "Chi"^2, hq,
+                  " (", P, hp, "); ",
+                  I^2, hi),
+            list(hl = hetlab,
+                 ht = hetstat.tau,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 hi = hetstat.I2)
+          )
+      else
+        hetstat.overall <-
+          substitute(
+            paste(hl,
+                  "Tau"^2, ht, "; ",
+                  "Chi"^2, hq,
+                  " (", P, hp, "); ",
+                  I^2, hi),
+            list(hl = hetlab,
+                 ht = hetstat.tau2,
+                 hq = hetstat.Q,
+                 hp = hetstat.pval.Q,
+                 hi = hetstat.I2)
+          )
+    }
     else {
       ##
       ## One

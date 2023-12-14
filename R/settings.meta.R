@@ -83,11 +83,29 @@
 #'   subgroup differences \cr
 #' \code{test.effect.subgroup} \tab TRUE \tab print information on
 #'   test for effect in subgroups \cr
-#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+#' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+#'   forest plots
+#'   \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+#'   in forest plots
+#'   \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+#'   standard deviation in forest plots
+#'   \cr
+#' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+#'   forest plots
+#'   \cr
+#' \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+#'   in forest plots
+#'   \cr
+#' \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+#'   forest plots
 #'   \cr
 #' \code{digits.tau2} \tab 3 \tab number of digits for tau-squared \cr
 #' \code{digits.tau} \tab 4 \tab number of digits for square root of
 #'   tau-squared \cr
+#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+#'   \cr
 #' \code{CIbracket}, \tab "[" \tab \cr
 #' \code{CIseparator} \tab ", " \tab print confidence intervals as
 #'   "\code{[., .]}" \cr
@@ -104,6 +122,24 @@
 #'   subgroup differences \cr
 #' \code{test.effect.subgroup} \tab FALSE \tab print information on
 #'   test for effect in subgroups \cr
+#' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+#'   forest plots
+#'   \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+#'   in forest plots
+#'   \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+#'   standard deviation in forest plots
+#'   \cr
+#' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+#'   forest plots
+#'   \cr
+#' \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+#'   in forest plots
+#'   \cr
+#' \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+#'   forest plots
+#'   \cr
 #' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
 #'   \cr
 #' \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
@@ -124,6 +160,24 @@
 #'   subgroup differences \cr
 #' \code{test.effect.subgroup} \tab FALSE \tab print information on
 #'   test for effect in subgroups \cr
+#' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+#'   forest plots
+#'   \cr
+#' \code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity
+#'   variance in forest plots
+#'   \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+#'   standard deviation in forest plots
+#'   \cr
+#' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+#'   forest plots
+#'   \cr
+#' \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+#'   in forest plots
+#'   \cr
+#' \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+#'   forest plots
+#'   \cr
 #' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
 #'   \cr
 #' \code{digits.pval} \tab 3 \tab number of digits for p-values \cr
@@ -285,7 +339,7 @@ settings.meta <- function(..., quietly = TRUE) {
   ##
   ## Set internal variables
   ##
-  settings <- c("RevMan5", "BMJ", "JAMA",
+  settings <- c("BMJ", "JAMA", "RevMan5", 
                 "IQWiG5", "IQWiG6", "geneexpr", "meta4")
   layouts <- c(settings[1:2], "meta")
   ##
@@ -708,42 +762,48 @@ settings.meta <- function(..., quietly = TRUE) {
   ## Specific settings
   ##
   if (specific.settings) {
-    ##
-    ## Remember:
-    ## settings <- c("BMJ", "RevMan5", "JAMA", "IQWiG5", "IQWiG6",
-    ##               "geneexpr", "meta4")
-    ##
+    #
     if (setting == "BMJ") {
       specificSettings(
         args = c("layout", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
-                 ##
+                 #
+                 "forest.I2", "forest.tau2", "forest.tau",
+                 "forest.Q", "forest.pval.Q", "forest.Rb",
+                 #
                  "digits.I2", "digits.tau2", "digits.tau", "digits.pval",
                  "digits.forest", "digits.mean", "digits.sd",
-                 ##
+                 #
                  "CIbracket", "CIseparator",
-                 ##
+                 #
                  "colgap.forest",
-                 ##
+                 #
                  "col.common", "col.random", "col.subgroup",
                  "col.study", "col.square", "col.square.lines",
                  "col.diamond", "col.diamond.lines",
-                 ##
+                 #
                  "col.lines",
-                 ##
+                 #
                  "lwd.square", "lwd.diamond",
-                 ##
+                 #
                  "arrow.type",
-                 ##
+                 #
                  "ff.lr",
                  "zero.pval", "JAMA.pval",
-                 ##
+                 #
                  "hetlab", "header.line"),
         new = list("BMJ",
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
-                   ##
+                   #
+                   replaceNULL(args[["forest.I2"]], TRUE),
+                   replaceNULL(args[["forest.tau2"]], TRUE),
+                   replaceNULL(args[["forest.tau"]], FALSE),
+                   replaceNULL(args[["forest.Q"]], TRUE),
+                   replaceNULL(args[["forest.pval.Q"]], TRUE),
+                   replaceNULL(args[["forest.Rb"]], FALSE),
+                   #
                    replaceNULL(args[["digits.I2"]], 0),
                    replaceNULL(args[["digits.tau2"]], 2),
                    replaceNULL(args[["digits.tau"]], 2),
@@ -751,12 +811,12 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["digits.forest"]], 2),
                    replaceNULL(args[["digits.mean"]], 1),
                    replaceNULL(args[["digits.sd"]], 1),
-                   ##
+                   #
                    replaceNULL(args[["CIbracket"]], "("),
                    replaceNULL(args[["CIseparator"]], " to "),
-                   ##
+                   #
                    replaceNULL(args[["colgap.forest"]], "5mm"),
-                   ##
+                   #
                    replaceNULL(args[["col.common"]], "#6b58a6"),
                    replaceNULL(args[["col.random"]], "#6b58a6"),
                    replaceNULL(args[["col.subgroup"]], "black"),
@@ -765,24 +825,60 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["col.square.lines"]], "white"),
                    replaceNULL(args[["col.diamond"]], "#6b58a6"),
                    replaceNULL(args[["col.diamond.lines"]], "white"),
-                   ##
+                   #
                    replaceNULL(args[["col.lines"]], "#a7a9ac"),
-                   ##
+                   #
                    replaceNULL(args[["lwd.square"]], 0.5),
                    replaceNULL(args[["lwd.diamond"]], 0.5),
-                   ##
+                   #
                    replaceNULL(args[["arrow.type"]], "closed"),
-                   ##
+                   #
                    replaceNULL(args[["ff.lr"]], "bold"),
                    replaceNULL(args[["zero.pval"]], TRUE),
                    replaceNULL(args[["JAMA.pval"]], TRUE),
-                   ##
+                   #
                    replaceNULL(args[["hetlab"]], "Test for heterogeneity: "),
                    replaceNULL(args[["header.line"]], TRUE)),
         setting = "BMJ settings",
         quietly = quietly)
     }
-    ##
+    #
+    else if (setting == "JAMA") {
+      specificSettings(
+        args = c("layout", "test.overall",
+                 "test.subgroup", "test.effect.subgroup",
+                 #
+                 "forest.I2", "forest.tau2", "forest.tau",
+                 "forest.Q", "forest.pval.Q", "forest.Rb",
+                 #
+                 "digits.I2", "digits.pval",
+                 "CIbracket", "CIseparator",
+                 "zero.pval", "JAMA.pval",
+                 "hetlab", "header.line"),
+        new = list("JAMA",
+                   replaceNULL(args[["test.overall"]], TRUE),
+                   replaceNULL(args[["test.subgroup"]], FALSE),
+                   replaceNULL(args[["test.effect.subgroup"]], FALSE),
+                   #
+                   replaceNULL(args[["forest.tau2"]], FALSE),
+                   replaceNULL(args[["forest.tau"]], FALSE),
+                   replaceNULL(args[["forest.I2"]], TRUE),
+                   replaceNULL(args[["forest.Q"]], TRUE),
+                   replaceNULL(args[["forest.pval.Q"]], TRUE),
+                   replaceNULL(args[["forest.Rb"]], FALSE),
+                   #
+                   replaceNULL(args[["digits.I2"]], 0),
+                   replaceNULL(args[["digits.pval"]], 3),
+                   replaceNULL(args[["CIbracket"]], "("),
+                   replaceNULL(args[["CIseparator"]], "-"),
+                   replaceNULL(args[["zero.pval"]], FALSE),
+                   replaceNULL(args[["JAMA.pval"]], TRUE),
+                   replaceNULL(args[["hetlab"]], "Heterogeneity: "),
+                   replaceNULL(args[["header.line"]], TRUE)),
+        setting = "JAMA settings",
+        quietly = quietly)
+    }
+    #
     else if (setting == "RevMan5") {
       specificSettings(
         args = c("method.random.ci", "method.tau", "tau.common",
@@ -791,8 +887,12 @@ settings.meta <- function(..., quietly = TRUE) {
                  "layout", "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
                  "col.subgroup",
-                 "digits",
-                 "digits.I2", "digits.tau2", "digits.tau",
+                 #
+                 "forest.I2", "forest.tau2", "forest.tau",
+                 "forest.Q", "forest.pval.Q", "forest.Rb",
+                 #
+                 "digits", "digits.I2", "digits.tau2", "digits.tau",
+                 #
                  "CIbracket", "CIseparator",
                  "zero.pval", "JAMA.pval",
                  "text.common", "text.w.common",
@@ -809,10 +909,19 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
                    replaceNULL(args[["col.subgroup"]], "black"),
+                   #
+                   replaceNULL(args[["forest.I2"]], TRUE),
+                   replaceNULL(args[["forest.tau2"]], TRUE),
+                   replaceNULL(args[["forest.tau"]], FALSE),
+                   replaceNULL(args[["forest.Q"]], TRUE),
+                   replaceNULL(args[["forest.pval.Q"]], TRUE),
+                   replaceNULL(args[["forest.Rb"]], FALSE),
+                   #
                    replaceNULL(args[["digits"]], 2),
                    replaceNULL(args[["digits.I2"]], 0),
                    replaceNULL(args[["digits.tau2"]], 3),
                    replaceNULL(args[["digits.tau"]], 4),
+                   #
                    replaceNULL(args[["CIbracket"]], "["),
                    replaceNULL(args[["CIseparator"]], ", "),
                    replaceNULL(args[["zero.pval"]], TRUE),
@@ -823,30 +932,6 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["header.line"]], TRUE)
                    ),
         setting = "RevMan 5 settings",
-        quietly = quietly)
-    }
-    ##
-    else if (setting == "JAMA") {
-      specificSettings(
-        args = c("layout", "test.overall",
-                 "test.subgroup", "test.effect.subgroup",
-                 "digits.I2", "digits.pval",
-                 "CIbracket", "CIseparator",
-                 "zero.pval", "JAMA.pval",
-                 "hetlab", "header.line"),
-        new = list("JAMA",
-                   replaceNULL(args[["test.overall"]], TRUE),
-                   replaceNULL(args[["test.subgroup"]], FALSE),
-                   replaceNULL(args[["test.effect.subgroup"]], FALSE),
-                   replaceNULL(args[["digits.I2"]], 0),
-                   replaceNULL(args[["digits.pval"]], 3),
-                   replaceNULL(args[["CIbracket"]], "("),
-                   replaceNULL(args[["CIseparator"]], "-"),
-                   replaceNULL(args[["zero.pval"]], FALSE),
-                   replaceNULL(args[["JAMA.pval"]], TRUE),
-                   replaceNULL(args[["hetlab"]], "Heterogeneity: "),
-                   replaceNULL(args[["header.line"]], TRUE)),
-        setting = "JAMA settings",
         quietly = quietly)
     }
     ##

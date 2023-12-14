@@ -91,11 +91,29 @@ RevMan 5 settings, in detail:
   subgroup differences \cr
 \code{test.effect.subgroup} \tab TRUE \tab print information on
   test for effect in subgroups \cr
-\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+  in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
   \cr
 \code{digits.tau2} \tab 3 \tab number of digits for tau-squared \cr
 \code{digits.tau} \tab 4 \tab number of digits for square root of
   tau-squared \cr
+\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+  \cr
 \code{CIbracket}, \tab "[" \tab \cr
 \code{CIseparator} \tab ", " \tab print confidence intervals as
   "\code{[., .]}" \cr
@@ -112,6 +130,24 @@ BMJ settings:
   subgroup differences \cr
 \code{test.effect.subgroup} \tab FALSE \tab print information on
   test for effect in subgroups \cr
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+  in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
+  \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
 \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
@@ -132,6 +168,24 @@ JAMA settings:
   subgroup differences \cr
 \code{test.effect.subgroup} \tab FALSE \tab print information on
   test for effect in subgroups \cr
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity
+  variance in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
+  \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
 \code{digits.pval} \tab 3 \tab number of digits for p-values \cr
