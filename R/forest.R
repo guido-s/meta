@@ -2170,7 +2170,14 @@ forest.meta <- function(x,
   ##
   overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
   chklogical(overall.hetstat)
-  ##
+  #
+  missing.print.I2 <- missing(print.I2)
+  missing.print.tau2 <- missing(print.tau2)
+  missing.print.tau <- missing(print.tau)
+  missing.print.Q <- missing(print.Q)
+  missing.print.pval.Q <- missing(print.pval.Q)
+  missing.print.Rb <- missing(print.Rb)
+  #
   if (is.null(print.I2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.I2 <- TRUE
@@ -2180,8 +2187,6 @@ forest.meta <- function(x,
     chklogical(print.I2)
   ##
   chklogical(print.I2.ci)
-  ##
-  missing.print.tau2 <- missing(print.tau2)
   #
   if (is.null(print.tau2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
@@ -2192,7 +2197,7 @@ forest.meta <- function(x,
     chklogical(print.tau2)
   ##
   chklogical(print.tau2.ci)
-  missing.print.tau <- missing(print.tau)
+  ##
   chklogical(print.tau)
   #
   chklogical(print.tau.ci)
@@ -2212,44 +2217,46 @@ forest.meta <- function(x,
   else
     chklogical(print.pval.Q)
   #
+  chklogical(print.Rb)
+  chklogical(print.Rb.ci)
+  #
   if (bmj & overall.hetstat) {
-    if (!print.I2)
+    if (!missing.print.I2 && !print.I2)
       warning("Heterogeneity statistic I2 printed for BMJ layout.")
-    if (!print.Q)
+    if (!missing.print.Q && !print.Q)
       warning("Heterogeneity statistic Q printed for BMJ layout.")
-    if (!print.pval.Q)
+    if (!missing.print.pval.Q && !print.pval.Q)
       warning("P-value of test for heterogeneity printed for BMJ layout.")
-    if (print.Rb)
+    if (!missing.print.Rb && print.Rb)
       warning("Heterogeneity statistic Rb not printed for BMJ layout.")
   }
   #
   if (jama & overall.hetstat) {
-    if (!print.I2)
+    if (!missing.print.I2 && !print.I2)
       warning("Heterogeneity statistic I2 printed for JAMA layout.")
-    if (!print.Q)
+    if (!missing.print.Q && !print.Q)
       warning("Heterogeneity statistic Q printed for JAMA layout.")
-    if (!print.pval.Q)
+    if (!missing.print.pval.Q && !print.pval.Q)
       warning("P-value of test for heterogeneity printed for JAMA layout.")
-    if (print.Rb)
+    if (!missing.print.Rb && print.Rb)
       warning("Heterogeneity statistic Rb not printed for JAMA layout.")
   }
   #
   if (revman5 && overall.hetstat) {
-    if (!print.tau2 & !print.tau)
+    if ((!missing.print.tau2 & !print.tau2 & !print.tau) |
+        (!missing.print.tau  & !print.tau2 & !print.tau))
       warning(paste("Information on between-study variance printed for",
                     "RevMan5 layout"))
-    if (!print.I2)
+    if (!missing.print.I2 && !print.I2)
       warning("Heterogeneity statistic I2 printed for RevMan5 layout.")
-    if (!print.Q)
+    if (!missing.print.Q && !print.Q)
       warning("Heterogeneity statistic Q printed for RevMan5 layout.")
-    if (!print.pval.Q)
+    if (!missing.print.pval.Q && !print.pval.Q)
       warning("P-value of test for heterogeneity printed for RevMan5 layout.")
-    if (print.Rb)
+    if (!missing.print.Rb && print.Rb)
       warning("Heterogeneity statistic Rb not printed for RevMan5 layout.")
   }    
   #
-  chklogical(print.Rb)
-  chklogical(print.Rb.ci)
   if (!is.logical(text.subgroup.nohet))
     chkchar(text.subgroup.nohet)
   else if (text.subgroup.nohet)
