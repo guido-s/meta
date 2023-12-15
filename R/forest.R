@@ -5264,47 +5264,126 @@ forest.meta <- function(x,
     while(grepl("  ", hetstat.Rb.resid))
       hetstat.Rb.resid <- gsub("  ", " ", hetstat.Rb.resid)
     ##
-    if (bmj)
-      hetstat.resid <- substitute(paste(hl,
-                                        tau^2, ht, "; ",
-                                        chi^2, hq,
-                                        ", df=",
-                                        df,
-                                        ", P"=, hp,
-                                        "; ",
-                                        I^2, hi),
-                                  list(hl = resid.hetlab,
-                                       hi = hetstat.I2.resid,
-                                       ht = hetstat.tau2.resid,
-                                       hq = hetstat.Q.resid,
-                                       hp = hetstat.pval.Q.resid,
-                                       df = df.Q))
-    else if (revman5)
-      hetstat.resid <- substitute(paste(hl,
-                                        "Tau"^2, ht, "; ",
-                                        "Chi"^2, hq,
-                                        " (",
-                                        P, hp,
-                                        "); ",
-                                        I^2, hi),
-                                  list(hl = resid.hetlab,
-                                       hi = hetstat.I2.resid,
-                                       ht = hetstat.tau2.resid,
-                                       hq = hetstat.Q.resid,
-                                       hp = hetstat.pval.Q.resid))
-    else if (jama)
-      hetstat.resid <- substitute(paste(hl,
-                                        chi[df]^2, hq,
-                                        " (",
-                                        italic(P), hp,
-                                        "), ",
-                                        italic(I)^2, hi
-                                        ),
-                                  list(hl = resid.hetlab,
-                                       hi = hetstat.I2.resid,
-                                       hq = hetstat.Q.resid,
-                                       hp = hetstat.pval.Q.resid,
-                                       df = df.Q.resid))
+    if (bmj) {
+      if (print.tau)
+        hetstat.resid <-
+          substitute(
+            paste(hl,
+                  tau, ht, "; ",
+                  chi^2, hq,
+                  ", df=",
+                  df,
+                  ", P"=, hp,
+                  "; ",
+                  I^2, hi),
+            list(hl = resid.hetlab,
+                 ht = hetstat.tau.resid,
+                 df = df.Q,
+                 hq = hetstat.Q.resid,
+                 hp = hetstat.pval.Q.resid,
+                 hi = hetstat.I2.resid)
+            )
+      else
+        hetstat.resid <-
+          substitute(
+            paste(hl,
+                  tau^2, ht, "; ",
+                  chi^2, hq,
+                  ", df=",
+                  df,
+                  ", P"=, hp,
+                  "; ",
+                  I^2, hi),
+              list(hl = resid.hetlab,
+                   df = df.Q.resid,
+                   hq = hetstat.Q.resid,
+                   hp = hetstat.pval.Q.resid,
+                   hi = hetstat.I2.resid)
+          )
+    }
+    else if (jama) {
+      if (!missing.print.tau2 | !missing.print.tau) {
+        if (print.tau)
+          hetstat.resid <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (",
+                    italic(P), hp,
+                    "), ",
+                    italic(I)^2, hi,
+                    tau, ht),
+              list(hl = resid.hetlab,
+                   df = df.Q.resid,
+                   hq = hetstat.Q.resid,
+                   hp = hetstat.pval.Q.resid,
+                   hi = hetstat.I2.resid,
+                   ht = hetstat.tau.resid)
+            )
+        else if (print.tau2)
+          hetstat.resid <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (",
+                    italic(P), hp,
+                    "), ",
+                    italic(I)^2, hi,
+                    tau^2, ht),
+              list(hl = resid.hetlab,
+                   df = df.Q.resid,
+                   hq = hetstat.Q.resid,
+                   hp = hetstat.pval.Q.resid,
+                   hi = hetstat.I2.resid,
+                   ht = hetstat.tau2.resid)
+            )
+        else
+          hetstat.resid <-
+            substitute(
+              paste(hl,
+                    chi[df]^2, hq,
+                    " (",
+                    italic(P), hp,
+                    "), ",
+                    italic(I)^2, hi),
+              list(hl = resid.hetlab,
+                   df = df.Q.resid,
+                   hq = hetstat.Q.resid,
+                   hp = hetstat.pval.Q.resid,
+                   hi = hetstat.I2.resid)
+            )
+      }
+    }
+    else if (revman5) {
+      if (print.tau)
+        hetstat.resid <-
+          substitute(
+            paste(hl,
+                  "Tau", ht, "; ",
+                  "Chi"^2, hq,
+                  " (", P, hp, "); ",
+                  I^2, hi),
+            list(hl = resid.hetlab,
+                 ht = hetstat.tau.resid,
+                 hq = hetstat.Q.resid,
+                 hp = hetstat.pval.Q.resid,
+                 hi = hetstat.I2.resid)
+            )
+      else
+        hetstat.resid <-
+          substitute(
+            paste(hl,
+                  "Tau"^2, ht, "; ",
+                  "Chi"^2, hq,
+                  " (", P, hp, "); ",
+                  I^2, hi),
+            list(hl = resid.hetlab,
+                 ht = hetstat.tau2.resid,
+                 hq = hetstat.Q.resid,
+                 hp = hetstat.pval.Q.resid,
+                 hi = hetstat.I2.resid)
+          )
+    }
     else {
       ##
       ## One
@@ -6616,44 +6695,153 @@ forest.meta <- function(x,
         hetstat.Rb.w <- gsub("  ", " ", hetstat.Rb.w)
       ##
       for (i in seq_len(n.by)) {
-        if (bmj)
-          hetstat.w[[i]] <- substitute(paste(hl,
-                                             tau^2, ht, "; ",
-                                             chi^2, hq,
-                                             ", P", hp,
-                                             "; ",
-                                             I^2, hi),
-                                       list(hl = hetlab,
-                                            hi = hetstat.I2.w[i],
-                                            ht = hetstat.tau2.w[i],
-                                            hq = hetstat.Q.w[i],
-                                            hp = hetstat.pval.Q.w[i]))
-        else if (revman5)
-          hetstat.w[[i]] <- substitute(paste(hl,
-                                             "Tau"^2, ht, "; ",
-                                             "Chi"^2, hq,
-                                             " (",
-                                             P, hp,
-                                             "); ",
-                                             I^2, hi),
-                                       list(hl = hetlab,
-                                            hi = hetstat.I2.w[i],
-                                            ht = hetstat.tau2.w[i],
-                                            hq = hetstat.Q.w[i],
-                                            hp = hetstat.pval.Q.w[i]))
-        else if (jama)
-          hetstat.w[[i]] <- substitute(paste(hl,
-                                             chi[df]^2, hq,
-                                             " (",
-                                             italic(P), hp,
-                                             "), ",
-                                             italic(I)^2, hi
-                                             ),
-                                       list(hl = hetlab,
-                                            hi = hetstat.I2.w[i],
-                                            hq = hetstat.Q.w[i],
-                                            hp = hetstat.pval.Q.w[i],
-                                            df = k.w.hetstat[i] - 1))
+        if (bmj) {
+          if (print.tau)
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      tau, ht, "; ",
+                      chi^2, hq,
+                      ", P", hp,
+                      "; ",
+                      I^2, hi),
+                list(hl = hetlab,
+                     ht = hetstat.tau.w[i],
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+                )
+          else if (print.tau2)
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      tau^2, ht, "; ",
+                      chi^2, hq,
+                      ", P", hp,
+                      "; ",
+                      I^2, hi),
+                list(hl = hetlab,
+                     ht = hetstat.tau2.w[i],
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+              )
+          else
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      chi^2, hq,
+                      ", P", hp,
+                      "; ",
+                      I^2, hi),
+                list(hl = hetlab,
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+              )
+        }
+        else if (jama) {
+          if (!missing.print.tau2 | !missing.print.tau) {
+            if (print.tau)
+              hetstat.w[[i]] <-
+                substitute(
+                  paste(hl,
+                        chi[df]^2, hq,
+                        " (",
+                        italic(P), hp,
+                        "), ",
+                        italic(I)^2, hi,
+                        tau, ht),
+                  list(hl = hetlab,
+                       df = k.w.hetstat[i] - 1,
+                       hq = hetstat.Q.w[i],
+                       hp = hetstat.pval.Q.w[i],
+                       hi = hetstat.I2.w[i],
+                       ht = hetstat.tau.w[i])
+                  )
+            else if (print.tau2)
+              hetstat.w[[i]] <-
+                substitute(
+                  paste(hl,
+                        chi[df]^2, hq,
+                        " (",
+                        italic(P), hp,
+                        "), ",
+                        italic(I)^2, hi,
+                        tau^2, ht),
+                  list(hl = hetlab,
+                       df = k.w.hetstat[i] - 1,
+                       hq = hetstat.Q.w[i],
+                       hp = hetstat.pval.Q.w[i],
+                       hi = hetstat.I2.w[i],
+                       ht = hetstat.tau2.w[i])
+                )
+            else
+              hetstat.w[[i]] <-
+                substitute(
+                  paste(hl,
+                        chi[df]^2, hq,
+                        " (",
+                        italic(P), hp,
+                        "), ",
+                        italic(I)^2, hi),
+                  list(hl = hetlab,
+                       df = k.w.hetstat[i] - 1,
+                       hq = hetstat.Q.w[i],
+                       hp = hetstat.pval.Q.w[i],
+                       hi = hetstat.I2.w[i])
+                  )
+          }
+          else
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      chi[df]^2, hq,
+                      " (",
+                      italic(P), hp,
+                      "), ",
+                      italic(I)^2, hi),
+                list(hl = hetlab,
+                     df = k.w.hetstat[i] - 1,
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+              )
+        }
+        else if (revman5) {
+          if (print.tau)
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      "Tau", ht, "; ",
+                      "Chi"^2, hq,
+                      " (",
+                      P, hp,
+                      "); ",
+                      I^2, hi),
+                list(hl = hetlab,
+                     ht = hetstat.tau.w[i],
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+              )
+          else
+            hetstat.w[[i]] <-
+              substitute(
+                paste(hl,
+                      "Tau"^2, ht, "; ",
+                      "Chi"^2, hq,
+                      " (",
+                      P, hp,
+                      "); ",
+                      I^2, hi),
+                list(hl = hetlab,
+                     ht = hetstat.tau2.w[i],
+                     hq = hetstat.Q.w[i],
+                     hp = hetstat.pval.Q.w[i],
+                     hi = hetstat.I2.w[i])
+              )
+        }
         else {
           ##
           ## One
