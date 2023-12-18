@@ -579,6 +579,8 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
+#' @import metadat
+#'
 #' @importFrom dplyr %>% across mutate all_of select rename mutate
 #'   if_else
 #'

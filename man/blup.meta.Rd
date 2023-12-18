@@ -103,13 +103,15 @@ Calculate best linear unbiased predictors (BLUPs) for meta-analysis object
 created with R package \bold{meta}.
 }
 \examples{
-data(Olkin1995)
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-  data = Olkin1995, subset = c(41, 47, 51, 59),
-  studlab = paste(author, year),
-  method = "Inverse")
+data("dat.bcg", package = "metadat")
+m1 <- metabin(tpos, tpos + tneg, cpos, cpos + cneg,
+  data = dat.bcg, studlab = paste(author, year), method = "Inverse")
 summary(m1)
 blup(m1)
+
+\dontrun{
+estimates(blup(m1), path = "blup_m1.xlsx")
+}
 
 }
 \author{
