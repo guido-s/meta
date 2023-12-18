@@ -1,9 +1,9 @@
-## Auxiliary functions to format print output
-##
-## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
-## License: GPL (>= 2)
-##
+# Auxiliary functions to format print output
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
 
 bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
                     sep.subgroup, big.mark = "") {
@@ -16,7 +16,7 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
   }
   else
     res <- format(subgroup.levels, big.mark = big.mark)
-  ##
+  #
   res
 }
 
@@ -51,7 +51,7 @@ crtitle <- function(x) {
         cat(paste0("Outcome:    ", substring(x$outclab, 1, tl - 4), " ...\n"))
     }
   }
-  ##
+  #
   if (newline)
     cat("\n")
 }

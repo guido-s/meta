@@ -4,7 +4,8 @@ catmeth <- function(x,
                     big.mark, digits, digits.tau, text.tau, text.tau2,
                     print.tau2 = TRUE, print.tau2.ci = FALSE,
                     print.tau = FALSE, print.tau.ci = FALSE, 
-                    forest = FALSE
+                    forest = FALSE,
+                    print.df = TRUE
                     ) {
 
   ##
@@ -256,9 +257,10 @@ catmeth <- function(x,
           details,
           "\n- Hartung-Knapp ",
           if (more.ci) "(HK) ",
-          "adjustment for random effects model (df = ",
-          cond(dat.rc.hk1$df.random, digits = 0),
-          ")")
+          "adjustment for random effects model",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.hk1$df.random, digits = 0), ")")
+        )
       ##
       if (any(dat.rc.hk1$adhoc.hakn.ci != ""))
         details <- paste0(
@@ -273,11 +275,11 @@ catmeth <- function(x,
       details <-
         paste0(
           details,
-          "\n- Random effects confidence interval based on t-distribution ",
-          if (more.ci) "(T) ",
-          "(df = ",
-          cond(dat.rc.hk2$df.random, digits = 0),
-          ")")
+          "\n- Random effects confidence interval based on t-distribution",
+          if (more.ci) " (T)",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.hk2$df.random, digits = 0), ")")
+        )
     }
     ##
     if (nrow(dat.rc.ckr) > 0)
@@ -294,9 +296,10 @@ catmeth <- function(x,
           details,
           "\n- Kenward-Roger ",
           if (more.ci) "(KR) ",
-          "adjustment for random effects model (df = ",
-          cond(dat.rc.kr$df.random),
-          ")")
+          "adjustment for random effects model",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.kr$df.random), ")")
+        )
   }
   
   

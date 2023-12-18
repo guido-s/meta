@@ -363,34 +363,9 @@ print.summary.meta <- function(x,
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
   sm <- x$sm
-  ##
-  sm.lab <- sm
-  ##
-  if (backtransf) {
-    if (sm == "ZCOR")
-      sm.lab <- "COR"
-    else if (is_mean(sm))
-      sm.lab <- "mean"
-    else if (is_prop(sm)) {
-      if (pscale == 1)
-        sm.lab <- "proportion"
-      else
-        sm.lab <- "events"
-    }
-    else if (is_rate(sm)) {
-      if (irscale == 1)
-        sm.lab <- "rate"
-      else
-        sm.lab <- "events"
-    }
-  }
-  else {
-    if (is_relative_effect(sm))
-      sm.lab <- paste0("log", sm)
-    else if (sm == "VE")
-      sm.lab <- "logVR"
-  }
-  ##
+  #
+  sm.lab <- smlab(sm, backtransf, pscale, irscale)
+  #
   if (is.null(x$text.w.common))
     text.w.common <- paste0("%W(", gs("text.w.common"), ")")
   else

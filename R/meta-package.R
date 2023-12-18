@@ -612,7 +612,7 @@
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc
+#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
 #'
 #' @importFrom lme4 glmer
 #'
@@ -622,7 +622,7 @@
 #' 
 #' @importFrom xml2 as_xml_document xml_attr xml_find_all xml_text
 #' 
-#' @export forest funnel baujat labbe radial trimfill
+#' @export forest funnel baujat labbe radial trimfill blup
 
 
 NULL

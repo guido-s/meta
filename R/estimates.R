@@ -622,36 +622,9 @@ estimates.meta <- function(x,
               "Use argument 'overwrite = TRUE' to overwrite file.",
               call. = FALSE)
     else {
-      sm <- x$sm
-      sm.lab <- x$sm
-      ##
-      if (backtransf) {
-        if (sm == "ZCOR")
-          sm.lab <- "COR"
-        else if (is_mean(sm))
-          sm.lab <- "mean"
-        else if (is_prop(sm)) {
-          if (x$pscale == 1)
-            sm.lab <- "proportion"
-          else
-            sm.lab <- "events"
-        }
-        else if (is_rate(sm)) {
-          if (x$irscale == 1)
-            sm.lab <- "rate"
-          else
-            sm.lab <- "events"
-        }
-      }
-      else {
-        if (is_relative_effect(sm))
-          sm.lab <- paste0("log", sm)
-        else if (sm == "VE")
-          sm.lab <- "logVR"
-      }
-      ##
-      names(res)[names(res) == "estimate"] <- sm.lab
-      ##
+      names(res)[names(res) == "estimate"] <-
+        smlab(x$sm, backtransf, x$pscale, x$irscale)
+      #
       writexl::write_xlsx(res, path = path, col_names = TRUE, ...)
       message(paste0("Extracted information saved in file '", path, "'."))
     }
@@ -702,11 +675,11 @@ estimates <- function(x, ...)
 #' @export
 
 print.estimates.meta <- function(x,
-                               digits.tau = gs("digits.tau"),
-                               text.tau2 = gs("text.tau2"),
-                               text.tau = gs("text.tau"),
-                               big.mark = gs("big.mark"),
-                               details = TRUE, ...) {
+                                 digits.tau = gs("digits.tau"),
+                                 text.tau2 = gs("text.tau2"),
+                                 text.tau = gs("text.tau"),
+                                 big.mark = gs("big.mark"),
+                                 details = TRUE, ...) {
   
   chkclass(x, "estimates.meta")
   
@@ -724,37 +697,11 @@ print.estimates.meta <- function(x,
   prediction <- attr(x, "prediction")
   overall <- attr(x, "overall")
   ##
-  sm <- meta$sm
-  sm.lab <- sm
   backtransf <- attr(x, "backtransf")
-  ##
-  if (backtransf) {
-    if (sm == "ZCOR")
-      sm.lab <- "COR"
-    else if (is_mean(sm))
-      sm.lab <- "mean"
-    else if (is_prop(sm)) {
-      if (meta$pscale == 1)
-        sm.lab <- "proportion"
-      else
-        sm.lab <- "events"
-    }
-    else if (is_rate(sm)) {
-      if (meta$irscale == 1)
-        sm.lab <- "rate"
-      else
-        sm.lab <- "events"
-    }
-  }
-  else {
-    if (is_relative_effect(sm))
-      sm.lab <- paste0("log", sm)
-    else if (sm == "VE")
-      sm.lab <- "logVR"
-  }
-  ##
+  sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
+  #
   ci.lab <- paste0(round(100 * meta$level, 1), "%-CI")
-  ##
+  #
   se <- attr(x, "se")
   ci <- attr(x, "ci")
   statistic <- attr(x, "statistic")

@@ -701,6 +701,9 @@ update.meta <- function(object,
         }
       }
     }
+    #
+    x$seTE.kero <- replaceNA(x$seTE.kero, kenwardroger(x$w.random)$se)
+    x$df.kero <- replaceNA(x$df.kero, kenwardroger(x$w.random)$df)
   }
   
   
@@ -1018,7 +1021,7 @@ update.meta <- function(object,
   if (!missing.method.random.ci | !missing.text.random) {
     if (length(method.random.ci) != length(text.random)) {
       if (!missing.method.random.ci) {
-        if (!(length(text.random) == 1 & text.random == gs("text.random")))
+        if (!(length(text.random) == 1 && text.random == gs("text.random")))
           warning("Setting argument 'text.random' to default as number of ",
                   "random effects \n   methods changed by ",
                   "argument 'method.random.ci'.",
@@ -1055,7 +1058,7 @@ update.meta <- function(object,
   if (!missing.method.predict | !missing.text.predict) {
     if (length(method.predict) != length(text.predict)) {
       if (!missing.method.predict) {
-        if (!(length(text.predict) == 1 & text.predict == gs("text.predict")))
+        if (!(length(text.predict) == 1 && text.predict == gs("text.predict")))
           warning("Setting argument 'text.predict' to default as number of ",
                   "prediction intervals \n   changed by ",
                   "argument 'method.predict'.",

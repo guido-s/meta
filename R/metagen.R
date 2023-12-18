@@ -1877,21 +1877,13 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Kenward-Roger method for confidence or prediction interval
       ##
+      kr <- kenwardroger(w.random)
+      seTE.kero <- kr$se
+      df.kero <- kr$df
+      #
       if (any(method.random.ci == "KR") | any(method.predict == "KR")) {
-        kr <- kenwardroger(w.random)
-        seTE.kero <- kr$se
-        df.kero <- kr$df
-        ##
-        ## Fallback: classic random effects meta-analysis
-        ##
-        is.nan.kero <- is.nan(seTE.kero)
-        ##
-        if (is.nan.kero) {
-          method.random.ci[method.random.ci == "KR"] <- "classic-KR"
-          method.predict[method.predict == "KR"] <- "HTS-KR"
-        }
-        ##
-        if (is.nan(df.kero)) {
+        # Fallback: classic random effects meta-analysis
+        if (is.nan(seTE.kero) | is.nan(df.kero)) {
           method.random.ci[method.random.ci == "KR"] <- "classic-KR"
           method.predict[method.predict == "KR"] <- "HTS-KR"
         }

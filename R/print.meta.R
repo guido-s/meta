@@ -304,9 +304,6 @@ print.meta <- function(x,
   ##
   chklogical(warn.deprecated)
   ##
-  is.prop <- is_prop(x$sm)
-  is.rate <- is_rate(x$sm)
-  ##
   missing.pscale <- missing(pscale)
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
@@ -510,34 +507,9 @@ print.meta <- function(x,
   ##    
   if (is.null(prediction) || is.na(prediction))
     prediction <- FALSE
-  ##
-  sm.lab <- sm
-  ##
-  if (backtransf) {
-    if (sm == "ZCOR")
-      sm.lab <- "COR"
-    else if (is_mean(sm))
-      sm.lab <- "mean"
-    else if (is.prop) {
-      if (pscale == 1)
-        sm.lab <- "proportion"
-      else
-        sm.lab <- "events"
-    }
-    else if (is.rate) {
-      if (irscale == 1)
-        sm.lab <- "rate"
-      else
-        sm.lab <- "events"
-    }
-  }
-  else {
-    if (is_relative_effect(sm))
-      sm.lab <- paste0("log", sm)
-    else if (sm == "VE")
-      sm.lab <- "logVR"
-  }
-  ##
+  #
+  sm.lab <- smlab(sm, backtransf, pscale, irscale)
+  #
   if (length(x$tau.common) == 0)
     x$tau.common <- FALSE
   ##
@@ -1627,7 +1599,8 @@ print.meta <- function(x,
                 x$func.transf, backtransf, fbt,
                 big.mark, digits, digits.tau, text.tau, text.tau2,
                 print.tau2, print.tau2.ci,
-                print.tau, print.tau.ci)
+                print.tau, print.tau.ci,
+                print.df = overall)
   }
   
   

@@ -16,6 +16,9 @@
 * New functions estimates() and estimates.meta() to extract
   meta-analysis results
 
+* New functions blup.meta() and estimates.blup.meta() to calculate and extract
+  best linear unbiased predictors (BLUPs)
+
 * Lower and upper confidence interval limits of individual study
   results stored as transformed limits for meta-analysis with single
   proportions or rates (in previous versions of **meta**, all
@@ -79,6 +82,8 @@
     statistic Q and test of heterogeneity
   - default for argument 'details.methods' can be defined using
     settings.meta()
+  - do not print degrees of freedom for Hartung-Knapp or Kenward-Rogers
+    intervals if argument \code{overall = FALSE}
 
 * gs():
   - first argument can be a character vector instead of a character string
@@ -173,6 +178,8 @@
 ### Internal changes
 
 * New internal function gh() to determine height of graphics file
+
+* New internal function smlab() to determine the label for the summary measure
 
 * Use of vcalc() from R package **metafor** to calculate the
   variance-covariance matrix in three-level model with within-cluster
