@@ -1,4 +1,4 @@
-## meta, version 7.0-0 (2023-mm-dd)
+## meta, version 7.0-0 (2024-mm-dd)
 
 ### Major changes
 
@@ -61,6 +61,8 @@
 * Argument 'pscale' or 'irscale' could be used in principle with any
   effect measure which is useful for user-specified summary measure in
   metagen()
+
+* R package **metadat** added to Depends (to access meta-analysis datasets)
 
 * R package **robvis** added to Suggests (for risk of bias assessment)
 
@@ -574,7 +576,7 @@
 * Use correct standard error for Cox and Snell's method in smd2or()
   and or2smd()
 
-* Three-level model did not work if variable from data set was
+* Three-level model did not work if variable from dataset was
   provided as input to argument 'id' in metacont()
 
 * Argument 'tau.common = TRUE' was ignored in subgroup analysis of
@@ -918,7 +920,7 @@
 ### Internal changes
 
 * metagen():
-  - new variable '.idx' with running index in meta-analysis data set
+  - new variable '.idx' with running index in meta-analysis dataset
     (list element 'data')
   - new logical list element 'three.level' indicating whether
     three-level model was used
@@ -1822,7 +1824,7 @@
 
 * bubble.metareg():
   - ignore missing values in covariate to calculate limits on x-axis
-  - works if data set used to create meta-analysis object is a tibble
+  - works if dataset used to create meta-analysis object is a tibble
     instead of a data frame
 
 ### Internal changes
@@ -3223,7 +3225,7 @@ implemented in version 4.0-0 of meta.
     meta-analysis object
 
 * metagen():
-  - arguments 'n.e' and 'n.c' can be part of the data set provided in
+  - arguments 'n.e' and 'n.c' can be part of the dataset provided in
     argument 'data'
   - DerSimonian-Laird method used instead of Paule-Mandel method if
     argument 'tau.common = TRUE'
@@ -3418,7 +3420,7 @@ This functionality is now provided by update.meta().
     R functions from R package **meta**)
   - information on grouping variable (list element 'byvar') is
     utilised if argument 'formula' is missing
-  - any column from original data set (list element 'data') can be
+  - any column from original dataset (list element 'data') can be
     used in meta-regression
 
 * trimfill.meta():
