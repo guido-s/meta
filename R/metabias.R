@@ -892,7 +892,7 @@ print.metabias <- function(x,
     if (detail.ref != "")
       cat(
         paste0(
-          if (x$var.model != "") "- reference: " else "Reference: ",
+          if (x$var.model != "") "- reference: " else "\nReference: ",
           detail.ref, "\n"))
   }
   else {

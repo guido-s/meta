@@ -1,4 +1,4 @@
-## meta, version 7.0-0 (2024-mm-dd)
+## meta, version 7.0-0 (2024-01-0d)
 
 ### Major changes
 
@@ -7,28 +7,31 @@
   - *vignette("meta-tutorial")* (R commands from [Balduzzi et al.,
   2019](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019))
 
+* R package **metadat** added to Depends (to access meta-analysis datasets)
+
+* R package **robvis** added to Suggests (for risk of bias assessment)
+
 * New functions rob(), barplot.rob() and traffic_light() for risk of
-  bias assessment
+  bias assessment (RoB)
 
 * New function read.cdir() to import Cochrane data package from
   Cochrane review of interventions
 
-* New functions estimates() and estimates.meta() to extract
-  meta-analysis results
+* New function blup.meta() to calculate best linear unbiased predictors (BLUPs)
 
-* New functions blup.meta() and estimates.blup.meta() to calculate and extract
-  best linear unbiased predictors (BLUPs)
+* New functions estimates(), estimates.meta(), and estimates.blup.meta() to
+  extract meta-analysis results
 
 * Lower and upper confidence interval limits of individual study
   results stored as transformed limits for meta-analysis with single
-  proportions or rates (in previous versions of **meta**, all
-  estimates were not back transformed while CI limits were back
-  transformed for individual studies and not back transformed for
+  proportions or rates (in previous versions of **meta**, CI limits were
+  back transformed for individual studies and not back transformed for
   meta-analysis results)
 
 * Changes for forest plots:
   - forest plot can be directly saved to a file using common graphics
     device drivers (height of file is determined automatically)
+  - BMJ layout implemented (layout = "BMJ")
   - details on meta-analysis methods can be shown in plot
   - risk of bias assessment automatically added for meta-analyses with
     RoB assessment
@@ -36,10 +39,9 @@
     squares
   - default settings for columns on left or right side of forest plot
     can be defined in settings.meta()
-  - truncated common effect / random effects confidence intervals and
-    prediction intervals if lower / upper limit is outside the limits
-    of the x-axis
-  - BMJ layout implemented (layout = "BMJ")
+  - common effect and random effects confidence intervals and
+    prediction intervals are truncated if lower / upper limit is outside the
+    limits of the x-axis
 
 * New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
   to print results according to BMJ style and formating checklist,
@@ -61,10 +63,6 @@
 * Argument 'pscale' or 'irscale' could be used in principle with any
   effect measure which is useful for user-specified summary measure in
   metagen()
-
-* R package **metadat** added to Depends (to access meta-analysis datasets)
-
-* R package **robvis** added to Suggests (for risk of bias assessment)
 
 * New R function plot.meta() which calls forest.meta() internally
 
