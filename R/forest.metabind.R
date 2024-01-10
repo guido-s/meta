@@ -536,17 +536,27 @@ forest.metabind <- function(x,
                         prediction = prediction,
                         overall = overall,
                         print.subgroup.name = FALSE)
-    ##
+    #
+    class(m.forest) <- c(class(m.forest), "is.metabind")
+    m.forest$sm <- x.forest$sm
+    #
     m.forest$TE[m.forest$data$type == "predict"] <- NA
     m.forest$statistic <- x.forest$statistic
     m.forest$pval <- x.forest$pval
-    ##
+    #
+    m.forest$n.harmonic.mean <- x.forest$n.harmonic.mean
+    m.forest$t.harmonic.mean <- x.forest$t.harmonic.mean
+    m.forest$n.harmonic.mean.ma <- x.forest$n.harmonic.mean.ma
+    m.forest$t.harmonic.mean.ma <- x.forest$t.harmonic.mean.ma
+    m.forest$n.harmonic.mean.w <- x.forest$n.harmonic.mean.w
+    m.forest$t.harmonic.mean.w <- x.forest$t.harmonic.mean.w
+    #
     if (x$samedata) {
       m.forest$method <- x.forest$method
       m.forest$method.random <- x.forest$method.random
       m.forest$method.predict <- x.forest$method.predict
       m.forest$method.tau <- x.forest$method.tau
-      ##
+      #
       m.forest$TE.common <- x.forest$TE.common
       m.forest$seTE.common <- x.forest$seTE.common
       m.forest$lower.common <- x.forest$lower.common
@@ -614,6 +624,7 @@ forest.metabind <- function(x,
              big.mark = big.mark,
              ##
              test.subgroup = FALSE,
+             details = FALSE,
              ...)
   }
   else {
@@ -626,7 +637,14 @@ forest.metabind <- function(x,
                         random = random,
                         prediction = prediction,
                         overall = overall)
-    ##
+    #
+    class(m.forest) <- c(class(m.forest), "is.metabind")
+    m.forest$sm <- x.forest$sm
+    m.forest$with.subgroups <- TRUE
+    #
+    m.forest$n.harmonic.mean <- x.forest$n.harmonic.mean
+    m.forest$t.harmonic.mean <- x.forest$t.harmonic.mean
+    #
     m.forest$TE[m.forest$data$type == "predict"] <- NA
     ##
     res <-
@@ -661,6 +679,7 @@ forest.metabind <- function(x,
              big.mark = big.mark,
              ##
              test.subgroup = FALSE,
+             details = FALSE,
              ...)
   }
   ##

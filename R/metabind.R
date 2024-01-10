@@ -568,9 +568,15 @@ metabind <- function(..., name = NULL,
   res$random.meta <- random
   res$prediction.meta <- prediction
   ##
-  res$n.harmonic.mean <- data$n.harmonic.mean
-  res$t.harmonic.mean <- data$t.harmonic.mean
-  ##
+  if (!with.subgroups) {
+    res$n.harmonic.mean <- res$n.harmonic.mean.ma
+    res$t.harmonic.mean <- res$t.harmonic.mean.ma
+  }
+  else {
+    res$n.harmonic.mean.ma <- unique(res$n.harmonic.mean.ma)
+    res$t.harmonic.mean.ma <- unique(res$t.harmonic.mean.ma)
+  }
+  #
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
   ##
@@ -642,9 +648,6 @@ metabind <- function(..., name = NULL,
         gs("text.predict")
       else
         res$text.predict[sel.p]
-    ##
-    res$n.harmonic.mean <- unique(res$n.harmonic.mean)
-    res$t.harmonic.mean <- unique(res$t.harmonic.mean)
     ##
     res$n.e <- unique(res$n.e)
     res$n.c <- unique(res$n.c)

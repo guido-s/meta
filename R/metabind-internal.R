@@ -191,8 +191,8 @@ subgr2meta <- function(x, common, random, prediction, name) {
     df.hakn = replaceNULL(x$df.hakn),
     df.kero = replaceNULL(x$df.kero),
     ##
-    n.harmonic.mean = replaceNULL(x$n.harmonic.mean),
-    t.harmonic.mean = replaceNULL(x$t.harmonic.mean),
+    n.harmonic.mean = replaceNULL(x$n.harmonic.mean.w),
+    t.harmonic.mean = replaceNULL(x$t.harmonic.mean.w),
     ##
     n.e = replaceNULL(x$n.e),
     n.c = replaceNULL(x$n.c),
@@ -245,6 +245,9 @@ overall2subgr <- function(x) {
   ##
   res[["w.random.w"]] <- rep(0, length(res[["lower.random.w"]]))
   ##
+  res[["n.harmonic.mean.ma"]] <- 1 / mean(1 / replaceNULL(x$n))
+  res[["t.harmonic.mean.ma"]] <- 1 / mean(1 / replaceNULL(x$time))
+  #
   res[["n.harmonic.mean.w"]] <- 1 / mean(1 / replaceNULL(x$n))
   res[["t.harmonic.mean.w"]] <- 1 / mean(1 / replaceNULL(x$time))
   ##

@@ -586,13 +586,6 @@ print.summary.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    if (inherits(x, c("metaprop")) & !backtransf) {
-      ciTE <- ci(TE, seTE, level = level)
-      lowTE <- ciTE$lower
-      uppTE <- ciTE$upper
-      ##
-      x$method.ci <- "NAsm"
-    }
     if (k.all == 1 &&
         inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
         !is_zero(x$TE - x$TE.common))
@@ -600,7 +593,7 @@ print.summary.meta <- function(x,
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
-      if (metainf.metacum) {
+      if (metainf.metacum | inherits(x, "metabind")) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean
         else

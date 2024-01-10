@@ -200,7 +200,7 @@
   ff.rob = "plain",
   ff.rob.symbols = "bold",
   ff.details = "plain",
-  squaresize = 0.9/spacing,
+  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
   lwd.square = gs("lwd.square"),
   lwd.diamond = gs("lwd.diamond"),
   arrow.type = gs("arrow.type"),

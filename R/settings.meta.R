@@ -529,7 +529,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
-    setOption("digits.mean", 4)
+    setOption("digits.mean", 2)
     setOption("digits.sd", 4)
     setOption("digits.se", 4)
     setOption("digits.stat", 2)
