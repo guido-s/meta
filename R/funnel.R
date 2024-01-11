@@ -42,8 +42,8 @@
 #'   logarithmic.
 #' @param yaxis A character string indicating which type of weights
 #'   are to be used. Either \code{"se"}, \code{"invvar"},
-#'   \code{"invse"}, code{"size"}, code{"invsqrtsize"}, or
-#'   code{"ess"}.
+#'   \code{"invse"}, \code{"size"}, \code{"invsqrtsize"}, or
+#'   \code{"ess"}.
 #' @param contour.levels A numeric vector specifying contour levels to
 #'   produce contour-enhanced funnel plot.
 #' @param col.contour Colour of contours.

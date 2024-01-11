@@ -1,4 +1,4 @@
-## meta, version 7.0-0 (2024-01-0d)
+## meta, version 7.0-0 (2024-01-11)
 
 ### Major changes
 
@@ -174,6 +174,10 @@
   
 * metareg():
   - error if input to argument 'formula' was the name of an R function 
+
+* print.summary.meta():
+  - print correct backtransformed subgroup results for *metabind* objects
+    with metaprop objects with Freeman-Tukey transformation as input
 
 ### Internal changes
 
