@@ -2,7 +2,7 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
                     TE.tau,
                     level,
                     subgroup, control,
-                    cluster = NULL) {
+                    cluster = NULL, rho = 0) {
   
   Ccalc <- function(x) {
     res <- (sum(x, na.rm = TRUE) -
@@ -105,7 +105,10 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
         idx <- seq_along(TE)
         mf0 <-
           runNN(rma.mv,
-                list(yi = TE, V = seTE^2, method = method.tau,
+                list(yi = TE,
+                     V = vcalc(vi = seTE^2, cluster = cluster, obs = idx,
+                               rho = rho),
+                     method = method.tau,
                      random = as.call(~ 1 | cluster / idx),
                      control = control,
                      data = data.frame(cluster, idx)),
@@ -196,7 +199,10 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
       if (length(unique(subgroup)) == 1)
         mf1 <-
           runNN(rma.mv,
-                list(yi = TE, V = seTE^2, method = method.tau,
+                list(yi = TE,
+                     V = vcalc(vi = seTE^2, cluster = cluster, obs = idx,
+                               rho = rho),
+                     method = method.tau,
                      random = as.call(~ 1 | cluster / idx),
                      control = control,
                      data = data.frame(cluster, idx)),
@@ -205,7 +211,10 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
         mf1 <-
           try(
             runNN(rma.mv,
-                  list(yi = TE, V = seTE^2, method = method.tau,
+                  list(yi = TE,
+                       V = vcalc(vi = seTE^2, cluster = cluster, obs = idx,
+                                 rho = rho),
+                       method = method.tau,
                        random = as.call(~ 1 | cluster / idx),
                        mods = as.call(~ subgroup), control = control,
                        data = data.frame(TE, seTE, subgroup, cluster, idx)),
@@ -219,7 +228,9 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
             useFE <- TRUE
             mf1 <-
               runNN(rma.mv,
-                    list(yi = TE, V = seTE^2,
+                    list(yi = TE,
+                         V = vcalc(vi = seTE^2, cluster = cluster, obs = idx,
+                                   rho = rho),
                          method = "FE",
                          random = as.call(~ 1 | cluster / idx),
                          mods = as.call(~ subgroup), control = control,

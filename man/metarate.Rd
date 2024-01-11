@@ -12,6 +12,7 @@ metarate(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   n = NULL,
   method = "Inverse",
   sm = gs("smrate"),
@@ -22,7 +23,8 @@ metarate(
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau,
   method.tau.ci = gs("method.tau.ci"),
@@ -86,6 +88,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{n}{Number of observations.}
 

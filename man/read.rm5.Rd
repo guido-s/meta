@@ -27,7 +27,7 @@ CSV-files). In RevMan 5 a "\"" is the default quoting character.}
 
 \item{title}{Title of Cochrane review.}
 
-\item{numbers.in.labels}{A logical indicating whether comparision
+\item{numbers.in.labels}{A logical indicating whether comparison
 number and outcome number should be printed at the beginning of
 the comparison (argument \code{complab}) and outcome label
 (argument \code{outclab}); this is the default in RevMan 5.}
@@ -186,6 +186,18 @@ metacr(Fleiss1993_CR)
 # Same result as R command example(Fleiss1993cont):
 #
 metacr(Fleiss1993_CR, 1, 2)
+
+\dontrun{
+# Locate file "Fleiss1993.rm5" in sub-directory of R package meta
+#
+filename <- system.file("extdata/Fleiss1993.rm5", package = "meta")
+Fleiss1993_CR <- read.cdir(filename)
+Fleiss1993_CR
+
+# Same result as R Command example(Fleiss1993bin):
+#
+metacr(Fleiss1993_CR)
+}
 
 }
 \references{

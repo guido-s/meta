@@ -4,35 +4,33 @@
 #' Calculate and print a detailed summary of all meta-analyses in a
 #' Cochrane review.
 #' 
-#' @param object An object of class \code{rm5}.
-#' @param x An object of class \code{summary.rm5}.
+#' @aliases summary.rm5 summary.cdir 
+#' 
+#' @param object An object of class \code{rm5} or \code{cdir}.
+#' @param x An object of class \code{summary.rm5} or
+#'   \code{summary.cdir}.
 #' @param comp.no Comparison number.
 #' @param outcome.no Outcome number.
 #' @param ... Additional arguments (passed on to \code{metacr}).
 #' 
 #' @details
-#' This function can be used to redo all or selected meta-analyses of
-#' a Cochrane Review.
-#' 
-#' Review Manager 5 (RevMan 5) was the software used for preparing and
-#' maintaining Cochrane Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' In RevMan 5, subgroup analyses can be defined and data from a
-#' Cochrane review can be imported to R using the function
-#' \code{read.rm5}.
+#' This function can be used to rerun all or selected meta-analyses of
+#' a Cochrane Review of interventions (Higgins et al, 2023).
 #' 
 #' The R function \code{\link{metacr}} is called internally.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{summary.meta}}, \code{\link{metacr}},
-#'   \code{\link{read.rm5}}, \code{\link{metabias.rm5}}
+#'   \code{\link{read.rm5}}, \code{\link{read.cdir}},
+#'   \code{\link{metabias.rm5}}, \code{\link{metabias.cdir}}
 #' 
 #' @references
-#' Higgins, J.P.T and S. Green (2011):
+#' Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+#' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
-#'   Version 5.1.0 [Updated March 2011]}.
-#' The Cochrane Library: http://www.cochrane-handbook.org
+#'   Version 6.4}.
+#' Available from \url{https://training.cochrane.org/handbook}
 #' 
 #' @examples
 #' # Locate export data file "Fleiss1993_CR.csv"
@@ -56,7 +54,7 @@
 summary.rm5 <- function(object, comp.no, outcome.no, ...) {
   
   chkclass(object, "rm5")
-  ##  
+  ##
   if (missing(comp.no))
     comp.no <- unique(object$comp.no)
   ##
@@ -87,6 +85,44 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
 
 
 #' @rdname summary.rm5
+#' @method summary cdir
+#' @export
+
+
+summary.cdir <- function(object, comp.no, outcome.no, ...) {
+  
+  chkclass(object, "cdir")
+  ##
+  if (missing(comp.no))
+    comp.no <- unique(object$data$comp.no)
+  ##
+  res <- list()
+  ##
+  n <- 1
+  ##
+  for (i in comp.no) {
+    if (missing(outcome.no))
+      jj <- unique(object$data$outcome.no[object$data$comp.no == i])
+    else
+      jj <- outcome.no
+    ##
+    for (j in jj) {
+      res[[n]] <- summary(metacr(object, i, j, ...))
+      ##
+      n <- n + 1
+    }
+  }
+  ##
+  class(res) <- "summary.cdir"
+  
+  res
+}
+
+
+
+
+
+#' @rdname summary.rm5
 #' @method print summary.rm5
 #' @export
 
@@ -94,6 +130,33 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
 print.summary.rm5 <- function(x, ...) {
   
   chkclass(x, "summary.rm5")
+  ##
+  n <- 1
+  ##
+  for (i in 1:length(x)) {
+    if (n > 1)
+      cat("\n*****\n\n")
+    ##
+    print(x[[i]])
+    ##
+    n <- n + 1
+  }
+  
+  invisible(NULL)
+}
+
+
+
+
+
+#' @rdname summary.rm5
+#' @method print summary.cdir
+#' @export
+
+
+print.summary.cdir <- function(x, ...) {
+  
+  chkclass(x, "summary.cdir")
   ##
   n <- 1
   ##

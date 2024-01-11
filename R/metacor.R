@@ -18,6 +18,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
 #'   studies.
@@ -120,15 +121,16 @@
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
-#' Common effect and random effects meta-analysis of correlations based
-#' either on Fisher's z transformation of correlations (\code{sm =
-#' "ZCOR"}) or direct combination of (untransformed) correlations
-#' (\code{sm = "COR"}) (see Cooper et al., p264-5 and p273-4). Only
-#' few statisticians would advocate the use of untransformed
-#' correlations unless sample sizes are very large (see Cooper et al.,
-#' p265). The artificial example given below shows that the smallest
-#' study gets the largest weight if correlations are combined directly
-#' because the correlation is closest to 1.
+#' Common effect and random effects meta-analysis of correlations
+#' based either on Fisher's z transformation of correlations (\code{sm
+#' = "ZCOR"}) or direct combination of (untransformed) correlations
+#' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and
+#' p273-4). Only few statisticians would advocate the use of
+#' untransformed correlations unless sample sizes are very large (see
+#' Cooper et al., 2009, p265). The artificial example given below
+#' shows that the smallest study gets the largest weight if
+#' correlations are combined directly because the correlation is
+#' closest to 1.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -243,7 +245,7 @@
 metacor <- function(cor, n, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
-                    cluster = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     sm = gs("smcor"),
                     level = gs("level"),
@@ -251,7 +253,11 @@ metacor <- function(cor, n, studlab,
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
-                    overall.hetstat = common | random,
+                    overall.hetstat =
+                      if (is.null(gs("overall.hetstat")))
+                        common | random
+                      else
+                        gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau = gs("method.tau"),
@@ -304,6 +310,8 @@ metacor <- function(cor, n, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknumeric(rho, min = -1, max = 1)
+  ##
   chknull(sm)
   chklevel(level)
   ##
@@ -326,7 +334,7 @@ metacor <- function(cor, n, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -634,8 +642,7 @@ metacor <- function(cor, n, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##
@@ -651,7 +658,7 @@ metacor <- function(cor, n, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

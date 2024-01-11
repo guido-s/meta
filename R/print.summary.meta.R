@@ -8,10 +8,10 @@
 #' @param x An object of class \code{summary.meta}
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
-#' @param common A logical indicating whether a common effect
-#'   meta-analysis should be conducted.
-#' @param random A logical indicating whether a random effects
-#'   meta-analysis should be conducted.
+#' @param common A logical indicating whether results of common effect
+#'   meta-analysis should be printed.
+#' @param random A logical indicating whether results of random
+#'   effects meta-analysis should be printed.
 #' @param details A logical indicating whether further details of
 #'   individual studies should be printed.
 #' @param ma A logical indicating whether the summary results of the
@@ -39,6 +39,8 @@
 #'   \code{print.default}.
 #' @param digits.se Minimal number of significant digits for standard
 #'   deviations and standard errors, see \code{print.default}.
+#' @param digits.stat Minimal number of significant digits for z- or
+#'   t-value of test for effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of test of treatment effect, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
@@ -60,6 +62,13 @@
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
 #' @param big.mark A character used as thousands separator.
+#' @param print.tau2 A logical specifying whether between-study
+#'   variance \eqn{\tau^2} should be printed.
+#' @param print.tau A logical specifying whether \eqn{\tau}, the
+#'   square root of the between-study variance \eqn{\tau^2}, should be
+#'   printed.
+#' @param print.I2 A logical specifying whether heterogeneity
+#'   statistic I\eqn{^2} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -130,7 +139,6 @@
 #' 
 #' @method print summary.meta
 #' @export
-#' @export print.summary.meta
 
 
 print.summary.meta <- function(x,
@@ -138,7 +146,7 @@ print.summary.meta <- function(x,
                                common = x$x$common,
                                random = x$x$random,
                                details = FALSE, ma = TRUE,
-                               overall = x$overall,
+                               overall = x$overall & ma,
                                ##
                                backtransf = x$backtransf,
                                pscale = x$pscale,
@@ -147,6 +155,7 @@ print.summary.meta <- function(x,
                                ##
                                digits = gs("digits"),
                                digits.se = gs("digits.se"),
+                               digits.stat = gs("digits.stat"),
                                digits.pval = max(gs("digits.pval"), 2),
                                digits.tau2 = gs("digits.tau2"),
                                digits.tau = gs("digits.tau"),
@@ -159,6 +168,10 @@ print.summary.meta <- function(x,
                                JAMA.pval = gs("JAMA.pval"),
                                ##
                                big.mark = gs("big.mark"),
+                               ##
+                               print.tau2 = gs("print.tau2"),
+                               print.tau = gs("print.tau"),
+                               print.I2 = gs("print.I2"),
                                ##
                                text.tau2 = gs("text.tau2"),
                                text.tau = gs("text.tau"),
@@ -231,8 +244,7 @@ print.summary.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  if (!is_rate(x$sm) & x$sm != "IRD")
-    irscale <- 1
+  ##
   if (!is.null(irscale))
     chknumeric(irscale, length = 1)
   else
@@ -241,11 +253,25 @@ print.summary.meta <- function(x,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
+  ##
+  scale <- 1
+  if (pscale != 1 || irscale != 1) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale' but not ",
+           "both arguments.",
+           call. = FALSE)
+    if (pscale != 1)
+      scale <- pscale
+    else
+      scale <- irscale
+  }
+  ##
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   ##
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
@@ -256,6 +282,12 @@ print.summary.meta <- function(x,
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
+  ##
+  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  ##
+  chklogical(print.tau2)
+  chklogical(print.tau)
+  chklogical(print.I2)
   ##
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
@@ -328,39 +360,12 @@ print.summary.meta <- function(x,
   ## (3) Some additional settings
   ##
   ##
-  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  ##
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
   ##
   sm <- x$sm
-  ##
-  sm.lab <- sm
-  ##
-  if (backtransf) {
-    if (sm == "ZCOR")
-      sm.lab <- "COR"
-    else if (is_mean(sm))
-      sm.lab <- "mean"
-    else if (is_prop(sm)) {
-      if (pscale == 1)
-        sm.lab <- "proportion"
-      else
-        sm.lab <- "events"
-    }
-    else if (is_rate(sm)) {
-      if (irscale == 1)
-        sm.lab <- "rate"
-      else
-        sm.lab <- "events"
-    }
-  }
-  else {
-    if (is_relative_effect(sm))
-      sm.lab <- paste0("log", sm)
-    else if (sm == "VE")
-      sm.lab <- "logVR"
-  }
-  ##
+  #
+  sm.lab <- smlab(sm, backtransf, pscale, irscale)
+  #
   if (is.null(x$text.w.common))
     text.w.common <- paste0("%W(", gs("text.w.common"), ")")
   else
@@ -564,7 +569,8 @@ print.summary.meta <- function(x,
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
         (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
-         !is_zero(x$TE - x$TE.common)))) {
+         !is_zero(x$TE - x$TE.common)) |
+        (inherits(x, c("metacont", "metamean")) && x$method.ci == "t"))) {
     print.meta(x.meta,
                header = FALSE,
                digits = digits,
@@ -580,13 +586,6 @@ print.summary.meta <- function(x,
     lowTE <- x$lower
     uppTE <- x$upper
     ##
-    if (inherits(x, c("metaprop", "metarate")) & !backtransf) {
-      ciTE <- ci(TE, seTE, level = level)
-      lowTE <- ciTE$lower
-      uppTE <- ciTE$upper
-      ##
-      x$method.ci <- "NAsm"
-    }
     if (k.all == 1 &&
         inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
         !is_zero(x$TE - x$TE.common))
@@ -594,7 +593,7 @@ print.summary.meta <- function(x,
     ##
     if (backtransf) {
       ## Freeman-Tukey Arcsin transformation
-      if (metainf.metacum) {
+      if (metainf.metacum | inherits(x, "metabind")) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean
         else
@@ -612,23 +611,15 @@ print.summary.meta <- function(x,
       ##
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
-      else {
-        TE    <- backtransf(   TE, sm, "mean",  harmonic.mean, fbt, abt)
-        lowTE <- backtransf(lowTE, sm, "lower", harmonic.mean, fbt, abt)
-        uppTE <- backtransf(uppTE, sm, "upper", harmonic.mean, fbt, abt)
-      }
+      else
+        TE <- backtransf(TE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       ##
-      if (is_prop(sm) | sm == "RD") {
-        TE <- pscale * TE
-        lowTE <- pscale * lowTE
-        uppTE <- pscale * uppTE
-      }
+      lowTE <- backtransf(lowTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
+      uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       ##
-      if (is_rate(sm) | sm == "IRD") {
-        TE <- irscale * TE
-        lowTE <- irscale * lowTE
-        uppTE <- irscale * uppTE
-      }
+      TE <- scale * TE
+      lowTE <- scale * lowTE
+      uppTE <- scale * uppTE
       ##
       if (sm == "VE") {
         tmp.l <- lowTE
@@ -736,12 +727,14 @@ print.summary.meta <- function(x,
                             formatN(round(uppTE, digits), digits, "NA",
                                     big.mark = big.mark)),
                    pval,
-                   paste0(" ", tau2),
-                   paste0(" ", tau),
-                   paste0(" ", I2, ifelse(I2 == "", "", "%")))
-      dimnames(res) <- list(paste0(x$studlab, "  "),
+                   if (print.tau2) paste0(" ", tau2),
+                   if (print.tau) paste0(" ", tau),
+                   if (print.I2) paste0(" ", I2, ifelse(I2 == "", "", "%")))
+      dimnames(res) <- list(x$studlab,
                             c(sm.lab, ci.lab, "p-value",
-                              text.tau2, text.tau, text.I2))
+                              if (print.tau2) text.tau2,
+                              if (print.tau) text.tau,
+                              if (print.I2) text.I2))
       ##
       if (inherits(x, "metainf")) {
         if (!is.random)
@@ -764,7 +757,8 @@ print.summary.meta <- function(x,
         catmeth(x,
                 common, random, x$prediction, overall, x$overall.hetstat,
                 x$func.transf, backtransf, x$func.backtransf,
-                big.mark, digits, digits.tau, text.tau, text.tau2)
+                big.mark, digits, digits.tau, text.tau, text.tau2,
+                print.tau2 = print.tau2, print.tau = print.tau)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
       show.w.common  <-
@@ -793,22 +787,55 @@ print.summary.meta <- function(x,
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
-      ## Printout for a single proportion:
+      ## Printout for a single proportion, mean difference or mean:
       if (k.all == 1) {
         ##
+        print.stat <- FALSE
+        print.pval <- FALSE
+        ##
         if (!is.null(x$method.ci)) {
-          if (x$method.ci == "CP") {
+          if (x$method.ci == "t") {
+            details.ci <-
+              "Confidence interval based on t-distribution:\n\n"
+            ##
+            ## Add test statistic and p-value
+            ##
+            if (inherits(x, c("metacont", "metamean"))) {
+              if (any(!is.na(x$statistic))) {
+                res <- cbind(res,
+                             formatN(x$statistic,
+                                     digits = digits.stat,
+                                     big.mark = big.mark))
+                ##
+                print.stat <- TRUE
+              }
+              ##
+              if (any(!is.na(x$pval))) {
+                res <- cbind(res,
+                             formatPT(x$pval, digits = digits.pval,
+                                      scientific = scientific.pval,
+                                      zero = zero.pval, JAMA = JAMA.pval,
+                                      lab.NA = ""))
+                ##
+                print.pval <- TRUE
+              }
+            }
+          }            
+          else if (x$method.ci == "CP") {
             details.ci <-
               "Clopper-Pearson confidence interval:\n\n"
             ##
             ## Add p-value of binomial test
             ##
-            if (any(!is.na(x$pval)))
+            if (any(!is.na(x$pval))) {
               res <- cbind(res,
                            formatPT(x$pval, digits = digits.pval,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval,
                                     lab.NA = ""))
+              ##
+              print.pval <- TRUE
+            }
           }
           else if (x$method.ci == "WS")
             details.ci <-
@@ -829,16 +856,21 @@ print.summary.meta <- function(x,
           else if (x$method.ci == "Poisson")
             details.ci <-
               "Exact Poisson confidence interval for individual studies:\n\n"
-          else if (x$method.ci == "t")
-            details.ci <-
-              "Confidence interval based on t-distribution:\n\n"
           else if (x$method.ci == "!RR.Cochrane")
             details.ci <-
               paste0("Continuity correction of 1*incr for sample sizes\n",
                      "(Hartung & Knapp, 2001, Stat Med, equation (18)):\n\n")
           ##
           if (x$method.ci != "NAsm") {
-            if (x$method.ci == "!RR.Cochrane") {
+            if (inherits(x, "metacont")) {
+              catobsev(x$n.e + x$n.c, type = "n", addrow = TRUE)
+              x.meta$n.e <- x.meta$n.c <- NA
+            }
+            else if (inherits(x, "metamean")) {
+              catobsev(x$n, type = "n", addrow = TRUE)
+              x.meta$n <- NA
+            }
+            else if (x$method.ci == "!RR.Cochrane") {
               catobsev(x$n.e + x$n.c, type = "n")
               catobsev(x$event.e + x$event.c, type = "e", addrow = TRUE)
               x.meta$n.e <- x.meta$event.e <-
@@ -850,7 +882,6 @@ print.summary.meta <- function(x,
               x.meta$n <- x.meta$event <- NA
             }
             ##
-            cat(details.ci)
             dimnames(res) <-
               list(x$studlab,
                    c(sm.lab, ci.lab,
@@ -859,14 +890,15 @@ print.summary.meta <- function(x,
                      if (three.level) "cluster",
                      if (by) subgroup.name,
                      if (!is.null(x$exclude)) "exclude",
-                     if (x$method.ci == "CP" & (any(!is.na(x$pval)))) "p-value")
+                     if (print.stat) "t",
+                     if (print.pval) "p-value")
                    )
             prmatrix(res, quote = FALSE, right = TRUE)
             cat("\n")
           }
         }
         if (ma) {
-          if (inherits(x, c("metaprop", "metarate")))
+          if (inherits(x, c("metaprop", "metarate", "metacont", "metamean")))
             cat("Normal approximation confidence interval:")
           else if (!is.null(x$method.ci) && x$method.ci == "!RR.Cochrane")
             cat("Mantel-Haenszel method:")
@@ -946,6 +978,7 @@ print.summary.meta <- function(x,
                  irscale = irscale, irunit = irunit,
                  digits.tau2 = digits.tau2, digits.tau = digits.tau,
                  digits.I2 = digits.I2, big.mark = big.mark,
+                 print.tau2 = print.tau2, print.tau = print.tau,
                  text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
                  details.methods = details.methods,
                  warn.deprecated = FALSE,

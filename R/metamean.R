@@ -19,6 +19,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param median Median (used to estimate the mean and standard
 #'   deviation).
 #' @param q1 First quartile (used to estimate the mean and standard
@@ -411,7 +412,8 @@
 
 metamean <- function(n, mean, sd, studlab,
                      ##
-                     data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                     data = NULL, subset = NULL, exclude = NULL,
+                     cluster = NULL, rho = 0,
                      ##
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
@@ -424,7 +426,11 @@ metamean <- function(n, mean, sd, studlab,
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
-                     overall.hetstat = common | random,
+                     overall.hetstat =
+                       if (is.null(gs("overall.hetstat")))
+                         common | random
+                       else
+                         gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
                      ##
                      method.tau = gs("method.tau"),
@@ -477,6 +483,8 @@ metamean <- function(n, mean, sd, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknumeric(rho, min = -1, max = 1)
+  ##
   chknull(sm)
   chklevel(level)
   ##
@@ -499,7 +507,7 @@ metamean <- function(n, mean, sd, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -1099,7 +1107,8 @@ metamean <- function(n, mean, sd, studlab,
     seTE[is.na(TE)] <- NA
     ##
     if (method.ci == "t")
-      ci.study <- ci(TE, seTE, level = level, df = n - 1)
+      ci.study <-
+        ci(TE, seTE, level = level, df = n - 1, null.effect = null.effect)
     ##
     transf.null.effect <- null.effect
   }
@@ -1148,8 +1157,7 @@ metamean <- function(n, mean, sd, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##
@@ -1165,7 +1173,7 @@ metamean <- function(n, mean, sd, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,
@@ -1287,6 +1295,13 @@ metamean <- function(n, mean, sd, studlab,
   if (all(res$approx.sd == "")) {
     res$approx.sd <- NULL
     res$data$.approx.sd <- NULL
+  }
+  ##
+  ## Remove test statistic and p-value if null effect is missing
+  ##
+  if (is.na(null.effect)) {
+    res$statistic <- NA
+    res$pval <- NA
   }
   ##
   class(res) <- c(fun, "meta")

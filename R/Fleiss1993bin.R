@@ -31,6 +31,8 @@
 #' 
 #' @keywords datasets
 #' 
+#' @seealso \code{\link{metabin}}
+#' 
 #' @examples
 #' data(Fleiss1993bin)
 #' metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,

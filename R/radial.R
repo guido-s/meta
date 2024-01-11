@@ -113,6 +113,8 @@ radial.meta <- function(x,
   chkchar(xlab, length = 1)
   chkchar(ylab, length = 1)
   ##
+  chklogical(warn.deprecated)
+  ##
   common <-
     deprecated2(common, missing(common), fixed, missing(fixed),
                 warn.deprecated)

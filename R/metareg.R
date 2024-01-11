@@ -229,15 +229,18 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     }
   }
   else {
-    is.char <- try(is.character(formula) || is.numeric(formula), silent = TRUE)
+    as.char <-
+      try(is.character(formula) || is.numeric(formula) ||
+          is.function(formula), silent = TRUE)
     ##
-    if (inherits(is.char, "try-error"))
+    if (inherits(as.char, "try-error"))
       formula.text <- deparse(substitute(formula))
     else {
-      if (is.char & length(formula) != 1)
+      if ((as.char & length(formula) != 1) ||
+          is.function(formula))
         formula.text <- paste("~", deparse(substitute(formula)))
       else
-      formula.text <- deparse(formula)
+        formula.text <- deparse(formula)
     }
     ##
     formula.text <- gsub("~", "", formula.text)
@@ -269,6 +272,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     ##
     if (!intercept)
       formula.text <- paste0(formula.text, " - 1")
+    ##
     formula <- as.formula(paste("~", formula.text))
   }
   

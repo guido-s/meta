@@ -50,7 +50,6 @@
 #' 
 #' @method summary meta
 #' @export
-#' @export summary.meta
 
 
 summary.meta <- function(object, ...) {

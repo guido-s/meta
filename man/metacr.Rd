@@ -31,6 +31,11 @@ metacr(
   test.subgroup,
   prediction.subgroup = gs("prediction.subgroup"),
   seed.predict.subgroup = NULL,
+  rob = NULL,
+  tool = NULL,
+  categories = NULL,
+  col = NULL,
+  symbols = NULL,
   text.common = gs("text.common"),
   text.random = gs("text.random"),
   text.predict = gs("text.predict"),
@@ -46,8 +51,8 @@ metacr(
 )
 }
 \arguments{
-\item{x}{An object of class \code{rm5} created by R function
-\code{read.rm5}.}
+\item{x}{An object of class \code{rm5} or \code{cdir} created by R
+function \code{read.rm5} or \code{read.cdir} .}
 
 \item{comp.no}{Comparison number.}
 
@@ -119,7 +124,7 @@ statistic Q which is implemented in RevMan 5.}
 non-events should be interchanged.}
 
 \item{logscale}{A logical indicating whether effect estimates are
-entered on log-scale.}
+entered on log-scale (ignored for \code{cdir} objects).}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -137,6 +142,22 @@ intervals should be printed for subgroups.}
 \item{seed.predict.subgroup}{A numeric vector providing seeds to
 calculate bootstrap prediction intervals within subgroups. Must
 be of same length as the number of subgroups.}
+
+\item{rob}{A logical indicating whether risk of bias (RoB)
+assessment should be considered in meta-analysis (only for
+\code{read.cdir} objects).}
+
+\item{tool}{Risk of bias (RoB) tool (only for \code{read.cdir}
+objects).}
+
+\item{categories}{Possible RoB categories (only for
+\code{read.cdir} objects).}
+
+\item{col}{Colours for RoB categories (only for \code{read.cdir}
+objects).}
+
+\item{symbols}{Corresponding symbols for RoB categories (only for
+\code{read.cdir} objects).}
 
 \item{text.common}{A character string used in printouts and forest
 plot to label the pooled common effect estimate.}
@@ -196,6 +217,12 @@ functions \code{\link{metabin}}, \code{\link{metacont}}, and
 \code{\link{metagen}} are called - depending on the definition of
 the outcome in RevMan 5.
 
+Information on the risk of bias RoB) assessment can be provided
+with arguments \code{tool}, \code{categories}, \code{col} and
+\code{symbols}. This is not useful if an overall RoB assessment has
+been done. In this case use \code{\link{rob}} to add the full
+flexible RoB information to a \code{\link{metacr}} object.
+
 Note, it is recommended to choose the RevMan 5 settings before
 executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
 }
@@ -235,8 +262,9 @@ settings.meta(oldset)
 The Cochrane Collaboration, 2020
 }
 \seealso{
-\code{\link{meta-package}}, \code{\link{metabin}},
-  \code{\link{metacont}}, \code{\link{metagen}},
+\code{\link{meta-package}}, \code{\link{rob}},
+  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metagen}}, \code{\link{read.cdir}},
   \code{\link{read.rm5}}, \code{\link{settings.meta}}
 }
 \author{

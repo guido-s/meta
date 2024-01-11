@@ -49,30 +49,62 @@ update_needed <- function(version,
 }
 
 
-taudat <- function(tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
+taudat <- function(method.tau, detail.tau,
+                   tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
                    tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                    sign.lower, sign.upper) {
-  dat <- data.frame(tau, tau2)
+  
+  dat <- data.frame(method.tau, names = detail.tau, tau, tau2)
   ##
-  if (print.tau.ci) {
-    dat$lower.tau <- round(lower.tau, digits.tau)
-    dat$upper.tau <- round(upper.tau, digits.tau)
-  }
+  ## In order to use duplicated()
   ##
-  if (print.tau2.ci) {
-    dat$lower.tau2 <- round(lower.tau2, digits.tau2)
-    dat$upper.tau2 <- round(upper.tau2, digits.tau2)
-  }
+  if (!is.null(dat$tau))
+    dat$tau <- round(dat$tau, 14)
+  if (!is.null(dat$tau2))
+    dat$tau2 <- round(dat$tau2, 14)
   ##
-  if (!is.null(names(tau)))
-    dat$names <- names(tau)
+  if (!is.null(lower.tau))
+    dat$lower.tau <- round(lower.tau, 14)
+  if (!is.null(lower.tau2))
+    dat$lower.tau2 <- round(lower.tau2, 14)
+  ##
+  if (!is.null(upper.tau))
+    dat$upper.tau <- round(upper.tau, 14)
+  if (!is.null(upper.tau2))
+    dat$upper.tau2 <- round(upper.tau2, 14)
   ##
   if (!is.null(sign.lower))
     dat$sign.lower <- sign.lower
   if (!is.null(sign.upper))
     dat$sign.upper <- sign.upper
   ##
-  dat <- unique(dat)
+  if (!is.null(names(tau)))
+    dat$names <- names(tau)
+  ##
+  sel1 <- !duplicated(dat[, c("method.tau", "tau", "tau2")])
+  ##
+  if (!is.null(dat$lower.tau) & !is.null(dat$lower.tau2) &
+      !is.null(dat$upper.tau) & !is.null(dat$upper.tau2))
+    sel2 <- !duplicated(dat[, c("method.tau", "tau", "tau2",
+                                "lower.tau", "upper.tau",
+                                "lower.tau2", "upper.tau2")])
+  else
+    sel2 <- sel1
+  ##
+  sel <- sel1 & sel2
+  ##
+  dat <- dat[sel, , drop = FALSE]
+  ##
+  if (print.tau.ci) {
+    dat$lower.tau <- round(dat$lower.tau, digits.tau)
+    dat$upper.tau <- round(dat$upper.tau, digits.tau)
+  }
+  ##
+  if (print.tau2.ci) {
+    dat$lower.tau2 <- round(dat$lower.tau2, digits.tau2)
+    dat$upper.tau2 <- round(dat$upper.tau2, digits.tau2)
+  }
+  
   dat
 }
 
@@ -153,7 +185,16 @@ qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
 }
 
 
+collapse <- function(x, quote = '"', collapse = ", ", sort = FALSE)
+  paste0(paste0(quote, if (sort) sort(x) else x, quote, collapse = collapse))
+
+
+condense <- function(x, var)
+  unlist(lapply(x, "[[" , var))
+
+
 cathet <- function(k,
+                   method.tau, detail.tau,
                    tau2, lower.tau2, upper.tau2,
                    print.tau2, print.tau2.ci, text.tau2, digits.tau2,
                    tau, lower.tau, upper.tau,
@@ -165,7 +206,8 @@ cathet <- function(k,
                    print.H, digits.H,
                    Rb, lowRb, uppRb,
                    print.Rb, text.Rb,
-                   big.mark) {
+                   big.mark,
+                   sort.tau = NULL, sort.het = NULL) {
   
   
   if (is.null(lower.tau2))
@@ -183,13 +225,16 @@ cathet <- function(k,
     print.tau.ci <- FALSE
   
   
-  ## Print tau2 and tau
+  ## Text for tau2 and tau
   ##
-  dtau <- taudat(tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
+  dtau <- taudat(method.tau, detail.tau,
+                 tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
                  tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                  sign.lower.tau, sign.upper.tau)
   ##
   ntau <- nrow(dtau)
+  sort.tau <- setsort(sort.tau, ntau, "tau2 estimates")
+  dtau <- dtau[sort.tau, ]
   ##
   if (print.tau2 | print.tau) {
     if (ntau > 1) {
@@ -201,12 +246,6 @@ cathet <- function(k,
   label.tau <-
     if (ntau > 1)
       ifelse(dtau$names == "", "", paste0(" (", dtau$names, ")"))
-    else
-      ""
-  ##
-  label.I2 <-
-    if (length(I2) > 1)
-      ifelse(names(I2) == "", "", paste0(" (", names(I2), ")"))
     else
       ""
   ##
@@ -230,7 +269,7 @@ cathet <- function(k,
   else
     text.tau.ci <- ""
   ##
-  cat(
+  hettxt <- 
     paste0(
       if (print.tau2 | print.tau | print.I2 | print.H | print.Rb)
         " ",
@@ -244,26 +283,33 @@ cathet <- function(k,
                if (!print.tau) label.tau),
       ##
       if (print.tau)
-        paste0(
-          if (print.tau2) "; " else "",
-          formatPT(dtau$tau,
-                   lab = TRUE, labval = text.tau,
-                   digits = digits.tau,
-                   lab.NA = "NA",
+             paste0(
+               if (print.tau2) "; " else "",
+               formatPT(dtau$tau,
+                        lab = TRUE, labval = text.tau,
+                        digits = digits.tau,
+                        lab.NA = "NA",
                    big.mark = big.mark),
-          text.tau.ci,
-          label.tau),
+               text.tau.ci,
+               label.tau),
       collapse = "\n")
-  )
   
   
-  ## Print I2, H and Rb
+  ## Text for I2, H and Rb
   ##
   dhet <- hetdat(I2, lowI2, uppI2, print.I2, print.I2.ci, digits.I2,
                  H, lowH, uppH, print.H, digits.H,
                  Rb, lowRb, uppRb, print.Rb)
   ##
   nhet <- nrow(dhet)
+  sort.het <- setsort(sort.het, nhet, "heterogeneity estimates")
+  dhet <- dhet[sort.het, ]
+  ##
+  label.het <-
+    if (nhet > 1)
+      ifelse(dhet$names == "", "", paste0(" (", dhet$names, ")"))
+    else
+      ""
   ##
   if (print.I2) {
     if (nhet > 1)
@@ -282,62 +328,83 @@ cathet <- function(k,
   }
   ##
   if (print.I2)
-    cat(ifelse(print.tau2 | print.tau,
-        ifelse(ntau > 1 | print.tau2.ci | print.tau.ci |
-               (options()$width < 70 & print.I2.ci),
-               "\n", ";"),
-        ""))
+    hettxt <-
+      paste0(hettxt,
+             ifelse(print.tau2 | print.tau,
+             ifelse(ntau > 1 | print.tau2.ci | print.tau.ci |
+                    (options()$width < 70 & print.I2.ci),
+                    "\n", ";"),
+             ""))
   ##
-  cat(
-    paste0(
-      if (print.I2)
-        paste0(
-          if (print.tau2 | print.tau)
-            " ",
-          text.I2, " = ",
-          ifelse(is.na(dhet$I2), "NA",
-                 paste0(formatN(dhet$I2, digits.I2), "%")),
-          if (print.I2.ci)
-            pasteCI(dhet$lowI2, dhet$uppI2, digits.I2, big.mark, unit = "%"),
-          if (nhet > 1 & !print.H)
-            label.I2
-        ),
-      ##
-      if (print.H)
-        paste0(
-          if (print.tau2 | print.tau | print.I2)
-            "; " else " ",
-          text.H, " = ",
-          ifelse(is.na(dhet$H), "NA",
-                 formatN(dhet$H, digits.H, "NA", big.mark = big.mark)),
-          if (print.I2.ci & any(!is.na(lowH) & !is.na(uppH)))
-            pasteCI(dhet$lowH, dhet$uppH, digits.H, big.mark),
-          if (nhet > 1)
-            label.I2),
-      collapse = "\n")
-    )
+  hettxt <-
+    paste0(hettxt,
+           paste0(
+             if (print.I2)
+               paste0(
+                 if (print.tau2 | print.tau)
+                   " ",
+                 text.I2, " = ",
+                 ifelse(is.na(dhet$I2), "NA",
+                        paste0(formatN(dhet$I2, digits.I2), "%")),
+                 if (print.I2.ci)
+                   pasteCI(dhet$lowI2, dhet$uppI2, digits.I2,
+                           big.mark, unit = "%"),
+                 if (nhet > 1 & !print.H)
+                   label.het
+               ),
+             ##
+             if (print.H)
+               paste0(
+                 if (print.tau2 | print.tau | print.I2)
+                   "; " else " ",
+                 text.H, " = ",
+                 ifelse(is.na(dhet$H), "NA",
+                        formatN(dhet$H, digits.H, "NA", big.mark = big.mark)),
+                 if (print.I2.ci & any(!is.na(lowH) & !is.na(uppH)))
+                   pasteCI(dhet$lowH, dhet$uppH, digits.H, big.mark),
+                 if (nhet > 1)
+                   label.het),
+             collapse = "\n")
+           )
+  ##
+  if (print.Rb)
+    hettxt <-
+      paste0(hettxt,
+             ifelse(print.tau2 | print.tau | print.I2 | print.H,
+             ifelse(ntau > 1 | nhet > 1 |
+                    print.tau2.ci | print.tau.ci |
+                    print.I2.ci |
+                    (options()$width < 70 & print.I2.ci),
+                    "\n", ";"),
+             ""))
+  ##
+  if (print.Rb)
+    hettxt <-
+      paste0(hettxt,
+             paste0(
+               " ",
+               text.Rb, " = ",
+               ifelse(is.na(dhet$Rb), "NA",
+                      paste0(formatN(dhet$Rb, digits.I2,
+                                     big.mark = big.mark), "%")),
+               if (any(!is.na(dhet$lowRb) & !is.na(dhet$uppRb)))
+                 pasteCI(dhet$lowRb, dhet$uppRb, digits.I2,
+                         big.mark, unit = "%"),
+               label.het,
+               collapse = "\n")
+             )
   
-  if (print.Rb)
-    cat(ifelse(print.tau2 | print.tau | print.I2 | print.H,
-        ifelse(ntau > 1 | nhet > 1 |
-               print.tau2.ci | print.tau.ci |
-               print.I2.ci |
-               (options()$width < 70 & print.I2.ci),
-               "\n", ";"),
-        ""))
+  
+  ## Remove spaces before ";", " (" and a line break
   ##
-  if (print.Rb)
-    cat(
-      paste0(
-        " ",
-        text.Rb, " = ",
-        ifelse(is.na(dhet$Rb), "NA",
-               paste0(formatN(dhet$Rb, digits.I2, big.mark = big.mark), "%")),
-        if (any(!is.na(dhet$lowRb) & !is.na(dhet$uppRb)))
-          pasteCI(dhet$lowRb, dhet$uppRb, digits.I2, big.mark, unit = "%"),
-        label.I2,
-        collapse = "\n")
-    )
+  hettxt <- gsub("(*UCP)\\s+(;)", "\\1", hettxt, perl = TRUE)
+  hettxt <- gsub("(*UCP)\\s+( \\()", "\\1", hettxt, perl = TRUE)
+  hettxt <- gsub("(*UCP)\\s+(\\\n)", "\\1", hettxt, perl = TRUE)
+  
+  
+  ## Print information on heterogeneity
+  ##
+  cat(hettxt)
   
   
   ## Empty row(s)
@@ -367,11 +434,12 @@ catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
       ##
       cat(paste0("Number of ", txt, ": ", idx, " = ",
                  format(sum1 + sum2, big.mark = big.mark),
-                 ##" (", idx, ".e = ",
-                 ##format(sum1, big.mark = big.mark),
-                 ##", ", idx, ".c = ",
-                 ##format(sum2, big.mark = big.mark),
-                 ##")",
+                 if (type == "n")
+                   paste0(" (", idx, ".e = ",
+                          format(sum1, big.mark = big.mark),
+                          ", ", idx, ".c = ",
+                          format(sum2, big.mark = big.mark),
+                          ")"),
                  "\n"))
     }
   }
@@ -481,6 +549,7 @@ argslist.internal <-
     "meth4random.ci", "meth4pi",
     "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
+    "tool4rob",
     "meth4incr",
     "text.fixed", "text.w.fixed",
     "major.update", "minor.update")
@@ -510,7 +579,7 @@ setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("q", "tau"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
-setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S"))
+setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S", ""))
 setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
 setOption("adhoc4hakn.pi", c("", "se"))
 ##
@@ -518,6 +587,10 @@ setOption("meth4bias.old", c("rank", "linreg", "mm", "count", "score"))
 setOption("meth4bias", c("Begg", "Egger", "Thompson", "Schwarzer",
                          "Harbord", "Peters", "Deeks",
                          "Pustejovsky", "Macaskill"))
+##
+setOption("tool4rob",
+          c("RoB1", "RoB2", "RoB2-cluster", "RoB2-crossover",
+            "ROBINS-I", "ROBINS-E"))
 ##
 setOption("meth4incr", c("only0", "if0all", "all"))
 ##
@@ -534,6 +607,8 @@ argslist <-
     "method.i2",
     "prediction", "level.predict",
     "method.bias",
+    "tool.rob",
+    "overall.hetstat",
     "text.common", "text.random", "text.predict",
     "text.w.common", "text.w.random",
     "title", "complab",
@@ -548,31 +623,39 @@ argslist <-
     "pooledvar", "method.smd", "sd.glass", "exact.smd",
     "method.ci.cont", "method.ci.prop", "method.ci.rate",
     "label.e", "label.c", "label.left", "label.right",
-    "layout",
+    "layout", "forest.details",
     "test.overall", "test.subgroup", "prediction.subgroup",
     "test.effect.subgroup",
-    "digits", "digits.se", "digits.stat",
+    "digits", "digits.mean", "digits.sd", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q",
     "digits.forest", "digits.TE.forest",
     "digits.df",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
+    "details",
+    "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
     "print.I2", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
+    "print.Q",
     ##
     "lty.common", "lty.random", "col.common", "col.random",
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
     "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
+    "fill",
+    "leftcols", "rightcols", "leftlabs", "rightlabs", 
+    "label.e.attach", "label.c.attach",
     "bottom.lr",
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
-    "lwd",
+    "lwd", "lwd.square", "lwd.diamond",
+    "arrow.type", "arrow.length",
     "type.study", "type.common",
-    "col.study", "col.square", "col.inside",
+    "col.study", "col.square", "col.square.lines", "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
     "col.subgroup", "col.label.right", "col.label.left",
+    "col.lines", "col.label",
     "hetlab", "resid.hetstat", "resid.hetlab",
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
     "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
@@ -591,7 +674,8 @@ argslist <-
     "ff.study", "ff.hetstat", "ff.test.overall", "ff.test.subgroup",
     "ff.test.effect.subgroup", "ff.addline",
     "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
-    "colgap",
+    "colgap", "colgap.forest",
+    "width",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
@@ -629,6 +713,8 @@ setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
 setOption("method.i2", "q")
 setOption("method.bias", "Egger")
+setOption("tool.rob", NULL)
+setOption("overall.hetstat", NULL)
 setOption("text.common", "Common effect model")
 setOption("text.fixed", "Common effect model")
 setOption("text.random", "Random effects model")
@@ -654,6 +740,8 @@ setOption("warn.deprecated", FALSE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
+setOption("digits.mean", 2)
+setOption("digits.sd", 4)
 setOption("digits.se", 4)
 setOption("digits.stat", 2)
 setOption("digits.zval", 2)
@@ -671,6 +759,13 @@ setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
 setOption("JAMA.pval", FALSE)
+##
+setOption("details", TRUE)
+##
+setOption("print.tau2", TRUE)
+setOption("print.tau2.ci", TRUE)
+setOption("print.tau", TRUE)
+setOption("print.tau.ci", TRUE)
 setOption("print.I2", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
@@ -678,6 +773,8 @@ setOption("text.tau2", "tau^2")
 setOption("text.tau", "tau")
 setOption("text.I2", "I^2")
 setOption("text.Rb", "Rb")
+##
+setOption("print.Q", TRUE)
 ##
 ## Default summary measure
 ##
@@ -732,6 +829,7 @@ setOption("label.right", "")
 ## Settings for R function forest.meta
 ##
 setOption("layout", "meta")
+setOption("forest.details", FALSE)
 setOption("test.overall", FALSE)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
@@ -754,19 +852,36 @@ setOption("lty.equi", 1)
 setOption("col.equi", "blue")
 setOption("fill.equi", "transparent")
 ##
+setOption("fill", "transparent")
+##
+setOption("leftcols", NULL)
+setOption("rightcols", NULL)
+setOption("leftlabs", NULL)
+setOption("rightlabs", NULL)
+##
+setOption("label.e.attach", NULL)
+setOption("label.c.attach", NULL)
+##
 setOption("bottom.lr", TRUE)
 ##
 setOption("lab.NA", ".")
 setOption("lab.NA.effect", NULL)
-setOption("lab.NA.weight", "--")
+setOption("lab.NA.weight", ".")
 ##
 setOption("lwd", 1)
+setOption("lwd.square", 1)
+setOption("lwd.diamond", 1)
+##
+setOption("arrow.type", "open")
+setOption("arrow.length", 0.05)
 ##
 setOption("type.study", "square")
 setOption("type.common", "diamond")
 ##
 setOption("col.study", "black")
 setOption("col.square", "gray")
+setOption("col.square.lines", "gray")
+setOption("col.circle", "royalblue")
 setOption("col.inside", "white")
 setOption("col.diamond", "gray")
 setOption("col.diamond.lines", "black")
@@ -775,6 +890,9 @@ setOption("col.predict.lines", "black")
 setOption("col.subgroup", "darkgray")
 setOption("col.label.right", "black")
 setOption("col.label.left", "black")
+##
+setOption("col.lines", "black")
+setOption("col.label", "black")
 ##
 setOption("hetlab", "Heterogeneity: ")
 setOption("resid.hetstat", NULL)
@@ -833,6 +951,9 @@ setOption("ff.xlab", "plain")
 setOption("ff.lr", "plain")
 ##
 setOption("colgap", "2mm")
+setOption("colgap.forest", "2mm")
+##
+setOption("width", NULL)
 ##
 setOption("calcwidth.predict", FALSE)
 setOption("calcwidth.hetstat", FALSE)

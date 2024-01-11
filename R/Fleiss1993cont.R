@@ -36,6 +36,8 @@
 #' \bold{2}, 121--45
 #'
 #' @keywords datasets
+#' 
+#' @seealso \code{\link{metacont}}
 #'
 #' @examples
 #' data(Fleiss1993cont)

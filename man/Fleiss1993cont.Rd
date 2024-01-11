@@ -45,5 +45,7 @@ metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 }
 \seealso{
 \code{\link{Fleiss1993bin}}
+
+\code{\link{metacont}}
 }
 \keyword{datasets}

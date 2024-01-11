@@ -232,10 +232,10 @@ behaviour can be changed by setting a smaller value for argument
 \code{k.min}. Note, the minimum number of studies is three.
 
 If argument \code{method.bias} is missing, the Harbord test
-(\code{method.bias = "Harbord"}) is used in meta-analysis of binary
-outcomes for the odds ratio as effect measure and the Egger test
-(\code{method.bias = "Egger"}) in all other settings (Sterne et
-al., 2011).
+(\code{method.bias = "Harbord"}) is used in meta-analyses with a binary
+outcome for the odds ratio and Deeks' test (\code{method.bias = "Deeks"})
+for the diagnostic odds ratios. In all other settings, the Egger test
+(\code{method.bias = "Egger"}) is used (Sterne et al., 2011).
 
 No test for funnel plot asymmetry is conducted in meta-analyses
 with subgroups.

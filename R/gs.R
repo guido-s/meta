@@ -3,7 +3,8 @@
 #' @description
 #' Get default for a meta-analysis setting in R package \bold{meta}.
 #' 
-#' @param x A character string holding a settings name.
+#' @param x A character string or vector with setting name(s).
+#' @param unname A logical whether to remove names from attributes.
 #' 
 #' @details
 #' This function can be used to get the default for a meta-analysis
@@ -32,22 +33,45 @@
 #' @export gs
 
 
-gs <- function(x) {
+gs <- function(x = NULL, unname = NULL) {
   
-  if (missing(x))
+  if (is.null(x))
+    return(NULL)
+  #
+  chkchar(x)
+  if (!is.null(unname))
+    chklogical(unname)
+  
+  x.list <- vector("list", length(x))
+  #
+  for (i in seq_along(x)) {
+    x.list[[i]] <-
+    setchar(x[i],
+            c(.settings$argslist, .settings$argslist.internal),
+            "unmatched", name = x[i],
+            stop.at.error = FALSE)
+  }
+  x.list <- compact(x.list)
+  #
+  if (is.null(x.list) | length(x.list) == 0)
     return(NULL)
   
-  chkchar(x)
-  ##
-  x.nam <- deparse(substitute(x))
-  x.nam <- substring(x.nam, 2, nchar(x.nam) - 1)
-  ##
-  if (!(x %in% .settings$argslist.internal))
-    x <- setchar(x, .settings$argslist, "unmatched", name = x.nam,
-                 stop.at.error = FALSE)
+  res <- vector("list", length(x.list))
+  #
+  for (i in seq_along(x.list))
+    res[[i]] <- settings.meta(quietly = TRUE)[[x.list[[i]]]]
+  #
+  if (is.null(res) | length(res) == 0)
+    return(NULL)
+  #
+  if (is.null(unname))
+    unname <- length(res) <= 1
+  #
+  if (!unname)
+    names(res) <- unlist(x.list)
   
-  if (!is.null(x))
-    x <- settings.meta(quietly = TRUE)[[x]]
+  if (length(res) == 1)
+    res <- unlist(res)
   
-  x
+  res
 }

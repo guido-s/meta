@@ -12,13 +12,15 @@ metagen(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
@@ -110,6 +112,8 @@ plots (see Details).}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},

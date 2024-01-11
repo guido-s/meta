@@ -19,8 +19,10 @@ catarg <- function(x, newline = TRUE, end = "") {
 specificSettings <- function(args, new, setting, quietly = FALSE) {
   isnull.old <- as.vector(unlist(lapply(.settings[args], is.null)))
   ischar.old <- as.vector(unlist(lapply(.settings[args], is.character)))
-  old <- as.vector(unlist(.settings[args]))
+  old <- rep("character", length(isnull.old))
+  old[!isnull.old] <- as.vector(unlist(.settings[args]))
   ##
+  isnull.new <- as.vector(unlist(lapply(new, is.null)))
   ischar.new <- as.vector(unlist(lapply(new, is.character)))
   new <- as.vector(unlist(new))
   ##
@@ -73,13 +75,19 @@ specificSettings <- function(args, new, setting, quietly = FALSE) {
 
 
 setcharacter <- function(argname, args, set = NULL, length = 1,
-                         NULL.ok = FALSE, ignore.other = FALSE) {
+                         NULL.ok = FALSE, ignore.other = FALSE,
+                         logical.ok = FALSE) {
   id <- argid(names(args), argname)
   ##
   if (!is.na(id)) {
     val <- args[[id]]
     ##
     if (NULL.ok & is.null(val)) {
+      setOption(argname, val)
+      return(invisible(NULL))
+    }
+    ##
+    if (logical.ok & is.logical(val)) {
       setOption(argname, val)
       return(invisible(NULL))
     }

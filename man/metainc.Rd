@@ -14,6 +14,7 @@ metainc(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   method = if (sm == "IRSD") "Inverse" else "MH",
   sm = gs("sminc"),
   incr = gs("incr"),
@@ -23,7 +24,8 @@ metainc(
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
@@ -97,6 +99,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"MH"},
@@ -333,20 +337,22 @@ rerun a meta-analysis with different settings.
 \subsection{Meta-analysis method}{
 
 By default, both common effect and random effects models are
-considered (see arguments \code{common} and
-\code{random}). If \code{method} is \code{"MH"} (default), the
-Mantel-Haenszel method is used to calculate the common effect
-estimate (Greenland & Robbins, 1985); if \code{method} is
-\code{"Inverse"}, inverse variance weighting is used for pooling;
-if \code{method} is \code{"Cochran"}, the Cochran method is used
-for pooling (Bayne-Jones, 1964, Chapter 8).
+considered (see arguments \code{common} and \code{random}). If
+\code{method} is \code{"MH"} (default), the Mantel-Haenszel method
+is used to calculate the common effect estimate (Greenland &
+Robbins, 1985); if \code{method} is \code{"Inverse"}, inverse
+variance weighting is used for pooling; if \code{method} is
+\code{"Cochran"}, the Cochran method is used for pooling
+(Bayne-Jones, 1964, Chapter 8). For these three methods, the random
+effects estimate is always based on the inverse variance method.
 
 A distinctive and frequently overlooked advantage of incidence
 rates is that individual patient data (IPD) can be extracted from
 count data. Accordingly, statistical methods for IPD, i.e.,
 generalised linear mixed models, can be utilised in a meta-analysis
 of incidence rate ratios (Stijnen et al., 2010). These methods are
-available (argument \code{method = "GLMM"}) by calling the
+available (argument \code{method = "GLMM"}) for the common effect
+and random effects model by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
 \bold{metafor} internally.
 

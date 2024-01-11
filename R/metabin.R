@@ -29,6 +29,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
 #'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
@@ -244,7 +245,9 @@
 #' and its variance, are utilised in the random effects
 #' model. Accordingly, results of a random effects model using
 #' \code{sm = "Peto"} can be different to results from a random
-#' effects model using \code{sm = "MH"} or \code{sm = "Inverse"}.
+#' effects model using \code{sm = "MH"} or \code{sm =
+#' "Inverse"}. Note, the random effects estimate is based on the
+#' inverse variance method for all methods discussed so far.
 #' 
 #' A distinctive and frequently overlooked advantage of binary
 #' endpoints is that individual patient data (IPD) can be extracted
@@ -252,8 +255,9 @@
 #' i.e., logistic regression and generalised linear mixed models, can
 #' be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 #' 2010; Simmonds et al., 2016). These methods are available (argument
-#' \code{method = "GLMM"}) for the odds ratio as summary measure by
-#' calling the \code{\link[metafor]{rma.glmm}} function from R package
+#' \code{method = "GLMM"}) for the odds ratio as summary measure for
+#' the common effect and random effects model by calling the
+#' \code{\link[metafor]{rma.glmm}} function from R package
 #' \bold{metafor} internally.
 #'
 #' Four different GLMMs are available for
@@ -608,7 +612,8 @@
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
-                    data = NULL, subset = NULL, exclude = NULL, cluster = NULL,
+                    data = NULL, subset = NULL, exclude = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
@@ -629,7 +634,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
-                    overall.hetstat = common | random,
+                    overall.hetstat =
+                      if (is.null(gs("overall.hetstat")))
+                        common | random
+                      else
+                        gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau =
@@ -691,6 +700,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## (1) Check arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
@@ -1188,6 +1199,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       (n.c - event.c) == 0 | event.c == 0),
                 RR = ((n.e - event.e) == 0 | event.e == 0 |
                       (n.c - event.c) == 0 | event.c == 0),
+                VE = ((n.e - event.e) == 0 | event.e == 0 |
+                      (n.c - event.c) == 0 | event.c == 0),
                 ASD = rep(FALSE, length(event.e)),
                 DOR = ((n.e - event.e) == 0 | event.e == 0 |
                        (n.c - event.c) == 0 | event.c == 0))
@@ -1384,7 +1397,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common,
            method, missing.method)
     ##
     common <- FALSE
@@ -1596,7 +1608,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

@@ -58,9 +58,18 @@
 #' \item Meta-regression (\code{\link{metareg}})
 #' \item Cumulative meta-analysis (\code{\link{metacum}}) and
 #'   leave-one-out meta-analysis (\code{\link{metainf}})
-#' \item Import data from Review Manager 5 (\code{\link{read.rm5}}),
-#'   see also \code{\link{metacr}} to conduct meta-analysis for a
-#'   single comparison and outcome from a Cochrane review
+#' \item Import data from RevMan Web (\code{\link{read.cdir}}), RevMan
+#'   5 (\code{\link{read.rm5}}), see also \code{\link{metacr}} to
+#'   conduct meta-analysis for a single comparison and outcome from a
+#'   Cochrane review
+#' }
+#'
+#' R package \bold{meta} provides two vignettes:
+#' \itemize{
+#'  \item \code{vignette("meta-workflow")} with an overview of main
+#'    functions,
+#'  \item \code{vignette("meta-tutorial")} with up-to-date commands for
+#'    Balduzzi et al. (2019).
 #' }
 #' 
 #' Additional statistical meta-analysis methods are provided by add-on
@@ -325,6 +334,7 @@
 #' \itemize{
 #' \item \code{settings.meta("RevMan5")}
 #' \item \code{settings.meta("JAMA")}
+#' \item \code{settings.meta("BMJ")}
 #' \item \code{settings.meta("IQWiG5")}
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
@@ -341,6 +351,9 @@
 #' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
 #' labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
+#'
+#' The third command can be used to generate forest plots in the current layout
+#' of the \emph{British Medical Journal}.
 #'
 #' The next two commands implement the recommendations of the
 #' Institute for Quality and Efficiency in Health Care (IQWiG),
@@ -363,6 +376,27 @@
 #' \item \code{settings.meta(method.random.ci = "HK", method.tau =
 #'   "PM", prediction = TRUE)}
 #' }
+#' }
+#'
+#' \subsection{Data sets}{
+#' The following data sets are available in R package \bold{meta}.
+#'
+#' \tabular{ll}{
+#' \bold{Data set}\tab \bold{Description} \cr
+#' \code{\link{Fleiss1993bin}}\tab Aspirin after myocardial infarction \cr
+#' \code{\link{Fleiss1993cont}}\tab Mental health treatment on medical utilisation\cr
+#' \code{\link{Olkin1995}}\tab Thrombolytic therapy after acute myocardial infarction \cr
+#' \code{\link{Pagliaro1992}}\tab Prevention of first bleeding in cirrhosis \cr
+#' \code{\link{amlodipine}}\tab Amlodipine for work capacity \cr
+#' \code{\link{caffeine}}\tab Caffeine for daytime drowsiness (Cochrane Practice review) \cr
+#' \code{\link{cisapride}}\tab Cisapride in non-ulcer dispepsia \cr
+#' \code{\link{lungcancer}}\tab Smoking example \cr
+#' \code{\link{smoking}}\tab Smoking example \cr
+#' \code{\link{woodyplants}}\tab Elevated CO$_2$ and total biomass of woody plants
+#' }
+#' 
+#' \bold{R} package \bold{metadat} has a large collection of meta-analysis data
+#' sets.
 #' }
 #'
 #' @note
@@ -545,14 +579,30 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
-#' @importFrom grid arrow gpar grid.draw grid.layout grid.lines
-#'   grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob
-#'   popViewport pushViewport viewport unit unit.c convertX
+#' @import metadat
 #'
-#' @importFrom grDevices gray gray.colors
+#' @importFrom dplyr %>% across mutate all_of select rename mutate
+#'   if_else
 #'
-#' @importFrom graphics abline axis box mtext lines par plot points
-#'   polygon text
+#' @importFrom stringr str_pad
+#'
+#' @importFrom magrittr %<>%
+#'
+#' @importFrom purrr compact
+#'
+#' @importFrom readr read_csv cols
+#'
+#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
+#'   grid.lines grid.newpage grid.polygon grid.rect grid.text
+#'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
+#'   convertX
+#'   grid.get grid.gget
+#'
+#' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
+#'   postscript svg bmp jpeg png tiff
+#'
+#' @importFrom graphics abline axis barplot box mtext lines par plot
+#'   points polygon text
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
@@ -560,16 +610,21 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find
+#'   unzip
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest to.long
+#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
 #'
 #' @importFrom lme4 glmer
 #'
 #' @importFrom CompQuadForm farebrother
 #'
-#' @export forest funnel baujat labbe radial trimfill
+#' @importFrom methods formalArgs
+#' 
+#' @importFrom xml2 as_xml_document xml_attr xml_find_all xml_text
+#' 
+#' @export forest funnel baujat labbe radial trimfill blup
 
 
 NULL

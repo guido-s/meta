@@ -42,8 +42,8 @@
 #'   logarithmic.
 #' @param yaxis A character string indicating which type of weights
 #'   are to be used. Either \code{"se"}, \code{"invvar"},
-#'   \code{"invse"}, code{"size"}, code{"invsqrtsize"}, or
-#'   code{"ess"}.
+#'   \code{"invse"}, \code{"size"}, \code{"invsqrtsize"}, or
+#'   \code{"ess"}.
 #' @param contour.levels A numeric vector specifying contour levels to
 #'   produce contour-enhanced funnel plot.
 #' @param col.contour Colour of contours.
@@ -175,7 +175,6 @@
 #'
 #' @method funnel meta
 #' @export
-#' @export funnel.meta
 
 
 funnel.meta <- function(x,
@@ -237,7 +236,22 @@ funnel.meta <- function(x,
   chklogical(common)
   chklogical(random)
   chklogical(axes)
-  chknumeric(cex, length = 1)
+  ##
+  sfsp <- sys.frame(sys.parent())
+  mc <- match.call()
+  ##
+  if (!missing(text)) {
+    error <-
+      try(text <- catch("text", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      text <- catch("text", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        text <- text[x$data$.subset]
+    }
+  }
+  ##
+  chknumeric(cex)
   lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
                            warn.deprecated)
   chknumeric(lty.common, length = 1)
@@ -247,6 +261,33 @@ funnel.meta <- function(x,
                            warn.deprecated)
   chknumeric(lwd.common, length = 1)
   chknumeric(lwd.random, length = 1)
+  ##
+  if (!missing(col)) {
+    error <-
+      try(col <- catch("col", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      col <- catch("col", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        col <- col[x$data$.subset]
+    }
+  }
+  if (length(col) == 1 & length(x$TE) > 1)
+    col <- rep(col, length(x$TE))
+  ##
+  if (!missing(bg)) {
+    error <-
+      try(bg <- catch("bg", mc, x, sfsp),
+          silent = TRUE)
+    if (inherits(error, "try-error")) {
+      bg <- catch("bg", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        bg <- bg[x$data$.subset]
+    }
+  }
+  if (length(bg) == 1 & length(x$TE) > 1)
+    bg <- rep(bg, length(x$TE))
+  ##
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
   ##
@@ -297,6 +338,7 @@ funnel.meta <- function(x,
   chklength(seTE, k.All, fun)
   if (slab)
     chklength(studlab, k.All, fun)
+  ##
   if (!is.null(text))
     chklength(text, k.All, fun)
   ##
@@ -309,6 +351,10 @@ funnel.meta <- function(x,
       studlab <- studlab[!x$exclude]
     if (!is.null(text))
       text <- text[!x$exclude]
+    if (!is.null(col))
+      col <- col[!x$exclude]
+    if (!is.null(bg))
+      bg <- bg[!x$exclude]
   }
   
   
@@ -350,19 +396,23 @@ funnel.meta <- function(x,
     ##
     ciTE.ref <- ci(ref, seTE.seq, level)
     ##
-    if ((common | random) & ref.triangle)
-      TE.xlim <- c(min(c(TE, ciTE$lower, ciTE.ref$lower),
-                       na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE$upper, ciTE.ref$upper),
-                               na.rm = TRUE))
+    if ((common | random) & ref.triangle) {
+      xlim.lower <- min(c(TE, ciTE$lower, ciTE.ref$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE$upper, ciTE.ref$upper), na.rm = TRUE)
+    }
     ##
-    else if (ref.triangle)
-      TE.xlim <- c(min(c(TE, ciTE.ref$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE.ref$upper), na.rm = TRUE))
+    else if (ref.triangle) {
+      xlim.lower <- min(c(TE, ciTE.ref$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE.ref$upper), na.rm = TRUE)
+    }
     ##
-    else
-      TE.xlim <- c(min(c(TE, ciTE$lower), na.rm = TRUE) / 1.025,
-                   1.025 * max(c(TE, ciTE$upper), na.rm = TRUE))
+    else {
+      xlim.lower <- min(c(TE, ciTE$lower), na.rm = TRUE)
+      xlim.upper <- max(c(TE, ciTE$upper), na.rm = TRUE)
+    }
+    ##
+    TE.xlim <- c(xlim.lower * ifelse(xlim.lower < 0, 1.025, 1 / 1.025),
+                 xlim.upper * ifelse(xlim.upper > 0, 1.025, 1 / 1.025))
   }
   ##
   if (backtransf & is_relative_effect(sm)) {

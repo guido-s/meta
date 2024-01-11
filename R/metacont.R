@@ -22,6 +22,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
 #' @param q1.e First quartile in experimental group (used to estimate
@@ -560,7 +561,7 @@
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      ##
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
@@ -580,7 +581,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
-                     overall.hetstat = common | random,
+                     overall.hetstat =
+                       if (is.null(gs("overall.hetstat")))
+                         common | random
+                       else
+                         gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
                      ##
                      method.tau = gs("method.tau"),
@@ -633,6 +638,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  chknumeric(rho, min = -1, max = 1)
+  ##
   chknull(sm)
   sm <- setchar(sm, gs("sm4cont"))
   chklevel(level)
@@ -656,7 +663,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     setmethodpredict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
-  if (method.predict == "NNF")
+  if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
@@ -1745,8 +1752,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     three.level <- TRUE
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##
@@ -1762,7 +1768,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

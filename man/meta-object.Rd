@@ -41,8 +41,12 @@ components.
 \code{level} \tab Level of confidence intervals for individual studies \cr
 \code{lower} \tab Lower confidence limits (individual studies) \cr
 \code{upper} \tab Upper confidence limits (individual studies) \cr
-\code{three.level} \tab Indicator variable for three-level meta-analysis model \cr
-\code{cluster} \tab Cluster variable (three-level meta-analysis model) \cr
+\code{three.level} \tab Indicator variable for three-level
+  meta-analysis model \cr
+\code{cluster} \tab Cluster variable (three-level meta-analysis
+  model) \cr
+\code{rho} \tab Within-cluster correlation (three-level
+  meta-analysis model) \cr
 \code{k} \tab Number of estimates combined in meta-analysis \cr
 \code{k.study} \tab Number of studies combined in meta-analysis \cr
 \code{k.all} \tab Number of all studies \cr

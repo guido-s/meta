@@ -24,6 +24,10 @@
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
   nchar.subgroup = 35,
+  sort.overall = NULL,
+  sort.tau = NULL,
+  sort.het = NULL,
+  sort.Q = NULL,
   header = TRUE,
   print.CMH = x$print.CMH,
   digits = gs("digits"),
@@ -40,8 +44,10 @@
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   digits.df = gs("digits.df"),
-  print.tau2 = TRUE,
-  print.tau = TRUE,
+  print.tau2 = gs("print.tau2"),
+  print.tau2.ci = gs("print.tau2.ci"),
+  print.tau = gs("print.tau"),
+  print.tau.ci = gs("print.tau.ci"),
   print.I2 = gs("print.I2"),
   print.H = gs("print.H"),
   print.Rb = gs("print.Rb"),
@@ -49,7 +55,8 @@
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
   text.Rb = gs("text.Rb"),
-  details.methods = TRUE,
+  print.Q = gs("print.Q"),
+  details.methods = gs("details"),
   warn.backtransf = FALSE,
   func.backtransf = x$func.backtransf,
   warn.deprecated = gs("warn.deprecated"),
@@ -133,6 +140,18 @@ between label and levels of grouping variable.}
 \item{nchar.subgroup}{A numeric specifying the number of characters
 to print from subgroup labels.}
 
+\item{sort.overall}{An optional vector used to sort meta-analysis
+results.}
+
+\item{sort.tau}{An optional vector used to sort estimators of the
+between-study heterogeneity variance.}
+
+\item{sort.het}{An optional vector used to sort heterogeneity
+statistics.}
+
+\item{sort.Q}{An optional vector used to sort test of
+heterogeneity.}
+
 \item{header}{A logical indicating whether information on title of
 meta-analysis, comparison and outcome should be printed at the
 beginning of the printout.}
@@ -182,15 +201,21 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
-\item{digits.df}{Minimal number of significant digits for
-degrees of freedom.}
+\item{digits.df}{Minimal number of significant digits for degrees
+of freedom.}
 
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}
 
+\item{print.tau2.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau^2}.}
+
 \item{print.tau}{A logical specifying whether \eqn{\tau}, the
 square root of the between-study variance \eqn{\tau^2}, should be
 printed.}
+
+\item{print.tau.ci}{A logical value indicating whether to print the
+confidence interval of \eqn{\tau}.}
 
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I\eqn{^2} should be printed.}
@@ -212,6 +237,9 @@ I\eqn{^2}.}
 
 \item{text.Rb}{Text printed to identify heterogeneity statistic
 R\eqn{_b}.}
+
+\item{print.Q}{A logical value indicating whether to print the
+results of the test of heterogeneity.}
 
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}

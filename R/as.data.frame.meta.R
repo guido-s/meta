@@ -70,10 +70,19 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   ##     on the function call.
   ##
   x$call <- NULL
+  x$call.object <- NULL
   
   ## Remove data set from output
   ##
   x$data <- NULL
+  
+  ## Remove risk of bias table from output
+  ##
+  x$rob <- NULL
+  
+  ## Remove list information from metabind()
+  ##
+  x$list <- NULL
   
   ## Remove debug information
   ##
@@ -88,6 +97,14 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   sel <- as.vector(lapply(x, length) == length(x$TE))
   
   res <- as.data.frame(x[names(x)[sel]], ...)
+  ##
+  if (!is.null(row.names)) {
+    if (length(row.names) != nrow(res))
+      stop("Argument 'row.names' must be of length ", nrow(res))
+    row.names(res) <- row.names
+  }
+  else
+    row.names(res) <- seq_len(nrow(res))
   
   attr(res, "version") <- packageDescription("meta")$Version
   

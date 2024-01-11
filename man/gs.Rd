@@ -4,10 +4,12 @@
 \alias{gs}
 \title{Get default for a meta-analysis setting.}
 \usage{
-gs(x)
+gs(x = NULL, unname = NULL)
 }
 \arguments{
-\item{x}{A character string holding a settings name.}
+\item{x}{A character string or vector with setting name(s).}
+
+\item{unname}{A logical whether to remove names from attributes.}
 }
 \description{
 Get default for a meta-analysis setting in R package \bold{meta}.

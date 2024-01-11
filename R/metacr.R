@@ -4,8 +4,8 @@
 #' Wrapper function to perform meta-analysis for a single outcome of a
 #' Cochrane Intervention review.
 #' 
-#' @param x An object of class \code{rm5} created by R function
-#'   \code{read.rm5}.
+#' @param x An object of class \code{rm5} or \code{cdir} created by R
+#'   function \code{read.rm5} or \code{read.cdir} .
 #' @param comp.no Comparison number.
 #' @param outcome.no Outcome number.
 #' @param method A character string indicating which method is to be
@@ -56,7 +56,7 @@
 #' @param swap.events A logical indicating whether events and
 #'   non-events should be interchanged.
 #' @param logscale A logical indicating whether effect estimates are
-#'   entered on log-scale.
+#'   entered on log-scale (ignored for \code{cdir} objects).
 #' @param test.subgroup A logical value indicating whether to print
 #'   results of test for subgroup differences.
 #' @param prediction.subgroup A logical indicating whether prediction
@@ -70,6 +70,17 @@
 #'   printed as odds ratios rather than log odds ratios and results
 #'   for \code{sm="ZCOR"} are printed as correlations rather than
 #'   Fisher's z transformed correlations, for example.
+#' @param rob A logical indicating whether risk of bias (RoB)
+#'   assessment should be considered in meta-analysis (only for
+#'   \code{read.cdir} objects).
+#' @param tool Risk of bias (RoB) tool (only for \code{read.cdir}
+#'   objects).
+#' @param categories Possible RoB categories (only for
+#'   \code{read.cdir} objects).
+#' @param col Colours for RoB categories (only for \code{read.cdir}
+#'   objects).
+#' @param symbols Corresponding symbols for RoB categories (only for
+#'   \code{read.cdir} objects).
 #' @param text.common A character string used in printouts and forest
 #'   plot to label the pooled common effect estimate.
 #' @param text.random A character string used in printouts and forest
@@ -106,6 +117,12 @@
 #' functions \code{\link{metabin}}, \code{\link{metacont}}, and
 #' \code{\link{metagen}} are called - depending on the definition of
 #' the outcome in RevMan 5.
+#'
+#' Information on the risk of bias RoB) assessment can be provided
+#' with arguments \code{tool}, \code{categories}, \code{col} and
+#' \code{symbols}. This is not useful if an overall RoB assessment has
+#' been done. In this case use \code{\link{rob}} to add the full
+#' flexible RoB information to a \code{\link{metacr}} object.
 #' 
 #' Note, it is recommended to choose the RevMan 5 settings before
 #' executing \code{metacr}, i.e., \code{settings.meta("revman5")}.
@@ -118,8 +135,9 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{meta-package}}, \code{\link{metabin}},
-#'   \code{\link{metacont}}, \code{\link{metagen}},
+#' @seealso \code{\link{meta-package}}, \code{\link{rob}},
+#'   \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metagen}}, \code{\link{read.cdir}},
 #'   \code{\link{read.rm5}}, \code{\link{settings.meta}}
 #' 
 #' @references
@@ -187,6 +205,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    prediction.subgroup = gs("prediction.subgroup"),
                    seed.predict.subgroup = NULL,
                    ##
+                   rob = NULL,
+                   tool = NULL,
+                   categories = NULL,
+                   col = NULL,
+                   symbols = NULL,
+                   ##
                    text.common = gs("text.common"),
                    text.random = gs("text.random"),
                    text.predict = gs("text.predict"),
@@ -206,7 +230,41 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ## (1) Check arguments
   ##
   ##
-  chkclass(x, "rm5")
+  chkclass(x, c("rm5", "cdir"))
+  ##
+  if (inherits(x, "cdir")) {
+    x.list <- x
+    if (!is.null(x$rob)) {
+      robdata <- x$rob
+      ##
+      if (is.null(rob))
+        rob <- attr(robdata, "rob")
+      chklogical(rob)
+      ##     
+      domains <- attr(robdata, "domains")
+      n.domains <- length(domains)
+      ##
+      if (is.null(tool))
+        tool <- attr(robdata, "tool")
+      if (is.null(categories))
+        categories <- attr(robdata, "categories")
+      if (is.null(col))
+        col <- attr(robdata, "col")
+      if (is.null(symbols))
+        symbols <- attr(robdata, "symbols")
+      ##
+      robdata <- robdata[, !grepl(".details", names(robdata))]
+    }
+    else
+      rob <- FALSE
+    ##
+    x <- x$data
+    ##
+    if (rob)
+      x <- merge(x, robdata, all.x = TRUE)
+  }
+  else
+    rob <- FALSE
   ##
   if (is.numeric(comp.no))
     chknumeric(comp.no, length = 1)
@@ -365,31 +423,36 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ## (3) Calculate results for individual studies
   ##
   ##
-  if (!all(is.na(x$logscale[sel]))) {
-    if (!unique(x$logscale[sel])) {
-      x$TE[sel] <- log(x$TE[sel])
-      logscale <- FALSE
-    }
-    else
-      logscale <- TRUE
-  }
-  else {
-    if (!missing(logscale)) {
-      if (!logscale)
+
+  if (inherits(x, "rm5")) {
+    if (!all(is.na(x$logscale[sel]))) {
+      if (!unique(x$logscale[sel])) {
         x$TE[sel] <- log(x$TE[sel])
-    }
-    else {
-      if ((type == "I" & method != "Peto") & is_relative_effect(sm)) {
-        warning("Assuming that values for 'TE' are on log scale. ",
-                "Please use argument 'logscale = FALSE' if ",
-                "values are on natural scale.",
-                call. = FALSE)
-        logscale <- TRUE
+        logscale <- FALSE
       }
       else
-        logscale <- NA
+        logscale <- TRUE
+    }
+    else {
+      if (!missing(logscale)) {
+        if (!logscale)
+          x$TE[sel] <- log(x$TE[sel])
+      }
+      else {
+        if ((type == "I" & method != "Peto") & is_relative_effect(sm)) {
+          warning("Assuming that values for 'TE' are on log scale. ",
+                  "Please use argument 'logscale = FALSE' if ",
+                  "values are on natural scale.",
+                  call. = FALSE)
+          logscale <- TRUE
+        }
+        else
+          logscale <- NA
+      }
     }
   }
+  else
+    logscale <- NULL
   
   
   ##
@@ -926,6 +989,38 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     warning('Meta-analysis not possible for sm = "OTHER".')
     return(NULL)
   }
+
+
+  ##
+  ##
+  ## (5) Add risk of bias assessment
+  ##
+  ##
+  if (rob) {
+    rd <- m1$data
+    m1 <- rob(
+      studlab = rd$studlab,
+      item1 = if (n.domains >= 1) rd$D1 else NULL,
+      item2 = if (n.domains >= 2) rd$D2 else NULL,
+      item3 = if (n.domains >= 3) rd$D3 else NULL,
+      item4 = if (n.domains >= 4) rd$D4 else NULL,
+      item5 = if (n.domains >= 5) rd$D5 else NULL,
+      item6 = if (n.domains >= 6) rd$D6 else NULL,
+      item7 = if (n.domains >= 7) rd$D7 else NULL,
+      item8 = if (n.domains >= 8) rd$D8 else NULL,
+      item9 = if (n.domains >= 9) rd$D9 else NULL,
+      item10 = if (n.domains >= 10) rd$D10 else NULL,
+      weight = if (m1$random) m1$w.random else m1$w.common,
+      ##
+      tool = tool,
+      categories = categories,
+      col = col,
+      symbols = symbols,
+      domains = domains,
+      ##
+      data = m1, warn = FALSE)
+  }
+  
   
   res <- m1
   ##
