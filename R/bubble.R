@@ -44,6 +44,10 @@
 #' @param col.ref Colour of the reference line.
 #' @param lty.ref The line type for the reference line.
 #' @param lwd.ref The line width for the reference line.
+#' @param pscale A numeric giving scaling factor for printing of
+#'   probabilities.
+#' @param irscale A numeric defining a scaling factor for printing of
+#'   incidence rates.
 #' @param axes A logical indicating whether axes should be printed.
 #' @param box A logical indicating whether a box should be printed.
 #' @param \dots Graphical arguments as in \code{par} may also be
@@ -135,22 +139,24 @@ bubble.metareg <- function(x,
                            backtransf = x$.meta$x$backtransf,
                            ref,
                            col.ref = "lightgray", lty.ref = 1, lwd.ref = 1,
+                           pscale = x$.meta$x$pscale,
+                           irscale = x$.meta$x$irscale,
                            axes = TRUE, box = TRUE, ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object
+  #
+  #
   chkclass(x, "metareg")
   
   
-  ##
-  ##
-  ## (2) Check other arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check other arguments
+  #
+  #
   chknumeric(min.cex)
   chknumeric(max.cex)
   chknumeric(lty)
@@ -162,38 +168,52 @@ bubble.metareg <- function(x,
   chklogical(backtransf)
   chknumeric(lty.ref)
   chknumeric(lwd.ref)
+  #
+  if (!is.null(pscale))
+    chknumeric(pscale, length = 1)
+  else
+    pscale <- 1
+  #
+  if (!is.null(irscale))
+    chknumeric(irscale, length = 1)
+  else
+    irscale <- 1
+  #
   chklogical(axes)
   chklogical(box)
   
   
   m0 <- update(x$.meta$x)
   method.tau0 <- x$.meta$method.tau
-  ##
+  #
   if (method.tau0 != "FE" & (method.tau0 != m0$method.tau))
     m1 <- update(m0, method.tau = method.tau0)
   else
     m1 <- m0
-  ##
+  #
   TE <- m1$TE
   sm <- m1$sm
-  
-  
-  if (backtransf & is_relative_effect(sm)) {
+
+  log.y <- backtransf &&
+    (is_relative_effect(sm) ||
+     (!is.null(m1$func.backtransf) && m1$func.backtransf == "exp"))
+  #
+  if (log.y) {
     log <- "y"
     TE <- exp(TE)
   }
   else
     log <- ""
-  ##
+  #
   if (missing(ref)) {
     if (is_prop(sm) | is_rate(sm) | is_mean(sm))
       ref <- NA
-    else if (is_relative_effect(sm) & backtransf)
+    else if (log.y)
       ref <- 1
     else
       ref <- 0
   }
-  ##
+  #
   chknumeric(ref, length = 1)
   
   
@@ -216,19 +236,19 @@ bubble.metareg <- function(x,
   covar.name <- splitform[1]
   if (covar.name == "1" | covar.name == "-1")
     covar.name <- splitform[3]
-  ##
+  #
   covar.names <- names(coef(x))
   covar.names.without.intrcpt <- covar.names[covar.names != "intrcpt"]
   if (length(covar.names.without.intrcpt) == 0) {
     warning("No covariate in meta-regression.")
     return(invisible(NULL))
   }
-  ##
+  #
   nointrcpt <- ifelse("intrcpt" %in% covar.names, FALSE, TRUE)
-  ##
+  #
   if (covar.name == ".subgroup")
     covar.name <- x$.meta$x$subgroup.name
-  ##
+  #
   if (covar.name %in% names(x$.meta$x$data))
     covar <- x$.meta$x$data[[covar.name]]
   else if (covar.name %in% names(x$.meta$x))
@@ -237,13 +257,13 @@ bubble.metareg <- function(x,
     covar <- x$.meta$x$data[[".subgroup"]]
   else
     covar <- get(covar.name)
-  ##
+  #
   if (!is.null(x$.meta$x$subset))
     covar <- covar[x$.meta$x$subset]
-  ##
+  #
   if (is.character(covar))
     covar <- as.factor(covar)
-  ##
+  #
   if (is.factor(covar)) {
     levs <- levels(covar)
     xs <- as.numeric(covar) - 1
@@ -258,14 +278,14 @@ bubble.metareg <- function(x,
     if (missing(xlim))
       xlim <- range(xs, na.rm = TRUE)
   }
-  ##
+  #
   alpha <- ifelse(nointrcpt, 0, coef(x)["intrcpt"])
-  ##
+  #
   if (covar.name %in% names(coef(x)))
     beta <- coef(x)[covar.name]
   else
     beta <- coef(x)[".subgroup"]
-  ##
+  #
   if (length(covar.names.without.intrcpt) > 1 & !is.factor(covar)) {
     warning(paste0("Only first covariate in meta-regression ",
                    "('", covar.name, "') considered in bubble plot. ",
@@ -281,22 +301,33 @@ bubble.metareg <- function(x,
       xlab = paste("Covariate", covar.name)
   
   
-  ys <- TE
-  ##
-  if (missing(ylim))
-    ylim <- range(ys)
-  ##
-  if (missing(ylab))
-    if (is_relative_effect(sm))
-      ylab <- xlab(sm, backtransf)
-    else if (sm == "PRAW")
-      ylab <- "Proportion"
+  if (backtransf && (pscale != 1 || irscale != 1)) {
+    if (pscale != 1 && irscale != 1)
+      stop("Provide either arguments 'pscale' or 'irscale'",
+           call. = FALSE)
+    if (pscale != 1)
+      scale <- pscale
     else
-      ylab <- xlab(sm, FALSE)
+      scale <- irscale
+  }
+  else
+    scale <- 1
+  #
+  ys <- TE
+  #
+  if (missing(ylim))
+    ylim <- scale * range(ys)
+  #
+  if (missing(ylab)) {
+    ylab <- xlab(sm, backtransf, func.transf = m1$func.transf,
+                 func.backtransf = m1$func.backtransf)
+    if (sm == "PRAW")
+      ylab <- "Proportion"
+  }
   
   
   missing.cex <- missing(cex)
-  ##
+  #
   if (!missing.cex && is.character(cex)) {
     cex.type <- setchar(cex, c("common", "random", "fixed"),
                         "must be numeric or equal to \"common\" or \"random\"")
@@ -311,7 +342,7 @@ bubble.metareg <- function(x,
     common.cex <- FALSE
     random.cex <- FALSE
   }
-  ##
+  #
   if (missing.cex)
     if (method.tau0 == "FE")
       cex <- m1$w.common
@@ -323,63 +354,63 @@ bubble.metareg <- function(x,
     cex <- m1$w.random
   else if (length(cex) == 1)
     cex <- rep_len(cex, length(TE))
-  ##
+  #
   if (all(is.na(cex))) {
     cex <- rep_len(1, length(TE))
     min.cex <- 1
     max.cex <- 1
   }
-  ##
+  #
   if (length(cex) != length(TE))
     stop("Length of argument 'cex' must be the same as ",
          "number of studies in meta-analysis.")
-  ##
+  #
   if (missing.cex | common.cex) {
     cexs <- max.cex * (cex / max(cex))
     cexs[cexs < min.cex] <- min.cex
   }
   else
     cexs <- cex
-  ##
+  #
   if (length(col) > 1 && length(col) != length(TE))
     stop("Length of argument 'col' must be 1 or the same as ",
          "number of studies in meta-analysis.")
-  ##
+  #
   if (length(bg) > 1 && length(bg) != length(TE))
     stop("Length of argument 'col' must be 1 or the same as ",
          "number of studies in meta-analysis.")
-  ##
+  #
   o <- rev(order(cex))
   xs <- xs[o]
   ys <- ys[o]
   studlab <- studlab[o]
   cexs <- cexs[o]
-  ##
+  #
   if (length(col) > 1)
     cols <- col[o]
   else
     cols <- rep(col, length(o))
-  ##
+  #
   if (length(bg) > 1)
     bgs <- bg[o]
   else
     bgs <- rep(bg, length(o))
-  ##
+  #
   if (length(cex.studlab) > 1)
     cex.studlab <- cex.studlab[o]
-  ##
+  #
   if (length(pos.studlab) > 1)
     pos.studlab <- pos.studlab[o]
-  ##
+  #
   if (length(offset) > 1)
     offset <- offset[o]
   
   
-  ##
-  ##
-  ## Generate bubble plot
-  ##
-  ##
+  #
+  #
+  # Generate bubble plot
+  #
+  #
   if (is.factor(covar)) {
     for (i in 2:length(levs)) {
       sel <- xs %in% c(0, i - 1)
@@ -390,82 +421,82 @@ bubble.metareg <- function(x,
       cexs.i <- cexs[sel]
       col.i <- cols[sel]
       bg.i <- bgs[sel]
-      ##
-      plot(xs.i, ys.i,
+      #
+      plot(xs.i, scale * ys.i,
            pch = pch, cex = cexs.i,
            xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
            type = "n", axes = FALSE, log = log, ...)
-      ##
-      ## Add reference line
-      ##
-      abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
-      ##
-      ## Add regression line
-      ##
+      #
+      # Add reference line
+      #
+      abline(h = scale * ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
+      #
+      # Add regression line
+      #
       if (regline) {
         y.reg <- c(alpha, alpha + coef(x)[i])
-        if (log == "y")
-          y.reg <- exp(y.reg)
+        if (log.y)
+          y.reg <- scale * exp(y.reg)
         lines(c(0, 1), y.reg, lty = lty, lwd = lwd, col = col.line)
       }
-      ##
+      #
       for (j in seq_along(xs.i))
-        points(xs.i[j], ys.i[j], cex = cexs.i[j], pch = pch,
+        points(xs.i[j], scale * ys.i[j], cex = cexs.i[j], pch = pch,
                col = col.i[j], bg = bg.i[j])
-      ##
-      ## x-axis
-      ##
+      #
+      # x-axis
+      #
       if (axes)
         axis(1, at = 0:1, labels = levs[c(1, i)], ...)
-      ##
-      ## y-axis
-      ##
+      #
+      # y-axis
+      #
       if (axes)
         axis(2, ...)
-      ##
-      text(xs.i, ys.i, labels = studlab.i, cex = cex.studlab,
+      #
+      text(xs.i, scale * ys.i, labels = studlab.i, cex = cex.studlab,
            pos = pos.studlab, offset = offset)
-      ##
+      #
       if (box)
         box()
     }
   }
   else {
-    plot(xs, ys,
+    plot(xs, scale * ys,
          pch = pch, cex = cexs,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          type = "n", axes = FALSE, log = log, ...)
-    ##
-    ## Add reference line
-    ##
-    abline(h = ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
-    ##
-    ## Add regression line
-    ##
+    #
+    # Add reference line
+    #
+    abline(h = scale * ref, col = col.ref, lty = lty.ref, lwd = lwd.ref)
+    #
+    # Add regression line
+    #
     if (regline) {
       x.reg <- c(xlim[1], xlim[2])
       y.reg <- c(alpha + beta * xlim[1], alpha + beta * xlim[2])
       if (log == "y")
-        y.reg <- exp(y.reg)
-      ##
+        y.reg <- scale * exp(y.reg)
+      #
       lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
     }
-    ##
-    points(xs, ys, cex = cexs, pch = pch, col = cols, bg = bgs)
-    ##
-    ## x-axis
-    ##
+    #
+    points(xs, scale * ys, cex = cexs, pch = pch, col = cols, bg = bgs)
+    #
+    # x-axis
+    #
     if (axes)
       axis(1, ...)
-    ##
-    ## y-axis
-    ##
+    #
+    # y-axis
+    #
     if (axes)
       axis(2, ...)
-    ##
-    text(xs, ys, labels = studlab, cex = cex.studlab,
+    #
+    text(xs, scale * ys, labels = studlab, cex = cex.studlab,
          pos = pos.studlab, offset = offset)
-    ##
+    #
     if (box)
       box()
   }

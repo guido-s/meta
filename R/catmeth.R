@@ -2,7 +2,10 @@ catmeth <- function(x,
                     common, random, prediction, overall, overall.hetstat,
                     func.transf, backtransf, func.backtransf,
                     big.mark, digits, digits.tau, text.tau, text.tau2,
-                    print.tau.ci = FALSE
+                    print.tau2 = TRUE, print.tau2.ci = FALSE,
+                    print.tau = FALSE, print.tau.ci = FALSE, 
+                    forest = FALSE,
+                    print.df = TRUE
                     ) {
 
   ##
@@ -36,7 +39,35 @@ catmeth <- function(x,
     else
       c("common", "random")
   ##
-  details <- ""
+  bothmod <- length(selmod) > 1
+  ##
+  details <- NULL
+  ##
+  width <- options()$width
+  ##
+  method <-
+    if (metacont)
+      "metacont"
+    else if (metabin)
+      "metabin"
+    else if (metainc)
+      "metainc"
+    else if (metaprop)
+      "metaprop"
+    else if (metarate)
+      "metarate"
+  ##
+  if (forest) {
+    text.tau2 <- "tau^2"
+    text.tau <- "tau"
+  }
+  ##
+  text.t <- ""
+  ##
+  if (print.tau2 | metabind)
+    text.t <- text.tau2
+  else if (print.tau)
+    text.t <- text.tau
   
   
   ##
@@ -45,131 +76,32 @@ catmeth <- function(x,
   ##
   ##
 
-  if (common & (overall | metabind | by)) {
-    
-    ##
-    ## Mantel-Haenszel method
-    ##
-    if ((metabin | metainc)) {
-      if (metabin)
-        vars <- c("incr", "method.incr", "sparse", "MH.exact")
-      else
-        vars <- c("incr", "method.incr", "sparse")
-      ##
-      dat.mh <-
-        unique(meth[meth$model == "common" & meth$method == "MH", vars])
-      ##
-      for (i in seq_len(nrow(dat.mh))) {
-        details <- paste0(details, "\n- Mantel-Haenszel method")
-        ##
-        if ((dat.mh$sparse[i] | dat.mh$method.incr[i] == "all") &
-            (!is.null(dat.mh$MH.exact) && dat.mh$MH.exact[i]))
-          details <-
-            paste0(details,
-                   if (random)
-                     ", without continuity correction)"
-                   else
-                     " (without continuity correction)")
-      }
-    }
-    else if (any(meth$method == "MH"))
-      details <- paste0(details,"\n- Mantel-Haenszel method")
-    
-    ##
-    ## Peto method
-    ##
-    if (any(meth$method == "Peto"))
-      details <- paste0(details,"\n- Peto method")
-    
-    ##
-    ## Cochran method
-    ##
-    if (any(meth$method == "Cochran"))
-      details <- paste0(details,"\n- Cochran method")
-        
-  }
-
   if (overall | metabind | by) {
     
+    meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     ##
-    ## Inverse variance method
+    vars.ma <- c("model", "method")
     ##
-    vars <-
-      if (metacont)
-        c("three.level", "pooledvar")
-      else
-        "three.level"
-    ##      
-    dat.iv <-
-      unique(meth[meth$model %in% selmod & meth$method == "Inverse",
-                  vars, drop = FALSE])
+    if ((metabin | metainc) & any(meth.ma$method == "GLMM"))
+      vars.ma <- c(vars.ma, "model.glmm")
     ##
-    for (i in seq_len(nrow(dat.iv))) {
-      details <- paste0(
-        details,
-        "\n- Inverse variance method",
-        if (dat.iv$three.level[i]) " (three-level model)" else "",
-      if (metacont && !is.na(dat.iv$pooledvar[i]) && dat.iv$pooledvar[i])
-        " (with pooled variance for individual studies)" else "")
-    }
-    
+    vars.ma <- c(vars.ma, "three.level", "rho")
     ##
-    ## SSW method
+    if (metacont)
+      vars.ma <- c(vars.ma, "pooledvar")
+    else if (metabin)
+      vars.ma <- c(vars.ma, "incr", "method.incr", "sparse", "MH.exact")
+    else if (metainc)
+      vars.ma <- c(vars.ma, "incr", "method.incr", "sparse")
     ##
-    if (any(meth$method[meth$model %in% selmod] == "SSW"))
-      details <- paste0(details,"\n- Sample size method")
-    
+    meth.ma <-
+      unique(meth.ma[, vars.ma, drop = FALSE])
     ##
-    ## GLMM
+    details.i <- vector("character", length = nrow(meth.ma))
+    for (i in seq_len(nrow(meth.ma)))
+      details.i[i] <- methtxt(meth.ma, i, random, method)
     ##
-    
-    if (metabin) {
-      mgbin <-
-        unique(meth$model.glmm[meth$model %in% selmod & meth$method == "GLMM"])
-      for (mgbin.i in mgbin) {
-        details <- paste0(
-          details,
-          if (mgbin.i == "UM.FS")
-            "\n- Logistic regression model (fixed study effects)"
-          else if (mgbin.i == "UM.RS")
-            paste0(
-              "\n- Mixed-effects logistic regression model ",
-              "(random study effects)")
-          else if (mgbin.i == "CM.EL")
-            paste0(
-              "\n- Generalised linear mixed model ",
-              "(conditional Hypergeometric-Normal)")
-          else if (mgbin.i == "CM.AL")
-            "\n- Generalised linear mixed model (conditional Binomial-Normal)")
-      }
-    }
-    
-    if (metainc) {
-      mginc <-
-        unique(meth$model.glmm[meth$model %in% selmod & meth$method == "GLMM"])
-      for (mginc.i in mginc) {
-        details <- paste0(
-          details,
-          if (mginc.i == "UM.FS")
-            "\n- Poisson regression model (fixed study effects)"
-          else if (mginc.i == "UM.RS")
-            paste0(
-              "\n- Mixed-effects Poisson regression model ",
-              "(random study effects)")
-          else if (mginc.i == "CM.EL")
-            paste0(
-              "\n- Generalised linear mixed model ",
-              "(conditional Poisson-Normal)"))
-      }
-    }
-    
-    if (metaprop & any(meth$method == "GLMM"))
-      details <-
-        paste0(details, "\n- Random intercept logistic regression model")
-    
-    if (metarate & any(meth$method == "GLMM"))
-      details <-
-        paste0(details, "\n- Random intercept Poisson regression model")
+    details <- paste(c(details, unique(details.i)), collapse = "")
   }
   
   
@@ -185,20 +117,17 @@ catmeth <- function(x,
     ##
     tau.preset <- dat.mt$tau.preset[!is.na(dat.mt$tau.preset)]
     ##
-    if (length(tau.preset) >= 1) {
-      tau.preset <-
-        formatPT(tau.preset, lab = TRUE, labval = text.tau,
-                 digits = digits.tau, lab.NA = "NA", big.mark = big.mark)
-      ##
+    if (length(tau.preset) >= 1)
       details <-
         paste0(details,
                "\n- Preset square root of between-study variance: ",
-               cond(tau.preset, only.finite = FALSE))
-    }
+               text.tau, " = ",
+               cond(tau.preset, only.finite = FALSE, digits = digits.tau,
+                    big.mark = big.mark))
     ##
     method.tau <- unique(dat.mt$method.tau[is.na(dat.mt$tau.preset)])
     ##
-    if (length(method.tau) >= 1) {
+    if ((print.tau2 | print.tau | metabind) & length(method.tau) >= 1) {
       for (mti in method.tau) {
         details <-
           paste0(details,
@@ -227,13 +156,13 @@ catmeth <- function(x,
                    "\n- Empirical Bayes estimator")
         ##
         if (mti != "")
-          details <- paste(details, "for", text.tau2)
+          details <- paste(details, "for", text.t)
         ##
         if (replaceNULL(x$tau.common, FALSE))
           details <-
             paste0(details,
-                   "\n  (assuming common ", text.tau2,
-                   " in subgroups)")
+                   if (forest) " " else "\n  ",
+                   "(assuming common ", text.t, " in subgroups)")
       }
     }
     ##
@@ -241,12 +170,14 @@ catmeth <- function(x,
       dat.qc <-
         unique(meth[meth$model %in% "random" & is.na(meth$tau.preset),
                     c("method.tau", "Q.Cochrane")])
+      dat.qc$Q.Cochrane <- replaceNA(dat.qc$Q.Cochrane, FALSE)
+      ##
       if (any(dat.qc$method.tau == "DL" & dat.qc$Q.Cochrane))
         details <-
           paste0(details,
                  "\n- Mantel-Haenszel estimator used in ",
-                 "calculation of Q and ", text.tau2,
-                 if (options()$width > 70) " (like RevMan 5)"
+                 "calculation of Q and ", text.t,
+                 if (width > 70 | forest) " (like RevMan 5)"
                  else "\n  (like RevMan 5)")
     }
   }
@@ -258,7 +189,7 @@ catmeth <- function(x,
   ##
   ##
 
-  if (print.tau.ci) {
+  if (print.tau.ci | print.tau2.ci) {
     method.tau.ci <- unique(meth$method.tau.ci[meth$model %in% "random"])
     ##
     if (length(method.tau) >= 1) {
@@ -279,8 +210,14 @@ catmeth <- function(x,
         ##
         if (mtci != "")
           details <-
-            paste(details,
-                  "for confidence interval of", text.tau2, "and", text.tau)
+            paste0(details,
+                  " for confidence interval of ",
+                  if (print.tau2 & print.tau)
+                    paste(text.tau2, "and", text.tau)
+                  else if (print.tau2)
+                    text.tau2
+                  else
+                    text.tau)
       }
     }
   }
@@ -320,14 +257,15 @@ catmeth <- function(x,
           details,
           "\n- Hartung-Knapp ",
           if (more.ci) "(HK) ",
-          "adjustment for random effects model (df = ",
-          cond(dat.rc.hk1$df.random),
-          ")")
+          "adjustment for random effects model",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.hk1$df.random, digits = 0), ")")
+        )
       ##
       if (any(dat.rc.hk1$adhoc.hakn.ci != ""))
         details <- paste0(
           details,
-          "\n  (with ",
+          if (forest) " " else "\n  ", "(with ",
           if (any(dat.rc.hk1$adhoc.hakn.ci == ""))
             "and without ",
           "ad hoc correction)")
@@ -337,11 +275,11 @@ catmeth <- function(x,
       details <-
         paste0(
           details,
-          "\n- Random effects confidence interval based on t-distribution ",
-          if (more.ci) "(T) ",
-          "(df = ",
-          cond(dat.rc.hk2$df.random),
-          ")")
+          "\n- Random effects confidence interval based on t-distribution",
+          if (more.ci) " (T)",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.hk2$df.random, digits = 0), ")")
+        )
     }
     ##
     if (nrow(dat.rc.ckr) > 0)
@@ -358,9 +296,10 @@ catmeth <- function(x,
           details,
           "\n- Kenward-Roger ",
           if (more.ci) "(KR) ",
-          "adjustment for random effects model (df = ",
-          cond(dat.rc.kr$df.random),
-          ")")
+          "adjustment for random effects model",
+          if (print.df)
+            paste0(" (df = ", cond(dat.rc.kr$df.random), ")")
+        )
   }
   
   
@@ -376,7 +315,7 @@ catmeth <- function(x,
     dat.pr.hts1 <- subset(dat.pr, dat.pr$method.predict == "HTS")
     dat.pr.hk <- subset(dat.pr, dat.pr$method.predict == "HK")
     dat.pr.hts2 <- subset(dat.pr, dat.pr$method.predict == "HTS-KR")
-    dat.pr.kr <- subset(dat.pr, dat.pr$ethod.predict == "KR")
+    dat.pr.kr <- subset(dat.pr, dat.pr$method.predict == "KR")
     dat.pr.nnf <- subset(dat.pr, dat.pr$method.predict == "NNF")
     dat.pr.s <- subset(dat.pr, dat.pr$method.predict == "S")
     ##
@@ -394,7 +333,7 @@ catmeth <- function(x,
           "\n- Prediction interval based on t-distribution ",
           if (more.pi) "(HTS) ",
           "(df = ",
-          cond(dat.pr.hts1$df.predict),
+          cond(dat.pr.hts1$df.predict, digits = 0),
           ")")
     ##
     if (nrow(dat.pr.hk) > 0) {
@@ -404,13 +343,13 @@ catmeth <- function(x,
           "\n- Hartung-Knapp ",
           if (more.pi) "(HK) ",
           "prediction interval (df = ",
-          cond(dat.pr.hk$df.random),
+          cond(dat.pr.hk$df.predict, digits = 0),
           ")")
       ##
       if (any(dat.pr.hk$adhoc.hakn.ci != ""))
         details <- paste0(
           details,
-          "\n  (with ",
+          if (forest) " " else "\n  ", "(with ",
           if (any(dat.pr.hk$adhoc.hakn.ci == ""))
             "and without ",
           "ad hoc correction)")
@@ -423,7 +362,7 @@ catmeth <- function(x,
           "\n- Prediction interval based on t-distribution ",
           if (more.pi) "(HTS) ",
           "(df = ",
-          cond(dat.pr.hts2$df.predict),
+          cond(dat.pr.hts2$df.predict, digits = 0),
           ") instead of ",
           "Kenward-Roger adjustment")
     ##
@@ -434,7 +373,7 @@ catmeth <- function(x,
           "\n- Kenward-Roger ",
           if (more.pi) "(KR) ",
           "prediction interval (df = ",
-          cond(dat.pr.kr$df.random),
+          cond(dat.pr.kr$df.predict),
           ")")
     ##
     if (nrow(dat.pr.nnf) > 0)
@@ -444,7 +383,7 @@ catmeth <- function(x,
           "\n- Boot-strap prediction interval ",
           if (more.pi) "(NNF) ",
           "(df = ",
-          cond(dat.pr.nnf$df.random),
+          cond(dat.pr.nnf$df.predict, digits = 0),
           ")")
     ##
     if (nrow(dat.pr.s) > 0)
@@ -452,7 +391,7 @@ catmeth <- function(x,
         paste0(
           details,
           "\n- Prediction interval based on standard normal distribution",
-          if (more.pi) "(S)")
+          if (more.pi) " (S)")
   }
   
   
@@ -470,10 +409,10 @@ catmeth <- function(x,
       details <-
         paste0(details,
                "\n- Trim-and-fill method to adjust for funnel plot asymmetry",
-               if (length(type) > 1)
-                 "\n  ("
+               if (length(type) == 1 | forest)
+                 " ("
                else
-                 " (",
+                 "\n  (",
                paste0(type, "-estimator", collapse = ", "), ")")
     }
   }
@@ -494,7 +433,7 @@ catmeth <- function(x,
       mmiss <- "Informative Missingness Odds Ratio"
       if (length(unique(IMOR.e)) == 1 & length(unique(IMOR.c)) == 1)
         mmiss <-
-          paste0("\n  ", mmiss,
+          paste0(if (forest) " " else "\n  ", mmiss,
                  " (IMOR.e = ", round(unique(IMOR.e), 4),
                  ", IMOR.c = ", round(unique(IMOR.c), 4), ")")
       else
@@ -578,7 +517,8 @@ catmeth <- function(x,
                  "\n- Hedges' g (bias corrected standardised mean ",
                  "difference",
                  if (exact.smd.i)
-                   "; using exact formulae)"
+                   paste0(if (width >= 80 | forest) "; " else ";\n  ",
+                          "using exact formulae)")
                  else
                    ")")
       else if (method.smd.i == "Cohen")
@@ -594,9 +534,9 @@ catmeth <- function(x,
           paste0(details,
                  "\n- Glass' delta (standardised mean difference; ",
                  if (dat.ms$sd.glass[i] == "control")
-                   "based on control group)"
+                   "based on second group)"
                  else
-                   "based on experimental group)")
+                   "based on first group)")
     }
   }
   
@@ -613,7 +553,8 @@ catmeth <- function(x,
   if ((!is.null(info.ci) && info.ci) & !is.null(x$method.ci)) {
     if (any(x$k.all > 1)) {
       if (x$method.ci == "WSCC")
-        fis <- "\n  for individual studies"
+        fis <- paste0(if (forest) " " else "\n  ",
+                      "for individual studies")
       else
         fis <- " for individual studies"
     }
@@ -665,8 +606,11 @@ catmeth <- function(x,
       ##
       for (i in seq_len(nrow(dat.cc))) {
         method.incr.i <- dat.cc$method.incr[i]
-        incr.i <- dat.cc$incr[i]
-        sparse.i <- dat.cc$sparse[i]
+        if (!is.na(dat.cc$incr[i]))
+          incr.i <- dat.cc$incr[i]
+        else
+          incr.i <- 0
+        sparse.i <- !is.na(dat.cc$sparse[i]) && dat.cc$sparse[i]
         k.all.i <- dat.cc$k.all[i]
         ##
         details.rr <- NULL
@@ -676,10 +620,11 @@ catmeth <- function(x,
             (dat.cc$method[i] == "MH" & dat.cc$MH.exact[i]) |
             dat.cc$method[i] == "GLMM"
           ##
-          if (dat.cc$RR.Cochrane[i] &
+          if (!is.na(dat.cc$RR.Cochrane[i]) &&
+              dat.cc$RR.Cochrane[i] &
               (method.incr.i == "all" | (sparse.i & incr.i > 0))) {
             details.rr <-
-              if (options()$width <= 70)
+              if (width >= 70 | forest)
                 " (applied twice to sample sizes, like RevMan 5)"
               else
                 "\n  (applied twice to sample sizes, like RevMan 5)"
@@ -716,8 +661,8 @@ catmeth <- function(x,
                   "studies "
                 else
                   "study ",
-                "with ",
-                if (options()$width > 70)
+                "with",
+                if (width > 70 | forest)
                   " "
                 else
                   "\n  ",
@@ -733,9 +678,9 @@ catmeth <- function(x,
                 round(as.numeric(incr.i), 4),
                 if (k.all.i > 1)
                   " in studies with",
-                if (k.all.i > 1 & options()$width > 70)
+                if (k.all.i > 1 & width > 70)
                   " "
-                else if (k.all.i > 1)
+                else if (k.all.i > 1 & !forest)
                   "\n  ",
                 if (k.all.i > 1)
                   "zero cell frequencies",
@@ -745,11 +690,13 @@ catmeth <- function(x,
           if ((incr.i == "TACC" || as.numeric(incr.i) > 0) && txtCC.ind.i)
             details.cc <- c(
               details.cc,
-              "\n  (only used to calculate individual study results)")
+              if (forest) " " else "\n  ",
+              "(only used to calculate individual study results)")
         }
         ##
         if (metabin) {
-          if (dat.cc$allstudies[i] & dat.cc$doublezeros[i])
+          if ((!is.na(dat.cc$allstudies[i]) && dat.cc$allstudies[i]) &
+              (!is.na(dat.cc$doublezeros[i]) && dat.cc$doublezeros[i]))
             details.cc <- c(
               details.cc,
               if (k.all.i > 1)
@@ -776,18 +723,30 @@ catmeth <- function(x,
   irunit <- x$irunit
   ##
   if (!is.null(pscale) && pscale != 1)
-    details <-
-      paste0(details,
-             "\n- Events per ",
-             format(pscale, scientific = FALSE, big.mark = big.mark),
-             " observations")
+    if (is_prop(sm) || sm == "RD")
+      details <-
+        paste0(details,
+               "\n- Events per ",
+               format(pscale, scientific = FALSE, big.mark = big.mark),
+               " observations")
+    else
+      details <-
+        paste0(details,
+               "\n- Scaling factor for results: ",
+               format(pscale, scientific = FALSE, big.mark = big.mark))   
   ##
   if (!is.null(irscale) && irscale != 1)
-    details <-
-      paste0(details,
-             "\n- Events per ",
-             format(irscale, scientific = FALSE, big.mark = big.mark),
-             " ", irunit)
+    if (is_rate(sm) || sm == "IRD")
+      details <-
+        paste0(details,
+               "\n- Events per ",
+               format(irscale, scientific = FALSE, big.mark = big.mark),
+               " ", irunit)
+    else
+      details <-
+        paste0(details,
+               "\n- Scaling factor for results: ",
+               format(irscale, scientific = FALSE, big.mark = big.mark))   
   ##
   null.effect <- x$null.effect
   ##
@@ -817,12 +776,18 @@ catmeth <- function(x,
   }
   
   
-  if (details != "")
-    cat(paste0("\nDetails",
-               if (any(x$k.all > 1)) " on meta-analytical method",
-               ":", details, "\n"))
+  if (!is.null(details) && length(details) > 0 && details != "") {
+    details <-
+      paste0("\nDetails",
+             if ((common | random | prediction) && any(x$k.all > 1))
+               " on meta-analytical method",
+             ":", details)
+    ##
+    if (!forest)
+      cat(paste0(details, "\n"))
+  }
   
-  invisible(NULL)
+  invisible(details)
 }
 
 

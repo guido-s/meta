@@ -10,11 +10,29 @@
   leftlabs,
   rightcols = c("effect", "ci"),
   rightlabs,
-  overall = FALSE,
+  common = x$common,
+  random = x$random,
+  overall = x$overall,
   subgroup = FALSE,
   hetstat = FALSE,
-  overall.hetstat = FALSE,
+  overall.hetstat = x$overall.hetstat,
+  prediction = x$prediction,
   lab.NA = "",
+  col.square = gs("col.square"),
+  col.square.lines = col.square,
+  col.circle = gs("col.circle"),
+  col.circle.lines = col.circle,
+  col.diamond = gs("col.diamond"),
+  col.diamond.common = col.diamond,
+  col.diamond.random = col.diamond,
+  col.diamond.lines = gs("col.diamond.lines"),
+  col.diamond.lines.common = col.diamond.lines,
+  col.diamond.lines.random = col.diamond.lines,
+  col.predict = gs("col.predict"),
+  col.predict.lines = gs("col.predict.lines"),
+  type.common = NULL,
+  type.random = NULL,
+  type.predict = NULL,
   digits = gs("digits.forest"),
   digits.se = gs("digits.se"),
   digits.stat = gs("digits.stat"),
@@ -26,7 +44,7 @@
   digits.I2 = max(gs("digits.I2") - 1, 0),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
-  print.subgroup.labels = if (any(x$is.subgroup)) TRUE else FALSE,
+  print.subgroup.labels = x$with.subgroups,
   addrow.subgroups = print.subgroup.labels,
   smlab,
   calcwidth.pooled = overall,
@@ -53,6 +71,12 @@ value (see Details).}
 (additional) columns on right side of the forest plot (see
 Details).}
 
+\item{common}{A logical indicating whether common effect estimates
+should be plotted.}
+
+\item{random}{A logical indicating whether random effects estimates
+should be plotted.}
+
 \item{overall}{A logical indicating whether overall summaries
 should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
@@ -73,7 +97,55 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
+\item{prediction}{A logical indicating whether prediction
+interval(s) should be printed.}
+
 \item{lab.NA}{A character string to label missing values.}
+
+\item{col.square}{The colour for squares reflecting study's weight
+in the meta-analysis.}
+
+\item{col.square.lines}{The colour for the outer lines of squares
+reflecting study's weight in the meta-analysis.}
+
+\item{col.circle}{The colour for circles reflecting study weights
+in the meta-analysis.}
+
+\item{col.circle.lines}{The colour for the outer lines of circles
+reflecting study's weight in the meta-analysis.}
+
+\item{col.diamond}{The colour of diamonds representing the results
+for common effect and random effects models.}
+
+\item{col.diamond.common}{The colour of diamonds for common effect
+estimates.}
+
+\item{col.diamond.random}{The colour of diamonds for random effects
+estimates.}
+
+\item{col.diamond.lines}{The colour of the outer lines of diamonds
+representing the results for common effect and random effects
+models.}
+
+\item{col.diamond.lines.common}{The colour of the outer lines of
+diamond for common effect estimates.}
+
+\item{col.diamond.lines.random}{The colour of the outer lines of
+diamond for random effects estimates.}
+
+\item{col.predict}{Background colour of prediction intervals.}
+
+\item{col.predict.lines}{Colour of outer lines of prediction
+intervals.}
+
+\item{type.common}{A character string or vector specifying how to
+plot common effect estimates.}
+
+\item{type.random}{A character string or vector specifying how to
+plot random effects estimates.}
+
+\item{type.predict}{A character string or vector specifying how to
+plot prediction intervals.}
 
 \item{digits}{Minimal number of significant digits for treatment
 effects, see \code{print.default}.}
@@ -117,9 +189,9 @@ row is printed between results for subgroups.}
 \item{smlab}{A label for the summary measurex (printed at top of
 figure).}
 
-\item{calcwidth.pooled}{A logical indicating whether text for common
-effect and random effects model should be considered to calculate
-width of the column with study labels.}
+\item{calcwidth.pooled}{A logical indicating whether text for
+common effect and random effects model should be considered to
+calculate width of the column with study labels.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

@@ -2,15 +2,22 @@
 % Please edit documentation in R/trimfill.rm5.R
 \name{trimfill.rm5}
 \alias{trimfill.rm5}
+\alias{trimfill.cdir}
 \alias{print.trimfill.rm5}
+\alias{print.trimfill.cdir}
 \title{Cochrane review: trim-and-fill method}
 \usage{
 \method{trimfill}{rm5}(x, comp.no, outcome.no, ...)
 
+\method{trimfill}{cdir}(x, comp.no, outcome.no, ...)
+
 \method{print}{trimfill.rm5}(x, ...)
+
+\method{print}{trimfill.cdir}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{rm5} or \code{trimfill.rm5}.}
+\item{x}{An object of class \code{rm5}, \code{trimfill.rm5},
+\code{cdir} or \code{trimfill.cdir}.}
 
 \item{comp.no}{Comparison number.}
 
@@ -24,13 +31,8 @@ review.
 }
 \details{
 This function can be used to conduct a trim-and-fill analysis for
-all or selected meta-analyses in a Cochrane review.
-
-Review Manager 5 (RevMan 5) was the software used for preparing and
-maintaining Cochrane Reviews
-(\url{https://training.cochrane.org/online-learning/core-software/revman}).
-Data from a Cochrane review can be imported to R using the function
-\code{read.rm5}.
+all or selected meta-analyses in a Cochrane review of intervention
+studies (Higgins et al, 2023).
 
 The R function \code{\link{metacr}} is called internally.
 }
@@ -52,14 +54,16 @@ trimfill(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 
 }
 \references{
-Higgins, J.P.T and S. Green (2011):
+Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
-  Version 5.1.0 [Updated March 2011]}.
-The Cochrane Library: http://www.cochrane-handbook.org
+  Version 6.4}.
+Available from \url{https://training.cochrane.org/handbook}
 }
 \seealso{
 \code{\link{summary.meta}}, \code{\link{metacr}},
-  \code{\link{read.rm5}}, \code{\link{metabias.rm5}}
+  \code{\link{read.rm5}}, \code{\link{read.cdir}},
+  \code{\link{metabias.rm5}}, \code{\link{metabias.cdir}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

@@ -39,7 +39,6 @@
 #' 
 #' @method labels meta
 #' @export
-#' @export labels.meta
 
 
 labels.meta <- function(object,

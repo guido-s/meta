@@ -79,6 +79,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       rho = x$rho,
                        ##
                        method = x$method,
                        sm = x$sm,
@@ -117,6 +118,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                        rho = x$rho,
                         ##
                         sm = x$sm,
                         ##
@@ -149,6 +151,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       rho = x$rho,
                        ##
                        sm = x$sm,
                        ##
@@ -177,6 +180,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       rho = x$rho,
                        ##
                        sm = x$sm,
                        ##
@@ -208,6 +212,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        exclude = x$exclude[sel],
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                       rho = x$rho,
                        ##
                        method = x$method,
                        sm = x$sm,
@@ -241,28 +246,29 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       ##
-                       sm = x$sm,
-                       ##
-                       level.ma = x$level.ma,
-                       method.random.ci = x$method.random.ci,
-                       adhoc.hakn.ci = x$adhoc.hakn.ci,
-                       ##
-                       level.predict = x$level.predict,
-                       method.predict = method.predict,
-                       adhoc.hakn.pi = x$adhoc.hakn.pi,
-                       seed.predict = seed.i,
-                       ##
-                       method.tau = x$method.tau,
-                       method.tau.ci = x$method.tau.ci,
-                       tau.preset = tau.preset,
-                       TE.tau = x$TE.tau,
-                       ##
-                       null.effect = x$null.effect,
-                       ##
-                       keepdata = FALSE,
-                       warn = x$warn,
-                       control = x$control)
+                        rho = x$rho,
+                        ##
+                        sm = x$sm,
+                        ##
+                        level.ma = x$level.ma,
+                        method.random.ci = x$method.random.ci,
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        ##
+                        level.predict = x$level.predict,
+                        method.predict = method.predict,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        seed.predict = seed.i,
+                        ##
+                        method.tau = x$method.tau,
+                        method.tau.ci = x$method.tau.ci,
+                        tau.preset = tau.preset,
+                        TE.tau = x$TE.tau,
+                        ##
+                        null.effect = x$null.effect,
+                        ##
+                        keepdata = FALSE,
+                        warn = x$warn,
+                        control = x$control)
     ##
     else if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
@@ -270,6 +276,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                        rho = x$rho,
                         ##
                         method = x$method,
                         sm = x$sm,
@@ -302,6 +309,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exclude = x$exclude[sel],
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                        rho = x$rho,
                         ##
                         method = x$method,
                         sm = x$sm,
@@ -520,12 +528,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     pval.Q.b.common <- pvalQ(Q.b.common, df.Q.b.common)
     ##
     if (n.random > 1) {
-      pval.Q.b.random <- NA
+      pval.Q.b.random <- vector("numeric", n.random)
       df.Q.b.random <- vector("list", n.random)
       for (i in seq_len(n.random)) {
         df.Q.b.random[[i]] <- df.Q.b
         pval.Q.b.random[i] <- pvalQ(Q.b.random[i], df.Q.b.random[[i]])
       }
+      ##
+      names(df.Q.b.random) <- names(pval.Q.b.random) <-
+        colnames(seTE.random.w)
     }
     else {
       df.Q.b.random <- df.Q.b
@@ -548,7 +559,11 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     if (is.null(x$exclude))
       x$exclude <- rep(FALSE, length(x$TE))
     ##
-    list.mlm <- list(yi = x$TE[!x$exclude], V = x$seTE[!x$exclude]^2)
+    list.mlm <- list(yi = x$TE[!x$exclude],
+                     V = vcalc(vi = x$seTE[!x$exclude]^2,
+                               cluster = x$cluster[!x$exclude],
+                               obs = seq_along(x$cluster)[!x$exclude],
+                               rho = replaceNULL(x$rho, 0)))
     ##
     mlm <-
       runMLM(c(list.mlm,

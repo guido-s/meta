@@ -5,7 +5,11 @@
 ## License: GPL (>= 2)
 ##
 
-chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
+chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
+                    NULL.ok = FALSE) {
+  if (is.null(x) & NULL.ok)
+    return(invisible(NULL))
+  ##
   if (!missing(single) && single)
     length <- 1
   if (is.null(name))
@@ -36,7 +40,7 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
              call. = FALSE)
   }
   ##
-  if (!is.character(x))
+  if (!is.character(x) & !is.numeric(x))
     stop("Argument '", name, "' must be a character vector.")
   else {
     if (!is.null(nchar) & any(!(nchar(x) %in% nchar)))
@@ -53,6 +57,8 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE) {
              " characters.",
              call. = FALSE)
   }
+  ##
+  invisible(NULL)
 }
 
 chkclass <- function(x, class, name = NULL) {
@@ -100,8 +106,14 @@ chkfunc <- function(x, name = NULL) {
   if (is.null(name))
     name <- deparse(substitute(x))
   ##
-  if (!is.null(x) && !is.function(x))
-    stop("Argument '", name, "' must be a function.", call. = FALSE)
+  if (!is.null(x)) {
+    if (is.character(x)) {
+      if (length(find(x)) == 0)
+        stop("Function '", x, "' not available.", call. = FALSE)
+    }
+    else if (!is.function(x))
+      stop("Argument '", name, "' must be a function.", call. = FALSE)
+  }
   ##
   invisible(NULL)
 }
@@ -355,7 +367,6 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
 
 chkmlm <- function(method.tau, missing.method.tau,
                    method.predict,
-                   by, tau.common, missing.tau.common,
                    method = "Inverse", missing.method = FALSE) {
   
   if (method != "Inverse" & !missing.method)
@@ -371,11 +382,6 @@ chkmlm <- function(method.tau, missing.method.tau,
     stop("Bootstrap method for prediction interval not ",
          "available for three-level models.",
          call. = FALSE)
-  ##
-  if (by & !tau.common & !missing.tau.common)
-    warning("For three-level model, argument 'tau.common' set to ",
-            "\"TRUE\".",
-            call. = FALSE)
   
   return(invisible(NULL))
 }
@@ -385,23 +391,35 @@ chksuitable <- function(x, method,
                           c("metacum", "metainf",
                             "netpairwise"),
                         addtext = NULL,
-                        check.mlm = TRUE) {
+                        check.mlm = TRUE,
+                        stop = TRUE,
+                        status = "suitable") {
   if (missing(addtext)) {
     addtext <- rep("", length(classes))
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
   ##
-  for (i in seq_along(classes))
-    if (inherits(x, classes[i]))
-      stop(method, " not suitable for an object of class \"",
+  func <- if (stop) stop else warning
+  ##
+  for (i in seq_along(classes)) {
+    if (inherits(x, classes[i])) {
+      func(method, " not ", status, " for an object of class \"",
            classes[i], "\"", addtext[i], ".",
            call. = FALSE)
+      ##
+      return(FALSE)
+    }
+  }
   ##
-  if (check.mlm)
-    if (!is.null(x$three.level) && any(x$three.level))
-      stop(method, " not implemented for three-level model.",
+  if (check.mlm) {
+    if (!is.null(x$three.level) && any(x$three.level)) {
+      func(method, " not implemented for three-level model.",
            call. = FALSE)
+      ##
+      return(FALSE)
+    }
+  }
   ##
-  return(invisible(NULL))
+  return(TRUE)
 }

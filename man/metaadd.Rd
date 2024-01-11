@@ -13,7 +13,13 @@ metaadd(
   statistic = NA,
   pval = NA,
   text,
-  data = NULL
+  data = NULL,
+  method.common = "",
+  method.random = "",
+  method.tau = "",
+  method.random.ci = "",
+  method.predict = "",
+  transf = gs("transf")
 )
 }
 \arguments{
@@ -37,7 +43,32 @@ prediction interval. Either \code{"common"}, \code{"random"} or
 \item{text}{A character string or vector used in printouts and
 forest plot to label the added results.}
 
-\item{data}{An optional data frame containing the new results.}
+\item{data}{An optional data frame containing the new results or an
+object of class \code{meta}.}
+
+\item{method.common}{A character string or vector to describe the
+common effect method(s).}
+
+\item{method.random}{A character string or vector to describe the
+random effects method(s).}
+
+\item{method.tau}{A character string or vector to describe the
+estimator(s) of the between-study variance.}
+
+\item{method.random.ci}{A character string or vector to describe
+the method(s) to calculate confidence intervals under the random
+effects model.}
+
+\item{method.predict}{A character string or vector to describe the
+method(s) used for prediction intervals.}
+
+\item{transf}{A logical indicating whether inputs for arguments
+\code{TE}, \code{lower} and \code{upper} are already
+appropriately transformed to conduct the meta-analysis or on the
+original scale. If \code{transf = TRUE} (default), inputs are
+expected to be log odds ratios instead of odds ratios for
+\code{sm = "OR"} and Fisher's z transformed correlations instead
+of correlations for \code{sm = "ZCOR"}, for example.}
 }
 \value{
 An object of class \code{"meta"} with corresponding generic
@@ -57,10 +88,15 @@ results of an additional analysis to an existing meta-analysis
 object. This is useful, for example, to add the result of a
 Bayesian meta-analysis.
 
-Arguments \code{TE}, \code{lower} and \code{upper} have to be
-provided if \code{type = "common"} or \code{type = "random"}. For
-\code{type = "prediction"}, only arguments \code{lower} and
-\code{upper} have to be provided and other arguments are ignored.
+If argument \code{data} is a meta-analysis object created with R
+package \bold{meta}, arguments \code{TE}, \code{lower},
+\code{upper}, \code{statistic} and \code{pval} are ignored as this
+information is extracted from the meta-analysis.
+
+Otherwise, arguments \code{TE}, \code{lower} and \code{upper} have
+to be provided if \code{type = "common"} or \code{type =
+"random"}. For \code{type = "prediction"}, only arguments
+\code{lower} and \code{upper} are mandatory.
 
 Note, R function \code{\link{metamerge}} can be used to add
 meta-analysis results of another meta-analysis object (see
@@ -69,20 +105,16 @@ meta-analysis results of another meta-analysis object (see
 \examples{
 data(Fleiss1993bin)
 
-# Use REML estimator of tau2 (default)
+# Common effect and random effects meta-analysis
 m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-  studlab = paste(study, year), sm = "OR",
-  text.random = "Random effects model (REML)", overall.hetstat = FALSE)
+  studlab = paste(study, year), sm = "OR")
 
-# Use DerSimonian-Laird estimator of tau2
-m2 <- update(m1, method.tau = "DL")
+# Naive pooling
+m2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
+  data = Fleiss1993bin, sm = "OR", text.common = "Naive pooling")
 
-# Add random effects results of second meta-analysis
-m12 <- metaadd(m1, type = "random", data = m2,
-  TE = TE.random,
-  lower = lower.random, upper = upper.random,
-  statistic = statistic.random, pval = pval.random,
-  text = "Random effects model (DL)")
+# Add results of second meta-analysis from common effect model
+m12 <- metaadd(m1, data = m2, method.common = "Naive pooling")
 m12
 
 forest(m12)

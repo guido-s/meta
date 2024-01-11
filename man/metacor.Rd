@@ -12,12 +12,14 @@ metacor(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   sm = gs("smcor"),
   level = gs("level"),
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
@@ -77,6 +79,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
@@ -231,15 +235,16 @@ meta-analyses with correlations; inverse variance weighting is used
 for pooling.
 }
 \details{
-Common effect and random effects meta-analysis of correlations based
-either on Fisher's z transformation of correlations (\code{sm =
-"ZCOR"}) or direct combination of (untransformed) correlations
-(\code{sm = "COR"}) (see Cooper et al., p264-5 and p273-4). Only
-few statisticians would advocate the use of untransformed
-correlations unless sample sizes are very large (see Cooper et al.,
-p265). The artificial example given below shows that the smallest
-study gets the largest weight if correlations are combined directly
-because the correlation is closest to 1.
+Common effect and random effects meta-analysis of correlations
+based either on Fisher's z transformation of correlations (\code{sm
+= "ZCOR"}) or direct combination of (untransformed) correlations
+(\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and
+p273-4). Only few statisticians would advocate the use of
+untransformed correlations unless sample sizes are very large (see
+Cooper et al., 2009, p265). The artificial example given below
+shows that the smallest study gets the largest weight if
+correlations are combined directly because the correlation is
+closest to 1.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at

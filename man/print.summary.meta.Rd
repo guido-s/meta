@@ -11,13 +11,14 @@
   random = x$x$random,
   details = FALSE,
   ma = TRUE,
-  overall = x$overall,
+  overall = x$overall & ma,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
   digits = gs("digits"),
   digits.se = gs("digits.se"),
+  digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
@@ -28,6 +29,9 @@
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   big.mark = gs("big.mark"),
+  print.tau2 = gs("print.tau2"),
+  print.tau = gs("print.tau"),
+  print.I2 = gs("print.I2"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
@@ -44,11 +48,11 @@
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
 
-\item{common}{A logical indicating whether a common effect
-meta-analysis should be conducted.}
+\item{common}{A logical indicating whether results of common effect
+meta-analysis should be printed.}
 
-\item{random}{A logical indicating whether a random effects
-meta-analysis should be conducted.}
+\item{random}{A logical indicating whether results of random
+effects meta-analysis should be printed.}
 
 \item{details}{A logical indicating whether further details of
 individual studies should be printed.}
@@ -86,6 +90,9 @@ calculate rates, e.g. person-years.}
 \item{digits.se}{Minimal number of significant digits for standard
 deviations and standard errors, see \code{print.default}.}
 
+\item{digits.stat}{Minimal number of significant digits for z- or
+t-value of test for effect, see \code{print.default}.}
+
 \item{digits.pval}{Minimal number of significant digits for p-value
 of test of treatment effect, see \code{print.default}.}
 
@@ -116,6 +123,16 @@ overall effect should be printed according to JAMA reporting
 standards.}
 
 \item{big.mark}{A character used as thousands separator.}
+
+\item{print.tau2}{A logical specifying whether between-study
+variance \eqn{\tau^2} should be printed.}
+
+\item{print.tau}{A logical specifying whether \eqn{\tau}, the
+square root of the between-study variance \eqn{\tau^2}, should be
+printed.}
+
+\item{print.I2}{A logical specifying whether heterogeneity
+statistic I\eqn{^2} should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}

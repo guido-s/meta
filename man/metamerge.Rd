@@ -13,16 +13,24 @@ metamerge(
   common2 = meta2$common,
   random2 = meta2$random,
   prediction2 = meta2$prediction,
-  text.pooled1 = "",
-  text.pooled2 = "",
-  text.w.pooled1 = "",
-  text.w.pooled2 = "",
-  label1 = "",
-  label2 = "",
-  hetlabel1 = label1,
-  hetlabel2 = label2,
-  taulabel1 = label1,
-  taulabel2 = label2,
+  label1 = NULL,
+  label2 = NULL,
+  label1.common = label1,
+  label2.common = label2,
+  label1.random = label1,
+  label2.random = label2,
+  label1.predict = label1,
+  label2.predict = label2,
+  label1.subgroup = label1,
+  label2.subgroup = label2,
+  hetlabel1 = label1.random,
+  hetlabel2 = label2.random,
+  taulabel1 = label1.random,
+  taulabel2 = label2.random,
+  text.pooled1 = NULL,
+  text.pooled2 = NULL,
+  text.w.pooled1 = NULL,
+  text.w.pooled2 = NULL,
   text.common1 = text.pooled1,
   text.common2 = text.pooled2,
   text.random1 = text.pooled1,
@@ -71,6 +79,42 @@ effects model should be considered for second meta-analysis.}
 \item{prediction2}{A logical indicating whether prediction interval
 should be considered for second meta-analysis.}
 
+\item{label1}{Default setting for arguments 'label1.common',
+'label1.random', 'label1.predict' and 'label1.subgroup'.}
+
+\item{label2}{Default setting for arguments 'label2.common',
+'label2.random', 'label2.predict' and 'label2.subgroup'.}
+
+\item{label1.common}{A character string ...}
+
+\item{label2.common}{A character string ...}
+
+\item{label1.random}{A character string ... (default label for
+arguments 'hetlabel1' and 'taulabel1').}
+
+\item{label2.random}{A character string ... (default label for
+arguments 'hetlabel2' and 'taulabel2').}
+
+\item{label1.predict}{A character string ...}
+
+\item{label2.predict}{A character string ...}
+
+\item{label1.subgroup}{A character string ...}
+
+\item{label2.subgroup}{A character string ...}
+
+\item{hetlabel1}{A character string used to label heterogeneity
+statistics of the first meta-analysis.}
+
+\item{hetlabel2}{A character string used to label heterogeneity
+statistics of the second meta-analysis.}
+
+\item{taulabel1}{A character string used to label estimate of
+between-study variance of the first meta-analysis.}
+
+\item{taulabel2}{A character string used to label estimate of
+between-study variance of the second meta-analysis.}
+
 \item{text.pooled1}{A character string used in printouts and forest
 plot to label the results from the first meta-analysis.}
 
@@ -84,24 +128,6 @@ pooled estimates requested in argument \code{pooled1}.}
 \item{text.w.pooled2}{A character string used to label weights of
 the second meta-analysis; can be of same length as the number of
 pooled estimates requested in argument \code{pooled1}.}
-
-\item{label1}{Default setting for arguments 'hetlabel1' and
-'taulabel1'.}
-
-\item{label2}{Default setting for arguments 'hetlabel2' and
-'taulabel2'.}
-
-\item{hetlabel1}{A character string used to label heterogeneity
-statistics of the first meta-analysis.}
-
-\item{hetlabel2}{A character string used to label heterogeneity
-statistics of the second meta-analysis.}
-
-\item{taulabel1}{A character string used to label estimate of
-between-study variance of the first meta-analysis.}
-
-\item{taulabel2}{A character string used to label estimate of
-between-study variance of the second meta-analysis.}
 
 \item{text.common1}{A character string used in printouts and forest
 plot to label results for common effect models from the first
@@ -296,77 +322,89 @@ same data set has to be used. Accordingly, individual study results
 are ignored.
 }
 \examples{
-# Print results with more significant digits
+# Print results with more significant digits and do not show confidence
+# intervals for tau^2 and tau
 oldset <- settings.meta(digits = 6, digits.stat = 4, digits.pval = 6,
-                        digits.Q = 6, digits.I2 = 4, digits.H = 4)
+  digits.Q = 6, digits.I2 = 4, digits.H = 4,
+  print.tau2.ci = FALSE, print.tau.ci = FALSE)
 oldopts <- options(width = 120)
 
 data(Fleiss1993bin)
 
 # Mantel-Haenszel method
 m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-  studlab = paste(study, year), sm = "OR",
-  text.common = "Mantel-Haenszel method", text.w.common = "MH",
-  text.random = "Random effects model (IV)", text.w.random = "RE-IV")
-
+  studlab = paste(study, year), sm = "OR")
 # Peto method
-m2 <- update(m1, method = "Peto",
-  text.common = "Peto method", text.w.common = "Peto",
-  text.random = "Random effects model (Peto)", text.w.random = "RE-Peto")
-
-# Inverse variance method
-m3 <- update(m2, method = "Inverse", random = FALSE,
-  text.common = "Inverse-variance method", text.w.common = "IV")
+m2 <- update(m1, method = "Peto")
+# Inverse variance method (only common effect model)
+m3 <- update(m2, method = "Inverse", random = FALSE)
 
 # Merge results from MH and Peto method
-# - show individual results for MH method (as this is the first meta-analysis)
+# - show individual results for MH method
+#   (as this is the first meta-analysis)
 # - keep all additional information from Peto meta-analysis (i.e.,
 #   weights, Q statistic and I2 statistic)
 m12 <- metamerge(m1, m2,
-  taulabel1 = "REML-IV", taulabel2 = "REML-Peto",
+  label1 = "REML", label2 = "REML-Peto",
+  label1.common = "MH", label2.common = "Peto", 
+  text.common1 = "Mantel-Haenszel method",
+  text.common2 = "Peto method",
+  text.w.random1 = "REML", text.w.random2 = "REML-Peto",
   hetlabel1 = "MH/IV", hetlabel2 = "Peto",
   keep = TRUE)
-m12
 
-# Add results from inverse variance method
+# Add common effect results from inverse variance method
 # - keep weights from IV meta-analysis
 # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #   as inverse variance method is used for sm = "MH" under random
 #   effects model
-m123 <- metamerge(m12, m3, keep.w = TRUE)
+m123 <- metamerge(m12, m3,
+  label2 = "IV",
+  text.common2 = "Inverse variance method",
+  keep.w = TRUE)
 summary(m123)
 \dontrun{
 forest(m123, digits = 6)
 
 # Merge results (show individual results for Peto method)
 m21 <- metamerge(m2, m1,
-  taulabel1 = "REML-Peto", taulabel2 = "REML-IV",
+  label1 = "REML-Peto", label2 = "REML",
+  label1.common = "Peto", label2.common = "MH", 
   hetlabel1 = "Peto", hetlabel2 = "MH/IV",
+  text.common1 = "Peto method",
+  text.common2 = "Mantel-Haenszel method",
   keep = TRUE)
-m213 <- metamerge(m21, m3, keep.w = TRUE)
+
+# Add results from inverse variance method
+# - keep weights from IV meta-analysis
+# - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
+#   as inverse variance method is used for sm = "MH" under random
+#   effects model
+m213 <- metamerge(m21, m3,
+  label2 = "IV",
+  text.common2 = "Inverse variance method",
+  keep.w = TRUE)
 summary(m213)
 
 # Random effects method using ML estimator for between-study variance tau2
-m4 <- update(m1, common = FALSE, method.tau = "ML",
-  text.random = "Random effects model (ML)", text.w.random = "RE-ML")
+m4 <- update(m1, common = FALSE, method.tau = "ML")
 
 # Use DerSimonian-Laird estimator for tau2
-m5 <- update(m4, method.tau = "DL",
-  text.random = "Random effects model (DL)", text.w.random = "RE-DL")
+m5 <- update(m4, method.tau = "DL")
 
 # Use Paule-Mandel estimator for tau2
-m6 <- update(m4, method.tau = "PM",
-  text.random = "Random effects model (PM)", text.w.random = "RE-PM")
+m6 <- update(m4, method.tau = "PM")
 
 # Merge random effects results for ML and DL estimators
 # - keep weights for DL estimator (which are different from ML)
-m45 <- metamerge(m4, m5, taulabel1 = "ML", taulabel2 = "DL",
-   keep.w = TRUE)
+m45 <- metamerge(m4, m5, label1 = "ML", label2 = "DL",
+  text.w.random1 = "RE-ML", text.w.random2 = "RE-DL", keep.w = TRUE)
 summary(m45)
 
 # Add results for PM estimator
 # - keep weights
-m456 <- metamerge(m45, m6, taulabel2 = "PM", keep.w = TRUE)
+m456 <- metamerge(m45, m6, label2 = "PM",
+  text.w.random2 = "RE-PM", keep.w = TRUE)
 summary(m456)
 
 m123456 <- metamerge(m123, m456)
@@ -375,35 +413,32 @@ m123456
 # Use Hartung-Knapp confidence intervals
 # - do not keep information on Q, I2 and weights
 m7 <- update(m4, method.random.ci = "HK",
-  text.random = "Hartung-Knapp method (REML)")
+  text.random = "Hartung-Knapp method")
 m8 <- update(m5, method.random.ci = "HK",
-  text.random = "Hartung-Knapp method (DL)")
+  text.random = "Hartung-Knapp method")
 m9 <- update(m6, method.random.ci = "HK",
-  text.random = "Hartung-Knapp method (PM)")
+  text.random = "Hartung-Knapp method")
 
 # Merge results for Hartung-Knapp method (with REML and DL estimator)
 # - RE weights for REML estimator are shown
-m78 <- metamerge(m7, m8)
+m78 <- metamerge(m7, m8, label1 = "ML", label2 = "DL")
 summary(m78)
 
-m789 <- metamerge(m78, m9)
+m789 <- metamerge(m78, m9, label2 = "PM")
 summary(m789)
 
 # Merge everything
 m1to9 <- metamerge(metamerge(m123, m456, keep.w = TRUE), m789)
 summary(m1to9)
 
-m10 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
-  studlab = paste(study, year), sm = "OR", method = "GLMM",
-  text.common = "Common effect model (GLMM)",
-  text.random = "Random effects model (GLMM)")
+m10 <- update(m1, method = "GLMM")
 
 m.all <- metamerge(m1to9, m10, keep.Q = TRUE,
-  taulabel2 = "ML-GLMM", hetlabel2 = "GLMM")
+  label2 = "GLMM", taulabel2 = "ML-GLMM")
 summary(m.all)
 
 forest(m.all, layout = "JAMA")
-forest(m.all)
+forest(m.all, details = TRUE)
 }
 
 settings.meta(oldset)

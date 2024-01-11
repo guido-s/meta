@@ -2,6 +2,7 @@
 % Please edit documentation in R/metabias.rm5.R
 \name{metabias.rm5}
 \alias{metabias.rm5}
+\alias{metabias.cdir}
 \title{Cochrane review: Test for funnel plot asymmetry}
 \usage{
 \method{metabias}{rm5}(
@@ -14,9 +15,20 @@
   k.min = 10,
   ...
 )
+
+\method{metabias}{cdir}(
+  x,
+  comp.no,
+  outcome.no,
+  method.bias = "linreg",
+  method.bias.binary = method.bias,
+  method.bias.or = "score",
+  k.min = 10,
+  ...
+)
 }
 \arguments{
-\item{x}{An object of class \code{rm5}.}
+\item{x}{An object of class \code{rm5} or \code{cdir}.}
 
 \item{comp.no}{Comparison number.}
 
@@ -46,18 +58,12 @@ small-study effects.}
 }
 \description{
 Conduct a test for funnel plot asymmetry for all outcomes in a
-Cochrane review
+Cochrane review of intervention studies
 }
 \details{
 This function can be used to conduct a test for funnel plot
-asymmetry for all or selected meta-analyses in a Cochrane Review.
-
-Review Manager 5 (RevMan 5) was the software used for preparing and
-maintaining Cochrane Reviews
-(\url{https://training.cochrane.org/online-learning/core-software/revman}).
-In RevMan 5, subgroup analyses can be defined and data from a
-Cochrane review can be imported to R using the function
-\code{read.rm5}.
+asymmetry for all or selected meta-analyses in a Cochrane review of
+intervention studies (Higgins et al, 2023).
 
 The R function \code{\link{metacr}} is called internally.
 }
@@ -79,14 +85,16 @@ metabias(Fleiss1993_CR, comp.no = 1, outcome.no = 2, k.min = 5)
 
 }
 \references{
-Higgins, J.P.T and S. Green (2011):
+Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
-  Version 5.1.0 [Updated March 2011]}.
-The Cochrane Library: http://www.cochrane-handbook.org/
+  Version 6.4}.
+Available from \url{https://training.cochrane.org/handbook}
 }
 \seealso{
 \code{\link{metabias}}, \code{\link{metacr}},
-  \code{\link{read.rm5}}, \code{\link{summary.rm5}}
+  \code{\link{read.rm5}}, \code{\link{read.cdir}},
+  \code{\link{summary.rm5}}, \code{\link{summary.cdir}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

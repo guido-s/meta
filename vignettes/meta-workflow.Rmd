@@ -1,0 +1,28 @@
+---
+#title: "Workflow in R package meta"
+#author: "Guido Schwarzer"
+output:
+  rmarkdown::pdf_document:
+   number_sections: true
+  rmarkdown::html_vignette:
+   toc: false
+   number_sections: true
+vignette: >
+  %\VignetteIndexEntry{meta: General Package for Meta-Analysis - Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = TRUE,
+  warning = FALSE
+  )
+options(knitr.kable.NA = ".")
+```
+
+```{r, echo = FALSE, out.height = "99%"}
+knitr::include_graphics("meta-workflow-diagram.pdf")
+```

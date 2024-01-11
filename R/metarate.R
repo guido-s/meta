@@ -20,6 +20,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param n Number of observations.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
@@ -345,7 +346,7 @@
 metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      n = NULL,
                      ##
                      method = "Inverse",
@@ -358,7 +359,11 @@ metarate <- function(event, time, studlab,
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
-                     overall.hetstat = common | random,
+                     overall.hetstat =
+                       if (is.null(gs("overall.hetstat")))
+                         common | random
+                       else
+                         gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
                      ##
                      method.tau,
@@ -412,6 +417,8 @@ metarate <- function(event, time, studlab,
   ##
   ## (1) Check and set arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
   chknull(sm)
@@ -861,24 +868,25 @@ metarate <- function(event, time, studlab,
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
   ##
-  if (method.ci == "NAsm") {
+  if (method.ci != "NAsm") {
     if (sm == "IRLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
+      lower.study <- log(lower.study)
+      upper.study <- log(upper.study)
     }
     else if (sm == "IRS") {
-      lower.study <- lower.study^2
-      upper.study <- upper.study^2
+      lower.study <- sqrt(lower.study)
+      upper.study <- sqrt(upper.study)
     }
     ##
     else if (sm == "IRFT") {
+      lower.ev <- time * lower.study 
+      upper.ev <- time * upper.study 
+      ##
       lower.study <-
-        asin2ir(lower.study, time, value = "lower")
+        0.5 * (sqrt(lower.ev / time) + sqrt((lower.ev + 1) / time))
       upper.study <-
-        asin2ir(upper.study, time, value = "upper")
+        0.5 * (sqrt(upper.ev / time) + sqrt((upper.ev + 1) / time))
     }
-    ##
-    lower.study[lower.study < 0] <- 0
   }
   
   
@@ -900,7 +908,6 @@ metarate <- function(event, time, studlab,
   ##
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common,
            method, missing.method)
     ##
     common <- FALSE
@@ -958,7 +965,7 @@ metarate <- function(event, time, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

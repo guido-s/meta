@@ -2,15 +2,21 @@
 % Please edit documentation in R/summary.rm5.R
 \name{summary.rm5}
 \alias{summary.rm5}
+\alias{summary.cdir}
 \alias{print.summary.rm5}
+\alias{print.summary.cdir}
 \title{Cochrane review: detailed summary of meta-analyses}
 \usage{
 \method{summary}{rm5}(object, comp.no, outcome.no, ...)
 
+\method{summary}{cdir}(object, comp.no, outcome.no, ...)
+
 \method{print}{summary.rm5}(x, ...)
+
+\method{print}{summary.cdir}(x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{rm5}.}
+\item{object}{An object of class \code{rm5} or \code{cdir}.}
 
 \item{comp.no}{Comparison number.}
 
@@ -18,22 +24,16 @@
 
 \item{...}{Additional arguments (passed on to \code{metacr}).}
 
-\item{x}{An object of class \code{summary.rm5}.}
+\item{x}{An object of class \code{summary.rm5} or
+\code{summary.cdir}.}
 }
 \description{
 Calculate and print a detailed summary of all meta-analyses in a
 Cochrane review.
 }
 \details{
-This function can be used to redo all or selected meta-analyses of
-a Cochrane Review.
-
-Review Manager 5 (RevMan 5) was the software used for preparing and
-maintaining Cochrane Reviews
-(\url{https://training.cochrane.org/online-learning/core-software/revman}).
-In RevMan 5, subgroup analyses can be defined and data from a
-Cochrane review can be imported to R using the function
-\code{read.rm5}.
+This function can be used to rerun all or selected meta-analyses of
+a Cochrane Review of interventions (Higgins et al, 2023).
 
 The R function \code{\link{metacr}} is called internally.
 }
@@ -54,14 +54,16 @@ summary(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 
 }
 \references{
-Higgins, J.P.T and S. Green (2011):
+Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
-  Version 5.1.0 [Updated March 2011]}.
-The Cochrane Library: http://www.cochrane-handbook.org
+  Version 6.4}.
+Available from \url{https://training.cochrane.org/handbook}
 }
 \seealso{
 \code{\link{summary.meta}}, \code{\link{metacr}},
-  \code{\link{read.rm5}}, \code{\link{metabias.rm5}}
+  \code{\link{read.rm5}}, \code{\link{read.cdir}},
+  \code{\link{metabias.rm5}}, \code{\link{metabias.cdir}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

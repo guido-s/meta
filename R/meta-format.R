@@ -1,9 +1,9 @@
-## Auxiliary functions to format print output
-##
-## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
-## License: GPL (>= 2)
-##
+# Auxiliary functions to format print output
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
 
 bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
                     sep.subgroup, big.mark = "") {
@@ -16,7 +16,7 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
   }
   else
     res <- format(subgroup.levels, big.mark = big.mark)
-  ##
+  #
   res
 }
 
@@ -51,7 +51,7 @@ crtitle <- function(x) {
         cat(paste0("Outcome:    ", substring(x$outclab, 1, tl - 4), " ...\n"))
     }
   }
-  ##
+  #
   if (newline)
     cat("\n")
 }
@@ -125,31 +125,39 @@ formatCI <- function(lower, upper,
 }
 
 formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
-                    format.whole.numbers = TRUE) {
+                    format.whole.numbers = TRUE,
+                    monospaced = FALSE) {
   
-  outdec <- options()$OutDec
-  
-  
-  if (format.whole.numbers) {
-    res <- format(ifelse(is.na(x),
-                         text.NA,
-                         formatC(x, decimal.mark = outdec,
-                                 format = "f", digits = digits,
-                                 big.mark = big.mark)
-                         )
-                  )
+  outdec <- options()$OutDec  
+
+  if (!monospaced) {
+    if (format.whole.numbers) {
+      res <- format(ifelse(is.na(x),
+                           text.NA,
+                           formatC(x, decimal.mark = outdec,
+                                   format = "f", digits = digits,
+                                   big.mark = big.mark)
+                           )
+                    )
+    }
+    else {
+      res <- format(ifelse(is.na(x),
+                           text.NA,
+                    ifelse(is_wholenumber(x),
+                           x,
+                           formatC(x, decimal.mark = outdec,
+                                   format = "f", digits = digits,
+                                   big.mark = big.mark)
+                           )
+                    )
+                    )
+    }
   }
   else {
-    res <- format(ifelse(is.na(x),
-                         text.NA,
-                  ifelse(is_wholenumber(x),
-                         x,
-                         formatC(x, decimal.mark = outdec,
-                                 format = "f", digits = digits,
-                                 big.mark = big.mark)
-                         )
-                  )
-                  )
+    x <- round(x, digits)
+    res <- ifelse(is.na(x),
+                  text.NA,
+                  format(x, decimal.mark = outdec, big.mark = big.mark))
   }
   ##
   res <- rmSpace(res, end = TRUE)

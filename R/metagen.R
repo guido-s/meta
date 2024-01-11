@@ -1,7 +1,6 @@
 #' Generic inverse variance meta-analysis
 #' 
 #' @description
-#' 
 #' Common effect and random effects meta-analysis based on estimates
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
@@ -25,6 +24,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -457,7 +457,6 @@
 #' \pkg{metafor} (Viechtbauer 2010) is called internally to estimate
 #' the between-study variance \eqn{\tau^2}.
 #' 
-#' 
 #' @return
 #' An object of class \code{c("metagen", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
@@ -629,7 +628,7 @@
 metagen <- function(TE, seTE, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
-                    cluster = NULL,
+                    cluster = NULL, rho = 0,
                     ##
                     sm = "",
                     ##
@@ -639,7 +638,11 @@ metagen <- function(TE, seTE, studlab,
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
-                    overall.hetstat = common | random,
+                    overall.hetstat =
+                      if (is.null(gs("overall.hetstat")))
+                        common | random
+                      else
+                        gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau = gs("method.tau"),
@@ -748,6 +751,8 @@ metagen <- function(TE, seTE, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
+  chknumeric(rho, min = -1, max = 1)
+  ##
   missing.method.predict <- missing(method.predict)
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
@@ -773,31 +778,35 @@ metagen <- function(TE, seTE, studlab,
   chklogical(transf)
   chklogical(backtransf)
   ##
-  missing.func.transf <- missing(func.transf)
-  missing.args.transf <- missing(args.transf)
-  missing.func.backtransf <- missing(func.backtransf)
-  missing.args.backtransf <- missing(args.backtransf)
+  avail.func.transf <- !missing(func.transf) && !is.null(func.transf)
+  avail.args.transf <- !missing(args.transf) && !is.null(args.transf)
+  avail.func.backtransf <-
+    !missing(func.backtransf) && !is.null(func.backtransf)
+  avail.args.backtransf <-
+    !missing(args.backtransf) && !is.null(args.backtransf)
   ##
-  if (!missing.func.transf) {
+  if (avail.func.transf) {
     chkfunc(func.transf)
-    func.transf <- deparse(substitute(func.transf))
+    if (is.function(func.transf))
+      func.transf <- deparse(substitute(func.transf))
   }
   else
     func.transf <- NULL
   ##
-  if (!missing.args.transf)
+  if (avail.args.transf)
     chklist(args.transf)
   else
     args.transf <- NULL
   ##
-  if (!missing.func.backtransf) {
+  if (avail.func.backtransf) {
     chkfunc(func.backtransf)    
-    func.backtransf <- deparse(substitute(func.backtransf))
+    if (is.function(func.backtransf))
+      func.backtransf <- deparse(substitute(func.backtransf))
   }
   else
     func.backtransf <- NULL
   ##
-  if (!missing.args.backtransf)
+  if (avail.args.backtransf)
     chklist(args.backtransf)    
   else
     args.backtransf <- NULL
@@ -805,7 +814,7 @@ metagen <- function(TE, seTE, studlab,
   if (is.null(func.transf) & !is.null(args.transf)) {
     warning("Argument 'args.transf' ignored as argument ",
             "'func.transf' is ",
-            if (missing.func.transf) "missing." else "NULL.",
+            if (!avail.func.transf) "missing." else "NULL.",
             call. = FALSE)
     args.transf <- NULL
   }
@@ -813,7 +822,7 @@ metagen <- function(TE, seTE, studlab,
   if (is.null(func.backtransf) & !is.null(args.backtransf)) {
     warning("Argument 'args.backtransf' ignored as argument ",
             "'func.backtransf' is ",
-            if (missing.func.backtransf) "missing." else "NULL.",
+            if (!avail.func.backtransf) "missing." else "NULL.",
             call. = FALSE)
     args.backtransf <- NULL
   }
@@ -834,20 +843,20 @@ metagen <- function(TE, seTE, studlab,
            call. = FALSE)
   }
   ##
-  if (!is_prop(sm))
-    pscale <- 1
+  missing.pscale <- missing(pscale)
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1) {
-    warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
-            call. = FALSE)
+    if (!missing.pscale)
+      warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
+              call. = FALSE)
     pscale <- 1
   }
-  if (!is_rate(sm))
-    irscale <- 1
+  missing.irscale <- missing(irscale)
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1) {
-    warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
-            call. = FALSE)
+    if (!missing.irscale)
+      warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
+              call. = FALSE)
     irscale <- 1
   }
   ##
@@ -1162,7 +1171,7 @@ metagen <- function(TE, seTE, studlab,
     chklength(upper, k.All, arg)
   if (length(level.ci) == 1)
     level.ci <- rep_len(level.ci, k.All)
-  else
+  else if (!is.null(level.ci))
     chklength(level.ci, k.All, arg)
   if (avail.median)
     chklength(median, k.All, arg)
@@ -1710,8 +1719,7 @@ metagen <- function(TE, seTE, studlab,
   }
   ##
   if (three.level) {
-    chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common)
+    chkmlm(method.tau, missing.method.tau, method.predict)
     ##
     common <- FALSE
     ##
@@ -1809,7 +1817,8 @@ metagen <- function(TE, seTE, studlab,
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci,
                   TE.tau, level.ma,
-                  control = control, cluster = cluster[!exclude])
+                  control = control,
+                  cluster = cluster[!exclude], rho = rho)
     ##
     if (by & tau.common) {
       ## Estimate common tau-squared across subgroups
@@ -1817,7 +1826,8 @@ metagen <- function(TE, seTE, studlab,
                      method.tau, method.tau.ci,
                      TE.tau, level.ma,
                      subgroup = subgroup,
-                     control = control, cluster = cluster[!exclude])
+                     control = control,
+                     cluster = cluster[!exclude], rho = rho)
     }
     ##
     ## Different calculations for three-level models
@@ -1867,21 +1877,13 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Kenward-Roger method for confidence or prediction interval
       ##
+      kr <- kenwardroger(w.random)
+      seTE.kero <- kr$se
+      df.kero <- kr$df
+      #
       if (any(method.random.ci == "KR") | any(method.predict == "KR")) {
-        kr <- kenwardroger(w.random)
-        seTE.kero <- kr$se
-        df.kero <- kr$df
-        ##
-        ## Fallback: classic random effects meta-analysis
-        ##
-        is.nan.kero <- is.nan(seTE.kero)
-        ##
-        if (is.nan.kero) {
-          method.random.ci[method.random.ci == "KR"] <- "classic-KR"
-          method.predict[method.predict == "KR"] <- "HTS-KR"
-        }
-        ##
-        if (is.nan(df.kero)) {
+        # Fallback: classic random effects meta-analysis
+        if (is.nan(seTE.kero) | is.nan(df.kero)) {
           method.random.ci[method.random.ci == "KR"] <- "classic-KR"
           method.predict[method.predict == "KR"] <- "HTS-KR"
         }
@@ -2127,7 +2129,10 @@ metagen <- function(TE, seTE, studlab,
       ##
       sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
       ##
-      list.mlm <- list(yi = TE[sel.4], V = seTE[sel.4]^2)
+      list.mlm <- list(yi = TE[sel.4],
+                       V = vcalc(vi = seTE[sel.4]^2,
+                                 cluster = cluster[sel.4],
+                                 obs = idx[sel.4], rho = rho))
              
       ##
       m4 <- runMLM(c(list.mlm,
@@ -2222,7 +2227,11 @@ metagen <- function(TE, seTE, studlab,
     detail.tau <- c("between cluster", "within cluster")
   ##
   ci.study <- ci(TE, seTE, level = level,
-                 df = if (method.ci == "t") df else NULL,
+                 df =
+                   if (!is.null(method.ci) && method.ci == "t")
+                     df
+                   else
+                     NULL,
                  null.effect = null.effect)
   ##
   ## Keep original confidence limits
@@ -2279,12 +2288,16 @@ metagen <- function(TE, seTE, studlab,
               TE = TE, seTE = seTE,
               statistic = ci.study$statistic,
               pval = ci.study$p,
-              df = if (method.ci == "t") df else rep_len(NA, length(TE)),
+              df =
+                if (!is.null(method.ci) && method.ci == "t")
+                  df
+                else
+                  rep_len(NA, length(TE)),
               level = level,
               lower = ci.study$lower, upper = ci.study$upper,
               ##
               three.level = three.level,
-              cluster = cluster,
+              cluster = cluster, rho = rho,
               ##
               k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
               ##
@@ -2411,6 +2424,9 @@ metagen <- function(TE, seTE, studlab,
               )
   ##
   class(res) <- c(fun, "meta")
+  ##
+  if (avail.lower | avail.upper)
+    res$level.ci <- level.ci
   ##
   ## Add results from subgroup analysis
   ##

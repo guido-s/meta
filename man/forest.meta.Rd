@@ -3,6 +3,8 @@
 \name{forest.meta}
 \alias{forest.meta}
 \alias{forest}
+\alias{plot.meta}
+\alias{.forestArgs}
 \title{Forest plot to display the result of a meta-analysis}
 \usage{
 \method{forest}{meta}(
@@ -37,16 +39,27 @@
   pooled.events = gs("pooled.events"),
   pooled.times = gs("pooled.times"),
   study.results = gs("study.results"),
+  rob = x$rob,
+  rob.text = "Risk of Bias",
+  rob.xpos = 0,
+  rob.legend = TRUE,
+  rob.only = FALSE,
   xlab = "",
   xlab.pos,
   smlab = NULL,
   smlab.pos,
-  xlim = "symmetric",
+  xlim,
   allstudies = TRUE,
   weight.study = NULL,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
+  file = NULL,
+  width = gs("width"),
+  rows.gr = NULL,
+  func.gr = NULL,
+  args.gr = NULL,
+  dev.off = NULL,
   ref,
   lower.equi = gs("lower.equi"),
   upper.equi = gs("upper.equi"),
@@ -55,14 +68,15 @@
   fill.equi = gs("fill.equi"),
   fill.lower.equi = fill.equi,
   fill.upper.equi = rev(fill.equi),
-  leftcols = NULL,
-  rightcols = NULL,
-  leftlabs = NULL,
-  rightlabs = NULL,
+  fill = gs("fill"),
+  leftcols = gs("leftcols"),
+  rightcols = gs("rightcols"),
+  leftlabs = gs("leftlabs"),
+  rightlabs = gs("rightlabs"),
   label.e = x$label.e,
   label.c = x$label.c,
-  label.e.attach = NULL,
-  label.c.attach = NULL,
+  label.e.attach = gs("label.e.attach"),
+  label.c.attach = gs("label.c.attach"),
   label.right = x$label.right,
   label.left = x$label.left,
   bottom.lr = gs("bottom.lr"),
@@ -72,6 +86,7 @@
   lwd = gs("lwd"),
   at = NULL,
   label = TRUE,
+  col.label = gs("col.label"),
   type.study = gs("type.study"),
   type.common = gs("type.common"),
   type.random = type.common,
@@ -80,7 +95,9 @@
   type.subgroup.random = type.subgroup,
   col.study = gs("col.study"),
   col.square = gs("col.square"),
-  col.square.lines = col.square,
+  col.square.lines = gs("col.square.lines"),
+  col.circle = gs("col.circle"),
+  col.circle.lines = col.circle,
   col.inside = gs("col.inside"),
   col.inside.common = col.inside,
   col.inside.random = col.inside,
@@ -96,7 +113,7 @@
   col.label.right = gs("col.label.right"),
   col.label.left = gs("col.label.left"),
   hetstat = common | random | overall.hetstat,
-  overall.hetstat = x$overall.hetstat,
+  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
   hetlab = gs("hetlab"),
   resid.hetstat = gs("resid.hetstat"),
   resid.hetlab = gs("resid.hetlab"),
@@ -121,6 +138,8 @@
   test.subgroup = x$test.subgroup,
   test.subgroup.common = test.subgroup & common,
   test.subgroup.random = test.subgroup & random,
+  common.subgroup = common,
+  random.subgroup = random,
   prediction.subgroup = x$prediction.subgroup,
   print.Q.subgroup = gs("forest.Q.subgroup"),
   label.test.subgroup.common,
@@ -132,7 +151,11 @@
   label.test.effect.subgroup.random,
   text.addline1,
   text.addline2,
+  details = gs("forest.details"),
+  col.lines = gs("col.lines"),
   header.line,
+  col.header.line = col.lines,
+  col.jama.line = col.subgroup,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -153,6 +176,9 @@
   fs.smlab = fontsize,
   fs.xlab = fontsize,
   fs.lr = fontsize,
+  fs.rob = fontsize,
+  fs.rob.symbols = fontsize,
+  fs.details = fontsize,
   ff.heading = "bold",
   ff.common = gs("ff.common"),
   ff.random = gs("ff.random"),
@@ -171,15 +197,24 @@
   ff.smlab = gs("ff.smlab"),
   ff.xlab = gs("ff.xlab"),
   ff.lr = gs("ff.lr"),
-  squaresize = 0.8/spacing,
-  plotwidth = if (layout == "JAMA") "8cm" else "6cm",
+  ff.rob = "plain",
+  ff.rob.symbols = "bold",
+  ff.details = "plain",
+  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
+  lwd.square = gs("lwd.square"),
+  lwd.diamond = gs("lwd.diamond"),
+  arrow.type = gs("arrow.type"),
+  arrow.length = gs("arrow.length"),
+  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
   colgap = gs("colgap"),
   colgap.left = colgap,
   colgap.right = colgap,
   colgap.studlab = colgap.left,
-  colgap.forest = colgap,
+  colgap.forest = gs("colgap.forest"),
   colgap.forest.left = colgap.forest,
   colgap.forest.right = colgap.forest,
+  colgap.rob = "1mm",
+  colgap.rob.overall = "2mm",
   calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
   calcwidth.common = calcwidth.pooled,
   calcwidth.random = calcwidth.pooled,
@@ -193,6 +228,9 @@
   just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
+  bmj.text = NULL,
+  bmj.xpos = 0,
+  bmj.sep = " / ",
   spacing = gs("spacing"),
   addrow = gs("addrow"),
   addrow.overall = gs("addrow.overall"),
@@ -210,10 +248,12 @@
   digits.tau = gs("digits.tau"),
   digits.I2 = max(gs("digits.I2") - 1, 0),
   digits.weight = gs("digits.weight"),
-  digits.mean = digits,
-  digits.sd = digits.se,
+  digits.mean = gs("digits.mean"),
+  digits.sd = gs("digits.sd"),
   digits.cor = digits,
   digits.time = digits,
+  digits.n = 0,
+  digits.event = 0,
   digits.TE = gs("digits.TE.forest"),
   digits.addcols = digits,
   digits.addcols.right = digits.addcols,
@@ -225,6 +265,10 @@
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
+
+\method{plot}{meta}(x, ...)
+
+.forestArgs()
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
@@ -256,13 +300,13 @@ pooled common effect estimate.}
 \item{text.random}{A character string used in the plot to label the
 pooled random effects estimate.}
 
-\item{lty.common}{Line type (pooled common effect estimate).}
+\item{lty.common}{Line type of pooled common effect estimate.}
 
-\item{lty.random}{Line type (pooled random effects estimate).}
+\item{lty.random}{Line type of pooled random effects estimate.}
 
-\item{col.common}{Line colour (pooled common effect estimate).}
+\item{col.common}{Line colour of pooled common effect estimate.}
 
-\item{col.random}{Line colour (pooled random effects estimate).}
+\item{col.random}{Line colour of pooled random effects estimate.}
 
 \item{text.w.common}{A character string used to label weights of
 common effect model.}
@@ -328,6 +372,22 @@ at risk should be given in the figure.}
 individual studies should be shown in the figure (useful to only
 plot subgroup results).}
 
+\item{rob}{Risk of bias (RoB) assessment.}
+
+\item{rob.text}{Column heading for RoB table.}
+
+\item{rob.xpos}{A numeric specifying the horizontal position of the
+risk of bias label in RoB table heading. The value is a so called
+normalised parent coordinate in the horizontal direction (see
+\code{\link[grid]{unit}}).}
+
+\item{rob.legend}{A logical specifying whether a legend with RoB
+domains should be printed.}
+
+\item{rob.only}{A logical indicating whether the risk of bias
+assessment is the only information printed on the right side of
+the forest plot.}
+
 \item{xlab}{A label for the x-axis.}
 
 \item{xlab.pos}{A numeric specifying the center of the label on the
@@ -367,6 +427,23 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
 
+\item{file}{File name.}
+
+\item{width}{Width of graphics file.}
+
+\item{rows.gr}{Additional rows in forest plot to change height of
+graphics file (e.g., in order to add a title at the top of the
+forest plot).}
+
+\item{func.gr}{Name of graphics function, e.g., \code{\link{pdf}}.}
+
+\item{args.gr}{List with additional graphical parameters passed on
+to graphics function (argument 'height' cannot be provided as the
+height is calculated internally; use instead argument 'rows.gr').}
+
+\item{dev.off}{A logical to specify whether current graphics device
+should be shut down, i.e., whether file should be stored.}
+
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
@@ -399,6 +476,8 @@ minimum and smallest limit is also filled).}
 upper limit(s). Can be equal to the number of upper limits or the
 number of limits plus 1 (in this case the region between largest
 limit and maximum is also filled).}
+
+\item{fill}{Colour for background of confidence interval plot.}
 
 \item{leftcols}{A character vector specifying (additional) columns
 to be printed on the left side of the forest plot or a logical
@@ -450,6 +529,8 @@ individual treatment estimates and confidence intervals.}
 on the tick marks, or an expression or character vector which
 specify the labels to use. See \code{\link{grid.xaxis}}.}
 
+\item{col.label}{The colour of labels on the x-axis.}
+
 \item{type.study}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for individual
 studies (see Details).}
@@ -481,6 +562,12 @@ confidence limits.}
 in the meta-analysis.}
 
 \item{col.square.lines}{The colour for the outer lines of squares
+reflecting study's weight in the meta-analysis.}
+
+\item{col.circle}{The colour for circles reflecting study weights
+in the meta-analysis.}
+
+\item{col.circle.lines}{The colour for the outer lines of circles
 reflecting study's weight in the meta-analysis.}
 
 \item{col.inside}{The colour for individual study results and
@@ -615,6 +702,14 @@ model).}
 print results of test for subgroup differences (random effects
 model).}
 
+\item{common.subgroup}{A single logical or logical vector
+indicating whether / which common effect estimates should be
+printed for subgroups.}
+
+\item{random.subgroup}{A single logical or logical vector
+indicating whether / which random effects estimates should be
+printed for subgroups.}
+
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
 for subgroups.}
@@ -653,8 +748,17 @@ meta-analysis results).}
 \item{text.addline2}{Text for second additional line (below
 meta-analysis results).}
 
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
+
+\item{col.lines}{The colour of lines.}
+
 \item{header.line}{A logical value indicating whether to print a
 header line or a character string ("both", "below", "").}
+
+\item{col.header.line}{Colour of the header line(s).}
+
+\item{col.jama.line}{Colour of the additional JAMA lines.}
 
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
@@ -714,6 +818,15 @@ in subgroups, see \code{\link{gpar}}.}
 \item{fs.lr}{The size of text of label on left and right side of
 forest plot, see \code{\link{gpar}}.}
 
+\item{fs.rob}{The size of text of risk of bias items in the legend,
+see \code{\link{gpar}}.}
+
+\item{fs.rob.symbols}{The size of risk of bias symbols, see
+\code{\link{gpar}}.}
+
+\item{fs.details}{The size of text for details on (meta-analysis)
+methods, see \code{\link{gpar}}.}
+
 \item{ff.heading}{The fontface for column headings, see
 \code{\link{gpar}}.}
 
@@ -768,8 +881,27 @@ see \code{\link{gpar}}.}
 \item{ff.lr}{The fontface of text of label on left and right side
 of forest plot, see \code{\link{gpar}}.}
 
+\item{ff.rob}{The fontface of text of risk of bias items, see
+\code{\link{gpar}}.}
+
+\item{ff.rob.symbols}{The fontface of risk of bias symbols, see
+\code{\link{gpar}}.}
+
+\item{ff.details}{The fontface for details on (meta-analysis)
+methods, see \code{\link{gpar}}.}
+
 \item{squaresize}{A numeric used to increase or decrease the size
 of squares in the forest plot.}
+
+\item{lwd.square}{The line width of the border around squares.}
+
+\item{lwd.diamond}{The line width of the border around diamonds.}
+
+\item{arrow.type}{A character string indicating whether arrows
+printed for results outside the forest plot should be
+\code{"open"}, or \code{"closed"}, can be abbreviated.}
+
+\item{arrow.length}{The length of arrows in inches.}
 
 \item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
 "3inch", or a \code{\link[grid]{unit}} object specifying width of
@@ -802,6 +934,14 @@ the left side of forest plot and the forest plot.}
 \item{colgap.forest.right}{Either a character string or a
 \code{\link[grid]{unit}} object specifying gap between column on
 the right side of forest plot and the forest plot.}
+
+\item{colgap.rob}{Either a character string or a
+\code{\link[grid]{unit}} object specifying gap between risk of
+bias columns.}
+
+\item{colgap.rob.overall}{Either a character string or a
+\code{\link[grid]{unit}} object specifying gap before column with
+overall risk of bias assessment.}
 
 \item{calcwidth.pooled}{A logical indicating whether text for
 common effect and random effects model should be considered to
@@ -855,6 +995,16 @@ columns on right side of forest plot (possible values: "left",
 "right", "center"). Can be of same length as number of additional
 columns on right side of forest plot.}
 
+\item{bmj.text}{A character string used in the plot with BMJ layout
+to label the group specific information.}
+
+\item{bmj.xpos}{A numeric specifying the horizontal position of the
+BMJ label. The value is a so called normalised parent coordinate
+in the horizontal direction (see \code{\link[grid]{unit}}).}
+
+\item{bmj.sep}{A character string used to separate sample sizes
+from number of events or means / standard deviations.}
+
 \item{spacing}{A numeric determining line spacing in a forest plot.}
 
 \item{addrow}{A logical value indicating whether an empty row is
@@ -884,31 +1034,31 @@ correlations, for example.}
 effects, see \code{print.default}.}
 
 \item{digits.se}{Minimal number of significant digits for standard
-errors, see \code{print.default}.}
+errors.}
 
 \item{digits.stat}{Minimal number of significant digits for z- or
-t-statistic for test of overall effect, see \code{print.default}.}
+t-statistic for test of overall effect.}
 
 \item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
+of overall treatment effect.}
 
 \item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
+p-value of heterogeneity test.}
 
 \item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
+heterogeneity statistic Q.}
 
 \item{digits.tau2}{Minimal number of significant digits for
-between-study variance, see \code{print.default}.}
+between-study variance.}
 
 \item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance, see \code{print.default}.}
+root of between-study variance.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
-statistic, see \code{print.default}.}
+statistic.}
 
 \item{digits.weight}{Minimal number of significant digits for
-weights, see \code{print.default}.}
+weights.}
 
 \item{digits.mean}{Minimal number of significant digits for means;
 only applies to \code{\link{metacont}} objects.}
@@ -922,6 +1072,12 @@ correlations; only applies to \code{\link{metacor}} objects.}
 \item{digits.time}{Minimal number of significant digits for times;
 only applies to \code{\link{metainc}} and \code{\link{metarate}}
 objects.}
+
+\item{digits.n}{Minimal number of significant digits for sample
+sizes.}
+
+\item{digits.event}{Minimal number of significant digits for event
+numbers.}
 
 \item{digits.TE}{Minimal number of significant digits for list
 element 'TE'.}
@@ -956,18 +1112,51 @@ be printed if deprecated arguments are used.}
 \item{\dots}{Additional graphical arguments.}
 }
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draw a forest plot (using grid graphics system) in the active
+graphics window or store the forest plot in a file.
 }
 \details{
 A forest plot, also called confidence interval plot, is drawn in
 the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width and
-height of the graphic (see Examples).
+\bold{meta} are based on the grid graphics system. Resize the
+graphics windows if the forest plot is too large or too small for
+the graphics window. Alternatively, save the forest plot in a file.
+
+\subsection{Saving forest plots}{
+
+A forest plot can be directly stored in a file using argument
+\code{file} or specifying the R function for the graphics device
+driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
+only the filename is provided, the extension is checked and matched
+against the most common graphics device drivers.
+
+\tabular{ll}{
+\bold{Extension} \tab \bold{Graphics device} \cr
+\code{.pdf} \tab \code{\link{pdf}} \cr
+\code{.ps} \tab \code{\link{postscript}} \cr
+\code{.svg} \tab \code{\link{svg}} \cr
+\code{.bmp} \tab \code{\link{bmp}} \cr
+\code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
+\code{.png} \tab \code{\link{png}} \cr
+\code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
+}
+
+The height of the graphics device is automatically determined if
+the forest plot is saved to a file. Argument \code{rows.gr} can be
+used to increase or decrease the number of rows shown in the forest
+plot (either to show missing information or to remove
+whitespace). The width of the graphics device can be specified with
+argument \code{width}, see, for example, \code{\link{pdf}} or
+\code{\link{jpeg}}. Other arguments of graphics device functions
+can be provided as a list in argument \code{args.gr}.
+
+Alternatively, the (resized) graphics window can be stored to a
+file using either \code{\link{dev.copy2eps}} or
+\code{\link{dev.copy2pdf}}. It is also possible to manually create
+a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
+\code{\link{svg}} and to specify the width and height of the
+graphic (see Examples).
+}
 
 \subsection{Default layout for studies and pooled effects}{
 
@@ -1146,6 +1335,22 @@ where treatment labels are attached can be changed using arguments
 \code{label.e.attach} and \code{label.c.attach}.
 }
 
+\subsection{Risk of bias assessment}{
+
+A risk of bias (RoB) assessment can be shown in the forest plot by
+either using a meta-analysis object with an RoB assessment as main
+input or providing a suitable object created with
+\code{\link{rob}}. Argument \code{rob = FALSE} can be used to
+suppress the print of the risk of bias information.
+
+RoB assessments are shown as the only information on the right side
+of the forest plot. Thus, arguments \code{rightcols} and
+\code{rightlabs} should not be used. Predefined columns shown by
+default on the right side of a forest plot will be moved to the
+left side.
+}
+
+
 \subsection{Information on heterogeneity and statistical tests}{
 
 Argument \code{hetstat} can be a character string to specify where
@@ -1205,6 +1410,10 @@ The following arguments can be used in a similar way:
 
 \itemize{
 \item \code{subgroup.hetstat} (heterogeneity statistic in
+  subgroups),
+\item \code{common.subgroup} (common effect estimates in
+  subgroups),
+\item \code{random.subgroup} (random effects estimates in
   subgroups),
 \item \code{prediction.subgroup} (prediction interval in
   subgroups),
@@ -1319,6 +1528,10 @@ conducted:
 }
 }
 }
+\note{
+R function \code{.forestArgs} generates a character vector with all
+arguments of \code{forest.meta}.
+}
 \examples{
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
@@ -1345,9 +1558,24 @@ forest(m1, layout = "RevMan5", common = FALSE,
 
 
 \dontrun{
-# Create a PDF file forest-m1.pdf with the forest plot
+# Create PDF files with the forest plot
 #
-pdf("forest-m1.pdf", width = 10, height = 3)
+# - specify filename (R function pdf() is used due to extension .pdf)
+# - height of the figure is automatically determined
+# - width is set to 10 inches
+forest(m1, file = "forest-m1-1.pdf", width = 10)
+#
+# - specify graphics device function
+#   (filename "Rplots.pdf" used, see help page of R function pdf())
+# - height of the figure is automatically determined
+# - width is set to 10 inches
+# - set title for PDF file
+# - set background of forest plot
+forest(m1, func.gr = pdf, width = 10,
+  args.gr = list(title = "My Forest Plot", bg = "green"))
+#
+# - manually specify the height of the figure
+pdf("forest-m1-2.pdf", width = 10, height = 3)
 forest(m1)
 dev.off()
 
@@ -1432,7 +1660,7 @@ forest(m1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot (in one column)
 #
-forest(m1, rightcols = c("effect.ci"))
+forest(m1, rightcols = "effect.ci")
 
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot

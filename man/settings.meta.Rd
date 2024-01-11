@@ -34,6 +34,7 @@ The function can be used to either change individual settings (see
 Examples) or use one of the following general settings:
 \itemize{
 \item \code{settings.meta("RevMan5")}
+\item \code{settings.meta("BMJ")}
 \item \code{settings.meta("JAMA")}
 \item \code{settings.meta("IQWiG5")}
 \item \code{settings.meta("IQWiG6")}
@@ -46,7 +47,9 @@ Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
 \url{https://training.cochrane.org/online-learning/core-software/revman})
 and specifies to use a RevMan 5 layout in forest plots.
 
-The second command can be used to generate forest plots following
+The second command can be used to generate forest plots in BMJ layout.
+
+The third command can be used to generate forest plots following
 instructions for authors of the \emph{Journal of the American
 Medical Association}
 (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
@@ -68,14 +71,18 @@ The last setting uses the default settings of R package
 RevMan 5 settings, in detail:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
-\code{method.random.ci} \tab "classic" \tab only available method in RevMan 5 \cr
+\code{method.random.ci} \tab "classic" \tab only available method
+  in RevMan 5 \cr
 \code{method.tau} \tab "DL" \tab only available method in RevMan 5
   \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
 \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
-\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity statistic \cr
+\code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity
+  statistic \cr
+\code{exact.smd} \tab FALSE \tab exact formulae for Hedges' g and
+  Cohen's d \cr
 \code{layout} \tab "RevMan5" \tab layout for forest plots \cr
 \code{prediction} \tab FALSE \tab no prediction interval \cr
 \code{test.overall} \tab TRUE \tab print information on test of
@@ -84,14 +91,70 @@ RevMan 5 settings, in detail:
   subgroup differences \cr
 \code{test.effect.subgroup} \tab TRUE \tab print information on
   test for effect in subgroups \cr
-\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+  in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
   \cr
 \code{digits.tau2} \tab 3 \tab number of digits for tau-squared \cr
 \code{digits.tau} \tab 4 \tab number of digits for square root of
   tau-squared \cr
+\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+  \cr
 \code{CIbracket}, \tab "[" \tab \cr
 \code{CIseparator} \tab ", " \tab print confidence intervals as
   "\code{[., .]}" \cr
+\code{header.line}, \tab TRUE \tab print header line
+}
+
+BMJ settings:
+\tabular{lll}{
+\bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+\code{layout} \tab "BMJ" \tab layout for forest plots \cr
+\code{test.overall} \tab TRUE \tab print information on test of
+  overall effect \cr
+\code{test.subgroup} \tab FALSE \tab print information on test for
+  subgroup differences \cr
+\code{test.effect.subgroup} \tab FALSE \tab print information on
+  test for effect in subgroups \cr
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
+  in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
+  \cr
+\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
+  \cr
+\code{digits.pval} \tab 2 \tab number of digits for p-values \cr
+\code{CIbracket}, \tab "(" \tab \cr
+\code{CIseparator} \tab " to " \tab print confidence intervals as
+  "\code{(. to .)}" \cr
+\code{hetlab}, \tab \tab "Test for heterogeneity: " \cr
 \code{header.line}, \tab TRUE \tab print header line
 }
 
@@ -105,13 +168,31 @@ JAMA settings:
   subgroup differences \cr
 \code{test.effect.subgroup} \tab FALSE \tab print information on
   test for effect in subgroups \cr
+\code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
+  forest plots
+  \cr
+\code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity
+  variance in forest plots
+  \cr
+\code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
+  standard deviation in forest plots
+  \cr
+\code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
+  forest plots
+  \cr
+\code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
+  in forest plots
+  \cr
+\code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
+  forest plots
+  \cr
 \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
   \cr
 \code{digits.pval} \tab 3 \tab number of digits for p-values \cr
 \code{CIbracket}, \tab "(" \tab \cr
 \code{CIseparator} \tab "-" \tab print confidence intervals as
   "\code{(.-.)}" \cr
-\code{zero.pval}, \tab TRUE \tab print p-values with leading zero
+\code{zero.pval}, \tab FALSE \tab print p-values with leading zero
 \cr
 \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr

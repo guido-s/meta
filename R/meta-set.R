@@ -7,7 +7,8 @@
 
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
-                    return.NULL = TRUE, nchar.equal = FALSE) {
+                    return.NULL = TRUE, nchar.equal = FALSE,
+                    setNA = FALSE) {
   val <- unique(val)
   ##
   if (is.null(name))
@@ -30,7 +31,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       idx <- charmatch(tolower(x), tolower(val), nomatch = NA)
   }
   ##
-  if (anyNA(idx) || any(idx == 0)) {
+  if ((anyNA(idx) || any(idx == 0)) && !setNA) {
     if (list)
       first <- "List element '"
     else
@@ -213,4 +214,21 @@ setVal <- function(data, varname, default = NULL) {
     return(data[[varname]])
   else
     return(default)
+}
+
+setsort <- function(sort, n, text) {
+  if (is.null(sort))
+    res <- seq_len(n)
+  else {
+    chklength(sort, n,
+              text = paste0("Argument '", deparse(substitute(sort)),
+                           "' must be of same length as ",
+                           "number of ", text, "."))
+    ##
+    res <- sort
+    if (!(is.numeric(res) & min(res) == 1 & max(res) == n))
+      res <- order(res)
+  }
+  ##
+  res
 }

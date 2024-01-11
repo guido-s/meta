@@ -20,6 +20,7 @@
 #' @param cluster An optional vector specifying which estimates come
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
+#' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
 #'   \code{"GLMM"}, can be abbreviated.
@@ -499,10 +500,10 @@
 #' m4 <- update(m1, method.ci = "WSCC")
 #' m5 <- update(m1, method.ci = "CP")
 #' #
-#' lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-#'   m4$lower, NA, m5$lower), 4)
-#' upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-#'   m4$upper, NA, m5$upper), 4)
+#' lower <- round(logit2p(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
+#'   m4$lower, NA, m5$lower)), 4)
+#' upper <- round(logit2p(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
+#'   m4$upper, NA, m5$upper)), 4)
 #' #
 #' tab1 <- data.frame(
 #'   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),
@@ -567,7 +568,7 @@
 metaprop <- function(event, n, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
-                     cluster = NULL,
+                     cluster = NULL, rho = 0,
                      method,
                      ##
                      sm = gs("smprop"),
@@ -579,7 +580,11 @@ metaprop <- function(event, n, studlab,
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
-                     overall.hetstat = common | random,
+                     overall.hetstat =
+                       if (is.null(gs("overall.hetstat")))
+                         common | random
+                       else
+                         gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
                      ##
                      method.tau =
@@ -636,6 +641,8 @@ metaprop <- function(event, n, studlab,
   ##
   ## (1) Check and set arguments
   ##
+  ##
+  chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
   if (missing.method)
@@ -1065,7 +1072,8 @@ metaprop <- function(event, n, studlab,
     transf.null.effect <- asin(sqrt(null.effect))
   }
   else if (sm == "PFT") {
-    TE <- 0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
+    TE <-
+      0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
     seTE <- sqrt(1 / (4 * n + 2))
     transf.null.effect <- asin(sqrt(null.effect))
   }
@@ -1105,29 +1113,33 @@ metaprop <- function(event, n, studlab,
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
   ##
-  if (method.ci == "NAsm") {
+  if (method.ci != "NAsm") {
     if (sm == "PLOGIT") {
-      lower.study <- logit2p(lower.study)
-      upper.study <- logit2p(upper.study)
+      lower.study <- p2logit(lower.study)
+      upper.study <- p2logit(upper.study)
     }
     ##
     else if (sm == "PAS") {
-      lower.study <- asin2p(lower.study, value = "lower")
-      upper.study <- asin2p(upper.study, value = "upper")
+      lower.study <- p2asin(lower.study)
+      upper.study <- p2asin(upper.study)
     }
     ##
     else if (sm == "PFT") {
-      lower.study <- asin2p(lower.study, n, value = "lower")
-      upper.study <- asin2p(upper.study, n, value = "upper")
+      lower.ev <- n * lower.study 
+      upper.ev <- n * upper.study 
+      ##
+      lower.study <-
+        0.5 * (asin(sqrt(lower.ev / (n + 1))) +
+               asin(sqrt((lower.ev + 1) / (n + 1))))
+      upper.study <-
+        0.5 * (asin(sqrt(upper.ev / (n + 1))) +
+               asin(sqrt((upper.ev + 1) / (n + 1))))
     }
     ##
     else if (sm == "PLN") {
-      lower.study <- exp(lower.study)
-      upper.study <- exp(upper.study)
+      lower.study <- log(lower.study)
+      upper.study <- log(upper.study)
     }
-    ##
-    lower.study[lower.study < 0] <- 0
-    upper.study[upper.study > 1] <- 1
   }
   
   
@@ -1149,7 +1161,6 @@ metaprop <- function(event, n, studlab,
   ##
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
-           by, tau.common, missing.tau.common,
            method, missing.method)
     ##
     common <- FALSE
@@ -1200,7 +1211,7 @@ metaprop <- function(event, n, studlab,
   ##
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
-               cluster = cluster,
+               cluster = cluster, rho = rho,
                ##
                sm = sm,
                level = level,

@@ -2,9 +2,11 @@
 #' 
 #' @description
 #' Conduct a test for funnel plot asymmetry for all outcomes in a
-#' Cochrane review
+#' Cochrane review of intervention studies
 #' 
-#' @param x An object of class \code{rm5}.
+#' @aliases metabias.rm5 metabias.cdir 
+#' 
+#' @param x An object of class \code{rm5} or \code{cdir}.
 #' @param comp.no Comparison number.
 #' @param outcome.no Outcome number.
 #' @param method.bias A character string indicating which test for
@@ -27,27 +29,23 @@
 #' 
 #' @details
 #' This function can be used to conduct a test for funnel plot
-#' asymmetry for all or selected meta-analyses in a Cochrane Review.
-#' 
-#' Review Manager 5 (RevMan 5) was the software used for preparing and
-#' maintaining Cochrane Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' In RevMan 5, subgroup analyses can be defined and data from a
-#' Cochrane review can be imported to R using the function
-#' \code{read.rm5}.
+#' asymmetry for all or selected meta-analyses in a Cochrane review of
+#' intervention studies (Higgins et al, 2023).
 #' 
 #' The R function \code{\link{metacr}} is called internally.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabias}}, \code{\link{metacr}},
-#'   \code{\link{read.rm5}}, \code{\link{summary.rm5}}
+#'   \code{\link{read.rm5}}, \code{\link{read.cdir}},
+#'   \code{\link{summary.rm5}}, \code{\link{summary.cdir}}
 #' 
 #' @references
-#' Higgins, J.P.T and S. Green (2011):
+#' Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+#' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
-#'   Version 5.1.0 [Updated March 2011]}.
-#' The Cochrane Library: http://www.cochrane-handbook.org/
+#'   Version 6.4}.
+#' Available from \url{https://training.cochrane.org/handbook}
 #' 
 #' @keywords htest
 #' 
@@ -95,6 +93,67 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$outcome.no[x$comp.no == i])
+    else
+      jj <- outcome.no
+    for (j in jj) {
+      ##
+      m1 <- metacr(x, i, j)
+      ##
+      if (inherits(m1, "metabin")) {
+        if (m1$sm == "OR")
+          mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.or)
+        else 
+          mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.binary)
+      }
+      else
+        mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias)
+      ##
+      if (!is.null(mb1$estimate)) {
+        if (n > 1)
+          cat("\n*****\n\n")
+        print(mb1)
+        ##
+        n <- n + 1
+      }
+    }
+  }
+  
+  invisible(NULL)
+}
+
+
+
+
+
+#' @rdname metabias.rm5
+#' @method metabias cdir
+#' @export
+
+
+metabias.cdir <- function(x, comp.no, outcome.no,
+                          method.bias = "linreg",
+                          method.bias.binary = method.bias,
+                          method.bias.or = "score",
+                          k.min = 10, ...) {
+  
+  
+  ##
+  ##
+  ## (1) Check for cdir object
+  ##
+  ##
+  chkclass(x, "cdir")
+  
+  
+  if (missing(comp.no))
+    comp.no <- unique(x$data$comp.no)
+  
+  
+  n <- 1
+  ##
+  for (i in comp.no) {
+    if (missing(outcome.no))
+      jj <- unique(x$data$outcome.no[x$data$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {

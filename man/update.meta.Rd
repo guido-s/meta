@@ -11,6 +11,7 @@
   studlab,
   exclude,
   cluster,
+  rho = object$rho,
   method,
   sm = object$sm,
   incr,
@@ -111,6 +112,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies (see \code{\link{metabin}},

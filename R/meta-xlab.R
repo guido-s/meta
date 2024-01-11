@@ -1,9 +1,10 @@
 xlab <- function(sm, backtransf,
                  pscale = 1, irscale = 1, irunit = "person-years",
                  newline = FALSE, revman5 = FALSE,
-                 big.mark = gs("big.mark")) {
+                 big.mark = gs("big.mark"),
+                 func.transf = NULL, func.backtransf = NULL) {
   
-  res <- NULL
+  res <- sm
   
   
   newline <- if (newline) "\n" else " "
@@ -146,8 +147,19 @@ xlab <- function(sm, backtransf,
     ##
     else if (sm == "MLN")
       res <- "Log Mean"
+    else if (!is.null(func.transf))
+      res <- paste0(func.transf, "(", sm, ")")
+    else if (!is.null(func.backtransf)) {
+      if (func.backtransf == "exp")
+        res <- paste0("log(", sm, ")")
+      else if (func.backtransf == "z2cor")
+        res <-  paste0("Fisher's z transformed", newline, "correlation")
+      else if (func.backtransf == "logit2p")
+        res <-  paste0("Logit Transformed", newline, "Proportion")
+      else if (func.backtransf == "logVR2VE")
+        res <-  "Log Vaccine Ratio"
+    }
   }
-  
   
   if (is.null(res))
     res <- sm

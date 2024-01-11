@@ -4,7 +4,17 @@
 \alias{metabind}
 \title{Combine and summarize meta-analysis objects}
 \usage{
-metabind(..., name = NULL, pooled = NULL, backtransf = NULL, outclab = NULL)
+metabind(
+  ...,
+  name = NULL,
+  common = NULL,
+  random = NULL,
+  prediction = NULL,
+  backtransf = NULL,
+  outclab = NULL,
+  pooled = NULL,
+  warn.deprecated = gs("warn.deprecated")
+)
 }
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
@@ -13,10 +23,14 @@ with meta-analyses.}
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}
 
-\item{pooled}{A character string or vector indicating whether
-results of a common effect or random effects model should be
-considered. Either \code{"common"} or \code{"random"}, can be
-abbreviated.}
+\item{common}{A logical vector indicating whether results of common
+effect model should be considered.}
+
+\item{random}{A logical vector indicating whether results of random
+effects model should be considered.}
+
+\item{prediction}{A logical vector indicating whether results of
+prediction intervals should be considered.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If
@@ -24,6 +38,12 @@ back transformed in printouts and plots. If
 printed as odds ratios rather than log odds ratios, for example.}
 
 \item{outclab}{Outcome label for all meta-analyis objects.}
+
+\item{pooled}{Deprecated argument (replaced by \code{common} and
+\code{random}.}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 }
 \value{
 An object of class \code{c("metabind", "meta")} with corresponding
@@ -43,9 +63,10 @@ results of several subgroup analyses (see Examples).
 
 Individual study results are not retained with \code{metabind} as
 the function allows to combine meta-analyses from different data
-sets (e.g., with randomized or observational studies). This is
-possible using R function \code{\link{metamerge}} which can be used
-to combine results of two meta-analyses of the same dataset.
+sets (e.g., with randomized or observational studies). Individual
+study results are retained with R function \code{\link{metamerge}}
+which can be used to combine results of meta-analyses of the
+same dataset.
 }
 \examples{
 data(Fleiss1993cont)
@@ -63,10 +84,10 @@ m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 mu1 <- update(m1, subgroup = age, subgroup.name = "Age group")
 mu2 <- update(m1, subgroup = region, subgroup.name = "Region")
 
-# Combine subgroup meta-analyses and show forest plot with subgroup
-# results
+# Combine random effects subgroup meta-analyses and show forest
+# plot with subgroup results
 #
-mb1 <- metabind(mu1, mu2)
+mb1 <- metabind(mu1, mu2, common = FALSE)
 mb1
 forest(mb1)
 
@@ -93,9 +114,9 @@ taus <- c("Restricted maximum-likelihood estimator",
   "Empirical Bayes estimator")
 #
 m1.taus <- metabind(m1, m1.pm, m1.dl, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
-  name = taus, pooled = "random")
+  name = taus, common = FALSE)
 m1.taus
-forest(m1.taus, print.I2 = FALSE, print.pval.Q = FALSE)
+forest(m1.taus)
 
 }
 \seealso{

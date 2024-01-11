@@ -12,6 +12,7 @@ metaprop(
   subset = NULL,
   exclude = NULL,
   cluster = NULL,
+  rho = 0,
   method,
   sm = gs("smprop"),
   incr = gs("incr"),
@@ -21,7 +22,8 @@ metaprop(
   common = gs("common"),
   random = gs("random") | !is.null(tau.preset),
   overall = common | random,
-  overall.hetstat = common | random,
+  overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
+    gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
@@ -85,6 +87,8 @@ plots.}
 \item{cluster}{An optional vector specifying which estimates come
 from the same cluster resulting in the use of a three-level
 meta-analysis model.}
+
+\item{rho}{Assumed correlation of estimates within a cluster.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"} and
@@ -547,10 +551,10 @@ m3 <- update(m1, method.ci = "WS")
 m4 <- update(m1, method.ci = "WSCC")
 m5 <- update(m1, method.ci = "CP")
 #
-lower <- round(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-  m4$lower, NA, m5$lower), 4)
-upper <- round(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-  m4$upper, NA, m5$upper), 4)
+lower <- round(logit2p(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
+  m4$lower, NA, m5$lower)), 4)
+upper <- round(logit2p(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
+  m4$upper, NA, m5$upper)), 4)
 #
 tab1 <- data.frame(
   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),

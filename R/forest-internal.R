@@ -24,11 +24,15 @@ add.label <- function(x, column,
 
 add.text <- function(x, column, ...) {
   ##
-  for (i in 1:length(x$rows)) {
+  for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
-      pushViewport(viewport(layout.pos.row = x$rows[i],
-                            layout.pos.col = column, ...))
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column, ...))
+      #
       grid.draw(x$labels[[i]])
+      #
       popViewport()
     }
   }
@@ -66,15 +70,103 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
 }
 
 
+add.rob <- function(x, column, size, fs, ff, fontfamily,
+                    rob, rob.levels, rob.symbols, rob.colour, ...) {
+  ##
+  if (is.null(rob.levels)) {
+    if (is.factor(rob))
+      rob.levels <- levels(rob)
+    else
+      rob.levels <- unique(rob)
+  }
+  ##
+  n.levs <- length(rob.levels)
+  ##
+  if (is.null(rob.symbols)) {
+    if (n.levs == 3)
+      rob.symbols <- c("-", "?", "+")
+    else
+      rob.symbols <- rev(seq_len(n.levs))
+  }
+  else if (length(rob.symbols) == 1 && is.logical(rob.symbols)) {
+    if (rob.symbols) {
+      if (n.levs == 3)
+        rob.symbols <- c("-", "?", "+")
+      else
+        rob.symbols <- rev(seq_len(n.levs))
+    }
+  }
+  else if (length(rob.symbols) != n.levs)
+    stop("Wrong number of RoB symbols (argument 'rob.symbols').",
+         call. = FALSE)
+  ##
+  if (is.null(rob.colour)) {
+    if (n.levs == 3)
+      rob.colour <- c("red", "yellow", "green")
+    else
+      rob.colour <- rev(seq_len(n.levs))
+  }
+  ##
+  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols))
+    txt.rob <-
+      as.character(
+        factor(rob, levels = rob.levels, labels = rob.symbols))
+  else
+    txt.rob <- NULL
+  ##
+  col.rob <-
+    as.character(
+      factor(rob, levels = rob.levels,
+             labels = rob.colour))
+  ##
+  j <- 0
+  ##
+  for (i in seq_len(length(x$rows))) {
+    if (!is.na(x$rows[i])) {
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column, ...))
+      ##
+      if (i == 1)
+        grid.draw(x$labels[[1]])
+      else {
+        j <- j + 1
+        ##
+        grid.circle(x = unit(0.5, "npc"), y = unit(0.5, "npc"),
+                    r = unit(size / 2, "snpc"),
+                    gp = gpar(fill = col.rob[j], col = col.rob[j]))
+        ##
+        if (!is.null(txt.rob) && !is.na(txt.rob[j]))
+          grid.text(txt.rob[j],
+                    x = unit(0.5, "npc"),
+                    y = unit(if (txt.rob[j] %in% c("-", "+")) 0.58 else 0.5,
+                             "npc"),
+                    gp = gpar(fontsize = fs, fontface = ff,
+                              fontfamily = fontfamily),
+                    just = c("center", "center"))
+      }
+      ##
+      popViewport()
+    }
+  }
+  ##
+  invisible(NULL)
+}
+
+
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
-                      xlim, notmiss.xlim) {
+                      xlim, notmiss.xlim,
+                      col.line, col.label) {
   ##
   ## Function to draw x-axis
   ##
-  pushViewport(viewport(layout.pos.row = max(yS, na.rm = TRUE),
-                        layout.pos.col = column,
-                        xscale = x$range))
+  pushViewport(
+    viewport(
+      layout.pos.row = max(yS, na.rm = TRUE),
+      layout.pos.col = column,
+      xscale = x$range))
   ##
   ## x-axis:
   ##
@@ -132,24 +224,62 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         label <- at
       at <- log(at)
     }
-    grid.xaxis(at = at, label = label,
+    ## Print x-axis labels
+    grid.xaxis(name = "xaxis1",
+               at = at, label = label,
                gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd))
+                         fontfamily = fontfamily, lwd = lwd,
+                         col = col.label, tcl = -0.1))
+    ## Print xaxis and tick marks (in different colour)
+    grid.xaxis(name = "xaxis2",
+               at = at, label = FALSE,
+               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                         fontfamily = fontfamily, lwd = lwd,
+                         col = col.line, tcl = -0.1))
   }
   else {
-    if (is.null(at))
-      grid.xaxis(gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd))
-    else
-      if ((length(label) == 1 && is.logical(label) && label) |
-          (length(label) >= 1 & !is.logical(label)))
-        grid.xaxis(at = at, label = label,
-                   gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                             fontfamily = fontfamily, lwd = lwd))
-    else
-      grid.xaxis(at = at,
+    if (is.null(at)) {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
+    else if ((length(label) == 1 && is.logical(label) && label) |
+          (length(label) >= 1 & !is.logical(label))) {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+        at = at, label = label,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        at = at, label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
+    else {
+      ## Print x-axis labels
+      grid.xaxis(name = "xaxis1",
+                 at = at,
                  gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd))
+                           fontfamily = fontfamily, lwd = lwd,
+                           col = col.label, tcl = -0.1))
+      ## Print xaxis and tick marks (in different colour)
+      grid.xaxis(name = "xaxis2",
+        at = at, label = FALSE,
+        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                  fontfamily = fontfamily, lwd = lwd,
+                  col = col.line, tcl = -0.1))
+    }
   }
   ##
   popViewport()
@@ -160,7 +290,8 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
 
 draw.ci.diamond <- function(TE, lower, upper,
                             size, min, max,
-                            col.diamond, col.diamond.lines) {
+                            col.diamond, col.diamond.lines,
+                            lwd) {
   ##
   if (min > max) {
     tmp <- min
@@ -172,10 +303,44 @@ draw.ci.diamond <- function(TE, lower, upper,
       ((min <= TE & TE <= max) |
        (min <= lower & lower <= max) |
        (min <= upper & upper <= max))
-      )
-    grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
-                 y = unit(0.5 + c(0, 0.3 * size, 0, -0.3 * size), "npc"),
-                 gp = gpar(fill = col.diamond, col = col.diamond.lines))
+      ) {
+    if (min <= lower & max >= upper) {
+      grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
+                   y = unit(0.5 + c(0, 0.4 * size, 0, -0.4 * size), "npc"),
+                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                             lwd = lwd))
+    }
+    ##
+    else {
+      if (min > lower) {
+        x.min <- min
+        y.min1 <- 0.5 + -0.4 * size * (lower - min) / (lower - TE)
+        y.min2 <- 0.5 +  0.4 * size * (lower - min) / (lower - TE)
+      }
+      else {
+        x.min <- lower
+        y.min1 <- y.min2 <- 0.5
+      }
+      ##
+      if (max < upper) {
+        x.max <- max
+        y.max1 <- 0.5 +  0.4 * size * (upper - max) / (upper - TE)
+        y.max2 <- 0.5 + -0.4 * size * (upper - max) / (upper - TE)
+      }
+      else {
+        x.max <- upper
+        y.max1 <- y.max2 <- 0.5
+      }
+      ##
+      grid.polygon(x = unit(c(x.min, x.min, TE, x.max, x.max, TE, x.min),
+                            "native"),
+                   y = unit(c(y.min1, y.min2, 0.5 + 0.4 * size,
+                              y.max1, y.max2, 0.5 - 0.4 * size,
+                              y.min1), "npc"),
+                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                             lwd = lwd))
+    }
+  }
   ##
   invisible(NULL)
 }
@@ -192,24 +357,55 @@ draw.ci.predict <- function(lower.predict, upper.predict,
   }
   ##
   if (!(is.na(lower.predict) | is.na(upper.predict))) {
+    range <- max - min
     ## Plot prediction interval only within plotting range
-    if ((min <= lower.predict & lower.predict <= max) |
-        (min <= upper.predict & upper.predict <= max))
-      grid.polygon(x = unit(c(lower.predict, lower.predict,
-                              upper.predict, upper.predict), "native"),
-                   y = unit(0.5 + size * c(-1, 1, 1, -1) / 10, "npc"),
-                   gp = gpar(fill = col.predict, col = col.predict.lines))
+    if (min > lower.predict)
+      x.min <- min + range / 40
+    else
+      x.min <- lower.predict
+    ##
+    if (max < upper.predict)
+      x.max <- max - range / 40
+    else
+      x.max <- upper.predict
+    ##
+    grid.polygon(x = unit(c(x.min, x.min, x.max, x.max), "native"),
+                 y = unit(0.5 + size * c(-1, 1, 1, -1) / 10, "npc"),
+                 gp = gpar(fill = col.predict, col = col.predict.lines))
+    ##
+    if (min > lower.predict)
+      grid.lines(x = unit(c(min, min + 0.00001), "native"),
+                 y = 0.5,
+                 gp = gpar(col = col.predict.lines,
+                           fill = col.predict),
+                 arrow = arrow(ends = "first",
+                               length = unit(0.5, "npc"),
+                               type = "closed"))
+    ##
+    if (max < upper.predict)
+      grid.lines(x = unit(c(max - 0.00001, max), "native"),
+                 y = 0.5,
+                 gp = gpar(col = col.predict.lines,
+                           fill = col.predict),
+                 arrow = arrow(ends = "last",
+                               length = unit(0.5, "npc"),
+                               type = "closed"))
   }
   ##
   invisible(NULL)
 }
 
 
-draw.ci.square <- function(TE, lower, upper,
-                           size, min, max,
-                           lwd,
-                           col, col.square,
-                           col.square.lines, col.inside) {
+draw.ci <- function(TE, lower, upper,
+                    size, min, max,
+                    lwd,
+                    col,
+                    col.square, col.square.lines,
+                    col.circle, col.circle.lines,
+                    col.inside,
+                    type,
+                    lwd.square,
+                    arrow.type, arrow.length) {
   ##
   if (min > max) {
     tmp <- min
@@ -234,19 +430,24 @@ draw.ci.square <- function(TE, lower, upper,
   ##
   if (!is.na(TE) && (TE >= min & TE <= max)) {
     if (!is.na(size) && size > 0 && !is.na(lower) && !is.na(upper)) {
-      grid.rect(x = unit(TE, "native"),
-                width = unit(size, "snpc"),
-                height = unit(size, "snpc"),
-                gp = gpar(fill = col.square, col = col.square.lines))
-      grid.lines(x = unit(c(TE, TE), "native"),
-                 y = unit(c(0.4, 0.6), "npc"),
-                 gp = gpar(col = TElineCol, lwd = lwd))
+      if (type == "square") {
+        grid.rect(x = unit(TE, "native"),
+                  width = unit(size, "snpc"),
+                  height = unit(size, "snpc"),
+                  gp = gpar(fill = col.square, col = col.square.lines,
+                            lwd = lwd.square))
+        ##
+        grid.lines(x = unit(c(TE, TE), "native"),
+                   y = unit(c(0.4, 0.6), "npc"),
+                   gp = gpar(col = TElineCol, lwd = lwd))
+      }
     }
     else
       grid.lines(x = unit(c(TE, TE), "native"),
                  y = unit(c(0.4, 0.6), "npc"),
                  gp = gpar(col = TElineCol, lwd = lwd))
   }
+  ##
   if (!is.na(TE)) {
     ##
     ## Draw lines in colour "col.inside" if totally inside rect
@@ -287,13 +488,42 @@ draw.ci.square <- function(TE, lower, upper,
       ##
       if (!is.na(lower) && lower < min)
         grid.lines(x = unit(c(min - 0.00001, min), "native"), y = 0.5,
-                   gp = gpar(col = lineCol, lwd = lwd),
-                   arrow = arrow(ends = "first", length = unit(0.05, "inches")))
+                   gp = gpar(col = lineCol, lwd = lwd, fill = lineCol),
+                   arrow = arrow(ends = "first",
+                                 length = unit(arrow.length, "inches"),
+                                 type = arrow.type))
       if (!is.na(upper) && upper > max)
         grid.lines(x = unit(c(max, max + 0.00001), "native"), y = 0.5,
-                   gp = gpar(col = lineCol, lwd = lwd),
-                   arrow = arrow(ends = "last", length = unit(0.05, "inches")))
+                   gp = gpar(col = lineCol, lwd = lwd, fill = lineCol),
+                   arrow = arrow(ends = "last",
+                                 length = unit(arrow.length, "inches"),
+                                 type = arrow.type))
     }
+  }
+  ##
+  if (!is.na(TE) && (TE >= min & TE <= max)) {
+    if (!is.na(size) && size > 0 && !is.na(lower) && !is.na(upper)) {
+      if (type == "circle")
+        grid.circle(x = unit(TE, "native"), y = unit(0.5, "npc"),
+                    r = unit(size / 2, "snpc"),
+                    gp = gpar(fill = col.circle, col = col.circle.lines))
+      ##
+      else if (type == "squarediamond") {
+        xmin <- convertX(unit(TE, "native") - unit(0.5 * size, "lines"),
+                         "native", valueOnly = TRUE)
+        xmax <- convertX(unit(TE, "native") + unit(0.5 * size, "lines"),
+                         "native", valueOnly = TRUE)
+        ##
+        grid.polygon(x = unit(c(xmin, TE, xmax, TE), "native"),
+                     y = unit(0.5 + c(0, 0.5 * size, 0, -0.5 * size), "npc"),
+                     gp = gpar(col = col.square.lines, fill = col.square,
+                               lwd = lwd.square))
+      }
+    }
+    else
+      grid.lines(x = unit(c(TE, TE), "native"),
+                 y = unit(c(0.4, 0.6), "npc"),
+                 gp = gpar(col = TElineCol, lwd = lwd))
   }
   ##
   invisible(NULL)
@@ -304,23 +534,31 @@ draw.forest <- function(x, column) {
   ##
   ## Function to plot results for individual studies and summaries
   ##
-  for (i in 1:length(x$rows)) {
+  for (i in seq_len(length(x$rows))) {
     if (!is.na(x$rows[i])) {
-      pushViewport(viewport(layout.pos.row = x$rows[i],
-                            layout.pos.col = column,
-                            xscale = x$range))
+      pushViewport(
+        viewport(
+          layout.pos.row = x$rows[i],
+          layout.pos.col = column,
+          xscale = x$range))
       ##
-      if (x$type[i] == "square")
-        draw.ci.square(x$eff[i], x$low[i], x$upp[i],
-                       x$sizes[i], x$range[1], x$range[2],
-                       x$lwd,
-                       x$col[i], x$col.square[i],
-                       x$col.square.lines[i], x$col.inside[i])
+      if (x$type[i] %in% c("square", "circle", "squarediamond"))
+        draw.ci(x$eff[i], x$low[i], x$upp[i],
+                x$sizes[i], x$range[1], x$range[2],
+                x$lwd,
+                x$col[i],
+                x$col.square[i], x$col.square.lines[i],
+                x$col.circle[i], x$col.circle.lines[i],
+                x$col.inside[i],
+                type = x$type[i],
+                x$lwd.square,
+                x$arrow.type, x$arrow.length)
       ##
       else if (x$type[i] == "diamond")
         draw.ci.diamond(x$eff[i], x$low[i], x$upp[i],
                         x$sizes[i], x$range[1], x$range[2],
-                        x$col.diamond[i], x$col.diamond.lines[i])
+                        x$col.diamond[i], x$col.diamond.lines[i],
+                        x$lwd.diamond)
       ##
       else if (x$type[i] == "predict")
         draw.ci.predict(x$low[i], x$upp[i],
@@ -343,7 +581,9 @@ draw.lines <- function(x, column,
                        xmin, xmax,
                        lower.equi, upper.equi,
                        lty.equi, col.equi,
-                       fill.lower.equi, fill.upper.equi) {
+                       fill.lower.equi, fill.upper.equi,
+                       fill,
+                       col.line) {
   ##
   if (xmin > xmax) {
     xmin <- x$range[2]
@@ -355,6 +595,14 @@ draw.lines <- function(x, column,
   }
   ##
   pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  ##
+  ## Add background colour for confidence interval plot
+  ##
+  if (!is.null(fill))
+    grid.polygon(x = unit(c(xmin, xmax, xmax, xmin), "native"),
+                 y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                          "lines"),
+                 gp = gpar(col = fill, fill = fill))
   ##
   ## Add equivalence region(s)
   ##
@@ -452,7 +700,7 @@ draw.lines <- function(x, column,
   if (!is.na(ref) && (xmin <= ref & ref <= xmax))
     grid.lines(x = unit(ref, "native"),
                y = unit(c(ymin.ref, ymax), "lines"),
-               gp = gpar(lwd = lwd))
+               gp = gpar(lwd = lwd, col = col.line))
   ##
   ## Line for common effect estimate(s):
   ##
@@ -487,7 +735,8 @@ draw.lines <- function(x, column,
 
 formatcol <- function(x, y, rows, just = "right", settings,
                       fontfamily,
-                      n.com, n.ran, n.prd) {
+                      n.com, n.ran, n.prd,
+                      rob = FALSE) {
   ##
   if (just == "left")
     xpos <- 0
@@ -504,7 +753,8 @@ formatcol <- function(x, y, rows, just = "right", settings,
                          fontface = settings$ff.study,
                          fontfamily = fontfamily)
                        ),
-              rows = rows)
+              rows = rows,
+              rob = rob)
   ##
   ## Study label:
   ##
@@ -521,12 +771,12 @@ formatcol <- function(x, y, rows, just = "right", settings,
   strt <- j <- 1
   for (i in seq_len(n.com)) {
     res$labels[[strt + i]] <- textGrob(y[strt - 1 + i],
-                              x = xpos, just = just,
-                              gp = gpar(
-                                fontsize = settings$fs.common,
-                                fontface = settings$ff.common,
-                                fontfamily = fontfamily)
-                              )
+                                       x = xpos, just = just,
+                                       gp = gpar(
+                                         fontsize = settings$fs.common,
+                                         fontface = settings$ff.common,
+                                         fontfamily = fontfamily)
+                                       ) 
     j <- j + 1
   }
   ##
@@ -705,6 +955,16 @@ wcalc <- function(x)
 
 
 collapsemat <- function(x) {
+  if (is.list(x)) {
+    for (i in rev(seq_len(length(x)))) {
+      if (is.null(x[[i]]))
+        x[[i]] <- NULL
+    }
+  }
+  ##
+  if (is.list(x) & length(x) == 1)
+    x <- x[[1]]
+  ##
   if (is.matrix(x)) {
     res <- as.vector(t(x))
     names(res) <- rep(rownames(x), rep(ncol(x), nrow(x)))
@@ -734,3 +994,207 @@ notallNA <- function(x)
 
 repl <- function(x, n1, n2)
   rep(x, rep(n1, n2))
+
+
+gh <- function(type.gr, rows.gr,
+               ##
+               n.stud,
+               lower.common, lower.random, lower.predict,
+               subgroup, subgroup.levels,
+               lower.common.w, lower.random.w, lower.predict.w,
+               ##
+               common, random, overall,
+               prediction, overall.hetstat,
+               study.results,
+               ##
+               spacing,
+               ##
+               xlab, xlab.add, label.right, label.left, bottom.lr,
+               ##
+               prediction.subgroup, subgroup.hetstat,
+               test.overall.common, test.overall.random,
+               test.subgroup.common, test.subgroup.random,
+               ##
+               text.addline1, text.addline2,
+               text.details, text.rob,
+               ##
+               addrow, addrow.overall,
+               addrow.subgroups, addrows.below.overall,
+               ##
+               cols, labs,
+               text.w.common, text.w.random) {
+  
+  
+  ##
+  ## (1) Determine height per row
+  ##
+  if (grepl("bmp$", tolower(type.gr)) ||
+      grepl("jpg$", tolower(type.gr)) ||
+      grepl("jpeg$", tolower(type.gr)) ||
+      grepl("png$", tolower(type.gr)) ||
+      grepl("tif$", tolower(type.gr)) ||
+      grepl("tiff$", tolower(type.gr)))
+    height_per_row <- 480 / 33
+  else
+    height_per_row <-  7 / 35
+  ##
+  ## (2) Column labels
+  ##
+  labs <- unlist(labs)
+  if (any(grepl("col.w.common", cols)))
+    labs <- c(labs, text.w.common)
+  if (any(grepl("col.w.random", cols)))
+    labs <- c(labs, text.w.random)
+  ##
+  rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
+  ##
+  ## (2) Study results
+  ##
+  rows_studies <-
+    if (!study.results)
+      0
+    else
+      n.stud
+  ##
+  ## (3) Meta-analysis results
+  ##
+  if (overall)
+    rows_overall <-
+      1L * addrow.overall +
+      1L * common * length(lower.common) +
+      1L * random * length(lower.random) +
+      1L * prediction * length(lower.predict)
+  else
+    rows_overall <- 1L * addrow.overall
+  ##
+  ## (4) Text below meta-analysis results
+  ##
+  n.details <- sum(text.details != "")
+  n.rob <- sum(text.rob != "")
+  rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
+    test.overall.common + test.overall.random +
+    test.subgroup.common + test.subgroup.random +
+    1L * (text.addline1 != "") +
+    1L * (text.addline2 != "") +
+    n.details + 1L * (n.details > 0) +
+    n.rob + 1L * (n.rob > 0) +
+    1L * (n.details > 0 | n.rob > 0) +
+    2L * (n.details == 0 & n.rob == 0)
+  ## + 0.25
+  ## 
+  ## (5) Information below confidence interval plot
+  ##
+  rows_xlab <-
+    if (xlab == "")
+      0
+    else
+      2
+  ##
+  rows_xlab.add <-
+    if (xlab.add == "")
+      0
+    else
+      2
+  ##
+  rows_xlab <- rows_xlab + rows_xlab.add
+  ##
+  if (!bottom.lr) {
+    rows_label.left <- 0
+    rows_label.right <- 0
+  }
+  else {
+    rows_label.left <-
+      if (is.null(label.left) || label.left == "")
+        0
+      else if (!grepl("\n", label.left))
+        2
+      else
+        4
+    ##
+    rows_label.right <-
+      if (is.null(label.right) || label.right == "")
+        0
+      else if (!grepl("\n", label.right))
+        2
+      else
+        4
+  }
+  ##
+  rows_label <- max(c(rows_label.left, rows_label.right))
+  ##
+  rows_below_forest <- 2 + rows_xlab + rows_label
+  ##
+  ## (6) Subgroup results
+  ##
+  if (is.null(subgroup))
+    rows_subgroups <- 0
+  else {
+    n.subgr <- length(subgroup.levels)
+    ##
+    rows_subgroups_common <- common * n.subgr
+    rows_subgroups_random <- random * n.subgr
+    ##
+    rows_subgroups_predict <- 
+      if (is.vector(prediction.subgroup))
+        sum(prediction.subgroup)
+      else
+        prediction.subgroup * n.subgr
+    ##
+    rows_subgroups_hetstat <- 
+      if (length(subgroup.hetstat) > 1)
+        sum(subgroup.hetstat)
+      else
+        subgroup.hetstat * n.subgr
+    ##
+    if (is.matrix(lower.common.w))
+      rows_subgroups_common <- rows_subgroups_common * nrow(lower.common.w)
+    ##
+    if (is.matrix(lower.random.w))
+      rows_subgroups_random <- rows_subgroups_random * nrow(lower.random.w)
+    ##
+    if (is.matrix(lower.predict.w))
+      rows_subgroups_predict <- rows_subgroups_predict * nrow(lower.predict.w)
+    ##
+    rows_subgroups <-
+      n.subgr + # Labels
+      addrow.subgroups * (n.subgr - 1) +
+      rows_subgroups_common + rows_subgroups_random + 
+      rows_subgroups_predict + rows_subgroups_hetstat
+  }
+  ##
+  ## (7) Determine total height of graphics device
+  ##
+  total_rows <-
+    rows_column_labels +
+    rows_studies +
+    rows_overall +
+    max(rows_below_overall_labels, rows_below_forest) +
+    rows_subgroups +
+    rows.gr +
+    1
+  ##
+  total_height <- height_per_row * spacing * total_rows
+  
+  res <- data.frame(total_height, total_rows, height_per_row, spacing)
+  ##
+  res
+}
+
+
+show_subgroup_results <- function(x, n, lower, upper) {
+  if (length(x) == 1) {
+    if (is.matrix(lower))
+      return(x &
+             apply(lower, 1, notallNA) &
+             apply(upper, 1, notallNA))
+    else
+      return(rep(x & notallNA(lower) & notallNA(upper), n))
+  }
+  else {
+    chklength(x, n,
+              text = paste0("Length of argument '",
+                            deparse(substitute(x)),
+                            "' must be equal to 1 or number of subgroups."))
+    return(x)
+  }
+}

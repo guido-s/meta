@@ -145,10 +145,10 @@
 #' \code{k.min}. Note, the minimum number of studies is three.
 #' 
 #' If argument \code{method.bias} is missing, the Harbord test
-#' (\code{method.bias = "Harbord"}) is used in meta-analysis of binary
-#' outcomes for the odds ratio as effect measure and the Egger test
-#' (\code{method.bias = "Egger"}) in all other settings (Sterne et
-#' al., 2011).
+#' (\code{method.bias = "Harbord"}) is used in meta-analyses with a binary
+#' outcome for the odds ratio and Deeks' test (\code{method.bias = "Deeks"})
+#' for the diagnostic odds ratios. In all other settings, the Egger test
+#' (\code{method.bias = "Egger"}) is used (Sterne et al., 2011).
 #' 
 #' No test for funnel plot asymmetry is conducted in meta-analyses
 #' with subgroups.
@@ -620,10 +620,11 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       }
       ##
       res <- list(statistic = lreg$statistic, df = lreg$df, pval = lreg$pval,
-                  estimate = c(lreg$slope, lreg$se.slope,
-                               lreg$intercept, lreg$se.intercept),
-                  tau = lreg$tau, p.value = lreg$pval)
-      names(res$estimate) <- c("bias", "se.bias", "intercept", "se.intercept")
+                  estimate = c(lreg$slope, lreg$se.slope),
+                  tau = lreg$tau, p.value = lreg$pval,
+                  intercept = lreg$intercept,
+                  se.intercept = lreg$se.intercept)
+      names(res$estimate) <- c("bias", "se.bias")
     }
     
     
@@ -696,51 +697,51 @@ print.metabias <- function(x,
                            digits.pval = max(gs("digits.pval"), 2),
                            digits.se = gs("digits.se"),
                            digits.tau2 = gs("digits.tau2"),
-                           ##
+                           #
                            scientific.pval = gs("scientific.pval"),
                            big.mark = gs("big.mark"),
                            zero.pval = gs("zero.pval"),
                            JAMA.pval = gs("JAMA.pval"),
-                           ##
+                           #
                            text.tau2 = gs("text.tau2"),
                            ...) {
   
   
-  ##
-  ##
-  ## (1) Check for metabias object
-  ##
-  ##
+  #
+  #
+  # (1) Check for metabias object
+  #
+  #
+  
   chkclass(x, "metabias")
-  ##
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
-  ##
+  #
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
-  ##
+  #
   chkchar(text.tau2, length = 1)
   
-  
-  ## Update old metabias objects
-  ##
+  # Update old metabias objects
+  #
   if (inherits(x, "htest")) {
     x$pval <- x$p.value
     x$x <- list(method.tau = "DL")
     x$df <- x$parameters
     x$var.model <- "multiplicative"
-    ##
+    #
     if (grepl("Rank correlation test of funnel plot asymmetry",
               x$method)) {
       if (!grepl("counts", x$method))
         x$method.bias <- "Begg"
       else
         x$method.bias <- "Schwarzer"
-      ##
+      #
       x$method <- "Rank correlation test of funnel plot asymmetry"
       x$var.model <- ""
     }
@@ -749,7 +750,7 @@ print.metabias <- function(x,
       x$method <- "Funnel plot test for diagnostic odds ratios"
     }
     else {
-      ##
+      #
       if (grepl("score", x$method))
         x$method.bias <- "Harbord"
       else if (grepl("sample size", x$method))
@@ -760,52 +761,25 @@ print.metabias <- function(x,
       }
       else
         x$method.bias <- "Egger"
-      ##
+      #
       x$method <- "Linear regression test of funnel plot asymmetry"
     }
   }
   
-  
-  ## Print information for meta-analysis from Cochrane Review
-  ##
+  # Print information for meta-analysis from Cochrane Review
+  #
   crtitle(x)
   
-  
-  names.estimate <- names(x$estimate)
-  ##
   if (length(x$pval) != 0) {
-    if ("intercept" %in% names(x$estimate)) {
-      est1 <-
-        formatN(x$estimate[c(1, 3)], digits, "NA",
-                big.mark = big.mark)
-      est2 <-
-        formatN(x$estimate[c(2, 4)], digits.se, "NA",
-                big.mark = big.mark)
-      ##
-      x$estimate <- matrix(c(est1[1], est2[1], est1[2], est2[2]), nrow = 1)
-      dimnames(x$estimate) <- list("", names.estimate)
-    }
-    else {
-      est1 <-
-        formatN(x$estimate[1], digits, "NA", big.mark = big.mark)
-      names(est1) <- 
-      est2 <-
-        formatN(x$estimate[2], digits.se, "NA", big.mark = big.mark)
-      names(est2) <- names(x$estimate[2])
-      ##
-      x$estimate <- matrix(c(est1, est2), nrow = 1)
-      dimnames(x$estimate) <- list("", names.estimate)
-    }
-    ##
     format.pvalue <- formatPT(x$pval, digits = digits.pval,
                               scientific = scientific.pval,
                               zero = zero.pval, JAMA = JAMA.pval)
+    
     if (!grepl("<", format.pvalue))
       format.pvalue <- paste("=", format.pvalue)
     
-    
     cat(paste0(x$method, "\n\n"))
-    ##
+    #
     cat(paste0("Test result: ",
                names(x$statistic), " = ",
                formatN(x$statistic, digits.stat, "NA",
@@ -815,17 +789,18 @@ print.metabias <- function(x,
                  paste0("df = ", x$df, ", "),
                "p-value ",
                format.pvalue,
-               "\n\n",
-               ##
-               "Sample estimates:\n"
-               ))
-    ##
-    prmatrix(x$estimate, quote = FALSE, right = TRUE, ...)
-    ##
-    cat("\n")
-    ##
+               "\n",
+               #
+               "Bias estimate: ",
+               formatN(x$estimate[1], digits, "NA", big.mark = big.mark),
+               " (SE = ",
+               formatN(x$estimate[2], digits.se, "NA", big.mark = big.mark),
+               ")\n"
+               )
+        )
+    #
     if (x$var.model != "") {
-      cat("Details:\n")
+      cat("\nDetails:\n")
       cat(paste0("- ", x$var.model,
                  " residual heterogeneity variance (",
                  formatPT(x$tau^2,
@@ -834,11 +809,11 @@ print.metabias <- function(x,
                           lab.NA = "NA",
                           big.mark = big.mark),
                  ")\n"))
-      ##
+      #
       if (x$var.model == "additive") {
         i.lab.method.tau <-
           charmatch(x$x$method.tau, c(gs("meth4tau"), ""), nomatch = NA)
-        ##
+        #
         lab.method.tau <-
           c("- DerSimonian-Laird estimator",
             "- Paule-Mandel estimator",
@@ -850,13 +825,13 @@ print.metabias <- function(x,
             "- empirical Bayes estimator",
             ""
             )[i.lab.method.tau]
-        ##
+        #
         if (lab.method.tau != "")
           lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
-        ##
+        #
         cat(paste0(lab.method.tau, "\n"))
       }
-      ##
+      #
       if (x$method.bias == "Egger")
         detail.predictor <- "standard error"
       else if (x$method.bias == "Thompson")
@@ -872,9 +847,9 @@ print.metabias <- function(x,
       else if (x$method.bias == "Pustejovsky")
         detail.predictor <-
           "square root of the sum of the inverse group sample sizes"
-      ##
+      #
       cat(paste0("- predictor: ", detail.predictor, "\n"))
-      ##
+      #
       if (x$method.bias == "Egger")
         detail.weights <- "inverse variance"
       else if (x$method.bias == "Thompson")
@@ -889,10 +864,10 @@ print.metabias <- function(x,
         detail.weights <- "effective sample size"
       else if (x$method.bias == "Pustejovsky")
         detail.weights <- "inverse variance"
-      ##
+      #
       cat(paste0("- weight:    ", detail.weights, "\n"))
     }
-    ##
+    #
     if (x$method.bias == "Begg")
       detail.ref <- "Begg & Mazumdar (1993), Biometrics"
     else if (x$method.bias == "Egger")
@@ -913,14 +888,17 @@ print.metabias <- function(x,
       detail.ref <- "Pustejovsky & Rodgers (2019), RSM"
     else
       detail.ref <- ""
-    ##
+    #
     if (detail.ref != "")
-      cat(paste0("- reference: ", detail.ref, "\n"))
+      cat(
+        paste0(
+          if (x$var.model != "") "- reference: " else "\nReference: ",
+          detail.ref, "\n"))
   }
   else {
-    ##
-    ## Check whether number of studies is too small:
-    ##
+    #
+    # Check whether number of studies is too small:
+    #
     if (length(x$k) != 0 & length(x$k.min != 0)) {
       if (x$k <= x$k.min) {
         if (x$k <= 2)
@@ -934,9 +912,9 @@ print.metabias <- function(x,
                   call. = FALSE)
       }
     }
-    ##
-    ## Check whether meta-analysis has subgroups:
-    ##
+    #
+    # Check whether meta-analysis has subgroups:
+    #
     if (length(x$subgroup) != 0)
       warning("No test for small study effects conducted ",
               "for meta-analysis with subgroups.",

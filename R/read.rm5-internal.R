@@ -676,14 +676,7 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
   tdata$common <- tdata$model == "Fixed"
   tdata$random <- tdata$model == "Random"
   ##
-  tdata$sm[tdata$sm == "Odds Ratio"] <- "OR"
-  tdata$sm[tdata$sm == "Odds Ratio (Non-event)"] <- "OR"
-  tdata$sm[tdata$sm == "Risk Ratio"] <- "RR"
-  tdata$sm[tdata$sm == "Risk Difference"] <- "RD"
-  tdata$sm[tdata$sm == "Mean Difference"] <- "MD"
-  tdata$sm[tdata$sm == "Standardized Mean Difference"] <- "SMD"
-  tdata$sm[tdata$sm == "Std. Mean Difference"] <- "SMD"
-  tdata$sm[tdata$sm == "Hazard Ratio"] <- "HR"
+  tdata$sm <- em2sm(tdata$sm)
   ##
   sel.oe <- tdata$method == "EXP_O_E_VAR"
   tdata$method[sel.oe] <- "Peto"
