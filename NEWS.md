@@ -1,3 +1,12 @@
+## meta, version 7.0-1 (2024-mm-dd)
+
+### Bug fixes
+
+* forest.meta():
+  - print "logVR" instead of "logVE" or "VE" for not back-transformed
+    vaccine efficacy / effectiveness (sm = "VE")
+
+
 ## meta, version 7.0-0 (2024-01-11)
 
 ### Major changes

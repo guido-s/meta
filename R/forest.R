@@ -3453,8 +3453,9 @@ forest.meta <- function(x,
     else if (sm == "MLN")
       sm.lab <- "Mean"
   }
-  else if (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
-    sm.lab <- paste0("log", sm)
+  else if (is_relative_effect(sm) | sm == "VE" |
+           (!is.null(fbt) && fbt == "exp"))
+    sm.lab <- paste0("log", if (sm == "VE") "VR" else sm)
   #
   sel.studlab <-
     pmatch(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
@@ -3635,7 +3636,7 @@ forest.meta <- function(x,
   lab.TE <- sm
   #
   if (log.xaxis | sm == "VE")
-    lab.TE <- paste0("log", sm)
+    lab.TE <- paste0("log", if (sm == "VE") "VR" else sm)
   else if (!log.xaxis & !is.null(ftr)) {
     lab.TE <-
       paste0(ftr, "(", sm,
