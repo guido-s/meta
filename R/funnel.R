@@ -8,6 +8,8 @@
 #' @aliases funnel funnel.meta
 #' 
 #' @param x An object of class \code{meta}.
+#' @param type A character string indicating type of funnel plot. Either
+#'   \code{"standard"} or \code{"contour"}, can be abbreviated.
 #' @param xlim The x limits (min,max) of the plot.
 #' @param ylim The y limits (min,max) of the plot.
 #' @param xlab A label for the x-axis.
@@ -77,8 +79,7 @@
 #'   odds ratios, for example.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
-#' @param \dots Additional arguments (to catch deprecated arguments).
-#'   moment).
+#' @param \dots Additional arguments (passed on to plot.default).
 #' 
 #' @details
 #' A funnel plot (Light & Pillemer, 1984) is drawn in the active
@@ -147,8 +148,6 @@
 #'   studlab = paste(author, year),
 #'   sm = "RR", method = "I")
 #' 
-#' oldpar <- par(mfrow = c(2, 2))
-#' 
 #' # Standard funnel plot
 #' #
 #' funnel(m1)
@@ -156,10 +155,8 @@
 #' # Funnel plot with confidence intervals, common effect estimate and
 #' # contours
 #' #
-#' cc <- funnel(m1, common = TRUE,
-#'              level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
-#' legend(0.05, 0.05,
-#'   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
+#' fun <- funnel(m1, common = TRUE, level = 0.95, type = "contour")
+#' legend("topleft", fun$text.contour, fill = fun$col.contour, bg = "white")
 #' 
 #' # Contour-enhanced funnel plot with user-chosen colours
 #' #
@@ -171,14 +168,20 @@
 #'   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"),
 #'   fill = c("darkgreen", "green", "lightgreen"))
 #' 
-#' par(oldpar)
+#' fun <- funnel(m1, common = TRUE,
+#'   level = 0.95, contour = c(0.9, 0.95, 0.99),
+#'   col.contour = c("darkgreen", "green", "lightgreen"),
+#'   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
+#' legend(0.05, 0.05, fun$text.contour, fill = fun$col.contour)
 #'
 #' @method funnel meta
 #' @export
 
 
 funnel.meta <- function(x,
-                        ##
+                        #
+                        type = "standard",
+                        #
                         xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
                         ##
                         common = x$common, random = x$random,
@@ -193,7 +196,12 @@ funnel.meta <- function(x,
                         col.common = "black", col.random = "black",
                         ##
                         log, yaxis,
-                        contour.levels = NULL, col.contour,
+                        contour.levels =
+                          if (type == "contour")
+                            c(0.90, 0.95, 0.99) else NULL,
+                        col.contour =
+                          if (type == "contour")
+                            c("gray80", "gray70", "gray60") else NULL,
                         ##
                         ref = ifelse(is_relative_effect(x$sm), 1, 0),
                         ##
@@ -228,6 +236,8 @@ funnel.meta <- function(x,
   ## (2) Check other arguments
   ##
   ##
+  type <- setchar(type, c("standard", "contour"))
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
   ##
@@ -515,20 +525,33 @@ funnel.meta <- function(x,
   ## (5) Produce funnel plot
   ##
   ##
-  plot(TE, weight, type = "n",
-       xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
-       axes = axes, log = log)
+  args$x <- TE
+  args$y <- weight
+  args$type <- "n"
+  args$xlim <- xlim
+  args$ylim <- ylim
+  args$xlab <- xlab
+  args$ylab <- ylab
+  args$axes <- axes
+  args$log <- log
+  #
+  args$fixed <- NULL
+  args$lty.fixed <- NULL
+  args$lwd.fixed <- NULL
+  args$col.fixed <- NULL
+  #
+  do.call(plot, args)
   ##
   ## Add contour shades (enhanced funnel plots)
   ##
   if (!is.null(contour.levels) &
       !(yaxis %in% c("size", "invsqrtsize", "ess"))) {
     ##
-    if (missing(col.contour))
+    if (is.null(col.contour))
       if (length(contour.levels) < 2)
-        col.contour <- "gray50"
+        col.contour <- "gray60"
       else
-        col.contour <- gray(seq(0.5, 0.9, len = length(contour.levels)))
+        col.contour <- gray(seq(0.6, 0.9, len = length(contour.levels)))
     ##
     if (length(contour.levels) != length(col.contour))
       stop("Arguments 'contour.levels' and 'col.contour' must be of ",
@@ -726,9 +749,19 @@ funnel.meta <- function(x,
   res <- list(xlim = xlim, ylim = ylim)
   ##
   if (!is.null(contour.levels) &
-      !(yaxis %in% c("size", "invsqrtsize", "ess")))
+      !(yaxis %in% c("size", "invsqrtsize", "ess"))) {
+    res$contour.levels <- contour.levels
     res$col.contour <- col.contour
-  
+    #
+    tc <- vector("character", 0)
+    #
+    while (length(contour.levels) >= 2) {
+      tc <- c(tc, paste(1 - contour.levels[1], "> p >", 1 - contour.levels[2]))
+      contour.levels <- contour.levels[-1]
+    }
+    #
+    res$text.contour <- c(tc, paste("<", 1 - contour.levels))
+  }
   
   invisible(res)
 }

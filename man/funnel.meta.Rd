@@ -7,6 +7,7 @@
 \usage{
 \method{funnel}{meta}(
   x,
+  type = "standard",
   xlim = NULL,
   ylim = NULL,
   xlab = NULL,
@@ -28,8 +29,8 @@
   col.random = "black",
   log,
   yaxis,
-  contour.levels = NULL,
-  col.contour,
+  contour.levels = if (type == "contour") c(0.9, 0.95, 0.99) else NULL,
+  col.contour = if (type == "contour") c("gray80", "gray70", "gray60") else NULL,
   ref = ifelse(is_relative_effect(x$sm), 1, 0),
   level = if (common | random) x$level else NULL,
   studlab = FALSE,
@@ -47,6 +48,9 @@
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
+
+\item{type}{A character string indicating type of funnel plot. Either
+\code{"standard"} or \code{"contour"}, can be abbreviated.}
 
 \item{xlim}{The x limits (min,max) of the plot.}
 
@@ -152,8 +156,7 @@ odds ratios, for example.}
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
 
-\item{\dots}{Additional arguments (to catch deprecated arguments).
-moment).}
+\item{\dots}{Additional arguments (passed on to plot.default).}
 }
 \description{
 Draw a funnel plot which can be used to assess small study effects
@@ -195,8 +198,6 @@ m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   studlab = paste(author, year),
   sm = "RR", method = "I")
 
-oldpar <- par(mfrow = c(2, 2))
-
 # Standard funnel plot
 #
 funnel(m1)
@@ -204,10 +205,8 @@ funnel(m1)
 # Funnel plot with confidence intervals, common effect estimate and
 # contours
 #
-cc <- funnel(m1, common = TRUE,
-             level = 0.95, contour = c(0.9, 0.95, 0.99))$col.contour
-legend(0.05, 0.05,
-  c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"), fill = cc)
+fun <- funnel(m1, common = TRUE, level = 0.95, type = "contour")
+legend("topleft", fun$text.contour, fill = fun$col.contour, bg = "white")
 
 # Contour-enhanced funnel plot with user-chosen colours
 #
@@ -219,7 +218,11 @@ legend(0.05, 0.05,
   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"),
   fill = c("darkgreen", "green", "lightgreen"))
 
-par(oldpar)
+fun <- funnel(m1, common = TRUE,
+  level = 0.95, contour = c(0.9, 0.95, 0.99),
+  col.contour = c("darkgreen", "green", "lightgreen"),
+  lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
+legend(0.05, 0.05, fun$text.contour, fill = fun$col.contour)
 
 }
 \references{

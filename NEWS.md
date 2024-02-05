@@ -1,5 +1,12 @@
 ## meta, version 7.0-1 (2024-mm-dd)
 
+### User-visible changes
+
+* funnel.meta():
+  - new argument 'type' to create a contour-enhanced funnel plot with default
+    settings
+  - argument '...' passed on to plot.default(), e.g., to specify font family
+
 ### Bug fixes
 
 * forest.meta():
