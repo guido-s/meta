@@ -13,6 +13,17 @@
   - print "logVR" instead of "logVE" or "VE" for not back-transformed
     vaccine efficacy / effectiveness (sm = "VE")
 
+* bubble.metareg():
+  - use of vector instead of single value for argument 'pch' resulted in wrong
+    order of plotting symbols
+
+* metagen():
+  - set list elements 'approx.TE' or 'approx.seTE' to NULL if no approximation
+    has been used
+
+* runGLMM():
+  - use results of common effect model as fallback for error
+    "Cannot fit ML model" and print corresponding warning
 
 ## meta, version 7.0-0 (2024-01-11)
 

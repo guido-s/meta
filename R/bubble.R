@@ -13,7 +13,7 @@
 #' @param cex The magnification to be used for plotting symbols.
 #' @param min.cex Minimal magnification for plotting symbols.
 #' @param max.cex Maximal magnification for plotting symbols.
-#' @param pch The plotting symbol used for individual studies.
+#' @param pch The plotting symbol(s) used for individual studies.
 #' @param col A vector with colour of plotting symbols.
 #' @param bg A vector with background colour of plotting symbols (only
 #'   used if \code{pch} in \code{21:25}).
@@ -386,6 +386,11 @@ bubble.metareg <- function(x,
   studlab <- studlab[o]
   cexs <- cexs[o]
   #
+  if (length(pch) > 1)
+    pchs <- pch[o]
+  else
+    pchs <- rep(pch, length(o))
+  #
   if (length(col) > 1)
     cols <- col[o]
   else
@@ -419,11 +424,12 @@ bubble.metareg <- function(x,
       ys.i <- ys[sel]
       studlab.i <- studlab[sel]
       cexs.i <- cexs[sel]
+      pch.i <- pchs[sel]
       col.i <- cols[sel]
       bg.i <- bgs[sel]
       #
       plot(xs.i, scale * ys.i,
-           pch = pch, cex = cexs.i,
+           pch = pch.i, cex = cexs.i,
            xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
            type = "n", axes = FALSE, log = log, ...)
       #
@@ -441,7 +447,7 @@ bubble.metareg <- function(x,
       }
       #
       for (j in seq_along(xs.i))
-        points(xs.i[j], scale * ys.i[j], cex = cexs.i[j], pch = pch,
+        points(xs.i[j], scale * ys.i[j], cex = cexs.i[j], pch = pch.i[j],
                col = col.i[j], bg = bg.i[j])
       #
       # x-axis
@@ -463,7 +469,7 @@ bubble.metareg <- function(x,
   }
   else {
     plot(xs, scale * ys,
-         pch = pch, cex = cexs,
+         pch = pchs, cex = cexs,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          type = "n", axes = FALSE, log = log, ...)
     #
@@ -482,7 +488,7 @@ bubble.metareg <- function(x,
       lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
     }
     #
-    points(xs, scale * ys, cex = cexs, pch = pch, col = cols, bg = bgs)
+    points(xs, scale * ys, cex = cexs, pch = pchs, col = cols, bg = bgs)
     #
     # x-axis
     #

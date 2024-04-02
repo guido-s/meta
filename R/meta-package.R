@@ -434,7 +434,7 @@
 #' 
 #' @aliases meta-package meta
 #' 
-#' @docType package
+#' _PACKAGE
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 

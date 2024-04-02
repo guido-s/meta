@@ -56,7 +56,7 @@ bubble(x, ...)
 
 \item{max.cex}{Maximal magnification for plotting symbols.}
 
-\item{pch}{The plotting symbol used for individual studies.}
+\item{pch}{The plotting symbol(s) used for individual studies.}
 
 \item{col}{A vector with colour of plotting symbols.}
 

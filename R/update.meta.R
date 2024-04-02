@@ -1358,7 +1358,19 @@ update.meta <- function(object,
       add.c <- TRUE
       data.m <- data.m[, names(data.m) != "n.c"]
     }
-    ##
+    if (missing(approx.TE)) {
+      if (isCol(object$data, ".approx.TE"))
+        approx.TE <- object$data$.approx.TE
+      else
+        approx.TE <- NULL
+    }
+    if (missing(approx.seTE)) {
+      if (isCol(object$data, ".approx.seTE"))
+        approx.seTE <- object$data$.approx.seTE
+      else
+        approx.seTE <- NULL
+    }
+    #
     m <- metagen(TE = object$data$.TE,
                  seTE = object$data$.seTE,
                  studlab = studlab,

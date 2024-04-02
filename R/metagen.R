@@ -1658,10 +1658,24 @@ metagen <- function(TE, seTE, studlab,
     if (!isCol(data, ".subset")) {
       data$.TE <- TE
       data$.seTE <- seTE
+      #
+      if (!avail.approx.TE & any(approx.TE != ""))
+        data$.approx.TE <- approx.TE
+      if (!avail.approx.seTE & any(approx.seTE != ""))
+        data$.approx.seTE <- approx.seTE
     }
     else {
       data$.TE[data$.subset] <- TE
       data$.seTE[data$.subset] <- seTE
+      #
+      if (!avail.approx.TE & any(approx.TE != "")) {
+        data$.approx.TE <- ""
+        data$.approx.TE[data$.subset] <- approx.TE
+      }
+      if (!avail.approx.seTE & any(approx.seTE != "")) {
+        data$.approx.seTE <- ""
+        data$.approx.seTE[data$.subset] <- approx.seTE
+      }
     }
   }
   
@@ -2405,8 +2419,8 @@ metagen <- function(TE, seTE, studlab,
               irscale = irscale, irunit = irunit,
               method.ci = method.ci,              
               method.mean = method.mean,
-              approx.TE = approx.TE,
-              approx.seTE = approx.seTE,
+              approx.TE = if (all(approx.TE == "")) NULL else approx.TE,
+              approx.seTE = if (all(approx.seTE == "")) NULL else approx.seTE,
               ##
               seed.predict = seed.predict,
               ##

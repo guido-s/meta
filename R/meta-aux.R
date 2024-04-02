@@ -482,13 +482,20 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
     if (use.random) {
       res.r[[i]] <-
         try(runNN(rma.glmm, list.r[[i]], warn = warn), silent = TRUE)
-      if ("try-error" %in% class(res.r[[i]]))
+      #
+      if ("try-error" %in% class(res.r[[i]])) {
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
-                  res.r[[i]]))
+                  res.r[[i]]) |
+            grepl("Cannot fit ML model.", res.r[[i]])) {
+          warning(paste(res.r[[i]],
+                        " Using result of common effect model as fallback."))
+          #
           res.r[[i]] <- res.c
+        }
         else
           stop(res.r[[i]])
+      }
     }
     else {
       ## Fallback to common effect model due to small number of
