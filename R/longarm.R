@@ -223,6 +223,15 @@ longarm <- function(treat1, treat2,
     treat2 <- data$.treat2
     treat1 <- data$.treat1
   }
+  else if (inherits(treat1, "meta")) {
+    cls <- class(treat1)
+    cls <- cls[cls != "meta"]
+    #
+    stop("R function longarm() cannot be used with ",
+         "meta-analysis object of class", if (length(cls) > 1) "es", " ",
+         paste(paste0("'", cls, "'"), collapse = " - "), ".",
+         call. = FALSE)
+  }
   else if (is.data.frame(treat1) & !is.null(attr(treat1, "pairwise"))) {
     if (!nulldata)
       warning("Argument 'data' ignored for object created with pairwise().",

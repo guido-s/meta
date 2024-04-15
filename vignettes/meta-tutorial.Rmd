@@ -100,7 +100,7 @@ print(summary(m.publ))
 
 Create Figure 2 (file 'figure2.pdf').
 
-```{r, eval = FALSE}
+```{r}
 forest(m.publ, sortvar = year, prediction = TRUE,
   file = "figure2.pdf", width = 10)
 ```
@@ -120,7 +120,7 @@ m.publ.sub
 
 Create Figure 3 (file 'figure3.pdf').
 
-```{r, eval = FALSE}
+```{r}
 forest(m.publ.sub, sortvar = year,
   xlim = c(0.1, 100), at = c(0.1, 0.3, 1, 3, 10, 30, 100),
   test.subgroup.common = FALSE,
@@ -182,11 +182,11 @@ mbr = metabind(m.publ.iv,
 
 Create Figure 4 (file 'figure4.pdf').
 
-```{r, eval = FALSE}
+```{r}
 forest(mbr, xlim = c(0.5, 4),
-  leftcols = c("studlab", "I2.w", "tau2.w", "Q.w", "pval.Q.w"),
+  leftcols = c("studlab", "I2", "tau2", "Q", "pval.Q"),
   leftlab = c("Meta-Analysis Method", "I2", "Tau2", "Q", "P-value"),
-  type.study = "diamond",
+  type = "diamond",
   digits.addcols = c(4, 2, 2, 2), just.addcols = "right",
   file = "figure4.pdf", width = 10)
 ```

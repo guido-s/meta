@@ -30,6 +30,7 @@
   col.diamond.lines.random = col.diamond.lines,
   col.predict = gs("col.predict"),
   col.predict.lines = gs("col.predict.lines"),
+  type = NULL,
   type.common = NULL,
   type.random = NULL,
   type.predict = NULL,
@@ -138,13 +139,16 @@ diamond for random effects estimates.}
 \item{col.predict.lines}{Colour of outer lines of prediction
 intervals.}
 
-\item{type.common}{A character string or vector specifying how to
+\item{type}{A character string or vector specifying how to
+plot estimates.}
+
+\item{type.common}{A single character string specifying how to
 plot common effect estimates.}
 
-\item{type.random}{A character string or vector specifying how to
+\item{type.random}{A single character string specifying how to
 plot random effects estimates.}
 
-\item{type.predict}{A character string or vector specifying how to
+\item{type.predict}{A single character string specifying how to
 plot prediction intervals.}
 
 \item{digits}{Minimal number of significant digits for treatment

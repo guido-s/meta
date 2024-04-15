@@ -3,7 +3,6 @@
 \name{meta-package}
 \alias{meta-package}
 \alias{meta}
-\alias{_PACKAGE}
 \title{meta: Brief overview of methods and general hints}
 \description{
 R package \bold{meta} is a user-friendly general package providing
@@ -434,6 +433,8 @@ To report problems and bugs
 
 The development version of \bold{meta} is available on GitHub
 \url{https://github.com/guido-s/meta/}.
+
+_PACKAGE
 }
 \references{
 Balduzzi S, Rücker G, Schwarzer G (2019):

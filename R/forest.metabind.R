@@ -41,11 +41,13 @@
 #'   level.
 #' @param prediction A logical indicating whether prediction
 #'   interval(s) should be printed.
-#' @param type.common A character string or vector specifying how to
+#' @param type A character string or vector specifying how to
+#'   plot estimates.
+#' @param type.common A single character string specifying how to
 #'   plot common effect estimates.
-#' @param type.random A character string or vector specifying how to
+#' @param type.random A single character string specifying how to
 #'   plot random effects estimates.
-#' @param type.predict A character string or vector specifying how to
+#' @param type.predict A single character string specifying how to
 #'   plot prediction intervals.
 #' @param lab.NA A character string to label missing values.
 #' @param col.square The colour for squares reflecting study's weight
@@ -179,10 +181,8 @@
 
 
 forest.metabind <- function(x,
-                            leftcols,
-                            leftlabs,
-                            rightcols = c("effect", "ci"),
-                            rightlabs,
+                            leftcols, leftlabs,
+                            rightcols = c("effect", "ci"), rightlabs,
                             ##
                             common = x$common,
                             random = x$random,
@@ -208,7 +208,8 @@ forest.metabind <- function(x,
                             ##
                             col.predict = gs("col.predict"),
                             col.predict.lines = gs("col.predict.lines"),
-                            ##
+                            #
+                            type = NULL,
                             type.common = NULL,
                             type.random = NULL,
                             type.predict = NULL,
@@ -261,7 +262,18 @@ forest.metabind <- function(x,
   chklogical(addrow.subgroups)
   ##
   chkchar(lab.NA)
-  ##
+  #
+  if (missing(type))
+    type <- x$data$type
+  else {
+    if (length(type) == 1 & nrow(x$data) > 1)
+      type <- rep(type, nrow(x$data))
+    else if (length(type) != nrow(x$data))
+      stop("Argument 'type' must be a character vector of length 1 or ",
+           nrow(x$data), ".",
+           call. = FALSE)
+  }
+  #
   if (!is.null(type.common)) {
     if (length(type.common) != 1)
       stop("Argument 'type.common' must be of length 1.",
@@ -321,11 +333,17 @@ forest.metabind <- function(x,
   idx <- charmatch(tolower(addargs), "hetstat", nomatch = NA)
   if (any(!is.na(idx)) && length(idx) > 0)
     if (list(...)[["hetstat"]])
-      stop("Argument 'hetstat' must be FALSE for metabind objects.")
+      stop("Argument 'hetstat' must be FALSE for metabind objects.",
+           call. = TRUE)
   ##
-  idx <- charmatch(tolower(addargs), "fixed", nomatch = NA)
-  if (any(!is.na(idx)) && length(idx) > 0)
-    stop("Argument 'fixed' cannot be used with metabind objects.")
+  for (i in addargs) {
+    if (!is.null(setchar(i, "type.study", stop.at.error = FALSE)))
+      stop("Use argument 'type' as argument 'type.study' is set internally.",
+           call. = TRUE)
+    if (!is.null(setchar(i, "fixed", stop.at.error = FALSE)))
+      stop("Argument 'fixed' cannot be used with metabind objects.",
+           call. = TRUE)
+  }
   ##
   ## Check for deprecated arguments in '...'
   ##
@@ -468,8 +486,7 @@ forest.metabind <- function(x,
     rmSpace(paste0(x$data$upper.I2, ifelse(I2.na, "", "%")))
   ##
   x$data$k <- as.character(x$data$k)
-  ##
-  type <- x$data$type
+  #
   model <- x$data$model
   ##
   if (!is.null(type.common))

@@ -430,11 +430,11 @@
 #' The development version of \bold{meta} is available on GitHub
 #' \url{https://github.com/guido-s/meta/}.
 #' 
+#' _PACKAGE
+#' 
 #' @name meta-package
 #' 
 #' @aliases meta-package meta
-#' 
-#' _PACKAGE
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
