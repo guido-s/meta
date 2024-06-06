@@ -3717,7 +3717,7 @@ forest.meta <- function(x,
         if (length(rightcols.new) == length(rightlabs))
           rightlabs.new <- rightlabs
         else if (length(rightcols.new) > length(rightlabs))
-          stop("Too few labels defined for argument 'rightcols'.")
+          stop("Too few labels defined in argument 'rightlabs'.")
         else {
           rightlabs.new <- rightcols.new
           #
@@ -3779,7 +3779,7 @@ forest.meta <- function(x,
         if (length(leftcols.new) == length(leftlabs))
           leftlabs.new <- leftlabs
         else if (length(leftcols.new) > length(leftlabs))
-          stop("Too few labels defined for argument 'leftcols'.")
+          stop("Too few labels defined in argument 'leftlabs'.")
         else {
           leftlabs.new <- leftcols.new
           #
@@ -4056,6 +4056,14 @@ forest.meta <- function(x,
   rightcols[rightcols == "w.fixed"] <- "w.common"
   rightcols <- unique(rightcols)
   #
+  if (!missing.rightlabs && length(rightlabs) > length(rightcols))
+    stop("Too many labels defined in argument 'rightlabs': ",
+         length(rightlabs), " label", if (length(rightlabs) > 1) "s",
+         " for ", length(rightcols), " column",
+         if (length(rightcols) > 1) "s",
+         ".",
+         call. = FALSE)
+  #
   if (rob.only)
     rightcols <- rightcols.rob
   else
@@ -4063,6 +4071,14 @@ forest.meta <- function(x,
   #
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
+  #
+  if (!missing.leftlabs && length(leftlabs) > length(leftcols))
+    stop("Too many labels defined in argument 'leftlabs': ",
+         length(leftlabs), " label", if (length(leftlabs) > 1) "s",
+         " for ", length(leftcols), " column",
+         if (length(leftcols) > 1) "s",
+         ".",
+         call. = FALSE)
   
   
   #

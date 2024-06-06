@@ -5,13 +5,21 @@
 \alias{nnt.default}
 \alias{nnt.meta}
 \alias{print.nnt.meta}
+\alias{print.nnt.default}
 \title{Calculate the number needed to treat (NNT)}
 \usage{
 nnt(x, ...)
 
-\method{nnt}{meta}(x, p.c, common = x$common, random = x$random, small.values = "good", ...)
+\method{nnt}{meta}(
+  x,
+  p.c,
+  common = x$common,
+  random = x$random,
+  small.values = "desirable",
+  ...
+)
 
-\method{nnt}{default}(x, p.c, sm, lower, upper, small.values = "good", ...)
+\method{nnt}{default}(x, p.c, sm, lower, upper, small.values = "desirable", transf = FALSE, ...)
 
 \method{print}{nnt.meta}(
   x,
@@ -22,15 +30,23 @@ nnt(x, ...)
   big.mark = gs("big.mark"),
   ...
 )
+
+\method{print}{nnt.default}(
+  x,
+  digits = gs("digits"),
+  digits.prop = gs("digits.prop"),
+  big.mark = gs("big.mark"),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, or estimated treatment
-effect, i.e., risk difference(s), risk ratio(s), or odds
-ratio(s).}
+effect(s), i.e., risk difference(s), risk ratio(s), odds
+ratio(s), or hazard ratio(s).}
 
 \item{\dots}{Additional arguments (to catch deprecated arguments).}
 
-\item{p.c}{Baseline risk (control group event probability).}
+\item{p.c}{Baseline probability (control group event probability).}
 
 \item{common}{A logical indicating whether NNTs should be
 calculated based on common effect estimate.}
@@ -39,8 +55,8 @@ calculated based on common effect estimate.}
 calculated based on random effects estimate.}
 
 \item{small.values}{A character string specifying whether small
-treatment effects indicate a beneficial (\code{"good"}) or
-harmful (\code{"bad"}) effect, can be abbreviated.}
+treatment effects indicate a beneficial (\code{"desirable"}) or
+harmful (\code{"undesirable"}) effect, can be abbreviated.}
 
 \item{sm}{Summary measure.}
 
@@ -48,8 +64,13 @@ harmful (\code{"bad"}) effect, can be abbreviated.}
 
 \item{upper}{Upper confidence interval limit.}
 
-\item{digits}{Minimal number of significant digits, see
-\code{print.default}.}
+\item{transf}{A logical indicating whether treatment estimates and
+confidence limits are transformed or on the original scale.
+If \code{transf = TRUE}, inputs are expected to be log odds ratios instead
+of odds ratios for \code{sm = "OR"}, for example.}
+
+\item{digits}{Minimal number of significant digits to print NNT and its
+confidence interval, see \code{print.default}.}
 
 \item{digits.prop}{Minimal number of significant digits for
 proportions, see \code{print.default}.}
@@ -58,7 +79,8 @@ proportions, see \code{print.default}.}
 }
 \description{
 Calculate the number needed to treat (NNT) from estimated risk
-difference, risk ratio, or odds ratio, and a baseline risk.
+difference, risk ratio, odds ratio, or hazard ratio, and a baseline
+probability (control group event probability).
 }
 \details{
 The number needed to treat (NNT) is the estimated number of
@@ -73,27 +95,28 @@ NNTB and NNTH can be used to distinguish between beneficial and
 harmful NNTs (Altman, 1998).
 
 NNTs can be easily computed from an estimated risk difference (RD),
-risk ratio (RR), or odds ratio (OR) and a given baseline risk
+risk ratio (RR), or odds ratio (OR) and a given baseline probability
 (Higgins et al., 2022, section 15.4.4). It is also possible to
 calculate NNTs from hazard ratios (HR) (Altman & Andersen,
-1999). Accordlingly, NNTs can be calculated for meta-analyses
+1999). Accordingly, NNTs can be calculated for meta-analyses
 generated with \code{\link{metabin}} or \code{\link{metagen}} if
 argument \code{sm} was equal to \code{"RD"}, \code{"RR"},
 \code{"OR"}, or \code{"HR"}. It is also possible to provide only
-estimated treatment effects and baseline risks (see Examples).
+estimated treatment effects and baseline probabilities (see Examples).
 
-The baseline risk can be specified using argument \code{p.c}. If
+The baseline probability can be specified using argument \code{p.c}. If
 this argument is missing, the minimum, mean, and maximum of the
 control event probabilities in the meta-analysis are used for
 \code{\link{metabin}} and control event probabilities of 0.1, 0.2,
-\dots, 0.9 are used for \code{\link{metagen}}.
+\dots, 0.9 are used for \code{\link{metagen}}. Note, the survival instead of
+mortality probability must be provided for hazard ratios.
 
 Argument \code{small.values} can be used to specify whether small
-treatment effects indicate a beneficial (\code{"good"}) or harmful
-(\code{"bad"}) effect. For \code{small.values = "small"}, odds and
-risk ratios below 1 and risk differences below 0 indicate that the
-new treatment is beneficial. For \code{small.values = "bad"}, odds
-and risk ratios above 1 and risk differences above 0 indicate that
+treatment effects indicate a beneficial (\code{"desirable"}) or harmful
+(\code{"undesirable"}) effect. For \code{small.values = "desirable"}, odds,
+risk and hazard ratios below 1 and risk differences below 0 indicate that the
+new treatment is beneficial. For \code{small.values = "undesirable"}, odds,
+risk and hazard ratios above 1 and risk differences above 0 indicate that
 the new treatment is beneficial.
 
 \subsection{Interpretation of (positive and negative) NNTs}{
@@ -136,23 +159,28 @@ between 5 and infinity (Altman, 1998).
 }
 }
 \examples{
-# Calculate NNT for RD = -0.12 and -0.22
+# Calculate NNTs for risk differences of -0.12 and -0.22
 # (Cochrane Handbook, version 6.3, subsection 15.4.4.1)
 nnt(c(-0.12, -0.22), sm = "RD")
 
-# Calculate NNT for RR = 0.92 and baseline risk p.c = 0.3
+# Calculate NNT for risk ratio of 0.92 and baseline risk of 0.3
 # (Cochrane Handbook, version 6.3, subsection 15.4.4.2)
 nnt(0.92, p.c = 0.3, sm = "RR")
 
-# Calculate NNT for OR = 0.73 and baseline risk p.c = 0.3
+# Calculate NNT for odds ratio of 0.73 and baseline risk of 0.3
 # (Cochrane Handbook, version 6.3, subsection 15.4.4.3)
 nnt(0.73, p.c = 0.3, sm = "OR")
 
-# Use Mantel-Haenszel odds ratio to calculate NNTs
+# Calculate NNTs for Mantel-Haenszel odds ratio
 data(Olkin1995)
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
-              random = FALSE)
+m1 <-
+  metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
 nnt(m1)
+
+# Calculate NNTs from hazard ratio at two and four years (example from
+# Altman & Andersen, 1999). Note, argument 'p.c' must provide survival
+# probabilities instead of mortality rates for the control group.
+nnt(0.72, lower = 0.55, upper = 0.92, sm = "HR", p.c = 1 - c(0.33, 0.49))
 
 }
 \references{
@@ -162,14 +190,14 @@ Confidence intervals for the number needed to treat.
 \bold{317}, 1309--12
 
 Altman DG, Andersen PK (1999):
-Calculating the Number Needed to Treat for Trials Where the Outcome
-Is Time to an Event
+Calculating the number needed to treat for trials where the outcome
+is time to an event.
 \emph{British Medical Journal},
 \bold{319}, 1492--95
 
 Cook RJ, Sackett DL (1995):
-The Number Needed to Treat: A Clinically Useful Measure of
-Treatment Effect.
+The number needed to treat: a clinically useful measure of
+treatment effect.
 \emph{British Medical Journal},
 \bold{310}, 452--54
 
@@ -180,8 +208,8 @@ VA (editors) (2022):
 Available from www.training.cochrane.org/handbook
 
 Laupacis A, Sackett DL, Roberts RS (1988):
-An Assessment of Clinically Useful Measures of the Consequences of
-Treatment.
+An assessment of clinically useful measures of the consequences of
+treatment.
 \emph{New England Journal of Medicine},
 \bold{318}, 1728--33
 }

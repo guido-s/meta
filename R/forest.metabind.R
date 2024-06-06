@@ -452,6 +452,7 @@ forest.metabind <- function(x,
   }
   else {
     x$data$Q <- round(x$data$Q, digits.Q)
+    x$Q <- round(x$Q, digits.Q)
     x$data$pval.Q <-
       rmSpace(formatPT(x$data$pval.Q,
                        lab = FALSE,

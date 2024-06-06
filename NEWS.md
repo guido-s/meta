@@ -25,6 +25,12 @@
   - use results of common effect model as fallback for error
     "Cannot fit ML model" and print corresponding warning
 
+### Internal changes
+
+* metamean(): use mean value if median is not provided to approximate missing
+  standard deviation
+
+
 ## meta, version 7.0-0 (2024-01-11)
 
 ### Major changes
