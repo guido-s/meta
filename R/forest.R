@@ -1580,7 +1580,6 @@ forest.meta <- function(x,
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
-  x.meta <- x
   #
   K.all <- length(x$TE)
   #
@@ -4221,8 +4220,8 @@ forest.meta <- function(x,
         !(!is.null(x$tau.common) && x$tau.common)) {
       for (i in unique(subgroup)) {
         x$w.random[subgroup == i] <-
-          update(x.meta, subset = subgroup == i)$w.random
-        x$w.random.w[subgroup == i] <- sum(x$w.random[subgroup == i])
+          1 / (x$seTE[subgroup == i]^2 + replaceNA(x$tau.w[i]^2, 0))
+        x$w.random.w[i] <- sum(x$w.random[subgroup == i])
       }
     }
   }
