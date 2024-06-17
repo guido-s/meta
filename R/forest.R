@@ -1580,6 +1580,7 @@ forest.meta <- function(x,
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
+  x.meta <- x
   #
   K.all <- length(x$TE)
   #
@@ -4208,6 +4209,21 @@ forest.meta <- function(x,
       random <- TRUE
       if (weight.study != "same")
         weight.study <- "random"
+    }
+  }
+  else {
+    #
+    # Calculate random effects weights in subgroup meta-analysis if
+    # overall results are not shown (i.e., calculate weights based on
+    # subgroup specific variance estimates)
+    #
+    if (random & by & !overall & !all(is.na(x$w.random)) &
+        !(!is.null(x$tau.common) && x$tau.common)) {
+      for (i in unique(subgroup)) {
+        x$w.random[subgroup == i] <-
+          update(x.meta, subset = subgroup == i)$w.random
+        x$w.random.w[subgroup == i] <- sum(x$w.random[subgroup == i])
+      }
     }
   }
   # Total number of studies to plot (*not* number of studies combined)
