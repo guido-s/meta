@@ -4056,7 +4056,7 @@ forest.meta <- function(x,
   rightcols[rightcols == "w.fixed"] <- "w.common"
   rightcols <- unique(rightcols)
   #
-  if (!missing.rightlabs && length(rightlabs) > length(rightcols))
+  if (rsel && !missing.rightlabs && length(rightlabs) > length(rightcols))
     stop("Too many labels defined in argument 'rightlabs': ",
          length(rightlabs), " label", if (length(rightlabs) > 1) "s",
          " for ", length(rightcols), " column",
@@ -4072,7 +4072,7 @@ forest.meta <- function(x,
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
   #
-  if (!missing.leftlabs && length(leftlabs) > length(leftcols))
+  if (lsel && !missing.leftlabs && length(leftlabs) > length(leftcols))
     stop("Too many labels defined in argument 'leftlabs': ",
          length(leftlabs), " label", if (length(leftlabs) > 1) "s",
          " for ", length(leftcols), " column",
