@@ -171,7 +171,7 @@ setmethodbias <- function(x, subset) {
   res
 }
 
-setmethodtau <- function(method.tau, missing.tau,
+set_method_tau <- function(method.tau, missing.tau,
                          method.predict, missing.predict,
                          warn = TRUE) {
   if (method.tau != "REML" & any(method.predict == "KR")) {
@@ -188,26 +188,42 @@ setmethodtau <- function(method.tau, missing.tau,
   method.tau
 }
 
-setmethodpredict <- function(method.predict, missing.predict,
+set_method_predict <- function(method.predict, missing.predict,
                              method.tau, missing.tau,
                              warn = TRUE) {
-  if (method.tau != "REML" & any(method.predict == "KR")) {
+  any_KR <- any(method.predict %in% "KR")
+  any_KR_PR <- any(method.predict %in% "KR-PR")
+  #
+  if (method.tau != "REML" & (any_KR | any_KR_PR)) {
     if (!missing.tau & missing.predict) {
-      method.predict[method.predict == "KR"] <- "HTS"
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
     }
     else if (!missing.tau & !missing.predict) {
       if (warn)
-        warning("Argument 'method.predict' set to \"HTS\" instead of ",
-                "\"KR\" as 'method.tau' != \"REML\".",
+        warning("Argument 'method.predict' set to \"V\" instead of ",
+                if (any_KR) "\"KR\"", if (any_KR & any_KR_PR) " / ",
+                if (any_KR_PR) "\"KR-PR\"",
+                " as 'method.tau' != \"REML\".",
                 call. = FALSE)
-      method.predict[method.predict == "KR"] <- "HTS"
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
     }
-    else
-      method.predict[method.predict == "KR"] <- "HTS"
+    else {
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
+    }
   }
   ##
   method.predict
 }
+
+# Function only used with MLM or GLMM
+#
+set_df_predict <- function(method.predict, k)
+  ifelse(method.predict == "V" & k >= 2, k - 1,
+         ifelse(method.predict == "HTS" & k >= 3, k - 2,
+                ifelse(method.predict == "S", Inf, NA)))
 
 setVal <- function(data, varname, default = NULL) {
   if (isCol(data, varname))

@@ -483,6 +483,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (1) Check arguments
   ##
   ##
+  
   chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
@@ -501,10 +502,10 @@ metamean <- function(n, mean, sd, studlab,
   missing.method.predict <- missing(method.predict)
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
+    set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
+    set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
@@ -615,6 +616,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -704,11 +706,13 @@ metamean <- function(n, mean, sd, studlab,
   ##
   missing.approx.mean <- missing(approx.mean)
   approx.mean <- catch("approx.mean", mc, data, sfsp)
-  avail.approx.mean <- !(missing.approx.mean || is.null(approx.mean))
-  ##
+  avail.approx.mean <-
+    !(missing.approx.mean || is.null(approx.mean)) && any(approx.mean != "")
+  #
   missing.approx.sd <- missing(approx.sd)
   approx.sd <- catch("approx.sd", mc, data, sfsp)
-  avail.approx.sd <- !(missing.approx.sd || is.null(approx.sd))
+  avail.approx.sd <-
+    !(missing.approx.sd || is.null(approx.sd)) && any(approx.sd != "")
   
   
   ##
@@ -716,6 +720,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (3) Check length of essential variables
   ##
   ##
+  
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
@@ -741,7 +746,9 @@ metamean <- function(n, mean, sd, studlab,
     ##
     approx.mean <- setchar(approx.mean, c("", "iqr.range", "iqr", "range"))
   }
-  ##
+  else
+    approx.mean <- rep_len("", k.All)
+  #
   if (avail.approx.sd) {
     if (length(approx.sd) == 1)
       rep_len(approx.sd, k.All)
@@ -750,7 +757,9 @@ metamean <- function(n, mean, sd, studlab,
     ##
     approx.sd <- setchar(approx.sd, c("", "iqr.range", "iqr", "range"))
   }
-  ##
+  else
+    approx.sd <- rep_len("", k.All)
+  #
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
@@ -776,6 +785,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (4) Subset, exclude studies, and subgroups
   ##
   ##
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -800,6 +810,7 @@ metamean <- function(n, mean, sd, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.n = n)
@@ -820,10 +831,9 @@ metamean <- function(n, mean, sd, studlab,
       data$.min <- min
     if (avail.max)
       data$.max <- max
-    if (avail.approx.mean)
-      data$.approx.mean <- approx.mean
-    if (avail.approx.sd)
-      data$.approx.sd <- approx.sd
+    #
+    data$.approx.mean <- approx.mean
+    data$.approx.sd <- approx.sd
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -850,6 +860,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (6) Use subset for analysis
   ##
   ##
+  
   if (!missing.subset) {
     n <- n[subset]
     mean <- mean[subset]
@@ -869,10 +880,9 @@ metamean <- function(n, mean, sd, studlab,
       min <- min[subset]
     if (avail.max)
       max <- max[subset]
-    if (avail.approx.mean)
-      approx.mean <- approx.mean[subset]
-    if (avail.approx.sd)
-      approx.sd <- approx.sd[subset]
+    #
+    approx.mean <- approx.mean[subset]
+    approx.sd <- approx.sd[subset]
     ##
     if (by)
       subgroup <- subgroup[subset]
@@ -943,14 +953,13 @@ metamean <- function(n, mean, sd, studlab,
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
-  
   ##
   ##
   ## (7) Calculate means from other information
   ##
   ##
-  if (missing.approx.mean) {
-    approx.mean <- rep_len("", length(n))
+  
+  if (!avail.approx.mean) {
     ##
     ## (a) Use IQR and range
     ##
@@ -1009,9 +1018,10 @@ metamean <- function(n, mean, sd, studlab,
   ## (8) Calculate standard deviation from other information
   ##
   ##
-  if (missing.median) {
+  
+  if (!avail.median) {
     median.sd <- mean
-    missing.median <- FALSE
+    avail.median <- TRUE
     export.median <- FALSE
   }
   else {
@@ -1020,8 +1030,7 @@ metamean <- function(n, mean, sd, studlab,
     export.median <- TRUE
   }
   ##
-  if (missing.approx.sd) {
-    approx.sd <- rep_len("", length(n))
+  if (!avail.approx.sd) {
     ##
     ## (a) Use IQR and range
     ##
@@ -1076,14 +1085,18 @@ metamean <- function(n, mean, sd, studlab,
     if (!isCol(data, ".subset")) {
       data$.sd <- sd
       data$.mean <- mean
-      data$.approx.sd <- approx.sd
-      data$.approx.mean <- approx.mean
+      if (avail.approx.mean)
+        data$.approx.mean <- approx.mean
+      if (avail.approx.sd)
+        data$.approx.sd <- approx.sd
     }
     else {
       data$.sd[data$.subset] <- sd
       data$.mean[data$.subset] <- mean
-      data$.approx.sd[data$.subset] <- approx.sd
-      data$.approx.mean[data$.subset] <- approx.mean
+      if (avail.approx.mean)
+        data$.approx.mean[data$.subset] <- approx.mean
+      if (avail.approx.sd)
+        data$.approx.sd[data$.subset] <- approx.sd
     }
   }
   
@@ -1093,6 +1106,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (9) Calculate results for individual studies
   ##
   ##
+  
   npn.n <- npn(n)
   ##
   if (any(npn.n) & warn)
@@ -1145,6 +1159,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (10) Additional checks for three-level model
   ##
   ##
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   ##
@@ -1171,6 +1186,7 @@ metamean <- function(n, mean, sd, studlab,
   ## (11) Do meta-analysis
   ##
   ##
+  
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -1224,9 +1240,10 @@ metamean <- function(n, mean, sd, studlab,
   
   ##
   ##
-  ## (11) Generate R object
+  ## (12) Generate R object
   ##
   ##
+  
   res <- list(n = n, mean = mean, sd = sd,
               method.ci = method.ci,
               method.mean = method.mean, method.sd = method.sd)
@@ -1268,8 +1285,6 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Add data
   ##
-  res$method.mean <- method.mean
-  res$method.sd <- method.sd
   res$call <- match.call()
   ##
   if (keepdata) {
@@ -1353,13 +1368,18 @@ metamean <- function(n, mean, sd, studlab,
     ##
     res <- setNAwithin(res, res$three.level)
   }
+  #
+  if (is.null(res$approx.mean))
+    res$method.mean <- ""
+  #
+  if (is.null(res$approx.sd))
+    res$method.sd <- ""
   ##
   ## Backward compatibility
   ##
   res <- backward(res)
   ##
   class(res) <- c(fun, "meta")
-  
   
   res
 }

@@ -757,11 +757,11 @@ metagen <- function(TE, seTE, studlab,
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
-                 method.predict, missing.method.predict)
+    set_method_tau(method.tau, missing.method.tau,
+                   method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
-                     method.tau, missing.method.tau)
+    set_method_predict(method.predict, missing.method.predict,
+                       method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
@@ -1364,7 +1364,7 @@ metagen <- function(TE, seTE, studlab,
     adhoc.hakn.ci <- ""
     ##
     prediction <- FALSE
-    method.predict <- "HTS"
+    method.predict <- "V"
     adhoc.hakn.pi <- ""
     ##
     overall <- FALSE
@@ -1819,8 +1819,7 @@ metagen <- function(TE, seTE, studlab,
                method.random.ci)
       ##
       method.predict <- 
-        ifelse(method.predict %in% c("HK", "KR"), "HTS",
-               method.predict)
+        ifelse(method.predict %in% c("HK", "KR"), "V", method.predict)
       ##
       adhoc.hakn.ci <- ""
       adhoc.hakn.pi <- ""
@@ -1899,7 +1898,7 @@ metagen <- function(TE, seTE, studlab,
         # Fallback: classic random effects meta-analysis
         if (is.nan(seTE.kero) | is.nan(df.kero)) {
           method.random.ci[method.random.ci == "KR"] <- "classic-KR"
-          method.predict[method.predict == "KR"] <- "HTS-KR"
+          method.predict[method.predict == "KR"] <- "V-KR"
         }
       }
       ##
@@ -2068,11 +2067,19 @@ metagen <- function(TE, seTE, studlab,
           pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
                      level = level.predict, df = df.hakn.pi[i] - 1)
         }
+        else if (method.predict[i] %in% c("V", "V-KR") & k > 1) {
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
+                     level.predict, k - 1)
+        }
         else if (method.predict[i] %in% c("HTS", "HTS-KR") & k > 2) {
           pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
                      level.predict, k - 2)
         }
-        else if (method.predict[i] == "KR" & df.kero > 1) {
+        else if (method.predict[i] == "KR" & df.kero > 0) {
+          pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
+                     level.predict, df.kero)# - 1)
+        }
+        else if (method.predict[i] == "PR" & df.kero > 0) {
           pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
                      level.predict, df.kero - 1)
         }
@@ -2083,7 +2090,7 @@ metagen <- function(TE, seTE, studlab,
                                    seed = seed.predict)
           ##
           pi.i <- as.data.frame(ci(1, NA, level = level.predict))
-          pi.i$seTE <-NA
+          pi.i$seTE <- NA
           pi.i$lower <- res.pima$lpi
           pi.i$upper <- res.pima$upi
           pi.i$df <- res.pima$nup
@@ -2093,6 +2100,8 @@ metagen <- function(TE, seTE, studlab,
                      level.predict)
         else if (method.predict[i] == "KR")
           pi.i <- ci(TE.random, NA, level.predict, df.kero - 1)
+        else if (method.predict[i] == "V")
+          pi.i <- ci(TE.random, NA, level.predict, k - 1)
         else if (method.predict[i] == "HTS")
           pi.i <- ci(TE.random, NA, level.predict, k - 2)
         else
@@ -2111,7 +2120,6 @@ metagen <- function(TE, seTE, studlab,
     else {
       ##
       ## Three-level meta-analysis
-      ##
       ##
       if (common) {
         ##

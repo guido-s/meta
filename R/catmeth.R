@@ -312,6 +312,8 @@ catmeth <- function(x,
   if (prediction) {
     dat.pr <- unique(pred)
     ##
+    dat.pr.v <- subset(dat.pr, dat.pr$method.predict == "V")
+    dat.pr.v.kr <- subset(dat.pr, dat.pr$method.predict == "V-KR")
     dat.pr.hts1 <- subset(dat.pr, dat.pr$method.predict == "HTS")
     dat.pr.hk <- subset(dat.pr, dat.pr$method.predict == "HK")
     dat.pr.hts2 <- subset(dat.pr, dat.pr$method.predict == "HTS-KR")
@@ -319,22 +321,45 @@ catmeth <- function(x,
     dat.pr.nnf <- subset(dat.pr, dat.pr$method.predict == "NNF")
     dat.pr.s <- subset(dat.pr, dat.pr$method.predict == "S")
     ##
-    more.pi <- sum(1L * (nrow(dat.pr.hts1) > 0) +
+    more.pi <- sum(1L * (nrow(dat.pr.v) > 0) +
+                   1L * (nrow(dat.pr.v.kr) > 0) +
+                   1L * (nrow(dat.pr.hts1) > 0) +
                    1L * (nrow(dat.pr.hk) > 0) +
                    1L * (nrow(dat.pr.hts2) > 0) +
                    1L * (nrow(dat.pr.kr) > 0) +
                    1L * (nrow(dat.pr.nnf) > 0) +
                    1L * (nrow(dat.pr.s) > 0)) > 1
-    ##
-    if (nrow(dat.pr.hts1) > 0)
+    #
+    if (nrow(dat.pr.v) > 0)
       details <-
         paste0(
           details,
           "\n- Prediction interval based on t-distribution ",
-          if (more.pi) "(HTS) ",
+          if (more.pi) "(V) ",
           "(df = ",
-          cond(dat.pr.hts1$df.predict, digits = 0),
+          cond(dat.pr.v$df.predict, digits = 0),
           ")")
+    #
+    if (nrow(dat.pr.v.kr) > 0)
+      details <-
+      paste0(
+        details,
+        "\n- Prediction interval based on t-distribution ",
+        if (more.pi) "(V) ",
+        "(df = ",
+        cond(dat.pr.v.kr$df.predict, digits = 0),
+        ") instead of ",
+        "Kenward-Roger adjustment")
+    #
+    if (nrow(dat.pr.hts1) > 0)
+      details <-
+      paste0(
+        details,
+        "\n- Prediction interval based on t-distribution ",
+        if (more.pi) "(HTS) ",
+        "(df = ",
+        cond(dat.pr.hts1$df.predict, digits = 0),
+        ")")
     ##
     if (nrow(dat.pr.hk) > 0) {
       details <-

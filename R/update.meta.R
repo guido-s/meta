@@ -1190,14 +1190,6 @@ update.meta <- function(object,
   }
   ##
   if (metacont) {
-    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
-    pooledvar <- replaceNA(pooledvar, gs("pooledvar"))
-    method.smd <- replaceVal(method.smd, "", gs("method.smd"))
-    sd.glass <- replaceVal(sd.glass, "", gs("sd.glass"))
-    exact.smd <- replaceNA(exact.smd, gs("exact.smd"))
-    method.mean <- replaceVal(method.mean, "", "Luo")
-    method.sd <- replaceVal(method.sd, "", "Shi")
-    ##
     if (!isCol(object$data, ".approx.mean.e"))
       mean.e <- object$data$.mean.e
     else
@@ -1245,19 +1237,23 @@ update.meta <- function(object,
                   min.c = setVal(object$data, ".min.c"),
                   max.c = setVal(object$data, ".max.c"),
                   ##
-                  method.mean = method.mean,
-                  method.sd = method.sd,
-                  ##
+                  method.mean =
+                    replaceVal(replaceNULL(method.mean, "Luo"), "", "Luo"),
+                  method.sd =
+                    replaceVal(replaceNULL(method.mean, "Shi"), "", "Shi"),
+                  #
                   approx.mean.e = approx.mean.e,
                   approx.mean.c = approx.mean.c,
                   approx.sd.e = approx.sd.e,
                   approx.sd.c = approx.sd.c,
                   ##
-                  sm = sm, pooledvar = pooledvar,
-                  method.smd = method.smd, sd.glass = sd.glass,
-                  exact.smd = exact.smd,
+                  sm = sm,
+                  pooledvar = replaceNA(pooledvar, gs("pooledvar")),
+                  method.smd = replaceVal(method.smd, "", gs("method.smd")),
+                  sd.glass = replaceVal(sd.glass, "", gs("sd.glass")),
+                  exact.smd = replaceNA(exact.smd, gs("exact.smd")),
                   ##
-                  method.ci = method.ci,
+                  method.ci = replaceNULL(method.ci, gs("method.ci.cont")),
                   level = level, level.ma = level.ma,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
@@ -1553,11 +1549,7 @@ update.meta <- function(object,
       m$data <- m$data[, names(data)]
   }
   ##
-  if (metamean) {
-    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
-    method.mean <- replaceVal(method.mean, "", "Luo")
-    method.sd <- replaceVal(method.sd, "", "Shi")
-    ##
+  if (metamean)
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
@@ -1572,14 +1564,14 @@ update.meta <- function(object,
                   min = setVal(object$data, ".min"),
                   max = setVal(object$data, ".max"),
                   ##
-                  method.mean = method.mean,
-                  method.sd = method.sd,
+                  method.mean = replaceVal(method.mean, "", "Luo"),
+                  method.sd = replaceVal(method.sd, "", "Shi"),
                   ##
                   approx.mean = approx.mean,
                   approx.sd = approx.sd,
                   ##
                   sm = sm,
-                  method.ci = method.ci,
+                  method.ci = replaceNULL(method.ci, gs("method.ci.cont")),
                   level = level, level.ma = level.ma,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
@@ -1619,7 +1611,6 @@ update.meta <- function(object,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
-  }
   ##
   if (metaprop) {
     sm <- setchar(sm, gs("sm4prop"))

@@ -496,10 +496,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
+    set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
+    set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))

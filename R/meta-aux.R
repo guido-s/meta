@@ -1,7 +1,7 @@
 ## Auxiliary functions
 ##
 ## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 
@@ -355,6 +355,8 @@ extrVar <- function(x, name)
   x[[name]]
 
 
+# Function only used with MLM or GLMM
+#
 calcPI <- function(x) {
   
   res <- x
@@ -370,11 +372,9 @@ calcPI <- function(x) {
   ##
   tau2.calc <- if (is.na(sum(res$tau2))) 0 else sum(res$tau2)
   seTE.predict <- sqrt(seTE.random^2 + tau2.calc)
-  ##
-  df.predict <-
-    ifelse(method.predict == "HTS" & k >= 3, k - 2,
-    ifelse(method.predict == "S", Inf, NA))
-  ##
+  #
+  df.predict <- set_df_predict(method.predict, k)
+  #
   ci.p <- ci(TE.random, seTE.predict, level.predict, df = df.predict)
   ##
   res$seTE.predict <- rep_len(seTE.predict, length(df.predict))

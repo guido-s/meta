@@ -359,7 +359,7 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
   ##
   if (any(method.predict == "HK")) 
     stop("Hartung-Knapp method for prediction interval not ",
-         "available for GLMMs; use 'method.predict = \"HTS\".",
+         "available for GLMMs; use 'method.predict = \"V\".",
          call. = FALSE)
 
   return(invisible(NULL))
@@ -377,12 +377,12 @@ chkmlm <- function(method.tau, missing.method.tau,
     warning("For three-level model, argument 'method.tau' set to ",
             "\"REML\".",
             call. = FALSE)
-  ##
-  if (any(method.predict == "NNF"))
-    stop("Bootstrap method for prediction interval not ",
-         "available for three-level models.",
+  #
+  if (any(!(method.predict %in% c("V", "HTS", "S"))))
+    stop("Available prediction interval methods for ",
+         "three-level models: \"V\", \"HTS\", \"S\".",
          call. = FALSE)
-  
+  #
   return(invisible(NULL))
 }
 

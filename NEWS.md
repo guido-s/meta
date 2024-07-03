@@ -1,4 +1,8 @@
-## meta, version 7.0-1 (2024-mm-dd)
+## meta, version 7.5-0 (2024-mm-dd)
+
+### Major changes
+
+* By default, prediction intervals are calculated with *k - 1* instead of *k - 2* degrees of freedom ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k* corresponds to the number of studies in the meta-analysis (see help("meta-package") for more details on prediction interval methods)
 
 ### User-visible changes
 

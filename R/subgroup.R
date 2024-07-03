@@ -119,7 +119,28 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         cluster =
                           if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                         rho = x$rho,
-                        ##
+                        #
+                        median.e = subsetVar(x$median.e, sel),
+                        q1.e = subsetVar(x$q1.e, sel),
+                        q3.e = subsetVar(x$q3.e, sel),
+                        min.e = subsetVar(x$min.e, sel),
+                        max.e = subsetVar(x$max.e, sel),
+                        #
+                        median.c = subsetVar(x$median.c, sel),
+                        q1.c = subsetVar(x$q1.c, sel),
+                        q3.c = subsetVar(x$q3.c, sel),
+                        min.c = subsetVar(x$min.c, sel),
+                        max.c = subsetVar(x$max.c, sel),
+                        #
+                        method.mean = subsetVar(x$method.mean, sel),
+                        method.sd = subsetVar(x$method.sd, sel),
+                        #
+                        approx.mean.e = subsetVar(x$approx.mean.e, sel),
+                        approx.sd.e = subsetVar(x$approx.sd.e, sel),
+                        #
+                        approx.mean.c = subsetVar(x$approx.mean.c, sel),
+                        approx.sd.c = subsetVar(x$approx.sd.c, sel),
+                        #
                         sm = x$sm,
                         ##
                         pooledvar = x$pooledvar,
@@ -244,10 +265,19 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
-                        cluster =
-                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
+                        cluster = subsetVar(x$cluster, sel),
                         rho = x$rho,
-                        ##
+                        #
+                        median = subsetVar(x$median, sel),
+                        q1 = subsetVar(x$q1, sel),
+                        q3 = subsetVar(x$q3, sel),
+                        min = subsetVar(x$min, sel),
+                        max = subsetVar(x$max, sel),
+                        method.mean = subsetVar(x$method.mean, sel),
+                        method.sd = subsetVar(x$method.sd, sel),
+                        approx.mean = subsetVar(x$approx.mean, sel),
+                        approx.sd = subsetVar(x$approx.sd, sel),
+                        #
                         sm = x$sm,
                         ##
                         level.ma = x$level.ma,
@@ -550,6 +580,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   ## (2) Subgroup analysis with common tau-squared (three-level model)
   ##
   ##
+  
   if (!missing(subgroup.rma) && is.mlm) {
     n.methci <- length(x$method.random.ci)
     ##
@@ -614,10 +645,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     n.methpi <- length(method.predict)
     ##
     for (i in seq_len(n.methpi)) {
-      df.i <-
-        ifelse(method.predict[i] == "HTS" & k.w >= 3, k.w - 2,
-        ifelse(method.predict[i] == "S", Inf, NA))
-      ##
+      df.i <- set_df_predict(method.predict[i], k.w)
+      #
       ci.p <- ci(TE.random.w, seTE.predict.w, x$level.predict, df = df.i)
       ##
       if (n.methpi == 1) {
@@ -630,7 +659,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       }
       ##
       sel.p <-
-        !(method.predict[i] == "HTS" & k.w >= 3 | method.predict[i] == "S")
+        !(method.predict[i] == "V" & k.w >= 2 |
+            method.predict[i] == "HTS" & k.w >= 3 |
+            method.predict[i] == "S")
+      #
       if (n.methpi == 1) {
         lower.predict.w[sel.p] <- NA
         upper.predict.w[sel.p] <- NA
@@ -689,6 +721,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   ## (3) Subgroup analysis with common tau-squared (GLMM)
   ##
   ##
+  
   if (!missing(subgroup.rma) && is.glmm) {
     n.methci <- length(x$method.random.ci)
     ##
@@ -808,10 +841,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     n.methpi <- length(method.predict)
     ##
     for (i in seq_len(n.methpi)) {
-      df.i <-
-        ifelse(method.predict[i] == "HTS" & k.w >= 3, k.w - 2,
-        ifelse(method.predict[i] == "S", Inf, NA))
-      ##
+      df.i <- set_df_predict(method.predict[i], k.w)
+      #
       ci.p <- ci(TE.random.w, seTE.predict.w, x$level.predict, df = df.i)
       ##
       if (n.methpi == 1) {
@@ -824,7 +855,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       }
       ##
       sel.p <-
-        !(method.predict[i] == "HTS" & k.w >= 3 | method.predict[i] == "S")
+        !(method.predict[i] == "V" & k.w >= 2 |
+            method.predict[i] == "HTS" & k.w >= 3 |
+            method.predict[i] == "S")
+      #
       if (n.methpi == 1) {
         lower.predict.w[sel.p] <- NA
         upper.predict.w[sel.p] <- NA
@@ -888,6 +922,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   ## (4) Return list with results of subgroup analysis
   ##
   ##
+  
   res <- list(subgroup.levels = levs,
               ##
               k.w = k.w,

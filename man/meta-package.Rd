@@ -53,8 +53,9 @@ provides the following statistical methods for meta-analysis.
  (Partlett and Riley, 2017), see description of arguments
  \code{method.random.ci} and \code{method.predict} below
 \item Prediction interval for the treatment effect of a new study
- (Higgins et al., 2009; Partlett and Riley, 2017; Nagashima et al.,
- 2019), see description of argument \code{method.predict} below
+ (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
+ Nagashima et al., 2019), see description of argument \code{method.predict}
+ below
 \item Statistical tests for funnel plot asymmetry
  (\code{\link{metabias.meta}}, \code{\link{metabias.rm5}}) and
  trim-and-fill method (\code{\link{trimfill.meta}},
@@ -100,7 +101,7 @@ on the help pages \code{\link{meta-object}} and
 The following methods are available in all meta-analysis functions
 to estimate the between-study variance \eqn{\tau^2}.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
+\bold{Argument} \tab \bold{Method} \cr 
 \code{method.tau = "REML"}
  \tab Restricted maximum-likelihood estimator (Viechtbauer, 2005) \cr
 \tab (default) \cr
@@ -155,13 +156,13 @@ model. This is the estimator for \eqn{\tau^2} implemented in RevMan
 The following methods are available in all meta-analysis functions
 to calculate a confidence interval for the random effects estimate.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr
-\code{method.random.ci = "classic"}\tab Based on standard normal
+\bold{Argument} \tab \bold{Method} \cr
+\code{method.random.ci = "classic"} \tab Based on standard normal
   quantile \cr
 \tab (DerSimonian and Laird, 1986) (default) \cr
-\code{method.random.ci = "HK"}\tab Method by Hartung and Knapp
+\code{method.random.ci = "HK"} \tab Method by Hartung and Knapp
   (2001a/b) \cr
-\code{method.random.ci = "KR"}\tab Kenward-Roger method (Partlett and
+\code{method.random.ci = "KR"} \tab Kenward-Roger method (Partlett and
   Riley, 2017)
 }
 
@@ -214,19 +215,19 @@ it is wider than the interval from the Hartung-Knapp method
 Argument \code{adhoc.hakn.ci} can be used to choose the \emph{ad
 hoc} correction for the Hartung-Knapp (HK) method:
 \tabular{ll}{
-\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-\code{adhoc.hakn.ci = ""}\tab no \emph{ad hoc} correction (default)
+\bold{Argument} \tab \bold{\emph{Ad hoc} method} \cr
+\code{adhoc.hakn.ci = ""} \tab no \emph{ad hoc} correction (default)
   \cr
-\code{adhoc.hakn.ci = "se"}\tab use variance correction if HK standard
+\code{adhoc.hakn.ci = "se"} \tab use variance correction if HK standard
  error is smaller \cr
  \tab than standard error from classic random effects
  \cr
  \tab meta-analysis (Knapp and Hartung, 2003) \cr
-\code{adhoc.hakn.ci = "IQWiG6"}\tab use variance correction if HK
+\code{adhoc.hakn.ci = "IQWiG6"} \tab use variance correction if HK
  confidence interval \cr
  \tab is narrower than CI from classic random effects model \cr
  \tab with DerSimonian-Laird estimator (IQWiG, 2022) \cr
-\code{adhoc.hakn.ci = "ci"}\tab use wider confidence interval of
+\code{adhoc.hakn.ci = "ci"} \tab use wider confidence interval of
  classic random effects \cr
  \tab and HK meta-analysis \cr
  \tab (Hybrid method 2 in Jackson et al., 2017)
@@ -242,31 +243,51 @@ The following methods are available in all meta-analysis functions
 to calculate a prediction interval for the treatment effect in a
 single new study.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr
-\code{method.predict = "HTS"}\tab Based on \emph{t}-distribution
-  (Higgins et al., 2009) (default) \cr
-\code{method.predict = "HK"}\tab Hartung-Knapp method (Partlett and
-  Riley, 2017) \cr
-\code{method.predict = "KR"}\tab Kenward-Roger method (Partlett and
-  Riley, 2017) \cr
-\code{method.predict = "NNF"}\tab Bootstrap approach (Nagashima et
+\bold{Argument} \tab \bold{Method} \cr
+\code{method.predict = "V"} \tab Based on \emph{t}-distribution
+  with \emph{k-1} degrees of freedom \cr
+  \tab (Veroniki et al., 2019) (default) \cr
+\code{method.predict = "HTS"} \tab Based on \emph{t}-distribution
+  with \emph{k-2} degrees of freedom \cr
+  \tab (Higgins et al., 2009) \cr
+\code{method.predict = "HK"} \tab Based on Hartung-Knapp standard error
+  and \cr
+  \tab \emph{t}-distribution with \emph{k-1} degrees of freedom \cr
+\code{method.predict = "HK-PR"} \tab Based on Hartung-Knapp standard error
+  and \cr
+  \tab \emph{t}-distribution with \emph{k-2} degrees of freedom \cr
+  \tab (Partlett and Riley, 2017) \cr
+\code{method.predict = "KR"} \tab Based on Kenward-Roger standard error
+  and \cr
+  \tab \emph{t}-distribution with approximate Kenward-Roger \cr
+  \tab degrees of freedom \cr
+\code{method.predict = "KR-PR"} \tab Based on Kenward-Roger standard error
+  and \cr
+  \tab \emph{t}-distribution with approximate Kenward-Roger \cr
+  \tab degrees of freedom minus 1 (Partlett and Riley, 2017) \cr
+\code{method.predict = "NNF"} \tab Bootstrap approach (Nagashima et
   al., 2019) \cr
-\code{method.predict = "S"}\tab Based on standard normal quantile
+\code{method.predict = "S"} \tab Based on standard normal quantile
   (Skipka, 2006)
 }
 
-By default (\code{method.predict = "HTS"}), the prediction interval
-is based on a \emph{t}-distribution with \emph{k-2} degrees of
+By default (\code{method.predict = "V"}), the prediction interval
+is based on a \emph{t}-distribution with \emph{k-1} degrees of
 freedom where \emph{k} corresponds to the number of studies in the
-meta-analysis, see equation (12) in Higgins et al. (2009).
+meta-analysis (Veroniki et al., 2019). The method by Higgins et al., (2009),
+which is based on a \emph{t}-distribution with \emph{k-2} degrees of freedom,
+has been the default in R package \bold{meta}, version 7.0-0 or lower.
+
+The two Hartung-Knapp prediction intervals are also based on a
+\emph{t}-distribution, however, use a different standard error.
 
 The Kenward-Roger method is only available for the REML estimator
 (\code{method.tau = "REML"}) of the between-study variance
 \eqn{\tau^2} (Partlett and Riley, 2017). This method is based on an
 adjusted variance estimate for the random effects
 estimate. Furthermore, a quantile of a \emph{t}-distribution with
-adequately modified degrees of freedom minus 1 is used to calculate
-the prediction interval.
+adequately modified degrees of freedom is used to calculate the prediction
+interval.
 
 The bootstrap approach is only available if R package \bold{pimeta}
 is installed (Nagashima et al., 2019). Internally, the
@@ -280,27 +301,27 @@ The method of Skipka (2006) ignores the uncertainty in the
 estimation of the between-study variance \eqn{\tau^2} and thus has
 too narrow limits for meta-analyses with a small number of studies.
 
-For GLMMs and three-level models, the Kenward-Roger method and the
-bootstrap approach are not available, but a method similar to Knapp
-and Hartung (2003) is used if \code{method.random.ci = "HK"}. For
-this method, the variance estimator is not modified, however, a
-quantile of a \emph{t}-distribution with \emph{k-2} degrees of
-freedom is used; see description of argument \code{test} in
-\code{\link[metafor]{rma.glmm}} and \code{\link[metafor]{rma.mv}}.
+For GLMMs and three-level models, only the methods by Veroniki et al.
+(2019), Higgins et al. (2009) and Skipka (2006) are available. Argument
+\code{method.predict = "V"} in R package \bold{meta} gives the same
+prediction intervals as R functions \code{\link[metafor]{rma.glmm}} or
+\code{\link[metafor]{rma.mv}} with argument \code{test = "t"}.
+
+Note, in R package \bold{meta}, version 7.0-0 or lower, the methods
+\code{method.predict = "HK-PR"} and \code{method.predict = "KR-PR"} have
+been available as \code{method.predict = "HK"} and
+\code{method.predict = "KR"}.
 
 Argument \code{adhoc.hakn.pi} can be used to choose the \emph{ad
 hoc} correction for the Hartung-Knapp method:
 
 \tabular{ll}{
-\bold{Argument}\tab \bold{\emph{Ad hoc} method} \cr
-\code{adhoc.hakn.pi = ""}\tab no \emph{ad hoc} correction (default)
+\bold{Argument} \tab \bold{\emph{Ad hoc} method} \cr
+\code{adhoc.hakn.pi = ""} \tab no \emph{ad hoc} correction (default)
   \cr
-\code{adhoc.hakn.pi = "se"}\tab use variance correction if HK
+\code{adhoc.hakn.pi = "se"} \tab use variance correction if HK
  standard error is smaller
 }
-
-For GLMMs and three-level models, the \emph{ad hoc} variance
-corrections are not available.
 }
 
 \subsection{Confidence interval for the between-study variance}{
@@ -308,13 +329,13 @@ corrections are not available.
 The following methods are available in all meta-analysis functions
 to calculate a confidence interval for \eqn{\tau^2} and \eqn{\tau}.
 \tabular{ll}{
-\bold{Argument}\tab \bold{Method} \cr 
-\code{method.tau.ci = "J"}\tab Method by Jackson (2013) \cr
-\code{method.tau.ci = "BJ"}\tab Method by Biggerstaff and Jackson (2008) \cr
-\code{method.tau.ci = "QP"}\tab Q-Profile method (Viechtbauer, 2007) \cr
-\code{method.tau.ci = "PL"}\tab Profile-Likelihood method for three-level \cr
+\bold{Argument} \tab \bold{Method} \cr 
+\code{method.tau.ci = "J"} \tab Method by Jackson (2013) \cr
+\code{method.tau.ci = "BJ"} \tab Method by Biggerstaff and Jackson (2008) \cr
+\code{method.tau.ci = "QP"} \tab Q-Profile method (Viechtbauer, 2007) \cr
+\code{method.tau.ci = "PL"} \tab Profile-Likelihood method for three-level \cr
  \tab meta-analysis model (Van den Noortgate et al., 2013) \cr
-\code{method.tau.ci = ""}\tab No confidence interval
+\code{method.tau.ci = ""} \tab No confidence interval
 }
 The first three methods have been recommended by Veroniki et
 al. (2016). By default, the Jackson method is used for the
@@ -386,17 +407,17 @@ any meta-analysis generated after execution of this command:
 The following data sets are available in R package \bold{meta}.
 
 \tabular{ll}{
-\bold{Data set}\tab \bold{Description} \cr
-\code{\link{Fleiss1993bin}}\tab Aspirin after myocardial infarction \cr
-\code{\link{Fleiss1993cont}}\tab Mental health treatment on medical utilisation\cr
-\code{\link{Olkin1995}}\tab Thrombolytic therapy after acute myocardial infarction \cr
-\code{\link{Pagliaro1992}}\tab Prevention of first bleeding in cirrhosis \cr
-\code{\link{amlodipine}}\tab Amlodipine for work capacity \cr
-\code{\link{caffeine}}\tab Caffeine for daytime drowsiness (Cochrane Practice review) \cr
-\code{\link{cisapride}}\tab Cisapride in non-ulcer dispepsia \cr
-\code{\link{lungcancer}}\tab Smoking example \cr
-\code{\link{smoking}}\tab Smoking example \cr
-\code{\link{woodyplants}}\tab Elevated CO$_2$ and total biomass of woody plants
+\bold{Data set} \tab \bold{Description} \cr
+\code{\link{Fleiss1993bin}} \tab Aspirin after myocardial infarction \cr
+\code{\link{Fleiss1993cont}} \tab Mental health treatment on medical utilisation\cr
+\code{\link{Olkin1995}} \tab Thrombolytic therapy after acute myocardial infarction \cr
+\code{\link{Pagliaro1992}} \tab Prevention of first bleeding in cirrhosis \cr
+\code{\link{amlodipine}} \tab Amlodipine for work capacity \cr
+\code{\link{caffeine}} \tab Caffeine for daytime drowsiness (Cochrane Practice review) \cr
+\code{\link{cisapride}} \tab Cisapride in non-ulcer dispepsia \cr
+\code{\link{lungcancer}} \tab Smoking example \cr
+\code{\link{smoking}} \tab Smoking example \cr
+\code{\link{woodyplants}} \tab Elevated CO$_2$ and total biomass of woody plants
 }
 
 \bold{R} package \bold{metadat} has a large collection of meta-analysis data
@@ -544,6 +565,13 @@ Methods to estimate the between-study variance and its uncertainty
 in meta-analysis.
 \emph{Research Synthesis Methods},
 \bold{7}, 55--79 
+
+Veroniki AA, Jackson D, Bender R, Kuss O, Higgins JPT, Knapp G, Salanti G
+(2019):
+Methods to calculate uncertainty in the estimated overall effect size from a
+random-effects meta-analysis.
+\emph{Research Synthesis Methods},
+\bold{10}, 23--43
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

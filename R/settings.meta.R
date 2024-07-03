@@ -32,6 +32,7 @@
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
 #' \item \code{settings.meta("meta4")}
+#' \item \code{settings.meta("meta7")}
 #' }
 #'
 #' The first command can be used to reproduce meta-analyses from
@@ -44,8 +45,8 @@
 #' The third command can be used to generate forest plots following
 #' instructions for authors of the \emph{Journal of the American
 #' Medical Association}
-#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
-#' labels according to JAMA guidelines can be generated using
+#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).
+#' Study labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
 #'
 #' The next commands implement the recommendations of the Institute
@@ -57,8 +58,8 @@
 #' scientific notation and to suppress the calculation of confidence
 #' intervals for the between-study variance.
 #'
-#' The last setting uses the default settings of R package
-#' \bold{meta}, version 4 or below.
+#' The last settings use the default settings of R package
+#' \bold{meta}, version 4 and 7.0-0, respectively, or below.
 #' 
 #' RevMan 5 settings, in detail:
 #' \tabular{lll}{
@@ -84,14 +85,11 @@
 #' \code{test.effect.subgroup} \tab TRUE \tab print information on
 #'   test for effect in subgroups \cr
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
-#'   forest plots
-#'   \cr
-#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
-#'   in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#'   forest plots \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -125,12 +123,10 @@
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
 #'   forest plots
 #'   \cr
-#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
-#'   in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -163,12 +159,10 @@
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
 #'   forest plots
 #'   \cr
-#' \code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity
-#'   variance in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#' \code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -187,7 +181,8 @@
 #' \code{zero.pval}, \tab FALSE \tab print p-values with leading zero
 #' \cr
 #' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
-#'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr
+#'   (for 0.001 < p \eqn{\le} 0.01) \cr
+#'   \tab \tab or two digits (p > 0.01) \cr
 #' \code{header.line}, \tab TRUE \tab print header line
 #' }
 #' 
@@ -212,27 +207,49 @@
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{scientific.pval} \tab TRUE \tab Scientific notation for p-values \cr
-#' \code{method.tau.ci} \tab FALSE \tab no confidence interval for \cr
-#'  \tab between-study heterogeneity variance \cr
+#' \code{method.tau.ci} \tab FALSE \tab
+#'   no confidence interval for between-study \cr
+#'  \tab \tab heterogeneity variance \cr
 #' }
 #' 
 #' Settings for \bold{meta}, version 4 or below:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+#' \code{exact.smd} \tab FALSE \tab Use exact formula for standardised mean \cr
+#'   \tab \tab difference (White and Thomas, 2005) \cr
+#' \code{text.common} \tab "Fixed effect model" \tab \cr
+#' \code{text.w.common} \tab "fixed" \tab \cr
+#' \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
+#'   \cr
+#'   \tab \tab arguments \cr
+#' }
+#' 
+#' Settings for \bold{meta}, version 7.0-0 or below:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
+#'   degrees \cr
+#'   \tab \tab of freedom \cr
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
 #' command \code{settings.meta("print")}.
 #' 
 #' In order to reset all settings of R package \bold{meta} the command
-#' \code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
-#' can be used.
+#' \code{settings.meta("reset")} can be used.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{gs}}, \code{\link{forest.meta}},
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
+#'
+#' @references
+#' White IR, Thomas J (2005):
+#' Standardized mean differences in individually-randomized and
+#' cluster-randomized trials, with applications to meta-analysis.
+#' \emph{Clinical Trials},
+#' \bold{2}, 141--51
 #' 
 #' @examples
 #' # Get listing of current settings
@@ -340,7 +357,7 @@ settings.meta <- function(..., quietly = TRUE) {
   ## Set internal variables
   ##
   settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6", "geneexpr", "meta4")
+                "IQWiG5", "IQWiG6", "geneexpr", "meta4", "meta7")
   layouts <- c(settings[1:2], "meta")
   ##
   print.settings <- FALSE
@@ -502,7 +519,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("method.i2", "q")
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
-    setOption("method.predict", "HTS")
+    setOption("method.predict", "V")
     setOption("test.subgroup", TRUE)
     setOption("prediction.subgroup", FALSE)
     setOption("method.bias", "Egger")
@@ -971,6 +988,14 @@ settings.meta <- function(..., quietly = TRUE) {
                                               FALSE)),
                        setting =
                          "settings from meta, version 4 or below",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "meta7") {
+      specificSettings(args = "method.predict",
+                       new = list(replaceNULL(args[["method.predict"]], "HTS")),
+                       setting =
+                         "settings from meta, version 7.0-0 or below",
                        quietly = quietly)
     }
     ##
@@ -1603,11 +1628,19 @@ settings.meta <- function(..., quietly = TRUE) {
             "can only be used with\n  ",
             "REML estimator (method.tau = \"REML\").",
             call. = FALSE)
-  ##
+  #
   if (any(gs("method.predict") == "KR") & gs("method.tau") != "REML")
     warning("Default settings for arguments 'method.tau' and ",
             "'method.predict' do not match:\n",
             "- Kenward-Roger method (method.predict = \"KR\") ",
+            "can only be used with\n  ",
+            "REML estimator (method.tau = \"REML\").",
+            call. = FALSE)
+  #
+  if (any(gs("method.predict") == "KR-PR") & gs("method.tau") != "REML")
+    warning("Default settings for arguments 'method.tau' and ",
+            "'method.predict' do not match:\n",
+            "- Kenward-Roger method (method.predict = \"KR-PR\") ",
             "can only be used with\n  ",
             "REML estimator (method.tau = \"REML\").",
             call. = FALSE)
