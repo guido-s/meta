@@ -3,14 +3,17 @@
 #' @description
 #' Calculate the number needed to treat (NNT) from estimated risk
 #' difference, risk ratio, odds ratio, or hazard ratio, and a baseline
-#' probability (control group event probability).
+#' probability, i.e., control group event probability for binary outcomes or
+#' survival probability for hazard ratios.
 #' 
 #' @aliases nnt nnt.default nnt.meta
 #' 
 #' @param x An object of class \code{meta}, or estimated treatment
 #'   effect(s), i.e., risk difference(s), risk ratio(s), odds
 #'   ratio(s), or hazard ratio(s).
-#' @param p.c Baseline probability (control group event probability).
+#' @param p.c Baseline probability, i.e., control group event probability
+#'   for binary outcomes or survival probability in control group for
+#'   hazard ratios.
 #' @param sm Summary measure.
 #' @param lower Lower confidence interval limit.
 #' @param upper Upper confidence interval limit.
@@ -46,7 +49,7 @@
 #'
 #' NNTs can be easily computed from an estimated risk difference (RD),
 #' risk ratio (RR), or odds ratio (OR) and a given baseline probability
-#' (Higgins et al., 2022, section 15.4.4). It is also possible to
+#' (Higgins et al., 2023, section 15.4.4). It is also possible to
 #' calculate NNTs from hazard ratios (HR) (Altman & Andersen,
 #' 1999). Accordingly, NNTs can be calculated for meta-analyses
 #' generated with \code{\link{metabin}} or \code{\link{metagen}} if
@@ -93,7 +96,7 @@
 #' \subsection{Confidence interval for the NNT}{
 #' Confidence limits for an NNT are derived from the lower and upper
 #' confidence limits of the summary measure using the same formulae as
-#' for the NNT (Higgins et al., 2022, section 15.4.4).
+#' for the NNT (Higgins et al., 2023, section 15.4.4).
 #'
 #' A peculiar problem arises if the confidence interval for the
 #' summary measure includes the null effect (i.e., RR = 1, OR = 1, HR
@@ -131,10 +134,10 @@
 #' \bold{310}, 452--54
 #' 
 #' Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
-#' VA (editors) (2022):
+#' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
-#'   Version 6.3 (updated February 2022)}.
-#' Available from www.training.cochrane.org/handbook
+#'   Version 6.4 (updated August 2023)}.
+#' Available from \url{https://www.training.cochrane.org/handbook}
 #'
 #' Laupacis A, Sackett DL, Roberts RS (1988):
 #' An assessment of clinically useful measures of the consequences of

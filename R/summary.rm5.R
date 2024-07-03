@@ -15,7 +15,7 @@
 #' 
 #' @details
 #' This function can be used to rerun all or selected meta-analyses of
-#' a Cochrane Review of interventions (Higgins et al, 2023).
+#' a Cochrane Review of interventions (Higgins et al., 2023).
 #' 
 #' The R function \code{\link{metacr}} is called internally.
 #' 
@@ -29,8 +29,8 @@
 #' Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
 #' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
-#'   Version 6.4}.
-#' Available from \url{https://training.cochrane.org/handbook}
+#'   Version 6.4 (updated August 2023)}.
+#' Available from \url{https://www.training.cochrane.org/handbook}
 #' 
 #' @examples
 #' # Locate export data file "Fleiss1993_CR.csv"

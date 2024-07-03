@@ -278,7 +278,7 @@ meta-analysis (Veroniki et al., 2019). The method by Higgins et al., (2009),
 which is based on a \emph{t}-distribution with \emph{k-2} degrees of freedom,
 has been the default in R package \bold{meta}, version 7.0-0 or lower.
 
-The two Hartung-Knapp prediction intervals are also based on a
+The Hartung-Knapp prediction intervals are also based on a
 \emph{t}-distribution, however, use a different standard error.
 
 The Kenward-Roger method is only available for the REML estimator
