@@ -6,6 +6,8 @@
 
 ### User-visible changes
 
+* Do not print the start-up message concerning older version of R package **meta** for readers of 'Meta-Analysis with R (Use R!)'
+
 * funnel.meta():
   - new argument 'type' to create a contour-enhanced funnel plot with default
     settings
@@ -16,6 +18,9 @@
 * forest.meta():
   - print "logVR" instead of "logVE" or "VE" for not back-transformed
     vaccine efficacy / effectiveness (sm = "VE")
+  - additional check whether input for argument 'sortvar' is a function
+    (for example, using a variable 'order' resulted in an error due to the
+     R function order())
 
 * bubble.metareg():
   - use of vector instead of single value for argument 'pch' resulted in wrong

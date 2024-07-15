@@ -421,6 +421,10 @@
 #' }
 #'
 #' @note
+#' Readers of the first edition of 'Meta-Analysis with R (Use R!)' should
+#' install an older version of R package \bold{meta}:
+#' \url{https://tinyurl.com/dt4y5drs}
+#' 
 #' Balduzzi et al. (2019) is the preferred citation in publications
 #' for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of
 #' this publication.
@@ -451,12 +455,10 @@
 #' The development version of \bold{meta} is available on GitHub
 #' \url{https://github.com/guido-s/meta/}.
 #' 
-#' _PACKAGE
-#' 
 #' @name meta-package
 #' 
 #' @aliases meta-package meta
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @references
@@ -654,5 +656,6 @@
 #' 
 #' @export forest funnel baujat labbe radial trimfill blup
 
+"_PACKAGE"
 
 NULL
