@@ -3,10 +3,7 @@
     paste0("Loading 'meta' package (version ",
            utils::packageDescription("meta")$Version,
            ").",
-           "\nType 'help(meta)' for a brief overview.",
-           "\nReaders of 'Meta-Analysis with R (Use R!)' should install",
-           "\nolder version of 'meta' package: ",
-           "https://tinyurl.com/dt4y5drs")
+           "\nType 'help(meta)' for a brief overview.")
   packageStartupMessage(msg)
 }
 

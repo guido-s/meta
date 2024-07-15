@@ -1875,7 +1875,7 @@ forest.meta <- function(x,
   error <-
     try(sortvar <- catch("sortvar", mc, x, sfsp),
         silent = TRUE)
-  if (inherits(error, "try-error")) {
+  if (inherits(error, "try-error") || is.function(error)) {
     sortvar <- catch("sortvar", mc, x$data, sfsp)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
