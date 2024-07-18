@@ -96,19 +96,21 @@
 #'   t-value of test for overall effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect, see \code{print.default}.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test, see \code{print.default}.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance \eqn{\tau^2}, see \code{print.default}.
 #' @param digits.tau Minimal number of significant digits for
 #'   \eqn{\tau}, the square root of the between-study variance
 #'   \eqn{\tau^2}.
-#' @param digits.H Minimal number of significant digits for H
-#'   statistic, see \code{print.default}.
+#' @param digits.Q Minimal number of significant digits for
+#'   heterogeneity statistic Q, see \code{print.default}.
+#' @param digits.df Minimal number of significant digits for degrees
+#'   of freedom.
+#' @param digits.pval.Q Minimal number of significant digits for
+#'   p-value of heterogeneity test, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
+#' @param digits.H Minimal number of significant digits for H
+#'   statistic, see \code{print.default}.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -118,8 +120,6 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
-#' @param digits.df Minimal number of significant digits for degrees
-#'   of freedom.
 #' @param print.tau2 A logical specifying whether between-study
 #'   variance \eqn{\tau^2} should be printed.
 #' @param print.tau2.ci A logical value indicating whether to print
@@ -129,6 +129,8 @@
 #'   printed.
 #' @param print.tau.ci A logical value indicating whether to print the
 #'   confidence interval of \eqn{\tau}.
+#' @param print.Q A logical value indicating whether to print the
+#'   results of the test of heterogeneity.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
 #' @param print.H A logical specifying whether heterogeneity statistic
@@ -143,8 +145,6 @@
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
 #'   R\eqn{_b}.
-#' @param print.Q A logical value indicating whether to print the
-#'   results of the test of heterogeneity.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param warn.backtransf Deprecated argument (ignored).
@@ -195,40 +195,41 @@ print.meta <- function(x,
                        ##
                        header = TRUE,
                        print.CMH = x$print.CMH,
-                       ##
+                       #
                        digits = gs("digits"),
                        digits.stat = gs("digits.stat"),
                        digits.pval = max(gs("digits.pval"), 2),
-                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
-                       digits.Q = gs("digits.Q"),
+                       #
                        digits.tau2 = gs("digits.tau2"),
                        digits.tau = gs("digits.tau"),
+                       #
+                       digits.Q = gs("digits.Q"),
+                       digits.df = gs("digits.df"),
+                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
+                       #
                        digits.H = gs("digits.H"),
                        digits.I2 = gs("digits.I2"),
-                       ##
+                       #
                        scientific.pval = gs("scientific.pval"),
                        big.mark = gs("big.mark"),
                        zero.pval = gs("zero.pval"),
                        JAMA.pval = gs("JAMA.pval"),
-                       ##
-                       digits.df = gs("digits.df"),
-                       ##
+                       #
                        print.tau2 = gs("print.tau2"),
                        print.tau2.ci = gs("print.tau2.ci"),
                        print.tau = gs("print.tau"),
                        print.tau.ci = gs("print.tau.ci"),
-                       ##
+                       #
+                       print.Q = gs("print.Q"),
                        print.I2 = gs("print.I2"),
                        print.H = gs("print.H"),
                        print.Rb = gs("print.Rb"),
-                       ##
+                       #
                        text.tau2 = gs("text.tau2"),
                        text.tau = gs("text.tau"),
                        text.I2 = gs("text.I2"),
                        text.Rb = gs("text.Rb"),
-                       ##
-                       print.Q = gs("print.Q"),
-                       ##
+                       #
                        details.methods = gs("details"),
                        ##
                        warn.backtransf = FALSE,
@@ -1600,7 +1601,7 @@ print.meta <- function(x,
                 big.mark, digits, digits.tau, text.tau, text.tau2,
                 print.tau2, print.tau2.ci,
                 print.tau, print.tau.ci,
-                print.df = overall)
+                print.df = overall, prediction.subgroup = prediction.subgroup)
   }
   
   

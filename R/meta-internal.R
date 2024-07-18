@@ -231,7 +231,7 @@ cathet <- function(k,
   ##
   ntau <- nrow(dtau)
   sort.tau <- setsort(sort.tau, ntau, "tau2 estimates")
-  dtau <- dtau[sort.tau, ]
+  dtau <- dtau[sort.tau, , drop = FALSE]
   ##
   if (print.tau2 | print.tau) {
     if (ntau > 1) {
@@ -300,7 +300,7 @@ cathet <- function(k,
   ##
   nhet <- nrow(dhet)
   sort.het <- setsort(sort.het, nhet, "heterogeneity estimates")
-  dhet <- dhet[sort.het, ]
+  dhet <- dhet[sort.het, , drop = FALSE]
   ##
   label.het <-
     if (nhet > 1)

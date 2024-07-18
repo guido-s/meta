@@ -5,7 +5,8 @@ catmeth <- function(x,
                     print.tau2 = TRUE, print.tau2.ci = FALSE,
                     print.tau = FALSE, print.tau.ci = FALSE, 
                     forest = FALSE,
-                    print.df = TRUE
+                    print.df = TRUE,
+                    prediction.subgroup = FALSE
                     ) {
 
   ##
@@ -309,6 +310,14 @@ catmeth <- function(x,
   ##
   ##
 
+  more.pi <- NULL
+  #
+  if (!prediction & prediction.subgroup) {
+    prediction <- TRUE
+    print.df <- FALSE
+    more.pi <- TRUE
+  }
+  #
   if (prediction) {
     dat.pr <- unique(pred)
     ##
@@ -321,55 +330,64 @@ catmeth <- function(x,
     dat.pr.nnf <- subset(dat.pr, dat.pr$method.predict == "NNF")
     dat.pr.s <- subset(dat.pr, dat.pr$method.predict == "S")
     ##
-    more.pi <- sum(1L * (nrow(dat.pr.v) > 0) +
-                   1L * (nrow(dat.pr.v.kr) > 0) +
-                   1L * (nrow(dat.pr.hts1) > 0) +
-                   1L * (nrow(dat.pr.hk) > 0) +
-                   1L * (nrow(dat.pr.hts2) > 0) +
-                   1L * (nrow(dat.pr.kr) > 0) +
-                   1L * (nrow(dat.pr.nnf) > 0) +
-                   1L * (nrow(dat.pr.s) > 0)) > 1
+    if (is.null(more.pi))
+      more.pi <- sum(1L * (nrow(dat.pr.v) > 0) +
+                       1L * (nrow(dat.pr.v.kr) > 0) +
+                       1L * (nrow(dat.pr.hts1) > 0) +
+                       1L * (nrow(dat.pr.hk) > 0) +
+                       1L * (nrow(dat.pr.hts2) > 0) +
+                       1L * (nrow(dat.pr.kr) > 0) +
+                       1L * (nrow(dat.pr.nnf) > 0) +
+                       1L * (nrow(dat.pr.s) > 0)) > 1
     #
     if (nrow(dat.pr.v) > 0)
       details <-
         paste0(
           details,
-          "\n- Prediction interval based on t-distribution ",
-          if (more.pi) "(V) ",
-          "(df = ",
-          cond(dat.pr.v$df.predict, digits = 0),
-          ")")
+          "\n- Prediction interval based on t-distribution",
+          if (more.pi) " (V)",
+          if (print.df)
+            paste0(" (df = ",
+                   cond(dat.pr.v$df.predict, digits = 0),
+                   ")")
+          )
     #
     if (nrow(dat.pr.v.kr) > 0)
       details <-
       paste0(
         details,
-        "\n- Prediction interval based on t-distribution ",
-        if (more.pi) "(V) ",
-        "(df = ",
-        cond(dat.pr.v.kr$df.predict, digits = 0),
-        ") instead of ",
-        "Kenward-Roger adjustment")
+        "\n- Prediction interval based on t-distribution",
+        if (more.pi) " (V)",
+        if (print.df)
+          paste0(" (df = ",
+                 cond(dat.pr.v.kr$df.predict, digits = 0),
+                 ")"),
+        " instead of Kenward-Roger adjustment")
     #
     if (nrow(dat.pr.hts1) > 0)
       details <-
       paste0(
         details,
-        "\n- Prediction interval based on t-distribution ",
-        if (more.pi) "(HTS) ",
-        "(df = ",
-        cond(dat.pr.hts1$df.predict, digits = 0),
-        ")")
+        "\n- Prediction interval based on t-distribution",
+        if (more.pi) " (HTS)",
+        if (print.df)
+          paste0(" (df = ",
+                 cond(dat.pr.hts1$df.predict, digits = 0),
+                 ")")
+        )
     ##
     if (nrow(dat.pr.hk) > 0) {
       details <-
         paste0(
           details,
-          "\n- Hartung-Knapp ",
-          if (more.pi) "(HK) ",
-          "prediction interval (df = ",
-          cond(dat.pr.hk$df.predict, digits = 0),
-          ")")
+          "\n- Hartung-Knapp",
+          if (more.pi) " (HK)",
+          " prediction interval",
+          if (print.df)
+            paste0(" (df = ",
+                   cond(dat.pr.hk$df.predict, digits = 0),
+                   ")")
+        )
       ##
       if (any(dat.pr.hk$adhoc.hakn.ci != ""))
         details <- paste0(
@@ -384,32 +402,38 @@ catmeth <- function(x,
       details <-
         paste0(
           details,
-          "\n- Prediction interval based on t-distribution ",
-          if (more.pi) "(HTS) ",
-          "(df = ",
-          cond(dat.pr.hts2$df.predict, digits = 0),
-          ") instead of ",
-          "Kenward-Roger adjustment")
+          "\n- Prediction interval based on t-distribution",
+          if (more.pi) " (HTS) ",
+          if (print.df)
+            paste0(" (df = ",
+                   cond(dat.pr.hts2$df.predict, digits = 0),
+                   ")"),
+          " instead of Kenward-Roger adjustment")
     ##
     if (nrow(dat.pr.kr) > 0)
       details <-
         paste0(
           details,
-          "\n- Kenward-Roger ",
-          if (more.pi) "(KR) ",
-          "prediction interval (df = ",
-          cond(dat.pr.kr$df.predict),
-          ")")
+          "\n- Kenward-Roger",
+          if (more.pi) " (KR)",
+          " prediction interval",
+          if (print.df)
+            paste0(" (df = ",
+                   cond(dat.pr.kr$df.predict),
+                   ")")
+        )
     ##
     if (nrow(dat.pr.nnf) > 0)
       details <-
         paste0(
           details,
-          "\n- Boot-strap prediction interval ",
-          if (more.pi) "(NNF) ",
-          "(df = ",
-          cond(dat.pr.nnf$df.predict, digits = 0),
-          ")")
+          "\n- Boot-strap prediction interval",
+          if (more.pi) " (NNF)",
+          if (print.df)
+            paste0(" (df = ",
+                   cond(dat.pr.nnf$df.predict, digits = 0),
+                   ")")
+        )
     ##
     if (nrow(dat.pr.s) > 0)
       details <-

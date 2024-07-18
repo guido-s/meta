@@ -47,8 +47,16 @@
 #'   between-study variance, see \code{print.default}.
 #' @param digits.tau Minimal number of significant digits for square
 #'   root of between-study variance, see \code{print.default}.
+#' @param digits.Q Minimal number of significant digits for
+#'   heterogeneity statistic Q, see \code{print.default}.
+#' @param digits.df Minimal number of significant digits for degrees
+#'   of freedom.
+#' @param digits.pval.Q Minimal number of significant digits for
+#'   p-value of heterogeneity test, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
+#' @param digits.H Minimal number of significant digits for H
+#'   statistic, see \code{print.default}.
 #' @param digits.prop Minimal number of significant digits for
 #'   proportions, see \code{print.default}.
 #' @param digits.weight Minimal number of significant digits for
@@ -64,17 +72,29 @@
 #' @param big.mark A character used as thousands separator.
 #' @param print.tau2 A logical specifying whether between-study
 #'   variance \eqn{\tau^2} should be printed.
+#' @param print.tau2.ci A logical value indicating whether to print
+#'   the confidence interval of \eqn{\tau^2}.
 #' @param print.tau A logical specifying whether \eqn{\tau}, the
 #'   square root of the between-study variance \eqn{\tau^2}, should be
 #'   printed.
+#' @param print.tau.ci A logical value indicating whether to print the
+#'   confidence interval of \eqn{\tau}.
+#' @param print.Q A logical value indicating whether to print the
+#'   results of the test of heterogeneity.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
+#' @param print.H A logical specifying whether heterogeneity statistic
+#'   H should be printed.
+#' @param print.Rb A logical specifying whether heterogeneity
+#'   statistic R\eqn{_b} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
 #'   root of the between-study variance \eqn{\tau^2}.
 #' @param text.I2 Text printed to identify heterogeneity statistic
 #'   I\eqn{^2}.
+#' @param text.Rb Text printed to identify heterogeneity statistic
+#'   R\eqn{_b}.
 #' @param truncate An optional vector used to truncate the printout of
 #'   results for individual studies (must be a logical vector of same
 #'   length as \code{x$TE} or contain numerical values).
@@ -152,31 +172,46 @@ print.summary.meta <- function(x,
                                pscale = x$pscale,
                                irscale = x$irscale,
                                irunit = x$irunit,
-                               ##
+                               #
                                digits = gs("digits"),
                                digits.se = gs("digits.se"),
                                digits.stat = gs("digits.stat"),
                                digits.pval = max(gs("digits.pval"), 2),
+                               #
                                digits.tau2 = gs("digits.tau2"),
                                digits.tau = gs("digits.tau"),
+                               #
+                               digits.Q = gs("digits.Q"),
+                               digits.df = gs("digits.df"),
+                               digits.pval.Q = max(gs("digits.pval.Q"), 2),
+                               #
+                               digits.H = gs("digits.H"),
                                digits.I2 = gs("digits.I2"),
+                               #
                                digits.prop = gs("digits.prop"),
                                digits.weight = gs("digits.weight"),
-                               ##
+                               #
                                scientific.pval = gs("scientific.pval"),
                                zero.pval = gs("zero.pval"),
                                JAMA.pval = gs("JAMA.pval"),
-                               ##
+                               #
                                big.mark = gs("big.mark"),
-                               ##
+                               #
                                print.tau2 = gs("print.tau2"),
+                               print.tau2.ci = gs("print.tau2.ci"),
                                print.tau = gs("print.tau"),
+                               print.tau.ci = gs("print.tau.ci"),
+                               #
+                               print.Q = gs("print.Q"),
                                print.I2 = gs("print.I2"),
-                               ##
+                               print.H = gs("print.H"),
+                               print.Rb = gs("print.Rb"),
+                               #
                                text.tau2 = gs("text.tau2"),
                                text.tau = gs("text.tau"),
                                text.I2 = gs("text.I2"),
-                               ##
+                               text.Rb = gs("text.Rb"),
+                               #
                                truncate,
                                text.truncate = "*** Output truncated ***",
                                ##
@@ -286,12 +321,18 @@ print.summary.meta <- function(x,
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
   ##
   chklogical(print.tau2)
+  chklogical(print.tau2.ci)
   chklogical(print.tau)
+  chklogical(print.tau.ci)
   chklogical(print.I2)
+  chklogical(print.H)
+  chklogical(print.Rb)
+  chklogical(print.Q)
   ##
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
+  chkchar(text.Rb, length = 1)
   ##
   ## Catch 'truncate' from meta-analysis object:
   ##
@@ -575,8 +616,13 @@ print.summary.meta <- function(x,
                header = FALSE,
                digits = digits,
                backtransf = backtransf, pscale = pscale,
-               irscale = irscale, irunit = irunit, big.mark = big.mark,
+               irscale = irscale, irunit = irunit,
+               #
                text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
+               #
+               scientific.pval = scientific.pval, big.mark = big.mark,
+               zero.pval = zero.pval, JAMA.pval = JAMA.pval,
+               #
                details.methods = details.methods,
                ...)
   }
@@ -976,10 +1022,22 @@ print.summary.meta <- function(x,
                  overall = overall,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,
+                 #
                  digits.tau2 = digits.tau2, digits.tau = digits.tau,
-                 digits.I2 = digits.I2, big.mark = big.mark,
-                 print.tau2 = print.tau2, print.tau = print.tau,
-                 text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
+                 digits.I2 = digits.I2,
+                 #
+                 print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
+                 print.tau = print.tau, print.tau.ci = print.tau.ci,
+                 #
+                 print.Q = print.Q, print.I2 = print.I2,
+                 print.H = print.H, print.Rb = print.Rb,
+                 #
+                 scientific.pval = scientific.pval, big.mark = big.mark,
+                 zero.pval = zero.pval, JAMA.pval = JAMA.pval,
+                 #
+                 text.tau2 = text.tau2, text.tau = text.tau,
+                 text.I2 = text.I2, text.Rb = text.Rb,
+                 #
                  details.methods = details.methods,
                  warn.deprecated = FALSE,
                  ...)
