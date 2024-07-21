@@ -1748,9 +1748,9 @@ forest.meta <- function(x,
                 "cluster",
                 #
                 "n.e", "n.c", "event.e", "event.c",
-                "event.n.e", "event.n.c",
+                "event.n.e", "event.n.c", "event.n",
                 "mean.e", "mean.c", "sd.e", "sd.c",
-                "mean.sd.n.e", "mean.sd.n.c",
+                "mean.sd.n.e", "mean.sd.n.c", "mean.sd.n",
                 #
                 "cor",
                 "time.e", "time.c",
@@ -1783,8 +1783,17 @@ forest.meta <- function(x,
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.e")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "time.c")
   #
-  bmj.bin <- bmj && metabin
-  bmj.cont <- bmj && metacont
+  ev.n.bin <-
+    metabin && (bmj ||
+                  "event.n.e" %in% c(leftcols, rightcols) ||
+                  "event.n.c" %in% c(leftcols, rightcols))
+  #
+  m.s.n.cont <-
+    metacont && (bmj ||
+                   "mean.sd.n.e" %in% c(leftcols, rightcols) ||
+                   "mean.sd.n.c" %in% c(leftcols, rightcols) )
+  #
+  ev.n.prop <- metaprop && (bmj || "event.n" %in% c(leftcols, rightcols))
   #
   # Identify and process columns in addition to columns
   # defined above in variable 'colnames'
@@ -3919,8 +3928,21 @@ forest.meta <- function(x,
       }
       #
       if (metaprop) {
-        if (study.results)
-          leftcols <- c(leftcols, "event.e", "n.e")
+        if (study.results) {
+          if (bmj) {
+            leftcols <- c(leftcols,
+                          "event.n.e")
+            label.e.attach <- "event.n.e"
+            #
+            if (is.null(bmj.text))
+              label.e <- "No of events / total"
+            else
+              label.e <- bmj.text
+          
+          }
+          else
+            leftcols <- c(leftcols, "event.e", "n.e")
+        }
         else {
           leftcols <- c(leftcols,
                         if (pooled.events) "event.e",
@@ -4123,6 +4145,8 @@ forest.meta <- function(x,
         rightcols[rightcols == "n"] <- "n.e"
       if (any(rightcols == "event"))
         rightcols[rightcols == "event"] <- "event.e"
+      if (any(rightcols == "event.n"))
+        rightcols[rightcols == "event.n"] <- "event.n.e"
     }
     #
     if (!is.null(leftcols)) {
@@ -4130,6 +4154,8 @@ forest.meta <- function(x,
         leftcols[leftcols == "n"] <- "n.e"
       if (any(leftcols == "event"))
         leftcols[leftcols == "event"] <- "event.e"
+      if (any(leftcols == "event.n"))
+        leftcols[leftcols == "event.n"] <- "event.n.e"
     }
   }
   #
@@ -9295,7 +9321,7 @@ forest.meta <- function(x,
     Se.format[sel.w] <- Sc.format[sel.w] <- ""
   }
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     Ee.bmj <- Ee.format
     Ec.bmj <- Ec.format
     #
@@ -9350,7 +9376,7 @@ forest.meta <- function(x,
     }
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     Ne.bmj <- Ne.format
     Nc.bmj <- Nc.format
     #
@@ -9390,6 +9416,38 @@ forest.meta <- function(x,
     #
     sel.c <- Nc.format != "" & mean.sd.n.c.format == ""
     mean.sd.n.c.format[sel.c] <- Nc.format[sel.c]
+  }
+  #
+  if (ev.n.prop) {
+    Ee.bmj <- Ee.format
+    #
+    Ne.bmj <- Ne.format
+    #
+    Ne.bmj <- ifelse(Ee.bmj == "", "", Ne.bmj)
+    #
+    while(all(substring(Ee.bmj[Ee.bmj != ""], 1, 1) == " "))
+      Ee.bmj[Ee.bmj != ""] <- substring(Ee.bmj[Ee.bmj != ""], 2)
+    #
+    while(all(substring(Ne.bmj[Ne.bmj != ""], 1, 1) == " "))
+      Ne.bmj[Ne.bmj != ""] <- substring(Ne.bmj[Ne.bmj != ""], 2)
+    #
+    Ne.bmj <- rmSpace(Ne.bmj, end = FALSE)
+    if (monospaced) {
+      nchar.Ne.bmj <- nchar(Ne.bmj)
+      Ne.bmj[nchar.Ne.bmj > 0] <-
+        str_pad(Ne.bmj[nchar.Ne.bmj > 0], width = max(nchar.Ne.bmj),
+                side = "right")
+    }
+    #
+    event.n.e.format <-
+      ifelse(Ee.bmj != "",
+             paste0(Ee.bmj, bmj.sep, Ne.bmj),
+             "")
+    #
+    if (pooled.totals & !pooled.events) {
+      event.n.e.format[Ne.format != "" & Ee.format == ""] <-
+        Ne.format[Ne.format != "" & Ee.format == ""]
+    }
   }
   #
   # Correlation
@@ -10066,7 +10124,7 @@ forest.meta <- function(x,
               fcs, fontfamily,
               n.com, n.ran, n.prd)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     col.event.n.e <-
       formatcol(labs[["lab.event.n.e"]], event.n.e.format, yS,
                 if (bmj.revman5 & missing.just) "center" else just.c,
@@ -10080,7 +10138,7 @@ forest.meta <- function(x,
                 n.com, n.ran, n.prd)
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     col.mean.sd.n.e <-
       formatcol(labs[["lab.mean.sd.n.e"]], mean.sd.n.e.format, yS,
                 if (bmj.revman5 & missing.just) "center" else just.c,
@@ -10089,6 +10147,14 @@ forest.meta <- function(x,
     #
     col.mean.sd.n.c <-
       formatcol(labs[["lab.mean.sd.n.c"]], mean.sd.n.c.format, yS,
+                if (bmj.revman5 & missing.just) "center" else just.c,
+                fcs, fontfamily,
+                n.com, n.ran, n.prd)
+  }
+  #
+  if (ev.n.prop) {
+    col.event.n.e <-
+      formatcol(labs[["lab.event.n.e"]], event.n.e.format, yS,
                 if (bmj.revman5 & missing.just) "center" else just.c,
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
@@ -10182,7 +10248,7 @@ forest.meta <- function(x,
                                   just.c, fcs, fontfamily,
                                   n.com, n.ran, n.prd)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     col.event.n.e.calc <- formatcol(longer.event.n.e, event.n.e.format, yS,
                                     just.c, fcs, fontfamily,
                                     n.com, n.ran, n.prd)
@@ -10192,7 +10258,7 @@ forest.meta <- function(x,
                                     n.com, n.ran, n.prd)
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     col.mean.sd.n.e.calc <-
       formatcol(longer.mean.sd.n.e, mean.sd.n.e.format, yS,
                 just.c, fcs, fontfamily,
@@ -10202,6 +10268,12 @@ forest.meta <- function(x,
       formatcol(longer.mean.sd.n.c, mean.sd.n.c.format, yS,
                 just.c, fcs, fontfamily,
                 n.com, n.ran, n.prd)
+  }
+  #
+  if (ev.n.prop) {
+    col.event.n.e.calc <- formatcol(longer.event.n.e, event.n.e.format, yS,
+                                    just.c, fcs, fontfamily,
+                                    n.com, n.ran, n.prd)
   }
   #
   col.w.common.calc  <- formatcol(longer.w.common, Wc.format, yS,
@@ -10350,14 +10422,18 @@ forest.meta <- function(x,
                col.TE = col.TE,
                col.seTE = col.seTE)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     cols$col.event.n.e <- col.event.n.e
     cols$col.event.n.c <- col.event.n.c
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     cols$col.mean.sd.n.e <- col.mean.sd.n.e
     cols$col.mean.sd.n.c <- col.mean.sd.n.c
+  }
+  #
+  if (ev.n.prop) {
+    cols$col.event.n.e <- col.event.n.e
   }
   #
   cols.calc <- list(col.studlab = col.studlab,
@@ -10369,14 +10445,18 @@ forest.meta <- function(x,
                     col.TE = col.TE.calc,
                     col.seTE = col.seTE.calc)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     cols.calc$col.event.n.e <- col.event.n.e.calc
     cols.calc$col.event.n.c <- col.event.n.c.calc
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     cols.calc$col.mean.sd.n.e <- col.mean.sd.n.e.calc
     cols.calc$col.mean.sd.n.c <- col.mean.sd.n.c.calc
+  }
+  #
+  if (ev.n.prop) {
+    cols.calc$col.event.n.e <- col.event.n.e.calc
   }
   #
   cols[["col.cluster"]] <- col.cluster
@@ -10816,7 +10896,7 @@ forest.meta <- function(x,
                              if (bmj.revman5) "center" else just.c,
                              fs.head, ff.head, fontfamily)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     if (newline.event.n.e)
       col.add.event.n.e <- tgl(add.event.n.e,
                                if (bmj.revman5) 0.5 else xpos.c,
@@ -10830,7 +10910,7 @@ forest.meta <- function(x,
                                fs.head, ff.head, fontfamily)
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     if (newline.mean.sd.n.e)
       col.add.mean.sd.n.e <- tgl(add.mean.sd.n.e,
                                if (bmj.revman5) 0.5 else xpos.c,
@@ -10839,6 +10919,14 @@ forest.meta <- function(x,
     #
     if (newline.mean.sd.n.c)
       col.add.mean.sd.n.c <- tgl(add.mean.sd.n.c,
+                               if (bmj.revman5) 0.5 else xpos.c,
+                               if (bmj.revman5) "center" else just.c,
+                               fs.head, ff.head, fontfamily)
+  }
+  #
+  if (ev.n.prop) {
+    if (newline.event.n.e)
+      col.add.event.n.e <- tgl(add.event.n.e,
                                if (bmj.revman5) 0.5 else xpos.c,
                                if (bmj.revman5) "center" else just.c,
                                fs.head, ff.head, fontfamily)
@@ -11742,7 +11830,7 @@ forest.meta <- function(x,
     hcols <-
       lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
   #
-  if (bmj.bin) {
+  if (ev.n.bin) {
     sel1 <- grep("col.event.n.e",
                  c(leftcols, if (all(rightcols != "col.")) rightcols))
     sel2 <- grep("col.event.n.c",
@@ -11770,7 +11858,7 @@ forest.meta <- function(x,
     }
   }
   #
-  if (bmj.cont) {
+  if (m.s.n.cont) {
     sel1 <- grep("col.mean.sd.n.e",
                  c(leftcols, if (all(rightcols != "col.")) rightcols))
     sel2 <- grep("col.mean.sd.n.c",
@@ -11871,8 +11959,8 @@ forest.meta <- function(x,
               ci.format = ci.format,
               effect.ci.format = effect.ci.format,
               #
-              if (bmj.bin) effect.ci.format = effect.ci.format,
-              if (bmj.bin) effect.ci.format = effect.ci.format,
+              if (ev.n.bin | ev.n.prop) effect.ci.format = effect.ci.format,
+              if (ev.n.bin) effect.ci.format = effect.ci.format,
               #
               figheight = figheight,
               #

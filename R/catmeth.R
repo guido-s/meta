@@ -312,7 +312,7 @@ catmeth <- function(x,
 
   more.pi <- NULL
   #
-  if (!prediction & prediction.subgroup) {
+  if (!prediction & replaceNULL(prediction.subgroup, FALSE)) {
     prediction <- TRUE
     print.df <- FALSE
     more.pi <- TRUE
