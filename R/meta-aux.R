@@ -510,7 +510,7 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
 }
 
 
-addGLMM <- function(x, glmm) {
+addGLMM <- function(x, glmm, method.I2) {
   
   res <- x
   ##
@@ -592,15 +592,26 @@ addGLMM <- function(x, glmm) {
   ##
   res$sign.upper.tau <- res$sign.lower.tau <- res$method.tau.ci <- ""
   ##
-  H <- calcH(Q, df.Q, level.ma)
-  res$H <- H$TE
-  res$lower.H <- H$lower
-  res$upper.H <- H$upper
-  ##
-  I2 <- isquared(Q, df.Q, level.ma)
-  res$I2 <- I2$TE
-  res$lower.I2 <- I2$lower
-  res$upper.I2 <- I2$upper
+  if (method.I2 == "Q") {
+    H <- calcH(Q, df.Q, level.ma)
+    res$H <- H$TE
+    res$lower.H <- H$lower
+    res$upper.H <- H$upper
+    #
+    I2 <- isquared(Q, df.Q, level.ma)
+    res$I2 <- I2$TE
+    res$lower.I2 <- I2$lower
+    res$upper.I2 <- I2$upper
+  }
+  else {
+    res$H <- sqrt(glmm$H2)
+    res$lower.H <- NA
+    res$upper.H <- NA
+    #
+    res$I2 <- glmm$I2 / 100
+    res$lower.I2 <- NA
+    res$upper.I2 <- NA
+  }
   ##
   res$upper.Rb <- res$lower.Rb <- res$Rb <- NA
   ##
@@ -617,12 +628,18 @@ addGLMM <- function(x, glmm) {
 }
 
 
-hccGLMM <- function(x, glmm) {
+hccGLMM <- function(x, glmm, method.I2) {
   Q.r <- glmm$QE.Wld
   df.Q.r <- glmm$k - glmm$p
   ##
-  H.r  <- calcH(Q.r, df.Q.r, x$level.ma)
-  I2.r <- isquared(Q.r, df.Q.r, x$level.ma)
+  if (method.I2 == "Q") {
+    H.r  <- calcH(Q.r, df.Q.r, x$level.ma)
+    I2.r <- isquared(Q.r, df.Q.r, x$level.ma)
+  }
+  else {
+    H.r  <- list(TE = sqrt(glmm$H2), lower = NA, upper = NA)
+    I2.r <- list(TE = glmm$I2 / 100, lower = NA, upper = NA)
+  }
   ##
   list(tau2.resid = glmm$tau2,
        lower.tau2.resid = NA,

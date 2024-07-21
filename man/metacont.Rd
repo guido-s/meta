@@ -51,6 +51,7 @@ metacont(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -238,6 +239,11 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}

@@ -93,6 +93,10 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -648,7 +652,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     method.tau.ci = gs("method.tau.ci"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
-                    ##
+                    #
+                    method.I2 = gs("method.I2"),
+                    #
                     level.ma = gs("level.ma"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -719,7 +725,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
@@ -793,7 +801,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (length(model.glmm) == 0)
     model.glmm <- gs("model.glmm")
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL", ""))
-  ##
+  #
   chklogical(print.CMH)
   ##
   if (sm == "ASD") {
@@ -1623,7 +1631,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                tau.preset = tau.preset,
                TE.tau = if (Q.Cochrane) TE.common else TE.tau,
                tau.common = FALSE,
-               ##
+               #
+               method.I2 = method.I2,
+               #
                level.ma = level.ma,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
@@ -1659,14 +1669,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     w.random[is.na(w.random)] <- 0
   }
-  ##
-  if (by & tau.common & !is.glmm) {
-    ## Estimate common tau-squared across subgroups
+  #
+  # Estimate common tau-squared across subgroups
+  #
+  if (by & tau.common & !is.glmm)
     hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (Q.Cochrane & method == "MH") TE.common else TE.tau,
-                   level.ma,
-                   subgroup, control)
-  }
+                   method.I2, level.ma, subgroup, control)
   
   
   ##
@@ -1722,7 +1731,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   ##
   if (is.glmm) {
-    res <- addGLMM(res, res.glmm)
+    res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
     ##
     if (by) {
@@ -1748,7 +1757,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     else
                       NULL,
                   control = list(control),
-                  use.random = use.random)$glmm.random[[1]]
+                  use.random = use.random)$glmm.random[[1]],
+          method.I2
         )
     }
   }

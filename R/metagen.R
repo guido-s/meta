@@ -62,6 +62,10 @@
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param detail.tau Detail on between-study variance estimate.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -650,7 +654,9 @@ metagen <- function(TE, seTE, studlab,
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     detail.tau = "",
-                    ##
+                    #
+                    method.I2 = gs("method.I2"),
+                    #
                     level.ma = gs("level.ma"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -747,7 +753,9 @@ metagen <- function(TE, seTE, studlab,
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
@@ -1828,20 +1836,18 @@ metagen <- function(TE, seTE, studlab,
     ## Estimate tau-squared
     ##
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
-                  method.tau, method.tau.ci,
-                  TE.tau, level.ma,
-                  control = control,
+                  method.tau, method.tau.ci, TE.tau,
+                  method.I2, level.ma, control = control,
                   cluster = cluster[!exclude], rho = rho)
-    ##
-    if (by & tau.common) {
-      ## Estimate common tau-squared across subgroups
+    #
+    # Estimate common tau-squared across subgroups
+    #
+    if (by & tau.common)
       hcc <- hetcalc(TE[!exclude], seTE[!exclude],
-                     method.tau, method.tau.ci,
-                     TE.tau, level.ma,
-                     subgroup = subgroup,
-                     control = control,
+                     method.tau, method.tau.ci, TE.tau,
+                     method.I2, level.ma,
+                     subgroup = subgroup, control = control,
                      cluster = cluster[!exclude], rho = rho)
-    }
     ##
     ## Different calculations for three-level models
     ##
@@ -2397,7 +2403,9 @@ metagen <- function(TE, seTE, studlab,
               detail.tau = detail.tau,
               sign.lower.tau = hc$sign.lower.tau,
               sign.upper.tau = hc$sign.upper.tau,
-              ##
+              #
+              method.I2 = method.I2,
+              #
               H = hc$H, lower.H = hc$lower.H, upper.H = hc$upper.H,
               ##
               I2 = hc$I2, lower.I2 = hc$lower.I2, upper.I2 = hc$upper.I2,

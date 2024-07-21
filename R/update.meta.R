@@ -94,6 +94,10 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
 #'   function \code{\link{metabias}.}
@@ -290,8 +294,10 @@ update.meta <- function(object,
                         RR.Cochrane = object$RR.Cochrane,
                         Q.Cochrane = object$Q.Cochrane,
                         model.glmm = object$model.glmm,
+                        #
                         level = object$level,
                         level.ma = object$level.ma,
+                        #
                         common = object$common,
                         random = object$random,
                         overall = object$overall,
@@ -306,6 +312,9 @@ update.meta <- function(object,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
+                        #
+                        method.I2 = object$method.I2,
+                        #
                         prediction = object$prediction,
                         level.predict = object$level.predict,
                         null.effect = object$null.effect,
@@ -385,7 +394,7 @@ update.meta <- function(object,
   chkclass(object, "meta")
   suitable <-
     chksuitable(object, "Update",
-                c("metabind", "metaadd", "metamerge"),
+                c("metabind", "metaadd", "metamerge", "metamiss"),
                 check.mlm = FALSE,
                 stop = FALSE, status = "possible")
   if (!suitable)
@@ -486,6 +495,7 @@ update.meta <- function(object,
       object$sep.subgroup <- object$byseparator
     }
   }
+  #
   if (update_needed(object$version, 5, 5, verbose)) {
     ##
     ## Changes for meta objects with version < 5.5
@@ -533,12 +543,14 @@ update.meta <- function(object,
       object$cluster <- object$id
       object$data$.cluster <- object$data$.id
   }
+  #
   if (update_needed(object$version, 6, 1, verbose)) {
     ##
     ## Changes for meta objects with version < 6.1
     ##
     object$transf <- TRUE
   }
+  #
   if (update_needed(object$version, 6, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 6.0
@@ -571,6 +583,7 @@ update.meta <- function(object,
       object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
     }
   }
+  #
   if (update_needed(object$version, 6, 5, verbose)) {
     ##
     ## Changes for meta objects with version < 6.5
@@ -627,6 +640,7 @@ update.meta <- function(object,
     if (!is.null(object$byvar))
       object$seed.predict.subgroup <- NULL
   }
+  #
   if (update_needed(object$version, 7, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 7.0
@@ -720,6 +734,7 @@ update.meta <- function(object,
   irunit <- replaceNULL(irunit, "")
   ##
   tau.common <- replaceNULL(tau.common, gs("tau.common"))
+  method.I2 <- replaceNULL(method.I2, gs("method.I2"))
   sep.subgroup <- replaceNULL(sep.subgroup, gs("sep.subgroup"))
   ##
   if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
@@ -1159,7 +1174,9 @@ update.meta <- function(object,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1267,7 +1284,9 @@ update.meta <- function(object,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1315,7 +1334,9 @@ update.meta <- function(object,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1390,7 +1411,9 @@ update.meta <- function(object,
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1512,7 +1535,9 @@ update.meta <- function(object,
                  method.tau.ci = method.tau.ci,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1585,7 +1610,9 @@ update.meta <- function(object,
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1655,7 +1682,9 @@ update.meta <- function(object,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1728,7 +1757,9 @@ update.meta <- function(object,
                   method.tau.ci = method.tau.ci,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##

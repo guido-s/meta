@@ -4,14 +4,25 @@
 
 * By default, prediction intervals are calculated with *k - 1* instead of *k - 2* degrees of freedom ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k* corresponds to the number of studies in the meta-analysis (see help("meta-package") for more details on prediction interval methods)
 
+* I2 statistic can be calculated from between-study variance instead of
+  Q statistic
+
 ### User-visible changes
 
 * Do not print the start-up message concerning older version of R package **meta** for readers of 'Meta-Analysis with R (Use R!)'
+
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate(), update.meta():
+  - new argument 'method.I2' to choose method to calculate I2 statistic
 
 * funnel.meta():
   - new argument 'type' to create a contour-enhanced funnel plot with default
     settings
   - argument '...' passed on to plot.default(), e.g., to specify font family
+
+* print.summary.meta():
+  - new arguments 'digits.Q', 'digits.df', 'digits.pval.Q', 'digits.H',
+    'print.tau2.ci', 'print.tau.ci', 'print.Q', 'print.H', 'print.Rb', 'text.Rb'
 
 ### Bug fixes
 
@@ -29,6 +40,9 @@
 * metagen():
   - set list elements 'approx.TE' or 'approx.seTE' to NULL if no approximation
     has been used
+
+* print.summary.meta():
+  - recognize the arguments 'scientific.pval', 'zero.pval', 'JAMA.pval'
 
 * runGLMM():
   - use results of common effect model as fallback for error

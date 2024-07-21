@@ -18,6 +18,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
               k0 = replaceNULL(x$k0, NA),
               method.tau, method.tau.ci,
               tau = round(tau, digits), tau.preset,
+              method.I2,
               method.random.ci,
               df.random = replaceNULL(df.random),
               adhoc.hakn.ci,
@@ -54,6 +55,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
                 if (length(method.tau.ci[method.tau.ci != ""]) == 0) ""
                 else method.tau.ci[method.tau.ci != ""],
               tau = NA, tau.preset = replaceNULL(tau.preset),
+              method.I2,
               method.random.ci,
               df.random = replaceNULL(df.random), adhoc.hakn.ci,
               rho = replaceNULL(rho)),
@@ -107,7 +109,9 @@ gm <- function(x, digits = 4, debug = FALSE) {
                     method.tau.ci = c(rep("", n.com), x$method.tau.ci),
                     tau = round(c(rep(NA, n.com), x$tau), digits),
                     tau.preset = NA,
-                    ##
+                    #
+                    method.I2 = x$method.I2,
+                    #
                     method.random.ci = c(rep("", n.com), method.random.ci),
                     df.random = c(rep(NA, n.com), unlist(df.random)),
                     adhoc.hakn.ci = c(rep("", n.com), adhoc.hakn.ci),

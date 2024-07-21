@@ -24,7 +24,9 @@ meta2meth <- function(x, outclab = NULL) {
        tau.preset = replaceNULL(x$tau.preset),
        TE.tau = replaceNULL(x$TE.tau),
        tau.common = replaceNULL(x$tau.common, FALSE),
-       ##
+       #
+       method.I2 = replaceNULL(x$method.I2, "Q"),
+       #
        prediction = x$prediction,
        prediction.subgroup =
          replaceNULL(x$prediction.subgroup, FALSE),
@@ -340,7 +342,12 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) rep(NA, n.subgr),
       if (random) rep(replaceNULL(x$tau.preset, NA), n.subgr),
       if (prediction) rep(NA, n.subgr))
-  ##
+  #
+  res$method.I2 <-
+    c(if (common) rep(x$method.I2, n.subgr),
+      if (random) rep(x$method.I2, n.subgr),
+      if (prediction) rep("", n.subgr))
+  #
   res$method.random.ci <-
     c(if (common) rep("", n.subgr),
       if (random) rep(x$method.random.ci, n.subgr),
@@ -523,7 +530,12 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) NA,
       if (random) replaceNULL(x$tau.preset, NA),
       if (prediction) NA)
-  ##
+  #
+  res$method.I2 <-
+    c(if (common) x$method.I2,
+      if (random) x$method.I2,
+      if (prediction) "")
+  #
   res$method.random.ci <-
     c(if (common) "",
       if (random) x$method.random.ci,

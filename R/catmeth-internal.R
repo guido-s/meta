@@ -1,4 +1,4 @@
-methtxt <- function(x, i, random, method) {
+text_meth <- function(x, i, random, method) {
   ##
   if (x$method[i] == "MH")
     txt <- text_MH(x, i, random)
@@ -75,10 +75,16 @@ text_Inverse <- function(x, i, random, method) {
                ")")
   else {
     if (meth.i$model == "common" &
-        any(x$method[x$model == "random"] != "Inverse"))
+        (any(x$method[x$model == "random"] != "Inverse") |
+         (meth.i$method == "Inverse" &
+          any(x$method[x$model == "common"] != "Inverse" &
+              x$method[x$model == "random"] == "Inverse"))))
       txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
     else if (meth.i$model == "random" &
-             any(x$method[x$model == "common"] != "Inverse"))
+             (any(x$method[x$model == "common"] != "Inverse") |
+              (meth.i$method == "Inverse" &
+               any(x$method[x$model == "random"] != "Inverse" &
+                   x$method[x$model == "common"] == "Inverse"))))
       txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
   }
   ##

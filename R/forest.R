@@ -1742,6 +1742,8 @@ forest.meta <- function(x,
       any(duplicated(c(rightcols, rightcols.rob, leftcols))))
     stop("Duplicate entries in 'leftcols' and 'rightcols'.")
   #
+  # Must be of same length as labnames!!!
+  #
   colnames <- c("studlab",
                 "TE",
                 "seTE",
@@ -3657,15 +3659,17 @@ forest.meta <- function(x,
   else if (sm == "")
     lab.TE <- "TE"
   #
+  # Must be of same length as colnames!!!
+  #
   labnames <- c(lab.studlab,
                 lab.TE,
                 if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
                 "Cluster",
                 #
                 "Total", "Total", "Events", "Events",
-                label.e, label.c,
+                label.e, label.c, label.e,
                 "Mean", "Mean", "SD", "SD",
-                label.e, label.c,
+                label.e, label.c, label.e,
                 #
                 "Cor",
                 "Time", "Time",
@@ -7629,19 +7633,35 @@ forest.meta <- function(x,
       text.details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+                #
                 print.tau2 = FALSE,
+                #
                 forest = TRUE)
     }
     else {
       text.details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, gs("text.tau"), gs("text.tau2"),
-                print.tau2, print.tau2.ci,
-                print.tau, print.tau.ci,
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+                #
+                print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
+                print.tau = print.tau, print.tau.ci = print.tau.ci,
+                #
+                print.I2 = print.I2,
+                #
                 forest = TRUE)
     }
     #
@@ -7788,6 +7808,52 @@ forest.meta <- function(x,
         else
           for (i in id)
             td[[i]] <- substitute(paste(txt1, tau^2), list(txt1 = td[[i]]))
+      }
+    }
+    #
+    method.I2.line <- grepl("Calculation of I^2", text.details, fixed = TRUE)
+    #
+    if (any(method.I2.line)) {
+      id <- seq_along(method.I2.line)[method.I2.line]
+      #
+      if (revman5) {
+        for (i in id) {
+          with.Q <-
+            grepl("Calculation of I^2 based on Q", td[[i]], fixed = TRUE)
+          #
+          td[[i]] <- gsub("I^2 based on Q", "", td[[i]], fixed = TRUE)
+          td[[i]] <- gsub("I^2 based on tau^2", "", td[[i]], fixed = TRUE)
+          #
+          if (with.Q)
+            td[[i]] <-
+              substitute(paste(txt1, txt2^2, txt3^2),
+                       list(txt1 = td[[i]], txt2 = "I",
+                            txt3 = " based on Chi"))
+          else
+            td[[i]] <-
+            substitute(paste(txt1, txt2^2, txt3, txt4^2),
+                       list(txt1 = td[[i]], txt2 = "I",
+                            txt3 = " based on ", txt4 = "Tau"))
+        }
+      }
+      else {
+        for (i in id) {
+          with.Q <-
+            grepl("Calculation of I^2 based on Q", td[[i]], fixed = TRUE)
+          #
+          td[[i]] <- gsub("I^2 based on Q", "", td[[i]], fixed = TRUE)
+          td[[i]] <- gsub("I^2 based on tau^2", "", td[[i]], fixed = TRUE)
+          #
+          if (with.Q)
+            td[[i]] <-
+            substitute(paste(txt1, italic(I)^2, txt2, Q),
+                       list(txt1 = td[[i]], txt2 = " based on "))
+          else
+            td[[i]] <-
+            substitute(paste(txt1, italic(I)^2, txt3, tau^2),
+                       list(txt1 = td[[i]], txt2 = "I",
+                            txt3 = " based on "))
+        }
       }
     }
     #

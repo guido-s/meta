@@ -64,6 +64,10 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -370,7 +374,9 @@ metarate <- function(event, time, studlab,
                      method.tau.ci = gs("method.tau.ci"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
-                     ##
+                     #
+                     method.I2 = gs("method.I2"),
+                     #
                      level.ma = gs("level.ma"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -437,7 +443,9 @@ metarate <- function(event, time, studlab,
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
@@ -980,7 +988,9 @@ metarate <- function(event, time, studlab,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
-               ##
+               #
+               method.I2 = method.I2,
+               #
                level.ma = level.ma,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
@@ -1006,12 +1016,12 @@ metarate <- function(event, time, studlab,
                warn = warn,
                ##
                control = control)
-  ##
-  if (by & tau.common & !is.glmm) {
-    ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau, "",
-                   TE.tau, level.ma, subgroup, control)
-  }
+  #
+  # Estimate common tau-squared across subgroups
+  #
+  if (by & tau.common & !is.glmm)
+    hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
+                   method.I2, level.ma, subgroup, control)
   
   
   ##
@@ -1082,7 +1092,7 @@ metarate <- function(event, time, studlab,
               level = level.ma,
               control = control, use.random = use.random)
     ##
-    res <- addGLMM(res, res.glmm)
+    res <- addGLMM(res, res.glmm, method.I2)
     ##
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))
@@ -1107,7 +1117,8 @@ metarate <- function(event, time, studlab,
                       as.call(~ subgroup.glmm)
                     else
                       NULL,
-                  control = control, use.random = use.random)$glmm.random[[1]]
+                  control = control, use.random = use.random)$glmm.random[[1]],
+          method.I2
         )
     }
   }

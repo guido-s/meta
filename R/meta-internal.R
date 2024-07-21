@@ -574,7 +574,7 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 ##
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
-setOption("meth4i2", c("q", "tau"))
+setOption("meth4i2", c("Q", "tau2"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
 setOption("meth4pi",
           c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
@@ -602,7 +602,7 @@ argslist <-
     "method.random.ci", "method.predict",
     "adhoc.hakn.ci", "adhoc.hakn.pi",
     "method.tau", "method.tau.ci", "tau.common",
-    "method.i2",
+    "method.I2",
     "prediction", "level.predict",
     "method.bias",
     "tool.rob",
@@ -709,7 +709,7 @@ setOption("method.predict", "V")
 setOption("method.tau", "REML")
 setOption("method.tau.ci", NULL)
 setOption("tau.common", FALSE)
-setOption("method.i2", "q")
+setOption("method.I2", "Q")
 setOption("method.bias", "Egger")
 setOption("tool.rob", NULL)
 setOption("overall.hetstat", NULL)

@@ -17,6 +17,7 @@ metacr(
   method.tau = "DL",
   method.tau.ci = gs("method.tau.ci"),
   tau.common = FALSE,
+  method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = "classic",
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -89,6 +90,11 @@ used to estimate the confidence interval of \eqn{\tau^2} and
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}

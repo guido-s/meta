@@ -37,6 +37,7 @@
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
+  method.I2 = object$method.I2,
   prediction = object$prediction,
   level.predict = object$level.predict,
   null.effect = object$null.effect,
@@ -213,6 +214,11 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}

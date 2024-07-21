@@ -76,6 +76,7 @@ RevMan 5 settings, in detail:
   in RevMan 5 \cr
 \code{method.tau} \tab "DL" \tab only available method in RevMan 5
   \cr
+\code{method.I2} \tab "Q" \tab only available method in RevMan 5 \cr
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr

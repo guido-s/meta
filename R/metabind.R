@@ -375,7 +375,9 @@ metabind <- function(..., name = NULL,
       FALSE
     else
       unique(meth$tau.common)
-  ##
+  #
+  meth$method.I2 <- unique(meth$method.I2)
+  #
   meth$prediction.subgroup <-
     if (!with.subgroups)
       FALSE

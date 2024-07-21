@@ -1,13 +1,19 @@
 catmeth <- function(x,
                     common, random, prediction, overall, overall.hetstat,
+                    prediction.subgroup = FALSE,
+                    #
                     func.transf, backtransf, func.backtransf,
+                    #
                     big.mark, digits, digits.tau, text.tau, text.tau2,
+                    #
                     print.tau2 = TRUE, print.tau2.ci = FALSE,
-                    print.tau = FALSE, print.tau.ci = FALSE, 
-                    forest = FALSE,
+                    print.tau = FALSE, print.tau.ci = FALSE,
+                    #
+                    print.I2 = FALSE, text.I2,
+                    #
                     print.df = TRUE,
-                    prediction.subgroup = FALSE
-                    ) {
+                    #
+                    forest = FALSE) {
 
   ##
   ##
@@ -61,6 +67,8 @@ catmeth <- function(x,
   if (forest) {
     text.tau2 <- "tau^2"
     text.tau <- "tau"
+    #
+    text.I2 <- "I^2"
   }
   ##
   text.t <- ""
@@ -69,6 +77,8 @@ catmeth <- function(x,
     text.t <- text.tau2
   else if (print.tau)
     text.t <- text.tau
+  #
+  method.I2 <- replaceNULL(x$method.I2, "Q")
   
   
   ##
@@ -100,7 +110,7 @@ catmeth <- function(x,
     ##
     details.i <- vector("character", length = nrow(meth.ma))
     for (i in seq_len(nrow(meth.ma)))
-      details.i[i] <- methtxt(meth.ma, i, random, method)
+      details.i[i] <- text_meth(meth.ma, i, random, method)
     ##
     details <- paste(c(details, unique(details.i)), collapse = "")
   }
@@ -226,7 +236,30 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (5) Confidence interval of random effects estimate
+  ## (5) Method to estimate I2
+  ##
+  ##
+  
+  if (print.I2) {
+    method.I2 <- unique(meth$method.I2)
+    ##
+    if (length(method.I2) >= 1) {
+      for (mi2i in method.I2) {
+        details <-
+          paste0(details,
+                 if (mi2i == "Q")
+                   "\n- Calculation of I^2 based on Q"
+                 #
+                 else if (mi2i == "tau2")
+                   "\n- Calculation of I^2 based on tau^2")
+      }
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (6) Confidence interval of random effects estimate
   ##
   ##
 
@@ -306,7 +339,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (6) Prediction interval
+  ## (7) Prediction interval
   ##
   ##
 
@@ -446,7 +479,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (7) Trim-and-fill method
+  ## (8) Trim-and-fill method
   ##
   ##
 
@@ -469,7 +502,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (8) metamiss
+  ## (9) metamiss
   ##
   ##
 
@@ -511,7 +544,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (9) Information on effect measure
+  ## (10) Information on effect measure
   ##
   ##
   
@@ -592,7 +625,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (10) Information on confidence interval for individual studies
+  ## (11) Information on confidence interval for individual studies
   ##
   ##
   
@@ -638,7 +671,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (11) Information on continuity correction
+  ## (12) Information on continuity correction
   ##
   ##
 
@@ -763,7 +796,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (12) Information on number of events and null hypothesis
+  ## (13) Information on number of events and null hypothesis
   ##
   ##
   

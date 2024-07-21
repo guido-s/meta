@@ -796,15 +796,22 @@ print.summary.meta <- function(x,
       }
       cat("\n")
       prmatrix(res, quote = FALSE, right = TRUE, na.print = "--")
-      ##
-      ## Print information on summary method:
-      ##
+      #
+      # Print information on summary method:
+      #
       if (details.methods)
         catmeth(x,
                 common, random, x$prediction, overall, x$overall.hetstat,
-                x$func.transf, backtransf, x$func.backtransf,
-                big.mark, digits, digits.tau, text.tau, text.tau2,
-                print.tau2 = print.tau2, print.tau = print.tau)
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = x$func.backtransf,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = text.tau, text.tau2 = text.tau2,
+                #
+                print.tau2 = print.tau2, print.tau = print.tau,
+                print.I2 = print.I2)
     }
     else if (!(inherits(x, "metabind") && !x$show.studies)) {
       show.w.common  <-
@@ -1023,14 +1030,16 @@ print.summary.meta <- function(x,
                  backtransf = backtransf, pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  #
-                 digits.tau2 = digits.tau2, digits.tau = digits.tau,
-                 digits.I2 = digits.I2,
-                 #
                  print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
-                 print.tau = print.tau, print.tau.ci = print.tau.ci,
+                 digits.tau2 = digits.tau2,
                  #
-                 print.Q = print.Q, print.I2 = print.I2,
-                 print.H = print.H, print.Rb = print.Rb,
+                 print.tau = print.tau, print.tau.ci = print.tau.ci,
+                 digits.tau = digits.tau,
+                 #
+                 print.Q = print.Q, digits.Q = digits.Q,
+                 print.I2 = print.I2, digits.I2 = digits.I2,
+                 print.H = print.H, digits.H = digits.H,
+                 print.Rb = print.Rb,
                  #
                  scientific.pval = scientific.pval, big.mark = big.mark,
                  zero.pval = zero.pval, JAMA.pval = JAMA.pval,

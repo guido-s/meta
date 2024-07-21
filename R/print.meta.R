@@ -956,8 +956,14 @@ print.meta <- function(x,
       details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, text.tau, text.tau2,
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = text.tau, text.tau2 = text.tau2,
+                #
                 print.tau2 = FALSE)
   }
   else {
@@ -1597,10 +1603,19 @@ print.meta <- function(x,
       details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, text.tau, text.tau2,
-                print.tau2, print.tau2.ci,
-                print.tau, print.tau.ci,
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = text.tau, text.tau2 = text.tau2,
+                #
+                print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
+                print.tau = print.tau, print.tau.ci = print.tau.ci,
+                #
+                print.I2 = print.I2, text.I2 = text.I2,
+                #
                 print.df = overall, prediction.subgroup = prediction.subgroup)
   }
   

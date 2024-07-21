@@ -68,6 +68,7 @@
 #'   in RevMan 5 \cr
 #' \code{method.tau} \tab "DL" \tab only available method in RevMan 5
 #'   \cr
+#' \code{method.I2} \tab "Q" \tab only available method in RevMan 5 \cr
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
 #'   subgroups \cr
 #' \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
@@ -516,7 +517,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("method.tau", "REML")
     setOption("method.tau.ci", NULL)
     setOption("tau.common", FALSE)
-    setOption("method.i2", "q")
+    setOption("method.I2", "Q")
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
     setOption("method.predict", "V")
@@ -898,7 +899,8 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "RevMan5") {
       specificSettings(
-        args = c("method.random.ci", "method.tau", "tau.common",
+        args = c("method.random.ci", "method.tau", "method.I2",
+                 "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
                  "exact.smd",
                  "layout", "prediction", "test.overall",
@@ -916,6 +918,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "hetlab", "header.line"),
         new = list(replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
+                   replaceNULL(args[["method.I2"]], "Q"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
@@ -977,6 +980,7 @@ settings.meta <- function(..., quietly = TRUE) {
     else if (setting == "meta4") {
       specificSettings(args = c("method.tau", "exact.smd",
                                 "text.common", "text.w.common",
+                                "method.I2",
                                 "warn.deprecated"),
                        new = list(replaceNULL(args[["method.tau"]], "DL"),
                                   replaceNULL(args[["exact.smd"]], FALSE),
@@ -984,6 +988,7 @@ settings.meta <- function(..., quietly = TRUE) {
                                               "Fixed effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "fixed"),
+                                  replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
                        setting =
@@ -992,8 +997,9 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "meta7") {
-      specificSettings(args = "method.predict",
-                       new = list(replaceNULL(args[["method.predict"]], "HTS")),
+      specificSettings(args = c("method.I2", "method.predict"),
+                       new = list(replaceNULL(args[["method.I2"]], "Q"),
+                                  replaceNULL(args[["method.predict"]], "HTS")),
                        setting =
                          "settings from meta, version 7.0-0 or below",
                        quietly = quietly)
@@ -1028,7 +1034,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("method.tau         ")
     catarg("method.tau.ci      ")
     catarg("tau.common         ")
-    ##catarg("method.i2          ")
+    ##catarg("method.I2          ")
     catarg("prediction         ")
     catarg("level.predict      ")
     catarg("method.predict     ")
@@ -1331,7 +1337,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("method.tau", args, gs("meth4tau"))
     setcharacter("method.tau.ci", args, c("J", "BJ", "QP", "PL", ""))
     setlogical("tau.common", args)
-    setcharacter("method.i2", args, gs("meth4i2"))
+    setcharacter("method.I2", args, gs("meth4i2"))
     setlogical("prediction", args)
     setlevel("level.predict", args)
     setcharacter("method.predict", args, gs("meth4pi"))

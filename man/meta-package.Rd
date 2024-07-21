@@ -47,6 +47,9 @@ provides the following statistical methods for meta-analysis.
 \item Various estimators for the between-study variance
  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
  see description of argument \code{method.tau} below
+\item Two methods to estimate the I-squared statistic
+  (Higgins and Thompson, 2002); see description of argument
+  \code{method.I2} below
 \item Hartung-Knapp method for random effects meta-analysis
  (Hartung & Knapp, 2001a,b), see description of arguments
  \code{method.random.ci} and \code{adhoc.hakn.ci} below
@@ -150,6 +153,28 @@ heterogeneity statistic Q is based on the Mantel-Haenszel instead
 of the inverse variance estimator under the common effect
 model. This is the estimator for \eqn{\tau^2} implemented in RevMan
 5.
+}
+
+
+\subsection{Estimation of I-squared statistic}{
+
+The following methods are available in all meta-analysis functions
+to estimate the I-squared statistic (Higgins and Thompson, 2002).
+\tabular{ll}{
+\bold{Argument} \tab \bold{Method} \cr 
+\code{method.I2 = "Q"}
+ \tab Based on heterogeneity statistic Q (default) \cr
+\code{method.I2 = "tau2"}
+ \tab Based on between-study variance \eqn{\tau^2}
+}
+
+Using \code{method.I2 = "Q"} (Higgins and Thompson, 2002, section 3.3), the
+value of I\eqn{^2} does not change if the estimate of \eqn{\tau^2} changes.
+Furthermore, the value of I\eqn{^2} and the test of heterogeneity based on
+the Q statistic are in agreement. R package \bold{metafor} uses the second
+method (\code{method.I2 = "tau2"}) which is described in Higgins and Thompson
+(2002), section 3.2. This method is more general in the way that the value
+of I\eqn{^2} changes with the estimate of \eqn{\tau^2}.
 }
 
 \subsection{Confidence interval for random effects estimate}{
@@ -492,6 +517,11 @@ trials with binary outcome.
 Hedges LV & Olkin I (1985):
 \emph{Statistical methods for meta-analysis}.
 San Diego, CA: Academic Press
+
+Higgins JPT & Thompson SG (2002):
+Quantifying heterogeneity in a meta-analysis.
+\emph{Statistics in Medicine},
+\bold{21}, 1539--58
 
 Higgins JPT, Thompson SG, Spiegelhalter DJ (2009):
 A re-evaluation of random-effects meta-analysis.
