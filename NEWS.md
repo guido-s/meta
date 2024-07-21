@@ -9,11 +9,15 @@
 
 ### User-visible changes
 
-* Do not print the start-up message concerning older version of R package **meta** for readers of 'Meta-Analysis with R (Use R!)'
-
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
   metarate(), update.meta():
   - new argument 'method.I2' to choose method to calculate I2 statistic
+
+* Do not print the start-up message concerning older version of R package
+  **meta** for readers of 'Meta-Analysis with R (Use R!)'
+
+* Print a warning message if deprecated arguments are used, e.g., 'comb.fixed'
+  or 'fixed' instead of 'common'
 
 * funnel.meta():
   - new argument 'type' to create a contour-enhanced funnel plot with default

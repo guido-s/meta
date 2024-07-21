@@ -225,28 +225,41 @@ Settings for \bold{meta}, version 4 or below:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 \code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+\code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
+\code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
+  degrees \cr
+  \tab \tab of freedom \cr
 \code{exact.smd} \tab FALSE \tab Use exact formula for standardised mean \cr
   \tab \tab difference (White and Thomas, 2005) \cr
 \code{text.common} \tab "Fixed effect model" \tab \cr
 \code{text.w.common} \tab "fixed" \tab \cr
 \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
   \cr
-  \tab \tab arguments \cr
+  \tab \tab arguments
 }
 
 Settings for \bold{meta}, version 7.0-0 or below:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+\code{method.tau} \tab "REML" \tab REML estimator \cr
+\code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
 \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
   degrees \cr
   \tab \tab of freedom \cr
+\code{exact.smd} \tab TRUE \tab Use exact formula for standardised mean \cr
+  \tab \tab difference (White and Thomas, 2005) \cr
+\code{text.common} \tab "Common effect model" \tab \cr
+\code{text.w.common} \tab "common" \tab \cr
+\code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
+  \cr
+  \tab \tab arguments
 }
 
 A list of all arguments with current settings is printed using the
-command \code{settings.meta("print")}.
+command \code{settings.meta()}.
 
 In order to reset all settings of R package \bold{meta} the command
-\code{settings.meta("reset")} can be used.
+\code{settings.meta(reset = TRUE)} can be used.
 }
 \examples{
 # Get listing of current settings

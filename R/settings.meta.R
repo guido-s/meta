@@ -217,28 +217,41 @@
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+#' \code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
+#' \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
+#'   degrees \cr
+#'   \tab \tab of freedom \cr
 #' \code{exact.smd} \tab FALSE \tab Use exact formula for standardised mean \cr
 #'   \tab \tab difference (White and Thomas, 2005) \cr
 #' \code{text.common} \tab "Fixed effect model" \tab \cr
 #' \code{text.w.common} \tab "fixed" \tab \cr
 #' \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
 #'   \cr
-#'   \tab \tab arguments \cr
+#'   \tab \tab arguments
 #' }
 #' 
 #' Settings for \bold{meta}, version 7.0-0 or below:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.tau} \tab "REML" \tab REML estimator \cr
+#' \code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
 #' \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
 #'   degrees \cr
 #'   \tab \tab of freedom \cr
+#' \code{exact.smd} \tab TRUE \tab Use exact formula for standardised mean \cr
+#'   \tab \tab difference (White and Thomas, 2005) \cr
+#' \code{text.common} \tab "Common effect model" \tab \cr
+#' \code{text.w.common} \tab "common" \tab \cr
+#' \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
+#'   \cr
+#'   \tab \tab arguments
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
-#' command \code{settings.meta("print")}.
+#' command \code{settings.meta()}.
 #' 
 #' In order to reset all settings of R package \bold{meta} the command
-#' \code{settings.meta("reset")} can be used.
+#' \code{settings.meta(reset = TRUE)} can be used.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -543,7 +556,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("byseparator", " = ")
     setOption("keepdata", TRUE)
     setOption("warn", TRUE)
-    setOption("warn.deprecated", FALSE)
+    setOption("warn.deprecated", TRUE)
     setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
@@ -978,17 +991,18 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "meta4") {
-      specificSettings(args = c("method.tau", "exact.smd",
+      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+                                "exact.smd",
                                 "text.common", "text.w.common",
-                                "method.I2",
                                 "warn.deprecated"),
                        new = list(replaceNULL(args[["method.tau"]], "DL"),
+                                  replaceNULL(args[["method.I2"]], "Q"),
+                                  replaceNULL(args[["method.predict"]], "HTS"),
                                   replaceNULL(args[["exact.smd"]], FALSE),
                                   replaceNULL(args[["text.common"]],
                                               "Fixed effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "fixed"),
-                                  replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
                        setting =
@@ -997,9 +1011,20 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "meta7") {
-      specificSettings(args = c("method.I2", "method.predict"),
-                       new = list(replaceNULL(args[["method.I2"]], "Q"),
-                                  replaceNULL(args[["method.predict"]], "HTS")),
+      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+                                "exact.smd",
+                                "text.common", "text.w.common",
+                                "warn.deprecated"),
+                       new = list(replaceNULL(args[["method.tau"]], "REML"),
+                                  replaceNULL(args[["method.I2"]], "Q"),
+                                  replaceNULL(args[["method.predict"]], "HTS"),
+                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  replaceNULL(args[["text.common"]],
+                                              "Common effect model"),
+                                  replaceNULL(args[["text.w.common"]],
+                                              "common"),
+                                  replaceNULL(args[["warn.deprecated"]],
+                                              FALSE)),
                        setting =
                          "settings from meta, version 7.0-0 or below",
                        quietly = quietly)
