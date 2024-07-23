@@ -265,14 +265,17 @@ catmeth <- function(x,
 
   if (random) {
     vars <- c("method", "method.random.ci", "df.random", "three.level")
+    #
     dat.rc <- unique(meth[meth$model == "random", vars])
+    dat.rc.hk <-
+      unique(meth[meth$model == "random", c(vars, "adhoc.hakn.ci")])
     ##
-    dat.rc.hk1 <-
-      subset(dat.rc,
-             dat.rc$method.random.ci == "HK" &
-             !(dat.rc$method == "GLMM" | dat.rc$three.level))
+    dat.rc.hk <-
+      subset(dat.rc.hk,
+             dat.rc.hk$method.random.ci == "HK" &
+             !(dat.rc.hk$method == "GLMM" | dat.rc.hk$three.level))
     ##
-    dat.rc.hk2 <-
+    dat.rc.hk.glmm <-
       subset(dat.rc,
              dat.rc$method.random.ci == "HK" &
              (dat.rc$method == "GLMM" | dat.rc$three.level))
@@ -280,12 +283,12 @@ catmeth <- function(x,
     dat.rc.ckr <- subset(dat.rc, dat.rc$method.random.ci == "classic-KR")
     dat.rc.kr <- subset(dat.rc, dat.rc$method.random.ci == "KR")
     ##
-    more.ci <- sum(1L * (nrow(dat.rc.hk1) > 0) +
-                   1L * (nrow(dat.rc.hk2) > 0) +
+    more.ci <- sum(1L * (nrow(dat.rc.hk) > 0) +
+                   1L * (nrow(dat.rc.hk.glmm) > 0) +
                    1L * (nrow(dat.rc.ckr) > 0) +
                    1L * (nrow(dat.rc.kr) > 0)) > 1
     ##
-    if (nrow(dat.rc.hk1) > 0) {
+    if (nrow(dat.rc.hk) > 0) {
       details <-
         paste0(
           details,
@@ -293,26 +296,26 @@ catmeth <- function(x,
           if (more.ci) "(HK) ",
           "adjustment for random effects model",
           if (print.df)
-            paste0(" (df = ", cond(dat.rc.hk1$df.random, digits = 0), ")")
+            paste0(" (df = ", cond(dat.rc.hk$df.random, digits = 0), ")")
         )
       ##
-      if (any(dat.rc.hk1$adhoc.hakn.ci != ""))
+      if (any(dat.rc.hk$adhoc.hakn.ci != ""))
         details <- paste0(
           details,
           if (forest) " " else "\n  ", "(with ",
-          if (any(dat.rc.hk1$adhoc.hakn.ci == ""))
+          if (any(dat.rc.hk$adhoc.hakn.ci == ""))
             "and without ",
           "ad hoc correction)")
     }
     ##
-    if (nrow(dat.rc.hk2) > 0) {
+    if (nrow(dat.rc.hk.glmm) > 0) {
       details <-
         paste0(
           details,
           "\n- Random effects confidence interval based on t-distribution",
           if (more.ci) " (T)",
           if (print.df)
-            paste0(" (df = ", cond(dat.rc.hk2$df.random, digits = 0), ")")
+            paste0(" (df = ", cond(dat.rc.hk.glmm$df.random, digits = 0), ")")
         )
     }
     ##
@@ -422,11 +425,11 @@ catmeth <- function(x,
                    ")")
         )
       ##
-      if (any(dat.pr.hk$adhoc.hakn.ci != ""))
+      if (any(dat.pr.hk$adhoc.hakn.pi != ""))
         details <- paste0(
           details,
           if (forest) " " else "\n  ", "(with ",
-          if (any(dat.pr.hk$adhoc.hakn.ci == ""))
+          if (any(dat.pr.hk$adhoc.hakn.pi == ""))
             "and without ",
           "ad hoc correction)")
     }

@@ -266,6 +266,8 @@ print.meta <- function(x,
     fbt <- func.backtransf
   ##
   abt <- x$args.backtransf
+  #
+  print.I2 <- print.I2 & ((overall.hetstat & !by) | by)
   
   
   ##
@@ -554,7 +556,12 @@ print.meta <- function(x,
   else
     text.random.br <- text.random
   ##
-  ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  if (common | random)
+    ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  else if (prediction)
+    ci.lab <- paste0(round(100 * x$level.predict, 1), "%-PI")
+  else
+    ci.lab <- ""
   ##
   details <- NULL
   
@@ -972,6 +979,8 @@ print.meta <- function(x,
     ## Print results for meta-analysis with more than one study
     ##
     ##
+    zlab <- ""
+    #
     if (header & is.metamiss)
       cat("\n")
     ##
@@ -1075,7 +1084,7 @@ print.meta <- function(x,
         }
         ##
         if (any(method.random.ci %in% c("HK", "KR"))) {
-          if (common & random)
+          if ((common & random) | any(method.random.ci == "classic"))
             zlab <- "z|t"
           else if (common & !random)
             zlab <- "z"
@@ -1101,7 +1110,10 @@ print.meta <- function(x,
                                 if (null.given) "p-value"))
         ##
         sort.overall <- setsort(sort.overall, nrow(res), "overall results")
-        ##
+        #
+        if (prediction & !(common | random))
+          res <- res[, ci.lab, drop = FALSE]
+        #
         prmatrix(res[sort.overall, , drop = FALSE],
                  quote = FALSE, right = TRUE, ...)
         ##

@@ -556,7 +556,7 @@ update.meta <- function(object,
     ## Changes for meta objects with version < 6.0
     ##
     object$method.random.ci <- if (object$hakn) "HK" else "classic"
-    object$adhoc.hakn.ci <- object$adhoc.hakn.ci
+    object$adhoc.hakn.ci <- object$adhoc.hakn
     object$df.random <- object$df.hakn
     object$seTE.hakn.ci <- object$seTE.hakn
     object$seTE.hakn.adhoc.ci <- object$seTE.hakn.adhoc

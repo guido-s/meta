@@ -916,11 +916,12 @@ metagen <- function(TE, seTE, studlab,
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   ##
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   adhoc.hakn.ci <-
-    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+    deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
-  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
-  ##
+  adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
+  #
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
@@ -2036,8 +2037,8 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Prediction interval
       ##
-      pi <- as.data.frame(ci(1, NA, level = 0.99999))
-      ##
+      pi <- data.frame()
+      #
       if (length(adhoc.hakn.pi) == 1) {
         adhoc.hakn.pi <- ifelse(method.predict == "HK", adhoc.hakn.pi, "")
       }
@@ -2055,21 +2056,34 @@ metagen <- function(TE, seTE, studlab,
              "Hartung-Knapp method",
              call. = FALSE)
       }
-      ##
+      #
       seTE.hakn.adhoc.pi <- rep(seTE.hakn.adhoc.pi, length(method.predict))
       df.hakn.pi <- rep(df.hakn, length(method.predict))
-      ##
+      #
       for (i in seq_along(method.predict)) {
         if (method.predict[i] == "HK" && df.hakn.pi[i] > 1) {
           if (adhoc.hakn.pi[i] == "se") {
-            ##
-            ## Variance correction if SE_HK < SE_notHK (Knapp and
-            ## Hartung, 2003), i.e., if q < 1
-            ##
+            #
+            # Variance correction if SE_HK < SE_notHK (Knapp and
+            # Hartung, 2003), i.e., if q < 1
+            #
             if (q < 1)
               seTE.hakn.adhoc.pi[i] <- seTE.classic
           }
-          ##
+          #
+          pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
+                     level = level.predict, df = df.hakn.pi[i])
+        }
+        else if (method.predict[i] == "HK-PR" && df.hakn.pi[i] > 2) {
+          if (adhoc.hakn.pi[i] == "se") {
+            #
+            # Variance correction if SE_HK < SE_notHK (Knapp and
+            # Hartung, 2003), i.e., if q < 1
+            #
+            if (q < 1)
+              seTE.hakn.adhoc.pi[i] <- seTE.classic
+          }
+          #
           pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
                      level = level.predict, df = df.hakn.pi[i] - 1)
         }
@@ -2083,7 +2097,11 @@ metagen <- function(TE, seTE, studlab,
         }
         else if (method.predict[i] == "KR" & df.kero > 0) {
           pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
-                     level.predict, df.kero)# - 1)
+                     level.predict, df.kero)
+        }
+        else if (method.predict[i] == "KR-PR" & df.kero > 1) {
+          pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
+                     level.predict, df.kero - 1)
         }
         else if (method.predict[i] == "PR" & df.kero > 0) {
           pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
@@ -2094,7 +2112,7 @@ metagen <- function(TE, seTE, studlab,
                                    method = "boot",
                                    alpha = 1 - level.predict,
                                    seed = seed.predict)
-          ##
+          #
           pi.i <- as.data.frame(ci(1, NA, level = level.predict))
           pi.i$seTE <- NA
           pi.i$lower <- res.pima$lpi
@@ -2102,8 +2120,7 @@ metagen <- function(TE, seTE, studlab,
           pi.i$df <- res.pima$nup
         }
         else if (method.predict[i] == "S")
-          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
-                     level.predict)
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc), level.predict)
         else if (method.predict[i] == "KR")
           pi.i <- ci(TE.random, NA, level.predict, df.kero - 1)
         else if (method.predict[i] == "V")
@@ -2115,9 +2132,7 @@ metagen <- function(TE, seTE, studlab,
         ##
         pi <- rbind(pi, as.data.frame(pi.i))
       }
-      ##
-      pi <- pi[-1, ]
-      ##
+      #
       seTE.predict <- pi$seTE
       lower.predict <- pi$lower
       upper.predict <- pi$upper
@@ -2144,7 +2159,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## No adhoc method for three-level models
       ##
-      if ((!missing(adhoc.hakn.ci) && any(adhoc.hakn.ci != "")) |
+      if ((!missing.adhoc.hakn.ci && any(adhoc.hakn.ci != "")) |
           (!missing(adhoc.hakn.pi) && any(adhoc.hakn.pi != ""))) {
         warning("Ad hoc variance correction not implemented ",
                 "for three-level model.",
