@@ -420,8 +420,9 @@ print.summary.meta <- function(x,
   subgroup <- replaceNULL(x$subgroup, x$byvar)
   subgroup.name <- replaceNULL(x$subgroup.name, x$bylab)
   ##
-  by <- !is.null(subgroup.name)
+  by <- !is.null(subgroup)
   three.level <- !is.null(x$three.level) && any(x$three.level)
+  n_of_1 <- !is.null(x$cycles)
   
   
   ##
@@ -583,6 +584,9 @@ print.summary.meta <- function(x,
     ##
     if (three.level)
       res <- cbind(res, cluster = as.character(x$cluster))
+    ##
+    if (n_of_1)
+      res <- cbind(res, cycles = x$cycles)
     ##
     if (by)
       res <- cbind(res, subgroup = as.character(subgroup))
@@ -834,6 +838,7 @@ print.summary.meta <- function(x,
                      formatN(w.random.p, digits.weight,
                              big.mark = big.mark),
                    if (three.level) as.character(x$cluster),
+                   if (n_of_1) x$cycles,
                    if (by) as.character(subgroup),
                    if (show.imor) round(x$IMOR.e, 4),
                    if (show.imor) round(x$IMOR.c, 4),
@@ -941,6 +946,7 @@ print.summary.meta <- function(x,
                      if (show.w.common) text.w.common,
                      if (show.w.random) text.w.random,
                      if (three.level) "cluster",
+                     if (n_of_1) "cycles",
                      if (by) subgroup.name,
                      if (!is.null(x$exclude)) "exclude",
                      if (print.stat) "t",
@@ -994,6 +1000,7 @@ print.summary.meta <- function(x,
                  if (show.w.common) text.w.common,
                  if (show.w.random) text.w.random,
                  if (three.level) "cluster",
+                 if (n_of_1) "cycles",
                  if (by) subgroup.name,
                  if (show.imor) "IMOR.e",
                  if (show.imor) "IMOR.c",

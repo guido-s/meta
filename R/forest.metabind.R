@@ -646,15 +646,29 @@ forest.metabind <- function(x,
              ...)
   }
   else {
-    m.forest <- metagen(x.forest$data$TE,
-                        lower = x.forest$data$lower,
-                        upper = x.forest$data$upper,
-                        studlab = x.forest$data$studlab,
-                        data = x.forest,
-                        common = common,
-                        random = random,
-                        prediction = prediction,
-                        overall = overall)
+    if (isCol(x.forest$data, "subgroup"))
+      m.forest <- metagen(x.forest$data$TE,
+                          lower = x.forest$data$lower,
+                          upper = x.forest$data$upper,
+                          studlab = x.forest$data$studlab,
+                          subgroup = x.forest$data$subgroup,
+                          print.subgroup.name = FALSE,
+                          data = x.forest,
+                          common = FALSE,
+                          random = FALSE,
+                          prediction = FALSE,
+                          overall = FALSE,
+                          method.tau = "DL", method.tau.ci = "")
+    else
+      m.forest <- metagen(x.forest$data$TE,
+                          lower = x.forest$data$lower,
+                          upper = x.forest$data$upper,
+                          studlab = x.forest$data$studlab,
+                          data = x.forest,
+                          common = common,
+                          random = random,
+                          prediction = prediction,
+                          overall = overall)
     #
     class(m.forest) <- c(class(m.forest), "is.metabind")
     m.forest$sm <- x.forest$sm

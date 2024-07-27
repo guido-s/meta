@@ -144,8 +144,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -679,10 +683,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
+                    #
                     label.e = gs("label.e"), label.c = gs("label.c"),
                     label.left = gs("label.left"),
                     label.right = gs("label.right"),
-                    ##
+                    col.label.left = gs("col.label.left"),
+                    col.label.right = gs("col.label.right"),
+                    #
                     subgroup, subgroup.name = NULL,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
@@ -744,9 +751,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
   method.bias <- setmethodbias(method.bias)
   ##
   chklogical(backtransf)
@@ -1651,9 +1657,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
+               #
                label.e = label.e, label.c = label.c,
                label.left = label.left, label.right = label.right,
-               ##
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = warn,
                ##

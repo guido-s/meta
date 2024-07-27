@@ -47,9 +47,18 @@ catmeth <- function(x,
       c("common", "random")
   ##
   bothmod <- length(selmod) > 1
-  ##
-  details <- NULL
-  ##
+  #
+  # Print information on meta-analysis of n-of-1-trials first
+  #
+  if (!is.null(x$cycles)) {
+    details <-
+      paste0("\n- ",
+             if (any(x$k.all > 1)) "Meta-a" else "A",
+             "nalysis of n-of-1 trials")
+  }
+  else
+    details <- NULL
+  #
   width <- options()$width
   ##
   method <-

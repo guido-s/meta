@@ -117,6 +117,12 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"MRAW"} or \code{"MLN"}) is to be used for pooling of
 #'   studies.
@@ -465,9 +471,13 @@ metamean <- function(n, mean, sd, studlab,
                      text.w.common = gs("text.w.common"),
                      text.w.random = gs("text.w.random"),
                      ##
-                     title = gs("title"), complab = gs("complab"),
-                     outclab = "",
-                     ##
+                     title = gs("title"), complab = gs("complab"), outclab = "",
+                     #
+                     label.left = gs("label.left"),
+                     label.right = gs("label.right"),
+                     col.label.left = gs("col.label.left"),
+                     col.label.right = gs("col.label.right"),
+                     #
                      subgroup, subgroup.name = NULL,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
@@ -593,7 +603,7 @@ metamean <- function(n, mean, sd, studlab,
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
-  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
+  adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
   ##
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
@@ -1235,7 +1245,11 @@ metamean <- function(n, mean, sd, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
-               ##
+               #
+               label.left = label.left, label.right = label.right,
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = warn,
                ##
@@ -1287,8 +1301,6 @@ metamean <- function(n, mean, sd, studlab,
   ##
   m$label.e <- ""
   m$label.c <- ""
-  m$label.left <- ""
-  m$label.right <- ""
   ##
   res <- c(res, m)
   res$null.effect <- null.effect

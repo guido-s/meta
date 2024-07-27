@@ -1,17 +1,34 @@
-## meta, version 7.5-0 (2024-mm-dd)
+## meta, version 8.0-0 (2024-mm-dd)
 
 ### Major changes
 
-* By default, prediction intervals are calculated with *k - 1* instead of *k - 2* degrees of freedom ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k* corresponds to the number of studies in the meta-analysis (see help("meta-package") for more details on prediction interval methods)
+* By default, prediction intervals are calculated with *k - 1* instead of
+  *k - 2* degrees of freedom
+  ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k*
+  corresponds to the number of studies in the meta-analysis
+  (see *help("meta-package")* for more details on prediction interval methods)
+
+* Meta-analysis of n-of-1 trials implemented [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
 
 * I2 statistic can be calculated from between-study variance instead of
   Q statistic
+
+* Information on colour of labels on left and right side of null effect in
+  forest plots can be stored in meta-analysis object
+
+* In forest plots, the heterogeneity statistic *Q*, its p-value, and the *I2*
+  statistic are printed with the same number of digits as in printouts.
 
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
   metarate(), update.meta():
   - new argument 'method.I2' to choose method to calculate I2 statistic
+  - new arguments 'col.label.left' and 'col.label.right' to define colour of
+    labels used in forest plots on left and right side of null effect
+
+* metagen():
+  - new argument 'cycles' for meta-analysis of n-of-1 trials
 
 * Do not print the start-up message concerning older version of R package
   **meta** for readers of 'Meta-Analysis with R (Use R!)'
@@ -105,7 +122,7 @@
 
 * New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
   to print results according to BMJ style and formating checklist,
-  see, for example, [ BMJ
+  see, for example, [BMJ
   Medicine](https://bmjmedicine.bmj.com/bmjmedicine/wp-content/uploads/sites/66/2023/06/BMJMED-style-formatting-checklist-for-original-research-pre-acceptance-1.pdf)
 
 * R function metabind() can return both common effect and random
@@ -871,7 +888,7 @@
 * New default settings:
   - Restricted maximum likelihood (REML) instead of DerSimonian-Laird
     estimator used as default to estimate between-study heterogeneity
-	(argument 'method.tau')
+    (argument 'method.tau')
   - Do not use Q statistic based on Mantel-Haenszel estimate to
     calculate DerSimonian-Laird estimator of the between-study
     variance (argument 'Q.Cochrane')

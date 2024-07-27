@@ -45,6 +45,10 @@ metacor(
   title = gs("title"),
   complab = gs("complab"),
   outclab = "",
+  label.left = gs("label.left"),
+  label.right = gs("label.right"),
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   subgroup,
   subgroup.name = NULL,
   print.subgroup.name = gs("print.subgroup.name"),
@@ -191,6 +195,16 @@ random effects model.}
 \item{complab}{Comparison label.}
 
 \item{outclab}{Outcome label.}
+
+\item{label.left}{Graph label on left side of null effect in forest plot.}
+
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}

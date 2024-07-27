@@ -115,6 +115,12 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -401,7 +407,12 @@ metarate <- function(event, time, studlab,
                      ##
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
-                     ##
+                     #
+                     label.left = gs("label.left"),
+                     label.right = gs("label.right"),
+                     col.label.left = gs("col.label.left"),
+                     col.label.right = gs("col.label.right"),
+                     #
                      subgroup, subgroup.name = NULL,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
@@ -461,9 +472,8 @@ metarate <- function(event, time, studlab,
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
   chknumeric(null.effect, length = 1)
   ##
   method.bias <- setmethodbias(method.bias)
@@ -1010,7 +1020,11 @@ metarate <- function(event, time, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
-               ##
+               #
+               label.left = label.left, label.right = label.right,
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = warn,
                ##

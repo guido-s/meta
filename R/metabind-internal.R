@@ -481,7 +481,8 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
 }
 
 
-overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
+overall2data <- function(x, common, random, prediction, name, subgroup,
+                         debug = FALSE) {
   res <- list()
   ##
   res$studlab <-
@@ -632,7 +633,9 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
   res$Rb <- c(x$Rb, rep(NA, sumcrp - 1))
   res$lower.Rb <- c(x$lower.Rb, rep(NA, sumcrp - 1))
   res$upper.Rb <- c(x$upper.Rb, rep(NA, sumcrp - 1))
-  ##
+  #
+  res$subgroup <- subgroup
+  #
   if (!debug)
     res <- as.data.frame(res)
   ##

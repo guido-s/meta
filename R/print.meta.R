@@ -560,6 +560,8 @@ print.meta <- function(x,
     ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
   else if (prediction)
     ci.lab <- paste0(round(100 * x$level.predict, 1), "%-PI")
+  else if (all(k.all == 1))
+    ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
   else
     ci.lab <- ""
   ##
@@ -1285,10 +1287,14 @@ print.meta <- function(x,
         }
       }
     }
-    else {
+    else if (!by) {
       print.tau2 <- FALSE
       print.tau2.ci <- FALSE
       print.tau <- FALSE
+      print.tau.ci <- FALSE
+    }
+    else {
+      print.tau2.ci <- FALSE
       print.tau.ci <- FALSE
     }
     ##
@@ -1623,8 +1629,10 @@ print.meta <- function(x,
                 digits.tau = digits.tau,
                 text.tau = text.tau, text.tau2 = text.tau2,
                 #
-                print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
-                print.tau = print.tau, print.tau.ci = print.tau.ci,
+                print.tau2 = print.tau2,
+                print.tau2.ci = print.tau2 & print.tau2.ci,
+                print.tau = print.tau,
+                print.tau.ci = print.tau & print.tau.ci,
                 #
                 print.I2 = print.I2, text.I2 = text.I2,
                 #

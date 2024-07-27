@@ -6,6 +6,7 @@
 \usage{
 metabind(
   ...,
+  subgroup = NULL,
   name = NULL,
   common = NULL,
   random = NULL,
@@ -19,6 +20,9 @@ metabind(
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
 with meta-analyses.}
+
+\item{subgroup}{An optional variable to generate a forest plot with
+subgroups.}
 
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}

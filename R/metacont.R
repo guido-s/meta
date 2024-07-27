@@ -134,8 +134,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"MD"}, \code{"SMD"}, or \code{"ROM"}) is to be used for
 #'   pooling of studies.
@@ -620,10 +624,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
+                     #
                      label.e = gs("label.e"), label.c = gs("label.c"),
                      label.left = gs("label.left"),
                      label.right = gs("label.right"),
-                     ##
+                     col.label.left = gs("col.label.left"),
+                     col.label.right = gs("col.label.right"),
+                     #
                      subgroup, subgroup.name = NULL,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
@@ -674,8 +681,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ## Classic tests + Pustejovsky
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
+  # Classic tests + Pustejovsky
+  #
   method.bias <-
     setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
   ##
@@ -1782,9 +1791,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
+               #
                label.e = label.e, label.c = label.c,
                label.left = label.left, label.right = label.right,
-               ##
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = warn,
                ##

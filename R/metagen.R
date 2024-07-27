@@ -12,7 +12,8 @@
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
 #'   risk difference.
-#' @param seTE Standard error of treatment estimate.
+#' @param seTE Standard error of treatment estimate or standard deviation of
+#'   n-of-1 trials.
 #' @param studlab An optional vector with study labels.
 #' @param data An optional data frame containing the study
 #'   information.
@@ -25,6 +26,8 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param cycles A numeric vector with the number of cycles per patient / study
+#'   in n-of-1 trials.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -96,7 +99,7 @@
 #' @param n.c Number of observations in control group.
 #' @param pval P-value (used to estimate the standard error).
 #' @param df Degrees of freedom (used in test or to construct
-#'   confidence interval).
+#'   confidence intervals).
 #' @param lower Lower limit of confidence interval (used to estimate
 #'   the standard error).
 #' @param upper Upper limit of confidence interval (used to estimate
@@ -167,8 +170,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -211,6 +218,16 @@
 #' be used to provide treatment estimates and standard errors
 #' directly. However, it is possible to derive these quantities from
 #' other information.
+#' 
+#' Argument \code{cycles} can be used to conduct a meta-analysis of n-of-1
+#' trials according to Senn (2024). In this case, argument \code{seTE} does
+#' not contain the standard error but standard deviation for individual
+#' trials / patients. Trial-specific standard errors are calculated from an
+#' average standard deviation multiplied by the number of cycles minus 1, i.e.,
+#' the degrees of freedom. Details of the meta-analysis method are provided in
+#' Senn (2024). Note, arguments used in the approximation of means or
+#' standard errors, like \code{lower} and \code{upper}, or \code{df}, are
+#' ignored for the meta-analysis of n-of-1 trials.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -497,6 +514,12 @@
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{29}, 2520--2537
 #' 
+#' Senn S (2024):
+#' The analysis of continuous data from n-of-1 trials using paired cycles:
+#' a simple tutorial.
+#' \emph{Trials},
+#' \bold{25}.
+#' 
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
 #' five-number summary.
@@ -633,7 +656,9 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
                     cluster = NULL, rho = 0,
-                    ##
+                    #
+                    cycles = NULL,
+                    #
                     sm = "",
                     ##
                     method.ci = if (missing(df)) "z" else "t",
@@ -696,10 +721,13 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
+                    #
                     label.e = gs("label.e"), label.c = gs("label.c"),
                     label.left = gs("label.left"),
                     label.right = gs("label.right"),
-                    ##
+                    col.label.left = gs("col.label.left"),
+                    col.label.right = gs("col.label.right"),
+                    #
                     subgroup, subgroup.name = NULL,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
@@ -774,8 +802,8 @@ metagen <- function(TE, seTE, studlab,
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
   if (!is.null(seed.predict))
     chknumeric(seed.predict, length = 1)
   ##
@@ -1027,10 +1055,26 @@ metagen <- function(TE, seTE, studlab,
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
                          warn.deprecated)
   with.cluster <- !is.null(cluster)
-  ##
+  #
   if (with.cluster)
     idx <- seq_along(cluster)
-  ##
+  #
+  missing.cycles <- missing(cycles)
+  cycles <- catch("cycles", mc, data, sfsp)
+  with.cycles <- !is.null(cycles)
+  #
+  if (with.cycles) {
+    chknumeric(cycles, min = 1)
+    #
+    if (method.ci != "z")
+      method.ci <- "z"
+  }
+  #
+  if (with.cluster & with.cycles)
+    stop("Arguments 'cluster' (multi-level model) and 'cycles' (n-of-1 trials)",
+         " cannot be used together.",
+         call. = FALSE)
+  #
   missing.method.tau.ci <- missing(method.tau.ci)
   ##
   k.All <- if (avail.TE)
@@ -1192,6 +1236,8 @@ metagen <- function(TE, seTE, studlab,
     chklength(min, k.All, arg)
   if (avail.max)
     chklength(max, k.All, arg)
+  if (with.cycles)
+    chklength(cycles, k.All, arg)
   
   
   ##
@@ -1259,6 +1305,9 @@ metagen <- function(TE, seTE, studlab,
       data$.id <- data$.cluster <- cluster
       data$.idx <- idx
     }
+    #
+    if (with.cycles)
+      data$.cycles <- cycles
     ##
     if (avail.pval)
       data$.pval <- pval
@@ -1322,7 +1371,10 @@ metagen <- function(TE, seTE, studlab,
       cluster <- cluster[subset]
       idx <- idx[subset]
     }
-    ##
+    #
+    if (with.cycles)
+      cycles <- cycles[subset]
+    #
     if (by)
       subgroup <- subgroup[subset]
     ##
@@ -1392,111 +1444,44 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (!avail.approx.seTE) {
-    approx.seTE <- rep_len("", length(TE))
-    ##
-    ## Use confidence limits
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) & avail.lower & avail.upper) {
-      j <- sel.NA & !is.na(lower) & !is.na(upper)
-      approx.seTE[j] <- "ci"
-      if (!avail.df)
-        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
-      else
-        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
-    }
-    ##
-    ## Use p-values
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) & avail.pval) {
-      j <- sel.NA & !is.na(TE) & !is.na(pval)
-      approx.seTE[j] <- "pval"
-      if (!avail.df)
-        seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
-      else
-        seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
-    }
-    ##
-    ## Use IQR and range
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
-        !is.na(min) & !is.na(max)
-      approx.seTE[j] <- "iqr.range"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-      else
-        seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-    }
-    ##
-    ## Use IQR
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
-      approx.seTE[j] <- "iqr"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
-      else
-        seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
-    }
-    ##
-    ## Use range
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
-      approx.seTE[j] <- "range"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
-      else
-        seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
-                                 min[j], max[j])$se
-    }
-  }
-  else {
-    j <- 0
-    for (i in approx.seTE) {
-      j <- j + 1
+  if (!with.cycles) {
+    if (!avail.approx.seTE) {
+      approx.seTE <- rep_len("", length(TE))
       ##
-      if (i == "ci") {
+      ## Use confidence limits
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) & avail.lower & avail.upper) {
+        j <- sel.NA & !is.na(lower) & !is.na(upper)
+        approx.seTE[j] <- "ci"
         if (!avail.df)
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
         else
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
       }
-      else if (i == "pval") {
+      ##
+      ## Use p-values
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) & avail.pval) {
+        j <- sel.NA & !is.na(TE) & !is.na(pval)
+        approx.seTE[j] <- "pval"
         if (!avail.df)
           seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
         else
           seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
       }
-      else if (i == "iqr.range") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR and range
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+          !is.na(min) & !is.na(max)
+        approx.seTE[j] <- "iqr.range"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
@@ -1509,28 +1494,97 @@ metagen <- function(TE, seTE, studlab,
                                        min[j], max[j],
                                        method.sd = method.sd)$se
       }
-      else if (i == "iqr") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+        approx.seTE[j] <- "iqr"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
         else if (is.null(n.e))
           seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
         else
           seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
       }
-      else if (i == "range") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use range
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+        approx.seTE[j] <- "range"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
         else if (is.null(n.e))
           seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
         else
           seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                    min[j], max[j])$se
+      }
+    }
+    else {
+      j <- 0
+      for (i in approx.seTE) {
+        j <- j + 1
+        ##
+        if (i == "ci") {
+          if (!avail.df)
+            seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
+          else
+            seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
+        }
+        else if (i == "pval") {
+          if (!avail.df)
+            seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
+          else
+            seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
+        }
+        else if (i == "iqr.range") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+          else
+            seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+        }
+        else if (i == "iqr") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
+          else
+            seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+        }
+        else if (i == "range") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"range\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
+          else
+            seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
+                                     min[j], max[j])$se
+        }
       }
     }
   }
@@ -1542,115 +1596,65 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (!avail.approx.TE) {
-    approx.TE <- rep_len("", length(TE))
-    ##
-    ## Use confidence limits
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) & avail.lower & avail.upper) {
-      j <- sel.NA & !is.na(lower) & !is.na(upper)
-      approx.TE[j] <- "ci"
-      TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-    }
-    ##
-    ## Use IQR and range
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
-        !is.na(min) & !is.na(max)
-      approx.TE[j] <- "iqr.range"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-    }
-    ##
-    ## Use IQR
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
-      approx.TE[j] <- "iqr"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                             method.mean)$mean
-    }
-    ##
-    ## Use range
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
-      approx.TE[j] <- "range"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
-                               method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
-                               method.mean)$mean
-      else
-        TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
-                               method.mean)$mean
-    }
-  }
-  else {
-    j <- 0
-    for (i in approx.TE) {
-      j <- j + 1
+  if (!with.cycles) {
+    if (!avail.approx.TE) {
+      approx.TE <- rep_len("", length(TE))
       ##
-      if (i == "ci")
+      ## Use confidence limits
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) & avail.lower & avail.upper) {
+        j <- sel.NA & !is.na(lower) & !is.na(upper)
+        approx.TE[j] <- "ci"
         TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-      else if (i == "iqr.range")
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      }
+      ##
+      ## Use IQR and range
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+          !is.na(min) & !is.na(max)
+        approx.TE[j] <- "iqr.range"
+        if (is.null(n.c))
           TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else if (i == "iqr") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
-          TE[j] <-
-            mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
         else if (is.null(n.e))
-          TE[j] <-
-            mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+          TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
         else
-          TE[j] <-
-            mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                        method.mean)$mean
+          TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
       }
-      else if (i == "range") {
-        cat(paste0("Use 'range' for study", j, "\n"))
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+        approx.TE[j] <- "iqr"
+        if (is.null(n.c))
+          TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+        else if (is.null(n.e))
+          TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+        else
+          TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                               method.mean)$mean
+      }
+      ##
+      ## Use range
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+        approx.TE[j] <- "range"
+        if (is.null(n.c))
           TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else if (is.null(n.e))
@@ -1659,6 +1663,58 @@ metagen <- function(TE, seTE, studlab,
         else
           TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
                                  method.mean)$mean
+      }
+    }
+    else {
+      j <- 0
+      for (i in approx.TE) {
+        j <- j + 1
+        ##
+        if (i == "ci")
+          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
+        else if (i == "iqr.range")
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
+                 call. = FALSE)
+        else if (is.null(n.c))
+          TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else if (is.null(n.e))
+          TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else
+          TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else if (i == "iqr") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            TE[j] <-
+              mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+          else if (is.null(n.e))
+            TE[j] <-
+              mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+          else
+            TE[j] <-
+              mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                          method.mean)$mean
+        }
+        else if (i == "range") {
+          cat(paste0("Use 'range' for study", j, "\n"))
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"range\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+          else if (is.null(n.e))
+            TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+          else
+            TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+        }
       }
     }
   }
@@ -1699,7 +1755,7 @@ metagen <- function(TE, seTE, studlab,
   seTE <- int2num(seTE)
   ##
   if (any(seTE[!is.na(seTE)] <= 0)) {
-    if (warn)
+    if (warn & !with.cycles)
       warning("Zero values in seTE replaced by NAs.",
               call. = FALSE)
     seTE[!is.na(seTE) & seTE == 0] <- NA
@@ -1767,7 +1823,30 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (11) Do meta-analysis
+  ## (11) Additional checks and calculations for n-of-1 trials
+  ##
+  ##
+  
+  if (with.cycles) {
+    df.n1 <- cycles - 1
+    sd.n1 <- sqrt(sum(df.n1 * seTE^2, na.rm = TRUE) / sum(df.n1, na.rm = TRUE))
+    #
+    seTE <- sd.n1 / sqrt(cycles)
+    #
+    if (keepdata) {
+      data$.seTE.orig <- data$.seTE
+      #
+      if (!isCol(data, ".subset"))
+        data$.seTE <- seTE
+      else
+        data$.seTE[data$.subset] <- seTE
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (12) Do meta-analysis
   ##
   ##
   
@@ -2247,7 +2326,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (12) Heterogeneity measures
+  ## (13) Heterogeneity measures
   ##
   ##
   
@@ -2263,7 +2342,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (13) Generate R object
+  ## (14) Generate R object
   ##
   ##
   if (missing(detail.tau) && k != k.study)
@@ -2343,7 +2422,9 @@ metagen <- function(TE, seTE, studlab,
               cluster = cluster, rho = rho,
               ##
               k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
-              ##
+              #
+              cycles = cycles,
+              #
               overall = overall,
               overall.hetstat = overall.hetstat,
               common = common,
@@ -2434,11 +2515,12 @@ metagen <- function(TE, seTE, studlab,
               text.w.common = text.w.common, text.w.random = text.w.random,
               ##
               title = title, complab = complab, outclab = outclab,
-              label.e = label.e,
-              label.c = label.c,
-              label.left = label.left,
-              label.right = label.right,
-              ##
+              #
+              label.e = label.e, label.c = label.c,
+              label.left = label.left, label.right = label.right,
+              col.label.left = replaceNULL(col.label.left, "black"),
+              col.label.right = replaceNULL(col.label.right, "black"),
+              #
               keepdata = keepdata,
               data = if (keepdata) data else NULL,
               subset = if (keepdata) subset else NULL,

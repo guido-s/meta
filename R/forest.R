@@ -172,8 +172,8 @@
 #'   label \code{label.e} should be attached to in table heading.
 #' @param label.c.attach A character specifying the column name where
 #'   label \code{label.c} should be attached to in table heading.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect.
+#' @param label.right Graph label on right side of null effect.
 #' @param bottom.lr A logical indicating whether labels on right and
 #'   left side should be printed at bottom or top of forest plot.
 #' @param lab.NA A character string to label missing values.
@@ -239,9 +239,9 @@
 #' @param col.predict.lines Colour of outer lines of prediction
 #'   interval.
 #' @param col.subgroup The colour to print information on subgroups.
-#' @param col.label.right The colour for label on right side of null
+#' @param col.label.left The colour of the label on the left side of the null
 #'   effect.
-#' @param col.label.left The colour for label on left side of null
+#' @param col.label.right The colour of the label on the right side of the null
 #'   effect.
 #' @param hetstat Either a logical value indicating whether to print
 #'   results for heterogeneity measures at all or a character string
@@ -788,9 +788,9 @@
 #'   \code{x$sm} \tab \cr
 #' \cr
 #' Column: \tab \code{ci} \tab \code{effect.ci} \tab
-#'   \code{w.common} \tab \code{w.random} \tab \tab \cr
+#'   \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
 #' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-#'   "W(common)" \tab "W(random)" \tab \tab
+#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab
 #' }
 #'
 #' For other columns, the column name will be used as a label if no
@@ -1048,8 +1048,8 @@
 #' # prediction interval
 #' #
 #' forest(m1, layout = "RevMan5", common = FALSE,
-#'   label.right = "Favours control", col.label.right = "red",
 #'   label.left = "Favours experimental", col.label.left = "green",
+#'   label.right = "Favours control", col.label.right = "red",
 #'   prediction = TRUE)
 #' 
 #' 
@@ -1093,8 +1093,8 @@
 #' thresholds <- c(0.25, 0.5, 0.75)
 #' n.cols <- length(thresholds) + 1
 #' forest(m1, layout = "RevMan5", common = FALSE,
-#'   label.right = "Undesirable effect", 
 #'   label.left = "Desirable effect", 
+#'   label.right = "Undesirable effect", 
 #'   lty.equi = 3, col.equi = "darkgray",
 #'   lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
 #'   fill.lower.equi =
@@ -1335,8 +1335,8 @@ forest.meta <- function(x,
                         label.e.attach = gs("label.e.attach"),
                         label.c.attach = gs("label.c.attach"),
                         #
-                        label.right = x$label.right,
                         label.left = x$label.left,
+                        label.right = x$label.right,
                         bottom.lr = gs("bottom.lr"),
                         #
                         lab.NA = gs("lab.NA"),
@@ -1379,8 +1379,8 @@ forest.meta <- function(x,
                         #
                         col.subgroup = gs("col.subgroup"),
                         #
-                        col.label.right = gs("col.label.right"),
-                        col.label.left = gs("col.label.left"),
+                        col.label.left = x$col.label.left,
+                        col.label.right = x$col.label.right,
                         #
                         hetstat = common | random | overall.hetstat,
                         overall.hetstat =
@@ -1539,12 +1539,12 @@ forest.meta <- function(x,
                         digits = gs("digits.forest"),
                         digits.se = gs("digits.se"),
                         digits.stat = gs("digits.stat"),
-                        digits.pval = max(gs("digits.pval") - 2, 2),
-                        digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
+                        digits.pval = gs("digits.pval"),
+                        digits.pval.Q = gs("digits.pval.Q"),
                         digits.Q = gs("digits.Q"),
                         digits.tau2 = gs("digits.tau2"),
                         digits.tau = gs("digits.tau"),
-                        digits.I2 = max(gs("digits.I2") - 1, 0),
+                        digits.I2 = gs("digits.I2"),
                         digits.weight = gs("digits.weight"),
                         #
                         digits.mean = gs("digits.mean"),
@@ -1745,9 +1745,8 @@ forest.meta <- function(x,
   # Must be of same length as labnames!!!
   #
   colnames <- c("studlab",
-                "TE",
-                "seTE",
-                "cluster",
+                "TE", "seTE",
+                "cluster", "cycles",
                 #
                 "n.e", "n.c", "event.e", "event.c",
                 "event.n.e", "event.n.c", "event.n",
@@ -1773,6 +1772,7 @@ forest.meta <- function(x,
   #
   colnames.notNULL <- colnames
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "cluster")
+  colnames.notNULL <- removeNULL(x, colnames.notNULL, "cycles")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.e")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "n.c")
   colnames.notNULL <- removeNULL(x, colnames.notNULL, "event.e")
@@ -2189,6 +2189,9 @@ forest.meta <- function(x,
   missing.print.Q <- missing(print.Q)
   missing.print.pval.Q <- missing(print.pval.Q)
   missing.print.Rb <- missing(print.Rb)
+  #
+  col.label.left <- replaceNULL(col.label.left, gs("col.label.left"))
+  col.label.right <- replaceNULL(col.label.right, gs("col.label.right"))
   #
   if (is.null(print.I2))
     if (is.character(hetstat) || hetstat || overall.hetstat)
@@ -3032,6 +3035,7 @@ forest.meta <- function(x,
   subgroup <- x$subgroup
   #
   three.level <- !is.null(x$three.level) && any(x$three.level)
+  n_of_1 <- !is.null(x$cycles)
   #
   if (!by) {
     common.random <- common & random
@@ -3664,7 +3668,7 @@ forest.meta <- function(x,
   labnames <- c(lab.studlab,
                 lab.TE,
                 if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
-                "Cluster",
+                "Cluster", "Cycles",
                 #
                 "Total", "Total", "Events", "Events",
                 label.e, label.c, label.e,
@@ -3725,6 +3729,9 @@ forest.meta <- function(x,
         #
         if (three.level & any(rightcols.new == "cluster"))
           rightlabs.new[rightlabs.new == "cluster"] <- "Cluster"
+        #
+        if (n_of_1 & any(rightcols.new == "cycles"))
+          rightlabs.new[rightlabs.new == "cycles"] <- "Cycles"
       }
       else {
         if (length(rightcols.new) == length(rightlabs))
@@ -3787,6 +3794,9 @@ forest.meta <- function(x,
         #
         if (three.level & any(leftcols.new == "cluster"))
           leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
+        #
+        if (n_of_1 & any(leftcols.new == "cycles"))
+          leftlabs.new[leftlabs.new == "cycles"] <- "Cycles"
       }
       else {
         if (length(leftcols.new) == length(leftlabs))
@@ -3828,6 +3838,9 @@ forest.meta <- function(x,
     #
     if (three.level)
       leftcols <- c(leftcols, "cluster")
+    #
+    if (n_of_1)
+      leftcols <- c(leftcols, "cycles")
     #
     if (jama) {
       if (metainf.metacum)
@@ -4323,6 +4336,8 @@ forest.meta <- function(x,
   #
   x$cluster <- x$cluster[sel]
   #
+  x$cycles <- x$cycles[sel]
+  #
   if (metainf.metacum) {
     x$tau2 <- x$tau2[sel]
     x$tau <- x$tau[sel]
@@ -4354,6 +4369,7 @@ forest.meta <- function(x,
     o <- order(subgroup.factor, sortvar)
     #
     x$cluster <- x$cluster[o]
+    x$cycles <- x$cycles[o]
     #
     x$n.e <- x$n.e[o]
     x$n.c <- x$n.c[o]
@@ -8142,7 +8158,7 @@ forest.meta <- function(x,
       w.random.percent <- FALSE
   }
   # "studlab", "TE", "seTE",
-  # "cluster",
+  # "cluster", "cycles",
   # "n.e", "n.c",
   # "event.e", "event.c",
   # "mean.e", "mean.c",
@@ -8209,6 +8225,21 @@ forest.meta <- function(x,
   else {
     newline.cluster <- FALSE
     longer.cluster <- labs[["lab.cluster"]]
+  }
+  #
+  # Check for "\n" in label of column 'cycles'
+  #
+  clines <- twolines(labs[["lab.cycles"]], "cycles")
+  #
+  if (clines$newline) {
+    newline.cycles <- TRUE
+    labs[["lab.cycles"]] <- clines$bottom
+    add.cycles <- clines$top
+    longer.cycles <- clines$longer
+  }
+  else {
+    newline.cycles <- FALSE
+    longer.cycles <- labs[["lab.cycles"]]
   }
   #
   # Check for "\n" in label of column 'n.e'
@@ -8663,7 +8694,7 @@ forest.meta <- function(x,
   newline <- newline.studlab | newline.effect |
     newline.ci | newline.effect.ci |
     newline.w.common | newline.w.random | newline.TE | newline.seTE |
-    newline.cluster |
+    newline.cluster | newline.cycles |
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
@@ -9059,6 +9090,8 @@ forest.meta <- function(x,
   }
   else
     as.character.cluster <- FALSE
+  #
+  as.character.cycles <- FALSE
   #
   if (by) {
     if (pooled.totals) {
@@ -9560,6 +9593,20 @@ forest.meta <- function(x,
   #
   if (by)
     cluster.format[sel.w] <- ""
+  #
+  # N-of-1 variable
+  #
+  if (by)
+    cycles.format <- c(NAs.all, x$cycles)
+  else
+    cycles.format <- c(NAs, x$cycles)
+  #
+  # Print nothing for lines with summary results
+  #
+  cycles.format[all.res] <- ""
+  #
+  if (by)
+    cycles.format[sel.w] <- ""
   #
   # Leave-one-out / cumulative meta-analysis
   #
@@ -10245,6 +10292,11 @@ forest.meta <- function(x,
               if (as.character.cluster) "left" else just.c, fcs, fontfamily,
               n.com, n.ran, n.prd)
   #
+  col.cycles <-
+    formatcol(labs[["lab.cycles"]], cycles.format, yS,
+              if (as.character.cycles) "left" else just.c, fcs, fontfamily,
+              n.com, n.ran, n.prd)
+  #
   col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs,
                        fontfamily,
                        n.com, n.ran, n.prd)
@@ -10358,6 +10410,10 @@ forest.meta <- function(x,
   col.cluster.calc <- formatcol(longer.cluster, cluster.format,
                                 yS, just.c, fcs, fontfamily,
                                 n.com, n.ran, n.prd)
+  #
+  col.cycles.calc <- formatcol(longer.cycles, cycles.format,
+                               yS, just.c, fcs, fontfamily,
+                               n.com, n.ran, n.prd)
   #
   col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs, fontfamily,
                             n.com, n.ran, n.prd)
@@ -10527,6 +10583,8 @@ forest.meta <- function(x,
   #
   cols[["col.cluster"]] <- col.cluster
   #
+  cols[["col.cycles"]] <- col.cycles
+  #
   cols[["col.n.e"]] <- col.n.e
   cols[["col.n.c"]] <- col.n.c
   cols[["col.event.e"]] <- col.event.e
@@ -10553,6 +10611,8 @@ forest.meta <- function(x,
   # Calculate
   #
   cols.calc[["col.cluster"]] <- col.cluster.calc
+  #
+  cols.calc[["col.cycles"]] <- col.cycles.calc
   #
   cols.calc[["col.n.e"]] <- col.n.e.calc
   cols.calc[["col.n.c"]] <- col.n.c.calc
@@ -11019,6 +11079,13 @@ forest.meta <- function(x,
           if (as.character.cluster) 0 else xpos.c,
           if (as.character.cluster) "left" else just.c,
           fs.head, ff.head, fontfamily)
+  #
+  if (newline.cycles)
+    col.add.cycles <-
+    tgl(add.cycles,
+        if (as.character.cycles) 0 else xpos.c,
+        if (as.character.cycles) "left" else just.c,
+        fs.head, ff.head, fontfamily)
   #
   if (newline.n.e)
     col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
@@ -11556,6 +11623,8 @@ forest.meta <- function(x,
           add.text(col.add.seTE, j)
         if (newline.cluster & leftcols[i] == "col.cluster")
           add.text(col.add.cluster, j)
+        if (newline.cycles & leftcols[i] == "col.cycles")
+          add.text(col.add.cycles, j)
         if (newline.n.e & leftcols[i] == "col.n.e")
           add.text(col.add.n.e, j)
         if (newline.n.c & leftcols[i] == "col.n.c")
@@ -11822,6 +11891,8 @@ forest.meta <- function(x,
           add.text(col.add.seTE, j)
         if (newline.cluster & rightcols[i] == "col.cluster")
           add.text(col.add.cluster, j)
+        if (newline.cycles & rightcols[i] == "col.cycles")
+          add.text(col.add.cycles, j)
         if (newline.n.e & rightcols[i] == "col.n.e")
           add.text(col.add.n.e, j)
         if (newline.n.c & rightcols[i] == "col.n.c")
@@ -12021,6 +12092,7 @@ forest.meta <- function(x,
               TE.format = TE.format,
               seTE.format = seTE.format,
               cluster.format = cluster.format,
+              cycles.format = cycles.format,
               effect.format = effect.format,
               ci.format = ci.format,
               effect.ci.format = effect.ci.format,

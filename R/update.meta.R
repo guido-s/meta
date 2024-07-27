@@ -14,6 +14,8 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param cycles A numeric vector with the number of cycles per patient / study
+#'   in n-of-1 trials (see \code{\link{metagen}}).
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies (see \code{\link{metabin}},
 #'   \code{\link{metainc}}, \code{\link{metaprop}} and
@@ -132,8 +134,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param n.e Number of observations in experimental group (only for
 #'   \code{\link{metagen}} object).
 #' @param n.c Number of observations in control group (only for
@@ -284,6 +290,7 @@ update.meta <- function(object,
                         data = object$data,
                         subset, studlab, exclude, cluster,
                         rho = object$rho,
+                        cycles,
                         ##
                         method,
                         sm = object$sm,
@@ -334,10 +341,14 @@ update.meta <- function(object,
                         title = object$title,
                         complab = object$complab,
                         outclab = object$outclab,
+                        #
                         label.e = object$label.e,
                         label.c = object$label.c,
                         label.left = object$label.left,
                         label.right = object$label.right,
+                        col.label.left = object$col.label.left,
+                        col.label.right = object$col.label.right,
+                        #
                         n.e = object$n.e,
                         n.c = object$n.c,
                         ##
@@ -704,23 +715,35 @@ update.meta <- function(object,
       }
       ##
       if (inherits(object, "metabind")) {
-        x$with.subgroups <- any(x$is.subgroup)
+        object$with.subgroups <- any(object$is.subgroup)
         ##
-        if (x$with.subgroups) {
-          x$data$Q.b.common <- x$data$Q.b
-          x$data$Q.b.random <- x$data$Q.b
+        if (object$with.subgroups) {
+          object$data$Q.b.common <- object$data$Q.b
+          object$data$Q.b.random <- object$data$Q.b
           ##
-          x$data$pval.Q.b.common <- x$data$pval.Q.b
-          x$data$pval.Q.b.random <- x$data$pval.Q.b
+          object$data$pval.Q.b.common <- object$data$pval.Q.b
+          object$data$pval.Q.b.random <- object$data$pval.Q.b
         }
       }
     }
     #
-    x$seTE.kero <- replaceNA(x$seTE.kero, kenwardroger(x$w.random)$se)
-    x$df.kero <- replaceNA(x$df.kero, kenwardroger(x$w.random)$df)
+    object$seTE.kero <-
+      replaceNA(object$seTE.kero, kenwardroger(object$w.random)$se)
+    object$df.kero <-
+      replaceNA(object$df.kero, kenwardroger(object$w.random)$df)
+  }
+  #
+  if (update_needed(object$version, 8, 0, verbose)) {
+    #
+    # Changes for meta objects with version < 8.0
+    #
+    object$method.I2 <- "Q"
+    #
+    object$col.label.left <- replaceNULL(object$col.label.left, "black")
+    object$col.label.right <- replaceNULL(object$col.label.left, "black")
   }
   
-  
+   
   ##
   ##
   ## (2) Check arguments
@@ -942,6 +965,15 @@ update.meta <- function(object,
   }
   else
     ...cluster <- catch2(object, "cluster")
+  #
+  # Catch argument 'cycles'
+  #
+  if (!missing(cycles))
+    cycles <- catch("cycles", mc, data, sfsp)
+  else
+    cycles <- catch(".cycles", object$data, object$data, sfsp)
+  #
+  avail.cycles <- !is.null(cycles)
   ##
   ## Catch argument 'incr'
   ##
@@ -1189,9 +1221,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1297,9 +1332,12 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  #
                   label.e = label.e, label.c = label.c,
                   label.right = label.right, label.left = label.left,
-                  ##
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1351,6 +1389,11 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
+                 label.right = label.right, label.left = label.left,
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1389,12 +1432,16 @@ update.meta <- function(object,
     }
     #
     m <- metagen(TE = object$data$.TE,
-                 seTE = object$data$.seTE,
+                 seTE =
+                   if (!avail.cycles) object$data$.seTE
+                   else replaceNULL(object$data$.seTE.orig, object$data$.seTE),
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
+                 #
+                 cycles = cycles,
+                 #
                  sm = sm,
                  method.ci = method.ci,
                  level = level,
@@ -1455,9 +1502,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1552,9 +1602,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1627,7 +1680,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  ##
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1699,7 +1756,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  ##
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1774,6 +1835,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,

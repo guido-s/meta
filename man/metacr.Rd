@@ -45,6 +45,8 @@ metacr(
   title,
   complab,
   outclab,
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   keepdata = gs("keepdata"),
   warn = FALSE,
   warn.deprecated = gs("warn.deprecated"),
@@ -185,6 +187,12 @@ random effects model.}
 \item{complab}{Comparison label.}
 
 \item{outclab}{Outcome label.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}

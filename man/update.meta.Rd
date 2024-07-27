@@ -12,6 +12,7 @@
   exclude,
   cluster,
   rho = object$rho,
+  cycles,
   method,
   sm = object$sm,
   incr,
@@ -58,6 +59,8 @@
   label.c = object$label.c,
   label.left = object$label.left,
   label.right = object$label.right,
+  col.label.left = object$col.label.left,
+  col.label.right = object$col.label.right,
   n.e = object$n.e,
   n.c = object$n.c,
   method.mean = object$method.mean,
@@ -115,6 +118,9 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{cycles}{A numeric vector with the number of cycles per patient / study
+in n-of-1 trials (see \code{\link{metagen}}).}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies (see \code{\link{metabin}},
@@ -278,9 +284,15 @@ random effects model.}
 
 \item{label.c}{Label for control group.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.left}{Graph label on left side of null effect in forest plot.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{n.e}{Number of observations in experimental group (only for
 \code{\link{metagen}} object).}

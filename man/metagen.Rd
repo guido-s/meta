@@ -13,6 +13,7 @@ metagen(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  cycles = NULL,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -75,6 +76,8 @@ metagen(
   label.c = gs("label.c"),
   label.left = gs("label.left"),
   label.right = gs("label.right"),
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   subgroup,
   subgroup.name = NULL,
   print.subgroup.name = gs("print.subgroup.name"),
@@ -96,7 +99,8 @@ metagen(
 \item{TE}{Estimate of treatment effect, e.g., log hazard ratio or
 risk difference.}
 
-\item{seTE}{Standard error of treatment estimate.}
+\item{seTE}{Standard error of treatment estimate or standard deviation of
+n-of-1 trials.}
 
 \item{studlab}{An optional vector with study labels.}
 
@@ -115,6 +119,9 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{cycles}{A numeric vector with the number of cycles per patient / study
+in n-of-1 trials.}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
@@ -212,7 +219,7 @@ sample size in study).}
 \item{pval}{P-value (used to estimate the standard error).}
 
 \item{df}{Degrees of freedom (used in test or to construct
-confidence interval).}
+confidence intervals).}
 
 \item{lower}{Lower limit of confidence interval (used to estimate
 the standard error).}
@@ -315,9 +322,15 @@ random effects model.}
 
 \item{label.c}{Label for control group.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.left}{Graph label on left side of null effect in forest plot.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}
@@ -389,6 +402,16 @@ standard errors as input). Arguments \code{TE} and \code{seTE} can
 be used to provide treatment estimates and standard errors
 directly. However, it is possible to derive these quantities from
 other information.
+
+Argument \code{cycles} can be used to conduct a meta-analysis of n-of-1
+trials according to Senn (2024). In this case, argument \code{seTE} does
+not contain the standard error but standard deviation for individual
+trials / patients. Trial-specific standard errors are calculated from an
+average standard deviation multiplied by the number of cycles minus 1, i.e.,
+the degrees of freedom. Details of the meta-analysis method are provided in
+Senn (2024). Note, arguments used in the approximation of means or
+standard errors, like \code{lower} and \code{upper}, or \code{df}, are
+ignored for the meta-analysis of n-of-1 trials.
 
 A three-level random effects meta-analysis model (Van den Noortgate
 et al., 2013) is utilized if argument \code{cluster} is used and at
@@ -773,6 +796,12 @@ Estimating the sample mean and standard deviation from commonly
 reported quantiles in meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{29}, 2520--2537
+
+Senn S (2024):
+The analysis of continuous data from n-of-1 trials using paired cycles:
+a simple tutorial.
+\emph{Trials},
+\bold{25}.
 
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the

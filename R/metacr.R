@@ -98,6 +98,10 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -224,7 +228,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    text.w.random = gs("text.w.random"),
                    ##
                    title, complab, outclab,
-                   ##
+                   #
+                   col.label.left = gs("col.label.left"),
+                   col.label.right = gs("col.label.right"),
+                   #
                    keepdata = gs("keepdata"),
                    warn = FALSE,
                    warn.deprecated = gs("warn.deprecated"),
@@ -537,9 +544,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -584,9 +594,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -631,9 +644,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      ##
                      title = title,
                      complab = complab, outclab = outclab,
+                     #
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
-                     ##
+                     col.label.left = col.label.left,
+                     col.label.right = col.label.right,
+                     #
                      keepdata = keepdata)
     ##
     if (type == "P")
@@ -676,9 +692,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
@@ -724,9 +743,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
@@ -769,9 +791,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
   }
   else {
@@ -816,9 +841,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -856,8 +884,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
@@ -894,9 +926,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      ##
                      title = title,
                      complab = complab, outclab = outclab,
+                     #
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
-                     ##
+                     col.label.left = col.label.left,
+                     col.label.right = col.label.right,
+                     #
                      keepdata = keepdata)
     ##
     if (type == "P")
@@ -932,9 +967,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
@@ -973,9 +1011,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
@@ -1011,9 +1052,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
   }
   
