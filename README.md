@@ -28,7 +28,7 @@ User-friendly general package providing standard methods for meta-analysis and s
 
 ## Installation
 
-### Current official [![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
+### Current official [![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
 ```r
 install.packages("meta")
 ```
