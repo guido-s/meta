@@ -54,7 +54,9 @@ catmeth <- function(x,
     details <-
       paste0("\n- ",
              if (any(x$k.all > 1)) "Meta-a" else "A",
-             "nalysis of n-of-1 trials")
+             "nalysis of n-of-1 trials (pooled SD=",
+             x$sd.n_of_1,
+             ")")
   }
   else
     details <- NULL

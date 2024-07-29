@@ -1828,10 +1828,11 @@ metagen <- function(TE, seTE, studlab,
   ##
   
   if (with.cycles) {
-    df.n1 <- cycles - 1
-    sd.n1 <- sqrt(sum(df.n1 * seTE^2, na.rm = TRUE) / sum(df.n1, na.rm = TRUE))
+    df.n_of_1 <- cycles - 1
+    sd.n_of_1 <-
+      sqrt(sum(df.n_of_1 * seTE^2, na.rm = TRUE) / sum(df.n_of_1, na.rm = TRUE))
     #
-    seTE <- sd.n1 / sqrt(cycles)
+    seTE <- sd.n_of_1 / sqrt(cycles)
     #
     if (keepdata) {
       data$.seTE.orig <- data$.seTE
@@ -2424,6 +2425,7 @@ metagen <- function(TE, seTE, studlab,
               k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
               #
               cycles = cycles,
+              sd.n_of_1 = if (with.cycles) sd.n_of_1 else NULL,
               #
               overall = overall,
               overall.hetstat = overall.hetstat,

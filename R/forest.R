@@ -7643,6 +7643,10 @@ forest.meta <- function(x,
   x$pscale <- pscale
   x$irscale <- irscale
   #
+  if (!is.null(x$sd.n_of_1))
+    x$sd.n_of_1 <-
+    formatPT(x$sd.n_of_1, digits = digits.sd, big.mark = big.mark)
+  #
   text.details <- ""
   if (details) {
     if (K.all == 1) {

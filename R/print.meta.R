@@ -960,7 +960,11 @@ print.meta <- function(x,
     x$pscale <- pscale
     x$irscale <- irscale
     x$irunit <- irunit
-    ##
+    #
+    if (!is.null(x$cycles))
+      x$sd.n_of_1 <-
+        formatPT(x$sd.n_of_1, digits = gs("digits.sd"), big.mark = big.mark)
+    #
     if (details.methods)
       details <-
         catmeth(x,
@@ -1615,7 +1619,11 @@ print.meta <- function(x,
     x$pscale <- pscale
     x$irscale <- irscale
     x$irunit <- irunit
-    ##
+    #
+    if (!is.null(x$cycles))
+      x$sd.n_of_1 <-
+      formatPT(x$sd.n_of_1, digits = gs("digits.sd"), big.mark = big.mark)
+    #
     if (details.methods &
         (common | random | prediction | overall.hetstat | by))
       details <-
