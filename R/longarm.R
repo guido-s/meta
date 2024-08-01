@@ -44,7 +44,7 @@
 #' \code{\link{metainc}}. Accordingly, a meta-analysis object created
 #' with one of these functions can be provided as argument
 #' \code{treat1}. It is also possible to use the longarm function with
-#' an R objected created with \code{\link[netmeta]{pairwise}} from R
+#' an R objected created with \code{\link{pairwise}} from R
 #' package \bold{netmeta}.
 #'
 #' Otherwise, arguments \code{treat1} and \code{treat2} are mandatory
@@ -93,7 +93,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{metainc}}, \code{\link[netmeta]{pairwise}}
+#'   \code{\link{metainc}}, \code{\link{pairwise}}
 #' 
 #' @keywords datagen
 #' 

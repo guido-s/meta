@@ -19,6 +19,11 @@
 * In forest plots, the heterogeneity statistic *Q*, its p-value, and the *I2*
   statistic are printed with the same number of digits as in printouts.
 
+* R function pairwise() can be used with dose-response data
+
+* R functions pairwise() and subset.pairwise() moved from R package
+  **netmeta** to **meta*
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
@@ -45,6 +50,9 @@
   - new arguments 'digits.Q', 'digits.df', 'digits.pval.Q', 'digits.H',
     'print.tau2.ci', 'print.tau.ci', 'print.Q', 'print.H', 'print.Rb', 'text.Rb'
 
+* pairwise():
+  - new arguments 'agent' and 'dose' to provide information for dose-response data
+
 ### Bug fixes
 
 * forest.meta():
@@ -68,6 +76,11 @@
 * runGLMM():
   - use results of common effect model as fallback for error
     "Cannot fit ML model" and print corresponding warning
+
+* pairwise():
+  - inconsistent values for Cohen's d if data was already provided in contrast
+    based format
+  - argument 'append = FALSE' didn't work
 
 ### Internal changes
 

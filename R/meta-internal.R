@@ -528,6 +528,7 @@ setVar <- function(var = NULL, arg = NULL) {
   stop("var is NULL or no character");
 }
 
+second <- function(x) x[2]
 
 
 
@@ -549,7 +550,9 @@ argslist.internal <-
     "tool4rob",
     "meth4incr",
     "text.fixed", "text.w.fixed",
-    "major.update", "minor.update")
+    "major.update", "minor.update",
+    #
+    "special.characters")
 ##
 setOption("argslist.internal", argslist.internal)
 ##
@@ -591,7 +594,9 @@ setOption("tool4rob",
             "ROBINS-I", "ROBINS-E"))
 ##
 setOption("meth4incr", c("only0", "if0all", "all"))
-##
+#
+setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
+#
 setOption("major.update", 5)
 setOption("minor.update", 6)
 ##

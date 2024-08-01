@@ -197,7 +197,7 @@ chklist <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklogical <- function(x, name = NULL) {
+chklogical <- function(x, name = NULL, text = "") {
   ##
   ## Check whether argument is logical
   ##
@@ -208,8 +208,9 @@ chklogical <- function(x, name = NULL) {
     x <- as.logical(x)
   ##
   if (length(x) !=  1 || !is.logical(x) || is.na(x))
-    stop("Argument '", name, "' must be a logical.", call. = FALSE)
-  ##
+    stop("Argument '", name, "' must be a logical",
+         if (text != "") " ", text, ".", call. = FALSE)
+  #
   invisible(NULL)
 }
 
