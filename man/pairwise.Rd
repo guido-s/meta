@@ -25,6 +25,7 @@ pairwise(
   reference.group,
   keep.all.comparisons,
   sep.ag = "*",
+  varnames = c("TE", "seTE"),
   append = !is.null(data),
   warn = FALSE,
   ...
@@ -91,6 +92,9 @@ reference group should be kept ('basic parameters').}
 
 \item{sep.ag}{A character used as separator
 between agent in dose to create treatment labels.}
+
+\item{varnames}{Character vector of length 2 with the variable names for the
+treatment estimate and its standard error; by default, "TE" and "seTE".}
 
 \item{append}{Either a logical indicating whether variables from the dataset
 provided in argument \code{data} are appended to the dataset with

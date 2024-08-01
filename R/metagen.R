@@ -751,6 +751,12 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
+  missing.sm <- missing(sm)
+  missing.subgroup <- missing(subgroup)
+  missing.overall <- missing(overall)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  missing.test.subgroup <- missing(test.subgroup)
+  #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
                 unique(c(gs("sm4bin"), gs("sm4cont"), gs("sm4cor"),
@@ -983,9 +989,12 @@ metagen <- function(TE, seTE, studlab,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
+  #
+  missing.byvar <- missing(byvar)
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
   ## 'cluster' from data:
@@ -1001,14 +1010,95 @@ metagen <- function(TE, seTE, studlab,
          "Provide either argument 'TE' or 'median', ",
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
-  ##
+  #
   TE <- catch("TE", mc, data, sfsp)
-  seTE <- catch("seTE", mc, data, sfsp)
+  avail.TE <- !(missing.TE || is.null(TE))
+  #
+  if (is.data.frame(TE) & !is.null(attr(TE, "pairwise"))) {
+    is.pairwise <- TRUE
+    #
+    sm <- attr(TE, "sm")
+    #
+    missing.seTE <- FALSE
+    #
+    if (is.null(attr(TE, "varnames")))
+      seTE <- TE$seTE
+    else
+      seTE <- TE[[attr(TE, "varnames")[2]]]
+    #
+    studlab <- TE$studlab
+    #
+    if (missing.subgroup) {
+      #subgroup <- paste(paste0("'", TE$treat1, "'"),
+      #                  paste0("'", TE$treat2, "'"),
+      #                  sep = " vs ")
+      subgroup <- paste(TE$treat1, TE$treat2, sep = " vs ")
+      #
+      if (length(unique(subgroup)) == 1) {
+        if (missing(complab))
+          complab <- unique(subgroup)
+        #
+        subgroup <- NULL
+      }
+      else {
+        if (missing.overall)
+          overall <- FALSE
+        if (missing.overall.hetstat)
+          overall.hetstat <- FALSE
+        if (missing.test.subgroup)
+          test.subgroup <- FALSE
+      }
+    }
+    else
+      subgroup <- catch("subgroup", mc, data, sfsp)
+    #
+    if (!is.null(TE$n1))
+      n.e <- TE$n1
+    else
+      n.e <- NULL
+    #
+    if (!is.null(TE$n2))
+      n.c <- TE$n2
+    else
+      n.c <- NULL
+    #
+    pairdata <- TE
+    data <- TE
+    #
+    if (is.null(attr(TE, "varnames")))
+      TE <- TE$TE
+    else
+      TE <- TE[[attr(TE, "varnames")[1]]]
+    #
+    avail.TE <- !is.null(TE)
+  }
+  else {
+    is.pairwise <- FALSE
+    #
+    if (missing.sm)
+      if (!is.null(data) && !is.null(attr(data, "sm")))
+        sm <- attr(data, "sm")
+    else
+      sm <- ""
+    ##
+    seTE <- catch("seTE", mc, data, sfsp)
+    #
+    studlab <- catch("studlab", mc, data, sfsp)
+    #
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
+    #
+    n.e <- catch("n.e", mc, data, sfsp)
+    n.c <- catch("n.c", mc, data, sfsp)
+  }
+  #
+  by <- !is.null(subgroup)
+  #
   median <- catch("median", mc, data, sfsp)
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
-  avail.TE <- !(missing.TE || is.null(TE))
   avail.median <- !(missing.median || is.null(median))
   avail.lower <- !(missing.lower || is.null(lower))
   avail.upper <- !(missing.upper || is.null(upper))
@@ -1094,24 +1184,10 @@ metagen <- function(TE, seTE, studlab,
   if (missing.seTE)
     seTE <- rep_len(NA, k.All)
   ##
-  missing.n.e <- missing(n.e)
-  missing.n.c <- missing(n.c)
-  n.e <- catch("n.e", mc, data, sfsp)
-  n.c <- catch("n.c", mc, data, sfsp)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
+  ## Catch 'studlab', 'subset', and 'exclude' from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  ##
-  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                          warn.deprecated)
-  by <- !is.null(subgroup)
   ##
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
@@ -1277,15 +1353,18 @@ metagen <- function(TE, seTE, studlab,
       if (isCol(data, ".subset"))
         data <- data[data$.subset, ]
     }
-    ##
-    if (nulldata)
-      data <- data.frame(.TE = TE)
+    else if (nulldata & !is.pairwise)
+      data <- data.frame(.studlab = studlab)
+    else if (nulldata & is.pairwise) {
+      data <- pairdata
+      data$.studlab <- studlab
+    }
     else
-      data$.TE <- TE
-    ##
+      data$.studlab <- studlab
+    #
+    data$.TE <- TE
     data$.seTE <- seTE
-    data$.studlab <- studlab
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
     ##
@@ -1338,9 +1417,9 @@ metagen <- function(TE, seTE, studlab,
     if (avail.approx.seTE)
       data$.approx.seTE <- approx.seTE
     ##
-    if (!missing.n.e)
+    if (!is.null(n.e))
       data$.n.e <- n.e
-    if (!missing.n.c)
+    if (!is.null(n.c))
       data$.n.c <- n.c
     ##
     if (!is.null(TE.orig))
@@ -1407,6 +1486,27 @@ metagen <- function(TE, seTE, studlab,
     if (avail.approx.seTE)
       approx.seTE <- approx.seTE[subset]
   }
+  #
+  if (missing.subgroup & is.pairwise & by) {
+    if (length(unique(subgroup)) == 1) {
+      by <- FALSE
+      #
+      if (missing(complab))
+        complab <- unique(subgroup)
+      #
+      subgroup <- NULL
+      #
+      if (keepdata)
+        data$.subgroup <- NULL
+      #
+      if (missing.overall)
+        overall <- TRUE
+      if (missing.overall.hetstat)
+        overall.hetstat <- TRUE
+    }
+  }
+  
+  
   ##
   ## Determine total number of studies
   ##

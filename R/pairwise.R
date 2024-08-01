@@ -403,6 +403,7 @@ pairwise <- function(treat,
   chklogical(addincr)
   chklogical(allstudies)
   #
+  missing.append <- missing(append)
   if (!is.character(append)) {
     chklogical(append, text = "or vector with variable names")
     append.logical <- append
@@ -426,6 +427,8 @@ pairwise <- function(treat,
   chkchar(sep.ag)
   #
   chkchar(varnames, length = 2)
+  #
+  sm <- NULL
   
   
   ##
@@ -460,8 +463,25 @@ pairwise <- function(treat,
   treat <- catch("treat", mc, data, sfsp)
   ##
   if (is.data.frame(treat) & !is.null(attr(treat, "pairwise"))) {
+    is.pairwise <- TRUE
+    #
+    res.attr <- attributes(treat)
     res <- treat
-    ##
+    #
+    if (any(replaceNULL(res.attr$varnames, c("TE", "seTE")) !=
+            c("TE", "seTE"))) {
+      names(res)[names(res) == res.attr$varnames[1]] <- "TE"
+      names(res)[names(res) == res.attr$varnames[2]] <- "seTE"
+      #
+      if (missing(varnames))
+        varnames <- res.attr$varnames
+    }
+    #
+    if (missing(append)) {
+      append <- res.attr$append
+      append.logical <- res.attr$append.logical
+    }
+    #
     if (missing.reference.group)
       if (!is.null(attributes(treat)$reference.group)) {
         reference.group <- attributes(treat)$reference.group
@@ -556,6 +576,8 @@ pairwise <- function(treat,
     avail.agent <- avail.dose <- FALSE
   }
   else {
+    is.pairwise <- FALSE
+    #
     if (missing(keep.all.comparisons))
       keep.all.comparisons <- TRUE
     chklogical(keep.all.comparisons)
@@ -1543,7 +1565,12 @@ pairwise <- function(treat,
         stop("Different length of lists 'treat' and 'mean'.")
       if (length(sd) != narms)
         stop("Different length of lists 'treat' and 'sd'.")
-      ##
+      #
+      if ("sm" %in% nam.args)
+        sm <- args$sm
+      else
+        sm <- gs("smcont")
+      #
       for (i in seq_len(narms)) {
         ##
         if (length(treat[[i]]) != length(n[[i]]))
@@ -1772,6 +1799,11 @@ pairwise <- function(treat,
       if (length(time) != narms)
         stop("Different length of lists 'treat' and 'time'.",
              call. = FALSE)
+      #
+      if ("sm" %in% nam.args)
+        sm <- args$sm
+      else
+        sm <- gs("sminc")
       ##
       ## Determine increment for individual studies
       ##
@@ -1915,7 +1947,9 @@ pairwise <- function(treat,
         }
       }
     }
-    ##
+    #
+    method <- if (type == "onlytreat") "" else m1$method
+    #
     if (!nulldata & data.format == "long")
       res <- merge(res, newdata,
                    by = c("studlab", "treat1", "treat2"),
@@ -2074,16 +2108,8 @@ pairwise <- function(treat,
         res$seTE[sel.i] <- sqrt(varTE.i)
       }
     }
-    
-    
-    attr(res, "sm") <- if (type != "onlytreat") m1$sm else ""
-    attr(res, "method") <-  if (type != "onlytreat") m1$method else ""
-    attr(res, "incr") <- incr
-    attr(res, "allincr") <- allincr
-    attr(res, "addincr") <- addincr
-    attr(res, "allstudies") <- allstudies
-    
-    
+       
+     
     if (data.format != "comparison") {
       if (!is.null(res$.order1)) {
         res <- res[order(res$.order1), ]
@@ -2211,20 +2237,39 @@ pairwise <- function(treat,
     res <- res[, c(nam1, nam2, nam.res[!nam.res %in% c(nam1, nam2)])]
   }
   
-  if (!all(varnames == c("TE", "seTE"))) {
+  if (any(varnames != c("TE", "seTE"))) {
     names(res)[names(res) == "TE"] <- varnames[1]
     names(res)[names(res) == "seTE"] <- varnames[2]
   }
-  #
+  
   attr(res, "pairwise") <- TRUE
   attr(res, "reference.group") <- reference.group
   attr(res, "keep.all.comparisons") <- keep.all.comparisons
   attr(res, "type") <- type
-  attr(res, "varnames") <- varnames
-  attr(res, "version") <- packageDescription("netmeta")$Version
   #
-  if (is.null(attr(res, "sm")))
-    attr(res, "sm") <- if ("sm" %in% nam.args) args$sm else ""
+  if (is.pairwise) {
+    attr(res, "sm") <- res.attr$sm
+    attr(res, "method") <- res.attr$method
+    attr(res, "incr") <- res.attr$incr
+    attr(res, "allincr") <- res.attr$allincr
+    attr(res, "addincr") <- res.attr$addincr
+    attr(res, "allstudies") <- res.attr$allstudies
+  }
+  else {
+    attr(res, "sm") <- if (type != "onlytreat") replaceNULL(sm, "") else ""
+    attr(res, "method") <-
+      if (type != "onlytreat") replaceNULL(method, "") else ""
+    #
+    attr(res, "incr") <- incr
+    attr(res, "allincr") <- allincr
+    attr(res, "addincr") <- addincr
+    attr(res, "allstudies") <- allstudies
+  }
+  #
+  attr(res, "varnames") <- varnames
+  attr(res, "append") <- append
+  attr(res, "append.logical") <- append.logical
+  attr(res, "version") <- packageDescription("netmeta")$Version
   
   class(res) <- unique(c("pairwise", class(res)))
   
