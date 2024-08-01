@@ -51,7 +51,10 @@
     'print.tau2.ci', 'print.tau.ci', 'print.Q', 'print.H', 'print.Rb', 'text.Rb'
 
 * pairwise():
-  - new arguments 'agent' and 'dose' to provide information for dose-response data
+  - new arguments 'agent' and 'dose' to provide information for dose-response
+    data
+  - new argument 'varnames' to change variable names for effect estimate and
+    its standard error
 
 ### Bug fixes
 

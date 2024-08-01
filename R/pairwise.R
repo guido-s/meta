@@ -51,6 +51,8 @@
 #' @param keep.all.comparisons A logical indicating whether all
 #'   pairwise comparisons or only comparisons with the study-specific
 #'   reference group should be kept ('basic parameters').
+#' @param varnames Character vector of length 2 with the variable names for the
+#'   treatment estimate and its standard error; by default, "TE" and "seTE".
 #' @param append Either a logical indicating whether variables from the dataset
 #'   provided in argument \code{data} are appended to the dataset with
 #'   pairwise comparisons or a character vector with variable names to append to
@@ -383,7 +385,9 @@ pairwise <- function(treat,
                      keep.all.comparisons,
                      #
                      sep.ag = "*",
-                     ##
+                     #
+                     varnames = c("TE", "seTE"),
+                     #
                      append = !is.null(data),
                      warn = FALSE,
                      ...) {
@@ -420,6 +424,8 @@ pairwise <- function(treat,
   #
   missing.sep.ag <- missing(sep.ag)
   chkchar(sep.ag)
+  #
+  chkchar(varnames, length = 2)
   
   
   ##
@@ -2205,10 +2211,16 @@ pairwise <- function(treat,
     res <- res[, c(nam1, nam2, nam.res[!nam.res %in% c(nam1, nam2)])]
   }
   
+  if (!all(varnames == c("TE", "seTE"))) {
+    names(res)[names(res) == "TE"] <- varnames[1]
+    names(res)[names(res) == "seTE"] <- varnames[2]
+  }
+  #
   attr(res, "pairwise") <- TRUE
   attr(res, "reference.group") <- reference.group
   attr(res, "keep.all.comparisons") <- keep.all.comparisons
   attr(res, "type") <- type
+  attr(res, "varnames") <- varnames
   attr(res, "version") <- packageDescription("netmeta")$Version
   #
   if (is.null(attr(res, "sm")))

@@ -67,6 +67,7 @@ subset.pairwise <- function(x, subset, ...){
   attr(res, "reference.group") <- attr(x, "reference.group")
   attr(res, "keep.all.comparisons") <- attr(x, "keep.all.comparisons")
   attr(res, "type") <- attr(x, "type")
+  attr(res, "varnames") <- attr(x, "varnames")
   attr(res, "version") <- attr(x, "version")
   ##
   class(res) <- c("pairwise", class(res))
