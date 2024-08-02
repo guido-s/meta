@@ -293,6 +293,8 @@ p0 <- pairwise(studlab = study, treat = treatment,
   n = ni, mean = mi, sd = sdi, data = dat.senn2013,
   append = c("study", "comment"))
 head(p0)
+# Meta-analysis of studies comparing metformin to placebo
+metagen(p0, subset = treat1 == "metformin" & treat2 == "placebo")
 
 \dontrun{
 # Example using continuous outcomes (internal call of function
