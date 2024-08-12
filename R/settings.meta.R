@@ -587,6 +587,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("print.tau", TRUE)
     setOption("print.tau.ci", TRUE)
     setOption("print.I2", TRUE)
+    setOption("print.I2.ci", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
     ##
@@ -1110,6 +1111,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("print.tau          ")
     catarg("print.tau.ci       ")
     catarg("print.I2           ")
+    catarg("print.I2.ci        ")
     catarg("print.H            ")
     catarg("print.Rb           ")
     catarg("text.tau2          ")
@@ -1426,6 +1428,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("print.tau", args)
     setlogical("print.tau.ci", args)
     setlogical("print.I2", args)
+    setlogical("print.I2.ci", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
     ##

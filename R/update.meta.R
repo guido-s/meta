@@ -970,8 +970,12 @@ update.meta <- function(object,
   #
   if (!missing(cycles))
     cycles <- catch("cycles", mc, data, sfsp)
-  else
-    cycles <- catch(".cycles", object$data, object$data, sfsp)
+  else {
+    if (isCol(object$data, ".cycles"))
+      cycles <- catch(".cycles", object$data, object$data, sfsp)
+    else
+      cycles <- NULL
+  }
   #
   avail.cycles <- !is.null(cycles)
   ##
@@ -1164,12 +1168,11 @@ update.meta <- function(object,
     }
     ##
     RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
-    ##
-    if (method != "MH" |
-        method.tau != "DL" |
-        !(sm %in% c("OR", "RR", "RD", "DOR")))
+    #
+    if (!(method == "MH" & method.tau == "DL" &
+        (sm %in% c("OR", "RR", "RD", "DOR"))))
       Q.Cochrane <- FALSE
-    ##
+    #
     if (sm == "DOR" & missing.method.bias)
       method.bias <- "Deeks"
     else if (sm == "OR" & missing.method.bias)

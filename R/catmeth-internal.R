@@ -104,7 +104,7 @@ text_Inverse <- function(x, i, random, method) {
 text_GLMM <- function(x, i, random, method) {
   meth.i <- x[i, , drop = FALSE]
   ##
-  if (method == "metabin") {
+  if ("metabin" %in% method) {
     txt <-
       if (meth.i$model.glmm == "UM.FS")
         "\n- Logistic regression model (fixed study effects)"
@@ -119,7 +119,7 @@ text_GLMM <- function(x, i, random, method) {
       else if (meth.i$model.glmm == "CM.AL")
         "\n- Generalised linear mixed model (conditional Binomial-Normal)"
   }
-  else if (method == "metainc") {
+  else if ("metainc" %in% method) {
     txt <-
       if (meth.i$model.glmm == "UM.FS")
         "\n- Poisson regression model (fixed study effects)"
@@ -132,10 +132,10 @@ text_GLMM <- function(x, i, random, method) {
           "\n- Generalised linear mixed model ",
           "(conditional Poisson-Normal)")
   }
-  else if (method == "metaprop")
+  else if ("metaprop" %in% method)
     txt <-
       "\n- Random intercept logistic regression model"
-  else if (method == "metarate")
+  else if ("metarate" %in% method)
     txt <-
       "\n- Random intercept Poisson regression model"
   ##

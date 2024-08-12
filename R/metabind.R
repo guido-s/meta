@@ -33,7 +33,7 @@
 #' objects which is useful, for example, to summarize results of
 #' various meta-analysis methods or to generate a forest plot with
 #' results of several subgroup analyses (see Examples).
-#'
+#' 
 #' Individual study results are not retained with \code{metabind} as
 #' the function allows to combine meta-analyses from different data
 #' sets (e.g., with randomized or observational studies). Individual
@@ -540,7 +540,7 @@ metabind <- function(..., subgroup = NULL,
   ##
   if (!with.subgroups) {
     subgroup$subgroup.levels <- name
-  }  
+  }
   
   
   ##
@@ -578,7 +578,7 @@ metabind <- function(..., subgroup = NULL,
   #
   if (!with.subgroups & all(subgroup.meta == ""))
     data <- data[, names(data) != "subgroup"]
-    
+  
   
   ##
   ##
@@ -750,7 +750,10 @@ metabind <- function(..., subgroup = NULL,
   res$pval.Q.w.random <- NA
   ##
   res$is.limit.copas <- is.limit.copas
-  ##
+  #
+  res$classes <- unique(as.vector(sapply(args, function(x) class(x))))
+  res$classes <- res$classes[res$classes != "meta"]
+  #
   ## Backward compatibility
   ##
   res <- backward(res)

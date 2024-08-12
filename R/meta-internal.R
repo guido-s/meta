@@ -638,7 +638,7 @@ argslist <-
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "details",
     "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
-    "print.I2", "print.H", "print.Rb",
+    "print.I2", "print.I2.ci", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
     "print.Q",
     ##
@@ -770,6 +770,7 @@ setOption("print.tau2.ci", TRUE)
 setOption("print.tau", TRUE)
 setOption("print.tau.ci", TRUE)
 setOption("print.I2", TRUE)
+setOption("print.I2.ci", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
 setOption("text.tau2", "tau^2")

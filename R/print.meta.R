@@ -133,6 +133,8 @@
 #'   results of the test of heterogeneity.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
+#' @param print.I2.ci A logical specifying whether confidence interval for
+#'   heterogeneity statistic I\eqn{^2} should be printed.
 #' @param print.H A logical specifying whether heterogeneity statistic
 #'   H should be printed.
 #' @param print.Rb A logical specifying whether heterogeneity
@@ -222,6 +224,7 @@ print.meta <- function(x,
                        #
                        print.Q = gs("print.Q"),
                        print.I2 = gs("print.I2"),
+                       print.I2.ci = gs("print.I2.ci"),
                        print.H = gs("print.H"),
                        print.Rb = gs("print.Rb"),
                        #
@@ -297,6 +300,7 @@ print.meta <- function(x,
   chklogical(print.tau.ci)
   ##
   chklogical(print.I2)
+  chklogical(print.I2.ci)
   chklogical(print.H)
   chklogical(print.Rb)
   chkchar(text.tau2, length = 1)
@@ -852,7 +856,7 @@ print.meta <- function(x,
     else
       Q4I2 <- Q[!grepl("LRT", names(Q))]
     ##
-    print.I2.ci <-
+    print.I2.ci <- print.I2.ci &
       ifelse(((Q4I2 > max(k, na.rm = TRUE) & max(k, na.rm = TRUE) >= 2) |
               (Q4I2 <= max(k, na.rm = TRUE) & max(k, na.rm = TRUE) > 2)) &
              !(is.na(lowI2) | is.na(uppI2)), TRUE, FALSE)
@@ -1342,8 +1346,9 @@ print.meta <- function(x,
                                           big.mark = big.mark),
                                   formatN(uppTE.common.w[, i], digits, "NA",
                                           big.mark = big.mark)),
-                         formatN(round(Q.w, digits.Q), digits.Q,
-                                 big.mark = big.mark),
+                         if (print.Q)
+                           formatN(round(Q.w, digits.Q), digits.Q,
+                                   big.mark = big.mark),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -1374,7 +1379,7 @@ print.meta <- function(x,
                                   c(if (is.netpairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
-                                    "Q",
+                                    if (print.Q) "Q",
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb,
                                     if (!random) text.tau2,
@@ -1490,7 +1495,7 @@ print.meta <- function(x,
                                            digits = digits.tau,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (i == 1 & !common)
+                         if (i == 1 & !common & print.Q)
                            formatN(round(Q.w, digits.Q), digits.Q,
                                    big.mark = big.mark),
                          if (i == 1 & !common & print.I2)
@@ -1514,7 +1519,7 @@ print.meta <- function(x,
                                     sm.lab, ci.lab,
                                     if (i == 1 | tau.i) text.tau2,
                                     if (i == 1 | tau.i) text.tau,
-                                    if (i == 1 & !common) "Q",
+                                    if (i == 1 & !common & print.Q) "Q",
                                     if (i == 1 & !common & print.I2) text.I2,
                                     if (i == 1 & !common & print.Rb) text.Rb)
                                   )

@@ -90,9 +90,9 @@ overall2meta <- function(x, common, random, prediction, name) {
       n.e = sum(replaceNULL(x$n.e)),
       n.c = sum(replaceNULL(x$n.c)),
       ##
-      Q = x$Q,
-      df.Q = x$df.Q,
-      pval.Q = x$pval.Q,
+      Q = x$Q[1],
+      df.Q = x$df.Q[1],
+      pval.Q = x$pval.Q[1],
       ##
       tau2 = x$tau2,
       lower.tau2 = x$lower.tau2,
@@ -199,9 +199,9 @@ subgr2meta <- function(x, common, random, prediction, name) {
     n.e = replaceNULL(x$n.e),
     n.c = replaceNULL(x$n.c),
     ##
-    Q = x$Q,
-    df.Q = x$df.Q,
-    pval.Q = x$pval.Q,
+    Q = x$Q[1],
+    df.Q = x$df.Q[1],
+    pval.Q = x$pval.Q[1],
     ##
     tau2 = x$tau2,
     tau = x$tau,
@@ -265,7 +265,11 @@ overall2subgr <- function(x) {
   ##
   for (i in vars)
     res[[paste0(i, ".w")]] <- replaceNULL(x[[i]])
-  ##
+  #
+  res$Q.w <- res$Q.w[1]
+  res$df.Q.w <- res$df.Q.w[1]
+  res$pval.Q.w <- res$pval.Q.w[1]
+  #
   res
 }
 
@@ -473,10 +477,12 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) addNAs2var(x$pval.Q.b.common, n.subgr),
       if (random) addNAs2var(x$pval.Q.b.random, n.subgr),
       if (prediction) rep(NA, n.subgr))
-  ##
-  if (!debug)
-    res <- as.data.frame(res, row.names = seq_len(length(res$TE)))
-  ##
+  #
+  if (debug)
+    print(res)
+  #
+  res <- as.data.frame(res, row.names = seq_len(length(res$TE)))
+  #
   res
 }
 
@@ -615,9 +621,9 @@ overall2data <- function(x, common, random, prediction, name, subgroup,
   ##
   sumcrp <- common + random + prediction
   ##
-  res$Q <- c(x$Q, rep(NA, sumcrp - 1))
-  res$df.Q <- c(x$df.Q, rep(NA, sumcrp - 1))
-  res$pval.Q <- c(x$pval.Q, rep(NA, sumcrp - 1))
+  res$Q <- c(x$Q[1], rep(NA, sumcrp - 1))
+  res$df.Q <- c(x$df.Q[1], rep(NA, sumcrp - 1))
+  res$pval.Q <- c(x$pval.Q[1], rep(NA, sumcrp - 1))
   ##
   res$tau2 <- c(x$tau2, rep(NA, sumcrp - 1))
   res$tau <- c(x$tau, rep(NA, sumcrp - 1))
@@ -636,9 +642,11 @@ overall2data <- function(x, common, random, prediction, name, subgroup,
   #
   res$subgroup <- subgroup
   #
-  if (!debug)
-    res <- as.data.frame(res)
-  ##
+  if (debug)
+    print(res)
+  #
+  res <- as.data.frame(res)
+  #
   res
 }
 

@@ -74,6 +74,8 @@ catmeth <- function(x,
       "metaprop"
     else if (metarate)
       "metarate"
+    else if (metabind)
+      x$classes
   ##
   if (forest) {
     text.tau2 <- "tau^2"

@@ -195,7 +195,7 @@ bubble.metareg <- function(x,
   sm <- m1$sm
 
   log.y <- backtransf &&
-    (is_relative_effect(sm) ||
+    (is_relative_effect(sm) || is_log_effect(sm) ||
      (!is.null(m1$func.backtransf) && m1$func.backtransf == "exp"))
   #
   if (log.y) {
@@ -229,8 +229,8 @@ bubble.metareg <- function(x,
       stop("Length of argument 'studlab' must be the same as ",
            "number of studies in meta-analysis.")
   }
-
-
+  
+  
   charform <- as.character(x$.meta$formula)[2]
   splitform <- strsplit(charform, " ")[[1]]
   covar.name <- splitform[1]
@@ -315,14 +315,40 @@ bubble.metareg <- function(x,
   #
   ys <- TE
   #
+  if (backtransf & !log.y) {
+    if (!is.null(m1$func.backtransf))
+      func.backtransf <- m1$func.backtransf
+    else if (sm == "PLOGIT")
+      func.backtransf <- logit2p
+    else if (sm == "PAS")
+      func.backtransf <- asin2p
+    else if (sm == "IRS")
+      func.backtransf <- function(x) x^2
+    else if (sm == "ZCOR")
+      func.backtransf <- z2cor
+    else
+      func.backtransf <- I
+    #
+    ys <- do.call(func.backtransf, list(ys))
+  }
+  #
   if (missing(ylim))
     ylim <- scale * range(ys)
   #
   if (missing(ylab)) {
     ylab <- xlab(sm, backtransf, func.transf = m1$func.transf,
                  func.backtransf = m1$func.backtransf)
-    if (sm == "PRAW")
-      ylab <- "Proportion"
+    #
+    if (ylab == "") {
+      if (sm == "PRAW" | (backtransf & sm %in% c("PLN", "PAS", "PLOGIT")))
+        ylab <- "Proportion"
+      else if (sm == "IR" | (backtransf & sm %in% c("IRLN", "IRS")))
+        ylab <- "Incidence Rate"
+      else if (sm == "MRAW" | (backtransf & sm %in% c("IRLN", "IRS")))
+        ylab <- "Incidence Rate"
+      else if (sm == "COR" | (backtransf & sm == "ZCOR"))
+        ylab <- "Correlation"
+    }
   }
   
   
@@ -440,10 +466,15 @@ bubble.metareg <- function(x,
       # Add regression line
       #
       if (regline) {
-        y.reg <- c(alpha, alpha + coef(x)[i])
+        x.reg <- seq(0, 1, length.out = 500)
+        y.reg <- seq(alpha, alpha + coef(x)[i], length.out = 500)
+        #
         if (log.y)
           y.reg <- scale * exp(y.reg)
-        lines(c(0, 1), y.reg, lty = lty, lwd = lwd, col = col.line)
+        else if (backtransf)
+          y.reg <- scale * do.call(func.backtransf, list(y.reg))
+        #
+        lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
       }
       #
       for (j in seq_along(xs.i))
@@ -480,10 +511,14 @@ bubble.metareg <- function(x,
     # Add regression line
     #
     if (regline) {
-      x.reg <- c(xlim[1], xlim[2])
-      y.reg <- c(alpha + beta * xlim[1], alpha + beta * xlim[2])
-      if (log == "y")
+      x.reg <- seq(xlim[1], xlim[2], length.out = 500)
+      y.reg <- seq(alpha + beta * xlim[1], alpha + beta * xlim[2],
+                   length.out = 500)
+      #
+      if (log.y)
         y.reg <- scale * exp(y.reg)
+      else if (backtransf)
+        y.reg <- scale * do.call(func.backtransf, list(y.reg))
       #
       lines(x.reg, y.reg, lty = lty, lwd = lwd, col = col.line)
     }

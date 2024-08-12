@@ -39,6 +39,7 @@
   print.tau.ci = gs("print.tau.ci"),
   print.Q = gs("print.Q"),
   print.I2 = gs("print.I2"),
+  print.I2.ci = gs("print.I2.ci"),
   print.H = gs("print.H"),
   print.Rb = gs("print.Rb"),
   text.tau2 = gs("text.tau2"),
@@ -164,6 +165,9 @@ results of the test of heterogeneity.}
 
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I\eqn{^2} should be printed.}
+
+\item{print.I2.ci}{A logical specifying whether confidence interval for
+heterogeneity statistic I\eqn{^2} should be printed.}
 
 \item{print.H}{A logical specifying whether heterogeneity statistic
 H should be printed.}

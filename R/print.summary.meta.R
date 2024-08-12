@@ -83,6 +83,8 @@
 #'   results of the test of heterogeneity.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
+#' @param print.I2.ci A logical specifying whether confidence interval for
+#'   heterogeneity statistic I\eqn{^2} should be printed.
 #' @param print.H A logical specifying whether heterogeneity statistic
 #'   H should be printed.
 #' @param print.Rb A logical specifying whether heterogeneity
@@ -204,6 +206,7 @@ print.summary.meta <- function(x,
                                #
                                print.Q = gs("print.Q"),
                                print.I2 = gs("print.I2"),
+                               print.I2.ci = gs("print.I2.ci"),
                                print.H = gs("print.H"),
                                print.Rb = gs("print.Rb"),
                                #
@@ -325,6 +328,7 @@ print.summary.meta <- function(x,
   chklogical(print.tau)
   chklogical(print.tau.ci)
   chklogical(print.I2)
+  chklogical(print.I2.ci)
   chklogical(print.H)
   chklogical(print.Rb)
   chklogical(print.Q)
@@ -1045,6 +1049,7 @@ print.summary.meta <- function(x,
                  #
                  print.Q = print.Q, digits.Q = digits.Q,
                  print.I2 = print.I2, digits.I2 = digits.I2,
+                 print.I2.ci = print.I2.ci,
                  print.H = print.H, digits.H = digits.H,
                  print.Rb = print.Rb,
                  #

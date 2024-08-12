@@ -21,7 +21,7 @@
 
 * R function pairwise() can be used with dose-response data
 
-* R functions pairwise() and subset.pairwise() moved from R package
+install.packages("guido-s/meta")* R functions pairwise() and subset.pairwise() moved from R package
   **netmeta** to **meta*
 
 ### User-visible changes
@@ -55,6 +55,13 @@
     data
   - new argument 'varnames' to change variable names for effect estimate and
     its standard error
+
+* bubble.metareg():
+  - argument 'backtransf = TRUE' is recognized for additional summary measures,
+    i.e., "PLOGIT", "PLN", "PAS", "IRLN", "IRS", "ZCOR"
+
+* settings.meta():
+  - default setting can be defined for 'print.I2.ci'
 
 ### Bug fixes
 
