@@ -107,7 +107,9 @@ probabilities.}
 \item{irscale}{A numeric defining a scaling factor for printing of
 incidence rates.}
 
-\item{axes}{A logical indicating whether axes should be printed.}
+\item{axes}{Either a logical vector or a character equal to \code{"x"},
+\code{"y"} or \code{"xy"} indicating whether x- and y-axis should be
+printed.}
 
 \item{box}{A logical indicating whether a box should be printed.}
 

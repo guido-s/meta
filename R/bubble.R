@@ -48,7 +48,9 @@
 #'   probabilities.
 #' @param irscale A numeric defining a scaling factor for printing of
 #'   incidence rates.
-#' @param axes A logical indicating whether axes should be printed.
+#' @param axes Either a logical or a character string equal to \code{"x"},
+#'   \code{"y"} or \code{"xy"} indicating whether x- and y-axis should be
+#'   printed.
 #' @param box A logical indicating whether a box should be printed.
 #' @param \dots Graphical arguments as in \code{par} may also be
 #'   passed as arguments.
@@ -179,7 +181,17 @@ bubble.metareg <- function(x,
   else
     irscale <- 1
   #
-  chklogical(axes)
+  if (!is.character(axes)) {
+    chklogical(axes)
+    axis.x <- axis.y <- axes
+  }
+  else {
+    axes <- setchar(axes, c("x", "y", "xy"))
+    #
+    axis.x <- grepl("x", axes)
+    axis.y <- grepl("y", axes)
+  }
+  #
   chklogical(box)
   
   
@@ -483,12 +495,12 @@ bubble.metareg <- function(x,
       #
       # x-axis
       #
-      if (axes)
+      if (axis.x)
         axis(1, at = 0:1, labels = levs[c(1, i)], ...)
       #
       # y-axis
       #
-      if (axes)
+      if (axis.y)
         axis(2, ...)
       #
       text(xs.i, scale * ys.i, labels = studlab.i, cex = cex.studlab,
@@ -527,12 +539,12 @@ bubble.metareg <- function(x,
     #
     # x-axis
     #
-    if (axes)
+    if (axis.x)
       axis(1, ...)
     #
     # y-axis
     #
-    if (axes)
+    if (axis.y)
       axis(2, ...)
     #
     text(xs, scale * ys, labels = studlab, cex = cex.studlab,
