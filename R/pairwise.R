@@ -600,14 +600,14 @@ pairwise <- function(treat,
     avail.agent <- !is.null(agent)
     avail.dose <- !is.null(dose)
     
-    if (!(avail.treat || (avail.agent & avail.dose)))
-      stop("Mandatory argument(s) are 'treat' or 'agent' and 'dose'.")
+    #if (!(avail.treat || (avail.agent & avail.dose)))
+    #  stop("Mandatory argument(s) are 'treat' or 'agent' and 'dose'.")
     #
     if (avail.treat & avail.agent & avail.dose)
       stop("Either provide argument 'treat' or arguments 'agent' and 'dose'.")
     #
-    if (!avail.treat & (avail.agent + avail.dose != 2))
-      stop("Mandatory arguments 'agent' and 'dose' for dose-response data.")
+    #if (!avail.treat & (avail.agent + avail.dose != 2))
+    #  stop("Mandatory arguments 'agent' and 'dose' for dose-response data.")
     #
     if (avail.treat)
       if (is.list(treat))
@@ -709,9 +709,14 @@ pairwise <- function(treat,
         }
         else if (length(TE) == 2 & length(seTE) == 2 &
                  (length(treat) == 2 ||
-                  (length(agent) == 2 & length(dose) == 2)) &
-                 any(table(studlab) > 1)) {
+                  (length(agent) == 2 & length(dose) == 2) ||
+                  (!avail.treat & !avail.agent & !avail.dose))) {
           data.format <- "comparison"
+          #
+          if (!avail.treat & !avail.agent & !avail.dose) {
+            treat <- list(expand("trt1", TE[[1]]), expand("trt2", TE[[2]]))
+            avail.treat <- TRUE
+          }
           #
           dat.st <- data.frame(studlab)
           #
@@ -784,9 +789,14 @@ pairwise <- function(treat,
         }
         else if (length(event) == 2 & length(n) == 2 & 
                  (length(treat) == 2 ||
-                  (length(agent) == 2 & length(dose) == 2)) &
-                 any(table(studlab) > 1)) {
+                  (length(agent) == 2 & length(dose) == 2) ||
+                  (!avail.treat & !avail.agent & !avail.dose))) {
           data.format <- "comparison"
+          #
+          if (!avail.treat & !avail.agent & !avail.dose) {
+            treat <- list(expand("trt1", n[[1]]), expand("trt2", n[[2]]))
+            avail.treat <- TRUE
+          }
           #
           dat.st <- data.frame(studlab)
           #
@@ -860,9 +870,14 @@ pairwise <- function(treat,
         }
         else if (length(n) == 2 & length(mean) == 2 & length(sd) == 2 &
                  (length(treat) == 2 ||
-                  (length(agent) == 2 & length(dose) == 2)) &
-                 any(table(studlab) > 1)) {
+                  (length(agent) == 2 & length(dose) == 2) ||
+                  (!avail.treat & !avail.agent & !avail.dose))) {
           data.format <- "comparison"
+          #
+          if (!avail.treat & !avail.agent & !avail.dose) {
+            treat <- list(expand("trt1", n[[1]]), expand("trt2", n[[2]]))
+            avail.treat <- TRUE
+          }
           #
           dat.st <- data.frame(studlab)
           #
@@ -935,9 +950,14 @@ pairwise <- function(treat,
         }
         else if (length(event) == 2 & length(time) == 2 &
                  (length(treat) == 2 ||
-                  (length(agent) == 2 & length(dose) == 2)) &
-                 any(table(studlab) > 1)) {
+                  (length(agent) == 2 & length(dose) == 2) ||
+                  (!avail.treat & !avail.agent & !avail.dose))) {
           data.format <- "comparison"
+          #
+          if (!avail.treat & !avail.agent & !avail.dose) {
+            treat <- list(expand("trt1", time[[1]]), expand("trt2", time[[2]]))
+            avail.treat <- TRUE
+          }
           #
           dat.st <- data.frame(studlab)
           #
@@ -1004,9 +1024,8 @@ pairwise <- function(treat,
             treat <- paste(agent, dose, sep = sep.ag)
           }
         }
-        else if ((length(treat) == 2 ||
-                  (length(agent) == 2 & length(dose) == 2)) &
-                 any(table(studlab) > 1)) {
+        else if (length(treat) == 2 ||
+                 (length(agent) == 2 & length(dose) == 2)) {
           data.format <- "comparison"
           #
           dat.st <- data.frame(studlab)
@@ -1058,7 +1077,7 @@ pairwise <- function(treat,
       }
     }
     
-    
+     
     #
     # Use longarm() to transform outcome variables from comparison-based
     # to long arm-based format
@@ -1069,9 +1088,10 @@ pairwise <- function(treat,
       #
       if (type == "binary") {
         ldat <- longarm(studlab = unlist(studlab),
-                        treat1 = treat[[1]], treat2 = treat[[2]],
+                        treat1 = expand(treat[[1]], n[[1]]),
+                        treat2 = expand(treat[[2]], n[[2]]),
                         event1 = event[[1]], event2 = event[[2]],
-                        n1 = n[[1]], mean2 = n[[2]])
+                        n1 = n[[1]], n2 = n[[2]])
         #
         studlab <- ldat$studlab
         treat <- ldat$treat
@@ -1081,7 +1101,8 @@ pairwise <- function(treat,
       #
       else if (type == "continuous") {
         ldat <- longarm(studlab = unlist(studlab),
-                        treat1 = treat[[1]], treat2 = treat[[2]],
+                        treat1 = expand(treat[[1]], n[[1]]),
+                        treat2 = expand(treat[[2]], n[[2]]),
                         n1 = n[[1]], n2 = n[[2]],
                         mean1 = mean[[1]], mean2 = mean[[2]],
                         sd1 = sd[[1]], sd2 = sd[[2]])
@@ -1095,7 +1116,8 @@ pairwise <- function(treat,
       #
       else if (type == "count") {
         ldat <- longarm(studlab = unlist(studlab),
-                        treat1 = treat[[1]], treat2 = treat[[2]],
+                        treat1 = expand(treat[[1]], time[[1]]),
+                        treat2 = expand(treat[[2]], time[[2]]),
                         event1 = event[[1]], event2 = event[[2]],
                         time1 = time[[1]], time2 = time[[2]])
         #

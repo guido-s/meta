@@ -28,6 +28,7 @@ metaprop(
   method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
     gs("method.tau")),
   method.tau.ci = gs("method.tau.ci"),
+  level.hetstat = gs("level.hetstat"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
@@ -144,6 +145,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}

@@ -41,6 +41,7 @@
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   method.tau = gs("method.tau"),
   method.tau.ci = if (method.tau == "DL") "J" else "QP",
+  level.hetstat = gs("level.hetstat"),
   prediction = FALSE,
   level.predict = level,
   method.predict = gs("method.predict"),
@@ -145,6 +146,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
 
 \item{level.predict}{The level used to calculate prediction
 interval for a new study.}

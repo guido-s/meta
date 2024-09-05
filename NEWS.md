@@ -13,22 +13,29 @@
 * I2 statistic can be calculated from between-study variance instead of
   Q statistic
 
+* R functions pairwise() and subset.pairwise() moved from R package
+  **netmeta** to **meta**
+
+* R function pairwise() can be used with dose-response data
+
 * Information on colour of labels on left and right side of null effect in
   forest plots can be stored in meta-analysis object
 
 * In forest plots, the heterogeneity statistic *Q*, its p-value, and the *I2*
   statistic are printed with the same number of digits as in printouts.
 
-* R functions pairwise() and subset.pairwise() moved from R package
-  **netmeta** to **meta**
-
-* R function pairwise() can be used with dose-response data
+* Level of confidence intervals for heterogeneity statistics can be specified
+  by the user (in previous version of R package **meta** confidence intervals
+  for tau2 and tau were always 95%-CIs while confidence intervals for I2 and H
+  were based on the value for argument 'level.ma')
 
 ### User-visible changes
 
-* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
-  metarate(), update.meta():
+* metabin(), metacont(), metacor(), metacr(), metagen(), metainc(), metamean(),
+  metaprop(), metarate(), update.meta():
   - new argument 'method.I2' to choose method to calculate I2 statistic
+  - new argument 'level.hetstat' to specify level of confidence intervals for
+    heterogeneity statistics
   - new arguments 'col.label.left' and 'col.label.right' to define colour of
     labels used in forest plots on left and right side of null effect
 

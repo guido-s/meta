@@ -35,6 +35,7 @@
   seed.predict = object$seed.predict,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
+  level.hetstat = object$level.hetstat,
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
@@ -211,6 +212,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
 
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}

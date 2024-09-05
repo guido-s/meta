@@ -199,6 +199,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
+                     level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
                      ##
@@ -246,6 +247,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
+                     level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
                      ##

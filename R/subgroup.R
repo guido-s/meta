@@ -102,6 +102,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
+                       level.hetstat = x$level.hetstat,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
                        ##
@@ -159,6 +160,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
+                        level.hetstat = x$level.hetstat,
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##
@@ -187,6 +189,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
+                       level.hetstat = x$level.hetstat,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
                        ##
@@ -216,6 +219,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
+                       level.hetstat = x$level.hetstat,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
                        ##
@@ -252,6 +256,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
+                       level.hetstat = x$level.hetstat,
                        tau.preset = tau.preset,
                        TE.tau = x$TE.tau,
                        ##
@@ -291,6 +296,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
+                        level.hetstat = x$level.hetstat,
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##
@@ -324,6 +330,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
+                        level.hetstat = x$level.hetstat,
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##
@@ -357,6 +364,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         ##
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
+                        level.hetstat = x$level.hetstat,
                         tau.preset = tau.preset,
                         TE.tau = x$TE.tau,
                         ##

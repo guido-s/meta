@@ -606,7 +606,7 @@ argslist <-
   c("level", "level.ma", "common", "random",
     "method.random.ci", "method.predict",
     "adhoc.hakn.ci", "adhoc.hakn.pi",
-    "method.tau", "method.tau.ci", "tau.common",
+    "method.tau", "method.tau.ci", "level.hetstat", "tau.common",
     "method.I2",
     "prediction", "level.predict",
     "method.bias",
@@ -713,6 +713,7 @@ setOption("level.predict", 0.95)
 setOption("method.predict", "V")
 setOption("method.tau", "REML")
 setOption("method.tau.ci", NULL)
+setOption("level.hetstat", 0.95)
 setOption("tau.common", FALSE)
 setOption("method.I2", "Q")
 setOption("method.bias", "Egger")

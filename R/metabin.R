@@ -87,6 +87,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -654,6 +656,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                               nomatch = NA)),
                              "ML", gs("method.tau")),
                     method.tau.ci = gs("method.tau.ci"),
+                    level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     #
@@ -1633,6 +1636,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                prediction = prediction,
                ##
                method.tau = method.tau, method.tau.ci = method.tau.ci,
+               level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = if (Q.Cochrane) TE.common else TE.tau,
                tau.common = FALSE,
@@ -1683,7 +1687,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (by & tau.common & !is.glmm)
     hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (Q.Cochrane & method == "MH") TE.common else TE.tau,
-                   method.I2, level.ma, subgroup, control)
+                   method.I2, level.hetstat, subgroup, control)
   
   
   ##
@@ -1754,7 +1758,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           runGLMM(list.bin,
                   method.tau = method.tau,
                   method.random.ci = method.random.ci,
-                  level = level.ma,
+                  level = level.hetstat,
                   data =
                     if (n.subgroups > 1)
                       list(data.frame(subgroup.glmm))

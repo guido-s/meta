@@ -16,6 +16,7 @@ metacr(
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = "DL",
   method.tau.ci = gs("method.tau.ci"),
+  level.hetstat = gs("level.hetstat"),
   tau.common = FALSE,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
@@ -89,6 +90,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 \item{method.tau.ci}{A character string indicating which method is
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
+
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}

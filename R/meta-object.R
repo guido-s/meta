@@ -117,6 +117,8 @@
 #' \code{control} \tab Additional arguments for iterative estimation
 #'   of \eqn{\tau^2} \cr
 #' \code{method.tau.ci} \tab Method for confidence interval of \eqn{\tau^2} \cr
+#' \code{level.hetstat} \tab Level of confidence intervals for heterogeneity
+#'   statistics \cr
 #' \code{tau2} \tab Between-study variance \eqn{\tau^2} \cr
 #' \code{se.tau2} \tab Standard error of \eqn{\tau^2} \cr
 #' \code{lower.tau2} \tab Lower confidence limit (\eqn{\tau^2}) \cr

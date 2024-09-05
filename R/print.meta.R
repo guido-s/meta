@@ -1183,24 +1183,32 @@ print.meta <- function(x,
     ## Print information on heterogeneity
     ##
     if (overall.hetstat) {
-      cat("\nQuantifying heterogeneity:")
-      if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
-        cat("\n")
-      else
-        cat("")
-      ##
       print.tau2.ci <-
         print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
           (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
         print.tau2.ci <- FALSE
-      ##
+      #
       print.tau.ci <-
         print.tau.ci & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
           (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
         print.tau.ci <- FALSE
-      ##
+      #
+      cat(paste0("\nQuantifying heterogeneity",
+                 if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
+                     (print.tau2.ci | print.tau.ci | print.I2.ci))
+                   paste0(" (with ", 100 * x$level.hetstat, "%-CI",
+                          if (print.tau2.ci + print.tau.ci +
+                              print.I2.ci + print.H * print.I2.ci > 1) "s",
+                          ")"),
+                 ":"))
+      #
+      if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
+        cat("\n")
+      else
+        cat("")
+      #
       cathet(k,
              x$method.tau, x$detail.tau,
              x$tau2, x$lower.tau2, x$upper.tau2,
@@ -1229,8 +1237,10 @@ print.meta <- function(x,
           lowH.resid <- round(replaceNULL(x$lower.H.resid), digits.H)
           uppH.resid <- round(replaceNULL(x$upper.H.resid), digits.H)
         }
+        #
+        I2.resid <- round(100 * replaceNULL(x$I2.resid), digits.I2)
+        #
         if (print.I2) {
-          I2.resid <- round(100 * replaceNULL(x$I2.resid), digits.I2)
           lowI2.resid <- round(100 * replaceNULL(x$lower.I2.resid), digits.I2)
           uppI2.resid <- round(100 * replaceNULL(x$upper.I2.resid), digits.I2)
           print.I2.ci <-
@@ -1245,14 +1255,22 @@ print.meta <- function(x,
           if (is.na(print.I2.ci))
             print.I2.ci <- FALSE
         }
-        ##
+        #
         if (!is.na(replaceNULL(I2.resid))) {
-          cat("\nQuantifying residual heterogeneity:")
+          cat(paste0("\nQuantifying residual heterogeneity",
+                     if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
+                         (print.tau2.ci | print.tau.ci | print.I2.ci))
+                       paste0(" (with ", 100 * x$level.hetstat, "%-CI",
+                              if (print.tau2.ci + print.tau.ci +
+                                  print.I2.ci + print.H * print.I2.ci > 1) "s",
+                              ")"),
+                     ":"))
+          #
           if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
             cat("\n")
           else
             cat("")
-          ##
+          #
           cathet(k.resid, 
                  x$method.tau, x$detail.tau,
                  x$tau2.resid, x$lower.tau2.resid, x$upper.tau2.resid,

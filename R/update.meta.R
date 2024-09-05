@@ -90,6 +90,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -316,6 +318,7 @@ update.meta <- function(object,
                         seed.predict = object$seed.predict,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
+                        level.hetstat = object$level.hetstat,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
@@ -741,9 +744,11 @@ update.meta <- function(object,
     #
     object$col.label.left <- replaceNULL(object$col.label.left, "black")
     object$col.label.right <- replaceNULL(object$col.label.left, "black")
+    #
+    object$level.hetstat <- object$level.ma
   }
   
-   
+  
   ##
   ##
   ## (2) Check arguments
@@ -881,6 +886,7 @@ update.meta <- function(object,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     prediction = prediction | !missing.method.predict,
                     level.predict = level.predict,
                     silent = TRUE,
@@ -1205,8 +1211,8 @@ update.meta <- function(object,
                  adhoc.hakn.pi = adhoc.hakn.pi,
                  seed.predict = seed.predict,
                  ##
-                 method.tau = method.tau,
-                 method.tau.ci = method.tau.ci,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  #
@@ -1320,6 +1326,7 @@ update.meta <- function(object,
                   seed.predict = seed.predict,
                   ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   #
@@ -1373,6 +1380,7 @@ update.meta <- function(object,
                  seed.predict = seed.predict,
                  ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  #
@@ -1459,6 +1467,7 @@ update.meta <- function(object,
                  seed.predict = seed.predict,
                  ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  #
@@ -1584,8 +1593,8 @@ update.meta <- function(object,
                  adhoc.hakn.pi = adhoc.hakn.pi,
                  seed.predict = seed.predict,
                  ##
-                 method.tau = method.tau,
-                 method.tau.ci = method.tau.ci,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
                  #
@@ -1664,6 +1673,7 @@ update.meta <- function(object,
                   seed.predict = seed.predict,
                   ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   #
@@ -1738,8 +1748,8 @@ update.meta <- function(object,
                   adhoc.hakn.pi = adhoc.hakn.pi,
                   seed.predict = seed.predict,
                   ##
-                  method.tau = method.tau,
-                  method.tau.ci = method.tau.ci,
+                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   #
@@ -1817,8 +1827,8 @@ update.meta <- function(object,
                   adhoc.hakn.pi = adhoc.hakn.pi,
                   seed.predict = seed.predict,
                   ##
-                  method.tau = method.tau,
-                  method.tau.ci = method.tau.ci,
+                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
                   #

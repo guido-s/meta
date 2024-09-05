@@ -58,6 +58,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -676,6 +678,7 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
+                    level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     detail.tau = "",
@@ -1888,6 +1891,7 @@ metagen <- function(TE, seTE, studlab,
       method.tau.ci <- "J"
     else
       method.tau.ci <- "QP"
+  #
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   if (!three.level & method.tau.ci == "PL") {
@@ -1896,7 +1900,9 @@ metagen <- function(TE, seTE, studlab,
     else
       method.tau.ci <- "QP"
   }
-  ##
+  #
+  chklevel(level.hetstat)
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
     ##
@@ -1989,7 +1995,8 @@ metagen <- function(TE, seTE, studlab,
     ##
     hc <- list(tau2 = NA, se.tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
                tau = NA, lower.tau = NA, upper.tau = NA,
-               method.tau.ci = "", sign.lower.tau = "", sign.upper.tau = "",
+               method.tau.ci = "", level = NA,
+               sign.lower.tau = "", sign.upper.tau = "",
                ##
                Q = NA, df.Q = NA, pval.Q = NA,
                H = NA, lower.H = NA, upper.H = NA,
@@ -2018,7 +2025,7 @@ metagen <- function(TE, seTE, studlab,
     ##
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
                   method.tau, method.tau.ci, TE.tau,
-                  method.I2, level.ma, control = control,
+                  method.I2, level.hetstat, control = control,
                   cluster = cluster[!exclude], rho = rho)
     #
     # Estimate common tau-squared across subgroups
@@ -2026,7 +2033,7 @@ metagen <- function(TE, seTE, studlab,
     if (by & tau.common)
       hcc <- hetcalc(TE[!exclude], seTE[!exclude],
                      method.tau, method.tau.ci, TE.tau,
-                     method.I2, level.ma,
+                     method.I2, level.hetstat,
                      subgroup = subgroup, control = control,
                      cluster = cluster[!exclude], rho = rho)
     ##
@@ -2590,6 +2597,7 @@ metagen <- function(TE, seTE, studlab,
               method.tau = method.tau,
               control = control,
               method.tau.ci = hc$method.tau.ci,
+              level.hetstat = level.hetstat,
               tau2 = hc$tau2,
               se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,

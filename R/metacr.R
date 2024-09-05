@@ -29,6 +29,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param method.I2 A character string indicating which method is
@@ -194,6 +196,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    method.tau = "DL",
                    method.tau.ci = gs("method.tau.ci"),
+                   level.hetstat = gs("level.hetstat"),
                    tau.common = FALSE,
                    #
                    method.I2 = gs("method.I2"),
@@ -515,6 +518,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
                       #
                       method.I2 = method.I2,
@@ -565,6 +569,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
                       #
                       method.I2 = method.I2,
@@ -617,6 +622,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      prediction = prediction,
                      ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
+                     level.hetstat = level.hetstat,
                      tau.common = tau.common,
                      #
                      method.I2 = method.I2,
@@ -663,6 +669,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,
@@ -711,6 +718,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,
@@ -762,6 +770,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,
@@ -819,6 +828,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
                       #
                       method.I2 = method.I2,
@@ -862,6 +872,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
                       #
                       method.I2 = method.I2,
@@ -906,6 +917,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      prediction = prediction,
                      ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
+                     level.hetstat = level.hetstat,
                      tau.common = tau.common,
                      #
                      method.I2 = method.I2,
@@ -945,6 +957,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,
@@ -986,6 +999,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,
@@ -1030,6 +1044,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
                     #
                     method.I2 = method.I2,

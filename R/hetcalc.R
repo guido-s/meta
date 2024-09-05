@@ -136,24 +136,26 @@ hetcalc <- function(TE, seTE,
       else if (three.level & method.tau.ci != "")
         method.tau.ci <- "PL"
       ##
-      ## Confidence interal for overall result
+      ## Confidence interval for overall meta-analysis
       ##
       if (method.tau.ci == "BJ")
         ci0 <-
           confint.rma.uni(
             runNN(rma.uni,
                   list(yi = TE, sei = seTE, weights = 1 / seTE^2,
-                       method = "GENQ", control = control)))
+                       method = "GENQ", control = control)),
+            level = 100 * level)
       else if (method.tau.ci == "J")
         ci0 <-
           confint.rma.uni(
             runNN(rma.uni,
                   list(yi = TE, sei = seTE, weights = 1 / seTE,
-                       method = "GENQ", control = control)))
+                       method = "GENQ", control = control)),
+            level = 100 * level)
       else if (method.tau.ci == "QP")
-        ci0 <- confint.rma.uni(mf0)
+        ci0 <- confint.rma.uni(mf0, level = 100 * level)
       else if (method.tau.ci == "PL")
-        ci0 <- confint.rma.mv(mf0)
+        ci0 <- confint.rma.mv(mf0, level = 100 * level)
       #
       if (method.I2 == "Q") {
         H  <- calcH(Q, df.Q, level)
@@ -280,7 +282,7 @@ hetcalc <- function(TE, seTE,
     else if (three.level & method.tau.ci != "")
       method.tau.ci <- "PL"
     ##
-    ## Confidence interal for residual heterogeneity
+    ## Confidence interval for residual heterogeneity
     ##
     if (method.tau.ci == "BJ")
       ci1 <-
@@ -289,7 +291,8 @@ hetcalc <- function(TE, seTE,
                 list(yi = TE, sei = seTE, weights = 1 / seTE^2,
                      method = "GENQ",
                      mods = as.call(~ subgroup), control = control,
-                     data = data.frame(TE, seTE, subgroup))))
+                     data = data.frame(TE, seTE, subgroup))),
+          level = 100 * level)
     else if (method.tau.ci == "J")
       ci1 <-
         confint.rma.uni(
@@ -297,11 +300,12 @@ hetcalc <- function(TE, seTE,
                 list(yi = TE, sei = seTE, weights = 1 / seTE,
                      method = "GENQ",
                      mods = as.call(~ subgroup), control = control,
-                     data = data.frame(TE, seTE, subgroup))))
+                     data = data.frame(TE, seTE, subgroup))),
+          level = 100 * level)
     else if (method.tau.ci == "QP")
-      ci1 <- confint.rma.uni(mf1)
+      ci1 <- confint.rma.uni(mf1, level = 100 * level)
     else if (method.tau.ci == "PL")
-      ci1 <- confint.rma.mv(mf1)
+      ci1 <- confint.rma.mv(mf1, level = 100 * level)
   }
   
   
@@ -401,7 +405,9 @@ hetcalc <- function(TE, seTE,
               method.tau.ci = method.tau.ci,
               sign.lower.tau = sign.lower.tau,
               sign.upper.tau = sign.upper.tau,
-              ##
+              #
+              level = level,
+              #
               Q = Q,
               df.Q = df.Q,
               pval.Q = pval.Q,

@@ -768,3 +768,11 @@ setsv <- function(x) {
   #
   setchar(res, c("desirable", "undesirable"))
 }
+
+
+expand <- function(x, y) {
+  if (length(x) == 1 & length(y) > 1)
+    return(rep_len(x, length(y)))
+  else
+    return(x)  
+}
