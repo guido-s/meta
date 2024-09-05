@@ -19,10 +19,10 @@
 * In forest plots, the heterogeneity statistic *Q*, its p-value, and the *I2*
   statistic are printed with the same number of digits as in printouts.
 
-* R function pairwise() can be used with dose-response data
+* R functions pairwise() and subset.pairwise() moved from R package
+  **netmeta** to **meta**
 
-install.packages("guido-s/meta")* R functions pairwise() and subset.pairwise() moved from R package
-  **netmeta** to **meta*
+* R function pairwise() can be used with dose-response data
 
 ### User-visible changes
 

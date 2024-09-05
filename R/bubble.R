@@ -28,7 +28,6 @@
 #' @param pos.studlab Position of study labels, see argument
 #'   \code{pos} in \code{\link{text}}.
 #' @param offset Offset for study labels (see \code{\link{text}}).
-#' @param offset Offset for study labels (see \code{\link{text}}).
 #' @param regline A logical indicating whether a regression line
 #'   should be added to the bubble plot.
 #' @param col.line Colour for the meta-regression line.

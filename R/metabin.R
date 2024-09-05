@@ -1465,7 +1465,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
     if ((!missing(incr) & any(incr != 0)) |
-        allincr |addincr |
+        allincr | addincr |
         (!missing(allstudies) & allstudies)
         )
       if (sm == "ASD") {
