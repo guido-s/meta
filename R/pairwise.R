@@ -1693,7 +1693,10 @@ pairwise <- function(treat,
       if (length(seTE) != narms)
         stop("Different length of lists 'treat' and 'seTE'.",
              call. = FALSE)
-      ##
+      #
+      if ("sm" %in% nam.args)
+        sm <- args$sm
+      #
       for (i in 1:(narms - 1)) {
         ##
         if (i == 1 & (length(treat[[i]]) != length(TE[[i]])))
