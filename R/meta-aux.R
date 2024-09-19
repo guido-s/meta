@@ -308,7 +308,6 @@ backward <- function(x) {
   res
 }
 
-
 ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
   res <- x
   ##
@@ -335,7 +334,6 @@ ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
   res
 }
 
-
 setNAwithin <- function(x, condition) {
   res <- x
   ##
@@ -350,10 +348,8 @@ setNAwithin <- function(x, condition) {
   res
 }
 
-
 extrVar <- function(x, name)
   x[[name]]
-
 
 # Function only used with MLM or GLMM
 #
@@ -389,7 +385,6 @@ calcPI <- function(x) {
   ##
   res
 }
-
 
 runMLM <- function(x, method.tau, method.random.ci, level,
                    warn = TRUE, ...) {
@@ -461,7 +456,6 @@ extrMLM <- function(x, k, len, sel,
   res
 }
 
-
 runGLMM <- function(x, method.tau, method.random.ci, level,
                     use.random = TRUE, warn = TRUE, ...) {
   
@@ -508,7 +502,6 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
   ##
   res
 }
-
 
 addGLMM <- function(x, glmm, method.I2) {
   
@@ -627,7 +620,6 @@ addGLMM <- function(x, glmm, method.I2) {
   res
 }
 
-
 hccGLMM <- function(x, glmm, method.I2) {
   Q.r <- glmm$QE.Wld
   df.Q.r <- glmm$k - glmm$p
@@ -729,7 +721,6 @@ list2vec <- function(x) {
     return(x)
 }
 
-
 em2sm <- function(x, type = NULL) {
   x[x == "Odds Ratio"] <- "OR"
   x[x == "Odds Ratio (Non-event)"] <- "OR"
@@ -769,10 +760,31 @@ setsv <- function(x) {
   setchar(res, c("desirable", "undesirable"))
 }
 
-
 expand <- function(x, y) {
   if (length(x) == 1 & length(y) > 1)
     return(rep_len(x, length(y)))
   else
     return(x)  
+}
+
+expandvar <- function(x, n, length = NULL) {
+  res <- x
+  if (!is.null(length))
+    lenOK <- length(x) == length
+  else
+    lenOK <- TRUE
+  ##
+  if (lenOK & length(x) != n)
+    res <- rep(x, rep_len(n, length(x)))
+  ##
+  res
+}
+
+ignorePair <- function(x, cond) {
+  if (cond)
+    warning("Argument '", deparse(substitute(x)),
+            "' ignored as first argument is a pairwise object.",
+            call. = FALSE)
+  #
+  invisible(NULL)
 }

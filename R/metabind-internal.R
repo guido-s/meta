@@ -661,20 +661,6 @@ makeunique <- function(x, val = NA) {
 }
 
 
-expandvar <- function(x, n, length = NULL) {
-  res <- x
-  if (!is.null(length))
-    lenOK <- length(x) == length
-  else
-    lenOK <- TRUE
-  ##
-  if (lenOK & length(x) != n)
-    res <- rep(x, rep_len(n, length(x)))
-  ##
-  res
-}
-
-
 addNAs2var <- function(x, n) {
   if (n == 1)
     res <- x

@@ -98,7 +98,7 @@ metagen(
 }
 \arguments{
 \item{TE}{Estimate of treatment effect, e.g., log hazard ratio or
-risk difference.}
+risk difference or an R object created with \code{\link{pairwise}}.}
 
 \item{seTE}{Standard error of treatment estimate or standard deviation of
 n-of-1 trials.}
@@ -830,7 +830,7 @@ size, median, range and/or interquartile range.
 }
 \seealso{
 \code{\link{meta-package}}, \code{\link{update.meta}},
-  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{pairwise}},
   \code{\link{print.meta}}, \code{\link{settings.meta}}
 }
 \author{

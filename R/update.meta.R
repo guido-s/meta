@@ -776,7 +776,7 @@ update.meta <- function(object,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args  <- list(...)
+  args <- list(...)
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
@@ -1138,7 +1138,7 @@ update.meta <- function(object,
   ##
   method.predict <- replaceVal(method.predict, "", gs("method.predict"))
   missing.method.bias <- missing(method.bias)
-  ##                               
+  ##
   if (metabin) {
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))

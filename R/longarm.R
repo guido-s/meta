@@ -491,7 +491,7 @@ longarm <- function(treat1, treat2,
     nam <- c("studlab", "treat", if (n.given) "n", "events", "time")
   }
   ##
-  dat.l$treat <- ifelse(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
+  dat.l$treat <- if_else(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
   if (!isCol(dat.l, "studlab") & isCol(dat.l, ".studlab"))
     dat.l$studlab <- dat.l$.studlab
   ##

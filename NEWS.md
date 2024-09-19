@@ -28,6 +28,9 @@
   by the user (in previous version of R package **meta** confidence intervals
   for tau2 and tau were always 95%-CIs while confidence intervals for I2 and H
   were based on the value for argument 'level.ma')
+  
+* First argument to R functions metabin(), metacont(), metagen(), and metainc()
+  can be a pairwise() object
 
 ### User-visible changes
 

@@ -84,8 +84,9 @@ metabin(
 )
 }
 \arguments{
-\item{event.e}{Number of events in experimental group or true
-positives in diagnostic study.}
+\item{event.e}{Number of events in experimental group, or true
+positives in diagnostic study, or an R object
+created with \code{\link{pairwise}}.}
 
 \item{n.e}{Number of observations in experimental group or number
 of ill participants in diagnostic study.}

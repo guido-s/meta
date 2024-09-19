@@ -224,20 +224,20 @@
 #'   reflecting study's weight in the meta-analysis.
 #' @param col.diamond The colour of diamonds representing the results
 #'   for common effect and random effects models.
-#' @param col.diamond.common The colour of diamonds for common effect
+#' @param col.diamond.common The colour(s) of diamonds for common effect
 #'   estimates.
-#' @param col.diamond.random The colour of diamonds for random effects
+#' @param col.diamond.random The colour(s) of diamonds for random effects
 #'   estimates.
 #' @param col.diamond.lines The colour of the outer lines of diamonds
 #'   representing the results for common effect and random effects
 #'   models.
-#' @param col.diamond.lines.common The colour of the outer lines of
+#' @param col.diamond.lines.common The colour(s) of the outer lines of
 #'   diamond for common effect estimate.
-#' @param col.diamond.lines.random The colour of the outer lines of
+#' @param col.diamond.lines.random The colour(s) of the outer lines of
 #'   diamond for random effects estimate.
-#' @param col.predict Background colour of prediction interval.
-#' @param col.predict.lines Colour of outer lines of prediction
-#'   interval.
+#' @param col.predict Background colour(s) of prediction intervals.
+#' @param col.predict.lines Colour(s) of outer lines of prediction
+#'   intervals.
 #' @param col.subgroup The colour to print information on subgroups.
 #' @param col.label.left The colour of the label on the left side of the null
 #'   effect.
@@ -1601,12 +1601,154 @@ forest.meta <- function(x,
   #
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
-     metaprop | metarate | metainf.metacum)
+       metaprop | metarate | metainf.metacum)
   #
   ftr <- x$func.transf
   atr <- x$args.transf
   fbt <- x$func.backtransf
   abt <- x$args.backtransf
+  #
+  args <- list(...)
+  # Check whether first argument is a list. In this case only use
+  # this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  nam.args <- names(args)
+  #
+  # Logical variables for missing arguments
+  #
+  missing.calcwidth.common <- missing(calcwidth.common)
+  missing.col.circle <- missing(col.circle)
+  missing.col.circle.lines <- missing(col.circle.lines)
+  missing.col.common <- missing(col.common)
+  missing.col.diamond <- missing(col.diamond)
+  missing.col.diamond.common <- missing(col.diamond.common)
+  missing.col.diamond.fixed <- is.na(argid(nam.args, "col.diamond.fixed"))
+  missing.col.diamond.fixed.lines <-
+    is.na(argid(nam.args, "col.diamond.fixed.lines"))
+  missing.col.diamond.lines.common <- missing(col.diamond.lines.common)
+  missing.col.diamond.lines.fixed <-
+    is.na(argid(nam.args, "col.diamond.lines.fixed"))
+  missing.col.diamond.lines.random <- missing(col.diamond.lines.random)
+  missing.col.diamond.random <- missing(col.diamond.random)
+  missing.col.inside <- missing(col.inside)
+  missing.col.inside.common <- missing(col.inside.common)
+  missing.col.square <- missing(col.square)
+  missing.col.square.lines <- missing(col.square.lines)
+  missing.col.subgroup <- missing(col.subgroup)
+  missing.common <- missing(common)
+  missing.common.subgroup <- missing(common.subgroup)
+  missing.digits.TE <- missing(digits.TE)
+  missing.digits.addcols <- missing(digits.addcols)
+  missing.digits.addcols.left <- missing(digits.addcols.left)
+  missing.digits.addcols.right <- missing(digits.addcols.right)
+  missing.digits.cor <- missing(digits.cor)
+  missing.digits.mean <- missing(digits.mean)
+  missing.digits.sd <- missing(digits.sd)
+  missing.digits.stat <- missing(digits.stat)
+  missing.digits.time <- missing(digits.time)
+  missing.ff.addline <- missing(ff.addline)
+  missing.ff.common <- missing(ff.common)
+  missing.ff.common.labels <- missing(ff.common.labels)
+  missing.ff.fixed <- is.na(argid(nam.args, "ff.fixed"))
+  missing.ff.fixed.labels <- is.na(argid(nam.args, "ff.fixed.labels"))
+  missing.ff.hetstat <- missing(ff.hetstat)
+  missing.ff.lr <- missing(ff.lr)
+  missing.ff.predict <- missing(ff.predict)
+  missing.ff.predict.labels <- missing(ff.predict.labels)
+  missing.ff.random <- missing(ff.random)
+  missing.ff.random.labels <- missing(ff.random.labels)
+  missing.ff.test.effect.subgroup <- missing(ff.test.effect.subgroup)
+  missing.ff.test.overall <- missing(ff.test.overall)
+  missing.ff.test.subgroup <- missing(ff.test.subgroup)
+  missing.fs.addline <- missing(fs.addline)
+  missing.fs.common <- missing(fs.common)
+  missing.fs.common.labels <- missing(fs.common.labels)
+  missing.fs.fixed <- is.na(argid(nam.args, "fs.fixed"))
+  missing.fs.fixed.labels <- is.na(argid(nam.args, "fs.fixed.labels"))
+  missing.fs.hetstat <- missing(fs.hetstat)
+  missing.fs.predict <- missing(fs.predict)
+  missing.fs.predict.labels <- missing(fs.predict.labels)
+  missing.fs.random <- missing(fs.random)
+  missing.fs.random.labels <- missing(fs.random.labels)
+  missing.fs.test.effect.subgroup <- missing(fs.test.effect.subgroup)
+  missing.fs.test.overall <- missing(fs.test.overall)
+  missing.fs.test.subgroup <- missing(fs.test.subgroup)
+  missing.header.line <- missing(header.line)
+  missing.hetstat <- missing(hetstat)
+  missing.irscale <- missing(irscale)
+  missing.just <- missing(just)
+  missing.label <- missing(label)
+  missing.label.c <- missing(label.c)
+  missing.label.c.attach <- missing(label.c.attach)
+  missing.label.e <- missing(label.e)
+  missing.label.e.attach <- missing(label.e.attach)
+  missing.label.test.effect.subgroup.common <-
+    missing(label.test.effect.subgroup.common)
+  missing.label.test.effect.subgroup.fixed <-
+    is.na(argid(nam.args, "label.test.effect.subgroup.fixed"))
+  missing.label.test.effect.subgroup.random <-
+    missing(label.test.effect.subgroup.random)
+  missing.label.test.overall.common <- missing(label.test.overall.common)
+  missing.label.test.overall.fixed <-
+    is.na(argid(nam.args, "label.test.overall.fixed"))
+  missing.label.test.overall.random <- missing(label.test.overall.random)
+  missing.label.test.subgroup.common <- missing(label.test.subgroup.common)
+  missing.label.test.subgroup.fixed <-
+    is.na(argid(nam.args, "label.test.subgroup.fixed"))
+  missing.label.test.subgroup.random <- missing(label.test.subgroup.random)
+  missing.leftcols <- missing(leftcols)
+  missing.leftlabs <- missing(leftlabs)
+  missing.lty.common <- missing(lty.common)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  missing.pooled.totals <- missing(pooled.totals)
+  missing.prediction.subgroup <- missing(prediction.subgroup)
+  missing.print.I2 <- missing(print.I2)
+  missing.print.Q <- missing(print.Q)
+  missing.print.Rb <- missing(print.Rb)
+  missing.print.pval.Q <- missing(print.pval.Q)
+  missing.print.stat <- missing(print.stat)
+  missing.print.tau <- missing(print.tau)
+  missing.print.tau2 <- missing(print.tau2)
+  missing.pscale <- missing(pscale)
+  missing.random.subgroup <- missing(random.subgroup)
+  missing.ref <- missing(ref)
+  missing.resid.hetstat <- missing(resid.hetstat)
+  missing.rightcols <- missing(rightcols)
+  missing.rightlabs <- missing(rightlabs)
+  missing.smlab.pos <- missing(smlab.pos)
+  missing.sort.subgroup <- missing(sort.subgroup)
+  missing.studlab <- missing(studlab)
+  missing.study.results <- missing(study.results)
+  missing.subgroup <- missing(subgroup)
+  missing.subgroup.hetstat <- missing(subgroup.hetstat)
+  missing.test.effect.subgroup <- missing(test.effect.subgroup)
+  missing.test.effect.subgroup.common <- missing(test.effect.subgroup.common)
+  missing.test.effect.subgroup.random <- missing(test.effect.subgroup.random)
+  missing.test.overall.common <- missing(test.overall.common)
+  missing.test.subgroup.common <- missing(test.subgroup.common)
+  missing.text.addline1 <- missing(text.addline1)
+  missing.text.addline2 <- missing(text.addline2)
+  missing.text.common <- missing(text.common)
+  missing.text.common.w <- is.na(argid(nam.args, "text.common.w"))
+  missing.text.common.w <- missing(text.common.w)
+  missing.text.fixed <- is.na(argid(nam.args, "text.fixed"))
+  missing.text.predict <- missing(text.predict)
+  missing.text.random <- missing(text.random)
+  missing.text.w.common <- missing(text.w.common)
+  missing.type.common <- missing(type.common)
+  missing.type.subgroup <- missing(type.subgroup)
+  missing.type.subgroup.common <- missing(type.subgroup.common)
+  missing.type.subgroup.random <- missing(type.subgroup.random)
+  missing.weight.study <- missing(weight.study)
+  missing.xlab.pos <- missing(xlab.pos)
+  #
+  notavail.digits.addcols.left <-
+    missing.digits.addcols & missing.digits.addcols.left
+  notavail.digits.addcols.right <-
+    missing.digits.addcols & missing.digits.addcols.right
+  #
+  avail.xlim <- !missing(xlim)
   
   
   #
@@ -1653,27 +1795,21 @@ forest.meta <- function(x,
   # (3) Determine columns on left and right side of forest plot
   #
   #
-  missing.leftcols <- missing(leftcols)
-  missing.leftlabs <- missing(leftlabs)
-  missing.rightcols <- missing(rightcols)
-  missing.rightlabs <- missing(rightlabs)
-  #
   layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$subgroup)) {
     warning("Argument 'layout' set to \"meta\" (default) as ",
             "no subgroup analysis was conducted.")
     layout <- "meta"
   }
-  missing.type.subgroup.common <- missing(type.subgroup.common)
   if (layout == "subgroup") {
-    if (missing(type.subgroup))
+    if (missing.type.subgroup)
       type.subgroup <- "square"
     if (missing.type.subgroup.common)
       type.subgroup.common <- "square"
-    if (missing(type.subgroup.random))
+    if (missing.type.subgroup.random)
       type.subgroup.random <- "square"
     #
-    if (missing(pooled.totals))
+    if (missing.pooled.totals)
       pooled.totals <- FALSE
   }
   bmj <- layout == "BMJ"
@@ -1807,9 +1943,9 @@ forest.meta <- function(x,
   newcols <- length(colnames.new) > 0
   #
   withstudlab <-
-    (lsel & missing(leftcols)) |
-    (lsel & !missing(leftcols) & "studlab" %in% leftcols) |
-    (rsel & !missing(rightcols) & "studlab" %in% rightcols)
+    (lsel & missing.leftcols) |
+    (lsel & !missing.leftcols & "studlab" %in% leftcols) |
+    (rsel & !missing.rightcols & "studlab" %in% rightcols)
   #
   if (!withstudlab || newcols) {
     dataset2 <- as.data.frame(x)
@@ -1902,12 +2038,6 @@ forest.meta <- function(x,
   if (!sort)
     sortvar <- 1:K.all
   #
-  missing.subgroup <- missing(subgroup)
-  missing.subgroup.hetstat <- missing(subgroup.hetstat)
-  missing.common.subgroup <- missing(common.subgroup)
-  missing.random.subgroup <- missing(random.subgroup)
-  missing.prediction.subgroup <- missing(prediction.subgroup)
-  #
   if (!by) {
     if (!missing.subgroup)
       warning("Argument 'subgroup' only considered for ",
@@ -1929,21 +2059,20 @@ forest.meta <- function(x,
       warning("Argument 'prediction.subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(test.effect.subgroup))
+    if (!missing.test.effect.subgroup)
       warning("Argument 'test.effect.subgroup' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(test.effect.subgroup.common))
+    if (!missing.test.effect.subgroup.common)
       warning("Argument 'test.effect.subgroup.common' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
-    if (!missing(test.effect.subgroup.random))
+    if (!missing.test.effect.subgroup.random)
       warning("Argument 'test.effect.subgroup.random' only considered for ",
               "meta-analysis with subgroups.",
               call. = FALSE)
   }
   #
-  missing.studlab <- missing(studlab)
   if (!missing.studlab) {
     error <-
       try(studlab <- catch("studlab", mc, x, sfsp),
@@ -1973,38 +2102,34 @@ forest.meta <- function(x,
   #
   # Additional arguments in '...'
   #
-  args <- list(...)
-  # Check whether first argument is a list. In this case only use
-  # this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
-  #
-  common <- deprecated(common, missing(common), args, "fixed",
+  common <- deprecated(common, missing.common, args, "fixed",
                        warn.deprecated)
   chklogical(common)
   chklogical(random)
   overall <- replaceNULL(overall, common | random)
   chklogical(overall)
   #
-  lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
+  lty.common <- deprecated(lty.common, missing.lty.common, args, "lty.fixed",
                            warn.deprecated)
   if (!is.null(lty.common))
     chknumeric(lty.common, length = 1)
   if (!is.null(lty.random))
     chknumeric(lty.random, length = 1)
-  col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
+  col.common <- deprecated(col.common, missing.col.common, args, "col.fixed",
                            warn.deprecated)
   chkcolor(col.common, length = 1)
   chkcolor(col.random, length = 1)
   chklogical(prediction)
   #
   chklogical(print.subgroup.labels)
+  #
   if (!is.null(print.subgroup.name))
     chklogical(print.subgroup.name)
+  #
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup)
   #
-  sort.subgroup <- deprecated(sort.subgroup, missing(sort.subgroup),
+  sort.subgroup <- deprecated(sort.subgroup, missing.sort.subgroup,
                               args, "bysort", warn.deprecated)
   chklogical(sort.subgroup)
   #
@@ -2047,14 +2172,11 @@ forest.meta <- function(x,
   #
   if (!is.null(dev.off))
     chklogical(dev.off)
+  else if (!is.null(file) | !is.null(func.gr))
+    dev.off <- TRUE
   else
-    dev.off <-
-      if (!is.null(file) | !is.null(func.gr))
-        TRUE
-      else
-        FALSE
+    dev.off <- FALSE
   #
-  missing.ref <- missing(ref)
   # Use logarithmic x-axis?
   # (for back-transformed relative effect measures)
   log.xaxis <-
@@ -2111,21 +2233,23 @@ forest.meta <- function(x,
     stop("Values of 'upper.equi' must be increasing.",
          call. = FALSE)
   #
-  if (!is.na(max.lower.equi))
+  if (!is.na(max.lower.equi)) {
     if (length(fill.lower.equi) == 1 & sum(!is.na(lower.equi)) > 1)
       fill.lower.equi <- rep(fill.lower.equi, sum(!is.na(lower.equi)))
     else if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'lower.equi' or +1.",
            call. = FALSE)
+  }
   #
-  if (!is.na(min.upper.equi))
+  if (!is.na(min.upper.equi)) {
     if (length(fill.upper.equi) == 1 & sum(!is.na(upper.equi)) > 1)
       fill.upper.equi <- rep(fill.upper.equi, sum(!is.na(upper.equi)))
     else if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'upper.equi' or +1.",
            call. = FALSE)
+  }
   #
   chknumeric(lty.equi)
   chkcolor(col.equi)
@@ -2133,9 +2257,9 @@ forest.meta <- function(x,
   if (bmj)
     type.study <- "squarediamond"
   else
-    type.study <-
-      setchar(type.study,
-              c("square", "diamond", "predict", "circle", "squarediamond"))
+    type.study <- setchar(type.study,
+                          c("square", "diamond", "predict", "circle",
+                            "squarediamond"))
   #
   type.common <-
     setchar(type.common,
@@ -2157,57 +2281,53 @@ forest.meta <- function(x,
             c("square", "diamond", "predict", "circle", "squarediamond"))
   #
   chklogical(bottom.lr)
+  #
   chkchar(lab.NA)
-  if (is.null(lab.NA.effect))
+  if (is.null(lab.NA.effect)) {
     if (metainf.metacum)
       lab.NA.effect <- lab.NA
     else
       lab.NA.effect <- ""
+  }
+  #
   chkchar(lab.NA.effect)
   chkchar(lab.NA.weight)
   if (!is.null(at))
     chknumeric(at)
-  chkcolor(col.diamond)
+  #
+  chkcolor(col.diamond, length = 1)
   chkcolor(col.diamond.random)
   chkcolor(col.predict)
   chkcolor(col.predict.lines)
   #
   chkcolor(col.lines)
   #
-  col.subgroup <- deprecated(col.subgroup, missing(col.subgroup), args,
+  col.subgroup <- deprecated(col.subgroup, missing.col.subgroup, args,
                              "col.by", warn.deprecated)
-  #
-  missing.hetstat <- missing(hetstat)
-  missing.overall.hetstat <- missing(overall.hetstat)
   #
   overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
   chklogical(overall.hetstat)
   #
-  missing.print.I2 <- missing(print.I2)
-  missing.print.tau2 <- missing(print.tau2)
-  missing.print.tau <- missing(print.tau)
-  missing.print.Q <- missing(print.Q)
-  missing.print.pval.Q <- missing(print.pval.Q)
-  missing.print.Rb <- missing(print.Rb)
-  #
   col.label.left <- replaceNULL(col.label.left, gs("col.label.left"))
   col.label.right <- replaceNULL(col.label.right, gs("col.label.right"))
   #
-  if (is.null(print.I2))
+  if (is.null(print.I2)) {
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.I2 <- TRUE
     else
       print.I2 <- FALSE
+  }
   else
     chklogical(print.I2)
   #
   chklogical(print.I2.ci)
   #
-  if (is.null(print.tau2))
+  if (is.null(print.tau2)) {
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.tau2 <- TRUE
     else
       print.tau2 <- FALSE
+  }
   else
     chklogical(print.tau2)
   #
@@ -2224,11 +2344,12 @@ forest.meta <- function(x,
   #
   chklogical(print.Q)
   #
-  if (is.null(print.pval.Q))
+  if (is.null(print.pval.Q)) {
     if (is.character(hetstat) || hetstat || overall.hetstat)
       print.pval.Q <- TRUE
     else
       print.pval.Q <- FALSE
+  }
   else
     chklogical(print.pval.Q)
   #
@@ -2305,11 +2426,12 @@ forest.meta <- function(x,
   }
   #
   if (missing.overall.hetstat) {
-    if (!missing.hetstat)
+    if (!missing.hetstat) {
       if (is.character(hetstat))
         overall.hetstat <- FALSE
       else
         overall.hetstat <- hetstat
+    }
   }
   else
     chklogical(overall.hetstat)
@@ -2334,7 +2456,7 @@ forest.meta <- function(x,
   chkchar(resid.hetlab)
   #
   test.overall.common <-
-    deprecated(test.overall.common, missing(test.overall.common),
+    deprecated(test.overall.common, missing.test.overall.common,
                args, "test.overall.fixed",
                warn.deprecated)
   chklogical(test.overall.common)
@@ -2343,7 +2465,7 @@ forest.meta <- function(x,
   test.subgroup <- replaceNULL(test.subgroup, TRUE)
   chklogical(test.subgroup)
   test.subgroup.common <-
-    deprecated(test.subgroup.common, missing(test.subgroup.common),
+    deprecated(test.subgroup.common, missing.test.subgroup.common,
                args, "test.subgroup.fixed",
                warn.deprecated)
   chklogical(test.subgroup.common)
@@ -2351,7 +2473,7 @@ forest.meta <- function(x,
   #
   chklogical(print.Q.subgroup)
   #
-  if (missing(header.line)) {
+  if (missing.header.line) {
     if (is.character(gs("header.line")))
       header.line <- gs("header.line")
     else
@@ -2381,14 +2503,13 @@ forest.meta <- function(x,
   #
   chknumeric(fs.heading, length = 1)
   #
-  missing.fs.common <- missing(fs.common)
-  missing.fs.fixed <- is.na(argid(names(args), "fs.fixed"))
   if (!missing.fs.fixed) {
     fs.common <-
       deprecated(fs.common, missing.fs.common, args, "fs.fixed",
                  warn.deprecated)
     missing.fs.common <- FALSE
   }
+  #
   if (!missing.fs.common)
     chknumeric(fs.common, length = 1)
   #
@@ -2397,8 +2518,6 @@ forest.meta <- function(x,
   if (!is.null(fs.predict))
     chknumeric(fs.predict, length = 1)
   #
-  missing.fs.common.labels <- missing(fs.common.labels)
-  missing.fs.fixed.labels <- is.na(argid(names(args), "fs.fixed.labels"))
   if (!missing.fs.fixed.labels) {
     fs.common.labels <-
       deprecated(fs.common.labels, missing.fs.common.labels,
@@ -2432,11 +2551,6 @@ forest.meta <- function(x,
   chknumeric(fs.xlab, length = 1)
   chknumeric(fs.lr, length = 1)
   #
-  missing.ff.common <- missing(ff.common)
-  missing.ff.random <- missing(ff.random)
-  missing.ff.predict <- missing(ff.predict)
-  #
-  missing.ff.fixed <- is.na(argid(names(args), "ff.fixed"))
   if (!missing.ff.fixed) {
     ff.common <-
       deprecated(ff.common, missing.ff.common, args, "ff.fixed",
@@ -2444,8 +2558,6 @@ forest.meta <- function(x,
     missing.ff.common <- FALSE
   }
   #
-  missing.ff.common.labels <- missing(ff.common.labels)
-  missing.ff.fixed.labels <- is.na(argid(names(args), "ff.fixed.labels"))
   if (!missing.ff.fixed.labels) {
     ff.common.labels <-
       deprecated(ff.common.labels, missing.ff.common.labels,
@@ -2464,7 +2576,7 @@ forest.meta <- function(x,
   #
   chklogical(calcwidth.pooled)
   calcwidth.common <-
-    deprecated(calcwidth.common, missing(calcwidth.common),
+    deprecated(calcwidth.common, missing.calcwidth.common,
                args, "calcwidth.fixed",
                warn.deprecated)
   chklogical(calcwidth.common)
@@ -2475,7 +2587,6 @@ forest.meta <- function(x,
   chklogical(calcwidth.subgroup)
   chklogical(calcwidth.addline)
   #
-  missing.just <- missing(just)
   if (missing.just && bmj)
     just <- "center"
   just.cols <- setchar(just, c("right", "center", "left"))
@@ -2492,7 +2603,6 @@ forest.meta <- function(x,
   #
   chknumeric(spacing, length = 1)
   #
-  missing.text.addline1 <- missing(text.addline1)
   if (!missing.text.addline1) {
     chkchar(text.addline1)
     if (text.addline1 == "")
@@ -2501,7 +2611,6 @@ forest.meta <- function(x,
   else
     text.addline1 <- ""
   #
-  missing.text.addline2 <- missing(text.addline2)
   if (!missing.text.addline2) {
     chkchar(text.addline2)
     if (text.addline2 == "")
@@ -2535,29 +2644,23 @@ forest.meta <- function(x,
   chknumeric(digits.Q, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
-  if (!missing(digits.mean))
+  if (!missing.digits.mean)
     chknumeric(digits.mean, min = 0, length = 1)
-  if (!missing(digits.sd))
+  if (!missing.digits.sd)
     chknumeric(digits.sd, min = 0, length = 1)
-  if (!missing(digits.cor))
+  if (!missing.digits.cor)
     chknumeric(digits.cor, min = 0, length = 1)
-  missing.digits.time <- missing(digits.time)
   if (!missing.digits.time)
     chknumeric(digits.time, min = 0, length = 1)
   chknumeric(digits.n, min = 0, length = 1)
   chknumeric(digits.event, min = 0, length = 1)
-  missing.digits.TE <- missing(digits.TE)
   if (!missing.digits.TE)
     chknumeric(digits.TE, min = 0, length = 1)
-  missing.addcols.left <-
-    missing(digits.addcols) & missing(digits.addcols.left)
-  missing.addcols.right <-
-    missing(digits.addcols) & missing(digits.addcols.right)
-  if (!missing(digits.addcols))
+  if (!missing.digits.addcols)
     chknumeric(digits.addcols, min = 0)
-  if (!missing(digits.addcols.right))
+  if (!missing.digits.addcols.right)
     chknumeric(digits.addcols.right, min = 0)
-  if (!missing(digits.addcols.left))
+  if (!missing.digits.addcols.left)
     chknumeric(digits.addcols.left, min = 0)
   chklogical(scientific.pval)
   chklogical(zero.pval)
@@ -2566,54 +2669,54 @@ forest.meta <- function(x,
   # Check for deprecated arguments in '...'
   #
   weight.study <-
-    deprecated(weight.study, missing(weight.study), args, "weight",
+    deprecated(weight.study, missing.weight.study, args, "weight",
                warn.deprecated)
-  if (missing(weight.study) || is.null(weight.study))
+  if (missing.weight.study || is.null(weight.study))
     weight.study <- ifelse(random & !common, "random", "common")
   weight.study <- setchar(weight.study, c("same", "common", "random", "fixed"))
   weight.study[weight.study == "fixed"] <- "common"
   #
   digits.stat <-
-    deprecated(digits.stat, missing(digits.stat), args, "digits.zval",
+    deprecated(digits.stat, missing.digits.stat, args, "digits.zval",
                warn.deprecated)
   chknumeric(digits.stat, min = 0, length = 1)
   #
   print.stat <-
-    deprecated(print.stat, missing(print.stat), args, "print.zval",
+    deprecated(print.stat, missing.print.stat, args, "print.zval",
                warn.deprecated)
   chklogical(print.stat)
   #
-  label <- deprecated(label, missing(label), args, "labels",
+  label <- deprecated(label, missing.label, args, "labels",
                       warn.deprecated)
   #
-  label.e <- deprecated(label.e, missing(label.e), args, "lab.e",
+  label.e <- deprecated(label.e, missing.label.e, args, "lab.e",
                         warn.deprecated)
-  label.c <- deprecated(label.c, missing(label.c), args, "lab.c",
+  label.c <- deprecated(label.c, missing.label.c, args, "lab.c",
                         warn.deprecated)
   #
-  label.e.attach <- deprecated(label.e.attach, missing(label.e.attach),
+  label.e.attach <- deprecated(label.e.attach, missing.label.e.attach,
                                args, "lab.e.attach.to.col",
                                warn.deprecated)
-  label.c.attach <- deprecated(label.c.attach, missing(label.c.attach),
+  label.c.attach <- deprecated(label.c.attach, missing.label.c.attach,
                                args, "lab.c.attach.to.col",
                                warn.deprecated)
   #
   col.inside <-
-    deprecated(col.inside, missing(col.inside), args, "col.i.inside.square",
+    deprecated(col.inside, missing.col.inside, args, "col.i.inside.square",
                warn.deprecated)
   chkcolor(col.inside)
   chkcolor(col.inside.common)
   chkcolor(col.inside.random)
   #
-  if (!is.na(argid(names(args), "col.diamond.lines.fixed"))) {
+  if (!missing.col.diamond.lines.fixed) {
     col.diamond.lines.common <-
-      deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
+      deprecated(col.diamond.lines.common, missing.col.diamond.lines.common,
                  args, "col.diamond.lines.fixed",
                  warn.deprecated)
   }
-  else if (!is.na(argid(names(args), "col.diamond.fixed.lines"))) {
+  else if (!missing.col.diamond.fixed.lines) {
     col.diamond.lines.common <-
-      deprecated(col.diamond.lines.common, missing(col.diamond.lines.common),
+      deprecated(col.diamond.lines.common, missing.col.diamond.lines.common,
                  args, "col.diamond.fixed.lines",
                  warn.deprecated)
   }
@@ -2621,7 +2724,7 @@ forest.meta <- function(x,
   chkcolor(col.diamond.lines.common)
   #
   col.diamond.lines.random <-
-    deprecated(col.diamond.lines.random, missing(col.diamond.lines.random),
+    deprecated(col.diamond.lines.random, missing.col.diamond.lines.random,
                args, "col.diamond.random.lines",
                warn.deprecated)
   chkcolor(col.diamond.lines.random)
@@ -2631,176 +2734,176 @@ forest.meta <- function(x,
   if (bmj) {
     if (missing.ff.common)
       ff.common <- "plain"
-    if (missing(ff.random))
+    if (missing.ff.random)
       ff.random <- ff.common
-    if (missing(ff.predict))
+    if (missing.ff.predict)
       ff.predict <- ff.common
     if (missing.ff.common.labels)
       ff.common.labels <- ff.common
-    if (missing(ff.random.labels))
+    if (missing.ff.random.labels)
       ff.random.labels <- ff.random
-    if (missing(ff.predict.labels))
+    if (missing.ff.predict.labels)
       ff.predict.labels <- ff.predict
     #
     if (missing.fs.common)
       fs.common <- fontsize
-    if (missing(fs.random))
+    if (missing.fs.random)
       fs.random <- fs.common
-    if (missing(fs.predict))
+    if (missing.fs.predict)
       fs.predict <- fs.common
     if (missing.fs.common.labels)
       fs.common.labels <- fs.common
-    if (missing(fs.random.labels))
+    if (missing.fs.random.labels)
       fs.random.labels <- fs.random
-    if (missing(fs.predict.labels))
+    if (missing.fs.predict.labels)
       fs.predict.labels <- fs.predict
   }
   else if (jama) {
     if (missing.ff.common)
       ff.common <- "plain"
-    if (missing(ff.random))
+    if (missing.ff.random)
       ff.random <- ff.common
-    if (missing(ff.predict))
+    if (missing.ff.predict)
       ff.predict <- ff.common
     if (missing.ff.common.labels)
       ff.common.labels <- ff.common
-    if (missing(ff.random.labels))
+    if (missing.ff.random.labels)
       ff.random.labels <- ff.random
-    if (missing(ff.predict.labels))
+    if (missing.ff.predict.labels)
       ff.predict.labels <- ff.predict
     #
     if (missing.fs.common)
       fs.common <- fontsize
-    if (missing(fs.random))
+    if (missing.fs.random)
       fs.random <- fs.common
-    if (missing(fs.predict))
+    if (missing.fs.predict)
       fs.predict <- fs.common
     if (missing.fs.common.labels)
       fs.common.labels <- fs.common
-    if (missing(fs.random.labels))
+    if (missing.fs.random.labels)
       fs.random.labels <- fs.random
-    if (missing(fs.predict.labels))
+    if (missing.fs.predict.labels)
       fs.predict.labels <- fs.predict
   }
   else {
     if (missing.ff.common)
       ff.common <- "bold"
-    if (missing(ff.random))
+    if (missing.ff.random)
       ff.random <- ff.common
-    if (missing(ff.predict))
+    if (missing.ff.predict)
       ff.predict <- ff.common
     if (missing.ff.common.labels)
       ff.common.labels <- ff.common
-    if (missing(ff.random.labels))
+    if (missing.ff.random.labels)
       ff.random.labels <- ff.random
-    if (missing(ff.predict.labels))
+    if (missing.ff.predict.labels)
       ff.predict.labels <- ff.predict
     #
     if (missing.fs.common)
       fs.common <- fontsize
-    if (missing(fs.random))
+    if (missing.fs.random)
       fs.random <- fs.common
-    if (missing(fs.predict))
+    if (missing.fs.predict)
       fs.predict <- fs.common
     if (missing.fs.common.labels)
       fs.common.labels <- fs.common
-    if (missing(fs.random.labels))
+    if (missing.fs.random.labels)
       fs.random.labels <- fs.random
-    if (missing(fs.predict.labels))
+    if (missing.fs.predict.labels)
       fs.predict.labels <- fs.predict
   }
   hetseparator <- " = "
   #
   if (bmj) {
-    if (missing(ff.hetstat))
+    if (missing.ff.hetstat)
       ff.hetstat <- "plain"
-    if (missing(ff.test.overall))
+    if (missing.ff.test.overall)
       ff.test.overall <- ff.hetstat
-    if (missing(ff.test.subgroup))
+    if (missing.ff.test.subgroup)
       ff.test.subgroup <- ff.hetstat
-    if (missing(ff.test.effect.subgroup))
+    if (missing.ff.test.effect.subgroup)
       ff.test.effect.subgroup <- ff.hetstat
-    if (missing(ff.addline))
+    if (missing.ff.addline)
       ff.addline <- ff.hetstat
     #
-    if (missing(fs.hetstat))
+    if (missing.fs.hetstat)
       fs.hetstat <- fontsize - 1
-    if (missing(fs.test.overall))
+    if (missing.fs.test.overall)
       fs.test.overall <- fs.hetstat
-    if (missing(fs.test.subgroup))
+    if (missing.fs.test.subgroup)
       fs.test.subgroup <- fs.hetstat
-    if (missing(fs.test.effect.subgroup))
+    if (missing.fs.test.effect.subgroup)
       fs.test.effect.subgroup <- fs.hetstat
-    if (missing(fs.addline))
+    if (missing.fs.addline)
       fs.addline <- fs.hetstat
   }
   else if (revman5) {
-    if (missing(ff.hetstat))
+    if (missing.ff.hetstat)
       ff.hetstat <- "plain"
-    if (missing(ff.test.overall))
+    if (missing.ff.test.overall)
       ff.test.overall <- ff.hetstat
-    if (missing(ff.test.subgroup))
+    if (missing.ff.test.subgroup)
       ff.test.subgroup <- ff.hetstat
-    if (missing(ff.test.effect.subgroup))
+    if (missing.ff.test.effect.subgroup)
       ff.test.effect.subgroup <- ff.hetstat
-    if (missing(ff.addline))
+    if (missing.ff.addline)
       ff.addline <- ff.hetstat
     #
-    if (missing(fs.hetstat))
+    if (missing.fs.hetstat)
       fs.hetstat <- fontsize - 1
-    if (missing(fs.test.overall))
+    if (missing.fs.test.overall)
       fs.test.overall <- fs.hetstat
-    if (missing(fs.test.subgroup))
+    if (missing.fs.test.subgroup)
       fs.test.subgroup <- fs.hetstat
-    if (missing(fs.test.effect.subgroup))
+    if (missing.fs.test.effect.subgroup)
       fs.test.effect.subgroup <- fs.hetstat
-    if (missing(fs.addline))
+    if (missing.fs.addline)
       fs.addline <- fs.hetstat
   }
   else if (jama) {
-    if (missing(ff.hetstat))
+    if (missing.ff.hetstat)
       ff.hetstat <- "plain"
-    if (missing(ff.test.overall))
+    if (missing.ff.test.overall)
       ff.test.overall <- ff.hetstat
-    if (missing(ff.test.subgroup))
+    if (missing.ff.test.subgroup)
       ff.test.subgroup <- ff.hetstat
-    if (missing(ff.test.effect.subgroup))
+    if (missing.ff.test.effect.subgroup)
       ff.test.effect.subgroup <- ff.hetstat
-    if (missing(ff.addline))
+    if (missing.ff.addline)
       ff.addline <- ff.hetstat
     #
-    if (missing(fs.hetstat))
+    if (missing.fs.hetstat)
       fs.hetstat <- fontsize - 1
-    if (missing(fs.test.overall))
+    if (missing.fs.test.overall)
       fs.test.overall <- fs.hetstat
-    if (missing(fs.test.subgroup))
+    if (missing.fs.test.subgroup)
       fs.test.subgroup <- fs.hetstat
-    if (missing(fs.test.effect.subgroup))
+    if (missing.fs.test.effect.subgroup)
       fs.test.effect.subgroup <- fs.hetstat
-    if (missing(fs.addline))
+    if (missing.fs.addline)
       fs.addline <- fs.hetstat
   }
   else {
-    if (missing(ff.hetstat))
+    if (missing.ff.hetstat)
       ff.hetstat <- "plain"
-    if (missing(ff.test.overall))
+    if (missing.ff.test.overall)
       ff.test.overall <- ff.hetstat
-    if (missing(ff.test.subgroup))
+    if (missing.ff.test.subgroup)
       ff.test.subgroup <- ff.hetstat
-    if (missing(ff.test.effect.subgroup))
+    if (missing.ff.test.effect.subgroup)
       ff.test.effect.subgroup <- ff.hetstat
-    if (missing(ff.addline))
+    if (missing.ff.addline)
       ff.addline <- ff.hetstat
     #
-    if (missing(fs.hetstat))
+    if (missing.fs.hetstat)
       fs.hetstat <- fontsize - 1
-    if (missing(fs.test.overall))
+    if (missing.fs.test.overall)
       fs.test.overall <- fs.hetstat
-    if (missing(fs.test.subgroup))
+    if (missing.fs.test.subgroup)
       fs.test.subgroup <- fs.hetstat
-    if (missing(fs.test.effect.subgroup))
+    if (missing.fs.test.effect.subgroup)
       fs.test.effect.subgroup <- fs.hetstat
-    if (missing(fs.addline))
+    if (missing.fs.addline)
       fs.addline <- fs.hetstat
   }
   #
@@ -2824,8 +2927,6 @@ forest.meta <- function(x,
   else
     chklength(col.inside, K.all, fun)
   #
-  miss.col.square <- missing(col.square)
-  miss.col.square.lines <- missing(col.square.lines)
   if (length(col.square) == 1)
     col.square <- rep(col.square, K.all)
   else
@@ -2836,8 +2937,6 @@ forest.meta <- function(x,
   else
     chklength(col.square.lines, K.all, fun)
   #
-  miss.col.circle <- missing(col.circle)
-  miss.col.circle.lines <- missing(col.circle.lines)
   if (length(col.circle) == 1)
     col.circle <- rep(col.circle, K.all)
   else
@@ -2946,7 +3045,7 @@ forest.meta <- function(x,
     chklogical(random.subgroup[1])
     chklogical(prediction.subgroup[1])
     #
-    if (!missing(test.effect.subgroup)) {
+    if (!missing.test.effect.subgroup) {
       test.effect.subgroup <-
         catch("test.effect.subgroup", mc, x, sfsp)
       test.effect.subgroup <- replaceNULL(test.effect.subgroup, FALSE)
@@ -2970,7 +3069,7 @@ forest.meta <- function(x,
       test.effect.subgroup.logical <-
         rep(test.effect.subgroup, n.by) & subgroup.logical
     #
-    if (missing(test.effect.subgroup.common))
+    if (missing.test.effect.subgroup.common)
       test.effect.subgroup.common.logical <-
         common & test.effect.subgroup.logical
     else {
@@ -2996,7 +3095,7 @@ forest.meta <- function(x,
       }
     }
     #
-    if (missing(test.effect.subgroup.random))
+    if (missing.test.effect.subgroup.random)
       test.effect.subgroup.random.logical <-
         random & test.effect.subgroup.logical
     else {
@@ -3049,14 +3148,12 @@ forest.meta <- function(x,
       any(random | test.subgroup.random | test.effect.subgroup.random.logical)
   #
   if (layout == "subgroup") {
-    if (!missing(study.results) & study.results)
+    if (!missing.study.results & study.results)
       warning("Argument 'study.results' set to FALSE as ",
               "argument 'layout' is \"subgroup\".")
     study.results <- FALSE
   }
   #
-  missing.text.common <- missing(text.common)
-  missing.text.fixed <- is.na(argid(names(args), "text.fixed"))
   if (!missing.text.fixed) {
     text.common <-
       deprecated(text.common, missing.text.common, args, "text.fixed",
@@ -3098,7 +3195,6 @@ forest.meta <- function(x,
     }
   }
   #
-  missing.text.random <- missing(text.random)
   if (missing.text.random | is.null(text.random)) {
     if (is.null(text.random) || length(text.random) == 1) {
       if (study.results & (x$level != x$level.ma | bmj.revman5)) {
@@ -3177,7 +3273,6 @@ forest.meta <- function(x,
   if (length(text.random) == 1 & n.ran > 1)
     text.random <- rep(text.random, n.ran)
   #
-  missing.text.predict <- missing(text.predict)
   if (missing.text.predict | is.null(text.predict)) {
     if (is.null(text.predict))
       text.predict <- rep("Prediction interval", n.prd)
@@ -3244,12 +3339,12 @@ forest.meta <- function(x,
   #
   chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   #
-  notmiss.xlim <- !missing(xlim)
-  if (!notmiss.xlim) {
+  if (!avail.xlim) {
     if (metaprop || metarate || metamean ||
         (metabind & sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean")))) {
       xlim <- NULL
-      notmiss.xlim <- FALSE
+      #
+      avail.xlim <- FALSE
     }
     else
       xlim <- "symmetric"
@@ -3275,7 +3370,7 @@ forest.meta <- function(x,
     upper.equi <- log(upper.equi)
   }
   #
-  if (!backtransf & !missing(pscale) & pscale != 1 & !is_untransformed(sm)) {
+  if (!backtransf & !missing.pscale & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
@@ -3283,7 +3378,7 @@ forest.meta <- function(x,
   if (!backtransf & pscale != 1)
     pscale <- 1
   #
-  if (!backtransf & !missing(irscale) & irscale != 1 & !is_untransformed(sm)) {
+  if (!backtransf & !missing.irscale & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
@@ -3336,7 +3431,7 @@ forest.meta <- function(x,
   #
   if (resid.hetstat &&
       (!by || (by && is.null(x$tau.common) || !x$tau.common))) {
-    if (!missing(resid.hetstat))
+    if (!missing.resid.hetstat)
       warning("Information on residual heterogeneity only added to ",
               "forest plot of meta-analysis with subgroups ",
               "assuming common estimator for between-study heterogeneity ",
@@ -3356,9 +3451,6 @@ forest.meta <- function(x,
   colgap.rob <- setunit(colgap.rob)
   colgap.rob.overall <- setunit(colgap.rob.overall)
   #
-  missing.label.test.overall.common <- missing(label.test.overall.common)
-  missing.label.test.overall.fixed <-
-    is.na(argid(names(args), "label.test.overall.fixed"))
   if (!missing.label.test.overall.fixed) {
     label.test.overall.common <-
       deprecated(label.test.overall.common, missing.label.test.overall.common,
@@ -3372,16 +3464,13 @@ forest.meta <- function(x,
              if (common.random)
                paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
-  if (missing(label.test.overall.random))
+  if (missing.label.test.overall.random)
     label.test.overall.random <-
       paste0("Test for overall effect",
              if (common.random)
                paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   #
-  missing.label.test.subgroup.common <- missing(label.test.subgroup.common)
-  missing.label.test.subgroup.fixed <-
-    is.na(argid(names(args), "label.test.subgroup.fixed"))
   if (!missing.label.test.subgroup.fixed) {
     label.test.subgroup.common <-
       deprecated(label.test.subgroup.common,
@@ -3396,17 +3485,13 @@ forest.meta <- function(x,
              if (common.random)
                paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
-  if (missing(label.test.subgroup.random))
+  if (missing.label.test.subgroup.random)
     label.test.subgroup.random <-
       paste0("Test for subgroup differences",
              if (common.random)
                paste0(" (", gs("text.w.random"), " effects)"),
              ": ")
   #
-  missing.label.test.effect.subgroup.common <-
-    missing(label.test.effect.subgroup.common)
-  missing.label.test.effect.subgroup.fixed <-
-    is.na(argid(names(args), "label.test.effect.subgroup.fixed"))
   if (!missing.label.test.effect.subgroup.fixed) {
     label.test.effect.subgroup.common <-
       deprecated(label.test.effect.subgroup.common,
@@ -3424,7 +3509,7 @@ forest.meta <- function(x,
              if (common.random)
                paste0(" (", gs("text.w.common"), " effect)"),
              ": ")
-  if (missing(label.test.effect.subgroup.random))
+  if (missing.label.test.effect.subgroup.random)
     label.test.effect.subgroup.random <-
       paste0(if (bmj.revman5.jama)
                "Test for overall effect"
@@ -3490,8 +3575,6 @@ forest.meta <- function(x,
   else
     ci.lab <- paste0(100 * level.ma, "%", cisep, "CI")
   #
-  missing.col.diamond.common <- missing(col.diamond.common)
-  missing.col.diamond.fixed <- is.na(argid(names(args), "col.diamond.fixed"))
   if (!missing.col.diamond.fixed) {
     col.diamond.common <-
       deprecated(col.diamond.common, missing.col.diamond.common,
@@ -3502,24 +3585,24 @@ forest.meta <- function(x,
   chkcolor(col.diamond.common)
   #
   if (jama) {
-    if (missing(ff.lr))
+    if (missing.ff.lr)
       ff.lr <- "bold"
     if (xlab == "")
       xlab <- paste0(sm.lab, " (", ci.lab, ")")
     #
-    if (miss.col.square)
+    if (missing.col.square)
       col.square <- rep("darkblue", K.all)
-    if (miss.col.square.lines)
+    if (missing.col.square.lines)
       col.square.lines <- rep("darkblue", K.all)
     #
-    if (miss.col.circle)
+    if (missing.col.circle)
       col.circle <- rep("darkblue", K.all)
-    if (miss.col.circle.lines)
+    if (missing.col.circle.lines)
       col.circle.lines <- rep("darkblue", K.all)
     #
     if (missing.col.diamond.common)
       col.diamond.common <- "lightblue"
-    if (missing(col.diamond.random))
+    if (missing.col.diamond.random)
       col.diamond.random <- "lightblue"
     #
     smlab <- ""
@@ -3527,7 +3610,7 @@ forest.meta <- function(x,
   }
   else {
     if (revman5) {
-      if (miss.col.square) {
+      if (missing.col.square) {
         if (metacont | metamean)
           col.square <- rep("green", K.all)
         else if (metabin)
@@ -3535,7 +3618,7 @@ forest.meta <- function(x,
         else
           col.square <- rep("red", K.all)
       }
-      if (miss.col.square.lines) {
+      if (missing.col.square.lines) {
         if (metacont | metamean)
           col.square.lines <- rep("green", K.all)
         else if (metabin)
@@ -3544,7 +3627,7 @@ forest.meta <- function(x,
           col.square.lines <- rep("red", K.all)
       }
       #
-      if (miss.col.circle) {
+      if (missing.col.circle) {
         if (metacont | metamean)
           col.circle <- rep("green", K.all)
         else if (metabin)
@@ -3552,7 +3635,7 @@ forest.meta <- function(x,
         else
           col.circle <- rep("red", K.all)
       }
-      if (miss.col.circle.lines) {
+      if (missing.col.circle.lines) {
         if (metacont | metamean)
           col.circle.lines <- rep("green", K.all)
         else if (metabin)
@@ -3563,7 +3646,7 @@ forest.meta <- function(x,
       #
       if (missing.col.diamond.common)
         col.diamond.common <- "black"
-      if (missing(col.diamond.random))
+      if (missing.col.diamond.random)
         col.diamond.random <- "black"
       #
       sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
@@ -3621,7 +3704,7 @@ forest.meta <- function(x,
   }
   else {
     text.w.common <-
-      deprecated(text.w.common, missing(text.w.common), args, "text.w.fixed",
+      deprecated(text.w.common, missing.text.w.common, args, "text.w.fixed",
                  warn.deprecated)
     #
     if (bmj) {
@@ -6680,8 +6763,6 @@ forest.meta <- function(x,
       #
       w.common.w.p <- NAs.by
       #
-      missing.text.common.w <- missing(text.common.w)
-      missing.text.common.w <- is.na(argid(names(args), "text.common.w"))
       if (!missing.text.common.w) {
         text.common.w <-
           deprecated(text.common.w, missing.text.common.w, args,
@@ -6689,7 +6770,7 @@ forest.meta <- function(x,
                      warn.deprecated)
         missing.text.common.w <- FALSE
       }
-      if (missing(text.common.w))
+      if (missing.text.common.w)
         text.common.w <- rep("Overall", n.com.w)
     }
     #
@@ -8714,7 +8795,7 @@ forest.meta <- function(x,
   #
   #
   type.common <-
-    deprecated(type.common, missing(type.common),
+    deprecated(type.common, missing.type.common,
                args, "type.common",
                warn.deprecated)
   #
@@ -8724,9 +8805,37 @@ forest.meta <- function(x,
                warn.deprecated)
   #
   col.inside.common <-
-    deprecated(col.inside.common, missing(col.inside.common),
+    deprecated(col.inside.common, missing.col.inside.common,
                args, "col.inside.common",
                warn.deprecated)
+  #
+  # Set / check correct length of variables
+  #
+  col.diamond.common <-
+    setlength(col.diamond.common, n.com, "number of common effect estimates")
+  #
+  col.diamond.random <-
+    setlength(col.diamond.random, n.ran, "number of random effect estimates")
+  #
+  col.predict <-
+    setlength(col.predict, n.prd, "number of prediction intervals")
+  #
+  col.diamond.lines.common <-
+    setlength(col.diamond.lines.common, n.com,
+              "number of common effect estimates")
+  #
+  col.diamond.lines.random <-
+    setlength(col.diamond.lines.random, n.ran,
+              "number of random effect estimates")
+  #
+  col.predict.lines <-
+    setlength(col.predict.lines, n.prd, "number of prediction intervals")
+  #
+  col.inside.common <-
+    setlength(col.inside.common, n.com, "number of common effect estimates")
+  #
+  col.inside.random <-
+    setlength(col.inside.random, n.ran, "number of random effect estimates")
   #
   if (by) {
     #
@@ -8887,29 +8996,23 @@ forest.meta <- function(x,
                      blanks.stat.w)
     #
     col.diamond.pooled <-
-      c(rep(col.diamond.common, n.com),
-        rep(col.diamond.random, n.ran),
-        rep(col.predict, n.prd),
-        rep(col.diamond.common, n.com.w),
-        rep(col.diamond.random, n.ran.w),
-        rep(col.predict, n.prd.w),
+      c(col.diamond.common, col.diamond.random, col.predict,
+        rep(col.diamond.common, n.by),
+        rep(col.diamond.random, n.by),
+        rep(col.predict, n.by),
         NAs.stat.w)
     #
     col.diamond.lines.pooled <-
-      c(rep(col.diamond.lines.common, n.com),
-        rep(col.diamond.lines.random, n.ran),
-        rep(col.predict.lines, n.prd),
-        rep(col.diamond.lines.common, n.com.w),
-        rep(col.diamond.lines.random, n.ran.w),
-        rep(col.predict.lines, n.prd.w),
+      c(col.diamond.lines.common, col.diamond.lines.random, col.predict.lines,
+        rep(col.diamond.lines.common, n.by),
+        rep(col.diamond.lines.random, n.by),
+        rep(col.predict.lines, n.by),
         NAs.stat.w)
     #
     col.inside.pooled <-
-      c(rep(col.inside.common, n.com),
-        rep(col.inside.random, n.ran),
-        blanks.prd,
-        rep(col.inside.common, n.com.w),
-        rep(col.inside.random, n.ran.w),
+      c(col.inside.common, col.inside.random, blanks.prd,
+        rep(col.inside.common, n.by),
+        rep(col.inside.random, n.by),
         rep("", n.prd.w),
         NAs.stat.w)
   }
@@ -8969,18 +9072,13 @@ forest.meta <- function(x,
                      rep("predict", n.prd))
     #
     col.diamond.pooled <-
-      c(rep(col.diamond.common, n.com),
-        rep(col.diamond.random, n.ran),
-        rep(col.predict, n.prd))
+      c(col.diamond.common, col.diamond.random, col.predict)
     #
     col.diamond.lines.pooled <-
-      c(rep(col.diamond.lines.common, n.com),
-        rep(col.diamond.lines.random, n.ran),
-        rep(col.predict.lines, n.prd))
+      c(col.diamond.lines.common, col.diamond.lines.random, col.predict.lines)
     #
-    col.inside.pooled <- c(rep(col.inside.common, n.com),
-                           rep(col.inside.random, n.ran),
-                           blanks.prd)
+    col.inside.pooled <-
+      c(col.inside.common, col.inside.random, blanks.prd)
   }
   #
   # Treatment effect and confidence interval
@@ -9808,7 +9906,7 @@ forest.meta <- function(x,
   # x-axis:
   #
   #
-  if (notmiss.xlim && is.numeric(xlim[1]))
+  if (avail.xlim && is.numeric(xlim[1]))
     if (log.xaxis)
       xlim <- log(xlim)
   #
@@ -9891,10 +9989,10 @@ forest.meta <- function(x,
   #
   yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow.overall, 1, 2)
   #
-  if (missing(xlab.pos))
+  if (missing.xlab.pos)
     xlab.pos <- mean(xlim)
   #
-  if (missing(smlab.pos))
+  if (missing.smlab.pos)
     smlab.pos <- mean(xlim)
   #
   yTE.common  <- rep(NA, n.com)
@@ -9945,7 +10043,7 @@ forest.meta <- function(x,
     yTE.common <- yNext + seq.com
     yNext <- yNext + 1 + max(seq.com)
     #
-    if (missing(text.common))
+    if (missing.text.common)
       text.common <- "Overall"
   }
   #
@@ -10703,7 +10801,7 @@ forest.meta <- function(x,
         if  (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
-          else if (missing.addcols.right &
+          else if (notavail.digits.addcols.right &
                    all(is_wholenumber(tmp.r), na.rm = TRUE))
             tmp.r <- formatN(tmp.r, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
@@ -10776,7 +10874,7 @@ forest.meta <- function(x,
         if (!is.character(tmp.l)) {
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
-          else if (missing.addcols.left &
+          else if (notavail.digits.addcols.left &
                    all(is_wholenumber(tmp.l), na.rm = TRUE))
             tmp.l <- formatN(tmp.l, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
@@ -10856,7 +10954,7 @@ forest.meta <- function(x,
         if (!is.character(tmp.r)) {
           if (is.factor(tmp.r))
             tmp.r <- as.character(tmp.r)
-          else if (missing.addcols.left &
+          else if (notavail.digits.addcols.right &
                    all(is_wholenumber(tmp.r), na.rm = TRUE))
             tmp.r <- formatN(tmp.r, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
@@ -10935,7 +11033,7 @@ forest.meta <- function(x,
         if (!is.character(tmp.l)) {
           if (is.factor(tmp.l))
             tmp.l <- as.character(tmp.l)
-          else if (missing.addcols.left &
+          else if (notavail.digits.addcols.left &
                    all(is_wholenumber(tmp.l), na.rm = TRUE))
             tmp.l <- formatN(tmp.l, digits = 0,
                              text.NA = lab.NA, big.mark = big.mark)
@@ -11711,7 +11809,7 @@ forest.meta <- function(x,
   #
   draw.axis(col.forest, j, yS, log.xaxis, at, label,
             fs.axis, ff.axis, fontfamily, lwd,
-            xlim, notmiss.xlim,
+            xlim, avail.xlim,
             col.lines, col.label)
   #
   if (bottom.lr) {

@@ -19,15 +19,18 @@ pairwise(
   data = NULL,
   studlab,
   incr = gs("incr"),
-  allincr = gs("allincr"),
-  addincr = gs("addincr"),
+  method = "Inverse",
+  method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
   reference.group,
   keep.all.comparisons,
   sep.ag = "*",
   varnames = c("TE", "seTE"),
   append = !is.null(data),
+  addincr = gs("addincr"),
+  allincr = gs("allincr"),
   warn = FALSE,
+  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -70,13 +73,13 @@ information.}
 \item{incr}{A numerical value which is added to cell frequencies
 for studies with a zero cell count, see Details.}
 
-\item{allincr}{A logical indicating if \code{incr} is added to cell
-frequencies of all studies if at least one study has a zero cell
-count. If FALSE (default), \code{incr} is added only to cell
-frequencies of studies with a zero cell count.}
+\item{method}{A character string indicating which method is to be
+used to calculate treatment estimates. Either \code{"Inverse"}
+or \code{"Peto"} (only for binary outcome), can be abbreviated.}
 
-\item{addincr}{A logical indicating if \code{incr} is added to cell
-frequencies of all studies irrespective of zero cell counts.}
+\item{method.incr}{A character string indicating which continuity
+correction method should be used (\code{"only0"},
+\code{"if0all"}, or \code{"all"}), see \code{\link{metabin}}.}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in two treatment arms are to be included in the
@@ -101,9 +104,18 @@ provided in argument \code{data} are appended to the dataset with
 pairwise comparisons or a character vector with variable names to append to
 the dataset.}
 
+\item{addincr}{Deprecated argument (replaced by 'method.incr');
+see \code{\link{metabin}}.}
+
+\item{allincr}{Deprecated argument (replaced by 'method.incr');
+see \code{\link{metabin}}.}
+
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if studies are excluded due to only providing a single
 treatment arm).}
+
+\item{warn.deprecated}{A logical indicating whether warnings should
+be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional arguments passed-through to the functions
 to calculate effects.}

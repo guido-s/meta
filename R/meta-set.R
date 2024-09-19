@@ -106,6 +106,18 @@ setstudlab <- function(x, k) {
   x
 }
 
+setlength <- function(x, len, text) {
+  if (length(x) == 1)
+    x <- rep(x, len)
+  else
+    chklength(x, len,
+              text =
+                paste0("Length of argument '", deparse(substitute(x)),
+                       "' must be equal to 1 or ", text, "."))
+  #
+  x
+}
+
 setunit <- function(x) {
   xname <- deparse(substitute(x))
   

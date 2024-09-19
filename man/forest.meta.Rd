@@ -583,26 +583,26 @@ meta-analysis if confidence limit lies completely within square.}
 \item{col.diamond}{The colour of diamonds representing the results
 for common effect and random effects models.}
 
-\item{col.diamond.common}{The colour of diamonds for common effect
+\item{col.diamond.common}{The colour(s) of diamonds for common effect
 estimates.}
 
-\item{col.diamond.random}{The colour of diamonds for random effects
+\item{col.diamond.random}{The colour(s) of diamonds for random effects
 estimates.}
 
 \item{col.diamond.lines}{The colour of the outer lines of diamonds
 representing the results for common effect and random effects
 models.}
 
-\item{col.diamond.lines.common}{The colour of the outer lines of
+\item{col.diamond.lines.common}{The colour(s) of the outer lines of
 diamond for common effect estimate.}
 
-\item{col.diamond.lines.random}{The colour of the outer lines of
+\item{col.diamond.lines.random}{The colour(s) of the outer lines of
 diamond for random effects estimate.}
 
-\item{col.predict}{Background colour of prediction interval.}
+\item{col.predict}{Background colour(s) of prediction intervals.}
 
-\item{col.predict.lines}{Colour of outer lines of prediction
-interval.}
+\item{col.predict.lines}{Colour(s) of outer lines of prediction
+intervals.}
 
 \item{col.subgroup}{The colour to print information on subgroups.}
 

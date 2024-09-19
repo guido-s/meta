@@ -118,8 +118,7 @@ catmeth <- function(x,
     else if (metainc)
       vars.ma <- c(vars.ma, "incr", "method.incr", "sparse")
     ##
-    meth.ma <-
-      unique(meth.ma[, vars.ma, drop = FALSE])
+    meth.ma <- unique(meth.ma[, vars.ma, drop = FALSE])
     ##
     details.i <- vector("character", length = nrow(meth.ma))
     for (i in seq_len(nrow(meth.ma)))

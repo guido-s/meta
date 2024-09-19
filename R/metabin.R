@@ -10,8 +10,9 @@
 #' from R package \bold{metafor} (Viechtbauer, 2010) is called
 #' internally.
 #' 
-#' @param event.e Number of events in experimental group or true
-#'   positives in diagnostic study.
+#' @param event.e Number of events in experimental group, or true
+#'   positives in diagnostic study, or an R object
+#'   created with \code{\link{pairwise}}.
 #' @param n.e Number of observations in experimental group or number
 #'   of ill participants in diagnostic study.
 #' @param event.c Number of events in control group or false positives
@@ -717,6 +718,46 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  
+  missing.sm <- missing(sm)
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  missing.overall <- missing(overall)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  missing.test.subgroup <- missing(test.subgroup)
+  #
+  missing.event.c <- missing(event.c)
+  missing.n.e <- missing(n.e)
+  missing.n.c <- missing(n.c)
+  #
+  missing.studlab <- missing(studlab)
+  #
+  missing.incr <- missing(incr)
+  missing.method.incr <- missing(method.incr)
+  missing.allstudies <- missing(allstudies)
+  #
+  missing.method.tau <- missing(method.tau)
+  missing.tau.common <- missing(tau.common)
+  missing.method.predict <- missing(method.predict)
+  missing.method <- missing(method)
+  missing.Q.Cochrane <- missing(Q.Cochrane)
+  missing.level.ma <- missing(level.ma)
+  missing.common <- missing(common)
+  missing.random <- missing(random)
+  missing.method.random.ci <- missing(method.random.ci)
+  #
+  missing.hakn <- missing(hakn)
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
+  missing.adhoc.hakn <- missing(adhoc.hakn)
+  missing.RR.Cochrane <- missing(RR.Cochrane)
+  #
+  missing.subgroup.name <- missing(subgroup.name)
+  missing.print.subgroup.name <- missing(print.subgroup.name)
+  missing.sep.subgroup <- missing(sep.subgroup)
+  missing.complab <- missing(complab)
+  #
+  missing.cluster <- missing(cluster)
+  #
   chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
@@ -729,10 +770,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chklevel(level)
   ##
-  missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
   ##
-  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   #
@@ -741,7 +780,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  missing.method.predict <- missing(method.predict)
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
   method.tau <-
@@ -787,13 +825,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     pscale <- 1
   }
   ##
-  missing.method <- missing(method)
   method <- setchar(method, gs("meth4bin"))
   if (metafor)
     method <- "Inverse"
   is.glmm <- method == "GLMM"
   ##
-  missing.method.incr <- missing(method.incr)
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
   chklogical(allstudies)
@@ -815,7 +851,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   if (sm == "ASD") {
     method <- "Inverse"
-    if (!missing(Q.Cochrane) && Q.Cochrane)
+    if (!missing.Q.Cochrane && Q.Cochrane)
       warning("Argument 'Q.Cochrane' only considered for ",
               "Mantel-Haenszel method in combination with ",
               "DerSimonian-Laird estimator.",
@@ -828,24 +864,23 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   args <- list(...)
   chklogical(warn.deprecated)
   ##
-  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+  level.ma <- deprecated(level.ma, missing.level.ma, args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
                        warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
                        warn.deprecated)
   chklogical(common)
   ##
-  random <- deprecated(random, missing(random), args, "comb.random",
+  random <- deprecated(random, missing.random, args, "comb.random",
                        warn.deprecated)
   chklogical(random)
   ##
   method.random.ci <-
-    deprecated2(method.random.ci, missing(method.random.ci),
-                hakn, missing(hakn),
+    deprecated2(method.random.ci, missing.method.random.ci,
+                hakn, missing.hakn,
                 warn.deprecated)
   if (is.logical(method.random.ci))
     if (method.random.ci)
@@ -855,54 +890,32 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   ##
   adhoc.hakn.ci <-
-    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
-                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
+    deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
+                adhoc.hakn, missing.adhoc.hakn, warn.deprecated)
   adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
   #
-  missing.subgroup.name <- missing(subgroup.name)
+  missing.subgroup.name <- missing.subgroup.name
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
   ##
   print.subgroup.name <-
-    deprecated(print.subgroup.name, missing(print.subgroup.name),
+    deprecated(print.subgroup.name, missing.print.subgroup.name,
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
   ##
   sep.subgroup <-
-    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+    deprecated(sep.subgroup, missing.sep.subgroup, args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
   ##
   RR.Cochrane <-
-    deprecated(RR.Cochrane, missing(RR.Cochrane), args, "RR.cochrane",
+    deprecated(RR.Cochrane, missing.RR.Cochrane, args, "RR.cochrane",
                warn.deprecated)
   chklogical(RR.Cochrane)
-  ##
-  addincr <-
-    deprecated(method.incr, missing.method.incr, args, "addincr",
-               warn.deprecated)
-  allincr <-
-    deprecated(method.incr, missing.method.incr, args, "allincr",
-               warn.deprecated)
-  if (missing.method.incr) {
-    method.incr <- gs("method.incr")
-    ##
-    if (is.logical(addincr) && addincr)
-      method.incr <- "all"
-    else if (is.logical(allincr) && allincr)
-      method.incr <- "if0all"
-  }
-  ##
-  addincr <- allincr <- FALSE
-  if (!(sm == "ASD" | method %in% c("Peto", "GLMM")))
-    if (method.incr == "all")
-      addincr <- TRUE
-    else if (method.incr == "if0all")
-      allincr <- TRUE
   ##
   ## Some more checks
   ##
@@ -915,69 +928,192 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   ##
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'event.e', 'n.e', 'event.c', and 'n.c' from data:
-  ##
+  #
+  # Catch 'event.e', 'n.e', 'event.c', 'n.c', 'studlab', 'subgroup', and
+  # 'incr' from data:
+  #
   event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
+  #
+  if (is.data.frame(event.e) & !is.null(attr(event.e, "pairwise"))) {
+    type <- attr(event.e, "type")
+    if (type != "binary")
+      stop("Wrong type for pairwise() object: '", type, "'.", call. = FALSE)
+    #
+    is.pairwise <- TRUE
+    #
+    ignorePair(event.c, !missing.event.c)
+    ignorePair(n.e, !missing.n.e)
+    ignorePair(n.c, !missing.n.c)
+    ignorePair(studlab, !missing.studlab)
+    #
+    missing.event.c <- FALSE
+    missing.n.e <- FALSE
+    missing.n.c <- FALSE
+    #
+    if (missing.method) {
+      method <- attr(event.e, "method")
+      if (method == "" | method == "Inverse")
+        method <- ifelse(tau.common, "Inverse", gs("method"))
+    }
+    #
+    if (missing.sm)
+      sm <- attr(event.e, "sm")
+    #
+    if (missing.incr)
+      incr <- attr(event.e, "incr")
+    if (missing.method.incr)
+      method.incr <- attr(event.e, "method.incr")
+    if (missing.allstudies)
+      allstudies <- attr(event.e, "allstudies")
+    #
+    missing.incr <- FALSE
+    missing.method.incr <- FALSE
+    missing.allstudies <- FALSE
+    #
+    reference.group <- attr(event.e, "reference.group")
+    #
+    studlab <- event.e$studlab
+    #
+    treat1 <- event.e$treat1
+    treat2 <- event.e$treat2
+    #
+    event.c <- event.e$event2
+    n.e <- event.e$n1
+    n.c <- event.e$n2
+    #
+    pairdata <- event.e
+    data <- event.e
+    #
+    event.e <- event.e$event1
+    #
+    wo <- treat1 == reference.group
+    #
+    if (any(wo)) {
+      ttreat1 <- treat1
+      treat1[wo] <- treat2[wo]
+      treat2[wo] <- ttreat1[wo]
+      #
+      tevent.e <- event.e
+      event.e[wo] <- event.c[wo]
+      event.c[wo] <- tevent.e[wo]
+      #
+      tn.e <- n.e
+      n.e[wo] <- n.c[wo]
+      n.c[wo] <- tn.e[wo]
+    }
+    #
+    if (missing.subgroup) {
+      #subgroup <- paste(paste0("'", treat1, "'"),
+      #                  paste0("'", treat2, "'"),
+      #                  sep = " vs ")
+      subgroup <- paste(treat1, treat2, sep = " vs ")
+      #
+      if (length(unique(subgroup)) == 1) {
+        if (missing.complab)
+          complab <- unique(subgroup)
+        #
+        subgroup <- NULL
+      }
+      else {
+        if (missing.overall)
+          overall <- FALSE
+        if (missing.overall.hetstat)
+          overall.hetstat <- FALSE
+        if (missing.test.subgroup)
+          test.subgroup <- FALSE
+      }
+    }
+    else
+      subgroup <- catch("subgroup", mc, data, sfsp)
+  }
+  else {
+    is.pairwise <- FALSE
+    #
+    if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
+      sm <- attr(data, "sm")
+    #
+    n.e <- catch("n.e", mc, data, sfsp)
+    #
+    event.c <- catch("event.c", mc, data, sfsp)
+    n.c <- catch("n.c", mc, data, sfsp)
+    #
+    studlab <- catch("studlab", mc, data, sfsp)
+    #
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    byvar <- catch("byvar", mc, data, sfsp)
+    #
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
+    #
+    if (!missing.incr)
+      incr <- catch("incr", mc, data, sfsp)
+  }
+  #
+  addincr <-
+    deprecated(method.incr, missing.method.incr, args, "addincr",
+               warn.deprecated)
+  allincr <-
+    deprecated(method.incr, missing.method.incr, args, "allincr",
+               warn.deprecated)
+  #
+  if (missing.method.incr) {
+    method.incr <- gs("method.incr")
+    ##
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  #
+  addincr <- allincr <- FALSE
+  if (!(sm == "ASD" | method %in% c("Peto", "GLMM"))) {
+    if (method.incr == "all")
+      addincr <- TRUE
+    else if (method.incr == "if0all")
+      allincr <- TRUE
+  }
+  #
   k.All <- length(event.e)
-  ##
-  n.e <- catch("n.e", mc, data, sfsp)
+  #
   chknull(n.e)
-  ##
-  event.c <- catch("event.c", mc, data, sfsp)
   chknull(event.c)
-  ##
-  n.c <- catch("n.c", mc, data, sfsp)
   chknull(n.c)
-  ##
-  ## Catch 'incr' from data:
-  ##
-  if (!missing(incr))
-    incr <- catch("incr", mc, data, sfsp)
-  ##
+  #
   if (is.numeric(incr))
     chknumeric(incr, min = 0)
   else
     incr <- setchar(incr, "TACC",
                     "should be numeric or the character string \"TACC\"")
-  ##
+  #
   if (metafor) {
     if (length(incr) > 1) {
-      if (!missing(incr))
+      if (!missing.incr)
         warning("Increment of 0.5 used for effect measure '", sm, "'",
                 call. = FALSE)
       incr <- 0.5
     }
     else if (incr == "TACC") {
-      if (!missing(incr))
+      if (!missing.incr)
         warning("Increment of 0.5 used for effect measure '", sm, "'",
                 call. = FALSE)
       incr <- 0.5
     }
   }
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
-  ## from data:
-  ##
-  studlab <- catch("studlab", mc, data, sfsp)
+  #
   studlab <- setstudlab(studlab, k.All)
-  ##
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  ##
-  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                          warn.deprecated)
+  #
   by <- !is.null(subgroup)
-  ##
+  #
+  # Catch 'subset', 'exclude' and 'cluster' from data:
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
@@ -993,6 +1129,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (3) Check length of essential variables
   ##
   ##
+  
   chklength(n.e, k.All, fun)
   chklength(event.c, k.All, fun)
   chklength(n.c, k.All, fun)
@@ -1032,6 +1169,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (4) Subset, exclude studies, and subgroups
   ##
   ##
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -1056,6 +1194,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event.e = event.e)
@@ -1094,6 +1233,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (6) Use subset for analysis
   ##
   ##
+  
   if (!missing.subset) {
     event.e <- event.e[subset]
     n.e <- n.e[subset]
@@ -1162,9 +1302,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (7) Calculate results for individual studies
   ##
   ##
-  ## Include non-informative studies?
-  ## (i.e. studies with either zero or all events in both groups)
-  ##
+  
+  # Include non-informative studies?
+  # (i.e. studies with either zero or all events in both groups)
+  #
   if (sm == "RD" | sm == "ASD" | metafor)
     incl <- rep(1, k.all)
   else {
@@ -1400,6 +1541,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (8) Additional checks for three-level model
   ##
   ##
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   ##
@@ -1429,6 +1571,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (9) Additional checks for GLMM, Peto method or SSW
   ##
   ##
+  
   if (sm != "OR") {
     if (method == "Peto")
       stop("Peto's method only possible with argument 'sm = \"OR\"'")
@@ -1467,9 +1610,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (ii) Peto method or GLMM
   ##
   if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
-    if ((!missing(incr) & any(incr != 0)) |
+    if ((!missing.incr & any(incr != 0)) |
         allincr | addincr |
-        (!missing(allstudies) & allstudies)
+        (!missing.allstudies & allstudies)
         )
       if (sm == "ASD") {
         if ((sparse | addincr) & warn) {
@@ -1498,6 +1641,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## (10) Do meta-analysis
   ##
   ##
+  
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
   ##
@@ -1692,9 +1836,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (9) Generate R object
+  ## (11) Generate R object
   ##
   ##
+  
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
               method = method, method.random = method,

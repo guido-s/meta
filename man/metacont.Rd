@@ -94,7 +94,8 @@ metacont(
 )
 }
 \arguments{
-\item{n.e}{Number of observations in experimental group.}
+\item{n.e}{Number of observations in experimental group or an R object
+created with \code{\link{pairwise}}.}
 
 \item{mean.e}{Estimated mean in experimental group.}
 
@@ -741,7 +742,7 @@ cluster-randomized trials, with applications to meta-analysis.
 }
 \seealso{
 \code{\link{meta-package}}, \code{\link{update.meta}},
-  \code{\link{metabin}}, \code{\link{metagen}}
+  \code{\link{metabin}}, \code{\link{metagen}}, \code{\link{pairwise}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

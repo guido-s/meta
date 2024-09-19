@@ -34,12 +34,12 @@
 #' @param studlab A vector with study labels (optional).
 #' @param incr A numerical value which is added to cell frequencies
 #'   for studies with a zero cell count, see Details.
-#' @param allincr A logical indicating if \code{incr} is added to cell
-#'   frequencies of all studies if at least one study has a zero cell
-#'   count. If FALSE (default), \code{incr} is added only to cell
-#'   frequencies of studies with a zero cell count.
-#' @param addincr A logical indicating if \code{incr} is added to cell
-#'   frequencies of all studies irrespective of zero cell counts.
+#' @param method A character string indicating which method is to be
+#'   used to calculate treatment estimates. Either \code{"Inverse"}
+#'   or \code{"Peto"} (only for binary outcome), can be abbreviated.
+#' @param method.incr A character string indicating which continuity
+#'   correction method should be used (\code{"only0"},
+#'   \code{"if0all"}, or \code{"all"}), see \code{\link{metabin}}.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in two treatment arms are to be included in the
 #'   meta-analysis (applies only if \code{sm} is equal to \code{"RR"}
@@ -57,9 +57,15 @@
 #'   provided in argument \code{data} are appended to the dataset with
 #'   pairwise comparisons or a character vector with variable names to append to
 #'   the dataset.
+#' @param allincr Deprecated argument (replaced by 'method.incr');
+#'   see \code{\link{metabin}}.
+#' @param addincr Deprecated argument (replaced by 'method.incr');
+#'   see \code{\link{metabin}}.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if studies are excluded due to only providing a single
 #'   treatment arm).
+#' @param warn.deprecated A logical indicating whether warnings should
+#'   be printed if deprecated arguments are used.
 #' @param \dots Additional arguments passed-through to the functions
 #'   to calculate effects.
 #' 
@@ -380,8 +386,11 @@ pairwise <- function(treat,
                      event, n, mean, sd, TE, seTE, time,
                      agent, dose,
                      data = NULL, studlab,
-                     incr = gs("incr"), allincr = gs("allincr"),
-                     addincr = gs("addincr"), allstudies = gs("allstudies"),
+                     #
+                     incr = gs("incr"),
+                     method = "Inverse",
+                     method.incr = gs("method.incr"),
+                     allstudies = gs("allstudies"),
                      ##
                      reference.group,
                      keep.all.comparisons,
@@ -391,7 +400,11 @@ pairwise <- function(treat,
                      varnames = c("TE", "seTE"),
                      #
                      append = !is.null(data),
-                     warn = FALSE,
+                     #
+                     addincr = gs("addincr"),
+                     allincr = gs("allincr"),
+                     #
+                     warn = FALSE, warn.deprecated = gs("warn.deprecated"),
                      ...) {
   
   
@@ -400,12 +413,51 @@ pairwise <- function(treat,
   ## (1) Check arguments
   ##
   ##
-  chknumeric(incr, min = 0, length = 1)
-  chklogical(allincr)
-  chklogical(addincr)
-  chklogical(allstudies)
+  
+  missing.event <- missing(event)
+  missing.n <- missing(n)
+  missing.mean <- missing(mean)
+  missing.sd <- missing(sd)
+  missing.TE <- missing(TE)
+  missing.seTE <- missing(seTE)
+  missing.time <- missing(time)
+  missing.agent <- missing(agent)
+  missing.dose <- missing(dose)
+  missing.studlab <- missing(studlab)
+  #
+  missing.incr <- missing(incr)
+  missing.method.incr <- missing(method.incr)
+  missing.allstudies <- missing(allstudies)
+  missing.allincr <- missing(allincr)
+  missing.addincr <- missing(addincr)
   #
   missing.append <- missing(append)
+  missing.sep.ag <- missing(sep.ag)
+  missing.reference.group <- missing(reference.group)
+  missing.keep.all.comparisons <- missing(keep.all.comparisons)
+  missing.varnames <- missing(varnames)
+  #
+  method <- setchar(method, c("Inverse", "Peto"))
+  #
+  chknumeric(incr, min = 0, length = 1)
+  chklogical(allstudies)
+  #
+  chklogical(warn.deprecated)
+  allincr <-
+    deprecated2(method.incr, missing.method.incr, allincr, missing.allincr,
+                warn.deprecated)
+  addincr <-
+    deprecated2(method.incr, missing.method.incr, addincr, missing.addincr,
+                warn.deprecated)
+  if (missing.method.incr) {
+    method.incr <- gs("method.incr")
+    #
+    if (is.logical(addincr) && addincr)
+      method.incr <- "all"
+    else if (is.logical(allincr) && allincr)
+      method.incr <- "if0all"
+  }
+  #
   if (!is.character(append)) {
     chklogical(append, text = "or vector with variable names")
     append.logical <- append
@@ -425,12 +477,14 @@ pairwise <- function(treat,
   #
   chklogical(warn)
   #
-  missing.sep.ag <- missing(sep.ag)
   chkchar(sep.ag)
   #
   chkchar(varnames, length = 2)
   #
   sm <- NULL
+  #
+  args <- list(...)
+  nam.args <- names(args)
   
   
   ##
@@ -448,6 +502,7 @@ pairwise <- function(treat,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -455,10 +510,6 @@ pairwise <- function(treat,
   if (nulldata)
     data <- sfsp
   #
-  args <- list(...)
-  nam.args <- names(args)
-  #
-  missing.reference.group <- missing(reference.group)
   ##
   ## Catch studlab, treat, agent, dose, event, n, mean, sd, time from data:
   ##
@@ -475,11 +526,11 @@ pairwise <- function(treat,
       names(res)[names(res) == res.attr$varnames[1]] <- "TE"
       names(res)[names(res) == res.attr$varnames[2]] <- "seTE"
       #
-      if (missing(varnames))
+      if (missing.varnames)
         varnames <- res.attr$varnames
     }
     #
-    if (missing(append)) {
+    if (missing.append) {
       append <- res.attr$append
       append.logical <- res.attr$append.logical
     }
@@ -490,87 +541,29 @@ pairwise <- function(treat,
         missing.reference.group <- FALSE
       }
     #
-    if (missing(keep.all.comparisons)) {
+    if (missing.keep.all.comparisons) {
       if (!is.null(attributes(treat)$keep.all.comparisons))
         keep.all.comparisons <- attributes(treat)$keep.all.comparisons
       else
         keep.all.comparisons <- TRUE
     }
     ##
-    if (!missing(event))
-      warning("Argument 'event' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(n))
-      warning("Argument 'n' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(mean))
-      warning("Argument 'mean' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(sd))
-      warning("Argument 'sd' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(TE))
-      warning("Argument 'TE' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(seTE))
-      warning("Argument 'seTE' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(time))
-      warning("Argument 'time' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(agent))
-      warning("Argument 'agent' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(dose))
-      warning("Argument 'dose' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!nulldata)
-      warning("Argument 'data' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(studlab))
-      warning("Argument 'studlab' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(incr))
-      warning("Argument 'incr' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(allincr))
-      warning("Argument 'allincr' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(addincr))
-      warning("Argument 'addincr' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
-    #
-    if (!missing(allstudies))
-      warning("Argument 'allstudies' ignored as ",
-              "first argument is a pairwise object.",
-              call. = FALSE)
+    ignorePair(event, !missing.event)
+    ignorePair(n, !missing.n)
+    ignorePair(mean, !missing.mean)
+    ignorePair(sd, !missing.sd)
+    ignorePair(TE, !missing.TE)
+    ignorePair(seTE, !missing.seTE)
+    ignorePair(time, !missing.time)
+    ignorePair(agent, !missing.agent)
+    ignorePair(dose, !missing.dose)
+    ignorePair(data, !nulldata)
+    ignorePair(studlab, !missing.studlab)
+    ignorePair(incr, !missing.incr)
+    ignorePair(method.incr, !missing.method.incr)
+    ignorePair(allincr, !missing.allincr)
+    ignorePair(addincr, !missing.addincr)
+    ignorePair(allstudies, !missing.allstudies)
     #
     type <- attributes(res)$type
     #
@@ -580,7 +573,7 @@ pairwise <- function(treat,
   else {
     is.pairwise <- FALSE
     #
-    if (missing(keep.all.comparisons))
+    if (missing.keep.all.comparisons)
       keep.all.comparisons <- TRUE
     chklogical(keep.all.comparisons)
     #
@@ -1432,8 +1425,8 @@ pairwise <- function(treat,
       notunique <- apply(notunique, 2, anytrue)
       oneNA <- apply(oneNA, 2, anytrue)
       allNA <- apply(allNA, 2, anytrue)
-      ##print(apply(rbind(notunique, oneNA, allNA), 2, anytrue))
       notunique <- apply(rbind(notunique, oneNA, allNA), 2, anytrue)
+      ## print(notunique)
       ##
       for (i in 1:(narms - 1)) {
         for (j in (i + 1):narms) {
@@ -1491,7 +1484,16 @@ pairwise <- function(treat,
         sm <- gs("smbin")
       ##
       sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
-      ##
+      #
+      addincr <- allincr <- FALSE
+      #
+      if (!(sm == "ASD" | method == "Peto")) {
+        if (method.incr == "all")
+          addincr <- TRUE
+        else if (method.incr == "if0all")
+          allincr <- TRUE
+      }
+      #
       sparse <- switch(sm,
                        OR = (n.zeros > 0) | (n.all > 0),
                        RD = (n.zeros > 0) | (n.all > 0),
@@ -1551,7 +1553,9 @@ pairwise <- function(treat,
           if (nrow(dat) > 0) {
             m1 <- metabin(dat$event1, dat$n1,
                           dat$event2, dat$n2,
-                          incr = dat$incr, addincr = TRUE,
+                          method = method,
+                          incr = dat$incr, 
+                          method.incr = "all",
                           allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
                           warn = warn,
@@ -1831,6 +1835,13 @@ pairwise <- function(treat,
         sm <- args$sm
       else
         sm <- gs("sminc")
+      #
+      addincr <- allincr <- FALSE
+      #
+      if (method.incr == "all")
+        addincr <- TRUE
+      else if (method.incr == "if0all")
+        allincr <- TRUE
       ##
       ## Determine increment for individual studies
       ##
@@ -1897,7 +1908,8 @@ pairwise <- function(treat,
           if (nrow(dat) > 0) {
             m1 <- metainc(dat$event1, dat$time1,
                           dat$event2, dat$time2,
-                          incr = dat$incr, addincr = TRUE,
+                          incr = dat$incr,
+                          method.incr = "all",
                           allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
                           warn = warn,
@@ -2277,19 +2289,17 @@ pairwise <- function(treat,
   if (is.pairwise) {
     attr(res, "sm") <- res.attr$sm
     attr(res, "method") <- res.attr$method
+    #
     attr(res, "incr") <- res.attr$incr
-    attr(res, "allincr") <- res.attr$allincr
-    attr(res, "addincr") <- res.attr$addincr
+    attr(res, "method.incr") <- res.attr$method.incr
     attr(res, "allstudies") <- res.attr$allstudies
   }
   else {
     attr(res, "sm") <- if (type != "onlytreat") replaceNULL(sm, "") else ""
-    attr(res, "method") <-
-      if (type != "onlytreat") replaceNULL(method, "") else ""
+    attr(res, "method") <- if (type != "onlytreat") method else ""
     #
     attr(res, "incr") <- incr
-    attr(res, "allincr") <- allincr
-    attr(res, "addincr") <- addincr
+    attr(res, "method.incr") <- method.incr
     attr(res, "allstudies") <- allstudies
   }
   #

@@ -80,7 +80,8 @@ metainc(
 )
 }
 \arguments{
-\item{event.e}{Number of events in experimental group.}
+\item{event.e}{Number of events in experimental group or an R object
+created with \code{\link{pairwise}}.}
 
 \item{time.e}{Person time at risk in experimental group.}
 

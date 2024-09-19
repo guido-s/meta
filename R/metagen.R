@@ -11,7 +11,7 @@
 #' \bold{metafor} (Viechtbauer, 2010).
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
-#'   risk difference.
+#'   risk difference or an R object created with \code{\link{pairwise}}.
 #' @param seTE Standard error of treatment estimate or standard deviation of
 #'   n-of-1 trials.
 #' @param studlab An optional vector with study labels.
@@ -487,7 +487,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
-#'   \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{pairwise}},
 #'   \code{\link{print.meta}}, \code{\link{settings.meta}}
 #' 
 #' @references
@@ -1021,6 +1021,7 @@ metagen <- function(TE, seTE, studlab,
     is.pairwise <- TRUE
     #
     sm <- attr(TE, "sm")
+    reference.group <- attr(TE, "reference.group")
     #
     missing.seTE <- FALSE
     #
@@ -1031,29 +1032,8 @@ metagen <- function(TE, seTE, studlab,
     #
     studlab <- TE$studlab
     #
-    if (missing.subgroup) {
-      #subgroup <- paste(paste0("'", TE$treat1, "'"),
-      #                  paste0("'", TE$treat2, "'"),
-      #                  sep = " vs ")
-      subgroup <- paste(TE$treat1, TE$treat2, sep = " vs ")
-      #
-      if (length(unique(subgroup)) == 1) {
-        if (missing(complab))
-          complab <- unique(subgroup)
-        #
-        subgroup <- NULL
-      }
-      else {
-        if (missing.overall)
-          overall <- FALSE
-        if (missing.overall.hetstat)
-          overall.hetstat <- FALSE
-        if (missing.test.subgroup)
-          test.subgroup <- FALSE
-      }
-    }
-    else
-      subgroup <- catch("subgroup", mc, data, sfsp)
+    treat1 <- TE$treat1
+    treat2 <- TE$treat2
     #
     if (!is.null(TE$n1))
       n.e <- TE$n1
@@ -1074,6 +1054,46 @@ metagen <- function(TE, seTE, studlab,
       TE <- TE[[attr(TE, "varnames")[1]]]
     #
     avail.TE <- !is.null(TE)
+    #
+    wo <- treat1 == reference.group
+    #
+    if (any(wo)) {
+      TE[wo] <- -TE[wo]
+      #
+      ttreat1 <- treat1
+      treat1[wo] <- treat2[wo]
+      treat2[wo] <- ttreat1[wo]
+      #
+      if (!is.null(n.e) & !is.null(n.c)) {
+        tn.e <- n.e
+        n.e[wo] <- n.c[wo]
+        n.c[wo] <- tn.e[wo]
+      }
+    }
+    #
+    if (missing.subgroup) {
+      #subgroup <- paste(paste0("'", treat1, "'"),
+      #                  paste0("'", treat2, "'"),
+      #                  sep = " vs ")
+      subgroup <- paste(treat1, treat2, sep = " vs ")
+      #
+      if (length(unique(subgroup)) == 1) {
+        if (missing(complab))
+          complab <- unique(subgroup)
+        #
+        subgroup <- NULL
+      }
+      else {
+        if (missing.overall)
+          overall <- FALSE
+        if (missing.overall.hetstat)
+          overall.hetstat <- FALSE
+        if (missing.test.subgroup)
+          test.subgroup <- FALSE
+      }
+    }
+    else
+      subgroup <- catch("subgroup", mc, data, sfsp)
   }
   else {
     is.pairwise <- FALSE
