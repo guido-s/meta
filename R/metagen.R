@@ -1047,6 +1047,7 @@ metagen <- function(TE, seTE, studlab,
     #
     pairdata <- TE
     data <- TE
+    nulldata <- FALSE
     #
     if (is.null(attr(TE, "varnames")))
       TE <- TE$TE

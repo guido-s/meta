@@ -991,6 +991,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     pairdata <- event.e
     data <- event.e
+    nulldata <- FALSE
     #
     event.e <- event.e$event1
     #

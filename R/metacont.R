@@ -898,6 +898,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     #
     pairdata <- n.e
     data <- n.e
+    nulldata <- FALSE
     #
     n.e <- n.e$n1
     #
