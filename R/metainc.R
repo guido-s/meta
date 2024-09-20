@@ -1302,7 +1302,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res <- list(event.e = event.e, time.e = time.e,
               event.c = event.c, time.c = time.c,
               method = method, method.random = method,
-              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
+              incr =
+                if (length(unique(incr)) == 1) unique(incr) else
+                  max(incr, na.rm = TRUE),
               method.incr = method.incr,
               sparse = sparse,
               incr.event = incr.event,
