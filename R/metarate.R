@@ -1048,9 +1048,7 @@ metarate <- function(event, time, studlab,
   ##
   res <- list(event = event, time = time,
               n = n,
-              incr =
-                if (length(unique(incr)) == 1) unique(incr) else
-                  max(incr, na.rm = TRUE),
+              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
               method.ci = method.ci,

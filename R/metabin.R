@@ -1188,7 +1188,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   else
     exclude <- rep(FALSE, k.All)
   
-   
+  
   ##
   ##
   ## (5) Store complete dataset in list object data
@@ -1844,9 +1844,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
               method = method, method.random = method,
-              incr =
-                if (length(unique(incr)) == 1) unique(incr) else
-                  max(incr, na.rm = TRUE),
+              incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
               allstudies = allstudies,

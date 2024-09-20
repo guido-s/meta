@@ -1,4 +1,9 @@
 gm <- function(x, digits = 4, debug = FALSE) {
+
+  if (!is.null(x$incr))
+    x$incr <-
+      if (length(unique(x$incr)) == 1) unique(x$incr) else
+        max(x$incr, na.rm = TRUE)
   
   func <- if (debug) list else data.frame
   ## Get rid of warning 'Undefined global functions or variables'
