@@ -707,6 +707,7 @@ catmeth <- function(x,
           incr.i <- dat.cc$incr[i]
         else
           incr.i <- 0
+        #
         sparse.i <- !is.na(dat.cc$sparse[i]) && dat.cc$sparse[i]
         k.all.i <- dat.cc$k.all[i]
         ##
@@ -719,7 +720,7 @@ catmeth <- function(x,
           ##
           if (!is.na(dat.cc$RR.Cochrane[i]) &&
               dat.cc$RR.Cochrane[i] &
-              (method.incr.i == "all" | (sparse.i & incr.i > 0))) {
+              (method.incr.i == "all" | (sparse.i & incr.i != 0))) {
             details.rr <-
               if (width >= 70 | forest)
                 " (applied twice to sample sizes, like RevMan 5)"
@@ -739,11 +740,11 @@ catmeth <- function(x,
               else
                 "\n- Treatment arm continuity correction")
           }
-          else if (as.numeric(incr.i) > 0)
+          else if (incr.i != 0)
             details.cc <- c(
               details.cc,
               paste0("\n- Continuity correction of ",
-                     round(as.numeric(incr.i), 4),
+                     incr.i,
                      if (k.all.i > 1)
                        " in all studies",
                      details.rr))
@@ -767,12 +768,12 @@ catmeth <- function(x,
                 details.rr
               ))
           }
-          else if (as.numeric(incr.i) > 0) {
+          else if (incr.i != 0) {
             details.cc <- c(
               details.cc,
               paste0(
                 "\n- Continuity correction of ",
-                round(as.numeric(incr.i), 4),
+                incr.i,
                 if (k.all.i > 1)
                   " in studies with",
                 if (k.all.i > 1 & width > 70)
@@ -784,7 +785,7 @@ catmeth <- function(x,
                 details.rr))
           }
           ##
-          if ((incr.i == "TACC" || as.numeric(incr.i) > 0) && txtCC.ind.i)
+          if ((incr.i == "TACC" || incr.i != 0) && txtCC.ind.i)
             details.cc <- c(
               details.cc,
               if (forest) " " else "\n  ",

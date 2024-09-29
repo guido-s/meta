@@ -1,9 +1,14 @@
 gm <- function(x, digits = 4, debug = FALSE) {
-
-  if (!is.null(x$incr))
-    x$incr <-
-      if (length(unique(x$incr)) == 1) unique(x$incr) else
-        max(x$incr, na.rm = TRUE)
+  
+  if (inherits(x, c("metabin", "metainc", "metaprop", "metarate"))) {
+    incr_not_0 <- sort(unique(x$incr[x$incr != 0]))
+    #
+    if (length(incr_not_0) == 1)
+      incr <- incr_not_0
+    else
+      incr <- paste0("{", paste(incr_not_0, collapse = ", "), "}")
+  }
+  
   
   func <- if (debug) list else data.frame
   ## Get rid of warning 'Undefined global functions or variables'
@@ -133,7 +138,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
   ##
   if (inherits(x, "metabin")) {
     res$meth$k.MH <- x$k.MH
-    res$meth$incr <- x$incr
+    res$meth$incr <- incr
     res$meth$method.incr <- x$method.incr
     res$meth$sparse <- x$sparse
     res$meth$allstudies <- x$allstudies
@@ -158,7 +163,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
     res$meth$k.MH <- x$k.MH
   ##
   if (inherits(x, c("metainc", "metaprop", "metarate"))) {
-    res$meth$incr <- x$incr
+    res$meth$incr <- incr
     res$meth$method.incr <- x$method.incr
     res$meth$sparse <- x$sparse
   }
