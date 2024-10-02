@@ -759,6 +759,8 @@ metagen <- function(TE, seTE, studlab,
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
+  missing.label.e <- missing(label.e)
+  missing.label.c <- missing(label.c)
   #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
@@ -915,7 +917,10 @@ metagen <- function(TE, seTE, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
+  chkchar(label.e, length = 1)
+  chkchar(label.c, length = 1)
+  #
   chklogical(keepdata)
   ##
   ## Additional arguments / checks
@@ -1081,6 +1086,11 @@ metagen <- function(TE, seTE, studlab,
       if (length(unique(subgroup)) == 1) {
         if (missing(complab))
           complab <- unique(subgroup)
+        #
+        if (missing.label.e)
+          label.e <- unique(treat1)
+        if (missing.label.c)
+          label.c <- unique(treat2)
         #
         subgroup <- NULL
       }
