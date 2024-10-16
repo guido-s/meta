@@ -32,6 +32,12 @@
 * First argument to R functions metabin(), metacont(), metagen(), and metainc()
   can be a pairwise() object
 
+* In funnel.meta(), arguments 'pch', 'cex', and 'cex.studlab' can be of same
+  length as the number of studies
+
+* New auxiliary function setvals() to easily define the input for arguments
+  'pch', 'cex', 'col', 'bg', 'text', and 'cex.studlab' in funnel.meta()
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metacr(), metagen(), metainc(), metamean(),

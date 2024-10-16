@@ -3,6 +3,7 @@
 \name{funnel.meta}
 \alias{funnel.meta}
 \alias{funnel}
+\alias{setvals}
 \title{Funnel plot}
 \usage{
 \method{funnel}{meta}(
@@ -45,6 +46,8 @@
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
+
+setvals(x, vals = seq_along(unique(x)))
 }
 \arguments{
 \item{x}{An object of class \code{meta}.}
@@ -69,12 +72,12 @@ estimate should be plotted.}
 \item{axes}{A logical indicating whether axes should be drawn on
 the plot.}
 
-\item{pch}{The plotting symbol used for individual studies.}
+\item{pch}{The plotting symbol(s) used for individual studies.}
 
 \item{text}{A character vector specifying the text to be used
 instead of plotting symbol.}
 
-\item{cex}{The magnification to be used for plotting symbol.}
+\item{cex}{The magnification to be used for plotting symbols.}
 
 \item{lty.common}{Line type (common effect estimate).}
 
@@ -125,7 +128,7 @@ funnel plot, confidence limits are not drawn if
 printed in the graph. A vector with study labels can also be
 provided (must be of same length as \code{x$TE} then).}
 
-\item{cex.studlab}{Size of study labels, see argument \code{cex} in
+\item{cex.studlab}{Size(s) of study labels, see argument \code{cex} in
 \code{\link{text}}.}
 
 \item{pos.studlab}{Position of study labels, see argument
@@ -157,6 +160,8 @@ odds ratios, for example.}
 be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional arguments (passed on to plot.default).}
+
+\item{vals}{Vector with values used in \code{setvals} (see Examples).}
 }
 \description{
 Draw a funnel plot which can be used to assess small study effects
@@ -191,6 +196,11 @@ levels (argument \code{contour.levels}). By default (argument
 distinguish the contours. Different colours can be chosen by
 argument \code{col.contour}.
 }
+\note{
+R function \code{setvals} can be used to easily define the input for the
+arguments \code{pch}, \code{text}, \code{cex}, \code{col}, \code{bg},
+and \code{cex.studlab}.
+}
 \examples{
 data(Olkin1995)
 m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
@@ -223,6 +233,10 @@ fun <- funnel(m1, common = TRUE,
   col.contour = c("darkgreen", "green", "lightgreen"),
   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
 legend(0.05, 0.05, fun$text.contour, fill = fun$col.contour)
+
+# Use different colours for log risk ratios below and above 0
+#
+funnel(m1, bg = setvals(TE < 0, c("green", "red")))
 
 }
 \references{

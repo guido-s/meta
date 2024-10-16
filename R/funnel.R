@@ -20,10 +20,10 @@
 #'   estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
-#' @param pch The plotting symbol used for individual studies.
+#' @param pch The plotting symbol(s) used for individual studies.
 #' @param text A character vector specifying the text to be used
 #'   instead of plotting symbol.
-#' @param cex The magnification to be used for plotting symbol.
+#' @param cex The magnification to be used for plotting symbols.
 #' @param lty.common Line type (common effect estimate).
 #' @param lty.random Line type (random effects estimate).
 #' @param col A vector with colour of plotting symbols.
@@ -57,7 +57,7 @@
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
 #'   provided (must be of same length as \code{x$TE} then).
-#' @param cex.studlab Size of study labels, see argument \code{cex} in
+#' @param cex.studlab Size(s) of study labels, see argument \code{cex} in
 #'   \code{\link{text}}.
 #' @param pos.studlab Position of study labels, see argument
 #'   \code{pos} in \code{\link{text}}.
@@ -79,6 +79,7 @@
 #'   odds ratios, for example.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
+#' @param vals Vector with values used in \code{setvals} (see Examples).
 #' @param \dots Additional arguments (passed on to plot.default).
 #' 
 #' @details
@@ -108,6 +109,11 @@
 #' \code{col.contour} missing), suitable gray levels will be used to
 #' distinguish the contours. Different colours can be chosen by
 #' argument \code{col.contour}.
+#'
+#' @note
+#' R function \code{setvals} can be used to easily define the input for the
+#' arguments \code{pch}, \code{text}, \code{cex}, \code{col}, \code{bg},
+#' and \code{cex.studlab}.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}, Petra
 #'   Graham \email{pgraham@@efs.mq.edu.au}
@@ -173,6 +179,10 @@
 #'   col.contour = c("darkgreen", "green", "lightgreen"),
 #'   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
 #' legend(0.05, 0.05, fun$text.contour, fill = fun$col.contour)
+#' 
+#' # Use different colours for log risk ratios below and above 0
+#' #
+#' funnel(m1, bg = setvals(TE < 0, c("green", "red")))
 #'
 #' @method funnel meta
 #' @export
@@ -249,19 +259,38 @@ funnel.meta <- function(x,
   ##
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
+  if (!missing(pch)) {
+    error <- try(pch <- catch("pch", mc, x, sfsp), silent = TRUE)
+    if (inherits(error, "try-error")) {
+      pch <- catch("pch", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        pch <- pch[x$data$.subset]
+    }
+  }
+  chknumeric(pch)
+  #
   if (!missing(text)) {
-    error <-
-      try(text <- catch("text", mc, x, sfsp),
-          silent = TRUE)
+    error <- try(text <- catch("text", mc, x, sfsp), silent = TRUE)
     if (inherits(error, "try-error")) {
       text <- catch("text", mc, x$data, sfsp)
       if (isCol(x$data, ".subset"))
         text <- text[x$data$.subset]
     }
   }
-  ##
+  #
+  if (!missing(cex)) {
+    error <- try(cex <- catch("cex", mc, x, sfsp), silent = TRUE)
+    if (inherits(error, "try-error")) {
+      cex <- catch("cex", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        cex <- cex[x$data$.subset]
+    }
+  }
+  if (length(cex) == 1 & length(x$TE) > 1)
+    cex <- rep(cex, length(x$TE))
   chknumeric(cex)
+  #
   lty.common <- deprecated(lty.common, missing(lty.common), args, "lty.fixed",
                            warn.deprecated)
   chknumeric(lty.common, length = 1)
@@ -273,31 +302,32 @@ funnel.meta <- function(x,
   chknumeric(lwd.random, length = 1)
   ##
   if (!missing(col)) {
-    error <-
-      try(col <- catch("col", mc, x, sfsp),
-          silent = TRUE)
+    error <- try(col <- catch("col", mc, x, sfsp), silent = TRUE)
     if (inherits(error, "try-error")) {
       col <- catch("col", mc, x$data, sfsp)
       if (isCol(x$data, ".subset"))
         col <- col[x$data$.subset]
     }
   }
+  #
   if (length(col) == 1 & length(x$TE) > 1)
     col <- rep(col, length(x$TE))
-  ##
+  #
   if (!missing(bg)) {
-    error <-
-      try(bg <- catch("bg", mc, x, sfsp),
-          silent = TRUE)
+    error <- try(bg <- catch("bg", mc, x, sfsp), silent = TRUE)
     if (inherits(error, "try-error")) {
       bg <- catch("bg", mc, x$data, sfsp)
       if (isCol(x$data, ".subset"))
         bg <- bg[x$data$.subset]
     }
   }
+  #
   if (length(bg) == 1 & length(x$TE) > 1)
     bg <- rep(bg, length(x$TE))
-  ##
+  #
+  if (length(pch) == 1 & length(x$TE) > 1)
+    pch <- rep(pch, length(x$TE))
+  #
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
   ##
@@ -315,7 +345,20 @@ funnel.meta <- function(x,
   chknumeric(ref)
   if (!is.null(level))
     chklevel(level)
+  #
+  if (!missing(cex.studlab)) {
+    error <-
+      try(cex.studlab <- catch("cex.studlab", mc, x, sfsp), silent = TRUE)
+    if (inherits(error, "try-error")) {
+      cex.studlab <- catch("cex.studlab", mc, x$data, sfsp)
+      if (isCol(x$data, ".subset"))
+        cex.studlab <- cex.studlab[x$data$.subset]
+    }
+  }
+  if (length(cex.studlab) == 1 & length(x$TE) > 1)
+    cex.studlab <- rep(cex.studlab, length(x$TE))
   chknumeric(cex.studlab)
+  #
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   chklogical(ref.triangle)
   chknumeric(lty.ref, length = 1)
@@ -359,12 +402,19 @@ funnel.meta <- function(x,
     seTE <- seTE[!x$exclude]
     if (slab)
       studlab <- studlab[!x$exclude]
+    #
+    if (!is.null(pch))
+      pch <- pch[!x$exclude]
     if (!is.null(text))
       text <- text[!x$exclude]
+    if (!is.null(cex))
+      cex <- cex[!x$exclude]
     if (!is.null(col))
       col <- col[!x$exclude]
     if (!is.null(bg))
       bg <- bg[!x$exclude]
+    if (!is.null(cex.studlab))
+      cex.studlab <- cex.studlab[!x$exclude]
   }
   
   
@@ -743,11 +793,16 @@ funnel.meta <- function(x,
   
   ##
   ##
-  ## (6) Return some information on funnel plot
+  ## (6) Return information on funnel plot
   ##
   ##
-  res <- list(xlim = xlim, ylim = ylim)
-  ##
+  res <- list(xvals = TE, yvals = weight,
+              pch = pch, text = text, cex = cex, col = col,
+              bg = bg, cex.studlab = cex.studlab)
+  #
+  res$xlim <- xlim
+  res$ylim <- ylim
+  #
   if (!is.null(contour.levels) &
       !(yaxis %in% c("size", "invsqrtsize", "ess"))) {
     res$contour.levels <- contour.levels
@@ -764,4 +819,31 @@ funnel.meta <- function(x,
   }
   
   invisible(res)
+}
+
+
+
+
+
+#' @rdname funnel.meta
+#' @export setvals
+
+setvals <- function(x, vals = seq_along(unique(x))) {
+  if (is.factor(x))
+    levs <- levels(x)
+  else
+    levs <- sort(unique(x))
+  #
+  if (length(levs) != length(vals))
+    stop("Length of argument 'vals' must be identical to the number of ",
+         "unique values in argument 'x'.", call. = FALSE)
+  #
+  res <- factor(x, levels = levs, labels = vals)
+  #
+  res <- as.character(res)
+  #
+  if (is.numeric(vals))
+    res <- as.numeric(res)
+  #
+  res
 }
