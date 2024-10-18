@@ -570,7 +570,7 @@ setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
 setOption("ci4rate", c("NAsm", "Poisson"))
 ##
-setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
+setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "LRP", "SSW"))
 setOption("meth4inc", c("Inverse", "MH", "Cochran", "GLMM"))
 setOption("meth4prop", c("Inverse", "GLMM"))
 setOption("meth4rate", c("Inverse", "GLMM"))

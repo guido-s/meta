@@ -185,8 +185,8 @@ setmethodbias <- function(x, subset) {
 }
 
 set_method_tau <- function(method.tau, missing.tau,
-                         method.predict, missing.predict,
-                         warn = TRUE) {
+                           method.predict, missing.predict,
+                           warn = TRUE) {
   if (method.tau != "REML" & any(method.predict == "KR")) {
     if (missing.tau & !missing.predict) {
       if (warn)
@@ -202,8 +202,8 @@ set_method_tau <- function(method.tau, missing.tau,
 }
 
 set_method_predict <- function(method.predict, missing.predict,
-                             method.tau, missing.tau,
-                             warn = TRUE) {
+                               method.tau, missing.tau,
+                               warn = TRUE) {
   any_KR <- any(method.predict %in% "KR")
   any_KR_PR <- any(method.predict %in% "KR-PR")
   #

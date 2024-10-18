@@ -5,10 +5,11 @@
 #' ratio, odds ratio, risk difference, arcsine difference, or
 #' diagnostic odds ratio) for meta-analyses with binary outcome
 #' data. Mantel-Haenszel, inverse variance, Peto method, generalised
-#' linear mixed model (GLMM), and sample size method are available for
-#' pooling. For GLMMs, the \code{\link[metafor]{rma.glmm}} function
-#' from R package \bold{metafor} (Viechtbauer, 2010) is called
-#' internally.
+#' linear mixed model (GLMM), logistic regression with penalised likelihood
+#' and sample size method are available for pooling. For GLMMs,
+#' the \code{\link[metafor]{rma.glmm}} function from R package \bold{metafor}
+#' (Viechtbauer, 2010) is called internally. For penalised logistic regression,
+#' R package \bold{brglm2} must be available.
 #' 
 #' @param event.e Number of events in experimental group, or true
 #'   positives in diagnostic study, or an R object
@@ -33,8 +34,8 @@
 #' @param rho Assumed correlation of estimates within a cluster.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
-#'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
-#'   be abbreviated.
+#'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, \code{"LRP"}, or \code{"SSW"},
+#'   can be abbreviated.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"},
 #'   \code{"DOR"}, or \code{"VE"}) is to be used for pooling of
@@ -98,7 +99,7 @@
 #'   be the same across subgroups.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
-#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
@@ -186,7 +187,7 @@
 #' @param control An optional list to control the iterative process to
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
-#'   \code{\link[metafor]{rma.glmm}}, respectively.
+#'   \code{\link[metafor]{rma.glmm}}.
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
 #'   arguments.
@@ -215,7 +216,7 @@
 #' \code{VE = 100 * (1 - RR)}.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -265,11 +266,29 @@
 #' from a two-by-two table.  Accordingly, statistical methods for IPD,
 #' i.e., logistic regression and generalised linear mixed models, can
 #' be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
-#' 2010; Simmonds et al., 2016). These methods are available (argument
-#' \code{method = "GLMM"}) for the odds ratio as summary measure for
+#' 2010; Simmonds et al., 2016).
+#' 
+#' R package \bold{brglm2} must be available to fit a one-stage logistic
+#' regression model with penalised likelihood (Evrenoglou et al., 2022).
+#' The estimation of the summary odds ratio relies on the maximisation of the 
+#' likelihood function, penalized using a Firth-type correction. This
+#' penalisation aims to reduce bias in cases with rare events and a small
+#' number of available studies. However, this method is not restricted 
+#' to only such cases and can be applied more generally to binary data. Note,
+#' with this type of penalisation, all studies can be included in the analysis,
+#' regardless of the total number of observed events. This allows both single
+#' and double zero studies to be included without any continuity correction.
+#' The random effects model uses a multiplicative heterogeneity parameter
+#' \eqn{\phi}, added to the model as an \emph{ad hoc} term. The estimation of
+#' this parameter relies on a modified expression of Pearson's statistic, which
+#' accounts for sparse data. An estimate of \eqn{\phi} equal to 1 indicates the
+#' absence of heterogeneity.
+#' 
+#' Generalised linear mixed models are available
+#' (argument \code{method = "GLMM"}) for the odds ratio as summary measure for
 #' the common effect and random effects model by calling the
 #' \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally.
+#' \bold{metafor} internally. 
 #'
 #' Four different GLMMs are available for
 #' meta-analysis with binary outcomes using argument \code{model.glmm}
@@ -427,6 +446,11 @@
 #' Meta-analysis in clinical trials.
 #' \emph{Controlled Clinical Trials},
 #' \bold{7}, 177--88
+#' 
+#' Evrenoglou T, White IR, Afach S, Mavridis D, Chaimani A. (2022):
+#' Network meta-analysis of rare events using penalized likelihood regression.
+#' \emph{Statistics in Medicine},
+#' \bold{41}, 5203--19
 #' 
 #' Fleiss JL (1993):
 #' The statistical basis of meta-analysis.
@@ -605,7 +629,7 @@
 #' # - long computation time (about 12 minutes with Intel Core
 #' #   i7-3667U, 2.0GHz)
 #' # - estimation problems for this very large dataset:
-#' #   * warning that Choleski factorization of Hessian failed
+#' #   * warning that Choleski factorisation of Hessian failed
 #' #   * confidence interval for treatment effect smaller in random
 #' #     effects model compared to common effect model
 #' #
@@ -629,7 +653,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
                       ifelse(!is.na(charmatch(tolower(method),
-                                              c("peto", "glmm", "ssw"),
+                                              c("peto", "glmm", "lrp", "ssw"),
                                               nomatch = NA)),
                              "OR", gs("smbin")),
                     incr = gs("incr"), method.incr = gs("method.incr"),
@@ -652,10 +676,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                         gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
-                    method.tau =
-                      ifelse(!is.na(charmatch(tolower(method), "glmm",
-                                              nomatch = NA)),
-                             "ML", gs("method.tau")),
+                    method.tau,
                     method.tau.ci = gs("method.tau.ci"),
                     level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
@@ -770,6 +791,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chklevel(level)
   ##
+  if (missing(method.tau)) {
+    if (method == "LRP")
+      method.tau <- "DL"
+    else if (method == "GLMM")
+      method.tau <- "ML"
+    else
+      method.tau <- gs("method.tau")
+  }
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
   ##
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -784,10 +813,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
-                 method.predict, missing.method.predict)
+                   method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
-                     method.tau, missing.method.tau)
+                       method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
@@ -828,8 +857,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   method <- setchar(method, gs("meth4bin"))
   if (metafor)
     method <- "Inverse"
+  #
   is.glmm <- method == "GLMM"
-  ##
+  is.lrp <- method == "LRP"
+  #
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
   chklogical(allstudies)
@@ -1112,6 +1143,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   studlab <- setstudlab(studlab, k.All)
   #
   by <- !is.null(subgroup)
+  if (by & is.lrp)
+    stop("Subgroup analysis not defined for penalised logistic regression.",
+         call. = FALSE)
   #
   # Catch 'subset', 'exclude' and 'cluster' from data:
   #
@@ -1469,7 +1503,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ## Estimation of treatment effects in individual studies
   ##
   if (sm %in% c("OR", "DOR")) {
-    if (method %in% c("MH", "Inverse", "GLMM", "SSW")) {
+    if (method != "Peto") {
       ##
       ## Cooper & Hedges (1994), p. 251-2
       ##
@@ -1478,7 +1512,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       seTE <- sqrt((1 / (n11 + incr.e) + 1 / (n12 + incr.e) +
                     1 / (n21 + incr.c) + 1 / (n22 + incr.c)))
     }
-    else if (method == "Peto") {
+    else {
       ##
       ## Cooper & Hedges (1994), p. 252
       ##
@@ -1561,6 +1595,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     common <- FALSE
     method <- "Inverse"
     is.glmm <- FALSE
+    is.lrp <- FALSE
     ##
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
@@ -1569,7 +1604,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (9) Additional checks for GLMM, Peto method or SSW
+  ## (9) Additional checks for GLMM, penalised logistic regression,
+  ##     Peto method or SSW
   ##
   ##
   
@@ -1580,6 +1616,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       stop("Sample size weighting only available with argument 'sm = \"OR\"'")
     else if (is.glmm)
       stop("Generalised linear mixed models only possible with ",
+           "argument 'sm = \"OR\"'.")
+    else if (is.lrp)
+      stop("Logistic regression with penalised likelihood only possible with ",
            "argument 'sm = \"OR\"'.")
   }
   ##
@@ -1601,16 +1640,47 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                 call. = FALSE)
       tau.preset <- NULL
     }
+    #
+    if (model.glmm == "CM.EL")
+      is_installed_package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
   }
-  ##
-  if (is.glmm & model.glmm == "CM.EL")
-    is_installed_package("BiasedUrn", fun, "model.glmm", " = \"CM.EL\"")
+  #
+  if (is.lrp) {
+    chklrp(sm, method.tau, method.random.ci, method.predict,
+           adhoc.hakn.ci, adhoc.hakn.pi, "OR")
+    #
+    if (!is.null(TE.tau)) {
+      if (warn)
+        warning("Argument 'TE.tau' not considered for ",
+                "penalised logistic regression.",
+                call. = FALSE)
+      TE.tau <- NULL
+    }
+    #
+    if (!is.null(tau.preset)) {
+      if (warn)
+        warning("Argument 'tau.preset' not considered for ",
+                "penalised logistic regression.",
+                call. = FALSE)
+      tau.preset <- NULL
+    }
+    #
+    if (method.I2 == "tau2") {
+      if (warn)
+        warning("Argument 'method.I2' set to \"Q\" for ",
+                "penalised logistic regression.",
+                call. = FALSE)
+      method.I2 <- "Q"
+    }
+    #
+    is_installed_package("brglm2", fun, "method", " = \"LRP\"")
+  }
   ##
   ## No need to add anything to cell counts for
   ##  (i)  arcsine difference as summary measure
-  ##  (ii) Peto method or GLMM
+  ##  (ii) Peto method, GLMM, or penalised logistic regression
   ##
-  if (sm == "ASD" | method %in% c("Peto", "GLMM")) {
+  if (sm == "ASD" | method %in% c("Peto", "GLMM", "LRP")) {
     if ((!missing.incr & any(incr != 0)) |
         allincr | addincr |
         (!missing.allstudies & allstudies)
@@ -1628,12 +1698,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                   "for method = \"Peto\".",
                   call. = FALSE)
       }
-      else if (is.glmm) {
-        if ((sparse | addincr) & warn)
-          warning("Note, for method = \"GLMM\", continuity correction ",
-                  "only used to calculate individual study results.",
-                  call. = FALSE)
-      }
+    else if (is.glmm | is.lrp) {
+      if ((sparse | addincr) & warn)
+        warning("Note, for method = \"", method,
+                "\", continuity correction ",
+                "only used to calculate individual study results.",
+                call. = FALSE)
+    }
   }
   
   
@@ -1755,6 +1826,35 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE.common   <- as.numeric(res.glmm$glmm.common$b)
     seTE.common <- as.numeric(res.glmm$glmm.common$se)
     ##
+    w.common <- rep(NA, length(event.e))
+  }
+  else if (is.lrp) {
+    long.bin <- longarm("B", "A",
+                        event1 = event.e[!exclude], n1 = n.e[!exclude],
+                        event2 = event.c[!exclude], n2 = n.c[!exclude])
+    #
+    use.random <-
+      sum(!exclude) > 1 &
+      !((sum(event.e[!exclude], na.rm = TRUE) == 0 &
+           sum(event.c[!exclude], na.rm = TRUE) == 0) |
+          (!any(event.e[!exclude] != n.e[!exclude]) |
+             !any(event.c[!exclude] != n.c[!exclude])))
+    #
+    requireNamespace("brglm2")
+    #
+    fit.glm <-
+      glm(cbind(events, nonevents) ~ as.factor(treat) + as.factor(studlab),
+          data = long.bin,
+          family = binomial(link = "logit"), method = "glm.fit")
+    res.lrp <- update(fit.glm, method = "brglmFit", type = "MPL_Jeffreys")
+    #
+    phi <- phi(res.lrp)
+    #
+    sel.trt <- grepl("treat", names(coef(res.lrp)))
+    #
+    TE.common   <- as.numeric(coef(res.lrp)[sel.trt])
+    seTE.common <- as.numeric(sqrt(diag(vcov(res.lrp)))[sel.trt])
+    #
     w.common <- rep(NA, length(event.e))
   }
   else if (method == "SSW") {
@@ -1883,11 +1983,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$allincr <- allincr
   res$addincr <- addincr
   ##
-  if (method %in% c("MH", "Peto", "GLMM", "SSW")) {
+  if (method %in% c("MH", "Peto", "GLMM", "LRP", "SSW")) {
     res <- ci2meta(res, ci.c = ci(TE.common, seTE.common, level = level.ma))
     res$w.common <- w.common
   }
-  ##
+  #
   if (is.glmm) {
     res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
@@ -1919,6 +2019,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           method.I2
         )
     }
+  }
+  else if (method == "LRP") {
+    res <- ci2meta(res,
+                   ci.r = ci(TE.common, seTE.common * sqrt(phi),
+                             level = level.ma,
+                             df = ifelse(method.random.ci == "HK",
+                                         m$k - 1, Inf)))
+    res$w.random <- w.common
+    res$phi <- phi
+    #
+    #if (by) {
+    #  ...
+    #}
   }
   else if (method == "SSW") {
     res <- ci2meta(res,
@@ -1970,7 +2083,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
     ##
     if (tau.common && is.null(tau.preset))
-      res <- addHet(res, hcc, !is.glmm)
+      res <- addHet(res, hcc, !(is.glmm | is.lrp))
     ##
     res$n.w <- NULL
     res$event.w <- NULL
@@ -1983,11 +2096,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
-  ##
-  ## Mantel-Haenszel method is common effect method
-  ##
+  #
+  # Mantel-Haenszel method is common effect method
+  #
   if (res$method.random == "MH")
     res$method.random <- "Inverse"
+  #
+  # Do not return tau^2 and tau for penalized logistic regression
+  #
+  if (is.lrp) {
+    res$method.random <- "LRP"
+    #
+    res$tau2 <- res$lower.tau2 <- res$upper.tau2 <- NA
+    res$tau <- res$lower.tau <- res$upper.tau <- NA
+    res$method.tau <- ""
+    #
+    res <- calcPI(res)
+    #
+    res$version.brglm2 <- packageDescription("brglm2")$Version
+  }
   ##
   ## Backward compatibility
   ##

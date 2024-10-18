@@ -10,6 +10,10 @@
 
 * Meta-analysis of n-of-1 trials implemented [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
 
+* Logistic regression with penalised likelihood implemented for meta-analysis
+  of rare events
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+
 * I2 statistic can be calculated from between-study variance instead of
   Q statistic
 

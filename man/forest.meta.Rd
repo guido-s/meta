@@ -671,7 +671,7 @@ heterogeneity). If FALSE, heterogeneity statistics are printed
 
 \item{LRT}{A logical value indicating whether to report
 Likelihood-Ratio or Wald-type test of heterogeneity for
-generalized linear mixed models.}
+generalised linear mixed models.}
 
 \item{test.overall}{A logical value indicating whether to print
 results of test for overall effect.}

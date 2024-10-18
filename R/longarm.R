@@ -146,9 +146,6 @@ longarm <- function(treat1, treat2,
   missing.treat1 <- missing(treat1)
   missing.treat2 <- missing(treat2)
   ##
-  if (missing.treat1)
-    stop("Argument 'treat1' mandatory.")
-  ##
   treat1 <- catch("treat1", mc, data, sfsp)
   ##
   ignore <- function(miss, name, func)
@@ -321,9 +318,6 @@ longarm <- function(treat1, treat2,
     time1 <- catch("time1", mc, data, sfsp)
     time2 <- catch("time2", mc, data, sfsp)
     ##
-    if (missing.treat2)
-      stop("Argument 'treat2' mandatory.")
-    ##
     if (!is.null(event1))
       chknumeric(event1)
     if (!is.null(event2))
@@ -369,6 +363,34 @@ longarm <- function(treat1, treat2,
            "- event1, n1, event2, n2 (binary outcome)\n  ",
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
+    #
+    if (type == "count")
+      k.all <-
+      max(length(event1), length(time1), length(event2), length(time2))
+    else if (type == "binary")
+      k.all <-
+      max(length(event1), length(n1), length(event2), length(n2))
+    else if (type == "continuous")
+      k.all <-
+      max(length(n1), length(mean1), length(sd1),
+          length(n2), length(mean2), length(sd2))
+    #
+    if (missing.treat1 & missing.treat2) {
+      treat1 <- rep("B", k.all)
+      treat2 <- rep("A", k.all)
+      #
+      missing.treat2 <- FALSE
+    }
+    else if (!missing.treat1 && !missing.treat2 &&
+             length(treat1) == 1 && length(treat2) == 1) {
+      treat1 <- rep(treat1, k.all)
+      treat2 <- rep(treat2, k.all)
+    }
+    ##
+    if (missing.treat2)
+      stop("Argument 'treat2' mandatory.")
+    #
+    studlab <- replaceNULL(studlab, seq_along(treat1))
     ##
     ## Keep data set
     ##

@@ -36,7 +36,7 @@
 #' 
 #' Individual study results are not retained with \code{metabind} as
 #' the function allows to combine meta-analyses from different data
-#' sets (e.g., with randomized or observational studies). Individual
+#' sets (e.g., with randomised or observational studies). Individual
 #' study results are retained with R function \code{\link{metamerge}}
 #' which can be used to combine results of meta-analyses of the
 #' same dataset.

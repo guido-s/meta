@@ -73,7 +73,7 @@
 #'   be the same across subgroups.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
-#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
@@ -188,7 +188,7 @@
 #' \code{VE = 100 * (1 - IRR)}.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =

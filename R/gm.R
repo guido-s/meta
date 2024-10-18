@@ -169,7 +169,10 @@ gm <- function(x, digits = 4, debug = FALSE) {
   }
   if (!is.null(x$model.glmm))
     res$meth$model.glmm <- x$model.glmm
-  ##
+  #
+  if (!is.null(x$phi))
+    res$meth$phi <- x$phi
+  #
   if (inherits(x, "trimfill")) {
     res$meth$k0 <- x$k0
     res$meth$left <- x$left

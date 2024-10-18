@@ -100,7 +100,7 @@
 #'   be the same across subgroups.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
-#'   \code{"Q"} or \code{"tau"}, can be abbreviated
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
@@ -1140,6 +1140,9 @@ update.meta <- function(object,
   missing.method.bias <- missing(method.bias)
   ##
   if (metabin) {
+    if (object$method.tau == "" & object$method.random == "LRP")
+      object$method.tau <- "DL"
+    #
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))
     ##

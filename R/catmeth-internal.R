@@ -8,6 +8,8 @@ text_meth <- function(x, i, random, method) {
     txt <- text_Inverse(x, i, random, method)
   else if (x$method[i] == "GLMM")
     txt <- text_GLMM(x, i, random, method)
+  else if (x$method[i] == "LRP")
+    txt <- text_LRP(x, i, random, method)
   else if (x$method[i] == "Cochran")
     txt <- text_Cochran(x, i, random)
   else if (x$method[i] == "SSW")
@@ -146,6 +148,26 @@ text_GLMM <- function(x, i, random, method) {
       any(x$method[x$model == "common"] != "GLMM"))
     txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
   ##
+  txt
+}
+
+
+text_LRP <- function(x, i, random, method) {
+  meth.i <- x[i, , drop = FALSE]
+  #
+  txt <- "\n- Penalised logistic regression model"
+  #
+  if (any(x$method == "LRP" & x$model == "random"))
+    txt <- paste0(txt, " (sqrt(phi) = ", round(sqrt(x$phi[i]), 4), ")")
+  #
+  #if (meth.i$model == "random")
+  #  txt <- paste0(txt, " (sqrt(phi) = ", round(sqrt(x$phi[i]), 4), ")")
+  ##
+  #if (meth.i$model == "common" & any(x$model == "random"))
+  #  txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
+  #else if (meth.i$model == "random" & any(x$model == "common"))
+  #  txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
+  #
   txt
 }
 

@@ -666,7 +666,7 @@
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
-#'   weights
+#'   weights glm binomial vcov fitted residuals
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find

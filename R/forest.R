@@ -286,7 +286,7 @@
 #'   (with NAs).
 #' @param LRT A logical value indicating whether to report
 #'   Likelihood-Ratio or Wald-type test of heterogeneity for
-#'   generalized linear mixed models.
+#'   generalised linear mixed models.
 #' @param test.overall A logical value indicating whether to print
 #'   results of test for overall effect.
 #' @param test.overall.common A logical value indicating whether to
@@ -2439,7 +2439,7 @@ forest.meta <- function(x,
   chklogical(LRT)
   if (LRT & all(x$method != "GLMM")) {
     warning("Likelihood-Ratio test of heterogeneity only ",
-            "available for generalized linear mixed models.")
+            "available for generalised linear mixed models.")
     LRT <- FALSE
   }
   #

@@ -99,7 +99,7 @@ be the same across subgroups.}
 
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either
-\code{"Q"} or \code{"tau"}, can be abbreviated
+\code{"Q"} or \code{"tau2"}, can be abbreviated
 (see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals

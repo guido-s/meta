@@ -129,6 +129,8 @@
 #' \code{tau.preset} \tab Prespecified value for \eqn{\tau} \cr
 #' \code{TE.tau} \tab Effect estimate used to estimate \eqn{\tau^2} \cr
 #' \code{detail.tau} \tab Detail on between-study variance estimate \cr
+#' \code{phi} \tab Multiplicative heterogeneity parameter \eqn{phi} in
+#'   penalised logistic regression \cr
 #' \code{H} \tab Heterogeneity statistic H \cr
 #' \code{lower.H} \tab Lower confidence limit (heterogeneity statistic H) \cr
 #' \code{upper.H} \tab Upper confidence limit (heterogeneity statistic H) \cr

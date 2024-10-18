@@ -255,6 +255,9 @@ print.meta <- function(x,
   is.metabind <- inherits(x, "metabind")
   is.netpairwise <- inherits(x, "netpairwise")
   ##
+  method <- x$method
+  method.random <- x$method.random
+  ##
   by <- !is.null(x$subgroup)
   ##
   if (by)
@@ -298,6 +301,11 @@ print.meta <- function(x,
   chklogical(print.tau2.ci)
   chklogical(print.tau)
   chklogical(print.tau.ci)
+  #
+  if (all(method == "LRP") & all(method.random == "LRP")) {
+    print.tau2 <- FALSE
+    print.tau <- FALSE
+  }
   ##
   chklogical(print.I2)
   chklogical(print.I2.ci)
@@ -884,9 +892,6 @@ print.meta <- function(x,
     Rb <- lowRb <- uppRb <- NULL
     print.Rb.ci <- FALSE    
   }
-  ##
-  method <- x$method
-  method.random <- x$method.random
   ##
   three.level <- if (is.null(x$three.level)) FALSE else any(x$three.level)
   is.glmm <- any(method == "GLMM") | any(method.random == "GLMM")

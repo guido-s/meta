@@ -1619,7 +1619,7 @@ pairwise <- function(treat,
                call. = FALSE)
       }
       ##
-      ## For standardized mean difference, calculate pooled standard
+      ## For standardised mean difference, calculate pooled standard
       ## deviation for multi-arm studies
       ##
       if ("sm" %in% nam.args && (tolower(args$sm) == "smd" & narms > 2)) {

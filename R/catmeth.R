@@ -113,11 +113,14 @@ catmeth <- function(x,
     ##
     if (metacont)
       vars.ma <- c(vars.ma, "pooledvar")
-    else if (metabin)
+    else if (metabin) {
       vars.ma <- c(vars.ma, "incr", "method.incr", "sparse", "MH.exact")
+      if (any(meth.ma$method == "LRP"))
+        vars.ma <- c(vars.ma, "phi")
+    }
     else if (metainc)
       vars.ma <- c(vars.ma, "incr", "method.incr", "sparse")
-    ##
+    #
     meth.ma <- unique(meth.ma[, vars.ma, drop = FALSE])
     ##
     details.i <- vector("character", length = nrow(meth.ma))
@@ -285,18 +288,18 @@ catmeth <- function(x,
     dat.rc.hk <-
       subset(dat.rc.hk,
              dat.rc.hk$method.random.ci == "HK" &
-             !(dat.rc.hk$method == "GLMM" | dat.rc.hk$three.level))
+             !(dat.rc.hk$method %in% c("GLMM", "LRP") | dat.rc.hk$three.level))
     ##
-    dat.rc.hk.glmm <-
+    dat.rc.hk.tdist <-
       subset(dat.rc,
              dat.rc$method.random.ci == "HK" &
-             (dat.rc$method == "GLMM" | dat.rc$three.level))
+             (dat.rc$method %in% c("GLMM", "LRP") | dat.rc$three.level))
     ##
     dat.rc.ckr <- subset(dat.rc, dat.rc$method.random.ci == "classic-KR")
     dat.rc.kr <- subset(dat.rc, dat.rc$method.random.ci == "KR")
     ##
     more.ci <- sum(1L * (nrow(dat.rc.hk) > 0) +
-                   1L * (nrow(dat.rc.hk.glmm) > 0) +
+                   1L * (nrow(dat.rc.hk.tdist) > 0) +
                    1L * (nrow(dat.rc.ckr) > 0) +
                    1L * (nrow(dat.rc.kr) > 0)) > 1
     ##
@@ -320,14 +323,14 @@ catmeth <- function(x,
           "ad hoc correction)")
     }
     ##
-    if (nrow(dat.rc.hk.glmm) > 0) {
+    if (nrow(dat.rc.hk.tdist) > 0) {
       details <-
         paste0(
           details,
           "\n- Random effects confidence interval based on t-distribution",
           if (more.ci) " (T)",
           if (print.df)
-            paste0(" (df = ", cond(dat.rc.hk.glmm$df.random, digits = 0), ")")
+            paste0(" (df = ", cond(dat.rc.hk.tdist$df.random, digits = 0), ")")
         )
     }
     ##
@@ -716,7 +719,7 @@ catmeth <- function(x,
         if (metabin) {
           txtCC.ind.i <-
             (dat.cc$method[i] == "MH" & dat.cc$MH.exact[i]) |
-            dat.cc$method[i] == "GLMM"
+            dat.cc$method[i] %in% c("GLMM", "LRP")
           ##
           if (!is.na(dat.cc$RR.Cochrane[i]) &&
               dat.cc$RR.Cochrane[i] &
@@ -729,7 +732,7 @@ catmeth <- function(x,
           }
         }
         else
-          txtCC.ind.i <- dat.cc$method[i] == "GLMM"
+          txtCC.ind.i <- dat.cc$method[i] %in% c("GLMM", "LRP")
         ##
         if (method.incr.i == "all") {
           if (incr.i == "TACC") {

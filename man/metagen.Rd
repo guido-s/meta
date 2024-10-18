@@ -178,7 +178,7 @@ be the same across subgroups.}
 
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either
-\code{"Q"} or \code{"tau"}, can be abbreviated
+\code{"Q"} or \code{"tau2"}, can be abbreviated
 (see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
@@ -418,7 +418,7 @@ standard errors, like \code{lower} and \code{upper}, or \code{df}, are
 ignored for the meta-analysis of n-of-1 trials.
 
 A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{cluster} is used and at
+et al., 2013) is utilised if argument \code{cluster} is used and at
 least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -452,7 +452,7 @@ effect measures like the odds ratio or hazard ratio).
 If the treatment effect is a mean it can be approximated from
 sample size, median, interquartile range and range.
 
-By default, methods described in Luo et al. (2018) are utilized
+By default, methods described in Luo et al. (2018) are utilised
 (argument \code{method.mean = "Luo"}):
 \itemize{
 \item equation (7) if sample size, median and range are available,

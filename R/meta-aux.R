@@ -351,7 +351,7 @@ setNAwithin <- function(x, condition) {
 extrVar <- function(x, name)
   x[[name]]
 
-# Function only used with MLM or GLMM
+# Function only used with MLM, GLMM, or LRP
 #
 calcPI <- function(x) {
   
@@ -656,6 +656,40 @@ hccGLMM <- function(x, glmm, method.I2) {
        upper.I2.resid = I2.r$upper
        )
 }
+
+
+# Estimate the heterogeneity parameter phi using the
+# modified version of Pearson's statistic.
+#
+phi <- function(x) {
+  # Extract number of trials
+  n.trials <- x$prior.weights
+  #
+  if (identical(unique(n.trials), 1))
+    stop("The number of successes must be summarized for valid computation of ",
+         "c-hat.")
+  
+  # Pearson chi-square
+  chisq <- sum(residuals(x, type = "pearson")^2)
+  
+  # Extract raw residuals
+  raw.res <- residuals(x, type = "response")
+  
+  # Extract fitted values
+  fit.vals <- fitted(x)
+  
+  # Estimate s.bar
+  s.bar <- mean((1 - 2 * fit.vals) / ((n.trials * fit.vals) * (1 - fit.vals)))
+  
+  # Calculate estimate based on Fletcher estimator
+  phi <- (chisq / x$df.residual) / (1 + s.bar)
+  
+  # Set phi = 1 if phi < 1 to remain consistent with common effect model
+  phi <- max(phi, 1)
+  
+  phi
+}
+
 
 calcPercent <- function(x)
   100 * x / sum(x, na.rm = TRUE)
