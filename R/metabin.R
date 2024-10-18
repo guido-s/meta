@@ -1840,13 +1840,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           (!any(event.e[!exclude] != n.e[!exclude]) |
              !any(event.c[!exclude] != n.c[!exclude])))
     #
-    requireNamespace("brglm2")
-    #
     fit.glm <-
       glm(cbind(events, nonevents) ~ as.factor(treat) + as.factor(studlab),
           data = long.bin,
           family = binomial(link = "logit"), method = "glm.fit")
-    res.lrp <- update(fit.glm, method = "brglmFit", type = "MPL_Jeffreys")
+    res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
     #
     phi <- phi(res.lrp)
     #

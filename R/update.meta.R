@@ -1140,17 +1140,15 @@ update.meta <- function(object,
   missing.method.bias <- missing(method.bias)
   ##
   if (metabin) {
-    if (object$method.tau == "" & object$method.random == "LRP")
-      object$method.tau <- "DL"
-    #
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))
     ##
     if (!is.null(...cluster))
       method <- "Inverse"
     ##
-    if (method == "GLMM" & !missing.sm & sm != "OR")
-      warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
+    if (method %in% c("GLMM", "LRP") & !missing.sm & sm != "OR")
+      warning("Summary measure 'sm = \"OR\" used as 'method = \"",
+              method, "\".")
     ##
     if (sm == "ASD") {
       if (!missing.incr && any(incr != 0))
@@ -1174,6 +1172,11 @@ update.meta <- function(object,
       sm <- "OR"
       method.tau <- "ML"
       model.glmm <- replaceNULL(model.glmm, gs("model.glmm"))
+    }
+    ##
+    if (method == "LRP") {
+      sm <- "OR"
+      method.tau <- "DL"
     }
     ##
     RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
