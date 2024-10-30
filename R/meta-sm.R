@@ -4,7 +4,7 @@
 #' Description of summary measures available in R package \bold{meta}
 #' 
 #' @details
-#' The following summary measures (argument \code{sm}) are recognized
+#' The following summary measures (argument \code{sm}) are recognised
 #' in R package \bold{meta}.
 #'
 #' \subsection{Meta-analysis of binary outcome data (\code{\link{metabin})}}{

@@ -199,6 +199,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
+                     level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
                      ##
@@ -214,10 +215,13 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
+                     #
                      label.e = mdat$label.e, label.c = mdat$label.c,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
-                     ##
+                     col.label.left = mdat$col.label.left,
+                     col.label.right = mdat$col.label.right,
+                     #
                      control = mdat$control)
     else
       res <- metagen(smd, se.smd, studlab = mdat$studlab,
@@ -243,6 +247,7 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
+                     level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
                      ##
@@ -258,10 +263,13 @@ or2smd <- function(lnOR, selnOR, studlab,
                      ##
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
+                     #
                      label.e = mdat$label.e, label.c = mdat$label.c,
                      label.left = mdat$label.left,
                      label.right = mdat$label.right,
-                     ##
+                     col.label.left = mdat$col.label.left,
+                     col.label.right = mdat$col.label.right,
+                     #
                      subgroup = mdat$subgroup,
                      subgroup.name = mdat$subgroup.name,
                      print.subgroup.name = mdat$print.subgroup.name,

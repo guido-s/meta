@@ -33,29 +33,30 @@
   digits = gs("digits"),
   digits.stat = gs("digits.stat"),
   digits.pval = max(gs("digits.pval"), 2),
-  digits.pval.Q = max(gs("digits.pval.Q"), 2),
-  digits.Q = gs("digits.Q"),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
+  digits.Q = gs("digits.Q"),
+  digits.df = gs("digits.df"),
+  digits.pval.Q = max(gs("digits.pval.Q"), 2),
   digits.H = gs("digits.H"),
   digits.I2 = gs("digits.I2"),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
-  digits.df = gs("digits.df"),
   print.tau2 = gs("print.tau2"),
   print.tau2.ci = gs("print.tau2.ci"),
   print.tau = gs("print.tau"),
   print.tau.ci = gs("print.tau.ci"),
+  print.Q = gs("print.Q"),
   print.I2 = gs("print.I2"),
+  print.I2.ci = gs("print.I2.ci"),
   print.H = gs("print.H"),
   print.Rb = gs("print.Rb"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
   text.Rb = gs("text.Rb"),
-  print.Q = gs("print.Q"),
   details.methods = gs("details"),
   warn.backtransf = FALSE,
   func.backtransf = x$func.backtransf,
@@ -169,18 +170,21 @@ t-value of test for overall effect, see \code{print.default}.}
 \item{digits.pval}{Minimal number of significant digits for p-value
 of overall treatment effect, see \code{print.default}.}
 
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
-
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance \eqn{\tau^2}, see \code{print.default}.}
 
 \item{digits.tau}{Minimal number of significant digits for
 \eqn{\tau}, the square root of the between-study variance
 \eqn{\tau^2}.}
+
+\item{digits.Q}{Minimal number of significant digits for
+heterogeneity statistic Q, see \code{print.default}.}
+
+\item{digits.df}{Minimal number of significant digits for degrees
+of freedom.}
+
+\item{digits.pval.Q}{Minimal number of significant digits for
+p-value of heterogeneity test, see \code{print.default}.}
 
 \item{digits.H}{Minimal number of significant digits for H
 statistic, see \code{print.default}.}
@@ -201,9 +205,6 @@ printed with a leading zero.}
 overall effect should be printed according to JAMA reporting
 standards.}
 
-\item{digits.df}{Minimal number of significant digits for degrees
-of freedom.}
-
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}
 
@@ -217,8 +218,14 @@ printed.}
 \item{print.tau.ci}{A logical value indicating whether to print the
 confidence interval of \eqn{\tau}.}
 
+\item{print.Q}{A logical value indicating whether to print the
+results of the test of heterogeneity.}
+
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I\eqn{^2} should be printed.}
+
+\item{print.I2.ci}{A logical specifying whether confidence interval for
+heterogeneity statistic I\eqn{^2} should be printed.}
 
 \item{print.H}{A logical specifying whether heterogeneity statistic
 H should be printed.}
@@ -237,9 +244,6 @@ I\eqn{^2}.}
 
 \item{text.Rb}{Text printed to identify heterogeneity statistic
 R\eqn{_b}.}
-
-\item{print.Q}{A logical value indicating whether to print the
-results of the test of heterogeneity.}
 
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}

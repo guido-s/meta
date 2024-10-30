@@ -21,7 +21,7 @@ Cochrane review.
 }
 \details{
 This function can be used to redo all or selected meta-analyses of
-a Cochrane Review.
+a Cochrane Review of interventions (Higgins et al., 2023).
 
 Review Manager 5 (RevMan 5) was the software used for preparing and
 maintaining Cochrane Reviews
@@ -49,10 +49,11 @@ print(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 
 }
 \references{
-Higgins, J.P.T and S. Green (2011):
+Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
+VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
-  Version 5.1.0 [Updated March 2011]}.
-The Cochrane Library: http://www.cochrane-handbook.org
+  Version 6.4 (updated August 2023)}.
+Available from \url{https://www.training.cochrane.org/handbook}
 }
 \seealso{
 \code{\link{summary.meta}}, \code{\link{metacr}},

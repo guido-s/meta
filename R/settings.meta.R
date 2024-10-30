@@ -1,5 +1,4 @@
-#' Print and change default settings to conduct and print or plot
-#' meta-analyses in R package \bold{meta}.
+#' Print and change default meta-analysis settings in R package \bold{meta}
 #' 
 #' @description
 #' Print and change default settings to conduct and print or plot
@@ -32,6 +31,7 @@
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
 #' \item \code{settings.meta("meta4")}
+#' \item \code{settings.meta("meta7")}
 #' }
 #'
 #' The first command can be used to reproduce meta-analyses from
@@ -44,8 +44,8 @@
 #' The third command can be used to generate forest plots following
 #' instructions for authors of the \emph{Journal of the American
 #' Medical Association}
-#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).Study
-#' labels according to JAMA guidelines can be generated using
+#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).
+#' Study labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
 #'
 #' The next commands implement the recommendations of the Institute
@@ -57,8 +57,8 @@
 #' scientific notation and to suppress the calculation of confidence
 #' intervals for the between-study variance.
 #'
-#' The last setting uses the default settings of R package
-#' \bold{meta}, version 4 or below.
+#' The last settings use the default settings of R package
+#' \bold{meta}, version 4 and 7.0-0, respectively, or below.
 #' 
 #' RevMan 5 settings, in detail:
 #' \tabular{lll}{
@@ -67,6 +67,7 @@
 #'   in RevMan 5 \cr
 #' \code{method.tau} \tab "DL" \tab only available method in RevMan 5
 #'   \cr
+#' \code{method.I2} \tab "Q" \tab only available method in RevMan 5 \cr
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
 #'   subgroups \cr
 #' \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
@@ -84,14 +85,11 @@
 #' \code{test.effect.subgroup} \tab TRUE \tab print information on
 #'   test for effect in subgroups \cr
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
-#'   forest plots
-#'   \cr
-#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
-#'   in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#'   forest plots \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -125,12 +123,10 @@
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
 #'   forest plots
 #'   \cr
-#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity variance
-#'   in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -163,12 +159,10 @@
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
 #'   forest plots
 #'   \cr
-#' \code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity
-#'   variance in forest plots
-#'   \cr
-#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity
-#'   standard deviation in forest plots
-#'   \cr
+#' \code{forest.tau2} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab variance in forest plots \cr
+#' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
+#'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
 #'   forest plots
 #'   \cr
@@ -187,7 +181,8 @@
 #' \code{zero.pval}, \tab FALSE \tab print p-values with leading zero
 #' \cr
 #' \code{JAMA.pval}, \tab TRUE \tab round p-values to three digits
-#'   (for 0.001 < p \eqn{\le} 0.01) or two digits (p > 0.01) \cr
+#'   (for 0.001 < p \eqn{\le} 0.01) \cr
+#'   \tab \tab or two digits (p > 0.01) \cr
 #' \code{header.line}, \tab TRUE \tab print header line
 #' }
 #' 
@@ -212,27 +207,62 @@
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{scientific.pval} \tab TRUE \tab Scientific notation for p-values \cr
-#' \code{method.tau.ci} \tab FALSE \tab no confidence interval for \cr
-#'  \tab between-study heterogeneity variance \cr
+#' \code{method.tau.ci} \tab FALSE \tab
+#'   no confidence interval for between-study \cr
+#'  \tab \tab heterogeneity variance \cr
 #' }
 #' 
 #' Settings for \bold{meta}, version 4 or below:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
 #' \code{method.tau} \tab "DL" \tab DerSimonian-Laird estimator \cr
+#' \code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
+#' \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
+#'   degrees \cr
+#'   \tab \tab of freedom \cr
+#' \code{exact.smd} \tab FALSE \tab Use exact formula for standardised mean \cr
+#'   \tab \tab difference (White and Thomas, 2005) \cr
+#' \code{text.common} \tab "Fixed effect model" \tab \cr
+#' \code{text.w.common} \tab "fixed" \tab \cr
+#' \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
+#'   \cr
+#'   \tab \tab arguments
+#' }
+#' 
+#' Settings for \bold{meta}, version 7.0-0 or below:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.tau} \tab "REML" \tab REML estimator \cr
+#' \code{method.I2} \tab "Q" \tab Use Q to calculate I-squared \cr
+#' \code{method.predict} \tab "HTS" \tab prediction interval with \emph{k-2}
+#'   degrees \cr
+#'   \tab \tab of freedom \cr
+#' \code{exact.smd} \tab TRUE \tab Use exact formula for standardised mean \cr
+#'   \tab \tab difference (White and Thomas, 2005) \cr
+#' \code{text.common} \tab "Common effect model" \tab \cr
+#' \code{text.w.common} \tab "common" \tab \cr
+#' \code{warn.deprecated} \tab FALSE \tab Do not print warnings for deprecated
+#'   \cr
+#'   \tab \tab arguments
 #' }
 #' 
 #' A list of all arguments with current settings is printed using the
-#' command \code{settings.meta("print")}.
+#' command \code{settings.meta()}.
 #' 
 #' In order to reset all settings of R package \bold{meta} the command
-#' \code{settings.meta("reset")} or \code{settings.meta(reset = TRUE)}
-#' can be used.
+#' \code{settings.meta(reset = TRUE)} can be used.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{gs}}, \code{\link{forest.meta}},
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
+#'
+#' @references
+#' White IR, Thomas J (2005):
+#' Standardized mean differences in individually-randomized and
+#' cluster-randomized trials, with applications to meta-analysis.
+#' \emph{Clinical Trials},
+#' \bold{2}, 141--51
 #' 
 #' @examples
 #' # Get listing of current settings
@@ -340,7 +370,7 @@ settings.meta <- function(..., quietly = TRUE) {
   ## Set internal variables
   ##
   settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6", "geneexpr", "meta4")
+                "IQWiG5", "IQWiG6", "geneexpr", "meta4", "meta7")
   layouts <- c(settings[1:2], "meta")
   ##
   print.settings <- FALSE
@@ -442,18 +472,31 @@ settings.meta <- function(..., quietly = TRUE) {
     chkdeprecated(names.all, "method.incr", "addincr")
     chkdeprecated(names.all, "method.incr", "allincr")
   }
-  ##  
+  
+  
+  #
+  # Check for new argument names
+  #
+  newargs <- vector("character", 0)
+  #
+  for (i in seq_along(names.all)) {
+    if (is.null(
+      setchar(names.all[i],
+              c(.settings$argslist.meta, "reset", "print", "setting", ""),
+              stop.at.error = FALSE)))
+      newargs <- c(newargs, names.all[i])
+  }
+  #
+  for (i in seq_len(length(newargs))) {
+    setOption("argslist", c(.settings$argslist, newargs[i]))
+    setOption(newargs[i], args[[newargs[i]]])
+  }
+  #
   names <- names.all[!(names.all %in% .settings$argslist.internal)]
   
   
   ##
   ## Check argument names
-  ##
-  for (i in seq_along(names))
-    names[i] <- setchar(names[i],
-                        c(.settings$argslist, "reset", "print", "setting", ""),
-                        "unmatched",
-                        name = names[i])
   ##
   if (length(names) != length(unique(names)))
     stop("Arguments must be unique.")
@@ -498,11 +541,12 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("adhoc.hakn.pi", "")
     setOption("method.tau", "REML")
     setOption("method.tau.ci", NULL)
+    setOption("level.hetstat", 0.95)
     setOption("tau.common", FALSE)
-    setOption("method.i2", "q")
+    setOption("method.I2", "Q")
     setOption("prediction", FALSE)
     setOption("level.predict", 0.95)
-    setOption("method.predict", "HTS")
+    setOption("method.predict", "V")
     setOption("test.subgroup", TRUE)
     setOption("prediction.subgroup", FALSE)
     setOption("method.bias", "Egger")
@@ -524,8 +568,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("sep.subgroup", " = ")
     setOption("byseparator", " = ")
     setOption("keepdata", TRUE)
+    setOption("keeprma", FALSE)
     setOption("warn", TRUE)
-    setOption("warn.deprecated", FALSE)
+    setOption("warn.deprecated", TRUE)
     setOption("transf", TRUE)
     setOption("backtransf", TRUE)
     setOption("digits", 4)
@@ -556,6 +601,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("print.tau", TRUE)
     setOption("print.tau.ci", TRUE)
     setOption("print.I2", TRUE)
+    setOption("print.I2.ci", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
     ##
@@ -673,7 +719,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("col.diamond.lines", "black")
     setOption("col.predict", "red")
     setOption("col.predict.lines", "black")
-    setOption("col.subgroup", "darkgray")
+    setOption("col.subgroup", "black")
     setOption("col.label.right", "black")
     setOption("col.label.left", "black")
     ##
@@ -881,7 +927,8 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "RevMan5") {
       specificSettings(
-        args = c("method.random.ci", "method.tau", "tau.common",
+        args = c("method.random.ci", "method.tau", "method.I2",
+                 "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
                  "exact.smd",
                  "layout", "prediction", "test.overall",
@@ -899,6 +946,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "hetlab", "header.line"),
         new = list(replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
+                   replaceNULL(args[["method.I2"]], "Q"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
@@ -958,10 +1006,13 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     ##
     else if (setting == "meta4") {
-      specificSettings(args = c("method.tau", "exact.smd",
+      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+                                "exact.smd",
                                 "text.common", "text.w.common",
                                 "warn.deprecated"),
                        new = list(replaceNULL(args[["method.tau"]], "DL"),
+                                  replaceNULL(args[["method.I2"]], "Q"),
+                                  replaceNULL(args[["method.predict"]], "HTS"),
                                   replaceNULL(args[["exact.smd"]], FALSE),
                                   replaceNULL(args[["text.common"]],
                                               "Fixed effect model"),
@@ -971,6 +1022,26 @@ settings.meta <- function(..., quietly = TRUE) {
                                               FALSE)),
                        setting =
                          "settings from meta, version 4 or below",
+                       quietly = quietly)
+    }
+    ##
+    else if (setting == "meta7") {
+      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+                                "exact.smd",
+                                "text.common", "text.w.common",
+                                "warn.deprecated"),
+                       new = list(replaceNULL(args[["method.tau"]], "REML"),
+                                  replaceNULL(args[["method.I2"]], "Q"),
+                                  replaceNULL(args[["method.predict"]], "HTS"),
+                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  replaceNULL(args[["text.common"]],
+                                              "Common effect model"),
+                                  replaceNULL(args[["text.w.common"]],
+                                              "common"),
+                                  replaceNULL(args[["warn.deprecated"]],
+                                              FALSE)),
+                       setting =
+                         "settings from meta, version 7.0-0 or below",
                        quietly = quietly)
     }
     ##
@@ -1002,8 +1073,9 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("adhoc.hakn.pi      ")
     catarg("method.tau         ")
     catarg("method.tau.ci      ")
+    catarg("level.hetstat      ")
     catarg("tau.common         ")
-    ##catarg("method.i2          ")
+    catarg("method.I2          ")
     catarg("prediction         ")
     catarg("level.predict      ")
     catarg("method.predict     ")
@@ -1026,6 +1098,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("print.subgroup.name")
     catarg("sep.subgroup       ")
     catarg("keepdata           ")
+    catarg("keeprma            ")
     catarg("warn               ")
     catarg("warn.deprecated    ")
     catarg("backtransf         ")
@@ -1054,6 +1127,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("print.tau          ")
     catarg("print.tau.ci       ")
     catarg("print.I2           ")
+    catarg("print.I2.ci        ")
     catarg("print.H            ")
     catarg("print.Rb           ")
     catarg("text.tau2          ")
@@ -1305,8 +1379,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("adhoc.hakn.pi", args, gs("adhoc4hakn.pi"))
     setcharacter("method.tau", args, gs("meth4tau"))
     setcharacter("method.tau.ci", args, c("J", "BJ", "QP", "PL", ""))
+    setlevel("level.hetstat", args)
     setlogical("tau.common", args)
-    setcharacter("method.i2", args, gs("meth4i2"))
+    setcharacter("method.I2", args, gs("meth4i2"))
     setlogical("prediction", args)
     setlevel("level.predict", args)
     setcharacter("method.predict", args, gs("meth4pi"))
@@ -1336,6 +1411,7 @@ settings.meta <- function(..., quietly = TRUE) {
       setOption("sep.subgroup", args[[depr]])
     ##
     setlogical("keepdata", args)
+    setlogical("keeprma", args)
     setlogical("warn", args)
     setlogical("warn.deprecated", args)
     setlogical("backtransf", args)
@@ -1370,6 +1446,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("print.tau", args)
     setlogical("print.tau.ci", args)
     setlogical("print.I2", args)
+    setlogical("print.I2.ci", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
     ##
@@ -1603,11 +1680,19 @@ settings.meta <- function(..., quietly = TRUE) {
             "can only be used with\n  ",
             "REML estimator (method.tau = \"REML\").",
             call. = FALSE)
-  ##
+  #
   if (any(gs("method.predict") == "KR") & gs("method.tau") != "REML")
     warning("Default settings for arguments 'method.tau' and ",
             "'method.predict' do not match:\n",
             "- Kenward-Roger method (method.predict = \"KR\") ",
+            "can only be used with\n  ",
+            "REML estimator (method.tau = \"REML\").",
+            call. = FALSE)
+  #
+  if (any(gs("method.predict") == "KR-PR") & gs("method.tau") != "REML")
+    warning("Default settings for arguments 'method.tau' and ",
+            "'method.predict' do not match:\n",
+            "- Kenward-Roger method (method.predict = \"KR-PR\") ",
             "can only be used with\n  ",
             "REML estimator (method.tau = \"REML\").",
             call. = FALSE)

@@ -14,6 +14,8 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param cycles A numeric vector with the number of cycles per patient / study
+#'   in n-of-1 trials (see \code{\link{metagen}}).
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies (see \code{\link{metabin}},
 #'   \code{\link{metainc}}, \code{\link{metaprop}} and
@@ -88,12 +90,18 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param method.bias A character string indicating which test for
 #'   funnel plot asymmetry is to be used, can be abbreviated. See
 #'   function \code{\link{metabias}.}
@@ -103,6 +111,10 @@
 #'   rather than log odds ratios and results for \code{sm = "ZCOR"}
 #'   are printed as correlations rather than Fisher's z transformed
 #'   correlations, for example.
+#' @param func.backtransf A function used to back-transform results
+#'   (see \code{\link{metagen}}).
+#' @param args.backtransf An optional list to provide additional
+#'   arguments to \code{func.backtransf} (see \code{\link{metagen}}).
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -128,8 +140,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param n.e Number of observations in experimental group (only for
 #'   \code{\link{metagen}} object).
 #' @param n.c Number of observations in control group (only for
@@ -280,6 +296,7 @@ update.meta <- function(object,
                         data = object$data,
                         subset, studlab, exclude, cluster,
                         rho = object$rho,
+                        cycles,
                         ##
                         method,
                         sm = object$sm,
@@ -290,8 +307,10 @@ update.meta <- function(object,
                         RR.Cochrane = object$RR.Cochrane,
                         Q.Cochrane = object$Q.Cochrane,
                         model.glmm = object$model.glmm,
+                        #
                         level = object$level,
                         level.ma = object$level.ma,
+                        #
                         common = object$common,
                         random = object$random,
                         overall = object$overall,
@@ -303,15 +322,22 @@ update.meta <- function(object,
                         seed.predict = object$seed.predict,
                         method.tau = object$method.tau,
                         method.tau.ci = object$method.tau.ci,
+                        level.hetstat = object$level.hetstat,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
+                        #
+                        method.I2 = object$method.I2,
+                        #
                         prediction = object$prediction,
                         level.predict = object$level.predict,
                         null.effect = object$null.effect,
                         method.bias = object$method.bias,
                         ##
                         backtransf = object$backtransf,
+                        func.backtransf = object$func.backtransf,
+                        args.backtransf = object$args.backtransf,    
+                        #
                         pscale = object$pscale,
                         irscale = object$irscale,
                         irunit = object$irunit,
@@ -325,10 +351,14 @@ update.meta <- function(object,
                         title = object$title,
                         complab = object$complab,
                         outclab = object$outclab,
+                        #
                         label.e = object$label.e,
                         label.c = object$label.c,
                         label.left = object$label.left,
                         label.right = object$label.right,
+                        col.label.left = object$col.label.left,
+                        col.label.right = object$col.label.right,
+                        #
                         n.e = object$n.e,
                         n.c = object$n.c,
                         ##
@@ -385,7 +415,7 @@ update.meta <- function(object,
   chkclass(object, "meta")
   suitable <-
     chksuitable(object, "Update",
-                c("metabind", "metaadd", "metamerge"),
+                c("metabind", "metaadd", "metamerge", "metamiss"),
                 check.mlm = FALSE,
                 stop = FALSE, status = "possible")
   if (!suitable)
@@ -486,6 +516,7 @@ update.meta <- function(object,
       object$sep.subgroup <- object$byseparator
     }
   }
+  #
   if (update_needed(object$version, 5, 5, verbose)) {
     ##
     ## Changes for meta objects with version < 5.5
@@ -533,18 +564,20 @@ update.meta <- function(object,
       object$cluster <- object$id
       object$data$.cluster <- object$data$.id
   }
+  #
   if (update_needed(object$version, 6, 1, verbose)) {
     ##
     ## Changes for meta objects with version < 6.1
     ##
     object$transf <- TRUE
   }
+  #
   if (update_needed(object$version, 6, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 6.0
     ##
     object$method.random.ci <- if (object$hakn) "HK" else "classic"
-    object$adhoc.hakn.ci <- object$adhoc.hakn.ci
+    object$adhoc.hakn.ci <- object$adhoc.hakn
     object$df.random <- object$df.hakn
     object$seTE.hakn.ci <- object$seTE.hakn
     object$seTE.hakn.adhoc.ci <- object$seTE.hakn.adhoc
@@ -571,6 +604,7 @@ update.meta <- function(object,
       object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
     }
   }
+  #
   if (update_needed(object$version, 6, 5, verbose)) {
     ##
     ## Changes for meta objects with version < 6.5
@@ -627,6 +661,7 @@ update.meta <- function(object,
     if (!is.null(object$byvar))
       object$seed.predict.subgroup <- NULL
   }
+  #
   if (update_needed(object$version, 7, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 7.0
@@ -690,20 +725,34 @@ update.meta <- function(object,
       }
       ##
       if (inherits(object, "metabind")) {
-        x$with.subgroups <- any(x$is.subgroup)
+        object$with.subgroups <- any(object$is.subgroup)
         ##
-        if (x$with.subgroups) {
-          x$data$Q.b.common <- x$data$Q.b
-          x$data$Q.b.random <- x$data$Q.b
+        if (object$with.subgroups) {
+          object$data$Q.b.common <- object$data$Q.b
+          object$data$Q.b.random <- object$data$Q.b
           ##
-          x$data$pval.Q.b.common <- x$data$pval.Q.b
-          x$data$pval.Q.b.random <- x$data$pval.Q.b
+          object$data$pval.Q.b.common <- object$data$pval.Q.b
+          object$data$pval.Q.b.random <- object$data$pval.Q.b
         }
       }
     }
     #
-    x$seTE.kero <- replaceNA(x$seTE.kero, kenwardroger(x$w.random)$se)
-    x$df.kero <- replaceNA(x$df.kero, kenwardroger(x$w.random)$df)
+    object$seTE.kero <-
+      replaceNA(object$seTE.kero, kenwardroger(object$w.random)$se)
+    object$df.kero <-
+      replaceNA(object$df.kero, kenwardroger(object$w.random)$df)
+  }
+  #
+  if (update_needed(object$version, 8, 0, verbose)) {
+    #
+    # Changes for meta objects with version < 8.0
+    #
+    object$method.I2 <- "Q"
+    #
+    object$col.label.left <- replaceNULL(object$col.label.left, "black")
+    object$col.label.right <- replaceNULL(object$col.label.left, "black")
+    #
+    object$level.hetstat <- object$level.ma
   }
   
   
@@ -720,6 +769,7 @@ update.meta <- function(object,
   irunit <- replaceNULL(irunit, "")
   ##
   tau.common <- replaceNULL(tau.common, gs("tau.common"))
+  method.I2 <- replaceNULL(method.I2, gs("method.I2"))
   sep.subgroup <- replaceNULL(sep.subgroup, gs("sep.subgroup"))
   ##
   if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
@@ -733,7 +783,7 @@ update.meta <- function(object,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args  <- list(...)
+  args <- list(...)
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
@@ -843,6 +893,7 @@ update.meta <- function(object,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     prediction = prediction | !missing.method.predict,
                     level.predict = level.predict,
                     silent = TRUE,
@@ -927,6 +978,19 @@ update.meta <- function(object,
   }
   else
     ...cluster <- catch2(object, "cluster")
+  #
+  # Catch argument 'cycles'
+  #
+  if (!missing(cycles))
+    cycles <- catch("cycles", mc, data, sfsp)
+  else {
+    if (isCol(object$data, ".cycles"))
+      cycles <- catch(".cycles", object$data, object$data, sfsp)
+    else
+      cycles <- NULL
+  }
+  #
+  avail.cycles <- !is.null(cycles)
   ##
   ## Catch argument 'incr'
   ##
@@ -1081,7 +1145,7 @@ update.meta <- function(object,
   ##
   method.predict <- replaceVal(method.predict, "", gs("method.predict"))
   missing.method.bias <- missing(method.bias)
-  ##                               
+  ##
   if (metabin) {
     sm <- setchar(sm, gs("sm4bin"))
     method <- setchar(method, gs("meth4bin"))
@@ -1089,8 +1153,9 @@ update.meta <- function(object,
     if (!is.null(...cluster))
       method <- "Inverse"
     ##
-    if (method == "GLMM" & !missing.sm & sm != "OR")
-      warning("Summary measure 'sm = \"OR\" used as 'method = \"GLMM\".")
+    if (method %in% c("GLMM", "LRP") & !missing.sm & sm != "OR")
+      warning("Summary measure 'sm = \"OR\" used as 'method = \"",
+              method, "\".")
     ##
     if (sm == "ASD") {
       if (!missing.incr && any(incr != 0))
@@ -1116,13 +1181,17 @@ update.meta <- function(object,
       model.glmm <- replaceNULL(model.glmm, gs("model.glmm"))
     }
     ##
+    if (method == "LRP") {
+      sm <- "OR"
+      method.tau <- "DL"
+    }
+    ##
     RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
-    ##
-    if (method != "MH" |
-        method.tau != "DL" |
-        !(sm %in% c("OR", "RR", "RD", "DOR")))
+    #
+    if (!(method == "MH" & method.tau == "DL" &
+        (sm %in% c("OR", "RR", "RD", "DOR"))))
       Q.Cochrane <- FALSE
-    ##
+    #
     if (sm == "DOR" & missing.method.bias)
       method.bias <- "Deeks"
     else if (sm == "OR" & missing.method.bias)
@@ -1155,11 +1224,13 @@ update.meta <- function(object,
                  adhoc.hakn.pi = adhoc.hakn.pi,
                  seed.predict = seed.predict,
                  ##
-                 method.tau = method.tau,
-                 method.tau.ci = method.tau.ci,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1172,9 +1243,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1190,14 +1264,6 @@ update.meta <- function(object,
   }
   ##
   if (metacont) {
-    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
-    pooledvar <- replaceNA(pooledvar, gs("pooledvar"))
-    method.smd <- replaceVal(method.smd, "", gs("method.smd"))
-    sd.glass <- replaceVal(sd.glass, "", gs("sd.glass"))
-    exact.smd <- replaceNA(exact.smd, gs("exact.smd"))
-    method.mean <- replaceVal(method.mean, "", "Luo")
-    method.sd <- replaceVal(method.sd, "", "Shi")
-    ##
     if (!isCol(object$data, ".approx.mean.e"))
       mean.e <- object$data$.mean.e
     else
@@ -1245,19 +1311,23 @@ update.meta <- function(object,
                   min.c = setVal(object$data, ".min.c"),
                   max.c = setVal(object$data, ".max.c"),
                   ##
-                  method.mean = method.mean,
-                  method.sd = method.sd,
-                  ##
+                  method.mean =
+                    replaceVal(replaceNULL(method.mean, "Luo"), "", "Luo"),
+                  method.sd =
+                    replaceVal(replaceNULL(method.mean, "Shi"), "", "Shi"),
+                  #
                   approx.mean.e = approx.mean.e,
                   approx.mean.c = approx.mean.c,
                   approx.sd.e = approx.sd.e,
                   approx.sd.c = approx.sd.c,
                   ##
-                  sm = sm, pooledvar = pooledvar,
-                  method.smd = method.smd, sd.glass = sd.glass,
-                  exact.smd = exact.smd,
+                  sm = sm,
+                  pooledvar = replaceNA(pooledvar, gs("pooledvar")),
+                  method.smd = replaceVal(method.smd, "", gs("method.smd")),
+                  sd.glass = replaceVal(sd.glass, "", gs("sd.glass")),
+                  exact.smd = replaceNA(exact.smd, gs("exact.smd")),
                   ##
-                  method.ci = method.ci,
+                  method.ci = replaceNULL(method.ci, gs("method.ci.cont")),
                   level = level, level.ma = level.ma,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
@@ -1269,9 +1339,12 @@ update.meta <- function(object,
                   seed.predict = seed.predict,
                   ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1282,9 +1355,12 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  #
                   label.e = label.e, label.c = label.c,
                   label.right = label.right, label.left = label.left,
-                  ##
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1317,9 +1393,12 @@ update.meta <- function(object,
                  seed.predict = seed.predict,
                  ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1334,6 +1413,11 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
+                 label.right = label.right, label.left = label.left,
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1358,14 +1442,30 @@ update.meta <- function(object,
       add.c <- TRUE
       data.m <- data.m[, names(data.m) != "n.c"]
     }
-    ##
+    if (missing(approx.TE)) {
+      if (isCol(object$data, ".approx.TE"))
+        approx.TE <- object$data$.approx.TE
+      else
+        approx.TE <- NULL
+    }
+    if (missing(approx.seTE)) {
+      if (isCol(object$data, ".approx.seTE"))
+        approx.seTE <- object$data$.approx.seTE
+      else
+        approx.seTE <- NULL
+    }
+    #
     m <- metagen(TE = object$data$.TE,
-                 seTE = object$data$.seTE,
+                 seTE =
+                   if (!avail.cycles) object$data$.seTE
+                   else replaceNULL(object$data$.seTE.orig, object$data$.seTE),
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
+                 #
+                 cycles = cycles,
+                 #
                  sm = sm,
                  method.ci = method.ci,
                  level = level,
@@ -1380,9 +1480,12 @@ update.meta <- function(object,
                  seed.predict = seed.predict,
                  ##
                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1413,9 +1516,10 @@ update.meta <- function(object,
                  transf = TRUE,
                  backtransf = backtransf,
                  func.transf = object$func.transf,
-                 func.backtransf = object$func.backtransf,
+                 func.backtransf = func.backtransf,
                  args.transf = object$args.transf,
-                 args.backtransf = object$args.backtransf,                 
+                 args.backtransf = args.backtransf,         
+                 #
                  pscale = pscale,
                  irscale = irscale, irunit = irunit,
                  ##
@@ -1424,9 +1528,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1500,11 +1607,13 @@ update.meta <- function(object,
                  adhoc.hakn.pi = adhoc.hakn.pi,
                  seed.predict = seed.predict,
                  ##
-                 method.tau = method.tau,
-                 method.tau.ci = method.tau.ci,
+                 method.tau = method.tau, method.tau.ci = method.tau.ci,
+                 level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
-                 ##
+                 #
+                 method.I2 = method.I2,
+                 #
                  prediction = prediction | !missing.method.predict,
                  level.predict = level.predict,
                  ##
@@ -1519,9 +1628,12 @@ update.meta <- function(object,
                  text.w.common = text.w.common, text.w.random = text.w.random,
                  ##
                  title = title, complab = complab, outclab = outclab,
+                 #
                  label.e = label.e, label.c = label.c,
                  label.right = label.right, label.left = label.left,
-                 ##
+                 col.label.right = col.label.right,
+                 col.label.left = col.label.left,
+                 #
                  subgroup = subgroup, subgroup.name = subgroup.name,
                  print.subgroup.name = print.subgroup.name,
                  sep.subgroup = sep.subgroup,
@@ -1541,11 +1653,7 @@ update.meta <- function(object,
       m$data <- m$data[, names(data)]
   }
   ##
-  if (metamean) {
-    method.ci <- replaceNULL(method.ci, gs("method.ci.cont"))
-    method.mean <- replaceVal(method.mean, "", "Luo")
-    method.sd <- replaceVal(method.sd, "", "Shi")
-    ##
+  if (metamean)
     m <- metamean(n = object$data$.n,
                   mean = object$data$.mean,
                   sd = object$data$.sd,
@@ -1560,14 +1668,14 @@ update.meta <- function(object,
                   min = setVal(object$data, ".min"),
                   max = setVal(object$data, ".max"),
                   ##
-                  method.mean = method.mean,
-                  method.sd = method.sd,
+                  method.mean = replaceVal(method.mean, "", "Luo"),
+                  method.sd = replaceVal(method.sd, "", "Shi"),
                   ##
                   approx.mean = approx.mean,
                   approx.sd = approx.sd,
                   ##
                   sm = sm,
-                  method.ci = method.ci,
+                  method.ci = replaceNULL(method.ci, gs("method.ci.cont")),
                   level = level, level.ma = level.ma,
                   common = common, random = random,
                   overall = overall, overall.hetstat = overall.hetstat,
@@ -1579,9 +1687,12 @@ update.meta <- function(object,
                   seed.predict = seed.predict,
                   ##
                   method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1596,7 +1707,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  ##
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1607,7 +1722,6 @@ update.meta <- function(object,
                   warn = warn, warn.deprecated = FALSE,
                   ##
                   control = control)
-  }
   ##
   if (metaprop) {
     sm <- setchar(sm, gs("sm4prop"))
@@ -1648,11 +1762,13 @@ update.meta <- function(object,
                   adhoc.hakn.pi = adhoc.hakn.pi,
                   seed.predict = seed.predict,
                   ##
-                  method.tau = method.tau,
-                  method.tau.ci = method.tau.ci,
+                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1667,7 +1783,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
-                  ##
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,
@@ -1721,11 +1841,13 @@ update.meta <- function(object,
                   adhoc.hakn.pi = adhoc.hakn.pi,
                   seed.predict = seed.predict,
                   ##
-                  method.tau = method.tau,
-                  method.tau.ci = method.tau.ci,
+                  method.tau = method.tau, method.tau.ci = method.tau.ci,
+                  level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
-                  ##
+                  #
+                  method.I2 = method.I2,
+                  #
                   prediction = prediction | !missing.method.predict,
                   level.predict = level.predict,
                   ##
@@ -1740,6 +1862,11 @@ update.meta <- function(object,
                   text.w.common = text.w.common, text.w.random = text.w.random,
                   ##
                   title = title, complab = complab, outclab = outclab,
+                  #
+                  label.right = label.right, label.left = label.left,
+                  col.label.right = col.label.right,
+                  col.label.left = col.label.left,
+                  #
                   subgroup = subgroup, subgroup.name = subgroup.name,
                   print.subgroup.name = print.subgroup.name,
                   sep.subgroup = sep.subgroup,

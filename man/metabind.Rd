@@ -6,6 +6,7 @@
 \usage{
 metabind(
   ...,
+  subgroup = NULL,
   name = NULL,
   common = NULL,
   random = NULL,
@@ -19,6 +20,9 @@ metabind(
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
 with meta-analyses.}
+
+\item{subgroup}{An optional variable to generate a forest plot with
+subgroups.}
 
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}
@@ -63,7 +67,7 @@ results of several subgroup analyses (see Examples).
 
 Individual study results are not retained with \code{metabind} as
 the function allows to combine meta-analyses from different data
-sets (e.g., with randomized or observational studies). Individual
+sets (e.g., with randomised or observational studies). Individual
 study results are retained with R function \code{\link{metamerge}}
 which can be used to combine results of meta-analyses of the
 same dataset.

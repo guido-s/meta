@@ -1,3 +1,10 @@
+## Auxiliary functions to check inputs
+##
+## Package: meta
+## Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+## License: GPL (>= 2)
+##
+
 isCol <- function(data, varname) {
   !is.null(data) & varname %in% names(data)
 }

@@ -56,7 +56,7 @@ bubble(x, ...)
 
 \item{max.cex}{Maximal magnification for plotting symbols.}
 
-\item{pch}{The plotting symbol used for individual studies.}
+\item{pch}{The plotting symbol(s) used for individual studies.}
 
 \item{col}{A vector with colour of plotting symbols.}
 
@@ -107,7 +107,9 @@ probabilities.}
 \item{irscale}{A numeric defining a scaling factor for printing of
 incidence rates.}
 
-\item{axes}{A logical indicating whether axes should be printed.}
+\item{axes}{Either a logical or a character string equal to \code{"x"},
+\code{"y"} or \code{"xy"} indicating whether x- and y-axis should be
+printed.}
 
 \item{box}{A logical indicating whether a box should be printed.}
 

@@ -1,6 +1,6 @@
-hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
-                    TE.tau,
-                    level,
+hetcalc <- function(TE, seTE,
+                    method.tau, method.tau.ci, TE.tau,
+                    method.I2, level,
                     subgroup, control,
                     cluster = NULL, rho = 0) {
   
@@ -58,7 +58,7 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
     Q <- sum(w.common * (TE - TE.tau)^2, na.rm = TRUE)
     df.Q <- sum(!is.na(seTE)) - 1
     pval.Q <- pvalQ(Q, df.Q)
-    ##
+    #
     if (df.Q == 0)
       tau2 <- NA
     else if (round(Q, digits = 18) <= df.Q)
@@ -71,6 +71,9 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
     lower.tau <- upper.tau <- NA
     ##
     sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
+    #
+    H  <- calcH(Q, df.Q, level)
+    I2 <- isquared(Q, df.Q, level)
   }
   else {
     if (noHet) {
@@ -88,6 +91,9 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
       lower.tau <- upper.tau <- NA
       ##
       sign.lower.tau <- sign.upper.tau <- method.tau.ci <- ""
+      #
+      H  <- calcH(Q, df.Q, level)
+      I2 <- isquared(Q, df.Q, level)
     }
     else {
       if (!three.level) {
@@ -124,30 +130,41 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
       ##
       df.Q <- mf0$k - mf0$p
       pval.Q <- pvalQ(Q, df.Q)
-      ##
+      #
       if (df.Q < 2)
         method.tau.ci <- ""
       else if (three.level & method.tau.ci != "")
         method.tau.ci <- "PL"
       ##
-      ## Confidence interal for overall result
+      ## Confidence interval for overall meta-analysis
       ##
       if (method.tau.ci == "BJ")
         ci0 <-
           confint.rma.uni(
             runNN(rma.uni,
                   list(yi = TE, sei = seTE, weights = 1 / seTE^2,
-                       method = "GENQ", control = control)))
+                       method = "GENQ", control = control)),
+            level = 100 * level)
       else if (method.tau.ci == "J")
         ci0 <-
           confint.rma.uni(
             runNN(rma.uni,
                   list(yi = TE, sei = seTE, weights = 1 / seTE,
-                       method = "GENQ", control = control)))
+                       method = "GENQ", control = control)),
+            level = 100 * level)
       else if (method.tau.ci == "QP")
-        ci0 <- confint.rma.uni(mf0)
+        ci0 <- confint.rma.uni(mf0, level = 100 * level)
       else if (method.tau.ci == "PL")
-        ci0 <- confint.rma.mv(mf0)
+        ci0 <- confint.rma.mv(mf0, level = 100 * level)
+      #
+      if (method.I2 == "Q") {
+        H  <- calcH(Q, df.Q, level)
+        I2 <- isquared(Q, df.Q, level)
+      }
+      else {
+        H <- list(TE = sqrt(mf0$H2), lower = NA, upper = NA)
+        I2 <- list(TE = mf0$I2 / 100, lower = NA, upper = NA)
+      }
     }
   }
   
@@ -250,13 +267,22 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
     Q.resid <- mf1$QE
     df.Q.resid <- mf1$k - mf1$p
     pval.Q.resid <- pvalQ(Q.resid, df.Q.resid)
+    #
+    if (method.I2 == "Q") {
+      H.resid <- calcH(Q.resid, df.Q.resid, level)
+      I2.resid <- isquared(Q.resid, df.Q.resid, level)
+    }
+    else {
+      H.resid <- list(TE = sqrt(mf1$H2), lower = NA, upper = NA)
+      I2.resid <- list(TE = mf1$I2 / 100, lower = NA, upper = NA)
+    }
     ##
     if (df.Q < 2 || useFE)
       method.tau.ci <- ""
     else if (three.level & method.tau.ci != "")
       method.tau.ci <- "PL"
     ##
-    ## Confidence interal for residual heterogeneity
+    ## Confidence interval for residual heterogeneity
     ##
     if (method.tau.ci == "BJ")
       ci1 <-
@@ -265,7 +291,8 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
                 list(yi = TE, sei = seTE, weights = 1 / seTE^2,
                      method = "GENQ",
                      mods = as.call(~ subgroup), control = control,
-                     data = data.frame(TE, seTE, subgroup))))
+                     data = data.frame(TE, seTE, subgroup))),
+          level = 100 * level)
     else if (method.tau.ci == "J")
       ci1 <-
         confint.rma.uni(
@@ -273,24 +300,15 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
                 list(yi = TE, sei = seTE, weights = 1 / seTE,
                      method = "GENQ",
                      mods = as.call(~ subgroup), control = control,
-                     data = data.frame(TE, seTE, subgroup))))
+                     data = data.frame(TE, seTE, subgroup))),
+          level = 100 * level)
     else if (method.tau.ci == "QP")
-      ci1 <- confint.rma.uni(mf1)
+      ci1 <- confint.rma.uni(mf1, level = 100 * level)
     else if (method.tau.ci == "PL")
-      ci1 <- confint.rma.mv(mf1)
+      ci1 <- confint.rma.mv(mf1, level = 100 * level)
   }
   
   
-  ##
-  ## Heterogeneity measures
-  ##
-  H  <- calcH(Q, df.Q, level)
-  I2 <- isquared(Q, df.Q, level)
-  ##
-  if (by) {
-    H.resid <- calcH(Q.resid, df.Q.resid, level)
-    I2.resid <- isquared(Q.resid, df.Q.resid, level)
-  }
   ##
   ## Confidence interval for tau2 and tau
   ##
@@ -387,7 +405,9 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
               method.tau.ci = method.tau.ci,
               sign.lower.tau = sign.lower.tau,
               sign.upper.tau = sign.upper.tau,
-              ##
+              #
+              level = level,
+              #
               Q = Q,
               df.Q = df.Q,
               pval.Q = pval.Q,
@@ -412,11 +432,7 @@ hetcalc <- function(TE, seTE, method.tau, method.tau.ci,
               Q.resid = if (by) Q.resid else NA,
               df.Q.resid = if (by) df.Q.resid else NA,
               pval.Q.resid = if (by) pval.Q.resid else NA,
-              ##
-              H.resid = if (by) H.resid$TE else NA,
-              lower.H.resid = if (by) H.resid$lower else NA,
-              upper.H.resid = if (by) H.resid$upper else NA,
-              ##
+              #
               H.resid = if (by) H.resid$TE else NA,
               lower.H.resid = if (by) H.resid$lower else NA,
               upper.H.resid = if (by) H.resid$upper else NA,

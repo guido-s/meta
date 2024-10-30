@@ -1,3 +1,143 @@
+## meta, version 8.0-0 (2024-10-30)
+
+### Major changes
+
+* By default, prediction intervals are based on *k - 1* instead of *k - 2*
+  degrees of freedom
+  ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k*
+  corresponds to the number of studies in the meta-analysis;
+  see *help("meta-package")* for more details on methods to calculate prediction
+  intervals
+
+* Meta-analysis of n-of-1 trials implemented
+  [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
+
+* Logistic regression with penalised likelihood implemented for meta-analysis
+  of rare events
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+
+* *I2* statistic can be calculated from between-study variance instead of
+  *Q* statistic (new argument 'method.I2')
+
+* R functions pairwise() and subset.pairwise() moved from R package
+  **netmeta** to **meta**
+
+* R function pairwise() can be used with dose-response data
+
+* Information on colour of labels on left and right side of null effect in
+  forest plots can be stored in meta-analysis object
+
+* In forest plots,
+  - the heterogeneity statistic *Q*, its p-value, and the *I2* statistic are
+    printed with the same number of digits as in printouts
+  - the text for subgroups is printed in "black" instead of "darkgray"
+    (argument 'col.subgroup')
+
+* Level of confidence intervals for heterogeneity statistics can be specified
+  by the user (argument 'level.hetstat'); in previous version of R package
+  **meta** confidence intervals for *tau2* and *tau* were always 95%-CIs while
+  confidence intervals for *I2* and *H* were based on the value for argument
+  'level.ma'
+  
+* First argument to R functions metabin(), metacont(), metagen(), and metainc()
+  can be a pairwise() object
+
+* In funnel.meta(), arguments 'pch', 'cex', and 'cex.studlab' can be of same
+  length as the number of studies
+
+* New auxiliary function setvals() to easily define the input for arguments
+  'pch', 'cex', 'col', 'bg', 'text', and 'cex.studlab' in funnel.meta();
+  e.g., to use different colours for subgroups
+
+* R package
+  [**brglm2**](https://cran.r-project.org/package=brglm2)
+  added to suggested packages to fit penalized logistic regression for
+  meta-analysis of rare events
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+
+* Print a warning message if deprecated arguments are used, e.g., 'comb.fixed'
+  or 'fixed' instead of 'common'
+
+* The command  *settings.meta("meta7")* can be used to get the meta-analysis
+  settings from **meta**, version 7.0-0
+
+### User-visible changes
+
+* metabin(), metacont(), metacor(), metacr(), metagen(), metainc(), metamean(),
+  metaprop(), metarate(), update.meta():
+  - new argument 'method.I2' to choose method to calculate *I2* statistic
+  - new argument 'level.hetstat' to specify level of confidence intervals for
+    heterogeneity statistics
+  - new arguments 'col.label.left' and 'col.label.right' to define colour of
+    labels used in forest plots on left and right side of null effect
+
+* metagen():
+  - new argument 'cycles' for meta-analysis of n-of-1 trials
+
+* metabin():
+  - fit penalised logistic regression if argument 'sm = "LRP"'
+
+* Do not print the start-up message concerning older version of R package
+  **meta** for readers of 'Meta-Analysis with R (Use R!)'
+
+* funnel.meta():
+  - new argument 'type' to create a contour-enhanced funnel plot with default
+    settings
+  - argument '...' passed on to plot.default(), e.g., to specify font family
+
+* print.summary.meta():
+  - new arguments 'digits.Q', 'digits.df', 'digits.pval.Q', 'digits.H',
+    'print.tau2.ci', 'print.tau.ci', 'print.Q', 'print.H', 'print.Rb', 'text.Rb'
+
+* pairwise():
+  - new arguments 'agent' and 'dose' to provide information for dose-response
+    data
+  - new argument 'varnames' to change variable names for effect estimate and
+    its standard error
+
+* bubble.metareg():
+  - argument 'backtransf = TRUE' is recognized for additional summary measures,
+    i.e., "PLOGIT", "PLN", "PAS", "IRLN", "IRS", "ZCOR"
+
+* settings.meta():
+  - default setting can be defined for 'print.I2.ci'
+  - additional settings, e.g., for R package **netmeta**, can be changed
+
+### Bug fixes
+
+* forest.meta():
+  - print "logVR" instead of "logVE" or "VE" for not back-transformed
+    vaccine efficacy / effectiveness (sm = "VE")
+  - additional check whether input for argument 'sortvar' is a function
+    (for example, using a variable 'order' resulted in an error due to the
+     R function order())
+
+* bubble.metareg():
+  - use of vector instead of single value for argument 'pch' resulted in wrong
+    order of plotting symbols
+
+* metagen():
+  - set list elements 'approx.TE' or 'approx.seTE' to NULL if no approximation
+    has been used
+
+* print.summary.meta():
+  - recognize the arguments 'scientific.pval', 'zero.pval', 'JAMA.pval'
+
+* runGLMM():
+  - use results of common effect model as fallback for error
+    "Cannot fit ML model" and print corresponding warning
+
+* pairwise():
+  - inconsistent values for Cohen's d if data was already provided in contrast
+    based format
+  - argument 'append = FALSE' didn't work
+
+### Internal changes
+
+* metamean(): use mean value if median is not provided to approximate missing
+  standard deviation
+
+
 ## meta, version 7.0-0 (2024-01-11)
 
 ### Major changes
@@ -5,7 +145,7 @@
 * Vignettes added
   - *vignette("meta-workflow")* (workflow)
   - *vignette("meta-tutorial")* (R commands from [Balduzzi et al.,
-  2019](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019))
+  2019](https://doi.org/10.1136/ebmental-2019-300117))
 
 * R package **metadat** added to Depends (to access meta-analysis datasets)
 
@@ -45,7 +185,7 @@
 
 * New general setting "BMJ", i.e., R command *settings.meta("BMJ")*,
   to print results according to BMJ style and formating checklist,
-  see, for example, [ BMJ
+  see, for example, [BMJ
   Medicine](https://bmjmedicine.bmj.com/bmjmedicine/wp-content/uploads/sites/66/2023/06/BMJMED-style-formatting-checklist-for-original-research-pre-acceptance-1.pdf)
 
 * R function metabind() can return both common effect and random
@@ -811,7 +951,7 @@
 * New default settings:
   - Restricted maximum likelihood (REML) instead of DerSimonian-Laird
     estimator used as default to estimate between-study heterogeneity
-	(argument 'method.tau')
+    (argument 'method.tau')
   - Do not use Q statistic based on Mantel-Haenszel estimate to
     calculate DerSimonian-Laird estimator of the between-study
     variance (argument 'Q.Cochrane')
@@ -1581,7 +1721,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019)
+  al. (2019)](https://doi.org/10.1136/ebmental-2019-300117)
 
 ### User-visible changes
 

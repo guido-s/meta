@@ -16,8 +16,8 @@ metabin(
   cluster = NULL,
   rho = 0,
   method = ifelse(tau.common, "Inverse", gs("method")),
-  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "ssw"), nomatch = NA)),
-    "OR", gs("smbin")),
+  sm = ifelse(!is.na(charmatch(tolower(method), c("peto", "glmm", "lrp", "ssw"), nomatch
+    = NA)), "OR", gs("smbin")),
   incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
@@ -32,12 +32,13 @@ metabin(
   overall.hetstat = if (is.null(gs("overall.hetstat"))) common | random else
     gs("overall.hetstat"),
   prediction = gs("prediction") | !missing(method.predict),
-  method.tau = ifelse(!is.na(charmatch(tolower(method), "glmm", nomatch = NA)), "ML",
-    gs("method.tau")),
+  method.tau,
   method.tau.ci = gs("method.tau.ci"),
+  level.hetstat = gs("level.hetstat"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -61,6 +62,8 @@ metabin(
   label.c = gs("label.c"),
   label.left = gs("label.left"),
   label.right = gs("label.right"),
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   subgroup,
   subgroup.name = NULL,
   print.subgroup.name = gs("print.subgroup.name"),
@@ -80,8 +83,9 @@ metabin(
 )
 }
 \arguments{
-\item{event.e}{Number of events in experimental group or true
-positives in diagnostic study.}
+\item{event.e}{Number of events in experimental group, or true
+positives in diagnostic study, or an R object
+created with \code{\link{pairwise}}.}
 
 \item{n.e}{Number of observations in experimental group or number
 of ill participants in diagnostic study.}
@@ -112,8 +116,8 @@ meta-analysis model.}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"},
-\code{"MH"}, \code{"Peto"}, \code{"GLMM"}, or \code{"SSW"}, can
-be abbreviated.}
+\code{"MH"}, \code{"Peto"}, \code{"GLMM"}, \code{"LRP"}, or \code{"SSW"},
+can be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"RR"}, \code{"OR"}, \code{"RD"}, \code{"ASD"},
@@ -184,6 +188,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
 
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
+
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
@@ -192,6 +199,11 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau2"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
@@ -260,9 +272,15 @@ random effects model.}
 
 \item{label.c}{Label for control group.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.left}{Graph label on left side of null effect in forest plot.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}
@@ -311,7 +329,7 @@ be printed if deprecated arguments are used.}
 \item{control}{An optional list to control the iterative process to
 estimate the between-study variance \eqn{\tau^2}. This argument
 is passed on to \code{\link[metafor]{rma.uni}} or
-\code{\link[metafor]{rma.glmm}}, respectively.}
+\code{\link[metafor]{rma.glmm}}.}
 
 \item{\dots}{Additional arguments passed on to
 \code{\link[metafor]{rma.glmm}} function and to catch deprecated
@@ -326,10 +344,11 @@ Calculation of common effect and random effects estimates (risk
 ratio, odds ratio, risk difference, arcsine difference, or
 diagnostic odds ratio) for meta-analyses with binary outcome
 data. Mantel-Haenszel, inverse variance, Peto method, generalised
-linear mixed model (GLMM), and sample size method are available for
-pooling. For GLMMs, the \code{\link[metafor]{rma.glmm}} function
-from R package \bold{metafor} (Viechtbauer, 2010) is called
-internally.
+linear mixed model (GLMM), logistic regression with penalised likelihood
+and sample size method are available for pooling. For GLMMs,
+the \code{\link[metafor]{rma.glmm}} function from R package \bold{metafor}
+(Viechtbauer, 2010) is called internally. For penalised logistic regression,
+R package \bold{brglm2} must be available.
 }
 \details{
 Calculation of common and random effects estimates for meta-analyses
@@ -355,7 +374,7 @@ results differ as vaccine efficacy or effectiveness is defined as
 \code{VE = 100 * (1 - RR)}.
 
 A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{cluster} is used and at
+et al., 2013) is utilised if argument \code{cluster} is used and at
 least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -405,11 +424,29 @@ endpoints is that individual patient data (IPD) can be extracted
 from a two-by-two table.  Accordingly, statistical methods for IPD,
 i.e., logistic regression and generalised linear mixed models, can
 be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
-2010; Simmonds et al., 2016). These methods are available (argument
-\code{method = "GLMM"}) for the odds ratio as summary measure for
+2010; Simmonds et al., 2016).
+
+R package \bold{brglm2} must be available to fit a one-stage logistic
+regression model with penalised likelihood (Evrenoglou et al., 2022).
+The estimation of the summary odds ratio relies on the maximisation of the 
+likelihood function, penalized using a Firth-type correction. This
+penalisation aims to reduce bias in cases with rare events and a small
+number of available studies. However, this method is not restricted 
+to only such cases and can be applied more generally to binary data. Note,
+with this type of penalisation, all studies can be included in the analysis,
+regardless of the total number of observed events. This allows both single
+and double zero studies to be included without any continuity correction.
+The random effects model uses a multiplicative heterogeneity parameter
+\eqn{\phi}, added to the model as an \emph{ad hoc} term. The estimation of
+this parameter relies on a modified expression of Pearson's statistic, which
+accounts for sparse data. An estimate of \eqn{\phi} equal to 1 indicates the
+absence of heterogeneity.
+
+Generalised linear mixed models are available
+(argument \code{method = "GLMM"}) for the odds ratio as summary measure for
 the common effect and random effects model by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally.
+\bold{metafor} internally. 
 
 Four different GLMMs are available for
 meta-analysis with binary outcomes using argument \code{model.glmm}
@@ -642,7 +679,7 @@ update(m10, model.glmm = "UM.RS")
 # - long computation time (about 12 minutes with Intel Core
 #   i7-3667U, 2.0GHz)
 # - estimation problems for this very large dataset:
-#   * warning that Choleski factorization of Hessian failed
+#   * warning that Choleski factorisation of Hessian failed
 #   * confidence interval for treatment effect smaller in random
 #     effects model compared to common effect model
 #
@@ -677,6 +714,11 @@ DerSimonian R & Laird N (1986):
 Meta-analysis in clinical trials.
 \emph{Controlled Clinical Trials},
 \bold{7}, 177--88
+
+Evrenoglou T, White IR, Afach S, Mavridis D, Chaimani A. (2022):
+Network meta-analysis of rare events using penalized likelihood regression.
+\emph{Statistics in Medicine},
+\bold{41}, 5203--19
 
 Fleiss JL (1993):
 The statistical basis of meta-analysis.

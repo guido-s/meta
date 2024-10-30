@@ -8,7 +8,7 @@
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE,
-                    setNA = FALSE) {
+                    setNA = FALSE, pre = "") {
   val <- unique(val)
   ##
   if (is.null(name))
@@ -57,7 +57,8 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
       }
       ##
       if (stop.at.error)
-        stop(first, name, "' must be ", vlist, addtext, ".", call. = FALSE)
+        stop(first, name, "' must be ", pre,
+             vlist, addtext, ".", call. = FALSE)
       else {
         if (return.NULL)
           return(NULL)
@@ -102,6 +103,18 @@ setstudlab <- function(x, k) {
   if (is.factor(x))
     x <- as.character(x)
   ##
+  x
+}
+
+setlength <- function(x, len, text) {
+  if (length(x) == 1)
+    x <- rep(x, len)
+  else
+    chklength(x, len,
+              text =
+                paste0("Length of argument '", deparse(substitute(x)),
+                       "' must be equal to 1 or ", text, "."))
+  #
   x
 }
 
@@ -171,9 +184,9 @@ setmethodbias <- function(x, subset) {
   res
 }
 
-setmethodtau <- function(method.tau, missing.tau,
-                         method.predict, missing.predict,
-                         warn = TRUE) {
+set_method_tau <- function(method.tau, missing.tau,
+                           method.predict, missing.predict,
+                           warn = TRUE) {
   if (method.tau != "REML" & any(method.predict == "KR")) {
     if (missing.tau & !missing.predict) {
       if (warn)
@@ -188,26 +201,42 @@ setmethodtau <- function(method.tau, missing.tau,
   method.tau
 }
 
-setmethodpredict <- function(method.predict, missing.predict,
-                             method.tau, missing.tau,
-                             warn = TRUE) {
-  if (method.tau != "REML" & any(method.predict == "KR")) {
+set_method_predict <- function(method.predict, missing.predict,
+                               method.tau, missing.tau,
+                               warn = TRUE) {
+  any_KR <- any(method.predict %in% "KR")
+  any_KR_PR <- any(method.predict %in% "KR-PR")
+  #
+  if (method.tau != "REML" & (any_KR | any_KR_PR)) {
     if (!missing.tau & missing.predict) {
-      method.predict[method.predict == "KR"] <- "HTS"
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
     }
     else if (!missing.tau & !missing.predict) {
       if (warn)
-        warning("Argument 'method.predict' set to \"HTS\" instead of ",
-                "\"KR\" as 'method.tau' != \"REML\".",
+        warning("Argument 'method.predict' set to \"V\" instead of ",
+                if (any_KR) "\"KR\"", if (any_KR & any_KR_PR) " / ",
+                if (any_KR_PR) "\"KR-PR\"",
+                " as 'method.tau' != \"REML\".",
                 call. = FALSE)
-      method.predict[method.predict == "KR"] <- "HTS"
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
     }
-    else
-      method.predict[method.predict == "KR"] <- "HTS"
+    else {
+      method.predict[method.predict == "KR"] <- "V"
+      method.predict[method.predict == "KR-PR"] <- "V"
+    }
   }
   ##
   method.predict
 }
+
+# Function only used with MLM or GLMM
+#
+set_df_predict <- function(method.predict, k)
+  ifelse(method.predict == "V" & k >= 2, k - 1,
+         ifelse(method.predict == "HTS" & k >= 3, k - 2,
+                ifelse(method.predict == "S", Inf, NA)))
 
 setVal <- function(data, varname, default = NULL) {
   if (isCol(data, varname))
@@ -231,4 +260,45 @@ setsort <- function(sort, n, text) {
   }
   ##
   res
+}
+setsep <- function(x, sep, type = "treatment",
+                   argname = deparse(substitute(sep)),
+                   missing.sep) {
+  labels <- sort(unique(x))
+  #
+  if (compmatch(labels, sep)) {
+    if (!missing.sep)
+      warning("Separator '", sep,
+              "' used in at least one ",
+              type, " label. ",
+              "Trying to use predefined separators: ",
+              "':', '-', '_', '/', '+', '.', '|', '*'.",
+              call. = FALSE)
+    #
+    if (!compmatch(labels, ":"))
+      sep <- ":"
+    else if (!compmatch(labels, "-"))
+      sep <- "-"
+    else if (!compmatch(labels, "_"))
+      sep <- "_"
+    else if (!compmatch(labels, "/"))
+      sep <- "/"
+    else if (!compmatch(labels, "+"))
+      sep <- "+"
+    else if (!compmatch(labels, "."))
+      sep <- "-"
+    else if (!compmatch(labels, "|"))
+      sep <- "|"
+    else if (!compmatch(labels, "*"))
+      sep <- "*"
+    else
+      stop("All predefined separators (':', '-', '_', '/', '+', ",
+           "'.', '|', '*') are used in at least one ",
+           type, " label. ",
+           "Please specify a different character that should be ",
+           "used as separator (argument '", argname, "').",
+           call. = FALSE)
+  }
+  #
+  sep
 }

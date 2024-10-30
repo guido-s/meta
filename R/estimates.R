@@ -760,10 +760,11 @@ print.estimates.meta <- function(x,
   if (details) {
     catmeth(meta,
             common, random, prediction, overall, random | prediction,
+            #
             func.transf = NULL,
             backtransf = backtransf, func.backtransf = NULL,
-            big.mark = gs("big.mark"),
-            digits = digits, digits.tau = digits.tau,
+            #
+            big.mark = gs("big.mark"), digits = digits, digits.tau = digits.tau,
             text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"))
     ##
     if ((common | random) && meta$level != meta$level.ma)

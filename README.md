@@ -1,10 +1,11 @@
 # meta: General Package for Meta-Analysis
 Official Git repository of R package **meta**
 
-[![Build Status](https://travis-ci.org/guido-s/meta.svg?branch=master)](https://travis-ci.org/guido-s/meta)
-[![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
-[![Monthly Downloads](http://cranlogs.r-pkg.org/badges/meta)](http://cranlogs.r-pkg.org/badges/meta)
-[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/meta)](http://cranlogs.r-pkg.org/badges/grand-total/meta)
+[![License: GPL (>=2)](https://img.shields.io/badge/license-GPL-blue)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
+[![GitHub develop](https://img.shields.io/badge/develop-8.0--0-purple)](https://img.shields.io/badge/develop-8.0--0-purple)
+[![Monthly Downloads](https://cranlogs.r-pkg.org/badges/meta)](https://cranlogs.r-pkg.org/badges/meta)
+[![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/meta)](https://cranlogs.r-pkg.org/badges/grand-total/meta)
 
 
 ## Description
@@ -27,12 +28,12 @@ User-friendly general package providing standard methods for meta-analysis and s
 
 ## Installation
 
-### Current official [![CRAN Version](http://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
+### Current official [![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta) release:
 ```r
 install.packages("meta")
 ```
 
-### Current beta / GitHub release:
+### Current [![GitHub develop](https://img.shields.io/badge/develop-8.0--0-purple)](https://img.shields.io/badge/develop-8.0--0-purple) release on GitHub:
 
 Installation using R package
 [**remotes**](https://cran.r-project.org/package=remotes):
