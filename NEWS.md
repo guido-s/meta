@@ -1,21 +1,23 @@
-## meta, version 8.0-0 (2024-mm-dd)
+## meta, version 8.0-0 (2024-10-30)
 
 ### Major changes
 
-* By default, prediction intervals are calculated with *k - 1* instead of
-  *k - 2* degrees of freedom
+* By default, prediction intervals are based on *k - 1* instead of *k - 2*
+  degrees of freedom
   ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k*
-  corresponds to the number of studies in the meta-analysis
-  (see *help("meta-package")* for more details on prediction interval methods)
+  corresponds to the number of studies in the meta-analysis;
+  see *help("meta-package")* for more details on methods to calculate prediction
+  intervals
 
-* Meta-analysis of n-of-1 trials implemented [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
+* Meta-analysis of n-of-1 trials implemented
+  [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
 
 * Logistic regression with penalised likelihood implemented for meta-analysis
   of rare events
   ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
 
-* I2 statistic can be calculated from between-study variance instead of
-  Q statistic
+* *I2* statistic can be calculated from between-study variance instead of
+  *Q* statistic (new argument 'method.I2')
 
 * R functions pairwise() and subset.pairwise() moved from R package
   **netmeta** to **meta**
@@ -25,13 +27,17 @@
 * Information on colour of labels on left and right side of null effect in
   forest plots can be stored in meta-analysis object
 
-* In forest plots, the heterogeneity statistic *Q*, its p-value, and the *I2*
-  statistic are printed with the same number of digits as in printouts.
+* In forest plots,
+  - the heterogeneity statistic *Q*, its p-value, and the *I2* statistic are
+    printed with the same number of digits as in printouts
+  - the text for subgroups is printed in "black" instead of "darkgray"
+    (argument 'col.subgroup')
 
 * Level of confidence intervals for heterogeneity statistics can be specified
-  by the user (in previous version of R package **meta** confidence intervals
-  for tau2 and tau were always 95%-CIs while confidence intervals for I2 and H
-  were based on the value for argument 'level.ma')
+  by the user (argument 'level.hetstat'); in previous version of R package
+  **meta** confidence intervals for *tau2* and *tau* were always 95%-CIs while
+  confidence intervals for *I2* and *H* were based on the value for argument
+  'level.ma'
   
 * First argument to R functions metabin(), metacont(), metagen(), and metainc()
   can be a pairwise() object
@@ -40,13 +46,26 @@
   length as the number of studies
 
 * New auxiliary function setvals() to easily define the input for arguments
-  'pch', 'cex', 'col', 'bg', 'text', and 'cex.studlab' in funnel.meta()
+  'pch', 'cex', 'col', 'bg', 'text', and 'cex.studlab' in funnel.meta();
+  e.g., to use different colours for subgroups
+
+* R package
+  [**brglm2**](https://cran.r-project.org/package=brglm2)
+  added to suggested packages to fit penalized logistic regression for
+  meta-analysis of rare events
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+
+* Print a warning message if deprecated arguments are used, e.g., 'comb.fixed'
+  or 'fixed' instead of 'common'
+
+* The command  *settings.meta("meta7")* can be used to get the meta-analysis
+  settings from **meta**, version 7.0-0
 
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metacr(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), update.meta():
-  - new argument 'method.I2' to choose method to calculate I2 statistic
+  - new argument 'method.I2' to choose method to calculate *I2* statistic
   - new argument 'level.hetstat' to specify level of confidence intervals for
     heterogeneity statistics
   - new arguments 'col.label.left' and 'col.label.right' to define colour of
@@ -55,11 +74,11 @@
 * metagen():
   - new argument 'cycles' for meta-analysis of n-of-1 trials
 
+* metabin():
+  - fit penalised logistic regression if argument 'sm = "LRP"'
+
 * Do not print the start-up message concerning older version of R package
   **meta** for readers of 'Meta-Analysis with R (Use R!)'
-
-* Print a warning message if deprecated arguments are used, e.g., 'comb.fixed'
-  or 'fixed' instead of 'common'
 
 * funnel.meta():
   - new argument 'type' to create a contour-enhanced funnel plot with default
@@ -82,6 +101,7 @@
 
 * settings.meta():
   - default setting can be defined for 'print.I2.ci'
+  - additional settings, e.g., for R package **netmeta**, can be changed
 
 ### Bug fixes
 
@@ -125,7 +145,7 @@
 * Vignettes added
   - *vignette("meta-workflow")* (workflow)
   - *vignette("meta-tutorial")* (R commands from [Balduzzi et al.,
-  2019](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019))
+  2019](https://doi.org/10.1136/ebmental-2019-300117))
 
 * R package **metadat** added to Depends (to access meta-analysis datasets)
 
@@ -1701,7 +1721,7 @@
   meta-analysis was conducted
 
 * New preferred citation of R package **meta**: [Balduzzi et
-  al. (2019)](https://scholar.google.com/scholar?q=balduzzi+schwarzer+2019)
+  al. (2019)](https://doi.org/10.1136/ebmental-2019-300117)
 
 ### User-visible changes
 

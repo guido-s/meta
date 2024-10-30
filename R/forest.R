@@ -7729,41 +7729,49 @@ forest.meta <- function(x,
     formatPT(x$sd.n_of_1, digits = digits.sd, big.mark = big.mark)
   #
   text.details <- ""
+  #
   if (details) {
-    if (K.all == 1) {
-      text.details <-
-        catmeth(x,
-                common, random, prediction, overall, overall.hetstat,
-                #
-                func.transf = x$func.transf,
-                backtransf = backtransf, func.backtransf = fbt,
-                #
-                big.mark = big.mark, digits = digits,
-                digits.tau = digits.tau,
-                text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
-                #
-                print.tau2 = FALSE,
-                #
-                forest = TRUE)
+    if (is.null(x$.text.details.methods)) {
+      if (K.all == 1) {
+        text.details <-
+          catmeth(x,
+                  common, random, prediction, overall, overall.hetstat,
+                  #
+                  func.transf = x$func.transf,
+                  backtransf = backtransf, func.backtransf = fbt,
+                  #
+                  big.mark = big.mark, digits = digits,
+                  digits.tau = digits.tau,
+                  text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+                  #
+                  print.tau2 = FALSE,
+                  #
+                  forest = TRUE)
+      }
+      else {
+        text.details <-
+          catmeth(x,
+                  common, random, prediction, overall, overall.hetstat,
+                  #
+                  func.transf = x$func.transf,
+                  backtransf = backtransf, func.backtransf = fbt,
+                  #
+                  big.mark = big.mark, digits = digits,
+                  digits.tau = digits.tau,
+                  text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+                  #
+                  print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
+                  print.tau = print.tau, print.tau.ci = print.tau.ci,
+                  #
+                  print.I2 = print.I2 &
+                    (overall.hetstat | (by && any(subgroup.hetstat.logical))),
+                  #
+                  forest = TRUE)
+      }
     }
     else {
-      text.details <-
-        catmeth(x,
-                common, random, prediction, overall, overall.hetstat,
-                #
-                func.transf = x$func.transf,
-                backtransf = backtransf, func.backtransf = fbt,
-                #
-                big.mark = big.mark, digits = digits,
-                digits.tau = digits.tau,
-                text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
-                #
-                print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
-                print.tau = print.tau, print.tau.ci = print.tau.ci,
-                #
-                print.I2 = print.I2,
-                #
-                forest = TRUE)
+      text.details <- unlist(strsplit(x$.text.details.methods, "\n"))
+      text.details <- text.details[text.details != ""]
     }
     #
     text.details <- unlist(strsplit(text.details, "\n"))
@@ -7927,7 +7935,7 @@ forest.meta <- function(x,
           #
           if (with.Q)
             td[[i]] <-
-              substitute(paste(txt1, txt2^2, txt3^2),
+            substitute(paste(txt1, txt2^2, txt3^2),
                        list(txt1 = td[[i]], txt2 = "I",
                             txt3 = " based on Chi"))
           else
@@ -7958,7 +7966,10 @@ forest.meta <- function(x,
       }
     }
     #
-    text.details <- td
+    if (length(td) == 0)
+      text.details <- ""
+    else
+      text.details <- td
   }
   
   

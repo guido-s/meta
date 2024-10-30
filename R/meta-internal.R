@@ -617,7 +617,7 @@ argslist <-
     "title", "complab",
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
-    "keepdata", "warn", "warn.deprecated",
+    "keepdata", "keeprma", "warn", "warn.deprecated",
     "transf", "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
@@ -686,12 +686,15 @@ argslist <-
     "spacing",
     "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
+#
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
                "digits.zval", "print.byvar", "byseparator",
                "addincr", "allincr")
-##
+#
 setOption("argslist", c(argslist, args.depr))
+#
+setOption("argslist.meta", c(argslist, args.depr))
 ##
 ## General settings
 ##
@@ -740,6 +743,7 @@ setOption("byseparator", " = ")
 setOption("test.subgroup", TRUE)
 setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
+setOption("keeprma", FALSE)
 setOption("warn", TRUE)
 setOption("warn.deprecated", TRUE)
 setOption("transf", TRUE)
@@ -893,7 +897,7 @@ setOption("col.diamond", "gray")
 setOption("col.diamond.lines", "black")
 setOption("col.predict", "red")
 setOption("col.predict.lines", "black")
-setOption("col.subgroup", "darkgray")
+setOption("col.subgroup", "black")
 setOption("col.label.right", "black")
 setOption("col.label.left", "black")
 ##

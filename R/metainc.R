@@ -686,12 +686,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     #
     is.pairwise <- TRUE
     #
-    ignorePair(event.c, !missing.event.c)
-    ignorePair(time.e, !missing.time.e)
-    ignorePair(time.c, !missing.time.c)
-    ignorePair(n.e, !missing.n.e)
-    ignorePair(n.c, !missing.n.c)
-    ignorePair(subgroup, !missing.subgroup)
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(event.c, !missing.event.c, txt.ignore)
+    ignore_input(time.e, !missing.time.e, txt.ignore)
+    ignore_input(time.c, !missing.time.c, txt.ignore)
+    ignore_input(n.e, !missing.n.e, txt.ignore)
+    ignore_input(n.c, !missing.n.c, txt.ignore)
+    ignore_input(subgroup, !missing.subgroup, txt.ignore)
     #
     missing.event.c <- FALSE
     missing.time.e <- FALSE

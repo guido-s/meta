@@ -45,6 +45,8 @@
   null.effect = object$null.effect,
   method.bias = object$method.bias,
   backtransf = object$backtransf,
+  func.backtransf = object$func.backtransf,
+  args.backtransf = object$args.backtransf,
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
@@ -249,6 +251,12 @@ TRUE}, results for \code{sm = "OR"} are printed as odds ratios
 rather than log odds ratios and results for \code{sm = "ZCOR"}
 are printed as correlations rather than Fisher's z transformed
 correlations, for example.}
+
+\item{func.backtransf}{A function used to back-transform results
+(see \code{\link{metagen}}).}
+
+\item{args.backtransf}{An optional list to provide additional
+arguments to \code{func.backtransf} (see \code{\link{metagen}}).}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument

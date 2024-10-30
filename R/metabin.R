@@ -790,20 +790,29 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   metafor <- sm %in% sm.metafor
   ##
   chklevel(level)
-  ##
-  if (missing(method.tau)) {
-    if (method == "LRP")
+  #
+  method <- setchar(method, gs("meth4bin"))
+  if (metafor)
+    method <- "Inverse"
+  #
+  is.glmm <- method == "GLMM"
+  is.lrp <- method == "LRP"
+  #
+  if (missing.method.tau) {
+    if (is.lrp)
       method.tau <- "DL"
-    else if (method == "GLMM")
+    else if (is.glmm)
       method.tau <- "ML"
     else
       method.tau <- gs("method.tau")
   }
+  #
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
   ##
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   #
+  missing.method.I2 <- missing(method.I2)
   method.I2 <- setchar(method.I2, gs("meth4i2"))
   #
   chklogical(prediction)
@@ -853,13 +862,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call. = FALSE)
     pscale <- 1
   }
-  ##
-  method <- setchar(method, gs("meth4bin"))
-  if (metafor)
-    method <- "Inverse"
-  #
-  is.glmm <- method == "GLMM"
-  is.lrp <- method == "LRP"
   #
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
@@ -980,10 +982,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     is.pairwise <- TRUE
     #
-    ignorePair(event.c, !missing.event.c)
-    ignorePair(n.e, !missing.n.e)
-    ignorePair(n.c, !missing.n.c)
-    ignorePair(studlab, !missing.studlab)
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(event.c, !missing.event.c, txt.ignore)
+    ignore_input(n.e, !missing.n.e, txt.ignore)
+    ignore_input(n.c, !missing.n.c, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
     #
     missing.event.c <- FALSE
     missing.n.e <- FALSE
@@ -1143,9 +1147,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   studlab <- setstudlab(studlab, k.All)
   #
   by <- !is.null(subgroup)
-  if (by & is.lrp)
-    stop("Subgroup analysis not defined for penalised logistic regression.",
-         call. = FALSE)
   #
   # Catch 'subset', 'exclude' and 'cluster' from data:
   #
@@ -1600,6 +1601,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
+  #
+  if (is.lrp) {
+    is_installed_package("brglm2", fun, "method", " = \"LRP\"")
+    #
+    if (!missing.method.tau & method.tau != "DL")
+      ignore_input(method.tau, text = "for penalised logistic regression")
+    #
+    if (by & tau.common)
+      stop("Subgroup analysis not defined for penalised logistic regression ",
+           "assuming a common tau-squared.",
+           call. = FALSE)
+  }
   
   
   ##
@@ -1649,31 +1662,21 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chklrp(sm, method.tau, method.random.ci, method.predict,
            adhoc.hakn.ci, adhoc.hakn.pi, "OR")
     #
-    if (!is.null(TE.tau)) {
-      if (warn)
-        warning("Argument 'TE.tau' not considered for ",
-                "penalised logistic regression.",
-                call. = FALSE)
-      TE.tau <- NULL
-    }
-    #
-    if (!is.null(tau.preset)) {
-      if (warn)
-        warning("Argument 'tau.preset' not considered for ",
-                "penalised logistic regression.",
-                call. = FALSE)
-      tau.preset <- NULL
-    }
-    #
-    if (method.I2 == "tau2") {
-      if (warn)
+    if (warn) {
+      txt.warn <- "for penalised logistic regression"
+      #
+      ignore_input(TE.tau, !is.null(TE.tau), txt.warn)
+      ignore_input(tau.preset, !is.null(tau.preset), txt.warn)
+      #
+      if (!missing.method.I2 & method.I2 == "tau2")
         warning("Argument 'method.I2' set to \"Q\" for ",
                 "penalised logistic regression.",
                 call. = FALSE)
-      method.I2 <- "Q"
     }
     #
-    is_installed_package("brglm2", fun, "method", " = \"LRP\"")
+    TE.tau <- NULL
+    tau.preset <- NULL
+    method.I2 <- "Q"
   }
   ##
   ## No need to add anything to cell counts for
@@ -1829,29 +1832,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.common <- rep(NA, length(event.e))
   }
   else if (is.lrp) {
-    long.bin <- longarm("B", "A",
-                        event1 = event.e[!exclude], n1 = n.e[!exclude],
-                        event2 = event.c[!exclude], n2 = n.c[!exclude])
+    fit.lrp <- runLRP(event.e[!exclude], n1 = n.e[!exclude],
+                      event2 = event.c[!exclude], n2 = n.c[!exclude])
     #
-    use.random <-
-      sum(!exclude) > 1 &
-      !((sum(event.e[!exclude], na.rm = TRUE) == 0 &
-           sum(event.c[!exclude], na.rm = TRUE) == 0) |
-          (!any(event.e[!exclude] != n.e[!exclude]) |
-             !any(event.c[!exclude] != n.c[!exclude])))
-    #
-    fit.glm <-
-      glm(cbind(events, nonevents) ~ as.factor(treat) + as.factor(studlab),
-          data = long.bin,
-          family = binomial(link = "logit"), method = "glm.fit")
-    res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
-    #
-    phi <- phi(res.lrp)
-    #
-    sel.trt <- grepl("treat", names(coef(res.lrp)))
-    #
-    TE.common   <- as.numeric(coef(res.lrp)[sel.trt])
-    seTE.common <- as.numeric(sqrt(diag(vcov(res.lrp)))[sel.trt])
+    TE.common   <- fit.lrp$TE.common
+    seTE.common <- fit.lrp$seTE.common
     #
     w.common <- rep(NA, length(event.e))
   }
@@ -1920,7 +1905,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.random[exclude] <- 0
     TE.random <- weighted.mean(TE, w.random, na.rm = TRUE)
     seTE.random <- sqrt(sum(w.random^2 * (seTE^2 + m$tau^2), na.rm = TRUE) /
-                        sum(w.random, na.rm = TRUE)^2)
+                          sum(w.random, na.rm = TRUE)^2)
     ##
     w.random[is.na(w.random)] <- 0
   }
@@ -2018,18 +2003,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         )
     }
   }
-  else if (method == "LRP") {
+  else if (is.lrp) {
     res <- ci2meta(res,
-                   ci.r = ci(TE.common, seTE.common * sqrt(phi),
+                   ci.r = ci(fit.lrp$TE.random, fit.lrp$seTE.random,
                              level = level.ma,
                              df = ifelse(method.random.ci == "HK",
                                          m$k - 1, Inf)))
     res$w.random <- w.common
-    res$phi <- phi
-    #
-    #if (by) {
-    #  ...
-    #}
+    res$phi <- fit.lrp$phi
   }
   else if (method == "SSW") {
     res <- ci2meta(res,

@@ -657,6 +657,38 @@ hccGLMM <- function(x, glmm, method.I2) {
        )
 }
 
+runLRP <- function(event1, n1, event2, n2, warn = TRUE, ...) {
+  
+  dat.bin <- data.frame(event1, n1, event2, n2)
+  #
+  long.bin <-
+    longarm("B", "A", event1 = event1, n1 = n1, event2 = event2, n2 = n2,
+            data = dat.bin)
+  #
+  text.lrp <- "cbind(events, nonevents) ~ as.factor(studlab) + as.factor(treat)"
+  #
+  formula.lrp <- as.formula(text.lrp)
+  #
+  fit.glm <-
+    glm(formula.lrp,
+        data = long.bin,
+        family = binomial(link = "logit"), method = "glm.fit")
+  #
+  res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
+  #
+  phi <- phi(res.lrp)
+  #
+  sel.trt <- grepl("treat", names(coef(res.lrp)))
+  #
+  TE.common   <- as.numeric(coef(res.lrp)[sel.trt])
+  seTE.common <- as.numeric(sqrt(diag(vcov(res.lrp)))[sel.trt])
+  #
+  res <- list(TE.common = TE.common, seTE.common = seTE.common,
+              TE.random = TE.common, seTE.random = seTE.common * phi,
+              phi = phi, fit = res.lrp)
+  #
+  res
+}
 
 # Estimate the heterogeneity parameter phi using the
 # modified version of Pearson's statistic.
@@ -814,10 +846,10 @@ expandvar <- function(x, n, length = NULL) {
   res
 }
 
-ignorePair <- function(x, cond) {
+ignore_input <- function(x, cond = TRUE, text = "") {
   if (cond)
-    warning("Argument '", deparse(substitute(x)),
-            "' ignored as first argument is a pairwise object.",
+    warning("Argument '", deparse(substitute(x)), "' ignored",
+            if (text != "") " ", text, ".",
             call. = FALSE)
   #
   invisible(NULL)

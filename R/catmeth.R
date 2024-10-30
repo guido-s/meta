@@ -254,7 +254,7 @@ catmeth <- function(x,
   ## (5) Method to estimate I2
   ##
   ##
-  
+    
   if (print.I2) {
     method.I2 <- unique(meth$method.I2)
     ##
@@ -881,7 +881,7 @@ catmeth <- function(x,
     details <-
       paste0("\nDetails",
              if ((common | random | prediction) && any(x$k.all > 1))
-               " on meta-analytical method",
+               " of meta-analysis methods",
              ":", details)
     ##
     if (!forest)

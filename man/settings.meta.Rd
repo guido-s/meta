@@ -2,8 +2,7 @@
 % Please edit documentation in R/settings.meta.R
 \name{settings.meta}
 \alias{settings.meta}
-\title{Print and change default settings to conduct and print or plot
-meta-analyses in R package \bold{meta}.}
+\title{Print and change default meta-analysis settings in R package \bold{meta}}
 \usage{
 settings.meta(..., quietly = TRUE)
 }

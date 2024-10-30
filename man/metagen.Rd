@@ -90,6 +90,7 @@ metagen(
   id,
   adhoc.hakn,
   keepdata = gs("keepdata"),
+  keeprma = gs("keeprma"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
   control = NULL,
@@ -369,6 +370,9 @@ be of same length as the number of subgroups.}
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
+\item{keeprma}{A logical indicating whether \code{\link[metafor]{rma.mv}}
+object from three-level meta-analysis should be stored.}
+
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if studies are excluded from meta-analysis due to zero
 standard errors).}
@@ -392,10 +396,9 @@ Common effect and random effects meta-analysis based on estimates
 (e.g. log hazard ratios) and their standard errors. The inverse
 variance method is used for pooling.
 
-Three-level random effects meta-analysis (Van den Noortgate et al.,
-2013) is available by internally calling
-\code{\link[metafor]{rma.mv}} function from R package
-\bold{metafor} (Viechtbauer, 2010).
+Three-level random effects meta-analysis (Van den Noortgate et al., 2013) is
+available by internally calling \code{\link[metafor]{rma.mv}} function from
+R package \bold{metafor} (Viechtbauer, 2010).
 }
 \details{
 This function provides the \emph{generic inverse variance method}

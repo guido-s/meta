@@ -5,10 +5,9 @@
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
 #'
-#' Three-level random effects meta-analysis (Van den Noortgate et al.,
-#' 2013) is available by internally calling
-#' \code{\link[metafor]{rma.mv}} function from R package
-#' \bold{metafor} (Viechtbauer, 2010).
+#' Three-level random effects meta-analysis (Van den Noortgate et al., 2013) is
+#' available by internally calling \code{\link[metafor]{rma.mv}} function from
+#' R package \bold{metafor} (Viechtbauer, 2010).
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
 #'   risk difference or an R object created with \code{\link{pairwise}}.
@@ -200,6 +199,8 @@
 #'   'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
+#' @param keeprma A logical indicating whether \code{\link[metafor]{rma.mv}}
+#'   object from three-level meta-analysis should be stored.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if studies are excluded from meta-analysis due to zero
 #'   standard errors).
@@ -741,6 +742,8 @@ metagen <- function(TE, seTE, studlab,
                     byvar, id, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
+                    keeprma = gs("keeprma"),
+                    #
                     warn = gs("warn"),
                     warn.deprecated = gs("warn.deprecated"),
                     ##
@@ -754,6 +757,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
+  missing.studlab <- missing(studlab)
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.overall <- missing(overall)
@@ -922,6 +926,7 @@ metagen <- function(TE, seTE, studlab,
   chkchar(label.c, length = 1)
   #
   chklogical(keepdata)
+  chklogical(keeprma)
   ##
   ## Additional arguments / checks
   ##
@@ -1025,15 +1030,23 @@ metagen <- function(TE, seTE, studlab,
   if (is.data.frame(TE) & !is.null(attr(TE, "pairwise"))) {
     is.pairwise <- TRUE
     #
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(sm, !missing.sm, txt.ignore)
+    ignore_input(seTE, !missing.seTE, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
+    #
     sm <- attr(TE, "sm")
     reference.group <- attr(TE, "reference.group")
-    #
-    missing.seTE <- FALSE
     #
     if (is.null(attr(TE, "varnames")))
       seTE <- TE$seTE
     else
       seTE <- TE[[attr(TE, "varnames")[2]]]
+    #
+    missing.sm <- FALSE
+    missing.seTE <- FALSE
+    missing.studlab <- FALSE
     #
     studlab <- TE$studlab
     #
@@ -2681,10 +2694,10 @@ metagen <- function(TE, seTE, studlab,
               warn = warn,
               call = match.call(),
               version = packageDescription("meta")$Version,
-              ## Keep debug information
-              debug = list(tau2.calc = tau2.calc,
-                           m4 = if (three.level) m4 else NULL),
-              ## Deprecated list elements
+              # Keep debug information
+              tau2.calc = tau2.calc,
+              rma.three.level = if (three.level & keeprma) m4 else NULL,
+              # Deprecated list elements
               zval = ci.study$statistic,
               hakn = any(method.random.ci == "HK"),
               zval.common = statistic.common,

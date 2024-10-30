@@ -547,23 +547,25 @@ pairwise <- function(treat,
       else
         keep.all.comparisons <- TRUE
     }
-    ##
-    ignorePair(event, !missing.event)
-    ignorePair(n, !missing.n)
-    ignorePair(mean, !missing.mean)
-    ignorePair(sd, !missing.sd)
-    ignorePair(TE, !missing.TE)
-    ignorePair(seTE, !missing.seTE)
-    ignorePair(time, !missing.time)
-    ignorePair(agent, !missing.agent)
-    ignorePair(dose, !missing.dose)
-    ignorePair(data, !nulldata)
-    ignorePair(studlab, !missing.studlab)
-    ignorePair(incr, !missing.incr)
-    ignorePair(method.incr, !missing.method.incr)
-    ignorePair(allincr, !missing.allincr)
-    ignorePair(addincr, !missing.addincr)
-    ignorePair(allstudies, !missing.allstudies)
+    #
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(event, !missing.event, txt.ignore)
+    ignore_input(n, !missing.n, txt.ignore)
+    ignore_input(mean, !missing.mean, txt.ignore)
+    ignore_input(sd, !missing.sd, txt.ignore)
+    ignore_input(TE, !missing.TE, txt.ignore)
+    ignore_input(seTE, !missing.seTE, txt.ignore)
+    ignore_input(time, !missing.time, txt.ignore)
+    ignore_input(agent, !missing.agent, txt.ignore)
+    ignore_input(dose, !missing.dose, txt.ignore)
+    ignore_input(data, !nulldata, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
+    ignore_input(incr, !missing.incr, txt.ignore)
+    ignore_input(method.incr, !missing.method.incr, txt.ignore)
+    ignore_input(allincr, !missing.allincr, txt.ignore)
+    ignore_input(addincr, !missing.addincr, txt.ignore)
+    ignore_input(allstudies, !missing.allstudies, txt.ignore)
     #
     type <- attributes(res)$type
     #

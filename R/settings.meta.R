@@ -1,5 +1,4 @@
-#' Print and change default settings to conduct and print or plot
-#' meta-analyses in R package \bold{meta}.
+#' Print and change default meta-analysis settings in R package \bold{meta}
 #' 
 #' @description
 #' Print and change default settings to conduct and print or plot
@@ -473,18 +472,31 @@ settings.meta <- function(..., quietly = TRUE) {
     chkdeprecated(names.all, "method.incr", "addincr")
     chkdeprecated(names.all, "method.incr", "allincr")
   }
-  ##  
+  
+  
+  #
+  # Check for new argument names
+  #
+  newargs <- vector("character", 0)
+  #
+  for (i in seq_along(names.all)) {
+    if (is.null(
+      setchar(names.all[i],
+              c(.settings$argslist.meta, "reset", "print", "setting", ""),
+              stop.at.error = FALSE)))
+      newargs <- c(newargs, names.all[i])
+  }
+  #
+  for (i in seq_len(length(newargs))) {
+    setOption("argslist", c(.settings$argslist, newargs[i]))
+    setOption(newargs[i], args[[newargs[i]]])
+  }
+  #
   names <- names.all[!(names.all %in% .settings$argslist.internal)]
   
   
   ##
   ## Check argument names
-  ##
-  for (i in seq_along(names))
-    names[i] <- setchar(names[i],
-                        c(.settings$argslist, "reset", "print", "setting", ""),
-                        "unmatched",
-                        name = names[i])
   ##
   if (length(names) != length(unique(names)))
     stop("Arguments must be unique.")
@@ -556,6 +568,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("sep.subgroup", " = ")
     setOption("byseparator", " = ")
     setOption("keepdata", TRUE)
+    setOption("keeprma", FALSE)
     setOption("warn", TRUE)
     setOption("warn.deprecated", TRUE)
     setOption("transf", TRUE)
@@ -706,7 +719,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("col.diamond.lines", "black")
     setOption("col.predict", "red")
     setOption("col.predict.lines", "black")
-    setOption("col.subgroup", "darkgray")
+    setOption("col.subgroup", "black")
     setOption("col.label.right", "black")
     setOption("col.label.left", "black")
     ##
@@ -1085,6 +1098,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("print.subgroup.name")
     catarg("sep.subgroup       ")
     catarg("keepdata           ")
+    catarg("keeprma            ")
     catarg("warn               ")
     catarg("warn.deprecated    ")
     catarg("backtransf         ")
@@ -1397,6 +1411,7 @@ settings.meta <- function(..., quietly = TRUE) {
       setOption("sep.subgroup", args[[depr]])
     ##
     setlogical("keepdata", args)
+    setlogical("keeprma", args)
     setlogical("warn", args)
     setlogical("warn.deprecated", args)
     setlogical("backtransf", args)

@@ -867,12 +867,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     #
     is.pairwise <- TRUE
     #
-    ignorePair(n.c, !missing.n.c)
-    ignorePair(mean.e, !missing.mean.e)
-    ignorePair(mean.c, !missing.mean.c)
-    ignorePair(sd.e, !missing.sd.e)
-    ignorePair(sd.c, !missing.sd.c)
-    ignorePair(studlab, !missing.studlab)
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(n.c, !missing.n.c, txt.ignore)
+    ignore_input(mean.e, !missing.mean.e, txt.ignore)
+    ignore_input(mean.c, !missing.mean.c, txt.ignore)
+    ignore_input(sd.e, !missing.sd.e, txt.ignore)
+    ignore_input(sd.c, !missing.sd.c, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
     #
     missing.n.c <- FALSE
     missing.mean.e <- FALSE

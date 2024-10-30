@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 8.0-0
-Date: 2024-10-16
+Date: 2024-10-30
 Depends: R (>= 4.0.0), metadat
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2, dplyr,
   methods, readr, magrittr, purrr, stringr
